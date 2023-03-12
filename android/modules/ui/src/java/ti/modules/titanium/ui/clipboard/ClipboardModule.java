@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,40 +8,78 @@ package ti.modules.titanium.ui.clipboard;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 
 import ti.modules.titanium.ui.UIModule;
-import android.content.Context;
-import android.text.ClipboardManager;
 
-@SuppressWarnings("deprecation")
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.Context;
+import android.content.ClipboardManager;
+import android.os.Build;
+
 @Kroll.module(parentModule = UIModule.class)
 public class ClipboardModule extends KrollModule
 {
-	private String TAG = "Clipboard";
+	private static final String TAG = "Clipboard";
+
+	private static ClipboardManager clipboardManager;
 
 	public ClipboardModule()
 	{
 		super();
+
+		if (clipboardManager == null) {
+			clipboardManager =
+				(ClipboardManager) TiApplication.getInstance().getSystemService(Context.CLIPBOARD_SERVICE);
+		}
 	}
 
-	/**
-	 * Get the native clipboard instance.
-	 */
-	private ClipboardManager board()
+	private static boolean isTypeText(String type)
 	{
-		return (ClipboardManager) TiApplication.getInstance().getSystemService(Context.CLIPBOARD_SERVICE);
+		return type != null && type.toLowerCase().startsWith("text");
 	}
 
-	/**
-	 * Android's clipboard currently only handles text; when working with
-	 * arbitrary data check if it looks like text that we're being handed.
-	 */
-	private boolean isTextType(String type)
+	@Kroll.method
+	public void clearText()
 	{
-		String mimeType = type.toLowerCase();
-		return mimeType.equals("text/plain") || mimeType.startsWith("text");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			clipboardManager.clearPrimaryClip();
+		} else {
+			clipboardManager.setPrimaryClip(ClipData.newPlainText("label", null));
+		}
+	}
+
+	@Kroll.method
+	public boolean hasText()
+	{
+		String text = getText();
+		return text != null;
+	}
+
+	@Kroll.method
+	@Kroll.getProperty
+	public String getText()
+	{
+		ClipData clip = clipboardManager.getPrimaryClip();
+
+		if (clip != null && clip.getItemCount() > 0) {
+			ClipData.Item item = clip.getItemAt(0);
+
+			if (item.getText() != null) {
+				return item.getText().toString();
+			}
+		}
+		return null;
+	}
+
+	@Kroll.method
+	@Kroll.setProperty
+	public void setText(String text)
+	{
+		final ClipData clip = ClipData.newPlainText("label", text);
+
+		clipboardManager.setPrimaryClip(clip);
 	}
 
 	@Kroll.method
@@ -51,60 +89,36 @@ public class ClipboardModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void clearText()
+	public boolean hasData(@Kroll.argument(optional = true) String type)
 	{
-		board().setText(""); // can we use null?
-	}
-
-	@Kroll.method
-	public Object getData(String type)
-	{
-		if (isTextType(type)) {
-			return getText();
-		} else {
-			// Android clipboard is text-only... :(
-			return null;
+		if (type == null) {
+			type = "text";
 		}
-	}
+		ClipData clip = clipboardManager.getPrimaryClip();
 
-	@Kroll.method
-	@Kroll.getProperty
-	public String getText()
-	{
-		return board().getText().toString();
-	}
+		if (clip != null) {
+			ClipDescription description = clip.getDescription();
 
-	@Kroll.method
-	public boolean hasData(String type)
-	{
-		if (type == null || isTextType(type)) {
-			return hasText();
-		} else {
-			return false;
+			if (description.getMimeTypeCount() > 0
+				&& description.getMimeType(0).startsWith(type)) {
+				return isTypeText(type) ? hasText() : true;
+			}
 		}
+		return false;
 	}
 
 	@Kroll.method
-	public boolean hasText()
+	public Object getData(@Kroll.argument(optional = true) String type)
 	{
-		return board().hasText();
+		return isTypeText(type) ? getText() : null;
 	}
 
 	@Kroll.method
 	public void setData(String type, Object data)
 	{
-		if (isTextType(type) && data != null) {
-			board().setText(data.toString());
-		} else {
-			Log.w(TAG, "Android clipboard only supports text data");
+		if (data != null && isTypeText(type)) {
+			setText(data.toString());
 		}
-	}
-
-	@Kroll.method
-	@Kroll.setProperty
-	public void setText(String text)
-	{
-		board().setText(text);
 	}
 
 	@Override

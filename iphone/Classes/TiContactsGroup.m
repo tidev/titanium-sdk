@@ -1,10 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_CONTACTS
+
 #import "TiContactsGroup.h"
 
 @implementation TiContactsGroup
@@ -121,10 +122,10 @@
   CNContactSortOrder sortOrder;
   int sortType = [value intValue];
   switch (sortType) {
-  case kABPersonSortByFirstName:
+  case CNContactSortOrderGivenName:
     sortOrder = CNContactSortOrderGivenName;
     break;
-  case kABPersonSortByLastName:
+  case CNContactSortOrderFamilyName:
     sortOrder = CNContactSortOrderFamilyName;
     break;
   default:
@@ -227,7 +228,7 @@
 {
   CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
   [saveRequest deleteGroup:[[group mutableCopy] autorelease]];
-  // Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/commit/a0d4a50d51f1afe85f92cf9e0d2ce8cca08fcf2f
+  // Do not be tempted to autorelease here. https://github.com/tidev/titanium_mobile/commit/a0d4a50d51f1afe85f92cf9e0d2ce8cca08fcf2f
   // It will be released in ContactsModule.m line 315 in (void)save
   return saveRequest;
 }
@@ -236,7 +237,7 @@
 {
   CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
   [saveRequest addGroup:group toContainerWithIdentifier:containerIdentifier];
-  // Do not be tempted to autorelease here. https://github.com/appcelerator/titanium_mobile/commit/a0d4a50d51f1afe85f92cf9e0d2ce8cca08fcf2f
+  // Do not be tempted to autorelease here. https://github.com/tidev/titanium_mobile/commit/a0d4a50d51f1afe85f92cf9e0d2ce8cca08fcf2f
   // It will be released in ContactsModule.m line 315 in (void)save
   return saveRequest;
 }

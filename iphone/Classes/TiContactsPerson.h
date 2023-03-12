@@ -1,15 +1,14 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import <TitaniumKit/TiProxy.h>
 
-#ifdef USE_TI_CONTACTS
+#if defined(USE_TI_CONTACTS)
 
-#import <AddressBook/AddressBook.h>
 #import <Contacts/Contacts.h>
+#import <TitaniumKit/TiProxy.h>
 
 @class TiContactsPerson, ContactsModule;
 

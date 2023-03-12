@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -114,7 +114,7 @@ public class KrollAnnotationUtils
 
 	public HashMap<String, Object> mapToHash(Map<? extends ExecutableElement, ? extends AnnotationValue> source)
 	{
-		HashMap<String, Object> result = new HashMap<String, Object>();
+		HashMap<String, Object> result = new HashMap<>();
 		for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> mirrorEntry : source.entrySet()) {
 			String mirrorKey = mirrorEntry.getKey().getSimpleName().toString();
 			Object value = mirrorEntry.getValue().getValue();
@@ -167,7 +167,7 @@ public class KrollAnnotationUtils
 
 	public HashMap<String, Object> getAnnotationParams(Element element, String annotationClass)
 	{
-		final HashMap<String, Object> params = new HashMap<String, Object>();
+		final HashMap<String, Object> params = new HashMap<>();
 		acceptAnnotations(element, annotationClass, new KrollVisitor<AnnotationMirror>() {
 			@Override
 			public boolean visit(AnnotationMirror element, Object arg)

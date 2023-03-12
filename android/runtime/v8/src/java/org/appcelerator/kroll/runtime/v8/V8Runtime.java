@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollExternalModule;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
@@ -26,6 +27,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.MessageQueue.IdleHandler;
 
+import androidx.annotation.NonNull;
+
 public final class V8Runtime extends KrollRuntime implements Handler.Callback
 {
 	private static final String TAG = "KrollV8Runtime";
@@ -34,13 +37,10 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 	private boolean libLoaded = false;
 
-	private HashMap<String, Class<? extends KrollExternalModule>> externalModules =
-		new HashMap<String, Class<? extends KrollExternalModule>>();
-	private static HashMap<String, KrollSourceCodeProvider> externalCommonJsModules =
-		new HashMap<String, KrollSourceCodeProvider>();
-
-	private ArrayList<String> loadedLibs = new ArrayList<String>();
-	private AtomicBoolean shouldGC = new AtomicBoolean(false);
+	private final HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<>();
+	private static final HashMap<String, KrollSourceCodeProvider> externalCommonJsModules = new HashMap<>();
+	private final ArrayList<String> loadedLibs = new ArrayList<>();
+	private final AtomicBoolean shouldGC = new AtomicBoolean(false);
 	private long lastV8Idle;
 
 	/**
@@ -210,6 +210,16 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	public void setGCFlag()
 	{
 		shouldGC.set(true);
+	}
+
+	@Override
+	@NonNull
+	public KrollPromise createPromise()
+	{
+		if (KrollRuntime.isDisposed()) {
+			return new KrollPromise.NullPromise();
+		}
+		return new V8Promise();
 	}
 
 	// JNI method prototypes

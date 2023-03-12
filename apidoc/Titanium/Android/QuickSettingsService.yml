@@ -30,6 +30,31 @@ description: |
 extends: Titanium.Android.Service
 platforms: [android]
 since: "7.0"
+properties:
+  - name: icon
+    summary: Changes the Tile's icon.
+    description: |
+      If no image is passed as Tile icon it will use the Application's one.
+    type: [String, Titanium.Blob, Titanium.Filesystem.File]
+    since: "10.0.0"
+
+  - name: state
+    summary: Sets the state of the Tile.
+    description: |
+      State can be one of the following: [TILE_STATE_UNAVAILABLE](Titanium.Android.TILE_STATE_UNAVAILABLE),
+      [TILE_STATE_INACTIVE](Titanium.Android.TILE_STATE_INACTIVE),
+      [TILE_STATE_ACTIVE](Titanium.Android.TILE_STATE_ACTIVE)
+    type: Number
+    constants: Titanium.Android.TILE_STATE_*
+    since: "10.0.0"
+
+  - name: label
+    summary: The Tile's label.
+    description: |
+      If no label is set the Tile uses the Application name.
+    type: String
+    since: "10.0.0"
+
 methods:
   - name: updateTile
     summary: Applies current tile's properties.
@@ -44,6 +69,9 @@ methods:
       - name: icon
         summary: Source of the icon image
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
+    deprecated:
+      since: "10.0.0"
+      notes: Please use the [icon](Titanium.Android.QuickSettingsService.icon) property to get/set the value.
 
   - name: setState
     summary: Sets the state of the Tile.
@@ -56,6 +84,9 @@ methods:
         summary: State to be set.
         type: Number
         constants: Titanium.Android.TILE_STATE_*
+    deprecated:
+      since: "10.0.0"
+      notes: Please use the [state](Titanium.Android.QuickSettingsService.state) property to get/set the value.
 
   - name: setLabel
     summary: Changes the Tile's label.
@@ -65,22 +96,34 @@ methods:
       - name: label
         summary: String to be used.
         type: String
+    deprecated:
+      since: "10.0.0"
+      notes: Please use the [label](Titanium.Android.QuickSettingsService.label) property to get/set the value.
 
   - name: getIcon
     summary: Returns the Tile's current icon.
     returns:
         type: [String, Titanium.Blob, Titanium.Filesystem.File]
+    deprecated:
+      since: "10.0.0"
+      notes: Please use the [icon](Titanium.Android.QuickSettingsService.icon) property to get/set the value.
 
   - name: getState
     summary: Returns the Tile's current state.
     returns:
         type: Number
         constants: Titanium.Android.TILE_STATE_*
+    deprecated:
+      since: "10.0.0"
+      notes: Please use the [state](Titanium.Android.QuickSettingsService.state) property to get/set the value.
 
   - name: getLabel
     summary: Returns the Tile's current label.
     returns:
         type: String
+    deprecated:
+      since: "10.0.0"
+      notes: Please use the [label](Titanium.Android.QuickSettingsService.label) property to get/set the value.
 
   - name: isLocked
     summary: Returns 'true' if the device is currently locked, 'false' otherwise.

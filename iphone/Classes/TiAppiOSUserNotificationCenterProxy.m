@@ -1,11 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_APPIOS
+#if defined(USE_TI_APPIOS) && defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER)
 
 #import "TiAppiOSUserNotificationCenterProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
@@ -85,6 +85,7 @@
     if (identifiers.count > 0) {
       [center removePendingNotificationRequestsWithIdentifiers:identifiers];
     }
+    RELEASE_TO_NIL(identifiers);
   }];
 }
 
@@ -113,6 +114,7 @@
     if (identifiers.count > 0) {
       [center removeDeliveredNotificationsWithIdentifiers:identifiers];
     }
+    RELEASE_TO_NIL(identifiers);
   }];
 }
 
@@ -132,16 +134,10 @@
       @"alertStyle" : @([settings alertStyle])
     } mutableCopy];
 
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-      propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
-    }
+    propertiesDict[@"showPreviewsSetting"] = @([settings showPreviewsSetting]);
 
-#if IS_SDK_IOS_12
-    if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-      propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
-      propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
-    }
-#endif
+    propertiesDict[@"criticalAlertSetting"] = @([settings criticalAlertSetting]);
+    propertiesDict[@"providesAppNotificationSettings"] = @([settings providesAppNotificationSettings]);
     NSArray *invocationArray = [[NSArray alloc] initWithObjects:&propertiesDict count:1];
 
     [callback call:invocationArray thisObject:self];
@@ -173,6 +169,7 @@
 
   if ([[request trigger] isKindOfClass:[UNCalendarNotificationTrigger class]]) {
     [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)[request trigger] nextTriggerDate]) forKey:@"date"];
+#if !TARGET_OS_MACCATALYST
   } else if ([[request trigger] isKindOfClass:[UNLocationNotificationTrigger class]]) {
     CLCircularRegion *region = (CLCircularRegion *)[(UNLocationNotificationTrigger *)[request trigger] region];
 
@@ -183,6 +180,7 @@
       @"identifier" : region.identifier
     };
     [event setObject:dict forKey:@"region"];
+#endif
   }
 
   return event;

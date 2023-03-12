@@ -5,7 +5,7 @@
  * access build properties.
  *
  * @copyright
- * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -298,11 +298,11 @@ Creator.prototype.configOptionName = function configOptionName(order) {
 			if (config.get('android.allowAppNameAmpersands', false)) {
 				logger.warn(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 				logger.warn(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
-				logger.warn(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'.cyan));
+				logger.warn(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'.cyan));
 			} else {
 				logger.error(__('The project name contains an ampersand (&) which will most likely cause problems.'));
 				logger.error(__('It is recommended that you change the app name in the tiapp.xml or define the app name using i18n strings.'));
-				logger.error(__('Refer to %s for more information.', 'http://appcelerator.com/i18n-app-name'));
+				logger.error(__('Refer to %s for more information.', 'https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Cross-Platform_Mobile_Development_In_Titanium/Internationalization.html'));
 				logger.error(__('To allow ampersands in the app name, run:'));
 				logger.error('    %sti config android.allowAppNameAmpersands true\n', process.env.APPC_ENV ? 'appc ' : '');
 				return callback(true);

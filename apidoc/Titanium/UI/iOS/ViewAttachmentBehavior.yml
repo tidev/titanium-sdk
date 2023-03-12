@@ -12,9 +12,8 @@ description: |
 
     To create a dynamic connection between an item and anchor point, use <Titanium.UI.iOS.AnchorAttachmentBehavior>.
 extends: Titanium.Proxy
-since: "3.2"
-platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+platforms: [iphone, ipad, macos]
+since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 properties:
   - name: anchorItem
     summary: Item to use as the anchor in this behavior.

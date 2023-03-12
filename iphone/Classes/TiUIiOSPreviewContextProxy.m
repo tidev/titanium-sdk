@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,11 +14,6 @@
 
 - (void)_initWithProperties:(NSDictionary *)properties
 {
-  if (![TiUtils forceTouchSupported]) {
-    NSLog(@"[WARN] 3DTouch is not available on this device.");
-    return;
-  }
-
   [self setPreview:[properties valueForKey:@"preview"]];
   [self setContentHeight:[TiUtils intValue:@"contentHeight" def:0]];
 
@@ -59,7 +54,6 @@
 
 - (void)connectToDelegate
 {
-#ifndef __clang_analyzer__
   UIView *nativeSourceView = nil;
 
 #ifdef USE_TI_UILISTVIEW
@@ -84,9 +78,12 @@
     nativeSourceView = [_sourceView view];
   }
   UIViewController *controller = [[[TiApp app] controller] topPresentedController];
-  [controller registerForPreviewingWithDelegate:[[TiPreviewingDelegate alloc] initWithPreviewContext:self]
+  TiPreviewingDelegate *previewingDelegate = [[TiPreviewingDelegate alloc] initWithPreviewContext:self];
+
+  [controller registerForPreviewingWithDelegate:previewingDelegate
                                      sourceView:nativeSourceView];
-#endif
+
+  RELEASE_TO_NIL(previewingDelegate);
 }
 
 @end

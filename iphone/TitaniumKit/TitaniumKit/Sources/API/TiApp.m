@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,6 +23,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 
+#import <TitaniumKit/TitaniumKit-Swift.h>
+
 TiApp *sharedApp;
 
 NSString *TITANIUM_VERSION;
@@ -30,7 +32,6 @@ NSString *TITANIUM_VERSION;
 extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
-#define TIV @"TiVerify"
 
 BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
 
@@ -222,10 +223,6 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 }
 
-- (void)validator
-{
-  [[[NSClassFromString(TIV) alloc] init] autorelease];
-}
 - (void)booted:(id)bridge
 {
   if ([bridge isKindOfClass:[KrollBridge class]]) {
@@ -251,12 +248,6 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       }
       [_queuedApplicationSelectors removeAllObjects];
     }
-
-    TiThreadPerformOnMainThread(
-        ^{
-          [self validator];
-        },
-        YES);
   }
 }
 
@@ -361,6 +352,35 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   UILocalNotification *_localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   NSNumber *launchedLocation = [launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey];
   UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
+  NSDictionary *userActivityDictionary = launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
+
+  // Map user activity if exists
+  NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
+  if (userActivity != nil && [userActivity isKindOfClass:[NSUserActivity class]]) {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
+
+    if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+      if ([userActivity userInfo] != nil) {
+        [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+      }
+    }
+
+    if ([userActivity title] != nil) {
+      [dict setObject:[userActivity title] forKey:@"title"];
+    }
+
+    if ([userActivity webpageURL] != nil) {
+      [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+    }
+
+    if ([userActivity userInfo] != nil) {
+      [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+    }
+
+    // Update launchOptions so that we send only expected values rather than NSUserActivity
+    [launchOptions setObject:@{ @"UIApplicationLaunchOptionsUserActivityKey" : dict }
+                      forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+  }
 
   // Map background location key
   if (launchedLocation != nil) {
@@ -1113,8 +1133,9 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 //TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
+  NSLog(@"[ERROR] Application received error: %@", message);
+
   if ([[TiSharedConfig defaultConfig] showErrorController] == NO) {
-    NSLog(@"[ERROR] Application received error: %@", message);
     return;
   }
   ENSURE_UI_THREAD(showModalError, message);
@@ -1124,6 +1145,25 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   RELEASE_TO_NIL(error);
 
   [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
+}
+
+- (void)showDetailedModalError:(TiScriptError *)error
+{
+  if ([[TiSharedConfig defaultConfig] showErrorController] == NO) {
+    NSLog(@"[ERROR] Application received error: %@", error.message);
+    return;
+  }
+  ENSURE_UI_THREAD(showDetailedModalError, error);
+
+  if (@available(iOS 13, *)) {
+    TiErrorController *errorVC = [[TiErrorController alloc] initWithScriptError:error];
+    TiErrorNavigationController *nav = [[[TiErrorNavigationController alloc] initWithRootViewController:errorVC] autorelease];
+    RELEASE_TO_NIL(errorVC);
+
+    [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
+  } else {
+    [self showModalError:error.description];
+  }
 }
 
 - (void)showModalController:(UIViewController *)modalController animated:(BOOL)animated
@@ -1390,9 +1430,9 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
     [event setObject:notification.request.content.userInfo[@"aps"][@"sound"] forKey:@"sound"];
   }
 
+#if !TARGET_OS_MACCATALYST
   // Inject the trigger (time- or location-based) into the payload
   UNNotificationTrigger *trigger = notification.request.trigger;
-
   if (trigger != nil) {
     if ([trigger isKindOfClass:[UNCalendarNotificationTrigger class]]) {
       [event setObject:NULL_IF_NIL([(UNCalendarNotificationTrigger *)trigger nextTriggerDate]) forKey:@"date"];
@@ -1407,11 +1447,11 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       [event setObject:dict forKey:@"region"];
     }
   }
-
+#endif
   return event;
 }
 
-+ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier
++ (NSDictionary *)dictionaryWithLocalNotification:(id)notification withIdentifier:(NSString *)identifier
 {
   if (notification == nil) {
     return nil;

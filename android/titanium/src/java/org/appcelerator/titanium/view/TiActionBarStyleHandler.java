@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,10 +9,11 @@ package org.appcelerator.titanium.view;
 
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -93,10 +94,12 @@ public class TiActionBarStyleHandler
 			if (view instanceof Toolbar) {
 				// Toolbar found. Set up a Toolbar style handler.
 				toolbarStyleHandler = new TiToolbarStyleHandler((Toolbar) view);
-				int styleAttributeId = TiRHelper.getResource("attr.actionBarStyle");
-				int[] idArray = new int[] { TiRHelper.getResource("attr.titleTextStyle"),
-											TiRHelper.getResource("attr.subtitleTextStyle") };
-				TypedArray typedArray = activity.obtainStyledAttributes(null, idArray, styleAttributeId, 0);
+				TypedValue typedValue = new TypedValue();
+				activity.getTheme().resolveAttribute(android.R.attr.actionBarStyle, typedValue, true);
+				TypedArray typedArray = activity.obtainStyledAttributes(typedValue.resourceId, new int[] {
+					android.R.attr.titleTextStyle,
+					android.R.attr.subtitleTextStyle
+				});
 				toolbarStyleHandler.setTitleTextAppearanceId(typedArray.getResourceId(0, 0));
 				toolbarStyleHandler.setSubtitleTextAppearanceId(typedArray.getResourceId(1, 0));
 				typedArray.recycle();

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -56,14 +56,14 @@
 
 - (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
 {
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *error = [self createError:reason subreason:subreason location:location inContext:context];
   [context setException:error];
 }
 
 + (void)throwException:(NSString *)reason subreason:(NSString *)subreason location:(NSString *)location
 {
-  JSContext *context = [JSContext currentContext];
+  JSContext *context = JSContext.currentContext;
   JSValue *error = [ObjcProxy createError:reason subreason:subreason location:location inContext:context];
   [context setException:error];
 }
@@ -71,32 +71,41 @@
 // Conversion methods for interacting with "old" KrollObject style proxies
 - (id)JSValueToNative:(JSValue *)jsValue
 {
-  JSContext *context = [jsValue context];
-  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
-  JSValueRef valueRef = [jsValue JSValueRef];
-  id obj = TiBindingTiValueToNSObject(jsContext, valueRef);
-  return obj;
+  return TiBindingTiValueToNSObject(jsValue.context.JSGlobalContextRef, jsValue.JSValueRef);
 }
 
 - (JSValue *)NativeToJSValue:(id)native
 {
-  JSContext *context = [JSContext currentContext];
-  JSGlobalContextRef jsContext = [context JSGlobalContextRef];
-  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(jsContext, native);
+  return [self NativeToJSValue:native inContext:JSContext.currentContext];
+}
+
+- (JSValue *)NativeToJSValue:(id)native inContext:(JSContext *)context
+{
+  JSValueRef jsValueRef = TiBindingTiValueFromNSObject(context.JSGlobalContextRef, native);
   return [JSValue valueWithJSValueRef:jsValueRef inContext:context];
+}
+
+- (JSValue *)JSValue
+{
+  return [self NativeToJSValue:self];
+}
+
+- (JSValue *)JSValueInContext:(JSContext *)context
+{
+  return [self NativeToJSValue:self inContext:context];
 }
 
 - (id)init
 {
   if (self = [super init]) {
     self.bubbleParent = YES;
-    JSContext *context = [JSContext currentContext];
+    JSContext *context = JSContext.currentContext;
     if (context == nil) { // from native code!
       // Ask KrollBridge for current URL?
       NSString *basePath = [TiHost resourcePath];
       baseURL = [[NSURL fileURLWithPath:basePath] retain];
     } else {
-      JSValue *filename = [context evaluateScript:@"__filename"];
+      JSValue *filename = [context evaluateScript:@"__filename"]; // FIXME: This may not be defined!
       NSString *asString = [filename toString];
       NSString *base;
       [TiHost resourceBasedURL:asString baseURL:&base];
@@ -242,9 +251,12 @@
   pthread_rwlock_rdlock(&_listenerLock);
   @try {
     if (_listeners == nil) {
+      pthread_rwlock_unlock(&_listenerLock);
       return;
     }
-    NSArray *listenersForType = [_listeners objectForKey:name];
+    NSArray *listenersForType = [[_listeners objectForKey:name] copy];
+    pthread_rwlock_unlock(&_listenerLock);
+
     if (listenersForType == nil) {
       return;
     }
@@ -252,9 +264,9 @@
     for (JSValue *storedCallback in listenersForType) {
       [self _fireEventToListener:name withObject:dict listener:storedCallback];
     }
+    [listenersForType autorelease];
   }
   @finally {
-    pthread_rwlock_unlock(&_listenerLock);
   }
 }
 
@@ -320,8 +332,28 @@ READWRITE_IMPL(BOOL, bubbleParent, BubbleParent);
 
 - (id<TiEvaluator>)executionContext
 {
-  KrollContext *context = GetKrollContext([[JSContext currentContext] JSGlobalContextRef]);
+  return [ObjcProxy executionContext:[self currentContext]];
+}
+
++ (id<TiEvaluator>)executionContext:(JSContext *)jsContext
+{
+  KrollContext *context = GetKrollContext(jsContext.JSGlobalContextRef);
   return (KrollBridge *)[context delegate];
+}
+
+- (JSContext *)currentContext
+{
+  JSContext *cur = JSContext.currentContext;
+  if (cur != nil) {
+    return cur;
+  }
+  KrollBridge *bridge = [KrollBridge krollBridgeForThreadName:NSThread.currentThread.name];
+  if (bridge != nil) {
+    KrollContext *krollContext = bridge.krollContext;
+    JSGlobalContextRef globalRef = krollContext.context;
+    return [JSContext contextWithJSGlobalContextRef:globalRef];
+  }
+  return nil;
 }
 
 @end

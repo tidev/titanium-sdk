@@ -5,13 +5,13 @@ summary: A button bar that maintains a selected state.
 description: |
     A tabbed bar is a button bar that
     maintains a state (visually distinguished as a pressed or selected look).
-    It is closely related to the `ButtonBar` control. See the description of 
+    It is closely related to the `ButtonBar` control. See the description of
     [ButtonBar](Titanium.UI.ButtonBar) for information on styling tabbed bars and buttons
     bars.
-    
+
     Use the <Titanium.UI.createTabbedBar> method to create a Tabbed Bar.
 extends: Titanium.UI.View
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 since: {iphone: "0.8", ipad: "0.8", android: "8.0.0"}
 excludes:
     events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
@@ -19,38 +19,50 @@ excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 
-events: 
+events:
   - name: click
     summary: Fired when a button is clicked.
-    properties: 
+    properties:
       - name: index
-        summary: Index of the clicked button. 
+        summary: Index of the clicked button.
         type: Number
 properties:
   - name: index
     summary: Index of the currently selected button.
     type: Number
   - name: labels
-    summary: Array of labels for the tabbed bar. 
+    summary: Array of labels for the tabbed bar.
     description: |
         The labels can be specified either using an array of strings, in which case
         each string defines the title for a button, or using an array of simple
-        dictionary objects, <BarItemType>, which can specify title, image, width and 
+        dictionary objects, <BarItemType>, which can specify title, image, width and
         enabled state for each button.
     type: [Array<String>, Array<BarItemType>]
+  - name: textColor
+    summary: Color of the text
+    type: [ String, Titanium.UI.Color ]
+    availability: creation
+    platforms: [iphone, ipad, android, macos]
+    since: {iphone: "9.0.0", ipad: "9.0.0", android: "12.0.0"}
+  - name: selectedTextColor
+    summary: Color of the selected text
+    type: [ String, Titanium.UI.Color ]
+    availability: creation
+    platforms: [iphone, ipad, android, macos]
+    since: {iphone: "9.0.0", ipad: "9.0.0", android: "12.0.0"}
   - name: style
     summary: Style of the tabbed bar.
     description: |
         Specify one of the constants:
-        For iOS: 
+        For iOS:
         [Titanium.UI.iOS.SystemButtonStyle](Titanium.UI.iOS.SystemButtonStyle),
         either `PLAIN`, `BORDERED`, or `BAR`.
-        
+
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
         For Android:
         [Titanium.UI.TABS_STYLE_*]
-        In Android [style](Titanium.UI.TabbedBar.style) is only supported in the creation dictionary 
+        In Android [style](Titanium.UI.TabbedBar.style) is only supported in the creation dictionary
         of the proxy.
     type: Number
     default: Titanium.UI.iOS.SystemButtonStyle.PLAIN for iOS, Ti.UI.TABS_STYLE_DEFAULT for Android

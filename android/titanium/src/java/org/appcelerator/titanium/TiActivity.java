@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -89,5 +89,19 @@ public class TiActivity extends TiBaseActivity
 
 		// Destroy this activity.
 		super.onDestroy();
+	}
+
+	@Override
+	public void recreate()
+	{
+		// The above calls to onNewIntent() replace this activity's original launch intent.
+		// Restore it since we need its "extras" to bind proxy to re-created activity.
+		Intent launchIntent = getLaunchIntent();
+		if (launchIntent != null) {
+			setIntent(launchIntent);
+		}
+
+		// Destroy and re-create this activity.
+		super.recreate();
 	}
 }

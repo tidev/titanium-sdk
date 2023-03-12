@@ -8,8 +8,7 @@ description: |
     Use the <Titanium.UI.createTab> method or **`<Tab>`** Alloy element to create a tab.
 
     Use [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab) to switch between tabs
-    in a tab group. The <Titanium.UI.currentTab> property provides a global reference to
-    the currently active tab.
+    in a tab group.
 
     The behavior of tabs and tab groups follows the platform's native navigation style,
     which varies significantly between platforms.
@@ -126,6 +125,9 @@ methods:
       - name: window
         summary: Root window of the tab.
         type: Titanium.UI.Window
+    deprecated:
+      since: "10.0.0"
+      notes: Set the value of the [window](Titanium.UI.Tab.window) property directly.
 
   - name: popToRootWindow
     # FIXME: I don't think this exists on Android!
@@ -140,7 +142,7 @@ methods:
         optional: true
         default: "{ animated: false }"
     since: "6.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 properties:
   - name: active
@@ -151,7 +153,7 @@ properties:
          platform-specific, using [TabGroup.setActiveTab](Titanium.UI.TabGroup.setActiveTab)
          is recommended instead.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: activeIcon
     summary: Icon URL for this tab when active.
@@ -163,9 +165,8 @@ properties:
          (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.0"
-    osver: {ios: {min: "5.0"}}
 
   - name: backgroundColor
     summary: Sets the color of the tab when it is inactive.
@@ -176,16 +177,23 @@ properties:
   - name: backgroundFocusedColor
     summary: Sets the color of the tab when it is focused.
     description: |
-        On the Android platform, this sets the color of the active tab.
+        On the Android platform, this sets the color of the active tab and is only supported by
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION).
 
         For information about color values, see the "Colors" section of <Titanium.UI>.
     platforms: [android]
-    since: {android: 3.0.0}
+    since: {android: "3.0.0"}
 
   - name: badge
     summary: Badge value for this tab. `null` indicates no badge.
+    description: |
+        On the Android platform you will need to use a Theme with `parent="Theme.MaterialComponents.*"`
+        in order to use a badge. You have to pass a number as a string. Non-numberic characters will not be displayed.
+
+        On iOS, a badge will only be shown if the tab has been assigned an icon. Text only tabs do not support badges.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0"}
 
   - name: badgeColor
     summary: |
@@ -194,9 +202,8 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    since: 6.1.0
-    osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
 
   - name: icon
     summary: Icon URL for this tab.
@@ -235,7 +242,7 @@ properties:
     since: "5.2.0"
     default: All insets are zero.
     type: TabIconInsets
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: iconIsMask
     summary: Defines if the icon property of the tab must be used as a mask.
@@ -245,8 +252,7 @@ properties:
     type: [Boolean]
     since: "3.1.3"
     default: true
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: activeIconIsMask
     summary: Defines if the active icon property of the tab must be used as a mask.
@@ -257,20 +263,19 @@ properties:
     type: [Boolean]
     since: "3.1.3"
     default: true
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: tintColor
-    summary: Defines the color of the tab icon. Will fallback to titleColor when not defined.
+    summary: Defines the color of the tab icon.
     type: String
     since: {iphone: "3.1.3", ipad: "3.1.3", android: "9.0.3"}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: activeTintColor
-    summary: Defines the color of the tab icon when it is active. Will fallback to activeTitleColor when not defined.
+    summary: Defines the color of the tab icon when it is active.
     type: String
     since: {android: "9.0.3"}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: title
     summary: Title for this tab.
@@ -283,20 +288,18 @@ properties:
   - name: titleColor
     summary: Defines the color of the title of tab when it's inactive.
     description: |
-        The color of the title of the tab when it's inactive. If not defined, it will use the default tint color.
+        The color of the title of the tab when it's inactive.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
-    osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: activeTitleColor
     summary: Defines the color of the title of tab when it's active.
     description: |
-        The color of the title of the tab when it's active. If not defined, it will use the default tint color.
+        The color of the title of the tab when it's active.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
-    osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: window
     summary: Root-level tab window.  All tabs must have at least one root-level tab window.
@@ -309,7 +312,7 @@ events:
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) instead.
+        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -341,18 +344,18 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: click
     summary: Fired when this tab is clicked in the tab group.
-    exclude-platforms: [iphone, ipad]
+    exclude-platforms: [iphone, ipad, macos]
 
   - name: focus
     summary: Fired when the tab gains focus.
     deprecated:
         since: "5.2.0"
         removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) instead.
+        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) event instead.
     properties:
       - name: index
         summary: Index of the current active tab.
@@ -384,7 +387,7 @@ events:
       - name: previousTab
         summary: Previous active tab object.
         type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 examples:
   - title: Simple Tab Example
@@ -424,7 +427,7 @@ name: TabIconInsets
 extends: Padding
 summary: Dictionary to specify edge insets for <Titanium.UI.Tab.iconInsets>. Difference from typical <Padding> is that `right` and `bottom` are ignored and calculated internally from `top`/`left` values.
 since: "5.2.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 excludes:
   properties: [right, bottom]
 properties:

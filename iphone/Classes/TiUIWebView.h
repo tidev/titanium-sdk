@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,6 +23,7 @@
 
   BOOL _willHandleTouches;
   NSArray<NSString *> *_blacklistedURLs;
+  NSArray<NSString *> *_blockedURLs;
   NSURL *_currentURL;
   UIActivityIndicatorView *_loadingIndicator;
   BOOL _isViewDetached;

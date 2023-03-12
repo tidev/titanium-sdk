@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,7 +34,6 @@ namespace titanium {
 
 Persistent<Context> V8Runtime::globalContext;
 Persistent<Object> V8Runtime::krollGlobalObject;
-Persistent<Array> V8Runtime::moduleContexts;
 Persistent<Object> V8Runtime::moduleObject;
 Persistent<Function> V8Runtime::runModuleFunction;
 
@@ -45,15 +44,8 @@ bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
 bool V8Runtime::initialized = false;
 
-class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
- public:
-	virtual void* Allocate(size_t length) { return calloc(length, 1); }
-	virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
-	virtual void Free(void* data, size_t) { free(data); }
-};
-
-// Make allocator global so it sticks around?
-ArrayBufferAllocator allocator;
+typedef std::unique_ptr<v8::ArrayBuffer::Allocator> V8ArrayBufferAllocator;
+V8ArrayBufferAllocator v8Allocator;
 
 /* static */
 void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
@@ -65,6 +57,7 @@ void V8Runtime::collectWeakRef(Persistent<Value> ref, void *parameter)
 
 Local<Object> V8Runtime::Global()
 {
+	// FIXME: This isn't the global, it's the global.kroll instance!
 	return krollGlobalObject.Get(v8_isolate);
 }
 
@@ -81,11 +74,6 @@ Local<Object> V8Runtime::ModuleObject()
 Local<Function> V8Runtime::RunModuleFunction()
 {
 	return runModuleFunction.Get(v8_isolate);
-}
-
-Local<Array> V8Runtime::ModuleContexts()
-{
-	return moduleContexts.Get(v8_isolate);
 }
 
 // Minimalistic logging function for internal JS
@@ -120,8 +108,6 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	Local<Object> kroll = Object::New(isolate);
 	krollGlobalObject.Reset(isolate, kroll);
-	Local<Array> mc = Array::New(isolate);
-	moduleContexts.Reset(isolate, mc);
 
 	KrollBindings::initFunctions(kroll, context);
 
@@ -141,7 +127,6 @@ void V8Runtime::bootstrap(Local<Context> context)
 
 	kroll->Set(context, NEW_SYMBOL(isolate, "runtime"), STRING_NEW(isolate, "v8"));
 	kroll->Set(context, NEW_SYMBOL(isolate, "DBG"), v8::Boolean::New(isolate, V8Runtime::DBG));
-	kroll->Set(context, NEW_SYMBOL(isolate, "moduleContexts"), mc);
 
 	LOG_TIMER(TAG, "Executing kroll.js");
 
@@ -159,18 +144,14 @@ void V8Runtime::bootstrap(Local<Context> context)
 	// Add a reference to the global object
 	Local<Object> global = context->Global();
 
-	// Expose the global object as a property on itself
-	// (Allows you to set stuff on `global` from anywhere in JavaScript.)
-	global->Set(context, NEW_SYMBOL(isolate, "global"), global);
-
 	// Set the __dirname and __filename for the app.js.
 	// For other files, it will be injected via the `NativeModule` JavaScript class
 	global->Set(context, NEW_SYMBOL(isolate, "__filename"), STRING_NEW(isolate, "/app.js"));
 	global->Set(context, NEW_SYMBOL(isolate, "__dirname"), STRING_NEW(isolate, "/"));
 
 	Local<Function> mainFunction = result.As<Function>();
-	Local<Value> args[] = { kroll };
-	mainFunction->Call(context, global, 1, args);
+	Local<Value> args[] = { global, kroll };
+	mainFunction->Call(context, global, 2, args);
 
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(isolate, tryCatch, true);
@@ -227,7 +208,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 	if (V8Runtime::v8_isolate == nullptr) {
 		// Create a new Isolate and make it the current one.
 		Isolate::CreateParams create_params;
-		create_params.array_buffer_allocator = &allocator;
+		v8Allocator = V8ArrayBufferAllocator(v8::ArrayBuffer::Allocator::NewDefaultAllocator());
+		create_params.array_buffer_allocator = v8Allocator.get();
 #ifdef V8_SNAPSHOT_H
 		create_params.snapshot_blob = &snapshot;
 #endif
@@ -280,7 +262,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 		{
 			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
 			Local<Value> moduleValue;
-			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			MaybeLocal<Value> maybeModule = context->Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
 			if (!maybeModule.ToLocal(&moduleValue)) {
 				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
 				return;
@@ -332,7 +314,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeRu
 		{
 			v8::TryCatch tryCatch(V8Runtime::v8_isolate);
 			Local<Value> moduleValue;
-			MaybeLocal<Value> maybeModule = V8Runtime::Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
+			MaybeLocal<Value> maybeModule = context->Global()->Get(context, STRING_NEW(V8Runtime::v8_isolate, "Module"));
 			if (!maybeModule.ToLocal(&moduleValue)) {
 				titanium::V8Util::fatalException(V8Runtime::v8_isolate, tryCatch);
 				return;
@@ -472,31 +454,9 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 	{
 		HandleScope scope(V8Runtime::v8_isolate);
 
-		// Any module that has been require()'d or opened via Window URL
-		// will be cleaned up here. We setup the initial "moduleContexts"
-		// Array and expose it on kroll above in nativeInit, and
-		// module.js will insert module contexts into this array in
-		// Module.prototype._runScript
-		Local<Context> context = V8Runtime::v8_isolate->GetCurrentContext();
-		uint32_t length = V8Runtime::ModuleContexts()->Length();
-		for (uint32_t i = 0; i < length; ++i) {
-			MaybeLocal<Value> moduleContext = V8Runtime::ModuleContexts()->Get(context, i);
-			if (!moduleContext.IsEmpty()) {
-				// WrappedContext is simply a C++ wrapper for the V8 Context object,
-				// and is used to expose the Context to javascript. See ScriptsModule for
-				// implementation details
-				WrappedContext *wrappedContext = WrappedContext::Unwrap(V8Runtime::v8_isolate, moduleContext.ToLocalChecked().As<Object>());
-				ASSERT(wrappedContext != NULL);
-
-				wrappedContext->Dispose();
-			}
-		}
-
 		// KrollBindings
 		KrollBindings::dispose(V8Runtime::v8_isolate);
 		EventEmitter::dispose();
-
-		V8Runtime::moduleContexts.Reset();
 
 		V8Runtime::GlobalContext()->DetachGlobal();
 	}

@@ -1,15 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
 
 import java.io.UnsupportedEncodingException;
-
-import javax.net.ssl.X509KeyManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -44,7 +41,6 @@ public class HTTPClientProxy extends KrollProxy
 	public static final int DONE = TiHTTPClient.READY_STATE_DONE;
 
 	private static final String TAG = "TiHTTPClientProxy";
-	private static final boolean JELLYBEAN_OR_GREATER = (Build.VERSION.SDK_INT >= 16);
 	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
 	private TiHTTPClient client;
 
@@ -107,21 +103,24 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getAllResponseHeaders();
 	}
 
-	@Kroll.method
+	@Kroll.getProperty
+	public KrollDict getResponseHeaders()
+	{
+		return client.getResponseHeaders();
+	}
+
 	@Kroll.getProperty
 	public int getReadyState()
 	{
 		return client.getReadyState();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiBlob getResponseData()
 	{
 		return client.getResponseData();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getResponseDictionary()
 	{
@@ -134,28 +133,24 @@ public class HTTPClientProxy extends KrollProxy
 		return client.getResponseHeader(header);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getResponseText()
 	{
 		return client.getResponseText();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentProxy getResponseXML()
 	{
 		return client.getResponseXML();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getStatus()
 	{
 		return client.getStatus();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getStatusText()
 	{
@@ -186,84 +181,72 @@ public class HTTPClientProxy extends KrollProxy
 		client.setRequestHeader(header, value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTimeout(int millis)
 	{
 		client.setTimeout(millis);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocation()
 	{
 		return client.getLocation();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getConnectionType()
 	{
 		return client.getConnectionType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getConnected()
 	{
 		return client.isConnected();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAutoEncodeUrl()
 	{
 		return client.getAutoEncodeUrl();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAutoEncodeUrl(boolean value)
 	{
 		client.setAutoEncodeUrl(value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAutoRedirect()
 	{
 		return client.getAutoRedirect();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAutoRedirect(boolean value)
 	{
 		client.setAutoRedirect(value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getValidatesSecureCertificate()
 	{
 		return client.validatesSecureCertificate();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setValidatesSecureCertificate(boolean value)
 	{
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUsername(String value)
 	{
 		this.setProperty(TiC.PROPERTY_USERNAME, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
 	{
@@ -273,14 +256,12 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPassword(String value)
 	{
 		this.setProperty(TiC.PROPERTY_PASSWORD, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPassword()
 	{
@@ -290,14 +271,12 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDomain(String value)
 	{
 		this.setProperty(TiC.PROPERTY_DOMAIN, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDomain()
 	{
@@ -307,62 +286,27 @@ public class HTTPClientProxy extends KrollProxy
 		return null;
 	}
 
-	// This uses Apache
-	/*
-	@Kroll.method
-	public void addAuthFactory(String scheme, Object factory)
-	{
-		//Sanity Checks
-		if ( (scheme == null) || (scheme.length() == 0) || (! (factory instanceof AuthSchemeFactory) )) {
-			return;
-		}
-
-		client.addAuthFactory(scheme, (AuthSchemeFactory)factory);
-	}
-	*/
-
-	@Kroll.method
-	public void addTrustManager(Object manager)
-	{
-		if (manager instanceof X509TrustManager) {
-			client.addTrustManager((X509TrustManager) manager);
-		}
-	}
-
-	@Kroll.method
-	public void addKeyManager(Object manager)
-	{
-		if (manager instanceof X509KeyManager) {
-			client.addKeyManager((X509KeyManager) manager);
-		}
-	}
-
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTlsVersion(int tlsVersion)
 	{
 		client.setTlsVersion(tlsVersion);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getTlsVersion()
 	{
-		int tlsVersion;
-
+		int tlsVersion = NetworkModule.TLS_DEFAULT;
 		if (this.hasProperty(TiC.PROPERTY_TLS_VERSION)) {
 			tlsVersion = TiConvert.toInt(this.getProperty(TiC.PROPERTY_TLS_VERSION));
-
-			if (tlsVersion == NetworkModule.TLS_DEFAULT) {
-				if (JELLYBEAN_OR_GREATER) {
-					return NetworkModule.TLS_VERSION_1_2;
-				}
-				return NetworkModule.TLS_VERSION_1_0;
-			}
-			return tlsVersion;
 		}
-
-		return NetworkModule.TLS_DEFAULT;
+		if (tlsVersion == NetworkModule.TLS_DEFAULT) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+				tlsVersion = NetworkModule.TLS_VERSION_1_3;
+			} else {
+				tlsVersion = NetworkModule.TLS_VERSION_1_2;
+			}
+		}
+		return tlsVersion;
 	}
 
 	@Override

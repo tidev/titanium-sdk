@@ -1,12 +1,13 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.util;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 
@@ -18,16 +19,18 @@ import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.webkit.MimeTypeMap;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiFileProvider;
 import org.appcelerator.titanium.TiApplication;
 
 public class TiMimeTypeHelper
 {
+	private static final String TAG = "TiMimeTypeHelper";
 	private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
 	public static final String MIME_TYPE_OCTET_STREAM = DEFAULT_MIME_TYPE;
 	public static final String MIME_TYPE_JAVASCRIPT = "text/javascript";
 	public static final String MIME_TYPE_HTML = "text/html";
-	public static final HashMap<String, String> EXTRA_MIMETYPES = new HashMap<String, String>();
+	public static final HashMap<String, String> EXTRA_MIMETYPES = new HashMap<>();
 	static
 	{
 		EXTRA_MIMETYPES.put("js", MIME_TYPE_JAVASCRIPT);
@@ -221,8 +224,13 @@ public class TiMimeTypeHelper
 					}
 				}
 			} catch (Exception ex) {
+				Log.e(TAG, ex.getMessage());
 			} finally {
-				mediaRetriever.release();
+				try {
+					mediaRetriever.release();
+				} catch (IOException ex) {
+					Log.e(TAG, ex.getMessage());
+				}
 			}
 		}
 

@@ -1,13 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_FILESYSTEM
 
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 @import TitaniumKit.TiBase;
 
 @class TiBlob; // forward declare
@@ -43,14 +43,14 @@ READONLY_PROPERTY(NSString *, tempDirectory, TempDirectory);
 // TODO: Change JSValue* to TiFile* once TiFile is migrated
 // Note that this accepts varargs, which we handle special in impl
 - (JSValue *)getFile;
-- (BOOL)isExternalStoragePresent;
+- (bool)isExternalStoragePresent;
 // TODO: Change JSValue* to TiFile* once TiFile is migrated
 // Note that this accepts varargs, which we handle special in impl
 - (JSValue *)openStream:(TiStreamMode)mode;
 
 @end
 
-@interface FilesystemModule : ObjcProxy <FilesystemExports>
+@interface FilesystemModule : ObjcModule <FilesystemExports>
 
 @end
 

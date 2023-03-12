@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2016-2017 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,13 +17,13 @@ import org.appcelerator.kroll.common.Log;
 
 public final class ReferenceTable
 {
-	private static String TAG = "ReferenceTable";
+	private static final String TAG = "ReferenceTable";
 
 	/**
 	 * A simple Map used to hold strong/weak reference to the Java objects we have paired/wrapped in native
 	 * titanium::Proxy/JavaObject instances.
 	 */
-	private static HashMap<Long, Object> references = new HashMap<Long, Object>();
+	private static final HashMap<Long, Object> references = new HashMap<>(1024);
 
 	/**
 	 * Incrementing key, used to generate new keys when a new strong reference is created. FIXME Handle "wrapping" the
@@ -77,8 +77,7 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Downgrading to weak reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
-		references.remove(key);
-		references.put(key, new WeakReference<Object>(ref));
+		references.put(key, new WeakReference<>(ref));
 	}
 
 	/**
@@ -90,8 +89,7 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Downgrading to soft reference for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
-		references.remove(key);
-		references.put(key, new SoftReference<Object>(ref));
+		references.put(key, new SoftReference<>(ref));
 	}
 
 	/**
@@ -105,7 +103,6 @@ public final class ReferenceTable
 	{
 		Log.d(TAG, "Upgrading reference to strong for key: " + key, Log.DEBUG_MODE);
 		Object ref = getReference(key);
-		references.remove(key);
 		references.put(key, ref);
 		return ref;
 	}

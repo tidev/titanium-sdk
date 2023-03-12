@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,12 +29,9 @@ import android.util.Log;
 
 public class TiSocketFactory extends SSLSocketFactory
 {
-
 	private SSLContext sslContext;
 	private String tlsVersion;
 	private static final String TAG = "TiSocketFactory";
-	private static final boolean JELLYBEAN_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
-	private static final boolean Q_OR_GREATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
 	private static final String TLS_VERSION_1_3_PROTOCOL = "TLSv1.3";
 	private static final String TLS_VERSION_1_2_PROTOCOL = "TLSv1.2";
 	private static final String TLS_VERSION_1_1_PROTOCOL = "TLSv1.1";
@@ -48,9 +45,9 @@ public class TiSocketFactory extends SSLSocketFactory
 
 		// Select appropriate default based on Android version.
 		if (protocol == NetworkModule.TLS_DEFAULT) {
-			if (Q_OR_GREATER) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
 				protocol = NetworkModule.TLS_VERSION_1_3;
-			} else if (JELLYBEAN_OR_GREATER) {
+			} else {
 				protocol = NetworkModule.TLS_VERSION_1_2;
 			}
 		}
@@ -151,7 +148,7 @@ public class TiSocketFactory extends SSLSocketFactory
 	protected SSLSocket setSupportedAndEnabledProtocolsInSocket(String[] enabledProtocols, SSLSocket sslSocket)
 	{
 		String[] supportedProtocols = sslSocket.getSupportedProtocols();
-		List<String> supportedAndEnabledProtocols = new ArrayList<String>();
+		List<String> supportedAndEnabledProtocols = new ArrayList<>();
 
 		for (String enabledProtocol : enabledProtocols) {
 			for (String supportedProtocol : supportedProtocols) {
@@ -166,7 +163,7 @@ public class TiSocketFactory extends SSLSocketFactory
 		//Default enabled protocols varies depending on API level.
 		if (supportedAndEnabledProtocols.size() > 0) {
 			sslSocket.setEnabledProtocols(
-				supportedAndEnabledProtocols.toArray(new String[supportedAndEnabledProtocols.size()]));
+				supportedAndEnabledProtocols.toArray(new String[0]));
 		}
 
 		return sslSocket;

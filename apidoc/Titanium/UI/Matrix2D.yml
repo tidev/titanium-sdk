@@ -44,7 +44,7 @@ description: |
 
 extends: Titanium.Proxy
 since: "8.0.0"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: invert
     summary: Returns a matrix constructed by inverting this matrix.

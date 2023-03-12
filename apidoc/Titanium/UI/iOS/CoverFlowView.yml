@@ -7,8 +7,8 @@ description: |
     The cover flow view is created by the <Titanium.UI.iOS.createCoverFlowView> method or 
     **`<CoverFlowView>`** element in an Alloy application.
 extends: Titanium.UI.View
-since: "0.8"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 excludes:
     events: [dblclick, doubletap, longclick, longpress, pinch, singletap, swipe, 
             touchcancel, touchend, touchmove, touchstart, twofingertap]

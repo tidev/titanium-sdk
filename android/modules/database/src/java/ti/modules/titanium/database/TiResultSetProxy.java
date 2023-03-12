@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.os.Build;
 
 @Kroll.proxy(parentModule = DatabaseModule.class)
 public class TiResultSetProxy extends KrollProxy
@@ -34,7 +33,7 @@ public class TiResultSetProxy extends KrollProxy
 
 		this.rs = rs;
 		String[] names = rs.getColumnNames();
-		this.columnNames = new HashMap<String, Integer>(names.length);
+		this.columnNames = new HashMap<>(names.length);
 		for (int i = 0; i < names.length; i++) {
 			columnNames.put(names[i].toLowerCase(), i);
 		}
@@ -122,11 +121,7 @@ public class TiResultSetProxy extends KrollProxy
 			if (fromString) {
 				result = rs.getString(index);
 			}
-			if (outOfBounds && Build.VERSION.SDK_INT >= 11) {
-				// TIMOB-4515: Column number doesn't exist, yet no exception
-				// occurred. This is known to happen in Honeycomb. So
-				// we'll throw instead. We throw the same exception type that
-				// Android would.
+			if (outOfBounds) {
 				throw new IllegalStateException("Requested column number " + index + " does not exist");
 			}
 		} catch (RuntimeException e) {
@@ -205,7 +200,7 @@ public class TiResultSetProxy extends KrollProxy
 			try {
 				Integer ndx = columnNames.get(fieldName.toLowerCase());
 				if (ndx != null)
-					result = internalGetField(ndx.intValue(), type);
+					result = internalGetField(ndx, type);
 			} catch (SQLException e) {
 				String msg = "Field name " + fieldName + " not found. msg=" + e.getMessage();
 				Log.e(TAG, msg);
@@ -216,7 +211,6 @@ public class TiResultSetProxy extends KrollProxy
 		return result;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getFieldCount()
 	{
@@ -252,7 +246,6 @@ public class TiResultSetProxy extends KrollProxy
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getRowCount()
 	{

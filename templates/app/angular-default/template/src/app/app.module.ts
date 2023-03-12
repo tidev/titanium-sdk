@@ -20,5 +20,7 @@ import { IntroComponent } from './intro.component';
   schemas: [NO_ERRORS_SCHEMA]
 })
 export class AppModule {
-
+  constructor() {
+    Ti.UI.backgroundColor = Ti.UI.fetchSemanticColor('primaryBg');
+  }
 }

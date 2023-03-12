@@ -16,8 +16,7 @@ description: |
     At minimum, you must set the [attributeSet](Titanium.App.iOS.SearchableItem.attributeSet) property, which associates
     the metadata with the SearchableItem object.
 extends: Titanium.Proxy
-platforms: [iphone,ipad]
-osver: {ios: {min: "10.0"}}
+platforms: [iphone,ipad, macos]
 since: "5.5.0"
 createable: true
 
@@ -27,7 +26,6 @@ properties:
     description: This parameter cannot be null.
     type: String
     availability: creation
-    osver: {ios: {min: "10.0"}}
     accessors: false
 
   - name: attributes
@@ -37,7 +35,6 @@ properties:
         the <Titanium.App.iOS.SearchableItemAttributeSet> API. Passing null for this parameter means that the query does not use 
         attributes to find matching items.
     type: Array<String>
-    osver: {ios: {min: "10.0"}}
     accessors: false
     
 methods:

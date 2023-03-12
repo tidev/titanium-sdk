@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -72,13 +72,13 @@ public class TiLifecycle
 
 		/**
 		 * Implementing classes should use this to receive native Android onSaveInstanceState events.
-		 * @param activity the attached activity.
+		 * @param bundle The bundle to save activity/view states to.
 		 */
 		void onSaveInstanceState(Bundle bundle);
 
 		/**
 		 * Implementing classes should use this to receive native Android onRestoreInstanceState events.
-		 * @param activity the attached activity.
+		 * @param bundle The bundle to restore activity/view states from.
 		 */
 		void onRestoreInstanceState(Bundle bundle);
 	}

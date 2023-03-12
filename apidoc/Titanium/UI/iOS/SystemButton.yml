@@ -31,9 +31,8 @@ description: |
 
     ![System Icons](./system_icons.png)
 extends: Titanium.Proxy
-since: "5.4.0"
-platforms: [iphone, ipad]
-
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 properties:
   - name: ACTION
     summary: Use with [Button.systemButton](Titanium.UI.Button.systemButton) to specify an **Action** button.

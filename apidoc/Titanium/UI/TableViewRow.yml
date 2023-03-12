@@ -34,21 +34,6 @@ description: |
     See the [TableView](Titanium.UI.TableView) description and examples section for more information
     about creating table rows.
 
-    #### Improved Table Performance (Android)
-
-    If you are experiencing performance issues on Android when using custom rows, you can
-    try setting the [className](Titanium.UI.TableViewRow.className) property. The class name serves as a
-    cue for reusing the underlying views used to display the rows.
-
-    A given `className` value indicates a row with a particular set of child views.
-    All rows that share a class name must have the same set of children -- for example, the class
-    name "myCustomRow" could identify a row containing two labels and an image view.
-
-    The properties of the child controls may be different. For example, each instance of
-    "myCustomRow" could have a different image and different text on the labels.
-
-    Note that `className` is no longer used on iOS, and is ignored.
-
     #### Platform Implementation Notes
 
     The `top`, `left` and other positional parameters are not used for their usual purposes, because
@@ -129,7 +114,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -146,7 +131,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -163,7 +148,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -180,7 +165,7 @@ events:
         [scroll](Titanium.UI.TableView.scroll) event cannot occur concurrently. If a table begins
         to scroll during a touch event, the appropriate row or table `touchcancel` event fire
         before the `scroll` event begins.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: {iphone: "3.0.1", ipad: "3.0.1"}
     properties:
       - name: x
@@ -238,7 +223,8 @@ properties:
         If you want to change the title of the delete button, use the [deleteButtonTitle](Titanium.UI.TableViewRow.deleteButtonTitle] property
     type: Boolean
     default: undefined
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: font
     summary: Font to use for the row title.
@@ -251,7 +237,19 @@ properties:
         The `footer` property is used to assign a footer title to a row. It has the same effect as setting
         the `footerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.UI.TableViewRow.footerTitle> property instead.
+
+  - name: footerTitle
+    summary: The footer title of the row.
+    description: |
+        The `footerTitle` property is used to assign a footer title to a row. It has the same effect as setting
+        the `footerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "10.0.0", iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
 
   - name: hasCheck
     summary: |
@@ -289,7 +287,8 @@ properties:
         For rows that have `hasDetail` set to false, the `detail` flag is always `false`.
     type: Boolean
     default: false
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, android, macos]
+    since: {android: "9.3.0"}
 
   - name: header
     summary: The header title of the row.
@@ -297,14 +296,26 @@ properties:
         The `header` property is used to assign a header title to a row. It has the same effect as setting
         the `headerTitle` property of a <Titanium.UI.TableViewSection>.
     type: String
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
+    deprecated:
+      since: "10.0.0"
+      notes: Use the <Titanium.UI.TableViewRow.headerTitle> property instead.
+
+  - name: headerTitle
+    summary: The header title of the row.
+    description: |
+        The `headerTitle` property is used to assign a header title to a row. It has the same effect as setting
+        the `headerTitle` property of a <Titanium.UI.TableViewSection>.
+    type: String
+    platforms: [iphone, ipad, android, macos]
+    since: {android: "10.0.0", iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0"}
 
   - name: indentionLevel
     summary: Indention level for the row.
     description: Indentation values greater than 0 indent the row text.
     type: Number
     default: 0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: leftImage
     summary: Image to render in the left image area of the row, specified as a local path or URL.
@@ -323,7 +334,8 @@ properties:
         row `editing` and `moving` modes.
     type: Boolean
     default: undefined
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: opacity
     description: |
@@ -335,29 +347,50 @@ properties:
     summary: Image to render in the right image area of the row, specified as a local path or URL.
     type: String
 
+  - name: backgroundSelectedColor
+    summary: Background color to render when the row is selected, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    since: "10.0.0"
+    platforms: [android, iphone, ipad, macos]
+
+  - name: backgroundSelectedImage
+    summary: Background image to render when the row is selected.
+    type: String
+    since: "10.0.0"
+    platforms: [android, iphone, ipad, macos]
+
   - name: selectedBackgroundColor
     summary: Background color to render when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.TableViewRow.backgroundSelectedColor>.
 
   - name: selectedBackgroundImage
     summary: Background image to render when the row is selected.
     type: String
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.TableViewRow.backgroundSelectedImage>.
 
   - name: selectedColor
     summary: Color of the row text when the row is selected, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
-        Specify one of the constants from <Titanium.UI.iOS.TableViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.SELECTION_STYLE_*>.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 
   - name: title
     summary: Text to display on the row.
@@ -369,7 +402,7 @@ properties:
     description: |
         See <Titanium.UI.View.accessibilityLabel> description.
     since: "3.0.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: String
 
 examples:
@@ -434,7 +467,7 @@ examples:
           tableData.push(row);
         }
 
-        table.setData(tableData);
+        table.data = tableData;
 
         table.addEventListener('swipe', function(e){
           if (e.source && e.source.objName !== 'table'){

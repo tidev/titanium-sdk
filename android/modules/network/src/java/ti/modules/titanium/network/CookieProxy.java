@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,7 +32,7 @@ import org.appcelerator.titanium.util.TiConvert;
 public class CookieProxy extends KrollProxy
 {
 	private static final String TAG = "CookieProxy";
-	private static TimeZone timezone = TimeZone.getTimeZone("GMT");
+	private static final TimeZone timezone = TimeZone.getTimeZone("GMT");
 	private static final SimpleDateFormat httpExpiryDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	public static final SimpleDateFormat systemExpiryDateFormatter =
 		new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'");
@@ -156,7 +156,6 @@ public class CookieProxy extends KrollProxy
 		return httpCookie;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{

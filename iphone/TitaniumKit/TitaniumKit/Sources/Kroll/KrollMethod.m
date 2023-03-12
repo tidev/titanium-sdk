@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -224,31 +224,6 @@ JSValueRef KrollCallAsNamedFunction(JSContextRef jsContext, JSObjectRef func, JS
 
 - (id)call:(NSArray *)args
 {
-  // special property setter delegator against the target
-  if (type == KrollMethodPropertySetter && [args count] == 1) {
-    // Spit out a deprecation warning to use normal property setter!
-    // This is the code path followed for delegating access for soemthing like
-    // Ti.UI.Label#setText(). Which delegates through TiProxy.m TiProxyDelegate code
-    // Other code path is handled in KrollObject.m
-    DebugLog(@"[WARN] Automatic setter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please modify the property in standard JS style: obj.%@ = value; or obj['%@'] = value;", name, name);
-    id newValue = [KrollObject nonNull:[args objectAtIndex:0]];
-    [self updateJSObjectWithValue:newValue forKey:name];
-    [target setValue:newValue forKey:name];
-    return self;
-  }
-  // special property getter delegator against the target
-  if (type == KrollMethodPropertyGetter) {
-    // Spit out a deprecation warning to use normal property accessor!
-    // This is the code path followed for delegating access for something like
-    // Ti.UI.Label#getText(). Which delegates through TiProxy.m TiProxyDelegate code
-    // Other code path is handled in KrollObject.m
-    DebugLog(@"[WARN] Automatic getter methods for properties are deprecated in SDK 8.0.0 and will be removed in SDK 10.0.0. Please access the property in standard JS style: obj.%@ or obj['%@']", name, name);
-    // hold, see below
-    id result = [target valueForKey:name];
-    [self updateJSObjectWithValue:result forKey:name];
-    return result;
-  }
-
   // special generic factory for creating proxy objects for modules
   if (type == KrollMethodFactory) {
     //TODO: This likely could be further optimized later
@@ -286,8 +261,8 @@ JSValueRef KrollCallAsNamedFunction(JSContextRef jsContext, JSObjectRef func, JS
 
   if (methodArgCount > 0 && argcount > 0) {
     if (argcount == 2 && methodArgCount == 4) {
-      arg1 = [KrollObject nonNull:args == nil ? nil : [args objectAtIndex:0]];
-      arg2 = [KrollObject nonNull:[args count] > 1 ? [args objectAtIndex:1] : nil];
+      arg1 = [KrollObject nonNull:(args == nil ? nil : args[0])];
+      arg2 = [KrollObject nonNull:(args.count > 1 ? args[1] : nil)];
       if (type == KrollMethodSetter) {
         [self updateJSObjectWithValue:arg1 forKey:propertyKey];
       }
@@ -296,7 +271,7 @@ JSValueRef KrollCallAsNamedFunction(JSContextRef jsContext, JSObjectRef func, JS
         arg1 = name;
         arg2 = args;
       } else if (type == KrollMethodSetter) {
-        arg1 = [KrollObject nonNull:[args count] == 1 ? [args objectAtIndex:0] : args];
+        arg1 = [KrollObject nonNull:(args.count == 1 ? args[0] : args)];
         [self updateJSObjectWithValue:arg1 forKey:propertyKey];
       } else if (args != nil) {
         arg1 = [KrollObject nonNull:args];

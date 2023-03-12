@@ -9,7 +9,7 @@
 'use strict';
 const should = require('./utilities/assertions');
 
-describe.ios('Ti.Network.BonjourService', () => {
+describe.ios('Titanium.Network.BonjourService', () => {
 	const service = Ti.Network.createBonjourService();
 
 	it('.apiName', () => {

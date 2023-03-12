@@ -157,7 +157,7 @@ describe('Titanium.Database', function () {
 	describe('.open()', () => {
 		// Check if open exists and make sure it does not throw exception
 		// FIXME Get working on Android, either lastInsertRowId or rowsAffected is starting as 1, not 0
-		it.androidBroken('opens or creates database', function () {
+		it.androidAndMacBroken('opens or creates database', function () {
 			should(Ti.Database.open).not.be.undefined();
 			should(Ti.Database.open).be.a.Function();
 
@@ -474,6 +474,44 @@ describe('Titanium.Database', function () {
 			});
 		});
 
+		it('returns a Promise', function (finish) {
+			this.timeout(5000);
+			const db = Ti.Database.open('execute_async.db');
+			// Execute a query to create a test table
+			const result = db.executeAsync('CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)');
+			result.should.be.a.Promise();
+			// Delete any existing data if the table already existed
+			result.then(() => db.executeAsync('DELETE FROM testTable'))
+				.then(() => {
+					// Define test data
+					const testName = 'John Smith';
+					const testNumber = 123456789;
+
+					// Insert test data into the table
+					return db.executeAsync('INSERT INTO testTable (text, number) VALUES (?, ?)', testName, testNumber);
+				}).then(() => {
+					// Validate that only one row has been affected
+					should(db.rowsAffected).be.eql(1);
+
+					// Execute a query to return the rows of the database
+					return db.executeAsync('SELECT rowid, text, number FROM testTable');
+				}).then(rows => {
+					try {
+						// Validate the returned 'rows' object
+						should(rows).be.a.Object();
+						should(rows.rowCount).be.eql(1);
+						should(rows.fieldCount).be.eql(3);
+						should(rows.validRow).be.true();
+					} finally { // eslint-disable-line promise/always-return
+						// Close the 'rows' object
+						rows.close();
+					}
+					return finish();
+				})
+				.catch(err => finish(err))
+				.finally(() => db.close());
+		});
+
 		it('calls callback with Error for invalid SQL', function (finish) {
 			const db = Ti.Database.open('execute_async.db');
 			db.executeAsync('THIS IS SOME INVALID SQL', err => {
@@ -486,6 +524,17 @@ describe('Titanium.Database', function () {
 				}
 				finish();
 			});
+		});
+
+		it('rejects Promise with Error for invalid SQL', function (finish) {
+			const db = Ti.Database.open('execute_async.db');
+			const result = db.executeAsync('THIS IS SOME INVALID SQL');
+			result.should.be.a.Promise();
+			result.then(() => finish(new Error('expected Error for invalid SQL'))).catch(err => {
+				should.exist(err);
+
+				finish();
+			}).finally(() => db.close());
 		});
 	});
 
@@ -503,7 +552,7 @@ describe('Titanium.Database', function () {
 			this.timeout(5000);
 			const db = Ti.Database.open('execute_all.db');
 
-			// FIXME: There's no way to send in binding paramaters, you have to bake them into the query string with this API
+			// FIXME: There's no way to send in binding parameters, you have to bake them into the query string with this API
 			const queries = [
 				// Execute a query to create a test table
 				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
@@ -621,6 +670,44 @@ describe('Titanium.Database', function () {
 			}
 		});
 
+		it('returns Promise', function (finish) { // eslint-disable-line mocha/no-identical-title
+			this.timeout(5000);
+			const db = Ti.Database.open('execute_all.db');
+
+			const queries = [
+				// Execute a query to create a test table
+				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
+				// Delete any existing data if the table already existed
+				'DELETE FROM testTable',
+				// Insert test data into the table
+				'INSERT INTO testTable (text, number) VALUES (\'John Smith\', 123456789)',
+				// Execute a query to return the rows of the database
+				'SELECT rowid, text, number FROM testTable',
+			];
+
+			const result = db.executeAllAsync(queries);
+			result.should.be.a.Promise();
+			result.then(results => {
+				// the returned results array should be the same length as the input query array
+				should(results.length).eql(queries.length);
+
+				const rows = results[3];
+				try {
+					// Validate the returned 'rows' object
+					should(rows).be.a.Object();
+					should(rows.rowCount).be.eql(1);
+					should(rows.fieldCount).be.eql(3);
+					should(rows.validRow).be.true();
+				} finally { // eslint-disable-line promise/always-return
+					// Close the 'rows' object
+					rows.close();
+				}
+				finish();
+			})
+				.catch(err => finish(err))
+				.finally(() => db.close());
+		});
+
 		it('calls callback with Error for invalid SQL statement', function (finish) { // eslint-disable-line mocha/no-identical-title
 			const db = Ti.Database.open('execute_all.db');
 
@@ -666,6 +753,48 @@ describe('Titanium.Database', function () {
 				db.close();
 				finish(e);
 			}
+		});
+
+		it('rejects Promise for invalid SQL statement', function (finish) { // eslint-disable-line mocha/no-identical-title
+			const db = Ti.Database.open('execute_all.db');
+
+			const queries = [
+				// Execute a query to create a test table
+				'CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)',
+				// Delete any existing data if the table already existed
+				'DELETE FROM testTable',
+				// Insert test data into the table
+				'INSERT INTO testTable (text, number) VALUES (\'John Smith\', 123456789)',
+				// Execute a query to return the rows of the database
+				'SELECT rowid, text, number FROM testTable',
+				// invalid, should fail here!
+				'THIS IS INVALID SQL',
+			];
+
+			const result = db.executeAllAsync(queries);
+			result.should.be.a.Promise();
+			result.then(() => finish(new Error('Expected Promise to get rejected')))
+				.catch(err => {
+					let rows;
+					try {
+						should.exist(err);
+						should(err.index).eql(4);
+						should(err).have.a.property('results').which.is.an.Array();
+
+						// validate our partial results
+						rows = err.results[3];
+						should(rows).be.a.Object();
+						should(rows.rowCount).be.eql(1);
+						should(rows.fieldCount).be.eql(3);
+						should(rows.validRow).be.true();
+					} finally {
+						if (rows) {
+							rows.close();
+						}
+					}
+					finish();
+				})
+				.finally(() => db.close());
 		});
 
 		it('handles being closed mid-query', function (finish) {

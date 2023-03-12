@@ -103,8 +103,7 @@ description: |
     and the value is the callback (or array of callbacks for multiple bindings). See "List Items
     with an Item Template" under "Examples" section for an example of binding a `click` event to an 
     item using an item template.
-
-platforms: [android, ipad, iphone]
+platforms: [android, ipad, iphone, macos]
 since: '3.1.0'
 extends: Titanium.Proxy
 createable: false
@@ -139,14 +138,42 @@ properties:
         Must be a local resource.
     type: String
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: backgroundGradient
     summary: Background gradient to render when the item is not selected.
     type: Gradient
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+    accessors: false
+
+  - name: backgroundSelectedColor
+    summary: Background color of the view, as a color name or hex triplet when item is selected.
+    description: |
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    since: 10.0.0
+    platforms: [android, iphone, ipad, macos]
+    default: transparent
+    accessors: false
+
+  - name: backgroundSelectedImage
+    summary: Background image to render when the item is selected.
+    description: |
+        Must be a local resource.
+        On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
+    type: String
+    since: 10.0.0
+    platforms: [android, iphone, ipad, macos]
+    accessors: false
+
+  - name: backgroundSelectedGradient
+    summary: Background gradient to render when the item is selected.
+    type: Gradient
+    since: 10.0.0
+    platforms: [iphone, ipad, macos]
     accessors: false
 
   - name: selectedBackgroundColor
@@ -156,9 +183,12 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     since: 3.2.0
-    platforms: [android, iphone, ipad]
-    default: Transparent
+    platforms: [android, iphone, ipad, macos]
+    default: transparent
     accessors: false
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedColor>.
 
   - name: selectedBackgroundImage
     summary: Background image to render when the item is selected.
@@ -167,15 +197,21 @@ properties:
         On Android, clicking on ListItem's sub-views will not trigger this unless these views have 'touchEnabled' set to false.
     type: String
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     accessors: false
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedImage>.
 
   - name: selectedBackgroundGradient
     summary: Background gradient to render when the item is selected.
     type: Gradient
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     accessors: false
+    deprecated:
+        since: "10.0.0"
+        notes: This property has been deprecated in favor of <Titanium.UI.ListItem.backgroundSelectedGradient>.
 
   - name: canEdit
     summary: Specifies if the item can be deleted by a user initiated action.
@@ -183,8 +219,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: canInsert
@@ -194,7 +230,7 @@ properties:
     type: Boolean
     default: false
     since: 5.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     accessors: false
 
   - name: canMove
@@ -203,8 +239,8 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: editActions
@@ -213,8 +249,7 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Array<RowActionType>
     since: 4.1.0
-    osver: {ios: {min: "8.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: searchableText
     summary: The text to match against when the [ListView](Titanium.UI.ListView) is performing a search.
@@ -222,7 +257,7 @@ properties:
         Used in conjunction with [searchView](Titanium.UI.ListView.searchView), [searchText](Titanium.UI.ListView.searchText) and [caseInsensitiveSearch](Titanium.UI.ListView.caseInsensitiveSearch) properties of ListView.
     type: String
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     accessors: false
 
   - name: color
@@ -244,7 +279,7 @@ properties:
         <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
     type: [String, Titanium.UI.Color]
     accessors: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.1.0"
     
   - name: selectedColor
@@ -255,7 +290,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: [String, Titanium.UI.Color]
     since: "6.0.0"
-    platforms: [iphone,ipad]    
+    platforms: [iphone,ipad, macos]    
     
   - name: selectedSubtitleColor
     summary: Color to use for the item subtitle when the item is selected, as a color name or hex triplet.
@@ -267,7 +302,7 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>. 
     type: [String, Titanium.UI.Color]
     since: "6.1.0"
-    platforms: [iphone,ipad]    
+    platforms: [iphone,ipad, macos]    
     
   - name: font
     summary: Font to use for the item title.
@@ -312,9 +347,10 @@ properties:
   - name: selectionStyle
     summary: Selection style constant to control the selection color.
     description: |
-        Specify one of the constants from <Titanium.UI.iOS.ListViewCellSelectionStyle>.
+        Specify one of the constants from <Titanium.UI.SELECTION_STYLE_*>.
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
     accessors: false
 
   - name: subtitle
@@ -324,7 +360,7 @@ properties:
         `defaultItemTemplate` property is set to either: <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS>,
         <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>.
     type: String
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     accessors: false
 
 examples:
@@ -357,7 +393,7 @@ examples:
         }
 
         var section = Ti.UI.createListSection();
-        section.setItems(data);
+        section.items = data;
         listView.sections = [section];
         listView.addEventListener('itemclick', function(e) {
             var item = section.getItemAt(e.itemIndex);
@@ -499,7 +535,7 @@ examples:
         }
 
         var section = Ti.UI.createListSection();
-        section.setItems(data);
+        section.items = data;
         listView.sections = [section];
 
         // Modified version of the `itemclick` event listener
@@ -524,7 +560,7 @@ examples:
 name: ItemTemplate
 summary: Template that represents the basic appearance of a list item.
 description: See <Titanium.UI.ListItem> for examples of using an item template.
-platforms: [android, ipad, iphone]
+platforms: [android, ipad, iphone, macos]
 since: '3.1.0'
 properties:
   - name: properties
@@ -551,7 +587,7 @@ properties:
 name: ViewTemplate
 summary: Template that represents a view subcomponent of an <ItemTemplate>.
 description: See <Titanium.UI.ListItem> for examples of using an item template.
-platforms: [android, ipad, iphone]
+platforms: [android, ipad, iphone, macos]
 since: '3.1.0'
 properties:
   - name: type
@@ -610,7 +646,7 @@ description: |
     Any other properties that are not identified by a `bindId` are permitted but are ignored by the item template.
 
     See <Titanium.UI.ListItem> for examples of using a list data item.
-platforms: [android, ipad, iphone]
+platforms: [android, ipad, iphone, macos]
 since: '3.1.0' 
 properties:
   - name: template
@@ -643,9 +679,8 @@ description: |
     This object lets developers define custom titles for editing actions supported on the row. 
     This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and 
     [editaction](Titanium.UI.ListView.editaction) event. 
-platforms: [ipad, iphone]
+platforms: [ipad, iphone, macos]
 since: '4.1.0' 
-osver: {ios: {min: "8.0"}}
 properties:
   - name: title
     type: String
@@ -673,3 +708,13 @@ properties:
         By default the background color of the row action is defined by the style applied. Use this property to 
         override the default background color of the row action.
     optional: true
+
+  - name: image
+    type: String
+    summary: The image/icon of the row action.
+    description: |
+        You can combine this property with the `color` property to apply an icon + background color in combination.
+        Note: When using this property, the `title` property is ignored.
+    optional: true
+    since: 12.1.0
+    platforms: [iphone, ipad, macos]

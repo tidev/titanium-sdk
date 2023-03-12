@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,12 +15,12 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -53,9 +53,9 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.view.inputmethod.EditorInfo;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.textfield.TextInputLayout;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
@@ -66,6 +66,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	private boolean disableChangeEvent = false;
 	private int viewHeightInLines;
 	private int maxLines = Integer.MAX_VALUE;
+	private int hintTextPadding;
 	private InputFilterHandler inputFilterHandler;
 
 	protected TiUIEditText tv;
@@ -78,45 +79,69 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 		this.field = field;
 
-		int tvId;
-		try {
-			tvId = TiRHelper.getResource("layout.titanium_ui_edittext");
-		} catch (ResourceNotFoundException e) {
-			if (Log.isDebugModeEnabled()) {
-				Log.e(TAG, "XML resources could not be found!!!");
-			}
-			return;
+		int borderStyle = UIModule.INPUT_BORDERSTYLE_FILLED;
+		borderStyle = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_BORDER_STYLE), borderStyle);
+		switch (borderStyle) {
+			case UIModule.INPUT_BORDERSTYLE_BEZEL:
+			case UIModule.INPUT_BORDERSTYLE_LINE:
+			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
+					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
+				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {
+					float radius = (new TiDimension("5dp", TiDimension.TYPE_LEFT)).getAsPixels(textInputLayout);
+					textInputLayout.setBoxCornerRadii(radius, radius, radius, radius);
+				} else {
+					textInputLayout.setBoxCornerRadii(0, 0, 0, 0);
+				}
+				break;
+			case UIModule.INPUT_BORDERSTYLE_NONE:
+			case UIModule.INPUT_BORDERSTYLE_UNDERLINED:
+				textInputLayout = new TextInputLayout(proxy.getActivity());
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
+				break;
+			case UIModule.INPUT_BORDERSTYLE_FILLED:
+			default:
+				textInputLayout = new TextInputLayout(proxy.getActivity());
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_FILLED);
+				break;
 		}
-		tv = (TiUIEditText) TiApplication.getAppCurrentActivity().getLayoutInflater().inflate(tvId, null);
-		this.inputFilterHandler = new InputFilterHandler(this.tv);
 
-		tv.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+		if (textInputLayout.getBoxBackgroundMode() != TextInputLayout.BOX_BACKGROUND_NONE) {
+			this.tv = new TiUIEditText(textInputLayout.getContext());
+		} else {
+			this.tv = new TiUIEditText(proxy.getActivity());
+			if (borderStyle == UIModule.INPUT_BORDERSTYLE_NONE) {
+				this.tv.setBackground(null);
+			}
+		}
+		this.hintTextPadding = this.tv.getPaddingTop();
+		this.inputFilterHandler = new InputFilterHandler(this.tv);
+		this.tv.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
 			@Override
-			public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop,
-									   int oldRight, int oldBottom)
+			public void onLayoutChange(
+				View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
 			{
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		});
-
 		if (field) {
-			tv.setSingleLine();
-			tv.setMaxLines(1);
+			this.tv.setSingleLine();
+			this.tv.setMaxLines(1);
 		}
-		registerForTouch(tv);
-		tv.addTextChangedListener(this);
-		tv.setOnEditorActionListener(this);
-		tv.setOnFocusChangeListener(this); // TODO refactor to TiUIView?
-		tv.setIncludeFontPadding(true);
+		registerForTouch(this.tv);
+		this.tv.addTextChangedListener(this);
+		this.tv.setOnEditorActionListener(this);
+		this.tv.setOnFocusChangeListener(this);
+		this.tv.setIncludeFontPadding(true);
 		if (field) {
-			tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
+			this.tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 		} else {
-			tv.setGravity(Gravity.TOP | Gravity.LEFT);
+			this.tv.setGravity(Gravity.TOP | Gravity.START);
 		}
-
-		textInputLayout = new TextInputLayout(proxy.getActivity());
-		textInputLayout.addView(tv, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-																  LinearLayout.LayoutParams.MATCH_PARENT));
+		textInputLayout.addView(this.tv, new TextInputLayout.LayoutParams(
+			TextInputLayout.LayoutParams.MATCH_PARENT, TextInputLayout.LayoutParams.MATCH_PARENT));
 
 		setNativeView(textInputLayout);
 	}
@@ -134,6 +159,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_ENABLE_COPY)) {
+			tv.setIsCopyEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_COPY, true));
+		}
+
 		this.inputFilterHandler.setMaxLength(TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1));
 
 		// Disable change event temporarily as we are setting the default value
@@ -142,11 +171,12 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		tv.setText(TiConvert.toString(d.get(TiC.PROPERTY_VALUE), ""));
 
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			// Why transparent?
 			tv.setBackgroundColor(Color.TRANSPARENT);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT) || d.containsKey(TiC.PROPERTY_HINT_TYPE)) {
@@ -158,7 +188,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
-			tv.setHintTextColor(TiConvert.toColor(d, TiC.PROPERTY_HINT_TEXT_COLOR));
+			tv.setHintTextColor(TiConvert.toColor(d, TiC.PROPERTY_HINT_TEXT_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
@@ -242,6 +272,30 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		disableChangeEvent = false;
 	}
 
+	@Override
+	protected void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			this.tv.setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
+	protected void applyContentDescription(KrollDict properties)
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription(properties);
+		if (contentDescription != null) {
+			this.tv.setContentDescription(contentDescription);
+		}
+	}
+
 	private void updateTextField()
 	{
 		if (!field) {
@@ -290,6 +344,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setAutofillHints(TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
 			tv.setEnabled(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_ENABLE_COPY)) {
+			tv.setIsCopyEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			this.disableChangeEvent = true;
 			tv.setText(TiConvert.toString(newValue, ""));
@@ -300,7 +356,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setBackgroundColor(Color.TRANSPARENT);
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			int type = UIModule.HINT_TYPE_STATIC;
 			if (proxy.getProperties() != null) {
@@ -308,7 +365,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 			setHintText(type, TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
-			tv.setHintTextColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setHintTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HINT_TYPE)) {
 			Object attributedHintText = proxy.getProperty(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT);
 			if (attributedHintText instanceof AttributedStringProxy) {
@@ -481,7 +539,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
 		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.LEFT) != Gravity.LEFT) {
+		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.START) != Gravity.START) {
 			if (getNativeView() != null) {
 				ViewGroup view = (ViewGroup) getNativeView().getParent();
 				view.setFocusableInTouchMode(true);
@@ -695,11 +753,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 		}
 		this.tv.setCursorVisible(isEditable);
-		if (Build.VERSION.SDK_INT > 19) {
-			// Enable/disable read-only text selection. Allows copying text to clipboard.
-			// Note: Switching from true to false prevents keyboard from appearing on OS versions older than 5.0.
-			this.tv.setTextIsSelectable(!isEditable);
-		}
+		this.tv.setTextIsSelectable(!isEditable);
 
 		// Apply the above configured key listener and input type flags.
 		// Note: The setInputType() method internally calls setKeyListener(). Can only use one or the other.
@@ -905,14 +959,20 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	public void setHintText(int type, CharSequence hintText)
 	{
 		if (type == UIModule.HINT_TYPE_STATIC) {
-			textInputLayout.setHint("");
-			textInputLayout.setHintEnabled(false);
-			tv.setHint(hintText);
+			this.textInputLayout.setHint("");
+			this.textInputLayout.setHintEnabled(false);
+			this.tv.setHint(hintText);
 		} else if (type == UIModule.HINT_TYPE_ANIMATED) {
-			tv.setHint("");
-			textInputLayout.setHint(hintText);
-			textInputLayout.setHintEnabled(true);
+			this.tv.setHint("");
+			this.textInputLayout.setHint(hintText);
+			this.textInputLayout.setHintEnabled(true);
 		}
+
+		this.tv.setPadding(
+			this.tv.getPaddingLeft(),
+			(type == UIModule.HINT_TYPE_ANIMATED) ? this.hintTextPadding : this.tv.getPaddingBottom(),
+			this.tv.getPaddingRight(),
+			this.tv.getPaddingBottom());
 	}
 
 	/**
@@ -928,6 +988,15 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				inputMethodManager.restartInput(this.tv);
 			}
 		}
+	}
+
+	@Override
+	public void release()
+	{
+		super.release();
+
+		tv = null;
+		textInputLayout = null;
 	}
 
 	/** Adds/Removes input filters such as all-caps and max-length to an EditText. */
@@ -1187,15 +1256,6 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			// Was heavily modified to fix locale issues and to back-port it for older OS versions.
 			// ------------------------------------------------------------------------------------------
 
-			// First let base class attempt filter the entered text.
-			// We normally use this string for English locales where period is used for decimal separator.
-			CharSequence defaultFilteredString = super.filter(source, start, end, dest, dstart, dend);
-			if (defaultFilteredString != null) {
-				source = defaultFilteredString;
-				start = 0;
-				end = defaultFilteredString.length();
-			}
-
 			// Find the decimal separator and sign characters if they exist.
 			int signIndex = -1;
 			int decimalIndex = -1;
@@ -1215,6 +1275,29 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				} else if (isDecimalSeparatorChar(nextChar)) {
 					decimalIndex = index;
 				}
+			}
+
+			// Some Android devices like Samsung/Huawei do not have localized keyboards and only have a '.' character.
+			// Replace it with a localized decimal separator. Unfortunately, there is no other solution.
+			// Note: Only do this if 1 character was received which assumes it comes from the virtual keyboard.
+			//       If multiple characters were received, then it was probably pasted or assigned programmatically.
+			if ((this.localizedDecimalSeparatorChar != '.') && ((end - start) == 1) && (source.charAt(start) == '.')) {
+				SpannableStringBuilder stringBuilder = new SpannableStringBuilder(source, start, end);
+				if (decimalIndex < 0) {
+					stringBuilder.replace(0, 1, Character.toString(this.localizedDecimalSeparatorChar));
+				} else {
+					stringBuilder.clear();
+				}
+				return stringBuilder;
+			}
+
+			// Let base class attempt to filter the entered text first.
+			// We normally use this string for English locales where period is used for decimal separator.
+			CharSequence defaultFilteredString = super.filter(source, start, end, dest, dstart, dend);
+			if (defaultFilteredString != null) {
+				source = defaultFilteredString;
+				start = 0;
+				end = defaultFilteredString.length();
 			}
 
 			// Create a new stripped string if any invalid characters were found.
@@ -1274,7 +1357,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	/** Stores a set of unique characters that can be easily turned into an array. */
 	private static class CharacterSet
 	{
-		private StringBuilder stringBuilder = new StringBuilder(32);
+		private final StringBuilder stringBuilder = new StringBuilder(32);
 
 		/**
 		 * Adds the given character if not already contained in the set.

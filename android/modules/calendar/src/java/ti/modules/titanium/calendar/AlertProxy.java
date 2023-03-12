@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,7 +23,6 @@ import android.net.Uri;
 @Kroll.proxy(parentModule = CalendarModule.class)
 public class AlertProxy extends KrollProxy
 {
-
 	public static final int STATE_SCHEDULED = 0;
 	public static final int STATE_FIRED = 1;
 	public static final int STATE_DISMISSED = 2;
@@ -50,7 +49,7 @@ public class AlertProxy extends KrollProxy
 
 	public static ArrayList<AlertProxy> queryAlerts(String query, String[] queryArgs, String orderBy)
 	{
-		ArrayList<AlertProxy> alerts = new ArrayList<AlertProxy>();
+		ArrayList<AlertProxy> alerts = new ArrayList<>();
 		if (!CalendarProxy.hasCalendarPermissions()) {
 			return alerts;
 		}
@@ -123,49 +122,42 @@ public class AlertProxy extends KrollProxy
 
 	protected static final String EVENT_REMINDER_ACTION = "android.intent.action.EVENT_REMINDER";
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return id;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getEventId()
 	{
 		return eventId;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getBegin()
 	{
 		return begin;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getEnd()
 	{
 		return end;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public Date getAlarmTime()
 	{
 		return alarmTime;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getState()
 	{
 		return state;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getMinutes()
 	{

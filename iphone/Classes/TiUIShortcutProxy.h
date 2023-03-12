@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 READONLY_PROPERTY(NSArray<TiUIShortcutItemProxy *> *, items, Items);
 READONLY_PROPERTY(NSArray<TiUIShortcutItemProxy *> *, staticItems, StaticItems);
 
-- (TiUIShortcutItemProxy *)getById:(NSString *)identifier;
+- (TiUIShortcutItemProxy *_Nullable)getById:(NSString *)identifier;
 
 - (void)remove:(TiUIShortcutItemProxy *)shortcut;
 

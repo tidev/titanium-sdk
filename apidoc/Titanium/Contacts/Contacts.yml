@@ -18,14 +18,14 @@ description: |
 
     See the examples for a sample use of the `reload` event.
 
-    If 'ABAddressBookErrorDomain error 0' occurs, it implies that you are not allowed to add or edit 
+    If 'ABAddressBookErrorDomain error 0' occurs, it implies that you are not allowed to add or edit
     certain fields. Check your default account in the iOS settings under contacts. If it's not 'iCloud',
     most likely it will not support fields such as alternateBirthday or socialProfile.
 
+    These APIs are unavailable on macOS if the app is built on a version of Xcode < 12.
 extends: Titanium.Module
-since: "0.8"
-platforms: [android, iphone, ipad]
-
+since: {iphone: "0.8", ipad: "0.8", android: "0.8", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 events:
   - name: reload
     summary: Fired when the database backing the contacts module is modified externally.
@@ -33,9 +33,8 @@ events:
         If you have an existing reference to a `Person` or `Group` object, you should obtain
         a new reference from the `Contacts` module. Using the existing object may result
         in unpredictable behavior, such as updating the wrong contact.
-    platforms: [iphone, ipad]
-    since: "3.1.0"
-
+    exclude-platforms: [android]
+    since: {iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 
 methods:
   - name: createGroup
@@ -44,18 +43,19 @@ methods:
         This method must be followed by <Titanium.Contacts.save> to commit its changes.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
+    since: {macos: "9.2.0"}
     parameters:
       - name: parameters
         summary: |
-            Properties to set on a new object, including any in <Titanium.Contacts.Group> except 
+            Properties to set on a new object, including any in <Titanium.Contacts.Group> except
             those marked as non-creation or read-only.
         type: Dictionary<Titanium.Contacts.Group>
         optional: true
-    
+
   - name: createPerson
     summary: |
-        Creates and returns an instance of <Titanium.Contacts.Person>, and commits all pending 
+        Creates and returns an instance of <Titanium.Contacts.Person>, and commits all pending
         changes to the underlying contacts database.
     returns:
         type: Titanium.Contacts.Person
@@ -63,77 +63,48 @@ methods:
     parameters:
       - name: parameters
         summary: |
-            Properties to set on a new object, including any in <Titanium.Contacts.Person> except 
+            Properties to set on a new object, including any in <Titanium.Contacts.Person> except
             those marked as non-creation or read-only.
         type: Dictionary<Titanium.Contacts.Person>
         optional: true
-    
+
   - name: getAllGroups
     summary: Gets all groups.
     returns:
         type: Array<Titanium.Contacts.Group>
-    platforms: [ipad, iphone]
-    
+    exclude-platforms: [android]
+
   - name: getAllPeople
     summary: Gets all people, unless a limit is specified.
-    platforms: [android, iphone, ipad]
     returns:
-        type: Array<Titanium.Contacts.Person>    
+        type: Array<Titanium.Contacts.Person>
     parameters:
       - name: limit
         summary: Maximum number of people. Android only.
         type: Number
-    
-  - name: getGroupByID
+
+  - name: getGroupByIdentifier
     summary: Gets the group with the specified identifier.
     returns:
         type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
-    parameters:
-      - name: id
-        summary: Group identifier.
-        type: Number
-    deprecated:
-        since: "5.0.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.Contacts.getGroupByIdentifier](Titanium.Contacts.getGroupByIdentifier) instead.
-
-  - name: getGroupByIdentifier
-    summary: Gets the group with the specified identifier. 
-    returns:
-        type: Titanium.Contacts.Group
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
     parameters:
       - name: id
         summary: Group identifier.
         type: String
-    since: "5.0.0"
-    
+    since: {iphone: "5.0.0", ipad: "5.0.0", macos: "9.2.0"}
+
   - name: getPeopleWithName
     summary: |
-        Gets people with a `firstName`, `middleName` or `lastName` field, or a combination 
+        Gets people with a `firstName`, `middleName` or `lastName` field, or a combination
         of these fields, that match the specified name.
-    platforms: [android, iphone, ipad]
     returns:
         type: Array<Titanium.Contacts.Person>
     parameters:
       - name: name
         summary: Name to match.
         type: String
-        
-  - name: getPersonByID
-    summary: Gets the person with the specified identifier.
-    returns:
-        type: Titanium.Contacts.Person
-    parameters:
-      - name: id
-        summary: Contact identifier.
-        type: Number
-    deprecated:
-        since: "5.0.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.Contacts.getPersonByIdentifier](Titanium.Contacts.getPersonByIdentifier) instead.
-        
+
   - name: getPersonByIdentifier
     summary: Gets the person with the specified identifier.
     returns:
@@ -142,61 +113,51 @@ methods:
       - name: id
         summary: Contact identifier.
         type: Number
-    since: "5.0.0"      
-    osver: {ios: {min: "9.0"}}
+    since: "5.0.0"
 
   - name: removeGroup
     summary: Removes a group from the address book.
     description: |
         This method must be followed by <Titanium.Contacts.save> to commit its changes.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
     parameters:
       - name: group
         summary: Contact group.
         type: Titanium.Contacts.Group
-        
+
   - name: removePerson
     summary: Removes a contact from the address book.
     description: |
-    
         On iOS:
-          
-        This method must be followed by a save action to commit the data to the underlying database, 
-        which can be done explicitly using <Titanium.Contacts.save> or implicitly using 
-        <Titanium.Contacts.createPerson>. Although the <Titanium.Contacts.Person> object will still 
-        exist once committed, it will no longer be valid. Continuing to use it will result in 
+
+        This method must be followed by a save action to commit the data to the underlying database,
+        which can be done explicitly using <Titanium.Contacts.save> or implicitly using
+        <Titanium.Contacts.createPerson>. Although the <Titanium.Contacts.Person> object will still
+        exist once committed, it will no longer be valid. Continuing to use it will result in
         unpredictable behavior, including crashes.
-        
+
         On Android:
-        
-        This method will remove the person from the Contacts book automatically. 
+
+        This method will remove the person from the Contacts book automatically.
     since: {android: "2.1.0"}
     parameters:
       - name: person
         summary: Contact.
         type: Titanium.Contacts.Person
-        
-  - name: revert
-    summary: Reverts all changes made by the previous save to the address book. Deprecated for >= iOS9.
-    platforms: [iphone, ipad]
-    osver: {ios: {max: "8.0"}}
 
-    
   - name: save
     summary: Commits all pending changes to the underlying contacts database.
-    platforms: [android, iphone, ipad]
     parameters:
       - name: contacts
-        summary: List of contacts to save. Used on Android only. 
+        summary: List of contacts to save. Used on Android only.
         type: Array<Titanium.Contacts.Person>
     since: {android: "3.0.0"}
     description: |
-      
         On Android:
-        
+
         Takes an array of <Titanium.Contacts.Person> objects and saves changes for
         the specified contacts only.
-        
+
   - name: showContacts
     summary: Displays a picker that allows a person to be selected.
     parameters:
@@ -207,9 +168,8 @@ methods:
   - name: hasContactsPermissions
     summary: Returns `true` if the app has contacts access.
     returns:
-        type: Boolean 
-    platforms: [iphone, ipad, android]
-    since: "5.1.0"  
+        type: Boolean
+    since: {android: "5.1.0", iphone: "5.1.0", ipad: "5.1.0", macos: "9.2.0"}
 
   - name: requestContactsPermissions
     summary: Requests for contacts access.
@@ -224,30 +184,17 @@ methods:
         In iOS 6, Apple introduced the Info.plist key `NSContactsUsageDescription` that is used to display an
         own description while authorizing contacts permissions. In iOS 10, this key is mandatory and the application
         will crash if your app does not include the key. Check the [Apple docs](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html) for more information.
-
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant contacts access.
+        summary: |
+            Function to call upon user decision to grant contacts access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<ContactsAuthorizationResponse>
-    platforms: [iphone, ipad, android]
-    since: "5.1.0"
-
-  - name: requestAuthorization
-    deprecated:
-        since: "5.1.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.Contacts.requestContactsPermissions](Titanium.Contacts.requestContactsPermissions) instead.
-    summary: If authorization is unknown, will bring up a dialog requesting permission.
-    platforms: [android, iphone, ipad]
-    description: |
-        Note that the callback may be synchronous or asynchronous. That is, it may be called
-        during requestAuthorization or much later. See the "Request access to the address book"
-        example on how to best use this method. 
-    since: "2.1.3"
-    parameters:
-      - name: callback
-        summary: Callback function to execute when when authorization is no longer unknown.
-        type: Callback<ContactsAuthorizationResponse>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<ContactsAuthorizationResponse>
+    since: {android: "5.1.0", iphone: "5.1.0", ipad: "5.1.0", macos: "9.2.0"}
 
 properties:
   - name: includeNote
@@ -255,121 +202,99 @@ properties:
     description:  |
         This  property need to be set before calling contacts APIs.
         From iOS 13 or later if your app fetch note field from contact, the app must have to set key 'com.apple.developer.contacts.notes' to 'true' in entitelements section of tiapp.xml.
-        
+
         ``` xml
         <key>com.apple.developer.contacts.notes</key>
         <true/>
         ```
-        
+
         See more details at https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_developer_contacts_notes and https://developer.apple.com/contact/request/contact-note-field.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
-    since: 8.2.1
+    exclude-platforms: [android]
+    since: {iphone: "8.2.1", ipad: "8.2.1", macos: "9.2.0"}
 
   - name: CONTACTS_KIND_ORGANIZATION
     summary: Specifies that a contact is an organization.
     description:  |
         Used with the <Titanium.Contacts.Person.kind> property.
-        
-        One of the group of contact "kind" constants 
-        [CONTACTS_KIND_ORGANIZATION](Titanium.Contacts.CONTACTS_KIND_ORGANIZATION), 
+
+        One of the group of contact "kind" constants
+        [CONTACTS_KIND_ORGANIZATION](Titanium.Contacts.CONTACTS_KIND_ORGANIZATION),
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
 
-    
   - name: CONTACTS_KIND_PERSON
     summary: Specifies that a contact is a person.
-    description: 
+    description:
         Used with the <Titanium.Contacts.Person.kind> property.
-        
-        One of the group of contact "kind" constants 
-        [CONTACTS_KIND_ORGANIZATION](Titanium.Contacts.CONTACTS_KIND_ORGANIZATION), 
+
+        One of the group of contact "kind" constants
+        [CONTACTS_KIND_ORGANIZATION](Titanium.Contacts.CONTACTS_KIND_ORGANIZATION),
         and [CONTACTS_KIND_PERSON](Titanium.Contacts.CONTACTS_KIND_PERSON).
     type: Number
     permission: read-only
 
-    
   - name: CONTACTS_SORT_FIRST_NAME
     summary: Specifies that group members will be sorted by first name.
-    description: 
+    description:
         Used with the <Titanium.Contacts.Group.sortedMembers> method.
-        
-        One of the group of contact group "sort" constants 
-        [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
+
+        One of the group of contact group "sort" constants
+        [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME),
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
 
-    
   - name: CONTACTS_SORT_LAST_NAME
     summary: Specifies that group members will be sorted by last name.
-    description: 
+    description:
         Used with the <Titanium.Contacts.Group.sortedMembers> method.
-        
-        One of the group of contact group "sort" constants 
-        [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME), 
+
+        One of the group of contact group "sort" constants
+        [CONTACTS_SORT_FIRST_NAME](Titanium.Contacts.CONTACTS_SORT_FIRST_NAME),
         and [CONTACTS_SORT_LAST_NAME](Titanium.Contacts.CONTACTS_SORT_LAST_NAME).
     type: Number
     permission: read-only
-
 
   - name: AUTHORIZATION_AUTHORIZED
     summary: |
-        A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
+        A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value
         indicating that the application is authorized to use the address book.
     description: |
         This value is always returned on Android devices, as well as on iOS versions earlier than 6.0.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
   - name: AUTHORIZATION_DENIED
     summary: |
-        A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
+        A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value
         indicating that the application is not authorized to use the address book.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
-
-  - name: AUTHORIZATION_RESTRICTED
-    summary: |
-        A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
-        indicating that the application is not authorized to use the address book *and*
-        the user cannot change this application's status.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad, android]
-    deprecated:
-        since: 8.0.0
-        removed: 8.0.0
-        notes: "iOS 9 and later does not use this constant anymore. Use the other available constants instead."
-    since: 2.1.3
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
   - name: AUTHORIZATION_UNKNOWN
     summary: |
-        A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value 
+        A [contactsAuthorization](Titanium.Contacts.contactsAuthorization) value
         indicating that the authorization state is unknown.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
   - name: contactsAuthorization
     summary: Returns an authorization constant indicating if the application has access to the address book.
     description: |
          Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0 and Android devices.
-         
+
          If `contactsAuthorization` is `AUTHORIZATION_RESTRICTED`, you should not
          attempt to re-authorize: this will lead to issues.
     type: Number
     constants: Titanium.Contacts.AUTHORIZATION_*
     permission: read-only
-    platforms: [iphone, ipad, android]
-    since: 2.1.3
+    since: {android: "2.1.3", iphone: "2.1.3", ipad: "2.1.3", macos: "9.2.0"}
 
 examples:
   - title: Request access to the address book
@@ -393,11 +318,11 @@ examples:
   - title: Query Existing System Address Book Records
     example: |
         Output to the console all properties of all people.
-        
+
         ``` js
         var singleValue = [
-          'recordId', 'firstName', 'middleName', 'lastName', 'fullName', 'prefix', 'suffix', 
-          'nickname', 'firstPhonetic', 'middlePhonetic', 'lastPhonetic', 'organization', 
+          'recordId', 'firstName', 'middleName', 'lastName', 'fullName', 'prefix', 'suffix',
+          'nickname', 'firstPhonetic', 'middlePhonetic', 'lastPhonetic', 'organization',
           'jobTitle', 'department', 'note', 'birthday', 'created', 'modified', 'kind'
         ];
         var multiValue = [
@@ -419,9 +344,9 @@ examples:
 
   - title: Add New System Address Book Records
     example: |
-        Create two new records in the system address book. Note that the <Titanium.Contacts.Person> 
+        Create two new records in the system address book. Note that the <Titanium.Contacts.Person>
         object is queried in the same way that it is created (as shown in the previous example.)
-        
+
         ``` js
         Ti.API.info('Saving contact...');
         Ti.Contacts.createPerson({
@@ -483,11 +408,11 @@ examples:
           },
           url:{
             homepage: ['www.google.com'],
-            work: ['www.appcelerator.com', 'www.example.com']
+            work: ['www.titaniumsdk.com', 'www.example.com']
           }
         });
         Ti.API.info('Contact saved');
-        
+
         Ti.API.info('Saving contact...');
         var workAddress1 = {
           'CountryCode': 'us',
@@ -497,7 +422,7 @@ examples:
           'Country': 'United States',
           'ZIP': '94043'
         };
-        
+
         Ti.Contacts.createPerson({
           firstName:'Arthur',
           lastName:'Evans',
@@ -549,8 +474,8 @@ examples:
 ---
 name: showContactsParams
 summary: Dictionary of options for the <Titanium.Contacts.showContacts> method.
-platforms: [android, iphone, ipad]
-
+platforms: [android, iphone, ipad, macos]
+since: {iphone: "0.8", ipad: "0.8", android: "0.8", macos: "9.2.0"}
 properties:
 - name: animated
   summary: Determines whether to animate the show/hide of the contacts picker (iPhone, iPad only.)
@@ -566,25 +491,25 @@ properties:
   summary: Function to call when selection is canceled.
   type: Callback<Object>
   optional: true
-  
+
 - name: selectedPerson
   summary: |
       Function to call when a person is selected. Must not be used with `selectedProperty` property.
   type: Callback<Object>
   optional: true
-  
+
 - name: selectedProperty
   summary: |
-      Function to call when a property is selected. Must not be used with `selectedPerson` 
+      Function to call when a property is selected. Must not be used with `selectedPerson`
       property.
       Note: If ringtone or texttone is selected, null values are returned, since these are unsupported
       by Apple.
-      Since iOS 9.0, there is a native apple issue whereby it may return null if the birthday property 
+      Since iOS 9.0, there is a native apple issue whereby it may return null if the birthday property
       is selected on certain device models.
       The callback contains the selected property and a 'person' object of type <Titanium.Contacts.Person>.
-      Since iOS 9.0, apple only returns the person object with partial information. Currently it is known to 
-      at least contain the selected property and fullName. 
-  platforms: [iphone, ipad]
+      Since iOS 9.0, apple only returns the person object with partial information. Currently it is known to
+      at least contain the selected property and fullName.
+  exclude-platforms: [android]
   type: Callback<Object>
   optional: true
 

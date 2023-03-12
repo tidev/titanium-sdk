@@ -1,11 +1,14 @@
 ---
 name: Titanium.UI.iOS.TableViewCellSelectionStyle
+deprecated:
+    since: "10.1.0"
+    notes: Use <Titanium.UI.SELECTION_STYLE_*> instead.
 summary: |
     A set of constants for the style that can be used for the `selectionStyle` property of 
     <Titanium.UI.TableViewRow>.
 extends: Titanium.Proxy
-since: "5.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 createable: false
 properties:
   - name: BLUE

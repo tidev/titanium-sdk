@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,73 +10,77 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.PickerColumnProxy.PickerColumnListener;
-import ti.modules.titanium.ui.widget.picker.TiDatePickerDialog;
-import ti.modules.titanium.ui.widget.picker.TiTimePickerDialog;
 import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
-import ti.modules.titanium.ui.widget.picker.TiUIDateSpinner;
-import ti.modules.titanium.ui.widget.picker.TiUINativePicker;
-import ti.modules.titanium.ui.widget.picker.TiUIPicker;
-import ti.modules.titanium.ui.widget.picker.TiUISpinner;
+import ti.modules.titanium.ui.widget.picker.TiUIPlainDropDownPicker;
+import ti.modules.titanium.ui.widget.picker.TiUIPlainPicker;
+import ti.modules.titanium.ui.widget.picker.TiUIPlainSpinnerPicker;
 import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
-import ti.modules.titanium.ui.widget.picker.TiUITimeSpinner;
-import ti.modules.titanium.ui.widget.picker.TiUITimeSpinnerNumberPicker;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
-import android.content.DialogInterface;
-import android.os.Build;
+import android.graphics.Color;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.method.BaseKeyListener;
 import android.util.Log;
-import android.widget.DatePicker;
-import android.widget.TimePicker;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
+
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.CompositeDateValidator;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
+import com.google.android.material.datepicker.DateValidatorPointForward;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.textfield.MaterialAutoCompleteTextView;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
-		TiC.PROPERTY_LOCALE,
-		TiC.PROPERTY_SELECTION_OPENS,
-		TiC.PROPERTY_VISIBLE_ITEMS,
-		TiC.PROPERTY_VALUE,
 		TiC.PROPERTY_CALENDAR_VIEW_SHOWN,
+		TiC.PROPERTY_DATE_PICKER_STYLE,
 		TiC.PROPERTY_FONT,
+		TiC.PROPERTY_LOCALE,
 		TiC.PROPERTY_MIN_DATE,
-		TiC.PROPERTY_MAX_DATE
+		TiC.PROPERTY_MAX_DATE,
+		TiC.PROPERTY_SELECTION_OPENS,
+		TiC.PROPERTY_VALUE
 })
-public class PickerProxy extends TiViewProxy implements PickerColumnListener
+public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChangedListener
 {
-	private int type = UIModule.PICKER_TYPE_PLAIN;
-	private ArrayList<Integer> preselectedRows = new ArrayList<Integer>();
 	private static final String TAG = "PickerProxy";
-	public static final int DEFAULT_VISIBLE_ITEMS_COUNT = 5;
+	private int type = UIModule.PICKER_TYPE_PLAIN;
+	private final ArrayList<PickerColumnProxy> columnList = new ArrayList<>();
+	private final ArrayList<Integer> selectedRows = new ArrayList<>();
 	private boolean useSpinner = false;
-	private boolean nativeSpinner = false;
-	private int lastSelectedIndex = -1;
+	private boolean canFireColumnEvents = true;
 
 	public PickerProxy()
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_CALENDAR_VIEW_SHOWN, false);
-	}
-
-	public void setLastSelectedIndex(int index)
-	{
-		this.lastSelectedIndex = index;
-	}
-
-	public int getLastSelectedIndex()
-	{
-		return lastSelectedIndex;
+		defaultValues.put(TiC.PROPERTY_DATE_PICKER_STYLE, UIModule.DATE_PICKER_STYLE_AUTOMATIC);
 	}
 
 	@Override
@@ -84,17 +88,16 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	{
 		super.handleCreationDict(dict);
 		if (dict.containsKey(TiC.PROPERTY_USE_SPINNER)) {
-			useSpinner = TiConvert.toBoolean(dict, TiC.PROPERTY_USE_SPINNER);
-			Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
+			this.useSpinner = TiConvert.toBoolean(dict, TiC.PROPERTY_USE_SPINNER, this.useSpinner);
 		}
 		if (dict.containsKey(TiC.PROPERTY_NATIVE_SPINNER)) {
-			nativeSpinner = TiConvert.toBoolean(dict, TiC.PROPERTY_NATIVE_SPINNER);
+			this.useSpinner = TiConvert.toBoolean(dict, TiC.PROPERTY_NATIVE_SPINNER, this.useSpinner);
 		}
-		if (hasProperty("type")) {
-			type = TiConvert.toInt(getProperty("type"));
+		if (hasProperty(TiC.PROPERTY_TYPE)) {
+			type = TiConvert.toInt(getProperty(TiC.PROPERTY_TYPE));
 		}
-		if (dict.containsKey("columns")) {
-			setColumns(dict.get("columns"));
+		if (dict.containsKey(TiC.PROPERTY_COLUMNS)) {
+			setColumns(dict.get(TiC.PROPERTY_COLUMNS));
 		}
 	}
 
@@ -108,94 +111,133 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 			Log.w(TAG, "Date+Time timer not supported in Titanium for Android");
 			return null;
 		} else if (type == UIModule.PICKER_TYPE_PLAIN) {
-			return createPlainPicker(activity, useSpinner);
+			if (this.useSpinner) {
+				return new TiUIPlainSpinnerPicker(this);
+			} else {
+				return new TiUIPlainDropDownPicker(this);
+			}
 		} else if (type == UIModule.PICKER_TYPE_DATE) {
-			if (useSpinner) {
-				return createDateSpinner(activity);
-			} else {
-				return createDatePicker(activity);
-			}
+			return new TiUIDatePicker(this);
 		} else if (type == UIModule.PICKER_TYPE_TIME) {
-			if (nativeSpinner) {
-				return createTimeSpinnerNumberPicker(activity);
-			}
-			if (useSpinner) {
-				return createTimeSpinner(activity);
-			} else {
-				return createTimePicker(activity);
-			}
+			return new TiUITimePicker(this);
 		} else {
 			Log.w(TAG, "Unknown picker type");
 			return null;
 		}
 	}
 
-	private TiUIView createPlainPicker(Activity activity, boolean useSpinner)
+	public TextInputLayout createTextInputLayout()
 	{
-		TiUIPicker picker = useSpinner ? new TiUISpinner(this, activity) : new TiUINativePicker(this, activity);
-		return picker;
-	}
-
-	private TiUIView createDatePicker(Activity activity)
-	{
-		return new TiUIDatePicker(this, activity);
-	}
-
-	private TiUIView createTimePicker(Activity activity)
-	{
-		return new TiUITimePicker(this, activity);
-	}
-
-	private TiUIView createTimeSpinnerNumberPicker(Activity activity)
-	{
-		return new TiUITimeSpinnerNumberPicker(this, activity);
-	}
-
-	private TiUIView createTimeSpinner(Activity activity)
-	{
-		return new TiUITimeSpinner(this, activity);
-	}
-
-	private TiUIView createDateSpinner(Activity activity)
-	{
-		return new TiUIDateSpinner(this, activity);
-	}
-
-	@Kroll.method
-	@Kroll.getProperty
-	public boolean getUseSpinner()
-	{
-		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
-		return useSpinner;
-	}
-
-	@Kroll.method
-	@Kroll.setProperty
-	public void setUseSpinner(boolean value)
-	{
-		Log.w(TAG, "The useSpinner property is deprecated. Please refer to the documentation for more information");
-		if (peekView() != null) {
-			Log.w(TAG, "Attempt to change useSpinner property after view has already been created. Ignoring.");
-		} else {
-			useSpinner = value;
-			if (children != null && children.size() > 0) {
-				for (TiViewProxy child : children) {
-					if (child instanceof PickerColumnProxy) {
-						((PickerColumnProxy) child).setUseSpinner(value);
-					}
-				}
+		// Fetch proxy's activity.
+		Activity activity = getActivity();
+		if (activity == null) {
+			activity = TiApplication.getAppRootOrCurrentActivity();
+			if (activity == null) {
+				return null;
 			}
 		}
+
+		// Create the TextInputLayout with drop-down arrow and configured border.
+		TextInputLayout textInputLayout = null;
+		int borderStyle = UIModule.INPUT_BORDERSTYLE_FILLED;
+		borderStyle = TiConvert.toInt(getProperty(TiC.PROPERTY_BORDER_STYLE), borderStyle);
+		switch (borderStyle) {
+			case UIModule.INPUT_BORDERSTYLE_BEZEL:
+			case UIModule.INPUT_BORDERSTYLE_LINE:
+			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
+					activity, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
+				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {
+					float radius = (new TiDimension("5dp", TiDimension.TYPE_LEFT)).getAsPixels(textInputLayout);
+					textInputLayout.setBoxCornerRadii(radius, radius, radius, radius);
+				} else {
+					textInputLayout.setBoxCornerRadii(0, 0, 0, 0);
+				}
+				break;
+			case UIModule.INPUT_BORDERSTYLE_NONE:
+			case UIModule.INPUT_BORDERSTYLE_UNDERLINED:
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
+					activity, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
+				break;
+			case UIModule.INPUT_BORDERSTYLE_FILLED:
+			default:
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
+					activity, R.style.Widget_MaterialComponents_TextInputLayout_FilledBox_ExposedDropdownMenu));
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_FILLED);
+				break;
+		}
+		textInputLayout.setHintEnabled(hasProperty(TiC.PROPERTY_HINT_TEXT));
+		if (textInputLayout.isHintEnabled()) {
+			textInputLayout.setHint(TiConvert.toString(getProperty(TiC.PROPERTY_HINT_TEXT), ""));
+		}
+
+		// Add a read-only EditText to the layout.
+		MaterialAutoCompleteTextView editText = null;
+		if (textInputLayout.getBoxBackgroundMode() != TextInputLayout.BOX_BACKGROUND_NONE) {
+			editText = new MaterialAutoCompleteTextView(textInputLayout.getContext());
+		} else {
+			editText = new MaterialAutoCompleteTextView(activity);
+			if (borderStyle == UIModule.INPUT_BORDERSTYLE_NONE) {
+				editText.setBackground(null);
+			}
+		}
+		editText.setSingleLine();
+		editText.setMaxLines(1);
+		editText.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
+		editText.setKeyListener(new BaseKeyListener() {
+			@Override
+			public int getInputType()
+			{
+				return InputType.TYPE_NULL;
+			}
+			@Override
+			public boolean backspace(View view, Editable content, int keyCode, KeyEvent event)
+			{
+				return false;
+			}
+			@Override
+			public boolean forwardDelete(View view, Editable content, int keyCode, KeyEvent event)
+			{
+				return false;
+			}
+		});
+		editText.setRawInputType(InputType.TYPE_NULL);
+		if (textInputLayout.isHintEnabled() == false) {
+			// Remove extra padding from top since hint text is disabled.
+			editText.setPadding(
+				editText.getPaddingLeft(),
+				editText.getPaddingBottom(),
+				editText.getPaddingRight(),
+				editText.getPaddingBottom());
+		}
+		String[] fontProperties = TiUIHelper.getFontProperties(getProperties());
+		if ((fontProperties != null) && (fontProperties.length > 0)) {
+			TiUIHelper.styleText(
+				editText,
+				fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
+				fontProperties[TiUIHelper.FONT_SIZE_POSITION],
+				fontProperties[TiUIHelper.FONT_WEIGHT_POSITION],
+				fontProperties[TiUIHelper.FONT_STYLE_POSITION]);
+		}
+		textInputLayout.addView(editText, new TextInputLayout.LayoutParams(
+			TextInputLayout.LayoutParams.MATCH_PARENT, TextInputLayout.LayoutParams.MATCH_PARENT));
+
+		if (hasPropertyAndNotNull(TiC.PROPERTY_COLOR)) {
+			editText.setTextColor(TiConvert.toColor(getProperty(TiC.PROPERTY_COLOR).toString(), activity));
+		}
+
+		return textInputLayout;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getType()
 	{
-		return type;
+		return this.type;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setType(int type)
 	{
@@ -212,95 +254,140 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	}
 
 	@Override
-	public void remove(TiViewProxy child)
-	{
-		int index = -1;
-		if (children.contains(child)) {
-			index = children.indexOf(child);
-		}
-		super.remove(child);
-		if (peekView() instanceof TiUIPicker) {
-			((TiUIPicker) peekView()).onColumnRemoved(index);
-		}
-	}
-
-	@Override
 	public void add(Object child)
 	{
+		// If given a view proxy, then let base class remove.
+		if (child instanceof TiViewProxy) {
+			remove((TiViewProxy) child);
+			return;
+		}
+
+		// Do not continue if not a plain picker.
 		if (!isPlainPicker()) {
 			Log.w(TAG, "Attempt to add to date/time or countdown picker ignored.");
 			return;
 		}
 
 		if (child instanceof PickerColumnProxy) {
-			PickerColumnProxy column = (PickerColumnProxy) child;
-			addColumn(column);
+			addColumn((PickerColumnProxy) child);
 		} else if (child instanceof PickerRowProxy) {
-			getFirstColumn(true).add((PickerRowProxy) child);
-		} else if (child.getClass().isArray()) {
-			Object[] obj = (Object[]) child;
-			Object firstObj = obj[0];
-			if (firstObj instanceof PickerRowProxy) {
-				getFirstColumn(true).addRows(obj);
-			} else if (firstObj instanceof PickerColumnProxy) {
-				addColumns(obj);
+			getOrCreateFirstColumn().add(child);
+		} else if ((child != null) && child.getClass().isArray()) {
+			Object[] childArray = (Object[]) child;
+			Object firstObject = childArray[0];
+			if (firstObject instanceof PickerRowProxy) {
+				getOrCreateFirstColumn().add(child);
+			} else if (firstObject instanceof PickerColumnProxy) {
+				int columnCount = this.columnList.size();
+				boolean wasEnabled = this.canFireColumnEvents;
+				this.canFireColumnEvents = false;
+				for (Object nextObject : childArray) {
+					if (nextObject instanceof PickerColumnProxy) {
+						addColumn((PickerColumnProxy) nextObject);
+					} else {
+						Log.w(TAG, "add() was given an invalid object. Must be of type: ");
+					}
+				}
+				this.canFireColumnEvents = wasEnabled;
+				if (columnCount != this.columnList.size()) {
+					onColumnListChanged();
+				}
 			}
 		} else {
-			Log.w(TAG, "Unexpected type not added to picker: " + child.getClass().getName());
+			String errorMessage
+				= "add() method was given an invalid object."
+				+ " Must be given an array of type 'Ti.UI.PickerColumn' or 'Ti.UI.PickerRow";
+			Log.w(TAG, errorMessage);
 		}
 	}
 
-	private void addColumns(Object[] columns)
+	private void addColumn(@NonNull PickerColumnProxy column)
 	{
-		for (Object obj : columns) {
-			if (obj instanceof PickerColumnProxy) {
-				addColumn((PickerColumnProxy) obj);
-			} else {
-				Log.w(TAG, "Unexpected type not added to picker: " + obj.getClass().getName());
-			}
+		if (this.columnList.contains(column)) {
+			return;
 		}
-	}
 
-	private void addColumn(PickerColumnProxy column)
-	{
-		prepareColumn(column);
-		super.add(column);
-		if (peekView() instanceof TiUIPicker) {
-			((TiUIPicker) peekView()).onColumnAdded(children.indexOf(column));
-		}
-	}
-
-	private void prepareColumn(PickerColumnProxy column)
-	{
-		column.setUseSpinner(useSpinner);
-		column.setColumnListener(this);
+		this.columnList.add(column);
+		this.selectedRows.add(0);
+		column.addListener(this);
+		onColumnListChanged();
 	}
 
 	@Kroll.method
-	public void setSelectedRow(int column, int row, @Kroll.argument(optional = true) boolean animated)
+	public void remove(Object child)
 	{
+		// If given a view proxy, then let base class remove.
+		if (child instanceof TiViewProxy) {
+			remove((TiViewProxy) child);
+			return;
+		}
+
+		// Do not continue if not a column.
+		if (!(child instanceof PickerColumnProxy)) {
+			Log.w(TAG, "Unable to remove given column. Must be of type: Ti.UI.PickerColumn");
+			return;
+		}
+
+		// Check exists in picker's collection.
+		int index = this.columnList.indexOf(child);
+		if (index < 0) {
+			return;
+		}
+
+		// Remove column from collection and UI.
+		this.columnList.remove(index);
+		if (index < this.selectedRows.size()) {
+			this.selectedRows.remove(index);
+		}
+		((PickerColumnProxy) child).removeListener(this);
+		onColumnListChanged();
+	}
+
+	@Override
+	public void removeAllChildren()
+	{
+		// Remove all columns from picker.
+		this.selectedRows.clear();
+		if (!this.columnList.isEmpty()) {
+			boolean wasEnabled = this.canFireColumnEvents;
+			this.canFireColumnEvents = false;
+			while (!this.columnList.isEmpty()) {
+				remove(this.columnList.get(this.columnList.size() - 1));
+			}
+			this.canFireColumnEvents = wasEnabled;
+			onColumnListChanged();
+		}
+
+		// Remove all view proxies.
+		super.removeAllChildren();
+	}
+
+	@Kroll.method
+	public void setSelectedRow(int columnIndex, int rowIndex, @Kroll.argument(optional = true) boolean animated)
+	{
+		// Do not continue if not a plain picker.
 		if (!isPlainPicker()) {
 			Log.w(TAG, "Selecting row in date/time or countdown picker is not supported.");
 			return;
 		}
-		TiUIView view = peekView();
-		if (view == null) {
-			// assign it to be selected after view creation
-			if (preselectedRows == null) {
-				preselectedRows = new ArrayList<Integer>();
-			}
-			while (preselectedRows.size() < (column + 1)) {
-				preselectedRows.add(null);
-			}
-			if (preselectedRows.size() >= (column + 1)) {
-				preselectedRows.remove(column);
-			}
-			preselectedRows.add(column, new Integer(row));
-			return;
+
+		// Add given selection to collection.
+		// Needs to be stored in case view doesn't exist yet or it is recreated after a dark/light theme change.
+		if ((columnIndex >= 0) && (columnIndex < this.selectedRows.size())) {
+			this.selectedRows.set(columnIndex, rowIndex);
 		} else {
-			((TiUIPicker) view).selectRow(column, row, animated);
+			Log.w(TAG, "setSelectedRow() column index is out of range. Given: " + columnIndex);
+			return;
+		}
+
+		// Set selection in view if available.
+		TiUIView view = peekView();
+		if (view instanceof TiUIPlainPicker) {
+			((TiUIPlainPicker) view).selectRow(columnIndex, rowIndex, animated);
 			if (TiConvert.toBoolean(getProperty(TiC.PROPERTY_SELECTION_OPENS), false)) {
-				((TiUIPicker) view).openPicker();
+				if (view instanceof TiUIPlainDropDownPicker) {
+					((TiUIPlainDropDownPicker) view).openPicker();
+				}
 			}
 		}
 	}
@@ -308,136 +395,89 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Kroll.method
 	public PickerRowProxy getSelectedRow(int columnIndex)
 	{
-		if (!isPlainPicker()) {
-			Log.w(TAG, "Cannot get selected row in date/time or countdown picker.");
-			return null;
-		}
-		if (!(peekView() instanceof TiUIPicker)) {
-			return null;
-		}
-		PickerRowProxy row = null;
-		if (peekView() instanceof TiUIPicker) {
-			int rowIndex = ((TiUIPicker) peekView()).getSelectedRowIndex(columnIndex);
-			if (rowIndex >= 0) {
-				row = getRow(columnIndex, rowIndex);
-			}
-		}
-		return row;
+		int rowIndex = getSelectedRowIndex(columnIndex);
+		return (rowIndex >= 0) ? getRow(columnIndex, rowIndex) : null;
 	}
 
-	@Kroll.method
+	public int getSelectedRowIndex(int columnIndex)
+	{
+		// Do not continue if not a plain picker.
+		if (!isPlainPicker()) {
+			Log.w(TAG, "Cannot get selected row in date/time or countdown picker.");
+			return -1;
+		}
+
+		// Validate column index.
+		if ((columnIndex < 0) || (columnIndex >= this.selectedRows.size())) {
+			return -1;
+		}
+
+		// Fetch currently selected row index for given column.
+		return this.selectedRows.get(columnIndex);
+	}
+
+	@NonNull
 	@Kroll.getProperty
 	public PickerColumnProxy[] getColumns()
 	{
 		if (!isPlainPicker()) {
 			Log.w(TAG, "Cannot get columns from date/time or countdown picker.");
-			return null;
+			return new PickerColumnProxy[0];
 		}
-		if (children == null) {
-			return new PickerColumnProxy[] {};
-		} else {
-			return children.toArray(new PickerColumnProxy[children.size()]);
-		}
+
+		return this.columnList.toArray(new PickerColumnProxy[0]);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
-	public void setColumns(Object passedColumns)
+	public void setColumns(Object value)
 	{
+		// Do not continue if not a plain picker.
 		if (!isPlainPicker()) {
 			Log.w(TAG, "Cannot set columns in date/time or countdown picker.");
 			return;
 		}
 
-		boolean dirty = false;
-		try {
-			if (peekView() instanceof TiUIPicker) {
-				((TiUIPicker) peekView()).batchModelChange = true;
-			}
-			if (children != null && children.size() > 0) {
-				int count = children.size();
-				for (int i = (count - 1); i >= 0; i--) {
-					remove(children.get(i));
-					dirty = true;
-				}
-			}
-			Object[] columns = null;
-			if (passedColumns.getClass().isArray()) {
-				columns = (Object[]) passedColumns;
-			} else {
-				columns = new Object[] { passedColumns };
-			}
-			if (!(columns[0] instanceof PickerColumnProxy)) {
-				Log.w(TAG, "Unexpected object type ignored for setColumns");
-			} else {
-				for (Object o : columns) {
-					if (o instanceof PickerColumnProxy) {
-						add((PickerColumnProxy) o);
-						dirty = true;
-					}
-				}
-			}
-		} finally {
-			if (peekView() instanceof TiUIPicker) {
-				((TiUIPicker) peekView()).batchModelChange = false;
-			}
-		}
-		if (dirty) {
-			TiUIPicker pickerView = (TiUIPicker) peekView();
-			if (pickerView != null) {
-				pickerView.onModelReplaced();
-			}
-		}
-	}
-
-	public int getColumnCount()
-	{
-		TiViewProxy[] columns = getColumns();
-		if (columns == null) {
-			return 0;
-		} else {
-			return columns.length;
-		}
+		// Remove all previous columns and add given columns.
+		boolean wasEnabled = this.canFireColumnEvents;
+		this.canFireColumnEvents = false;
+		removeAllChildren();
+		add(value);
+		this.canFireColumnEvents = wasEnabled;
+		onColumnListChanged();
 	}
 
 	public PickerColumnProxy getColumn(int index)
 	{
-		if (children == null || index >= children.size() || (!(children.get(index) instanceof PickerColumnProxy))) {
-			return null;
-		} else {
-			return (PickerColumnProxy) children.get(index);
+		if ((index >= 0) && (index < this.columnList.size())) {
+			return this.columnList.get(index);
 		}
+		return null;
 	}
 
-	public int getColumnIndex(PickerColumnProxy column)
+	public int getColumnIndexOf(PickerColumnProxy columnProxy)
 	{
-		if (children != null && children.size() > 0) {
-			return children.indexOf(column);
-		} else {
-			return -1;
-		}
+		return this.columnList.indexOf(columnProxy);
 	}
 
 	public PickerRowProxy getRow(int columnIndex, int rowIndex)
 	{
 		PickerColumnProxy column = getColumn(columnIndex);
-		if (column == null) {
-			return null;
+		if (column != null) {
+			return column.getRowByIndex(rowIndex);
 		}
-		TiViewProxy[] rowArray = column.getChildren();
-		if (rowArray == null || rowIndex >= rowArray.length || (!(rowArray[rowIndex] instanceof PickerRowProxy))) {
-			return null;
-		} else {
-			return (PickerRowProxy) rowArray[rowIndex];
-		}
+		return null;
 	}
 
-	public PickerColumnProxy getFirstColumn(boolean createIfMissing)
+	public PickerColumnProxy getFirstColumn()
+	{
+		return getColumn(0);
+	}
+
+	public PickerColumnProxy getOrCreateFirstColumn()
 	{
 		PickerColumnProxy column = getColumn(0);
-		if (column == null && createIfMissing) {
+		if (column == null) {
 			column = new PickerColumnProxy();
-			column.setCreateIfMissing(true);
 			add(column);
 		}
 		return column;
@@ -450,20 +490,33 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Kroll.method
 	public void showDatePickerDialog(Object[] args)
 	{
-		HashMap settings = new HashMap();
-		final AtomicInteger callbackCount =
-			new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
-		if (args.length > 0) {
-			settings = (HashMap) args[0];
+		// Fetch top-most activity in app.
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (!(activity instanceof AppCompatActivity)) {
+			return;
 		}
-		Calendar calendar = Calendar.getInstance();
-		if (settings.containsKey("value")) {
-			calendar.setTime(TiConvert.toDate(settings, "value"));
+		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
+
+		// Fetch optional dictionary of settings from 1st argument.
+		HashMap settings;
+		if ((args.length > 0) && (args[0] instanceof HashMap)) {
+			settings = (HashMap) args[0];
+		} else {
+			settings = new HashMap();
 		}
 
+		// Get the date to be displayed in the dialog. If not assigned, then use today's date.
+		Calendar calendar = Calendar.getInstance();
+		if (settings.containsKey(TiC.PROPERTY_VALUE)) {
+			calendar.setTime(TiConvert.toDate(settings, TiC.PROPERTY_VALUE));
+		} else if (hasProperty(TiC.PROPERTY_VALUE)) {
+			calendar.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_VALUE));
+		}
+
+		// Fetch optional callback argument.
 		final KrollFunction callback;
-		if (settings.containsKey("callback")) {
-			Object typeTest = settings.get("callback");
+		if (settings.containsKey(TiC.PROPERTY_CALLBACK)) {
+			Object typeTest = settings.get(TiC.PROPERTY_CALLBACK);
 			if (typeTest instanceof KrollFunction) {
 				callback = (KrollFunction) typeTest;
 			} else {
@@ -472,101 +525,114 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		} else {
 			callback = null;
 		}
-		DatePickerDialog.OnDateSetListener dateSetListener = null;
-		DialogInterface.OnDismissListener dismissListener = null;
-		if (callback != null) {
-			dateSetListener = new DatePickerDialog.OnDateSetListener() {
-				@Override
-				public void onDateSet(DatePicker picker, int year, int monthOfYear, int dayOfMonth)
-				{
-					if (callback != null) {
-						callbackCount.incrementAndGet();
-						Calendar calendar = Calendar.getInstance();
-						calendar.set(Calendar.YEAR, year);
-						calendar.set(Calendar.MONTH, monthOfYear);
-						calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-						Date value = calendar.getTime();
-						KrollDict data = new KrollDict();
-						data.put("cancel", false);
-						data.put("value", value);
-						callback.callAsync(getKrollObject(), new Object[] { data });
-					}
-				}
-			};
-			dismissListener = new DialogInterface.OnDismissListener() {
-				@Override
-				public void onDismiss(DialogInterface dialog)
-				{
-					if (callbackCount.get() == 0 && callback != null) {
-						callbackCount.incrementAndGet();
-						KrollDict data = new KrollDict();
-						data.put("cancel", true);
-						data.put("value", null);
-						callback.callAsync(getKrollObject(), new Object[] { data });
-					}
-				}
-			};
+
+		// Used to indicate if a dialog listener has been invoked.
+		final AtomicInteger callbackCount = new AtomicInteger(0);
+
+		// Configure main picker settings.
+		MaterialDatePicker.Builder<Long> pickerBuilder = MaterialDatePicker.Builder.datePicker();
+		pickerBuilder.setInputMode(MaterialDatePicker.INPUT_MODE_CALENDAR);
+		if (settings.containsKey(TiC.PROPERTY_TITLE)) {
+			pickerBuilder.setTitleText(TiConvert.toString(settings, TiC.PROPERTY_TITLE));
 		}
 
-		/*
-	     * use getAppCurrentActivity over getActivity since technically the picker
-	     * should show up on top of the current activity when called - not just the
-	     * activity it was created in
-	     */
-
-		// DatePickerDialog has a bug in Android 4.x
-		// If build version is using Android 4.x, use
-		// our TiDatePickerDialog. It was fixed from Android 5.0.
-		DatePickerDialog dialog;
-
-		if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-			&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)) {
-			dialog = new TiDatePickerDialog(TiApplication.getAppCurrentActivity(), dateSetListener,
-											calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-											calendar.get(Calendar.DAY_OF_MONTH));
-		} else {
-			dialog = new DatePickerDialog(TiApplication.getAppCurrentActivity(), dateSetListener,
-										  calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-										  calendar.get(Calendar.DAY_OF_MONTH));
-		}
-
-		Date minMaxDate = null;
+		// Set up min/max date range if configured.
+		Date minDate = null;
 		if (settings.containsKey(TiC.PROPERTY_MIN_DATE)) {
-			minMaxDate = (Date) settings.get(TiC.PROPERTY_MIN_DATE);
-		} else if (properties.containsKey(TiC.PROPERTY_MIN_DATE)) {
-			minMaxDate = (Date) properties.get(TiC.PROPERTY_MIN_DATE);
+			minDate = TiConvert.toDate(settings.get(TiC.PROPERTY_MIN_DATE));
+		} else if (hasProperty(TiC.PROPERTY_MIN_DATE)) {
+			minDate = TiConvert.toDate(getProperty(TiC.PROPERTY_MIN_DATE));
 		}
-		if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			dialog.getDatePicker().setMinDate(trimDate(minMaxDate).getTime());
-		}
-		minMaxDate = null;
+		Date maxDate = null;
 		if (settings.containsKey(TiC.PROPERTY_MAX_DATE)) {
-			minMaxDate = (Date) settings.get(TiC.PROPERTY_MAX_DATE);
-		} else if (properties.containsKey(TiC.PROPERTY_MAX_DATE)) {
-			minMaxDate = (Date) properties.get(TiC.PROPERTY_MAX_DATE);
+			maxDate = TiConvert.toDate(settings.get(TiC.PROPERTY_MAX_DATE));
+		} else if (hasProperty(TiC.PROPERTY_MAX_DATE)) {
+			maxDate = TiConvert.toDate(getProperty(TiC.PROPERTY_MAX_DATE));
 		}
-		if (minMaxDate != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			dialog.getDatePicker().setMaxDate(trimDate(minMaxDate).getTime());
+		if ((minDate != null) && (maxDate != null) && !minDate.before(maxDate)) {
+			throw new IllegalArgumentException("showDatePickerDialog() property 'minDate' must be less than 'maxDate'");
+		}
+		if ((minDate != null) || (maxDate != null)) {
+			CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+			ArrayList<CalendarConstraints.DateValidator> validatorList = new ArrayList<>();
+			if (minDate != null) {
+				long unixTime = createDateWithoutTime(minDate).getTime();
+				constraintsBuilder.setStart(unixTime);
+				validatorList.add(DateValidatorPointForward.from(unixTime));
+				if (calendar.getTimeInMillis() < unixTime) {
+					calendar.setTimeInMillis(unixTime);
+				}
+			}
+			if (maxDate != null) {
+				long unixTime = createDateWithoutTime(maxDate).getTime();
+				constraintsBuilder.setEnd(unixTime);
+				validatorList.add(DateValidatorPointBackward.before(unixTime));
+				if (calendar.getTimeInMillis() > unixTime) {
+					calendar.setTimeInMillis(unixTime);
+				}
+			}
+			constraintsBuilder.setValidator(CompositeDateValidator.allOf(validatorList));
+			constraintsBuilder.setOpenAt(calendar.getTimeInMillis());
+			pickerBuilder.setCalendarConstraints(constraintsBuilder.build());
 		}
 
-		dialog.setCancelable(true);
-		if (dismissListener != null) {
-			dialog.setOnDismissListener(dismissListener);
+		// Select date from "value" property or current time.
+		// We must do this after applying min/max above (if applicable) to ensure selection is within range.
+		pickerBuilder.setSelection(calendar.getTimeInMillis());
+
+		// Create the dialog with above settings and assign it listeners.
+		MaterialDatePicker<Long> picker = pickerBuilder.build();
+		picker.setCancelable(true);
+		if (callback != null) {
+			Runnable cancelHandler = () -> {
+				// Invoke callback with a cancel event if not done already.
+				if (callbackCount.get() == 0) {
+					callbackCount.incrementAndGet();
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_CANCEL, true);
+					data.put(TiC.PROPERTY_VALUE, null);
+					callback.callAsync(getKrollObject(), new Object[] { data });
+				}
+			};
+			picker.addOnPositiveButtonClickListener((unixTime) -> {
+				// Flag that the callback was invoked.
+				callbackCount.incrementAndGet();
+
+				// Converted selected date from UTC to local time. (Matches iOS' behavior.)
+				Calendar utcCalendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+				utcCalendar.setTimeInMillis(unixTime);
+				Calendar localCalendar = Calendar.getInstance();
+				localCalendar.set(Calendar.YEAR, utcCalendar.get(Calendar.YEAR));
+				localCalendar.set(Calendar.MONTH, utcCalendar.get(Calendar.MONTH));
+				localCalendar.set(Calendar.DAY_OF_MONTH, utcCalendar.get(Calendar.DAY_OF_MONTH));
+				localCalendar.set(Calendar.HOUR_OF_DAY, 0);
+				localCalendar.set(Calendar.MINUTE, 0);
+				localCalendar.set(Calendar.SECOND, 0);
+				localCalendar.set(Calendar.MILLISECOND, 0);
+				Date value = localCalendar.getTime();
+
+				// Update proxy's "value" property.
+				setProperty(TiC.PROPERTY_VALUE, value);
+
+				// Invoke callback providing the selected value.
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_CANCEL, false);
+				data.put(TiC.PROPERTY_VALUE, value);
+				callback.callAsync(getKrollObject(), new Object[] { data });
+			});
+			picker.addOnNegativeButtonClickListener((dialog) -> {
+				cancelHandler.run();
+			});
+			picker.addOnCancelListener((dialog) -> {
+				cancelHandler.run();
+			});
+			picker.addOnDismissListener((dialog) -> {
+				cancelHandler.run();
+			});
 		}
-		if (settings.containsKey("title")) {
-			dialog.setTitle(TiConvert.toString(settings, "title"));
-		}
-		dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-			@Override
-			public void onShow(DialogInterface dialog)
-			{
-				fireEvent(TiC.EVENT_POST_LAYOUT, null, false);
-			}
-		});
-		dialog.show();
-		if (settings.containsKey("okButtonTitle")) {
-			dialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
-		}
+
+		// Show the dialog.
+		picker.show(appCompatActivity.getSupportFragmentManager(), picker.toString());
 	}
 
 	/**
@@ -574,9 +640,12 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	 * @param inDate input date
 	 * @return return the trimmed date
 	 */
-	public static Date trimDate(Date inDate)
+	private static Date createDateWithoutTime(Date inDate)
 	{
-		Calendar cal = Calendar.getInstance();
+		if (inDate == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		cal.setTime(inDate);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
@@ -591,24 +660,43 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 	@Kroll.method
 	public void showTimePickerDialog(Object[] args)
 	{
-		HashMap settings = new HashMap();
-		boolean is24HourView = false;
-		final AtomicInteger callbackCount =
-			new AtomicInteger(0); // just a flag to be sure dismiss doesn't fire callback if ondateset did already.
-		if (args.length > 0) {
+		// Fetch top-most activity in app.
+		Activity activity = TiApplication.getAppCurrentActivity();
+		if (!(activity instanceof AppCompatActivity)) {
+			return;
+		}
+		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
+
+		// Fetch optional dictionary of settings from 1st argument.
+		HashMap settings;
+		if ((args.length > 0) && (args[0] instanceof HashMap)) {
 			settings = (HashMap) args[0];
-		}
-		if (settings.containsKey("format24")) {
-			is24HourView = TiConvert.toBoolean(settings, "format24");
-		}
-		Calendar calendar = Calendar.getInstance();
-		if (settings.containsKey("value")) {
-			calendar.setTime(TiConvert.toDate(settings, "value"));
+		} else {
+			settings = new HashMap();
 		}
 
+		// Get the time to be displayed in the dialog. If not assigned, then use current time.
+		Calendar calendar = Calendar.getInstance();
+		if (settings.containsKey(TiC.PROPERTY_VALUE)) {
+			calendar.setTime(TiConvert.toDate(settings, TiC.PROPERTY_VALUE));
+		} else if (hasProperty(TiC.PROPERTY_VALUE)) {
+			calendar.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_VALUE));
+		}
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+
+		// Fetch setting for 24-hour/12-hour time.
+		boolean is24Hour = false;
+		if (settings.containsKey(TiC.PROPERTY_FORMAT_24)) {
+			is24Hour = TiConvert.toBoolean(settings, TiC.PROPERTY_FORMAT_24);
+		} else if (hasProperty(TiC.PROPERTY_FORMAT_24)) {
+			is24Hour = TiConvert.toBoolean(getProperties(), TiC.PROPERTY_FORMAT_24);
+		}
+
+		// Fetch optional callback argument.
 		final KrollFunction callback;
-		if (settings.containsKey("callback")) {
-			Object typeTest = settings.get("callback");
+		if (settings.containsKey(TiC.PROPERTY_CALLBACK)) {
+			Object typeTest = settings.get(TiC.PROPERTY_CALLBACK);
 			if (typeTest instanceof KrollFunction) {
 				callback = (KrollFunction) typeTest;
 			} else {
@@ -617,147 +705,116 @@ public class PickerProxy extends TiViewProxy implements PickerColumnListener
 		} else {
 			callback = null;
 		}
-		TimePickerDialog.OnTimeSetListener timeSetListener = null;
-		DialogInterface.OnDismissListener dismissListener = null;
+
+		// Used to indicate if a dialog listener has been invoked.
+		final AtomicInteger callbackCount = new AtomicInteger(0);
+
+		// Configure main picker settings.
+		MaterialTimePicker.Builder pickerBuilder = new MaterialTimePicker.Builder();
+		pickerBuilder.setHour(calendar.get(Calendar.HOUR_OF_DAY));
+		pickerBuilder.setMinute(calendar.get(Calendar.MINUTE));
+		pickerBuilder.setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK);
+		pickerBuilder.setTimeFormat(is24Hour ? TimeFormat.CLOCK_24H : TimeFormat.CLOCK_12H);
+		if (settings.containsKey(TiC.PROPERTY_TITLE)) {
+			pickerBuilder.setTitleText(TiConvert.toString(settings, TiC.PROPERTY_TITLE));
+		}
+
+		// Create the dialog with above settings and assign it listeners.
+		MaterialTimePicker picker = pickerBuilder.build();
+		picker.setCancelable(true);
 		if (callback != null) {
-			timeSetListener = new TimePickerDialog.OnTimeSetListener() {
-				@Override
-				public void onTimeSet(TimePicker field, int hourOfDay, int minute)
-				{
-					if (callback != null) {
-						callbackCount.incrementAndGet();
-						Calendar calendar = Calendar.getInstance();
-						calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-						calendar.set(Calendar.MINUTE, minute);
-						Date value = calendar.getTime();
-						KrollDict data = new KrollDict();
-						data.put("cancel", false);
-						data.put("value", value);
-						callback.callAsync(getKrollObject(), new Object[] { data });
-					}
+			Runnable cancelHandler = () -> {
+				// Invoke callback with a cancel event if not done already.
+				if (callbackCount.get() == 0) {
+					callbackCount.incrementAndGet();
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_CANCEL, true);
+					data.put(TiC.PROPERTY_VALUE, null);
+					callback.callAsync(getKrollObject(), new Object[] { data });
 				}
 			};
-			dismissListener = new DialogInterface.OnDismissListener() {
-				@Override
-				public void onDismiss(DialogInterface dialog)
-				{
-					if (callbackCount.get() == 0 && callback != null) {
-						callbackCount.incrementAndGet();
-						KrollDict data = new KrollDict();
-						data.put("cancel", true);
-						data.put("value", null);
-						callback.callAsync(getKrollObject(), new Object[] { data });
-					}
-				}
-			};
+			picker.addOnPositiveButtonClickListener((view) -> {
+				// Flag that the callback was invoked.
+				callbackCount.incrementAndGet();
+
+				// Fetch selected time and create a date object from it.
+				// Note: Use original "calendar" object to preserve the original YYYY/MM/DD.
+				calendar.set(Calendar.HOUR_OF_DAY, picker.getHour());
+				calendar.set(Calendar.MINUTE, picker.getMinute());
+				Date value = calendar.getTime();
+
+				// Update proxy's "value" property.
+				setProperty(TiC.PROPERTY_VALUE, value);
+
+				// Invoke callback providing the selected value.
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_CANCEL, false);
+				data.put(TiC.PROPERTY_VALUE, value);
+				callback.callAsync(getKrollObject(), new Object[] { data });
+			});
+			picker.addOnNegativeButtonClickListener((dialog) -> {
+				cancelHandler.run();
+			});
+			picker.addOnCancelListener((dialog) -> {
+				cancelHandler.run();
+			});
+			picker.addOnDismissListener((dialog) -> {
+				cancelHandler.run();
+			});
 		}
 
-		// TimePickerDialog has a bug in Android 4.x
-		// If build version is using Android 4.x, use
-		// our TiTimePickerDialog. It was fixed from Android 5.0.
-		TimePickerDialog dialog;
-
-		if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-			&& (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)) {
-			dialog =
-				new TiTimePickerDialog(TiApplication.getAppCurrentActivity(), timeSetListener,
-									   calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), is24HourView);
-		} else {
-			dialog =
-				new TimePickerDialog(TiApplication.getAppCurrentActivity(), timeSetListener,
-									 calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), is24HourView);
-		}
-
-		dialog.setCancelable(true);
-		if (dismissListener != null) {
-			dialog.setOnDismissListener(dismissListener);
-		}
-		if (settings.containsKey("title")) {
-			dialog.setTitle(TiConvert.toString(settings, "title"));
-		}
-		dialog.show();
-		if (settings.containsKey("okButtonTitle")) {
-			dialog.getButton(TimePickerDialog.BUTTON_POSITIVE).setText(TiConvert.toString(settings, "okButtonTitle"));
-		}
-	}
-
-	private void fireColumnModelChange(int columnIndex)
-	{
-		if (peekView() instanceof TiUIPicker) {
-			((TiUIPicker) peekView()).onColumnModelChanged(columnIndex);
-		}
-	}
-
-	private void fireRowChange(int columnIndex, int rowIndex)
-	{
-		if (peekView() instanceof TiUIPicker) {
-			((TiUIPicker) peekView()).onRowChanged(columnIndex, rowIndex);
-		}
+		// Show the dialog.
+		picker.show(appCompatActivity.getSupportFragmentManager(), picker.toString());
 	}
 
 	public void fireSelectionChange(int columnIndex, int rowIndex)
 	{
+		// Update selection collection.
+		if ((columnIndex >= 0) && (columnIndex < this.selectedRows.size())) {
+			this.selectedRows.set(columnIndex, rowIndex);
+		}
+
+		// Fire a "change" event with given selection.
 		KrollDict d = new KrollDict();
 		d.put("columnIndex", columnIndex);
 		d.put("rowIndex", rowIndex);
-		PickerColumnProxy column = getColumn(columnIndex);
-		PickerRowProxy row = getRow(columnIndex, rowIndex);
-		d.put("column", column);
-		d.put("row", row);
-		int columnCount = getColumnCount();
-		ArrayList<String> selectedValues = new ArrayList<String>(columnCount);
+		d.put("column", getColumn(columnIndex));
+		d.put("row", getRow(columnIndex, rowIndex));
+		int columnCount = this.columnList.size();
+		ArrayList<String> selectedValues = new ArrayList<>(columnCount);
 		for (int i = 0; i < columnCount; i++) {
 			PickerRowProxy rowInColumn = getSelectedRow(i);
 			if (rowInColumn != null) {
-				selectedValues.add(rowInColumn.toString());
+				selectedValues.add(rowInColumn.getTitle());
 			} else {
 				selectedValues.add(null);
 			}
 		}
 		d.put("selectedValue", selectedValues.toArray());
-		fireEvent("change", d);
+		fireEvent(TiC.EVENT_CHANGE, d);
+	}
+
+	public ArrayList<Integer> getSelectedRows()
+	{
+		return new ArrayList<>(this.selectedRows);
 	}
 
 	@Override
-	public void rowAdded(PickerColumnProxy column, int rowIndex)
+	public void onChanged(PickerColumnProxy proxy)
 	{
-		fireColumnModelChange(children.indexOf(column));
+		TiUIView uiView = peekView();
+		if (uiView instanceof TiUIPlainPicker) {
+			((TiUIPlainPicker) uiView).onColumnChanged(proxy);
+		}
 	}
 
-	@Override
-	public void rowRemoved(PickerColumnProxy column, int oldRowIndex)
+	private void onColumnListChanged()
 	{
-		fireColumnModelChange(children.indexOf(column));
-	}
-
-	@Override
-	public void rowsReplaced(PickerColumnProxy column)
-	{
-		fireColumnModelChange(children.indexOf(column));
-	}
-
-	@Override
-	public void rowChanged(PickerColumnProxy column, int rowIndex)
-	{
-		fireRowChange(children.indexOf(column), rowIndex);
-	}
-
-	@Override
-	public void rowSelected(PickerColumnProxy column, int rowIndex)
-	{
-		int columnIndex = children.indexOf(column);
-		fireSelectionChange(columnIndex, rowIndex);
-	}
-
-	public ArrayList<Integer> getPreselectedRows()
-	{
-		return preselectedRows;
-	}
-
-	public void forceRequestLayout()
-	{
-		if (peekView() instanceof TiUISpinner) {
-			((TiUISpinner) view).forceRequestLayout();
+		if (this.canFireColumnEvents) {
+			TiUIView uiView = peekView();
+			if (uiView instanceof TiUIPlainPicker) {
+				((TiUIPlainPicker) uiView).onColumnListChanged();
+			}
 		}
 	}
 

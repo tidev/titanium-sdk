@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,24 +27,18 @@ import android.provider.ContactsContract;
 
 public abstract class CommonContactsApi
 {
-	private static final boolean TRY_NEWER_API =
-		(android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.DONUT);
 	private static final String TAG = "TiCommonContactsApi";
 
 	protected static CommonContactsApi getInstance()
 	{
 		boolean useNew = false;
-		if (TRY_NEWER_API) {
-			try {
-				Class.forName("android.provider.ContactsContract"); // just a test for success
-				useNew = true;
+		try {
+			Class.forName("android.provider.ContactsContract"); // just a test for success
+			useNew = true;
 
-			} catch (ClassNotFoundException e) {
-				Log.e(TAG, "Unable to load contacts api: " + e.getMessage(), e);
-				useNew = false;
-			}
-		} else {
-			Log.e(TAG, "Contacts API 4 is not supported");
+		} catch (ClassNotFoundException e) {
+			Log.e(TAG, "Unable to load contacts api: " + e.getMessage(), e);
+			useNew = false;
 		}
 
 		if (useNew) {
@@ -254,13 +248,13 @@ public abstract class CommonContactsApi
 		String department;
 
 		boolean hasImage = false;
-		Map<String, ArrayList<String>> emails = new HashMap<String, ArrayList<String>>();
-		Map<String, ArrayList<String>> phones = new HashMap<String, ArrayList<String>>();
-		Map<String, ArrayList<String>> addresses = new HashMap<String, ArrayList<String>>();
-		Map<String, ArrayList<String>> instantMessages = new HashMap<String, ArrayList<String>>();
-		Map<String, ArrayList<String>> relatedNames = new HashMap<String, ArrayList<String>>();
-		Map<String, ArrayList<String>> websites = new HashMap<String, ArrayList<String>>();
-		Map<String, ArrayList<String>> dates = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> emails = new HashMap<>();
+		Map<String, ArrayList<String>> phones = new HashMap<>();
+		Map<String, ArrayList<String>> addresses = new HashMap<>();
+		Map<String, ArrayList<String>> instantMessages = new HashMap<>();
+		Map<String, ArrayList<String>> relatedNames = new HashMap<>();
+		Map<String, ArrayList<String>> websites = new HashMap<>();
+		Map<String, ArrayList<String>> dates = new HashMap<>();
 
 		void addPersonInfoFromL5DataRow(Cursor cursor)
 		{
@@ -315,7 +309,7 @@ public abstract class CommonContactsApi
 			if (instantMessages.containsKey(key)) {
 				collection = instantMessages.get(key);
 			} else {
-				collection = new ArrayList<String>();
+				collection = new ArrayList<>();
 				instantMessages.put(key, collection);
 			}
 			collection.add(instantMessage);
@@ -331,7 +325,7 @@ public abstract class CommonContactsApi
 			if (relatedNames.containsKey(key)) {
 				collection = relatedNames.get(key);
 			} else {
-				collection = new ArrayList<String>();
+				collection = new ArrayList<>();
 				relatedNames.put(key, collection);
 			}
 			collection.add(relatedName);
@@ -358,7 +352,7 @@ public abstract class CommonContactsApi
 			if (phones.containsKey(key)) {
 				collection = phones.get(key);
 			} else {
-				collection = new ArrayList<String>();
+				collection = new ArrayList<>();
 				phones.put(key, collection);
 			}
 			collection.add(phoneNumber);
@@ -388,7 +382,7 @@ public abstract class CommonContactsApi
 			if (emails.containsKey(key)) {
 				collection = emails.get(key);
 			} else {
-				collection = new ArrayList<String>();
+				collection = new ArrayList<>();
 				emails.put(key, collection);
 			}
 			collection.add(emailAddress);
@@ -403,7 +397,7 @@ public abstract class CommonContactsApi
 			if (websites.containsKey(key)) {
 				collection = websites.get(key);
 			} else {
-				collection = new ArrayList<String>();
+				collection = new ArrayList<>();
 				websites.put(key, collection);
 			}
 
@@ -419,7 +413,7 @@ public abstract class CommonContactsApi
 			if (dates.containsKey(key)) {
 				collection = dates.get(key);
 			} else {
-				collection = new ArrayList<String>();
+				collection = new ArrayList<>();
 				dates.put(key, collection);
 			}
 			collection.add(date);
@@ -439,7 +433,7 @@ public abstract class CommonContactsApi
 
 		void loadAddressFromL5DataRow(Cursor cursor)
 		{
-			// TODO add structured addresss
+			// TODO add structured address
 			String fullAddress = cursor.getString(ContactsApiLevel5.DATA_COLUMN_ADDRESS_FULL);
 			int type = cursor.getInt(ContactsApiLevel5.DATA_COLUMN_ADDRESS_TYPE);
 			String key = getPostalAddressTextType(type);
@@ -447,7 +441,7 @@ public abstract class CommonContactsApi
 			if (addresses.containsKey(key)) {
 				collection = addresses.get(key);
 			} else {
-				collection = new ArrayList<String>();
+				collection = new ArrayList<>();
 				addresses.put(key, collection);
 			}
 			collection.add(fullAddress);

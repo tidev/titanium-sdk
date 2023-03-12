@@ -1,7 +1,12 @@
 ---
 name: Titanium.UI.Label
 summary: A text label, with an optional background image.
-description: Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
+description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./label_andorid.png) |  |
+
+    Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
@@ -52,7 +57,7 @@ properties:
         }
         ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -75,25 +80,36 @@ properties:
     constants: Titanium.UI.AUTOLINK_*
     platforms: [android]
 
+  - name: autoSize
+    summary: Automatically scales the label into its size.
+    description: |
+        To use `autoSize` you have to set a `width` and `height` to the label and it will
+        automatically increase the font size to fill up the space. The actual `fontSize`
+        value stays the same.
+    type: Boolean
+    default: false,
+    platforms: [android]
+    since: "11.1.0"
+
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundPaddingLeft
     summary: Number of pixels to extend the background image past the label on the left.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundPaddingRight
     summary: Number of pixels to extend the background image past the label on the right.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundPaddingTop
     summary: Number of pixels to extend the background image past the label on the top.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: color
     summary: Color of the label text, as a color name or hex triplet.
@@ -107,7 +123,7 @@ properties:
     constants: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_*
     type: Number
     default: Titanium.UI.TEXT_ELLIPSIZE_TRUNCATE_END
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: font
     summary: Font to use for the label text.
@@ -121,7 +137,7 @@ properties:
         Used when the label is part of a view that can be highlighted, such as a
         <Titanium.UI.TableViewRow>.
     type: [String, Titanium.UI.Color]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: html
     summary: Simple HTML formatting.
@@ -149,7 +165,7 @@ properties:
 
   - name: maxLines
     summary: Makes the label at most this many lines tall.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: Number
     since: {android: "4.1.0", iphone: "6.1.0", ipad: "6.1.0"}
 
@@ -163,7 +179,7 @@ properties:
         When set to less than or equal to zero, the font auto-downscaling feature will be disabled.
     type: Number
     since: {iphone: "0.8.0", ipad: "0.8.0", android: "6.1.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: shadowColor
     summary: Shadow color of the [text](Titanium.UI.Label.text), as a color name or hex triplet.
@@ -171,7 +187,7 @@ properties:
         Use in conjunction with [shadowOffset](Titanium.UI.Label.shadowOffset) and [shadowRadius](Titanium.UI.Label.shadowRadius).
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0"}
 
   - name: shadowOffset
@@ -179,7 +195,7 @@ properties:
     description: |
         Use in conjunction with [shadowColor](Titanium.UI.Label.shadowColor) and [shadowRadius](Titanium.UI.Label.shadowRadius).
     type: Point
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "3.2.0"}
 
   - name: shadowRadius
@@ -236,7 +252,7 @@ properties:
         behavior when the property is undefined is to center the text vertically.
     type: [Number,String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
-    default: undefined on Android, iPhone and iPad.
+    default: undefined
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0" }
 
 events:
@@ -260,11 +276,22 @@ events:
       - name: bubbles
         summary: This is false. This event does not bubble
         type: Boolean
-    platforms: [iphone,ipad,android]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad, android, macos]
     since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
 
 examples:
+  - title: Simple Alloy XML Example
+    example: |
+        Simple label in a Window
+
+        ``` xml
+        <Alloy>
+            <Window>
+                <Label text="Just a label with text"/>
+            </Window>
+        </Alloy>
+        ```
+
   - title: Basic Label
     example: |
         Create a center-aligned label with a text shadow and specified-size font, and another

@@ -18,17 +18,49 @@ events:
       - name: level
         summary: Percentage battery power level.
         type: Number
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: canOpenURL
     summary: |
         Returns whether the system is configured with a default application to handle the URL's protocol/scheme.
     description: |
-        On iOS, this method might return false if you have not whitelisted the URL schemes you query in your [tiapp.xml](https://docs.appcelerator.com/platform/latest/#!/guide/tiapp.xml_and_timodule.xml_Reference-section-src-29004921_tiapp.xmlandtimodule.xmlReference-iOS9SecurityandcanOpenUrl).
+        As of iOS 9, this method may return `false` if you have not added the URL schemes you query to the
+        "tiapp.xml" file. You can do this by adding a `<key>LSApplicationQueriesSchemes</key>` plist section
+        as shown [here](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Appendices/tiapp.xml_and_timodule.xml_Reference.html#ios9-security-and-canopenurl).
+
+        As of Android 11, this method may return `false` if you have not added the URL schemes to a `<queries/>`
+        manifest section in the "tiapp.xml" file. Google documents examples how to do
+        this [here](https://developer.android.com/preview/privacy/package-visibility).
+
+        ```xml
+        <ti:app xmlns:ti="http://ti.tidev.io">
+            <android>
+                <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+                    <queries>
+                        <!-- Allows "http://" and "https://" web URLs. -->
+                        <intent>
+                            <action android:name="android.intent.action.VIEW"/>
+                            <data android:scheme="https"/>
+                        </intent>
+                        <!-- Allows "mailto:" URLs to an e-mail app. -->
+                        <intent>
+                            <action android:name="android.intent.action.VIEW"/>
+                            <data android:scheme="mailto"/>
+                        </intent>
+                        <!-- Allows file URLs to local image files. -->
+                        <intent>
+                            <action android:name="android.intent.action.VIEW"/>
+                            <data android:mimeType="image/*"/>
+                        </intent>
+                    </queries>
+                </manifest>
+            </android>
+        </ti:app>
+        ```
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
@@ -47,7 +79,7 @@ methods:
 
   - name: createUUID
     summary: Creates a globally-unique identifier.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: String
 
@@ -57,7 +89,7 @@ methods:
     description: |
         Here are some example URL strings this can be set to.
 
-          * `'https://www.appcelerator.com'`  (Opens in web browser.)
+          * `'https://www.titaniumsdk.com'`  (Opens in web browser.)
           * `'mailto:user@domain.com'`  (Opens a new draft in e-mail app.)
           * `'mailto:user@domain.com?cc=johndoe@domain.com,janedoe@domain.com&subject=My%20Subject&body=The%20body.'`
           * `'tel:123-456-7890'`  (Opens phone app if applicable.)
@@ -80,7 +112,7 @@ methods:
         });
         ```
 
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: Boolean
     parameters:
@@ -109,7 +141,7 @@ methods:
     summary: Returns whether the system settings are configured to show times in 24-hour format.
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: BATTERY_STATE_CHARGING
@@ -136,19 +168,19 @@ properties:
     summary: System's WIFI IP address. No other network types are supported.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: architecture
     summary: System's processor architecture.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: availableMemory
     summary: System's unused memory, measured in bytes.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: batteryLevel
     summary: |
@@ -159,7 +191,7 @@ properties:
 
   - name: batteryMonitoring
     summary: Determines whether battery monitoring is enabled.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     default: false
     type: Boolean
 
@@ -194,7 +226,7 @@ properties:
 
         To use a UUID for tracking / advertising purposes,
         use <Titanium.Platform.identifierForAdvertising> instead.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
 
@@ -205,7 +237,7 @@ properties:
         vendor running on the same device. A different value is returned for apps
         on the same device that come from different vendors, and for apps on
         different devices regardless of vendor. See the [Apple docs](https://developer.apple.com/reference/uikit/uidevice/1620059-identifierforvendor) for more infos.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: String
     permission: read-only
     since: "7.0.0"
@@ -224,7 +256,7 @@ properties:
         for example, after the device has been restarted but before the user has
         unlocked the device.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.0.0"
 
   - name: isAdvertisingTrackingEnabled
@@ -234,10 +266,22 @@ properties:
         If the value is false, use the advertising identifier only for the following
         purposes: frequency capping, attribution, conversion events, estimating the
         number of unique users, advertising fraud detection, and debugging.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     type: Boolean
     permission: read-only
     since: "7.0.0"
+
+  - name: isTranslatedBinaryOnAppleSilicon
+    summary: |
+        A Boolean value that indicates whether the current app is running as a translated
+        binary using Rosetta on an Apple Silicon device.
+    description: |
+        Use this utility property to guard API's that may not be available on a non-iOS
+        device, e.g. motion activity or some authorization components.
+    platforms: [iphone, ipad, macos]
+    type: Boolean
+    permission: read-only
+    since: "12.0.0"
 
   - name: locale
     summary: System's default language.
@@ -247,7 +291,7 @@ properties:
         [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
         sections of wikipedia for reference.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
 
@@ -259,7 +303,7 @@ properties:
         unique device identification, which they have prohibited.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: manufacturer
     summary: Manufacturer of the device.
@@ -268,7 +312,7 @@ properties:
         Virtual devices return `unknown`.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: model
@@ -281,7 +325,7 @@ properties:
         `Simulator` for iOS running in a simulator.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     examples:
       - title: Testing for a Virtual Device
         example: |
@@ -300,7 +344,10 @@ properties:
         Name of the platform. Returns `android` for the Android platform, `iPhone OS` for the iOS
         platform (iPhone, iPad, or iPod Touch), and `windows` for the Windows platform.
 
-        Since iOS 10 this property returns `iOS` for for the iOS platform (iPhone, iPad, or iPod Touch).
+        This property returns `iOS` for for the iOS platform (iPhone & iPod Touch). For the iPad,
+        it returns `iOS` for iOS < 13 and `iPadOS` for iPadOS > 13 as part of the iPadOS rebranding
+        for the iPad. If you need one identifier for both iOS and iPadOS, use <Titanium.Platform.osname>
+        instead.
     type: String
     permission: read-only
 
@@ -308,7 +355,7 @@ properties:
     summary: System's WIFI network mask. No other network types are supported.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: osname
     summary: |
@@ -320,7 +367,7 @@ properties:
 
   - name: ostype
     summary: Operating System architecture. On Android, this is `32bit`.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
 
@@ -328,7 +375,7 @@ properties:
     summary: Number of logical processing cores.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: runtime
     summary: Short name of the JavaScript runtime in use.
@@ -341,20 +388,20 @@ properties:
     summary: System's total memory, measured in bytes.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: uptime
     summary: System uptime since last boot in seconds.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: username
     summary: |
       System name, if set. On iOS, this can be found in Settings > General > About > Name.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: version
     summary: The operating system's version string.
@@ -376,7 +423,16 @@ properties:
 
       Will return zero if the OS does not have a minor version.
     type: Number
-    default: 0
+    permission: read-only
+    since: "9.2.0"
+
+  - name: versionPatch
+    summary: The operating system's patch version number.
+    description: |
+      This returns the same value as the [OS_VERSION_PATCH](Global.OS_VERSION_PATCH) constant.
+
+      Will return zero if the OS does not have a patch version.
+    type: Number
     permission: read-only
     since: "9.2.0"
 

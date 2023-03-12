@@ -37,5 +37,5 @@ description: |
     window.open();
     ```
 extends: Titanium.Proxy
-since: "8.0.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}

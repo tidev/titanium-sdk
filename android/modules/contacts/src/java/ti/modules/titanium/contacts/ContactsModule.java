@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -62,7 +64,6 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		contactsApi = CommonContactsApi.getInstance();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getContactsAuthorization()
 	{
@@ -76,21 +77,26 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public void requestContactsPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestContactsPermissions(
+		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (hasContactsPermissions()) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			permissionCallback.callAsync(getKrollObject(), response);
-			return;
-		}
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (hasContactsPermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				permissionCallback.callAsync(callbackThisObject, response);
+				promise.resolve(response);
+				return;
+			}
 
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CONTACTS, permissionCallback,
-														 getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(
-			new String[] { Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS },
-			TiC.PERMISSION_CODE_CONTACTS);
+			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CONTACTS, permissionCallback,
+				callbackThisObject, promise);
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			currentActivity.requestPermissions(
+				new String[] { Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS },
+				TiC.PERMISSION_CODE_CONTACTS);
+		});
 	}
 
 	@Kroll.method
@@ -165,10 +171,10 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		int requestCode = requestCodeGen.getAndIncrement();
 
 		if (requests == null) {
-			requests = new HashMap<Integer, Map<String, KrollFunction>>();
+			requests = new HashMap<>();
 		}
-		Map<String, KrollFunction> callbacks = new HashMap<String, KrollFunction>();
-		requests.put(new Integer(requestCode), callbacks);
+		Map<String, KrollFunction> callbacks = new HashMap<>();
+		requests.put(requestCode, callbacks);
 
 		String[] callbacksToConsider = new String[] { "selectedPerson", "cancel" };
 		for (String callbackToConsider : callbacksToConsider) {
@@ -180,7 +186,7 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 			}
 			if (d.containsKey("proxy")) {
 				Object test = d.get("proxy");
-				if (test != null && test instanceof KrollProxy) {
+				if (test instanceof KrollProxy) {
 					launchingActivity = ((KrollProxy) test).getActivity();
 				}
 			}
@@ -200,7 +206,7 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	@Override
 	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 	{
-		Integer rcode = new Integer(requestCode);
+		Integer rcode = requestCode;
 		if (requests.containsKey(rcode)) {
 			Map<String, KrollFunction> request = requests.get(rcode);
 			Log.d(TAG, "Received result from contact picker.  Result code: " + resultCode, Log.DEBUG_MODE);

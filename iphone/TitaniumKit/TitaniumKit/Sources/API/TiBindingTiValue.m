@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,7 @@
 #import "KrollContext.h"
 #import "KrollMethod.h"
 #import "KrollObject.h"
+#import "KrollPromise.h"
 #import <objc/runtime.h>
 
 /*
@@ -278,21 +279,24 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     JSValueRef result = JSValueMakeString(jsContext, jsString);
     JSStringRelease(jsString);
     JSObjectRef excObject = JSObjectMakeError(jsContext, 1, &result, NULL);
+    JSContext *objcContext = [JSContext contextWithJSGlobalContextRef:JSContextGetGlobalContext(jsContext)];
+    JSValue *excValue = [JSValue valueWithJSValueRef:excObject inContext:objcContext];
     NSDictionary *details = [(NSException *)obj userInfo];
 
     // Add "nativeReason" key
     NSString *subreason = [details objectForKey:kTiExceptionSubreason];
     if (subreason != nil) {
-      JSStringRef propertyName = JSStringCreateWithUTF8CString("nativeReason");
-      JSStringRef valueString = JSStringCreateWithCFString((CFStringRef)subreason);
-      JSObjectSetProperty(jsContext, excObject, propertyName, JSValueMakeString(jsContext, valueString), kJSPropertyAttributeReadOnly, NULL);
-      JSStringRelease(propertyName);
-      JSStringRelease(valueString);
+      NSString *message = [excValue[@"message"] toString];
+      NSString *format = [message hasSuffix:@"."] ? @"%@ %@" : @"%@. %@";
+      message = [NSString stringWithFormat:format, message, subreason];
+      excValue[@"message"] = [JSValue valueWithObject:message inContext:objcContext];
+      excValue[@"nativeReason"] = [JSValue valueWithObject:subreason inContext:objcContext];
     }
 
     // Add "nativeStack" key
     NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
-    NSInteger startIndex = 3; // Starting at index = 4 to not include the script-error API's
+    NSInteger startIndex = 0; // Starting at index = 4 to not include the script-error API's
+
     if (nativeStack == nil) { // the exception was created, but never thrown, so grab the current stack frames
       nativeStack = [NSThread callStackSymbols]; // this happens when we construct an exception manually in our ENSURE macros for obj-c proxies
       startIndex = 2; // drop ObjcProxy.throwException and this method from frames
@@ -305,7 +309,10 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
 
       // re-size stack trace and format results
       for (NSUInteger i = startIndex; i < endIndex; i++) {
-        NSString *line = [[nativeStack objectAtIndex:i] stringByReplacingOccurrencesOfString:@"     " withString:@""];
+        NSString *line = [nativeStack objectAtIndex:i];
+        while ([line rangeOfString:@"  "].location != NSNotFound) {
+          line = [line stringByReplacingOccurrencesOfString:@"  " withString:@" "];
+        }
         [formattedStackTrace addObject:line];
       }
 
@@ -357,6 +364,13 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
     JSValueRef args[1];
     args[0] = JSValueMakeNumber(jsContext, number);
     return JSObjectMakeDate(jsContext, 1, args, NULL);
+  }
+  if ([obj isKindOfClass:[JSValue class]]) {
+    JSValue *jsValue = (JSValue *)obj;
+    return jsValue.JSValueRef;
+  }
+  if ([obj isKindOfClass:[KrollPromise class]]) {
+    return ((KrollPromise *)obj).JSValue.JSValueRef;
   }
   return TiBindingTiValueFromProxy(jsContext, (TiProxy *)obj);
 }

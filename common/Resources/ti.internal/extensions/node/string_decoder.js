@@ -101,7 +101,6 @@ class MultiByteStringDecoderImpl extends StringDecoderImpl {
 	 * - charLength: expected number of bytes for the incomplete character
 	 * - index: index in the buffer where the incomplete character begins
 	 * @param {Buffer} _buffer Buffer we are checking to see if it has an incompelte "character" at the end
-	 * @returns {IncompleteCharObject}
 	 */
 	_checkIncompleteBytes(_buffer) {
 		throw new Error('subclasses must override!');

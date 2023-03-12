@@ -8,8 +8,8 @@ description: |
     On iOS, shortcuts are only supported on a 3D Touch compatible device.
     Use the <Titanium.UI.iOS.forceTouchSupported> property to see if it's supported.
 extends: Titanium.Proxy
-since: "9.1.0"
-platforms: [android, iphone, ipad]
+platforms: [iphone, ipad, android, macos]
+since: {android: "9.1.0", iphone: "9.1.0", ipad: "9.1.0", macos: "9.2.0"}
 osver: {android: {min: "7.1"}}
 properties:
   - name: items
@@ -60,8 +60,6 @@ events:
       - name: item
         summary: The shortcut item clicked.
         type: Titanium.UI.ShortcutItem
-    platforms: [iphone, ipad, android]
-    since: '9.1.0'
 
 examples:
   - title: Simple Shortcut Example

@@ -9,12 +9,12 @@
 'use strict';
 
 // Predefined additional filters
-var checks = {
-		ignore: function () {
-			return false;
-		}
-	},
-	originalChecks = Object.keys(checks);
+let checks = {
+	ignore: function () {
+		return false;
+	}
+};
+const originalChecks = Object.keys(checks);
 
 module.exports = function (defaults) {
 	if (typeof defaults !== 'undefined' && typeof defaults !== 'object') {
@@ -42,7 +42,7 @@ module.exports.setupMocha = function (_checks, skipOriginals) {
 		}
 	}
 
-	var functions = [ describe, it, before, after, beforeEach, afterEach ];
+	const functions = [ global.describe, global.it, global.before, global.after, global.beforeEach, global.afterEach ];
 
 	/**
 	 * Process the checks
@@ -92,9 +92,9 @@ module.exports.setupMocha = function (_checks, skipOriginals) {
 		functions[_i][_extension] = _extensions[_extension];
 	}
 
-	for (var i in functions) {
-		var extensions = ext(functions[i], true);
-		for (var extension in extensions) {
+	for (let i in functions) {
+		const extensions = ext(functions[i], true);
+		for (let extension in extensions) {
 			populateFunctions(i, extension, extensions);
 		}
 	}

@@ -5,28 +5,6 @@ summary: |
     and shake gestures.
 extends: Titanium.Module
 since: "0.8"
-
-methods:
-  - name: isLandscape
-    summary: Returns whether or not the device is currently held in landscape form.
-    description: Value returns `true` if in landscape, and `false` otherwise.
-    deprecated:
-        since: "6.1.0"
-        removed: "7.0.0"
-        notes: Use [Titanium.Gesture.landscape](Titanium.Gesture.landscape) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
-    returns:
-        type: Boolean
-
-  - name: isPortrait
-    summary: Returns whether or not the device is currently held in portrait form.
-    description: Value returns `true` if in portrait, and `false` otherwise.
-    deprecated:
-        since: "6.1.0"
-        removed: "7.0.0"
-        notes: Use [Titanium.Gesture.portrait](Titanium.Gesture.portrait) for parity instead. Removed in 7.0.0 on Android, 8.1.0 on iOS.
-    returns:
-        type: Boolean
-
 properties:
   - name: portrait
     summary: Indicates if the device is currently held in portrait form.
@@ -35,7 +13,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: landscape
     summary: Indicates if the device is currently held in landscape form.
@@ -44,7 +22,7 @@ properties:
     type: Boolean
     accessors: false
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: orientation
     summary: Orientation of the device.
@@ -65,6 +43,15 @@ properties:
         To set the *allowable* orientations for a window, see <Titanium.UI.Window.orientationModes>.
     type: Number
     permission: read-only
+
+methods:
+  - name: stopListener
+    summary: Stops the gesture listener.
+    description: |
+        In case you use `Titanium.Gesture.landscape` or `Titanium.Gesture.portrait` it will attach the orientation
+        listener automatically. If you just use it once you can use this method to stop the listener.
+    since: "12.1.0"
+    platforms: [android]
 
 events:
   - name: orientationchange

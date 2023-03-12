@@ -27,7 +27,7 @@ description: |
     Use the <Titanium.Network.Socket.createTCP> method to create a TCP socket.
 extends: Titanium.IOStream
 since: "1.7"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 examples:
   - title: Simple Socket IO using Stream.pump
     example: |
@@ -298,19 +298,10 @@ summary: Object passed to the error callback when the socket enters
     the [ERROR](Titanium.Network.Socket.ERROR) state.
 since: "1.7"
 extends: FailureResponse
-
 properties:
   - name: socket
     summary: Socket that experienced the error.
     type: Titanium.Network.Socket.TCP
-
-  - name: errorCode
-    summary: The error code of the error (potentially system-dependent).
-    type: Number
-    deprecated:
-        since: "3.1.0"
-        removed: "9.0.0"
-        notes: Use the code property for a numeric error code
 
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -58,7 +58,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigLargeIcon(Object icon)
 	{
@@ -81,7 +80,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_LARGE_ICON, icon);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigPicture(Object picture)
 	{
@@ -98,7 +96,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_PICTURE, picture);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBigContentTitle(String title)
 	{
@@ -106,7 +103,6 @@ public class BigPictureStyleProxy extends StyleProxy
 		setProperty(TiC.PROPERTY_BIG_CONTENT_TITLE, title);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSummaryText(String text)
 	{

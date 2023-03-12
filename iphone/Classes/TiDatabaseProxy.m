@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,8 +8,10 @@
 
 #import "TiDatabaseProxy.h"
 #import "TiDatabaseResultSetProxy.h"
+@import TitaniumKit.KrollPromise;
 @import TitaniumKit.TiFilesystemFileProxy;
 @import TitaniumKit.TiUtils;
+@import TitaniumKit.JSValue_Addons;
 
 @implementation TiDatabaseProxy
 
@@ -119,7 +121,7 @@
   NSURL *url = [TiUtils toURL:path proxy:self];
   path = [url path];
 
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   //TIMOB-6081. Resources are right now symbolic links when running in simulator) so the copy method
   //of filemanager just creates a link to the original resource.
   //Resolve the symbolic link if running in simulator
@@ -272,22 +274,34 @@
   return result;
 }
 
-- (void)executeAsync:(NSString *)sql
+- (JSValue *)executeAsync:(NSString *)sql
 {
-  NSArray *currentArgs = [JSContext currentArguments];
-  if ([currentArgs count] < 2) {
-    [self throwException:@"callback function must be supplied" subreason:@"" location:CODELOCATION];
-    return;
-  }
-  JSValue *callback = [currentArgs objectAtIndex:[currentArgs count] - 1];
-
+  NSArray *currentArgs = JSContext.currentArguments;
   NSArray *params = @[];
-  if ([currentArgs count] > 2) {
-    JSValue *possibleParams = [currentArgs objectAtIndex:1];
-    if ([possibleParams isArray]) {
-      params = [possibleParams toArray];
-    } else {
-      params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, [currentArgs count] - 2)]];
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
+
+  // Callback is optional, so are the parameter args, so this gets a bit ugly!
+  JSValue *callback = nil;
+  if (currentArgs.count > 1) {
+    JSValue *possibleCallback = currentArgs[currentArgs.count - 1];
+    if ([possibleCallback isFunction]) {
+      callback = possibleCallback;
+      if (currentArgs.count > 2) {
+        JSValue *possibleParams = currentArgs[1];
+        if ([possibleParams isArray]) {
+          params = [possibleParams toArray];
+        } else {
+          params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, (currentArgs.count - 2))]];
+        }
+      }
+    } else { // last arg is not a callback, treat as param
+      JSValue *possibleParams = currentArgs[1];
+      if ([possibleParams isArray]) {
+        params = [possibleParams toArray];
+      } else {
+        params = [self sqlParams:[currentArgs subarrayWithRange:NSMakeRange(1, (currentArgs.count - 1))]];
+      }
     }
   }
 
@@ -297,17 +311,25 @@
     TiDatabaseResultSetProxy *proxy = [self executeSQL:sql withParams:params withError:&error];
     if (error != nil) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        JSValue *jsError = [JSValue valueWithNewErrorFromMessage:[NSString stringWithFormat:@"failed to execute SQL statement: %@", [error description]] inContext:[callback context]];
-        [callback callWithArguments:@[ jsError ]];
+        NSString *message = [NSString stringWithFormat:@"failed to execute SQL statement: %@", error.description];
+        JSValue *jsError = [JSValue valueWithNewErrorFromMessage:message inContext:context];
+        if (callback != nil) {
+          [callback callWithArguments:@[ jsError ]];
+        }
+        [promise rejectWithErrorMessage:message];
       });
       return;
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-      JSContext *context = [callback context];
-      [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], proxy == nil ? [JSValue valueWithNullInContext:context] : proxy ]];
+      id jsProxy = (proxy == nil) ? [JSValue valueWithNullInContext:context] : proxy;
+      if (callback != nil) {
+        [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], jsProxy ]];
+      }
+      [promise resolve:@[ jsProxy ]];
     });
   });
+  return promise.JSValue;
 }
 
 - (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries withContext:(JSContext *)context withError:(NSError *__nullable *__nullable)error
@@ -357,10 +379,11 @@
   return results;
 }
 
-- (void)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
+- (JSValue *)executeAllAsync:(NSArray<NSString *> *)queries withCallback:(JSValue *)callback
 {
+  JSContext *context = [self currentContext];
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    JSContext *context = [callback context];
     NSError *error = nil;
     NSMutableArray *results = [NSMutableArray arrayWithCapacity:[queries count]];
     NSUInteger index = 0;
@@ -368,10 +391,13 @@
       TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:nil withError:&error];
       if (error != nil) {
         JSValue *jsError = [self createError:@"failed to execute SQL statements" subreason:[error description] location:CODELOCATION inContext:context];
-        jsError[@"results"] = result;
+        jsError[@"results"] = results;
         jsError[@"index"] = [NSNumber numberWithUnsignedInteger:index];
         dispatch_async(dispatch_get_main_queue(), ^{
-          [callback callWithArguments:@[ jsError, results ]];
+          if (![callback isUndefined]) {
+            [callback callWithArguments:@[ jsError, results ]];
+          }
+          [promise reject:@[ jsError ]];
         });
         return;
       }
@@ -384,9 +410,13 @@
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
-      [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], results ]];
+      if (![callback isUndefined]) {
+        [callback callWithArguments:@[ [JSValue valueWithUndefinedInContext:context], results ]];
+      }
+      [promise resolve:@[ results ]];
     });
   });
+  return promise.JSValue;
 }
 
 - (void)close

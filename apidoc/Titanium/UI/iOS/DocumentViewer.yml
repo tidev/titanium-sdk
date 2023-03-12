@@ -89,10 +89,10 @@ description: |
     }
     ```
 
-    Read more about the issue in [TIMOB-25680](https://jira.appcelerator.org/browse/TIMOB-25680).
+    Read more about the issue in [TIMOB-25680](https://jira-archive.titaniumsdk.com/TIMOB-25680).
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
-since: "2.1.1"
+platforms: [iphone, ipad, macos]
+since: {iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0"}
 properties:
   - name: name
     summary: Name of the file (without the path).
@@ -109,6 +109,12 @@ properties:
         more about this change in the "Note for iOS 11.2 and later" paragraph of
         the API summary.
     type: String
+
+  - name: annotation
+    summary: Custom property list information for the target file.
+    description: |
+        Use this property to pass information about the document type to the app responsible for opening it.
+    type: [Dictionary, Array, String, Number, Date]
 
 methods:
   - name: hide
@@ -193,8 +199,8 @@ examples:
 name: DocumentViewerOptions
 summary: A simple object for specifying options when showing or dismissing a <Titanium.UI.iOS.DocumentViewer>.
 description: The `view` property does not apply to the `hide` method.
-platforms: [iphone, ipad]
-since: '2.1.1'
+platforms: [iphone, ipad, macos]
+since: {iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0"}
 properties:
   - name: animated
     summary: Indicates whether to animate the transition.

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -58,8 +58,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   TiProxy *proxy;
   TiAnimation *animation;
 
+  CAShapeLayer *_shadowLayer;
   CALayer *gradientLayer;
   CALayer *bgdImageLayer;
+  CAShapeLayer *_borderLayer;
   int clipMode;
 
   CGAffineTransform virtualParentTransform;
@@ -146,6 +148,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (BOOL)proxyHasGestureListeners;
 - (void)ensureGestureListeners;
 - (void)updateClipping;
+- (UIBezierPath *)bezierPathOfView;
 /**
  Returns CA layer for the background image of the view.
  */
@@ -157,7 +160,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 /**
  Returns CA layer for shadow component of the view.
  */
-- (CALayer *)shadowLayer;
+- (CAShapeLayer *)shadowLayer;
 /**
  Tells the view to start specified animation.
  @param newAnimation The animation to start.

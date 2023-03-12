@@ -2,6 +2,10 @@
 name: Titanium.UI.Android.DrawerLayout
 summary: A panel that displays the app's main navigation options on the left edge of the screen.
 description: |
+    | Android |
+    | ------- |
+    | ![Android](./drawerlayout_android.png) |
+
     DrawerLayout acts as a top-level container for window content that allows for interactive "drawer"
     views to be pulled out from one or both vertical edges of the window.
 
@@ -90,6 +94,20 @@ properties:
     type: Number
     constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
     default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+
+  - name: leftDrawerLockMode
+    summary: Get or set lock mode for the left drawer
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+    since: "9.3.0"
+
+  - name: rightDrawerLockMode
+    summary: Get or set lock mode for the right drawer
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+    since: "9.3.0"
 
   - name: toolbarEnabled
     summary: Determine whether to enable the toolbar.
@@ -222,4 +240,33 @@ examples:
 
         win.add(drawer);
         win.open();
+        ```
+
+  - title: Alloy DrawerLayout example
+    example: |
+        The following code shows an Alloy version of the drawer-layout.
+        ``` xml
+        <Alloy>
+            <Window class="container">
+                <ActionBar platform="android" displayHomeAsUp="true" onHomeIconItemSelected="onClickDrawer" />
+                <DrawerLayout id="drawer" platform="android">
+                    <LeftView>
+                        <View backgroundColor="#fff"></View>
+                    </LeftView>
+                    <CenterView>
+                        <View>
+                            <Label text="Center view" />
+                        </View>
+                    </CenterView>
+                </DrawerLayout>
+            </Window>
+        </Alloy>
+        ```
+
+        ``` js
+        function onClickDrawer(e){
+            $.drawer.toggleLeft();
+        }
+
+        $.index.open();
         ```

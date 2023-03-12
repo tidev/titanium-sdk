@@ -1,7 +1,7 @@
 /*
  * run.js: Titanium Android run hook
  *
- * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -18,6 +18,7 @@ exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 	let deviceInfo = [];
+	const ignoreLog = config.cli.ignoreLog || [];
 
 	cli.on('build.pre.compile', {
 		priority: 8000,
@@ -227,6 +228,10 @@ exports.init = function (logger, config, cli) {
 				},
 
 				function (next) {
+					cli.emit('build.post.install', builder, next);
+				},
+
+				function (next) {
 					if (!cli.argv.launch) {
 						logger.info(__('Skipping launch of: %s', (builder.appid + '/.' + builder.classname + 'Activity').cyan));
 						return next(true);
@@ -260,6 +265,13 @@ exports.init = function (logger, config, cli) {
 						// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
 						} else if (nonTiLogRegexp.test(line)) {
 							return;
+						}
+
+						// ignore some Android logs in info log level
+						for (let i = 0, len = ignoreLog.length; i < len; ++i) {
+							if (line.includes(ignoreLog[i])) {
+								return;
+							}
 						}
 
 						switch (logLevel) {
@@ -360,7 +372,7 @@ exports.init = function (logger, config, cli) {
 
 								let done = false;
 								async.whilst(
-									function () { return !done; },
+									function (wcb) { return wcb(null, !done); },
 									function (cb2) {
 										adb.getPid(device.id, builder.appid, function (err, pid) {
 											if (err || !pid) {

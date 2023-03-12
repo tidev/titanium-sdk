@@ -19,8 +19,7 @@ description: |
     [addToDefaultSearchableIndex()](Titanium.App.iOS.SearchableIndex.addToDefaultSearchableIndex) method to add the item
     to the device's search index.
 extends: Titanium.Proxy
-platforms: [iphone,ipad]
-osver: {ios: {min: "9.0"}}
+platforms: [iphone,ipad, macos]
 since: "5.0.0"
 createable: true
 properties:
@@ -29,12 +28,10 @@ properties:
     description: Must be set to create a SearchableItem object.
     type: Titanium.App.iOS.SearchableItemAttributeSet
     availability: creation
-    osver: {ios: {min: "9.0"}}
     accessors: false
   - name: domainIdentifier
     summary: Identifier that represents the "domain" or owner of this item.
     type: String
-    osver: {ios: {min: "9.0"}}
   - name: expirationDate
     summary: Searchable items have an expiration date or time to live.  By default it is set to one month.
     description: |
@@ -43,11 +40,9 @@ properties:
         The date will be a string in the following format: "yyyy-MM-dd'T'HH:mm:ss.SSS'+0000'"
         For example, `2015-12-25T23:30:55.978+0000`
     type: String
-    osver: {ios: {min: "9.0"}}
   - name: uniqueIdentifier
     summary: Unique identifier to your application group.
     type: String
-    osver: {ios: {min: "9.0"}}
 examples:
   - title: Add Searchable Content to the On-Device Index
     example: |

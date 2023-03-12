@@ -1,0 +1,7 @@
+disabled_rules: # rule identifiers to exclude from running
+  - orphaned_doc_comment
+  - line_length
+  - identifier_name
+included: # paths to include during linting. `--path` is ignored if present.
+  - iphone/Classes
+  

@@ -1,0 +1,105 @@
+name: Package
+description: Packages the SDK
+
+inputs:
+  node-version:
+    description: The version of Node.js to use
+    required: true
+  java-version:
+    description: The version of Java to use
+    required: true
+  vtag:
+    description: The version tag to be used for the SDK
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: Use JDK 11
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: ${{ inputs.java-version }}
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: android-build
+
+    - name: Extract Android build output
+      run: tar -xzvf android-build.tar.gz
+      shell: bash
+
+    - uses: actions/download-artifact@v2
+      with:
+        name: ios-build
+
+    - name: Extract iOS build output
+      run: tar -xzvf ios-build.tar.gz
+      shell: bash
+
+    - name: Cache Native Modules
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.SDK_BUILD_CACHE_DIR }}
+        key: native-modules-${{ github.sha }}
+        restore-keys: |
+          native-modules-
+
+    - name: Package
+      run: npm run package -- --version-tag ${{ inputs.vtag }} --all
+      shell: bash
+
+    - name: Archive OSX artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: mobilesdk-${{ inputs.vtag }}-osx
+        path: |
+          dist/mobilesdk-*-osx.zip
+
+    - name: Archive win32 artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: mobilesdk-${{ inputs.vtag }}-win32
+        path: |
+          dist/mobilesdk-*-win32.zip
+
+    - name: Archive Linux artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: mobilesdk-${{ inputs.vtag }}-linux
+        path: |
+          dist/mobilesdk-*-linux.zip
+
+    - name: Cleanup Gradle Cache
+      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+      run: |
+        rm -f ~/.gradle/caches/modules-2/modules-2.lock
+        rm -f ~/.gradle/caches/modules-2/gc.properties
+      shell: bash
+
+    - uses: geekyeggo/delete-artifact@v1
+      with:
+        name: |
+          android-build
+          ios-build

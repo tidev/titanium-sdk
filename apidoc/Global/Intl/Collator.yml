@@ -54,8 +54,8 @@ examples:
         console.log(collator.compare('a', 'b') === 0);  // Not Equal
         ```
 
-platforms: [iphone, ipad, android]
-since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+platforms: [iphone, ipad, android, macos]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0", macos: "9.2.0"}
 osver: {ios: {min: "10.3"}}
 
 methods:
@@ -83,7 +83,7 @@ methods:
       For more detail, see the MDN website about
       [resolvedOptions](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl/Collator/resolvedOptions).
     returns:
-        type: Object
+        type: CollatorOptions
         summary: Returns the collation options used.
 
   - name: supportedLocalesOf
@@ -129,8 +129,8 @@ properties:
 ---
 name: CollatorOptions
 summary: Options to be passed into the <Global.Intl.Collator.constructor> method.
-platforms: [iphone, ipad, android]
-since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+platforms: [iphone, ipad, android, macos]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0", macos: "9.2.0"}
 osver: {ios: {min: "10.3"}}
 properties:
   - name: localeMatcher
@@ -141,7 +141,7 @@ properties:
       Can be set to `'lookup'` or `'best fit'`.
 
       This option is ignored on Android.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
 
   - name: usage
     type: String
@@ -151,7 +151,7 @@ properties:
       Can be set to `'sort'` or `'search'`.
 
       This option is ignored on Android.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
 
   - name: sensitivity
     type: String
@@ -175,7 +175,7 @@ properties:
     summary: Indicates if punctuation characters should be ignored during the compare.
     description: |
       This option is ignored on Android.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
 
   - name: numeric
     type: Boolean
@@ -186,7 +186,7 @@ properties:
       value instead of by their character codes.
 
       This option is ignored on Android.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]
 
   - name: caseFirst
     type: String
@@ -200,4 +200,4 @@ properties:
       *    `'false'` Use the locale's default case handling.
 
       This option is ignored on Android.
-    platforms: [iphone, ipad]
+    exclude-platforms: [android]

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,7 +31,6 @@ import android.webkit.WebView;
 
 public class TiWebViewBinding
 {
-
 	private static final String TAG = "TiWebViewBinding";
 	// This is based on binding.min.js. If you have to change anything...
 	// - change binding.js
@@ -129,7 +128,8 @@ public class TiWebViewBinding
 			stream = KrollAssetHelper.openAsset("Resources/ti.internal/webview/" + fileName);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-				code.append(line + "\n");
+				code.append(line);
+				code.append('\n');
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error reading input stream", e);
@@ -146,7 +146,7 @@ public class TiWebViewBinding
 		return code;
 	}
 
-	private Semaphore returnSemaphore = new Semaphore(0);
+	private final Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
 	synchronized public String getJSValue(String expression)
@@ -222,7 +222,7 @@ public class TiWebViewBinding
 	private class AppBinding
 	{
 		private KrollModule module;
-		private HashMap<String, Integer> appListeners = new HashMap<String, Integer>();
+		private final HashMap<String, Integer> appListeners = new HashMap<>();
 		private int counter = 0;
 		private String code = null;
 		public AppBinding()
@@ -298,7 +298,7 @@ public class TiWebViewBinding
 		}
 	}
 
-	private class ApiBinding
+	private static class ApiBinding
 	{
 		private KrollLogging logging;
 

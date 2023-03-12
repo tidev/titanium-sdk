@@ -15,9 +15,8 @@ description: |
 
     You can only define one gravity behavior per animator.
 extends: Titanium.Proxy
-since: "3.2"
-platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+platforms: [iphone, ipad, macos]
+since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 properties:
   - name: angle
     summary: Specifies the angle of the gravity vector in radians.

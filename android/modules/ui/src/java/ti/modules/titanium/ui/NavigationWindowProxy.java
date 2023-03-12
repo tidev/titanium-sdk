@@ -1,11 +1,13 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -13,12 +15,14 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 @Kroll.proxy(creatableInModule = UIModule.class)
 public class NavigationWindowProxy extends WindowProxy
 {
 	private static final String TAG = "NavigationWindowProxy";
 
-	private List<TiWindowProxy> windows = new ArrayList<>();
+	private final List<TiWindowProxy> windows = new ArrayList<>();
 
 	public NavigationWindowProxy()
 	{
@@ -27,7 +31,7 @@ public class NavigationWindowProxy extends WindowProxy
 
 	@Override
 	@Kroll.method
-	public void open(@Kroll.argument(optional = true) Object arg)
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
 		// FIXME: Shouldn't this complain/blow up if window isn't specified?
 		if (!opened && getProperties().containsKeyAndNotNull(TiC.PROPERTY_WINDOW)) {
@@ -37,9 +41,11 @@ public class NavigationWindowProxy extends WindowProxy
 				openWindow(rootView, arg);
 				fireEvent(TiC.EVENT_OPEN, null);
 			}
-			return;
+			return KrollPromise.create((promise) -> {
+				promise.resolve(null);
+			});
 		}
-		super.open(arg);
+		return super.open(arg);
 	}
 
 	@Kroll.method
@@ -52,17 +58,19 @@ public class NavigationWindowProxy extends WindowProxy
 		}
 	}
 
-	@Override
-	@Kroll.method
-	public void close(@Kroll.argument(optional = true) Object arg)
+	protected void handleClose(@NonNull KrollDict options)
 	{
 		if (opened) {
 			opened = false;
-			popToRootWindow(arg);
-			closeWindow(windows.get(0), arg); // close the root window
+			popToRootWindow(options);
+			closeWindow(windows.get(0), options); // close the root window
 			fireEvent(TiC.EVENT_CLOSE, null);
+			if (closePromise != null) {
+				closePromise.resolve(null);
+				closePromise = null;
+			}
 		}
-		super.close(arg);
+		super.handleClose(options);
 	}
 
 	@Kroll.method

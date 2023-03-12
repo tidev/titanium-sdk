@@ -30,7 +30,8 @@ description:  |
     fullscreen or modal and can be customized, such as changing their opacity or background color.
     Windows themselves are views and also inherit a views properties, functions and events. There
     are a few specialization of Windows such as a [Tab Group](Titanium.UI.TabGroup) which offer
-    additional behavior beyond the basic Window.
+    additional behavior beyond the basic Window. It is considered a best practice to use a
+    [NavigationWindow](Titanium.UI.NavigationWindow) as the root of your application.
 
     Titanium uses the [Factory Pattern](http://en.wikipedia.org/wiki/Factory_method_pattern) for
     constructing objects and a general naming pattern for APIs.  For example, to construct a
@@ -50,33 +51,23 @@ description:  |
     example, you should call `close` on a [Window](Titanium.UI.Window) instance when you are no
     longer using it.  You can safely call `open` on the window again to re-open it.
 
-    #### Global Context and Threading
+    #### Global Context
 
-    Be careful with the objects that are created in `app.js` but only used once. Since the `app.js`
-    context is global and generally is not garbage collected until the application exits, you
-    should think about the design of your application as it relates to this fact.
+    Prior to the release of Titanium SDK `9.0.0.GA` any variable declared in `app.js` or `alloy.js`
+    was added to a global scope. This however is no longer the case since `9.0.0.GA`. However
+    it is still possible to add variables to a global scope by adding `global.` in front of any
+    variabled declared in `app.js` or `alloy.js`. However you should be careful with adding variables
+    to global context because anything added to the global context will not be garbage-collected.
 
-    [Window](Titanium.UI.Window) objects that are opened up with the `url` property to another
-    JavaScript file provide a nice way to decompose your application into smaller units.
-
-    Additionally, Window objects created with a `url` value run in a separate JavaScript context
-    and thread. While all UI processing is done on the main UI thread, other processing inside
-    a Window or the `app.js` that does not have UI interaction will run in its own thread.
-
-    The other benefit of using the `url` property is that when the window is closed, resources
-    allocated in the window's context can be immediately cleaned up, saving resources such as
-    memory and CPU.
-
-    For more information, see the sections "Sub-contexts" and "Passing Data Between Contexts" on the
-    [Window](Titanium.UI.Window) reference page.
+    In Alloy the recommended way to add global context is `Alloy.Globals`.
 
     #### Portability
 
     Titanium components are designed to be portable across as many platforms as it supports.
     However, there are cases where a device either does not support a specific feature or capability
-    or where it support additional functionality.  For cases where the device OS supports
+    or where it support additional functionality. For cases where the device OS supports
     capabilities that other platforms do not, we attempt to place those capabilities in a separate
-    namespace, such as <Titanium.UI.iPhone>. However, in cases where the control is in a common
+    namespace, such as <Titanium.UI.iOS>. However, in cases where the control is in a common
     namespace and support additional features, we continue to place that functionality directly on
     the object.
 
@@ -89,6 +80,8 @@ description:  |
     Evaluating events as late as possible while bearing the above consideration in mind, however,
     can significantly improve application responsiveness. For example, an event listener for a
     click event may be defined after the parent window has been opened.
+
+    Adding `eventListeners` in Alloy makes sure they are bound before they are fired.
 
     #### Colors
 
@@ -175,9 +168,11 @@ description:  |
 
     And you would reference the image as before using `logo-dark.png`
 
+    Android:
+    You can use the native `app/assets/android/images/res-night` folder (extend them with e.g. `res-night-xxhdpi` if needed) for dark-mode images.
 extends: Titanium.Module
 since: "0.4"
-
+platforms: [android, iphone, ipad, macos]
 events:
   - name: userinterfacestyle
     summary: Fired when the `userInterfaceStyle` changes.
@@ -186,7 +181,6 @@ events:
         summary: The new userInterfaceStyle value.
         type: Number
         constants: Titanium.UI.USER_INTERFACE_STYLE_*
-    platforms: [android, iphone, ipad]
     osver: {ios: {min: "13.0"}}
 
 methods:
@@ -274,7 +268,6 @@ properties:
         slowly and speeds up.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_IN_OUT
@@ -283,7 +276,6 @@ properties:
         slowly, and speeds up, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_EASE_OUT
@@ -292,7 +284,6 @@ properties:
         quickly, then slows down at the end of the animation.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ANIMATION_CURVE_LINEAR
@@ -301,7 +292,6 @@ properties:
         at a constant rate.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: { android: "8.0.0", iphone: "0.9", ipad: "0.9" }
 
   - name: ATTRIBUTE_FONT
@@ -312,9 +302,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_FOREGROUND_COLOR
@@ -325,9 +313,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_BACKGROUND_COLOR
@@ -338,9 +324,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LIGATURE
@@ -352,9 +336,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LETTERPRESS_STYLE
@@ -366,9 +349,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_KERN
@@ -380,9 +362,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_STYLE
@@ -393,9 +374,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINES_STYLE
@@ -406,9 +385,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_SUPERSCRIPT_STYLE
@@ -439,9 +416,8 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_PARAGRAPH_STYLE
@@ -452,7 +428,7 @@ properties:
         Range for this should be whole string.
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.5.0"
     permission: read-only
 
@@ -466,9 +442,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_SHADOW
@@ -479,9 +454,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION
@@ -492,9 +466,8 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_TEXT_EFFECT
@@ -506,9 +479,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINK
@@ -522,9 +494,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_BASELINE_OFFSET
@@ -535,9 +505,7 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad, android]
     since: {iphone: "3.6.0", ipad: "3.6.0", android: "7.0.0"}
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_COLOR
@@ -548,9 +516,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
@@ -561,9 +528,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_OBLIQUENESS
@@ -574,9 +540,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_EXPANSION
@@ -590,15 +555,14 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK
     deprecated:
         since: "7.5.0"
-        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.  
+        notes: Use [ParagraphAttribute.lineBreakMode](ParagraphAttribute.lineBreakMode) instead.
     summary: |
         Use with <Attribute.type> to wrap and truncate the text.
     description: |
@@ -606,9 +570,8 @@ properties:
 
         See <Attribute> for more information on type modes.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_NONE
@@ -621,9 +584,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_SINGLE
@@ -636,9 +598,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "6.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_THICK
@@ -651,9 +612,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_STYLE_DOUBLE
@@ -666,9 +626,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_SOLID
@@ -681,9 +640,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DOT
@@ -696,9 +654,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH
@@ -711,9 +668,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT
@@ -726,9 +682,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_PATTERN_DASH_DOT_DOT
@@ -741,9 +696,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_UNDERLINE_BY_WORD
@@ -756,9 +710,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_EMBEDDING
@@ -770,9 +723,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_OVERRIDE
@@ -784,9 +736,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_NATURAL
@@ -800,9 +751,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_LEFT_TO_RIGHT
@@ -814,9 +764,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_WRITING_DIRECTION_RIGHT_TO_LEFT
@@ -828,9 +777,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.6.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_WORD_WRAPPING
@@ -842,9 +790,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_CHAR_WRAPPING
@@ -856,9 +803,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_CLIPPING
@@ -870,9 +816,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_HEAD
@@ -884,9 +829,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_MIDDLE
@@ -898,9 +842,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
 
   - name: ATTRIBUTE_LINE_BREAK_BY_TRUNCATING_TAIL
@@ -912,271 +855,183 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.0.0"
-    osver: {ios: {min: "7.0"}}
     permission: read-only
-
-  - name: AUTODETECT_ADDRESS
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
-    summary: Converts strings formatted as addresses into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_ALL
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
-    summary: Converts all detectable types of data into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_CALENDAR
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_CALENDAR](Titanium.UI.AUTOLINK_CALENDAR) instead.
-    summary: Converts strings formatted as calendar events into clickable links.
-    type: Number
-    osver: {ios: {min: "4.0"}}
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_LINK
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
-    summary: Converts strings formatted as URLs into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_NONE
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_NONE](Titanium.UI.AUTOLINK_NONE) instead.
-    summary: Disables converting strings into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
-
-  - name: AUTODETECT_PHONE
-    deprecated:
-        since: "1.8.0"
-        removed: "6.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
-    summary: Converts strings formatted as phone numbers into clickable links.
-    type: Number
-    permission: read-only
-    platforms: [iphone, ipad]
 
   - name: AUTOFILL_TYPE_USERNAME
     summary: Specifies the expectation of an account or login name.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_PASSWORD
     summary: Specifies the expectation of a password.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME
     summary: Specifies the expectation of a name.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME_PREFIX
     summary: Specifies the expectation of a prefix or title, such as 'Dr.'
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_GIVEN_NAME
     summary: Specifies the expectation of a given name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_MIDDLE_NAME
     summary: Specifies the expectation of a middle name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_FAMILY_NAME
     summary: Specifies the expectation of a family name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_NAME_SUFFIX
     summary: Specifies the expectation of a suffix, such as 'Jr.'
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_NICKNAME
     summary: Specifies the expectation of a nickname.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_JOB_TITLE
     summary: Specifies the expectation of a job title.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ORGANIZATION_NAME
     summary: Specifies the expectation of an organization name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_LOCATION
     summary: Specifies the expectation of a location, such as a point of interest, an address, or another way to identify a location.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS
     summary: Specifies the expectation of an address.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_LINE1
     summary: Specifies the expectation of the first line of a street address.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_LINE2
     summary: Specifies the expectation of the second line of a street address.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_CITY
     summary: Specifies the expectation of a city name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_STATE
     summary: Specifies the expectation of a state name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_ADDRESS_CITY_STATE
     summary: Specifies the expectation of a city name combined with a state name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_SUBLOCALITY
     summary: Specifies the expectation of a sublocality.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_COUNTRY_NAME
     summary: Specifies the expectation of a country name.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_POSTAL_CODE
     summary: Specifies the expectation of a postal code.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_PHONE
     summary: Specifies the expectation of a telephone number.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_EMAIL
     summary: Specifies the expectation of an email address.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_URL
     summary: Specifies the expectation of a URL.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_NUMBER
     summary: Specifies the expectation of a card number.
     type: String
-    platforms: [iphone, ipad, android]
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_CARD_SECURITY_CODE
@@ -1222,17 +1077,15 @@ properties:
   - name: AUTOFILL_TYPE_NEW_PASSWORD
     summary: Specifies the expectation of a new password.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.4.0"
-    osver: { ios: { min: "12.0" } }
     permission: read-only
 
   - name: AUTOFILL_TYPE_ONE_TIME_CODE
     summary: Specifies the expectation of a single-factor SMS login code.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.4.0"
-    osver: { ios: { min: "12.0" } }
     permission: read-only
 
   - name: AUTOLINK_MAP_ADDRESSES
@@ -1246,10 +1099,8 @@ properties:
             Use with <Titanium.UI.TextArea.autoLink>, <Titanium.UI.TextField.autoLink>, and <Titanium.UI.Label.autoLink> properties.
 
     type: Number
-    osver: {ios: {min: "4.0"}}
     since: "3.0.0"
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: AUTOLINK_ALL
     summary: Converts all detectable types of data into clickable links.
@@ -1264,16 +1115,14 @@ properties:
     type: Number
     since: "3.0.0"
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: AUTOLINK_CALENDAR
     summary: Converts strings formatted as calendar events into clickable links.
     description: Use with the <Titanium.UI.TextArea.autoLink> property. Two or more autolink constants can be combined using bitwise or.
     type: Number
-    osver: {ios: {min: "4.0"}}
     since: "3.0.0"
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: AUTOLINK_URLS
     summary: Converts strings formatted as URLs into clickable links.
@@ -1289,7 +1138,6 @@ properties:
     type: Number
     since: "3.0.0"
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: AUTOLINK_NONE
     summary: Disables converting strings into clickable links.
@@ -1304,7 +1152,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
 
   - name: AUTOLINK_PHONE_NUMBERS
     summary: Converts strings formatted as phone numbers into clickable links.
@@ -1319,7 +1166,58 @@ properties:
     type: Number
     permission: read-only
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+
+  - name: AUTOLINK_SHIPMENT_TRACKING_NUMBER
+    summary: An option to detect strings with the format of a tracking number from a package delivery company.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_FLIGHT_NUMBER
+    summary: An option to detect strings with the format of a flight number from an airline.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_LOOKUP_SUGGESTION
+    summary: An option to detect strings with the format of information that the user might want to look up.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_MONEY
+    summary: An option to detect strings with the format of money amounts.
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    osver: { ios: { min: "16.0" } }
+    platforms: [iphone, ipad, macos]
+
+  - name: AUTOLINK_PHYSICAL_VALUE
+    summary: An option to detect strings with the format of physical values (length, temperatures, etc...)
+    description: |
+        Two or more autolink constants can be combined using bitwise or.
+        Use with the <Titanium.UI.TextArea.autoLink> property.
+    type: Number
+    permission: read-only
+    since: "12.0.0"
+    osver: { ios: { min: "16.0" } }
+    platforms: [iphone, ipad, macos]
 
   - name: AUTOLINK_EMAIL_ADDRESSES
     summary: Converts strings formatted as email addresses into clickable links.
@@ -1335,7 +1233,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_CLEAR
     summary: |
@@ -1343,7 +1240,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_COLOR
     summary: |
@@ -1351,7 +1247,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_COLOR_BURN
     summary: |
@@ -1359,7 +1255,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_COLOR_DODGE
     summary: |
@@ -1367,7 +1263,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_COPY
     summary: |
@@ -1375,7 +1271,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DARKEN
     summary: |
@@ -1383,7 +1278,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_ATOP
     summary: |
@@ -1391,7 +1285,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_IN
     summary: |
@@ -1399,7 +1292,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_OUT
     summary: |
@@ -1407,7 +1299,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DESTINATION_OVER
     summary: |
@@ -1415,7 +1306,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_DIFFERENCE
     summary: |
@@ -1423,7 +1313,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_EXCLUSION
     summary: |
@@ -1431,7 +1321,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_HARD_LIGHT
     summary: |
@@ -1439,7 +1329,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_HUE
     summary: |
@@ -1447,7 +1337,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_LIGHTEN
     summary: |
@@ -1455,7 +1345,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_LUMINOSITY
     summary: |
@@ -1463,7 +1352,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_MULTIPLY
     summary: |
@@ -1471,7 +1360,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_NORMAL
     summary: |
@@ -1479,7 +1367,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_OVERLAY
     summary: |
@@ -1487,7 +1374,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_PLUS_DARKER
     summary: |
@@ -1495,7 +1381,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_PLUS_LIGHTER
     summary: |
@@ -1503,7 +1389,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SATURATION
     summary: |
@@ -1511,7 +1396,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_SCREEN
     summary: |
@@ -1519,7 +1404,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOFT_LIGHT
     summary: |
@@ -1527,7 +1411,7 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: BLEND_MODE_SOURCE_ATOP
     summary: |
@@ -1535,7 +1419,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_IN
     summary: |
@@ -1543,7 +1426,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_SOURCE_OUT
     summary: |
@@ -1551,7 +1433,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
 
   - name: BLEND_MODE_XOR
     summary: |
@@ -1559,7 +1440,118 @@ properties:
     type: Number
     permission: read-only
     since: "7.3.0"
-    platforms: [android, iphone, ipad]
+
+  - name: BUTTON_STYLE_FILLED
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a solid filled button.
+    description: |
+        This is not supported on iOS and will show [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OUTLINED
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show an unfilled rounded border button.
+    description: |
+        This is not supported on iOS and will show [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_TEXT
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a text-only button without a background.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OPTION_POSITIVE
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a positive themed accept button.
+    description: |
+        This is a text-only button without a background. It is intended to be used in conjunction with
+        [BUTTON_STYLE_OPTION_NEGATIVE](Titanium.UI.BUTTON_STYLE_OPTION_NEGATIVE) and
+        [BUTTON_STYLE_OPTION_NEUTRAL](Titanium.UI.BUTTON_STYLE_OPTION_NEUTRAL) to show an an accept button
+        before closing a window or dialog such as "OK", "Yes", "Done", etc. It is typically colored
+        differently than a [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) themed button on iOS.
+
+        On Android, this can be customized by the `buttonBarPositiveButtonStyle` attribute.
+
+        By default, the Android material theme does not style this button differently than any other
+        text-only button. Only the holo theme will style it differently.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OPTION_NEGATIVE
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a negative themed escape button.
+    description: |
+        This is a text-only button without a background. It is intended to be used in conjunction with
+        [BUTTON_STYLE_OPTION_POSITIVE](Titanium.UI.BUTTON_STYLE_OPTION_POSITIVE) and
+        [BUTTON_STYLE_OPTION_NEUTRAL](Titanium.UI.BUTTON_STYLE_OPTION_NEUTRAL) to show an
+        escape button to exit a window or dialog such as "Cancel", "No", etc.
+
+        This is not supported on iOS and will use [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+
+        On Android, this can be customized by the `buttonBarNegativeButtonStyle` attribute. By default,
+        Android's built-in themes will style this button the same as
+        [BUTTON_STYLE_OPTION_NEUTRAL](Titanium.UI.BUTTON_STYLE_OPTION_NEUTRAL) and
+        [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT).
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: BUTTON_STYLE_OPTION_NEUTRAL
+    summary: Use with [Button.style](Titanium.UI.Button.style) to show a normal themed option button.
+    description: |
+        This is a text-only button without a background. It is intended to be used in conjunction with
+        [BUTTON_STYLE_OPTION_POSITIVE](Titanium.UI.BUTTON_STYLE_OPTION_POSITIVE) and
+        [BUTTON_STYLE_OPTION_NEGATIVE](Titanium.UI.BUTTON_STYLE_OPTION_NEGATIVE) to show
+        a normal informational button.
+
+        This is not supported on iOS and will use [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT) instead.
+
+        On Android, this can be customized by the `buttonBarNeutralButtonStyle` attribute. By default,
+        Android's built-in themes will style this button the same as
+        [BUTTON_STYLE_OPTION_NEGATIVE](Titanium.UI.BUTTON_STYLE_OPTION_NEGATIVE) and
+        [BUTTON_STYLE_TEXT](Titanium.UI.BUTTON_STYLE_TEXT).
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: DATE_PICKER_STYLE_AUTOMATIC
+    summary: |
+        Displays a <Titanium.UI.Picker> using the best visual style on the current platform for date/time selection.
+    description: |
+        On Android and iOS, a picker with this style will be shown in compatct form,
+        where the picker will be a read-only text field which opens a selection dialog when tapped on.
+
+        Note: Prior to iOS 14, this property is only used on iOS Catalyst apps.
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_WHEELS
+    summary: Displays a <Titanium.UI.Picker> as spinner wheels for date/time selection.
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_COMPACT
+    summary: Displays a <Titanium.UI.Picker> as a read-only text field which opens a selection dialog when tapped on.
+    description: "Note: Prior to iOS 14, this property is only used on iOS Catalyst apps."
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "13.4" } }
+
+  - name: DATE_PICKER_STYLE_INLINE
+    summary: Displays a <Titanium.UI.Picker> as a large calendar or clock view for date/time selection.
+    description: |
+        On iOS, an inlined "time" picker will appear as a text field with spinners for hours and minutes.
+    type: Number
+    permission: read-only
+    since: "10.0.1"
+    osver: { ios: { min: "14.0" } }
 
   - name: HINT_TYPE_STATIC
     summary: |
@@ -1581,7 +1573,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
@@ -1590,7 +1582,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_CLIP
@@ -1599,7 +1591,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_START
@@ -1608,7 +1600,6 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: "4.1.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_MIDDLE
@@ -1617,7 +1608,6 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: "4.1.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_END
@@ -1626,7 +1616,6 @@ properties:
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: "4.1.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_MARQUEE
@@ -1653,7 +1642,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_BOTTOM
@@ -1662,7 +1651,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_LEFT
@@ -1671,7 +1660,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_RIGHT
@@ -1680,7 +1669,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_NONE
@@ -1689,7 +1678,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: EXTEND_EDGE_ALL
@@ -1698,7 +1687,7 @@ properties:
         One of the group of constants for the <Titanium.UI.Window.extendEdges> property.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.1.3"
 
   - name: FACE_DOWN
@@ -1752,27 +1741,66 @@ properties:
 
   - name: INPUT_BORDERSTYLE_BEZEL
     summary: Use a bezel-style border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
+
+        Android does not support this style and will use
+        [INPUT_BORDERSTYLE_LINE](Titanium.UI.INPUT_BORDERSTYLE_LINE) instead.
     type: Number
     permission: read-only
 
   - name: INPUT_BORDERSTYLE_LINE
     summary: Use a simple line border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
     type: Number
     permission: read-only
 
   - name: INPUT_BORDERSTYLE_NONE
     summary: Use no border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
     type: Number
     permission: read-only
 
   - name: INPUT_BORDERSTYLE_ROUNDED
     summary: Use a rounded-rectangle border on the input field.
-    description: Use with the <Titanium.UI.TextField.borderStyle> property.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> property.
+
+        On Android, this can also be used by the <Titanium.UI.TextArea.borderStyle> property.
     type: Number
     permission: read-only
+
+  - name: INPUT_BORDERSTYLE_UNDERLINED
+    summary: Show an underline instead of a border around the input field.
+    description: |
+        Use with the <Titanium.UI.TextField.borderStyle> and <Titanium.UI.TextArea.borderStyle> properties.
+
+        iOS does not support this style and will use
+        [INPUT_BORDERSTYLE_LINE](Titanium.UI.INPUT_BORDERSTYLE_LINE) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: INPUT_BORDERSTYLE_FILLED
+    summary: Show an enclosed border with a filled background on the input field.
+    description: |
+        This is the default Android material theme on Android.
+
+        Use with the <Titanium.UI.TextField.borderStyle> and <Titanium.UI.TextArea.borderStyle> properties.
+
+        iOS does not support this style and will use
+        [INPUT_BORDERSTYLE_BEZEL](Titanium.UI.INPUT_BORDERSTYLE_BEZEL) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
 
   - name: INPUT_BUTTONMODE_ALWAYS
     summary: Always show buttons on the input field.
@@ -1782,7 +1810,6 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: INPUT_BUTTONMODE_NEVER
     summary: Never show buttons on the input field.
@@ -1792,7 +1819,6 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: INPUT_BUTTONMODE_ONBLUR
     summary: Show buttons on the input field when it loses focus.
@@ -1802,7 +1828,7 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: INPUT_BUTTONMODE_ONFOCUS
     summary: Show buttons on the input field when it gains focus.
@@ -1812,7 +1838,6 @@ properties:
         and <Titanium.UI.TextField.rightButtonMode> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: INPUT_TYPE_CLASS_NUMBER
     summary: Use a keyboard with a number pad only, with the pad keyboard layout. Accepts only numbers.
@@ -1832,166 +1857,25 @@ properties:
     permission: read-only
     platforms: [android]
 
-  - name: KEYBOARD_APPEARANCE_ALERT
-    summary: Use a keyboard appearance suitable for entering text on an alert.
-    type: Number
-    permission: read-only
-    deprecated:
-        since: "5.4.0"
-        removed: "8.0.0"
-    platforms: [iphone, ipad]
-
   - name: KEYBOARD_APPEARANCE_DEFAULT
     summary: Use the platform-specific default keyboard appearance.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: KEYBOARD_APPEARANCE_DARK
     summary: Use the platform-specific dark keyboard appearance.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_APPEARANCE_LIGHT
     summary: Use the platform-specific light keyboard appearance.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
-
-  - name: KEYBOARD_ASCII
-    summary: Use a keyboard supporting all characters except emoji. Defaults to English letters layout on iOS.
-    description: |
-        This keyboard type allows the end-user to enter numbers, symbols, and non-English letters too.
-        It just launches with the English letters keyboard layout when shown.
-        This type will not allow the end-user to display an emoji keyboard.
-
-        Android keyboards will typically ignore this setting and show the default language keyboard instead,
-        but will still not allow the end-user to enter emoji characters like iOS.
-
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_ASCII](Titanium.UI.KEYBOARD_TYPE_ASCII) instead.
-
-  - name: KEYBOARD_DECIMAL_PAD
-    summary: Use a number pad keyboard layout showing only numbers, decimal separator, and sign character.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-
-        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_DEFAULT>.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD](Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD) instead.
-
-  - name: KEYBOARD_DEFAULT
-    summary: Use the default keyboard, depending on the platform.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_DEFAULT](Titanium.UI.KEYBOARD_TYPE_DEFAULT) instead.
-
-  - name: KEYBOARD_EMAIL
-    summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_EMAIL](Titanium.UI.KEYBOARD_TYPE_EMAIL) instead.
-
-  - name: KEYBOARD_NAMEPHONE_PAD
-    summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD) instead.
-
-  - name: KEYBOARD_NUMBERS_PUNCTUATION
-    summary: Use a keyboard supporting all characters except emoji, defaulting to numbers layout on iOS.
-    description: |
-        On iOS, this will default to showing the "Numbers and Punctuation" side of the keyboard,
-        but still allows the end-user to switch to other keyboards for entering letters as well.
-        This type will not allow the end-user to display an emoji keyboard.
-
-        On Android, this type displays a normal keyboard defaulting to the letter side,
-        but will not allow the end-user to enter emoji characters like iOS.
-
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION) instead.
-
-  - name: KEYBOARD_NUMBER_PAD
-    summary: Use a number pad keyboard layout only showing numbers for entering positive integers.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-
-        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
-    type: Number
-    permission: read-only
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD](Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD) instead.
-
-  - name: KEYBOARD_PHONE_PAD
-    summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-
-        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
-    type: Number
-    permission: read-only
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_PHONE_PAD](Titanium.UI.KEYBOARD_TYPE_PHONE_PAD) instead.
-
-  - name: KEYBOARD_URL
-    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_URL](Titanium.UI.KEYBOARD_TYPE_URL) instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number
@@ -2003,7 +1887,6 @@ properties:
         On iPad, this behaves the same as <Titanium.UI.KEYBOARD_TYPE_DEFAULT>.
         type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_ASCII
@@ -2020,7 +1903,6 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_DEFAULT
@@ -2048,7 +1930,6 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBERS_PUNCTUATION
@@ -2065,7 +1946,6 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_NUMBER_PAD
@@ -2099,7 +1979,7 @@ properties:
         Note: This keyboard automatically sets the return key to "Go" (localized).
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_TWITTER
@@ -2109,7 +1989,7 @@ properties:
         properties.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: KEYBOARD_TYPE_URL
@@ -2148,13 +2028,11 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: LIST_ACCESSORY_TYPE_NONE
     summary: Do not display anything on the right side of an item in a list view.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: '3.1.0'
 
   - name: LIST_ACCESSORY_TYPE_CHECKMARK
@@ -2163,7 +2041,6 @@ properties:
         Use to indicate an item in a list is selected.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: '3.1.0'
 
   - name: LIST_ACCESSORY_TYPE_DETAIL
@@ -2172,7 +2049,6 @@ properties:
         Use to indicate that selecting this item results in the display of a detailed view of that item.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: '3.1.0'
 
   - name: LIST_ACCESSORY_TYPE_DISCLOSURE
@@ -2182,7 +2058,6 @@ properties:
         the next level in the data model hierarchy.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_DEFAULT
@@ -2196,7 +2071,6 @@ properties:
         on the left side of the cell.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_SETTINGS
@@ -2209,7 +2083,7 @@ properties:
         element is not displayed.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_CONTACTS
@@ -2222,7 +2096,7 @@ properties:
         displayed.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.1.0'
 
   - name: LIST_ITEM_TEMPLATE_SUBTITLE
@@ -2235,7 +2109,7 @@ properties:
         element is not displayed.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: '3.1.0'
 
   - name: NOTIFICATION_DURATION_LONG
@@ -2254,16 +2128,17 @@ properties:
     summary: Specifies that the clipboard items should not be available to other devices through Handoff.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad, macos]
     since: "5.5.0"
 
   - name: CLIPBOARD_OPTION_EXPIRATION_DATE
-    summary: Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+    summary: |
+        Specifies the time and date that you want the system to remove the clipboard items from the clipboard.
+
+        Note that on macOS, setting a date in the past does not appear to invalidate items immediately, while on iOS it does.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "10.0"}}
+    platforms: [iphone, ipad, macos]
     since: "5.5.0"
 
   - name: PICKER_TYPE_COUNT_DOWN_TIMER
@@ -2273,7 +2148,7 @@ properties:
         to update the picker values.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: PICKER_TYPE_DATE
     summary: Use a date picker.
@@ -2319,8 +2194,7 @@ properties:
         devices will display <Titanium.UI.RETURNKEY_DEFAULT>.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    platforms: [iphone, ipad, macos]
     since: "5.2.0"
 
   - name: RETURNKEY_DEFAULT
@@ -2340,7 +2214,6 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: RETURNKEY_EMERGENCY_CALL
     summary: Set the return key text to "Emergency Call".
@@ -2349,7 +2222,6 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: RETURNKEY_GO
     summary: Set the return key text to "Go".
@@ -2367,7 +2239,6 @@ properties:
     type: Number
     permission: read-only
 
-
   - name: RETURNKEY_JOIN
     summary: Set the return key text to "Join".
     description: |
@@ -2375,7 +2246,6 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: RETURNKEY_NEXT
     summary: Set the return key text to "Next".
@@ -2384,7 +2254,6 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: RETURNKEY_ROUTE
     summary: Set the return key text to "Route".
@@ -2393,7 +2262,6 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: RETURNKEY_SEARCH
     summary: Set the return key text to "Search".
@@ -2410,7 +2278,6 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: RETURNKEY_YAHOO
     summary: Set the return key text to "Yahoo".
@@ -2419,6 +2286,26 @@ properties:
         <Titanium.UI.TextArea.returnKeyType> properties.
     type: Number
     permission: read-only
+
+  - name: SELECTION_STYLE_NONE
+    summary: Set the selection style to none.
+    description: |
+        Use with the <Titanium.UI.ListView.selectionStyle> and
+        <Titanium.UI.TableView.selectionStyle> properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad, macos]
+    since: "10.1.0"
+
+  - name: SELECTION_STYLE_DEFAULT
+    summary: Set the selection style to system default.
+    description: |
+        Use with the <Titanium.UI.ListView.selectionStyle> and
+        <Titanium.UI.TableView.selectionStyle> properties.
+    type: Number
+    permission: read-only
+    platforms: [android, iphone, ipad, macos]
+    since: "10.1.0"
 
   - name: SEMANTIC_COLOR_TYPE_DARK
     summary: The value returned by <Titanium.UI.semanticColorType> when the device is in dark/night mode.
@@ -2456,17 +2343,48 @@ properties:
     permission: read-only
     since: "2.0.0"
 
+  - name: SWITCH_STYLE_CHECKBOX
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a checkbox.
+    description: |
+        This is supported by Android and macOS apps running on Big Sur (v11) or higher. iOS devices do not
+        support this style and will use [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: SWITCH_STYLE_TOGGLE_BUTTON
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a toggleable button.
+    description: |
+        This style is only supported on Android.
+        On iOS, this will use [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: SWITCH_STYLE_SLIDER
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a slidable button.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
+  - name: SWITCH_STYLE_CHIP
+    summary: Use with [Switch.style](Titanium.UI.Switch.style) to show a material design checkable chip widget.
+    description: |
+        This style is only supported on Android.
+        On iOS, this will use [SWITCH_STYLE_SLIDER](Titanium.UI.SWITCH_STYLE_SLIDER) instead.
+    type: Number
+    permission: read-only
+    since: "10.0.0"
+
   - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
     summary: The row divider is hidden.
     type: Number
-    platforms: [iphone, ipad, android]
     since: "5.2.0"
     permission: read-only
 
   - name: TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE
     summary: The row divider is shown as a single line.
     type: Number
-    platforms: [iphone, ipad, android]
     since: "5.2.0"
     permission: read-only
 
@@ -2486,11 +2404,12 @@ properties:
         Use with the <Titanium.UI.TextField.textAlign>, <Titanium.UI.Button.textAlign> and
         <Titanium.UI.TextArea.textAlign> properties.
 
-        This constant is a number and only available on iOS.
+        This constant is a number on iOS and a string on Android.
     type: [Number, String]
     permission: read-only
-    platforms: [iphone, ipad]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad, macos]
+    osver: {android: {min: "8.0"}}
+    since: { android: "10.0.0", iphone: "6.1.0", ipad: "6.1.0" }
 
   - name: TEXT_ALIGNMENT_LEFT
     summary: Left align text.
@@ -2546,7 +2465,6 @@ properties:
         <Titanium.UI.TextArea.autocapitalization> properties.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: TEXT_STYLE_HEADLINE
     summary: The font used for headings.
@@ -2554,8 +2472,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: "3.2.0"
 
   - name: TEXT_STYLE_SUBHEADLINE
@@ -2564,8 +2481,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: "3.2.0"
 
   - name: TEXT_STYLE_BODY
@@ -2574,8 +2490,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: "3.2.0"
 
   - name: TEXT_STYLE_FOOTNOTE
@@ -2584,8 +2499,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION1
@@ -2594,8 +2508,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: "3.2.0"
 
   - name: TEXT_STYLE_CAPTION2
@@ -2604,8 +2517,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: "3.2.0"
 
   - name: TEXT_STYLE_CALLOUT
@@ -2614,8 +2526,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE1
@@ -2624,8 +2535,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE2
@@ -2634,8 +2544,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_STYLE_TITLE3
@@ -2644,8 +2553,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    platforms: [iphone, ipad, macos]
     since: "6.0.0"
 
   - name: TEXT_STYLE_LARGE_TITLE
@@ -2654,8 +2562,7 @@ properties:
         One of the group of textStyle constants for the <Font> Object.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "11.0"}}
+    platforms: [iphone, ipad, macos]
     since: "8.1.0"
 
   - name: TEXT_VERTICAL_ALIGNMENT_BOTTOM
@@ -2745,26 +2652,22 @@ properties:
         and <Titanium.UI.UNKNOWN>.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
 
   - name: URL_ERROR_AUTHENTICATION
     summary: Authentication error code reported via <Titanium.UI.WebView.error>.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_BAD_URL
     summary: Bad url error code reported via <Titanium.UI.WebView.error>.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_CONNECT
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to connect to host.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
@@ -2772,56 +2675,48 @@ properties:
   - name: URL_ERROR_SSL_FAILED
     summary: Error code reported via <Titanium.UI.WebView.error> for an SSL failure.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_FILE
     summary: Error code reported via <Titanium.UI.WebView.error> for a failure to access a file resource on a host, except "file not found", which has its own constant.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_FILE_NOT_FOUND
     summary: Error code reported via <Titanium.UI.WebView.error> when a requested file does not exist on the host.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_HOST_LOOKUP
     summary: Error code reported via <Titanium.UI.WebView.error> when a host name cannot be resolved, such as via a DNS lookup error.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_REDIRECT_LOOP
     summary: Error code reported via <Titanium.UI.WebView.error> when a redirect loop is detected.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_TIMEOUT
     summary: Error code reported via <Titanium.UI.WebView.error> when a timeout occurs.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_UNKNOWN
     summary: Error code reported via <Titanium.UI.WebView.error> when an unknown error occurs.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
   - name: URL_ERROR_UNSUPPORTED_SCHEME
     summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
     type: Number
-    platforms: [android, iphone, ipad]
     since: "3.0.0"
     permission: read-only
 
@@ -2873,36 +2768,23 @@ properties:
         windows.
     type: String
 
-  - name: currentTab
-    summary: The currently active tab, if a tab group is open.
+  - name: overrideUserInterfaceStyle
+    summary: Forces the app to used assigned theme instead of the system theme.
     description: |
-        If no tab group is open, this value is undefined.
-    type: Titanium.UI.Tab
-    platforms: [android]
-    since: "1.8.0"
-    deprecated:
-      since: "3.5.0"
-      removed: "6.0.0"
+        When set to [USER_INTERFACE_STYLE_DARK](Titanium.UI.USER_INTERFACE_STYLE_DARK) or
+        [USER_INTERFACE_STYLE_LIGHT](Titanium.UI.USER_INTERFACE_STYLE_LIGHT), the app will ignore
+        the system's current theme and use the theme assigned to this property instead.
 
-  - name: currentWindow
-    summary: The active window associated with the executing JavaScript context.
-    description: |
-        This property is only available when using the <Titanium.UI.Window.url> property to load
-        JavaScript files in their own contexts.
-    type: Titanium.UI.Window
-    permission: read-only
-    deprecated:
-        since: "3.5.0"
-        removed: "6.0.0"
+        When set to [USER_INTERFACE_STYLE_UNSPECIFIED](Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED),
+        the app will use the system's current theme. To determine what the system's current theme is,
+        you must read the [userInterfaceStyle](Titanium.UI.userInterfaceStyle) property.
 
-  - name: orientation
-    summary: Updates the orientation of the current window to the specified orientation value.
-    deprecated:
-        since: "1.7.2"
-        removed: "3.0.0"
-        notes: Use [Titanium.UI.Window.orientationModes](Titanium.UI.Window.orientationModes) instead.
+        See [UI_MODE_NIGHT_MASK](https://developer.android.com/reference/android/content/res/Configuration.html#UI_MODE_NIGHT_MASK).
     type: Number
-    platforms: [android, iphone, ipad]
+    default: Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED
+    constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    osver: {ios: {min: "13.0"}}
+    since: "10.0.1"
 
   - name: tintColor
     summary: |
@@ -2910,7 +2792,7 @@ properties:
         overwritten by them using the `tintColor` property.
     type: [String, Titanium.UI.Color]
     since: "6.0.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: userInterfaceStyle
     summary: The style associated with the user interface.
@@ -2924,6 +2806,25 @@ properties:
     constants: Titanium.UI.USER_INTERFACE_STYLE_*
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
+
+  - name: cutoutSize
+    summary:  Returns the position and shape of the Android notch. Read more about the notch [here](https://developer.android.com/develop/ui/views/layout/display-cutout).
+    description: |
+        Using Android 9+ it will return the bounding box of the Android notch. It will return `top`,`left, `width` and `height`.
+    type: CutoutSize
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: statusBarHeight
+    summary: The total height of the status bar including safe area padding.
+    description: |
+        Use this property to determine an absolute spacing to the top in full screen windows. Note: For a more flexible approach, e.g.
+        when allowing rotation, we recommend using the <Titanium.UI.Window.safeAreaPadding> property of the related window.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, macos, android]
+    since: "12.1.0"
 
 examples:
   - title: Color Demo
@@ -2964,3 +2865,25 @@ examples:
         win.add(table);
         win.open();
         ```
+
+---
+name: CutoutSize
+summary: Dictionary object of parameters for the <Titanium.UI.cutoutSize>.
+since: "12.1.0"
+platforms: [android]
+properties:
+  - name: top
+    type: Number
+    summary: The top position of the cutout.
+
+  - name: left
+    type: Number
+    summary: The left position of the cutout.
+
+  - name: width
+    type: Number
+    summary: The width of the cutout
+
+  - name: height
+    type: Number
+    summary: The height of the cutout

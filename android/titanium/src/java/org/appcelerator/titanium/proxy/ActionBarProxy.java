@@ -1,29 +1,27 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.proxy;
 
+import android.graphics.drawable.Drawable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.TiFileHelper;
-import org.appcelerator.titanium.util.TiUrl;
-
-import android.graphics.drawable.Drawable;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, TiC.PROPERTY_CUSTOM_VIEW })
 public class ActionBarProxy extends KrollProxy
 {
 	private static final String TAG = "ActionBarProxy";
+	private static final String ACTION_BAR_NOT_AVAILABLE_MESSAGE = "ActionBar is not enabled";
 
 	private ActionBar actionBar;
 	private boolean showTitleEnabled = true;
@@ -41,65 +39,82 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
 		if (actionBar != null) {
 			actionBar.setDisplayHomeAsUpEnabled(showHomeAsUp);
 		} else {
-			Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 		}
 	}
 
-	@Kroll.method
+	@Kroll.setProperty
+	public void setHomeAsUpIndicator(Object icon)
+	{
+		if (this.actionBar == null) {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
+			return;
+		}
+
+		if (icon instanceof Number) {
+			this.actionBar.setHomeAsUpIndicator(TiConvert.toInt(icon));
+		} else if (icon != null) {
+			this.actionBar.setHomeAsUpIndicator(TiUIHelper.getResourceDrawable(icon));
+		} else {
+			this.actionBar.setHomeAsUpIndicator(null);
+		}
+	}
+
 	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
 	{
 		if (actionBar != null) {
 			actionBar.setHomeButtonEnabled(homeButtonEnabled);
 		} else {
-			Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setNavigationMode(int navigationMode)
 	{
-		actionBar.setNavigationMode(navigationMode);
+		if (actionBar != null) {
+			actionBar.setNavigationMode(navigationMode);
+		} else {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
+		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBackgroundImage(String url)
 	{
 		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 			return;
 		}
 
-		Drawable backgroundImage = getDrawableFromUrl(url);
-		//This is a workaround due to https://code.google.com/p/styled-action-bar/issues/detail?id=3. [TIMOB-12148]
+		Drawable backgroundImage = TiUIHelper.getResourceDrawable(url);
 		if (backgroundImage != null) {
+			// Work-around Android OS bug where you can't change background image unless you update title.
+			// See: https://code.google.com/p/styled-action-bar/issues/detail?id=3
 			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
 			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+
 			actionBar.setBackgroundDrawable(backgroundImage);
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTitle(String title)
 	{
 		if (actionBar != null) {
 			actionBar.setTitle(title);
 		} else {
-			Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setSubtitle(String subTitle)
 	{
@@ -107,7 +122,7 @@ public class ActionBarProxy extends KrollProxy
 			actionBar.setDisplayShowTitleEnabled(true);
 			actionBar.setSubtitle(subTitle);
 		} else {
-			Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 		}
 	}
 
@@ -128,7 +143,6 @@ public class ActionBarProxy extends KrollProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSubtitle()
 	{
@@ -138,7 +152,6 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getSubtitle();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getTitle()
 	{
@@ -148,7 +161,6 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getTitle();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getNavigationMode()
 	{
@@ -164,7 +176,7 @@ public class ActionBarProxy extends KrollProxy
 		if (actionBar != null) {
 			actionBar.show();
 		} else {
-			Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 		}
 	}
 
@@ -174,45 +186,61 @@ public class ActionBarProxy extends KrollProxy
 		if (actionBar != null) {
 			actionBar.hide();
 		} else {
-			Log.w(TAG, "ActionBar is not enabled");
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 		}
 	}
 
-	@Kroll.method
-	@Kroll.setProperty
-	public void setLogo(String url)
+	@Kroll.getProperty
+	public boolean getVisible()
 	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
+		if (this.actionBar == null) {
+			return false;
+		}
+		return this.actionBar.isShowing();
+	}
+
+	@Kroll.setProperty
+	public void setVisible(boolean value)
+	{
+		if (value) {
+			show();
+		} else {
+			hide();
+		}
+	}
+
+	@Kroll.setProperty
+	public void setLogo(Object image)
+	{
+		if (this.actionBar == null) {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 			return;
 		}
 
-		Drawable logo = getDrawableFromUrl(url);
-		if (logo != null) {
-			actionBar.setLogo(logo);
+		if (image instanceof Number) {
+			this.actionBar.setLogo(TiConvert.toInt(image));
+		} else if (image != null) {
+			this.actionBar.setLogo(TiUIHelper.getResourceDrawable(image));
+		} else {
+			this.actionBar.setLogo(null);
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
-	public void setIcon(String url)
+	public void setIcon(Object image)
 	{
-		if (actionBar == null) {
-			Log.w(TAG, "ActionBar is not enabled");
+		if (this.actionBar == null) {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 			return;
 		}
 
-		Drawable icon = getDrawableFromUrl(url);
-		if (icon != null) {
-			actionBar.setIcon(icon);
+		if (image instanceof Number) {
+			this.actionBar.setIcon(TiConvert.toInt(image));
+		} else if (image != null) {
+			this.actionBar.setIcon(TiUIHelper.getResourceDrawable(image));
+		} else {
+			this.actionBar.setIcon(null);
 		}
-	}
-
-	private Drawable getDrawableFromUrl(String url)
-	{
-		TiUrl imageUrl = new TiUrl((String) url);
-		TiFileHelper tfh = new TiFileHelper(TiApplication.getInstance());
-		return tfh.loadDrawable(imageUrl.resolve(), false);
 	}
 
 	@Override

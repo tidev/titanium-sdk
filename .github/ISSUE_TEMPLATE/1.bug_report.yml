@@ -1,0 +1,66 @@
+name: Bug Report
+description: Create a bug report for the Titanium SDK
+labels: [bug, needs triage]
+body:
+- type: markdown
+  attributes:
+    value: Thank you for the time you have taken to file a bug report! Please make sure to ensure you have filled this form out as best you can.
+- type: markdown
+  attributes:
+    value: Leaving sections incomplete might mean that your issue is closed or moved to GitHub discussions
+- type: checkboxes
+  attributes:
+    label: I have searched and made sure there are no existing issues for the issue I am filing
+    options:
+      - label: I have searched the existing issues
+        required: true
+- type: textarea
+  attributes:
+    label: Description
+    description: A description of the issue
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Expected Behavior
+    description: What is the expected behavior of what you are trying to do?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Actual behavior
+    description: What is the actual behavior of what you are trying to do?
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Reproducible sample
+    description: A code sample that reproduces the issue. This could be a standalone block of code, or a link to a git repository, but it must be simple enough to paste/clone, build an app, and reproduce the issue
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Steps to reproduce
+    description: Steps that are required to be taken to reproduce the issue
+  validations:
+    required: true
+- type: dropdown
+  attributes:
+    label: Platform
+    description: What is the platform that this issue is seen on?
+    multiple: true
+    options:
+      - Android
+      - iOS
+      - Android & iOS
+      - CLI
+- type: input
+  attributes:
+    label: SDK version you are using
+  validations:
+    required: true
+- type: input
+  attributes:
+      label: Alloy version you are using
+  validations:
+      required: false

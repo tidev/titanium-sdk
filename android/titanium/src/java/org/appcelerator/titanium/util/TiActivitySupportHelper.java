@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@ package org.appcelerator.titanium.util;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.kroll.common.Log;
 
 import android.app.Activity;
@@ -18,7 +17,6 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.IntentSender.SendIntentException;
 import android.os.Bundle;
-import android.os.Build;
 
 /**
  * An implementation of {@link TiActivitySupport} interface.
@@ -34,7 +32,7 @@ public class TiActivitySupportHelper implements TiActivitySupport
 	public TiActivitySupportHelper(Activity activity)
 	{
 		this.activity = activity;
-		resultHandlers = new HashMap<Integer, TiActivityResultHandler>();
+		resultHandlers = new HashMap<>();
 		uniqueResultCodeAllocator = new AtomicInteger(1); // start with non-zero
 	}
 
@@ -93,12 +91,8 @@ public class TiActivitySupportHelper implements TiActivitySupport
 
 		registerResultHandler(code, wrapper);
 		try {
-			if (Build.VERSION.SDK_INT < TiC.API_LEVEL_JELLY_BEAN) {
-				activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags);
-			} else {
-				activity.startIntentSenderForResult(intent, code, fillInIntent, flagsMask, flagsValues, extraFlags,
-													options);
-			}
+			activity.startIntentSenderForResult(
+				intent, code, fillInIntent, flagsMask, flagsValues, extraFlags, options);
 		} catch (SendIntentException e) {
 			wrapper.onError(activity, code, e);
 		}

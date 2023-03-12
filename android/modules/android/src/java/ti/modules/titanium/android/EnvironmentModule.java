@@ -27,35 +27,30 @@ public class EnvironmentModule extends KrollModule
 	@Kroll.constant
 	public static final String MEDIA_UNMOUNTED = Environment.MEDIA_UNMOUNTED;
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDataDirectory()
 	{
 		return Environment.getDataDirectory().getAbsolutePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDownloadCacheDirectory()
 	{
 		return Environment.getDownloadCacheDirectory().getAbsolutePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getExternalStorageDirectory()
 	{
 		return Environment.getExternalStorageDirectory().getAbsolutePath();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getExternalStorageState()
 	{
 		return Environment.getExternalStorageState();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRootDirectory()
 	{

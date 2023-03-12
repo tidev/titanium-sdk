@@ -7,9 +7,8 @@ description: |
     For iOS UI programming guidelines, review the
     [iOS Human Interface Guidelines](https://developer.apple.com/ios/human-interface-guidelines/overview/themes/).
 extends: Titanium.Module
-platforms: [ipad]
-since: "1.2"
-
+platforms: [ipad, macos]
+since: {ipad: "1.2.0", macos: "9.2.0"}
 properties:
   - name: POPOVER_ARROW_DIRECTION_ANY
     summary: An arrow that points in any direction.

@@ -6,7 +6,6 @@ const path = require('path');
 const fs = require('fs-extra');
 const os = require('os');
 const titanium = require.resolve('titanium');
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 
 const glob = promisify(require('glob'));
@@ -16,7 +15,6 @@ const ssri = require('ssri');
 
 const tempDir = os.tmpdir();
 const Utils = {};
-const ROOT_DIR = path.join(__dirname, '../..');
 
 function leftpad(str, len, ch) {
 	str = String(str);
@@ -101,7 +99,7 @@ function download(url, destination, options = { progress: true }) {
 		req.on('error', function (err) {
 			fs.existsSync(destination) && fs.unlinkSync(destination);
 			console.log();
-			console.error('Failed to download: %s', err.toString());
+			console.error('Failed to download: %s %s', url, err.toString());
 			reject(err);
 		});
 
@@ -271,10 +269,10 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 	const cacheFile = cachedDownloadPath(`${integrity.replace(/\//g, '-')}.json`);
 	// if the extracted directory already exists...
 	if (exists) {
-		// we need to hash and verify it matches expectations
-		const hash = await hashElement(outDir);
-		// Read the cache file and compare hashes!
 		try {
+			// we need to hash and verify it matches expectations
+			const hash = await hashElement(outDir); // TODO: pass in options around symlinks?
+			// Read the cache file and compare hashes!
 			const cachedHash = await fs.readJson(cacheFile);
 			// eslint-disable-next-line security/detect-possible-timing-attacks
 			if (hash.hash === cachedHash.hash) { // we're only checking top-level dir hash
@@ -284,6 +282,7 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 		} catch (err) {
 			// ignore, assume cache file didn't exist
 		}
+		await fs.remove(outDir); // hashing failed or didn't match, so wipe the target and re-extract
 	}
 
 	// ok the output dir doesn't exist, or it's hash doesn't match expectations
@@ -299,22 +298,7 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 * @returns {Promise<void>}
 */
 Utils.unzip = function unzip(zipfile, dest) {
-	return new Promise((resolve, reject) => {
-		console.log(`Unzipping ${zipfile} to ${dest}`);
-		const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/unzip') : 'unzip';
-		const child = spawn(command, [ '-o', zipfile, '-d', dest ], { stdio: [ 'ignore', 'ignore', 'pipe' ] });
-		let err = '';
-		child.stderr.on('data', buffer => {
-			err += buffer.toString();
-		});
-		child.on('error', err => reject(err));
-		child.on('close', code => {
-			if (code !== 0) {
-				return reject(new Error(`Unzipping of ${zipfile} exited with non-zero exit code ${code}. ${err}`));
-			}
-			resolve();
-		});
-	});
+	return util.promisify(appc.zip.unzip)(zipfile, dest, null);
 };
 
 /**

@@ -1,12 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_DATABASE
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 typedef enum {
   FieldTypeUnknown = -1,
@@ -35,7 +35,7 @@ JSExportAs(install,
 
 @end
 
-@interface DatabaseModule : ObjcProxy <DatabaseModuleExports>
+@interface DatabaseModule : ObjcModule <DatabaseModuleExports>
 @end
 
 #endif

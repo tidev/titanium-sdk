@@ -7,8 +7,8 @@ description: |
 
     For more detail, see the MDN website about
     [Intl](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Intl).
-platforms: [iphone, ipad, android]
-since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0"}
+platforms: [iphone, ipad, android, macos]
+since: {iphone: "6.0.0", ipad: "6.0.0", android: "9.1.0", macos: "9.2.0"}
 osver: {ios: {min: "10.3"}}
 
 methods:
@@ -33,5 +33,4 @@ methods:
         summary: |
           Returns an array of canonical names matching given BCP 47 locale names. Duplicate locales will be removed.
           Returns an empty array if argument is empty or undefined.
-    platforms: [iphone, ipad, android]
     osver: {ios: {min: "11.2"}}

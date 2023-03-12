@@ -105,7 +105,7 @@ events:
       - name: destructive
         summary: Index of the destructive option if defined or `-1` otherwise.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
 # FIXME: I think Android does support AnimatedOptions for show/hide (separately, versus how ios only really takes show and uses the animated value for hide), defaulting to false
 methods:
@@ -189,7 +189,7 @@ properties:
     summary: Index to define the destructive option, indicated by a visual cue when rendered.
     type: Number
     default: -1
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: options
@@ -210,7 +210,7 @@ properties:
     type: Boolean
     default: false
     since: "3.2.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: persistent
     summary: Boolean value indicating if the option dialog should only be cancelled by user
@@ -221,7 +221,7 @@ properties:
     type: Boolean
     default: true
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: selectedIndex
     summary: Defines the default selected option. Since `8.1.0`, if not defined or -1 it will show a
@@ -242,7 +242,7 @@ examples:
   - title: Dialog with 3 Options
     example: |
         ``` js
-        Ti.UI.setBackgroundColor('white');
+        Ti.UI.backgroundColor = 'white';
         var win = Ti.UI.createWindow({
           title: 'Click window to test',
           backgroundColor: 'white'
@@ -363,7 +363,7 @@ examples:
 name: hideParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.hide> method.
 since: 2.0.0
-platforms: [ipad]
+platforms: [ipad, macos]
 
 properties:
   - name: animated
@@ -373,7 +373,7 @@ properties:
 ---
 name: showParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.show> method.
-platforms: [ipad]
+platforms: [ipad, macos]
 
 properties:
   - name: animated

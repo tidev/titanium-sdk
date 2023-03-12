@@ -1,13 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_APP
 
 #import "AppModule.h"
-#import "TiUtils+Addons.h"
 #import <TitaniumKit/ListenerEntry.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiHost.h>
@@ -28,7 +27,6 @@ extern NSString *const TI_APPLICATION_VERSION;
 extern NSString *const TI_APPLICATION_DESCRIPTION;
 extern NSString *const TI_APPLICATION_COPYRIGHT;
 extern NSString *const TI_APPLICATION_GUID;
-extern BOOL const TI_APPLICATION_ANALYTICS;
 
 @implementation AppModule
 
@@ -62,7 +60,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   /* Disconnect the old modules. */
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   NSMutableArray *delegateModules = (NSMutableArray *)[appDelegate valueForKey:@"modules"];
-  for (TiModule *thisModule in delegateModules) {
+  for (id<Module> thisModule in delegateModules) {
     [nc removeObserver:thisModule];
   }
 /* Because of other issues, we must leak the modules as well as the runtime */
@@ -488,9 +486,15 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
   }
 }
 
-- (id)arguments:(id)args
+- (NSDictionary *)arguments
 {
   return [[TiApp app] launchOptions];
+}
+
+- (id)getArguments:(id)args
+{
+  DEPRECATED_REPLACED(@"App.getArguments()", @"10.0.0", @"App.arguments");
+  return self.arguments;
 }
 
 - (id)iD
@@ -565,7 +569,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 - (id)analytics
 {
-  return NUMBOOL(TI_APPLICATION_ANALYTICS);
+  return @(NO);
 }
 
 - (NSNumber *)keyboardVisible

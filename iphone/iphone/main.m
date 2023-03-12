@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,7 +29,11 @@ NSString *const TI_APPLICATION_COPYRIGHT = @"Appcelerator";
 NSString *const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
 BOOL const TI_APPLICATION_ANALYTICS = YES;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = YES;
+#if TARGET_OS_MACCATALYST
+NSString *const TI_APPLICATION_RESOURCE_DIR = @"/Contents/Resources";
+#else
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"";
+#endif
 NSString *const TI_APPLICATION_BUILD_TYPE = @"";
 
 // Currently unused

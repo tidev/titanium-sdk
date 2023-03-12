@@ -12,5 +12,6 @@ Object.defineProperties(global, {
 	'OS_ANDROID': { value: OS_ANDROID, writable: false },
 	'OS_IOS': { value: OS_IOS, writable: false },
 	OS_VERSION_MAJOR: { value: Ti.Platform.versionMajor, writable: false },
-	OS_VERSION_MINOR: { value: Ti.Platform.versionMinor, writable: false }
+	OS_VERSION_MINOR: { value: Ti.Platform.versionMinor, writable: false },
+	OS_VERSION_PATCH: { value: Ti.Platform.versionPatch, writable: false }
 });

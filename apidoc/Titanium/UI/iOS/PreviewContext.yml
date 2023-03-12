@@ -20,7 +20,6 @@ description: |
 platforms: [iphone]
 since: "5.1.0"
 extends: Titanium.Proxy
-osver: {ios: {min: "9.0"}}
 properties:
   - name: actions
     summary: The preview actions and preview action groups.
@@ -269,9 +268,9 @@ examples:
             });
         }
 
-        section1.setItems(items);
-        section2.setItems(items);
-        listView.setSections([section1, section2]);
+        section1.items = items;
+        section2.items = items;
+        listView.sections = [section1, section2];
 
         win.add(listView);
         win.open();

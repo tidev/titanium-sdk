@@ -32,7 +32,7 @@ description: |
     In Alloy applications, custom fonts must be placed in a "fonts" folder in the platform-specific assets folder (<strong>app/assets/android/fonts</strong>, for example).
     In classic Titanium applications, custom fonts must be placed in the **Resources/fonts** directory.
 
-    For an example of using custom fonts, see [Custom Fonts](https://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts).
+    For an example of using custom fonts, see [Custom Fonts](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Custom_Fonts.html).
 
 properties:
   - name: fontFamily
@@ -47,10 +47,10 @@ properties:
         For example, if you were using the "Burnstown Dam" font whose file name is
         named `burnstown_dam.ttf`, then you specify `fontFamily: 'burnstown_dam'`.
 
-        * On iOS you use the font's [PostScript name](https://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts-section-src-29004935_safe-id-Q3VzdG9tRm9udHMtRmluZGluZ2Fmb250J3NQb3N0U2NyaXB0bmFtZQ).
+        * On iOS you use the font's [PostScript name](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Custom_Fonts.html#finding-a-font-s-postscript-name).
         For example, the PostScript name for Burnstown Dam is "BurnstownDam-Regular so you'd specify: `fontFamily: 'BurnstownDam-Regular'`.
 
-        For an example of using a custom font, see [Custom Fonts](https://docs.appcelerator.com/platform/latest/#!/guide/Custom_Fonts).
+        For an example of using a custom font, see [Custom Fonts](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Custom_Fonts.html).
 
         Notes:
 
@@ -86,10 +86,10 @@ properties:
     default: 15px
   - name: fontWeight
     summary: |
-        Font weight. Valid values are "bold", "semibold", "normal", "thin", 
+        Font weight. Valid values are "bold", "semibold", "normal", "thin",
         "light" and "ultralight".
     description: |
-        The "semibold", "thin", "light" and "ultralight" weights are recognized 
+        The "semibold", "thin", "light" and "ultralight" weights are recognized
         on iOS only. "thin", "light" and "ultralight" are only available on iOS 8.2
         and later.
     type: String
@@ -97,7 +97,7 @@ properties:
   - name: fontStyle
     summary: Font style. Valid values are "italic" or "normal".
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: normal
   - name: textStyle
     summary: The text style for the font.
@@ -106,10 +106,9 @@ properties:
         When this property is set to a valid value, all other font properties are ignored.
 
         Notes:
-         Since SDK 9.0.0 property <Font.fontFamily> will not be ignored for iOS 11+. 
+         Since SDK 9.0.0 property <Font.fontFamily> will not be ignored for iOS 11+.
          Custom fonts can be used with this property for dynamic font management.
     type: String
     constants: Titanium.UI.TEXT_STYLE_*
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: "3.2.0"

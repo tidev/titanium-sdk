@@ -4,8 +4,8 @@ summary: |
     A set of constants for the style that can be used for the `style` property of 
     <Titanium.UI.TableView> and <Titanium.UI.ListView>.
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
-since: "0.9"
+platforms: [iphone, ipad, macos]
+since: {iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
 createable: false
 properties:
   - name: GROUPED
@@ -28,5 +28,5 @@ properties:
         The section headers and footers do not float.
     type: Number
     permission: read-only
-    since: "8.2.0"
+    since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
     osver: {ios: {min: "13.0"}}

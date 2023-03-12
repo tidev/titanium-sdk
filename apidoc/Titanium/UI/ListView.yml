@@ -4,9 +4,9 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) | ![Windows](./listview_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) |
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
 
@@ -27,7 +27,7 @@ description: |
     ```
 
     For more instructions and examples of using `ListView`, refer to the
-    [ListViews guide](https://docs.appcelerator.com/platform/latest/#!/guide/ListViews).
+    [ListViews guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/ListViews/).
 
     #### Creating a List
 
@@ -156,7 +156,7 @@ description: |
     To mitigate this, a `ScrollView` may be used instead of a list view, as demonstrated in the
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
 
-    #### Editing Support (iOS)
+    #### Editing Support
 
     Editing a ListView through user initiated actions is supported through the following properties.
 
@@ -192,11 +192,13 @@ description: |
         - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
           be deleted or reordered.
 
+        - [requiresEditingToMove](Titanium.UI.ListView.requiresEditingToMove) - Determines if the ListView
+          should be able to drag-and-drop without explicitely enabling editing support (like drag bars).
+
         - [pruneSectionsOnEdit](Titanium.UI.ListView.pruneSectionsOnEdit) - When this property is set to true and the
           user action results in a section having no other items, the section is deleted from the List View. Please note
           that this property only applies to the sections whose items are being edited.
-
-platforms: [android, ipad, iphone]
+platforms: [android, ipad, iphone, macos]
 extends: Titanium.UI.View
 since: '3.1.0'
 excludes:
@@ -219,7 +221,7 @@ events:
       - name: index
         summary: The index number clicked.
         type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.4.0"
 
   - name: itemclick
@@ -257,7 +259,7 @@ events:
             <Titanium.UI.LIST_ACCESSORY_TYPE_DETAIL>.  All other accessories return `false` if
             clicked.
         type: Boolean
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
   - name: itemsselected
     summary: |
@@ -271,8 +273,8 @@ events:
       - name: startingItem
         summary: First item selected when user started interaction.
         type: SelectedItem
-    platforms: [iphone, ipad]
-    since: 8.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
 
   - name: delete
     summary: Fired when a list row is deleted by the user.
@@ -283,8 +285,8 @@ events:
 
         Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
         before the user action.
-    platforms: [iphone, ipad]
-    since: 3.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "10.0.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: section
         summary: List section from which the item is deleted.
@@ -315,7 +317,7 @@ events:
 
         Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the List View state
         before the user action.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 5.4.0
     properties:
       - name: section
@@ -343,7 +345,7 @@ events:
     description: |
         Different to the `pull` event, this event does also fire when no [pullView](Titanium.UI.ListView.pullView)
         is specified and the user drags inside the list view.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 5.2.0
     properties:
       - name: bubbles
@@ -355,7 +357,7 @@ events:
     description: |
         Different to the `pullend` event, this event does also fire when no [pullView](Titanium.UI.ListView.pullView)
         is specified and the user drags inside the list view.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 5.2.0
     properties:
       - name: bubbles
@@ -367,7 +369,7 @@ events:
     description: |
         This event is fired only once per reference item. Use this in conjunction with the [setMarker](Titanium.UI.ListView.setMarker) and [addMarker](Titanium.UI.ListView.addMarker) methods.
         On iOS this method does not fire when list view is in search mode.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: 3.2.0
     properties:
       - name: bubbles
@@ -382,6 +384,33 @@ events:
         summary: section item index of the reference item.
         type: Number
 
+  - name: movestart
+    summary: Fired when a list row has started moving.
+    description: |
+      This event can be used to change the UI once a new drag-and-drop interaction starts.
+      The event properties are available in Titanium SDK 12.0.0+ 
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+    properties:
+      - name: section
+        summary: List section from which the item is moved.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: section index of the reference item.
+        type: Number
+
+      - name: itemIndex
+        summary: section item index of the reference item.
+        type: Number
+
+  - name: moveend
+    summary: Fired when a list row has ended moving.
+    description: |
+      This property can be used to change the UI once a drag-and-drop interaction ends.
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+
   - name: move
     summary: Fired when a list row is moved to a different location by the user.
     description: |
@@ -391,8 +420,8 @@ events:
 
         Note that the `sectionIndex`,`itemIndex`,`targetSectionIndex` and `targetItemIndex` properties of this event correspond to the List View state
         before the user action.
-    platforms: [iphone, ipad]
-    since: 3.2.0
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     properties:
       - name: section
         summary: List section from which the item is moved.
@@ -434,7 +463,7 @@ events:
 
         While the `searchView` API automatically shows a **No Results** cell in the list view, the `searchText` API does not do so.
         Developers can listen to this event and perform appropriate actions when the search result set is empty.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 4.2.0
         iphone: 3.3.0
@@ -446,7 +475,7 @@ events:
 
   - name: pull
     summary: Fired when the user drags the list view past the top edge of the [pullView](Titanium.UI.ListView.pullView).
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.2.0
     properties:
       - name: active
@@ -462,8 +491,7 @@ events:
         Fired when new list items are prefetched. The items are ordered ascending by geometric distance
         from the list view. Note that this event is only available on iOS 10 and later.
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
         the event, and use the `bindId` to check which child control fired the event.
@@ -477,8 +505,7 @@ events:
         Fired when list items that previously were considered as candidates for pre-fetching were not
         actually used. Note that this event is only available on iOS 10 and later
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
         the event, and use the `bindId` to check which child control fired the event.
@@ -489,7 +516,7 @@ events:
 
   - name: pullend
     summary: Fired when the user stops dragging the list view and the [pullView](Titanium.UI.ListView.pullView) is completely visible.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.2.0
     properties:
       - name: bubbles
@@ -505,9 +532,8 @@ events:
 
         Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
         before the user action.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 5.0.0
-    osver: {ios: {min: "8.0"}}
     properties:
       - name: action
         summary: The [title](RowActionType.title) as defined in the row action object.
@@ -539,53 +565,12 @@ events:
         summary: false. This event does not bubble.
         type: Boolean
 
-  - name: rowAction
-    deprecated:
-        since: "5.0.0"
-        removed: "5.0.0"
-        notes: Use [Titanium.UI.ListView.editaction](Titanium.UI.ListView.editaction) instead.
-    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.ListItem.editActions>.
-    description: |
-        Do not rely on the `source` property to determine which item fired the event.  Use the
-        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
-        the event.
-
-        Note that the `sectionIndex` and `itemIndex` properties of this event correspond to the list view state
-        before the user action.
-    platforms: [iphone, ipad]
-    since: 4.1.0
-    osver: {ios: {min: "8.0"}}
-    properties:
-      - name: action
-        summary: The [title](RowActionType.title) as defined in the row action object.
-        type: String
-
-      - name: section
-        summary: List section from which the event was generated.
-        type: Titanium.UI.ListSection
-
-      - name: sectionIndex
-        summary: Section index.
-        type: Number
-
-      - name: itemIndex
-        summary: Item index.
-        type: Number
-
-      - name: itemId
-        summary: The item ID bound to the list item that generated the event.
-        type: String
-
-      - name: bubbles
-        summary: false. This event does not bubble.
-        type: Boolean
-
   - name: scrollstart
     summary: Fires when the list view starts scrolling by user interaction. Calling the `scrollTo` methods will not fire this event
     description: |
         This event will fire when the user starts scrolling the list view. Use the `firstVisibleSectionIndex` and
         the `firstVisibleItemIndex` to determine the position of the list view.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: 4.1.0
     properties:
       - name: visibleItemCount
@@ -621,7 +606,7 @@ events:
     description: |
         This event will fire when the list view ends scrolling. Use the `firstVisibleSectionIndex` and
         the `firstVisibleItemIndex` to determine the position of the list view.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: 4.1.0
     properties:
       - name: visibleItemCount
@@ -656,7 +641,7 @@ events:
         `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi).
         When `direction` is `down`, `velocity` is negative and viceversa. On Android `velocity` and `targetContentOffset` is 0.
 
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 6.1.0
         iphone: 5.4.0
@@ -686,7 +671,7 @@ properties:
         templates that are controls, such as a button, slider, etc.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: canScroll
     summary: Determines if the list view can scroll in response to user actions.
@@ -697,7 +682,7 @@ properties:
         android: 6.1.0
         iphone: 3.2.0
         ipad: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
@@ -706,7 +691,7 @@ properties:
     type: Boolean
     default: false
     since: 5.4.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: editing
     summary: Determines if the list view is currently in editing mode.
@@ -714,8 +699,17 @@ properties:
         For more information see the "Editing Support" section of <Titanium.UI.ListView>.
     type: Boolean
     default: false
-    since: 3.2.0
-    platforms: [iphone, ipad]
+    since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+
+  - name: requiresEditingToMove
+    summary: Determines if the list view should allow drag-and-drop even without going into the editing mode
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: true
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
 
   - name: fastScroll
     summary: Sets the fastScroll mode on Android ListViews.
@@ -727,19 +721,29 @@ properties:
     since: 7.5.0
     platforms: [android]
 
+  - name: fixedSize
+    summary: Sets fixedSize mode on Android ListViews.
+    description: |
+        Set it to `true` if all ListItems have the same size to gain some performance.
+    type: Boolean
+    default: false
+    availability: creation
+    since: 11.0.0
+    platforms: [android]
+
   - name: allowsSelectionDuringEditing
     summary: Determines whether this list view items can be selected while editing the table.
     type: Boolean
     default: false
-    since: "5.4.0"
-    platforms: [iphone, ipad]
+    since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: allowsMultipleSelectionDuringEditing
     summary: Determines whether multiple items of this list view can be selected at the same time while editing the table.
     type: Boolean
     default: false
-    since: "7.0.0"
-    platforms: [iphone, ipad]
+    since: {android: "10.1.0", iphone: "7.0.0", ipad: "7.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: allowsMultipleSelectionInteraction
     summary: Allows a two-finger pan gesture to automatically transition the table view into editing mode and start selecting rows.
@@ -751,8 +755,8 @@ properties:
         Once user interaction stops the <Titanium.UI.ListView.itemsselected> event is fired.
     type: Boolean
     default: false
-    since: 8.2.0
-    platforms: [iphone, ipad]
+    since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: lazyLoadingEnabled
     summary: Determines if the list view should use lazy loading to load remote images.
@@ -764,7 +768,7 @@ properties:
     default: true
     type: Boolean
     since: 5.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: pruneSectionsOnEdit
     summary: Determines if empty sections are retained when the user completes editing the list view.
@@ -773,7 +777,7 @@ properties:
     type: Boolean
     default: false
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: templates
     summary: Contain key-value pairs mapping a style name (key) to an <ItemTemplate> (value).
@@ -800,6 +804,8 @@ properties:
     description: |
         Height of the ListView separator, in platform-specific units. If undefined, default native height will be used.
         Numerical inputs are treated as pixels. For example, 3 and "3px" are equivalent.
+        On Android API < 23 you must specify <Titanium.UI.ListView.separatorStyle> and
+        <Titanium.UI.ListView.separatorColor> for this property to work.
     type: [String, Number]
     since: "4.1.0"
     platforms: [android]
@@ -823,7 +829,7 @@ properties:
         element (see Examples). On Android, this is a creation only property.
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: headerDividersEnabled
     summary: When set to false, the ListView will not draw the divider after the header view.
@@ -846,7 +852,7 @@ properties:
 
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: pullView
     summary: View positioned above the first row that is only revealed when the user drags the list view contents down.
@@ -879,7 +885,7 @@ properties:
 
         See the code example on `pullView` to  see how it may be utilized.
     type: Titanium.UI.View
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.2.0
 
   - name: refreshControl
@@ -887,7 +893,7 @@ properties:
     description: |
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples.
     type: Titanium.UI.RefreshControl
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
   - name: searchView
@@ -915,7 +921,7 @@ properties:
         ```
 
     type: [Titanium.UI.SearchBar, Titanium.UI.Android.SearchView]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: 3.2.0
 
   - name: searchText
@@ -931,7 +937,7 @@ properties:
         is set to true then section information is preserved in the search results, otherwise the search
         results are displayed in a single section.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: 3.2.0
 
   - name: caseInsensitiveSearch
@@ -941,8 +947,17 @@ properties:
         List View and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: 3.2.0
+
+  - name: continuousUpdate
+    summary: Determines if the scrolling event should fire every time there is a new visible item.
+    description: |
+        When setting `continuousUpdate` to `true` the [scrolling](Titanium.UI.ListView.scrolling) event will fire every time a new item is scrolled in.
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: 11.1.0
 
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
@@ -951,14 +966,14 @@ properties:
         and [searchableText](Titanium.UI.ListItem.searchableText) property of List Item.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.2.0
 
   - name: keyboardDismissMode
     summary: The manner in which the keyboard is dismissed when a drag begins in the list view.
     type: Number
     constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
     since: "6.0.0"
 
@@ -968,7 +983,7 @@ properties:
         If an index array is specified, an index bar is displayed on the right-hand side of the list view.
         Clicking on a title in the index bar scrolls the list view to the section index associated with that title.
     type: Array<ListViewIndexEntry>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.2.0
 
   - name: scrollIndicatorStyle
@@ -976,7 +991,7 @@ properties:
     type: Number
     constants: Titanium.UI.iOS.ScrollIndicatorStyle.*
     default: <Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: willScrollOnStatusTap
     summary: Controls the scroll-to-top gesture.
@@ -988,12 +1003,27 @@ properties:
         enable this behavior for.  The remaining view responds to the scroll-to-top gesture.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: sectionCount
     summary: Number of sections in this list view.
     type: Number
     permission: read-only
+
+  - name: sectionHeaderTopPadding
+    summary: Padding above each section header.
+    description: If not set or set to `-1`, it defaults to an automatic spacing determined by the system.
+    type: Number
+    since: 10.1.0
+    platforms: [iphone, ipad, macos]
+    osver: { ios: { min: "15.0" } }
+
+  - name: showSelectionCheck
+    summary: Determines whether the selection checkmark is displayed on selected items.
+    type: Boolean
+    default: true
+    since: {android: "10.1.0"}
+    platforms: [android]
 
   - name: showVerticalScrollIndicator
     summary: Determines whether this list view displays a vertical scroll indicator.
@@ -1010,7 +1040,7 @@ properties:
     type: [String, Titanium.UI.Color]
     default: platform-specific default color
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: separatorInsets
     summary: The insets for list view separators (applies to all cells).
@@ -1023,8 +1053,7 @@ properties:
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
     type: HorizontalInsets
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
     summary: Separator style constant.
@@ -1032,7 +1061,7 @@ properties:
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     since: {android: "8.1.0", iphone: "3.2.0", ipad: "3.2.0"}
 
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: style
     summary: Style of the list view.
@@ -1040,7 +1069,7 @@ properties:
     type: Number
     default: Titanium.UI.iOS.ListViewStyle.PLAIN
     constants: Titanium.UI.iOS.ListViewStyle.*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: tableSeparatorInsets
@@ -1056,15 +1085,23 @@ properties:
         For example:
 
         ``` js
-        listView.setTableSeparatorInsets({
-            left:10,
-            right:10
-        });
+        listView.tableSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+
+  - name: touchFeedback
+    summary: A material design visual construct that provides an instantaneous visual confirmation of touch point.
+    description: |
+        Touch feedback is only applied to a view's background.
+    type: Boolean
+    default: true
+    platforms: [android]
+    since: "10.0.0"
 
   - name: listSeparatorInsets
     summary: The insets for the list view header and footer.
@@ -1075,15 +1112,14 @@ properties:
 
         For example:
         ``` js
-        listView.setListSeparatorInsets({
-            left:10,
-            right:10
-        });
+        listView.listSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.4.0"
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
     summary: The insets for list view cells (applies to all cells).
@@ -1094,15 +1130,14 @@ properties:
 
         For example:
         ``` js
-        listView.setRowSeparatorInsets({
-            left:10,
-            right:10
-        });
+        listView.rowSeparatorInsets = {
+            left: 10,
+            right: 10
+        };
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: dimBackgroundForSearch
     summary: A Boolean indicating whether the underlying content is dimmed during a search.
@@ -1112,7 +1147,7 @@ properties:
     type: Boolean
     default: true
     since: 6.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: showSearchBarInNavBar
@@ -1124,8 +1159,7 @@ properties:
     type: Boolean
     default: false
     since: 8.1.0
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "11.0"}}
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsBackgroundColor
@@ -1137,7 +1171,7 @@ properties:
     type: [String, Titanium.UI.Color]
     default: undefined (behaves as white)
     since: 6.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorColor
@@ -1151,7 +1185,7 @@ properties:
     type: [String, Titanium.UI.Color]
     default: undefined (behaves as gray)
     since: 6.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorStyle
@@ -1159,7 +1193,7 @@ properties:
     type: Number
     constants: Titanium.UI.TABLE_VIEW_SEPARATOR_STYLE_*
     since: 6.1.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: resultsSeparatorInsets
@@ -1172,14 +1206,14 @@ properties:
         specifying the inset from the right edge.
     type: HorizontalInsets
     since: "6.1.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     availability: creation
 
   - name: selectedItems
     summary: Returns the selected list view items.
     type: Array<ListItemEventType>
-    since: "7.0.0"
-    platforms: [iphone, ipad]
+    since: { android: "10.1.0", iphone: "7.0.0", ipad: "7.0.0", macos: "9.2.0" }
+    platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: scrollToItem
@@ -1215,7 +1249,7 @@ methods:
         summary: Item index.
         type: Number
     since: 3.2.0
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: appendSection
     summary: Appends a single section or an array of sections to the end of the list.
@@ -1294,7 +1328,7 @@ methods:
       - name: itemIndex
         summary: Index of the item to select.
         type: Number
-    platforms: [ipad,iphone]
+    platforms: [ipad,iphone, macos]
 
   - name: setContentInsets
     summary: Sets this list view's content insets.
@@ -1319,12 +1353,12 @@ methods:
             Note that the default here is equivalent to passing in `{ animated: false, duration: 300 }`
         type: AnimatedWithDurationOptions
         optional: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: 3.2.0
 
   - name: setContentOffset
     summary: Sets the value of the content offset of the list view without animation by default.
-    platforms: [iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     parameters:
       - name: contentOffset
         summary: |
@@ -1337,7 +1371,7 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-    since: 3.4.0
+    since: {android: "10.1.0", iphone: "3.4.0", ipad: "3.4.0", macos: "9.2.0"}
 
   - name: setMarker
     summary: Sets a reference item in the list view.
@@ -1348,7 +1382,7 @@ methods:
       - name: markerProps
         summary: Dictionary to describe the reference item.
         type: ListViewMarkerProps
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: 3.2.0
 
   - name: addMarker
@@ -1359,7 +1393,7 @@ methods:
       - name: markerProps
         summary: Dictionary to describe the reference item.
         type: ListViewMarkerProps
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: 4.1.0
 
 examples:
@@ -1373,32 +1407,29 @@ examples:
         var listView = Ti.UI.createListView();
         var sections = [];
 
-        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
         var fruitDataSet = [
             {properties: { title: 'Apple'}},
             {properties: { title: 'Banana'}},
         ];
-        fruitSection.setItems(fruitDataSet);
+        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits', items: fruitDataSet});
         sections.push(fruitSection);
 
-        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
         var vegDataSet = [
             {properties: { title: 'Carrots'}},
             {properties: { title: 'Potatoes'}},
         ];
-        vegSection.setItems(vegDataSet);
+        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
         sections.push(vegSection);
 
         listView.sections = sections;
         win.add(listView);
         win.open();
 
-        var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
         var fishDataSet = [
             {properties: { title: 'Cod'}},
             {properties: { title: 'Haddock'}},
         ];
-        fishSection.setItems(fishDataSet);
+        var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish', items: fishDataSet});
         listView.appendSection(fishSection);
         ```
 
@@ -1450,7 +1481,6 @@ examples:
         });
         var sections = [];
 
-        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas'});
         var fruitDataSet = [
             // the text property of info maps to the text property of the title label
             // the text property of es_info maps to text property of the subtitle label
@@ -1458,31 +1488,29 @@ examples:
             { info: {text: 'Apple'}, es_info: {text: 'Manzana'}, pic: {image: 'apple.png'}},
             { info: {text: 'Banana'}, es_info: {text: 'Banana'}, pic: {image: 'banana.png'}}
         ];
-        fruitSection.setItems(fruitDataSet);
+        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas', items: fruitDataSet});
         sections.push(fruitSection);
 
-        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras'});
         var vegDataSet = [
             { info: {text: 'Carrot'}, es_info: {text: 'Zanahoria'}, pic: {image: 'carrot.png'}},
             { info: {text: 'Potato'}, es_info: {text: 'Patata'}, pic: {image: 'potato.png'}}
         ];
-        vegSection.setItems(vegDataSet);
+        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras', items: vegDataSet});
         sections.push(vegSection);
 
-        var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos'});
         var grainDataSet = [
             { info: {text: 'Corn'}, es_info: {text: 'Maiz'}, pic: {image: 'corn.png'}},
             { info: {text: 'Rice'}, es_info: {text: 'Arroz'}, pic: {image: 'rice.png'}}
         ];
-        grainSection.setItems(grainDataSet);
+        var grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos', items: grainDataSet});
         sections.push(grainSection);
 
-        listView.setSections(sections);
+        listView.sections = sections;
         win.add(listView);
         win.open();
         ```
 
-  - title: List View with a pullView (Only supported on iOS since 3.2.0)
+  - title: List View with a pullView
     example: |
         This sample shows how the [pullView](Titanium.UI.ListView.pullView) property could be
         utilized along with the [pull](Titanium.UI.ListView.pull) and [pullend](Titanium.UI.ListView.pullend) events to
@@ -1493,27 +1521,25 @@ examples:
         var listView = Ti.UI.createListView({height:'90%', top:0});
         var sections = [];
 
-        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits'});
         var fruitDataSet = [
             {properties: { title: 'Apple'}},
             {properties: { title: 'Banana'}},
         ];
-        fruitSection.setItems(fruitDataSet);
+        var fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits', items: fruitDataSet});
         sections.push(fruitSection);
 
-        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables'});
         var vegDataSet = [
             {properties: { title: 'Carrots'}},
             {properties: { title: 'Potatoes'}},
         ];
-        vegSection.setItems(vegDataSet);
+        var vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables', items: vegDataSet});
 
-        var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish'});
         var fishDataSet = [
             {properties: { title: 'Cod'}},
             {properties: { title: 'Haddock'}},
         ];
-        fishSection.setItems(fishDataSet);
+        var fishSection = Ti.UI.createListSection({ headerTitle: 'Fish', items: fishDataSet});
+
         listView.sections = sections;
         var refreshCount = 0;
 
@@ -1783,12 +1809,12 @@ summary: |
     A simple object for specifying the animation properties to use when inserting or deleting
     sections or cells, or scrolling the list.
 description: |
-    These properties are only used on iOS. Not all properties apply to all methods.
+    Not all properties apply to all methods.
     `animationStyle` does not apply to the `scrollToItem` method.
     `positon` only applies to the `scrollToItem` method.
     Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
-platforms: [iphone, ipad, android]
-since: '3.1.0'
+platforms: [iphone, ipad, android, macos]
+since: {android: "10.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 properties:
   - name: animated
     summary: Whether this list change should be animated. Ignored if any `animationStyle` value is specified.
@@ -1804,7 +1830,7 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected cell to.
     type: Number
-    constants: [Titanium.UI.iOS.ListViewScrollPosition.*, Titanium.UI.Windows.ListViewScrollPosition.*]
+    constants: [Titanium.UI.iOS.ListViewScrollPosition.*, Titanium.UI.ListViewScrollPosition.*]
     default: Titanium.UI.iOS.ListViewScrollPosition.NONE
 
 ---
@@ -1812,7 +1838,7 @@ name: ListViewIndexEntry
 summary: A simple object that represents an index entry in a `ListView`.
 description: |
     Used in conjunction with the [sectionIndexTitles](Titanium.UI.ListView.sectionIndexTitles) property of the List View.
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 since: 3.2.0
 properties:
   - name: title
@@ -1833,7 +1859,7 @@ description: |
     addMarker({ sectionIndex: 7, itemIndex: 2 });
     ```
 since: 3.2.0
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 properties:
   - name: sectionIndex
     summary: The sectionIndex of the reference item.
@@ -1846,7 +1872,7 @@ properties:
 name: ListItemEventType
 summary: The arguments for the <Titanium.UI.ListView.prefetch> and <Titanium.UI.ListView.cancelprefetch> events.
 since: 6.1.0
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 properties:
   - name: section
     summary: List section if the item is contained in a list section.
@@ -1867,8 +1893,8 @@ properties:
 ---
 name: SelectedItem
 summary: The arguments for the <Titanium.UI.ListView.itemsselected> event.
-since: 8.2.0
-platforms: [iphone, ipad]
+since: {android: "10.1.0", iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 properties:
   - name: section
     summary: List section if the item is contained in a list section.

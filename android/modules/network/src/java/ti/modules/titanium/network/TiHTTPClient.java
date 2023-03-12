@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,6 +32,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,13 +47,10 @@ import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509KeyManager;
-import javax.net.ssl.X509TrustManager;
 
 import android.util.Base64;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.util.TiTempFileHelper;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
@@ -127,15 +125,13 @@ public class TiHTTPClient
 	private String url;
 	private URL mURL;
 	private String redirectedLocation;
-	private ArrayList<File> tmpFiles = new ArrayList<File>();
-	private ArrayList<X509TrustManager> trustManagers = new ArrayList<X509TrustManager>();
-	private ArrayList<X509KeyManager> keyManagers = new ArrayList<X509KeyManager>();
+	private final ArrayList<File> tmpFiles = new ArrayList<>();
 	protected SecurityManagerProtocol securityManager;
 	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
-	private static CookieManager cookieManager = NetworkModule.getCookieManagerInstance();
+	private static final CookieManager cookieManager = NetworkModule.getCookieManagerInstance();
 
-	protected HashMap<String, String> requestHeaders = new HashMap<String, String>();
+	protected HashMap<String, String> requestHeaders = new HashMap<>();
 	private ArrayList<NameValuePair> nvPairs;
 	private HashMap<String, ContentBody> parts;
 
@@ -281,11 +277,6 @@ public class TiHTTPClient
 			outFile = tiFile.getFile();
 			try {
 				responseOut = new FileOutputStream(outFile, dumpResponseOut);
-				// If the response file is in the temp folder, don't delete it during cleanup.
-				TiApplication app = TiApplication.getInstance();
-				if (app != null) {
-					app.getTempFileHelper().excludeFileOnCleanup(outFile);
-				}
 			} catch (FileNotFoundException e) {
 				responseFile = null;
 				tiFile = null;
@@ -299,12 +290,8 @@ public class TiHTTPClient
 		}
 
 		if (tiFile == null) {
-			TiApplication app = TiApplication.getInstance();
-			if (app != null) {
-				TiTempFileHelper tempFileHelper = app.getTempFileHelper();
-				outFile = tempFileHelper.createTempFile("tihttp", "tmp");
-				tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
-			}
+			outFile = File.createTempFile("tihttp", ".tmp", TiApplication.getInstance().getTiTempDir());
+			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
 		}
 
 		if (dumpResponseOut) {
@@ -447,8 +434,8 @@ public class TiHTTPClient
 		}
 		readyState = 0;
 		connected = false;
-		this.nvPairs = new ArrayList<NameValuePair>();
-		this.parts = new HashMap<String, ContentBody>();
+		this.nvPairs = new ArrayList<>();
+		this.parts = new HashMap<>();
 		this.maxBufferSize =
 			TiApplication.getInstance().getAppProperties().getInt(PROPERTY_MAX_BUFFER_SIZE, DEFAULT_MAX_BUFFER_SIZE);
 	}
@@ -487,7 +474,7 @@ public class TiHTTPClient
 		Log.d(TAG, "Setting ready state to " + readyState, Log.DEBUG_MODE);
 		this.readyState = readyState;
 		KrollDict data = new KrollDict();
-		data.put("readyState", Integer.valueOf(readyState));
+		data.put("readyState", readyState);
 		dispatchCallback(TiC.PROPERTY_ONREADYSTATECHANGE, data);
 
 		if (readyState == READY_STATE_DONE) {
@@ -746,13 +733,53 @@ public class TiHTTPClient
 		return result;
 	}
 
+	public KrollDict getResponseHeaders()
+	{
+		final KrollDict result = new KrollDict();
+
+		// Obtain response headers.
+		if (responseHeaders != null && !responseHeaders.isEmpty()) {
+			final Set<Map.Entry<String, List<String>>> entrySet = responseHeaders.entrySet();
+
+			// Iterate through response headers.
+			for (Map.Entry<String, List<String>> entry : entrySet) {
+				final String key = entry.getKey();
+
+				// Skip empty key that holds response status.
+				if (key == null) {
+					continue;
+				}
+
+				final List<String> values = entry.getValue();
+				final String[] stringValues = new String[values.size()];
+
+				// Handle multiple values such as cookies.
+				if (values.size() > 1) {
+
+					// Parse response headers into string array.
+					for (int i = 0; i < values.size(); i++) {
+						stringValues[i] = values.get(i);
+					}
+
+					// Store response headers in dictionary.
+					result.put(key, stringValues);
+				} else {
+
+					// Store response header in dictionary.
+					result.put(key, values.get(0));
+				}
+			}
+		}
+		return result;
+	}
+
 	public void clearCookies(String url)
 	{
 		if (url == null) {
 			return;
 		}
 
-		List<HttpCookie> cookies = new ArrayList<HttpCookie>(cookieManager.getCookieStore().getCookies());
+		List<HttpCookie> cookies = new ArrayList<>(cookieManager.getCookieStore().getCookies());
 		cookieManager.getCookieStore().removeAll();
 		String lower_url = url.toLowerCase();
 
@@ -780,9 +807,9 @@ public class TiHTTPClient
 				if (requestHeaders.containsKey(header)) {
 					// Appends a value to a header
 					// If it is a cookie, use ';'. If not, use ','.
-					String separator = ("Cookie".equalsIgnoreCase(header)) ? "; " : ", ";
 					StringBuffer val = new StringBuffer(requestHeaders.get(header));
-					val.append(separator + value);
+					val.append("Cookie".equalsIgnoreCase(header) ? "; " : ", ");
+					val.append(value);
 					requestHeaders.put(header, val.toString());
 				} else {
 					// Set header for the first time
@@ -875,10 +902,10 @@ public class TiHTTPClient
 		// The Android Uri doesn't seem to handle user ids with at-signs (@) in them
 		// properly, even if the @ is escaped.  It will set the host (uri.getHost()) to
 		// the part of the user name after the @.  For example, this Uri would get
-		// the host set to appcelerator.com when it should be mickey.com:
-		// http://testuser@appcelerator.com:password@mickey.com/xx
+		// the host set to example.com when it should be mickey.com:
+		// http://testuser@example.com:password@mickey.com/xx
 		// ... even if that first one is escaped to ...
-		// http://testuser%40appcelerator.com:password@mickey.com/xx
+		// http://testuser%40example.com:password@mickey.com/xx
 		// Tests show that Java URL handles it properly, however.  So revert to using Java URL.getHost()
 		// if we see that the Uri.getUserInfo has an at-sign in it.
 		// Also, uri.getPort() will throw an exception as it will try to parse what it thinks is the port
@@ -919,7 +946,7 @@ public class TiHTTPClient
 			setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 		} else {
-			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
+			Log.d(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
 		}
 	}
 
@@ -941,7 +968,7 @@ public class TiHTTPClient
 			// harmless for all other cases
 			parts.put(name, new StringBody(value, "", null));
 		} else {
-			nvPairs.add(new NameValuePair(name, value.toString()));
+			nvPairs.add(new NameValuePair(name, value));
 		}
 	}
 
@@ -978,8 +1005,10 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile =
-					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = File.createTempFile(
+					"tixhr",
+					"." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"),
+					TiApplication.getInstance().getTiTempDir());
 				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
@@ -1026,27 +1055,7 @@ public class TiHTTPClient
 			}
 		}
 		if (sslSocketFactory == null) {
-			if (trustManagers.size() > 0 || keyManagers.size() > 0) {
-				TrustManager[] trustManagerArray = null;
-				KeyManager[] keyManagerArray = null;
-
-				if (trustManagers.size() > 0) {
-					trustManagerArray = new X509TrustManager[trustManagers.size()];
-					trustManagerArray = trustManagers.toArray(trustManagerArray);
-				}
-
-				if (keyManagers.size() > 0) {
-					keyManagerArray = new X509KeyManager[keyManagers.size()];
-					keyManagerArray = keyManagers.toArray(keyManagerArray);
-				}
-
-				try {
-					sslSocketFactory = new TiSocketFactory(keyManagerArray, trustManagerArray, tlsVersion);
-				} catch (Exception e) {
-					Log.e(TAG, "Error creating SSLSocketFactory: " + e.getMessage());
-					sslSocketFactory = null;
-				}
-			} else if (!validating) {
+			if (!validating) {
 				TrustManager[] trustManagerArray = new TrustManager[] { new NonValidatingTrustManager() };
 				try {
 					sslSocketFactory = new TiSocketFactory(null, trustManagerArray, tlsVersion);
@@ -1092,8 +1101,10 @@ public class TiHTTPClient
 					blob = ((TiResourceFile) value).read();
 				}
 				String mimeType = blob.getMimeType();
-				File tmpFile =
-					File.createTempFile("tixhr", "." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"));
+				File tmpFile = File.createTempFile(
+					"tixhr",
+					"." + TiMimeTypeHelper.getFileExtensionFromMimeType(mimeType, "txt"),
+					TiApplication.getInstance().getTiTempDir());
 				createFileFromBlob(blob, tmpFile);
 
 				tmpFiles.add(tmpFile);
@@ -1257,11 +1268,9 @@ public class TiHTTPClient
 									ByteArrayOutputStream bos =
 										new ByteArrayOutputStream((int) form.getContentLength());
 									form.writeTo(bos);
-									contentLength +=
-										constructFilePart("form", new StringBody(bos.toString(),
-																				 "application/x-www-form-urlencoded",
-																				 Charset.forName("UTF-8")))
-											.length();
+									StringBody stringBody = new StringBody(
+										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8);
+									contentLength += constructFilePart("form", stringBody).length();
 									contentLength += form.getContentLength() + 2;
 								} catch (UnsupportedEncodingException e) {
 									Log.e(TAG, "Unsupported encoding: ", e);
@@ -1315,9 +1324,8 @@ public class TiHTTPClient
 									ByteArrayOutputStream bos =
 										new ByteArrayOutputStream((int) form.getContentLength());
 									form.writeTo(bos);
-									addFilePart("form",
-												new StringBody(bos.toString(), "application/x-www-form-urlencoded",
-															   Charset.forName("UTF-8")));
+									addFilePart("form", new StringBody(
+										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8));
 
 								} catch (UnsupportedEncodingException e) {
 									Log.e(TAG, "Unsupported encoding: ", e);
@@ -1509,7 +1517,7 @@ public class TiHTTPClient
 
 		public void completeSendingMultipart()
 		{
-			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.append("--").append(boundary).append("--").append(LINE_FEED);
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException
@@ -1593,28 +1601,6 @@ public class TiHTTPClient
 	protected boolean getAutoRedirect()
 	{
 		return autoRedirect;
-	}
-
-	protected void addKeyManager(X509KeyManager manager)
-	{
-		if (Log.isDebugModeEnabled()) {
-			String message
-				= "addKeyManager() method is deprecated. "
-				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
-			Log.d(TAG, message, Log.DEBUG_MODE);
-		}
-		keyManagers.add(manager);
-	}
-
-	protected void addTrustManager(X509TrustManager manager)
-	{
-		if (Log.isDebugModeEnabled()) {
-			String message
-				= "addTrustManager() method is deprecated. "
-				+ "Use the securityManager property on the HttpClient to define custom SSL Contexts.";
-			Log.d(TAG, message, Log.DEBUG_MODE);
-		}
-		trustManagers.add(manager);
 	}
 
 	protected void setTlsVersion(int value)

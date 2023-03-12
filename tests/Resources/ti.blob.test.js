@@ -128,11 +128,27 @@ describe('Titanium.Blob', function () {
 			[ 'text/javascript', 'application/javascript' ].should.containEql(blob.mimeType);
 		});
 
+		it('image/jpeg', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate90.jpg').read();
+			should(blob.mimeType).be.a.String();
+			should(blob.mimeType.length).be.above(0);
+			should(blob.mimeType).be.eql('image/jpeg');
+			// TODO Test that it's read-only
+		});
+
 		it('image/png', () => {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.mimeType).be.a.String();
 			should(blob.mimeType.length).be.above(0);
 			should(blob.mimeType).be.eql('image/png');
+			// TODO Test that it's read-only
+		});
+
+		it('image/webp', () => {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
+			should(blob.mimeType).be.a.String();
+			should(blob.mimeType.length).be.above(0);
+			should(blob.mimeType).be.eql('image/webp');
 			// TODO Test that it's read-only
 		});
 	});
@@ -168,6 +184,17 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.width).be.a.Number();
 			should(blob.width).be.eql(150);
+			should(blob.uprightWidth).be.a.Number();
+			should(blob.uprightWidth).be.eql(blob.width);
+			// TODO Test that it's read-only
+		});
+
+		it('returns pixel count for WebP', () => {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
+			should(blob.width).be.a.Number();
+			should(blob.width).be.eql(150);
+			should(blob.uprightWidth).be.a.Number();
+			should(blob.uprightWidth).be.eql(blob.width);
 			// TODO Test that it's read-only
 		});
 
@@ -184,6 +211,17 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			should(blob.height).be.a.Number();
 			should(blob.height).be.eql(150);
+			should(blob.uprightHeight).be.a.Number();
+			should(blob.uprightHeight).be.eql(blob.height);
+			// TODO Test that it's read-only
+		});
+
+		it('returns pixel count for WebP', () => {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
+			should(blob.height).be.a.Number();
+			should(blob.height).be.eql(150);
+			should(blob.uprightHeight).be.a.Number();
+			should(blob.uprightHeight).be.eql(blob.height);
 			// TODO Test that it's read-only
 		});
 
@@ -215,12 +253,17 @@ describe('Titanium.Blob', function () {
 			const blob = Ti.Filesystem.getFile('Logo.png').read();
 			const b = blob.imageAsCompressed(0.5);
 			should(b).be.an.Object();
-			// width and height should remain the same
 			should(b.width).be.eql(blob.width);
 			should(b.height).be.eql(blob.height);
-			// Ideally, the byte size should drop - though that's not guranteed!
-			// should(b.length).be.below(blob.length);
-			// becomes a JPEG, so I guess we could test mimeType?
+			should(b.mimeType).be.eql('image/jpeg');
+		});
+
+		it('with WebP', function () {
+			const blob = Ti.Filesystem.getFile('Logo.webp').read();
+			const b = blob.imageAsCompressed(0.5);
+			should(b).be.an.Object();
+			should(b.width).be.eql(blob.width);
+			should(b.height).be.eql(blob.height);
 			should(b.mimeType).be.eql('image/jpeg');
 		});
 
@@ -266,10 +309,85 @@ describe('Titanium.Blob', function () {
 			should(b.height).be.eql(60);
 		});
 
+		it('with PNG (square)', function () {
+			const blob = Ti.Filesystem.getFile('Logo.png').read();
+			const b = blob.imageAsResized(50, 50);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(50);
+		});
+
 		it('with non-image (JS file) returns null', function () {
 			const blob = Ti.Filesystem.getFile('app.js').read();
 			const b = blob.imageAsResized(50, 60);
 			should.not.exist(b);
+		});
+	});
+
+	describe('#imageAsResized() - non square', function () {
+		it('is a Function', function () {
+			const blob = Ti.Filesystem.getFile('Logo_non_square.png').read();
+			should(blob.imageAsResized).be.a.Function();
+		});
+
+		it('with PNG', function () {
+			const blob = Ti.Filesystem.getFile('Logo_non_square.png').read();
+			const b = blob.imageAsResized(50, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(60);
+		});
+
+		it('with PNG (square)', function () {
+			const blob = Ti.Filesystem.getFile('Logo_non_square.png').read();
+			const b = blob.imageAsResized(50, 50);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(50);
+		});
+
+		it('with non-image (JS file) returns null', function () {
+			const blob = Ti.Filesystem.getFile('app.js').read();
+			const b = blob.imageAsResized(50, 60);
+			should.not.exist(b);
+		});
+	});
+
+	describe('#imageAsResized() from imageview', function () {
+		it('square to non square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(50, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(60);
+		});
+
+		it('non square to non square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo_non_square.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(50, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(60);
+		});
+
+		it('square to square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(60, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(60);
+			should(b.height).be.eql(60);
+		});
+
+		it('non square to square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo_non_square.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(60, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(60);
+			should(b.height).be.eql(60);
 		});
 	});
 
@@ -391,10 +509,49 @@ describe('Titanium.Blob', function () {
 		});
 	});
 
+	describe('EXIF orientation', () => {
+		it('rotate 90', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate90.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('rotate 180', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate180.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('rotate 270', () => {
+			const blob = Ti.Filesystem.getFile('ExifRotate270.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('flip horizontal', () => {
+			const blob = Ti.Filesystem.getFile('ExifFlipHorizontal.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('flip vertical', () => {
+			const blob = Ti.Filesystem.getFile('ExifFlipVertical.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('transpose', () => {
+			const blob = Ti.Filesystem.getFile('ExifTranspose.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+		it('transverse', () => {
+			const blob = Ti.Filesystem.getFile('ExifTransverse.jpg').read();
+			should(blob.uprightWidth).be.eql(1200);
+			should(blob.uprightHeight).be.eql(1800);
+		});
+	});
+
 	// FIXME: This is breaking on Android emulator when setting the image view to the blob
 	// Canvas: trying to draw too large(211527936bytes) bitmap.
 	// it breaks on older android devices with an OutOfMemory Error on calling imageAsResized
 	it.androidBroken('resize very large image', function (finish) {
+		this.timeout(15000);
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
 		const img = Ti.UI.createImageView();
 
@@ -402,17 +559,21 @@ describe('Titanium.Blob', function () {
 		let blob = Ti.Filesystem.getFile('large.jpg').read();
 		should(blob).be.an.Object();
 
-		win.addEventListener('open', () => {
-			// Keep re-sizing the image down by 10%
-			for (let i = 0; i < 10; i++) {
+		win.addEventListener('postlayout', function postlayout() {
+			win.removeEventListener('postlayout', postlayout); // only run once
+			try {
+				// Keep re-sizing the image down by 10%
+				for (let i = 0; i < 10; i++) {
+					// De-reference original blob so it can be freed.
+					blob = blob.imageAsResized(blob.width / 1.1, blob.height / 1.1);
+					should(blob).be.an.Object();
+				}
 
-				// De-reference original blob so it can be freed.
-				blob = blob.imageAsResized(blob.width / 1.1, blob.height / 1.1);
-				should(blob).be.an.Object();
+				// Display re-sized image.
+				img.image = blob;
+			} catch (err) {
+				return finish(err);
 			}
-
-			// Display re-sized image.
-			img.image = blob;
 
 			finish();
 		});

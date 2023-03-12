@@ -3,10 +3,11 @@ name: Titanium.Contacts.Group
 summary: An object which represents a group in the system contacts address book.
 description: |
     See examples in <Titanium.Contacts> for more information.
-extends: Titanium.Proxy
-since: "1.4.0"
-platforms: [iphone, ipad]
 
+    These APIs are unavailable on macOS if the app is built on a version of Xcode < 12.
+extends: Titanium.Proxy
+since: {iphone: "1.4.0", ipad: "1.4.0", macos: "9.2.0"}
+platforms: [iphone, ipad, macos]
 methods:
   - name: add
     summary: Adds a person to this group.
@@ -21,7 +22,6 @@ methods:
     summary: Gets people that are members of this group.
     returns:
         type: Array<Titanium.Contacts.Person>
-    platforms: [android, iphone, ipad]
     
   - name: remove
     summary: |
@@ -42,22 +42,13 @@ methods:
             Method for sorting.
         constants: Titanium.Contacts.CONTACTS_SORT_*
         type: Number
-    platforms: [android, iphone, ipad]    
 
 properties:
   - name: name
     summary: Name of this group.
     type: String
-    
-  - name: recordId
-    summary: Record identifier of the group. Single value. Deprecated for iOS 9 and later.
-    type: Number
-    platforms: [iphone, ipad]
-    osver: {ios: {max: "8.0"}}
 
   - name: identifier
     summary: Identifier of the group.
     type: String
-    platforms: [iphone, ipad]
     permission: read-only
-    osver: {ios: {min: "9.0"}}

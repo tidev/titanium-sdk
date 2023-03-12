@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,7 +34,7 @@ public class ShortcutItemProxy extends KrollProxy
 
 	private Context context = null;
 	private static ShortcutManager shortcutManager = null;
-	private static List<ShortcutInfo> shortcuts = new ArrayList<ShortcutInfo>();
+	private static final List<ShortcutInfo> shortcuts = new ArrayList<>();
 
 	private ShortcutInfo shortcut;
 	private ShortcutInfo.Builder shortcutBuilder;
@@ -108,12 +108,12 @@ public class ShortcutItemProxy extends KrollProxy
 		shortcut = shortcutBuilder.build();
 
 		// obtain and update any pre-existing shortcuts
-		for (ShortcutInfo shortcut : new ArrayList<>(this.shortcuts)) {
+		for (ShortcutInfo shortcut : new ArrayList<>(ShortcutItemProxy.shortcuts)) {
 			if (shortcut.getId().equals(this.shortcut.getId())) {
-				this.shortcuts.remove(shortcut);
+				ShortcutItemProxy.shortcuts.remove(shortcut);
 			}
 		}
-		this.shortcuts.add(shortcut);
+		ShortcutItemProxy.shortcuts.add(shortcut);
 
 		super.handleCreationDict(dict);
 	}
@@ -201,7 +201,6 @@ public class ShortcutItemProxy extends KrollProxy
 	}
 
 	@Deprecated
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getVisible()
 	{

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2011 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,7 +33,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
-import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -48,7 +47,6 @@ public class TiUIScrollableView extends TiUIView
 	private static final int PAGE_RIGHT_ID = View.generateViewId();
 
 	private final ViewPager mPager;
-	private final ArrayList<TiViewProxy> mViews;
 	private final ViewPagerAdapter mAdapter;
 	private final TiViewPagerLayout mContainer;
 	private final FrameLayout mPagingControl;
@@ -69,8 +67,7 @@ public class TiUIScrollableView extends TiUIView
 		mContainer = new TiViewPagerLayout(activity);
 
 		// Add ViewPager to container.
-		mViews = new ArrayList<TiViewProxy>();
-		mAdapter = new ViewPagerAdapter(activity, mViews);
+		mAdapter = new ViewPagerAdapter(activity, proxy.getViewsList());
 		mPager = buildViewPager(activity, mAdapter);
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_CLIP_VIEWS)) {
 			mPager.setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
@@ -171,7 +168,7 @@ public class TiUIScrollableView extends TiUIView
 		});
 
 		pager.setAdapter(adapter);
-		pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+		pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
 			private int lastSelectedPageIndex;
 			private boolean isScrolling;
 			private boolean isDragging;
@@ -181,7 +178,7 @@ public class TiUIScrollableView extends TiUIView
 			{
 				switch (scrollState) {
 					case ViewPager.SCROLL_STATE_DRAGGING: {
-						if (!this.isDragging && !mViews.isEmpty()) {
+						if (!this.isDragging && !getViews().isEmpty()) {
 							// This is the start of a touch/drag event by the end-user. Fire a "dragstart" event.
 							this.isDragging = true;
 							this.isScrolling = true;
@@ -203,8 +200,8 @@ public class TiUIScrollableView extends TiUIView
 
 							// Fetch the proxy for the currently selected page.
 							TiViewProxy pageProxy = null;
-							if ((this.lastSelectedPageIndex >= 0) && (this.lastSelectedPageIndex < mViews.size())) {
-								pageProxy = mViews.get(this.lastSelectedPageIndex);
+							if ((this.lastSelectedPageIndex >= 0) && (this.lastSelectedPageIndex < getViews().size())) {
+								pageProxy = getViews().get(this.lastSelectedPageIndex);
 							}
 
 							// Fire a "dragend" event if dragging. (We only support this event on Android.)
@@ -226,6 +223,9 @@ public class TiUIScrollableView extends TiUIView
 								if (proxy != null) {
 									((ScrollableViewProxy) proxy).fireScrollEnd(this.lastSelectedPageIndex, pageProxy);
 								}
+
+								// Update current page in proxy.
+								proxy.setProperty(TiC.PROPERTY_CURRENT_PAGE, mCurIndex);
 							}
 						}
 
@@ -248,7 +248,7 @@ public class TiUIScrollableView extends TiUIView
 			public void onPageScrolled(int pageIndex, float pageOffsetNormalized, int pageOffsetPixels)
 			{
 				// Ignored scroll/drag events if there are no child pages within the ViewPager.
-				if (mViews.isEmpty()) {
+				if (getViews().isEmpty()) {
 					return;
 				}
 
@@ -271,14 +271,14 @@ public class TiUIScrollableView extends TiUIView
 				int currentPageIndex = (int) Math.floor(currentPageAsFloat + 0.5f);
 				if (currentPageIndex < 0) {
 					currentPageIndex = 0;
-				} else if (currentPageIndex >= mViews.size()) {
-					currentPageIndex = mViews.size() - 1;
+				} else if (currentPageIndex >= getViews().size()) {
+					currentPageIndex = getViews().size() - 1;
 				}
 				mCurIndex = currentPageIndex;
 
 				// Fire a "scroll" event.
 				if (proxy != null) {
-					((ScrollableViewProxy) proxy).fireScroll(mCurIndex, currentPageAsFloat, mViews.get(mCurIndex));
+					((ScrollableViewProxy) proxy).fireScroll(mCurIndex, currentPageAsFloat, getViews().get(mCurIndex));
 				}
 			}
 		});
@@ -364,13 +364,24 @@ public class TiUIScrollableView extends TiUIView
 		return layout;
 	}
 
+	public ViewPagerAdapter getAdapter()
+	{
+		return mAdapter;
+	}
+
+	private ScrollableViewProxy getScrollableViewProxy()
+	{
+		return (ScrollableViewProxy) this.proxy;
+	}
+
+	private ArrayList<TiViewProxy> getViews()
+	{
+		return getScrollableViewProxy().getViewsList();
+	}
+
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		if (d.containsKey(TiC.PROPERTY_VIEWS)) {
-			setViews(d.get(TiC.PROPERTY_VIEWS));
-		}
-
 		if (d.containsKey(TiC.PROPERTY_CURRENT_PAGE)) {
 			int page = TiConvert.toInt(d, TiC.PROPERTY_CURRENT_PAGE);
 			if (page > 0) {
@@ -432,12 +443,9 @@ public class TiUIScrollableView extends TiUIView
 	{
 		// Do not allow given size to be less than min. (iOS min size is 3.)
 		if (value < ScrollableViewProxy.MIN_CACHE_SIZE) {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("ScrollableView 'cacheSize' cannot be set less than ");
-			stringBuilder.append(ScrollableViewProxy.MIN_CACHE_SIZE);
-			stringBuilder.append(". Given value: ");
-			stringBuilder.append(value);
-			Log.w(TAG, stringBuilder.toString());
+			String stringBuilder = "ScrollableView 'cacheSize' cannot be set less than "
+				+ ScrollableViewProxy.MIN_CACHE_SIZE + ". Given value: " + value;
+			Log.w(TAG, stringBuilder);
 			value = ScrollableViewProxy.MIN_CACHE_SIZE;
 		}
 
@@ -455,71 +463,6 @@ public class TiUIScrollableView extends TiUIView
 		mPager.setOffscreenPageLimit(value);
 	}
 
-	public void addView(TiViewProxy proxy)
-	{
-		if (!mViews.contains(proxy)) {
-			proxy.setActivity(this.proxy.getActivity());
-			proxy.setParent(this.proxy);
-			mViews.add(proxy);
-			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
-			mAdapter.notifyDataSetChanged();
-		}
-	}
-
-	public void insertViewsAt(int insertIndex, Object object)
-	{
-		if (object instanceof TiViewProxy) {
-			// insert a single view at insertIndex
-			TiViewProxy proxy = (TiViewProxy) object;
-			if (!mViews.contains(proxy)) {
-				proxy.setActivity(this.proxy.getActivity());
-				proxy.setParent(this.proxy);
-				mViews.add(insertIndex, proxy);
-				getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
-				mAdapter.notifyDataSetChanged();
-			}
-		} else if (object instanceof Object[]) {
-			// insert many views at insertIndex
-			boolean changed = false;
-			Object[] views = (Object[]) object;
-			Activity activity = this.proxy.getActivity();
-			for (int i = 0; i < views.length; i++) {
-				if (views[i] instanceof TiViewProxy) {
-					TiViewProxy tv = (TiViewProxy) views[i];
-					tv.setActivity(activity);
-					tv.setParent(this.proxy);
-					mViews.add(insertIndex, tv);
-					changed = true;
-				}
-			}
-			if (changed) {
-				getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
-				mAdapter.notifyDataSetChanged();
-			}
-		}
-	}
-
-	public void removeViewByIndex(int index)
-	{
-		if ((index >= 0) && (index < mViews.size())) {
-			removeView(mViews.get(index));
-		}
-	}
-
-	public void removeView(TiViewProxy proxy)
-	{
-		if (mViews.contains(proxy)) {
-			if (mCurIndex > 0 && mCurIndex == (mViews.size() - 1)) {
-				setCurrentPage(mCurIndex - 1);
-			}
-			mViews.remove(proxy);
-			proxy.releaseViews();
-			proxy.setParent(null);
-			getProxy().setProperty(TiC.PROPERTY_VIEWS, mViews.toArray());
-			mAdapter.notifyDataSetChanged();
-		}
-	}
-
 	public void showPager()
 	{
 		View v = null;
@@ -530,7 +473,7 @@ public class TiUIScrollableView extends TiUIView
 
 		v = mContainer.findViewById(PAGE_RIGHT_ID);
 		if (v != null) {
-			v.setVisibility(mCurIndex < (mViews.size() - 1) ? View.VISIBLE : View.INVISIBLE);
+			v.setVisibility(mCurIndex < (getViews().size() - 1) ? View.VISIBLE : View.INVISIBLE);
 		}
 
 		mPagingControl.setVisibility(View.VISIBLE);
@@ -554,7 +497,7 @@ public class TiUIScrollableView extends TiUIView
 
 	private void move(int index, boolean smoothScroll)
 	{
-		if (index < 0 || index >= mViews.size()) {
+		if (index < 0 || index >= getViews().size()) {
 			if (Log.isDebugModeEnabled()) {
 				Log.w(TAG, "Request to move to index " + index + " ignored, as it is out-of-bounds.", Log.DEBUG_MODE);
 			}
@@ -569,7 +512,7 @@ public class TiUIScrollableView extends TiUIView
 		if (view instanceof Number) {
 			move(((Number) view).intValue(), true);
 		} else if (view instanceof TiViewProxy) {
-			move(mViews.indexOf(view), true);
+			move(getViews().indexOf(view), true);
 		}
 	}
 
@@ -595,53 +538,6 @@ public class TiUIScrollableView extends TiUIView
 	public boolean getEnabled()
 	{
 		return mEnabled;
-	}
-
-	private void clearViewsList()
-	{
-		if (mViews == null || mViews.size() == 0) {
-			return;
-		}
-		for (TiViewProxy viewProxy : mViews) {
-			viewProxy.releaseViews();
-			viewProxy.setParent(null);
-		}
-		mViews.clear();
-	}
-
-	public void setViews(Object viewsObject)
-	{
-		boolean changed = false;
-		int oldSize = mViews.size();
-
-		clearViewsList();
-
-		if (viewsObject instanceof Object[]) {
-			Object[] views = (Object[]) viewsObject;
-
-			if (oldSize > 0 && views.length == 0) {
-				changed = true;
-			}
-
-			Activity activity = this.proxy.getActivity();
-			for (int i = 0; i < views.length; i++) {
-				if (views[i] instanceof TiViewProxy) {
-					TiViewProxy tv = (TiViewProxy) views[i];
-					tv.setActivity(activity);
-					tv.setParent(this.proxy);
-					mViews.add(tv);
-					changed = true;
-				}
-			}
-		}
-		if (changed) {
-			mAdapter.notifyDataSetChanged();
-		}
-	}
-
-	public ArrayList<TiViewProxy> getViews()
-	{
-		return mViews;
 	}
 
 	private void setPadding(HashMap<String, Object> d)
@@ -674,16 +570,7 @@ public class TiUIScrollableView extends TiUIView
 	public void release()
 	{
 		if (mPager != null) {
-			for (int i = mPager.getChildCount() - 1; i >= 0; i--) {
-				mPager.removeViewAt(i);
-			}
-		}
-		if (mViews != null) {
-			for (TiViewProxy viewProxy : mViews) {
-				viewProxy.releaseViews();
-				viewProxy.setParent(null);
-			}
-			mViews.clear();
+			mPager.removeAllViews();
 		}
 		super.release();
 	}

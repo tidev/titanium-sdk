@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -142,7 +142,13 @@
 @property (nonatomic, readwrite, assign) NSNumber *appBadge;
 @property (nonatomic, readwrite, assign) NSNumber *appSupportsShakeToEdit;
 
-//Modal_Presentation&Transition
+// iOS 16+ alert severity
+#if IS_SDK_IOS_16
+- (NSNumber *)ALERT_SEVERITY_DEFAULT;
+- (NSNumber *)ALERT_SEVERITY_CRITICAL;
+#endif
+
+//Modal Presentation & Transition
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
@@ -174,17 +180,8 @@
 #ifdef USE_TI_UIIOSCOVERFLOWVIEW
 - (id)createCoverFlowView:(id)args;
 #endif
-#ifdef USE_TI_UIIOSTOOLBAR
-- (id)createToolbar:(id)args;
-#endif
-#ifdef USE_TI_UIIOSTABBEDBAR
-- (id)createTabbedBar:(id)args;
-#endif
 #ifdef USE_TI_UIIOSDOCUMENTVIEWER
 - (id)createDocumentViewer:(id)args;
-#endif
-#ifdef USE_TI_UIIOSNAVIGATIONWINDOW
-- (id)createNavigationWindow:(id)args;
 #endif
 #ifdef USE_TI_UIIOSSPLITWINDOW
 - (id)createSplitWindow:(id)args;

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,7 +8,6 @@
 
 #import "PlatformModule.h"
 #import "TiPlatformDisplayCaps.h"
-#import "TiUtils+Addons.h"
 #import <TitaniumKit/JSValue+Addons.h>
 #import <TitaniumKit/TiApp.h>
 
@@ -30,36 +29,29 @@ NSString *const DATA_IFACE = @"pdp_ip0";
 
 @implementation PlatformModule
 
-@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version, versionMajor, versionMinor;
+@synthesize architecture, availableMemory, model, name, osname, ostype, processorCount, totalMemory, uptime, username, version, versionMajor, versionMinor, versionPatch;
 
 #pragma mark Internal
 
 - (id)init
 {
   if (self = [super init]) {
-    UIDevice *theDevice = [UIDevice currentDevice];
-    name = [[theDevice systemName] retain];
-    version = [[theDevice systemVersion] retain];
+    UIDevice *theDevice = UIDevice.currentDevice;
+#if !TARGET_OS_MACCATALYST
+    name = [theDevice.systemName retain];
+#else
+    name = @"Mac OS X";
+#endif
 
-    // Extract "<major>.<minor>" integers from OS version string.
-    NSArray *versionComponents = [version componentsSeparatedByString:@"."];
-    versionMajor = [NSNumber numberWithInt:[versionComponents[0] intValue]];
-    if ([versionComponents count] >= 2) {
-      versionMinor = [NSNumber numberWithInt:[versionComponents[1] intValue]];
-    } else {
-      versionMinor = @0;
-    }
+    NSOperatingSystemVersion versionStruct = NSProcessInfo.processInfo.operatingSystemVersion;
+    version = [[NSString stringWithFormat:@"%ld.%ld.%ld", versionStruct.majorVersion, versionStruct.minorVersion, versionStruct.patchVersion] retain];
+    versionMajor = [NSNumber numberWithInteger:versionStruct.majorVersion];
+    versionMinor = [NSNumber numberWithInteger:versionStruct.minorVersion];
+    versionPatch = [NSNumber numberWithInteger:versionStruct.patchVersion];
+    processorCount = [NSNumber numberWithUnsignedInteger:NSProcessInfo.processInfo.processorCount];
 
-    // grab logical CPUs
-    int cores = 1;
-    size_t sizeof_cores = sizeof(cores);
-    sysctlbyname("hw.logicalcpu_max", &cores, &sizeof_cores, NULL, 0);
-    if (cores <= 0) {
-      cores = 1;
-    }
-    processorCount = [[NSNumber numberWithInt:cores] retain];
+    username = [theDevice.name retain];
 
-    username = [[theDevice name] retain];
 #ifdef __LP64__
     ostype = [@"64bit" retain];
 #else
@@ -74,22 +66,33 @@ NSString *const DATA_IFACE = @"pdp_ip0";
       osname = [@"iphone" retain];
     }
 
-    NSString *themodel = [theDevice model];
+    // detect simulator
+#if TARGET_OS_SIMULATOR
+    model = [[NSString stringWithFormat:@"%s (Simulator)", getenv("SIMULATOR_MODEL_IDENTIFIER")] retain];
+#elif TARGET_OS_MACCATALYST
+    // Need to go a bit deeper to get the hardware model for actual macOS boxes
+    const char *keyCString = "hw.model";
+    NSString *answer = @"";
 
+    size_t length;
+    sysctlbyname(keyCString, NULL, &length, NULL, 0);
+    if (length) {
+      char *answerCString = malloc(length * sizeof(char));
+      sysctlbyname(keyCString, answerCString, &length, NULL, 0);
+      answer = [NSString stringWithCString:answerCString encoding:NSUTF8StringEncoding];
+      free(answerCString);
+    }
+    model = [answer retain];
+#else
     // attempt to determine extended phone info
     struct utsname u;
     uname(&u);
-
-    // detect simulator
-    if (strcmp(u.machine, "i386") == 0 || strcmp(u.machine, "x86_64") == 0) {
-      model = [[NSString stringWithFormat:@"%s (Simulator)", getenv("SIMULATOR_MODEL_IDENTIFIER")] retain];
-    } else {
-      model = [[NSString alloc] initWithUTF8String:u.machine];
-    }
+    model = [[NSString alloc] initWithUTF8String:u.machine];
+#endif
     architecture = [[TiUtils currentArchitecture] retain];
 
     // needed for platform displayCaps orientation to be correct
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [theDevice beginGeneratingDeviceOrientationNotifications];
   }
   return self;
 }
@@ -101,6 +104,7 @@ NSString *const DATA_IFACE = @"pdp_ip0";
   RELEASE_TO_NIL(version);
   RELEASE_TO_NIL(versionMajor);
   RELEASE_TO_NIL(versionMinor);
+  RELEASE_TO_NIL(versionPatch);
   RELEASE_TO_NIL(architecture);
   RELEASE_TO_NIL(processorCount);
   RELEASE_TO_NIL(username);
@@ -231,7 +235,7 @@ GETTER_IMPL(NSString *, macaddress, Macaddress);
 GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 
 #if defined(USE_TI_PLATFORMIDENTIFIERFORADVERTISING) || defined(USE_TI_PLATFORMGETIDENTIFIERFORADVERTISING)
-- (BOOL)isAdvertisingTrackingEnabled
+- (bool)isAdvertisingTrackingEnabled
 {
   return [[ASIdentifierManager sharedManager] isAdvertisingTrackingEnabled];
 }
@@ -241,7 +245,7 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
   return [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
 }
 #else
-- (BOOL)isAdvertisingTrackingEnabled
+- (bool)isAdvertisingTrackingEnabled
 {
   return NO;
 }
@@ -252,7 +256,22 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 }
 #endif
 
-GETTER_IMPL(BOOL, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
+- (bool)isTranslatedBinaryOnAppleSilicon
+{
+  // As noted by Apple in https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
+  int ret = 0;
+  size_t size = sizeof(ret);
+  if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+    if (errno == ENOENT) {
+      return 0;
+    }
+    return -1;
+  }
+  return ret;
+}
+
+GETTER_IMPL(bool, isTranslatedBinaryOnAppleSilicon, IsTranslatedBinaryOnAppleSilicon);
+GETTER_IMPL(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 GETTER_IMPL(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 
 - (NSString *)id
@@ -309,7 +328,7 @@ GETTER_IMPL(NSString *, id, Id);
 }
 GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
 
-- (BOOL)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
+- (bool)openURL:(NSString *)url withOptions:(JSValue *)options andCallback:(JSValue *)callback
 {
   NSURL *newUrl = [TiUtils toURL:url proxy:self];
   BOOL result = NO;
@@ -337,10 +356,10 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
                              }];
   }
 
-  return [NSNumber numberWithBool:result];
+  return result;
 }
 
-- (BOOL)canOpenURL:(NSString *)arg
+- (bool)canOpenURL:(NSString *)arg
 {
   NSURL *url = [TiUtils toURL:arg proxy:self];
   return [[UIApplication sharedApplication] canOpenURL:url];
@@ -356,7 +375,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   return [self displayCaps];
 }
 
-- (void)setBatteryMonitoring:(BOOL)yn
+- (void)setBatteryMonitoring:(bool)yn
 {
   if (![NSThread isMainThread]) {
     TiThreadPerformOnMainThread(
@@ -368,7 +387,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   [[UIDevice currentDevice] setBatteryMonitoringEnabled:yn];
 }
 
-- (BOOL)batteryMonitoring
+- (bool)batteryMonitoring
 {
   if (![NSThread isMainThread]) {
     __block BOOL result = NO;
@@ -381,7 +400,7 @@ GETTER_IMPL(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
   }
   return [UIDevice currentDevice].batteryMonitoringEnabled;
 }
-READWRITE_IMPL(BOOL, batteryMonitoring, BatteryMonitoring);
+READWRITE_IMPL(bool, batteryMonitoring, BatteryMonitoring);
 
 - (NSNumber *)batteryState
 {
@@ -415,7 +434,7 @@ GETTER_IMPL(NSNumber *, batteryLevel, BatteryLevel);
 
 - (NSString *)address
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   // Assume classical ethernet and wifi interfaces
   NSArray *interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
   for (NSString *interface in interfaces) {
@@ -433,7 +452,7 @@ GETTER_IMPL(NSString *, address, Address);
 
 - (NSString *)dataAddress
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   return nil; // Handy shortcut
 #else
   return [self getIface:DATA_IFACE mask:NO];
@@ -444,7 +463,7 @@ GETTER_IMPL(NSString *, dataAddress, DataAddress);
 // Only available for the local wifi; why would you want it for the data network?
 - (NSString *)netmask
 {
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR
   // Assume classical ethernet and wifi interfaces
   NSArray *interfaces = [NSArray arrayWithObjects:@"en0", @"en1", nil];
   for (NSString *interface in interfaces) {

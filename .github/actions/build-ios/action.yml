@@ -1,0 +1,41 @@
+name: iOS Build
+description: Installs required dependencies and then builds the iOS side of the SDK
+
+inputs:
+  node-version:
+    description: The version of Node.js to use
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash
+
+    - name: Lint
+      run: npm run lint:ios
+      shell: bash 
+
+    - name: Build
+      run: npm run build:ios
+      shell: bash
+
+    - name: Package build output
+      run: >
+        tar -czvf ios-build.tar.gz
+        dist/tmp/common
+        iphone/TitaniumKit/build/TitaniumKit.xcframework
+      shell: bash
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: ios-build
+        retention-days: 1
+        path: ios-build.tar.gz

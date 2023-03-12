@@ -1,321 +1,500 @@
 /*
  * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_VERSION_MAJOR, OS_VERSION_MINOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint no-undef: "off" */
+/* eslint mocha/no-identical-title: "off" */
 'use strict';
+
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
+const IOS_SIM = OS_IOS && Ti.Platform.model.includes('(Simulator)');
+const OS_MACOS = utilities.isMacOS();
 
-describe('Titanium.Platform', function () {
+describe('Titanium.Platform', () => {
 
-	it('apiName', () => {
-		should(Ti.Platform).have.readOnlyProperty('apiName').which.is.a.String();
-		should(Ti.Platform.apiName).be.eql('Ti.Platform');
+	describe('properties', () => {
+		describe('.address', () => {
+			// may be undefined on ios sim!
+			before(function () {
+				if (IOS_SIM || OS_MACOS) {
+					this.skip();
+				}
+			});
+
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('address').which.is.a.String();
+			});
+
+			it('matches IP address format if defined', () => {
+				should(Ti.Platform.address).match(/\d+\.\d+\.\d+\.\d+/);
+				// TODO Verify the format of the String. Should be an IP address, so like: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+			});
+		});
+
+		describe('.apiName', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('apiName').which.is.a.String();
+			});
+
+			it('equals Ti.Platform', () => {
+				should(Ti.Platform.apiName).eql('Ti.Platform');
+			});
+		});
+
+		describe('.architecture', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('architecture').which.is.a.String();
+			});
+		});
+
+		describe('.availableMemory', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('availableMemory').which.is.a.Number();
+			});
+		});
+
+		describe('.batteryLevel', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('batteryLevel').which.is.a.Number();
+			});
+		});
+
+		describe('.batteryMonitoring', () => {
+			it('is a Boolean', () => {
+				should(Ti.Platform).have.a.property('batteryMonitoring').which.is.a.Boolean();
+			});
+
+			it('defaults to false', () => {
+				should(Ti.Platform.batteryMonitoring).be.false();
+			});
+		});
+
+		describe('.batteryState', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('batteryState').which.is.a.Number();
+			});
+
+			it('is one of Ti.Platform.BATTERY_STATE_*', () => {
+				should([
+					Ti.Platform.BATTERY_STATE_CHARGING,
+					Ti.Platform.BATTERY_STATE_FULL,
+					Ti.Platform.BATTERY_STATE_UNKNOWN,
+					Ti.Platform.BATTERY_STATE_UNPLUGGED,
+				]).containEql(Ti.Platform.batteryState);
+			});
+		});
+
+		describe('.displayCaps', () => {
+			it('is a Titanium.Platform.DisplayCaps', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('displayCaps').which.is.an.Object();
+				should(Ti.Platform.displayCaps).have.a.readOnlyProperty('apiName').which.eql('Ti.Platform.DisplayCaps');
+			});
+		});
+
+		describe('.id', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('id').which.is.a.String();
+			});
+
+			it.ios('is a 36-character String matching guid format', () => {
+				const platformId = Ti.Platform.id;
+				should(platformId).be.a.String();
+				should(platformId.length).eql(36);
+				// Verify format using regexp!
+				platformId.should.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+			});
+		});
+
+		describe.ios('.identifierForAdvertising', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.property('identifierForAdvertising').which.is.a.String();
+			});
+		});
+
+		describe.ios('.identifierForVendor', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('identifierForVendor').which.is.a.String();
+			});
+		});
+
+		describe.ios('.isAdvertisingTrackingEnabled', () => {
+			it('is a Boolean', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('isAdvertisingTrackingEnabled').which.is.a.Boolean();
+			});
+		});
+
+		describe('.locale', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('locale').which.is.a.String();
+			});
+		});
+
+		describe('.macaddress', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('macaddress').which.is.a.String();
+			});
+
+			it.ios('returns a 36-character guid format String', () => {
+				const macaddress = Ti.Platform.macaddress;
+				should(macaddress).be.a.String();
+				should(macaddress.length).eql(36);
+				// Verify format using regexp!
+				macaddress.should.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+			});
+		});
+
+		describe('.manufacturer', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('manufacturer').which.is.a.String();
+			});
+		});
+
+		describe('.model', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('model').which.is.a.String();
+			});
+		});
+
+		describe('.name', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('name').which.is.a.String();
+			});
+
+			it('is one of known constant String values', () => {
+				should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb', 'Mac OS X', 'iPadOS' ]);
+				// TODO match with osname!
+			});
+		});
+
+		describe('.netmask', () => {
+			// may be undefined on ios sim!
+			before(function () {
+				if (IOS_SIM || OS_MACOS) {
+					this.skip();
+				}
+			});
+
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('netmask').which.is.a.String();
+			});
+
+			it('matches IP address format if defined', () => {
+				should(Ti.Platform.netmask).match(/\d+\.\d+\.\d+\.\d+/);
+			});
+		});
+
+		describe('.osname', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('osname').which.is.a.String();
+			});
+
+			it('is one of known constant String values', () => {
+				should(Ti.Platform.osname).be.equalOneOf([ 'android', 'iphone', 'ipad', 'windowsphone', 'windowsstore', 'mobileweb' ]);
+				// TODO match up Ti.Platform.name?
+			});
+		});
+
+		describe('.ostype', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('ostype').which.is.a.String();
+			});
+
+			it('is one of known String constant values', () => {
+				// Verify it's one of the known values
+				should(Ti.Platform.ostype).be.equalOneOf([ '64bit', '32bit', 'unknown' ]);
+			});
+		});
+
+		describe('.processorCount', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('processorCount').which.is.a.Number();
+			});
+		});
+
+		describe('.runtime', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('runtime').which.is.a.String();
+			});
+
+			it('is one of known conatant String values', () => {
+				if (OS_ANDROID) {
+					should(Ti.Platform.runtime).eql('v8');
+				} else {
+					should(Ti.Platform.runtime).eql('javascriptcore');
+				}
+			});
+		});
+
+		describe('.totalMemory', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('totalMemory').which.is.a.Number();
+			});
+		});
+
+		describe('.uptime', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('uptime').which.is.a.Number();
+			});
+		});
+
+		describe('.username', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('username').which.is.a.String();
+			});
+		});
+
+		describe('.version', () => {
+			it('is a String', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('version').which.is.a.String();
+			});
+		});
+
+		describe('.versionMajor', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('versionMajor').which.is.a.Number();
+			});
+
+			it('equals OS_VERSION_MAJOR value', () => {
+				should(Ti.Platform.versionMajor).be.eql(OS_VERSION_MAJOR);
+			});
+
+			it('equals first segment of Ti.Platform.version as Integer', () => {
+				should(Ti.Platform.versionMajor).be.eql(parseInt(Ti.Platform.version.split('.')[0]));
+			});
+		});
+
+		describe('.versionMinor', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('versionMinor').which.is.a.Number();
+			});
+
+			it('equals OS_VERSION_MINOR value', () => {
+				should(Ti.Platform.versionMinor).be.eql(OS_VERSION_MINOR);
+			});
+
+			it('equals second segment of Ti.Platform.version as Integer', () => {
+				const versionComponents = Ti.Platform.version.split('.');
+				const versionMinor = (versionComponents.length >= 2) ? parseInt(versionComponents[1]) : 0;
+				should(Ti.Platform.versionMinor).be.eql(versionMinor);
+			});
+		});
+
+		describe('.versionPatch', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.readOnlyProperty('versionPatch').which.is.a.Number();
+			});
+
+			it('equals OS_VERSION_PATCH value', () => {
+				should(Ti.Platform.versionPatch).be.eql(OS_VERSION_PATCH);
+			});
+
+			it('equals third segment of Ti.Platform.version as Integer', () => {
+				const versionComponents = Ti.Platform.version.split('.');
+				const versionPatch = (versionComponents.length >= 3) ? parseInt(versionComponents[2]) : 0;
+				should(Ti.Platform.versionPatch).be.eql(versionPatch);
+			});
+		});
+
 	});
 
-	it('canOpenURL()', () => {
-		should(Ti.Platform.canOpenURL).be.a.Function();
-		should(Ti.Platform.canOpenURL('http://www.appcelerator.com/')).be.true();
-		should(Ti.Platform.canOpenURL('mocha://')).be.true();
-	});
+	describe('methods', () => {
+		describe('#canOpenURL()', () => {
+			it('is a Function', () => {
+				should(Ti.Platform.canOpenURL).be.a.Function();
+			});
 
-	it('#createUUID()', () => {
-		should(Ti.Platform.createUUID).be.a.Function();
+			it('returns true for typical http URL', () => {
+				should(Ti.Platform.canOpenURL('http://www.google.com/')).be.true();
+			});
 
-		const result = Ti.Platform.createUUID();
-		should(result).be.a.String();
-		should(result.length).eql(36);
-		// Verify format using regexp!
-		should(result.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).not.eql(null);
-		should(result.charAt(0)).not.eql('{');
-		should(result.charAt(result.length - 1)).not.eql('}');
-	});
+			it('returns true for app-sepcific URI scheme', () => {
+				should(Ti.Platform.canOpenURL('mocha://')).be.true();
+			});
+		});
 
-	describe('#openURL', () => {
-		// Checks if openURL() successfully opened this app with its own "mocha://" custom URL scheme.
-		function handleUrl(url, finish) {
-			if (utilities.isAndroid()) {
-				Ti.Android.rootActivity.addEventListener('newintent', function listener(e) {
+		describe.android('#cpus()', () => {
+			it('is a Function', () => {
+				should(Ti.Platform.cpus).be.a.Function();
+			});
+		});
+
+		describe('#createUUID()', () => {
+			it('is a Function', () => {
+				should(Ti.Platform.createUUID).be.a.Function();
+			});
+
+			it('returns a 36-character String matching guid format', () => {
+				const result = Ti.Platform.createUUID();
+				should(result).be.a.String();
+				should(result.length).eql(36);
+				// Verify format using regexp!
+				should(result.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)).not.eql(null);
+				should(result.charAt(0)).not.eql('{');
+				should(result.charAt(result.length - 1)).not.eql('}');
+			});
+		});
+
+		describe('#is24HourTimeFormat()', () => {
+			it('is a Function', () => {
+				should(Ti.Platform.is24HourTimeFormat).be.a.Function();
+			});
+
+			it('returns a Boolean', () => {
+				should(Ti.Platform.is24HourTimeFormat()).be.a.Boolean();
+			});
+		});
+
+		describe('#openURL', () => {
+			it('is a Function', () => {
+				should(Ti.Platform.openURL).be.a.Function();
+			});
+
+			// Checks if openURL() successfully opened this app with its own "mocha://" custom URL scheme.
+			function handleUrl(url, finish) {
+				if (OS_ANDROID) {
+					Ti.Android.rootActivity.addEventListener('newintent', function listener(e) {
+						try {
+							Ti.Android.rootActivity.removeEventListener('newintent', listener);
+							should(e.intent.data).be.eql(url);
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				} else if (OS_IOS) {
+					Ti.App.iOS.addEventListener('handleurl', function listener(e) {
+						try {
+							Ti.App.iOS.removeEventListener('handleurl', listener);
+							should(e.launchOptions.url).be.eql(url);
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				} else {
+					finish(new Error('This test is not supported on this platform.'));
+				}
+			}
+
+			it('(url)', finish => {
+				const url = 'mocha://test1';
+				handleUrl(url, finish);
+				should(Ti.Platform.openURL).be.a.Function();
+				const wasOpened = Ti.Platform.openURL(url);
+				if (OS_IOS) {
+					should(wasOpened).be.a.Boolean();
+				} else {
+					should(wasOpened).be.true();
+				}
+			});
+
+			it('(url, callback)', finish => {
+				const url = 'mocha://test2';
+				let wasCallbackInvoked = false;
+				let wasUrlReceived = false;
+
+				handleUrl(url, (err) => {
+					wasUrlReceived = true;
+					if (err) {
+						return finish(err);
+					}
+					if (wasCallbackInvoked) {
+						finish();
+					}
+				});
+				const wasOpened = Ti.Platform.openURL(url, (e) => {
 					try {
-						Ti.Android.rootActivity.removeEventListener('newintent', listener);
-						should(e.intent.data).be.eql(url);
+						wasCallbackInvoked = true;
+						should(e.success).be.true();
 					} catch (err) {
 						return finish(err);
 					}
-					finish();
+					if (wasUrlReceived) {
+						finish();
+					}
 				});
-			} else if (utilities.isIOS()) {
-				Ti.App.iOS.addEventListener('handleurl', function listener(e) {
+				if (OS_IOS) {
+					should(wasOpened).be.a.Boolean;
+				} else {
+					should(wasOpened).be.true();
+				}
+			});
+
+			it('(url, options, callback)', finish => {
+				const url = 'mocha://test3';
+				let wasCallbackInvoked = false;
+				let wasUrlReceived = false;
+
+				handleUrl(url, (err) => {
+					wasUrlReceived = true;
+					if (err) {
+						return finish(err);
+					}
+					if (wasCallbackInvoked) {
+						finish();
+					}
+				});
+				const options = {
+					UIApplicationOpenURLOptionsOpenInPlaceKey: true
+				};
+				const wasOpened = Ti.Platform.openURL(url, options, (e) => {
 					try {
-						Ti.App.iOS.removeEventListener('handleurl', listener);
-						should(e.launchOptions.url).be.eql(url);
+						wasCallbackInvoked = true;
+						should(e.success).be.true();
 					} catch (err) {
 						return finish(err);
 					}
-					finish();
+					if (wasUrlReceived) {
+						finish();
+					}
 				});
-			} else {
-				finish(new Error('This test is not supported on this platform.'));
-			}
-		}
-
-		it('(url)', (finish) => {
-			const url = 'mocha://test1';
-			handleUrl(url, finish);
-			should(Ti.Platform.openURL).be.a.Function();
-			const wasOpened = Ti.Platform.openURL(url);
-			if (utilities.isIOS()) {
-				should(wasOpened).be.a.Boolean();
-			} else {
-				should(wasOpened).be.true();
-			}
-		});
-
-		it('(url, callback)', (finish) => {
-			const url = 'mocha://test2';
-			let wasCallbackInvoked = false;
-			let wasUrlReceived = false;
-
-			handleUrl(url, (err) => {
-				wasUrlReceived = true;
-				if (err) {
-					return finish(err);
-				}
-				if (wasCallbackInvoked) {
-					finish();
+				if (OS_IOS) {
+					should(wasOpened).be.a.Boolean;
+				} else {
+					should(wasOpened).be.true();
 				}
 			});
-			const wasOpened = Ti.Platform.openURL(url, (e) => {
-				try {
-					wasCallbackInvoked = true;
-					should(e.success).be.true();
-				} catch (err) {
-					return finish(err);
-				}
-				if (wasUrlReceived) {
-					finish();
-				}
-			});
-			if (utilities.isIOS()) {
-				should(wasOpened).be.a.Boolean;
-			} else {
-				should(wasOpened).be.true();
-			}
-		});
 
-		it('(url, options, callback)', (finish) => {
-			const url = 'mocha://test3';
-			let wasCallbackInvoked = false;
-			let wasUrlReceived = false;
+			// FIXME: macOS pops dialogs about no application set to open this url scheme
+			it.ios('(url, callback) with unhandled scheme passes Error to callback', finish => {
+				Ti.Platform.openURL('randomapp://', _e => finish());
+			});
 
-			handleUrl(url, (err) => {
-				wasUrlReceived = true;
-				if (err) {
-					return finish(err);
-				}
-				if (wasCallbackInvoked) {
-					finish();
-				}
+			it.ios('#openURL(url, options, callback) with unhandled scheme passes Error to callback', finish => {
+				Ti.Platform.openURL('randomapp://', {}, _e => finish());
 			});
-			const options = {
-				UIApplicationOpenURLOptionsOpenInPlaceKey: true
-			};
-			const wasOpened = Ti.Platform.openURL(url, options, (e) => {
-				try {
-					wasCallbackInvoked = true;
-					should(e.success).be.true();
-				} catch (err) {
-					return finish(err);
-				}
-				if (wasUrlReceived) {
-					finish();
-				}
-			});
-			if (utilities.isIOS()) {
-				should(wasOpened).be.a.Boolean;
-			} else {
-				should(wasOpened).be.be.true();
-			}
 		});
 	});
 
-	it('#is24HourTimeFormat()', () => {
-		should(Ti.Platform.is24HourTimeFormat).be.a.Function();
-		should(Ti.Platform.is24HourTimeFormat()).be.a.Boolean();
-	});
+	describe('constants', () => {
+		describe('.BATTERY_STATE_CHARGING', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.constant('BATTERY_STATE_CHARGING').which.is.a.Number();
+			});
+		});
 
-	it('.BATTERY_STATE_CHARGING', () => {
-		should(Ti.Platform).have.constant('BATTERY_STATE_CHARGING').which.is.a.Number();
-	});
+		describe('.BATTERY_STATE_FULL', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.constant('BATTERY_STATE_FULL').which.is.a.Number();
+			});
+		});
 
-	it('.BATTERY_STATE_FULL', () => {
-		should(Ti.Platform).have.constant('BATTERY_STATE_FULL').which.is.a.Number();
-	});
+		describe('.BATTERY_STATE_UNKNOWN', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.constant('BATTERY_STATE_UNKNOWN').which.is.a.Number();
+			});
+		});
 
-	it('.BATTERY_STATE_UNKNOWN', () => {
-		should(Ti.Platform).have.constant('BATTERY_STATE_UNKNOWN').which.is.a.Number();
-	});
+		describe('.BATTERY_STATE_UNPLUGGED', () => {
+			it('is a Number', () => {
+				should(Ti.Platform).have.a.constant('BATTERY_STATE_UNPLUGGED').which.is.a.Number();
+			});
+		});
 
-	it('.BATTERY_STATE_UNPLUGGED', () => {
-		should(Ti.Platform).have.constant('BATTERY_STATE_UNPLUGGED').which.is.a.Number();
-	});
-
-	// TODO Add tests for getters!
-	it('.address', () => {
-		should(Ti.Platform).have.readOnlyProperty('address');
-		if (Ti.Platform.address) { // we typically get undefined on iOS sim
-			should(Ti.Platform.address).match(/\d+\.\d+\.\d+\.\d+/);
-		}
-		// TODO Verify the format of the String. Should be an IP address, so like: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-	});
-
-	it('.architecture', () => {
-		should(Ti.Platform).have.readOnlyProperty('architecture').which.is.a.String();
-	});
-
-	it('.availableMemory', () => {
-		should(Ti.Platform).have.readOnlyProperty('availableMemory').which.is.a.Number();
-	});
-
-	it('.batteryLevel', () => {
-		// batteryLevel should be a number and only accessible from phone
-		should(Ti.Platform).have.readOnlyProperty('batteryLevel').which.is.a.Number();
-	});
-
-	it('.batteryMonitoring', () => {
-		should(Ti.Platform.batteryMonitoring).be.a.Boolean();
-		// Note: Windows 10 Mobile doesn't support battery monitoring
-		if (utilities.isWindowsPhone() && !/^10\./.test(Ti.Platform.version)) {
-			should(Ti.Platform.batteryMonitoring).be.true();
-		} else if (utilities.isWindowsDesktop()) {
-			should(Ti.Platform.batteryMonitoring).be.false();
-		}
-	});
-
-	it('.batteryState', () => {
-		should(Ti.Platform).have.readOnlyProperty('batteryState').which.is.a.Number();
-		// Must be one of the constant values
-		should(Ti.Platform.batteryState).be.equalOneOf([
-			Ti.Platform.BATTERY_STATE_CHARGING,
-			Ti.Platform.BATTERY_STATE_FULL,
-			Ti.Platform.BATTERY_STATE_UNKNOWN,
-			Ti.Platform.BATTERY_STATE_UNPLUGGED ]);
-	});
-
-	it('.displayCaps', () => {
-		should(Ti.Platform.displayCaps).be.an.Object();
-		should(Ti.Platform.displayCaps).not.be.null();
-		should(Ti.Platform.displayCaps.apiName).eql('Ti.Platform.DisplayCaps');
-	});
-
-	it('.id', () => {
-		should(Ti.Platform).have.readOnlyProperty('id').which.is.a.String();
-		// TODO Verify format?!
-	});
-
-	it('.locale', () => {
-		should(Ti.Platform).have.readOnlyProperty('locale').which.is.a.String();
-		// TODO Verify format of the string, i.e. 'en-US', 'en-GB' typically a 2-letter or two 2-letter segments combined with hyphen
-	});
-
-	it('.macaddress', () => {
-		should(Ti.Platform).have.readOnlyProperty('macaddress').which.is.a.String();
-	});
-
-	it('.manufacturer', () => {
-		should(Ti.Platform).have.readOnlyProperty('manufacturer').which.is.a.String();
-	});
-
-	it('.model', () => {
-		should(Ti.Platform).have.readOnlyProperty('model').which.is.a.String();
-	});
-
-	it('.name', () => {
-		should(Ti.Platform).have.readOnlyProperty('name').which.is.a.String();
-		should(Ti.Platform.name).be.equalOneOf([ 'android', 'iOS', 'windows', 'mobileweb' ]);
-		// TODO match with osname!
-	});
-
-	it('.netmask', () => {
-		should(Ti.Platform).have.readOnlyProperty('netmask');
-		if (Ti.Platform.netmask) { // undefined on iOS sim
-			should(Ti.Platform.netmask).match(/\d+\.\d+\.\d+\.\d+/);
-		}
-	});
-
-	it('.osname', () => {
-		should(Ti.Platform).have.readOnlyProperty('osname').which.is.a.String();
-		// Must be one of the known platforms!
-		should(Ti.Platform.osname).be.equalOneOf([ 'android', 'iphone', 'ipad', 'windowsphone', 'windowsstore', 'mobileweb' ]);
-		// TODO match up Ti.Platform.name?
-	});
-
-	it('.ostype', () => {
-		should(Ti.Platform).have.readOnlyProperty('ostype').which.is.a.String();
-		// Verify it's one of the known values
-		should(Ti.Platform.ostype).be.equalOneOf([ '64bit', '32bit', 'unknown' ]);
-	});
-
-	it('.processorCount', () => {
-		should(Ti.Platform).have.readOnlyProperty('processorCount').which.is.a.Number();
-	});
-
-	it('.runtime', () => {
-		should(Ti.Platform).have.readOnlyProperty('runtime').which.is.a.String();
-		if (utilities.isAndroid()) {
-			should(Ti.Platform.runtime).eql('v8');
-		} else if (utilities.isIOS() || utilities.isWindows()) {
-			should(Ti.Platform.runtime).eql('javascriptcore');
-		} else {
-			should(Ti.Platform.runtime.length).be.greaterThan(0);
-		}
-	});
-
-	it('.version', () => {
-		should(Ti.Platform).have.readOnlyProperty('version').which.is.a.String();
-	});
-
-	it('.versionMajor', () => {
-		should(Ti.Platform).have.readOnlyProperty('versionMajor').which.is.a.Number();
-		should(Ti.Platform.versionMajor).be.eql(OS_VERSION_MAJOR);
-		should(Ti.Platform.versionMajor).be.eql(parseInt(Ti.Platform.version.split('.')[0]));
-	});
-
-	it('.versionMinor', () => {
-		should(Ti.Platform).have.readOnlyProperty('versionMinor').which.is.a.Number();
-		should(Ti.Platform.versionMinor).be.eql(OS_VERSION_MINOR);
-
-		const versionComponents = Ti.Platform.version.split('.');
-		const versionMinor = (versionComponents.length >= 2) ? parseInt(versionComponents[1]) : 0;
-		should(Ti.Platform.versionMinor).be.eql(versionMinor);
-	});
-
-	it.ios('.identifierForVendor', () => {
-		should(Ti.Platform.identifierForVendor).be.a.String();
-		should(Ti.Platform.getIdentifierForVendor).be.a.Function();
-		should(Ti.Platform.identifierForVendor).eql(Ti.Platform.getIdentifierForVendor());
-	});
-
-	it.ios('.identifierForAdvertising', () => {
-		should(Ti.Platform.identifierForAdvertising).be.a.String();
-		should(Ti.Platform.getIdentifierForAdvertising).be.a.Function();
-		should(Ti.Platform.identifierForAdvertising).eql(Ti.Platform.getIdentifierForAdvertising());
-	});
-
-	it.ios('.isAdvertisingTrackingEnabled', () => {
-		should(Ti.Platform.isAdvertisingTrackingEnabled).be.a.Boolean();
-	});
-
-	it.ios('#openURL(url, callback)', function (finish) {
-		Ti.Platform.openURL('randomapp://', _e => finish());
-	});
-
-	it.ios('#openURL(url, options, callback)', function (finish) {
-		Ti.Platform.openURL('randomapp://', {}, _e => finish());
 	});
 });

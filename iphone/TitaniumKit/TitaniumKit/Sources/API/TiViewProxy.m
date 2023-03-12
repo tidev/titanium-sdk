@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -729,15 +729,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         [blob setMimeType:@"image/png" type:TiBlobTypeImage];
         UIGraphicsEndImageContext();
         if (callback != nil) {
-          DebugLog(@"[DEBUG] Since Titanium SDK 7.0.0, the toImage callback returns a single blob on iOS to match the Android / Windows behavior.");
-          DebugLog(@"[DEBUG] Please migrate your code in case you still use the old behavior. This debug-log will be removed in Titanium SDK 8.0.0");
-
           [callback call:@[ blob ] thisObject:self];
         }
       },
       (callback == nil));
 
   return blob;
+}
+
+- (TiPoint *)contentOffset
+{
+  return [[[TiPoint alloc] initWithPoint:CGPointMake(0, 0)] autorelease];
 }
 
 - (TiPoint *)convertPointToView:(id)args
@@ -747,25 +749,29 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   ENSURE_ARG_AT_INDEX(arg1, args, 0, NSObject);
   ENSURE_ARG_AT_INDEX(arg2, args, 1, TiViewProxy);
   BOOL validPoint;
-  CGPoint oldPoint = [TiUtils pointValue:arg1 valid:&validPoint];
+  CGPoint givenPoint = [TiUtils pointValue:arg1 valid:&validPoint];
   if (!validPoint) {
     [self throwException:TiExceptionInvalidType subreason:@"Parameter is not convertable to a TiPoint" location:CODELOCATION];
   }
 
   __block BOOL validView = NO;
-  __block CGPoint p;
+  __block CGPoint pointOffsetDips;
   TiThreadPerformOnMainThread(
       ^{
         if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
           validView = YES;
-          p = [self.view convertPoint:oldPoint toView:arg2.view];
+          pointOffsetDips = [self.view convertPoint:CGPointZero toView:arg2.view];
         }
       },
       YES);
   if (!validView) {
     return (TiPoint *)[NSNull null];
   }
-  return [[[TiPoint alloc] initWithPoint:p] autorelease];
+  TiPoint *tiPoint = [[TiPoint alloc] autorelease];
+  [tiPoint setX:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.x + givenPoint.x))];
+  [tiPoint setY:NUMFLOAT(convertDipToDefaultUnit(pointOffsetDips.y + givenPoint.y))];
+  [tiPoint add:[arg2 contentOffset]];
+  return tiPoint;
 }
 
 #pragma mark nonpublic accessors not related to Housecleaning
@@ -1318,8 +1324,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (BOOL)viewReady
 {
-  return view != nil && !CGRectIsEmpty(view.bounds) && !CGRectIsNull(view.bounds) &&
-      [view superview] != nil;
+  return (view != nil) && ([view superview] != nil);
 }
 
 - (BOOL)windowHasOpened
@@ -1329,11 +1334,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)setPreviewContext:(id)context
 {
-  if (![TiUtils forceTouchSupported]) {
-    NSLog(@"[WARN] 3DTouch is not available on this device.");
-    return;
-  }
-
   Class TiUIiOSPreviewContextProxy = NSClassFromString(@"TiUIiOSPreviewContextProxy");
 
   ENSURE_TYPE(context, TiUIiOSPreviewContextProxy);
@@ -2736,7 +2736,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [child setSandboxBounds:bounds];
   if ([[child view] animating]) {
     // changing the layout while animating is bad, ignore for now
-    DebugLog(@"[WARN] New layout set while view %@ animating: Will relayout after animation.", child);
+    DebugLog(@"[DEBUG] New layout set while view %@ animating: Will relayout after animation.", child);
   } else {
     [child relayout];
   }

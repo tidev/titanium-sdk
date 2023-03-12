@@ -22,7 +22,7 @@ description: |
          notification.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Notification_Services/iOS_Local_Notifications.html).
 
     ### Local Interactive Notifications
 
@@ -41,7 +41,7 @@ description: |
       4. Monitor the [localnotificationaction](Titanium.App.iOS.localnotificationaction) event.
 
     For instructions on sending local interactive notifications, see the
-    [iOS Local Notifications guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Local_Notifications).
+    [iOS Local Notifications guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Notification_Services/iOS_Local_Notifications.html).
 
     ### Background Downloads
 
@@ -49,7 +49,7 @@ description: |
     content in the background. These background modes are supported in Titanium SDK 3.2.0 and later.
 
     For more information on getting started, refer to the
-    [iOS Background Services guide](https://docs.appcelerator.com/platform/latest/#!/guide/iOS_Background_Services).
+    [iOS Background Services guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/iOS_API_Deep_Dives/iOS_Background_Services.html).
 
     ### Handoff User Activities
 
@@ -69,11 +69,9 @@ description: |
     * <Titanium.App.iOS.SearchableItemAttributeSet> - Used to create metadata related to the `Ti.App.iOS.SearchableItem`
     * <Titanium.App.iOS.SearchableItem> - Used to assemble metadata into a unique object package to be used by `Ti.App.iOS.SearchableIndex`
     * <Titanium.App.iOS.SearchableIndex> - Used to add and remove `Ti.App.iOS.SearchableItem` objects to the device search index
-
 extends: Titanium.Module
-platforms: [iphone, ipad]
-since: "1.5"
-
+platforms: [iphone, ipad, macos]
+since: {iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
 methods:
   - name: createUserDefaults
     summary: |
@@ -128,7 +126,6 @@ methods:
         summary: Parameters used to enroll the application in local notifications.
         type: UserNotificationSettings
     since: 3.4.0
-    osver: {ios: {min: "8.0"}}
 
   - name: scheduleLocalNotification
     summary: Schedule a local notification.
@@ -156,7 +153,6 @@ methods:
             fetch operations.
         constants: Titanium.App.iOS.BACKGROUNDFETCHINTERVAL_*
         type: Number
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: endBackgroundHandler
@@ -170,7 +166,6 @@ methods:
             Unique string identifier for the event (`backgroundfetch`, `silentpush` or `backgroundtransfer`)
             that initiated the background opertation mode.
         type: String
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: sendWatchExtensionReply
@@ -224,7 +219,6 @@ properties:
         Specifies the smallest fetch interval supported by the system.
     type: Number
     permission: read-only
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: BACKGROUNDFETCHINTERVAL_NEVER
@@ -233,7 +227,6 @@ properties:
         Used to specify a fetch interval large enough to prevent fetch operations from occurring.
     type: Number
     permission: read-only
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: USER_NOTIFICATION_TYPE_NONE
@@ -242,7 +235,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: USER_NOTIFICATION_TYPE_BADGE
@@ -251,7 +243,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: USER_NOTIFICATION_TYPE_SOUND
@@ -260,7 +251,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: USER_NOTIFICATION_TYPE_ALERT
@@ -269,7 +259,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: USER_NOTIFICATION_TYPE_CRITICAL_ALERT
@@ -278,7 +267,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "12.0"}}
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_TYPE_PROVISIONAL
@@ -287,7 +275,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "12.0"}}
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_TYPE_PROVIDES_APP_NOTIFICATION_SETTINGS
@@ -296,7 +283,6 @@ properties:
         Use with the [types](UserNotificationSettings.types) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "12.0"}}
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_ACTIVATION_MODE_BACKGROUND
@@ -305,7 +291,6 @@ properties:
         [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: USER_NOTIFICATION_ACTIVATION_MODE_FOREGROUND
@@ -314,7 +299,6 @@ properties:
         Use with the [activationMode](Titanium.App.iOS.UserNotificationAction.activationMode) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: USER_NOTIFICATION_BEHAVIOR_DEFAULT
@@ -324,7 +308,6 @@ properties:
         Use with the [behavior](Titanium.App.iOS.UserNotificationAction.behavior) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: USER_NOTIFICATION_BEHAVIOR_TEXTINPUT
@@ -337,7 +320,6 @@ properties:
         Use with the [behavior](Titanium.App.iOS.UserNotificationAction.behavior) property.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_NOT_DETERMINED
@@ -349,7 +331,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_AUTHORIZED
@@ -359,7 +340,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_AUTHORIZATION_STATUS_DENIED
@@ -369,7 +349,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
 
@@ -380,7 +359,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
   - name: USER_NOTIFICATION_SETTING_NOT_SUPPORTED
@@ -390,7 +368,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_SETTING_ENABLED
@@ -400,7 +377,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_SETTING_DISABLED
@@ -410,7 +386,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_NONE
@@ -420,7 +395,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_ALERT
@@ -430,7 +404,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_ALERT_STYLE_BANNER
@@ -440,7 +413,6 @@ properties:
         <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_NONE
@@ -449,7 +421,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_CUSTOM_DISMISS_ACTION
@@ -458,7 +429,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_ALLOW_IN_CARPLAY
@@ -467,7 +437,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_TITLE
@@ -476,7 +445,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
   - name: USER_NOTIFICATION_CATEGORY_OPTION_HIDDEN_PREVIEWS_SHOW_SUBTITLE
@@ -485,7 +453,6 @@ properties:
         Used in the `options` attribute when creating a <Titanium.App.iOS.UserNotificationCategory>.
     type: Number
     permission: read-only
-    osver: {ios: {min: "11.0"}}
     since: "7.3.0"
 
   - name: USER_INTERFACE_STYLE_UNSPECIFIED
@@ -790,7 +757,6 @@ properties:
     deprecated:
         since: "7.3.0"
         notes: Use [Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings](Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings) instead.
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: supportedUserActivityTypes
@@ -818,7 +784,6 @@ properties:
 
     type: Array<String>
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "5.0.0"
 
   - name: applicationOpenSettingsURL
@@ -836,7 +801,6 @@ properties:
 
     type: String
     permission: read-only
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: userInterfaceStyle
@@ -1016,9 +980,8 @@ events:
             Unique string identifier for the `backgroundfetch` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
-    since: '3.2.0'
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: silentpush
     summary: Fired when the application is woken up by a silent remote notification. Available only on iOS 7 and later.
@@ -1087,8 +1050,7 @@ events:
             Unique string identifier for the `silentpush` event. This identifier should be passed as the argument
             to the [endBackgroundHandler](Titanium.App.iOS.endBackgroundHandler) method.
         type: String
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: '3.2.0'
 
   - name: backgroundtransfer
@@ -1128,8 +1090,7 @@ events:
             The identifier of the URL session requiring attention. If your app was just launched,
             you can use this identifier to create a new `urlSession` object that can receive the events.
         type: String
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone, ipad, macos]
     since: '3.2.0'
 
   - name: downloadprogress
@@ -1162,7 +1123,6 @@ events:
             The expected length of the file, as provided by the Content-Length header. If this
             header was not provided, the value is zero.
         type: Number
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: uploadprogress
@@ -1195,7 +1155,6 @@ events:
             The expected length of the file, as provided by the Content-Length header. If this
             header was not provided, the value is zero.
         type: Number
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: downloadcompleted
@@ -1218,7 +1177,6 @@ events:
       - name: data
         summary: The downloaded data as a Titanium.Blob object.
         type: Titanium.Blob
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: sessioncompleted
@@ -1260,7 +1218,7 @@ events:
         summary: |
             The response text for [task](Modules.URLSession.task) and [uploadTask](Modules.URLSession.uploadTask).
             This property does not exhist for download task. For download task response,
-            use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.            
+            use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.
         type: String
         since: "7.2.0"
 
@@ -1268,7 +1226,6 @@ events:
         summary: The response status code for tasks.
         type: Number
         since: "7.2.0"
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: sessioneventscompleted
@@ -1296,7 +1253,6 @@ events:
             The `urlSession` session identifier. If it does not exist, this property is not provided.
             This property is available since Titanium Mobile 5.4.0.GA.
         type: String
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"
 
   - name: usernotificationsettings
@@ -1311,7 +1267,6 @@ events:
       - name: categories
         summary: Set of categories of user notification actions the application is registered to use.
         type: Array<Titanium.App.iOS.UserNotificationCategory>
-    osver: {ios: {min: "8.0"}}
     since: "3.4.0"
 
   - name: watchkitextensionrequest
@@ -1346,7 +1301,7 @@ events:
         summary: |
             The payload passed to the `openParentApplication:reply` method from the WatchKit extension.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "8.2"}}
     since: '4.1.0'
 
@@ -1385,7 +1340,7 @@ events:
             The optional userInfo provided to the user activity. The userInfo is a custom dictionary and can contain any information needed
             to create your handoff or Core Spotlight session.
         type: Dictionary
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "8.2"}}
     since: '5.0.0'
 
@@ -1408,7 +1363,6 @@ events:
         summary: The payload passed by the application shortcut.
         type: Dictionary
     platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
     since: '5.1.0'
 
   - name: handleurl
@@ -1420,17 +1374,16 @@ events:
       - name: launchOptions
         summary: The launch options that are related to opening the URL.
         type: LaunchOptionsType
-    osver: {ios: {min: "8.0"}}
     since: "6.0.0"
 
   - name: traitcollectionchange
     summary: Fired when the trait collection of the device changes, e.g. the user interface style.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "8.2.0"
 
   - name: screenshotcaptured
     summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "9.1.0"
 
 ---
@@ -1439,7 +1392,7 @@ summary: |
     Dictionary object of parameters used to create a notification using
     <Titanium.App.iOS.scheduleLocalNotification>.
 since: "1.7"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 properties:
   - name: identifier
@@ -1476,7 +1429,6 @@ properties:
     summary: Alert subtitle to display.
     type: String
     optional: true
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: alertLaunchImage
@@ -1488,7 +1440,6 @@ properties:
     summary: Notification attachments to display.
     type: Array<UserNotificationAttachment>
     optional: true
-    osver: {ios: {min: "10.0"}}
     since: "7.3.0"
 
   - name: badge
@@ -1537,19 +1488,16 @@ properties:
         - `triggersOnce`: Whether or not the notification will only fire once (optional, default: true).
     type: Dictionary
     optional: true
-    osver: {ios: {min: "8.0"}}
     since: "7.3.0"
 
   - name: summaryArgument
     summary: The string the notification adds to the category's summary format string.
     type: String
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
   - name: summaryArgumentCount
     summary: The number of items the notification adds to the category's summary format string.
     type: String
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
 ---
@@ -1559,8 +1507,7 @@ summary: |
     image, sound or video. If your media is invalid, the API will throw an error log and
     skip the invalid attachment.
 since: "7.3.0"
-platforms: [iphone, ipad]
-osver: {ios: {min: "10.0"}}
+platforms: [iphone, ipad, macos]
 properties:
   - name: identifier
     type: String
@@ -1589,7 +1536,7 @@ summary: |
     Dictionary object of parameters used to identify an incoming URL that is handled
     by the application.
 since: "6.0.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 properties:
   - name: source
     summary: The application or service that triggered the handled URL.
@@ -1607,7 +1554,7 @@ summary: |
     To retrieve the current notification settings, use the
     <Titanium.App.iOS.UserNotificationCenter.requestUserNotificationSettings> method.
 since: "3.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 
 properties:
 

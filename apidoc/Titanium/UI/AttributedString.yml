@@ -5,13 +5,13 @@ summary: |
     font and foregroundcolor) that apply to individual characters or ranges of characters in the string.
 description: |
     The AttributedString proxy is created with the <Titanium.UI.createAttributedString> method.
-    
+
     The `text` property must be set initially in the constructor when creating an attributed string.
     The [attributes](Titanium.UI.AttributedString.attributes) can either be set in the constructor or after it has been created.
 
     For examples of Attributed Strings, see the
-    [Attributed Strings guide](https://docs.appcelerator.com/platform/latest/#!/guide/Attributed_Strings).
-platforms: [iphone, ipad, android]
+    [Attributed Strings guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Attributed_Strings.html).
+platforms: [iphone, ipad, android, macos]
 extends: Titanium.Proxy
 since: "3.6.0"
 

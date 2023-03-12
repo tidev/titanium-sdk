@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -73,6 +73,7 @@ public class PlatformModule extends KrollModule
 	private List<Processor> processors;
 	private int versionMajor;
 	private int versionMinor;
+	private int versionPatch;
 	protected int batteryState;
 	protected double batteryLevel;
 	protected boolean batteryStateReady;
@@ -92,34 +93,33 @@ public class PlatformModule extends KrollModule
 			this.versionMajor = Integer.parseInt(versionComponents[0]);
 			if (versionComponents.length >= 2) {
 				this.versionMinor = Integer.parseInt(versionComponents[1]);
+				if (versionComponents.length >= 3) {
+					this.versionPatch = Integer.parseInt(versionComponents[2]);
+				}
 			}
 		} catch (Exception ex) {
 			Log.e(TAG, "Failed to parse OS version string.", ex);
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getOsname()
 	{
 		return APSAnalyticsMeta.getPlatform();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getLocale()
 	{
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DisplayCapsProxy getDisplayCaps()
 	{
@@ -130,21 +130,18 @@ public class PlatformModule extends KrollModule
 		return displayCaps;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getProcessorCount()
 	{
 		return Runtime.getRuntime().availableProcessors();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUsername()
 	{
 		return Build.USER;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getVersion()
 	{
@@ -163,56 +160,54 @@ public class PlatformModule extends KrollModule
 		return this.versionMinor;
 	}
 
-	@Kroll.method
+	@Kroll.getProperty
+	public int getVersionPatch()
+	{
+		return this.versionPatch;
+	}
+
 	@Kroll.getProperty
 	public double getAvailableMemory()
 	{
 		return Runtime.getRuntime().freeMemory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getTotalMemory()
 	{
 		return Runtime.getRuntime().totalMemory();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getModel()
 	{
 		return Build.MODEL;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getManufacturer()
 	{
 		return Build.MANUFACTURER;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getOstype()
 	{
 		return APSAnalyticsMeta.getOsType();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getArchitecture()
 	{
 		return APSAnalyticsMeta.getArchitecture();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getAddress()
 	{
 		return TiPlatformHelper.getInstance().getIpAddress();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getNetmask()
 	{
@@ -245,77 +240,17 @@ public class PlatformModule extends KrollModule
 		}
 
 		// Determine if the system has a registered activity intent-filter for the given URL.
-		Intent intent = createOpenUrlIntentFrom(invocation, url);
-		return canOpen(intent);
-	}
-
-	private boolean canOpen(Intent intent)
-	{
-		// Validate argument.
-		if (intent == null) {
-			return false;
-		}
-
-		// If the intent references a local file, then make sure it exists.
-		Uri uri = intent.getData();
-		String scheme = (uri != null) ? uri.getScheme() : null;
-		if (scheme != null) {
-			if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
-				// We were given a "content://" URL. Check if its ContentProvider can provide file access.
-				// Note: Will typically throw a "FileNotFoundException" or return null if file doesn't exist.
-				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-				if (contentResolver != null) {
-					// First, check if we're referencing an existing file embedded within a file.
-					// Example: A file under the APK's "assets" or "res" folder.
-					boolean wasFileFound = false;
-					try (AssetFileDescriptor descriptor = contentResolver.openAssetFileDescriptor(uri, "r")) {
-						wasFileFound = (descriptor != null);
-					} catch (Exception ex) {
-					}
-
-					// If above failed, check if referencing an existing sandboxed file in the file system.
-					if (wasFileFound == false) {
-						try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r")) {
-							wasFileFound = (descriptor != null);
-						} catch (Exception ex) {
-						}
-					}
-
-					// If above failed, then check if we can open a file stream. (The most expensive check.)
-					// This can happen with in-memory files or decoded files.
-					if (wasFileFound == false) {
-						try (InputStream stream = contentResolver.openInputStream(uri)) {
-							wasFileFound = (stream != null);
-						} catch (Exception ex) {
-						}
-					}
-
-					// Do not continue if cannot access file via ContentProvider.
-					if (wasFileFound == false) {
-						return false;
-					}
-				}
-			} else if (scheme.equals(ContentResolver.SCHEME_FILE)) {
-				// We were given a "file://" URL. Check if it exists in file system.
-				File file = new File(uri.getPath());
-				if (file.exists() == false) {
-					return false;
-				}
-			}
-		}
-
-		// Check if there is at least 1 activity registered into the system that can open the given intent.
-		// Note: This means the activity has to have a matching intent-filter in the app's "AndroidManifest.xml".
 		boolean canOpen = false;
 		try {
-			PackageManager packageManager = TiApplication.getInstance().getPackageManager();
-			if (intent.resolveActivity(packageManager) != null) {
-				canOpen = true;
+			Intent intent = createOpenUrlIntentFrom(invocation, url);
+			if (hasValidFileReference(intent)) {
+				PackageManager packageManager = TiApplication.getInstance().getPackageManager();
+				if (intent.resolveActivity(packageManager) != null) {
+					canOpen = true;
+				}
 			}
 		} catch (Exception ex) {
 		}
-
-		// Returns true if given URL can be opened by our openURL() method.
 		return canOpen;
 	}
 
@@ -372,8 +307,8 @@ public class PlatformModule extends KrollModule
 			return false;
 		}
 
-		// Do not continue if system cannot open the given URL/intent.
-		if (canOpen(intent) == false) {
+		// If intent references a local file, then make sure it exists.
+		if (hasValidFileReference(intent) == false) {
 			return false;
 		}
 
@@ -394,16 +329,15 @@ public class PlatformModule extends KrollModule
 		return wasSuccessful;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getMacaddress()
 	{
 		String macaddr = null;
-		TiApplication tiApp = TiApplication.getInstance();
+		Context context = TiApplication.getInstance().getApplicationContext();
 
-		if (tiApp.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
+		if (context.checkCallingOrSelfPermission(Manifest.permission.ACCESS_WIFI_STATE)
 			== PackageManager.PERMISSION_GRANTED) {
-			WifiManager wm = (WifiManager) tiApp.getSystemService(Context.WIFI_SERVICE);
+			WifiManager wm = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
 			if (wm != null) {
 				WifiInfo wi = wm.getConnectionInfo();
 				if (wi != null) {
@@ -439,14 +373,12 @@ public class PlatformModule extends KrollModule
 		return macaddr;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getId()
 	{
 		return APSAnalytics.getInstance().getMachineId();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBatteryMonitoring(boolean monitor)
 	{
@@ -458,35 +390,30 @@ public class PlatformModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBatteryMonitoring()
 	{
 		return batteryStateReceiver != null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getBatteryState()
 	{
 		return batteryState;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getBatteryLevel()
 	{
 		return batteryLevel;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getRuntime()
 	{
 		return KrollRuntime.getInstance().getRuntimeName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getUptime()
 	{
@@ -512,12 +439,12 @@ public class PlatformModule extends KrollModule
 			return this.processors;
 		}
 		final int processorCount = getProcessorCount();
-		processors = new ArrayList<Processor>(processorCount);
+		processors = new ArrayList<>(processorCount);
 
 		// Now read in their details
 		BufferedReader in = null;
-		List<Map> groups = new ArrayList<Map>();
-		Map<String, String> current = new HashMap<String, String>();
+		List<Map> groups = new ArrayList<>();
+		Map<String, String> current = new HashMap<>();
 		try {
 			String[] args = { "/system/bin/cat", "/proc/cpuinfo" };
 			ProcessBuilder cmd = new ProcessBuilder(args);
@@ -529,7 +456,7 @@ public class PlatformModule extends KrollModule
 				if (line.length() == 0) {
 					// new group!
 					groups.add(current);
-					current = new HashMap<String, String>();
+					current = new HashMap<>();
 				} else {
 					// entry, split by ':'
 					int colonIndex = line.indexOf(':');
@@ -545,7 +472,7 @@ public class PlatformModule extends KrollModule
 
 		} catch (IOException ex) {
 			// somethign went wrong, create "default" set of processors?
-			this.processors = new ArrayList<Processor>(processorCount);
+			this.processors = new ArrayList<>(processorCount);
 			for (int i = 0; i < processorCount; i++) {
 				this.processors.add(Processor.unknown(i));
 			}
@@ -647,7 +574,7 @@ public class PlatformModule extends KrollModule
 	{
 		super.onResume(activity);
 		if (batteryStateReceiver != null) {
-			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
+			Log.d(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
 			registerBatteryReceiver(batteryStateReceiver);
 		}
 	}
@@ -741,6 +668,72 @@ public class PlatformModule extends KrollModule
 			}
 		}
 		return intent;
+	}
+
+	/**
+	 * If given intent references a local file, then this method checks if it exists.
+	 * @param intent The intent to be validated. Can be null.
+	 * @return
+	 * Returns true if intent's reference file exists or if intent does not reference a file.
+	 * Returns false if intent's referenced file does not exist or if given a null argument.
+	 */
+	private boolean hasValidFileReference(Intent intent)
+	{
+		// Validate argument.
+		if (intent == null) {
+			return false;
+		}
+
+		// If the intent references a local file, then make sure it exists.
+		Uri uri = intent.getData();
+		String scheme = (uri != null) ? uri.getScheme() : null;
+		if (scheme != null) {
+			if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+				// We were given a "content://" URL. Check if its ContentProvider can provide file access.
+				// Note: Will typically throw a "FileNotFoundException" or return null if file doesn't exist.
+				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+				if (contentResolver != null) {
+					// First, check if we're referencing an existing file embedded within a file.
+					// Example: A file under the APK's "assets" or "res" folder.
+					boolean wasFileFound = false;
+					try (AssetFileDescriptor descriptor = contentResolver.openAssetFileDescriptor(uri, "r")) {
+						wasFileFound = (descriptor != null);
+					} catch (Exception ex) {
+					}
+
+					// If above failed, check if referencing an existing sandboxed file in the file system.
+					if (wasFileFound == false) {
+						try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(uri, "r")) {
+							wasFileFound = (descriptor != null);
+						} catch (Exception ex) {
+						}
+					}
+
+					// If above failed, then check if we can open a file stream. (The most expensive check.)
+					// This can happen with in-memory files or decoded files.
+					if (wasFileFound == false) {
+						try (InputStream stream = contentResolver.openInputStream(uri)) {
+							wasFileFound = (stream != null);
+						} catch (Exception ex) {
+						}
+					}
+
+					// Do not continue if cannot access file via ContentProvider.
+					if (wasFileFound == false) {
+						return false;
+					}
+				}
+			} else if (scheme.equals(ContentResolver.SCHEME_FILE)) {
+				// We were given a "file://" URL. Check if it exists in file system.
+				File file = new File(uri.getPath());
+				if (file.exists() == false) {
+					return false;
+				}
+			}
+		}
+
+		// Intent references an existing file or does not reference a file at all.
+		return true;
 	}
 
 	private static class Processor

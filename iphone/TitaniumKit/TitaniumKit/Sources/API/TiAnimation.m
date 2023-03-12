@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -282,7 +282,7 @@
 
   // Update the modified properties on the view!
   if (animatedViewProxy != nil) {
-    if (!isReverse && ![autoreverse boolValue] && properties != nil) {
+    if (!isReverse && ![self isTransitionAnimation] && ![autoreverse boolValue] && properties != nil) {
       [animatedViewProxy applyProperties:properties];
     }
     // TODO: What about center?

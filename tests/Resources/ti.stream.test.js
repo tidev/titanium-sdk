@@ -7,17 +7,16 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
 describe('Titanium.Stream', function () {
 	before(function () {
-		var file;
 		// createBuffer should be tested by Ti.Buffer
 		this.sourceBuffer = Ti.createBuffer({
 			value: 'All work and no play makes Jack a dull boy all work and no play makes Jack a dull boy all work and no play makes Jack a dull boy ALL WORK AND NO PLAY MAKES JACK A DULL BOY'
 		});
 		// create file to work with
-		file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt');
+		let file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt');
 		if (file.exists()) {
 			file.deleteFile();
 		}
@@ -458,5 +457,22 @@ describe('Titanium.Stream', function () {
 		// Asynch pump
 		totalsize = 0;
 		Ti.Stream.pump(blobStream, handler, chunksize, true);
+	});
+
+	it('pump - handler should be called(TIMOB-28324))', function (finish) {
+		var	sourceFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'streamfile.txt'),
+			sourceFileStream = Ti.Filesystem.openStream(Ti.Filesystem.MODE_READ, sourceFile.nativePath),
+			handlerCalled = false;
+
+		function handler() {
+			handlerCalled = true;
+		}
+
+		Ti.Stream.pump(sourceFileStream, handler, 20);
+		if (handlerCalled) {
+			finish();
+		} else {
+			finish(Error('Ti.Stream.pump handler not called.'));
+		}
 	});
 });

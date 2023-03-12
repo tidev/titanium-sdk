@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -230,7 +230,7 @@
   }
 }
 
-- (void)setSelectedBackgroundGradient_:(id)value
+- (void)setBackgroundSelectedGradient_:(id)value
 {
   TiGradient *newGradient = [TiGradient gradientFromObject:value proxy:_proxy];
   if (newGradient == selectedBackgroundGradient) {
@@ -242,6 +242,11 @@
   if ([self selectedOrHighlighted]) {
     [self updateGradientLayer:YES withAnimation:NO];
   }
+}
+- (void)setSelectedBackgroundGradient_:(id)value
+{
+  DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
+  [self setBackgroundSelectedGradient_:value];
 }
 
 - (void)setPosition:(int)position isGrouped:(BOOL)grouped
@@ -393,7 +398,7 @@
   switch (_templateStyle) {
   case UITableViewCellStyleSubtitle:
   case UITableViewCellStyleValue1:
-  case UITableViewCellStyleValue2:
+  case UITableViewCellStyleValue2: {
     self.detailTextLabel.text = [[properties objectForKey:@"subtitle"] description];
     self.detailTextLabel.backgroundColor = [UIColor clearColor];
 
@@ -420,9 +425,10 @@
                       }];
       }
     }
+  }
 
   // pass through
-  case UITableViewCellStyleDefault:
+  case UITableViewCellStyleDefault: {
     self.textLabel.text = [[properties objectForKey:@"title"] description];
     self.textLabel.backgroundColor = [UIColor clearColor];
     if (_templateStyle != UITableViewCellStyleValue2) {
@@ -476,8 +482,9 @@
       }
     }
     break;
+  }
 
-  default:
+  default: {
     [dataItem enumerateKeysAndObjectsUsingBlock:^(NSString *bindId, id dict, BOOL *stop) {
       if (![dict isKindOfClass:[NSDictionary class]] || [bindId isEqualToString:@"properties"]) {
         return;
@@ -505,6 +512,7 @@
       }
     }];
     break;
+  }
   }
   id accessoryTypeValue = [properties objectForKey:@"accessoryType"];
   if ([self shouldUpdateValue:accessoryTypeValue forKeyPath:@"accessoryType"]) {
@@ -535,21 +543,52 @@
   }
   [self setBackgroundGradient_:backgroundGradientValue];
 
-  id selectedBackgroundGradientValue = [properties objectForKey:@"selectedBackgroundGradient"];
+  id selectedBackgroundGradientValue = [properties objectForKey:@"backgroundSelectedGradient"];
   if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
-    selectedBackgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
+    selectedBackgroundGradientValue = [_proxy valueForKey:@"backgroundSelectedGradient"];
   }
-  [self setSelectedBackgroundGradient_:selectedBackgroundGradientValue];
+  if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
+    selectedBackgroundGradientValue = [properties valueForKey:@"selectedBackgroundGradient"];
 
-  id selectedbackgroundColorValue = [properties objectForKey:@"selectedBackgroundColor"];
+    if (IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
+      selectedBackgroundGradientValue = [_proxy valueForKey:@"selectedBackgroundGradient"];
+    }
+    if (!IS_NULL_OR_NIL(selectedBackgroundGradientValue)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundGradient", @"10.0.0", @"backgroundSelectedGradient");
+    }
+  }
+  [self setBackgroundSelectedGradient_:selectedBackgroundGradientValue];
+
+  id selectedbackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
   if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
+    selectedbackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
+  }
+  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+    selectedbackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
+
+    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
+    }
+    if (!IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
+    }
   }
 
-  id selectedBackgroundImageValue = [properties objectForKey:@"selectedBackgroundImage"];
+  id selectedBackgroundImageValue = [properties objectForKey:@"backgroundSelectedImage"];
   if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
-    selectedBackgroundImageValue = [_proxy valueForKey:@"selectedBackgroundImage"];
+    selectedBackgroundImageValue = [_proxy valueForKey:@"backgroundSelectedImage"];
   }
+  if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
+    selectedBackgroundImageValue = [properties valueForKey:@"selectedBackgroundImage"];
+
+    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
+    }
+    if (!IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
+      DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
+    }
+  }
+
   [self applyBackgroundWithSelectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
   [_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
     id value = [_initialValues objectForKey:keyPath];

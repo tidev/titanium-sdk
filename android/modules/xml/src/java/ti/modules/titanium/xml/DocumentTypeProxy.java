@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,49 +21,42 @@ public class DocumentTypeProxy extends NodeProxy
 		this.type = type;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public DocumentType getDocumentType()
 	{
 		return type;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getEntities()
 	{
 		return new NamedNodeMapProxy(type.getEntities());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getInternalSubset()
 	{
 		return type.getInternalSubset();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getName()
 	{
 		return type.getName();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public NamedNodeMapProxy getNotations()
 	{
 		return new NamedNodeMapProxy(type.getNotations());
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getPublicId()
 	{
 		return type.getPublicId();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getSystemId()
 	{

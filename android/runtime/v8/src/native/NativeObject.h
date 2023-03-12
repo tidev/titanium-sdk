@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -33,9 +33,9 @@ class NativeObject
 
 
   virtual ~NativeObject() {
-    if (persistent().IsEmpty())
+    if (persistent().IsEmpty()) {
       return;
-    assert(persistent().IsNearDeath());
+    }
     persistent().ClearWeak();
     persistent().Reset();
   }
@@ -117,14 +117,13 @@ class NativeObject
   static void WeakCallback(const v8::WeakCallbackInfo<NativeObject>& data) {
     NativeObject* wrap = data.GetParameter();
     assert(wrap->refs_ == 0);
-    assert(wrap->handle_.IsNearDeath());
     wrap->handle_.Reset();
     delete wrap;
   }
 
   v8::Persistent<v8::Object> handle_;
 
-	friend class ProxyFactory;
+  friend class ProxyFactory;
 };
 
 }

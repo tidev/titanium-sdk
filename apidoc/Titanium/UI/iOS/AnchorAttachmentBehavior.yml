@@ -12,9 +12,8 @@ description: |
 
     To create a dynamic connection between two items, use <Titanium.UI.iOS.ViewAttachmentBehavior>.
 extends: Titanium.Proxy
-since: "3.2"
-platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+platforms: [iphone, ipad, macos]
+since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 properties:
   - name: anchor
     summary: Anchor point for the attachment behavior relative to the animator's coordinate system.

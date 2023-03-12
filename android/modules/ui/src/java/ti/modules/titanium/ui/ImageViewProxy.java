@@ -1,18 +1,18 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
-
+import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.widget.TiUIImageView;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -22,15 +22,19 @@ import android.app.Activity;
 		TiC.PROPERTY_DURATION,
 		TiC.PROPERTY_ENABLE_ZOOM_CONTROLS,
 		TiC.PROPERTY_IMAGE,
+		TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK,
+		TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR,
 		TiC.PROPERTY_IMAGES,
 		TiC.PROPERTY_REPEAT_COUNT,
-		TiC.PROPERTY_URL
+		TiC.PROPERTY_SCALING_MODE
 })
 public class ImageViewProxy extends ViewProxy
 {
 	public ImageViewProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_AUTOROTATE, true);
+		defaultValues.put(TiC.PROPERTY_SCALING_MODE, MediaModule.IMAGE_SCALING_AUTO);
 	}
 
 	@Override
@@ -74,21 +78,18 @@ public class ImageViewProxy extends ViewProxy
 		getImageView().resume();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getAnimating()
 	{
 		return getImageView().isAnimating();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getPaused()
 	{
 		return getImageView().isPaused();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getReverse()
 	{
@@ -96,7 +97,6 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setReverse(boolean reverse)
 	{
 		getImageView().setReverse(reverse);
@@ -109,13 +109,11 @@ public class ImageViewProxy extends ViewProxy
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	@Kroll.method(runOnUiThread = true)
 	public void setTintColor(String color)
 	{
 		getImageView().setTintColor(color);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getTintColor()
 	{

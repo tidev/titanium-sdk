@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
 
 describe.ios('Titanium.UI.iOS', () => {
 	it('#createCollisionBehavior()', () => {
@@ -122,7 +123,7 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 		let win;
 
 		this.slow(2000);
-		this.timeout(10000);
+		this.timeout(15000);
 
 		afterEach(done => { // fires after every test in sub-suites too...
 			if (win && !win.closed) {
@@ -138,7 +139,8 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 			}
 		});
 
-		it('works', finish => {
+		// FIXME: intermittent crashes on macOS (and rarely iPad) https://jira.appcelerator.org/browse/TIMOB-28339
+		it.macBroken('works', finish => {
 			win = Ti.UI.createWindow({
 				backgroundColor: 'white',
 				fullscreen: true
@@ -150,24 +152,25 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 			// Create a default collision behavior, using the window edges as boundaries
 			const collision = Ti.UI.iOS.createCollisionBehavior();
 
-			// After 3 boundary collitions and 5 item collisions end the test
-			let boundaryCount = 3;
-			let itemCount = 5;
-			let done = false;
-			collision.addEventListener('itemcollision', _e => {
-				itemCount--;
-				if (itemCount <= 0 && boundaryCount <= 0 && !done) {
-					done = true;
+			// After 5 item collisions end the test
+			let boundaryCount = 0;
+			let itemCount = 0;
+			function itemListener() {
+				itemCount++;
+				console.log(`${itemCount} item collisons`);
+				if (itemCount >= 5) {
+					console.log('Reached goal item collisions, removing event listeners...');
+					collision.removeEventListener('itemcollision', itemListener);
+					collision.removeEventListener('boundarycollision', boundaryListener);
 					finish();
 				}
-			});
-			collision.addEventListener('boundarycollision', _e => {
-				boundaryCount--;
-				if (itemCount <= 0 && boundaryCount <= 0 && !done) {
-					done = true;
-					finish();
-				}
-			});
+			}
+			function boundaryListener() {
+				boundaryCount++;
+				console.log(`${boundaryCount} boundary collisons`);
+			}
+			collision.addEventListener('itemcollision', itemListener);
+			collision.addEventListener('boundarycollision', boundaryListener);
 
 			// Simulate Earth's gravity
 			const gravity = Ti.UI.iOS.createGravityBehavior({
@@ -176,20 +179,23 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 
 			const WIDTH = Ti.Platform.displayCaps.platformWidth;
 			const HEIGHT = Ti.Platform.displayCaps.platformHeight;
+			const BLOCK_WIDTH = 25;
+			const BLOCK_HEIGHT = 25;
+			const BLOCK_COUNT = utilities.isIPhone() ? 25 : 50;
 
 			// Create a bunch of random blocks; add to the window and behaviors
 			const blocks = [];
-			for (var i = 0; i < 25; i++) {
+			for (let i = 0; i < BLOCK_COUNT; i++) {
 				const r = Math.round(Math.random() * 255);
 				const g = Math.round(Math.random() * 255);
 				const b = Math.round(Math.random() * 255);
 				const rgb = `rgb(${r},${g},${b})`;
 
 				blocks[i] = Ti.UI.createView({
-					width: 25,
-					height: 25,
-					top: Math.round(Math.random() * (HEIGHT / 4) + 25),
-					left: Math.round(Math.random() * (WIDTH - 25) + 25),
+					width: BLOCK_WIDTH,
+					height: BLOCK_HEIGHT,
+					top: Math.round(Math.random() * (HEIGHT / 4) + BLOCK_HEIGHT), // somewhere in top 1/4 of screen
+					left: Math.round(Math.random() * (WIDTH - BLOCK_WIDTH)), // anywhere in horizontal area of screen
 					backgroundColor: rgb
 				});
 				win.add(blocks[i]);

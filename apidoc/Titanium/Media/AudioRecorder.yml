@@ -25,7 +25,7 @@ since:
   iphone: "0.9"
   ipad: "0.9"
   android: "6.2.0"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
 
   - name: pause
@@ -49,14 +49,14 @@ properties:
     type: Number
     constants: Titanium.Media.AUDIO_FORMAT_*
     default: <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: format
     summary: Audio format to be used for the recording.
     type: Number
     constants: Titanium.Media.AUDIO_FILEFORMAT_*
     default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: paused
     summary: Indicates if the audio recorder is paused.
@@ -125,10 +125,10 @@ examples:
 
         recordPause.addEventListener('click', function(e) {
           if (audioRecorder.getPaused()) {
-            recordPause.setTitle('Pause');
+            recordPause.title = 'Pause';
             audioRecorder.resume()
           } else {
-            recordPause.setTitle('Resume');
+            recordPause.title = 'Resume';
             audioRecorder.pause();
           }
         });

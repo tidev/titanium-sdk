@@ -99,7 +99,7 @@ description: |
 
     For more details see:
 
-    * [UI Composite Layout Spec](https://docs.appcelerator.com/platform/latest/#!/guide/UI_Composite_Layout_Behavior_Spec)
+    * [UI Composite Layout Spec](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html)
 
     #### Size and Position
 
@@ -208,6 +208,11 @@ description: |
     * If none of the conditions are met, clipping is disabled.
 
     In earlier versions of Titanium Mobile, views had clipping enabled by default.
+
+    #### iOS Animation on shadow associated with view
+
+    If `borderRadius` property has multiple values, animation on shadow associated with the view will not work.
+
 extends: Titanium.Proxy
 since: "0.9"
 
@@ -233,6 +238,17 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the click passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: dblclick
     summary: Fired when the device detects a double click against the view.
     properties:
@@ -242,11 +258,20 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the double click passed through an overlapping window belonging to another app.
 
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: doubletap
     summary: Fired when the device detects a double tap against the view.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -254,6 +279,16 @@ events:
       - name: y
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the double tap passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: focus
     summary: Fired when the view element gains focus.
@@ -267,8 +302,8 @@ events:
         fired when the property [focusable](Titanium.UI.View.focusable) is set to true. On iOS the
         event is generated only when using [Ti.UI.TextArea](Titanium.UI.TextArea), [Ti.UI.TextField](Titanium.UI.TextField)
         and [Ti.UI.SearchBar](Titanium.UI.SearchBar).
-    platforms: [android, iphone, ipad]
-    since: {android: "3.1.0", iphone: "5.4.0", ipad: "5.4.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "3.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
     properties:
       - name: keyCode
         type: Number
@@ -302,7 +337,7 @@ events:
         A `longpress` and a `longclick` can occur together.
 
         In contrast to a `longclick`, this event returns the `x` and `y` coordinates of the touch.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate of the event from the `source` view's coordinate system.
@@ -312,12 +347,23 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the long press passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: pinch
     summary: Fired when the device detects a pinch gesture.
     description: |
         A pinch is a touch and expand or contract
         with two fingers.  The event occurs continuously until a finger is lifted again.
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "1.8.0"
     properties:
       - name: scale
@@ -436,9 +482,20 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the single tap passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
+
   - name: swipe
     summary: Fired when the device detects a swipe gesture against the view.
-    platforms: [android,iphone,ipad]
+    platforms: [android, iphone, ipad, macos]
     properties:
       - name: direction
         summary: Direction of the swipe--either 'left', 'right', 'up', or 'down'.
@@ -451,6 +508,17 @@ events:
       - name: y
         summary: Y coordinate of the event's endpoint from the `source` view's coordinate system.
         type: Number
+
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the swipe passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: touchcancel
     summary: Fired when a touch event is interrupted by the device.
@@ -482,7 +550,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: altitudeAngle
         summary: |
@@ -490,28 +558,39 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
+
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: touchend
     summary: Fired when a touch event is completed.
@@ -543,7 +622,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: altitudeAngle
         summary: |
@@ -551,28 +630,39 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Penciland are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
+
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: touchmove
     summary: Fired as soon as the device detects movement of a touch.
@@ -603,7 +693,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: altitudeAngle
         summary: |
@@ -611,28 +701,39 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
+
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: touchstart
     summary: Fired as soon as the device detects a touch gesture.
@@ -661,7 +762,7 @@ events:
             Maximum possible value of the force property.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: altitudeAngle
         summary: |
@@ -669,28 +770,39 @@ events:
             being used, the value will be Pi/2. If the stylus is parallel to the screen, the value will be 0.
             Note: This property is only available for iOS devices that support 3D-Touch and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: timestamp
         summary: |
             The time (in seconds) when the touch was used in correlation with the system start up.
             Note: This property is only available for iOS devices that support 3D-Touch and run 9.0 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewX
         summary: |
             The x value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
 
       - name: azimuthUnitVectorInViewY
         summary: |
             The y value of the unit vector that points in the direction of the azimuth of the stylus.
             Note: This property is only available for iOS devices that support the Apple Pencil and are 9.1 or later.
         type: Number
-        platforms: [iphone, ipad]
+        platforms: [iphone, ipad, macos]
+
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the touch passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
   - name: twofingertap
     summary: Fired when the device detects a two-finger tap against the view.
@@ -704,6 +816,16 @@ events:
         summary: Y coordinate of the event from the `source` view's coordinate system.
         type: Number
 
+      - name: obscured
+        type: Boolean
+        summary: |
+            Returns `true` if the tap passed through an overlapping window belonging to another app.
+
+            This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+            system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+            in your app intended for the overlay.
+        platforms: [android]
+        since: "9.3.0"
 
 methods:
   - name: add
@@ -786,12 +908,12 @@ methods:
 
         There are certain top-level containers that are not intended to be added
         as the children of other views. These top-level containers include
-        <Titanium.UI.Window>, <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.NavigationWindow>,
+        <Titanium.UI.Window>, <Titanium.UI.iOS.SplitWindow>, <Titanium.UI.NavigationWindow>,
         and <Titanium.UI.TabGroup>.  Other types of views must be added
         to a top-level container in order to be displayed on screen.
 
         The special containers <Titanium.UI.NavigationWindow>,
-        <Titanium.UI.iPad.SplitWindow>, <Titanium.UI.Tab>, and
+        <Titanium.UI.iOS.SplitWindow>, <Titanium.UI.Tab>, and
         <Titanium.UI.TabGroup> manage windows.
         These managed windows may be referred to as *children* of the
         container, but they are not added using the `add` method.
@@ -837,24 +959,7 @@ methods:
     summary: Removes all previously added motion effects.
     description: Use this method together with <Titanium.UI.horizontalMotionEffect> and <Titanium.UI.verticalMotionEffect>.
     since: "8.2.0"
-    platforms: [iphone, ipad]
-
-  - name: finishLayout
-    since: "2.0.0"
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
-    summary: |
-        Finishes a batch update of the View's layout properties and schedules a layout pass of the
-        view tree.
-    description: |
-        Since the layout pass scheduled is asynchronous, the [rect](Titanium.UI.View.rect)
-        and [size](Titanium.UI.View.size) values may not be available immediately after
-        `finishLayout` is called.
-
-        To be notified when the layout pass completes, add a listener for the
-        [postlayout](Titanium.UI.View.postlayout) event.
+    platforms: [iphone, ipad, macos]
 
   - name: hide
     summary: Hides this view.
@@ -879,8 +984,8 @@ methods:
         summary: |
             Pass an object that specifies the view to insert and optionally at which position (defaults to end)
         type: ViewPositionOptions
-    since: 3.3.0
-    platforms: [android, iphone, ipad]
+    since: "3.3.0"
+    platforms: [android, iphone, ipad, macos]
 
   - name: remove
     summary: Removes a child view from this view's hierarchy.
@@ -902,8 +1007,8 @@ methods:
         summary: |
             Pass an object with the view to insert and the position of the view to replace. In this case the `position` property is required.
         type: ViewPositionOptions
-    since: 3.3.0
-    platforms: [android, iphone, ipad]
+    since: "3.3.0"
+    platforms: [android, iphone, ipad, macos]
 
   - name: show
     summary: Makes this view visible.
@@ -945,6 +1050,7 @@ methods:
         [finishLayout](Titanium.UI.View.finishLayout),
         [postlayout](Titanium.UI.View.postlayout) event.
     since: "2.0.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
@@ -956,7 +1062,7 @@ methods:
         The `honorScaleFactor` argument is only supported on iOS.
     returns:
         type: Titanium.Blob
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     parameters:
       - name: callback
         summary: |
@@ -1000,6 +1106,7 @@ methods:
         [finishLayout](Titanium.UI.View.finishLayout),
         [postlayout](Titanium.UI.View.postlayout) event.
     since: "2.0.0"
+    exclude-platforms: [macos]
     deprecated:
         since: "3.0.0"
         removed: "9.0.0"
@@ -1022,8 +1129,8 @@ methods:
         the return value.
     returns:
         type: Point
-    platforms: [android, iphone, ipad]
-    since: { android: "1.8", iphone: "1.8", ipad: "1.8" }
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "1.8", iphone: "1.8", ipad: "1.8", macos: "9.2.0" }
     parameters:
       - name: point
         summary: |
@@ -1051,7 +1158,7 @@ methods:
         type: String
         optional: false
     since: 6.1.0
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
 properties:
   - name: accessibilityHidden
@@ -1066,14 +1173,9 @@ properties:
         method. The native method is only available in Android 4.1 (API level 16/Jelly Bean) and
         later; if this property is specified on earlier versions of Android, it is ignored.
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: Boolean
     default: false
-    osver:
-        android:
-            min: "4.0"
-        ios:
-            min: "5.0"
 
   - name: accessibilityHint
     summary: Briefly describes what performing an action (such as a click) on the view will do.
@@ -1086,7 +1188,7 @@ properties:
         argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
     type: String
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     default: null
 
   - name: accessibilityLabel
@@ -1100,7 +1202,7 @@ properties:
         argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
         Defaults to Title or label of the control.
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
 
   - name: accessibilityValue
@@ -1114,7 +1216,7 @@ properties:
         argument to the native [View.setContentDescription](https://developer.android.com/reference/android/view/View.html#setContentDescription%28java.lang.CharSequence%29) method.
         Defaults to State or value of the control.
     since: "3.0.0"
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     type: String
 
   - name: anchorPoint
@@ -1130,13 +1232,13 @@ properties:
         The default is center of this view.
     type: Point
     since: {android: "7.5.0", iphone: "2.1.0", ipad: "2.1.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: animatedCenter
     summary: Current position of the view during an animation.
     type: Point
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: backgroundColor
     summary: Background color of the view, as a color name or hex triplet.
@@ -1182,7 +1284,7 @@ properties:
   - name: backgroundGradient
     summary: A background gradient for the view.
     type: Gradient
-    platforms: [iphone,ipad,android]
+    platforms: [iphone,ipad,android,macos]
     description: |
         A gradient can be defined as either linear or radial. A linear gradient varies continuously
         along a line between the `startPoint` and `endPoint`.
@@ -1282,15 +1384,15 @@ properties:
         * <Titanium.UI.Label>
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundLeftCap
     summary: Size of the left end cap.
     description: |
         See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
-    platforms: [iphone, ipad]
-    default: 0
+    platforms: [iphone, ipad, macos]
+    default: "0"
 
   - name: backgroundSelectedColor
     summary: Selected background color of the view, as a color name or hex triplet.
@@ -1300,7 +1402,7 @@ properties:
         `focusable` must be true for normal views.
 
         Defaults to background color of this view.
-    type: String
+    type: [String, Titanium.UI.Color]
     platforms: [android]
 
   - name: backgroundSelectedImage
@@ -1318,8 +1420,8 @@ properties:
     description: |
         See the section on backgroundLeftCap and backgroundTopCap behavior on iOS in <Titanium.UI.View>.
     type: Number
-    platforms: [iphone, ipad]
-    default: 0
+    platforms: [iphone, ipad, macos]
+    default: "0"
 
   - name: borderColor
     summary: Border color of the view, as a color name or hex triplet.
@@ -1331,12 +1433,15 @@ properties:
 
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
-    description: Each corner is rounded using an arc of a circle.
+    description: |
+        Each corner is rounded using an arc of a circle.
         Values for each corner can be specified. For example, '20px 20px' will set both left and right corners to `20px`.
         Specifying '20px 20px 20px 20px' will set top-left, top-right, bottom-right and bottom-left corners in that order.
+
+        If you have issues with dark artifacts on Android you can try to disable Hardware acceleration by setting a
+        `backgroundColor` with a small amount of transparency: `backgroundColor:"rgba(255,255,255,254)"`.
     type: [Number, String, Array<Number>, Array<String>]
     default: 0
-    osver: {android: {min: "5.0"}}
 
   - name: borderWidth
     summary: Border width of the view.
@@ -1383,7 +1488,7 @@ properties:
 
         Defaults to `undefined`. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: elevation
@@ -1401,6 +1506,20 @@ properties:
     since: 5.0.0
     osver: {android: {min: 5.0}}
 
+  - name: filterTouchesWhenObscured
+    summary: Discards touch related events if another app's system overlay covers the view.
+    description: |
+        This is a security feature to protect an app from "tapjacking", where a malicious app can use a
+        system overlay to intercept touch events in your app or to trick the end-user to tap on UI
+        in your app intended for the overlay.
+
+        Setting this property to `true` causes touch related events (including "click") to not be fired
+        if a system overlay overlaps the view.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "9.3.0"
+
   - name: focusable
     summary: Whether view should be focusable while navigating with the trackball.
     type: Boolean
@@ -1412,7 +1531,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:
@@ -1451,7 +1570,7 @@ properties:
         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
         To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
     type: MinMaxOptions
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "7.3.0"
 
   - name: id
@@ -1575,7 +1694,7 @@ properties:
             precedence is `width`, `left`, `center.x`, `right`.
 
             For complete details on composite layout rules, see
-            [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System)
+            [Transitioning to the New UI Layout System](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html)
             in the Titanium Mobile Guides.
 
          *  `vertical`. Children are laid out vertically from top to bottom. The first child
@@ -1634,7 +1753,7 @@ properties:
       Defaults to `undefined`. Results in a light grey background color on the wrapper view.
     type: [String, Titanium.UI.Color]
     since: "3.3.0"
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: previewContext
     summary: The preview context used in the 3D-Touch feature "Peek and Pop".
@@ -1647,7 +1766,6 @@ properties:
     platforms: [iphone]
     since: "5.1.0"
     type: Titanium.UI.iOS.PreviewContext
-    osver: {ios: {min: "9.0"}}
 
   - name: right
     summary: View's right position, in platform-specific units.
@@ -1746,8 +1864,7 @@ properties:
     type: [String, Titanium.UI.Color]
     since: "3.1.3"
     default: null
-    osver: {ios: {min: "7.0"}}
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: top
     summary: The view's top position.
@@ -1777,7 +1894,6 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: touchFeedbackColor
@@ -1785,7 +1901,6 @@ properties:
     description: Defaults to provided theme color.
     type: String
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: transform
@@ -1830,28 +1945,33 @@ properties:
         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
         To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
     type: MinMaxOptions
-    platforms: [iphone, ipad]
-    since: 7.3.0
+    platforms: [iphone, ipad, macos]
+    since: "7.3.0"
 
   - name: viewShadowRadius
     summary: Determines the blur radius used to create the shadow.
     description: Defaults to `undefined`. Behaves as if set to 3.
-    type: Number
-    platforms: [iphone,ipad]
+        Accepts density units as of 10.0.1.
+    type: [Number,String]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: viewShadowColor
     summary: Determines the color of the shadow.
-    description: Defaults to `undefined`. Behaves as if transparent.
+    description: |
+      iOS Defaults to `undefined`. Behaves as if transparent. Android default is black.
+      On Android you can set `<item name="android:ambientShadowAlpha">0.5</item>` and
+      `<item name="android:spotShadowAlpha">0.5</item>` in your theme to change the
+      opacity.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone,ipad]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "11.1.0", iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
 
   - name: viewShadowOffset
     summary: Determines the offset for the shadow of the view.
     description: Defaults to `undefined`. Behaves as if set to (0,-3)
     type: Point
-    platforms: [iphone,ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: visible
@@ -1864,7 +1984,7 @@ properties:
     description: |
         Defaults to: If undefined, defaults to either <Titanium.UI.FILL> or <Titanium.UI.SIZE>
         depending on the view. See "View Types and Default Layout Behavior" in
-        [Transitioning to the New UI Layout System](https://docs.appcelerator.com/platform/latest/#!/guide/Transitioning_to_the_New_UI_Layout_System).
+        [Transitioning to the New UI Layout System](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Contributing_to_Titanium/Platform_Development/Specs/UI_Composite_Layout_Behavior_Spec.html).
 
         Can be either a float value or a dimension string (for example, '50%' or '40dp').
         Can also be one of the following special values:
@@ -1938,7 +2058,7 @@ examples:
 name: Point
 summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>.
 since: "1.8.0"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 properties:
   - name: x
     type: [Number, String]
@@ -1950,7 +2070,7 @@ properties:
 ---
 name: Gradient
 summary: A simple object defining a color gradient.
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 since: "1.8.0"
 properties:
   - name: type
@@ -1961,24 +2081,24 @@ properties:
   - name: startPoint
     summary: Start point for the gradient.
     type: Point
-    default: {x: 0.0, y: 0.0}
+    default: "{x: 0.0, y: 0.0}"
 
   - name: endPoint
     summary: End point for the gradient.
     type: Point
-    default: {x: 0.0, y: 1.0}
+    default: "{x: 0.0, y: 1.0}"
 
   - name: startRadius
     summary: For a radial gradient, the radius at the `startPoint`.
     type: Number
-    platforms: [android, iphone, ipad]
-    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.1.0"}
 
   - name: endRadius
     summary: For a radial gradient, the radius at the `endPoint`.
     type: Number
-    platforms: [android, iphone, ipad]
-    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.1.0"}
 
   - name: colors
     summary: |
@@ -1992,16 +2112,16 @@ properties:
     description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad]
-    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
+    platforms: [android, iphone, ipad, macos, macos]
+    since: {android: "7.1.0"}
 
   - name: backfillEnd
     summary: Set to `true` to continue filling with the final color beyond the `endPoint`.
     description: On Android, this property is only supported by radial gradients.
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad]
-    since: {android: "7.1.0", iphone: "1.8.0", ipad: "1.8.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "7.1.0"}
 
 ---
 name: GradientColorRef

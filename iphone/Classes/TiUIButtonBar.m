@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -156,16 +156,11 @@
   [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateSelected];
 }
 
-#if IS_SDK_IOS_13
 - (void)setSelectedButtonColor_:(id)value
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return;
-  }
   UIColor *color = [[TiUtils colorValue:value] color];
   [[self segmentedControl] setSelectedSegmentTintColor:color];
 }
-#endif
 
 - (void)setIndex_:(id)value
 {
@@ -233,8 +228,12 @@
   }
 
   if (![segmentedControl isMomentary]) {
+    if ((selectedIndex < 0) && (segmentedControl.numberOfSegments > 0)) {
+      selectedIndex = 0;
+    }
     [segmentedControl setSelectedSegmentIndex:selectedIndex];
   }
+  [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 - (IBAction)onSegmentChange:(id)sender

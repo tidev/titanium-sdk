@@ -3,11 +3,15 @@
   "parserOptions": {
     "sourceType": "script"
   },
+  "rules": {
+    "no-use-before-define": ["error", { "functions": false, "classes": false, "variables": true }],
+    "promise/catch-or-return": [ "warn", { "terminationMethod": [ "catch", "finally" ]} ]
+  },
   "overrides": [
     {
       "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
       "parserOptions": {
-        "ecmaVersion": 6
+        "ecmaVersion": 2020
       },
       "globals": {
         "kroll": "readonly",

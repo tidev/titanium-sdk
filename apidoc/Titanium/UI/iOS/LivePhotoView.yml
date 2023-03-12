@@ -10,13 +10,12 @@ description: |
     
     For more infos on Live Photo's, refer to the official [Apple documentation](https://developer.apple.com/documentation/photosui/phlivephotoview).
 extends: Titanium.UI.View
-platforms: [iphone,ipad]
-since: "5.2.0"
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.2.0", ipad: "5.2.0", macos: "9.2.0"}
 osver: {ios:{min: "9.1"}}
 excludes:
     events: [click,dblclick,doubletap,longpress,pinch,postlayout,singletap,swipe,
             touchcancel,touchend,touchmove,touchstart,twofingertap]
-
 properties:
   - name: livePhoto
     summary: The Live Photo displayed in the view.

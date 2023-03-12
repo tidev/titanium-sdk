@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,12 +18,11 @@ import android.util.Config;
 public class TiConfig
 {
 	/**
-	* Whether or not debug logging has been enabled by the Titanium application. This is normally set in the application's <code>tiapp.xml</code> with the 
+	* Whether or not debug logging has been enabled by the Titanium application. This is normally set in the application's <code>tiapp.xml</code> with the
 	* <code>ti.android.debug</code> property:
 	* <pre>
 	* &lt;property name="ti.android.debug" type="bool"&gt;true&lt;/property&gt;
 	* </pre>
-	* @module.api
 	*/
 	public static boolean LOGD = Config.DEBUG;
 	public static boolean LOGV = Config.DEBUG;

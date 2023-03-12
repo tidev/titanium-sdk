@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -100,17 +100,17 @@
   }
 }
 
-- (BOOL)landscape
+- (bool)landscape
 {
   return [TiUtils isOrientationLandscape];
 }
-GETTER_IMPL(BOOL, landscape, Landscape);
+GETTER_IMPL(bool, landscape, Landscape);
 
-- (BOOL)portrait
+- (bool)portrait
 {
   return [TiUtils isOrientationPortait];
 }
-GETTER_IMPL(BOOL, portrait, Portrait);
+GETTER_IMPL(bool, portrait, Portrait);
 
 - (NSNumber *)orientation
 {

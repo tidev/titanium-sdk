@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -82,7 +82,7 @@ public final class TiDeviceOrientationMonitor
 		if (value instanceof SensorManager) {
 			this.sensorManager = (SensorManager) value;
 		} else {
-			Log.i(TAG, "Unable to aquire SensorManager.");
+			Log.w(TAG, "Unable to aquire SensorManager.");
 		}
 
 		// Create an event handler for the Android "OrientationEventListener".

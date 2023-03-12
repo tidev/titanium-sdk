@@ -12,8 +12,8 @@ description: |
     This has been reported as [Android Issue #7395](http://code.google.com/p/android/issues/detail?id=7395).
 extends: Titanium.XML.Node
 createable: false
-since: "0.9"
-platforms: [android, iphone, ipad]
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 properties:
   - name: doctype
     summary: An interface to the list of entities that are defined for the

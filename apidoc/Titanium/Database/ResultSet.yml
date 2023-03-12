@@ -4,7 +4,7 @@ summary: The ResultSet instance returned by <Titanium.Database.DB.execute>.
 extends: Titanium.Proxy
 since: "0.1"
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 description: |
     A result set represents the results returned by a database query.
 
@@ -87,16 +87,6 @@ methods:
         constants: Titanium.Database.FIELD_TYPE_*
         optional: true
     
-  - name: fieldCount
-    summary: Returns the number of columns in this result set. This method has been **removed** in Release 3.3.0 of the Titanium SDK. Use the fieldCount property instead.
-    returns:
-        type: Number
-    deprecated:
-        since: "3.3.0"
-        removed: "3.3.0"
-        notes: Use the fieldCount property instead.
-    platforms: [iphone, ipad]
-    
   - name: fieldName
     summary: Returns the field name for the specified field index.
     returns:
@@ -133,7 +123,7 @@ properties:
     summary: The number of columns in this result set.
     type: Number
     permission: read-only
-    platforms: [android,  iphone, ipad]
+    platforms: [android,  iphone, ipad, macos]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: rowCount
@@ -145,7 +135,7 @@ properties:
     summary: Indicates whether the current row is valid.
     type: Boolean
     permission: read-only
-    platforms: [iphone,ipad,android]
+    platforms: [iphone,ipad,android, macos]
 
 examples:
   - title: Using ResultSet

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -32,9 +32,9 @@ TiDimension TiDimensionMake(TiDimensionType type, CGFloat value)
   return dimension;
 }
 
-CGFloat convertInchToPixels(CGFloat value)
+CGFloat convertInchToPixels(CGFloat inches)
 {
-  return [TiUtils dpi] * value;
+  return [TiUtils dpi] * inches;
 }
 
 CGFloat convertPixelsToDip(CGFloat value)
@@ -48,15 +48,9 @@ CGFloat convertPixelsToDip(CGFloat value)
   return value;
 }
 
-CGFloat convertDipToInch(CGFloat value)
+CGFloat convertDipToInch(CGFloat points)
 {
-  if ([TiUtils is3xRetina]) {
-    return (value * 3.0) / [TiUtils dpi];
-  }
-  if ([TiUtils is2xRetina]) {
-    return (value * 2.0) / [TiUtils dpi];
-  }
-  return value / [TiUtils dpi];
+  return convertDipToPixels(points) / [TiUtils dpi];
 }
 
 CGFloat convertDipToDefaultUnit(CGFloat value)
@@ -76,15 +70,15 @@ CGFloat convertDipToDefaultUnit(CGFloat value)
   return value;
 }
 
-CGFloat convertDipToPixels(CGFloat value)
+CGFloat convertDipToPixels(CGFloat points)
 {
   if ([TiUtils is3xRetina]) {
-    return (value * 3.0);
+    return (points * 3.0);
   }
   if ([TiUtils is2xRetina]) {
-    return (value * 2.0);
+    return (points * 2.0);
   }
-  return value;
+  return points;
 }
 
 TiDimension TiDimensionFromObject(id object)

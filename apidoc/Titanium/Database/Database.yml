@@ -5,7 +5,7 @@ summary: |
   in-application SQLite database.
 extends: Titanium.Module
 since: "0.1"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: install
     summary: Installs an SQLite database to device's internal storage.
@@ -76,10 +76,10 @@ methods:
         * `/Applications/apple_app_id/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1)
         * `/Applications/apple_app_id/Library/Application Support/database/mydb1Installed.sql` (earlier versions)
 
-        To prevent the database file being automatically backed up to iCloud, use `setRemoteBackup`.
+        To prevent the database file being automatically backed up to iCloud, use [remoteBackup](Titanium.Filesystem.File.remoteBackup).
 
         ``` js
-        db1.file.setRemoteBackup(false);
+        db1.file.remoteBackup = false;
         ```
 
     - title: Install a Database to Internal Storage (Android)
@@ -111,7 +111,7 @@ methods:
         absolute path provided.
 
         * `file:///sdcard/path/to/mydb2Installed`
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
   - name: open
     summary: Opens an SQLite database.
     description: |

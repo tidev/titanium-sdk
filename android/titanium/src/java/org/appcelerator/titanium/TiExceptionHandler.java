@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ import org.appcelerator.kroll.common.TiMessenger;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.graphics.Rect;
@@ -33,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Scroller;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 
 /**
  * A utility class for creating a dialog that displays Javascript errors
@@ -41,7 +41,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 {
 	private static final String TAG = "TiExceptionHandler";
 	private static final int MSG_OPEN_ERROR_DIALOG = 10011;
-	private static LinkedList<ExceptionMessage> errorMessages = new LinkedList<ExceptionMessage>();
+	private static final LinkedList<ExceptionMessage> errorMessages = new LinkedList<>();
 	private static boolean dialogShowing = false;
 	private static Handler mainHandler;
 
@@ -54,7 +54,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	public static final String ERROR_STACK = "stack";
 	public static final String ERROR_NATIVESTACK = "nativeStack";
 
-	// DEPRECATED in 9.0.0, REMOVE 10.0.0
+	// DEPRECATED in 9.0.0, REMOVE 11.0.0
 	public static final String ERROR_LINEOFFSET = "lineOffset";
 	public static final String ERROR_JS_STACK = "javascriptStack";
 	public static final String ERROR_JAVA_STACK = "javaStack";
@@ -78,7 +78,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		dict.put(ERROR_STACK, error.jsStack);
 		dict.put(ERROR_NATIVESTACK, error.javaStack);
 
-		// DEPRECATED in 9.0.0, REMOVE 10.0.0
+		// DEPRECATED in 9.0.0, REMOVE 11.0.0
 		dict.put(ERROR_LINEOFFSET, error.lineOffset);
 		dict.put(ERROR_JS_STACK, error.jsStack);
 		dict.put(ERROR_JAVA_STACK, error.javaStack);
@@ -87,7 +87,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	public static String getError(KrollDict error)
 	{
-		String output = new String();
+		String output = "";
 
 		final String sourceName = error.getString(ERROR_SOURCENAME);
 		final String message = error.getString(ERROR_MESSAGE);
@@ -192,9 +192,24 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			return;
 		}
 
-		final Context context = tiApp.getCurrentActivity();
+		final Activity activity = tiApp.getCurrentActivity();
+		if (activity == null) {
+			return;
+		}
 
-		final TextView errorView = new TextView(context);
+		// If this is a material theme exception, then show a simpler error without a trace.
+		if (error != null) {
+			String errorMessage = error.getString(ERROR_MESSAGE);
+			errorMessage = (errorMessage != null) ? errorMessage : "";
+			if (errorMessage.contains("theme to inherit from Theme.MaterialComponents")
+				|| errorMessage.contains("theme to be Theme.MaterialComponents")) {
+				dialogShowing = false;
+				showMaterialThemeErrorDialog(activity);
+				return;
+			}
+		}
+
+		final TextView errorView = new TextView(activity);
 		errorView.setBackgroundColor(0xFFF5F5F5);
 		errorView.setTextColor(0xFFE53935);
 		errorView.setPadding(5, 5, 5, 5);
@@ -202,7 +217,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 																LinearLayout.LayoutParams.MATCH_PARENT));
 		errorView.setInputType(InputType.TYPE_TEXT_FLAG_MULTI_LINE);
 		errorView.setSingleLine(false);
-		errorView.setScroller(new Scroller(context));
+		errorView.setScroller(new Scroller(activity));
 		errorView.setVerticalScrollBarEnabled(true);
 		errorView.setHorizontallyScrolling(true);
 		errorView.setHorizontalScrollBarEnabled(true);
@@ -210,7 +225,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		errorView.setTypeface(Typeface.MONOSPACE);
 		errorView.setText(getError(error));
 
-		final RelativeLayout layout = new RelativeLayout(context);
+		final RelativeLayout layout = new RelativeLayout(activity);
 		layout.setPadding(0, 50, 0, 0);
 		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
 			RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
@@ -230,7 +245,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			}
 		};
 
-		final AlertDialog.Builder builder = new AlertDialog.Builder(context)
+		final AlertDialog.Builder builder = new AlertDialog.Builder(activity)
 												.setTitle(error.getString("title"))
 												.setView(layout)
 												.setPositiveButton("Kill", clickListener)
@@ -240,10 +255,20 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		final AlertDialog dialog = builder.create();
 		dialog.show();
 
-		final Window window = ((Activity) context).getWindow();
+		final Window window = activity.getWindow();
 		Rect displayRect = new Rect();
 		window.getDecorView().getWindowVisibleDisplayFrame(displayRect);
 		dialog.getWindow().setLayout(displayRect.width(), (int) (displayRect.height() * 0.95));
+	}
+
+	private static void showMaterialThemeErrorDialog(@NonNull Activity activity)
+	{
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.Theme_Titanium_Dialog_Error);
+		builder.setTitle("Developer Error");
+		builder.setMessage(
+			"As of Titanium 10.0.0, a custom theme applied to the app or activity window must derive "
+				+ "from 'Theme.MaterialComponents'.");
+		builder.create().show();
 	}
 
 	public boolean handleMessage(Message msg)
@@ -265,7 +290,6 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	/**
 	 * Handles the exception by opening an error dialog with an error message
 	 * @param error An error message containing line number, error title, message, etc
-	 * @module.api
 	 */
 	public void handleException(ExceptionMessage error)
 	{

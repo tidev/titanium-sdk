@@ -3,9 +3,9 @@ name: Titanium.UI.EmailDialog
 summary: |
     An email dialog is a modal window that allows users to compose and send an email.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./emaildialog_android.png) | ![iOS](./emaildialog_ios.png) | ![Windows](./emaildialog_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./emaildialog_android.png) | ![iOS](./emaildialog_ios.png) |
 
     The Email Dialog is created with the <Titanium.UI.createEmailDialog> method. The user needs to
     register an e-mail account on the device in order to open the dialog.  The dialog will not
@@ -42,7 +42,7 @@ methods:
       - name: attachment
         summary: Attachment to include in the email.
         type: [Titanium.Blob, Titanium.Filesystem.File]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: isSupported
     summary: Indicates whether sending email is supported by the system.
@@ -101,7 +101,7 @@ properties:
     summary: Constant for the `CANCELLED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: FAILED
     summary: Constant for the `FAILED` status result.
@@ -112,7 +112,7 @@ properties:
     summary: Constant for the `SAVED` status result. On Android, this property exists but is not used.
     type: Number
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: SENT
     summary: Constant for the `SENT` status result.
@@ -125,7 +125,7 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [ String, Titanium.UI.Color ]
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: bccRecipients
     summary: Recipients of the email included via the `BCC` (Blind Carbon Copy) field.
@@ -142,7 +142,7 @@ properties:
         rather than plain text.
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: messageBody
     summary: Email message body.

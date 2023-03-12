@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,7 +9,6 @@
 #import "ContactsModule.h"
 #import "TiContactsGroup.h"
 #import "TiContactsPerson.h"
-#import <AddressBookUI/AddressBookUI.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
 
@@ -38,11 +37,11 @@ static NSArray *contactKeysWithoutImage;
     return NULL;
   }
 
-  if (reloadAddressBook && (contactStore != NULL)) {
+  if (needsContactStoreFetch && (contactStore != nil)) {
     RELEASE_TO_NIL(contactStore);
-    contactStore = NULL;
+    contactStore = nil;
   }
-  reloadAddressBook = NO;
+  needsContactStoreFetch = NO;
 
   if (contactStore == NULL) {
     contactStore = [[CNContactStore alloc] init];
@@ -172,7 +171,7 @@ static NSArray *contactKeysWithoutImage;
 - (NSNumber *)contactsAuthorization
 {
   CNAuthorizationStatus result = [CNContactStore authorizationStatusForEntityType:CNEntityTypeContacts];
-  return [NSNumber numberWithInt:result];
+  return @(result);
 }
 
 - (void)save:(id)unused
@@ -365,7 +364,6 @@ static NSArray *contactKeysWithoutImage;
   NSError *error = nil;
   NSMutableArray *peopleRefs = nil;
   peopleRefs = [[NSMutableArray alloc] init];
-  //this fetch request takes all information. Not advised to use this method if addressbook is huge. May result in performance issues.
   NSMutableArray *array = [NSMutableArray arrayWithArray:[ContactsModule contactKeysWithImage]];
   if (!_includeNote) {
     [array removeObject:CNContactNoteKey];

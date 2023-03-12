@@ -27,164 +27,262 @@ describe('Titanium.UI.ImageView', function () {
 		}
 	});
 
-	it('apiName', () => {
+	it('.apiName', () => {
 		const imageView = Ti.UI.createImageView();
 		should(imageView).have.readOnlyProperty('apiName').which.is.a.String();
 		should(imageView.apiName).be.eql('Ti.UI.ImageView');
 	});
 
-	it('image (URL)', () => {
-		const imageView = Ti.UI.createImageView({
-			image: 'https://www.google.com/images/srpr/logo11w.png'
+	describe('.image', () => {
+		it('has no accessors', () => {
+			const imageView = Ti.UI.createImageView({});
+			should(imageView).not.have.accessors('image');
 		});
-		should(imageView.image).be.a.String();
-		should(imageView.getImage).be.a.Function();
-		should(imageView.image).eql('https://www.google.com/images/srpr/logo11w.png');
-		should(imageView.getImage()).eql('https://www.google.com/images/srpr/logo11w.png');
-		imageView.image = 'path/to/logo.png';
-		should(imageView.image).eql('path/to/logo.png');
-		should(imageView.getImage()).eql('path/to/logo.png');
-	});
 
-	// FIXME Android and iOS don't fire the 'load' event! Seems liek android only fires load if image isn't in cache
-	it.androidAndIosBroken('image (local path)', function (finish) {
-		const imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.a.String();
-				should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + 'Logo.png');
+		it('with an URL', () => {
+			const imageView = Ti.UI.createImageView({
+				image: 'https://www.google.com/images/srpr/logo11w.png'
+			});
+			should(imageView.image).be.a.String();
+			should(imageView.image).eql('https://www.google.com/images/srpr/logo11w.png');
+			imageView.image = 'path/to/logo.png';
+			should(imageView.image).eql('path/to/logo.png');
+		});
+
+		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		it.androidAndIosBroken('with a local file path', finish => {
+			const imageView = Ti.UI.createImageView();
+			imageView.addEventListener('load', function () {
+				try {
+					should(imageView.image).be.a.String();
+					should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + 'Logo.png');
+				} catch (err) {
+					return finish(err);
+				}
 				finish();
-			} catch (err) {
-				finish(err);
-			}
+			});
+			imageView.image = Ti.Filesystem.resourcesDirectory + 'Logo.png';
 		});
-		imageView.image = Ti.Filesystem.resourcesDirectory + 'Logo.png';
-	});
 
-	// FIXME Android and iOS don't fire the 'load' event! Seems liek android only fires load if image isn't in cache
-	it.androidAndIosBroken('image (local path with separator)', function (finish) {
-		const imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.a.String();
-				should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator + 'Logo.png');
+		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		it.androidAndIosBroken('with a local path with separator', finish => {
+			const imageView = Ti.UI.createImageView();
+			imageView.addEventListener('load', function () {
+				try {
+					should(imageView.image).be.a.String();
+					should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator + 'Logo.png');
+				} catch (err) {
+					return finish(err);
+				}
 				finish();
-			} catch (err) {
-				finish(err);
-			}
+			});
+			// Try appending separator
+			// It's not quite clear if we need separator, but people often do this
+			imageView.image = Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator + 'Logo.png';
 		});
-		// Try appending separator
-		// It's not quite clear if we need separator, but people often do this
-		imageView.image = Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator + 'Logo.png';
-	});
 
-	// FIXME Android and iOS don't fire the 'load' event! Seems liek android only fires load if image isn't in cache
-	it.androidAndIosBroken('image (local path with /)', function (finish) {
-		const imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.a.String();
-				should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + '/Logo.png');
+		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		it.androidAndIosBroken('with local path with /', finish => {
+			const imageView = Ti.UI.createImageView();
+			imageView.addEventListener('load', function () {
+				try {
+					should(imageView.image).be.a.String();
+					should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + '/Logo.png');
+				} catch (err) {
+					return finish(err);
+				}
 				finish();
-			} catch (err) {
-				finish(err);
-			}
+			});
+			// Try appending '/' for the separator
+			// Technically this is not right on Windows, but people often do this
+			imageView.image = Ti.Filesystem.resourcesDirectory + '/Logo.png';
 		});
-		// Try appending '/' for the separator
-		// Technically this is not right on Windows, but people often do this
-		imageView.image = Ti.Filesystem.resourcesDirectory + '/Logo.png';
-	});
 
-	// FIXME Android and iOS don't fire the 'load' event! Seems liek android only fires load if image isn't in cache
-	it.androidAndIosBroken('image (nativePath)', function (finish) {
-		var fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
-		var imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.a.String();
-				should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + 'Logo.png');
+		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		it.androidAndIosBroken('with Ti.Filesystem.File.nativePath value', finish => {
+			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			const imageView = Ti.UI.createImageView();
+			imageView.addEventListener('load', function () {
+				try {
+					should(imageView.image).be.a.String();
+					should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + 'Logo.png');
+				} catch (err) {
+					return finish(err);
+				}
 				finish();
-			} catch (err) {
-				finish(err);
-			}
+			});
+			imageView.image = fromFile.nativePath;
 		});
-		imageView.image = fromFile.nativePath;
-	});
 
-	it.windows('image (ms-appx)', function (finish) {
-		var imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.a.String();
-				should(imageView.image).eql('ms-appx:///Logo.png');
+		it.windows('with ms-appx:// URL', finish => {
+			const imageView = Ti.UI.createImageView();
+			imageView.addEventListener('load', function () {
+				try {
+					should(imageView.image).be.a.String();
+					should(imageView.image).eql('ms-appx:///Logo.png');
+				} catch (err) {
+					return finish(err);
+				}
 				finish();
-			} catch (err) {
-				finish(err);
-			}
+			});
+			imageView.image = 'ms-appx:///Logo.png';
 		});
-		imageView.image = 'ms-appx:///Logo.png';
-	});
 
-	it.windows('image (ms-appdata)', function (finish) {
-		var fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png'),
-			toFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory + 'TIMOB-20609.png'),
-			imageView;
-		toFile.write(fromFile.read());
+		it.windows('with ms-appdata:// URL', finish => {
+			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			const toFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory + 'TIMOB-20609.png');
+			toFile.write(fromFile.read());
 
-		imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.a.String();
-				should(imageView.image).eql('ms-appdata:///local/TIMOB-20609.png');
+			const imageView = Ti.UI.createImageView();
+			imageView.addEventListener('load', function () {
+				try {
+					should(imageView.image).be.a.String();
+					should(imageView.image).eql('ms-appdata:///local/TIMOB-20609.png');
+				} catch (err) {
+					return finish(err);
+				} finally {
+					toFile.deleteFile();
+				}
 				finish();
-			} catch (err) {
-				finish(err);
-			} finally {
-				toFile.deleteFile();
-			}
+			});
+
+			imageView.image = 'ms-appdata:///local/TIMOB-20609.png';
 		});
 
-		imageView.image = 'ms-appdata:///local/TIMOB-20609.png';
-	});
+		// Windows: TIMOB-24985
+		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		it.allBroken('with Ti.Fielsystem.File', finish => {
+			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 
-	// Windows: TIMOB-24985
-	// FIXME Android and iOS don't fire the 'load' event! Seems liek android only fires load if image isn't in cache
-	it.allBroken('image (File)', function (finish) {
-		var fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
-
-		var imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.an.Object();
-				should(imageView.image).eql(fromFile);
+			const imageView = Ti.UI.createImageView();
+			imageView.addEventListener('load', function () {
+				try {
+					should(imageView.image).be.an.Object();
+					should(imageView.image).eql(fromFile);
+				} catch (err) {
+					return finish(err);
+				}
 				finish();
-			} catch (err) {
-				finish(err);
-			}
+			});
+
+			imageView.image = fromFile;
 		});
 
-		imageView.image = fromFile;
+		function doBlobTest(blob, finish) {
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({ image: blob });
+			imageView.addEventListener('postlayout', function listener(e) {
+				try {
+					imageView.removeEventListener(e.type, listener);
+					should(imageView.size.width > 0).be.true();
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			});
+			win.add(imageView);
+			win.open();
+		}
+
+		it('with Ti.Blob PNG', function (finish) {
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png').read();
+			doBlobTest(blob, finish);
+		});
+
+		it('with Ti.Blob WebP', function (finish) {
+			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.webp').read();
+			doBlobTest(blob, finish);
+		});
+
+		it.windowsBroken('with redirected URL and autorotate set to true', function (finish) {
+			this.slow(8000);
+			this.timeout(10000);
+
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({
+				image: 'http://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_3.jpg',
+				autorotate: true
+			});
+			imageView.addEventListener('load', () => finish());
+			win.add(imageView);
+			win.open();
+		});
+
+		// On Android, paths are relative to JS file.
+		// On iOS and Windows, paths are relative to app's "Resources" directory.
+		// The below works on all platforms because this JS file is in the "Resources" directory.
+		it('with root-relative path', function (finish) {
+			this.slow(8000);
+			this.timeout(10000);
+
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({
+				autorotate: true
+			});
+			imageView.addEventListener('load', () => finish());
+			win.add(imageView);
+			imageView.image = 'Logo.png';
+			win.open();
+		});
+
+		it('with image from folder', function (finish) {
+			this.timeout(10000);
+
+			let loadCount = 0;
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({
+				image: 'Logo.png'
+			});
+			imageView.addEventListener('load', function () {
+				loadCount++;
+				if (loadCount > 1) {
+					finish();
+				} else {
+					imageView.image = '/image folder/Logo.png';
+				}
+			});
+			win.add(imageView);
+			win.open();
+		});
+
+		it('fires error event for URL pointing at resource that does not exist', function (finish) {
+			// Default timeout for iOS is 20 seconds.
+			this.timeout(21000);
+
+			win = Ti.UI.createWindow();
+			const img = Ti.UI.createImageView({});
+			img.addEventListener('error', () => finish());
+			img.image = 'https://invalid.host.com/image.jpg';
+			win.add(img);
+			win.open();
+		});
 	});
 
-	// Windows: TIMOB-24985
-	// FIXME Android and iOS don't fire the 'load' event! Seems liek android only fires load if image isn't in cache
-	it.allBroken('image (Blob)', function (finish) {
-		var fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png'),
-			blob = fromFile.read();
-		var imageView = Ti.UI.createImageView();
-		imageView.addEventListener('load', function () {
-			try {
-				should(imageView.image).be.an.Object();
-				should(imageView.toBlob()).eql(blob);
+	describe.android('.imageTouchFeedback', () => {
+		function test(imageViewProperties, finish) {
+			win = Ti.UI.createWindow();
+			win.add(Ti.UI.createImageView(imageViewProperties));
+			win.addEventListener('postlayout', function listener() {
+				win.removeEventListener('postlayout', listener);
 				finish();
-			} catch (err) {
-				finish(err);
-			}
+			});
+			win.open();
+		}
+
+		it('without image', function (finish) {
+			test({ imageTouchFeedback: true }, finish);
 		});
 
-		imageView.image = blob;
+		it('with image', function (finish) {
+			test({ image: 'Logo.png', imageTouchFeedback: true }, finish);
+		});
+
+		it('with imageTouchFeedbackColor', function (finish) {
+			test({ image: 'Logo.png', imageTouchFeedback: true, imageTouchFeedbackColor: 'yellow' }, finish);
+		});
 	});
 
+	// TODO: Combine all tests for 'images' property into one suite
 	// TODO Make this test cross-platform. We're using ms-appx urls here
 	it.windows('images', function (finish) {
 		var imageView,
@@ -296,6 +394,46 @@ describe('Titanium.UI.ImageView', function () {
 		win.open();
 	});
 
+	describe('.scalingMode', () => {
+		function test(scalingMode, finish) {
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({
+				image: '/Logo.png',
+				scalingMode: scalingMode,
+				autosize: true,
+				width: Ti.UI.FILL,
+				height: Ti.UI.FILL
+			});
+			win.add(imageView);
+			win.addEventListener('postlayout', function listener() {
+				try {
+					win.removeEventListener('postlayout', listener);
+					should(imageView.scalingMode).be.eql(scalingMode);
+				} catch (err) {
+					finish(err);
+				}
+				finish();
+			});
+			win.open();
+		}
+
+		it('IMAGE_SCALING_NONE', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_NONE, finish);
+		});
+
+		it('IMAGE_SCALING_FILL', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_FILL, finish);
+		});
+
+		it('IMAGE_SCALING_ASPECT_FILL', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_ASPECT_FILL, finish);
+		});
+
+		it('IMAGE_SCALING_ASPECT_FIT', function (finish) {
+			test(Ti.Media.IMAGE_SCALING_ASPECT_FIT, finish);
+		});
+	});
+
 	// TIMOB-18684
 	// FIXME Get working on iOS. Times out. never fires postlayout?
 	// FIXME Times out on Android build agent. likely postlayout never fires
@@ -336,47 +474,12 @@ describe('Titanium.UI.ImageView', function () {
 		win.open();
 	});
 
-	it.windowsBroken('.image (URL-redirect-autorotate)', function (finish) {
-		this.slow(8000);
-		this.timeout(10000);
-
-		win = Ti.UI.createWindow();
-		let imageView = Ti.UI.createImageView({
-			image: 'http://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Portrait_3.jpg',
-			autorotate: true
-		});
-		imageView.addEventListener('load', function () {
-			finish();
-		});
-		win.add(imageView);
-		win.open();
-	});
-
-	// On Android, paths are relative to JS file.
-	// On iOS and Windows, paths are relative to app's "Resources" directory.
-	// The below works on all platforms because this JS file is in the "Resources" directory.
-	it('.image (root-relative-path)', function (finish) {
-		this.slow(8000);
-		this.timeout(10000);
-
-		win = Ti.UI.createWindow();
-		let imageView = Ti.UI.createImageView({
-			autorotate: true
-		});
-		imageView.addEventListener('load', function () {
-			finish();
-		});
-		win.add(imageView);
-		imageView.image = 'Logo.png';
-		win.open();
-	});
-
 	it('should handle file URLs from applicationDataDirectory - TIMOB-18262', function (finish) {
-		var imageView = Ti.UI.createImageView({
+		const imageView = Ti.UI.createImageView({
 			top: 10
 		});
-		var icon = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
-		var dest = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'Logo.png');
+		const icon = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+		const dest = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'Logo.png');
 
 		should(icon.exists()).be.true();
 		dest.write(icon.read());
@@ -389,10 +492,10 @@ describe('Titanium.UI.ImageView', function () {
 		imageView.addEventListener('load', function (e) {
 			try {
 				should(e.state).eql('images'); // Windows doesn't set this property!
-				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		});
 
 		win = Ti.UI.createWindow({
@@ -406,7 +509,7 @@ describe('Titanium.UI.ImageView', function () {
 	});
 
 	it('should handle absolute-looking paths by resolving relative to resource dir', function (finish) {
-		var imageView = Ti.UI.createImageView({
+		const imageView = Ti.UI.createImageView({
 			top: 10
 		});
 
@@ -417,10 +520,10 @@ describe('Titanium.UI.ImageView', function () {
 		imageView.addEventListener('load', function (e) {
 			try {
 				should(e.state).eql('images'); // Windows doesn't set this property!
-				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		});
 
 		win = Ti.UI.createWindow({
@@ -431,40 +534,5 @@ describe('Titanium.UI.ImageView', function () {
 		win.open();
 
 		imageView.images = [ '/Logo.png' ];
-	});
-
-	it('Load Image from folder', function (finish) {
-		this.timeout(10000);
-
-		var loadCount = 0;
-		win = Ti.UI.createWindow();
-		let imageView = Ti.UI.createImageView({
-			image: 'Logo.png'
-		});
-		imageView.addEventListener('load', function () {
-			loadCount++;
-			if (loadCount > 1) {
-				finish();
-			} else {
-				imageView.image = '/image folder/Logo.png';
-			}
-		});
-		win.add(imageView);
-		win.open();
-	});
-
-	it('image error event', function (finish) {
-		win = Ti.UI.createWindow();
-
-		const img = Ti.UI.createImageView({
-			image: 'https://invalid.host.com/image.jpg'
-		});
-
-		img.addEventListener('error', () => {
-			finish();
-		});
-
-		win.add(img);
-		win.open();
 	});
 });

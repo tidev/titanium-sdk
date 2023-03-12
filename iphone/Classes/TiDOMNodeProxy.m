@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,7 @@
 #import "TiDOMValidator.h"
 #import <TitaniumKit/TiUtils.h>
 #include <libkern/OSAtomic.h>
-
+#import <os/lock.h>
 /*
  * The nodeRegistry is used to map xmlNodePtr objects to TiDOMNodeProxies
  * Ensures that there is only one active proxy for a give xmlNodePtr.
@@ -32,7 +32,7 @@
  * Values are removed when the proxies are freed
  */
 static CFMutableDictionaryRef nodeRegistry = NULL;
-OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
+os_unfair_lock nodeRegistryLock = OS_UNFAIR_LOCK_INIT;
 
 @implementation TiDOMNodeProxy
 @synthesize document, node;
@@ -62,11 +62,11 @@ OSSpinLock nodeRegistryLock = OS_SPINLOCK_INIT;
 + (id)nodeForXMLNode:(xmlNodePtr)nodePtr
 {
   id result = nil;
-  OSSpinLockLock(&nodeRegistryLock);
+  os_unfair_lock_lock(&nodeRegistryLock);
   if (nodeRegistry != NULL) {
     result = CFDictionaryGetValue(nodeRegistry, nodePtr);
   }
-  OSSpinLockUnlock(&nodeRegistryLock);
+  os_unfair_lock_unlock(&nodeRegistryLock);
   return result;
 }
 
@@ -85,7 +85,7 @@ CFHashCode simpleHash(const void *value)
   if ((node == nil) || (nodePtr == NULL)) {
     return;
   }
-  OSSpinLockLock(&nodeRegistryLock);
+  os_unfair_lock_lock(&nodeRegistryLock);
   if (nodeRegistry == NULL) {
     CFDictionaryKeyCallBacks keyCallbacks = kCFTypeDictionaryKeyCallBacks;
     CFDictionaryValueCallBacks callbacks = kCFTypeDictionaryValueCallBacks;
@@ -98,16 +98,16 @@ CFHashCode simpleHash(const void *value)
     nodeRegistry = CFDictionaryCreateMutable(nil, 0, &keyCallbacks, &callbacks);
   }
   CFDictionarySetValue(nodeRegistry, (void *)nodePtr, node);
-  OSSpinLockUnlock(&nodeRegistryLock);
+  os_unfair_lock_unlock(&nodeRegistryLock);
 }
 
 + (void)removeNodeForXMLNode:(xmlNodePtr)nodePtr
 {
-  OSSpinLockLock(&nodeRegistryLock);
+  os_unfair_lock_lock(&nodeRegistryLock);
   if (nodeRegistry == NULL)
     return;
   CFDictionaryRemoveValue(nodeRegistry, nodePtr);
-  OSSpinLockUnlock(&nodeRegistryLock);
+  os_unfair_lock_unlock(&nodeRegistryLock);
 }
 
 - (id)makeNodeListProxyFromArray:(NSArray *)nodes context:(id<TiEvaluator>)context

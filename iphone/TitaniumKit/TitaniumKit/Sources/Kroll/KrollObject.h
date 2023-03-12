@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -48,6 +48,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 + (id)toID:(KrollContext *)context value:(JSValueRef)ref;
 + (JSValueRef)toValue:(KrollContext *)context value:(id)obj;
 + (id)nonNull:(id)value;
++ (BOOL)isFinalizing;
 
 /**
  Checks if a property with the given name exists on our target.

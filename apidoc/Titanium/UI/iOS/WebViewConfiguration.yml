@@ -8,8 +8,8 @@ description: |
 
     See the example section "Usage of WebViewConfiguration with WebView in iOS".
 extends: Titanium.Proxy
-since: "8.0.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
 properties:
   - name: preferences
     summary: The preference settings to be used by the web view.
@@ -26,7 +26,6 @@ properties:
     summary: Determines which media types require a user gesture to begin playing.
     type: Number
     constants: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_*
-    osver: {ios: {min: "10.0"}}
     default: Titanium.UI.iOS.AUDIOVISUAL_MEDIA_TYPE_NONE
 
   - name: suppressesIncrementalRendering
@@ -63,13 +62,13 @@ properties:
         When a web view is initialized, either a new web content process is created for it from the 
         specified pool or an existing process in that pool is used.
     type: Titanium.UI.iOS.WebViewProcessPool
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 ---
 name: WebViewPreferencesObject
 summary: The parameter passed to the <Titanium.UI.iOS.WebViewConfiguration.preferences> method.
-platforms: [iphone, ipad]
-since: "8.0.0"
+platforms: [iphone, ipad, macos]
+since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
 properties:
   - name: minimumFontSize
     summary: The minimum font size in points.

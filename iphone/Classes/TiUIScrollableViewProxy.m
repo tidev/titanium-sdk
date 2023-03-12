@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -359,6 +359,20 @@
   }
 #endif
   [super willChangeLayout];
+}
+
+- (void)setIndicatorImageForPage:(id)args
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    DebugLog(@"[WARN] Supported on iOS 14.0+");
+    return;
+  }
+  ENSURE_ARRAY(args);
+  ENSURE_ARG_COUNT(args, 2);
+  ENSURE_TYPE(args[1], NSNumber)
+  UIImage *image = [TiUtils toImage:args[0] proxy:self];
+  NSInteger page = [args[1] integerValue];
+  [(TiUIScrollableView *)self.view setIndicatorImage:image forPage:page];
 }
 
 @end

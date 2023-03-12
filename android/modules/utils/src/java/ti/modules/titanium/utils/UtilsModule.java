@@ -1,16 +1,15 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.utils;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.util.TiDigestUtils;
@@ -30,12 +29,7 @@ public class UtilsModule extends KrollModule
 	private byte[] convertToBytes(Object obj)
 	{
 		if (obj instanceof String) {
-			try {
-				return ((String) obj).getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, "UTF-8 is not a supported encoding type");
-			}
-			return ((String) obj).getBytes(); // should never fall back here!
+			return ((String) obj).getBytes(StandardCharsets.UTF_8);
 		} else if (obj instanceof TiBlob) {
 			return ((TiBlob) obj).getBytes();
 		} else {
@@ -52,11 +46,7 @@ public class UtilsModule extends KrollModule
 		}
 		byte[] data = convertToBytes(obj);
 		if (data != null) {
-			try {
-				return TiBlob.blobFromString(new String(Base64.encode(data, Base64.NO_WRAP), "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				Log.e(TAG, "UTF-8 is not a supported encoding type");
-			}
+			return TiBlob.blobFromString(new String(Base64.encode(data, Base64.NO_WRAP), StandardCharsets.UTF_8));
 		}
 		return null;
 	}

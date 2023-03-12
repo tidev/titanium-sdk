@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,10 +18,36 @@
 
 @implementation TiUITextViewImpl
 
+@synthesize enableCopy;
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+{
+  // If copy support is disabled, then remove actions "copy", "cut", and "share" from context menu.
+  // Note: The "share" API is private. So, we remove it by accepting all other actions.
+  if (!enableCopy) {
+    if ((action != @selector(select:)) && (action != @selector(selectAll:)) && (action != @selector(paste:)) && (action != @selector(delete:))) {
+      return NO;
+    }
+  }
+  return [super canPerformAction:action withSender:sender];
+}
+
 - (void)setTouchHandler:(TiUIView *)handler
 {
   //Assign only. No retain
   touchHandler = handler;
+}
+
+- (NSComparisonResult)comparePosition:(UITextPosition *)position toPosition:(UITextPosition *)other
+{
+  NSComparisonResult result = NSOrderedAscending;
+  @try {
+    result = [super comparePosition:position toPosition:other];
+  }
+  @catch (NSException *ex) {
+    // Ignore exception that can occur on iOS 15 if "maxLength" trims text that was dragged-and-dropped.
+  }
+  return result;
 }
 
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
@@ -93,6 +119,7 @@
     [textViewImpl setTouchHandler:self];
     textViewImpl.delaysContentTouches = NO;
     textViewImpl.delegate = self;
+    textViewImpl.enableCopy = YES;
     textViewImpl.text = @"";
 
     [self addSubview:textViewImpl];
@@ -218,6 +245,11 @@
   [(UITextView *)[self textWidgetView] setEditable:_trulyEnabled];
 }
 
+- (void)setEnableCopy_:(id)value
+{
+  ((TiUITextViewImpl *)[self textWidgetView]).enableCopy = [TiUtils boolValue:value def:YES];
+}
+
 - (void)setScrollable_:(id)value
 {
   [(UITextView *)[self textWidgetView] setScrollEnabled:[TiUtils boolValue:value]];
@@ -305,7 +337,9 @@
 
 - (void)textViewDidChange:(UITextView *)tv
 {
-  [(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]];
+  NSNumber *textareaHeight = [NSNumber numberWithFloat:tv.contentSize.height];
+
+  [(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]:textareaHeight];
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)tv
@@ -356,7 +390,7 @@
     }
   }
 
-  return TRUE;
+  return YES;
 }
 
 - (void)setHandleLinks_:(id)args

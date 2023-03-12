@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,6 +17,8 @@ import android.service.quicksettings.Tile;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -349,15 +351,11 @@ public class AndroidModule extends KrollModule
 	public static final int URI_INTENT_SCHEME = Intent.URI_INTENT_SCHEME;
 
 	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_ACTIVITY = IntentProxy.TYPE_ACTIVITY;
-	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_SERVICE = IntentProxy.TYPE_SERVICE;
-	@Kroll.constant
-	public static final int PENDING_INTENT_FOR_BROADCAST = IntentProxy.TYPE_BROADCAST;
-	@Kroll.constant
-	public static final int PENDING_INTENT_MAX_VALUE = PENDING_INTENT_FOR_BROADCAST;
-	@Kroll.constant
 	public static final int FLAG_CANCEL_CURRENT = PendingIntent.FLAG_CANCEL_CURRENT;
+	@Kroll.constant
+	public static final int FLAG_IMMUTABLE = PendingIntent.FLAG_IMMUTABLE;
+	@Kroll.constant
+	public static final int FLAG_MUTABLE = PendingIntent.FLAG_MUTABLE;
 	@Kroll.constant
 	public static final int FLAG_NO_CREATE = PendingIntent.FLAG_NO_CREATE;
 	@Kroll.constant
@@ -541,9 +539,13 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION =
 		ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_MICROPHONE = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE;
+	@Kroll.constant
+	public static final int FOREGROUND_SERVICE_TYPE_CAMERA = ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA;
 
 	protected RProxy r;
-	private LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
+	private final LinkedList<BroadcastReceiverProxy> registeredBroadcastReceiverProxyList = new LinkedList<>();
 
 	private static final int REQUEST_CODE = 99;
 
@@ -613,7 +615,6 @@ public class AndroidModule extends KrollModule
 		return r;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getCurrentActivity()
 	{
@@ -624,7 +625,6 @@ public class AndroidModule extends KrollModule
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActivityProxy getRootActivity()
 	{
@@ -659,7 +659,7 @@ public class AndroidModule extends KrollModule
 	public boolean hasPermission(Object permissionObject)
 	{
 		if (Build.VERSION.SDK_INT >= 23) {
-			ArrayList<String> permissions = new ArrayList<String>();
+			ArrayList<String> permissions = new ArrayList<>();
 			if (permissionObject instanceof String) {
 				permissions.add((String) permissionObject);
 			} else if (permissionObject instanceof Object[]) {
@@ -680,40 +680,47 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void requestPermissions(Object permissionObject,
-								   @Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestPermissions(final Object permissionObject,
+								   @Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (Build.VERSION.SDK_INT >= 23) {
-			ArrayList<String> permissions = new ArrayList<String>();
-			if (permissionObject instanceof String) {
-				permissions.add((String) permissionObject);
-			} else if (permissionObject instanceof Object[]) {
-				for (Object permission : (Object[]) permissionObject) {
-					if (permission instanceof String) {
-						permissions.add((String) permission);
+		// TODO: Create a subclass of Promise that takes in KrollFunction callback and "this" KrollObject
+		// to fire the callback when we resolve/reject?
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (Build.VERSION.SDK_INT >= 23) {
+				List<String> permissions = new ArrayList<String>();
+				if (permissionObject instanceof String) {
+					permissions.add((String) permissionObject);
+				} else if (permissionObject instanceof Object[]) {
+					for (Object permission : (Object[]) permissionObject) {
+						if (permission instanceof String) {
+							permissions.add((String) permission);
+						}
 					}
 				}
-			}
-			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			ArrayList<String> filteredPermissions = new ArrayList<String>();
-			for (String permission : permissions) {
-				if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
-					continue;
+				Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+				List<String> filteredPermissions = new ArrayList<String>();
+				for (String permission : permissions) {
+					if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+						continue;
+					}
+					filteredPermissions.add(permission);
 				}
-				filteredPermissions.add(permission);
+				if (filteredPermissions.size() > 0) {
+					TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback,
+						callbackThisObject, promise);
+					currentActivity.requestPermissions(filteredPermissions.toArray(new String[0]), REQUEST_CODE);
+					return;
+				}
 			}
-			if (filteredPermissions.size() > 0) {
-				TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback, getKrollObject());
-				currentActivity.requestPermissions(filteredPermissions.toArray(new String[filteredPermissions.size()]),
-												   REQUEST_CODE);
-				return;
+			// FIXME: If we're not on API level 23+, shouldn't we reject/error?
+			KrollDict response = new KrollDict();
+			response.putCodeAndMessage(0, null);
+			if (permissionCallback != null) {
+				permissionCallback.callAsync(callbackThisObject, response);
 			}
-		}
-		KrollDict response = new KrollDict();
-		response.putCodeAndMessage(0, null);
-		if (permissionCallback != null) {
-			permissionCallback.callAsync(getKrollObject(), response);
-		}
+			promise.resolve(response);
+		});
 	}
 
 	@Kroll.method

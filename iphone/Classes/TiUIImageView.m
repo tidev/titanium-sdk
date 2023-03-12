@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -262,11 +262,15 @@ DEFINE_EXCEPTIONS
 
 - (UIViewContentMode)contentModeForImageView
 {
-  if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
-    return UIViewContentModeScaleAspectFit;
-  } else {
-    return UIViewContentModeScaleToFill;
+  int contentMode = [TiUtils intValue:[self.proxy valueForKey:@"scalingMode"] def:-1];
+  if (contentMode < 0) {
+    if (TiDimensionIsAuto(width) || TiDimensionIsAutoSize(width) || TiDimensionIsUndefined(width) || TiDimensionIsAuto(height) || TiDimensionIsAutoSize(height) || TiDimensionIsUndefined(height)) {
+      contentMode = UIViewContentModeScaleAspectFit;
+    } else {
+      contentMode = UIViewContentModeScaleToFill;
+    }
   }
+  return contentMode;
 }
 
 - (void)updateContentMode
@@ -291,6 +295,7 @@ DEFINE_EXCEPTIONS
     imageView = [[UIImageView alloc] initWithFrame:[self bounds]];
     [imageView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [imageView setContentMode:[self contentModeForImageView]];
+    imageView.clipsToBounds = YES;
     [self addSubview:imageView];
   }
   return imageView;
@@ -370,6 +375,7 @@ DEFINE_EXCEPTIONS
         newImageView.image = imageToUse;
         newImageView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         newImageView.contentMode = [self contentModeForImageView];
+        newImageView.clipsToBounds = YES;
 
         // remove the spinner now that we've loaded our image
         UIView *spinner = [[view subviews] count] > 0 ? [[view subviews] objectAtIndex:0] : nil;
@@ -481,7 +487,11 @@ DEFINE_EXCEPTIONS
       NSRange range = [pathStr rangeOfString:@".app"];
       NSString *imageArg = nil;
       if (range.location != NSNotFound) {
-        imageArg = [pathStr substringFromIndex:range.location + 5];
+        if ([TiUtils isMacOS]) {
+          imageArg = [pathStr substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+        } else {
+          imageArg = [pathStr substringFromIndex:range.location + 5];
+        }
       }
 
       //remove suffixes.
@@ -661,6 +671,11 @@ DEFINE_EXCEPTIONS
   [self updateContentMode];
 }
 
+- (void)setScalingMode_:(id)value
+{
+  [self updateContentMode];
+}
+
 - (void)setTintColor_:(id)value
 {
   ENSURE_TYPE_OR_NIL(value, NSObject);
@@ -687,10 +702,13 @@ DEFINE_EXCEPTIONS
 
   if (image == nil) {
     NSURL *imageURL = [[self proxy] sanitizeURL:arg];
+    // Try to fix the URL, e.g. if the encoding was missed
+    if ([imageURL isKindOfClass:[NSString class]]) {
+      imageURL = [[self proxy] sanitizeURL:[TiUtils encodeURIParameters:arg]];
+    }
     if (![imageURL isKindOfClass:[NSURL class]]) {
-      [self throwException:@"invalid image type"
-                 subreason:[NSString stringWithFormat:@"expected TiBlob, String, TiFile, was: %@", [arg class]]
-                  location:CODELOCATION];
+      NSLog(@"[ERROR] Invalid image type: Expected TiBlob, String (qualified URL) or TiFile, was: %@", [arg class]);
+      return;
     }
 
     [self loadUrl:imageURL];

@@ -4,13 +4,11 @@ summary: IOStream is the interface that all stream types implement.
 description: |
     See the <Titanium.Stream> module for related utility methods that support asynchronous
     I/O.
-since: "1.7"
+since: {android: "1.7", iphone: "1.7", ipad: "1.7", macos: "9.2.0"}
 extends: Titanium.Proxy
 createable: false
-platforms: [android, iphone, ipad]
-
+platforms: [android, iphone, ipad, macos]
 methods:
-
   - name: read
     summary: Reads data from this stream into a buffer.
     description: |

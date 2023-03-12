@@ -7,8 +7,8 @@ description: |
 
     You create a `TabbedBar` with the <Titanium.UI.iOS.createTabbedBar> factory method, or **`<TabbedBar>`** Alloy element.
 extends: Titanium.UI.View
-platforms: [iphone, ipad]
-since: "0.8"
+platforms: [iphone, ipad, macos]
+since: {iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
 excludes:
     events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick', 
         'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
@@ -17,6 +17,7 @@ excludes:
 deprecated:
     since: "8.0.0"
     notes: Use [Titanium.UI.TabbedBar](Titanium.UI.TabbedBar) instead.
+    removed: "10.0.0"
 
 events: 
   - name: click
@@ -123,6 +124,6 @@ properties:
     summary: A succint label associated with the bar item for the device's accessibility service.
     description: |
         See <Titanium.UI.View.accessibilityLabel> description.
-    since: "3.0.0"
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
     type: String

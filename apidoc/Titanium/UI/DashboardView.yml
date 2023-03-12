@@ -23,7 +23,7 @@ description: |
     orientation mode.
 extends: Titanium.UI.View
 since: "1.2"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 excludes:
     events: [longclick, touchcancel, touchend, touchmove, touchstart]
     methods: [getBackgroundDisabledColor, getBackgroundDisabledImage, getBackgroundFocusedColor,

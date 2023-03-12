@@ -23,4 +23,15 @@
   return JSObjectIsFunction(context, object);
 }
 
+- (void)defineReadOnlyProperty:(NSString *)propertyName withValue:(id)value
+{
+  [self defineProperty:propertyName
+            descriptor:@{
+              JSPropertyDescriptorEnumerableKey : @NO,
+              JSPropertyDescriptorWritableKey : @NO,
+              JSPropertyDescriptorConfigurableKey : @NO,
+              JSPropertyDescriptorValueKey : value
+            }];
+}
+
 @end

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,8 +22,7 @@ import android.app.Activity;
 @Kroll.module(name = "KrollModule")
 public class KrollModule extends KrollProxy implements KrollProxyListener, OnLifecycleEvent
 {
-
-	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<KrollModuleInfo>();
+	protected static ArrayList<KrollModuleInfo> customModuleInfoList = new ArrayList<>();
 
 	public static void addCustomModuleInfo(KrollModuleInfo customModuleInfo)
 	{
@@ -37,7 +36,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 
 	/**
 	 * Constructs a new KrollModule object.
-	 * @module.api
 	 */
 	public KrollModule()
 	{
@@ -48,7 +46,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	/**
 	 * Instantiates and registers module with TiApplication.
 	 * @param name the name of module.
-	 * @module.api
 	 */
 	public KrollModule(String name)
 	{
@@ -76,7 +73,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onResume(Activity activity)
 	{
@@ -85,7 +81,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onPause(Activity activity)
 	{
@@ -94,7 +89,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onDestroy(Activity activity)
 	{
@@ -103,7 +97,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onStart(Activity activity)
 	{
@@ -112,7 +105,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onStop(Activity activity)
 	{
@@ -125,7 +117,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	 * @param type the event type
 	 * @param count the count of event listeners for the event
 	 * @param proxy the proxy instance that the event listener was added to
-	 * @module.api
 	 */
 	public void listenerAdded(String type, int count, KrollProxy proxy)
 	{
@@ -138,7 +129,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	 * @param type the event type
 	 * @param count the count of event listeners for the event
 	 * @param proxy the proxy instance that the event listener was removed from
-	 * @module.api
 	 */
 	public void listenerRemoved(String type, int count, KrollProxy proxy)
 	{
@@ -147,7 +137,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	/**
 	 * Implementing classes can use this method to examine the properties passed into the proxy when it's first created.
 	 * @param properties  a set of properties to process.
-	 * @module.api
 	 */
 	public void processProperties(KrollDict properties)
 	{
@@ -159,7 +148,6 @@ public class KrollModule extends KrollProxy implements KrollProxyListener, OnLif
 	 * @param oldValue  the property's old value.
 	 * @param newValue  the property's new value.
 	 * @param proxy     the associated proxy.
-	 * @module.api
 	 */
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{

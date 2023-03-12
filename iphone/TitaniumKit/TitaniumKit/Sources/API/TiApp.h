@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -214,6 +214,11 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 - (void)showModalError:(NSString *)message;
 
 /**
+ Opens a modal view with detailed error information
+ */
+- (void)showDetailedModalError:(TiScriptError *)error;
+
+/**
  Tells application to display modal view controller.
  
  @param controller The view controller to display.
@@ -259,7 +264,7 @@ TI_INLINE void waitForMemoryPanicCleared() //WARNING: This must never be run on 
 /**
  Returns a dictionary containing the native notification information.
  */
-+ (NSDictionary *)dictionaryWithLocalNotification:(UILocalNotification *)notification withIdentifier:(NSString *)identifier;
++ (NSDictionary *)dictionaryWithLocalNotification:(id)notification withIdentifier:(NSString *)identifier;
 
 /**
  Tries to invoke a given selector with the given arguments. If the app did not finish launching so far, it will be queued

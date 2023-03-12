@@ -2,15 +2,15 @@
 name: Titanium.UI.TextArea
 summary: A multiline text field that supports editing and scrolling.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./textarea_android.png) | ![iOS](./textarea_ios.png) | ![Windows](./textarea_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./textarea_android.png) | ![iOS](./textarea_ios.png) |
 
     Use the <Titanium.UI.createTextArea> method or **&lt;TextArea&gt;** Alloy element to create a text area.
 
     #### `click` event in iOS
 
-    In iOS 11+, `click` event in text area is not fired due to changes from apple. 
+    In iOS 11+, `click` event in text area is not fired due to changes from apple.
     Use `touchstart` event instead of `click` event.
 
 extends: Titanium.UI.View
@@ -35,9 +35,8 @@ methods:
 
   - name: setSelection
     summary: Selects the text in range (start, end).
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: 3.0.0
-    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -53,23 +52,13 @@ methods:
           On iOS, soft keyboard would show when text is selected.
 
 properties:
-  - name: appearance
-    summary: Determines the appearance of the keyboard displayed when this text area is focused.
-    type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
-    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextArea.keyboardAppearance](Titanium.UI.TextArea.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this text area is focused.
     type: Number
     constants: Titanium.UI.KEYBOARD_APPEARANCE_*
     default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: attributedHintText
     summary: Hint text attributed string.
@@ -116,7 +105,7 @@ properties:
         }
         ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -165,7 +154,7 @@ properties:
         }
         ```
     type: Titanium.UI.AttributedString
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since:
         android: 3.6.0
         iphone: 3.2.0
@@ -176,7 +165,7 @@ properties:
     type: Number
     constants: Titanium.UI.TEXT_AUTOCAPITALIZATION_*
     default: <Titanium.UI.TEXT_AUTOCAPITALIZATION_NONE>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: autocorrect
     summary: Determines whether to automatically correct text entered into this text area.
@@ -187,7 +176,7 @@ properties:
 
         On Android and iOS, the returned default value is undefined, but behave as if the value is `true`.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: autofillType
     summary: Sets the autofill type for the text area.
@@ -197,8 +186,7 @@ properties:
     constants: Titanium.UI.AUTOFILL_TYPE_*
     default: undefined
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
 
   - name: autoLink
     summary: Automatically convert text to clickable links.
@@ -222,7 +210,16 @@ properties:
     constants: Titanium.UI.AUTOLINK_*
     default: <Titanium.UI.AUTOLINK_NONE>
     since: {android: "3.0.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+
+  - name: borderStyle
+    summary: Border style for the text area.
+    type: Number
+    constants: Titanium.UI.INPUT_BORDERSTYLE_*
+    default: <Titanium.UI.INPUT_BORDERSTYLE_FILLED>
+    availability: creation
+    platforms: [android]
+    since: 10.0.0
 
   - name: clearOnEdit
     summary: Determines whether the value of this text area should be cleared when it is focused.
@@ -246,6 +243,15 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
+
+  - name: enableCopy
+    summary: Determines if user can copy or cut text from the text area.
+    description: |
+        When set `false`, the "copy" and "cut" options will not appear in the context menu.
+        The `Command+C` and `Command+X` keyboard shortcuts will be ignored as well.
+    type: Boolean
+    default: true
+    since: "10.0.1"
 
   - name: enableReturnKey
     summary: |
@@ -299,15 +305,15 @@ properties:
     platforms: [android]
     since: 4.1.0
     description: |
-        Hint text color in Android is determined by the theme of the application. By default, the
-        theme is `Theme.AppCompat` which is a Dark theme. When you create the background to be white,
+        Hint text color in Android is determined by the theme of the application.
+        By default, a Titanium app uses a Dark theme. When you create the background to be white,
         the hint text color would also be white, hence not visible to the user. To change this, you can
-        edit the tiapp.xml file with another theme. Example as follows:
+        edit the "tiapp.xml" file with another theme. Example as follows:
 
         ``` xml
         <android xmlns:android="http://schemas.android.com/apk/res/android">
             <manifest>
-                <application android:theme="@style/Theme.AppCompat.Light"/>
+                <application android:theme="@style/Theme.MaterialComponents.Light.Bridge"/>
             </manifest>
         </android>
         ```
@@ -336,33 +342,32 @@ properties:
         this property controls if the system should handle that link automatically.
     type: Boolean
     default: false
-    platforms: [iphone,ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad, macos]
     since: 3.2.0
 
   - name: keyboardToolbar
     summary: |
-        Array of toolbar button objects or a [toolbar](Titanium.UI.iOS.Toolbar) to be used when the
+        Array of toolbar button objects or a [toolbar](Titanium.UI.Toolbar) to be used when the
         keyboard is displayed.
     description: |
         As of Release 2.0, because iOS disallows a view (including toolbar buttons) to be in two places at
         once, developers desiring textAreas or [textFields](Titanium.UI.TextField) to share a toolbar
-        can instead use a single [toolbar](Titanium.UI.iOS.Toolbar) instead of having arrays sharing
+        can instead use a single [toolbar](Titanium.UI.Toolbar) instead of having arrays sharing
         toolbar buttons.
-    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar, Titanium.UI.iOS.Toolbar]
-    platforms: [iphone, ipad]
+    type: [Array<Titanium.UI.View>, Titanium.UI.Toolbar]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardToolbarColor
     summary: Color of the keyboard toolbar if keyboardToolbar is an array, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: keyboardToolbarHeight
     summary: Height of the keyboard toolbar if keyboardToolbar is an array.
     type: Number
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: keyboardType
     summary: Keyboard type to display when this text area is focused.
@@ -372,7 +377,7 @@ properties:
     type: Number
     constants: Titanium.UI.KEYBOARD_*
     default: <Titanium.UI.KEYBOARD_DEFAULT>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: lines
     summary: Number of lines tall the text area height will be, if set.
@@ -390,7 +395,7 @@ properties:
     default: -1
     type: Number
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: maxLines
     summary: Maximum line count of text field input.
@@ -403,7 +408,7 @@ properties:
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
     type: Padding
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.0.0", iphone: "6.1.0", ipad: "6.1.0"}
 
   - name: returnKeyType
@@ -412,7 +417,7 @@ properties:
     type: Number
     constants: Titanium.UI.RETURNKEY_*
     default: <Titanium.UI.RETURNKEY_DEFAULT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: scrollsToTop
     summary: Controls whether the scroll-to-top gesture is effective.
@@ -424,21 +429,20 @@ properties:
         behaviour on. The remaining view will then respond to scroll-to-top gesture.
     type: Boolean
     default: true
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: 2.1.2
 
   - name: showUndoRedoActions
     summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above. This property can only be set upon creation.
     type: Boolean
     default: true
-    platforms: [ipad]
-    osver: {ios: {min: "9.0"}}
+    platforms: [ipad, macos]
     since: 5.0.0
 
   - name: suppressReturn
     summary: Determines if the return key should be suppressed during text entry.
     type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: textAlign
     summary: |
@@ -464,7 +468,7 @@ properties:
     summary: Determines whether this text area can be scrolled.
     type: Boolean
     default: true
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: selection
     summary: Returns the currently selected text of the text area.
@@ -476,7 +480,7 @@ properties:
         to the window.
     type: textAreaSelectedParams
     permission: read-only
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: "3.3.0"
 
   - name: verticalAlign
@@ -500,6 +504,11 @@ events:
       - name: value
         summary: New value of this text area.
         type: String
+      - name: contentHeight
+        summary: Content height value of this text area
+        type: Number
+        platforms: [iphone, ipad, macos]
+        since: {iphone: "11.0.0", ipad: "11.0.0", macos: "11.0.0"}
 
   - name: focus
     summary: Fired when this text area gains focus.
@@ -523,8 +532,7 @@ events:
       - name: bubbles
         summary: This is false. This event does not bubble.
         type: Boolean
-    platforms: [iphone,ipad]
-    osver: {ios: {min: "7.0"}}
+    platforms: [iphone,ipad, macos]
     since: 3.2.0
 
   - name: return
@@ -540,7 +548,7 @@ events:
       - name: range
         summary: Dictionary that describes the position and length of the selected text.
         type: textAreaSelectedParams
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 examples:
   - title: Basic Text Area with Customizations

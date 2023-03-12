@@ -2,8 +2,8 @@
 name: Titanium.App.iOS.BackgroundService
 summary: A service that runs when the application is placed in the background.
 extends: Titanium.Proxy
-platforms: [iphone,ipad]
-since: "1.5"
+platforms: [iphone, ipad, macos]
+since: {iphone: "1.5.0", ipad: "1.5.0", macos: "9.2.0"}
 createable: false
 properties:
   - name: url

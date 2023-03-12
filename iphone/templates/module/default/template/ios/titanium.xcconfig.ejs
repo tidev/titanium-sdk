@@ -9,6 +9,6 @@ TITANIUM_SDK_VERSION = <%- tisdkVersion %>
 //
 // THESE SHOULD BE OK GENERALLY AS-IS
 //
-TITANIUM_SDK = <%- tisdkPath %>
+TITANIUM_SDK = <%- tisdkPath.slice(0, tisdkPath.length - (tisdkVersion.length + 1)).replace(/^\/Users\/[^\/]+\//, '/Users/$(USER)/') %>/$(TITANIUM_SDK_VERSION)
 HEADER_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/include"
-FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks"
+FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"

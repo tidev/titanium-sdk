@@ -19,7 +19,7 @@ description: |
     below API's and example or refer to the [Apple Siri Shortcuts Docs](https://developer.apple.com/documentation/sirikit/donating_shortcuts?language=objc)
     for details.
 extends: Titanium.Proxy
-platforms: [iphone,ipad]
+platforms: [iphone, ipad, macos]
 since: "5.0.0"
 createable: true
 properties:
@@ -47,7 +47,6 @@ properties:
         </ti:app>
         ```
     type: String
-    osver: {ios: {min: "8.0"}}
 
   - name: eligibleForPublicIndexing
     summary: Set to `true` if the user activity can be publicly accessed by all iOS users.
@@ -57,20 +56,17 @@ properties:
         users if indexed.  You must also set either the `requiredUserActivityKeys` or `webpageURL` property.
     type: Boolean
     default: false
-    osver: {ios: {min: "9.0"}}
     availability: creation
 
   - name: eligibleForSearch
     summary: Set to true if the user activity should be added to the on-device index.
     type: Boolean
     default: false
-    osver: {ios: {min: "9.0"}}
     availability: creation
 
   - name: eligibleForHandoff
     summary: Set to true if this user activity should be eligible to be handed off to another device
     type: Boolean
-    osver: {ios: {min: "9.0"}}
     default: true
     availability: creation
 
@@ -82,7 +78,6 @@ properties:
         user activity current. To make the user activity current, call the becomeCurrent method of activity.
         For more information, see https://developer.apple.com/documentation/sirikit/donating_shortcuts?language=objc.    
     type: Boolean
-    osver: { ios: { min: "12.0" } }
     default: false
     since: "7.4.0"
     availability: creation
@@ -93,7 +88,6 @@ properties:
         Set this property to a unique value that identifies the user activity so you can later delete it with 
         Ti.App.iOS.UserActivity.deleteSavedUserActivitiesForPersistentIdentifiers method.
     type: String
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
     availability: creation
 
@@ -104,28 +98,23 @@ properties:
         For example, `2015-12-25T23:30:55.978+0000`
     type: String
     default: Determined by iOS
-    osver: {ios: {min: "9.0"}}
 
   - name: keywords
     summary: An array of string keywords representing words or phrases that might help the user to find the activity in the application history.
     type: Array<String>
-    osver: {ios: {min: "9.0"}}
 
   - name: needsSave
     summary: |
         Set to true everytime you have updated the user activity and need the changes to be saved before handing it off to another device.
     type: Boolean
-    osver: {ios: {min: "8.0"}}
 
   - name: requiredUserInfoKeys
     summary: An array of String keys from the userInfo property which represent the minimal information about the user activity that should be stored for later restoration.
     type: Array<String>
-    osver: {ios: {min: "9.0"}}
 
   - name: supported
     summary: Determines if user activities are supported (`true`) or not (`false`) by the device.
     type: Boolean
-    osver: {ios: {min: "8.0"}}
     deprecated:
         since: "5.1.0"
         notes: Use [Titanium.App.iOS.UserActivity.isSupported](Titanium.App.iOS.UserActivity.isSupported) instead.
@@ -133,12 +122,10 @@ properties:
   - name: title
     summary: An optional, user-visible title for this activity such as a document name or web page title.
     type: String
-    osver: {ios: {min: "8.0"}}
 
   - name: userInfo
     summary: The userInfo dictionary contains application-specific state needed to continue an activity on another device.
     type: Dictionary
-    osver: {ios: {min: "8.0"}}
 
   - name: webpageURL
     summary: |
@@ -147,8 +134,7 @@ properties:
     description: |
         Only supports the `http://` and `https://` protocols.  Any other protocol will throw an error.
     type: String
-    osver: {ios: {min: "8.0"}}
-    platforms: [iphone,ipad]
+
 methods:
   - name: addContentAttributeSet
     summary: |
@@ -157,36 +143,30 @@ methods:
       - name: contentAttributeSet
         summary: SearchableItemAttributeSet object that contains the set of properties you want to display for a searchable activity.
         type: Titanium.App.iOS.SearchableItemAttributeSet
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+
   - name: becomeCurrent
     summary: |
         Marks the activity as currently in use by the user.
     description: |
         For example, you should mark the activity associated with the active window as current.
         A newly created activity is eligible for continuation on another device after the first time it becomes current.
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "8.0"}}
+
   - name: invalidate
     summary: |
         Invalidates an activity when it is no longer eligible for continuation.
     description: |
         For example, when the window associated with an activity is closed, you should invalidate the activity.
         An invalid activity cannot become current.
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "8.0"}}
+
   - name: resignCurrent
     summary: |
         Marks the activity as currently **not** in use and ineligible to be continued.
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+
   - name: isSupported
     summary: Determines if user activities are supported (`true`) or not (`false`) by the device.
     returns:
         type: Boolean
         summary: Returns `true` if the device supports user activity.
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "8.0"}}
 
   - name: deleteSavedUserActivitiesForPersistentIdentifiers
     summary: |
@@ -199,8 +179,6 @@ methods:
       - name: persistentIdentifiers
         summary: Array of persistent identifiers of user activity.
         type: Array<String>
-    platforms: [iphone, ipad]
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
   - name: deleteAllSavedUserActivities
@@ -209,8 +187,6 @@ methods:
         The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deteting the 
         user activities. Listen and wait for this event to fired to ensure that the system deletes 
         the activities (or marks them for deletion).
-    platforms: [iphone, ipad]
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
 events:
@@ -227,22 +203,18 @@ events:
       - name: activityType
         summary: The activityType of the User Activity triggering the event.
         type: String
-        platforms: [iphone, ipad]
-
+    
       - name: title
         summary: The title of the User Activity if defined.
         type: String
-        platforms: [iphone, ipad]
 
       - name: webpageURL
         summary: The webpageURL of the User Activity if defined.
         type: String
-        platforms: [iphone, ipad]
 
       - name: userInfo
         summary: Dictionary object containing the userInfo data of the User Activity.
         type: Dictionary
-        platforms: [iphone, ipad]
     deprecated:
         since: "5.2.0"
         notes: Set the property `needsSave` to true everytime you update current activity state instead.
@@ -254,29 +226,23 @@ events:
       - name: activityType
         summary: The activityType of the User Activity triggering the event.
         type: String
-        platforms: [iphone, ipad]
 
       - name: title
         summary: The title of the User Activity if defined.
         type: String
-        platforms: [iphone, ipad]
 
       - name: webpageURL
         summary: The webpageURL of the User Activity if defined.
         type: String
-        platforms: [iphone, ipad]
 
       - name: userInfo
         summary: Dictionary object containing the userInfo data of the User Activity.
         type: Dictionary
-        platforms: [iphone, ipad]
 
   - name: useractivitydeleted
     summary: |
         Fired when the user activity get deleted using the <Titanium.App.iOS.UserActivity.deleteAllSavedUserActivities> or 
         <Titanium.App.iOS.UserActivity.deleteSavedUserActivitiesForPersistentIdentifiers> methods.
-    platforms: [iphone, ipad]
-    osver: { ios: { min: "12.0" } }
     since: "7.4.0"
 
 examples:

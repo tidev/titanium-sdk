@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,7 @@
 #import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -42,6 +43,14 @@ DEFINE_EXCEPTIONS
     controller.delegate = self;
     controller.moreNavigationController.delegate = self;
     [TiUtils configureController:controller withObject:self.proxy];
+#if IS_SDK_IOS_15
+    if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+      UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
+      [appearance configureWithDefaultBackground];
+      appearance.backgroundColor = UIColor.clearColor;
+      controller.tabBar.scrollEdgeAppearance = appearance;
+    }
+#endif
   }
   return controller;
 }
@@ -365,6 +374,21 @@ DEFINE_EXCEPTIONS
   UITabBar *tabBar = [controller tabBar];
   //A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
+#if IS_SDK_IOS_15
+  if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    // Update main tab bar's appearance.
+    tabBar.standardAppearance.backgroundColor = [color color];
+    tabBar.scrollEdgeAppearance.backgroundColor = [color color];
+
+    // We must also update each tab in case they override main tab bar's appearance.
+    id tabs = [[self proxy] valueForKey:@"tabs"];
+    if ([tabs isKindOfClass:[NSArray class]]) {
+      for (TiUITabProxy *tabProxy in (NSArray *)tabs) {
+        [tabProxy updateTabBarItem];
+      }
+    }
+  }
+#endif
 }
 
 - (void)setTabsTintColor_:(id)value
@@ -595,16 +619,27 @@ DEFINE_EXCEPTIONS
 
 - (void)open:(id)args
 {
-  UIView *view = [self tabController].view;
-  [view setFrame:[self bounds]];
-  [self addSubview:view];
+  TiThreadPerformOnMainThread(
+      ^{
+        [self.tabController willMoveToParentViewController:TiApp.controller.topPresentedController];
+
+        self.tabController.view.frame = self.bounds;
+        [self addSubview:self.tabController.view];
+
+        [TiApp.controller.topPresentedController addChildViewController:self.tabController];
+      },
+      NO);
 }
 
 - (void)close:(id)args
 {
   if (controller != nil) {
     controller.viewControllers = nil;
+    [controller willMoveToParentViewController:nil];
+    [controller.view removeFromSuperview];
+    [controller removeFromParentViewController];
   }
+
   RELEASE_TO_NIL(controller);
 }
 
@@ -619,7 +654,7 @@ DEFINE_EXCEPTIONS
     index = [tabArray indexOfObject:[(TiUITabProxy *)focusedTabProxy controller]];
   }
   return @{
-    @"tab" : focusedTabProxy,
+    @"tab" : NULL_IF_NIL(focusedTabProxy),
     @"index" : NUMINTEGER(index),
     @"previousIndex" : NUMINT(-1),
     @"previousTab" : [NSNull null]

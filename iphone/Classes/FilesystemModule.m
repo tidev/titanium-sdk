@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -83,6 +83,7 @@
     if (fileProxy != nil) {
       NSArray *payload = @[ [NSNumber numberWithInt:mode] ];
       TiStreamProxy *streamProxy = [fileProxy open:payload];
+      streamProxy.executionContext = self.executionContext; //TIMOB-28324 Should we pass this executionContext in open function of TiFilesystemFileProxy?
       if (streamProxy != nil) {
         return [self NativeToJSValue:streamProxy];
       }
@@ -109,7 +110,7 @@
   return TI_WRITE;
 }
 
-- (BOOL)isExternalStoragePresent
+- (bool)isExternalStoragePresent
 {
   //IOS treats the camera connection kit as just that, and does not allow
   //R/W access to it, which is just as well as it'd mess up cameras.
@@ -138,7 +139,13 @@ GETTER_IMPL(NSString *, applicationSupportDirectory, ApplicationSupportDirectory
 
 - (NSString *)applicationDataDirectory
 {
+#if TARGET_OS_MACCATALYST
+  NSString *home = NSHomeDirectory();
+  return [NSString stringWithFormat:@"%@/Documents/", fileURLify(home)];
+#else
+  // TODO: Unify these. Appending /Documents to the home directory appears to give the same path as below code for ios sim (probably also device)
   return [NSString stringWithFormat:@"%@/", fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
+#endif
 }
 GETTER_IMPL(NSString *, applicationDataDirectory, ApplicationDataDirectory);
 
@@ -186,7 +193,7 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
 
 - (TiFile *)getFileProxy:(NSString *)path
 {
-  if ([path hasSuffix:@".js"] || [path hasSuffix:@".json"]) {
+  if ([path hasSuffix:@".js"] || [path hasSuffix:@".json"] || [path hasSuffix:@".cjs"]) { // FIXME: Handle mjs?
     NSString *resourcesDir = [self resourcesDirectory];
     if ([path hasPrefix:resourcesDir] || [path hasPrefix:[resourcesDir stringByStandardizingPath]]) {
       NSURL *url = [NSURL fileURLWithPath:path];
@@ -209,7 +216,12 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
     if ([newpath hasPrefix:resourcesDir] || [newpath hasPrefix:[resourcesDir stringByStandardizingPath]]) {
       NSRange range = [newpath rangeOfString:@".app"];
       if (range.location != NSNotFound) {
-        NSString *imageArg = [newpath substringFromIndex:range.location + 5];
+        NSString *imageArg = nil;
+        if ([TiUtils isMacOS]) {
+          imageArg = [newpath substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+        } else {
+          imageArg = [newpath substringFromIndex:range.location + 5];
+        }
         //remove suffixes.
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];

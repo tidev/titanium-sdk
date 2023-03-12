@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -68,7 +68,7 @@ READWRITE_IMPL(NSString *, userAgent, UserAgent);
   ENSURE_INT_OR_NIL_FOR_KEY(byteOrder, arg, @"byteOrder", hasByteOrder);
 
   // Hack to get our KrollBridge
-  JSContext *objcJsContext = [JSContext currentContext];
+  JSContext *objcJsContext = JSContext.currentContext;
   JSGlobalContextRef contextRef = [objcJsContext JSGlobalContextRef];
   KrollContext *context = GetKrollContext(contextRef);
   KrollBridge *ourBridge = (KrollBridge *)[context delegate];

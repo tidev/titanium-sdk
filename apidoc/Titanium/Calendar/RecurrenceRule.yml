@@ -9,7 +9,7 @@ description: |
     for an event with a recurrence rule of type [RECURRENCEFREQUENCY_MONTHLY](Titanium.Calendar.RECURRENCEFREQUENCY_MONTHLY) only
     [daysOfTheWeek] will be used.
 extends: Titanium.Proxy
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
@@ -86,7 +86,7 @@ properties:
         on the second weekday and last weekday of every year.
     type: Array<Number>
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: end
     summary: End of a recurrence rule.
@@ -101,9 +101,8 @@ properties:
 ---
 name: daysOfTheWeekDictionary
 summary: Dictionary containing `daysOfWeek` and `week`.
-since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
-platforms: [iphone, ipad, android]
-
+since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
+platforms: [iphone, ipad, android, macos]
 properties:
   - name: daysOfWeek
     summary: The day of the week. Values are from 1 to 7, with Sunday being 1.
@@ -119,9 +118,8 @@ properties:
 ---
 name: recurrenceEndDictionary
 summary: Dictionary containing either `endDate` or `occurrenceCount` property.
-since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
-platforms: [iphone, ipad, android]
-
+since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
+platforms: [iphone, ipad, android, macos]
 properties:
   - name: endDate
     summary: End date of the recurrence end, or undefined if the recurrence end is count-based.

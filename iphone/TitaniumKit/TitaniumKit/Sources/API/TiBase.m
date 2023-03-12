@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -70,7 +70,7 @@ void TiLogMessage(NSString *str, ...)
 }
 
 NSString *const kTiASCIIEncoding = @"ascii";
-NSString *const kTiISOLatin1Encoding = @"ios-latin-1";
+NSString *const kTiISOLatin1Encoding = @"latin1";
 NSString *const kTiUTF8Encoding = @"utf8";
 NSString *const kTiUTF16Encoding = @"utf16";
 NSString *const kTiUTF16LEEncoding = @"utf16le";
@@ -91,7 +91,6 @@ NSString *const kTiPausedNotification = @"TiPaused";
 NSString *const kTiResumeNotification = @"TiResume";
 NSString *const kTiResumedNotification = @"TiResumed";
 NSString *const kTiErrorNotification = @"TiError";
-NSString *const kTiAnalyticsNotification = @"TiAnalytics";
 NSString *const kTiRemoteDeviceUUIDNotification = @"TiDeviceUUID";
 NSString *const kTiGestureShakeNotification = @"TiGestureShake";
 NSString *const kTiRemoteControlNotification = @"TiRemoteControl";

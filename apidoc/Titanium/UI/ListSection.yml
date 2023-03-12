@@ -6,7 +6,7 @@ description: |
 
     List sections are used to manipulate and organize list items contained within it. For examples 
     of using list sections, see the examples in <Titanium.UI.ListView> and <Titanium.UI.ListItem>.
-platforms: [android, ipad, iphone]
+platforms: [android, ipad, iphone, macos]
 since: '3.1.0'
 extends: Titanium.Proxy
 excludes:
@@ -28,7 +28,7 @@ properties:
         element (see Examples).
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: headerTitle
     summary: Title of this section header.
@@ -44,11 +44,25 @@ properties:
         element (see Examples).
     type: Titanium.UI.View
     since: 3.2.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: items
     summary: Items of this list section.
     type: Array<ListDataItem>
+
+  - name: itemCount
+    summary: Returns the item count of the section.
+    type: Number
+    since: 9.3.0
+    permission: read-only
+    platforms: [android, iphone, ipad]
+
+  - name: filteredItemCount
+    summary: Returns the item count of the section, also incorporating the search filter if active.
+    type: Number
+    since: 9.3.0
+    permission: read-only
+    platforms: [android]
 
 methods:
 

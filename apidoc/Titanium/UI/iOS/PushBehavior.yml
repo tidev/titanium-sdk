@@ -13,9 +13,8 @@ description: |
       3. Use the [addItem](Titanium.UI.iOS.PushBehavior.addItem) method to add items to the behavior.
       4. Add the behavior to an [Animator object](Titanium.UI.iOS.Animator).
 extends: Titanium.Proxy
-since: "3.2"
-platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+platforms: [iphone, ipad, macos]
+since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 properties:
   - name: active
     summary: State of the push behavior's force.

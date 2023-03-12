@@ -1,11 +1,11 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#import "ObjcProxy.h"
 @import JavaScriptCore;
+#import "ObjcModule.h"
 
 @protocol APIExports <JSExport>
 
@@ -74,7 +74,7 @@ JSExportAs(log,
 
 @end
 
-@interface APIModule : ObjcProxy <APIExports>
+@interface APIModule : ObjcModule <APIExports>
 /**
  Logs a new message with a given severity. Used internally by TiConsole.
 

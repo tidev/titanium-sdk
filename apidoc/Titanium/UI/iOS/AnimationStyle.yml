@@ -13,8 +13,8 @@ summary: |
       * [CROSS_DISSOLVE](Titanium.UI.iOS.AnimationStyle.CROSS_DISSOLVE)
       * [NONE](Titanium.UI.iOS.AnimationStyle.NONE)
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
-since: "5.4.0"
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 createable: false
 properties:
   - name: CURL_DOWN

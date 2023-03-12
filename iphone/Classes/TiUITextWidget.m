@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -58,7 +58,7 @@
     string = [string substringToIndex:maxLength];
   }
   [(id)[self textWidgetView] setText:string];
-  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string];
+  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string:nil];
 }
 
 - (void)setMaxLength_:(id)value
@@ -151,6 +151,7 @@
 - (void)setAutocorrect_:(id)value
 {
   [[self textWidgetView] setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
+  [[self textWidgetView] setSpellCheckingType:[TiUtils boolValue:value] ? UITextSpellCheckingTypeYes : UITextSpellCheckingTypeNo];
 }
 
 - (void)setAutofillType_:(id)value
@@ -164,19 +165,12 @@
   [[self textWidgetView] setSecureTextEntry:[TiUtils boolValue:value]];
 }
 
-#if IS_SDK_IOS_12
 - (void)setPasswordRules_:(NSString *)passwordRules
 {
   ENSURE_TYPE_OR_NIL(passwordRules, NSString);
 
-  if (![TiUtils isIOSVersionOrGreater:@"12.0"]) {
-    NSLog(@"[ERROR] The 'passwordRules' property is only available on iOS 12 and later.");
-    return;
-  }
-
   [[self textWidgetView] setPasswordRules:[UITextInputPasswordRules passwordRulesWithDescriptor:passwordRules]];
 }
-#endif
 
 #pragma mark Responder methods
 
@@ -247,14 +241,14 @@
   return nil;
 }
 
-- (void)setSelectionFrom:(id)start to:(id)end
+- (void)setSelectionFrom:(NSInteger)start to:(NSInteger)end
 {
   UIView<UITextInput> *textView = (UIView<UITextInput> *)[self textWidgetView];
   if ([textView conformsToProtocol:@protocol(UITextInput)]) {
     if ([textView becomeFirstResponder] || [textView isFirstResponder]) {
       UITextPosition *beginning = textView.beginningOfDocument;
-      UITextPosition *startPos = [textView positionFromPosition:beginning offset:[TiUtils intValue:start]];
-      UITextPosition *endPos = [textView positionFromPosition:beginning offset:[TiUtils intValue:end]];
+      UITextPosition *startPos = [textView positionFromPosition:beginning offset:start];
+      UITextPosition *endPos = [textView positionFromPosition:beginning offset:end];
       UITextRange *textRange;
       textRange = [textView textRangeFromPosition:startPos toPosition:endPos];
       [textView setSelectedTextRange:textRange];

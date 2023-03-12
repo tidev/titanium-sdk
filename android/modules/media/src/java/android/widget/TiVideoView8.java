@@ -16,8 +16,8 @@
 
 /**
  * Modifications copyright:
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -26,17 +26,14 @@
 
 package android.widget;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiPlatformHelper;
 
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.TiPlaybackListener;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -45,10 +42,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.net.Uri;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -72,7 +66,6 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	private int mScalingMode = MediaModule.VIDEO_SCALING_RESIZE_ASPECT;
 	// settable by the client
 	private Uri mUri;
-	@SuppressWarnings("unused")
 	private Map<String, String> mHeaders;
 	private int mDuration;
 
@@ -114,6 +107,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 								   // preparing
 	@SuppressWarnings("unused")
 	private int mStateWhenSuspended; // state before calling suspend()
+	private boolean autoHide = false;
 
 	// TITANIUM
 	private TiPlaybackListener mPlaybackListener;
@@ -190,7 +184,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				break;
 			case MediaModule.VIDEO_SCALING_ASPECT_FIT:
 				message = String.format(MESSAGE_FORMAT, "Ti.Media.VIDEO_SCALING_ASPECT_FIT",
-										"Ti.Media.VIDEO_SCALING_RESIZE_ASPECT_FIT");
+										"Ti.Media.VIDEO_SCALING_RESIZE_ASPECT");
 				break;
 			case MediaModule.VIDEO_SCALING_MODE_FILL:
 				message =
@@ -246,31 +240,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			}
 			constantDeprecationWarning(mScalingMode);
 		}
-		String model = Build.MODEL;
-		if (model != null && model.equals("SPH-P100")) {
-			Activity activity = (Activity) getContext();
-			Display d = activity.getWindowManager().getDefaultDisplay();
-			if (d != null) {
-				DisplayMetrics dm = new DisplayMetrics();
-				d.getMetrics(dm);
-				if (TiPlatformHelper.applicationLogicalDensity != dm.densityDpi) {
-					int maxScaledWidth = (int) Math.floor((d.getWidth() - 1) * TiPlatformHelper.applicationScaleFactor);
-					int maxScaledHeight =
-						(int) Math.floor((d.getHeight() - 1) * TiPlatformHelper.applicationScaleFactor);
-					if (width * TiPlatformHelper.applicationScaleFactor > maxScaledWidth) {
-						int oldWidth = width;
-						width = d.getWidth() - 1;
-						Log.d(TAG, "TOO WIDE: " + oldWidth + " changed to " + width, Log.DEBUG_MODE);
-					}
-					if (height * TiPlatformHelper.applicationScaleFactor > maxScaledHeight) {
-						int oldHeight = height;
-						height = d.getHeight() - 1;
-						Log.d(TAG, "TOO HIGH: " + oldHeight + " changed to " + height, Log.DEBUG_MODE);
-					}
-				}
-			}
-		}
-		Log.i(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
+		Log.d(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
 		setMeasuredDimension(width, height);
 	}
 
@@ -437,24 +407,11 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			// target state that was there before.
 			mCurrentState = STATE_PREPARING;
 			attachMediaController();
-		} catch (IOException ex) {
+		} catch (Throwable ex) {
 			Log.e(TAG, "Unable to open content: " + mUri, ex);
 			mCurrentState = STATE_ERROR;
 			mTargetState = STATE_ERROR;
 			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
-			return;
-		} catch (IllegalArgumentException ex) {
-			Log.e(TAG, "Unable to open content: " + mUri, ex);
-			mCurrentState = STATE_ERROR;
-			mTargetState = STATE_ERROR;
-			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
-			return;
-		} catch (IllegalStateException ex) {
-			Log.e(TAG, "Unable to open content: " + mUri, ex);
-			mCurrentState = STATE_ERROR;
-			mTargetState = STATE_ERROR;
-			mErrorListener.onError(mMediaPlayer, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0);
-			return;
 		}
 	}
 
@@ -536,6 +493,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					// so
 					// start the video here instead of in the callback.
 					if (mTargetState == STATE_PLAYING) {
+						if (autoHide) {
+							setAlpha(1);
+						}
 						start();
 						if (mMediaController != null) {
 							mMediaController.show();
@@ -558,7 +518,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	};
 
-	private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
+	private final MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
 		public void onCompletion(MediaPlayer mp)
 		{
 			mCurrentState = STATE_PLAYBACK_COMPLETED;
@@ -572,7 +532,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 		}
 	};
 
-	private MediaPlayer.OnErrorListener mErrorListener = new MediaPlayer.OnErrorListener() {
+	private final MediaPlayer.OnErrorListener mErrorListener = new MediaPlayer.OnErrorListener() {
 		public boolean onError(MediaPlayer mp, int framework_err, int impl_err)
 		{
 			Log.d(TAG, "Error: " + framework_err + "," + impl_err);
@@ -581,22 +541,17 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mMediaController != null) {
 				mMediaController.hide();
 			}
-			if (mp != null) {
-				mp.release();
-			}
 
 			/* If an error handler has been supplied, use it and finish. */
 			if (mOnErrorListener != null) {
-				if (mOnErrorListener.onError(mMediaPlayer, framework_err, impl_err)) {
-					return true;
-				}
+				mOnErrorListener.onError(mMediaPlayer, framework_err, impl_err);
 			}
 
 			return true;
 		}
 	};
 
-	private MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
+	private final MediaPlayer.OnBufferingUpdateListener mBufferingUpdateListener =
 		new MediaPlayer.OnBufferingUpdateListener() {
 			public void onBufferingUpdate(MediaPlayer mp, int percent)
 			{
@@ -685,6 +640,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mCurrentState != STATE_SUSPEND) {
 				release(true);
 			}
+			if (autoHide) {
+				setAlpha(0);
+			}
 		}
 	};
 
@@ -694,7 +652,6 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	public void release(boolean cleartargetstate)
 	{
 		if (mMediaPlayer != null) {
-			mMediaPlayer.reset();
 			mMediaPlayer.release();
 			mMediaPlayer = null;
 			mCurrentState = STATE_IDLE;
@@ -933,5 +890,13 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public void setAutoHide(boolean value)
+	{
+		if (value) {
+			setAlpha(0);
+		}
+		autoHide = value;
 	}
 }

@@ -4,14 +4,6 @@ summary: The top-level Android module.
 description: |
     The Android module allows the application to manage various Android components.
 
-    #### Drawer Layout
-
-    The drawer-layout components acts as a top-level container for window content that allows
-    for interactive "drawer" views to be pulled out from one or both vertical edges of the window.
-    It is represented by a `centerView` and optional `leftView` and `rightView` components that
-    can be swiped in and out with additional configuration and transitions. Learn more about
-    drawer-layouts in it's dedicated <Titanium.UI.Android.DrawerLayout> docs.
-
     #### Action Bar
 
     An action bar is a UI feature that identifies the application and user location, and
@@ -44,7 +36,7 @@ description: |
     mode changes.
 
     For more information about broadcasts, see the
-    [Android Broadcast Intents and Receivers guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Broadcast_Intents_and_Receivers)
+    [Android Broadcast Intents and Receivers guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/Android_API_Deep_Dives/Android_Broadcast_Intents_and_Receivers.html)
     and [Titanium.Android.BroadcastReceiver API reference](Titanium.Android.BroadcastReceiver).
 
     #### Intents
@@ -62,7 +54,7 @@ description: |
     can define intent filters to let Android know your application can handle those data types.
 
     For more information about intent filters, see the
-    [Android Intent Filters guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Intent_Filters).
+    [Android Intent Filters guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/Android_API_Deep_Dives/Android_Intent_Filters.html).
 
     #### Notifications
 
@@ -107,12 +99,18 @@ description: |
 
     Starting from Android 6.0 (API level 23), users need to grant certain permissions to apps while the
     app is running. You can read it more [here](https://developer.android.com/training/permissions/requesting.html).
+    Starting with Android 13 you have to use more granular media permissions. Check the [official documentation](https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions).
+    Make sure to add e.g. `<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>` to your tiapp.xml too.
 
     In Titanium SDK, to support this, we have the <Titanium.Android.requestPermissions> method. It is used to
     request any permission you may need. An example of using it is shown below:
 
     ``` js
     var permissions = [ 'android.permission.CAMERA', 'android.permission.READ_EXTERNAL_STORAGE', 'android.permission.WRITE_EXTERNAL_STORAGE' ];
+    if (Ti.Platform.versionMajor >= 13) {
+      // example for camera and image permission on Android 13
+      permissions = [ 'android.permission.CAMERA', 'android.permission.READ_MEDIA_IMAGES' ]
+    }
     Ti.Android.requestPermissions(permissions, function (e) {
         if (e.success) {
             Ti.API.info('SUCCESS');
@@ -121,11 +119,9 @@ description: |
         }
     });
     ```
-
 extends: Titanium.Module
 platforms: [android]
 since: "1.5"
-
 methods:
   - name: createIntentChooser
     summary: |
@@ -208,19 +204,6 @@ methods:
         summary: Options for the Service.
         type: ServiceIntentOptions
 
-  - name: createDrawerLayout
-    summary: Creates a [DrawerLayout](Titanium.UI.Android.DrawerLayout).
-    returns:
-        type: Titanium.UI.Android.DrawerLayout
-    parameters:
-      - name: parameters
-        summary: |
-            Properties to set on the new object, including any defined by
-            <Titanium.UI.Android.DrawerLayout>, except those marked not-creation or read-only.
-        type: Dictionary<Titanium.UI.Android.DrawerLayout>
-        optional: true
-    since: "6.2.0"
-
   - name: hasPermission
     summary: Returns `true` if the app has permission access.
     parameters:
@@ -254,9 +237,14 @@ methods:
             Since Titanium 6.1.0, the method will also accept a String. Any requests where permissions are already granted will yield a successful callback.
         type: [String, Array<String>]
       - name: callback
-        summary: Function to call upon user decision to grant access.
-        optional: true
+        summary: |
+            Function to call upon user decision to grant access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestPermissionAccessResult>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestPermissionAccessResult>
     since: "5.4.0"
 
   - name: isServiceRunning
@@ -1612,6 +1600,28 @@ properties:
     type: Number
     permission: read-only
 
+  - name: FLAG_IMMUTABLE
+    summary: Pending intent should be immutable.
+    description: |
+        Use with the <Titanium.Android.PendingIntent.flags> property.
+
+        See [PendingIntent.FLAG_IMMUTABLE in the Android API Reference](https://developer.android.com/reference/android/app/PendingIntent.html#FLAG_IMMUTABLE).
+    type: Number
+    permission: read-only
+    since: "10.1.0"
+    osver: {android: {min: "6.0"}}
+
+  - name: FLAG_MUTABLE
+    summary: Pending intent should be mutable.
+    description: |
+        Use with the <Titanium.Android.PendingIntent.flags> property.
+
+        See [PendingIntent.FLAG_MUTABLE in the Android API Reference](https://developer.android.com/reference/android/app/PendingIntent.html#FLAG_MUTABLE).
+    type: Number
+    permission: read-only
+    since: "10.1.0"
+    osver: {android: {min: "12.0"}}
+
   - name: FLAG_NO_CREATE
     summary: If the current intent does not exist, do not create it.
     description: |
@@ -1651,7 +1661,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_CALL
     summary: |
@@ -1664,7 +1673,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_EMAIL
     summary: Notification category indicating an asynchronous bulk message (email).
@@ -1675,7 +1683,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_ERROR
     summary: Notification category indicating an error in background operation or authentication status.
@@ -1686,7 +1693,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_EVENT
     summary: Notification category indicating a calendar event.
@@ -1697,7 +1703,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_MESSAGE
     summary: Notification category indicating an incoming direct message (SMS, instant message, etc.).
@@ -1708,7 +1713,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_PROGRESS
     summary: Notification category indicating the progress of a long-running background operation.
@@ -1719,7 +1723,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_PROMO
     summary: Notification category indicating a promotion or advertisement.
@@ -1730,7 +1733,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_RECOMMENDATION
     summary: Notification category indicating a specific, timely recommendation for a single thing.
@@ -1741,7 +1743,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_SERVICE
     summary: Notification category for a running background service.
@@ -1752,7 +1753,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_SOCIAL
     summary: Notification category for a social network or sharing update.
@@ -1763,7 +1763,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_STATUS
     summary: Notification category indicating ongoing information about device or contextual status.
@@ -1774,7 +1773,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: CATEGORY_TRANSPORT
     summary: Notification category indicating media transport control for playback.
@@ -1785,7 +1783,6 @@ properties:
     type: String
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: DEFAULT_ALL
     summary: |
@@ -1827,64 +1824,198 @@ properties:
     summary: |
         A special value indicates to use all types set in manifest file.
     description: |
-        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MANIFEST).
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MANIFEST)
+        documentation for more details.
     type: Number
     permission: read-only
     since: "8.3.0"
 
   - name: FOREGROUND_SERVICE_TYPE_NONE
-    summary: |
-        The default foreground service type if not been set in manifest file.
+    summary: The default foreground service type.
     description: |
-        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_NONE).
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_NONE)
+        documentation for more details.
     type: Number
     permission: read-only
     since: "8.3.0"
 
   - name: FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
     summary: |
-        Constant corresponding to mediaPlayback in the R.attr.foregroundServiceType attribute. Music, video, news or other media playback.
+        Allows music, video, news or other media playback while the app is in the background.
     description: |
-        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK).
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="mediaPlayback"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        documentation for more details.
     type: Number
     permission: read-only
     since: "8.3.0"
 
   - name: FOREGROUND_SERVICE_TYPE_PHONE_CALL
     summary: |
-        Constant corresponding to phoneCall in the R.attr.foregroundServiceType attribute. Ongoing phone call or video conference.
+        Allows ongoing phone call or video conferencing access while the app is in the background.
     description: |
-        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_PHONE_CALL).
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="phoneCall"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_PHONE_CALL)
+        documentation for more details.
     type: Number
     permission: read-only
     since: "8.3.0"
 
   - name: FOREGROUND_SERVICE_TYPE_LOCATION
     summary: |
-        Constant corresponding to location in the R.attr.foregroundServiceType attribute. GPS, map, navigation location update.
+        Allows accessing location from the GPS, map, etc. while the app is in the background.
     description: |
-        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_LOCATION).
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="location"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_LOCATION)
+        documentation for more details.
     type: Number
     permission: read-only
     since: "8.3.0"
 
   - name: FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
     summary: |
-        Constant corresponding to connectedDevice in the R.attr.foregroundServiceType attribute. Auto, bluetooth, TV or other devices connection, monitoring and interaction.
+        Allows connecting to Android Auto, bluetooth, TV or other devices while app is in the background.
     description: |
-        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE).
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="connectedDevice"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+        documentation for more details.
     type: Number
     permission: read-only
     since: "8.3.0"
 
   - name: FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
     summary: |
-        Constant corresponding to mediaProjection in the R.attr.foregroundServiceType attribute. Managing a media projection session, e.g for screen recording or taking screenshots.
+        Allows managing a media projection session for screen recording or taking screenshots
+        while app is in the background.
     description: |
-        See [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION in the Android API Reference](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION).
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="mediaProjection"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+        documentation for more details.
     type: Number
     permission: read-only
     since: "8.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_MICROPHONE
+    summary: Allows the microphone to be used while the app is in the background.
+    description: |
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="microphone"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_MICROPHONE)
+        documentation for more details.
+    type: Number
+    permission: read-only
+    since: "9.3.0"
+
+  - name: FOREGROUND_SERVICE_TYPE_CAMERA
+    summary: Allows the camera to be used while the app is in the background.
+    description: |
+        This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
+
+        To use this constant, you must also set your `<service/>` element to the
+        `foregroundServieType` attribute value as shown below.
+
+        ``` xml
+        <ti:app>
+            <android>
+                <services>
+                    <service url="<YourService.js>" android:foregroundServiceType="camera"/>
+                </services>
+            </android>
+        </ti:app>
+        ```
+
+        See Google's [ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA](https://developer.android.com/reference/android/content/pm/ServiceInfo.html#FOREGROUND_SERVICE_TYPE_CAMERA)
+        documentation for more details.
+    type: Number
+    permission: read-only
+    since: "9.3.0"
 
   - name: FLAG_AUTO_CANCEL
     summary: Cancel the notification when it is clicked by the user.
@@ -1953,7 +2084,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_HIGH
     summary: Use for high priority notifications like real-time chat messages.
@@ -1964,7 +2094,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_DEFAULT
     summary: Default priority if it does not fit into another priority category.
@@ -1975,7 +2104,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_LOW
     summary: Use for low priority notifications like software updates.
@@ -1986,7 +2114,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: PRIORITY_MIN
     summary: Use for expired events.
@@ -2000,7 +2127,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: VISIBILITY_PRIVATE
     summary: Shows basic information about the notification.
@@ -2013,7 +2139,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: VISIBILITY_PUBLIC
     summary: Shows the notification's full content on the lockscreen. This is the system default if visibility is left unspecified.
@@ -2024,7 +2149,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: VISIBILITY_SECRET
     summary: Shows the most minimal information of the notification on the lockscreen.
@@ -2035,7 +2159,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: TILE_STATE_UNAVAILABLE
     summary: QuickSettings tile is unavailble.
@@ -2121,14 +2244,13 @@ properties:
     permission: read-only
     since: "6.2.0"
 
-# Constants that should probably be removed
-
   - name: PENDING_INTENT_FOR_ACTIVITY
     summary: Not used.
     type: Number
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_FOR_BROADCAST
     summary: Not used.
@@ -2136,6 +2258,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_FOR_SERVICE
     summary: Not used.
@@ -2143,6 +2266,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
+        removed: "10.0.0"
 
   - name: PENDING_INTENT_MAX_VALUE
     summary: Not used.
@@ -2150,8 +2274,7 @@ properties:
     permission: read-only
     deprecated:
         since: "2.0.0"
-
-# end of deprecated constants
+        removed: "10.0.0"
 
   - name: R
     summary: Accessor for Android system resources.

@@ -9,11 +9,18 @@ const exec = require('child_process').exec; // eslint-disable-line security/dete
 const fs = require('fs-extra');
 const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
 const path = require('path');
+const plist = require('simple-plist');
+const { promisify } = require('util');
 
-const frameworkPattern = /([^/]+)\.framework$/;
+const parsePlist = promisify(plist.readFile);
+
+const frameworkPattern = /([^/]+)\.(xc)?framework$/;
 
 const FRAMEWORK_TYPE_STATIC = 'static';
 const FRAMEWORK_TYPE_DYNAMIC = 'dynamic';
+
+const MAC_CATALYST_PLATFORM_VARIANT = 'maccatalyst';
+const IOS_PLATFORM = 'ios';
 
 exports.cliVersion = '>=3.2.1';
 
@@ -54,10 +61,19 @@ class FrameworkManager {
 	initialize() {
 		this._cli.on('build.pre.compile', {
 			priority: 1200,
-			post: (builder, callback) => {
-				this._logger.trace('Starting third-party framework detection');
-				this._builder = builder;
-				this.detectFrameworks().then(callback, callback);
+			post: async (builder, callback) => {
+				try {
+					this._logger.trace('Starting third-party framework detection');
+					this._builder = builder;
+					await this.detectFrameworks();
+				} catch (err) {
+					if (this._cli.argv.platform === 'ios') {
+						this._logger.error(err.stack);
+					}
+					callback(err);
+					return;
+				}
+				callback();
 			}
 		});
 
@@ -69,54 +85,52 @@ class FrameworkManager {
 	/**
 	 * Detects all available frameworks.
 	 *
-	 * @return {Promise}
+	 * @return {Promise<void>}
 	 * @access private
 	 */
-	detectFrameworks() {
-		return this.findFrameworkPaths()
-			.then(frameworkPaths => {
-				if (frameworkPaths.length === 0) {
-					return Promise.resolve();
-				}
+	async detectFrameworks() {
+		const frameworkPaths = await this.findFrameworkPaths();
+		if (frameworkPaths.length === 0) {
+			return;
+		}
 
-				let incrementalDirectory = path.join(this._builder.projectDir, 'build', 'incremental');
-				let outputDirectory = path.join(this._builder.projectDir, 'build', 'inspectFrameworks');
-				let task = new InspectFrameworksTask({
-					name: 'ti:inspectFrameworks',
-					logger: this._logger,
-					incrementalDirectory: incrementalDirectory
-				});
-				task.outputDirectory = outputDirectory;
-				frameworkPaths.forEach(frameworkPath => {
-					task.addFrameworkPath(frameworkPath);
-				});
-				task.postTaskRun = () => {
-					this._frameworks = task.frameworks;
+		const incrementalDirectory = path.join(this._builder.projectDir, 'build', 'incremental');
+		const outputDirectory = path.join(this._builder.projectDir, 'build', 'inspectFrameworks');
+		const task = new InspectFrameworksTask({
+			name: 'ti:inspectFrameworks',
+			logger: this._logger,
+			incrementalDirectory
+		});
+		task.outputDirectory = outputDirectory;
+		frameworkPaths.forEach(frameworkPath => {
+			task.addFrameworkPath(frameworkPath);
+		});
+		task.postTaskRun = () => {
+			this._frameworks = task.frameworks;
 
-					// Convert the internal ES6 map to an object to avoid ES6 in the builder
-					let frameworkObject = {};
-					this._frameworks.forEach(frameworkInfo => {
-						frameworkObject[frameworkInfo.name] = {
-							name: frameworkInfo.name,
-							path: frameworkInfo.path,
-							type: frameworkInfo.type,
-							architectures: Array.from(frameworkInfo.architectures)
-						};
-					});
-					this._builder.frameworks = frameworkObject;
+			// Convert the internal ES6 map to an object to avoid ES6 in the builder
+			const frameworkObject = {};
+			this._frameworks.forEach(frameworkInfo => {
+				frameworkObject[frameworkInfo.name] = {
+					name: frameworkInfo.name,
+					path: frameworkInfo.path,
+					type: frameworkInfo.type,
+					architectures: Array.from(frameworkInfo.architectures)
 				};
-				return task.run();
 			});
+			this._builder.frameworks = frameworkObject;
+		};
+		return task.run();
 	}
 
 	/**
-	 * Finds any .framework directories inside the project and its modules.
+	 * Finds any .framework/.xcframework directories inside the project and its modules.
 	 *
-	 * @return {Promise} Promise resolving to array of available third-party framework directory paths
+	 * @return {Promise<string[]>} Promise resolving to array of available third-party framework directory paths
 	 * @access private
 	 */
-	findFrameworkPaths() {
-		let pathsToScan = [
+	async findFrameworkPaths() {
+		const pathsToScan = [
 			path.join(this._builder.projectDir, 'platform', 'ios'),
 			path.join(this._builder.projectDir, 'platform', 'iphone')
 		];
@@ -126,39 +140,37 @@ class FrameworkManager {
 			pathsToScan.push(path.join(module.modulePath, 'Resources'));
 		}
 
-		return Promise
-			.all(pathsToScan.map(pathToScan => this.scanPathForFrameworks(pathToScan)))
-			.then(results => results.filter(foundPath => foundPath).reduce((acc, value) => acc.concat(value), []));
+		const results = await Promise.all(pathsToScan.map(pathToScan => this.scanPathForFrameworks(pathToScan)));
+		return results.filter(foundPath => foundPath).reduce((acc, value) => acc.concat(value), []);
 	}
 
 	/**
-	 * Scans the given path for any .framework sub-directories.
+	 * Scans the given path for any .framework/.xcframework sub-directories.
 	 *
 	 * @param {String} frameworksPath - Path to scan for frameworks
-	 * @return {Promise}
+	 * @return {Promise<string[]>}
 	 * @access private
 	 */
-	scanPathForFrameworks(frameworksPath) {
-		return new Promise(resolve => {
-			fs.readdir(frameworksPath, (err, files) => {
-				if (err) {
-					// ignore non-existing directories
-					return resolve();
-				}
+	async scanPathForFrameworks(frameworksPath) {
+		let files = [];
+		try {
+			files = await fs.readdir(frameworksPath);
+		} catch (err) {
+			// ignore non-existing directories
+			return;
+		}
 
-				this._logger.trace(`Scanning ${frameworksPath.cyan} for frameworks`);
-				let foundFrameworkPaths = [];
-				for (const filename of files) {
-					let possibleFrameworkPath = path.join(frameworksPath, filename);
-					if (frameworkPattern.test(possibleFrameworkPath)) {
-						this._logger.trace(`  found ${path.relative(frameworksPath, possibleFrameworkPath)}`);
-						foundFrameworkPaths.push(possibleFrameworkPath);
-					}
-				}
+		this._logger.trace(`Scanning ${frameworksPath.cyan} for frameworks`);
+		const foundFrameworkPaths = [];
+		for (const filename of files) {
+			const possibleFrameworkPath = path.join(frameworksPath, filename);
+			if (frameworkPattern.test(possibleFrameworkPath)) {
+				this._logger.trace(`  found ${path.relative(frameworksPath, possibleFrameworkPath)}`);
+				foundFrameworkPaths.push(possibleFrameworkPath);
+			}
+		}
 
-				resolve(foundFrameworkPaths);
-			});
-		});
+		return foundFrameworkPaths;
 	}
 
 	/**
@@ -174,9 +186,11 @@ class FrameworkManager {
 			return callback();
 		}
 
-		let xcodeProject = hookData.args[0];
-		let frameworkIntegrator = new FrameworkIntegrator(xcodeProject, this._builder, this._logger);
-		for (let frameworkInfo of this._frameworks.values()) {
+		const xcodeProject = hookData.args[0];
+		const frameworkIntegrator = new FrameworkIntegrator(xcodeProject, this._builder, this._logger);
+		const frameworks = Array.from(this._frameworks.values())
+			.sort((a, b) => a.name.localeCompare(b.name));
+		for (const frameworkInfo of frameworks) {
 			this._logger.trace(`Integrating ${frameworkInfo.type} framework ${frameworkInfo.name.green} into Xcode project.`);
 			frameworkIntegrator.integrateFramework(frameworkInfo);
 		}
@@ -192,8 +206,11 @@ class FrameworkManager {
 	}
 
 	/**
-	 * Checks all found dyanmic frameworks if any of them include both device and
-	 * simulator architectures
+	 * Checks all found dynamic frameworks if any of them include both device and
+	 * simulator architectures.
+	 *
+	 * XCFramework packages are excluded from this as they consist of seperate binaries
+	 * for each arch instead of one fat binary.
 	 *
 	 * @return {Boolean} True if device and simulator archs were found, false otherwise
 	 */
@@ -202,7 +219,7 @@ class FrameworkManager {
 		let simulatorArchitectures = new Set([ 'i386', 'x86_64' ]);
 
 		for (let frameworkInfo of this._frameworks.values()) {
-			if (frameworkInfo.type !== FRAMEWORK_TYPE_DYNAMIC) {
+			if (frameworkInfo.type !== FRAMEWORK_TYPE_DYNAMIC || frameworkInfo.isBinaryFramework) {
 				continue;
 			}
 
@@ -287,10 +304,10 @@ class InspectFrameworksTask extends IncrementalFileTask {
 	}
 
 	/**
-	 * Adds a .framework folder so this task can inspect it to collect metadata
+	 * Adds a .framework/.xcframework folder so this task can inspect it to collect metadata
 	 * about the framework.
 	 *
-	 * @param {String} frameworkPath - Path to the .framework folder to inspect
+	 * @param {String} frameworkPath - Path to the .framework/,xcframework folder to inspect
 	 * @access public
 	 */
 	addFrameworkPath(frameworkPath) {
@@ -305,13 +322,13 @@ class InspectFrameworksTask extends IncrementalFileTask {
 	/**
 	 * Does a full task run by inspecting all available framework paths
 	 *
-	 * @return {Promise}
+	 * @return {Promise<void>}
 	 * @access private
 	 */
-	doFullTaskRun() {
+	async doFullTaskRun() {
 		this._frameworks = new Map();
-		return this.inspectFrameworks(this._frameworkPaths)
-			.then(() => this.writeFrameworkMetadata());
+		await this.inspectFrameworks(this._frameworkPaths);
+		return this.writeFrameworkMetadata();
 	}
 
 	/**
@@ -319,11 +336,11 @@ class InspectFrameworksTask extends IncrementalFileTask {
 	 * and removing deleted frameworks from the metadata object
 	 *
 	 * @param {Map.<String, String>} changedFiles - Map of changed files and their status (created, changed or deleted)
-	 * @return {Promise}
+	 * @return {Promise<void>}
 	 * @access private
 	 */
-	doIncrementalTaskRun(changedFiles) {
-		let loaded = this.loadFrameworkMetadata();
+	async doIncrementalTaskRun(changedFiles) {
+		const loaded = await this.loadFrameworkMetadata();
 		if (!loaded) {
 			return this.doFullTaskRun();
 		}
@@ -343,10 +360,11 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			}
 		});
 
-		let changedFrameworks = new Set();
+		const changedFrameworks = new Set();
 		changedFiles.forEach((fileStatus, pathAndFilename) => {
 			if (fileStatus === 'created' || fileStatus === 'changed') {
-				let frameworkPath = pathAndFilename.substring(0, pathAndFilename.indexOf('.framework') + 10);
+				const packageExtension = pathAndFilename.includes('.xcframework') ? '.xcframework' : '.framework';
+				const frameworkPath = pathAndFilename.substring(0, pathAndFilename.indexOf(packageExtension) + packageExtension.length);
 				if (!changedFrameworks.has(frameworkPath)) {
 					this.logger.trace(`Framework at ${frameworkPath} changed, regenerating metadata`);
 					changedFrameworks.add(frameworkPath);
@@ -354,40 +372,35 @@ class InspectFrameworksTask extends IncrementalFileTask {
 			}
 		});
 
-		return this.inspectFrameworks(changedFrameworks)
-			.then(() => this.writeFrameworkMetadata());
+		await this.inspectFrameworks(changedFrameworks);
+		return this.writeFrameworkMetadata();
 	}
 
 	/**
+	 * @return {Promise<void>}
 	 * @inheritdoc
 	 */
-	loadResultAndSkip() {
-		let loaded = this.loadFrameworkMetadata();
+	async loadResultAndSkip() {
+		const loaded = await this.loadFrameworkMetadata();
 		if (!loaded) {
 			return this.doFullTaskRun();
 		}
-
-		return Promise.resolve();
 	}
 
 	/**
 	 * Loads stored metadata from disk and recreates the {@link FrameworkInfo}
 	 * objects.
 	 *
-	 * @return {Boolean} True if the metadata was sucessfully loaded, false if not
+	 * @return {Promise<Boolean>} True if the metadata was sucessfully loaded, false if not
 	 * @access private
 	 */
-	loadFrameworkMetadata() {
+	async loadFrameworkMetadata() {
 		try {
-			let metadata = JSON.parse(fs.readFileSync(this._metadataPathAndFilename));
+			const metadata = await fs.readJSON(this._metadataPathAndFilename);
 			for (const frameworkPath of Object.keys(metadata)) {
-				let frameworkMetadata = metadata[frameworkPath];
-				this._frameworks.set(frameworkMetadata.name, new FrameworkInfo(
-					frameworkMetadata.name,
-					frameworkMetadata.path,
-					frameworkMetadata.type,
-					new Set(frameworkMetadata.architectures)
-				));
+				const frameworkMetadata = metadata[frameworkPath];
+				frameworkMetadata.architectures = new Set(frameworkMetadata.architectures);
+				this._frameworks.set(frameworkMetadata.name, new FrameworkInfo(frameworkMetadata));
 			}
 			return true;
 		} catch (e) {
@@ -398,10 +411,11 @@ class InspectFrameworksTask extends IncrementalFileTask {
 	/**
 	 * Saves the internal matadata object to disk for reuse on subsequent builds.
 	 *
+	 * @return {Promise<void>}
 	 * @access private
 	 */
-	writeFrameworkMetadata() {
-		let metadataObject = {};
+	async writeFrameworkMetadata() {
+		const metadataObject = {};
 		for (const frameworkInfo of this._frameworks.values()) {
 			metadataObject[frameworkInfo.path] = {
 				name: frameworkInfo.name,
@@ -410,8 +424,8 @@ class InspectFrameworksTask extends IncrementalFileTask {
 				architectures: Array.from(frameworkInfo.architectures)
 			};
 		}
-		fs.ensureDirSync(this._outputDirectory);
-		fs.writeFileSync(this._metadataPathAndFilename, JSON.stringify(metadataObject));
+		await fs.ensureDir(this._outputDirectory);
+		return fs.writeJSON(this._metadataPathAndFilename, metadataObject);
 	}
 
 	/**
@@ -422,12 +436,16 @@ class InspectFrameworksTask extends IncrementalFileTask {
 	 * @access private
 	 */
 	inspectFrameworks(frameworkPaths) {
-		let metadataPromises = [];
-		let frameworkInspector = new FrameworkInspector(this._logger);
-		for (let frameworkPath of frameworkPaths) {
-			let metadataPromise = frameworkInspector.inspect(frameworkPath).then(frameworkInfo => {
+		const metadataPromises = [];
+		const frameworkInspector = new FrameworkInspector(this._logger);
+		for (const frameworkPath of frameworkPaths) {
+			const metadataPromise = frameworkInspector.inspect(frameworkPath).then(frameworkInfo => {
 				if (this._frameworks.has(frameworkInfo.name)) {
-					let existingFrameworkInfo = this._frameworks.get(frameworkInfo.name);
+					const existingFrameworkInfo = this._frameworks.get(frameworkInfo.name);
+					if (existingFrameworkInfo.path === frameworkInfo.path) {
+						this._frameworks.set(frameworkInfo.name, frameworkInfo);
+						return;
+					}
 
 					this.logger.error(`Duplicate framework ${frameworkInfo.name} detected at these paths:`);
 					this.logger.error('');
@@ -439,6 +457,8 @@ class InspectFrameworksTask extends IncrementalFileTask {
 					throw new Error(`Duplicate framework ${frameworkInfo.name} detected.`);
 				}
 				this._frameworks.set(frameworkInfo.name, frameworkInfo);
+
+				return;
 			});
 			metadataPromises.push(metadataPromise);
 		}
@@ -510,12 +530,17 @@ class FrameworkIntegrator {
 	 * @access public
 	 */
 	integrateFramework(frameworkInfo) {
-		let fileRefUuid = this.addFrameworkFileReference(frameworkInfo);
+		const fileRefUuid = this.addFrameworkFileReference(frameworkInfo);
 		this.addLinkFrameworkBuildPhase(frameworkInfo, fileRefUuid);
 		if (frameworkInfo.type === FRAMEWORK_TYPE_DYNAMIC) {
 			this.addEmbedFrameworkBuildPhase(frameworkInfo, fileRefUuid);
 		}
-		this.addFrameworkSearchPath(path.dirname(frameworkInfo.path));
+		// Xcode has a special build phase step that handles XCFrameworks and
+		// extracts the correct .framework for an architecture. This works without
+		// consulting FRAMEWORK_SEARCH_PATHS so we don't need to modify it.
+		if (!frameworkInfo.isBinaryFramework) {
+			this.addFrameworkSearchPath(frameworkInfo.searchPath);
+		}
 	}
 
 	/**
@@ -526,11 +551,11 @@ class FrameworkIntegrator {
 	 * @access private
 	 */
 	addFrameworkFileReference(frameworkInfo) {
-		let frameworkPackageName = frameworkInfo.name + '.framework';
-		let fileRefUuid = this._builder.generateXcodeUuid();
+		const frameworkPackageName = frameworkInfo.packageName;
+		const fileRefUuid = this._builder.generateXcodeUuid();
 		this._xobjs.PBXFileReference[fileRefUuid] = {
 			isa: 'PBXFileReference',
-			lastKnownFileType: 'wrapper.framework',
+			lastKnownFileType: frameworkInfo.wrapperName,
 			name: `"${frameworkPackageName}"`,
 			path: `"${frameworkInfo.path}"`,
 			sourceTree: '"<absolute>"'
@@ -552,13 +577,17 @@ class FrameworkIntegrator {
 	 * @access private
 	 */
 	addLinkFrameworkBuildPhase(frameworkInfo, fileRefUuid) {
-		let frameworkPackageName = frameworkInfo.name + '.framework';
-		var buildFileUuid = this._builder.generateXcodeUuid();
-		this._xobjs.PBXBuildFile[buildFileUuid] = {
+		const frameworkPackageName = frameworkInfo.packageName;
+		const buildFileUuid = this._builder.generateXcodeUuid();
+		const buildFile = {
 			isa: 'PBXBuildFile',
 			fileRef: fileRefUuid,
 			fileRef_comment: frameworkPackageName
 		};
+		if (frameworkInfo.platformFilter) {
+			buildFile.platformFilter = frameworkInfo.platformFilter;
+		}
+		this._xobjs.PBXBuildFile[buildFileUuid] = buildFile;
 		this._xobjs.PBXBuildFile[buildFileUuid + '_comment'] = frameworkPackageName + ' in Frameworks';
 		this._frameworksBuildPhase.files.push({
 			value: buildFileUuid,
@@ -567,21 +596,25 @@ class FrameworkIntegrator {
 	}
 
 	/**
-	 * Adds the frameworks to the project's embedd frameworks build phase
+	 * Adds the frameworks to the project's embed frameworks build phase
 	 *
 	 * @param {FrameworkInfo} frameworkInfo - Framework metadata
 	 * @param {String} fileRefUuid - Uuid of the frameworks file reference inside the Xcode project
 	 * @access private
 	 */
 	addEmbedFrameworkBuildPhase(frameworkInfo, fileRefUuid) {
-		let frameworkPackageName = frameworkInfo.name + '.framework';
-		let embeddedBuildFileUuid = this._builder.generateXcodeUuid();
-		this._xobjs.PBXBuildFile[embeddedBuildFileUuid] = {
+		const frameworkPackageName = frameworkInfo.packageName;
+		const embeddedBuildFileUuid = this._builder.generateXcodeUuid();
+		const buildFile = {
 			isa: 'PBXBuildFile',
 			fileRef: fileRefUuid,
 			fileRef_comment: frameworkPackageName,
 			settings: { ATTRIBUTES: [ 'CodeSignOnCopy', 'RemoveHeadersOnCopy' ] }
 		};
+		if (frameworkInfo.platformFilter) {
+			buildFile.platformFilter = frameworkInfo.platformFilter;
+		}
+		this._xobjs.PBXBuildFile[embeddedBuildFileUuid] = buildFile;
 		this._xobjs.PBXBuildFile[embeddedBuildFileUuid + '_comment'] = frameworkPackageName + ' in Embed Frameworks';
 
 		let embedFrameworksBuildPhase = null;
@@ -592,7 +625,7 @@ class FrameworkIntegrator {
 			}
 		}
 		if (embedFrameworksBuildPhase === null) {
-			let embedFrameworksBuildPhaseUuid = this._builder.generateXcodeUuid();
+			const embedFrameworksBuildPhaseUuid = this._builder.generateXcodeUuid();
 			embedFrameworksBuildPhase = {
 				isa: 'PBXCopyFilesBuildPhase',
 				buildActionMask: 2147483647,
@@ -620,7 +653,7 @@ class FrameworkIntegrator {
 	 * @access private
 	 */
 	addFrameworkSearchPath(frameworkSearchPath) {
-		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
+		const buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
 		for (let buildConf of buildConfigurations) {
 			let frameworkSearchPaths = this._frameworkSearchPaths.get(buildConf.value);
 			if (frameworkSearchPaths.has(frameworkSearchPath)) {
@@ -642,17 +675,16 @@ class FrameworkIntegrator {
 	 */
 	adjustRunpathSearchPath() {
 		const dynamicFrameworksSearchPath = '@executable_path/Frameworks';
-		let buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
-		for (let buildConf of buildConfigurations) {
-			let buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-			let searchPaths = (buildSettings.LD_RUNPATH_SEARCH_PATHS || '').replace(/^"/, '').replace(/"$/, '');
+		const buildConfigurations = this._xobjs.XCConfigurationList[this._mainTarget.buildConfigurationList].buildConfigurations;
+		for (const buildConf of buildConfigurations) {
+			const buildSettings = this._xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
+			let searchPaths = buildSettings.LD_RUNPATH_SEARCH_PATHS;
 			if (searchPaths.indexOf('$(inherited)') === -1) {
 				searchPaths += ' $(inherited)';
 			}
 			if (searchPaths.indexOf(dynamicFrameworksSearchPath) === -1) {
 				searchPaths += ` ${dynamicFrameworksSearchPath}`;
 			}
-			buildSettings.LD_RUNPATH_SEARCH_PATHS = '"' + searchPaths.trim() + '"';
 		}
 	}
 
@@ -727,20 +759,68 @@ class FrameworkInspector {
 	 * Inspects the framework under the given path and returns a new {@link FrameworkInfo}
 	 * instance for it.
 	 *
-	 * @param {String} frameworkPath - Path to the framwork to inspect
-	 * @return {Promise}
+	 * @param {String} frameworkPath - Path to the framework to inspect
+	 * @return {Promise<FrameworkInfo>}
 	 * @access public
 	 */
-	inspect(frameworkPath) {
-		let frameworkMatch = frameworkPath.match(frameworkPattern);
-		let frameworkName = frameworkMatch[1];
-		let binaryPathAndFilename = path.join(frameworkPath, frameworkName);
-		return this.detectBinaryTypeAndArchitectures(binaryPathAndFilename).then((result) => {
-			let frameworkInfo = new FrameworkInfo(frameworkName, frameworkPath, result.type, result.architectures);
-			let archs = Array.from(frameworkInfo.architectures.values()).join(', ');
-			this._logger.debug(`Found framework ${frameworkName.green} (type: ${result.type}, archs: ${archs}) at ${frameworkPath.cyan}`);
-			return frameworkInfo;
-		});
+	async inspect(frameworkPath) {
+		const packageExtension = path.extname(frameworkPath);
+		const frameworkName = path.basename(frameworkPath, packageExtension);
+		let frameworkInfo;
+		let type;
+		const meta = { name: frameworkName, path: frameworkPath };
+		if (packageExtension === '.framework') {
+			const binaryPathAndFilename = path.join(frameworkPath, frameworkName);
+			const result = await this.detectBinaryTypeAndArchitectures(binaryPathAndFilename);
+			meta.type = type = result.type;
+			meta.architectures = result.architectures;
+			frameworkInfo = new FrameworkInfo(meta);
+		} else {
+			const archs = new Set(); // FIXME: Bare architectures don't make sense, they ened to be combined with platform variant now!
+			const supportedPlatforms = new Set();
+			const xcFrameworkInfo = await parsePlist(path.join(frameworkPath, 'Info.plist'));
+			for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+				if (!type) {
+					let libraryPath = path.join(frameworkPath, libInfo.LibraryIdentifier, libInfo.LibraryPath);
+					if (libraryPath.endsWith('.framework')) {
+						libraryPath = path.join(libraryPath, frameworkName);
+					}
+					if (await fs.pathExists(libraryPath)) {
+						const result = await this.detectBinaryTypeAndArchitectures(libraryPath);
+						type = result.type;
+					} else {
+						this._logger.warn(`Unable to find framework binary at path ${libraryPath} to detect architectures and dynamic/static.`);
+					}
+				}
+
+				if (libInfo.SupportedPlatformVariant === MAC_CATALYST_PLATFORM_VARIANT) {
+					supportedPlatforms.add(MAC_CATALYST_PLATFORM_VARIANT);
+				} else {
+					// ios device and sim
+					libInfo.SupportedArchitectures.forEach(a => archs.add(a));
+					supportedPlatforms.add(libInfo.SupportedPlatform); // should always be 'ios'
+				}
+
+				// Ensure that each Headers directory contains a file to keep it around in source control
+				if (libInfo.HeadersPath) {
+					const headersDirectory = path.join(frameworkPath, libInfo.LibraryIdentifier, libInfo.HeadersPath);
+
+					if (!await fs.pathExists(headersDirectory)) {
+						this._logger.debug(`Creating ${headersDirectory} and writing .keep file to it`);
+						await fs.mkdir(headersDirectory);
+						await fs.writeFile(path.join(headersDirectory, `.${frameworkName}-keep`), 'This file is to ensure the Headers directory gets checked into source control');
+					}
+				}
+			}
+			meta.type = type;
+			meta.architectures = archs;
+			meta.supportedPlatforms = supportedPlatforms;
+			frameworkInfo = new FrameworkInfo(meta);
+		}
+		const archs = Array.from(frameworkInfo.architectures.values()).join(', ');
+		this._logger.debug(`Found framework ${frameworkName.green} (type: ${type}, archs: ${archs}) at ${frameworkPath.cyan}`);
+
+		return frameworkInfo;
 	}
 
 	/**
@@ -748,7 +828,7 @@ class FrameworkInspector {
 	 * architectures.
 	 *
 	 * @param {String} binaryPathAndFilename - Path to a framwork's binary
-	 * @return {Promise}
+	 * @return {Promise<object>}
 	 * @access private
 	 */
 	detectBinaryTypeAndArchitectures(binaryPathAndFilename) {
@@ -758,8 +838,8 @@ class FrameworkInspector {
 					return reject(error);
 				}
 
-				let architectures = new Set();
-				let architecturePattern = /architecture (\w+)/g;
+				const architectures = new Set();
+				const architecturePattern = /architecture (\w+)/g;
 				let architectureMatch = architecturePattern.exec(stdout);
 				while (architectureMatch !== null) {
 					architectures.add(architectureMatch[1]);
@@ -783,6 +863,15 @@ class FrameworkInspector {
 }
 
 /**
+ * @typedef FrameworkMetadata
+ * @property {Object} name Framework metadata
+ * @property {String} path Path to the framework
+ * @property {String} type Framework's binary type (static or dynamic)
+ * @property {Set<string>} architectures Set of supported architectures
+ * @property {Set<string>} [supportedPlatforms] Set of supported platforms
+ */
+
+/**
  * Holds information about a framwork.
  */
 class FrameworkInfo {
@@ -790,67 +879,106 @@ class FrameworkInfo {
 	/**
 	 * Constructs a new framework info container
 	 *
-	 * @param {String} name - Framework name
-	 * @param {String} path - Path to the framework
-	 * @param {String} type - Framwork's binary type (static or dynamic)
-	 * @param {Set} architectures - Set of supported architectures
+	 * @param {FrameworkMetadata} meta - Framework metadata
 	 * @access public
 	 */
-	constructor(name, path, type, architectures) {
+	constructor(meta) {
+		const {
+			name,
+			path,
+			type,
+			architectures,
+			supportedPlatforms = new Set()
+		} = meta;
 		if (typeof name  !== 'string') {
 			throw new TypeError('Framework name needs to be a string');
 		}
-		this._name = name;
+		this.name = name;
 
 		if (typeof path !== 'string') {
 			throw new TypeError('Framework path needs to be a string');
 		}
-		this._path = path;
+		this.path = path;
 
 		if (type !== FRAMEWORK_TYPE_STATIC && type !== FRAMEWORK_TYPE_DYNAMIC) {
 			throw new TypeError('Framework type needs to be either static or dynamic');
 		}
-		this._type = type;
+		this.type = type;
 
 		if (!(architectures instanceof Set)) {
 			throw new TypeError('Framework architectures must be a set of valid architectures');
 		}
-		this._architectures = architectures;
+		this.architectures = architectures;
+
+		this.supportedPlatforms = supportedPlatforms;
 	}
 
 	/**
-	 * Gets the framework name
+	 * Gets the framework search path that should be added to the xcode project
 	 *
-	 * @return {String}
+	 * @return {string}
 	 */
-	get name() {
-		return this._name;
+	get searchPath() {
+		// xcframework requires a recursive search path
+		if (this.isBinaryFramework) {
+			return `${path.dirname(this.path)}/**`;
+		}
+		return path.dirname(this.path);
 	}
 
 	/**
-	 * Gets the full path to the framework folder
+	 * Gets the name of the framework to stuff into xcode
 	 *
-	 * @return {String}
+	 * @return {string}
 	 */
-	get path() {
-		return this._path;
+	get packageName() {
+		return path.basename(this.path);
 	}
 
 	/**
-	 * Gets the Mach-O type of the framework's binary
+	 * Name used in xcode build file reference to denote framework/xcframework
 	 *
-	 * @return {String}
+	 * @return {string}
 	 */
-	get type() {
-		return this._type;
+	get wrapperName() {
+		if (this.isBinaryFramework) {
+			return 'wrapper.xcframework';
+		}
+		return 'wrapper.framework';
 	}
 
 	/**
-	 * Gets the architectures the framework was built for
-	 *
-	 * @return {Set}
+	 * True if this is an XCFramework package that contains multiple
+	 * binaries.
 	 */
-	get architectures() {
-		return this._architectures;
+	get isBinaryFramework() {
+		return this.path.endsWith('.xcframework');
+	}
+
+	/**
+	 * Platform filter string used in xcode build file entries.
+	 *
+	 * Returns `ios` for frameworks that support iOS only, `maccatalyst` for
+	 * MacOS only frameworks, and `undefined` if both platforms are supported
+	 * or if there is no info about supported platforms.
+	 *
+	 * @return {string|undefined}
+	 */
+	get platformFilter() {
+		if (this.supportedPlatforms.size === 0) {
+			return undefined;
+		}
+
+		let supportsIos = this.supportedPlatforms.has(IOS_PLATFORM);
+		let supportsMacOs = this.supportedPlatforms.has(MAC_CATALYST_PLATFORM_VARIANT);
+		if (supportsIos && supportsMacOs) {
+			return undefined;
+		} else if (supportsIos) {
+			return IOS_PLATFORM;
+		} else if (supportsMacOs) {
+			return MAC_CATALYST_PLATFORM_VARIANT;
+		} else {
+			return undefined;
+		}
 	}
 }

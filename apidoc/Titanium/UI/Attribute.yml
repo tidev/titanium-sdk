@@ -5,7 +5,7 @@ description: |
     Attributes are added to the <Titanium.UI.AttributedString> object to create
     styled text. The attribute is a JavaScript Object containing three properties:
     `type`, `value` and `range`.
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 since: "3.6.0"
 properties:
   - name: type
@@ -132,7 +132,7 @@ summary: An abstract datatype for specifying an Paragraph style attribute.
 description: |
     Attributes are added corresponding to value to create paragraph style, 
     which when used with attributed string will give styled text. 
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 since: "7.5.0"
   
 properties:
@@ -248,4 +248,3 @@ properties:
       by the system is dependent on the font, line width, and other factors. The default value of 
       this property is false.
     type: Boolean
-    osver: {ios: {min: "9.0"}}

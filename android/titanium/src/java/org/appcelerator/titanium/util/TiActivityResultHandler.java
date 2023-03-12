@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,7 +22,6 @@ public interface TiActivityResultHandler {
 	 * @param requestCode the returned request code.
 	 * @param resultCode the returned result code.
 	 * @param data the intent.
-	 * @module.api
 	 */
 	void onResult(Activity activity, int requestCode, int resultCode, Intent data);
 
@@ -32,7 +31,6 @@ public interface TiActivityResultHandler {
 	 * @param activity the launched activity.
 	 * @param requestCode the returned request code.
 	 * @param e the returned exception
-	 * @module.api
 	 */
 	void onError(Activity activity, int requestCode, Exception e);
 }

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,7 +39,7 @@ import org.json.JSONObject;
 /**
  * This is the parent class of all proxies. A proxy is a dynamic object that can be created or
  * queried by the user through a module or another proxy's API. When you create a native view with
- * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
+ * <a href="https://titaniumsdk.com/api/titanium/ui.html#createview">Titanium.UI.createView </a>,
  * the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
@@ -91,7 +91,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * The default KrollProxy constructor. Equivalent to <code>KrollProxy("")</code>
-	 * @module.api
 	 */
 	public KrollProxy()
 	{
@@ -101,13 +100,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * Constructs a KrollProxy, using the passed in creation URL.
 	 * @param baseCreationUrl the creation URL for this proxy, which can be used to resolve relative paths
-	 * @module.api
 	 */
 	public KrollProxy(String baseCreationUrl)
 	{
 		creationUrl = new TiUrl(baseCreationUrl);
 		this.listenerIdGenerator = new AtomicInteger(0);
-		this.eventListeners = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, KrollEventCallback>>());
+		this.eventListeners = Collections.synchronizedMap(new HashMap<>());
 		this.langConversionTable = getLangConversionTable();
 	}
 
@@ -122,7 +120,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		// Associate the activity with the proxy.  if the proxy needs activity association delayed until a
 		// later point then initActivity should be overridden to be a no-op and then call setActivity directly
 		// at the appropriate time
-		initActivity(TiApplication.getAppRootOrCurrentActivity());
+		initActivity(TiApplication.getAppCurrentActivity());
 
 		// Setup the proxy according to the creation arguments TODO - pass in createdInModule
 		handleCreationArgs(null, creationArguments);
@@ -146,17 +144,17 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	protected void initActivity(Activity activity)
 	{
-		this.activity = new WeakReference<Activity>(activity);
+		this.activity = new WeakReference<>(activity);
 	}
 
 	public void setActivity(Activity activity)
 	{
 		// our proxy must always be associated with a valid activity
 		if (activity == null) {
-			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			initActivity(TiApplication.getAppCurrentActivity());
 			return;
 		}
-		this.activity = new WeakReference<Activity>(activity);
+		this.activity = new WeakReference<>(activity);
 	}
 
 	public void attachActivityLifecycle(Activity activity)
@@ -167,13 +165,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * @return the activity associated with this proxy.
-	 * @module.api
 	 */
 	public Activity getActivity()
 	{
 		// our proxy must always be associated with a valid activity
 		if (this.activity == null || this.activity.get() == null) {
-			initActivity(TiApplication.getAppRootOrCurrentActivity());
+			initActivity(TiApplication.getAppCurrentActivity());
 		}
 		return this.activity.get();
 	}
@@ -181,8 +178,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * Handles the arguments passed into the "create" method for this proxy.
 	 * If your proxy simply needs to handle a KrollDict, see {@link KrollProxy#handleCreationDict(KrollDict)}
-	 * @param args
-	 * @module.api
+	 * @param args Array of arguments passed to the JavaScript create*() method.
 	 */
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args)
 	{
@@ -204,10 +200,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * Handles initialization of the proxy's default property values.
-	 * @module.api
 	 */
 	protected void handleDefaultValues()
 	{
+		if (properties == null) {
+			return;
+		}
+
 		for (String key : defaultValues.keySet()) {
 			if (!properties.containsKey(key)) {
 				setProperty(key, defaultValues.get(key));
@@ -234,8 +233,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 *	return table;
 	 *} </pre> </code>
 	 *
-	 * @module.api
-	 *
 	 */
 	protected KrollDict getLangConversionTable()
 	{
@@ -249,7 +246,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	private void handleLocaleProperties()
 	{
-		if (langConversionTable == null) {
+		if ((properties == null) || (langConversionTable == null)) {
 			return;
 		}
 
@@ -297,7 +294,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 */
 	public Pair<String, String> updateLocaleProperty(String localeProperty, String newLookupId)
 	{
-		if (langConversionTable == null) {
+		if ((properties == null) || (langConversionTable == null)) {
 			return null;
 		}
 
@@ -354,11 +351,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * This is usually the first (and sometimes only) argument to the proxy's create method.
 	 *
 	 * To set default property values, add them to the {@link KrollProxy#defaultValues map}
-	 * @param dict
-	 * @module.api
+	 * @param dict Dictionary of properties passed to the JavaScript create*() method.
 	 */
 	public void handleCreationDict(KrollDict dict)
 	{
+		if (properties == null) {
+			properties = new KrollDict();
+		}
+
 		if (dict == null) {
 			return;
 		}
@@ -388,7 +388,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		handleDefaultValues();
 		handleLocaleProperties();
 
-		if (modelListener != null) {
+		if ((modelListener != null) && (properties != null)) {
 			modelListener.processProperties(properties);
 		}
 	}
@@ -464,7 +464,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * @return the KrollObject associated with this proxy if it exists. Otherwise create it in the KrollRuntime thread.
-	 * @module.api
 	 */
 	public KrollObject getKrollObject()
 	{
@@ -489,7 +488,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * @return the absolute URL of the location in code where the proxy was created in Javascript.
-	 * @module.api
 	 */
 	public TiUrl getCreationUrl()
 	{
@@ -506,11 +504,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	@Kroll.method
 	public void extend(KrollDict options)
 	{
-		if (options == null || options.isEmpty()) {
+		if ((properties == null) || (options == null) || options.isEmpty()) {
 			return;
 		}
 
-		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<KrollPropertyChange>();
+		ArrayList<KrollPropertyChange> propertyChanges = new ArrayList<>();
 		for (String name : options.keySet()) {
 			Object oldValue = properties.get(name);
 			Object value = options.get(name);
@@ -580,7 +578,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * @param name  the lookup key.
 	 * @return  true if the proxy contains this property, false otherwise.
-	 * @module.api
 	 */
 	public boolean hasProperty(String name)
 	{
@@ -593,7 +590,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * @param name  the lookup key.
 	 * @return  true if the proxy contains this property and it is not null, false otherwise.
-	 * @module.api
 	 */
 	public boolean hasPropertyAndNotNull(String name)
 	{
@@ -608,7 +604,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * Properties are cached on the Proxy and updated from JS for relevant annotated APIs
 	 * @param name  the lookup key.
 	 * @return the property object or null if a property for the given key does not exist.
-	 * @module.api
 	 */
 	public Object getProperty(String name)
 	{
@@ -620,7 +615,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * This sets the named property as well as updating the actual JS object.
-	 * @module.api
 	 */
 	public void setProperty(String name, Object value)
 	{
@@ -640,7 +634,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 	}
 
-	public class KrollPropertyChangeSet extends KrollPropertyChange
+	public static class KrollPropertyChangeSet extends KrollPropertyChange
 	{
 		public int entryCount;
 		public String[] keys;
@@ -764,14 +758,12 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		krollObject.setProperty(name, value);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getBubbleParent()
 	{
 		return bubbleParent;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setBubbleParent(Object value)
 	{
@@ -783,7 +775,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param event the event to be fired.
 	 * @param data  the data to be sent.
 	 * @return whether this proxy has an eventListener for this event.
-	 * @module.api
 	 */
 	public boolean fireEvent(String event, Object data)
 	{
@@ -821,7 +812,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param event the event to be fired.
 	 * @param data  the data to be sent.
 	 * @return whether this proxy has an eventListener for this event.
-	 * @module.api
 	 */
 	public boolean fireSyncEvent(String event, Object data)
 	{
@@ -842,7 +832,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param data  the data to be sent.
 	 * @param maxTimeout the maximum time to wait for the result to return, in the unit of milliseconds.
 	 * @return whether this proxy has an eventListener for this event.
-	 * @module.api
 	 */
 	public boolean fireSyncEvent(String event, Object data, long maxTimeout)
 	{
@@ -856,6 +845,25 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			Object result = TiMessenger.sendBlockingRuntimeMessage(message, data, maxTimeout);
 			return TiConvert.toBoolean(result, false);
 		}
+	}
+
+	/**
+	 * Fires an event synchronously to the view who is next to receive the event.
+	 *
+	 * @param eventName event to send to the next view
+	 * @param data the data to include in the event
+	 * @return true if the event was handled
+	 */
+	@Kroll.method(name = "_fireSyncEventToParent")
+	public boolean fireSyncEventToParent(String eventName, Object data)
+	{
+		if (bubbleParent) {
+			KrollProxy parentProxy = getParentForBubbling();
+			if (parentProxy != null) {
+				return parentProxy.fireSyncEvent(eventName, data);
+			}
+		}
+		return false;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -1000,7 +1008,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * @param event the event to check
 	 * @return whether the associated KrollObject has an event listener for the passed in event.
-	 * @module.api
 	 */
 	public boolean hasListeners(String event)
 	{
@@ -1046,7 +1053,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * {@link KrollProxyListener#propertyChanged(String, Object, Object, KrollProxy)}.
 	 * @param name the property name.
 	 * @param value the property value.
-	 * @module.api
 	 */
 	public void setPropertyAndFire(String name, Object value)
 	{
@@ -1060,11 +1066,15 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void onPropertyChanged(String name, Object value)
 	{
+		if (properties == null) {
+			return;
+		}
+
 		String propertyName = name;
 		Object newValue = value;
 
 		if (isLocaleProperty(name)) {
-			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+			Log.d(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
 			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;
@@ -1079,6 +1089,10 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	public void onPropertiesChanged(Object[][] changes)
 	{
+		if (properties == null) {
+			return;
+		}
+
 		int changesLength = changes.length;
 		boolean isUiThread = TiApplication.isUIThread();
 
@@ -1135,7 +1149,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * Returns a KrollDict object that contains all current properties associated with this proxy.
 	 * @return KrollDict properties object.
-	 * @module.api
 	 */
 	public KrollDict getProperties()
 	{
@@ -1177,7 +1190,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					return true;
 				}
 				case MSG_MODEL_PROCESS_PROPERTIES: {
-					if (modelListener != null) {
+					if ((modelListener != null) && (properties != null)) {
 						modelListener.processProperties(properties);
 					}
 					return true;
@@ -1256,7 +1269,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param count			the number of listeners for this event.  should not be used as this value
 	 * 						is not reported correctly
 	 * @param proxy			the proxy that the event was added to.  otherwise known as "this"
-	 * @return				<code>void</code>
 	 */
 	protected void eventListenerAdded(String event, int count, KrollProxy proxy)
 	{
@@ -1270,7 +1282,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param count			the number of listeners for this event.  should not be used as this value
 	 * 						is not reported correctly
 	 * @param proxy			the proxy that the event was removed from.  otherwise known as "this"
-	 * @return				<code>void</code>
 	 */
 	protected void eventListenerRemoved(String event, int count, KrollProxy proxy)
 	{
@@ -1280,7 +1291,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * Associates this proxy with the passed in {@link KrollProxyListener}.
 	 * @param modelListener the passed in KrollProxyListener.
-	 * @module.api
 	 */
 	public void setModelListener(KrollProxyListener modelListener)
 	{
@@ -1290,7 +1300,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 
 		this.modelListener = modelListener;
-		if (modelListener != null) {
+		if ((modelListener != null) && (properties != null)) {
 			if (TiApplication.isUIThread()) {
 				modelListener.processProperties(properties);
 			} else {
@@ -1318,7 +1328,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 			HashMap<Integer, KrollEventCallback> listeners = eventListeners.get(eventName);
 			if (listeners == null) {
-				listeners = new HashMap<Integer, KrollEventCallback>();
+				listeners = new HashMap<>();
 				eventListeners.put(eventName, listeners);
 			}
 
@@ -1377,7 +1387,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	 * @param scheme the scheme of Url.
 	 * @param path   the path of Url.
 	 * @return a string representation of URL given its components.
-	 * @module.api
 	 */
 	public String resolveUrl(String scheme, String path)
 	{
@@ -1393,18 +1402,14 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	{
 		KrollDict error = new KrollDict();
 		error.putCodeAndMessage(code, message);
-		error.put(TiC.ERROR_PROPERTY_MESSAGE, message);
 		return error;
 	}
 
 	/**
 	 * Releases the KrollObject, freeing memory.
-	 * @module.api
 	 */
 	public void release()
 	{
-		releaseKroll();
-
 		if (eventListeners != null) {
 			eventListeners.clear();
 			eventListeners = null;
@@ -1425,7 +1430,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 	/**
 	 * Only release kroll, but maintain instance
-	 * @module.api
 	 */
 	public void releaseKroll()
 	{
@@ -1434,8 +1438,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		}
 	}
 
-	// For subclasses to override
 	@Kroll.method
+	public String toString()
+	{
+		return "[object Object]";
+	}
+
+	// For subclasses to override
 	@Kroll.getProperty
 	public String getApiName()
 	{
@@ -1445,7 +1454,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onCreate life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onCreate(Activity activity, Bundle savedInstanceState)
 	{
@@ -1454,7 +1462,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onResume life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onResume(Activity activity)
 	{
@@ -1463,7 +1470,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onPause life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onPause(Activity activity)
 	{
@@ -1472,7 +1478,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onDestroy life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onDestroy(Activity activity)
 	{
@@ -1481,7 +1486,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStart life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onStart(Activity activity)
 	{
@@ -1490,7 +1494,6 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	/**
 	 * A place holder for subclasses to extend. Its purpose is to receive native Android onStop life cycle events.
 	 * @param activity the activity attached to this module.
-	 * @module.api
 	 */
 	public void onStop(Activity activity)
 	{

@@ -6,106 +6,210 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint mocha/no-identical-title: "off" */
 'use strict';
 
 const should = require('./utilities/assertions');
 
-describe('Titanium.UI.OptionDialog', function () {
+describe('Titanium.UI.OptionDialog', () => {
 
-	it('apiName', function () {
-		const optionDialog = Ti.UI.createOptionDialog({
-			title: 'this is some text'
+	describe('properties', () => {
+		describe('.apiName', () => {
+			it('is a read-only String', () => {
+				const dialog = Ti.UI.createOptionDialog();
+				should(dialog).have.readOnlyProperty('apiName').which.is.a.String();
+			});
+			it('equals Ti.UI.OptionDialog', () => {
+				const dialog = Ti.UI.createOptionDialog();
+				should(dialog.apiName).be.eql('Ti.UI.OptionDialog');
+			});
 		});
-		should(optionDialog).have.readOnlyProperty('apiName').which.is.a.String();
-		should(optionDialog.apiName).be.eql('Ti.UI.OptionDialog');
-	});
 
-	it('title', function () {
-		const bar = Ti.UI.createOptionDialog({
-			title: 'this is some text'
+		describe.android('.buttonNames', () => {
+			let dialog;
+			beforeEach(() => {
+				dialog = Ti.UI.createOptionDialog({});
+			});
+
+			it.androidBroken('is an Array', () => { // defaults to undefined
+				should(dialog.buttonNames).be.an.Array();
+			});
+
+			it.androidBroken('is empty', () => { // defaults to undefined
+				should(dialog.buttonNames).be.empty();
+			});
+
+			it('can be assigned string[]', () => {
+				dialog.buttonNames = [ 'this', 'other' ];
+				should(dialog.buttonNames.length).eql(2);
+			});
+
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('buttonNames');
+			});
 		});
-		should(bar.title).be.a.String();
-		should(bar.getTitle).be.a.Function();
-		should(bar.title).eql('this is some text');
-		should(bar.getTitle()).eql('this is some text');
-		bar.title = 'other text';
-		should(bar.title).eql('other text');
-		should(bar.getTitle()).eql('other text');
-	});
 
-	// FIXME Get working on iOS. Looks like it doesn't look up titleid keys?!
-	it.iosBroken('titleid', function () {
-		const bar = Ti.UI.createOptionDialog({
-			titleid: 'this_is_my_key'
+		describe('.cancel', () => {
+			let dialog;
+			beforeEach(() => {
+				dialog = Ti.UI.createOptionDialog({});
+			});
+
+			it.allBroken('is a Number', () => { // defaults to undefined
+				should(dialog.cancel).be.a.Number();
+			});
+
+			it.allBroken('defaults to -1', () => { // defaults to undefined
+				should(dialog.cancel).eql(-1);
+			});
+
+			it('can be assigned new Number value', () => {
+				dialog.cancel = 1;
+				should(dialog.cancel).eql(1);
+			});
+
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('cancel');
+			});
 		});
-		should(bar.titleid).be.a.String();
-		should(bar.getTitleid).be.a.Function();
-		should(bar.titleid).eql('this_is_my_key');
-		should(bar.getTitleid()).eql('this_is_my_key');
-		should(bar.title).eql('this is my value'); // iOS returns undefined!
-		bar.titleid = 'other text';
-		should(bar.titleid).eql('other text');
-		should(bar.getTitleid()).eql('other text');
-		should(bar.title).eql('this is my value'); // FIXME Windows: https://jira.appcelerator.org/browse/TIMOB-23498
+
+		describe('.options', () => {
+			let dialog;
+			beforeEach(() => {
+				dialog = Ti.UI.createOptionDialog({});
+			});
+
+			// it('is an Array', () => {
+			// 	should(dialog.options).be.an.Array(); // undefined on Android
+			// });
+
+			// it('is empty', () => {
+			// 	should(dialog.options).be.empty();
+			// });
+
+			it('defaults to undefined', () => {
+				should(dialog.options).be.undefined();
+			});
+
+			it('can be assigned string[]', () => {
+				dialog.options = [ 'this', 'other' ];
+				should(dialog.options.length).eql(2);
+			});
+
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('options');
+			});
+		});
+
+		// FIXME Get working on iOS and Android. persistent is defaulting to undefined? Docs say should be true
+		describe('.persistent', () => {
+			let dialog;
+			beforeEach(() => {
+				dialog = Ti.UI.createOptionDialog({
+					title: 'this is some text'
+				});
+			});
+
+			it.allBroken('is a Boolean', () => { // defaults to undefined
+				should(dialog.persistent).be.a.Boolean();
+			});
+
+			it.allBroken('defaults to true', () => { // defaults to undefined
+				should(dialog.persistent).be.true();
+			});
+
+			it('can be assigned new Boolean value', () => {
+				dialog.persistent = false;
+				should(dialog.persistent).be.false();
+			});
+
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('persistent');
+			});
+		});
+
+		// FIXME Get working on Android, defaults to undefined on Android
+		describe.iosMissing('.selectedIndex', () => {
+			let dialog;
+			beforeEach(() => {
+				dialog = Ti.UI.createOptionDialog({
+					title: 'this is some text'
+				});
+			});
+
+			it.androidBroken('is a Number', () => { // defaults to undefined
+				should(dialog.selectedIndex).be.a.Number();
+			});
+
+			it('can be assigned new value', () => {
+				dialog.selectedIndex = 1;
+				should(dialog.selectedIndex).eql(1);
+			});
+
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('selectedIndex');
+			});
+		});
+
+		describe('.title', () => {
+			let dialog;
+			beforeEach(() => {
+				dialog = Ti.UI.createOptionDialog({
+					title: 'this is some text'
+				});
+			});
+
+			it('is a String', () => {
+				should(dialog.title).be.a.String();
+			});
+
+			it('equal to value set in factory method dictionary', () => {
+				should(dialog.title).eql('this is some text');
+			});
+
+			it('can be assigned new value', () => {
+				dialog.title = 'other text';
+				should(dialog.title).eql('other text');
+			});
+
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('title');
+			});
+		});
+
+		describe('.titleid', () => {
+			let dialog;
+			beforeEach(() => {
+				dialog = Ti.UI.createOptionDialog({
+					titleid: 'this_is_my_key'
+				});
+			});
+
+			it('is a String', () => {
+				should(dialog.titleid).be.a.String();
+			});
+
+			it('equal to value set in factory method dictionary', () => {
+				should(dialog.titleid).eql('this_is_my_key');
+			});
+
+			it.iosBroken('modifies .title property value', () => {
+				should(dialog.title).eql('this is my value');
+			});
+
+			it('can be assigned new value', () => {
+				dialog.titleid = 'other text';
+				should(dialog.titleid).eql('other text');
+				// should(dialog.title).eql('this is my value'); // broken on iOS
+			});
+
+			it('has no accessors', () => {
+				should(dialog).not.have.accessors('titleid');
+			});
+		});
 	});
 
-	// Intentionally skip for iOS. buttonNames property isn't on iOS. TODO Add it for parity?
-	// FIXME defaults to undefined on Android, empty array on Windows.
-	it.androidBrokenAndIosMissing('buttonNames', function () {
-		const bar = Ti.UI.createOptionDialog({});
-		should(bar.buttonNames).be.an.Array(); // undefined on Android
-		should(bar.getButtonNames).be.a.Function();
-		should(bar.buttonNames).be.empty;
-		should(bar.getButtonNames()).be.empty;
-		bar.buttonNames = [ 'this', 'other' ];
-		should(bar.buttonNames.length).eql(2);
-		should(bar.getButtonNames().length).eql(2);
-	});
+	describe('methods', () => {
 
-	// FIXME Get working on iOS and Android. options is defaulting to undefined, where for Windows we do empty array
-	it.androidAndIosBroken('options', function () {
-		const bar = Ti.UI.createOptionDialog({});
-		should(bar.options).be.an.Array(); // undefined on iOS and Android
-		should(bar.getOptions).be.a.Function();
-		should(bar.options).be.empty;
-		should(bar.getOptions()).be.empty;
-		bar.options = [ 'this', 'other' ];
-		should(bar.options.length).eql(2);
-		should(bar.getOptions().length).eql(2);
-	});
-
-	// FIXME Get working on iOS and Android. cancel is defaulting to undefined? Docs say should be -1
-	it.androidAndIosBroken('cancel', function () {
-		const bar = Ti.UI.createOptionDialog({});
-		should(bar.cancel).be.a.Number(); // undefined on iOS and Android
-		should(bar.getCancel).be.a.Function();
-		bar.cancel = 1;
-		should(bar.cancel).eql(1);
-		should(bar.getCancel()).eql(1);
-	});
-
-	// FIXME Get working on iOS and Android. persistent is defaulting to undefined? Docs say should be true
-	it.androidAndIosBroken('persistent', function () {
-		const bar = Ti.UI.createOptionDialog({});
-		should(bar.persistent).be.a.Boolean(); // undefined on iOS and Android
-		should(bar.getPersistent).be.a.Function();
-		should(bar.persistent).be.true();
-		should(bar.getPersistent()).be.true();
-		bar.persistent = false;
-		should(bar.persistent).be.false();
-		should(bar.getPersistent()).be.false();
-	});
-
-	// Intentionally skip. property not on iOS
-	// FIXME Get working on Android, defaults to undefined on Android, Windows has Number
-	it.androidBrokenAndIosMissing('selectedIndex', function () {
-		const bar = Ti.UI.createOptionDialog({});
-		should(bar.selectedIndex).be.a.Number(); // undefined on Android
-		should(bar.getSelectedIndex).be.a.Function();
-		should(bar.selectedIndex).eql(0);
-		should(bar.getSelectedIndex()).eql(0);
-		bar.selectedIndex = 1;
-		should(bar.selectedIndex).eql(1);
-		should(bar.getSelectedIndex()).eql(1);
 	});
 });

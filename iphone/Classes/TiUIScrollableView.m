@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -647,6 +647,29 @@
   }
   if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
     [[self pagecontrol] setAlpha:pagingControlAlpha];
+  }
+}
+
+- (void)setPreferredIndicatorImage_:(id)args
+{
+  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    DebugLog(@"[WARN] Supported on iOS 14.0+");
+    return;
+  }
+
+  if (showPageControl) {
+    [[self pagecontrol] setPreferredIndicatorImage:[TiUtils toImage:args proxy:self.proxy]];
+  }
+}
+
+- (void)setIndicatorImage:(UIImage *)image forPage:(NSInteger)page
+{
+  if (page > [self pagecontrol].numberOfPages) {
+    DebugLog(@"[WARN] Page no. can not be greater than total no of pages");
+    return;
+  }
+  if (showPageControl) {
+    [[self pagecontrol] setIndicatorImage:image forPage:page];
   }
 }
 

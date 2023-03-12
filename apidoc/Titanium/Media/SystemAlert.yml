@@ -17,7 +17,7 @@ since: "6.1.0"
 deprecated:
     since: "8.0.0"
     notes: This iOS-only API has been deprecated and moved to the [Ti.SystemAlert](https://github.com/appcelerator-modules/ti.systemalert) module in 8.0.0.
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 methods:
   - name: play
     summary: Start playing the system alert.

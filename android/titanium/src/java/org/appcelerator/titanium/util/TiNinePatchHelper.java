@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,7 @@ import android.graphics.drawable.NinePatchDrawable;
 @SuppressWarnings("deprecation")
 public class TiNinePatchHelper
 {
-	class SegmentColor
+	private static class SegmentColor
 	{
 		int index;
 		int color;
@@ -145,7 +145,7 @@ public class TiNinePatchHelper
 
 		int last = b.getPixel(0, 0);
 
-		ArrayList<SegmentColor> xdivs = new ArrayList<SegmentColor>();
+		ArrayList<SegmentColor> xdivs = new ArrayList<>();
 		// Walk Top
 		for (int x = 1; x < b.getWidth(); x++) {
 			int p = b.getPixel(x, 0);
@@ -162,7 +162,7 @@ public class TiNinePatchHelper
 		last = b.getPixel(0, 0);
 
 		// Walk left
-		ArrayList<SegmentColor> ydivs = new ArrayList<SegmentColor>();
+		ArrayList<SegmentColor> ydivs = new ArrayList<>();
 		for (int y = 1; y < b.getHeight(); y++) {
 			int p = b.getPixel(0, y);
 			if (p != last) {
@@ -176,7 +176,7 @@ public class TiNinePatchHelper
 		}
 
 		// Calculate Region Colors
-		ArrayList<Integer> colors = new ArrayList<Integer>();
+		ArrayList<Integer> colors = new ArrayList<>();
 		for (int y = 0; y < ydivs.size(); y++) {
 			int yc = ydivs.get(y).color;
 			for (int x = 0; x < xdivs.size(); x++) {

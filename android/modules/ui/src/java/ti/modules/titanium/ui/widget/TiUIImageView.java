@@ -1,15 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -17,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.kroll.common.AsyncResult;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.titanium.TiApplication;
@@ -26,29 +22,25 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiDownloadListener;
-import org.appcelerator.titanium.util.TiDownloadManager;
-import org.appcelerator.titanium.util.TiImageLruCache;
-import org.appcelerator.titanium.util.TiLoadImageListener;
+import org.appcelerator.titanium.util.TiExifOrientation;
+import org.appcelerator.titanium.util.TiImageCache;
+import org.appcelerator.titanium.util.TiImageInfo;
 import org.appcelerator.titanium.util.TiLoadImageManager;
-import org.appcelerator.titanium.util.TiResponseCache;
-import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.filesystem.FileProxy;
+import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.ImageViewProxy;
-import ti.modules.titanium.ui.ScrollViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewParent;
+import androidx.annotation.NonNull;
 
 public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler.Callback
 {
@@ -61,29 +53,25 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private Animator animator;
 	private Loader loader;
 	private Thread loaderThread;
-	private AtomicBoolean animating = new AtomicBoolean(false);
-	private AtomicBoolean isLoading = new AtomicBoolean(false);
-	private AtomicBoolean isStopping = new AtomicBoolean(false);
+	private final AtomicBoolean animating = new AtomicBoolean(false);
+	private final AtomicBoolean isLoading = new AtomicBoolean(false);
+	private final AtomicBoolean isStopping = new AtomicBoolean(false);
 	private boolean reverse = false;
 	private boolean paused = false;
 	private boolean firedLoad;
 	private ImageViewProxy imageViewProxy;
 	private int currentDuration;
+	private TiImageView view;
 
 	private ArrayList<TiDrawableReference> imageSources;
 	private TiDrawableReference defaultImageSource;
-	private TiDownloadListener downloadListener;
-	private TiLoadImageListener loadImageListener;
-	private Object releasedLock = new Object();
+	private TiLoadImageManager.Listener loadImageListener;
+	private final Object releasedLock = new Object();
 
-	private Handler mainHandler = new Handler(Looper.getMainLooper(), this);
-	private static final int SET_IMAGE = 10001;
+	private final Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 	private static final int START = 10002;
 	private static final int STOP = 10003;
 	private static final int SET_TINT = 10004;
-
-	// This handles the memory cache of images.
-	private TiImageLruCache mMemoryCache = TiImageLruCache.getInstance();
 
 	public TiUIImageView(final TiViewProxy proxy)
 	{
@@ -92,79 +80,68 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		Log.d(TAG, "Creating an ImageView", Log.DEBUG_MODE);
 
-		TiImageView view = new TiImageView(proxy.getActivity(), proxy);
+		view = new TiImageView(proxy.getActivity(), proxy);
 
-		downloadListener = new TiDownloadListener() {
+		loadImageListener = new TiLoadImageManager.Listener() {
 			@Override
-			public void downloadTaskFinished(URI uri)
+			public void onLoadImageFinished(@NonNull TiDrawableReference drawableRef, @NonNull TiImageInfo imageInfo)
 			{
-				if (!TiResponseCache.peek(uri)) {
-					// The requested image did not make it into our TiResponseCache,
-					// possibly because it had a header forbidding that. Now get it
-					// via the "old way" (not relying on cache).
-					TiLoadImageManager.getInstance().load(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()),
-														  loadImageListener);
+				// Cache the image.
+				TiImageCache.add(imageInfo);
+
+				// Make sure proxy's "image" property matches the loaded image.
+				// Note: Handles the case where "image" property changes while last image was loading.
+				//       This commonly happens in ListView where ImageView is recycled while scrolling.
+				if ((imageSources == null) || (imageSources.size() != 1) || (imageSources.get(0) != drawableRef)) {
+					return;
+				}
+				TiDrawableReference expectedDrawableRef = imageSources.get(0);
+				if ((expectedDrawableRef == null) || !expectedDrawableRef.equals(drawableRef)) {
+					return;
+				}
+
+				// Show decoded bitmap in ImageView.
+				setImage(imageInfo.getBitmap(), isAutoRotateEnabled() ? imageInfo.getOrientation() : null);
+				if (!firedLoad) {
+					fireLoad(TiC.PROPERTY_IMAGE);
+					firedLoad = true;
 				}
 			}
 
 			@Override
-			public void downloadTaskFailed(URI uri)
+			public void onLoadImageFailed(@NonNull TiDrawableReference drawableRef)
 			{
-				// If the download failed, fire an error event
-				fireError("Download Failed", uri.toString());
-			}
-
-			// Handle decoding and caching in the background thread so it won't block UI.
-			@Override
-			public void postDownload(URI uri)
-			{
-				if (TiResponseCache.peekFollowingRedirects(uri)) {
-					handleCacheAndSetImage(TiDrawableReference.fromUrl(imageViewProxy, uri.toString()));
-				}
-			}
-		};
-
-		loadImageListener = new TiLoadImageListener() {
-			@Override
-			public void loadImageFinished(int hash, Bitmap bitmap)
-			{
-				// Cache the image
-				if (bitmap != null) {
-					if (mMemoryCache.get(hash) == null) {
-						mMemoryCache.put(hash, bitmap);
-					}
-
-					// Update UI if the current image source has not been changed.
-					if (imageSources != null && imageSources.size() == 1) {
-						TiDrawableReference imgsrc = imageSources.get(0);
-						if (imgsrc == null) {
-							return;
-						}
-						if (imgsrc.hashCode() == hash
-							|| (imgsrc.getUrl() != null
-								&& TiDrawableReference
-										   .fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString())
-										   .hashCode()
-									   == hash)) {
-							setImage(bitmap);
-							if (!firedLoad) {
-								fireLoad(TiC.PROPERTY_IMAGE);
-								firedLoad = true;
-							}
-						}
-					}
-				}
-			}
-
-			@Override
-			public void loadImageFailed()
-			{
-				Log.w(TAG, "Unable to load image", Log.DEBUG_MODE);
+				String message = "Failed to load image.";
+				Log.w(TAG, message, Log.DEBUG_MODE);
+				fireError(message, drawableRef.toString());
 			}
 		};
 
 		setNativeView(view);
-		// TODO proxy.getActivity().addOnLifecycleEventListener(this);
+	}
+
+	@Override
+	protected void applyContentDescription()
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription();
+		if (contentDescription != null) {
+			this.view.getImageView().setContentDescription(contentDescription);
+		}
+	}
+
+	@Override
+	protected void applyContentDescription(KrollDict properties)
+	{
+		if (proxy == null || nativeView == null) {
+			return;
+		}
+		String contentDescription = composeContentDescription(properties);
+		if (contentDescription != null) {
+			this.view.getImageView().setContentDescription(contentDescription);
+		}
 	}
 
 	@Override
@@ -176,7 +153,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private TiImageView getView()
 	{
-		return (TiImageView) nativeView;
+		return this.view;
 	}
 
 	protected View getParentView()
@@ -204,12 +181,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	public boolean handleMessage(Message msg)
 	{
 		switch (msg.what) {
-
-			case SET_IMAGE:
-				AsyncResult result = (AsyncResult) msg.obj;
-				handleSetImage((Bitmap) result.getArg());
-				result.setResult(null);
-				return true;
 			case START:
 				handleStart();
 				return true;
@@ -219,57 +190,28 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			case SET_TINT:
 				handleTint((String) msg.obj);
 				return true;
-
 			default:
 				return false;
 		}
 	}
 
-	private void handleCacheAndSetImage(TiDrawableReference imageref)
-	{
-		// Don't update UI if the current image source has been changed.
-		if (imageSources != null && imageSources.size() == 1) {
-			TiDrawableReference imgsrc = imageSources.get(0);
-			if (imgsrc == null || imgsrc.getUrl() == null) {
-				return;
-			}
-			if (imageref.equals(imgsrc)
-				|| imageref.equals(
-					   TiDrawableReference.fromUrl(imageViewProxy, TiUrl.getCleanUri(imgsrc.getUrl()).toString()))) {
-				int hash = imageref.hashCode();
-				Bitmap bitmap = imageref.getBitmap(true);
-				if (bitmap != null) {
-					if (mMemoryCache.get(hash) == null) {
-						mMemoryCache.put(hash, bitmap);
-					}
-					setImage(bitmap);
-					if (!firedLoad) {
-						fireLoad(TiC.PROPERTY_IMAGE);
-						firedLoad = true;
-					}
-				}
-			}
-		}
-	}
-
-	private void setImage(final Bitmap bitmap)
+	private void setImage(final Bitmap bitmap, final TiExifOrientation exifOrientation)
 	{
 		if (!TiApplication.isUIThread()) {
-			TiMessenger.sendBlockingMainMessage(mainHandler.obtainMessage(SET_IMAGE), bitmap);
-		} else {
-			handleSetImage(bitmap);
+			TiMessenger.postOnMain(() -> {
+				setImage(bitmap, exifOrientation);
+			});
+			return;
 		}
-	}
 
-	private void handleSetImage(final Bitmap bitmap)
-	{
 		TiImageView view = getView();
 		if (view != null) {
+			view.setOrientation(exifOrientation);
 			view.setImageBitmap(bitmap);
 		}
 	}
 
-	private class BitmapWithIndex
+	private static class BitmapWithIndex
 	{
 		public BitmapWithIndex(Bitmap b, int i)
 		{
@@ -284,7 +226,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private class Loader implements Runnable
 	{
 		private ArrayBlockingQueue<BitmapWithIndex> bitmapQueue;
-		private LinkedList<Integer> hashTable;
 		private int waitTime = 0;
 		private int sleepTime = 50; //ms
 		private int repeatIndex = 0;
@@ -292,7 +233,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		public Loader()
 		{
 			bitmapQueue = new ArrayBlockingQueue<BitmapWithIndex>(FRAME_QUEUE_SIZE);
-			hashTable = new LinkedList<Integer>();
 		}
 
 		private boolean isRepeating()
@@ -361,7 +301,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
-							Log.i(TAG, "Pausing", Log.DEBUG_MODE);
+							Log.d(TAG, "Pausing", Log.DEBUG_MODE);
 							// User backed-out while animation running
 							if (loader == null) {
 								break;
@@ -372,7 +312,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								wait();
 							}
 
-							Log.i(TAG, "Waking from pause.", Log.DEBUG_MODE);
+							Log.d(TAG, "Waking from pause.", Log.DEBUG_MODE);
 							// In the meantime, while paused, user could have backed out, which leads
 							// to release(), which in turn leads to nullified imageSources.
 							if (imageSources == null) {
@@ -396,13 +336,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 						TiDrawableReference imageRef = imageSources.get(j);
 						Bitmap b = null;
 						if (shouldCache) {
-							int hash = imageRef.hashCode();
-							b = mMemoryCache.get(hash);
+							var key = imageRef.getKey();
+							b = TiImageCache.getBitmap(key);
 							if (b == null) {
 								Log.i(TAG, "Image isn't cached");
 								b = imageRef.getBitmap(true);
-								mMemoryCache.put(hash, b);
-								hashTable.add(hash);
+								TiExifOrientation orientation = imageRef.getExifOrientation();
+								TiImageCache.add(new TiImageInfo(key, b, orientation));
 							}
 						} else {
 							b = imageRef.getBitmap(true);
@@ -433,10 +373,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				Log.d(TAG, "TIME TO LOAD FRAMES: " + (System.currentTimeMillis() - time) + "ms", Log.DEBUG_MODE);
 			}
 			isLoading.set(false);
-			//clean out the cache after animation
-			while (!hashTable.isEmpty()) {
-				mMemoryCache.remove(hashTable.pop());
-			}
 		}
 
 		public ArrayBlockingQueue<BitmapWithIndex> getBitmapQueue()
@@ -553,7 +489,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 				BitmapWithIndex b = bitmapQueue.take();
 				Log.d(TAG, "set image: " + b.index, Log.DEBUG_MODE);
-				setImage(b.bitmap);
+				setImage(b.bitmap, null);
 				fireChange(b.index);
 
 				// When the animation is paused, the timer will pause in the middle of a period.
@@ -671,9 +607,21 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		fireStop();
 	}
 
+	private boolean isAutoRotateEnabled()
+	{
+		TiViewProxy proxy = getProxy();
+		if (proxy != null) {
+			Object autoRotate = proxy.getProperty(TiC.PROPERTY_AUTOROTATE);
+			if ((autoRotate != null) && TiConvert.toBoolean(autoRotate, true)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private void setImageSource(Object object)
 	{
-		imageSources = new ArrayList<TiDrawableReference>();
+		imageSources = new ArrayList<>();
 		if (object instanceof Object[]) {
 			for (Object o : (Object[]) object) {
 				imageSources.add(TiDrawableReference.fromObject(getProxy(), o));
@@ -685,7 +633,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private void setImageSource(TiDrawableReference source)
 	{
-		imageSources = new ArrayList<TiDrawableReference>();
+		imageSources = new ArrayList<>();
 		imageSources.add(source);
 	}
 
@@ -706,7 +654,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (defaultImageSource != null) {
 			setDefaultImage();
 		} else {
-			setImage(null);
+			setImage(null, null);
 		}
 
 		if (imageSources == null || imageSources.size() == 0 || imageSources.get(0) == null
@@ -718,41 +666,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			TiDrawableReference imageref = imageSources.get(0);
 
 			// Check if the image is cached in memory
-			int hash = imageref.hashCode();
-			Bitmap bitmap = mMemoryCache.get(hash);
+			var key = imageref.getKey();
+			Bitmap bitmap = TiImageCache.getBitmap(key);
 			if (bitmap != null) {
-				if (!bitmap.isRecycled()) {
-					setImage(bitmap);
-					if (!firedLoad) {
-						fireLoad(TiC.PROPERTY_IMAGE);
-						firedLoad = true;
-					}
-					return;
-				} else { // If the cached image has been recycled, remove it from the cache.
-					mMemoryCache.remove(hash);
-				}
-			}
-
-			if (imageref.isNetworkUrl()) {
-				boolean isCachedInDisk = false;
-				URI uri = null;
-				try {
-					String imageUrl = TiUrl.getCleanUri(imageref.getUrl()).toString();
-					uri = new URI(imageUrl);
-					isCachedInDisk = TiResponseCache.peekFollowingRedirects(uri);
-				} catch (URISyntaxException e) {
-					Log.e(TAG, "URISyntaxException for url " + imageref.getUrl(), e);
-				} catch (NullPointerException e) {
-					Log.e(TAG, "NullPointerException for url " + imageref.getUrl(), e);
-				}
-
-				// Check if the image is not cached in disc and the uri is valid.
-				if (!isCachedInDisk && uri != null) {
-					TiDownloadManager.getInstance().download(uri, downloadListener);
-				} else {
-					// If the image has been cached in disk or the uri is not valid,
-					// fetch and cache it and update the UI.
-					TiLoadImageManager.getInstance().load(imageref, loadImageListener);
+				setImage(bitmap, isAutoRotateEnabled() ? TiImageCache.getOrientation(key) : null);
+				if (!firedLoad) {
+					fireLoad(TiC.PROPERTY_IMAGE);
+					firedLoad = true;
 				}
 			} else {
 				TiLoadImageManager.getInstance().load(imageref, loadImageListener);
@@ -765,12 +685,13 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private void setDefaultImage()
 	{
 		if (defaultImageSource == null) {
-			setImage(null);
+			setImage(null, null);
 			return;
 		}
 		// Have to set default image in the UI thread to make sure it shows before the image
 		// is ready. Don't need to retry decode because we don't want to block UI.
-		setImage(defaultImageSource.getBitmap(false));
+		TiExifOrientation orientation = isAutoRotateEnabled() ? defaultImageSource.getExifOrientation() : null;
+		setImage(defaultImageSource.getBitmap(false), orientation);
 	}
 
 	@Override
@@ -807,11 +728,25 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			setImageSource(d.get(TiC.PROPERTY_IMAGES));
 			setImages();
 		}
+		if (d.containsKey(TiC.PROPERTY_SCALING_MODE)) {
+			view.setScalingMode(TiConvert.toInt(d.get(TiC.PROPERTY_SCALING_MODE), MediaModule.IMAGE_SCALING_AUTO));
+		}
 		if (d.containsKey(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, true));
 		}
 		if (d.containsKey(TiC.PROPERTY_DEFAULT_IMAGE)) {
 			setDefaultImageSource(d.get(TiC.PROPERTY_DEFAULT_IMAGE));
+		}
+		if (d.containsKey(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR)) {
+			Object colorObject = d.get(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR);
+			if (colorObject == null) {
+				view.setImageRippleColor(view.getDefaultRippleColor());
+			} else {
+				view.setImageRippleColor(TiConvert.toColor(colorObject, proxy.getActivity()));
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK)) {
+			view.setIsImageRippleEnabled(TiConvert.toBoolean(d.get(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK), false));
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
 			// processProperties is also called from TableView, we need check if we changed before re-creating the
@@ -824,11 +759,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 				}
 			}
 			if (changeImage) {
-				// Check for orientation and decodeRetries only if an image is specified
-				Object autoRotate = d.get(TiC.PROPERTY_AUTOROTATE);
-				if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
-					view.setOrientation(source.getOrientation());
-				}
 				if (d.containsKey(TiC.PROPERTY_DECODE_RETRIES)) {
 					source.setDecodeRetries(TiConvert.toInt(d.get(TiC.PROPERTY_DECODE_RETRIES),
 															TiDrawableReference.DEFAULT_DECODE_RETRIES));
@@ -849,12 +779,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			setTintColor(d.getString("tintColor"));
 		}
 
-		// If height and width is not defined, disable scaling for scrollview since an image
-		// can extend beyond the screensize in scrollview.
-		if (proxy.getParent() instanceof ScrollViewProxy && !heightDefined && !widthDefined) {
-			view.setEnableScale(false);
-		}
-
 		super.processProperties(d);
 	}
 
@@ -868,13 +792,19 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		if (key.equals(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS)) {
 			view.setEnableZoomControls(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
+			view.setScalingMode(TiConvert.toInt(newValue, MediaModule.IMAGE_SCALING_AUTO));
+		} else if (key.equals(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK)) {
+			view.setIsImageRippleEnabled(TiConvert.toBoolean(newValue, false));
+		} else if (key.equals(TiC.PROPERTY_IMAGE_TOUCH_FEEDBACK_COLOR)) {
+			if (newValue == null) {
+				view.setImageRippleColor(view.getDefaultRippleColor());
+			} else {
+				view.setImageRippleColor(TiConvert.toColor(newValue, proxy.getActivity()));
+			}
 		} else if (key.equals(TiC.PROPERTY_IMAGE)) {
 			if ((oldValue == null && newValue != null) || (oldValue != null && !oldValue.equals(newValue))) {
 				TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), newValue);
-				Object autoRotate = proxy.getProperty(TiC.PROPERTY_AUTOROTATE);
-				if (autoRotate != null && TiConvert.toBoolean(autoRotate)) {
-					view.setOrientation(source.getOrientation());
-				}
 				if (proxy.hasProperty(TiC.PROPERTY_DECODE_RETRIES)) {
 					source.setDecodeRetries(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_DECODE_RETRIES),
 															TiDrawableReference.DEFAULT_DECODE_RETRIES));
@@ -953,7 +883,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	{
 		TiDrawableReference imageReference =
 			imageSources != null && imageSources.size() == 1 ? imageSources.get(0) : null;
-		Bitmap cachedBitmap = imageReference != null ? mMemoryCache.get(imageReference.hashCode()) : null;
+		Bitmap cachedBitmap = imageReference != null ? TiImageCache.getBitmap(imageReference.getKey()) : null;
 
 		if (cachedBitmap != null && !cachedBitmap.isRecycled()) {
 			return TiBlob.blobFromImage(cachedBitmap);
@@ -961,18 +891,17 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		} else {
 			TiImageView view = getView();
 			if (view != null) {
-				Drawable drawable = view.getImageDrawable();
-				if (drawable != null && drawable instanceof BitmapDrawable) {
-					Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-					if (bitmap == null && imageSources != null && imageSources.size() == 1) {
-						bitmap = imageSources.get(0).getBitmap(true);
+				Bitmap bitmap = view.getImageBitmap();
+				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
+					bitmap = imageSources.get(0).getBitmap(true);
+				}
+				if (bitmap != null) {
+					if (imageReference != null) {
+						var key = imageReference.getKey();
+						TiExifOrientation orientation = imageReference.getExifOrientation();
+						TiImageCache.add(new TiImageInfo(key, bitmap, orientation));
 					}
-					if (bitmap != null) {
-						if (imageReference != null) {
-							mMemoryCache.put(imageReference.hashCode(), bitmap);
-						}
-						return TiBlob.blobFromImage(bitmap);
-					}
+					return TiBlob.blobFromImage(bitmap);
 				}
 			}
 		}
@@ -1009,10 +938,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		synchronized (releasedLock)
 		{
 			if (imageSources != null) {
-				for (TiDrawableReference imageref : imageSources) {
-					int hash = imageref.hashCode();
-					mMemoryCache.remove(hash); //Release the cached images
-				}
 				imageSources.clear();
 				imageSources = null;
 			}
@@ -1022,6 +947,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			timer = null;
 		}
 		defaultImageSource = null;
+		imageViewProxy = null;
+		loadImageListener = null;
 
 		super.release();
 	}

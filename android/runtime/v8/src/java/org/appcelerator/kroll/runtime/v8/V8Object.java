@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -106,7 +106,7 @@ public class V8Object extends KrollObject
 	// JNI method prototypes
 	protected static native void nativeInitObject(Class<?> proxyClass, Object proxyObject);
 
-	private static native boolean nativeRelease(long ptr);
+	protected native boolean nativeRelease(long ptr);
 
 	private native Object nativeCallProperty(long ptr, String propertyName, Object[] args);
 

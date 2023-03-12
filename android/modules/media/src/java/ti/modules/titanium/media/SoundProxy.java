@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -64,10 +64,6 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 	{
 		super();
 
-		// TODO - we shouldnt need this as this proxy is created only from the runtime - double check
-		// TODO needs to happen post-activity assignment
-		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
-
 		defaultValues.put(TiC.PROPERTY_VOLUME, 1.0f);
 		defaultValues.put(TiC.PROPERTY_TIME, 0d);
 		defaultValues.put(TiC.PROPERTY_AUDIO_TYPE, AUDIO_TYPE_MEDIA);
@@ -117,14 +113,12 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 			  Log.DEBUG_MODE);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUrl()
 	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUrl(Object url)
 	{
@@ -134,22 +128,20 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getAudioType()
 	{
 		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_TYPE));
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAudioType(int val)
 	{
 		setProperty(TiC.PROPERTY_AUDIO_TYPE, val);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isPlaying()
 	{
 		TiSound s = getSound();
@@ -159,8 +151,8 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isPaused()
 	{
 		TiSound s = getSound();
@@ -170,8 +162,8 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
+	@Kroll.method
 	public boolean isLooping()
 	{
 		TiSound s = getSound();
@@ -250,7 +242,6 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getDuration()
 	{
@@ -262,7 +253,6 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return 0;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getTime()
 	{
@@ -274,7 +264,6 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTime(Object pos)
 	{

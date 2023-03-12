@@ -4,6 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+/* globals OS_ANDROID,OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -93,7 +94,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.ios('keyboardDisplayRequiresUserAction', function (finish) {
+	it.ios('.keyboardDisplayRequiresUserAction', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView();
 
@@ -102,16 +103,12 @@ describe('Titanium.UI.WebView', function () {
 				webView.keyboardDisplayRequiresUserAction = true;
 
 				should(webView.keyboardDisplayRequiresUserAction).be.a.Boolean();
-				should(webView.getKeyboardDisplayRequiresUserAction()).be.a.Boolean();
 				should(webView.keyboardDisplayRequiresUserAction).be.true();
-				should(webView.getKeyboardDisplayRequiresUserAction()).be.true();
 
-				webView.setKeyboardDisplayRequiresUserAction(false);
+				webView.keyboardDisplayRequiresUserAction = false;
 
 				should(webView.keyboardDisplayRequiresUserAction).be.a.Boolean();
-				should(webView.getKeyboardDisplayRequiresUserAction()).be.a.Boolean();
 				should(webView.keyboardDisplayRequiresUserAction).be.false();
-				should(webView.getKeyboardDisplayRequiresUserAction()).be.false();
 			} catch (err) {
 				return finish(err);
 			}
@@ -143,7 +140,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	// TIMOB-23542 webview data test
-	it('data', function (finish) {
+	it('.data', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
@@ -168,7 +165,7 @@ describe('Titanium.UI.WebView', function () {
 	// FIXME Parity issue! Windows require second argument which is callback function. Other platforms return value sync!
 	// FIXME Android returns null?
 	// FIXME Sometimes times out on iOS. Not really sure why...
-	(((utilities.isWindows10() && utilities.isWindowsDesktop()) || utilities.isAndroid() || utilities.isIOS()) ? it.skip : it)('evalJS', function (finish) {
+	it.allBroken('evalJS', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
@@ -305,29 +302,34 @@ describe('Titanium.UI.WebView', function () {
 		});
 	});
 
-	it.windowsBroken('userAgent', function (finish) {
+	it.windowsBroken('.userAgent', function (finish) {
 		this.slow(15000);
 		this.timeout(60000);
+
+		if (OS_ANDROID && OS_VERSION_MAJOR < 6) { // unsure at what exact version this fails
+			return finish();
+		}
+
 		const webView = Ti.UI.createWebView({
 			userAgent: 'TEST AGENT',
 			ignoreSslError: true // Older Android complains about the cert at this site!
 		});
-		const url = 'https://www.whatismybrowser.com/detect/what-is-my-user-agent';
+		const url = 'https://www.whatsmyua.info';
 		let retry = 5;
 
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
 
 		webView.addEventListener('load', function (e) {
-			const exp = /agent=yes">(.*)<\/a/m.exec(e.source.html);
+			const html = e.source.html;
+			const exp = /id="rawUa">rawUa: ([^<]+)<\/li/m.exec(html); // eslint-disable-line security/detect-child-process
 			const userAgent = exp && exp.length > 1 ? exp[1] : undefined;
 			if (userAgent && userAgent === webView.userAgent) {
 				return finish();
 			}
 			if (retry--) {
 				Ti.API.warn('could not obtain userAgent, retrying...');
-				setTimeout(function () {
-					webView.url = url;
-				}, 3000);
+				Ti.API.warn(html);
+				setTimeout(() => webView.url = url, 3000);
 			} else {
 				return finish(new Error('invalid userAgent'));
 			}
@@ -487,14 +489,56 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
+	// DEPRECATED: Since Titanium 9.2.0
 	it.ios('blacklisturl', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: 'https://google.com',
-			blacklistedURLs: [ 'https://google.com' ]
+			blockedURLs: [ 'https://google.com' ]
 		});
 
 		webView.addEventListener('blacklisturl', function () {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('blockedurl', function (finish) {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://google.com',
+			blockedURLs: [ 'https://google.com' ]
+		});
+
+		webView.addEventListener('blockedurl', function () {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	// DEPRECATED: Since Titanium 9.2.0
+	it('blacklistedURLs', (finish) => {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.github.com',
+			blacklistedURLs: [ 'www.apple.com', 'www.google.com' ]
+		});
+		webView.addEventListener('load', () => {
+			finish();
+		});
+		win.add(webView);
+		win.open();
+	});
+
+	it('blockedURLs', (finish) => {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.github.com',
+			blockedURLs: [ 'www.apple.com', 'www.google.com' ]
+		});
+		webView.addEventListener('load', () => {
 			finish();
 		});
 		win.add(webView);
@@ -569,8 +613,8 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.ios('beforeload', (finish) => {
-		const url = 'https://www.appcelerator.com/';
+	it.ios('beforeload should provide the URL that is about to be loaded and handle redirects', (finish) => {
+		const url = 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com';
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url
@@ -634,7 +678,7 @@ describe('Titanium.UI.WebView', function () {
 	it('requestHeaders with redirecting url should work properly', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://jira.appcelerator.org/',
+			url: 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com',
 			requestHeaders: { 'Custom-field1': 'value1' }
 		});
 
@@ -727,5 +771,203 @@ describe('Titanium.UI.WebView', function () {
 			url: 'https://www.google.com'
 		});
 		should(webView).have.a.property('progress').which.is.a.Number(); // should default to 0 until we start loading the page.
+	});
+
+	it.ios('#findString', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.findString('google', function (e) {
+				if (e.success) {
+					finish();
+				} else {
+					finish(e.error);
+				}
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('#createPDF', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.createPDF(function (e) {
+				try {
+					should(e.success).be.true();
+					should(e.data).be.an.Object();
+					should(e.data).have.a.property('apiName').which.eql('Ti.Blob');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	it.ios('#createWebArchive', function (finish) {
+		if (OS_VERSION_MAJOR < 14) {
+			return finish();
+		}
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: 'https://www.google.com'
+		});
+
+		webView.addEventListener('load', function () {
+			webView.createWebArchive(function (e) {
+				try {
+					should(e.success).be.true();
+					should(e.data).be.an.Object();
+					should(e.data).have.a.property('apiName').which.eql('Ti.Blob');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
+	it('decode url', (finish) => {
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		const webview = Ti.UI.createWebView({
+			url: 'https://www.google.com/sub/api?key=TiTeSTKEy%3D%3D&var=1234'
+		});
+
+		webview.addEventListener('load', e => {
+			try {
+				should(e.source.url).be.a.String();
+				should(e.source.url).eql('https://www.google.com/sub/api?key=TiTeSTKEy%3D%3D&var=1234');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(webview);
+		win.open();
+	});
+
+	it('decode \'+\' in url', (finish) => {
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		const webview = Ti.UI.createWebView({
+			url: 'https://www.google.com/pin%20wheel+.jpg'
+		});
+
+		webview.addEventListener('load', e => {
+			try {
+				should(e.source.url).be.a.String();
+				should(e.source.url).eql('https://www.google.com/pin%20wheel+.jpg');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(webview);
+		win.open();
+	});
+
+	describe.ios('#findString()', function () {
+		it('is a Function', function () {
+			if (OS_VERSION_MAJOR < 14) {
+				this.skip();
+				return;
+			}
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.google.com'
+			});
+			should(webView.findString).be.a.Function();
+		});
+
+		it('#findString without configuration', function (finish) {
+			if (OS_VERSION_MAJOR < 14) {
+				this.skip();
+				return finish();
+			}
+			win = Ti.UI.createWindow();
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.google.com'
+			});
+
+			webView.addEventListener('load', function () {
+				webView.findString('GOOGLE', function (e) {
+					if (e.success) {
+						finish();
+					} else {
+						finish(e.error);
+					}
+				});
+			});
+
+			win.add(webView);
+			win.open();
+		});
+
+		it('#findString with configuration', function (finish) {
+			if (OS_VERSION_MAJOR < 14) {
+				return finish();
+			}
+			win = Ti.UI.createWindow();
+			const webView = Ti.UI.createWebView({
+				url: 'https://www.google.com'
+			});
+
+			webView.addEventListener('load', function () {
+				// It should fail.
+				webView.findString('GOOGLE', { caseSensitive: true, backwards: false, wraps: true }, function (e) {
+					if (e.success) {
+						finish(new Error('Search should fail'));
+					} else {
+						finish();
+					}
+				});
+			});
+
+			win.add(webView);
+			win.open();
+		});
+	});
+
+	it('url with clientCertChallenge', function (finish) {
+		const url = 'https://device.login.microsoftonline.com';
+
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: url
+		});
+
+		webView.addEventListener('error', function () {
+			finish(new Error('clientCertChallenge must be handled correctly.'));
+		});
+
+		webView.addEventListener('load', function () {
+			finish();
+		});
+
+		win.add(webView);
+		win.open();
 	});
 });

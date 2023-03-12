@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -86,25 +86,8 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 		return super.handleMessage(message);
 	}
 
-	@Override
-	public void doRelease()
-	{
-		long functionPointer = getPointer();
-		if (functionPointer == 0) {
-			return;
-		}
-
-		nativeRelease(functionPointer);
-	}
-
-	@Override
-	protected void finalize() throws Throwable
-	{
-		super.finalize();
-	}
-
 	// JNI method prototypes
 	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
 
-	private static native void nativeRelease(long functionPointer);
+	protected native boolean nativeRelease(long functionPointer);
 }

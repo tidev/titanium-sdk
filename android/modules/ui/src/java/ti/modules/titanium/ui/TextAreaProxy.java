@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,6 +28,7 @@ import android.app.Activity;
 		TiC.PROPERTY_COLOR,
 		TiC.PROPERTY_EDITABLE,
 		TiC.PROPERTY_ELLIPSIZE,
+		TiC.PROPERTY_ENABLE_COPY,
 		TiC.PROPERTY_ENABLE_RETURN_KEY,
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_FULLSCREEN,
@@ -56,6 +57,7 @@ public class TextAreaProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_MAX_LENGTH, -1);
 		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
 		defaultValues.put(TiC.PROPERTY_EDITABLE, true);
+		defaultValues.put(TiC.PROPERTY_ENABLE_COPY, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
 	}
 
@@ -87,7 +89,6 @@ public class TextAreaProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict getSelection()
 	{

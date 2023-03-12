@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Axway. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,7 +10,6 @@
 const util = require('util');
 const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
 const fs = require('fs-extra');
-const glob = util.promisify(require('glob'));
 const path = require('path');
 const ejs = require('ejs');
 const generateBootstrap = require('./genBootstrap');
@@ -18,7 +17,7 @@ const generateBootstrap = require('./genBootstrap');
 const runtimeV8DirPath = path.join(__dirname, '..', 'runtime', 'v8');
 
 // Determine if we're running on a Windows machine.
-const isWindows = (process.platform === 'win32');
+const isWindows = process.platform === 'win32';
 
 /**
  * Double quotes given path and escapes double quote characters in file/directory names.
@@ -55,6 +54,24 @@ async function gperf(workingDirPath, inputFilePath, outputFilePath) {
 		throw new Error(`"gperf" failed to process file "${inputFilePath}". Reason: ${stderr}`);
 	}
 	await fs.writeFile(outputFilePath, stdout);
+}
+
+/**
+ * @param {string} outputDir directory to place the generated 'ti.kernel.js' file
+ */
+async function generateTiKernel(outputDir) {
+	const Builder = require('../../build/lib/builder');
+	const Android = require('../../build/lib/android');
+	const options = { };
+	const builder = new Builder(options, [ 'android' ]);
+	await builder.ensureGitHash();
+	const android = new Android({
+		sdkVersion: require('../../package.json').version,
+		gitHash: options.gitHash,
+		timestamp: options.timestamp
+	});
+
+	return builder.generateKernelBundle('android', android.babelOptions(), outputDir);
 }
 
 /**
@@ -100,61 +117,68 @@ async function js2c(headerFilepath, inputFiles) {
 }
 
 /**
+ * Overwrite "outFile" with "inFile" if file content is different and then removes "inFile".
+ * Intended to improve incremental build times by only updating files if they've actually changed.
+ * @param {string} inFile Path to the file intended to replace the "outFile".
+ * @param {string} outFile Ptah to the destination file to be replaced. Does not have to exist.
+ */
+async function replaceFileIfDifferent(inFile, outFile) {
+	// Do not continue if the 2 files have the same content.
+	if (await fs.exists(outFile)) {
+		const inFileContent = await fs.readFile(inFile);
+		const outFileContent = await fs.readFile(outFile);
+		if (inFileContent.toString() === outFileContent.toString()) {
+			return fs.unlink(inFile);
+		}
+	}
+
+	// Move file to destination. Will overwrite if destination already exists.
+	return fs.rename(inFile, outFile);
+}
+
+/**
  * Generate a "KrollNativeBindings.h" file with perfect hashes via gperf tool.
  * @param {string} outDir dir to place generated KrollNativeBindings.h file
  */
 async function generateKrollNativeBindings(outDir) {
 	// Note: 2nd argument is inserted into file as-is. Use relative path since absolute may contain user name.
-	return gperf(
-		runtimeV8DirPath, 'src/native/KrollNativeBindings.gperf',
-		path.join(outDir, 'KrollNativeBindings.h'));
+	const headerFilePath = path.join(outDir, 'KrollNativeBindings.h');
+	const tempFilePath = headerFilePath + '.temp';
+	await gperf(runtimeV8DirPath, 'src/native/KrollNativeBindings.gperf', tempFilePath);
+	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
 async function generateBootstrapAndKrollGeneratedBindings(outDir) {
+	// Generate "bootstrap.js" and "KrollGeneratedBindings.gperf" files.
 	await generateBootstrap(outDir);
+
 	// Generate a "KrollGeneratedBindings.h" file with perfect hashes via gperf tool.
 	// Note: 2nd argument is inserted into file as-is. Use relative path since absolute may contain user name.
-	return gperf(
-		runtimeV8DirPath, 'generated/KrollGeneratedBindings.gperf',
-		path.join(outDir, 'KrollGeneratedBindings.h'));
+	const headerFilePath = path.join(outDir, 'KrollGeneratedBindings.h');
+	const tempFilePath = headerFilePath + '.temp';
+	await gperf(runtimeV8DirPath, 'generated/KrollGeneratedBindings.gperf', tempFilePath);
+	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
 /** Generates C/C++ source files containing internal JS files and from gperf templates. */
 async function generateSourceCode() {
 	const outDir = path.join(runtimeV8DirPath, 'generated');
+	const kernelOutDir = path.join(__dirname, 'build/outputs/ti-assets/Resources');
 	await fs.mkdirs(outDir);
 	await Promise.all([
 		generateKrollNativeBindings(outDir),
-		// Create "bootstrap.js" and "KrollGeneratedBindings.gperf" which generates create*() functions for all Titanium internal modules.
 		generateBootstrapAndKrollGeneratedBindings(outDir),
+		// Generate a rolled up bundle of ti.kernel.js
+		generateTiKernel(kernelOutDir),
 	]);
-
-	// Fetch all JS file paths under directory: "./runtime/common/src/js"
-	const runtimeCommonDirPath = path.join(__dirname, '..', 'runtime', 'common');
-	let filePaths = await glob(
-		'*.js',
-		{
-			cwd: path.join(runtimeCommonDirPath, 'src', 'js'),
-			realpath: true
-		}
-	);
-
-	// Fetch all JS file paths under each module directory: "./modules/<ModuleName>/src/js"
-	filePaths = filePaths.concat(await glob(
-		'*/src/js/*.js',
-		{
-			cwd: path.join(__dirname, '..', 'modules'),
-			realpath: true
-		}
-	));
-	filePaths.unshift(path.join(outDir, 'bootstrap.js'));
-
-	// Generate a "KrollJS.h" file containing bootstrap.js and all the other baked in js files
+	// Generate a "KrollJS.h" file containing bootstrap.js and ti.kernel.js (as "kroll")
 	const files = new Map();
-	for (const nextPath of filePaths) {
-		files.set(path.basename(nextPath, '.js'), nextPath);
-	}
-	return js2c(path.join(outDir, 'KrollJS.h'), files);
+	files.set('bootstrap', path.join(outDir, 'bootstrap.js'));
+	files.set('kroll', path.join(kernelOutDir, 'ti.kernel.js'));
+	const headerFilePath = path.join(outDir, 'KrollJS.h');
+	const tempFilePath = headerFilePath + '.temp';
+	await js2c(tempFilePath, files);
+	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
 /** Executes the pre-build step. */

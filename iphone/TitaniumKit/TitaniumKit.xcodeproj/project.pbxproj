@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -23,12 +23,24 @@
 /* Begin PBXBuildFile section */
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
-		4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */; };
-		4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */; };
+		4A1FF4432523262A00A0F923 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1FF4422523262A00A0F923 /* ErrorView.swift */; };
 		B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */ = {isa = PBXBuildFile; fileRef = B106A6FB24535CB800B1305E /* JSValue+Addons.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = B106A6FC24535CB800B1305E /* JSValue+Addons.m */; };
+		B10E8D502408559300578E8F /* APSHTTPClient.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */; };
+		B10E8D5824085E1E00578E8F /* APSAnalytics.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */; };
+		B70ABB8424B79C9C0007D07A /* KrollPromise.h in Headers */ = {isa = PBXBuildFile; fileRef = B70ABB8324B79C9C0007D07A /* KrollPromise.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B70ABB8624B79DCF0007D07A /* KrollPromise.m in Sources */ = {isa = PBXBuildFile; fileRef = B70ABB8524B79DCF0007D07A /* KrollPromise.m */; };
+		B7385F50246593B7007DB1F2 /* ScriptModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B7385F4F246593B7007DB1F2 /* ScriptModule.m */; };
+		B7385F52246593BF007DB1F2 /* ScriptModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B7385F51246593BF007DB1F2 /* ScriptModule.h */; };
+		B7385F5524659F83007DB1F2 /* AssetsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B7385F5324659F83007DB1F2 /* AssetsModule.m */; };
+		B7385F5624659F83007DB1F2 /* AssetsModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B7385F5424659F83007DB1F2 /* AssetsModule.h */; };
+		B7385F592465A4B3007DB1F2 /* KrollModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B7385F572465A4B3007DB1F2 /* KrollModule.m */; };
+		B7385F5A2465A4B3007DB1F2 /* KrollModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B7385F582465A4B3007DB1F2 /* KrollModule.h */; };
 		B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = B7624B6A216663C7000C365A /* ObjcProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B7624B6D216663C7000C365A /* ObjcProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B7624B6B216663C7000C365A /* ObjcProxy.m */; };
+		B7D114DB2465F48600B95107 /* Module.h in Headers */ = {isa = PBXBuildFile; fileRef = B7D114DA2465F48600B95107 /* Module.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B7D114DE2465F52700B95107 /* ObjcModule.h in Headers */ = {isa = PBXBuildFile; fileRef = B7D114DC2465F52600B95107 /* ObjcModule.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B7D114DF2465F52700B95107 /* ObjcModule.m in Sources */ = {isa = PBXBuildFile; fileRef = B7D114DD2465F52600B95107 /* ObjcModule.m */; };
 		DB1596592075389000292B19 /* APIModule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB1596572075389000292B19 /* APIModule.m */; };
 		DB15965A2075389000292B19 /* APIModule.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596582075389000292B19 /* APIModule.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB1596622075461400292B19 /* SBJSON.h in Headers */ = {isa = PBXBuildFile; fileRef = DB1596602075461400292B19 /* SBJSON.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -181,10 +193,24 @@
 /* Begin PBXFileReference section */
 		4A175274218B64E70094C7B6 /* KrollTimerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollTimerManager.h; sourceTree = "<group>"; };
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
+		4A1FF4422523262A00A0F923 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		B106A6FB24535CB800B1305E /* JSValue+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JSValue+Addons.h"; sourceTree = "<group>"; };
 		B106A6FC24535CB800B1305E /* JSValue+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "JSValue+Addons.m"; sourceTree = "<group>"; };
+		B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = APSHTTPClient.xcframework; path = TitaniumKit/Libraries/APSHTTPClient/APSHTTPClient.xcframework; sourceTree = "<group>"; };
+		B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = APSAnalytics.xcframework; path = TitaniumKit/Libraries/APSAnalytics/APSAnalytics.xcframework; sourceTree = "<group>"; };
+		B70ABB8324B79C9C0007D07A /* KrollPromise.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KrollPromise.h; sourceTree = "<group>"; };
+		B70ABB8524B79DCF0007D07A /* KrollPromise.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KrollPromise.m; sourceTree = "<group>"; };
+		B7385F4F246593B7007DB1F2 /* ScriptModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScriptModule.m; sourceTree = "<group>"; };
+		B7385F51246593BF007DB1F2 /* ScriptModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScriptModule.h; sourceTree = "<group>"; };
+		B7385F5324659F83007DB1F2 /* AssetsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssetsModule.m; sourceTree = "<group>"; };
+		B7385F5424659F83007DB1F2 /* AssetsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssetsModule.h; sourceTree = "<group>"; };
+		B7385F572465A4B3007DB1F2 /* KrollModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollModule.m; sourceTree = "<group>"; };
+		B7385F582465A4B3007DB1F2 /* KrollModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollModule.h; sourceTree = "<group>"; };
 		B7624B6A216663C7000C365A /* ObjcProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcProxy.h; sourceTree = "<group>"; };
 		B7624B6B216663C7000C365A /* ObjcProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcProxy.m; sourceTree = "<group>"; };
+		B7D114DA2465F48600B95107 /* Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Module.h; sourceTree = "<group>"; };
+		B7D114DC2465F52600B95107 /* ObjcModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcModule.h; sourceTree = "<group>"; };
+		B7D114DD2465F52600B95107 /* ObjcModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ObjcModule.m; sourceTree = "<group>"; };
 		DB1596572075389000292B19 /* APIModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIModule.m; sourceTree = "<group>"; };
 		DB1596582075389000292B19 /* APIModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIModule.h; sourceTree = "<group>"; };
 		DB1596602075461400292B19 /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
@@ -332,10 +358,6 @@
 		DB3908632075228900AE31EC /* APSHTTPHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPHelper.h; sourceTree = "<group>"; };
 		DB3908642075228900AE31EC /* APSHTTPPostForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APSHTTPPostForm.h; sourceTree = "<group>"; };
 		DB5813E62075FCF200CA1437 /* TiDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiDefines.h; sourceTree = "<group>"; };
-		DB5813E82075FDC600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		DB5813E92075FDF600CA1437 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
-		DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSAnalytics.a; path = TitaniumKit/Libraries/APSAnalytics/libAPSAnalytics.a; sourceTree = "<group>"; };
-		DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAPSHTTPClient.a; path = TitaniumKit/Libraries/APSHTTPClient/libAPSHTTPClient.a; sourceTree = "<group>"; };
 		DBE66A34210F92FD00095F1E /* KrollWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollWrapper.h; sourceTree = "<group>"; };
 		DBE66A35210F92FD00095F1E /* KrollWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollWrapper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -347,8 +369,8 @@
 			files = (
 				DB258DAD1F097697000D0D8D /* Foundation.framework in Frameworks */,
 				DB258DAB1F097692000D0D8D /* JavaScriptCore.framework in Frameworks */,
-				4AF8DEEB1F0C27D6006270E1 /* libAPSAnalytics.a in Frameworks */,
-				4AF8DEEC1F0C27D9006270E1 /* libAPSHTTPClient.a in Frameworks */,
+				B10E8D502408559300578E8F /* APSHTTPClient.xcframework in Frameworks */,
+				B10E8D5824085E1E00578E8F /* APSAnalytics.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -419,6 +441,8 @@
 		DB258CDA1F0975F7000D0D8D /* Kroll */ = {
 			isa = PBXGroup;
 			children = (
+				B70ABB8324B79C9C0007D07A /* KrollPromise.h */,
+				B70ABB8524B79DCF0007D07A /* KrollPromise.m */,
 				DB258D1B1F097680000D0D8D /* KrollBridge.h */,
 				DB258D1C1F097680000D0D8D /* KrollBridge.m */,
 				DB15FC231F0A833100A82C45 /* KrollCallback.h */,
@@ -445,24 +469,33 @@
 		DB258D181F097680000D0D8D /* API */ = {
 			isa = PBXGroup;
 			children = (
-				B7624B6A216663C7000C365A /* ObjcProxy.h */,
-				B7624B6B216663C7000C365A /* ObjcProxy.m */,
+				B7385F5424659F83007DB1F2 /* AssetsModule.h */,
+				B7385F5324659F83007DB1F2 /* AssetsModule.m */,
 				DB1596582075389000292B19 /* APIModule.h */,
 				DB1596572075389000292B19 /* APIModule.m */,
 				DB258D191F097680000D0D8D /* Bridge.h */,
 				DB258D1A1F097680000D0D8D /* Bridge.m */,
 				DB15FCC61F0A879B00A82C45 /* ImageLoader.h */,
 				DB15FCC71F0A879B00A82C45 /* ImageLoader.m */,
+				B7385F582465A4B3007DB1F2 /* KrollModule.h */,
+				B7385F572465A4B3007DB1F2 /* KrollModule.m */,
 				DB15FC9E1F0A863B00A82C45 /* LayoutConstraint.h */,
 				DB15FC9F1F0A863B00A82C45 /* LayoutConstraint.m */,
 				DB15FC9A1F0A862D00A82C45 /* ListenerEntry.h */,
 				DB15FC9B1F0A862D00A82C45 /* ListenerEntry.m */,
 				DB15FC711F0A850E00A82C45 /* Mimetypes.h */,
 				DB15FC721F0A850E00A82C45 /* Mimetypes.m */,
+				B7D114DA2465F48600B95107 /* Module.h */,
 				DB15FCCE1F0A87C100A82C45 /* NSData+Additions.h */,
 				DB15FCCF1F0A87C100A82C45 /* NSData+Additions.m */,
+				B7D114DC2465F52600B95107 /* ObjcModule.h */,
+				B7D114DD2465F52600B95107 /* ObjcModule.m */,
+				B7624B6A216663C7000C365A /* ObjcProxy.h */,
+				B7624B6B216663C7000C365A /* ObjcProxy.m */,
 				DB15FCED1F0A885600A82C45 /* OperationQueue.h */,
 				DB15FCEE1F0A885600A82C45 /* OperationQueue.m */,
+				B7385F51246593BF007DB1F2 /* ScriptModule.h */,
+				B7385F4F246593B7007DB1F2 /* ScriptModule.m */,
 				DB1596602075461400292B19 /* SBJSON.h */,
 				DB1596612075461400292B19 /* SBJSON.m */,
 				DB15FD021F0A892500A82C45 /* Ti2DMatrix.h */,
@@ -554,6 +587,7 @@
 				DB15FC481F0A83A700A82C45 /* WebFont.m */,
 				B106A6FB24535CB800B1305E /* JSValue+Addons.h */,
 				B106A6FC24535CB800B1305E /* JSValue+Addons.m */,
+				4A1FF4422523262A00A0F923 /* ErrorView.swift */,
 			);
 			name = API;
 			path = Sources/API;
@@ -562,8 +596,8 @@
 		DB258DA91F097691000D0D8D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DBA197501F0C20E300B12D31 /* libAPSAnalytics.a */,
-				DBA197511F0C20E300B12D31 /* libAPSHTTPClient.a */,
+				B10E8D5724085E1E00578E8F /* APSAnalytics.xcframework */,
+				B10E8D4F2408559300578E8F /* APSHTTPClient.xcframework */,
 				DB258DAC1F097697000D0D8D /* Foundation.framework */,
 				DB258DAA1F097692000D0D8D /* JavaScriptCore.framework */,
 			);
@@ -583,7 +617,6 @@
 			isa = PBXGroup;
 			children = (
 				DB39085F2075228900AE31EC /* APSAnalytics.h */,
-				DB5813E82075FDC600CA1437 /* module.modulemap */,
 			);
 			path = APSAnalytics;
 			sourceTree = "<group>";
@@ -596,7 +629,6 @@
 				DB3908622075228900AE31EC /* APSHTTPClient.h */,
 				DB3908632075228900AE31EC /* APSHTTPHelper.h */,
 				DB3908642075228900AE31EC /* APSHTTPPostForm.h */,
-				DB5813E92075FDF600CA1437 /* module.modulemap */,
 			);
 			path = APSHTTPClient;
 			sourceTree = "<group>";
@@ -628,6 +660,7 @@
 				DB15FC6F1F0A84FD00A82C45 /* TiBlob.h in Headers */,
 				DB15FC731F0A850E00A82C45 /* Mimetypes.h in Headers */,
 				DB258D611F097680000D0D8D /* Bridge.h in Headers */,
+				B7385F5624659F83007DB1F2 /* AssetsModule.h in Headers */,
 				DB258D631F097680000D0D8D /* KrollBridge.h in Headers */,
 				B7624B6C216663C7000C365A /* ObjcProxy.h in Headers */,
 				DB15FC501F0A848B00A82C45 /* TiEvaluator.h in Headers */,
@@ -652,6 +685,7 @@
 				DB15FC811F0A855F00A82C45 /* UIImage+Resize.h in Headers */,
 				DB15FC5B1F0A84C000A82C45 /* TiHost.h in Headers */,
 				DB15FCC81F0A879B00A82C45 /* ImageLoader.h in Headers */,
+				B7D114DB2465F48600B95107 /* Module.h in Headers */,
 				DB15FC941F0A860600A82C45 /* TiAnimation.h in Headers */,
 				DB15FC8B1F0A859800A82C45 /* UIImage+RoundedCorner.h in Headers */,
 				DB15FCA01F0A863B00A82C45 /* LayoutConstraint.h in Headers */,
@@ -670,8 +704,10 @@
 				DB15FD0C1F0A894000A82C45 /* TiWindowProxy.h in Headers */,
 				DB258DB81F09770C000D0D8D /* TiUtils.h in Headers */,
 				DB15FC351F0A833100A82C45 /* KrollContext.h in Headers */,
+				B70ABB8424B79C9C0007D07A /* KrollPromise.h in Headers */,
 				DB258D9D1F097680000D0D8D /* TiUIView.h in Headers */,
 				DB15FD2C1F0A93EF00A82C45 /* TiStreamProxy.h in Headers */,
+				B7385F5A2465A4B3007DB1F2 /* KrollModule.h in Headers */,
 				DB15FD241F0A8A7B00A82C45 /* TiBindingEvent.h in Headers */,
 				DB15FD141F0A897B00A82C45 /* TiViewController.h in Headers */,
 				DB15FC451F0A838E00A82C45 /* TiColor.h in Headers */,
@@ -679,6 +715,7 @@
 				DB3908692075228900AE31EC /* APSHTTPHelper.h in Headers */,
 				DB3908672075228900AE31EC /* APSHTTPRequest.h in Headers */,
 				DB39086A2075228900AE31EC /* APSHTTPPostForm.h in Headers */,
+				B7D114DE2465F52700B95107 /* ObjcModule.h in Headers */,
 				DB15FD081F0A892500A82C45 /* Ti3DMatrix.h in Headers */,
 				DB15FBEE1F0A80E400A82C45 /* TiDimension.h in Headers */,
 				DB15FC7F1F0A855F00A82C45 /* UIImage+Alpha.h in Headers */,
@@ -698,6 +735,7 @@
 				DB258CD21F09757E000D0D8D /* TitaniumKit.h in Headers */,
 				DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */,
 				DB15FCCC1F0A87A400A82C45 /* TiErrorController.h in Headers */,
+				B7385F52246593BF007DB1F2 /* ScriptModule.h in Headers */,
 				DB15FC5F1F0A84C900A82C45 /* Webcolor.h in Headers */,
 				DB258DA31F097680000D0D8D /* TiViewTemplate.h in Headers */,
 				DB15FD1A1F0A89A400A82C45 /* TiUIWindow.h in Headers */,
@@ -736,7 +774,7 @@
 				TargetAttributes = {
 					DB258CCC1F09757E000D0D8D = {
 						CreatedOnToolsVersion = 8.3.3;
-						ProvisioningStyle = Automatic;
+						LastSwiftMigration = 1410;
 					};
 					DB9635BE1F0AB4AC00C41B20 = {
 						CreatedOnToolsVersion = 8.3.3;
@@ -804,6 +842,7 @@
 				DB15FC8C1F0A859800A82C45 /* UIImage+RoundedCorner.m in Sources */,
 				DB15FC741F0A850E00A82C45 /* Mimetypes.m in Sources */,
 				DB15FC801F0A855F00A82C45 /* UIImage+Alpha.m in Sources */,
+				B7385F592465A4B3007DB1F2 /* KrollModule.m in Sources */,
 				DB15FCA51F0A864A00A82C45 /* TiGradient.m in Sources */,
 				DB15FD311F0A948B00A82C45 /* TiUIiOSTransitionAnimationProxy.m in Sources */,
 				DB15FD351F0A95C500A82C45 /* TiUIViewProxy.m in Sources */,
@@ -816,14 +855,17 @@
 				DB258D6C1F097680000D0D8D /* TiBase.m in Sources */,
 				DB15FC4A1F0A83A700A82C45 /* WebFont.m in Sources */,
 				DB15FC701F0A84FD00A82C45 /* TiBlob.m in Sources */,
+				B7385F50246593B7007DB1F2 /* ScriptModule.m in Sources */,
 				DB15FD0D1F0A894000A82C45 /* TiWindowProxy.m in Sources */,
 				DB15FC991F0A862000A82C45 /* TiPoint.m in Sources */,
 				B106A6FE24535CB800B1305E /* JSValue+Addons.m in Sources */,
+				4A1FF4432523262A00A0F923 /* ErrorView.swift in Sources */,
 				DB1596632075461400292B19 /* SBJSON.m in Sources */,
 				DB15FCA11F0A863B00A82C45 /* LayoutConstraint.m in Sources */,
 				DB15FC9D1F0A862D00A82C45 /* ListenerEntry.m in Sources */,
 				DB15FC3C1F0A833100A82C45 /* KrollMethodDelegate.m in Sources */,
 				DB15FD291F0A93A900A82C45 /* TiFilesystemFileStreamProxy.m in Sources */,
+				B70ABB8624B79DCF0007D07A /* KrollPromise.m in Sources */,
 				DB15FC5C1F0A84C000A82C45 /* TiHost.m in Sources */,
 				DB258D621F097680000D0D8D /* Bridge.m in Sources */,
 				DB15FD071F0A892500A82C45 /* Ti2DMatrix.m in Sources */,
@@ -842,6 +884,7 @@
 				DB15FD251F0A8A7B00A82C45 /* TiBindingEvent.m in Sources */,
 				DB15FBEF1F0A80E400A82C45 /* TiDimension.m in Sources */,
 				DB258DA21F097680000D0D8D /* TiViewProxy.m in Sources */,
+				B7D114DF2465F52700B95107 /* ObjcModule.m in Sources */,
 				DB15FC781F0A851A00A82C45 /* TiRootViewController.m in Sources */,
 				DB15FCD11F0A87C100A82C45 /* NSData+Additions.m in Sources */,
 				DB15FCCD1F0A87A400A82C45 /* TiErrorController.m in Sources */,
@@ -860,6 +903,7 @@
 				DB258D8D1F097680000D0D8D /* TiProxy.m in Sources */,
 				DB15FC541F0A849D00A82C45 /* TiBindingRunLoop.m in Sources */,
 				DB15FCFC1F0A88B100A82C45 /* TiLocale.m in Sources */,
+				B7385F5524659F83007DB1F2 /* AssetsModule.m in Sources */,
 				DB15FCF81F0A889100A82C45 /* TiLayoutQueue.m in Sources */,
 				DB15FBF11F0A80E400A82C45 /* TiThreading.m in Sources */,
 				DB15FC821F0A855F00A82C45 /* UIImage+Resize.m in Sources */,
@@ -873,6 +917,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -920,7 +965,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -934,6 +979,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -974,7 +1020,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -987,13 +1033,18 @@
 		DB258CD61F09757E000D0D8D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1002,15 +1053,19 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				INFOPLIST_FILE = TitaniumKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
 					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSAnalytics",
 					"$(PROJECT_DIR)/TitaniumKit/Libraries/APSHTTPClient",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1020,7 +1075,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.TitaniumKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
 			name = Debug;
@@ -1028,13 +1087,18 @@
 		DB258CD71F09757E000D0D8D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = NO;
+				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -1042,8 +1106,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				INFOPLIST_FILE = TitaniumKit/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TitaniumKit",
@@ -1059,7 +1127,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.TitaniumKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
 				VALID_ARCHS = "$(ARCHS_STANDARD)";
 			};
 			name = Release;

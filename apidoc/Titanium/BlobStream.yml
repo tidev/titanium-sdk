@@ -5,6 +5,6 @@ summary: Wrapper around <Titanium.Blob> that implements the <Titanium.IOStream> 
 description: |
     Use the <Titanium.Stream.createStream> method to create a `BlobStream` instance from a
     `Blob`.
-since: "1.7"
+since: {android: "1.7", iphone: "1.7", ipad: "1.7", macos: "9.2.0"}
 createable: false
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]

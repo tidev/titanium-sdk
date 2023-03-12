@@ -10,7 +10,7 @@
  * @module lib/android-manifest
  *
  * @copyright
- * Copyright (c) 2009-2019 by Axway, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -434,6 +434,23 @@ class AndroidManifest {
 		// Apply "tools:replace" attribute to <manifest/> element. (Must be done after setting namespace above.)
 		applyToolsReplaceToElement(manifestElement);
 
+		// Apply 'tools:node="replace"' to WRITE_EXTERNAL_STORAGE permission if no other tools attribute is set.
+		// Titanium adds "maxSdkVersion" attribute to this permission by default. This removes that attribute.
+		const permissionElement = getFirstChildElementByTagAndAndroidName(
+			manifestElement, 'uses-permission', 'android.permission.WRITE_EXTERNAL_STORAGE');
+		if (permissionElement) {
+			let hasToolsAttribute = false;
+			for (let index = 0; index < permissionElement.attributes.length; index++) {
+				if (permissionElement.attributes.item(index).name.startsWith('tools:')) {
+					hasToolsAttribute = true;
+					break;
+				}
+			}
+			if (!hasToolsAttribute) {
+				permissionElement.setAttribute('tools:node', 'replace');
+			}
+		}
+
 		// Fetch the <application/> element.
 		const appElement = getFirstChildElementByTagName(manifestElement, 'application');
 		if (!appElement) {
@@ -493,7 +510,7 @@ class AndroidManifest {
 			if (sourceElement.hasAttributes()) {
 				for (let index = 0; index < sourceElement.attributes.length; index++) {
 					const sourceAttribute = sourceElement.attributes.item(index);
-					destinationElement.setAttribute(sourceAttribute.name, sourceAttribute.value);
+					destinationElement.setAttributeNode(sourceAttribute.cloneNode());
 				}
 			}
 
@@ -502,10 +519,13 @@ class AndroidManifest {
 				return;
 			}
 
-			// We only support merging child nodes immediately under <manifest/> or <application/> elements.
+			// We only support merging child nodes immediately under <manifest/>, <queries/>, or <application/>.
 			// For all other XML elements, we simply replace the child nodes, but only if children were provided.
 			const isManifestElement = (sourceElement.tagName === 'manifest');
-			const canMergeChildren = isManifestElement || (sourceElement.tagName === 'application');
+			const canMergeChildren
+				=  isManifestElement
+				|| (sourceElement.tagName === 'application')
+				|| (sourceElement.tagName === 'queries');
 			if (!canMergeChildren) {
 				while (destinationElement.hasChildNodes()) {
 					destinationElement.removeChild(destinationElement.firstChild);
@@ -531,8 +551,9 @@ class AndroidManifest {
 				}
 
 				// Attempt to find a matching child element under destination.
+				// Note: Never merge <intent/> block. Only append them. (Duplicate intent blocks are okay.)
 				let destinationChildElement = null;
-				if (tagName) {
+				if (tagName && (tagName !== 'intent')) {
 					if (androidName) {
 						destinationChildElement = getFirstChildElementByTagAndAndroidName(destinationElement, tagName, androidName);
 					} else {

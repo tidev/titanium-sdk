@@ -17,8 +17,8 @@ description: |
     
     Android Note: Android 6 and later uses runtime permissions to secure the user's privacy. 
     Therefore, you should call <Titanium.Filesystem.requestStoragePermissions> before attempting to load remote images.
-    
-    Read more about remote images and general best practices in the [Image Best Practices Guide](https://wiki.appcelerator.org/display/guides2/Image+Best+Practices#ImageBestPractices-Cachingremoteimages).
+
+    Read more about remote images and general best practices in the [Image Best Practices Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Best_Practices_and_Recommendations/Image_Best_Practices.html#caching-remote-images).
 
     #### Android 9-Patch Scaled Images
 
@@ -49,12 +49,12 @@ methods:
   - name: pause
     summary: Pauses a running animation. Use `resume` method to continue.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: resume
     summary: Resumes an animation from a `pause` state.
     description:  This method only works if multiple images are specified.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: start
     summary: |
@@ -67,7 +67,7 @@ methods:
 
   - name: toBlob
     summary: Returns the image as a Blob object.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     returns:
         type: Titanium.Blob
 
@@ -121,7 +121,7 @@ events:
 
   - name: pause
     summary: Fired when the animation pauses.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "2.1.1" }
 
 properties:
@@ -134,26 +134,27 @@ properties:
 
   - name: autorotate
     summary: |
-        Indicates whether the image should be rotated based on exif orientation data.
-        By default, this is false on android and true on iOS.
+        Indicates whether the image should be rotated based on EXIF orientation data.
+
+        Before Titanium 10.1.0, this defaulted to `false` on Android.
     type: Boolean
-    default: false on android, true on iOS.
+    default: true
     availability: creation
     since: 3.0.0
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: decodeRetries
-    summary: |
-        Number of times to retry decoding the bitmap at a URL.
+    summary: Number of times to retry decoding the bitmap at a URL.
+    description: Defaults to 2 on Titanium 10.1.0 and higher. Defaults to 5 on older SDK versions.
     type: Number
-    default: 5
+    default: 2
     platforms: [android]
     since: "1.7.0"
 
   - name: defaultImage
     summary: Local path to the default image to display while loading a remote image.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: duration
     summary: Amount of time in milliseconds to animate one cycle.
@@ -188,7 +189,7 @@ properties:
         filenames, and thus this property is only applicable to remote images.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: image
     summary: Image to display.
@@ -200,6 +201,25 @@ properties:
         from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
         for more information.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
+
+  - name: imageTouchFeedback
+    summary: Enables a ripple effect when the foreground image is touched.
+    description: |
+        Note that the [touchFeedback](Titanium.UI.View.touchFeedback) property applies a ripple effect to the
+        view's background. If the image is opaque and completely covers the view (such as a photo),
+        then the background's ripple won't be visible. In this case, you should use this `imageTouchFeedback`
+        property to apply a ripple effect to the foreground image assigned via the `image` property.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "10.1.0"
+
+  - name: imageTouchFeedbackColor
+    summary: Optional touch feedback ripple color. This has no effect unless `imageTouchFeedback` is true.
+    description: Defaults to provided theme color.
+    type: String
+    platforms: [android]
+    since: "10.1.0"
 
   - name: images
     summary: |
@@ -223,7 +243,7 @@ properties:
         is ignored when the `defaultImage` property is set.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: repeatCount
     summary: Number of times to repeat the image animation.
@@ -235,20 +255,19 @@ properties:
     type: Boolean
     default: false
 
+  - name: scalingMode
+    summary: Determines how the image is scaled within the view.
+    type: Number
+    constants: Titanium.Media.IMAGE_SCALING_*
+    default: <Titanium.Media.IMAGE_SCALING_AUTO>
+    since: "10.1.0"
+
   - name: tintColor
     summary: The view's tintColor. Android does not support setting instances of <Titanium.UI.Color>
     type: [String, Titanium.UI.Color]
     default: null
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { android: "5.4.0", iphone: "5.4.0", ipad: "5.4.0"}
-
-  - name: url
-    summary: URL to the image to display.
-    deprecated:
-        since: "1.5.0"
-        removed: "3.0.0"
-        notes: Use [Titanium.UI.ImageView.image](Titanium.UI.ImageView.image) instead.
-    type: String
 
 examples:
   - title: Basic Image View

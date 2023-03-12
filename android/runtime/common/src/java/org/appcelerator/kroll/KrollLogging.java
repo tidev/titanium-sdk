@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,7 +19,7 @@ public class KrollLogging
 	public static final int CRITICAL = 7;
 	public static final int FATAL = 8;
 
-	private static KrollLogging instance = new KrollLogging("TiAPI");
+	private static final KrollLogging instance = new KrollLogging("TiAPI");
 
 	private String tag;
 	private LogListener listener;
@@ -119,19 +119,25 @@ public class KrollLogging
 
 	private String combineLogMessages(String... args)
 	{
-		String msg;
-		int length = (args == null ? 0 : args.length);
-
-		if (length > 0) {
-			msg = args[0];
-		} else {
-			msg = new String();
+		// Do not continue if given a null/empty array.
+		if ((args == null) || (args.length <= 0)) {
+			return "";
 		}
 
-		for (int i = 1; i < length; i++) {
-			msg = msg.concat(String.format(" %s", args[i]));
+		// If array only contains 1 element, then we don't need to do below join operation.
+		if (args.length == 1) {
+			return (args[0] != null) ? args[0] : "";
 		}
-		return msg;
+
+		// Join array of strings, separated by spaces.
+		StringBuilder stringBuilder = new StringBuilder();
+		for (String nextArg : args) {
+			if (stringBuilder.length() > 0) {
+				stringBuilder.append(' ');
+			}
+			stringBuilder.append(nextArg);
+		}
+		return stringBuilder.toString();
 	}
 
 	private void internalLog(int severity, String msg)

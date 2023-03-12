@@ -217,6 +217,7 @@ process.versions = {
 	jsc: '' // TODO: report javascriptcore version for iOS/WIndows?
 	// TODO: Report ios/Android/Windows platform versions?
 };
+process[Symbol.toStringTag] = 'process';
 
 global.process = process;
 // handle spitting out warnings

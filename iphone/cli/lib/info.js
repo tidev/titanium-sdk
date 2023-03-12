@@ -79,25 +79,25 @@ exports.detect = function (types, config, next) {
 						+ __('The maximum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, issue.maxSupportedVer);
 					break;
 				case 'IOS_NO_WWDR_CERT_FOUND':
-					issue.message += '\n' + __('Download and install the certificate from %s', '__http://appcelerator.com/ios-wwdr__');
+					issue.message += '\n' + __('Download and install the certificate from %s', '__https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer__');
 					break;
 				case 'IOS_NO_KEYCHAINS_FOUND':
 					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or App Store distribution certificates.');
 					break;
 				case 'IOS_NO_VALID_DEV_CERTS_FOUND':
-					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dev-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__https://developer.apple.com/account/ios/certificate/certificateList.action?type=development__');
 					break;
 				case 'IOS_NO_VALID_DIST_CERTS_FOUND':
-					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a certificate.', '__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__');
 					break;
 				case 'IOS_NO_VALID_DEVELOPMENT_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dev-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__https://developer.apple.com/account/ios/certificate/certificateList.action?type=development__');
 					break;
 				case 'IOS_NO_VALID_ADHOC_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__');
 					break;
 				case 'IOS_NO_VALID_DISTRIBUTION_PROVISIONING_PROFILES':
-					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__http://appcelerator.com/ios-dist-certs__');
+					issue.message += '\n' + __('You will need to log in to %s with your Apple Developer account, then create, download, and install a profile.', '__https://developer.apple.com/account/ios/certificate/certificateList.action?type=distribution__');
 					break;
 			}
 		});

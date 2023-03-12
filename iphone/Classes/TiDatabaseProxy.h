@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,10 +24,10 @@ READONLY_PROPERTY(NSUInteger, rowsAffected, RowsAffected);
 - (void)close;
 // This supports varargs, but we hack it in the impl to check currentArgs
 - (TiDatabaseResultSetProxy *)execute:(NSString *)sql;
-- (void)executeAsync:(NSString *)sql;
+- (JSValue *)executeAsync:(NSString *)sql;
 - (NSArray<TiDatabaseResultSetProxy *> *)executeAll:(NSArray<NSString *> *)queries;
 JSExportAs(executeAllAsync,
-           -(void)executeAllAsync
+           -(JSValue *)executeAllAsync
            : (NSArray<NSString *> *)queries withCallback
            : (JSValue *)callback);
 - (void)remove;

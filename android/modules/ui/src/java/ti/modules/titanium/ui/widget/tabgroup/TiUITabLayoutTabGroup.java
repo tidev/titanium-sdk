@@ -1,19 +1,10 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tabgroup;
-
-import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import com.google.android.material.tabs.TabLayout;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -23,6 +14,19 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
+
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import androidx.annotation.ColorInt;
+
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.tabs.TabLayout;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 
@@ -39,6 +43,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 {
 	// region private fields
 	private TabLayout mTabLayout;
+	private boolean mHasChangedRippleColor;
 	// endregion
 
 	public TiUITabLayoutTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -102,6 +107,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			}
 		};
 		this.mTabLayout.setFitsSystemWindows(true);
+		this.mTabLayout.setTabRippleColor(createRippleColorStateListFrom(getColorPrimary()));
 
 		// Set the OnTabSelected listener.
 		this.mTabLayout.addOnTabSelectedListener(this);
@@ -161,6 +167,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		updateTabBackgroundDrawable(tabIndex);
 		// Set the icon.
 		updateTabIcon(tabIndex);
+		// Set the badge.
+		updateBadge(tabIndex);
+		// Set the badge.color
+		updateBadgeColor(tabIndex);
 	}
 
 	/**
@@ -195,6 +205,16 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	}
 
 	@Override
+	@ColorInt
+	protected int getDefaultBackgroundColor()
+	{
+		if (isUsingSolidTitaniumTheme()) {
+			return getColorBackground();
+		}
+		return super.getDefaultBackgroundColor();
+	}
+
+	@Override
 	public void updateTabBackgroundDrawable(int index)
 	{
 		if (index < 0 || index >= tabs.size()) {
@@ -206,7 +226,11 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		final Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
+		if (!hasCustomBackground(tabProxy)) {
+			return;
+		}
+
+		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 		this.mTabLayout.setBackground(backgroundDrawable);
 	}
 
@@ -238,6 +262,10 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
+		if (!hasCustomTextColor(tabProxy)) {
+			return;
+		}
+
 		try {
 			final LinearLayout tabLayout = getTabLinearLayoutForIndex(index);
 			// Set the TextView textColor.
@@ -262,6 +290,52 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	}
 
 	@Override
+	public void updateBadge(int index)
+	{
+		// Validate index input.
+		if (index < 0 || index >= tabs.size()) {
+			return;
+		}
+		TiViewProxy tabProxy = tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		Object badgeValue = tabProxy.getProperty(TiC.PROPERTY_BADGE);
+		if ((badgeValue == null) && !TiUIHelper.isUsingMaterialTheme(this.mTabLayout.getContext())) {
+			return;
+		}
+
+		BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+		if (badgeValue != null) {
+			badgeDrawable.setVisible(true);
+			badgeDrawable.setNumber(TiConvert.toInt(badgeValue, 0));
+		} else {
+			badgeDrawable.setVisible(false);
+		}
+	}
+
+	@Override
+	public void updateBadgeColor(int index)
+	{
+		// Validate index input.
+		if (index < 0 || index >= tabs.size()) {
+			return;
+		}
+		TiViewProxy tabProxy = tabs.get(index).getProxy();
+		if (tabProxy == null) {
+			return;
+		}
+
+		// TODO: reset to default value when property is null
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+	}
+
+	@Override
 	public void updateTabIcon(int index)
 	{
 		// Validate index input.
@@ -273,8 +347,9 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
-		this.mTabLayout.getTabAt(index).setIcon(drawable);
+		TabLayout.Tab tab = this.mTabLayout.getTabAt(index);
+		tab.setIcon(TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON)));
+		scaleIconToFit(tab);
 	}
 
 	@Override
@@ -337,9 +412,8 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	private void updateIconTint()
 	{
 		for (int i = 0; i < this.tabs.size(); i++) {
-			final TiUITab tab = this.tabs.get(i);
-			if (tab.getProxy() != null) {
-				final TiViewProxy tabProxy = tab.getProxy();
+			final TiViewProxy tabProxy = this.tabs.get(i).getProxy();
+			if (hasCustomIconTint(tabProxy)) {
 				final boolean selected = i == this.mTabLayout.getSelectedTabPosition();
 				Drawable drawable = this.mTabLayout.getTabAt(i).getIcon();
 				drawable = updateIconTint(tabProxy, drawable, selected);
@@ -353,7 +427,36 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		super.selectTab(tabIndex);
 
+		// Update the selected tab's colors. (TabLayour resets colors when a selection is made.)
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
+
+		// Update ripple and tab underline color to match selected tab's tint color.
+		// Note: Only do this if custom colors properties are defined since this will prevent selection animation.
+		if ((tabIndex >= 0) && (tabIndex < this.tabs.size())) {
+			final TiViewProxy tabProxy = this.tabs.get(tabIndex).getProxy();
+			if (mHasChangedRippleColor || hasCustomIconTint(tabProxy)) {
+				int activeColor = getActiveColor(tabProxy);
+				this.mTabLayout.setTabRippleColor(createRippleColorStateListFrom(activeColor));
+				this.mTabLayout.setSelectedTabIndicatorColor(activeColor);
+				this.mTabLayout.setUnboundedRipple(true);
+				mHasChangedRippleColor = true;
+			}
+		}
+	}
+
+	public static void scaleIconToFit(TabLayout.Tab tab)
+	{
+		if ((tab == null) || (tab.view == null)) {
+			return;
+		}
+
+		for (int childIndex = 0; childIndex < tab.view.getChildCount(); childIndex++) {
+			View childView = tab.view.getChildAt(childIndex);
+			if (childView instanceof ImageView) {
+				((ImageView) childView).setScaleType(ImageView.ScaleType.FIT_CENTER);
+				break;
+			}
+		}
 	}
 }

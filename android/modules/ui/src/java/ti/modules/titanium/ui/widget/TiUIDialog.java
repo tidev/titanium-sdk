@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,19 +22,19 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import androidx.core.view.ViewCompat;
 import android.view.ViewParent;
 import android.widget.ListView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 public class TiUIDialog extends TiUIView
 {
 	private static final String TAG = "TiUIDialog";
 	private static final int BUTTON_MASK = 0x10000000;
 
-	protected Builder builder;
+	protected MaterialAlertDialogBuilder builder;
 	protected TiUIView view;
 	private DialogWrapper dialogWrapper;
 
@@ -68,7 +68,7 @@ public class TiUIDialog extends TiUIView
 		return currentActivity;
 	}
 
-	private Builder getBuilder()
+	private MaterialAlertDialogBuilder getBuilder()
 	{
 		if (builder == null) {
 			createBuilder();
@@ -81,13 +81,13 @@ public class TiUIDialog extends TiUIView
 	{
 		String[] buttonText = null;
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
-			Builder builder = getBuilder();
+			MaterialAlertDialogBuilder builder = getBuilder();
 			if (builder != null) {
 				builder.setTitle(d.getString(TiC.PROPERTY_TITLE));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_MESSAGE)) {
-			Builder builder = getBuilder();
+			MaterialAlertDialogBuilder builder = getBuilder();
 			if (builder != null) {
 				builder.setMessage(d.getString(TiC.PROPERTY_MESSAGE));
 			}
@@ -124,7 +124,7 @@ public class TiUIDialog extends TiUIView
 
 	private void processOptions(String[] optionText, int selectedIndex)
 	{
-		Builder builder = getBuilder();
+		MaterialAlertDialogBuilder builder = getBuilder();
 		if (builder == null) {
 			return;
 		}
@@ -152,7 +152,7 @@ public class TiUIDialog extends TiUIView
 
 	private void processButtons(String[] buttonText)
 	{
-		Builder builder = getBuilder();
+		MaterialAlertDialogBuilder builder = getBuilder();
 		if (builder == null) {
 			return;
 		}
@@ -203,7 +203,7 @@ public class TiUIDialog extends TiUIView
 		view = proxy.getOrCreateView();
 
 		// Handle view border.
-		Builder builder = getBuilder();
+		MaterialAlertDialogBuilder builder = getBuilder();
 		if ((builder != null) && (view != null)) {
 			ViewParent viewParent = view.getNativeView().getParent();
 			if (viewParent != null) {
@@ -244,7 +244,7 @@ public class TiUIDialog extends TiUIView
 			processButtons(new String[] { TiConvert.toString(newValue) });
 		} else if (key.equals(TiC.PROPERTY_OPTIONS)) {
 			dismissDialog();
-			Builder builder = getBuilder();
+			MaterialAlertDialogBuilder builder = getBuilder();
 			if (builder != null) {
 				builder.setView(null);
 			}
@@ -255,7 +255,7 @@ public class TiUIDialog extends TiUIView
 			processOptions(TiConvert.toStringArray((Object[]) newValue), selectedIndex);
 		} else if (key.equals(TiC.PROPERTY_SELECTED_INDEX)) {
 			dismissDialog();
-			Builder builder = getBuilder();
+			MaterialAlertDialogBuilder builder = getBuilder();
 			if (builder != null) {
 				builder.setView(null);
 			}
@@ -302,7 +302,7 @@ public class TiUIDialog extends TiUIView
 			return;
 		}
 
-		Builder builder = getBuilder();
+		MaterialAlertDialogBuilder builder = getBuilder();
 		if (builder == null) {
 			return;
 		}
@@ -427,7 +427,7 @@ public class TiUIDialog extends TiUIView
 	{
 		Activity currentActivity = getCurrentActivity();
 		if (currentActivity != null) {
-			this.builder = new AlertDialog.Builder(currentActivity);
+			this.builder = new MaterialAlertDialogBuilder(currentActivity);
 			this.builder.setCancelable(true);
 
 			//Native dialogs are persistent by default.

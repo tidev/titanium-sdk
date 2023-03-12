@@ -1,28 +1,36 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Build;
-import com.google.android.material.textfield.TextInputEditText;
-import androidx.core.view.NestedScrollingChild2;
-import androidx.core.view.NestedScrollingChildHelper;
-import androidx.core.view.ViewCompat;
-
 import android.text.InputType;
 import android.text.method.ArrowKeyMovementMethod;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.view.NestedScrollingChild2;
+import androidx.core.view.NestedScrollingChildHelper;
+import androidx.core.view.ViewCompat;
+import com.google.android.material.textfield.TextInputEditText;
+import java.util.HashSet;
 
 /**
  * EditText derived class used by Titanium's "Ti.UI.TextField" and "Ti.UI.TextArea" types.
@@ -32,6 +40,29 @@ import android.view.ViewParent;
  */
 public class TiUIEditText extends TextInputEditText implements NestedScrollingChild2
 {
+	/** Collection of context menu IDs used to edit the input field such as "cut", "paste", "auto-fill", etc. */
+	private static final HashSet<Integer> editMenuIdSet;
+
+	/** Collection of context menu IDs used to copy text from the input field such as "copy", "cut", "share", etc. */
+	private static final HashSet<Integer> copyMenuIdSet;
+
+	/* Initialize static member variables. */
+	static
+	{
+		editMenuIdSet = new HashSet<>();
+		editMenuIdSet.add(android.R.id.autofill);
+		editMenuIdSet.add(android.R.id.cut);
+		editMenuIdSet.add(android.R.id.paste);
+		editMenuIdSet.add(android.R.id.pasteAsPlainText);
+		editMenuIdSet.add(android.R.id.replaceText);
+
+		copyMenuIdSet = new HashSet<>();
+		copyMenuIdSet.add(android.R.id.copy);
+		copyMenuIdSet.add(android.R.id.copyUrl);
+		copyMenuIdSet.add(android.R.id.cut);
+		copyMenuIdSet.add(android.R.id.shareText);
+	}
+
 	/** Helper object used to handle nested scrolling within a cooperating NestedScrollingParent view. */
 	private NestedScrollingChildHelper nestedScrollingHelper;
 
@@ -60,6 +91,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 	/** Set true if we're in the middle of doing a nested drag/scroll. */
 	private boolean isDragging;
+
+	/** Set true to allow text to be copied via context menu, Ctrl+C, etc. */
+	private boolean isCopyEnabled = true;
 
 	/** Creates a new EditText view. */
 	public TiUIEditText(Context context)
@@ -164,6 +198,29 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/**
+	 * Determines if text can be copied from the input field. Can be changed via setIsCopyEnabled() method.
+	 * <p/>
+	 * If password masking is enabled, then copy support is disabled by the system and this method is ignored.
+	 * @return Returns true if text can be copied, which is the default. Returns false if disabled.
+	 */
+	public boolean isCopyEnabled()
+	{
+		return this.isCopyEnabled;
+	}
+
+	/**
+	 * Enables or disables the ability to copy text from the input field.
+	 * Disabling it will remove "copy", "cut", "share", etc. from the context menu and block Ctrl+C support.
+	 * <p/>
+	 * If password masking is enabled, then copy support is disabled by the system and this method is ignored.
+	 * @param value Set true to enable "copy" support. Set false to not allow copy support.
+	 */
+	public void setIsCopyEnabled(boolean value)
+	{
+		this.isCopyEnabled = value;
+	}
+
+	/**
 	 * Called when key input has been received, but before it has been processed by the IME.
 	 * @param keyCode Unique integer ID of the key that was pressed/released.
 	 * @param event Provides additional key event details.
@@ -212,24 +269,86 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	/**
 	 * Called when a context menu item such as "Copy", "Paste", etc. has been tapped on.
 	 * @param id The integer ID of the action that was selected in the context menu.
+	 * @return Returns true if given menu item's action was performed. Returns false if not.
 	 */
 	@Override
 	public boolean onTextContextMenuItem(int id)
 	{
-		// Do not allow the following actions to change the text if we're in read-only mode.
-		if (getInputType() == InputType.TYPE_NULL) {
-			switch (id) {
-				case android.R.id.autofill:
-				case android.R.id.cut:
-				case android.R.id.paste:
-				case android.R.id.pasteAsPlainText:
-				case android.R.id.replaceText:
-					return false;
-			}
+		// Do not allow actions that change the text if we're in read-only mode.
+		if ((getInputType() == InputType.TYPE_NULL) && TiUIEditText.editMenuIdSet.contains(id)) {
+			return false;
+		}
+
+		// Do not allow copy related actions if disabled.
+		if (!this.isCopyEnabled && TiUIEditText.copyMenuIdSet.contains(id)) {
+			return false;
 		}
 
 		// Let the base class handle the action.
 		return super.onTextContextMenuItem(id);
+	}
+
+	/**
+	 * Called when the system is about to display a context menu on the input field.
+	 * @param callback Callback used to create the menu and handle its clicked items.
+	 * @return Returns the new context menu handling action mode. Returns null to not show a menu.
+	 */
+	@Override
+	public ActionMode startActionMode(ActionMode.Callback callback)
+	{
+		return super.startActionMode(onWrap(callback));
+	}
+
+	/**
+	 * Called when the system is about to display a context menu on the input field.
+	 * @param callback Callback used to create the menu and handle its clicked items.
+	 * @param type Can be set to ActionMode.TYPE_PRIMARY or ActionMode.TYPE_FLOATING.
+	 * @return Returns the new context menu handling action mode. Returns null to not show a menu.
+	 */
+	@Override
+	@RequiresApi(23)
+	public ActionMode startActionMode(ActionMode.Callback callback, int type)
+	{
+		return super.startActionMode(onWrap(callback), type);
+	}
+
+	/**
+	 * Wraps the given action mode callback if its context menu needs to be overridden,
+	 * such as removing menu items that can change the input field if we're in read-only mode.
+	 * <p/>
+	 * This method is expected to be called by the startActionMode() overrides.
+	 * @param callback The callback to be wrapped, if needed. Can be null.
+	 * @return
+	 * Returns a new callback instance if wrapped.
+	 * Returns given callback reference if it's context menu does not need to be overridden.
+	 */
+	@SuppressLint("NewApi")
+	private ActionMode.Callback onWrap(ActionMode.Callback callback)
+	{
+		// Validate.
+		if (callback == null) {
+			return null;
+		}
+
+		// If we need to remove copy, cut, or other menu items then wrap the given callback.
+		if (!this.isCopyEnabled || (getInputType() == InputType.TYPE_NULL)) {
+			// Create a set of menu IDs that need to be removed from the context menu.
+			HashSet<Integer> excludeMenuIdSet = new HashSet<>();
+			if (!this.isCopyEnabled) {
+				excludeMenuIdSet.addAll(TiUIEditText.copyMenuIdSet);
+			}
+			if (getInputType() == InputType.TYPE_NULL) {
+				excludeMenuIdSet.addAll(TiUIEditText.editMenuIdSet);
+			}
+
+			// Wrap the given callback used to override context menu handling.
+			if ((Build.VERSION.SDK_INT >= 23) && (callback instanceof ActionMode.Callback2)) {
+				callback = new ActionModeCallback2Wrapper((ActionMode.Callback2) callback, excludeMenuIdSet);
+			} else {
+				callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
+			}
+		}
+		return callback;
 	}
 
 	/**
@@ -353,6 +472,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP: {
 				// Handle the touch release event.
+				boolean hadFocus = isFocused();
 				wasHandled = super.onTouchEvent(event);
 
 				// Stop nested-scrolling if active.
@@ -360,6 +480,12 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 				if (this.scrollAxisDirection != ViewCompat.SCROLL_AXIS_NONE) {
 					stopNestedScroll();
 					this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
+				}
+
+				// If a tap was handled and gave this view the focus, then invoke the click listener.
+				// Note: Normally a click event is stolen in this case, but we want to match iOS' behavior.
+				if (wasHandled && !hadFocus && isFocused()) {
+					callOnClick();
 				}
 				break;
 			}
@@ -471,5 +597,108 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	public void stopNestedScroll(int type)
 	{
 		this.nestedScrollingHelper.stopNestedScroll(type);
+	}
+
+	/** Wraps Google's "ActionMode.Callback" so that we can remove particular context menu items from it. */
+	private static class ActionModeCallbackWrapper implements ActionMode.Callback
+	{
+		private final ActionMode.Callback callback;
+		private final HashSet<Integer> excludeMenuIdSet;
+
+		/**
+		 * Creates an action mode callback which wraps the given callback.
+		 * Acts as a pass through and remove menu items matching the given menu ID set.
+		 * @param callback The callback to be wrapped.
+		 * @param excludeMenuIdSet Set of menu item IDs to be removed, such as "android.R.id.copy".
+		 */
+		public ActionModeCallbackWrapper(@NonNull ActionMode.Callback callback, HashSet<Integer> excludeMenuIdSet)
+		{
+			this.callback = callback;
+			this.excludeMenuIdSet = excludeMenuIdSet;
+		}
+
+		public ActionMode.Callback getWrappedCallback()
+		{
+			return this.callback;
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+		{
+			return this.callback.onActionItemClicked(mode, item);
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu)
+		{
+			boolean wasCreated = this.callback.onCreateActionMode(mode, menu);
+			if ((menu != null) && (this.excludeMenuIdSet != null)) {
+				for (int nextId : this.excludeMenuIdSet) {
+					menu.removeItem(nextId);
+				}
+			}
+			return wasCreated;
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+		{
+			return this.callback.onPrepareActionMode(mode, menu);
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode)
+		{
+			this.callback.onDestroyActionMode(mode);
+		}
+	}
+
+	/** Wraps Google's "ActionMode.Callback2" so that we can remove particular context menu items from it. */
+	@RequiresApi(23)
+	private static class ActionModeCallback2Wrapper extends ActionMode.Callback2
+	{
+		private final ActionModeCallbackWrapper callback;
+
+		/**
+		 * Creates an action mode callback which wraps the given Callback2 instance.
+		 * Acts as a pass through and remove menu items matching the given menu ID set.
+		 * @param callback The callback to be wrapped.
+		 * @param excludeMenuIdSet Set of menu item IDs to be removed, such as "android.R.id.copy".
+		 */
+		public ActionModeCallback2Wrapper(@NonNull ActionMode.Callback2 callback, HashSet<Integer> excludeMenuIdSet)
+		{
+			this.callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
+		}
+
+		@Override
+		public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+		{
+			return this.callback.onActionItemClicked(mode, item);
+		}
+
+		@Override
+		public boolean onCreateActionMode(ActionMode mode, Menu menu)
+		{
+			return this.callback.onCreateActionMode(mode, menu);
+		}
+
+		@Override
+		public void onGetContentRect(ActionMode mode, View view, Rect outRect)
+		{
+			ActionMode.Callback2 wrappedCallback = (ActionMode.Callback2) this.callback.getWrappedCallback();
+			wrappedCallback.onGetContentRect(mode, view, outRect);
+		}
+
+		@Override
+		public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+		{
+			return this.callback.onPrepareActionMode(mode, menu);
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode mode)
+		{
+			this.callback.onDestroyActionMode(mode);
+		}
 	}
 }

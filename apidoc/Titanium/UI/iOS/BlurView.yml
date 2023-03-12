@@ -9,9 +9,8 @@ summary: |
     Note: Apple introduced two new constants <Titanium.UI.iOS.BLUR_EFFECT_STYLE_REGULAR> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_PROMINENT> in
     iOS 10. These are internally mapped to <Titanium.UI.iOS.BLUR_EFFECT_STYLE_LIGHT> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT>.
 extends: Titanium.UI.View
-platforms: [iphone,ipad]
-since: "5.4.0"
-osver: {ios:{min: "8.0"}}
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 properties:
   - name: effect
     summary: The effect you provide for the view.
@@ -59,7 +58,7 @@ examples:
         ];
 
         tabs.addEventListener("click", function(e) {
-            blur.setEffect(effects[e.index]);
+            blur.effect = effects[e.index];
         });
 
         win.add(tabs);

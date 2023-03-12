@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,6 +29,9 @@ public class DisplayCapsProxy extends KrollProxy
 
 	private Display getDisplay()
 	{
+		if (TiApplication.getAppRootOrCurrentActivity() == null) {
+			return null;
+		}
 		if (softDisplay == null || softDisplay.get() == null) {
 			// we only need the window manager so it doesn't matter if the root or current activity is used
 			// for accessing it
@@ -38,94 +41,115 @@ public class DisplayCapsProxy extends KrollProxy
 		return softDisplay.get();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPlatformWidth()
 	{
 		synchronized (dm)
 		{
-			getDisplay().getMetrics(dm);
-			return dm.widthPixels;
+			if (getDisplay() != null) {
+				getDisplay().getMetrics(dm);
+				return dm.widthPixels;
+			} else {
+				return 0;
+			}
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getPlatformHeight()
 	{
 		synchronized (dm)
 		{
-			getDisplay().getMetrics(dm);
-			return dm.heightPixels;
+			if (getDisplay() != null) {
+				getDisplay().getMetrics(dm);
+				return dm.heightPixels;
+			} else {
+				return 0;
+			}
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getDensity()
 	{
 		synchronized (dm)
 		{
-			getDisplay().getMetrics(dm);
-			int dpi = dm.densityDpi;
-			if (dpi >= 560) { // DisplayMetrics.DENSITY_560
-				return "xxxhigh";
-			} else if (dpi >= 400) { // DisplayMetrics.DENSITY_400
-				return "xxhigh";
-			} else if (dpi >= 280) { // DisplayMetrics.DENSITY_280
-				return "xhigh";
-			} else if (dpi >= DisplayMetrics.DENSITY_HIGH) {
-				return "high";
-			} else if (dpi >= DisplayMetrics.DENSITY_TV) {
-				return "tvdpi";
-			} else if (dpi >= DisplayMetrics.DENSITY_MEDIUM) {
-				return "medium";
+			if (getDisplay() != null) {
+				getDisplay().getMetrics(dm);
+				int dpi = dm.densityDpi;
+				if (dpi >= DisplayMetrics.DENSITY_560) {
+					return "xxxhigh";
+				} else if (dpi >= DisplayMetrics.DENSITY_400) {
+					return "xxhigh";
+				} else if (dpi >= DisplayMetrics.DENSITY_280) {
+					return "xhigh";
+				} else if (dpi >= DisplayMetrics.DENSITY_HIGH) {
+					return "high";
+				} else if (dpi >= DisplayMetrics.DENSITY_TV) {
+					return "tvdpi";
+				} else if (dpi >= DisplayMetrics.DENSITY_MEDIUM) {
+					return "medium";
+				}
+				return "low";
+			} else {
+				return "low";
 			}
-			return "low";
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getDpi()
 	{
 		synchronized (dm)
 		{
-			getDisplay().getMetrics(dm);
-			return dm.densityDpi;
+			if (getDisplay() != null) {
+				getDisplay().getMetrics(dm);
+				return dm.densityDpi;
+			} else {
+				return 0;
+			}
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getXdpi()
 	{
 		synchronized (dm)
 		{
-			getDisplay().getMetrics(dm);
-			return dm.xdpi;
+			if (getDisplay() != null) {
+				getDisplay().getMetrics(dm);
+				return dm.xdpi;
+			} else {
+				return 0;
+			}
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getYdpi()
 	{
 		synchronized (dm)
 		{
-			getDisplay().getMetrics(dm);
-			return dm.ydpi;
+			if (getDisplay() != null) {
+				getDisplay().getMetrics(dm);
+				return dm.ydpi;
+			} else {
+				return 0;
+			}
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getLogicalDensityFactor()
 	{
 		synchronized (dm)
 		{
-			getDisplay().getMetrics(dm);
-			return dm.density;
+			if (getDisplay() != null) {
+				getDisplay().getMetrics(dm);
+				return dm.density;
+			} else {
+				return 0;
+			}
 		}
 	}
 

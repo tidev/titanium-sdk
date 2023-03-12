@@ -6,10 +6,11 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 
-describe('Titanium.UI.SearchBar', function () {
+describe('Titanium.UI.SearchBar', () => {
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {
@@ -25,147 +26,360 @@ describe('Titanium.UI.SearchBar', function () {
 		}
 	});
 
-	it.ios('.showBookmark', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			showBookmark: true
+	describe('properties', () => {
+		describe.ios('.autocapitalization', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					autocapitalization: Ti.UI.TEXT_AUTOCAPITALIZATION_ALL
+				});
+			});
+
+			it('is a Number', () => {
+				should(searchBar.autocapitalization).be.a.Number();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.autocapitalization).eql(Ti.UI.TEXT_AUTOCAPITALIZATION_ALL);
+			});
+
+			it('can be assigned a constant value', () => {
+				searchBar.autocapitalization = Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES;
+				should(searchBar.autocapitalization).eql(Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES);
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('autocapitalization');
+			});
 		});
-		should(searchBar.getShowBookmark).be.a.Function();
-		should(searchBar.showBookmark).be.true();
-		should(searchBar.getShowBookmark()).be.true();
-		searchBar.showBookmark = false;
-		should(searchBar.showBookmark).be.false();
-		should(searchBar.getShowBookmark()).be.fasle;
+
+		describe.ios('.autocorrect', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					autocorrect: true
+				});
+			});
+
+			it('is a Boolean', () => {
+				should(searchBar.autocorrect).be.a.Boolean();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.autocorrect).be.true();
+			});
+
+			it('can be assigned a Boolean value', () => {
+				searchBar.autocorrect = false;
+				should(searchBar.autocorrect).be.false();
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('autocorrect');
+			});
+		});
+
+		describe.windowsMissing('.color', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					color: 'red'
+				});
+			});
+
+			it('is a String', () => {
+				should(searchBar.color).be.a.String();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.color).eql('red');
+			});
+
+			it('can be assigned a String value', () => {
+				searchBar.color = 'blue';
+				should(searchBar.color).eql('blue');
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('color');
+			});
+		});
+
+		it.ios('.fieldBackgroundImage and .fieldBackgroundDisabledImage', () => {
+			const backgroundView = Ti.UI.createView({
+				height: 36,
+				width: Ti.Platform.displayCaps.platformWidth - 20,
+				backgroundColor: '#268E8E93',
+				borderRadius: 12
+			});
+
+			const searchBar = Ti.UI.createSearchBar({
+				fieldBackgroundImage: backgroundView.toImage(),
+				fieldBackgroundDisabledImage: backgroundView.toImage()
+			});
+
+			should(searchBar.fieldBackgroundImage.apiName).eql('Ti.Blob');
+			should(searchBar.fieldBackgroundDisabledImage.apiName).eql('Ti.Blob');
+		});
+
+		it('.focused', function (done) {
+			this.slow(1000);
+			this.timeout(5000);
+
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const searchbar = Ti.UI.createSearchBar({
+				backgroundColor: '#fafafa',
+				color: 'green',
+				width: 250,
+				height: 40
+			});
+			win.add(searchbar);
+			try {
+				searchbar.should.have.a.property('focused').which.is.a.Boolean();
+				searchbar.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
+				searchbar.addEventListener('focus', () => {
+					try {
+						searchbar.focused.should.be.true();
+					} catch (e) {
+						return done(e);
+					}
+					win.close();
+				});
+				win.addEventListener('open', () => {
+					searchbar.focus(); // force focus!
+				});
+				win.addEventListener('close', () => {
+					try {
+						// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
+						searchbar.focused.should.be.false();
+					} catch (e) {
+						return done(e);
+					}
+					done();
+				});
+				win.open();
+			} catch (e) {
+				return done(e);
+			}
+		});
+
+		describe('.hintText', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					hintText: 'Search'
+				});
+			});
+
+			it('is a String', () => {
+				should(searchBar.hintText).be.a.String();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.hintText).eql('Search');
+			});
+
+			it('can be assigned a String value', () => {
+				searchBar.hintText = 'Updated search';
+				should(searchBar.hintText).eql('Updated search');
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('hintText');
+			});
+
+			it('change dynamically', function (finish) {
+				this.timeout(5000);
+
+				const OLD_HINT_TEXT = 'Old Hint Text';
+				const NEW_HINT_TEXT = 'New Hint Text';
+				searchBar = Ti.UI.createSearchBar({
+					hintText: OLD_HINT_TEXT,
+				});
+				should(searchBar.hintText).eql(OLD_HINT_TEXT);
+				win = Ti.UI.createWindow();
+				win.add(searchBar);
+				win.addEventListener('open', function () {
+					try {
+						should(searchBar.hintText).eql(OLD_HINT_TEXT);
+						searchBar.hintText = NEW_HINT_TEXT;
+						should(searchBar.hintText).eql(NEW_HINT_TEXT);
+					} catch (err) {
+						return finish(err);
+					}
+					setTimeout(function () {
+						try {
+							should(searchBar.hintText).eql(NEW_HINT_TEXT);
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					}, 100);
+				});
+				win.open();
+			});
+		});
+
+		// We have in in Ti.UI.Android.SearchView for Android, but need more parity here
+		describe.windowsMissing('.hintTextColor', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					hintText: 'Enter E-Mail ...',
+					hintTextColor: 'red'
+				});
+			});
+
+			it('is a String', () => {
+				should(searchBar.hintTextColor).be.a.String();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.hintTextColor).eql('red');
+			});
+
+			it('can be assigned a String value', () => {
+				searchBar.hintTextColor = 'blue';
+				should(searchBar.hintTextColor).eql('blue');
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('hintTextColor');
+			});
+		});
+
+		describe.ios('.keyboardAppearance', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					keyboardAppearance: Ti.UI.KEYBOARD_APPEARANCE_LIGHT
+				});
+			});
+
+			it('is a Number', () => {
+				should(searchBar.keyboardAppearance).be.a.Number();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.keyboardAppearance).eql(Ti.UI.KEYBOARD_APPEARANCE_LIGHT);
+			});
+
+			it('can be assigned a constant value', () => {
+				searchBar.keyboardAppearance = Ti.UI.KEYBOARD_APPEARANCE_DARK;
+				should(searchBar.keyboardAppearance).eql(Ti.UI.KEYBOARD_APPEARANCE_DARK);
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('keyboardAppearance');
+			});
+		});
+
+		describe.ios('.keyboardType', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					keyboardType: Ti.UI.KEYBOARD_TYPE_NUMBER_PAD
+				});
+			});
+
+			it('is a Number', () => {
+				should(searchBar.keyboardType).be.a.Number();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.keyboardType).eql(Ti.UI.KEYBOARD_TYPE_NUMBER_PAD);
+			});
+
+			it('can be assigned a constant value', () => {
+				searchBar.keyboardType = Ti.UI.KEYBOARD_TYPE_EMAIL;
+				should(searchBar.keyboardType).eql(Ti.UI.KEYBOARD_TYPE_EMAIL);
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('keyboardType');
+			});
+		});
+
+		describe.ios('.prompt', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					prompt: 'value'
+				});
+			});
+
+			it('is a String', () => {
+				should(searchBar.prompt).be.a.String();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.prompt).eql('value');
+			});
+
+			it('can be assigned a String value', () => {
+				searchBar.prompt = 'another value';
+				should(searchBar.prompt).eql('another value');
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('prompt');
+			});
+		});
+
+		describe.ios('.showBookmark', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					showBookmark: true
+				});
+			});
+
+			it('is a Boolean', () => {
+				should(searchBar.showBookmark).be.a.Boolean();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.showBookmark).be.true();
+			});
+
+			it('can be assigned a Boolean value', () => {
+				searchBar.showBookmark = false;
+				should(searchBar.showBookmark).be.false();
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('showBookmark');
+			});
+		});
+
+		describe.ios('.style', () => {
+			let searchBar;
+			beforeEach(() => {
+				searchBar = Ti.UI.createSearchBar({
+					style: Ti.UI.iOS.SEARCH_BAR_STYLE_PROMINENT
+				});
+			});
+
+			it('is a Number', () => {
+				should(searchBar.style).be.a.Number();
+			});
+
+			it('equals value passed to factory method', () => {
+				should(searchBar.style).eql(Ti.UI.iOS.SEARCH_BAR_STYLE_PROMINENT);
+			});
+
+			it('can be assigned a constant value', () => {
+				searchBar.style = Ti.UI.iOS.SEARCH_BAR_STYLE_MINIMAL;
+				should(searchBar.style).eql(Ti.UI.iOS.SEARCH_BAR_STYLE_MINIMAL);
+			});
+
+			it('has no accessors', () => {
+				should(searchBar).not.have.accessors('style');
+			});
+		});
 	});
 
-	it.ios('.keyboardType', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			keyboardType: Ti.UI.KEYBOARD_TYPE_NUMBER_PAD
-		});
-		should(searchBar.getKeyboardType).be.a.Function();
-		should(searchBar.keyboardType).eql(Ti.UI.KEYBOARD_TYPE_NUMBER_PAD);
-		should(searchBar.getKeyboardType()).eql(Ti.UI.KEYBOARD_TYPE_NUMBER_PAD);
-		searchBar.keyboardType = Ti.UI.KEYBOARD_TYPE_EMAIL;
-		should(searchBar.keyboardType).eql(Ti.UI.KEYBOARD_TYPE_EMAIL);
-		should(searchBar.getKeyboardType()).eql(Ti.UI.KEYBOARD_TYPE_EMAIL);
-	});
-
-	it.ios('.autocorrect', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			autocorrect: true
-		});
-		should(searchBar.getAutocorrect).be.a.Function();
-		should(searchBar.autocorrect).be.true();
-		should(searchBar.getAutocorrect()).be.true();
-		searchBar.autocorrect = false;
-		should(searchBar.autocorrect).be.false();
-		should(searchBar.getAutocorrect()).be.false();
-	});
-
-	it.ios('.autocapitalization', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			autocapitalization: Ti.UI.TEXT_AUTOCAPITALIZATION_ALL
-		});
-		should(searchBar.getAutocapitalization).be.a.Function();
-		should(searchBar.autocapitalization).eql(Ti.UI.TEXT_AUTOCAPITALIZATION_ALL);
-		should(searchBar.getAutocapitalization()).eql(Ti.UI.TEXT_AUTOCAPITALIZATION_ALL);
-		searchBar.autocapitalization = Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES;
-		should(searchBar.autocapitalization).eql(Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES);
-		should(searchBar.getAutocapitalization()).eql(Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES);
-	});
-
-	it.ios('.keyboardAppearance', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			keyboardAppearance: Ti.UI.KEYBOARD_APPEARANCE_LIGHT
-		});
-		should(searchBar.getKeyboardAppearance).be.a.Function();
-		should(searchBar.keyboardAppearance).eql(Ti.UI.KEYBOARD_APPEARANCE_LIGHT);
-		should(searchBar.getKeyboardAppearance()).eql(Ti.UI.KEYBOARD_APPEARANCE_LIGHT);
-		searchBar.keyboardAppearance = Ti.UI.KEYBOARD_APPEARANCE_DARK;
-		should(searchBar.keyboardAppearance).eql(Ti.UI.KEYBOARD_APPEARANCE_DARK);
-		should(searchBar.getKeyboardAppearance()).eql(Ti.UI.KEYBOARD_APPEARANCE_DARK);
-	});
-
-	it.ios('.style', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			style: Ti.UI.iOS.SEARCH_BAR_STYLE_PROMINENT
-		});
-		should(searchBar.getStyle).be.a.Function();
-		should(searchBar.style).eql(Ti.UI.iOS.SEARCH_BAR_STYLE_PROMINENT);
-		should(searchBar.getStyle()).eql(Ti.UI.iOS.SEARCH_BAR_STYLE_PROMINENT);
-		searchBar.style = Ti.UI.iOS.SEARCH_BAR_STYLE_MINIMAL;
-		should(searchBar.style).eql(Ti.UI.iOS.SEARCH_BAR_STYLE_MINIMAL);
-		should(searchBar.getStyle()).eql(Ti.UI.iOS.SEARCH_BAR_STYLE_MINIMAL);
-	});
-
-	it.ios('.prompt', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			prompt: 'value'
-		});
-		should(searchBar.getStyle).be.a.Function();
-		should(searchBar.prompt).eql('value');
-		should(searchBar.getPrompt()).eql('value');
-		searchBar.prompt = 'another value';
-		should(searchBar.prompt).eql('another value');
-		should(searchBar.getPrompt()).eql('another value');
-	});
-
-	// TODO: Expose Windows as well
-	// We have in in Ti.UI.Android.SearchView for Android, but need more parity here
-	it.windowsMissing('.hintTextColor', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			hintText: 'Enter E-Mail ...',
-			hintTextColor: 'red'
-		});
-		should(searchBar.getHintTextColor).be.a.Function();
-		should(searchBar.hintTextColor).eql('red');
-		should(searchBar.getHintTextColor()).eql('red');
-		searchBar.hintTextColor = 'blue';
-		should(searchBar.hintTextColor).eql('blue');
-		should(searchBar.getHintTextColor()).eql('blue');
-	});
-
-	// TODO: Expose Windows as well
-	it.windowsMissing('.color', function () {
-		var searchBar = Ti.UI.createSearchBar({
-			color: 'red'
-		});
-		should(searchBar.getColor).be.a.Function();
-		should(searchBar.color).eql('red');
-		should(searchBar.getColor()).eql('red');
-		searchBar.color = 'blue';
-		should(searchBar.color).eql('blue');
-		should(searchBar.getColor()).eql('blue');
-	});
-
-	it.ios('Should be able to set/get the background image of the textfield', function () {
-		var backgroundView = Ti.UI.createView({
-			height: 36,
-			width: Ti.Platform.displayCaps.platformWidth - 20,
-			backgroundColor: '#268E8E93',
-			borderRadius: 12
-		});
-
-		var searchBar = Ti.UI.createSearchBar({
-			fieldBackgroundImage: backgroundView.toImage(),
-			fieldBackgroundDisabledImage: backgroundView.toImage()
-		});
-
-		should(searchBar.fieldBackgroundImage.apiName).eql('Ti.Blob');
-		should(searchBar.fieldBackgroundDisabledImage.apiName).eql('Ti.Blob');
-	});
-
-	it('Should be able to get/set hintText', function () {
-		var search = Ti.UI.createSearchBar({
-			hintText: 'Search'
-		});
-		should(search.hintText).eql('Search');
-		should(search.getHintText()).eql('Search');
-		should(function () {
-			search.setHintText('Updated search');
-		}).not.throw();
-		should(search.hintText).eql('Updated search');
-		should(search.getHintText()).eql('Updated search');
-	});
+	describe('methods', () => {});
 
 	it.ios('Should work with absolute-positioned search-bars (ListView)', function (finish) {
 		var data = [ { properties: { title: 'Bashful', hasDetail: true } } ],
@@ -174,12 +388,16 @@ describe('Titanium.UI.SearchBar', function () {
 
 		win = Ti.UI.createWindow({ backgroundColor: 'white' });
 		win.addEventListener('open', function () {
-			should(listView.top).eql(50);
-			should(listView.bottom).eql(50);
-			should(listView.left).eql(40);
-			should(listView.right).eql(40);
+			try {
+				should(listView.top).eql(50);
+				should(listView.bottom).eql(50);
+				should(listView.left).eql(40);
+				should(listView.right).eql(40);
 
-			should(searchBar.getWidth()).eql(150);
+				should(searchBar.width).eql(150);
+			} catch (err) {
+				return finish(err);
+			}
 
 			finish();
 		});
@@ -218,10 +436,10 @@ describe('Titanium.UI.SearchBar', function () {
 		win.addEventListener('open', function () {
 			try {
 				table.search = sb;
-				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		});
 		win.add(table);
 		win.open();
@@ -247,10 +465,10 @@ describe('Titanium.UI.SearchBar', function () {
 		win.addEventListener('open', function () {
 			try {
 				listview.searchView = sb;
-				finish();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		});
 		win.add(listview);
 		win.open();
@@ -286,87 +504,14 @@ describe('Titanium.UI.SearchBar', function () {
 				win.remove(table);
 				win.add(table);
 
-				should(sb.getHeight()).eql(44);
-				should(sb.getShowCancel()).be.false();
-				should(sb.getBarColor()).eql('blue');
-				finish();
+				should(sb.height).eql(44);
+				should(sb.showCancel).be.false();
+				should(sb.barColor).eql('blue');
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		});
 		win.open();
-	});
-
-	it('Change hintText dynamically', function (finish) {
-		this.timeout(5000);
-
-		const OLD_HINT_TEXT = 'Old Hint Text';
-		const NEW_HINT_TEXT = 'New Hint Text';
-		const searchBar = Ti.UI.createSearchBar({
-			hintText: OLD_HINT_TEXT,
-		});
-		should(searchBar.hintText).eql(OLD_HINT_TEXT);
-		win = Ti.UI.createWindow();
-		win.add(searchBar);
-		win.addEventListener('open', function () {
-			try {
-				should(searchBar.hintText).eql(OLD_HINT_TEXT);
-				searchBar.hintText = NEW_HINT_TEXT;
-				should(searchBar.hintText).eql(NEW_HINT_TEXT);
-			} catch (err) {
-				finish(err);
-				return;
-			}
-			setTimeout(function () {
-				try {
-					should(searchBar.hintText).eql(NEW_HINT_TEXT);
-					finish();
-				} catch (err) {
-					finish(err);
-				}
-			}, 100);
-		});
-		win.open();
-	});
-
-	it('.focused', function (done) {
-		this.slow(1000);
-		this.timeout(5000);
-
-		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
-		const searchbar = Ti.UI.createSearchBar({
-			backgroundColor: '#fafafa',
-			color: 'green',
-			width: 250,
-			height: 40
-		});
-		win.add(searchbar);
-		try {
-			searchbar.should.have.a.property('focused').which.is.a.Boolean();
-			searchbar.focused.should.be.false(); // haven't opened it yet, so shouldn't be focused
-			searchbar.addEventListener('focus', () => {
-				try {
-					searchbar.focused.should.be.true();
-				} catch (e) {
-					return done(e);
-				}
-				win.close();
-			});
-			win.addEventListener('open', () => {
-				searchbar.focus(); // force focus!
-			});
-			win.addEventListener('close', () => {
-				try {
-					// we've been closed (or are closing?) so hopefully shouldn't say that we're focused
-					searchbar.focused.should.be.false();
-				} catch (e) {
-					return done(e);
-				}
-				done();
-			});
-			win.open();
-		} catch (e) {
-			return done(e);
-		}
 	});
 });

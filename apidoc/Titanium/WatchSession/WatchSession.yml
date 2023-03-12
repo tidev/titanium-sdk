@@ -14,7 +14,6 @@ properties:
     constants: Titanium.WatchSession.ACTIVATION_STATE_*
     permission: read-only
     osver: {ios: {min: "9.3"}}
-    platforms: [iphone]
     since: "5.4.0"
 
   - name: ACTIVATION_STATE_NOT_ACTIVATED
@@ -22,7 +21,6 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "9.3"}}
-    platforms: [iphone]
     since: "5.4.0"
 
   - name: ACTIVATION_STATE_INACTIVE
@@ -30,7 +28,6 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "9.3"}}
-    platforms: [iphone]
     since: "5.4.0"
 
   - name: ACTIVATION_STATE_ACTIVATED
@@ -38,16 +35,13 @@ properties:
     type: Number
     permission: read-only
     osver: {ios: {min: "9.3"}}
-    platforms: [iphone]
     since: "5.4.0"
 
   - name: hasContentPending
     summary: Returns `true` if there is more content for the session to deliver.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "6.0.0"
-    platforms: [iphone]
 
   - name: remainingComplicationUserInfoTransfers
     summary: |
@@ -55,60 +49,45 @@ properties:
         transferring the complicationUserInfo as regular userInfos.
     type: Number
     permission: read-only
-    osver: {ios: {min: "10.0"}}
     since: "6.0.0"
     default: 0
-    platforms: [iphone]
 
   - name: isSupported
     summary: Returns `true` if the device supports watch connectivity.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
-    platforms: [iphone]
 
   - name: isPaired
     summary: Returns `true` if the device is paired with a watch.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
-    platforms: [iphone]
 
   - name: isWatchAppInstalled
     summary: Returns `true` if the accompanying watch app is installed.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
-    platforms: [iphone]
 
   - name: isComplicationEnabled
     summary: Returns `true` if complication is enabled on the installed watch app.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
-    platforms: [iphone]
 
   - name: isReachable
     summary: Returns `true` if the watch is currently reachable.
     type: Boolean
     permission: read-only
-    osver: {ios: {min: "9.0"}}
-    platforms: [iphone]
 
   - name: isActivated
     summary: Returns `true` if the watch is currently activated.
     type: Boolean
     permission: read-only
     osver: {ios: {min: "9.3"}}
-    platforms: [iphone]
     since: "5.4.0"
 
   - name: recentApplicationContext
     summary: The most recent application context sent to the watch app.
     type: Dictionary
     permission: read-only
-    osver: {ios: {min: "9.0"}}
-    platforms: [iphone]
 
 methods:
   - name: activateSession
@@ -116,8 +95,7 @@ methods:
         Activates the watch session
     description: |
         Activates the watch session to make the app ready to receive messages from the watch app.
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
   - name: sendMessage
     summary: |
         Sends a message to the apple watch.
@@ -139,8 +117,6 @@ methods:
             This function is used to process the direct reply from the watch app after sending one.
         type: Callback<MessageReply>
         optional: true
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
 
   - name: updateApplicationContext
     summary: |
@@ -154,8 +130,7 @@ methods:
       - name: params    
         summary: App context to be updated in apple watch.
         type: Dictionary
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
   - name: transferUserInfo
     summary: |
         Transfers an user info to the apple watch.
@@ -166,8 +141,7 @@ methods:
       - name: params
         summary: userInfo to be transferred to apple watch.
         type: Dictionary
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
   - name: transferFile
     summary: |
         Transfers a file to the apple watch.
@@ -182,8 +156,7 @@ methods:
 
               * `fileURL` (String) (required): Local filesystem path of file to send to the watch app.
               * `metaData` (Dictionary) (optional): Additional information about the file to send to the watch app.
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
   - name: transferCurrentComplication
     summary: |
         Transfers complication data to the watch application.
@@ -194,29 +167,25 @@ methods:
       - name: params
         summary: Complication to be transferred to watch app.
         type: Dictionary
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
   - name: cancelAllUserInfoTransfers
     summary: |
         Cancels all incomplete user info and complication transfers to the apple watch.
     description: |
         Cancels all incomplete user info and complication transfers to the apple watch.
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
   - name: cancelAllFileTransfers
     summary: |
         Cancels all incomplete file transfers to the apple watch.
     description: |
         Cancels all incomplete file transfers to the apple watch.
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
   - name: cancelAllTransfers
     summary: |
         Cancels all incomplete transfers to the apple watch.
     description: |
         Cancels all incomplete transfers to the apple watch, including user info, complication and file.
-    platforms: [iphone]
-    osver: {ios: {min: "9.0"}}
+
 events:
   - name: receivemessage
     summary: |
@@ -226,7 +195,7 @@ events:
       - name: message
         summary: The message content
         type: Dictionary
-        platforms: [iphone]
+
   - name: receiveapplicationcontext
     summary: |
         App received app context from apple watch. Will be called on startup if an applicationContext is available.
@@ -234,7 +203,7 @@ events:
       - name: applicationContext
         summary: The application Context
         type: Dictionary
-        platforms: [iphone]
+
   - name: receiveuserinfo
     summary: |
         App received user info from apple watch in background. Will be called on startup if the user info finished 
@@ -243,7 +212,7 @@ events:
       - name: userInfo
         summary: The user info content
         type: Dictionary
-        platforms: [iphone]
+
   - name: receivefile
     summary: |
         App received file from apple watch in background.
@@ -251,23 +220,19 @@ events:
       - name: data
         summary: The downloaded data as a Titanium.Blob object.
         type: Titanium.Blob
-        platforms: [iphone]
       - name: metaData
         summary: Information about the file.
         type: Dictionary
-        platforms: [iphone]
       - name: success
         summary: If the transfer was successful.
         type: Boolean
-        platforms: [iphone]
       - name: errorCode
         summary: Error code if transfer failed.
-        type: Number 
-        platforms: [iphone]
+        type: Number
       - name: message
         summary: Error message if any.
-        type: String 
-        platforms: [iphone]
+        type: String
+
   - name: watchstatechanged
     summary: |
         The watch state has changed.
@@ -275,32 +240,27 @@ events:
       - name: isPaired
         summary: If the device is paired with the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isReachable
         summary: If apple watch is currently reachable.
         type: Boolean
-        platforms: [iphone]
       - name: isWatchAppInstalled
         summary: If the watch app is installed in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isComplicationEnabled
         summary: If the complication is enabled in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
-        platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
             and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
-        platforms: [iphone]
+
   - name: reachabilitychanged
     summary: |
         The watch reachability state has changed.
@@ -308,32 +268,27 @@ events:
       - name: isPaired
         summary: If the device is paired with the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isReachable
         summary: If apple watch is currently reachable.
         type: Boolean
-        platforms: [iphone]
       - name: isWatchAppInstalled
         summary: If the watch app is installed in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isComplicationEnabled
         summary: If the complication is enabled in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
-        platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
             and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
-        platforms: [iphone]
+
   - name: finishuserinfotransfer
     summary: |
         Fired when the application completed user info transfer to the watch app.
@@ -341,19 +296,16 @@ events:
       - name: userInfo
         summary: The downloaded data as a Titanium.Blob object.
         type: Dictionary
-        platforms: [iphone]
       - name: success
         summary: If the transfer was successful.
         type: Boolean
-        platforms: [iphone]
       - name: errorCode
         summary: Error code if transfer failed.
-        type: Number 
-        platforms: [iphone]
+        type: Number
       - name: message
         summary: Error message if any.
-        type: String 
-        platforms: [iphone]
+        type: String
+
   - name: finishfiletransfer
     summary: |
         App completed file transfer to watch app.
@@ -361,23 +313,19 @@ events:
       - name: fileURL
         summary: URL of the file transferred.
         type: String
-        platforms: [iphone]
       - name: metaData
         summary: meta data of the file transferred.
         type: Dictionary
-        platforms: [iphone]
       - name: success
         summary: If the transfer was successful.
         type: Boolean
-        platforms: [iphone]
       - name: errorCode
         summary: Error code if transfer failed.
-        type: Number 
-        platforms: [iphone]
+        type: Number
       - name: message
         summary: Error message if any.
-        type: String 
-        platforms: [iphone]
+        type: String
+
   - name: inactive
     summary: |
         Called when the session can no longer be used to modify or add any new transfers and, 
@@ -387,34 +335,29 @@ events:
       - name: isPaired
         summary: If the device is paired with the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isReachable
         summary: If apple watch is currently reachable.
         type: Boolean
-        platforms: [iphone]
       - name: isWatchAppInstalled
         summary: If the watch app is installed in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isComplicationEnabled
         summary: If the complication is enabled in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
-        platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
             and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
-        platforms: [iphone]
     since: "5.4.0"
     osver: {ios: {min: "9.3"}}
+
   - name: deactivate
     summary: |
         Called when all events for the previously selected watch has occurred. 
@@ -423,46 +366,39 @@ events:
       - name: isPaired
         summary: If the device is paired with the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isReachable
         summary: If apple watch is currently reachable.
         type: Boolean
-        platforms: [iphone]
       - name: isWatchAppInstalled
         summary: If the watch app is installed in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isComplicationEnabled
         summary: If the complication is enabled in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
-        platforms: [iphone]
       - name: hasContentPending
         summary: | 
             If the apple watch has currently content pending. Only available on iOS 10.0
             and later. See <Titanium.WatchSession.hasContentPending> for more infos.
         type: Boolean
-        platforms: [iphone]
       - name: remainingComplicationUserInfoTransfers
         summary: | 
             If the apple watch has complication userInfo transfers left. Only available on iOS 10.0
             and later. See <Titanium.WatchSession.remainingComplicationUserInfoTransfers> for more infos.
         type: Boolean
-        platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
             and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
-        platforms: [iphone]
     since: "5.4.0"
     osver: {ios: {min: "9.3"}}
+
   - name: activationCompleted
     summary: |
         Called when the session has completed activation. If session state is 
@@ -472,32 +408,26 @@ events:
       - name: isPaired
         summary: If the device is paired with the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isReachable
         summary: If apple watch is currently reachable.
         type: Boolean
-        platforms: [iphone]
       - name: isWatchAppInstalled
         summary: If the watch app is installed in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isComplicationEnabled
         summary: If the complication is enabled in the apple watch.
         type: Boolean
-        platforms: [iphone]
       - name: isActivated
         summary: | 
             If the apple watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
-        platforms: [iphone]
       - name: activationState
         summary: | 
             Returns the current activation state of the watch.  Only available on iOS 9.3
             and later. See <Titanium.WatchSession.activationState> for more infos.
         type: Number
         constants: Titanium.WatchSession.ACTIVATION_STATE_*
-        platforms: [iphone]
     since: "5.4.0"
     osver: {ios: {min: "9.3"}}
 
@@ -525,10 +455,8 @@ properties:
         was generated by the operating system, that system's error value is used.
         Otherwise, this value will be -1.
     type: Number
-since: 5.1.0
+since: "5.1.0"
 platforms: [iphone]
-osver: {ios: {min: "9.0"}}
-
 examples:
   - title: Creating a Watch Session
     example: |
@@ -650,7 +578,7 @@ examples:
             var cacheFile = e.data.getFile();
             var downloadedFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, cacheFile.getName());
             downloadedFile.write(e.data);
-            imageView.setImage(downloadedFile);
+            imageView.image = downloadedFile;
         });
 
         Ti.WatchSession.addEventListener('receiveapplicationcontext', function(e) {

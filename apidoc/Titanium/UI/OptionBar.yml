@@ -1,0 +1,127 @@
+---
+name: Titanium.UI.OptionBar
+
+summary: A bar of selectable buttons where only 1 can be selected at a time.
+description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./optionbar_android.png) |  |
+
+    This is a view which shows a list of options where only 1 option is selectable by the user.
+
+    On iOS, this displays a
+    [segmented control](https://developer.apple.com/design/human-interface-guidelines/ios/controls/segmented-controls/).
+
+    On Android, this displays a
+    [toggle button group](https://material.io/components/buttons/android#toggle-button).
+
+    Use the <Titanium.UI.createOptionBar> method to create a Option Bar.
+extends: Titanium.UI.View
+platforms: [iphone, ipad, android, macos]
+since: "10.0.0"
+excludes:
+    events: [ 'touchstart', 'touchmove', 'touchend', 'touchcancel', 'dblclick',
+        'doubletap', 'longclick', 'singletap', 'swipe', 'twofingertap' ]
+    properties: [children]
+    methods: [add, remove, removeAllChildren, replaceAt]
+
+events:
+  - name: click
+    summary: Fired when an option has been selected.
+    properties:
+      - name: index
+        summary: Index of the option clicked on.
+        type: Number
+properties:
+  - name: index
+    summary: Index of the currently selected option.
+    description: |
+      Index of the currently selected option. Setting this to `-1` will deselect all options.
+    type: Number
+
+  - name: labels
+    summary: Array of labels for the option bar.
+    description: |
+        Setting this to an array of strings specifies the title of each option in the bar.
+
+        Alternatively, this can be set to an array of dictionary objects of type <BarItemType>
+        which allows you to specify a title and/or image for each option in the bar.
+        Only Android supports setting both `title` and `image` properties on the same item.
+        On iOS, if you set the `image` property, then the `title` property is ignored.
+    type: [Array<String>, Array<BarItemType>]
+    availability: creation
+
+  - name: layout
+    summary: Specifies the layout direction such as 'horizontal' or 'vertical'.
+    description: |
+        This property is only supported on Android and allows you to display its toggle buttons
+        in ther `'vertical'` direction.
+    type: String
+    default: horizontal
+    availability: creation
+
+examples:
+  - title: Text-Only Buttons
+    example: |
+        Creates an option bar of text buttons.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const optionBar = Ti.UI.createOptionBar({
+          labels: [ 'Option 1', 'Option 2', 'Option 3' ]
+        });
+        const btn = Ti.UI.createButton({
+          title:"reset", bottom: 10
+        })
+        optionBar.addEventListener('click', (e) => {
+          Ti.API.info(`Option ${e.index} was selected.`);
+        });
+        btn.addEventListener('click', (e) => {
+          optionBar.index = -1;
+        });
+        win.add([optionBar,btn]);
+
+        win.open();
+        ```
+
+  - title: Image-Only Buttons
+    example: |
+        Creates an option bar of image-only buttons.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const optionBar = Ti.UI.createOptionBar({
+          labels: [
+            { image: '/Option1.png' },
+            { image: '/Option2.png' },
+            { image: '/Option3.png' },
+          ]
+        });
+        optionBar.addEventListener('click', (e) => {
+          Ti.API.info(`Option ${e.index} was selected.`);
+        });
+        win.add(optionBar);
+        win.open();
+        ```
+
+  - title: Buttons with Text and Images
+    example: |
+        Creates an option bar where each button shows an image to the left of its text.
+        This is only supported on Android. On iOS, if you set the `image` property,
+        then the `title` property is ignored.
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        const optionBar = Ti.UI.createOptionBar({
+          labels: [
+            { image: '/Option1.png', title: 'Option 1' },
+            { image: '/Option2.png', title: 'Option 2' },
+            { image: '/Option3.png', title: 'Option 3' },
+          ]
+        });
+        optionBar.addEventListener('click', (e) => {
+          Ti.API.info(`Option ${e.index} was selected.`);
+        });
+        win.add(optionBar);
+        win.open();
+        ```

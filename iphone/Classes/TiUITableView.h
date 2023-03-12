@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,6 +33,7 @@
 - (void)handleEvent:(NSString *)type;
 
 - (void)setBackgroundGradient_:(TiGradient *)newGradient;
+- (void)setBackgroundSelectedGradient_:(TiGradient *)newGradient;
 - (void)setSelectedBackgroundGradient_:(TiGradient *)newGradient;
 
 - (void)updateGradientLayer:(BOOL)useSelected withAnimation:(BOOL)animated;

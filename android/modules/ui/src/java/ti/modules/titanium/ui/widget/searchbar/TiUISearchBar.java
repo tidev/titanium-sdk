@@ -1,180 +1,378 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.searchbar;
 
+import android.app.Activity;
+import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
+import android.text.InputType;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
+import androidx.appcompat.widget.SearchView;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.titanium.R;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiUIView;
+import ti.modules.titanium.ui.UIModule;
 
-import ti.modules.titanium.ui.widget.TiUIText;
-import android.graphics.drawable.Drawable;
-import com.google.android.material.textfield.TextInputLayout;
-import android.text.TextUtils.TruncateAt;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-@SuppressWarnings("deprecation")
-public class TiUISearchBar extends TiUIText
+public class TiUISearchBar extends TiUIView
 {
-	private static int CANCEL_BUTTON_ID = View.generateViewId();
-	protected ImageButton cancelBtn;
-	private EditText tv;
-	private TextView promptText;
-
 	public interface OnSearchChangeListener {
 		void filterBy(String text);
 	}
 
-	protected OnSearchChangeListener searchChangeListener;
+	/** Listener to be invoked when search text changes. Typically assigned by ListView/TableView. */
+	private OnSearchChangeListener searchChangeListener;
 
-	public TiUISearchBar(final TiViewProxy proxy)
+	/** Set true to prevent "change" events from firing. Set false to allow these events. */
+	private boolean isIgnoringChangeEvent;
+
+	/** Reference to clear button's image drawable. */
+	private Drawable closeButtonDrawable;
+
+	/** Used to show/hide the virtual keyboard. */
+	private InputMethodManager inputManager;
+
+	public TiUISearchBar(TiViewProxy proxy)
 	{
-		super(proxy, true);
+		super(proxy);
 
-		View nativeView = getNativeView();
-		if (nativeView instanceof EditText) {
-			this.tv = (EditText) nativeView;
-		} else if (nativeView instanceof TextInputLayout) {
-			this.tv = ((TextInputLayout) nativeView).getEditText();
-		}
-		if (this.tv == null) {
-			throw new Error("could not obtain EditText component");
-		}
+		// Fetch input manager used to show/hide the virtual keyboard.
+		TiApplication tiApp = TiApplication.getInstance();
+		this.inputManager = (InputMethodManager) tiApp.getSystemService(Context.INPUT_METHOD_SERVICE);
 
-		this.tv.setImeOptions(EditorInfo.IME_ACTION_DONE);
-		promptText = new TextView(proxy.getActivity());
-		promptText.setEllipsize(TruncateAt.END);
-		promptText.setSingleLine(true);
-
-		// TODO Add Filter support
-
-		// Steal the Text's nativeView. We're going to replace it with our layout.
-		cancelBtn = new ImageButton(proxy.getActivity());
-		cancelBtn.isFocusable();
-		cancelBtn.setId(CANCEL_BUTTON_ID);
-		cancelBtn.setImageResource(android.R.drawable.ic_input_delete);
-		// set some minimum dimensions for the cancel button, in a density-independent way.
-		final float scale = cancelBtn.getContext().getResources().getDisplayMetrics().density;
-		cancelBtn.setMinimumWidth((int) (48 * scale));
-		cancelBtn.setMinimumHeight((int) (20 * scale));
-		cancelBtn.setOnClickListener(new OnClickListener() {
+		// Create and set up the search view.
+		SearchView searchView = new SearchView(proxy.getActivity());
+		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			@Override
-			public void onClick(View view)
+			public boolean onQueryTextChange(String query)
 			{
-				tv.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-				fireEvent("cancel", null);
+				proxy.setProperty(TiC.PROPERTY_VALUE, query);
+				if (searchChangeListener != null) {
+					searchChangeListener.filterBy(query);
+				}
+				if (!isIgnoringChangeEvent) {
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_VALUE, query);
+					fireEvent(TiC.EVENT_CHANGE, data);
+				}
+				return false;
+			}
+			@Override
+			public boolean onQueryTextSubmit(String query)
+			{
+				blur();
+				KrollDict data = new KrollDict();
+				data.put(TiC.PROPERTY_VALUE, query);
+				fireEvent(TiC.EVENT_RETURN, data);
+				return false;
 			}
 		});
-
-		RelativeLayout layout = new RelativeLayout(proxy.getActivity()) {
-			@Override
-			protected void onLayout(boolean changed, int left, int top, int right, int bottom)
-			{
-				super.onLayout(changed, left, top, right, bottom);
-				TiUIHelper.firePostLayoutEvent(proxy);
+		searchView.setOnSearchClickListener((View view) -> {
+			if (this.proxy != null) {
+				this.proxy.setProperty(TiC.PROPERTY_ICONIFIED, searchView.isIconified());
 			}
-		};
-
-		layout.setGravity(Gravity.NO_GRAVITY);
-		layout.setPadding(0, 0, 0, 0);
-
-		RelativeLayout.LayoutParams params =
-			new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.CENTER_IN_PARENT);
-		params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		promptText.setGravity(Gravity.CENTER_HORIZONTAL);
-		layout.addView(promptText, params);
-
-		params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-		params.addRule(RelativeLayout.CENTER_VERTICAL);
-		params.addRule(RelativeLayout.LEFT_OF, CANCEL_BUTTON_ID);
-		//		params.setMargins(4, 4, 4, 4);
-		layout.addView(getNativeView(), params);
-
-		params = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-		params.addRule(RelativeLayout.CENTER_VERTICAL);
-		//		params.setMargins(0, 4, 4, 4);
-		layout.addView(cancelBtn, params);
-
-		setNativeView(layout);
+		});
+		searchView.setOnCloseListener(() -> {
+			fireEvent(TiC.EVENT_CANCEL, null);
+			return false;
+		});
+		searchView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+			@Override
+			public void onLayoutChange(
+				View v, int left, int top, int right, int bottom,
+				int oldLeft, int oldTop, int oldRight, int oldBottom)
+			{
+				TiUIHelper.firePostLayoutEvent(getProxy());
+			}
+		});
+		searchView.setOnQueryTextFocusChangeListener(this);
+		setNativeView(searchView);
 	}
 
 	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count)
+	public void release()
 	{
-		if (this.searchChangeListener != null) {
-			this.searchChangeListener.filterBy(s.toString());
-		}
-		super.onTextChanged(s, start, before, count);
+		this.searchChangeListener = null;
+		this.closeButtonDrawable = null;
+		super.release();
 	}
 
 	@Override
-	public void processProperties(KrollDict d)
+	public void processProperties(KrollDict properties)
 	{
-		super.processProperties(d);
-		if (d.containsKey(TiC.PROPERTY_SHOW_CANCEL)) {
-			boolean showCancel = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_CANCEL, false);
-			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
+		// Validate.
+		if (properties == null) {
+			return;
 		}
-		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
-			nativeView.setBackgroundColor(TiConvert.toColor(d, TiC.PROPERTY_BAR_COLOR));
+
+		// Fetch the search view.
+		SearchView searchView = getSearchView();
+		if (searchView == null) {
+			return;
 		}
-		if (d.containsKey(TiC.PROPERTY_PROMPT)) {
-			String strPrompt = TiConvert.toString(d, TiC.PROPERTY_PROMPT);
-			promptText.setText(strPrompt);
+
+		final Activity activity = proxy.getActivity();
+
+		// Apply given properties to view.
+		if (properties.containsKey(TiC.PROPERTY_BAR_COLOR)) {
+			searchView.setBackgroundColor(TiConvert.toColor(properties, TiC.PROPERTY_BAR_COLOR, activity));
 		}
-		if (d.containsKey(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			processBackgroundImage(proxy.getProperty(TiC.PROPERTY_BACKGROUND_IMAGE), proxy);
+		if (properties.containsKey(TiC.PROPERTY_COLOR)) {
+			EditText editText = getEditText();
+			if (editText != null) {
+				editText.setTextColor(TiConvert.toColor(properties, TiC.PROPERTY_COLOR, activity));
+			}
+		}
+		if (properties.containsKey(TiC.PROPERTY_VALUE)) {
+			boolean wasIgnored = this.isIgnoringChangeEvent;
+			this.isIgnoringChangeEvent = true;
+			searchView.setQuery(TiConvert.toString(properties, TiC.PROPERTY_VALUE), false);
+			this.isIgnoringChangeEvent = wasIgnored;
+		}
+		if (properties.containsKey(TiC.PROPERTY_HINT_TEXT)) {
+			searchView.setQueryHint(properties.getString(TiC.PROPERTY_HINT_TEXT));
+		}
+		if (properties.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
+			EditText editText = getEditText();
+			if (editText != null) {
+				editText.setHintTextColor(TiConvert.toColor(properties, TiC.PROPERTY_HINT_TEXT_COLOR, activity));
+			}
+		}
+		if (properties.containsKey(TiC.PROPERTY_ICONIFIED)) {
+			searchView.setIconified(TiConvert.toBoolean(properties, TiC.PROPERTY_ICONIFIED, false));
+		}
+		if (properties.containsKey(TiC.PROPERTY_ICONIFIED_BY_DEFAULT)) {
+			searchView.setIconifiedByDefault(TiConvert.toBoolean(properties, TiC.PROPERTY_ICONIFIED_BY_DEFAULT, false));
+		}
+		if (properties.containsKey(TiC.PROPERTY_ICON_COLOR)) {
+			updateIconColor(searchView, TiConvert.toColor(properties, TiC.PROPERTY_ICON_COLOR, activity));
+		}
+		updateCloseButton();
+		updateInputType();
+
+		// Let base class handle all other properties.
+		super.processProperties(properties);
+	}
+
+	private void updateIconColor(SearchView searchView, int color)
+	{
+		ImageView imgSearch = searchView.findViewById(R.id.search_mag_icon);
+		ImageView imgClose = searchView.findViewById(R.id.search_close_btn);
+
+		if (imgSearch != null) {
+			imgSearch.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+		}
+		if (imgClose != null) {
+			imgClose.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		}
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
+		// Validate.
+		if (key == null) {
+			return;
+		}
+
+		// Fetch the search view.
+		SearchView searchView = getSearchView();
+		if (searchView == null) {
+			return;
+		}
+
+		// Handle property change.
 		if (key.equals(TiC.PROPERTY_SHOW_CANCEL)) {
-			boolean showCancel = TiConvert.toBoolean(newValue);
-			cancelBtn.setVisibility(showCancel ? View.VISIBLE : View.GONE);
+			updateCloseButton();
 		} else if (key.equals(TiC.PROPERTY_BAR_COLOR)) {
-			nativeView.setBackgroundColor(TiConvert.toColor(TiConvert.toString(newValue)));
-		} else if (key.equals(TiC.PROPERTY_PROMPT)) {
-			String strPrompt = TiConvert.toString(newValue);
-			promptText.setText(strPrompt);
-		} else if (key.equals(TiC.PROPERTY_BACKGROUND_IMAGE)) {
-			processBackgroundImage(newValue, proxy);
+			searchView.setBackgroundColor(TiConvert.toColor(newValue, proxy.getActivity()));
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
+			EditText editText = getEditText();
+			if (editText != null) {
+				editText.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
+			}
+		} else if (key.equals(TiC.PROPERTY_VALUE)) {
+			boolean wasIgnored = this.isIgnoringChangeEvent;
+			this.isIgnoringChangeEvent = true;
+			searchView.setQuery(TiConvert.toString(newValue), false);
+			this.isIgnoringChangeEvent = wasIgnored;
+		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
+			searchView.setQueryHint(TiConvert.toString(newValue));
+		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
+			EditText editText = getEditText();
+			if (editText != null) {
+				editText.setHintTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
+			}
+		} else if (key.equals(TiC.PROPERTY_ICONIFIED)) {
+			searchView.setIconified(TiConvert.toBoolean(newValue, false));
+		} else if (key.equals(TiC.PROPERTY_ICONIFIED_BY_DEFAULT)) {
+			searchView.setIconifiedByDefault(TiConvert.toBoolean(newValue, false));
+		} else if (key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_AUTOCORRECT)) {
+			updateInputType();
+		} else if (key.equals(TiC.PROPERTY_ICON_COLOR)) {
+			updateIconColor(searchView, TiConvert.toColor(newValue, proxy.getActivity()));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
 	}
 
-	private void processBackgroundImage(Object imgValue, KrollProxy proxy)
+	@Override
+	public void focus()
 	{
-		String bkgdImage = TiConvert.toString(imgValue);
-		TiFileHelper tfh = new TiFileHelper(tv.getContext());
-		String url = proxy.resolveUrl(null, bkgdImage);
-		Drawable background = tfh.loadDrawable(url, false);
-		nativeView.setBackgroundDrawable(background);
+		// Fetch the search view.
+		SearchView searchView = getSearchView();
+		if (searchView == null) {
+			return;
+		}
+
+		// Expand search view if currently iconified.
+		if (searchView.isIconified()) {
+			searchView.setIconified(false);
+		}
+
+		// Give this view the focus.
+		super.focus();
+
+		// Show the virtual keyboard.
+		this.inputManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+	}
+
+	@Override
+	public void blur()
+	{
+		// Fetch the search view.
+		SearchView searchView = getSearchView();
+		if (searchView == null) {
+			return;
+		}
+
+		// Change the focus to the activity's root view. (The focus has to go somewhere.)
+		View rootView = searchView.getRootView();
+		if (rootView != null) {
+			rootView.setFocusable(true);
+			rootView.setFocusableInTouchMode(true);
+			if (rootView instanceof ViewGroup) {
+				((ViewGroup) rootView).setDescendantFocusability(ViewGroup.FOCUS_BEFORE_DESCENDANTS);
+			}
+			rootView.requestFocus();
+		}
+
+		// Remove focus from search view and hide keyboard.
+		searchView.clearFocus();
+		this.inputManager.hideSoftInputFromWindow(searchView.getWindowToken(), 0);
+	}
+
+	public OnSearchChangeListener getOnSearchChangeListener()
+	{
+		return this.searchChangeListener;
 	}
 
 	public void setOnSearchChangeListener(OnSearchChangeListener listener)
 	{
 		this.searchChangeListener = listener;
+	}
+
+	private void updateCloseButton()
+	{
+		// Do not continue if proxy was released.
+		if (this.proxy == null) {
+			return;
+		}
+
+		// Fetch the search view.
+		SearchView searchView = getSearchView();
+		if (searchView == null) {
+			return;
+		}
+
+		// Fetch close button from the search view.
+		View view = searchView.findViewById(R.id.search_close_btn);
+		if (!(view instanceof ImageView)) {
+			return;
+		}
+		ImageView imageView = (ImageView) view;
+
+		// Store a reference to close button's image, if not done already.
+		if (this.closeButtonDrawable == null) {
+			this.closeButtonDrawable = imageView.getDrawable();
+		}
+
+		// Show/hide the close button by adding/removing its image. (There is no other way to do this.)
+		boolean isShown = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_SHOW_CANCEL), false);
+		if (isShown) {
+			imageView.setImageDrawable(this.closeButtonDrawable);
+		} else {
+			imageView.setImageDrawable(null);
+		}
+		imageView.setEnabled(isShown);
+	}
+
+	private void updateInputType()
+	{
+		// Do not continue if proxy was released.
+		if (this.proxy == null) {
+			return;
+		}
+
+		// Fetch the search view.
+		SearchView searchView = getSearchView();
+		if (searchView == null) {
+			return;
+		}
+
+		// Update the search view's input type.
+		int inputTypeFlags = InputType.TYPE_CLASS_TEXT;
+		if (TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_AUTOCORRECT), false)) {
+			inputTypeFlags |= InputType.TYPE_TEXT_FLAG_AUTO_CORRECT;
+		}
+		int autoCapId = TiConvert.toInt(
+			this.proxy.getProperty(TiC.PROPERTY_AUTOCAPITALIZATION), UIModule.TEXT_AUTOCAPITALIZATION_NONE);
+		switch (autoCapId) {
+			case UIModule.TEXT_AUTOCAPITALIZATION_ALL:
+				inputTypeFlags |= InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;
+				break;
+			case UIModule.TEXT_AUTOCAPITALIZATION_SENTENCES:
+				inputTypeFlags |= InputType.TYPE_TEXT_FLAG_CAP_SENTENCES;
+				break;
+			case UIModule.TEXT_AUTOCAPITALIZATION_WORDS:
+				inputTypeFlags |= InputType.TYPE_TEXT_FLAG_CAP_WORDS;
+				break;
+		}
+		searchView.setInputType(inputTypeFlags);
+	}
+
+	private SearchView getSearchView()
+	{
+		View view = getNativeView();
+		if (view instanceof SearchView) {
+			return (SearchView) view;
+		}
+		return null;
+	}
+
+	private EditText getEditText()
+	{
+		SearchView searchView = getSearchView();
+		if (searchView != null) {
+			View view = searchView.findViewById(R.id.search_src_text);
+			if (view instanceof EditText) {
+				return (EditText) view;
+			}
+		}
+		return null;
 	}
 }

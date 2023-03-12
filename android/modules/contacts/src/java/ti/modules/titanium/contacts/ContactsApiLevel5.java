@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -57,7 +57,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	private static Uri ContactsUri;
 	private static Uri DataUri;
 
-	private static String[] DATA_PROJECTION = new String[] {
+	private static final String[] DATA_PROJECTION = new String[] {
 		"contact_id",
 		"mimetype",
 		"photo_id",
@@ -148,15 +148,16 @@ public class ContactsApiLevel5 extends CommonContactsApi
 		TiC.PROPERTY_SISTER
 	};
 
-	private static String[] PEOPLE_PROJECTION = new String[] { "_id", "display_name", "photo_id" };
+	private static final String[] PEOPLE_PROJECTION = new String[] { "_id", "display_name", "photo_id" };
 	protected static int PEOPLE_COL_ID = 0;
 	protected static int PEOPLE_COL_NAME = 1;
 	protected static int PEOPLE_COL_PHOTO_ID = 2;
 
-	private static String INConditionForKinds = "('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" + KIND_EVENT + "','"
-												+ KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "','"
-												+ KIND_NICKNAME + "','" + KIND_ORGANIZE + "','" + KIND_IM + "','"
-												+ KIND_RELATED_NAME + "','" + KIND_WEBSITE + "')";
+	private static final String INConditionForKinds
+		= "('" + KIND_ADDRESS + "','" + KIND_EMAIL + "','" + KIND_EVENT + "','"
+		+ KIND_NAME + "','" + KIND_NOTE + "','" + KIND_PHONE + "','"
+		+ KIND_NICKNAME + "','" + KIND_ORGANIZE + "','" + KIND_IM + "','"
+		+ KIND_RELATED_NAME + "','" + KIND_WEBSITE + "')";
 
 	protected ContactsApiLevel5()
 	{
@@ -172,7 +173,6 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			Log.e(TAG, "Failed to load android.provider.ContactsContract$Contacts " + t.getMessage(), t,
 				  Log.DEBUG_MODE);
 			loadedOk = false;
-			return;
 		}
 	}
 
@@ -200,7 +200,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			return null;
 		}
 
-		LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<Long, LightPerson>();
+		LinkedHashMap<Long, CommonContactsApi.LightPerson> persons = new LinkedHashMap<>();
 
 		String condition = "mimetype IN " + INConditionForKinds;
 
@@ -984,7 +984,7 @@ public class ContactsApiLevel5 extends CommonContactsApi
 
 	protected void modifyContact(PersonProxy person, String id)
 	{
-		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+		ArrayList<ContentProviderOperation> ops = new ArrayList<>();
 		if (person.isFieldModified(TiC.PROPERTY_NAME)) {
 			modifyName(ops, person, id);
 		}

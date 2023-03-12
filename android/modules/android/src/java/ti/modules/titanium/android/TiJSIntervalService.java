@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,7 +25,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 
-@SuppressWarnings("deprecation")
 public class TiJSIntervalService extends TiJSService
 {
 	private static final String TAG = "TiJSIntervalService";
@@ -65,7 +64,7 @@ public class TiJSIntervalService extends TiJSService
 		}
 
 		if (runners == null) {
-			runners = Collections.synchronizedList(new ArrayList<IntervalServiceRunner>());
+			runners = Collections.synchronizedList(new ArrayList<>());
 		}
 
 		String fullUrl = url;
@@ -139,7 +138,7 @@ public class TiJSIntervalService extends TiJSService
 		runners.remove(runner);
 	}
 
-	private class IntervalServiceRunner
+	private static class IntervalServiceRunner
 	{
 		protected ServiceProxy proxy;
 		private long interval;
@@ -148,7 +147,7 @@ public class TiJSIntervalService extends TiJSService
 		private String serviceSimpleName;
 		private String url;
 		private byte[] source;
-		private AtomicInteger counter = new AtomicInteger();
+		private final AtomicInteger counter = new AtomicInteger();
 
 		IntervalServiceRunner(Service service, ServiceProxy proxy, long interval, String url)
 		{

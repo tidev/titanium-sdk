@@ -4,8 +4,8 @@ summary: |
     The top-level Utils module, containing a set of JavaScript methods that are often useful when
     building applications.
 extends: Titanium.Module
-since: "0.9"
-platforms: [android, iphone, ipad]
+since: {android: "0.9", iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
 methods:
   - name: base64decode
     summary: Returns the specified data decoded from Base64.

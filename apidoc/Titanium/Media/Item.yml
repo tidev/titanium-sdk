@@ -11,7 +11,7 @@ description: |
     returns an array of `Item` objects.
 extends: Titanium.Proxy
 since: "1.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 createable: false
 properties:
 
@@ -97,7 +97,6 @@ properties:
     type: Date
     permission: read-only
     since: "6.1.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: discCount
     summary: Total number of discs for the album containing this item.

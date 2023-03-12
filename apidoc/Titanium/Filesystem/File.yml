@@ -109,7 +109,7 @@ methods:
         type: [String,Titanium.Blob,Titanium.Filesystem.File]
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { iphone: "0.9.0", ipad: "0.9.0", android: "7.3.0" }
   - name: copy
     summary: Copies the file identified by this file object to a new path.
@@ -120,7 +120,7 @@ methods:
         type: String
     returns:
         type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: { iphone: "7.3.0", ipad: "7.3.0", android: "0.9.0" }
   - name: createDirectory
     summary: Creates a directory at the path identified by this file object.
@@ -148,7 +148,7 @@ methods:
         file already exists, or if the file couldn't be created for some other reason.
     returns:
         type: Boolean
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: { iphone: "0.9.0", ipad: "0.9.0", android: "6.1.0" }
 
   - name: createTimestamp
@@ -167,7 +167,7 @@ methods:
         On Android, returns a Date whose `getTime()` value is 0 for resource files.
     returns:
         type: Date
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: { iphone: "7.3.0", ipad: "7.3.0", android: "7.3.0" }
 
   - name: deleteDirectory
@@ -229,7 +229,7 @@ methods:
     returns:
         type: String
         constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: isDirectory
@@ -257,7 +257,7 @@ methods:
         On Android, returns a Date whose `getTime()` value is 0 for resource files.
     returns:
         type: Date
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: { iphone: "7.3.0", ipad: "7.3.0", android: "7.3.0" }
 
   - name: move
@@ -338,7 +338,7 @@ methods:
             File protection type.
         constants: Titanium.Filesystem.IOS_FILE_PROTECTION_*
         type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: spaceAvailable
@@ -374,7 +374,7 @@ properties:
     description: |
         On iOS, this property exists but is always `false`.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     permission: read-only
 
   - name: hidden
@@ -383,7 +383,7 @@ properties:
     description: |
         On iOS, this property exists but is always `false`.
     type: Boolean
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: name
     summary: Name of the file.
@@ -434,8 +434,9 @@ properties:
         file identified by this object from being backed up to iTunes.
     default: true
     type: Boolean
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
     since: "1.8.0"
+
   - name: symbolicLink
     summary: |
         `true` if the file identified by this object is a symbolic link.
@@ -447,13 +448,3 @@ properties:
         `true` if the file identified by this object is writable.
     type: Boolean
     permission: read-only
-  - name: writeable
-    deprecated:
-        since: "1.8.1"
-        notes: Use [Titanium.Filesystem.File.writable](Titanium.Filesystem.File.writable) instead.
-        removed: "6.0.0"
-    summary: |
-        `true` if the file identified by this object is writable.
-    type: Boolean
-    permission: read-only
-    platforms: [iphone, ipad]

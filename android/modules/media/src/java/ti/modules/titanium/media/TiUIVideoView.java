@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -45,7 +45,7 @@ public class TiUIVideoView
 	/**
 	 * Used when setting video view to one created by our fullscreen TiVideoActivity, in which
 	 * case we shouldn't create one of our own in this class.
-	 * @param vv instance of TiVideoView8 created by TiVideoActivity
+	 * @param layout The activity's view group this method will attempt to find the VideoView in.
 	 */
 	public void setVideoViewFromActivityLayout(TiCompositeLayout layout)
 	{
@@ -118,13 +118,6 @@ public class TiUIVideoView
 		getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 
 		String url = d.getString(TiC.PROPERTY_URL);
-		if (url == null) {
-			url = d.getString(TiC.PROPERTY_CONTENT_URL);
-			if (url != null) {
-				Log.w(TAG, "contentURL is deprecated, use url instead");
-				proxy.setProperty(TiC.PROPERTY_URL, url);
-			}
-		}
 		if (url != null) {
 			videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, url)));
 			seekIfNeeded();
@@ -142,6 +135,9 @@ public class TiUIVideoView
 		if (d.containsKey(TiC.PROPERTY_REPEAT_MODE)) {
 			videoView.setRepeatMode(TiConvert.toInt(d, TiC.PROPERTY_REPEAT_MODE));
 		}
+		if (d.containsKey("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(d, "autoHide"));
+		}
 	}
 
 	@Override
@@ -151,7 +147,7 @@ public class TiUIVideoView
 			return;
 		}
 
-		if (key.equals(TiC.PROPERTY_URL) || key.equals(TiC.PROPERTY_CONTENT_URL)) {
+		if (key.equals(TiC.PROPERTY_URL)) {
 			if (newValue != null) {
 				getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
 				videoView.setVideoURI(Uri.parse(proxy.resolveUrl(null, TiConvert.toString(newValue))));
@@ -159,11 +155,6 @@ public class TiUIVideoView
 			} else {
 				videoView.stopPlayback();
 			}
-			if (key.equals(TiC.PROPERTY_CONTENT_URL)) {
-				Log.w(TAG, "contentURL is deprecated, use url instead");
-				proxy.setProperty(TiC.PROPERTY_URL, newValue);
-			}
-
 		} else if (key.equals(TiC.PROPERTY_SCALING_MODE)) {
 			videoView.setScalingMode(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_VOLUME)) {
@@ -173,6 +164,8 @@ public class TiUIVideoView
 			videoView.setRepeatMode(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_SHOWS_CONTROLS)) {
 			setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
+		} else if (key.equals("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

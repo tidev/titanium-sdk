@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -113,6 +113,9 @@
   case NSNetServicesTimeoutError:
     return @"TimeoutError";
     break;
+  case NSNetServicesMissingRequiredConfigurationError:
+    return @"MissingRequiredConfigurationError";
+    break;
   }
 
   return @"";
@@ -178,16 +181,16 @@ READWRITE_IMPL(NSString *, domain, Domain);
 }
 GETTER_IMPL(JSValue *, socket, Socket);
 
-- (void)setIsLocal:(BOOL)isLocal
+- (void)setIsLocal:(bool)isLocal
 {
   local = isLocal;
 }
 
-- (BOOL)isLocal
+- (bool)isLocal
 {
   return local;
 }
-READWRITE_IMPL(BOOL, isLocal, IsLocal);
+READWRITE_IMPL(bool, isLocal, IsLocal);
 
 - (NSNetService *)service
 {

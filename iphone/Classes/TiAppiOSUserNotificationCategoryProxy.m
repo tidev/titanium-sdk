@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,9 +33,7 @@
     NSArray *intentIdentifiers = [properties valueForKey:@"intentIdentifiers"] ?: @[];
     NSString *hiddenPreviewsBodyPlaceholder = [properties valueForKey:@"hiddenPreviewsBodyPlaceholder"];
     UNNotificationCategoryOptions options = [self categoryOptionsFromArray:[properties valueForKey:@"options"] ?: @[]];
-#if IS_SDK_IOS_12
     NSString *categorySummaryFormat = [properties valueForKey:@"categorySummaryFormat"];
-#endif
 
     NSMutableArray *defaultActions = [NSMutableArray new];
     NSMutableArray *minimalActions = [NSMutableArray new];
@@ -59,35 +57,12 @@
       }
     }
 
-    // For iOS 11+, offer new constructors
-    if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-#if IS_SDK_IOS_12
-      // For iOS 12+, use the "hiddenPreviewsBodyPlaceholder" and "categorySummaryFormat" constructor
-      if ([TiUtils isIOSVersionOrGreater:@"12.0"]) {
-        _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
-                                                                        actions:defaultActions
-                                                              intentIdentifiers:intentIdentifiers
-                                                  hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                          categorySummaryFormat:categorySummaryFormat
-                                                                        options:options] retain];
-      } else {
-#endif
-        // For iOS 11, use the "hiddenPreviewsBodyPlaceholder" constructor
-        _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
-                                                                        actions:defaultActions
-                                                              intentIdentifiers:intentIdentifiers
-                                                  hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
-                                                                        options:options] retain];
-#if IS_SDK_IOS_12
-      }
-#endif
-    } else {
-      // For iOS < 11, use the default constructor
-      _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
-                                                                      actions:defaultActions
-                                                            intentIdentifiers:intentIdentifiers
-                                                                      options:options] retain];
-    }
+    _notificationCategory = [[UNNotificationCategory categoryWithIdentifier:identifier
+                                                                    actions:defaultActions
+                                                          intentIdentifiers:intentIdentifiers
+                                              hiddenPreviewsBodyPlaceholder:hiddenPreviewsBodyPlaceholder
+                                                      categorySummaryFormat:categorySummaryFormat
+                                                                    options:options] retain];
 
     RELEASE_TO_NIL(minimalActions);
     RELEASE_TO_NIL(defaultActions);

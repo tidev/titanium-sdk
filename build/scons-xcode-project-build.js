@@ -13,7 +13,10 @@ const projectDir = program.args[0];
 const targetBuildDir = program.args[1];
 const productName = program.args[2];
 
-const appDir = path.join(targetBuildDir, `${productName}.app`);
+let appDir = path.join(targetBuildDir, `${productName}.app`);
+if (targetBuildDir.includes('mac')) {
+	appDir = path.join(targetBuildDir, `${productName}.app`, 'Contents/Resources');
+}
 const xcodeProjectResources = path.join(projectDir, '../Resources');
 
 async function generateIndexJSON(dirToTraverse) {
@@ -26,7 +29,7 @@ async function generateIndexJSON(dirToTraverse) {
 			if (fs.existsSync(file)) {
 				if (fs.statSync(file).isDirectory()) {
 					walk(file);
-				} else if (/\.js(on)?$/.test(filename)) {
+				} else if (/\.(c?js|json)$/.test(filename)) { // TODO: Support mjs files!
 					index[file.replace(/\\/g, '/').replace(dirToTraverse + '/', 'Resources/')] = 1;
 				}
 			}
@@ -42,15 +45,16 @@ async function generateIndexJSON(dirToTraverse) {
 }
 
 async function generateBundle(outputDir) {
-	const program = { args: [ 'ios' ] };
-	const builder = new Builder(program);
+	const options = { };
+	const builder = new Builder(options, [ 'ios' ]);
 	await builder.ensureGitHash();
 	const ios = new IOS({
 		sdkVersion: require('../package.json').version,
-		gitHash: program.gitHash,
-		timestamp: program.timestamp
+		gitHash: options.gitHash,
+		timestamp: options.timestamp
 	});
-	await builder.transpile('ios', ios.babelOptions(), path.join(outputDir, 'ti.main.js'));
+
+	await builder.transpile('ios', ios.babelOptions(), outputDir);
 }
 
 async function main(tmpBundleDir) {

@@ -97,11 +97,11 @@ async function checkCommitMessages() {
 // Check that we have a JIRA Link in the body
 async function checkJIRA() {
 	// Don't require dependabot dependency updates require a JIRA ticket
-	if (github.pr.user.login === 'dependabot-preview[bot]') {
+	if (github.pr.user.type === 'Bot') {
 		return;
 	}
 
-	const body = github.pr.body;
+	const body = github.pr.body || '';
 	// TODO: Cross-reference JIRA tickets linked in PR body versus in commit messages!
 	const hasJIRALink = body.match(/https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/);
 	if (!hasJIRALink) {
@@ -169,7 +169,7 @@ async function checkMergeable() {
 // Check PR author to see if it's community, etc
 async function checkCommunity() {
 	// Don't give special thanks to bot accounts
-	if (github.pr.user.login === 'dependabot-preview[bot]') {
+	if (github.pr.user.type === 'Bot') {
 		return;
 	}
 
@@ -307,6 +307,26 @@ async function linkToSDK() {
 	}
 }
 
+// Checks for the expected test reports and reports to the PR if one or more is missing
+async function checkForTestRunFailures () {
+	const expectedJunitFiles = {
+		'android.emulator.5.0': 'Android 5.0',
+		'android.emulator.main': 'Android Main',
+		'cli.report': 'CLI',
+		'ios.ipad': 'iPad',
+		'ios.iphone': 'iPhone',
+		'ios.macos': 'MacOS'
+	};
+	const files = await fs.readdir(__dirname);
+	const junitFiles = files.filter(p => p.startsWith('junit') && p.endsWith('.xml'));
+
+	if (junitFiles.length < Object.keys(expectedJunitFiles).length) {
+		const missing = Object.keys(expectedJunitFiles).filter(name => !junitFiles.includes(`junit.${name}.xml`)).map(name => expectedJunitFiles[name]);
+		fail(`Test reports missing for ${missing.join(', ')}. This indicates that a build failed or the test app crashed`);
+	}
+
+}
+
 async function main() {
 	// do a bunch of things in parallel
 	// Specifically, anything that collects what labels to add or remove has to be done first before...
@@ -317,7 +337,7 @@ async function main() {
 		checkJIRA(),
 		linkToSDK(),
 		checkForIOSCrash(),
-		junit({ pathToReport: './junit.*.xml' }),
+		junit({ pathToReport: './junit.*.xml', onlyWarn: true }),
 		checkChangedFileLocations(),
 		checkCommunity(),
 		checkMergeable(),
@@ -325,6 +345,7 @@ async function main() {
 		updateMilestone(),
 		eslint(),
 		dependencies({ type: 'npm' }),
+		checkForTestRunFailures()
 	]);
 
 	// ...once we've gathered what labels to add/remove, do that last

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -40,34 +40,34 @@ GETTER_IMPL(NSNumber *, dpi, Dpi);
 // TODO Remove? Not in our docs!
 - (BOOL)isDevicePortrait
 {
-  UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+  UIDeviceOrientation orientation = UIDevice.currentDevice.orientation;
   return (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown || orientation == UIDeviceOrientationUnknown);
 }
 
 // TODO Remove? Not in our docs!
 - (BOOL)isUIPortrait
 {
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
   return UIInterfaceOrientationIsPortrait(orientation);
 }
 
 - (NSNumber *)platformWidth
 {
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGRect mainScreenBounds = UIScreen.mainScreen.bounds;
   return [NSNumber numberWithFloat:mainScreenBounds.size.width];
 }
 GETTER_IMPL(NSNumber *, platformWidth, PlatformWidth);
 
 - (NSNumber *)platformHeight
 {
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
+  CGRect mainScreenBounds = UIScreen.mainScreen.bounds;
   return [NSNumber numberWithFloat:mainScreenBounds.size.height];
 }
 GETTER_IMPL(NSNumber *, platformHeight, PlatformHeight);
 
 - (NSNumber *)logicalDensityFactor
 {
-  return [NSNumber numberWithFloat:[[UIScreen mainScreen] scale]];
+  return [NSNumber numberWithFloat:UIScreen.mainScreen.scale];
 }
 GETTER_IMPL(NSNumber *, logicalDensityFactor, LogicalDensityFactor);
 

@@ -1,4 +1,0 @@
-module APSHTTPClient {
-  umbrella header "APSHTTPClient.h"
-  export *
-}

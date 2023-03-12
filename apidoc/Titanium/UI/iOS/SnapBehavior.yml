@@ -10,9 +10,8 @@ description: |
          [snapPoint](Titanium.UI.iOS.SnapBehavior.snapPoint) properties.
       3. Add the behavior to an [Animator object](Titanium.UI.iOS.Animator).
 extends: Titanium.Proxy
-since: "3.2"
-platforms: [iphone, ipad]
-osver: {ios: {min: "7.0"}}
+platforms: [iphone, ipad, macos]
+since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 properties:
   - name: damping
     summary: Specifies the amount of oscillation during the conclusion of the snap.

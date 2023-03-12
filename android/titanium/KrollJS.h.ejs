@@ -17,7 +17,7 @@ struct _native {
 static const struct _native natives[] = {
 
 <% Object.keys(sources).forEach(function(id) { -%>
-  { "<%- id %>", <%- id %>_native, sizeof(<%- id %>_native) - 1 },
+  { "<%- id %>", <%- id %>_native, sizeof( <%- id %>_native) - 1 },
 <% }); -%>
   { NULL, NULL, 0 } /* sentinel */
 

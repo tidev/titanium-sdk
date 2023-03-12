@@ -2,10 +2,9 @@
 name: Titanium.UI.iOS.StatusBar
 summary: A set of constants for the status bar style.
 extends: Titanium.Proxy
-since: "5.4.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 createable: false
-
 properties:
   - name: ANIMATION_STYLE_NONE
     summary: No animation style, when the status bar is hidden or shown.

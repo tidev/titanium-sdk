@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,8 @@ import android.provider.CalendarContract;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
+import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -21,7 +23,6 @@ import org.appcelerator.titanium.TiC;
 
 import android.Manifest;
 import android.app.Activity;
-import android.os.Build;
 
 @Kroll.module
 public class CalendarModule extends KrollModule
@@ -126,50 +127,54 @@ public class CalendarModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void requestCalendarPermissions(@Kroll.argument(optional = true) KrollFunction permissionCallback)
+	public KrollPromise<KrollDict> requestCalendarPermissions(
+		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
 	{
-		if (hasCalendarPermissions()) {
-			KrollDict response = new KrollDict();
-			response.putCodeAndMessage(0, null);
-			permissionCallback.callAsync(getKrollObject(), response);
-			return;
-		}
+		final KrollObject callbackThisObject = getKrollObject();
+		return KrollPromise.create((promise) -> {
+			if (hasCalendarPermissions()) {
+				KrollDict response = new KrollDict();
+				response.putCodeAndMessage(0, null);
+				permissionCallback.callAsync(callbackThisObject, response);
+				promise.resolve(response);
+				return;
+			}
 
-		TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CALENDAR, permissionCallback,
-														 getKrollObject());
-		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-		currentActivity.requestPermissions(
-			new String[] { Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR },
-			TiC.PERMISSION_CODE_CALENDAR);
+			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CALENDAR, permissionCallback,
+				callbackThisObject, promise);
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			currentActivity.requestPermissions(
+				new String[] { Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR },
+				TiC.PERMISSION_CODE_CALENDAR);
+		});
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getAllCalendars()
 	{
 		ArrayList<CalendarProxy> calendars = CalendarProxy.queryCalendars(null, null);
-		return calendars.toArray(new CalendarProxy[calendars.size()]);
+		return calendars.toArray(new CalendarProxy[0]);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public CalendarProxy[] getSelectableCalendars()
 	{
-		ArrayList<CalendarProxy> calendars;
 		// selectable calendars are "visible"
-		if (Build.VERSION.SDK_INT >= 14) { // ICE_CREAM_SANDWICH, 4.0
-			calendars = CalendarProxy.queryCalendars("Calendars.visible = ?", new String[] { "1" });
+		ArrayList<CalendarProxy> calendars;
+		calendars = CalendarProxy.queryCalendars("Calendars.visible = ?", new String[] { "1" });
+		return calendars.toArray(new CalendarProxy[0]);
+	}
+
+	@Kroll.getProperty
+	public CalendarProxy getDefaultCalendar()
+	{
+		ArrayList<CalendarProxy> calendars;
+		calendars = CalendarProxy.queryCalendars("Calendars.isPrimary = ?", new String[] { "1" });
+		if (calendars.size() > 0) {
+			return calendars.get(0);
+		} else {
+			return null;
 		}
-		// selectable calendars are "selected"
-		else if (Build.VERSION.SDK_INT >= 11) { // HONEYCOMB, 3.0
-			calendars = CalendarProxy.queryCalendars("Calendars.selected = ?", new String[] { "1" });
-		}
-		// selectable calendars are "selected" && !"hidden"
-		else {
-			calendars = CalendarProxy.queryCalendars("Calendars.selected = ? AND Calendars.hidden = ?",
-													 new String[] { "1", "0" });
-		}
-		return calendars.toArray(new CalendarProxy[calendars.size()]);
 	}
 
 	@Kroll.method
@@ -185,12 +190,11 @@ public class CalendarModule extends KrollModule
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public AlertProxy[] getAllAlerts()
 	{
 		ArrayList<AlertProxy> alerts = AlertProxy.queryAlerts(null, null, null);
-		return alerts.toArray(new AlertProxy[alerts.size()]);
+		return alerts.toArray(new AlertProxy[0]);
 	}
 
 	@Override

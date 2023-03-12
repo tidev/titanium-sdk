@@ -12,7 +12,7 @@ description: |
     
 extends: Titanium.Proxy
 since: "1.5"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 createable: false
 
 methods:

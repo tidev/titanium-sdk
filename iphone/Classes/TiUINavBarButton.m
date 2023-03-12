@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -114,11 +114,18 @@ DEFINE_EXCEPTIONS
       [[proxy_ view] setBounds:bounds];
 #endif
     } else if (image != nil) {
-      NSURL *url = [TiUtils toURL:image proxy:proxy_];
-      UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
-      self = [super initWithImage:theimage style:[self style:proxy_] target:self action:@selector(clicked:)];
+      UIImage *nativeImage;
+      // The image can be a raw image (e.g. for blobs / system icons)
+      if ([image isKindOfClass:[TiBlob class]]) {
+        nativeImage = [(TiBlob *)image image];
+      } else {
+        NSURL *url = [TiUtils toURL:image proxy:proxy_];
+        nativeImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:url];
+      }
+      self = [super initWithImage:nativeImage style:[self style:proxy_] target:self action:@selector(clicked:)];
     } else {
       self = [super initWithTitle:[self title:proxy_] style:[self style:proxy_] target:self action:@selector(clicked:)];
+      self.tintColor = [proxy_ valueForKey:@"color"] ? [TiUtils colorValue:[proxy_ valueForKey:@"color"]].color : [TiUtils colorValue:[proxy_ valueForKey:@"tintColor"]].color;
     }
   }
   proxy = proxy_; // Don't retain

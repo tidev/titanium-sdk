@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -194,14 +194,12 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return application.getString(resId, formatArgs);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public IntentProxy getIntent()
 	{
 		return intentProxy;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestedOrientation(int orientation)
 	{
@@ -247,7 +245,6 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return null;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public TiWindowProxy getWindow()
 	{
@@ -260,7 +257,6 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return tiActivity.getWindowProxy();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{
@@ -284,7 +280,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	public void invalidateOptionsMenu()
 	{
 		Activity activity = getWrappedActivity();
-		if (activity != null && activity instanceof AppCompatActivity) {
+		if (activity instanceof AppCompatActivity) {
 			((AppCompatActivity) activity).supportInvalidateOptionsMenu();
 		}
 	}
@@ -365,7 +361,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	 */
 	private static class ProxyModelListener implements KrollProxyListener
 	{
-		private static ProxyModelListener instance = new ProxyModelListener();
+		private static final ProxyModelListener instance = new ProxyModelListener();
 
 		public static ProxyModelListener getInstance()
 		{

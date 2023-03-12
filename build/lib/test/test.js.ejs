@@ -1,0 +1,138 @@
+<%
+	const apiName = apidoc.name.replace('Titanium.', 'Ti.'); // short name Ti.Whatever (vs Titanium.Whatever)
+	const isModule = apidoc.extends && apidoc.extends === 'Titanium.Module';
+	let instanceName = isModule ? apiName : 'instance';
+
+	function filter(apiDocItem) {
+		if (apiDocItem.platforms) {
+			if (apiDocItem.platforms.length === 1 && apiDocItem.platforms[0] === 'android') {
+				return '.android';
+			} else if (!apiDocItem.platforms.includes('android')) {
+				return '.ios';
+			}
+		}
+		return '';
+	}
+-%>
+/*
+ * Appcelerator Titanium Mobile
+ * Copyright (c) <%= new Date().getFullYear() %>-Present by Axway, Inc. All Rights Reserved.
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+/* eslint-env mocha */
+/* eslint no-unused-expressions: "off" */
+/* eslint no-undef: "off" */
+'use strict';
+
+const should = require('./utilities/assertions');
+
+describe<%= filter(apidoc) %>('<%= apidoc.name %>', () => {
+<%
+	if (!isModule) {
+-%>
+	let instance;
+
+	beforeEach(() => {
+		// TODO: Create an instance of the type!
+	});
+
+	afterEach(() => {
+		// TODO: Do any cleanup of the instance we need to do!
+		instance = null;
+	});
+<%
+	}
+
+	if (Array.isArray(apidoc.properties)) {
+-%>
+
+	describe('properties', () => {
+<%
+		for (const prop of apidoc.properties) {
+-%>
+<%- include('property', { prop, instanceName, apiName, filter }); %>
+<%
+		}
+-%>
+	});
+<%
+	}
+
+	if (Array.isArray(apidoc.methods)) {
+-%>
+
+	describe('methods', () => {
+<%
+		for (const method of apidoc.methods) {
+			// TODO: Validate return types?
+-%>
+		describe<%= filter(method) %>('#<%= method.name %>', () => {
+			it('is a Function', () => {
+				should(<%= instanceName %>.<%= method.name %>).be.a.Function();
+			});
+<%
+			if (method.returns && method.returns.constants) {
+				const constants = method.returns.constants.map(e => e.replace('Titanium', 'Ti'));
+				const wildcard = constants[0].split('_').slice(0, -1).join('_');
+-%>
+
+			it('returns one of <%= wildcard %>_*', () => {
+				should([
+<%				for (const constant of constants) { -%>
+					<%= constant%>,
+<%				} -%>
+				]).containEql(<%= instanceName %>.<%= method.name %>());
+			});
+<%
+			}
+-%>
+		});
+
+<%
+		}
+-%>
+	});
+<%
+	}
+
+	if (Array.isArray(apidoc.constants) && apidoc.constants.length > 0) {
+-%>
+
+	describe('constants', () => {
+<%
+		for (const prop of apidoc.constants) {
+-%>
+<%- include('property', { prop, instanceName, apiName, filter }); %>
+<%
+		}
+-%>
+	});
+<%
+	}
+
+	if (Array.isArray(apidoc.examples) && apidoc.examples.length > 0) {
+-%>
+
+	describe('examples', () => {
+<%
+		for (const example of apidoc.examples) {
+			let array;
+			let indent = '			';
+			const regex = /```( \w+)([^`]+)```/g;
+			let code = '';
+			while ((array = regex.exec(example.example)) !== null) {
+				code += array[2].replace(/\n/g, '\n' + indent);
+			}
+-%>
+		it('<%= example.title %>', () => {
+			<%- code %>
+		});
+<%
+		}
+-%>
+	});
+<%
+	}
+-%>
+});

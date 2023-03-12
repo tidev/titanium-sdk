@@ -2,9 +2,9 @@
 name: Titanium.UI.ProgressBar
 summary: A progress bar.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./progressbar_android.png) | ![iOS](./progressbar_ios.png) | ![Windows](./progressbar_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./progressbar_android.png) | ![iOS](./progressbar_ios.png) |
 
     A progress bar is used for displaying an ongoing activity with a defined progression.
     For an activity without a defined progression, you can use <Titanium.UI.ActivityIndicator>.
@@ -27,11 +27,17 @@ description: |
     Make sure the window is modal and not full screen, and that the navigation bar is not hidden.
 extends: Titanium.UI.View
 since: "0.8"
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 properties:
+  - name: animated
+    summary: Enables smooth progress change animation when changing the value.
+    type: Boolean
+    default: true
+    since: "10.0.1"
+
   - name: color
     summary: Color of the progress bar message, as a color name or hex triplet.
     description: |
@@ -41,6 +47,7 @@ properties:
   - name: font
     summary: Font for the progress bar text.
     type: Font
+    exclude-platforms: [android]
 
   - name: max
     summary: Maximum value of the progress bar.
@@ -53,13 +60,14 @@ properties:
   - name: tintColor
     summary: The color shown for the portion of the progress bar that is filled.
     type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, android, macos]
+    since: {iphone: "3.1.3", ipad: "3.1.3", android: "8.0.0"}
 
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: [String, Titanium.UI.Color]
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "5.2.0", ipad: "5.2.0", android: "8.0.0"}
-    osver: {android: {min: "5.0"}}
 
   - name: min
     summary: Minimum value of the progress bar.
@@ -69,7 +77,7 @@ properties:
     summary: Style of the progress bar.
     description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
     type: Number
-    platforms: [iphone,ipad]
+    platforms: [iphone,ipad, macos]
 
   - name: value
     summary: Current value of the progress bar.

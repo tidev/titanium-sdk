@@ -6,87 +6,126 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
+/* eslint mocha/no-identical-title: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+const should = require('./utilities/assertions');
 
-describe('Titanium.Platform.DisplayCaps', function () {
-	it('apiName', function () {
-		should(Ti.Platform.displayCaps).have.readOnlyProperty('apiName').which.is.a.String();
-		should(Ti.Platform.displayCaps.apiName).be.eql('Ti.Platform.DisplayCaps');
-	});
+describe('Titanium.Platform.DisplayCaps', () => {
+	describe('properties', () => {
+		describe('.apiName', () => {
+			it('is a read-only String', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('apiName').which.is.a.String();
+			});
 
-	// FIXME Get working on IOS // on iOS property is configurable
-	it.iosBroken('density', function () {
-		should(Ti.Platform.displayCaps).have.readOnlyProperty('density').which.is.a.String();
-		// TODO Test for known range of values?
-		// Android: "high", "medium", "xhigh", "xxhigh", "xxxhigh", "low", "medium"
-		// iOS: "xhigh", "high", "medium"
-	});
+			it('equals Ti.Platform.DisplayCaps', () => {
+				should(Ti.Platform.displayCaps.apiName).be.eql('Ti.Platform.DisplayCaps');
+			});
+		});
 
-	it('getDensity()', function () {
-		should(Ti.Platform.displayCaps.getDensity).be.a.Function();
-		should(Ti.Platform.displayCaps.getDensity()).be.a.String();
-	});
+		describe('.density', () => {
+			it('is a read-only String', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('density').which.is.a.String();
+			});
 
-	// FIXME Get working on IOS
-	it.iosBroken('dpi', function () {
-		should(Ti.Platform.displayCaps).have.readOnlyProperty('dpi').which.is.a.Number();
-		should(Ti.Platform.displayCaps.dpi).be.above(0);
-	});
+			it('is one of known values', () => {
+				should([
+					'xxxhigh', // Android 4x 560+ dpi (note that android's constant is for 640 == xxxhdpi)
+					'xxhigh', // Android 3x 400+ dpi (note that android's constant is for 480 == xxhdpi)
+					'xhigh', // iOS 3x, Android 280+ dpi (note their constant is for 320dpi == xhdpi!)
+					'high', // 2x on iOS, Android 240 dpi (hdpi)
+					'tvdpi', // Android 213 dpi (720p TV screen)
+					'medium', // 1x on iOS, Android 160 dpi (mdpi)
+					'low', // Android < 160 dpi
+				]).containEql(Ti.Platform.displayCaps.density);
+			});
 
-	it('getDpi()', function () {
-		should(Ti.Platform.displayCaps.getDpi).be.a.Function();
-		should(Ti.Platform.displayCaps.getDpi()).be.a.Number();
-	});
+			it('has no getter', () => {
+				should(Ti.Platform.displayCaps).not.have.a.getter('density');
+			});
+		});
 
-	// FIXME Get working on IOS
-	it.iosBroken('logicalDensityFactor', function () {
-		should(Ti.Platform.displayCaps).have.readOnlyProperty('logicalDensityFactor').which.is.a.Number();
-		should(Ti.Platform.displayCaps.logicalDensityFactor).be.above(0);
-	});
+		describe('.dpi', () => {
+			it('is a read-only Number', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('dpi').which.is.a.Number();
+			});
 
-	it('getLogicalDensityFactor()', function () {
-		should(Ti.Platform.displayCaps.getLogicalDensityFactor).be.a.Function();
-		should(Ti.Platform.displayCaps.getLogicalDensityFactor()).be.a.Number();
-	});
+			it('is above 0', () => {
+				should(Ti.Platform.displayCaps.dpi).be.above(0);
+			});
 
-	it('platformHeight', function () {
-		should(Ti.Platform.displayCaps.platformHeight).be.a.Number();
-		should(Ti.Platform.displayCaps.platformHeight).be.above(0);
-	});
+			it('has no getter', () => {
+				should(Ti.Platform.displayCaps).not.have.a.getter('dpi');
+			});
+		});
 
-	it('getPlatformHeight()', function () {
-		should(Ti.Platform.displayCaps.getPlatformHeight).be.a.Function();
-		should(Ti.Platform.displayCaps.getPlatformHeight()).be.a.Number();
-	});
+		describe('.logicalDensityFactor', () => {
+			it('is a read-only Number', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('logicalDensityFactor').which.is.a.Number();
+			});
 
-	it('platformWidth', function () {
-		should(Ti.Platform.displayCaps.platformWidth).be.a.Number();
-		should(Ti.Platform.displayCaps.platformWidth).be.above(0);
-	});
+			it('is above 0', () => {
+				should(Ti.Platform.displayCaps.logicalDensityFactor).be.above(0);
+			});
 
-	it('getPlatformWidth()', function () {
-		should(Ti.Platform.displayCaps.getPlatformWidth).be.a.Function();
-		should(Ti.Platform.displayCaps.getPlatformWidth()).be.a.Number();
-	});
+			it('has no getter', () => {
+				should(Ti.Platform.displayCaps).not.have.a.getter('logicalDensityFactor');
+			});
+		});
 
-	it.iosMissingAndWindowsDesktopBroken('xdpi', function () {
-		should(Ti.Platform.displayCaps).have.readOnlyProperty('xdpi').which.is.a.Number();
-		should(Ti.Platform.displayCaps.xdpi).be.above(0); // Windows Desktop gives 0
-	});
+		describe('.platformHeight', () => {
+			it('is a read-only Number', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('platformHeight').which.is.a.Number();
+			});
 
-	it.iosMissing('getXdpi()', function () {
-		should(Ti.Platform.displayCaps.getXdpi).be.a.Function();
-		should(Ti.Platform.displayCaps.getXdpi()).be.a.Number();
-	});
+			it('is above 0', () => {
+				should(Ti.Platform.displayCaps.platformHeight).be.above(0);
+			});
 
-	it.iosMissingAndWindowsDesktopBroken('ydpi', function () {
-		should(Ti.Platform.displayCaps).have.readOnlyProperty('ydpi').which.is.a.Number();
-		should(Ti.Platform.displayCaps.ydpi).be.above(0); // Windows Desktop gives 0
-	});
+			it('has no getter', () => {
+				should(Ti.Platform.displayCaps).not.have.a.getter('platformHeight');
+			});
+		});
 
-	it.iosMissing('getYdpi()', function () {
-		should(Ti.Platform.displayCaps.getYdpi).be.a.Function();
-		should(Ti.Platform.displayCaps.getYdpi()).be.a.Number();
+		describe('.platformWidth', () => {
+			it('is a read-only Number', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('platformWidth').which.is.a.Number();
+			});
+
+			it('is above 0', () => {
+				should(Ti.Platform.displayCaps.platformWidth).be.above(0);
+			});
+
+			it('has no getter', () => {
+				should(Ti.Platform.displayCaps).not.have.a.getter('platformWidth');
+			});
+		});
+
+		describe.android('.xdpi', () => {
+			it('is a read-only Number', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('xdpi').which.is.a.Number();
+			});
+
+			it('is above 0', () => {
+				should(Ti.Platform.displayCaps.xdpi).be.above(0);
+			});
+
+			it('has no getter', () => {
+				should(Ti.Platform.displayCaps).not.have.a.getter('xdpi');
+			});
+		});
+
+		describe.android('.ydpi', () => {
+			it('is a read-only Number', () => {
+				should(Ti.Platform.displayCaps).have.readOnlyProperty('ydpi').which.is.a.Number();
+			});
+
+			it('is above 0', () => {
+				should(Ti.Platform.displayCaps.ydpi).be.above(0);
+			});
+
+			it('has no getter', () => {
+				should(Ti.Platform.displayCaps).not.have.a.getter('ydpi');
+			});
+		});
 	});
 });

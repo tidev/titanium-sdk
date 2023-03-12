@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -18,7 +18,7 @@
 @protocol TiNetworkBonjourServiceProxyExports <JSExport>
 // Properties (and accessors)
 PROPERTY(NSString *, domain, Domain);
-PROPERTY(BOOL, isLocal, IsLocal);
+PROPERTY(bool, isLocal, IsLocal);
 PROPERTY(NSString *, name, Name);
 PROPERTY(JSValue *, socket, Socket);
 PROPERTY(NSString *, type, Type);

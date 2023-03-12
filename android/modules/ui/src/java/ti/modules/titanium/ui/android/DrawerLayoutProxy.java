@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2017 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -94,70 +94,60 @@ public class DrawerLayoutProxy extends TiViewProxy
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getIsLeftOpen()
 	{
 		return drawer != null && drawer.isLeftOpen();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getIsRightOpen()
 	{
 		return drawer != null && drawer.isRightOpen();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getIsLeftVisible()
 	{
 		return drawer != null && drawer.isLeftVisible();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getIsRightVisible()
 	{
 		return drawer != null && drawer.isRightVisible();
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLeftWidth(Object arg)
 	{
 		setPropertyAndFire(TiC.PROPERTY_LEFT_WIDTH, arg);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setLeftView(Object arg)
 	{
 		setPropertyAndFire(TiC.PROPERTY_LEFT_VIEW, arg);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRightWidth(Object arg)
 	{
 		setPropertyAndFire(TiC.PROPERTY_RIGHT_WIDTH, arg);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRightView(Object arg)
 	{
 		setPropertyAndFire(TiC.PROPERTY_RIGHT_VIEW, arg);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setCenterView(Object arg)
 	{
 		setPropertyAndFire(TiC.PROPERTY_CENTER_VIEW, arg);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getDrawerIndicatorEnabled()
 	{
@@ -167,14 +157,12 @@ public class DrawerLayoutProxy extends TiViewProxy
 		return true;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDrawerIndicatorEnabled(Object arg)
 	{
 		setPropertyAndFire(TiC.PROPERTY_DRAWER_INDICATOR_ENABLED, arg);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getDrawerLockMode()
 	{
@@ -184,11 +172,48 @@ public class DrawerLayoutProxy extends TiViewProxy
 		return LOCK_MODE_UNDEFINED;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDrawerLockMode(Object arg)
 	{
 		setPropertyAndFire(TiC.PROPERTY_DRAWER_LOCK_MODE, arg);
+	}
+
+	// clang-format off
+	@Kroll.getProperty
+	public int getLeftDrawerLockMode()
+	// clang-format on
+	{
+		if (hasProperty(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+			return (Integer) getProperty(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE);
+		}
+		return LOCK_MODE_UNDEFINED;
+	}
+
+	// clang-format off
+	@Kroll.setProperty
+	public void setLeftDrawerLockMode(Object arg)
+	// clang-format on
+	{
+		setPropertyAndFire(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE, arg);
+	}
+
+	// clang-format off
+	@Kroll.getProperty
+	public int getRightDrawerLockMode()
+	// clang-format on
+	{
+		if (hasProperty(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+			return (Integer) getProperty(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE);
+		}
+		return LOCK_MODE_UNDEFINED;
+	}
+
+	// clang-format off
+	@Kroll.setProperty
+	public void setRightDrawerLockMode(Object arg)
+	// clang-format on
+	{
+		setPropertyAndFire(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE, arg);
 	}
 
 	@Kroll.method
@@ -197,7 +222,6 @@ public class DrawerLayoutProxy extends TiViewProxy
 		view.getOrCreateView().getOuterView().getParent().requestDisallowInterceptTouchEvent(disallowIntercept);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getToolbarEnabled()
 	{
@@ -207,7 +231,6 @@ public class DrawerLayoutProxy extends TiViewProxy
 		return true;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setToolbarEnabled(Object arg)
 	{

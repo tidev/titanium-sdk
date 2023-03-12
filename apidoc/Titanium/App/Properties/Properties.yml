@@ -13,7 +13,7 @@ description: |
 
     ``` xml
     <?xml version="1.0" encoding="UTF-8"?>
-    <ti:app xmlns:ti="http://ti.appcelerator.org">
+    <ti:app xmlns:ti="http://ti.tidev.io">
         <property name="foo" type="string">42</property>
     </ti:app>
     ```
@@ -251,7 +251,7 @@ events:
 
         The event is also fired when the application changes a property directly using one of the 
         `Ti.App.iOS.UserDefaults` or `Ti.App.Properties` methods.
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.0.0"
 
 examples:

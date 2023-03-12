@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,7 +18,6 @@ class V8Runtime
 public:
 	static Persistent<Context> globalContext;
 	static Persistent<Object> krollGlobalObject;
-	static Persistent<Array> moduleContexts;
 	
 	static Isolate* v8_isolate;
 	static std::unique_ptr<v8::Platform> platform;
@@ -39,7 +38,6 @@ public:
 	static Local<Object> ModuleObject();
 	static Local<Context> GlobalContext();
 	static Local<Function> RunModuleFunction();
-	static Local<Array> ModuleContexts();
 };
 }
 ;

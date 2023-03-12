@@ -99,7 +99,7 @@ description: |
         window: win
       });
       var webview = Ti.UI.createWebView({
-        url: 'http://appcelerator.com',
+        url: 'http://titaniumsdk.com',
         bottom: 50
       });
       win.add(close);
@@ -184,7 +184,7 @@ description: |
           }
           listViewData.push(obj);
         }
-        listSection.setItems(listViewData);
+        listSection.items = listViewData;
       });
       listView.addEventListener('itemclick', function(e) {
         var item = e.section.getItemAt(e.itemIndex);
@@ -438,7 +438,7 @@ description: |
     ```
 extends: Titanium.Proxy
 since: {android: "3.2.0", iphone: "3.3.0", ipad: "3.3.0"}
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 
 methods:
   - name: isValid
@@ -446,7 +446,7 @@ methods:
     description: |
         This method checks if the cookie is valid. For a cookie to be valid the minimum
         properties requiered are `name`, `value`, `path` and either `domain` or `originalUrl` (iOS only)
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "3.3.0", ipad: "3.3.0"}
     returns:
         type: Boolean
@@ -468,7 +468,7 @@ properties:
         This has been deprecated and removed since 5.0.0 in Android. Please use the property `maxAge`
         for Cookies in Android.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: {iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: maxAge
@@ -494,7 +494,7 @@ properties:
   - name: originalUrl
     summary: The origual url attribute of the cookie.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "3.3.0"
 
   - name: path

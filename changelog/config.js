@@ -2,7 +2,6 @@
 
 const path = require('path');
 const semver = require('semver');
-const dateFormat = require('dateformat');
 const fs = require('fs-extra');
 // eslint-disable-next-line security/detect-child-process
 const execSync = require('child_process').execSync;
@@ -19,7 +18,10 @@ const KNOWN_EMPLOYEE_EMAILS = [
 	'yordan.banev@gmail.com',
 	'iw@whitfin.io',
 	'mukherjee2@users.noreply.github.com',
-	'14187093+Sajoha@users.noreply.github.com'
+	'14187093+Sajoha@users.noreply.github.com',
+	'Topener@users.noreply.github.com',
+	'brenton.house@gmail.com',
+	'build@users.noreply.github.com'
 ];
 
 // others use our company email addresses
@@ -93,7 +95,7 @@ function guessPreviousBranch(version) {
 }
 
 function urlToVersion(url) {
-	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1]; // eslint-disable-line security/detect-child-process
 }
 
 function gatherModules() {
@@ -183,7 +185,7 @@ module.exports = {
 				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
 					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
 					&& !commit.authorEmail.includes('greenkeeper[bot]')
-					&& !commit.authorEmail.includes('dependabot-preview[bot]')) {
+					&& !commit.authorEmail.includes('dependabot')) {
 					// If this is a noreply github email address, strip it to username so we can link to them
 					// if (domain === 'users.noreply.github.com') {
 					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
@@ -207,8 +209,10 @@ module.exports = {
 			// Limit to features, bug fixes and performance improvements
 			if (commit.type === 'feat') {
 				commit.type = 'Features';
+				discard = false;
 			} else if (commit.type === 'fix') {
 				commit.type = 'Bug Fixes';
+				discard = false;
 			} else if (commit.type === 'perf') {
 				commit.type = 'Performance Improvements';
 			} else if (discard && !community && !breaking) {
@@ -356,7 +360,9 @@ module.exports = {
 				}
 				eosDate.setMonth(eosDate.getMonth() + 6);
 			}
-			context.eosDate = dateFormat(eosDate, 'yyyy-mm-dd', true);
+
+			// yyyy-mm-dd
+			context.eosDate = eosDate.toISOString().split('T')[0];
 
 			// Gather up the modules shipped with this version and toss into a variable we can put into the changelog
 			const modules = gatherModules();

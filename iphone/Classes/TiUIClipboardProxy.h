@@ -1,32 +1,49 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-Present by Axway, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #ifdef USE_TI_UICLIPBOARD
-#import <TitaniumKit/TiProxy.h>
-@interface TiUIClipboardProxy : TiProxy {
+@import TitaniumKit.ObjcProxy;
+
+@protocol ClipboardExports <JSExport>
+
+// Properties (and accessors)
+READONLY_PROPERTY(bool, allowCreation, AllowCreation);
+READONLY_PROPERTY(NSString *, name, Name);
+READONLY_PROPERTY(bool, unique, Unique);
+
+// Methods
+- (void)clearData:(NSString *)type;
+- (void)clearText;
+- (JSValue *)getData:(NSString *)type;
+- (NSArray<NSDictionary<NSString *, id> *> *)getItems;
+- (NSString *)getText;
+- (bool)hasData:(id)type;
+- (bool)hasText;
+- (bool)hasURLs;
+- (bool)hasImages;
+- (bool)hasColors;
+JSExportAs(setData,
+           -(void)setData
+           : (NSString *)type withData
+           : (JSValue *)data);
+- (void)setText:(NSString *)text;
+- (void)setItems:(NSDictionary<NSString *, id> *)items;
+- (void)remove;
+
+@end
+
+@interface TiUIClipboardProxy : ObjcProxy <ClipboardExports> {
   @private
   UIPasteboard *_pasteboard;
-  NSString *pasteboardName;
   BOOL shouldCreatePasteboard;
-  BOOL isNamedPasteBoard;
   BOOL isUnique;
 }
 
-#pragma mark internal
 - (id)getData_:(NSString *)mimeType;
-
-- (void)clearData:(id)args;
-- (void)clearText:(id)args;
-- (id)getData:(id)args;
-- (NSString *)getText:(id)args;
-- (id)hasData:(id)args;
-- (id)hasText:(id)unused;
-- (void)setData:(id)args;
-- (void)setText:(id)args;
 
 @end
 #endif

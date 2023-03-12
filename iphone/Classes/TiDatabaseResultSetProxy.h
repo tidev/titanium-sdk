@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,7 +16,7 @@
 // Properties (and accessors)
 READONLY_PROPERTY(NSInteger, fieldCount, FieldCount);
 READONLY_PROPERTY(NSInteger, rowCount, RowCount);
-READONLY_PROPERTY(BOOL, validRow, ValidRow);
+READONLY_PROPERTY(bool, validRow, ValidRow);
 
 // Methods
 - (void)close;
@@ -30,8 +30,8 @@ JSExportAs(fieldByName,
            : (JSValue *)optionalType);
 - (NSString *)fieldName:(NSInteger)index;
 - (NSString *)getFieldName:(NSInteger)index;
-- (BOOL)isValidRow;
-- (BOOL)next;
+- (bool)isValidRow;
+- (bool)next;
 
 @end
 

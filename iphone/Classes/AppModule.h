@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,6 +24,7 @@
 - (void)fireEvent:(NSArray *)args;
 - (int)garbageCollect:(NSArray *)args;
 
+@property (nonatomic, readonly) NSDictionary *arguments;
 @property (nonatomic, readonly) NSString *id;
 @property (nonatomic, readonly) NSString *url;
 @property (nonatomic, readonly) NSString *guid;

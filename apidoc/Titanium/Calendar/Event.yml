@@ -8,7 +8,7 @@ description: |
 
     See <Titanium.Calendar> for examples of retrieving event information and creating events.
 extends: Titanium.Proxy
-platforms: [android, iphone, ipad]
+platforms: [android, iphone, ipad, macos]
 since: {android: "3.2.0", iphone: "3.1.0", ipad: "3.1.0"}
 createable: false
 
@@ -21,7 +21,7 @@ methods:
       - name: data
         summary: Properties for the alert.
         type: Dictionary<Titanium.Calendar.Alert>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: createReminder
     summary: Creates a reminder for this event.
@@ -66,7 +66,7 @@ methods:
       - name: data
         summary: Properties for the recurrence rule.
         type: Dictionary<Titanium.Calendar.RecurrenceRule>
-    platforms: [iphone, ipad, android]
+    platforms: [iphone, ipad, android, macos]
     since: {android: "7.1.0"}
 
   - name: save
@@ -78,7 +78,7 @@ methods:
         not modify are updated to reflect the most recent value in the database. If the
         event has been deleted from the database, it is re-created as a new event.
 
-        On Android, this method only updates the recurrence rule (if set). See [TIMOB-24248](https://jira.appcelerator.org/browse/TIMOB-24248)
+        On Android, this method only updates the recurrence rule (if set). See [TIMOB-24248](https://jira-archive.titaniumsdk.com/TIMOB-24248)
         to track this new feature.
     returns:
         type: Boolean
@@ -90,7 +90,7 @@ methods:
         type: Number
         constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: remove
@@ -107,7 +107,7 @@ methods:
         type: Number
         constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: refresh
     summary: Updates the event's data with the current information in the Calendar database.
@@ -118,7 +118,7 @@ methods:
         and you should not continue to use it.
     returns:
         type: Boolean
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: addRecurrenceRule
     summary: Adds a recurrence rule to the recurrence rule array.
@@ -126,8 +126,7 @@ methods:
       - name: rule
         summary: The recurrence rule to be added.
         type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: removeRecurrenceRule
     summary: Removes a recurrence rule to the recurrence rule array.
@@ -135,8 +134,7 @@ methods:
       - name: rule
         summary: The recurrence rule to be removed.
         type: Titanium.Calendar.RecurrenceRule
-    osver: {ios: {min: "5.0"}}
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 properties:
   - name: alerts
@@ -144,7 +142,7 @@ properties:
     description: |
         This property is read-only on Android.
     type: Array<Titanium.Calendar.Alert>
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: allDay
     summary: Indicates whether this event is all day.
@@ -152,19 +150,19 @@ properties:
         This property is read-only on Android.
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: begin
     summary: Start date/time of this event.
     description: |
         This property is read-only on Android.
     type: Date
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: notes
     summary: Notes for this event.
     type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: description
     summary: Description of this event.
@@ -177,7 +175,7 @@ properties:
     description: |
         This property is read-only on Android.
     type: Date
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: extendedProperties
     summary: Extended properties of this event.
@@ -189,20 +187,20 @@ properties:
     summary: Indicates whether an alarm is scheduled for this event.
     type: Boolean
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: id
     summary: Identifier of this event.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: location
     summary: Location of this event.
     description: |
         This property is read-only on Android.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: reminders
     summary: Existing reminders for this event.
@@ -215,13 +213,13 @@ properties:
     type: Number
     constants: Titanium.Calendar.STATUS_*
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: availability
     summary: Availability of this event.
     type: Number
     constants: Titanium.Calendar.AVAILABILITY_*
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: isDetached
     summary: |
@@ -233,14 +231,14 @@ properties:
         default attributes.
     type: Boolean
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: title
     summary: Title of this event.
     description: |
         This property is read-only on Android.
     type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: recurrenceRules
     summary: The recurrence rules for the calendar item.
@@ -248,8 +246,7 @@ properties:
         On Android, only the first element of the recurrenceRules is taken into account
         due to the way it handles conditions for recurrence rules.
     type: Array<Titanium.Calendar.RecurrenceRule>
-    osver: {ios: {min: "5.0"}}
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: visibility
@@ -262,6 +259,6 @@ properties:
   - name: attendees
     summary: The list of event attendees. This list will be empty if the event has no attendees.
     type: Array<Titanium.Calendar.Attendee>
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     permission: read-only
     since: "6.0.0"

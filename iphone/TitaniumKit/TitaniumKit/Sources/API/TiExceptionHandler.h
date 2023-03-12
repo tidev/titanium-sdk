@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,6 +23,11 @@
  * Returns source URL where error happened.
  */
 @property (nonatomic, readonly) NSString *sourceURL;
+
+/**
+ * Returns the actual source code line as a string where the error happened.
+ */
+@property (nonatomic, readonly) NSString *sourceLine;
 
 /**
  * Returns line number where error happened.
@@ -50,9 +55,19 @@
 @property (nonatomic, readonly) NSString *backtrace;
 
 /**
+ * Returns the parsed JavaScript stack trace entries consisting of smybol name and source location.
+ */
+@property (nonatomic, readonly) NSArray<NSDictionary *> *parsedJsStack;
+
+/**
  * Returns the native stack as a static string.
  */
 @property (nonatomic, readonly) NSArray<NSString *> *nativeStack;
+
+/**
+ * Returns the pre-formated and cleaned native stack trace.
+ */
+@property (nonatomic, readonly) NSArray<NSString *> *formattedNativeStack;
 
 - (id)initWithMessage:(NSString *)message sourceURL:(NSString *)sourceURL lineNo:(NSInteger)lineNo;
 - (id)initWithDictionary:(NSDictionary *)dictionary;

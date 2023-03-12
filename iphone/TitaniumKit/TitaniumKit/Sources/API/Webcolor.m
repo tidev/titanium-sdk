@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,29 +34,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
 
 + (UIColor *)semanticColorNamed:(NSString *)colorName
 {
-  if ([TiUtils isIOSVersionOrGreater:@"11.0"]) {
-    return [UIColor colorNamed:colorName]; // FIXME: in xcode dev project, this won't work properly because our xcode build doesn't convert semantic.colors.json
-  }
-
-  // Fallback to reading the semantic.colors.json directly for iOS < 11
-  if (semanticColors == nil) {
-    NSString *colorsPath = [NSBundle.mainBundle pathForResource:@"semantic.colors" ofType:@"json"];
-    if (![NSFileManager.defaultManager fileExistsAtPath:colorsPath]) {
-      return nil;
-    }
-
-    NSData *colors = [NSData dataWithContentsOfFile:colorsPath options:NSDataReadingMappedIfSafe error:nil];
-    semanticColors = [[NSJSONSerialization JSONObjectWithData:colors options:NSJSONReadingMutableContainers error:nil] retain];
-  }
-
-  NSDictionary *colorMap = semanticColors[colorName];
-  if (colorMap == nil) {
-    return nil;
-  }
-
-  NSString *currentTraitCollection = TiApp.controller.traitCollection.userInterfaceStyle == UIUserInterfaceStyleDark ? @"dark" : @"light";
-
-  return [Webcolor semanticColorEntry:colorMap[currentTraitCollection]];
+  return [UIColor colorNamed:colorName]; // FIXME: in xcode dev project, this won't work properly because our xcode build doesn't convert semantic.colors.json
 }
 
 + (UIColor *)semanticColorEntry:(id)entry
@@ -125,7 +103,6 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
       @"ff000000" : UIColor.blackColor,
     }];
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     // NOTE: We explicitly use lowercase names because we cache using lowercase
     // This basically means color names are case insensitive
     [colorLookup addEntriesFromDictionary:@{
@@ -142,35 +119,32 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
       @"darktextcolor" : UIColor.darkTextColor
     }];
 
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      [colorLookup addEntriesFromDictionary:@{
-        @"systemindigocolor" : UIColor.systemIndigoColor,
-        @"systemgray2color" : UIColor.systemGray2Color,
-        @"systemgray3color" : UIColor.systemGray3Color,
-        @"systemgray4color" : UIColor.systemGray4Color,
-        @"systemgray5color" : UIColor.systemGray5Color,
-        @"systemgray6color" : UIColor.systemGray6Color,
-        @"labelcolor" : UIColor.labelColor,
-        @"secondarylabelcolor" : UIColor.secondaryLabelColor,
-        @"tertiarylabelcolor" : UIColor.tertiaryLabelColor,
-        @"quaternarylabelcolor" : UIColor.quaternaryLabelColor,
-        @"linkcolor" : UIColor.linkColor,
-        @"placeholdertextcolor" : UIColor.placeholderTextColor,
-        @"separatorcolor" : UIColor.separatorColor,
-        @"opaqueseparatorcolor" : UIColor.opaqueSeparatorColor,
-        @"systembackgroundcolor" : UIColor.systemBackgroundColor,
-        @"secondarysystembackgroundcolor" : UIColor.secondarySystemBackgroundColor,
-        @"tertiarysystembackgroundcolor" : UIColor.tertiarySystemBackgroundColor,
-        @"systemgroupedbackgroundcolor" : UIColor.systemGroupedBackgroundColor,
-        @"secondarysystemgroupedbackgroundcolor" : UIColor.secondarySystemGroupedBackgroundColor,
-        @"tertiarysystemgroupedbackgroundcolor" : UIColor.tertiarySystemGroupedBackgroundColor,
-        @"systemfillcolor" : UIColor.systemFillColor,
-        @"secondarysystemfillcolor" : UIColor.secondarySystemFillColor,
-        @"tertiarysystemfillcolor" : UIColor.tertiarySystemFillColor,
-        @"quaternarysystemfillcolor" : UIColor.quaternarySystemFillColor
-      }];
-    }
-#endif
+    [colorLookup addEntriesFromDictionary:@{
+      @"systemindigocolor" : UIColor.systemIndigoColor,
+      @"systemgray2color" : UIColor.systemGray2Color,
+      @"systemgray3color" : UIColor.systemGray3Color,
+      @"systemgray4color" : UIColor.systemGray4Color,
+      @"systemgray5color" : UIColor.systemGray5Color,
+      @"systemgray6color" : UIColor.systemGray6Color,
+      @"labelcolor" : UIColor.labelColor,
+      @"secondarylabelcolor" : UIColor.secondaryLabelColor,
+      @"tertiarylabelcolor" : UIColor.tertiaryLabelColor,
+      @"quaternarylabelcolor" : UIColor.quaternaryLabelColor,
+      @"linkcolor" : UIColor.linkColor,
+      @"placeholdertextcolor" : UIColor.placeholderTextColor,
+      @"separatorcolor" : UIColor.separatorColor,
+      @"opaqueseparatorcolor" : UIColor.opaqueSeparatorColor,
+      @"systembackgroundcolor" : UIColor.systemBackgroundColor,
+      @"secondarysystembackgroundcolor" : UIColor.secondarySystemBackgroundColor,
+      @"tertiarysystembackgroundcolor" : UIColor.tertiarySystemBackgroundColor,
+      @"systemgroupedbackgroundcolor" : UIColor.systemGroupedBackgroundColor,
+      @"secondarysystemgroupedbackgroundcolor" : UIColor.secondarySystemGroupedBackgroundColor,
+      @"tertiarysystemgroupedbackgroundcolor" : UIColor.tertiarySystemGroupedBackgroundColor,
+      @"systemfillcolor" : UIColor.systemFillColor,
+      @"secondarysystemfillcolor" : UIColor.secondarySystemFillColor,
+      @"tertiarysystemfillcolor" : UIColor.tertiarySystemFillColor,
+      @"quaternarysystemfillcolor" : UIColor.quaternarySystemFillColor
+    }];
   }
   if ([colorName hasPrefix:@"#"]) {
     colorName = [colorName substringFromIndex:1];

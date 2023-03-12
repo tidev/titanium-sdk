@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,6 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.text.NumberFormat;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -34,21 +33,18 @@ public class LocaleModule extends KrollModule
 		super("Locale");
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getCurrentLanguage()
 	{
 		return Locale.getDefault().getLanguage();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getCurrentCountry()
 	{
 		return Locale.getDefault().getCountry();
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getCurrentLocale()
 	{

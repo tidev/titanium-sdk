@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,7 @@
 @protocol TiCalendarAttendeeExports <JSExport>
 
 READONLY_PROPERTY(NSString *, email, Email);
-READONLY_PROPERTY(BOOL, isOrganizer, IsOrganizer);
+READONLY_PROPERTY(bool, isOrganizer, IsOrganizer);
 READONLY_PROPERTY(NSString *, name, Name);
 READONLY_PROPERTY(EKParticipantRole, role, Role);
 READONLY_PROPERTY(EKParticipantStatus, status, Status);

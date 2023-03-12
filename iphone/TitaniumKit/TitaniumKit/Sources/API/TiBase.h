@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -322,6 +322,15 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
     return [NSNumber numberWithInt:map]; \
   }
 
+#define MAKE_SYSTEM_PROP_MIN_IOS(name, map, iosVersion) \
+  -(NSNumber *)name                                     \
+  {                                                     \
+    if ([TiUtils isIOSVersionOrGreater:iosVersion]) {   \
+      return [NSNumber numberWithInt:map];              \
+    }                                                   \
+    return @(-1);                                       \
+  }
+
 #define MAKE_SYSTEM_PROP_UINTEGER(name, map)         \
   -(NSNumber *)name                                  \
   {                                                  \
@@ -484,7 +493,7 @@ enum {
 // display a warning and set it to 0.0.0
 
 #ifndef TI_VERSION
-#define TI_VERSION 0.0.0
+#define TI_VERSION @"0.0.0"
 #endif
 
 #define _QUOTEME(x) #x
@@ -574,7 +583,6 @@ extern NSString *const kTiPausedNotification;
 extern NSString *const kTiResumeNotification;
 extern NSString *const kTiResumedNotification;
 extern NSString *const kTiErrorNotification;
-extern NSString *const kTiAnalyticsNotification;
 extern NSString *const kTiRemoteDeviceUUIDNotification;
 extern NSString *const kTiGestureShakeNotification;
 extern NSString *const kTiRemoteControlNotification;

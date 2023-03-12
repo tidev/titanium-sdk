@@ -1,13 +1,13 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_PLATFORM
 
 @import JavaScriptCore;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 @class TiPlatformDisplayCaps; // forward declare
 
@@ -24,14 +24,15 @@ READONLY_PROPERTY(NSString *, address, Address);
 READONLY_PROPERTY(NSString *, architecture, Architecture);
 READONLY_PROPERTY(NSNumber *, availableMemory, AvailableMemory);
 READONLY_PROPERTY(NSNumber *, batteryLevel, BatteryLevel);
-PROPERTY(BOOL, batteryMonitoring, BatteryMonitoring);
+PROPERTY(bool, batteryMonitoring, BatteryMonitoring);
 READONLY_PROPERTY(NSNumber *, batteryState, BatteryState);
 READONLY_PROPERTY(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
 @property (readonly) TiPlatformDisplayCaps *DisplayCaps;
 READONLY_PROPERTY(NSString *, id, Id);
 READONLY_PROPERTY(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 READONLY_PROPERTY(NSString *, identifierForVendor, IdentifierForVendor);
-READONLY_PROPERTY(BOOL, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
+READONLY_PROPERTY(bool, isTranslatedBinaryOnAppleSilicon, IsTranslatedBinaryOnAppleSilicon);
+READONLY_PROPERTY(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 READONLY_PROPERTY(NSString *, locale, Locale);
 READONLY_PROPERTY(NSString *, macaddress, Macaddress);
 READONLY_PROPERTY(NSString *, manufacturer, Manufacturer);
@@ -48,21 +49,22 @@ READONLY_PROPERTY(NSString *, username, Username);
 READONLY_PROPERTY(NSString *, version, Version);
 READONLY_PROPERTY(NSNumber *, versionMajor, VersionMajor);
 READONLY_PROPERTY(NSNumber *, versionMinor, VersionMinor);
+READONLY_PROPERTY(NSNumber *, versionPatch, VersionPatch);
 
 // Methods
-- (BOOL)canOpenURL:(NSString *)url;
+- (bool)canOpenURL:(NSString *)url;
 - (NSString *)createUUID;
-- (BOOL)is24HourTimeFormat;
+- (bool)is24HourTimeFormat;
 
 JSExportAs(openURL,
-           -(BOOL)openURL
+           -(bool)openURL
            : (NSString *)url withOptions
            : (JSValue *)options andCallback
            : (JSValue *)callback);
 
 @end
 
-@interface PlatformModule : ObjcProxy <TiPlatformExports> {
+@interface PlatformModule : ObjcModule <TiPlatformExports> {
   BOOL batteryEnabled;
 }
 @end

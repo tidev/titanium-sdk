@@ -2,9 +2,9 @@
 name: Titanium.UI.iOS.RowAnimationStyle
 summary: A set of constants for the Animation Styles used for transition on table view rows.
 extends: Titanium.Proxy
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
+since: {iphone: "0.9", ipad: "0.9", macos: "9.2.0"}
 createable: false
-since: "0.9"
 properties:
   - name: BOTTOM
     summary: |

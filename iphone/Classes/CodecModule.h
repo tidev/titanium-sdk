@@ -1,12 +1,12 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_CODEC
 @import Foundation;
-@import TitaniumKit.ObjcProxy;
+@import TitaniumKit.ObjcModule;
 
 @import JavaScriptCore;
 
@@ -46,7 +46,7 @@ CONSTANT(NSString *, TYPE_DOUBLE);
 
 @end
 
-@interface CodecModule : ObjcProxy <CodecExports> {
+@interface CodecModule : ObjcModule <CodecExports> {
 }
 
 @end

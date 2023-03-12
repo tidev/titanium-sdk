@@ -102,7 +102,7 @@ description: |
     On Android, use the <Titanium.Network.HTTPClient.tlsVersion> property to set the version of the TLS protocol
     if you know the version the server is running.  If you do not know, do not set this property.
 
-    On iOS, add the `NSExceptionMinimumTLSVersion` key in the `<plist>` section of `tiapp.xml` to set a minimum TLS version. 
+    On iOS, add the `NSExceptionMinimumTLSVersion` key in the `<plist>` section of `tiapp.xml` to set a minimum TLS version.
     See following example:
 
     ```
@@ -110,14 +110,14 @@ description: |
     <dict>
       <key>NSExceptionDomains</key>
       <dict>
-        <key>www.appcelerator.com</key>
+        <key>www.titaniumsdk.com</key>
         <dict>
           <key>NSExceptionMinimumTLSVersion</key>
           <string>TLSv1.3</string>
         </dict>
       </dict>
     </dict>
-    ```  
+    ```
     Titanium will not fallback with a lower TLS version if the `tlsVersion` property in android or `NSExceptionMinimumTLSVersion` in iOS, is set.
     Setting the TLS version saves time from re-attempting connections with lower TLS versions and
     provides added security by denying attempts to use lower TLS versions.
@@ -138,6 +138,34 @@ description: |
     <Titanium.Network.getHTTPCookies>, <Titanium.Network.getHTTPCookiesForDomain>, <Titanium.Network.getSystemCookies>,
     <Titanium.Network.removeHTTPCookie>, <Titanium.Network.removeHTTPCookiesForDomain>, <Titanium.Network.removeAllHTTPCookies>,
     <Titanium.Network.removeSystemCookie>, <Titanium.Network.removeAllSystemCookies>.
+
+    #### Connect to local network in iOS
+
+    On iOS 14 and later, while connecting to local network a prompt will be shown to request user's permission.
+    Add key `NSLocalNetworkUsageDescription` to the `ios plist` section of the tiapp.xml file to show the message on prompt.
+    If this key is not added default message will be shown in prompt.
+
+    Example:
+
+    ``` xml
+    <ti:app>
+      <!-- ... -->
+      <ios>
+        <plist>
+          <dict>
+            <!-- Reason to access local network-->
+            <key>NSLocalNetworkUsageDescription</key>
+            <string>
+                Specify the reason for accessing the local network.
+                This appears in the alert dialog when asking the user
+                for permission to access local network.
+            </string>
+          </dict>
+        </plist>
+      </ios>
+      <!-- ... -->
+    </ti:app>
+    ```
 extends: Titanium.Proxy
 since: "0.1"
 
@@ -145,65 +173,25 @@ methods:
   - name: abort
     summary: Cancels a pending request.
 
-  - name: addAuthFactory
-    summary: Registers a new AuthSchemeFactory for a given scheme.
-    description: |
-        This has been deprecated.
-        Use this method to add support for authorization schemes not natively supported by Android.
-    parameters:
-      - name: scheme
-        summary: The authentication scheme.
-        type: String
-      - name: factory
-        summary: The authentication factory. This factory must implement the [AuthSchemeFactory](https://developer.android.com/reference/org/apache/http/auth/AuthSchemeFactory.html) interface.
-        type: Object
-    platforms: [android]
-    since: {android: "3.0.0"}
-    deprecated:
-        since: "5.0.0"
-        removed: "5.0.0"
-
-  - name: addKeyManager
-    summary: Adds a custom key manager.
-    description: |
-        Use this method to add support for X.509 certifcate-base keypairs.
-
-        If this method is used to create a custom SSLContext, the `validatesSecureCertificate`
-        property is ignored.
-    parameters:
-      - name: X509KeyManager
-        summary: X.509 key manager. This key manager must implement the [X509KeyManager](https://developer.android.com/reference/javax/net/ssl/X509KeyManager.html) inteface.
-        type: Object
-    platforms: [android]
-    since: {android: "3.1.0"}
-    deprecated:
-        since: "3.3.0"
-        removed: "3.4.0"
-
-  - name: addTrustManager
-    summary: Adds a custom trust manager.
-    description: |
-        Use this method to add support for X.509 certifcates.
-
-        If this method is used to create a custom SSLContext, the `validatesSecureCertificate`
-        property is ignored.
-    parameters:
-      - name: X509TrustManager
-        summary: X.509 trust manager. This trust manager must implement the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) inteface.
-        type: Object
-    platforms: [android]
-    since: {android: "3.1.0"}
-    deprecated:
-        since: "3.3.0"
-        removed: "3.4.0"
-
   - name: clearCookies
     summary: Clears any cookies stored for the host.
     parameters:
       - name: host
         summary: The URL of the host/domain to clear cookies for.
         type: String
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
+
+  - name: getAllResponseHeaders
+    summary: All of the response headers.
+    description: |
+        Contains a single string, or an empty string if no headers are available.
+
+        See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
+
+        Intended to match the `XMLHTTPRequest` [getAllResponseHeaders API](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/getAllResponseHeaders).
+    returns:
+        type: String
+    since: {iphone: "10.0.0", ipad: "10.0.0", macos: "10.0.0", android: "0.8"}
 
   - name: getResponseHeader
     summary: Returns the value of the specified response header.
@@ -287,6 +275,11 @@ methods:
       - name: timeout
         summary: Timeout in milliseconds.
         type: Number
+    deprecated:
+      since: "10.0.0"
+      removed: "10.0.0"
+      notes: Use the <Titanium.Network.HTTPClient.timeout> property instead.
+
 
 properties:
   - name: DONE
@@ -343,7 +336,7 @@ properties:
         See also: [getResponseHeader](Titanium.Network.HTTPClient.getResponseHeader).
     type: Dictionary
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: autoEncodeUrl
     summary: Determines whether automatic encoding is enabled for the specified URL.
@@ -357,7 +350,7 @@ properties:
     description: Set to `false` to disable automatic HTTP redirects handling.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: connected
     summary: Indicates whether the response was successful.
@@ -379,7 +372,7 @@ properties:
         Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: enableKeepAlive
@@ -387,7 +380,7 @@ properties:
     description: Set to `true` to maintain a persistent connection.
     type: Boolean
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: file
     summary: Target local file or file path to receive data.
@@ -395,7 +388,7 @@ properties:
         This property can be set anytime prior to calling [send](Titanium.Network.HTTPClient.send).
         The file must be writable such as the application data directory or temp directory.
     type: [String, Titanium.Filesystem.File]
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: {android: 3.4.0}
 
   - name: location
@@ -466,7 +459,7 @@ properties:
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: readyState
@@ -516,7 +509,7 @@ properties:
         of the connection.
         See <SecurityManagerProtocol> for further information.
     type: SecurityManagerProtocol
-    platforms: [ipad, iphone, android]
+    platforms: [ipad, iphone, android, macos]
     since: "3.3.0"
     availability: creation
 
@@ -536,24 +529,50 @@ properties:
         On iOS, the default is 15000 (15 seconds).
     type: Number
 
+  - name: timeoutForResource
+    summary: |
+        The maximum amount of time (in milliseconds) that a resource request should be allowed to take.
+    description: |
+        The resource timeout controls how long (in milliseconds) to wait for an entire resource to transfer before giving up.
+        The resource timer starts when the request is initiated and counts until either the request completes or this timeout is reached, whichever comes first.
+        For more detail see [timeoutintervalforresource](https://developer.apple.com/documentation/foundation/nsurlsessionconfiguration/1408153-timeoutintervalforresource?language=objc)
+        from Apple documentation.
+        This property also applies if <Ti.Network.HttpClient.waitsForConnectivity> is set to `true`.
+    default: |
+        The default is `7*24*60*60*1000` milliseconds (7 days).
+    type: Number
+    platforms: [iphone, ipad]
+    since: '9.2.0'
+
+  - name: waitsForConnectivity
+    summary: |
+        A Boolean value that indicates whether the session should wait for connectivity to become available, or fail immediately.
+    description: |
+        Causes tasks to wait for network connectivity to become available, rather than immediately failing
+        with an error when it is not. When waiting for connectivity, the <Ti.Network.HttpClient.timeout>
+        property does not apply, but the <Ti.Network.HttpClient.timeoutForResource> property does.
+    default: false
+    type: Boolean
+    platforms: [iphone, ipad]
+    since: '9.2.0'
+
   - name: username
     summary: Sets the username parameter for authentication credentials.
     description: Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
 
   - name: validatesSecureCertificate
     summary: Determines how SSL certification validation is performed on connection.
     description: |
-        On Android, this property is ignored if the `addKeyManager` or `addTrustManager` methods
-        are used to create a custom SSL context.
+        On Android, this property is ignored if the `securityManager` property is used to create a custom SSL context and will handle the given URI.
     type: Boolean
     default: |
         False when running in the simulator or on device in testing mode, and true if built for
         release in distribution mode.
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
 
   - name: tlsVersion
     summary: Sets the TLS version to use for handshakes.
@@ -587,7 +606,7 @@ properties:
     type: Boolean
     since: "2.0.0"
     default: false
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
 examples:
   - title: Simple GET Request
@@ -595,7 +614,7 @@ examples:
         The following code excerpt does a simple GET request and logs the response text.
 
         ``` js
-        var url = "http://www.appcelerator.com";
+        var url = "http://www.titaniumsdk.com";
         var client = Ti.Network.createHTTPClient({
             // function called when the response data is available
             onload : function(e) {
@@ -649,7 +668,7 @@ methods:
       - name: url
         summary: The [NSURL](https://developer.apple.com/documentation/foundation/nsurl?language=objc) representing the end point of this connection.
         type: Object
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
 
   - name: getTrustManagers
     summary: Returns an array of objects implementing the [X509TrustManager](https://developer.android.com/reference/javax/net/ssl/X509TrustManager.html) protocol for the SSL Context.
@@ -680,7 +699,7 @@ methods:
     platforms: [android]
 
 since: "3.3.0"
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 
 ---
 name: APSConnectionDelegate
@@ -706,11 +725,11 @@ description: |
     value is assumed to be `true` and all challenges will be forwarded to the connection delegate.
 
 since: "3.3.0"
-platforms: [iphone, ipad]
+platforms: [iphone, ipad, macos]
 ---
 name: ReadyStatePayload
 summary: An Object describing the current ready state. See [onreadystatechange](Titanium.Network.HTTPClient.onreadystatechange) for more information.
-platforms: [iphone, ipad, android]
+platforms: [iphone, ipad, android, macos]
 since: "3.4.2"
 properties:
   - name: readyState

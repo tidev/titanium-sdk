@@ -1,0 +1,390 @@
+---
+name: assert
+summary: A Node.js-compatible implementation of the core `assert` module
+description: |
+    Titanium provides a number of shims and ports of core Node.js module functionality.
+
+    This module is intended to provide a Node-compatible port of the `assert` core module.
+    
+    More details on the Node.js API can be found in their [assert module documentation](https://nodejs.org/api/assert.html)
+
+    **Note:** The `assert` module can also be invoked as a function and is equivalent to calling the <assert.ok> method:
+    
+    ``` javascript
+      const assert = require('assert');
+      assert(value, 'message'); // equivalent to assert.ok(value, 'message')
+    ```
+platforms: [android, iphone, ipad, macos]
+since: '8.1.0'
+properties:
+  - name: strict
+    type: assert.strict
+    summary: an alias of `assert` that enforces strict version of comparison methods
+
+  - name: AssertionError
+    type: assert.AssertionError
+    summary: extension of `Error`
+
+methods:
+  - name: deepEqual
+    summary: |
+        Tests for deep equality between the `actual` and `expected` parameters.
+        Consider using `assert.deepStrictEqual()` instead.
+        `assert.deepEqual()` can have surprising results.
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: deepStrictEqual
+    summary: |
+        Tests for deep equality between the `actual` and `expected` parameters.
+        "Deep" equality means that the enumerable "own" properties of child objects are recursively evaluated also by the following rules.
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+# TODO: Support assert.doesNotMatch
+# assert.doesNotMatch(string, regexp[, message])
+
+  - name: doesNotReject
+    summary: |
+        Awaits the `asyncFn` promise or, if `asyncFn` is a function, immediately calls the function and awaits the returned promise to complete. It will then check that the promise is not rejected.
+
+        If `asyncFn` is a function and it throws an error synchronously, `assert.doesNotReject()` will return a rejected `Promise` with that error. If the function does not return a promise, `assert.doesNotReject()` will return a rejected `Promise` with an `ERR_INVALID_RETURN_VALUE` error. In both cases the error handler is skipped.
+
+        Using `assert.doesNotReject()` is actually not useful because there is little benefit in catching a rejection and then rejecting it again. Instead, consider adding a comment next to the specific code path that should not reject and keep error messages as expressive as possible.
+
+        If specified, `error` can be a `Class`, `RegExp` or a validation function. See `assert.throws()` for more details.
+
+        Besides the async nature to await the completion behaves identically to `assert.doesNotThrow()`.
+    parameters:
+      - name: asyncFn
+        type: [ Function, Promise<Object> ]
+        summary: function to invoke
+      - name: error
+        type: [ RegExp, Function ]
+        summary: The expected `Error` type (class or name)
+        optional: true
+      - name: message
+        type: String
+        summary: error message
+        optional: true
+
+  - name: doesNotThrow
+    summary: |
+        Asserts that the function `fn` does not throw an `error`.
+
+        Using `assert.doesNotThrow()` is actually not useful because there is no benefit in catching an error and then rethrowing it. Instead, consider adding a comment next to the specific code path that should not throw and keep error messages as expressive as possible.
+
+        When `assert.doesNotThrow()` is called, it will immediately call the `fn` function.
+
+        If an error is thrown and it is the same type as that specified by the `error` parameter, then an `AssertionError` is thrown. If the error is of a different type, or if the error parameter is undefined, the error is propagated back to the caller.
+
+        If specified, `error` can be a Class, RegExp or a validation function. See `assert.throws()` for more details.
+    parameters:
+      - name: fn
+        type: Function
+        summary: function to invoke
+      - name: error
+        type: [ RegExp, Function ]
+        summary: The expected `Error` type (class or name)
+        optional: true
+      - name: message
+        type: String
+        summary: error message
+        optional: true
+
+  - name: equal
+    summary: |
+        Tests shallow, coercive equality between the actual and expected parameters using the Abstract Equality Comparison (`==`).
+        `NaN` is special handled and treated as being identical in case both sides are `NaN`.
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: fail
+    summary: |
+        Throws an `AssertionError` with the provided error message or a default error message.
+        If the `message` parameter is an instance of an `Error` then it will be thrown instead of the `AssertionError`.
+    parameters:
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+        default: 'Failed'
+
+# TODO: Support the deprected fail invocation format?
+# assert.fail(actual, expected[, message[, operator[, stackStartFn]]])
+
+  - name: ifError
+    summary: |
+        Throws `value` if `value` is not `undefined` or `null`.
+        This is useful when testing the error argument in callbacks.
+        The stack trace contains all frames from the error passed to `ifError()` including the potential new frames for `ifError()` itself.
+    parameters:
+      - name: value
+        type: any
+        summary: potentially thrown value/object
+
+  # TODO: Implement assert.match
+  # - name: match
+  #   summary: |
+  #       Expects the `string` input to match the regular expression.
+  #
+  #       This feature is currently experimental and the name might change or it might be completely removed again.
+  #   parameters:
+  #     - name: string
+  #       type: String
+  #       summary: The strign to match
+  #     - name: regexp
+  #       type: RegExp
+  #       summary: The regular expression to match against
+  #     - name: message
+  #       type: [ String, Error ]
+  #       summary: error message
+  #       optional: true
+
+  - name: notDeepEqual
+    summary: |
+        Tests for any deep inequality. Opposite of `assert.deepEqual()`.
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: notDeepStrictEqual
+    summary: |
+        Tests for deep strict inequality. Opposite of `assert.deepStrictEqual()`.
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: notEqual
+    summary: |
+        Tests shallow, coercive inequality with the Abstract Equality Comparison (`!=`).
+        `NaN` is special handled and treated as being identical in case both sides are `NaN`.
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: notStrictEqual
+    summary: |
+        Tests strict inequality between the actual and expected parameters as determined by the [SameValue Comparison](https://tc39.github.io/ecma262/#sec-samevalue).
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: ok
+    summary: |
+        Tests if `value` is truthy. It is equivalent to `assert.equal(!!value, true, message)`.
+
+        If `value` is not truthy, an `AssertionError` is thrown with a message property set equal to the value of the `message` parameter.
+        If the `message` parameter is `undefined`, a default error message is assigned.
+        If the `message` parameter is an instance of an `Error` then it will be thrown instead of the `AssertionError`.
+        If no arguments are passed in at all message will be set to the string: `'No value argument passed to \`assert.ok()\`'`.
+    parameters:
+      - name: value
+        type: any
+        summary: The input that is checked for being truthy.
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: rejects
+    summary: |
+        Awaits the `asyncFn` promise or, if `asyncFn` is a function, immediately calls the function and awaits the returned promise to complete. It will then check that the promise is rejected.
+
+        If `asyncFn` is a function and it throws an error synchronously, `assert.rejects()` will return a rejected `Promise` with that error. If the function does not return a promise, `assert.rejects()` will return a rejected `Promise` with an `ERR_INVALID_RETURN_VALUE` error. In both cases the error handler is skipped.
+
+        Besides the async nature to await the completion behaves identically to `assert.throws()`.
+
+        If specified, `error` can be a `Class`, `RegExp`, a validation function, an object where each property will be tested for, or an instance of error where each property will be tested for including the non-enumerable `message` and `name` properties.
+
+        If specified, `message` will be the message provided by the `AssertionError` if the `asyncFn` fails to reject.
+    parameters:
+      - name: asyncFn
+        type: [ Function, Promise<any> ]
+        summary: function to invoke
+      - name: error
+        type: [ RegExp, Function, Object, Error ]
+        summary: The expected `Error` type (class or name)
+        optional: true
+      - name: message
+        type: String
+        summary: error message
+        optional: true
+
+  - name: strictEqual
+    summary: |
+        Tests strict equality between the actual and expected parameters as determined by the [SameValue Comparison](https://tc39.github.io/ecma262/#sec-samevalue).
+    parameters:
+      - name: actual
+        type: any
+        summary: The actual value
+      - name: expected
+        type: any
+        summary: The expected value
+      - name: message
+        type: [ String, Error ]
+        summary: error message
+        optional: true
+
+  - name: throws
+    summary: |
+        Expects the function `fn` to throw an error.
+
+        If specified, `error` can be a `Class`, `RegExp`, a validation function, a validation object where each property will be tested for strict deep equality, or an instance of error where each property will be tested for strict deep equality including the non-enumerable `message` and `name` properties.
+        When using an object, it is also possible to use a regular expression, when validating against a string property. See below for examples.
+
+        If specified, `message` will be appended to the message provided by the AssertionError if the fn call fails to throw or in case the error validation fails.
+    parameters:
+      - name: fn
+        type: Function
+        summary: function to invoke
+      - name: error
+        type: [ RegExp, Function ]
+        summary: The expected `Error` type (class or name)
+        optional: true
+      - name: message
+        type: String
+        summary: error message
+        optional: true
+
+---
+name: assert.strict
+extends: assert
+summary: An extension of <assert> which overrides some of the methods to use their strict counterparts.
+methods:
+  - name: deepEqual
+    summary: equivalent to <assert.deepStrictEqual>
+
+  - name: equal
+    summary: equivalent to <assert.strictEqual>
+
+  - name: notEqual
+    summary: equivalent to <assert.notStrictEqual>
+
+  - name: notDeepEqual
+    summary: equivalent to <assert.notDeepStrictEqual>
+  
+  - name: notEqual
+    summary: equivalent to <assert.notStrictEqual>
+
+---
+name: assert.AssertionError
+extends: Error
+summary: |
+    Indicates the failure of an assertion. All errors thrown by the <assert> module will be instances of the `AssertionError` class.
+properties:
+  - name: actual
+    type: any
+    summary: Set to the actual argument for methods such as `assert.strictEqual()`.
+
+  - name: expected
+    type: any 
+    summary: Set to the expected value for methods such as `assert.strictEqual()`.
+
+  - name: generatedMessage
+    type: Boolean
+    summary: Indicates if the message was auto-generated (`true`) or not.
+
+  - name: code
+    type: String
+    summary: Value is always `ERR_ASSERTION` to show that the error is an assertion error.
+
+  - name: operator
+    type: String
+    summary: Set to the passed in operator value.
+
+methods:
+  - name: constructor
+    summary: A subclass of `Error` that indicates the failure of an assertion.
+    parameters:
+      - name: options
+        type: assert.AssertionError.options
+        optional: true
+        summary: options
+    returns:
+      type: assert.AssertionError
+
+---
+name: assert.AssertionError.options
+summary: options used in the <assert.AssertionError> constructor argument
+properties:
+  - name: message
+    type: String
+    summary: If provided, the error message is set to this value.
+    optional: true
+  
+  - name: actual
+    type: any
+    summary: The `actual` property on the error instance.
+
+  - name: expected
+    type: any
+    summary: The `expected` property on the error instance.
+
+  - name: operator
+    type: String
+    summary: The `operator` property on the error instance.
+
+  - name: stackStartFn
+    type: Function
+    summary: If provided, the generated stack trace omits frames before this function.
+    optional: true

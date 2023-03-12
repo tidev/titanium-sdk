@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,7 +37,7 @@ public class TiEventHelper
 			fireViewEvent(view, type, (Map<String, Object>) null);
 		}
 
-		Map<String, Object> extraProperties = new HashMap<String, Object>();
+		Map<String, Object> extraProperties = new HashMap<>();
 		for (int i = 0; i < properties.length; i++) {
 			if (i + 1 < properties.length) {
 				extraProperties.put(properties[i], properties[++i]);

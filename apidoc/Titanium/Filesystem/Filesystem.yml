@@ -3,7 +3,7 @@ name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
 description: |
     For examples of using the Filesystem APIs, refer to the
-    [Filesystem Access and Storage guide](https://docs.appcelerator.com/platform/latest/#!/guide/Filesystem_Access_and_Storage)
+    [Filesystem Access and Storage guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Working_with_Local_Data_Sources/Filesystem_Access_and_Storage.html)
     as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
@@ -112,8 +112,7 @@ methods:
             the platform specific path separator to form the full path.
         type: String
         repeatable: true
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "9.0"}}
+    platforms: [iphone, ipad, macos]
     since: "5.4.0"
 
   - name: isExternalStoragePresent
@@ -137,7 +136,7 @@ methods:
   - name: requestStoragePermissions
     summary: Requests for storage permissions
     description: |
-        On Android, the request view will show if the permission is not accepted by the user, and the user did
+        On Android, the dialog will only appear if the permission is not accepted by the user and the user did
         not check the box "Never ask again" when denying the request. If the user checks the box "Never ask again,"
         the user has to manually enable the permission in device settings.
 
@@ -145,8 +144,14 @@ methods:
         If you require other permissions, you can also use <Titanium.Android.requestPermissions>.
     parameters:
       - name: callback
-        summary: Function to call upon user decision to grant storage access
+        summary: |
+            Function to call upon user decision to grant storage access.
+            Optional on SDK 10, as this method will return a `Promise`, which may be used to handle the result.
         type: Callback<RequestStorageAccessResult>
+        optional: true
+    returns:
+      summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
+      type: Promise<RequestStorageAccessResult>
     platforms: [android]
     since: "5.4.0"
 
@@ -182,7 +187,7 @@ methods:
         type: String
     returns:
         type: String
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.0.0"
 properties:
   - name: MODE_APPEND
@@ -207,7 +212,7 @@ properties:
         to at any time.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE
@@ -217,7 +222,7 @@ properties:
         the device is locked or booting.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE_UNLESS_OPEN
@@ -228,7 +233,7 @@ properties:
         unlocked, you may continue to access the file normally, even if the user locks the device.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: IOS_FILE_PROTECTION_COMPLETE_UNTIL_FIRST_USER_AUTHENTICATION
@@ -239,7 +244,7 @@ properties:
         access it even if the user subsequently locks the device.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
     since: "4.1.0"
 
   - name: applicationCacheDirectory
@@ -255,7 +260,7 @@ properties:
         cleans the directory to recover the disk space.
     type: String
     permission: read-only
-    platforms: [android, iphone, ipad]
+    platforms: [android, iphone, ipad, macos]
     since: "1.8.3"
   - name: applicationDataDirectory
     summary: Path to the application's data directory.
@@ -269,19 +274,13 @@ properties:
 
         On iOS, files in this directory are backed up unless the
         [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
-
-        On Android, files in this directory cannot be accessed by other applications, so
-        it should not be used for files that must be used by another application
-        (for example, a video file that will be passed to the system's video player application).
-        These files should be stored in the
-        [externalStorageDirectory](Titanium.Filesystem.externalStorageDirectory).
     type: String
     permission: read-only
   - name: applicationDirectory
     summary: Path to the iOS application directory.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
+    platforms: [iphone, ipad, macos]
   - name: applicationSupportDirectory
     summary: Path to the application support directory.
     description: |
@@ -292,26 +291,42 @@ properties:
         [remoteBackup](Titanium.Filesystem.File.remoteBackup) flag is set to false.
     type: String
     permission: read-only
-    platforms: [iphone, ipad]
-  - name: externalStorageDirectory
-    summary: Path to a directory on removable storage, such as SD card.
+    platforms: [iphone, ipad, macos]
+  - name: externalCacheDirectory
+    summary: Path to the app's sandboxed cache folder on removable storage, such as SD card.
     description: |
-        This directory can be used for storing arbitrary data. It is read/write and files
-        in this directory can be passed to other applications, such as video
-        players--which is not possible with the
-        [applicationDataDirectory](Titanium.Filesystem.applicationDataDirectory).
-
-        This directory may not be subject to as many memory limitations as the
-        `applicationDataDirectory`, which is stored in the device's internal storage.
-        Note, however, that the user may remove or replace the removable storage device
-        without warning, so the application must be prepared to handle this case gracefully.
+        This directory is intended to be used to store large temporary files since external storage
+        typically has a larger capacity than internal storage. This is a good place to store
+        videos and large photos.
 
         The application should check
         [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
-        accessing this location. The application should also handle any exceptions generated
-        if the storage device is unmounted during use, or if the files stored on external
-        storage are not available.
+        accessing this location. This is because external storage is sometimes removable
+        on same devices, such as an SD card.
 
+        This directory does not require the `Manifest.permission.READ_EXTERNAL_STORAGE` and
+        `Manifest.permission.WRITE_EXTERNAL_STORAGE` permissions.
+    type: String
+    permission: read-only
+    platforms: [android]
+    since: "9.3.0"
+  - name: externalStorageDirectory
+    summary: Path to the app's sandboxed folder on removable storage, such as SD card.
+    description: |
+        This directory is intended to be used to store large files since external storage
+        typically has a larger capacity than internal storage. This is a good place to store
+        videos and large photos.
+
+        The application should check
+        [isExternalStoragePresent](Titanium.Filesystem.isExternalStoragePresent) before
+        accessing this location. This is because external storage is sometimes removable
+        on same devices, such as an SD card.
+
+        As of Titanium 9.3.0, this directory does not require the `Manifest.permission.READ_EXTERNAL_STORAGE`
+        and `Manifest.permission.WRITE_EXTERNAL_STORAGE` permissions. For older Titanium SDK versions,
+        these permission are required and you must call the
+        [requestStoragePermissions()](Titanium.Filesystem.requestStoragePermissions) method
+        to request the end-user's permission to read/write to external storage.
     type: String
     permission: read-only
     platforms: [android]

@@ -1,0 +1,6 @@
+
+android {
+	defaultConfig {
+		versionCode 101
+	}
+}

@@ -1,19 +1,22 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
 import android.app.Activity;
-import android.os.Build;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.print.PdfPrint;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.util.DisplayMetrics;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -22,16 +25,27 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLifecycle.OnLifecycleEvent;
 import org.appcelerator.titanium.TiLifecycle.interceptOnBackPressedEvent;
+import org.appcelerator.titanium.io.TiBaseFile;
+import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
-		TiC.PROPERTY_BLACKLISTED_URLS,
+		TiC.PROPERTY_BLACKLISTED_URLS,  // DEPRECATED: Superseded by PROPERTY_BLOCKED_URLS.
+		TiC.PROPERTY_BLOCKED_URLS,
 		TiC.PROPERTY_DATA,
 		TiC.PROPERTY_ON_CREATE_WINDOW,
 		TiC.PROPERTY_SCALES_PAGE_TO_FIT,
@@ -57,9 +71,10 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fusername;
 	private static String fpassword;
 	private static int frequestID = 0;
-	private static Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<Integer, EvalJSRunnable>();
+	private static final Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<>();
 
 	private Message postCreateMessage;
+	PrintManager printManager;
 
 	public static final String OPTIONS_IN_SETHTML = "optionsInSetHtml";
 
@@ -108,22 +123,14 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 		if (callback != null) {
 			EvalJSRunnable runnable = new EvalJSRunnable(view, getKrollObject(), code, callback);
-			if (Build.VERSION.SDK_INT >= 19) {
-				// When on Android 4.4 we can use the builtin evalAsync method!
-				runnable.runAsync();
-			} else {
-				// Just do our sync eval in a separate Thread. Doesn't need to be done in UI
-				Thread clientThread = new Thread(runnable, "TiWebViewProxy-" + System.currentTimeMillis());
-				clientThread.setPriority(Thread.MIN_PRIORITY);
-				clientThread.start();
-			}
+			runnable.runAsync();
 			return null;
 		}
 		// TODO deprecate the sync variant?
 		return view.getJSValue(code);
 	}
 
-	private class EvalJSRunnable implements Runnable
+	private static class EvalJSRunnable implements Runnable
 	{
 		private final TiUIWebView view;
 		private final KrollObject krollObject;
@@ -157,7 +164,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getHtml()
 	{
@@ -236,7 +242,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getWebView().setBasicAuthentication(username, password);
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUserAgent(String userAgent)
 	{
@@ -246,7 +251,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUserAgent()
 	{
@@ -257,7 +261,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return "";
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setRequestHeaders(HashMap params)
 	{
@@ -269,7 +272,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public HashMap getRequestHeaders()
 	{
@@ -323,6 +325,99 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.method
+	public void createPDF(KrollDict krollObject)
+	{
+		if (peekView() != null) {
+			TiUIWebView currWebView = getWebView();
+
+			if (currWebView != null) {
+				if (printManager == null) {
+					TiBaseActivity baseActivity = (TiBaseActivity) TiApplication.getAppRootOrCurrentActivity();
+					printManager = (PrintManager) baseActivity.getInitialBaseContext()
+						.getSystemService(Context.PRINT_SERVICE);
+				}
+				WebView webView = currWebView.getWebView();
+				String jobName = "Document";
+				Boolean firstPageOnly = false;
+
+				PrintAttributes.MediaSize mediaSize;
+				if (krollObject.containsKeyAndNotNull("pageSize")) {
+					if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A5) {
+						mediaSize = PrintAttributes.MediaSize.ISO_A5;
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A3) {
+						mediaSize = PrintAttributes.MediaSize.ISO_A3;
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A2) {
+						mediaSize = PrintAttributes.MediaSize.ISO_A2;
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A1) {
+						mediaSize = PrintAttributes.MediaSize.ISO_A1;
+					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_AUTO) {
+						DisplayMetrics metrics = TiApplication.getAppCurrentActivity()
+							.getResources().getDisplayMetrics();
+						int pdfHeight = (int) ((webView.getContentHeight()) / 90.0 * 1000) + 1000;
+						int pdfWidth = (metrics.densityDpi / 90 * 1000) + 1000;
+						mediaSize = new PrintAttributes.MediaSize("custom", "custom", pdfWidth, pdfHeight);
+					} else {
+						mediaSize = PrintAttributes.MediaSize.ISO_A4;
+					}
+				} else if (krollObject.containsKeyAndNotNull("pageWidth")
+					&& krollObject.containsKeyAndNotNull("pageHeight")) {
+					mediaSize = new PrintAttributes.MediaSize("custom", "custom",
+						krollObject.getInt("pageWidth"), krollObject.getInt("pageHeight"));
+				} else {
+					mediaSize = PrintAttributes.MediaSize.ISO_A4;
+				}
+
+				if (krollObject.containsKeyAndNotNull("firstPageOnly")) {
+					firstPageOnly = krollObject.getBoolean("firstPageOnly");
+				}
+
+				PrintAttributes attributes = new PrintAttributes.Builder()
+					.setMediaSize(mediaSize)
+					.setColorMode(PrintAttributes.COLOR_MODE_COLOR)
+					.setResolution(new PrintAttributes.Resolution("pdf", "pdf", 600, 600))
+					.setMinMargins(PrintAttributes.Margins.NO_MARGINS)
+					.build();
+
+				if (krollObject.containsKeyAndNotNull("showMenu") && krollObject.getBoolean("showMenu")) {
+					// show a print menu
+					PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
+					String out = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss").format(new Date());
+					printManager.print(out + ".pdf", printAdapter, attributes);
+				} else {
+					// create blog and return it without a menu
+					try {
+						PdfPrint pdfPrint = new PdfPrint(attributes);
+						PrintDocumentAdapter adapter;
+						adapter = webView.createPrintDocumentAdapter(jobName);
+						pdfPrint.print(adapter, new PdfPrint.CallbackPrint()
+						{
+							@Override
+							public void success(File file)
+							{
+								KrollFunction successCallback = (KrollFunction) krollObject.get(TiC.PROPERTY_SUCCESS);
+								if (successCallback != null) {
+									KrollObject callbackThisObject = getKrollObject();
+									KrollDict kd = new KrollDict();
+									TiBaseFile bf = TiFileFactory.createTitaniumFile(file.getPath(), false);
+									kd.put("data", TiBlob.blobFromFile(bf));
+									successCallback.callAsync(callbackThisObject, kd);
+								}
+							}
+
+							@Override
+							public void onFailure(String error)
+							{
+								Log.e(TAG, "Error: " + error);
+							}
+						}, firstPageOnly);
+					} catch (Exception e) {
+						Log.e(TAG, "Error: " + e.getMessage());
+					}
+				}
+			}
+		}
+	}
+
 	@Kroll.getProperty
 	public int getPluginState()
 	{
@@ -335,14 +430,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return pluginState;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setDisableContextMenu(boolean disableContextMenu)
 	{
 		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getDisableContextMenu()
 	{
@@ -352,7 +445,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setPluginState(int pluginState)
 	{
@@ -383,14 +475,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method(runOnUiThread = true)
 	@Kroll.setProperty(runOnUiThread = true)
 	public void setEnableZoomControls(boolean enabled)
 	{
 		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getEnableZoomControls()
 	{
@@ -402,7 +492,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return enabled;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public float getZoomLevel()
 	{
@@ -414,7 +503,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setZoomLevel(float value)
 	{

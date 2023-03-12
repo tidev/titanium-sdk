@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,8 +27,8 @@ describe('AndroidManifest', () => {
 	it('set/getAppAttribute()', () => {
 		const manifest = new AndroidManifest();
 		manifest.setAppAttribute('android:icon', '@drawable/app_icon');
-		manifest.setAppAttribute('android:theme', '@style/Theme.AppCompat');
+		manifest.setAppAttribute('android:theme', '@style/Theme.MaterialComponents.Bridge');
 		expect(manifest.getAppAttribute('android:icon')).to.equal('@drawable/app_icon');
-		expect(manifest.getAppAttribute('android:theme')).to.equal('@style/Theme.AppCompat');
+		expect(manifest.getAppAttribute('android:theme')).to.equal('@style/Theme.MaterialComponents.Bridge');
 	});
 });

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -136,24 +136,6 @@ JSValueRef ThrowException(JSContextRef ctx, NSString *message, JSValueRef *excep
   return JSValueMakeUndefined(ctx);
 }
 
-static JSValueRef CommonJSRequireCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
-    const JSValueRef args[], JSValueRef *exception)
-{
-  if (argCount != 1) {
-    return ThrowException(jsContext, @"invalid number of arguments", exception);
-  }
-
-  KrollContext *ctx = GetKrollContext(jsContext);
-  id path = [KrollObject toID:ctx value:args[0]];
-  @try {
-    id result = [ctx.delegate require:ctx path:path];
-    return [KrollObject toValue:ctx value:result];
-  }
-  @catch (NSException *e) {
-    return ThrowException(jsContext, [e reason], exception);
-  }
-}
-
 static JSValueRef LCallback(JSContextRef jsContext, JSObjectRef jsFunction, JSObjectRef jsThis, size_t argCount,
     const JSValueRef args[], JSValueRef *exception)
 {
@@ -212,7 +194,7 @@ static JSValueRef StringFormatCallback(JSContextRef jsContext, JSObjectRef jsFun
 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *format = [KrollObject toID:ctx value:args[0]];
-#if TARGET_IPHONE_SIMULATOR
+#if TARGET_OS_SIMULATOR && !__LP64__
   // convert string references to objects
   format = [format stringByReplacingOccurrencesOfString:@"%@" withString:@"%@_TIDELIMITER_"];
   format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@_TIDELIMITER_"];
@@ -834,8 +816,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
   timerManager = [[KrollTimerManager alloc] initInContext:jsContext];
 
-  [self bindCallback:@"require"
-            callback:&CommonJSRequireCallback];
   [self bindCallback:@"L" callback:&LCallback];
   [self bindCallback:@"alert" callback:&AlertCallback];
 

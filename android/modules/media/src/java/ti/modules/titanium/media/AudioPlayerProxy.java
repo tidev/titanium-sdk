@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -106,14 +106,12 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 			  Log.DEBUG_MODE);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public String getUrl()
 	{
 		return TiConvert.toString(getProperty(TiC.PROPERTY_URL));
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setUrl(String url)
 	{
@@ -122,7 +120,6 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getDuration()
 	{
@@ -133,21 +130,18 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return 0;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public int getAudioType()
 	{
 		return TiConvert.toInt(getProperty(TiC.PROPERTY_AUDIO_TYPE));
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setAudioType(int val)
 	{
 		setProperty(TiC.PROPERTY_AUDIO_TYPE, val);
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean isPlaying()
 	{
@@ -158,7 +152,6 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean isPaused()
 	{
@@ -229,6 +222,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	}
 
 	@Kroll.method
+	@Kroll.getProperty
 	public int getAudioSessionId()
 	{
 		TiSound s = getSound();
@@ -238,7 +232,6 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return 0;
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public boolean getMuted()
 	{
@@ -249,7 +242,6 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return false;
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setMuted(boolean muted)
 	{
@@ -259,7 +251,6 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		}
 	}
 
-	@Kroll.method
 	@Kroll.getProperty
 	public double getTime()
 	{
@@ -271,7 +262,6 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 		return TiConvert.toDouble(getProperty(TiC.PROPERTY_TIME));
 	}
 
-	@Kroll.method
 	@Kroll.setProperty
 	public void setTime(Object pos)
 	{

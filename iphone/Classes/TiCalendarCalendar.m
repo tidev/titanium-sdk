@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -179,7 +179,7 @@
 }
 GETTER_IMPL(NSString *, id, Id);
 
-- (BOOL)hidden
+- (bool)hidden
 {
   if (![NSThread isMainThread]) {
     __block BOOL result;
@@ -193,7 +193,7 @@ GETTER_IMPL(NSString *, id, Id);
 
   return [[self calendar] isImmutable];
 }
-GETTER_IMPL(BOOL, hidden, Hidden);
+GETTER_IMPL(bool, hidden, Hidden);
 
 - (NSString *)name
 {

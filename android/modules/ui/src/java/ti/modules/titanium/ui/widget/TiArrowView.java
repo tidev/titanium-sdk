@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,8 +27,8 @@ public class TiArrowView extends View
 		leftArrow = true;
 		setFocusable(false);
 		setFocusableInTouchMode(false);
-		if (android.os.Build.VERSION.SDK_INT >= 11) {
-			//Paint.setStrokeCap not supported for lines in HW acceleration mode.
+		if (android.os.Build.VERSION.SDK_INT < 28) {
+			// The drawPath() method is only HW accelerated on Android 9.0 and higher.
 			this.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 		p = new Paint();
@@ -49,13 +49,12 @@ public class TiArrowView extends View
 			path.moveTo(0.0f, 1.0f);
 			path.lineTo(1.0f, 2.0f);
 			path.lineTo(1.0f, 0.0f);
-			path.close();
 		} else {
 			path.lineTo(1.0f, 1.0f);
 			path.lineTo(0.0f, 2.0f);
 			path.lineTo(0.0f, 0.0f);
-			path.close();
 		}
+		path.close();
 
 		setWillNotDraw(false);
 	}
