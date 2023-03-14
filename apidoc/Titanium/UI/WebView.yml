@@ -671,7 +671,7 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    since: {android: "12.0.0"}
+    since: {android: "12.1.0"}
 
   - name: allowsLinkPreview
     summary: |
