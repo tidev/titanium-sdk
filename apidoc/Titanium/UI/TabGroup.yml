@@ -193,9 +193,8 @@ methods:
         the last selected tab window is shown.
     parameters:
       - name: params
-        summary: Boolean to disable tab navigation or dictionary.
+        summary: Boolean to disable tab navigation or dictionary (since 12.1.0).
         type: disableTabOptions
-        optional: true
     platforms: [android]
     since: 3.6.0
 
