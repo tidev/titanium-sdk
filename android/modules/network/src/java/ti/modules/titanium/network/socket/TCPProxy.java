@@ -50,7 +50,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		if ((state != SocketModule.LISTENING) && (state != SocketModule.CONNECTED)) {
 			Object host = getProperty("host");
 			Object port = getProperty("port");
-			secure = TiConvert.toBoolean(getProperty("secure"));
+			secure = TiConvert.toBoolean(getProperty("secure"), false);
 			if ((host != null) && (port != null) && (TiConvert.toInt(port) > 0)) {
 				new ConnectedSocketThread().start();
 
@@ -195,7 +195,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		{
 			String host = TiConvert.toString(getProperty("host"));
 			Object timeoutProperty = getProperty("timeout");
-			secure = TiConvert.toBoolean(getProperty("secure"));
+			secure = TiConvert.toBoolean(getProperty("secure"), false);
 
 			try {
 				if (timeoutProperty != null) {
