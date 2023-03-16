@@ -50,6 +50,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		if ((state != SocketModule.LISTENING) && (state != SocketModule.CONNECTED)) {
 			Object host = getProperty("host");
 			Object port = getProperty("port");
+			secure = TiConvert.toBoolean(getProperty("secure"));
 			if ((host != null) && (port != null) && (TiConvert.toInt(port) > 0)) {
 				new ConnectedSocketThread().start();
 
