@@ -21,6 +21,8 @@ import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
+import javax.net.ssl.SSLSocketFactory;
+
 import ti.modules.titanium.BufferProxy;
 
 @Kroll.proxy(creatableInModule = SocketModule.class)
@@ -35,6 +37,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	private KrollDict acceptOptions = null;
 	private int state = 0;
 
+	private boolean secure = false;
 	public TCPProxy()
 	{
 		super();
@@ -191,16 +194,26 @@ public class TCPProxy extends KrollProxy implements TiStream
 		{
 			String host = TiConvert.toString(getProperty("host"));
 			Object timeoutProperty = getProperty("timeout");
+			secure = TiConvert.toBoolean(getProperty("secure"));
 
 			try {
 				if (timeoutProperty != null) {
 					int timeout = TiConvert.toInt(timeoutProperty, 0);
 
-					clientSocket = new Socket();
+					if (secure) {
+						SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
+						clientSocket = s.createSocket();
+					} else {
+						clientSocket = new Socket();
+					}
 					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
-
 				} else {
-					clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+					if (secure) {
+						SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
+						clientSocket = s.createSocket(host, TiConvert.toInt(getProperty("port")));
+					} else {
+						clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+					}
 				}
 				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 
