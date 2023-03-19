@@ -230,6 +230,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int ASPECT_RATIO_16_9 = AspectRatio.RATIO_16_9;
 
+	@Kroll.constant
+	public static final int VERTICAL_ALIGN_CENTER = 0;
+	@Kroll.constant
+	public static final int VERTICAL_ALIGN_TOP = 1;
+	@Kroll.constant
+	public static final int VERTICAL_ALIGN_BOTTOM = 2;
+
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
 
@@ -488,6 +495,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SCALING_MODE)) {
 			TiCameraXActivity.scalingMode = cameraOptions.getInt(TiC.PROPERTY_SCALING_MODE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VERTICAL_ALIGN)) {
+			TiCameraXActivity.verticalAlign = cameraOptions.getInt(TiC.PROPERTY_VERTICAL_ALIGN);
 		}
 		if (cameraOptions.containsKeyAndNotNull("targetImageWidth")) {
 			TiCameraXActivity.targetResolutionWidth = cameraOptions.getInt("targetImageWidth");

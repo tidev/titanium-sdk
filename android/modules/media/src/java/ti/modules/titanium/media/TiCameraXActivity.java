@@ -96,6 +96,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static int videoQuality = MediaModule.QUALITY_HD;
 	public static int aspectRatio = AspectRatio.RATIO_4_3;
 	public static int scalingMode = MediaModule.IMAGE_SCALING_ASPECT_FIT;
+	public static int verticalAlign = MediaModule.VERTICAL_ALIGN_CENTER;
 	static Recording recording;
 	static PendingRecording pendingRecording;
 	static String mediaTitle = "";
@@ -379,7 +380,13 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			layout = (FrameLayout) activity.getLayoutInflater().inflate(idLayout, null, false);
 			viewFinder = layout.findViewById(idPreview);
 			if (scalingMode == MediaModule.IMAGE_SCALING_ASPECT_FIT) {
-				viewFinder.setScaleType(PreviewView.ScaleType.FIT_CENTER);
+				if (verticalAlign == MediaModule.VERTICAL_ALIGN_TOP) {
+					viewFinder.setScaleType(PreviewView.ScaleType.FIT_START);
+				} else if (verticalAlign == MediaModule.VERTICAL_ALIGN_BOTTOM) {
+					viewFinder.setScaleType(PreviewView.ScaleType.FIT_END);
+				} else {
+					viewFinder.setScaleType(PreviewView.ScaleType.FIT_CENTER);
+				}
 			} else {
 				viewFinder.setScaleType(PreviewView.ScaleType.FILL_CENTER);
 			}

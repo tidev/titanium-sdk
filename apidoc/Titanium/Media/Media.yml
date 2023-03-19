@@ -804,6 +804,27 @@ properties:
     permission: read-only
     since: "7.5.0"
 
+  - name: VERTICAL_ALIGN_CENTER
+    summary: Vertical align center
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: VERTICAL_ALIGN_TOP
+    summary: Vertical align center
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: VERTICAL_ALIGN_BOTTOM
+    summary: Vertical align center
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
   - name: ASPECT_RATIO_4_3
     summary: Aspect ratio 4:3
     type: Number
@@ -1620,6 +1641,15 @@ properties:
     type: Number
     constants: [Titanium.Media.IMAGE_SCALING_ASPECT_FIT, Titanium.Media.IMAGE_SCALING_ASPECT_FILL]
     default: Titanium.Media.IMAGE_SCALING_ASPECT_FILL
+    platforms: [android]
+    since: { android: "12.1.0" }
+    permission: read-only
+
+  - name: verticalAlign
+    summary: Vertical align of the preview image for aspect fit.
+    type: Number
+    constants: Titanium.Media.VERTICAL_ALIGN_*
+    default: Titanium.Media.VERTICAL_ALIGN_CENTER
     platforms: [android]
     since: { android: "12.1.0" }
     permission: read-only
