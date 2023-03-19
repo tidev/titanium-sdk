@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
@@ -84,7 +85,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static TiViewProxy overlayProxy = null;
 	public static TiCameraXActivity cameraActivity = null;
 	public static KrollObject callbackContext;
-	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
+	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback, openCallback;
 	public static KrollFunction recordingCallback;
 	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
 	public static boolean saveToPhotoGallery = false;
@@ -93,6 +94,8 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static int videoMaximumDuration = 0;
 	public static long videoMaximumSize = 0;
 	public static int videoQuality = MediaModule.QUALITY_HD;
+	public static int aspectRatio = AspectRatio.RATIO_4_3;
+	public static int scalingMode = MediaModule.IMAGE_SCALING_ASPECT_FIT;
 	static Recording recording;
 	static PendingRecording pendingRecording;
 	static String mediaTitle = "";
@@ -375,8 +378,12 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 
 			layout = (FrameLayout) activity.getLayoutInflater().inflate(idLayout, null, false);
 			viewFinder = layout.findViewById(idPreview);
+			if (scalingMode == MediaModule.IMAGE_SCALING_ASPECT_FIT) {
+				viewFinder.setScaleType(PreviewView.ScaleType.FIT_CENTER);
+			} else {
+				viewFinder.setScaleType(PreviewView.ScaleType.FILL_CENTER);
+			}
 			setContentView(layout);
-
 			boolean front = whichCamera == MediaModule.CAMERA_FRONT;
 			if (front) {
 				lensFacing = CameraSelector.LENS_FACING_FRONT;
@@ -398,7 +405,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
 		cameraProviderFuture.addListener(() -> {
 			try {
-				preview = new Preview.Builder().build();
+				preview = new Preview.Builder().setTargetAspectRatio(aspectRatio).build();
 				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
 				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
@@ -460,6 +467,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					// photo
 					ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder()
 						.setFlashMode(cameraFlashMode)
+						.setTargetAspectRatio(aspectRatio)
 						.setTargetRotation(rotation);
 
 					if (targetResolutionWidth != -1 && targetResolutionHeight != -1) {
@@ -491,6 +499,16 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 						v.performClick();
 						return true;
 					});
+				}
+				if (openCallback != null) {
+					KrollDict response = new KrollDict();
+					response.put("width", viewFinder.getWidth());
+					response.put("height", viewFinder.getHeight());
+					response.put("top", viewFinder.getTop());
+					response.put("right", viewFinder.getRight());
+					response.put("left", viewFinder.getLeft());
+					response.put("bottom", viewFinder.getBottom());
+					openCallback.callAsync(callbackContext, response);
 				}
 			} catch (InterruptedException | ExecutionException e) {
 				// Currently no exceptions thrown. cameraProviderFuture.get()

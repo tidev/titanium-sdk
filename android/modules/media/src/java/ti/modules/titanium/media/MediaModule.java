@@ -67,6 +67,8 @@ import android.provider.MediaStore;
 import android.util.Size;
 import android.view.Window;
 
+import androidx.camera.core.AspectRatio;
+
 @Kroll.module
 @ContextSpecific
 public class MediaModule extends KrollModule implements Handler.Callback
@@ -222,6 +224,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int AUDIO_STATE_WAITING_FOR_DATA = 7; // current playback is in the waiting for audio data from the network state
 	@Kroll.constant
 	public static final int AUDIO_STATE_WAITING_FOR_QUEUE = 8; //  current playback is in the waiting for audio data to fill the queue state
+
+	@Kroll.constant
+	public static final int ASPECT_RATIO_4_3 = AspectRatio.RATIO_4_3;
+	@Kroll.constant
+	public static final int ASPECT_RATIO_16_9 = AspectRatio.RATIO_16_9;
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
@@ -446,6 +453,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
 			TiCameraXActivity.successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
 		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_OPEN)) {
+			TiCameraXActivity.openCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_OPEN);
+		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CANCEL)) {
 			TiCameraXActivity.cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
 		}
@@ -472,6 +482,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_ZOOM_ENABLED)) {
 			TiCameraXActivity.allowZoom = cameraOptions.getBoolean(TiC.PROPERTY_ZOOM_ENABLED);
+		}
+		if (cameraOptions.containsKeyAndNotNull("aspectRatio")) {
+			TiCameraXActivity.aspectRatio = cameraOptions.getInt("aspectRatio");
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SCALING_MODE)) {
+			TiCameraXActivity.scalingMode = cameraOptions.getInt(TiC.PROPERTY_SCALING_MODE);
 		}
 		if (cameraOptions.containsKeyAndNotNull("targetImageWidth")) {
 			TiCameraXActivity.targetResolutionWidth = cameraOptions.getInt("targetImageWidth");
