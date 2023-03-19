@@ -128,7 +128,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 
 def macosUnitTests(nodeVersion, npmVersion) {
 	return {
-		node('git && xcode-13') {
+		node('git && xcode-14') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -165,7 +165,7 @@ def macosUnitTests(nodeVersion, npmVersion) {
 
 def iosUnitTests(deviceFamily, nodeVersion, npmVersion) {
 	return {
-		node('git && xcode-13') {
+		node('git && xcode-14') {
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
@@ -225,7 +225,7 @@ def cliUnitTests(nodeVersion, npmVersion) {
 // Wrap in timestamper
 timestamps {
 	try {
-		node('git && android-sdk && gperf && xcode-13') {
+		node('git && android-sdk && gperf && xcode-14') {
 			env.JAVA_HOME="${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"
 			env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
 

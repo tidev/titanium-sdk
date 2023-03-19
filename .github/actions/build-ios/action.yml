@@ -9,7 +9,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Use Node.js 12.x
+    - name: Use Node.js 16.x
       uses: actions/setup-node@v2
       with:
         node-version: '16.x'

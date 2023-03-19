@@ -28,7 +28,6 @@ import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
@@ -139,7 +138,6 @@ public class TiWebChromeClient extends WebChromeClient
 	 * @param request Object providing the grant/deny callback and the resoruces being requested.
 	 */
 	@Override
-	@RequiresApi(21)
 	public void onPermissionRequest(final PermissionRequest request)
 	{
 		// Validate argument
@@ -406,7 +404,6 @@ public class TiWebChromeClient extends WebChromeClient
 	 * Returns false if not and the system should do its default handling.
 	 */
 	@Override
-	@RequiresApi(21)
 	public boolean onShowFileChooser(
 		final WebView webView, final ValueCallback<Uri[]> filePathCallback,
 		final WebChromeClient.FileChooserParams chooserParams)
@@ -561,7 +558,6 @@ public class TiWebChromeClient extends WebChromeClient
 	 * @return Returns an intent to be passed to the startActivityForResult() method.
 	 */
 	@NonNull
-	@RequiresApi(21)
 	private Intent createFileChooserIntentFrom(WebChromeClient.FileChooserParams chooserParams)
 	{
 		// Create the intent.
