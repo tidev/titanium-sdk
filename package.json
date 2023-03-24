@@ -82,6 +82,8 @@
     }
   },
   "dependencies": {
+    "@babel/core": "7.11.6",
+    "@babel/types": "7.11.5",
     "@npmcli/arborist": "^2.10.0",
     "always-tail": "^0.2.0",
     "ansi-escapes": "^4.3.2",
@@ -132,7 +134,8 @@
     "commander": "^8.2.0",
     "commitizen": "^4.2.4",
     "conventional-changelog-cli": "^2.1.1",
-    "core-js": "^3.27.2",
+    "core-js": "3.27.2",
+    "core-js-compat": "3.6.5",
     "cz-conventional-changelog": "^3.3.0",
     "danger": "^10.6.6",
     "eslint": "^8.13.0",
