@@ -1612,13 +1612,13 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	// FIXME: Unsupported on iOS.
-	it.iosBroken('TableViewRow borderRadius', finish => {
+	it.iosBroken('TableViewRow borderRadius', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
 		}
-		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+
 		const view = Ti.UI.createView({
 			width: '540px',
 			height: '960px'
@@ -1636,19 +1636,9 @@ describe('Titanium.UI.TableView', function () {
 		];
 
 		view.add(tableView);
-		win.add(view);
-		win.addEventListener('open', function addTableView() {
-			setTimeout(function () {
-				try {
-					// TableView should display rows of internal icons.
-					should(view).matchImage('snapshots/tableViewRow_borderRadius.png');
-					finish();
-				} catch (err) {
-					return finish(err);
-				}
-			}, 2000);
-		});
-		win.open();
+
+		// TableView should display rows of internal icons.
+		should(view).matchImage('snapshots/tableViewRow_borderRadius.png');
 	});
 
 	it('TableViewRow default title & image', function () {
@@ -1710,13 +1700,13 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView headerView & footerView', finish => {
+	it.iosBroken('TableView headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
 		}
-		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+
 		const view = Ti.UI.createView({
 			width: '540px',
 			height: '960px'
@@ -1738,36 +1728,25 @@ describe('Titanium.UI.TableView', function () {
 		tableView.data = [ { title: 'Row', color: 'black' } ];
 
 		view.add(tableView);
-		win.add(view);
+
 		// TableView should display rows of internal icons.
 		const options = {
 			threshold: 0.1,
 			// only for certain versions of Android? This happens on 5.x, what about 6-10?
 			maxPixelMismatch: (OS_ANDROID && OS_VERSION_MAJOR < 6) ? 2224 : 0
 		};
-		win.addEventListener('open', function addTableView() {
-			setTimeout(function () {
-				try {
-					should(view).matchImage('snapshots/tableView_header_footer.png', options);
-					finish();
-				} catch (err) {
-					return finish(err);
-				}
-			}, 2000);
-		});
-
-		win.open();
+		should(view).matchImage('snapshots/tableView_header_footer.png', options);
 	});
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView + TableViewSection headerView & footerView', finish => {
+	it.iosBroken('TableView + TableViewSection headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
 		}
-		win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+
 		const view = Ti.UI.createView({
 			width: '540px',
 			height: '960px'
@@ -1794,24 +1773,14 @@ describe('Titanium.UI.TableView', function () {
 		];
 
 		view.add(tableView);
-		win.add(view);
+
 		// TableView should display rows of internal icons.
 		const options = {
 			threshold: 0.1,
 			// only for certain versions of Android? This happens on 5.x, what about 6-10?
 			maxPixelMismatch: (OS_ANDROID && OS_VERSION_MAJOR < 6) ? 3757 : 0
 		};
-		win.addEventListener('open', function addTableView() {
-			setTimeout(function () {
-				try {
-					should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png', options);
-					finish();
-				} catch (err) {
-					return finish(err);
-				}
-			}, 2000);
-		});
-		win.open();
+		should(view).matchImage('snapshots/tableView_tableViewSection_header_footer.png', options);
 	});
 
 	it.ios('All text should show if TableView.style is .INSET_GROUPED ', () => {
