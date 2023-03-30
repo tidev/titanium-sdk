@@ -131,7 +131,7 @@
     "babel-plugin-transform-titanium": "0.1.1",
     "chai": "4.3.7",
     "clang-format": "1.5.0",
-    "commander": "8.2.0",
+    "commander": "10.0.0",
     "commitizen": "4.3.0",
     "conventional-changelog-cli": "2.2.2",
     "core-js": "3.27.2",
