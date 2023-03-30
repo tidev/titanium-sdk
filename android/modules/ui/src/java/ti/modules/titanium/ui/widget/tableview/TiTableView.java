@@ -749,12 +749,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		}
 
 		// Notify adapter of changes on UI thread.
-		recyclerView.post(new Runnable() {
-			public void run()
-			{
-				adapter.update(rows, force);
-			}
-		});
+		this.adapter.update(rows, force);
 
 		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
