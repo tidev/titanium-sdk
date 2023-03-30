@@ -221,7 +221,13 @@ public class NotificationChannelProxy extends KrollProxy
 	@Kroll.getProperty
 	public Object getVibrationPattern()
 	{
+		if (channel == null) {
+			return null;
+		}
 		long[] pattern = channel.getVibrationPattern();
+		if (pattern == null) {
+			return null;
+		}
 		Object[] patternArray = new Object[pattern.length];
 		for (int i = 0; i < pattern.length; i++) {
 			patternArray[i] = Long.valueOf(pattern[i]);

@@ -97,7 +97,6 @@ properties:
     type: Date
     permission: read-only
     since: "6.1.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: discCount
     summary: Total number of discs for the album containing this item.

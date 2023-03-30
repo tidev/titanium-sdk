@@ -17,6 +17,7 @@
 #ifdef USE_TI_UIREFRESHCONTROL
 #import "TiUIRefreshControlProxy.h"
 #endif
+#import <MobileCoreServices/MobileCoreServices.h>
 #import <TitaniumKit/ImageLoader.h>
 
 @interface TiUIListView ()
@@ -78,6 +79,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isSearched;
   UIView *dimmingView;
   BOOL isSearchBarInNavigation;
+  int lastVisibleItem;
+  int lastVisibleSection;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -203,11 +206,18 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   if (_tableView == nil) {
     UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
+    BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
 
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.delegate = self;
     _tableView.dataSource = self;
+
+    if (!requiresEditingToMove) {
+      _tableView.dragDelegate = self;
+      _tableView.dropDelegate = self;
+      _tableView.dragInteractionEnabled = YES;
+    }
 
     // Fixes incorrect heights in iOS 11 as we calculate them internally already
     _tableView.estimatedRowHeight = 0;
@@ -1071,15 +1081,65 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (BOOL)canInsertRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id insertValue = [self valueWithKey:@"canInsert" atIndexPath:indexPath];
-  //canInsert if undefined is false
   return [TiUtils boolValue:insertValue def:NO];
 }
 
 - (BOOL)canMoveRowAtIndexPath:(NSIndexPath *)indexPath
 {
   id moveValue = [self valueWithKey:@"canMove" atIndexPath:indexPath];
-  //canMove if undefined is false
   return [TiUtils boolValue:moveValue def:NO];
+}
+
+- (nonnull NSArray<UIDragItem *> *)tableView:(nonnull UITableView *)tableView itemsForBeginningDragSession:(nonnull id<UIDragSession>)session atIndexPath:(nonnull NSIndexPath *)indexPath
+{
+  if (![self canMoveRowAtIndexPath:indexPath]) {
+    return @[];
+  }
+
+  NSItemProvider *itemProvider = [NSItemProvider new];
+  NSString *identifier = [NSString stringWithFormat:@"%lu_%lu", indexPath.section, indexPath.row];
+
+  [itemProvider registerDataRepresentationForTypeIdentifier:(NSString *)kUTTypePlainText
+                                                 visibility:NSItemProviderRepresentationVisibilityAll
+                                                loadHandler:^NSProgress *_Nullable(void (^_Nonnull completionHandler)(NSData *_Nullable, NSError *_Nullable)) {
+                                                  return nil;
+                                                }];
+
+  UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
+  dragItem.localObject = identifier;
+
+  // Fire an event to react to the move start
+  NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+  TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+  NSDictionary *theItem = [[theSection itemAtIndex:realIndexPath.row] retain];
+  NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                      theSection, @"section",
+                                                                  NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                  NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                  nil];
+
+  [[self proxy] fireEvent:@"movestart" withObject:eventObject];
+
+  [eventObject release];
+  [theItem release];
+  [theSection release];
+
+  return @[ dragItem ];
+}
+
+- (void)tableView:(UITableView *)tableView dropSessionDidEnd:(id<UIDropSession>)session
+{
+  [[self proxy] fireEvent:@"moveend"];
+}
+
+- (void)tableView:(UITableView *)tableView performDropWithCoordinator:(id<UITableViewDropCoordinator>)coordinator
+{
+  // NO-OP right now
+}
+
+- (BOOL)tableView:(UITableView *)tableView canHandleDropSession:(id<UIDropSession>)session
+{
+  return [session canLoadObjectsOfClass:[NSString class]];
 }
 
 - (NSArray *)editActionsFromValue:(id)value
@@ -1094,6 +1154,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     NSString *identifier = [TiUtils stringValue:@"identifier" properties:prop];
     int actionStyle = [TiUtils intValue:@"style" properties:prop def:UITableViewRowActionStyleDefault];
     TiColor *color = [TiUtils colorValue:@"color" properties:prop];
+    id image = [prop objectForKey:@"image"];
 
     UITableViewRowAction *theAction = [UITableViewRowAction rowActionWithStyle:actionStyle
                                                                          title:title
@@ -1132,6 +1193,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if (color) {
       theAction.backgroundColor = [color color];
     }
+    if (image) {
+      NSURL *url = [TiUtils toURL:image proxy:(TiProxy *)self.proxy];
+      UIImage *nativeImage = [[ImageLoader sharedLoader] loadImmediateImage:url];
+      if (color) {
+        nativeImage = [self generateImage:nativeImage withBackgroundColor:[color color]];
+      }
+      theAction.backgroundColor = [UIColor colorWithPatternImage:nativeImage];
+    }
     if (!returnArray) {
       returnArray = [NSMutableArray arrayWithObject:theAction];
     } else {
@@ -1140,6 +1209,24 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   return returnArray;
+}
+
+- (UIImage *)generateImage:(UIImage *)image withBackgroundColor:(UIColor *)bgColor
+{
+  CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
+  UIGraphicsBeginImageContextWithOptions(imageRect.size, false, [UIScreen mainScreen].scale);
+
+  CGContextRef context = UIGraphicsGetCurrentContext();
+  CGContextSaveGState(context);
+
+  [bgColor setFill];
+  CGContextFillRect(context, imageRect);
+  [image drawInRect:imageRect];
+
+  UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  return result;
 }
 
 #pragma mark - Editing Support Datasource methods.
@@ -1857,7 +1944,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         }
 
       } else {
-        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement");
+        DebugLog(@"[WARN] Could not retrieve template for SIZE measurement. Template: %@", templateId);
       }
     }
   }
@@ -1891,17 +1978,57 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
   //Events - pull (maybe scroll later)
-  if (![self.proxy _hasListeners:@"pull"]) {
+  if (![self.proxy _hasListeners:@"pull"] && ![self.proxy _hasListeners:@"scrolling"]) {
     return;
   }
 
-  if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
-    if ((scrollView.contentOffset.y < pullThreshhold) && !pullActive) {
-      pullActive = YES;
-      [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-    } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive)) {
-      pullActive = NO;
-      [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  if ([self.proxy _hasListeners:@"pull"]) {
+    if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
+      if ((scrollView.contentOffset.y < pullThreshhold) && !pullActive) {
+        pullActive = YES;
+        [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+      } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive)) {
+        pullActive = NO;
+        [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
+      }
+    }
+  }
+
+  BOOL continuousUpdate = [TiUtils boolValue:[self.proxy valueForKey:@"continuousUpdate"] def:NO];
+  if (continuousUpdate && [self.proxy _hasListeners:@"scrolling"]) {
+    if ([[self tableView] isDragging] || [[self tableView] isDecelerating]) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        NSArray *indexPaths = [[self tableView] indexPathsForVisibleRows];
+        NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
+        TiUIListSectionProxy *section;
+
+        if ([indexPaths count] > 0) {
+          NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
+          NSUInteger visibleItemCount = [indexPaths count];
+          section = [[self listViewProxy] sectionForIndex:[indexPath section]];
+
+          [eventArgs setValue:NUMINTEGER([indexPath row]) forKey:@"firstVisibleItemIndex"];
+          [eventArgs setValue:NUMUINTEGER(visibleItemCount) forKey:@"visibleItemCount"];
+          [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
+          [eventArgs setValue:section forKey:@"firstVisibleSection"];
+          [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+
+          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section]) {
+            // only log if the item changes
+            [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
+            lastVisibleItem = [indexPath row];
+            lastVisibleSection = [indexPath section];
+          }
+        } else {
+          section = [[self listViewProxy] sectionForIndex:0];
+
+          [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItemIndex"];
+          [eventArgs setValue:NUMUINTEGER(0) forKey:@"visibleItemCount"];
+          [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
+          [eventArgs setValue:section forKey:@"firstVisibleSection"];
+          [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+        }
+      });
     }
   }
 }

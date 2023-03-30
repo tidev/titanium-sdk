@@ -566,7 +566,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 					properties.getString(TiC.PROPERTY_ACTIVE_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString, activity);
 			}
-			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
 			color = ColorUtils.setAlphaComponent(this.colorOnSurfaceInt, 153);  // 60% opacity
 			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
@@ -575,9 +574,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 					properties.getString(TiC.PROPERTY_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString, activity);
 			}
-			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		}
-
+		drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		return drawable;
 	}
 

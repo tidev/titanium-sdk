@@ -225,13 +225,13 @@ public class TiLocationHelper
 
 		List<String> providers = getLocationManager().getProviders(true);
 		if (providers != null && providers.size() > 0) {
-			Log.i(TAG, "Enabled location provider count: " + providers.size(), Log.DEBUG_MODE);
+			Log.d(TAG, "Enabled location provider count: " + providers.size(), Log.DEBUG_MODE);
 			for (String name : providers) {
-				Log.i(TAG, "Location [" + name + "] service available", Log.DEBUG_MODE);
+				Log.d(TAG, "Location [" + name + "] service available", Log.DEBUG_MODE);
 			}
 			enabled = true;
 		} else {
-			Log.i(TAG, "No available providers", Log.DEBUG_MODE);
+			Log.d(TAG, "No available providers", Log.DEBUG_MODE);
 		}
 
 		return enabled;

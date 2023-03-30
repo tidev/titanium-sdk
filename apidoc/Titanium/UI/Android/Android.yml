@@ -15,6 +15,20 @@ extends: Titanium.Module
 since: "1.0"
 platforms: [android]
 methods:
+  - name: harmonizedColor
+    summary: Creates a harmonizing color
+    description: |
+      Shifts the hue of the input color towards the hue of colorPrimary and returns a new color
+      as a hex string. Usage: `Ti.UI.Android.harmonizedColor("#ff0000");`
+    parameters:
+      - name: color
+        summary: Input Color
+        type: [ String, Titanium.UI.Color ]
+    platforms: [android]
+    returns:
+        type: String
+    since: { android: "12.0.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
@@ -85,7 +99,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.5.0"
-    osver: {android: {min: "4.4"}}
 
   - name: FLAG_TRANSLUCENT_STATUS
     summary: Window flag which makes the Android system's top status bar semi-transparent.
@@ -98,7 +111,6 @@ properties:
     type: Number
     permission: read-only
     since: "7.5.0"
-    osver: {android: {min: "4.4"}}
 
   - name: GRAVITY_AXIS_CLIP
     summary: Raw bit controlling whether the right/bottom edge is clipped to its container, based on the gravity direction being applied.
@@ -261,51 +273,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-
-  - name: LINKIFY_ALL
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_ALL](Titanium.UI.AUTOLINK_ALL) instead.
-        removed: "9.0.0"
-    summary: Converts all detectable types of data into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_EMAIL_ADDRESSES
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_EMAIL_ADDRESSES](Titanium.UI.AUTOLINK_EMAIL_ADDRESSES) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as email addresses into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_MAP_ADDRESSES
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_MAP_ADDRESSES](Titanium.UI.AUTOLINK_MAP_ADDRESSES) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as addresses into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_PHONE_NUMBERS
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_PHONE_NUMBERS](Titanium.UI.AUTOLINK_PHONE_NUMBERS) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as phone numbers into clickable links.
-    type: Number
-    permission: read-only
-
-  - name: LINKIFY_WEB_URLS
-    deprecated:
-        since: "3.0.0"
-        notes: Use [Titanium.UI.AUTOLINK_URLS](Titanium.UI.AUTOLINK_URLS) instead.
-        removed: "9.0.0"
-    summary: Converts strings formatted as URLs into clickable links.
-    type: Number
-    permission: read-only
 
   - name: OVER_SCROLL_ALWAYS
     summary: Always allow a user to over-scroll this view, provided it is a view that can scroll.
@@ -570,6 +537,16 @@ properties:
     availability: creation
     permission: read-only
 
+  - name: SOFT_INPUT_ADJUST_NOTHING
+    summary: |
+        The window will not be resized, and it will not be panned to make its focus visible.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+    type: Number
+    availability: creation
+    permission: read-only
+    since: 12.1.0
+
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
     summary: |
         Use the system-default behavior to determine how the soft input area (ie software keyboard)
@@ -700,7 +677,7 @@ properties:
     deprecated:
         since: "10.0.0"
         notes: Use <Titanium.UI.SWITCH_STYLE_CHECKBOX> instead.
-    
+
   - name: SWITCH_STYLE_TOGGLEBUTTON
     summary: Display a toggle button.
     description: Use with the <Titanium.UI.Switch.style> property.
@@ -709,7 +686,7 @@ properties:
     deprecated:
         since: "10.0.0"
         notes: Use <Titanium.UI.SWITCH_STYLE_TOGGLE_BUTTON> instead.
-    
+
   - name: SWITCH_STYLE_SWITCH
     summary: Display a switch.
     description: Use with the <Titanium.UI.Switch.style> property.
@@ -719,7 +696,7 @@ properties:
     deprecated:
         since: "10.0.0"
         notes: Use <Titanium.UI.SWITCH_STYLE_SLIDER> instead.
-    
+
   - name: WEBVIEW_PLUGINS_OFF
     summary: |
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to disable plugins in a web view.
@@ -741,7 +718,7 @@ properties:
   - name: WEBVIEW_PLUGINS_ON_DEMAND
     summary: Display a placeholder and only load plugins when user selects it.
     description: |
-        Content that requires a plugin, is replaced by a placeholder. When 
+        Content that requires a plugin, is replaced by a placeholder. When
         the user clicks on the placeholder, the plugin is loaded and the content is displayed.
 
         Use with [WebView.pluginState](Titanium.UI.WebView.pluginState) to load plugins on demand.
@@ -931,11 +908,61 @@ properties:
     platforms: [android]
     since: "8.3.0"
 
+  - name: SCROLL_FLAG_ENTER_ALWAYS
+    summary: When entering (scrolling on screen) the view will scroll on any downwards scroll event, regardless of whether the scrolling view is also scrolling. This is commonly referred to as the 'quick return' pattern.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED
+    summary: An additional flag for 'enterAlways' which modifies the returning view to only initially scroll back to it's collapsed height. Once the scrolling view has reached the end of it's scroll range, the remainder of this view will be scrolled into view. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+    summary: When exiting (scrolling off screen) the view will be scrolled until it is 'collapsed'. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_NO_SCROLL
+    summary: Disable scrolling on the view. This flag should not be combined with any of the other scroll flags.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SCROLL
+    summary: The view will be scroll in direct relation to scroll events. This flag needs to be set for any of the other flags to take effect. If any sibling views before this one do not have this flag, then this value has no effect.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP
+    summary: Upon a scroll ending, if the view is only partially visible then it will be snapped and scrolled to its closest edge. For example, if the view only has its bottom 25% displayed, it will be scrolled off screen completely. Conversely, if its bottom 75% is visible then it will be scrolled fully into view.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP_MARGINS
+    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself. 
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
 examples:
   - title: Android Preferences Example
     example: |
         Create preferences interface for the application.
 
+        #### `app.js`
         ``` js
         var button = Ti.UI.createButton({
           title:	'Click to Open Preferences'
@@ -977,14 +1004,14 @@ examples:
             <ListPreference
               android:title="List Preference"
               android:summary="You may chose from multiple choices"
-              android:key="list" 
+              android:key="list"
             android:entries="@array/listNames"
-            android:entryValues="@array/listValues" 
+            android:entryValues="@array/listValues"
             />
           </PreferenceCategory>
         </PreferenceScreen>
         ```
-            
+
         #### `platform/android/res/values/array/array.xml`
         ``` xml
         <?xml version="1.0" encoding="utf-8"?>
