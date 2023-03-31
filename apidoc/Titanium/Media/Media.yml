@@ -301,6 +301,15 @@ methods:
 
   - name: hasPhotoGalleryPermissions
     summary: Returns `true` if the app has photo gallery permissions.
+    description: |
+        If you use Android 13+ you have to add the following permissions to your tiapp.xml:
+        ``` xml
+        <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+        <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+        ```
+
+        You don't need to check this before using <Titanium.Media.requestPhotoGalleryPermissions>. If you already have the permission and use
+        <Titanium.Media.requestPhotoGalleryPermissions> it will call the success event, no second permission request is displayed.
     returns:
         type: Boolean
     platforms: [android, iphone, ipad, macos]
@@ -319,6 +328,13 @@ methods:
         user needs to change it in the device settings.
 
         iOS Apps that do not include this method, will present the system-dialog while the dialog is opened with <Titanium.Media.openPhotoGallery>.
+
+        If you use Android 13+ you have to add the following permissions to your tiapp.xml:
+        ``` xml
+        <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+        <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+        ```
+        When you only want to use it for images you can use `<Titanium.Android.requestPermissions>` and request `android.permission.READ_MEDIA_IMAGES`.
     parameters:
       - name: callback
         summary: |

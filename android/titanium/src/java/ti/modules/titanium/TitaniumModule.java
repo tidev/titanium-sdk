@@ -131,14 +131,11 @@ public class TitaniumModule extends KrollModule
 			}
 
 			if (Log.isDebugModeEnabled()) {
-				StringBuilder message = new StringBuilder("calling ")
-											.append(interval ? "interval" : "timeout")
-											.append(" timer ")
-											.append(id)
-											.append(" @")
-											.append(new Date().getTime());
+				String message = "calling "
+					+ (interval ? "interval" : "timeout") + " timer " + id + " @"
+					+ new Date().getTime();
 
-				Log.d(TAG, message.toString());
+				Log.d(TAG, message);
 			}
 
 			long start = System.currentTimeMillis();

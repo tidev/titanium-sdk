@@ -574,7 +574,7 @@ public class PlatformModule extends KrollModule
 	{
 		super.onResume(activity);
 		if (batteryStateReceiver != null) {
-			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
+			Log.d(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
 			registerBatteryReceiver(batteryStateReceiver);
 		}
 	}

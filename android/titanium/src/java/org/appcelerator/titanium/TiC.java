@@ -24,6 +24,7 @@ public class TiC
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
 	public static final int PERMISSION_CODE_PUSH_NOTIFICATIONS = 107;
+	public static final int PERMISSION_CODE_MEDIA = 108;
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
@@ -582,6 +583,7 @@ public class TiC
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
+	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";
 	public static final String PROPERTY_NOTE = "note";
 	public static final String PROPERTY_NUMBER = "number";

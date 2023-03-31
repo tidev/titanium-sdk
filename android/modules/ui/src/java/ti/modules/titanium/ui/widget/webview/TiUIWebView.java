@@ -34,6 +34,7 @@ import java.util.Map;
 import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -66,6 +67,19 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
+
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A4 = 0;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A5 = 1;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A3 = 2;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A2 = 3;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A1 = 4;
+	@Kroll.constant
+	public static final int PDF_PAGE_AUTO = 5;
 
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
