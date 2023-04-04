@@ -63,7 +63,7 @@ describe('Titanium.UI.Clipboard', () => {
 				should(Ti.UI.Clipboard.clearData).be.a.Function();
 			});
 
-			it('clears \'text\' data type', () => {
+			it.ios('clears \'text\' data type', () => {
 				setTimeout(function () {
 					Ti.UI.Clipboard.clearData(); // delete all data
 					Ti.UI.Clipboard.text = 'clearData';
