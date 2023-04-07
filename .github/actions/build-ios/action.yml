@@ -10,7 +10,7 @@ runs:
   using: composite
   steps:
     - name: Use Node.js 16.x
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '16.x'
         cache: 'npm'
@@ -21,7 +21,7 @@ runs:
 
     - name: Lint
       run: npm run lint:ios
-      shell: bash 
+      shell: bash
 
     - name: Build
       run: npm run build:ios
@@ -34,7 +34,7 @@ runs:
         iphone/TitaniumKit/build/TitaniumKit.xcframework
       shell: bash
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ios-build
         retention-days: 1
