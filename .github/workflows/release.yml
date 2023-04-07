@@ -57,7 +57,7 @@ jobs:
             console.log(`${process.env.vtag} does not exist so continuing`)
 
   android:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
