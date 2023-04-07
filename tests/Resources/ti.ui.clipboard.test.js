@@ -14,7 +14,7 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.Clipboard', () => {
 	let win = null;
-	const waitTime = 250;
+	const waitTime = 1500;
 
 	beforeEach(() => {
 		if (win === null) {
@@ -63,7 +63,7 @@ describe('Titanium.UI.Clipboard', () => {
 				should(Ti.UI.Clipboard.clearData).be.a.Function();
 			});
 
-			it.ios('clears \'text\' data type', () => {
+			it('clears \'text\' data type', () => {
 				setTimeout(function () {
 					Ti.UI.Clipboard.clearData(); // delete all data
 					Ti.UI.Clipboard.text = 'clearData';
