@@ -111,6 +111,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+	private int maxWidth = -1;
 
 	public TiBackgroundDrawable getBackground()
 	{
@@ -1054,6 +1055,19 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 
+		if (d.containsKey("maxWidth")) {
+			maxWidth = -1;
+			if (d.get("maxWidth") != null) {
+				maxWidth = d.getInt("maxWidth");
+				maxWidth = TiConvert.toTiDimension(maxWidth, TiDimension.TYPE_WIDTH).getAsPixels(nativeView);
+			}
+			if (!hasBorder(d)) {
+				((TiCompositeLayout) nativeView).setMaxWidth(maxWidth);
+			} else {
+				Log.w(TAG, "You can only use maxWidth for Views without borders");
+			}
+		}
+
 		initializeBorder(d, bgColor);
 
 		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
@@ -1499,6 +1513,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
+					//borderView.setMaxWidth(maxWidth);	// TODO fix borderView maxWidth
 					// Create new layout params for the child view since we just want the
 					// wrapper to control the layout
 					LayoutParams params = new LayoutParams();

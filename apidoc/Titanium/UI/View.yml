@@ -2018,6 +2018,15 @@ properties:
     type: [Number,String]
     constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
 
+  - name: maxWidth
+    summary: Maximum width of the View, in platform-specific units.
+    description: |
+        You can use the setting in combination with `width: Ti.UI.FILL` to set a maximum width.
+        The view won't extend the `maxWidth` value.
+    type: Number
+    since: {android: "12.2.0"}
+    platforms: [android]
+
   - name: horizontalWrap
     summary: Determines whether the layout has wrapping behavior.
     description: |
