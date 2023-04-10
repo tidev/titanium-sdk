@@ -144,7 +144,7 @@
     "folder-hash": "4.0.4",
     "glob": "7.2.0",
     "husky": "7.0.2",
-    "lint-staged": "11.1.2",
+    "lint-staged": "13.2.1",
     "lockfile-lint": "4.10.1",
     "mocha": "9.2.2",
     "mocha-jenkins-reporter": "0.4.8",
