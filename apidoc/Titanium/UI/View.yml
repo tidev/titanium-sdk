@@ -2027,6 +2027,15 @@ properties:
     since: {android: "12.2.0"}
     platforms: [android]
 
+  - name: maxHeight
+    summary: Maximum height of the View, in platform-specific units.
+    description: |
+        You can use the setting in combination with `height: Ti.UI.FILL` to set a maximum height.
+        The view won't extend the `maxHeight` value.
+    type: Number
+    since: {android: "12.2.0"}
+    platforms: [android]
+
   - name: horizontalWrap
     summary: Determines whether the layout has wrapping behavior.
     description: |
