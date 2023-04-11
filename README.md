@@ -13,6 +13,7 @@ see the [LICENSE](LICENSE) file for specific details.
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
+  - [Sponsors](#sponsors)
   - [Features](#features)
   - [Hyperloop](#hyperloop)
     - [Features](#features-1)
@@ -41,6 +42,15 @@ see the [LICENSE](LICENSE) file for specific details.
       - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
     - [Upgrade gradle and gradle plugin](#upgrade-gradle-and-gradle-plugin)
   - [Legal Stuff](#legal-stuff)
+
+## Sponsors
+
+This project wouldn't be possible without the help of our world wide developer community. Become a sponsor
+today and benefit from 1:1 sessions with the core team, exclusive modules, merchandise and more!
+
+Learn more about sponsoring TiDev, the organization behind the Titanium SDK, [here](https://github.com/sponsors/tidev) 🚀.
+
+<!-- sponsors --><!-- sponsors -->
 
 ## Features
 
