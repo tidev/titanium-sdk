@@ -20,4 +20,3 @@ jobs:
           file: 'README.md'
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
-        file_pattern: 'README.md'
