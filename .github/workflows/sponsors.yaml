@@ -16,7 +16,7 @@ jobs:
       - name: Update Sponsors in README.md
         uses: JamesIves/github-sponsors-readme-action@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SPONSORS_README_TOKEN }}
           file: 'README.md'
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
