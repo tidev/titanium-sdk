@@ -173,13 +173,6 @@ function iOSBuilder() {
 	// an array of products (Xcode targets) being built
 	this.products = [];
 
-	// when true and Apple Transport Security is manually enabled via custom Info.plist or
-	// tiapp.xml <ios><plist> section, then injects appcelerator.com whitelisted
-	//
-	// we default to true, but if "ios.whitelist.appcelerator.com" tiapp.xml property is
-	// set to false, then we'll force appcelerator.com to NOT be whitelisted
-	this.whitelistAppceleratorDotCom = true;
-
 	// launch screen storyboard settings
 	this.enableLaunchScreenStoryboard = true;
 	this.defaultLaunchScreenStoryboard = true;
@@ -2606,11 +2599,6 @@ iOSBuilder.prototype.initialize = async function initialize() {
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
 	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
 
-	if ((this.tiapp.properties && this.tiapp.properties['ios.whitelist.appcelerator.com'] && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
-		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
-		this.whitelistAppceleratorDotCom = false;
-	}
-
 	if (!this.tiapp.ios['enable-launch-screen-storyboard'] || appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
 		this.enableLaunchScreenStoryboard = false;
 		this.defaultLaunchScreenStoryboard = false;
@@ -4448,28 +4436,6 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		};
 	} else if (plist.NSAppTransportSecurity.NSAllowsArbitraryLoads) {
 		this.logger.info(__('ATS explicitly disabled'));
-	} else if (this.whitelistAppceleratorDotCom) {
-		// we have a whitelist, make sure appcelerator.com is in the list
-		plist.NSAppTransportSecurity || (plist.NSAppTransportSecurity = {});
-		plist.NSAppTransportSecurity.NSAllowsArbitraryLoads = false;
-
-		this.logger.info(__('ATS enabled, injecting appcelerator.com into ATS whitelist'));
-		plist.NSAppTransportSecurity.NSExceptionDomains || (plist.NSAppTransportSecurity.NSExceptionDomains = {});
-		if (!plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com']) {
-			plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com'] = {
-				NSExceptionMinimumTLSVersion: 'TLSv1.2',
-				NSExceptionRequiresForwardSecrecy: true,
-				NSExceptionAllowsInsecureHTTPLoads: false,
-				NSRequiresCertificateTransparency: false,
-				NSIncludesSubdomains: true,
-				NSThirdPartyExceptionMinimumTLSVersion: 'TLSv1.2',
-				NSThirdPartyExceptionRequiresForwardSecrecy: true,
-				NSThirdPartyExceptionAllowsInsecureHTTPLoads: true
-			};
-		}
-	} else {
-		this.logger.warn(__('ATS enabled, however *.appcelerator.com are not whitelisted'));
-		this.logger.warn(__('Consider setting the "ios.whitelist.appcelerator.com" property in the tiapp.xml to "true"'));
 	}
 
 	if (this.target === 'device' && this.deviceId === 'itunes') {
