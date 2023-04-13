@@ -16,7 +16,7 @@ jobs:
       - name: Update Sponsors in README.md
         uses: JamesIves/github-sponsors-readme-action@v1
         with:
-          organization: tidev
+          organization: true
           token: ${{ secrets.SPONSORS_README_TOKEN }}
           file: 'README.md'
       - name: Commit changes
