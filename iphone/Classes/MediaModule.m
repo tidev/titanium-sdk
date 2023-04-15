@@ -1470,10 +1470,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)updatePopoverNow:(UIViewController *)picker_
 {
   UIViewController *theController = picker_;
-  [theController setModalPresentationStyle:UIModalPresentationPopover];
-  UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
-  [thePresenter setPermittedArrowDirections:arrowDirection];
-  [thePresenter setDelegate:self];
+  if (self.popoverView != nil) {
+    [theController setModalPresentationStyle:UIModalPresentationPopover];
+    UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
+    [thePresenter setPermittedArrowDirections:arrowDirection];
+    [thePresenter setDelegate:self];
+  }
   [[TiApp app] showModalController:theController animated:animatedPicker];
   return;
 }
