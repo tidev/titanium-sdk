@@ -15,7 +15,7 @@ def runDanger = isPR // run Danger.JS if it's a PR by default. (should we also r
 def publishToS3 = isMainlineBranch // publish zips to S3 if on mainline branch, by default
 
 // Variables we can change
-def nodeVersion = '12.18.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
+def nodeVersion = '14.21.0' // NOTE that changing this requires we set up the desired version on jenkins master first!
 def npmVersion = 'latest' // We can change this without any changes to Jenkins. 5.7.1 is minimum to use 'npm ci'
 
 // Variables which we assign and share between nodes
@@ -72,7 +72,7 @@ def gatherAndroidCrashReports() {
 def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 	return {
 		def labels = 'git && osx && android-emulator && android-sdk' // FIXME get working on windows/linux!
-		
+
 		if (!deviceId) {
 			deviceId = 'android-31-playstore-x86_64';
 		}
@@ -80,7 +80,7 @@ def androidUnitTests(testName, nodeVersion, npmVersion, deviceId) {
 		node(labels) {
 			env.JAVA_HOME="${tool name:'OpenJDK 11.0.11+9', type: 'jdk'}"
 			env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
-			
+
 			// TODO: Do a shallow checkout rather than stash/unstash?
 			unstash 'mocha-tests'
 			try {
