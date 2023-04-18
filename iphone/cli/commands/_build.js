@@ -1400,7 +1400,9 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
  * error.
  */
 iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
-	if (this._tiappSettingsInitialized) {
+	// This logic will also run on a module build when a --device-id argument is provided,
+	// so skip if we're not building an app.
+	if (this._tiappSettingsInitialized || this.cli.argv.type !== 'app') {
 		return;
 	}
 
