@@ -713,6 +713,16 @@ events:
         type: String
 
 properties:
+
+  - name: allowFileAccess
+    summary: A Boolean value indicating file access within WebView.
+    description: |
+        Set to `true` to enable access to local files for examples images stored in <Titanium.Filesystem.applicationDataDirectory>. If false resources are still accessible using `file:///android_asset` and `file:///android_res`. Do not enable this if your app accepts arbitrary URLs from external sources.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "12.1.0"}
+
   - name: allowsLinkPreview
     summary: |
         A Boolean value that determines whether pressing on a link displays a preview of the
