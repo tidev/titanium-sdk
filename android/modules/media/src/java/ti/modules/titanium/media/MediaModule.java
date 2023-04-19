@@ -499,13 +499,14 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasPhotoGalleryPermissions()
 	{
-		// We don't have to request permission on versions older than Android 6.0.
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
-		// We don't need write permission on Android 10 and above.
-		if (Build.VERSION.SDK_INT >= 29) {
+		if (Build.VERSION.SDK_INT >= 33) {
+			// Android 13+
+			// check for video and image permissions
+			int status_img = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES);
+			int status_vid = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO);
+			return (status_img == PackageManager.PERMISSION_GRANTED && status_vid == PackageManager.PERMISSION_GRANTED);
+		} else if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29) {
+			// We don't have to request permission on versions older than Android 6.0 or Android 10/11
 			return true;
 		}
 
@@ -650,11 +651,20 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				return;
 			}
 
-			// Show dialog requesting permission.
-			TiBaseActivity.registerPermissionRequestCallback(
-				TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, callbackThisObject, promise);
-			activity.requestPermissions(
-				new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+			if (Build.VERSION.SDK_INT < 33) {
+				// Show dialog requesting permission.
+				TiBaseActivity.registerPermissionRequestCallback(
+					TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, callbackThisObject, promise);
+				activity.requestPermissions(
+					new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+			} else {
+				// Show dialog requesting permission.
+				TiBaseActivity.registerPermissionRequestCallback(
+					TiC.PERMISSION_CODE_MEDIA, permissionCallback, callbackThisObject, promise);
+				activity.requestPermissions(
+					new String[] { Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO },
+					TiC.PERMISSION_CODE_MEDIA);
+			}
 		});
 	}
 

@@ -443,6 +443,10 @@ public class TiToolbar extends TiUIView
 				setContentInsetStartWithNavigation(d.getInt(TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION));
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_NAVIGATION_ICON_COLOR)) {
+			this.toolbar.setNavigationIconTint(TiConvert.toColor(d.getString(TiC.PROPERTY_NAVIGATION_ICON_COLOR),
+				TiApplication.getAppCurrentActivity()));
+		}
 		//end region
 		super.processProperties(d);
 	}

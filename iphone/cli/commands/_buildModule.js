@@ -58,6 +58,9 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
+	this.target        = cli.argv['target'];
+	this.deviceId      = cli.argv['device-id'];
+
 	const sdkModuleAPIVersion = cli.sdk.manifest && cli.sdk.manifest.moduleAPIVersion && cli.sdk.manifest.moduleAPIVersion['iphone'];
 	if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
 		logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
@@ -904,9 +907,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		}
 
 		// 2. example folder
-		this.dirWalker(this.exampleDir, function (file) {
-			dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
-		}.bind(this));
+		if (fs.existsSync(this.exampleDir)) {
+			this.dirWalker(this.exampleDir, function (file) {
+				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'example', path.relative(this.exampleDir, file)) });
+			}.bind(this));
+		}
 
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
@@ -954,7 +959,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		dest.directory(binarylibFile, path.join(moduleFolders, binarylibName));
 
 		// 8. LICENSE file
-		dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
+		if (fs.existsSync(this.licenseFile)) {
+			dest.append(fs.createReadStream(this.licenseFile), { name: path.join(moduleFolders, 'LICENSE') });
+		} else {
+			this.logger.warn(__('Missing LICENSE file in the module\'s project root. We recommend to include the file to ensure proper OSS compliance.'));
+		}
 
 		// 9. manifest
 		dest.append(fs.createReadStream(this.manifestFile), { name: path.join(moduleFolders, 'manifest') });
@@ -1067,17 +1076,23 @@ iOSModuleBuilder.prototype.runModule = function runModule(cli, next) {
 		function (cb) {
 			// 6. run the app
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
-			runTiCommand(
-				[
-					'build',
-					'-p', 'ios',
-					'-d', tmpProjectDir,
-					'--no-prompt',
-					'--no-colors',
-					'--no-progress-bars'
-				],
-				cb
-			);
+			const buildArgs = [
+				'build',
+				'-p', 'ios',
+				'-d', tmpProjectDir,
+				'--no-prompt',
+				'--no-colors',
+				'--no-progress-bars'
+			];
+
+			if (this.target) {
+				buildArgs.push('-T', this.target);
+			}
+			if (this.deviceId) {
+				buildArgs.push('-C', this.deviceId);
+			}
+
+			runTiCommand(buildArgs, cb);
 		}
 	], next);
 };

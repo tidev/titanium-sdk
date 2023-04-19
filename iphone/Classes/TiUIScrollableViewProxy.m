@@ -361,7 +361,6 @@
   [super willChangeLayout];
 }
 
-#if IS_SDK_IOS_14
 - (void)setIndicatorImageForPage:(id)args
 {
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
@@ -375,7 +374,7 @@
   NSInteger page = [args[1] integerValue];
   [(TiUIScrollableView *)self.view setIndicatorImage:image forPage:page];
 }
-#endif
+
 @end
 
 #endif
