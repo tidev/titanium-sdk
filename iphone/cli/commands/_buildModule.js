@@ -58,6 +58,9 @@ iOSModuleBuilder.prototype.validate = function validate(logger, config, cli) {
 
 	this.buildOnly     = cli.argv['build-only'];
 	this.xcodeEnv      = null;
+	this.target        = cli.argv['target'];
+	this.deviceId      = cli.argv['device-id'];
+
 	const sdkModuleAPIVersion = cli.sdk.manifest && cli.sdk.manifest.moduleAPIVersion && cli.sdk.manifest.moduleAPIVersion['iphone'];
 	if (this.manifest.apiversion && sdkModuleAPIVersion && this.manifest.apiversion !== sdkModuleAPIVersion) {
 		logger.error(__('The module manifest apiversion is currently set to %s', this.manifest.apiversion));
@@ -1078,17 +1081,23 @@ iOSModuleBuilder.prototype.runModule = function runModule(cli, next) {
 		function (cb) {
 			// 6. run the app
 			this.logger.debug(__('Running example project...', tmpDir.cyan));
-			runTiCommand(
-				[
-					'build',
-					'-p', 'ios',
-					'-d', tmpProjectDir,
-					'--no-prompt',
-					'--no-colors',
-					'--no-progress-bars'
-				],
-				cb
-			);
+			const buildArgs = [
+				'build',
+				'-p', 'ios',
+				'-d', tmpProjectDir,
+				'--no-prompt',
+				'--no-colors',
+				'--no-progress-bars'
+			];
+
+			if (this.target) {
+				buildArgs.push('-T', this.target);
+			}
+			if (this.deviceId) {
+				buildArgs.push('-C', this.deviceId);
+			}
+
+			runTiCommand(buildArgs, cb);
 		}
 	], next);
 };
