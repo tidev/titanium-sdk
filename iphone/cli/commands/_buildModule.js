@@ -1091,12 +1091,10 @@ iOSModuleBuilder.prototype.runModule = function runModule(cli, next) {
 			];
 
 			if (this.target) {
-				buildArgs.push('-T');
-				buildArgs.push(this.target);
+				buildArgs.push('-T', this.target);
 			}
 			if (this.deviceId) {
-				buildArgs.push('-C');
-				buildArgs.push(this.deviceId);
+				buildArgs.push('-C', this.deviceId);
 			}
 
 			runTiCommand(buildArgs, cb);
