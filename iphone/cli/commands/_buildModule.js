@@ -918,7 +918,7 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 			dest.directory(
 				this.platformDir,
 				path.join(moduleFolders, 'platform'),
-				entryData => entryData.name === 'README.md' ? false : entryData
+				(entryData) => entryData.name === 'README.md' ? false : entryData
 			);
 		}
 
