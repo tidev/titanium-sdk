@@ -915,7 +915,11 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 
 		// 3. platform folder
 		if (fs.existsSync(this.platformDir)) {
-			dest.directory(this.platformDir, path.join(moduleFolders, 'platform'));
+			dest.directory(
+				this.platformDir,
+				path.join(moduleFolders, 'platform'),
+				entryData => entryData.name === 'README.md' ? false : entryData
+			);
 		}
 
 		// 4. hooks folder
