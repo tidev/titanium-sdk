@@ -793,6 +793,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 {
   pthread_mutex_lock(&KrollEntryLock);
   context = JSGlobalContextCreate(NULL);
+  JSGlobalContextSetInspectable(context, true);
   JSObjectRef globalRef = JSContextGetGlobalObject(context);
 
   if (appJsKrollContext == nil) {
