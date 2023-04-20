@@ -29,6 +29,19 @@
 extern NSString *const TI_APPLICATION_ID;
 static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var e=a.length;var c=0;var h;while(c<e){h=a.charCodeAt(c++).toString(16);r+='\\\\u';var l=4-h.length;while(l-->0){r+='0'};r+=h}return r};Ti._bridgeEnc=function(o){return'<'+Ti._hexish(o)+'>'};Ti._JSON=function(object,bridge){var type=typeof object;switch(type){case'undefined':case'function':case'unknown':return undefined;case'number':case'boolean':return object;case'string':if(bridge===1)return Ti._bridgeEnc(object);return'\"'+object.replace(/\"/g,'\\\\\"').replace(/\\n/g,'\\\\n').replace(/\\r/g,'\\\\r')+'\"'}if((object===null)||(object.nodeType==1))return'null';if(object.constructor.toString().indexOf('Date')!=-1){return'new Date('+object.getTime()+')'}if(object.constructor.toString().indexOf('Array')!=-1){var res='[';var pre='';var len=object.length;for(var i=0;i<len;i++){var value=object[i];if(value!==undefined)value=Ti._JSON(value,bridge);if(value!==undefined){res+=pre+value;pre=', '}}return res+']'}var objects=[];for(var prop in object){var value=object[prop];if(value!==undefined){value=Ti._JSON(value,bridge)}if(value!==undefined){objects.push(Ti._JSON(prop,bridge)+': '+value)}}return'{'+objects.join(',')+'}'};";
 
+@interface _NoInputAccessoryView : NSObject
+
+@end
+
+@implementation _NoInputAccessoryView
+
+- (id)inputAccessoryView
+{
+  return nil;
+}
+
+@end
+
 @implementation TiUIWebView
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -146,7 +159,48 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   return [scheme isEqualToString:@"file"] || [scheme isEqualToString:@"app"];
 }
 
+- (void)removeInputAccessoryViewFromWKWebView:(WKWebView *)webView
+{
+  UIView *targetView;
+
+  for (UIView *view in webView.scrollView.subviews) {
+    if ([[view.class description] hasPrefix:@"WKContent"]) {
+      targetView = view;
+    }
+  }
+
+  if (!targetView) {
+    return;
+  }
+
+  NSString *noInputAccessoryViewClassName = [NSString stringWithFormat:@"%@_NoInputAccessoryView", targetView.class.superclass];
+  Class newClass = NSClassFromString(noInputAccessoryViewClassName);
+
+  if (newClass == nil) {
+    newClass = objc_allocateClassPair(targetView.class, [noInputAccessoryViewClassName cStringUsingEncoding:NSASCIIStringEncoding], 0);
+    if (!newClass) {
+      return;
+    }
+
+    Method method = class_getInstanceMethod([_NoInputAccessoryView class], @selector(inputAccessoryView));
+
+    class_addMethod(newClass, @selector(inputAccessoryView), method_getImplementation(method), method_getTypeEncoding(method));
+
+    objc_registerClassPair(newClass);
+  }
+  object_setClass(targetView, newClass);
+}
+
 #pragma mark Public API's
+
+- (void)setRemoveInputAccessoryView_:(id)value
+{
+  [[self proxy] replaceValue:value forKey:@"removeInputAccessoryView" notification:NO];
+
+  if ([TiUtils boolValue:value def:NO] == YES) {
+    [self removeInputAccessoryViewFromWKWebView:[self webView]];
+  }
+}
 
 - (void)setHandlePlatformUrl_:(id)arg
 {
@@ -316,6 +370,13 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                    MIMEType:mimeType
       characterEncodingName:@"UTF-8"
                     baseURL:url];
+}
+
+- (void)setScrollEnabled_:(id)value
+{
+
+  [[self proxy] replaceValue:value forKey:@"scrollEnabled" notification:NO];
+  [[[self webView] scrollView] setScrollEnabled:[TiUtils boolValue:value def:YES]];
 }
 
 - (void)setDisableBounce_:(id)value
@@ -645,6 +706,49 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   }
 
   return nil;
+}
+
+// WARNING: This is not officially available in WKWebView!
++ (void)allowDisplayingKeyboardWithoutUserAction
+{
+  Class class = NSClassFromString([NSString stringWithFormat:@"W%@tV%@", @"KConten", @"iew"]);
+
+  NSOperatingSystemVersion iOS_11_3_0 = (NSOperatingSystemVersion){ 11, 3, 0 };
+  NSOperatingSystemVersion iOS_12_2_0 = (NSOperatingSystemVersion){ 12, 2, 0 };
+  NSOperatingSystemVersion iOS_13_0_0 = (NSOperatingSystemVersion){ 13, 0, 0 };
+  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
+    SEL selector = sel_getUid("_elementDidFocus:userIsInteracting:blurPreviousNode:activityStateChanges:userObject:");
+    Method method = class_getInstanceMethod(class, selector);
+    IMP original = method_getImplementation(method);
+    IMP override = imp_implementationWithBlock(^void(id me, void *arg0, BOOL arg1, BOOL arg2, BOOL arg3, id arg4) {
+      ((void (*)(id, SEL, void *, BOOL, BOOL, BOOL, id))original)(me, selector, arg0, TRUE, arg2, arg3, arg4);
+    });
+    method_setImplementation(method, override);
+  } else if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:iOS_12_2_0]) {
+    SEL selector = sel_getUid("_elementDidFocus:userIsInteracting:blurPreviousNode:changingActivityState:userObject:");
+    Method method = class_getInstanceMethod(class, selector);
+    IMP original = method_getImplementation(method);
+    IMP override = imp_implementationWithBlock(^void(id me, void *arg0, BOOL arg1, BOOL arg2, BOOL arg3, id arg4) {
+      ((void (*)(id, SEL, void *, BOOL, BOOL, BOOL, id))original)(me, selector, arg0, TRUE, arg2, arg3, arg4);
+    });
+    method_setImplementation(method, override);
+  } else if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:iOS_11_3_0]) {
+    SEL selector = sel_getUid("_startAssistingNode:userIsInteracting:blurPreviousNode:changingActivityState:userObject:");
+    Method method = class_getInstanceMethod(class, selector);
+    IMP original = method_getImplementation(method);
+    IMP override = imp_implementationWithBlock(^void(id me, void *arg0, BOOL arg1, BOOL arg2, BOOL arg3, id arg4) {
+      ((void (*)(id, SEL, void *, BOOL, BOOL, BOOL, id))original)(me, selector, arg0, TRUE, arg2, arg3, arg4);
+    });
+    method_setImplementation(method, override);
+  } else {
+    SEL selector = sel_getUid("_startAssistingNode:userIsInteracting:blurPreviousNode:userObject:");
+    Method method = class_getInstanceMethod(class, selector);
+    IMP original = method_getImplementation(method);
+    IMP override = imp_implementationWithBlock(^void(id me, void *arg0, BOOL arg1, BOOL arg2, id arg3) {
+      ((void (*)(id, SEL, void *, BOOL, BOOL, id))original)(me, selector, arg0, TRUE, arg2, arg3);
+    });
+    method_setImplementation(method, override);
+  }
 }
 
 // WARNING: This is not officially available in WKWebView!

@@ -1013,6 +1013,26 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "2.0.0", ipad: "2.0.0", macos: "9.2.0"}
 
+  - name: scrollEnabled
+    summary: |
+        Determines whether the view can be scrolled.
+    description: |
+        Set to `false` to disable the scrolling.
+    type: Boolean
+    default: true
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "12.2.0", ipad: "12.2.0", macos: "12.2.0"}
+
+  - name: removeInputAccessoryView
+    summary: |
+        Determines whether the view will show the InputAccessoryView.
+    description: |
+        Set to `true` to disable the InputAccessoryView.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "12.2.0", ipad: "12.2.0", macos: "12.2.0"}
+
   - name: enableZoomControls
     summary: If `true`, zoom controls are enabled.
     type: Boolean
