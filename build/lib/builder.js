@@ -78,6 +78,7 @@ class Builder {
 	 * @param {boolean} [options.select=false] select the built SDK in Ti CLI after install?
 	 * @param {boolean} [options.skipZip] Optionally skip zipping up the result
 	 * @param {boolean} [options.docs] Generate docs?
+	 * @param {boolean} [options.onlyFailedTests] only show failed tests
 	 * @param {string[]} [platforms] command line arguments (platform listing)
 	 */
 	constructor(options, platforms) {
@@ -97,6 +98,7 @@ class Builder {
 
 		this.options = options;
 		this.options.timestamp = utils.timestamp();
+		this.options.onlyFailedTests = options.onlyFailed || false;
 		this.options.versionTag = options.versionTag || options.sdkVersion;
 	}
 
