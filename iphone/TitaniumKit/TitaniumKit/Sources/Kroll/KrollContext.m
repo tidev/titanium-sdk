@@ -793,9 +793,12 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 {
   pthread_mutex_lock(&KrollEntryLock);
   context = JSGlobalContextCreate(NULL);
-  // Ensure that the JSContext is debuggable
+  // Ensure that the JSContext is debuggable on newer iOS versions, but only in non-production builds
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160400
-  JSGlobalContextSetInspectable(context, true);
+  BOOL isProduction = [TiApp.tiAppProperties[@"ti.deploytype"] isEqualToString:@"production"];
+  if (!isProduction) {
+    JSGlobalContextSetInspectable(context, YES);
+  }
 #endif
   JSObjectRef globalRef = JSContextGetGlobalObject(context);
 
