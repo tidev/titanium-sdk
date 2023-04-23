@@ -69,7 +69,7 @@
     "test:ipad": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F ipad",
     "test:mac": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -T macos",
     "test:integration": "node ./build/scons test",
-    "test:integration:onlyFailed": "node ./build/scons test --only-failed true"
+    "test:integration:onlyFailed": "node ./build/scons test --only-failed"
   },
   "commitlint": {
     "extends": [
