@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) NSString *applicationDescription;
 
 /**
- Deploy type of the application, e.g. "development", currently **unused**.
+ Deploy type of the application, e.g. "development", "test" or "production"
  */
 @property (nonatomic, strong, nullable) NSString *applicationDeployType;
 

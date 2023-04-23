@@ -793,10 +793,6 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 {
   pthread_mutex_lock(&KrollEntryLock);
   context = JSGlobalContextCreate(NULL);
-  // Ensure that the JSContext is debuggable
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160400
-  JSGlobalContextSetInspectable(context, true);
-#endif
   JSObjectRef globalRef = JSContextGetGlobalObject(context);
 
   if (appJsKrollContext == nil) {
