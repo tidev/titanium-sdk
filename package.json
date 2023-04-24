@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "TiDev Titanium Mobile",
-  "version": "12.1.0",
+  "version": "12.1.1",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
