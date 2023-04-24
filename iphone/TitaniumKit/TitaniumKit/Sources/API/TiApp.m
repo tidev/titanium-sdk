@@ -248,6 +248,15 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
       }
       [_queuedApplicationSelectors removeAllObjects];
     }
+
+    // Ensure that the JSContext is debuggable during development
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 160400
+    BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
+
+    if (!isProduction) {
+      JSGlobalContextSetInspectable([[(KrollBridge *)bridge krollContext] context], YES);
+    }
+#endif
   }
 }
 
