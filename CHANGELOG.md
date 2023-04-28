@@ -1,3 +1,32 @@
+## [12.1.1](https://github.com/tidev/titanium_mobile/compare/12_1_0_GA...12.1.1) (2023-04-28)
+
+## About this release
+
+Titanium SDK 12.1.1 is a patch release of the SDK, addressing high-priority issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release (12.1.0) is no longer supported.
+
+## Bug Fixes
+
+### iOS platform
+
+* Hans Knöchel
+  * fix: restore support for Xcode < 14.3 ([a08e0ec](https://github.com/tidev/titanium_mobile/commit/a08e0ec95ab6803b1ffbc63fd498e265f6888c2a))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 12.0.0 | 13.0.0 |
+| ti.map | 5.5.1 | 7.0.0 |
+| ti.webdialog | 2.2.0 | 3.0.2 |
+| ti.playservices | 18.2.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.4 | 7.0.4 |
+
 # [12.1.0](https://github.com/tidev/titanium_mobile/compare/12_0_X...12.1.0) (2023-04-24)
 
 ## About this release
