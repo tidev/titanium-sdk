@@ -586,9 +586,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (cameraOptions.containsKeyAndNotNull("targetImageHeight")) {
 			TiCameraXActivity.targetResolutionHeight = cameraOptions.getInt("targetImageHeight");
 		}
-		if (cameraOptions.containsKeyAndNotNull("useCameraX")) {
-			useCameraX = cameraOptions.getBoolean("useCameraX");
-		}
 
 		// VIDEO
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_DURATION)) {
@@ -695,9 +692,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 
 		Object overlay = cameraOptions.get(PROP_OVERLAY);
+		if (cameraOptions.containsKeyAndNotNull("useCameraX")) {
+			useCameraX = cameraOptions.getBoolean("useCameraX");
+		}
 
 		if ((overlay != null) && (overlay instanceof TiViewProxy)) {
 			if (useCameraX) {
+				Log.d(TAG, "Use CameraX");
 				launchCameraXActivity(cameraOptions, (TiViewProxy) overlay);
 			} else {
 				launchCameraActivity(cameraOptions, (TiViewProxy) overlay);

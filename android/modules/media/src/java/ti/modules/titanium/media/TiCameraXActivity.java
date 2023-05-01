@@ -27,7 +27,6 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
@@ -94,8 +93,8 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static int videoMaximumDuration = 0;
 	public static long videoMaximumSize = 0;
 	public static int videoQuality = MediaModule.QUALITY_HD;
-	public static int aspectRatio = AspectRatio.RATIO_4_3;
-	public static int scalingMode = MediaModule.IMAGE_SCALING_ASPECT_FIT;
+	public static int aspectRatio = -1;
+	public static int scalingMode = -1;
 	public static int verticalAlign = MediaModule.VERTICAL_ALIGN_CENTER;
 	static Recording recording;
 	static PendingRecording pendingRecording;
@@ -379,16 +378,18 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 
 			layout = (FrameLayout) activity.getLayoutInflater().inflate(idLayout, null, false);
 			viewFinder = layout.findViewById(idPreview);
-			if (scalingMode == MediaModule.IMAGE_SCALING_ASPECT_FIT) {
-				if (verticalAlign == MediaModule.VERTICAL_ALIGN_TOP) {
-					viewFinder.setScaleType(PreviewView.ScaleType.FIT_START);
-				} else if (verticalAlign == MediaModule.VERTICAL_ALIGN_BOTTOM) {
-					viewFinder.setScaleType(PreviewView.ScaleType.FIT_END);
+			if (scalingMode != -1) {
+				if (scalingMode == MediaModule.IMAGE_SCALING_ASPECT_FIT) {
+					if (verticalAlign == MediaModule.VERTICAL_ALIGN_TOP) {
+						viewFinder.setScaleType(PreviewView.ScaleType.FIT_START);
+					} else if (verticalAlign == MediaModule.VERTICAL_ALIGN_BOTTOM) {
+						viewFinder.setScaleType(PreviewView.ScaleType.FIT_END);
+					} else {
+						viewFinder.setScaleType(PreviewView.ScaleType.FIT_CENTER);
+					}
 				} else {
-					viewFinder.setScaleType(PreviewView.ScaleType.FIT_CENTER);
+					viewFinder.setScaleType(PreviewView.ScaleType.FILL_CENTER);
 				}
-			} else {
-				viewFinder.setScaleType(PreviewView.ScaleType.FILL_CENTER);
 			}
 			setContentView(layout);
 			boolean front = whichCamera == MediaModule.CAMERA_FRONT;
@@ -403,7 +404,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		}
 	}
 
-	@SuppressLint({ "RestrictedApi", "CheckResult" })
+	@SuppressLint({ "RestrictedApi", "CheckResult", "WrongConstant" })
 	private void startCamera()
 	{
 		int rotation = getWindowManager().getDefaultDisplay().getRotation();
@@ -412,7 +413,11 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
 		cameraProviderFuture.addListener(() -> {
 			try {
-				preview = new Preview.Builder().setTargetAspectRatio(aspectRatio).build();
+				Preview.Builder pb = new Preview.Builder();
+				if (aspectRatio != -1) {
+					pb.setTargetAspectRatio(aspectRatio);
+				}
+				preview = pb.build();
 				cameraProvider = (ProcessCameraProvider) cameraProviderFuture.get();
 				CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
 
@@ -474,8 +479,11 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					// photo
 					ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder()
 						.setFlashMode(cameraFlashMode)
-						.setTargetAspectRatio(aspectRatio)
 						.setTargetRotation(rotation);
+
+					if (aspectRatio != -1) {
+						imageCaptureBuilder.setTargetAspectRatio(aspectRatio);
+					}
 
 					if (targetResolutionWidth != -1 && targetResolutionHeight != -1) {
 						imageCaptureBuilder.setTargetResolution(
