@@ -661,7 +661,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasPhotoGalleryPermissions()
 	{
-		if (Build.VERSION.SDK_INT >= 31) {
+		if (Build.VERSION.SDK_INT >= 33) {
 			// Android 13+
 			// check for video and image permissions
 			int status_img = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES);
@@ -819,7 +819,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				return;
 			}
 
-			if (Build.VERSION.SDK_INT < 31) {
+			if (Build.VERSION.SDK_INT < 33) {
 				// Show dialog requesting permission.
 				TiBaseActivity.registerPermissionRequestCallback(
 					TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, callbackThisObject, promise);

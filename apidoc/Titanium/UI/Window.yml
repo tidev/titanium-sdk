@@ -645,19 +645,6 @@ events:
         user dismisses the keyboard with the back button or when the
         user closes a full-screen video which is embedded in a web view
         with the back button.
-
-        As of 5.0.0, you can create an event that can prevent accidental closure of the
-        app due to hitting the back button to many times.
-
-        ``` js
-        var win = Ti.UI.createWindow(
-            { // some code... }
-        );
-        // more code
-        win.addEventListener("windows:back", function()
-            { alert("Back pressed"); }
-        );
-        ```
     since: '3.0.0'
 
   - name: androidcamera
