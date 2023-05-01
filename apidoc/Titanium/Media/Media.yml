@@ -1146,28 +1146,28 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: QUALITY_HD
     summary: Media type constant for HD video recording.
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: QUALITY_FHD
     summary: Media type constant for FHD video recording.
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: QUALITY_UHD
     summary: Media type constant for UHD video recording.
     type: Number
     permission: read-only
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording.
@@ -1633,7 +1633,7 @@ properties:
     constants: Titanium.Media.ASPECT_RATIO_*
     default: Titanium.Media.ASPECT_RATIO_4_3
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
     permission: read-only
 
   - name: scalingMode
@@ -1642,7 +1642,7 @@ properties:
     constants: [Titanium.Media.IMAGE_SCALING_ASPECT_FIT, Titanium.Media.IMAGE_SCALING_ASPECT_FILL]
     default: Titanium.Media.IMAGE_SCALING_ASPECT_FILL
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
     permission: read-only
 
   - name: verticalAlign
@@ -1651,7 +1651,15 @@ properties:
     constants: Titanium.Media.VERTICAL_ALIGN_*
     default: Titanium.Media.VERTICAL_ALIGN_CENTER
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
+    permission: read-only
+
+  - name: useCameraX
+    summary: To use the new CameraX classes for "camera with overlay" set `useCameraX` to `true`
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: { android: "12.2.0" }
     permission: read-only
 
   - name: availableCameraMediaTypes
@@ -1967,7 +1975,7 @@ properties:
     summary: Function to call when the camera is shown
     type: Callback<CameraOpen>
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: error
     summary: Function to call upon receiving an error.
@@ -1981,7 +1989,7 @@ properties:
     summary: Function to call during recording. Returns size and duration.
     type: Callback<CameraRecordingCallback>
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: androidback
     summary: Function to call if the user presses the back button.
@@ -2027,7 +2035,7 @@ properties:
     type: Boolean
     platforms: [android]
     default: false
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: targetImageWidth
     summary: |
@@ -2036,7 +2044,7 @@ properties:
     type: Number
     platforms: [android]
     default: false
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: targetImageHeight
     summary: |
@@ -2045,7 +2053,7 @@ properties:
     type: Number
     platforms: [android]
     default: false
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: mediaTypes
     summary: |
@@ -2316,13 +2324,13 @@ properties:
     summary: Width of the preview camera image
     type: Number
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
   - name: height
     summary: Height of the preview camera image
     type: Number
     platforms: [android]
-    since: { android: "12.1.0" }
+    since: { android: "12.2.0" }
 
 ---
 name: PreviewImageOptions
