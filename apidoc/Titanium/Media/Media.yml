@@ -246,11 +246,11 @@ methods:
   - name: pauseVideoCapture
     summary: Pauses video capturing.
     platforms: [android]
-    since: {android: "12.1.0"}
+    since: {android: "12.2.0"}
   - name: resumeVideoCapture
     summary: Resumes video capturing.
     platforms: [android]
-    since: {android: "12.1.0"}
+    since: {android: "12.2.0"}
   - name: switchCamera
     summary: |
         Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
@@ -809,35 +809,35 @@ properties:
     type: Number
     permission: read-only
     platforms: [android]
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: VERTICAL_ALIGN_TOP
     summary: Vertical align center
     type: Number
     permission: read-only
     platforms: [android]
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: VERTICAL_ALIGN_BOTTOM
     summary: Vertical align center
     type: Number
     permission: read-only
     platforms: [android]
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: ASPECT_RATIO_4_3
     summary: Aspect ratio 4:3
     type: Number
     permission: read-only
     platforms: [android]
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: ASPECT_RATIO_16_9
     summary: Aspect ratio 16:9
     type: Number
     permission: read-only
     platforms: [android]
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: CAMERA_FLASH_AUTO
     summary: Constant specifying to have the device determine to use the flash or not.
@@ -1738,7 +1738,7 @@ properties:
     type: Object
     platforms: [android]
     permission: read-only
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: maxZoomLevel
     summary: |
@@ -1746,7 +1746,7 @@ properties:
     type: Number
     platforms: [android]
     permission: read-only
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: minZoomLevel
     summary: |
@@ -1754,7 +1754,7 @@ properties:
     type: Number
     platforms: [android]
     permission: read-only
-    since: "12.1.0"
+    since: "12.2.0"
 
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
@@ -1785,14 +1785,14 @@ properties:
     type: Boolean
     platforms: [android]
     since:
-        android: "12.1.0"
+        android: "12.2.0"
 
   - name: zoomLevel
     summary: |
         Sets the zoom level of the camera.
     type: Number
     platforms: [android]
-    since: "12.1.0"
+    since: "12.2.0"
 # Pseudo-type for showMusicLibrary argument
 
 ---

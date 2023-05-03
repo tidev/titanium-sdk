@@ -228,6 +228,8 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				int error = finalizeEvent.getError();
 				if (error != VideoRecordEvent.Finalize.ERROR_NONE) {
 					// error
+					Log.e(TAG, "Error saving video file");
+					return;
 				}
 				Uri uri = finalizeEvent.getOutputResults().getOutputUri();
 
@@ -275,28 +277,33 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 
 		if (cameraActivity.hasAudioRecorderPermissions()) {
 			recording = pendingRecording.withAudioEnabled().start(executor, vre);
-			isRecording = true;
 		} else {
 			recording = pendingRecording.start(executor, vre);
-			isRecording = true;
 		}
+		isRecording = true;
 	}
 
 	public static void pauseVideoCapture()
 	{
-		if (recording != null) recording.pause();
+		if (recording != null) {
+			recording.pause();
+		}
 		isRecording = false;
 	}
 
 	public static void resumeVideoCapture()
 	{
-		if (recording != null) recording.resume();
+		if (recording != null) {
+			recording.resume();
+		}
 		isRecording = true;
 	}
 
 	public static void stopVideoCapture()
 	{
-		if (recording != null) recording.stop();
+		if (recording != null) {
+			recording.stop();
+		}
 		isRecording = false;
 	}
 
