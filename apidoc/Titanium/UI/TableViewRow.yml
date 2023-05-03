@@ -231,8 +231,8 @@ properties:
       This row will always be visible when you filter your content.
     type: Boolean
     default: false
-    platforms: [android]
-    since: {android: "12.1.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: "12.2.0"
 
   - name: font
     summary: Font to use for the row title.
