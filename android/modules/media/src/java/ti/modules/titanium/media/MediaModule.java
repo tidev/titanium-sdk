@@ -41,6 +41,7 @@ import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ContentResolver;
@@ -49,8 +50,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -60,9 +64,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.util.Size;
 import android.view.Window;
 
-@SuppressWarnings("deprecation")
+import androidx.camera.core.AspectRatio;
+
 @Kroll.module
 @ContextSpecific
 public class MediaModule extends KrollModule implements Handler.Callback
@@ -153,6 +159,15 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int QUALITY_IFRAME_1280x720 = CamcorderProfile.QUALITY_720P;
 
 	@Kroll.constant
+	public static final int QUALITY_SD = 10;
+	@Kroll.constant
+	public static final int QUALITY_HD = 11;
+	@Kroll.constant
+	public static final int QUALITY_FHD = 12;
+	@Kroll.constant
+	public static final int QUALITY_UHD = 13;
+
+	@Kroll.constant
 	public static final int VIDEO_FINISH_REASON_PLAYBACK_ENDED = 0;
 	@Kroll.constant
 	public static final int VIDEO_FINISH_REASON_PLAYBACK_ERROR = 1;
@@ -185,11 +200,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int CAMERA_REAR = 1;
 	@Kroll.constant
-	public static final int CAMERA_FLASH_OFF = 0;
+	public static final int CAMERA_FLASH_AUTO = 0;
 	@Kroll.constant
 	public static final int CAMERA_FLASH_ON = 1;
 	@Kroll.constant
-	public static final int CAMERA_FLASH_AUTO = 2;
+	public static final int CAMERA_FLASH_OFF = 2;
 
 	@Kroll.constant
 	public static final int AUDIO_STATE_BUFFERING = 0; // current playback is in the buffering from the network state
@@ -206,14 +221,25 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.constant
 	public static final int AUDIO_STATE_STOPPING = 6; // current playback is in the stopping state
 	@Kroll.constant
-	public static final int AUDIO_STATE_WAITING_FOR_DATA =
-		7; // current playback is in the waiting for audio data from the network state
+	public static final int AUDIO_STATE_WAITING_FOR_DATA = 7; // current playback is in the waiting for audio data from the network state
 	@Kroll.constant
-	public static final int AUDIO_STATE_WAITING_FOR_QUEUE =
-		8; //  current playback is in the waiting for audio data to fill the queue state
+	public static final int AUDIO_STATE_WAITING_FOR_QUEUE = 8; //  current playback is in the waiting for audio data to fill the queue state
+
+	@Kroll.constant
+	public static final int ASPECT_RATIO_4_3 = AspectRatio.RATIO_4_3;
+	@Kroll.constant
+	public static final int ASPECT_RATIO_16_9 = AspectRatio.RATIO_16_9;
+
+	@Kroll.constant
+	public static final int VERTICAL_ALIGN_CENTER = 0;
+	@Kroll.constant
+	public static final int VERTICAL_ALIGN_TOP = 1;
+	@Kroll.constant
+	public static final int VERTICAL_ALIGN_BOTTOM = 2;
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
+	private boolean useCameraX = false;
 
 	public MediaModule()
 	{
@@ -224,6 +250,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 	}
 
+	@SuppressLint("MissingPermission")
 	@Kroll.method
 	public void vibrate(@Kroll.argument(optional = true) long[] pattern)
 	{
@@ -233,6 +260,43 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		Vibrator vibrator = (Vibrator) TiApplication.getInstance().getSystemService(Context.VIBRATOR_SERVICE);
 		if (vibrator != null) {
 			vibrator.vibrate(pattern, -1);
+		}
+	}
+
+	@SuppressLint("MissingPermission")
+	@Kroll.getProperty
+	public KrollDict[] getCameraOutputSizes()
+	{
+		CameraManager cameraManager =
+			(CameraManager) TiApplication.getInstance().getSystemService(Context.CAMERA_SERVICE);
+		try {
+			String[] cameraIds = cameraManager.getCameraIdList();
+			KrollDict[] kdOut = new KrollDict[cameraIds.length];
+			int camCount = 0;
+			for (String cameraId : cameraIds) {
+				CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+				Size[] sizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+					.getOutputSizes(ImageFormat.JPEG);
+
+				KrollDict[] kdCamera = new KrollDict[sizes.length];
+				int resCount = 0;
+				for (Size s : sizes) {
+					KrollDict kd = new KrollDict();
+					kd.put("width", s.getWidth());
+					kd.put("height", s.getHeight());
+					kdCamera[resCount] = kd;
+					resCount++;
+				}
+				KrollDict kdCam = new KrollDict();
+				kdCam.put("cameraType", characteristics.get(CameraCharacteristics.LENS_FACING)
+					.equals(CameraCharacteristics.LENS_FACING_FRONT) ? "front" : "back");
+				kdCam.put("values", kdCamera);
+				kdOut[camCount] = kdCam;
+				camCount++;
+			}
+			return kdOut;
+		} catch (Exception e) {
+			return null;
 		}
 	}
 
@@ -246,12 +310,16 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		String[] mediaTypes = null;
 		String intentType = MediaStore.ACTION_IMAGE_CAPTURE;
 		int videoMaximumDuration = 0;
+		long videoMaximumSize = 0;
 		int videoQuality = QUALITY_HIGH;
 		int cameraType = 0;
 		boolean isVideo = false;
 		MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_DURATION)) {
 			videoMaximumDuration = cameraOptions.getInt(TiC.PROPERTY_VIDEO_MAX_DURATION) / 1000;
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_SIZE)) {
+			videoMaximumSize = Long.parseLong(cameraOptions.getString(TiC.PROPERTY_VIDEO_MAX_SIZE));
 		}
 		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_WHICH_CAMERA)) {
 			cameraType = cameraOptions.getInt(TiC.PROPERTY_WHICH_CAMERA);
@@ -318,7 +386,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (videoMaximumDuration > 0) {
 			intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, videoMaximumDuration);
 		}
-
+		if (videoMaximumSize > 0) {
+			intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, videoMaximumSize);
+		}
 		// Show the default camera app's activity for capturing a photo/video.
 		int requestCode = activitySupport.getUniqueResultCode();
 		activitySupport.launchActivityForResult(intent, requestCode, new TiActivityResultHandler() {
@@ -465,6 +535,95 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		activity.startActivity(intent);
 	}
 
+	private void launchCameraXActivity(KrollDict cameraOptions, TiViewProxy overLayProxy)
+	{
+		String[] mediaTypes = null;
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)) {
+			TiCameraXActivity.successCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_SUCCESS);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_OPEN)) {
+			TiCameraXActivity.openCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_OPEN);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CANCEL)) {
+			TiCameraXActivity.cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ERROR)) {
+			TiCameraXActivity.errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.EVENT_ANDROID_BACK)) {
+			TiCameraXActivity.androidbackCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ANDROID_BACK);
+		}
+		if (cameraOptions.containsKeyAndNotNull("recording")) {
+			TiCameraXActivity.recordingCallback = (KrollFunction) cameraOptions.get("recording");
+		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOSAVE)) {
+			TiCameraXActivity.saveToPhotoGallery = cameraOptions.getBoolean(PROP_AUTOSAVE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOHIDE)) {
+			TiCameraXActivity.autohide = cameraOptions.getBoolean(PROP_AUTOHIDE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_CAMERA_FLASH_MODE)) {
+			TiCameraXActivity.cameraFlashMode = cameraOptions.getInt(TiC.PROPERTY_CAMERA_FLASH_MODE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_WHICH_CAMERA)) {
+			TiCameraXActivity.whichCamera = cameraOptions.getInt(TiC.PROPERTY_WHICH_CAMERA);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_ZOOM_ENABLED)) {
+			TiCameraXActivity.allowZoom = cameraOptions.getBoolean(TiC.PROPERTY_ZOOM_ENABLED);
+		}
+		if (cameraOptions.containsKeyAndNotNull("aspectRatio")) {
+			TiCameraXActivity.aspectRatio = cameraOptions.getInt("aspectRatio");
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_SCALING_MODE)) {
+			TiCameraXActivity.scalingMode = cameraOptions.getInt(TiC.PROPERTY_SCALING_MODE);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VERTICAL_ALIGN)) {
+			TiCameraXActivity.verticalAlign = cameraOptions.getInt(TiC.PROPERTY_VERTICAL_ALIGN);
+		}
+		if (cameraOptions.containsKeyAndNotNull("targetImageWidth")) {
+			TiCameraXActivity.targetResolutionWidth = cameraOptions.getInt("targetImageWidth");
+		}
+		if (cameraOptions.containsKeyAndNotNull("targetImageHeight")) {
+			TiCameraXActivity.targetResolutionHeight = cameraOptions.getInt("targetImageHeight");
+		}
+
+		// VIDEO
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_DURATION)) {
+			TiCameraXActivity.videoMaximumDuration = cameraOptions.getInt(TiC.PROPERTY_VIDEO_MAX_DURATION);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_MAX_SIZE)) {
+			TiCameraXActivity.videoMaximumSize = Long.parseLong(cameraOptions.getString(TiC.PROPERTY_VIDEO_MAX_SIZE));
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_WHICH_CAMERA)) {
+			TiCameraXActivity.whichCamera = cameraOptions.getInt(TiC.PROPERTY_WHICH_CAMERA);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_VIDEO_QUALITY)) {
+			TiCameraXActivity.videoQuality = cameraOptions.getInt(TiC.PROPERTY_VIDEO_QUALITY);
+		}
+		if (cameraOptions.containsKeyAndNotNull(TiC.PROPERTY_MEDIA_TYPES)) {
+			mediaTypes = cameraOptions.getStringArray(TiC.PROPERTY_MEDIA_TYPES);
+		}
+
+		if ((mediaTypes != null) && Arrays.asList(mediaTypes).contains(MEDIA_TYPE_VIDEO)) {
+			MediaModule.mediaType = MEDIA_TYPE_VIDEO;
+		} else {
+			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
+		}
+
+		TiCameraXActivity.mediaType = MediaModule.mediaType;
+		TiCameraXActivity.callbackContext = getKrollObject();
+		TiCameraXActivity.overlayProxy = overLayProxy;
+
+		if (MediaModule.mediaType == MEDIA_TYPE_VIDEO && !hasAudioRecorderPermissions()) {
+			Log.w(TAG, "Audio permission is required to record video with sound");
+		}
+
+		//Create Intent and Launch
+		Activity activity = TiApplication.getInstance().getCurrentActivity();
+		Intent intent = new Intent(activity, TiCameraXActivity.class);
+		activity.startActivity(intent);
+	}
+
 	@Kroll.method
 	public boolean hasCameraPermissions()
 	{
@@ -499,7 +658,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasPhotoGalleryPermissions()
 	{
-		if (Build.VERSION.SDK_INT >= 31) {
+		if (Build.VERSION.SDK_INT >= 33) {
 			// Android 13+
 			// check for video and image permissions
 			int status_img = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES);
@@ -533,14 +692,23 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 
 		Object overlay = cameraOptions.get(PROP_OVERLAY);
+		if (cameraOptions.containsKeyAndNotNull("useCameraX")) {
+			useCameraX = cameraOptions.getBoolean("useCameraX");
+		}
 
 		if ((overlay != null) && (overlay instanceof TiViewProxy)) {
-			launchCameraActivity(cameraOptions, (TiViewProxy) overlay);
+			if (useCameraX) {
+				Log.d(TAG, "Use CameraX");
+				launchCameraXActivity(cameraOptions, (TiViewProxy) overlay);
+			} else {
+				launchCameraActivity(cameraOptions, (TiViewProxy) overlay);
+			}
 		} else {
 			launchNativeCamera(cameraOptions);
 		}
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestCameraPermissions(
 		@Kroll.argument(optional = true) KrollFunction permissionCallback)
@@ -621,6 +789,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		});
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestPhotoGalleryPermissions(
 		@Kroll.argument(optional = true) KrollFunction permissionCallback)
@@ -651,7 +820,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				return;
 			}
 
-			if (Build.VERSION.SDK_INT < 31) {
+			if (Build.VERSION.SDK_INT < 33) {
 				// Show dialog requesting permission.
 				TiBaseActivity.registerPermissionRequestCallback(
 					TiC.PERMISSION_CODE_EXTERNAL_STORAGE, permissionCallback, callbackThisObject, promise);
@@ -778,10 +947,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void hideCamera()
 	{
 		// make sure the preview / camera are open before trying to hide
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.hide();
+		if (useCameraX) {
+			if (TiCameraXActivity.cameraActivity != null) {
+				TiCameraXActivity.hide();
+			} else {
+				Log.e(TAG, "Camera preview is not open, unable to hide");
+			}
 		} else {
-			Log.e(TAG, "Camera preview is not open, unable to hide");
+			if (TiCameraActivity.cameraActivity != null) {
+				TiCameraActivity.hide();
+			} else {
+				Log.e(TAG, "Camera preview is not open, unable to hide");
+			}
 		}
 	}
 
@@ -880,13 +1057,33 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.setProperty
 	public void setCameraFlashMode(int flashMode)
 	{
-		TiCameraActivity.setFlashMode(flashMode);
+		if (useCameraX) {
+			TiCameraXActivity.setFlashMode(flashMode);
+		} else {
+			TiCameraActivity.setFlashMode(flashMode);
+		}
+	}
+
+	@Kroll.setProperty
+	public void setTorch(Boolean value)
+	{
+		TiCameraXActivity.setTorch(value);
+	}
+
+	@Kroll.getProperty
+	public Boolean getTorch()
+	{
+		return TiCameraXActivity.torchEnabled;
 	}
 
 	@Kroll.getProperty
 	public int getCameraFlashMode()
 	{
-		return TiCameraActivity.cameraFlashMode;
+		if (useCameraX) {
+			return TiCameraXActivity.cameraFlashMode;
+		} else {
+			return TiCameraActivity.cameraFlashMode;
+		}
 	}
 
 	@Kroll.method
@@ -1384,10 +1581,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void takePicture()
 	{
 		// make sure the preview / camera are open before trying to take photo
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.takePicture();
+		if (useCameraX) {
+			if (TiCameraXActivity.cameraActivity != null) {
+				TiCameraXActivity.takePicture();
+			} else {
+				Log.e(TAG, "Camera preview is not open, unable to take photo");
+			}
 		} else {
-			Log.e(TAG, "Camera preview is not open, unable to take photo");
+			if (TiCameraActivity.cameraActivity != null) {
+				TiCameraActivity.takePicture();
+			} else {
+				Log.e(TAG, "Camera preview is not open, unable to take photo");
+			}
 		}
 	}
 
@@ -1395,8 +1600,38 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void startVideoCapture()
 	{
 		// make sure the preview / camera are open before trying to take photo
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.startVideoCapture();
+		if (useCameraX) {
+			if (TiCameraXActivity.cameraActivity != null) {
+				TiCameraXActivity.startVideoCapture();
+			} else {
+				Log.e(TAG, "Camera preview is not open, unable to take photo");
+			}
+		} else {
+			if (TiCameraActivity.cameraActivity != null) {
+				TiCameraActivity.startVideoCapture();
+			} else {
+				Log.e(TAG, "Camera preview is not open, unable to take photo");
+			}
+		}
+	}
+
+	@Kroll.method
+	public void pauseVideoCapture()
+	{
+		// make sure the preview / camera are open before trying to take photo
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.pauseVideoCapture();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+	}
+
+	@Kroll.method
+	public void resumeVideoCapture()
+	{
+		// make sure the preview / camera are open before trying to take photo
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.resumeVideoCapture();
 		} else {
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
@@ -1406,24 +1641,65 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public void stopVideoCapture()
 	{
 		// make sure the preview / camera are open before trying to take photo
-		if (TiCameraActivity.cameraActivity != null) {
-			TiCameraActivity.stopVideoCapture();
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.stopVideoCapture();
 		} else {
 			Log.e(TAG, "Camera preview is not open, unable to take photo");
 		}
 	}
 
+	@Kroll.setProperty
+	public void zoomLevel(float value)
+	{
+		if (TiCameraXActivity.cameraActivity != null) {
+			TiCameraXActivity.setZoomLevel(value);
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+	}
+
+	@Kroll.getProperty
+	public float maxZoomLevel()
+	{
+		if (TiCameraXActivity.cameraActivity != null) {
+			return TiCameraXActivity.getMaxZoom();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+		return 0;
+	}
+
+	@Kroll.getProperty
+	public float minZoomLevel()
+	{
+		if (TiCameraXActivity.cameraActivity != null) {
+			return TiCameraXActivity.getMinZoom();
+		} else {
+			Log.e(TAG, "Camera preview is not open, unable to take photo");
+		}
+		return 0;
+	}
+
 	@Kroll.method
 	public void switchCamera(int whichCamera)
 	{
-		TiCameraActivity activity = TiCameraActivity.cameraActivity;
+		if (useCameraX) {
+			TiCameraXActivity activity = TiCameraXActivity.cameraActivity;
 
-		if (activity == null || !activity.isPreviewRunning()) {
-			Log.e(TAG, "Camera preview is not open, unable to switch camera.");
-			return;
+			if (activity == null) {
+				Log.e(TAG, "Camera preview is not open, unable to switch camera.");
+				return;
+			}
+
+			activity.switchCamera(whichCamera);
+		} else {
+			TiCameraActivity activity = TiCameraActivity.cameraActivity;
+
+			if (activity == null || !activity.isPreviewRunning()) {
+				Log.e(TAG, "Camera preview is not open, unable to switch camera.");
+				return;
+			}
 		}
-
-		activity.switchCamera(whichCamera);
 	}
 
 	@Kroll.getProperty

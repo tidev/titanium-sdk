@@ -96,7 +96,7 @@ public class TiUICollapseToolbar extends TiUIView
 
 			setNativeView(layout);
 		} catch (Exception e) {
-			Log.i(TAG, "Layout error: " + e.getMessage());
+			Log.e(TAG, "Layout error: " + e.getMessage());
 		}
 	}
 
