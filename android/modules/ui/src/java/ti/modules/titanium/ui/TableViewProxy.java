@@ -190,7 +190,6 @@ public class TableViewProxy extends RecyclerViewProxy
 					row.getProperties().getString(TiC.PROPERTY_FOOTER)));
 
 			// Add row to section.
-			row.setParent(section);
 			section.add(row);
 		}
 
