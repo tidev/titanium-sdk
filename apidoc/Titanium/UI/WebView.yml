@@ -41,17 +41,16 @@ description: |
     ```js
     webview.evalJS(
       'javascript=(function addBinding(){' +
-        'var s=document.createElement("script");' +
-        's.setAttribute("type","text/javascript");' +
-        's.innerHTML="' + require('/binding.js') + '";'
-        +
-        'document.getElementsByTagName("body")[0].appendChild(s);' +
+      'var s=document.createElement("script");' +
+      's.setAttribute("type","text/javascript");' +
+      's.innerHTML="var Ti={_event_listeners:[],createEventListener:function(b){b={listener:b,systemId:-1,index:this._event_listeners.length};this._event_listeners.push(b);return b},getEventListenerByKey:function(b,c){for(var a=0;a<this._event_listeners.length;a++)if(this._event_listeners[a][b]==c)return this._event_listeners[a];return null},API:TiAPI,App:{addEventListener:function(b,c){var a=Ti.createEventListener(c);a.systemId=TiApp.addEventListener(b,a.index);return a.systemId},removeEventListener:function(b,c){if(\'number\'==typeof c){TiApp.removeEventListener(b,c);var a=Ti.getEventLisenerByKey(\'systemId\',c);null!==a&&Ti._event_listeners.splice(a.index,1)}else a=Ti.getEventListenerByKey(\'listener\',c),null!==a&&(TiApp.removeEventListener(b,a.systemId),Ti._event_listeners.splice(a.index,1))},fireEvent:function(b,c){TiApp.fireEvent(b,JSON.stringify(c))}},executeListener:function(b,c){var a=this.getEventListenerByKey(\'index\',b);null!==a&&a.listener.call(a.listener,c)}},Titanium=Ti;";' +
+      'document.getElementsByTagName("body")[0].appendChild(s);' +
       '})()'
     );
     ```
-    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+    The innerHTML content is the `binding.min.js` file available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
 
-    For iOS check the example in <Titanium.UI.WebView.addScriptMessageHandler>.
+    After you've injected the code you can use `Ti.App.fireEvent` in your remote file to communicate with your app. For <b>iOS</b> you have to register `webview.addScriptMessageHandler('_Ti_');` or have a look at the example in <Titanium.UI.WebView.addScriptMessageHandler> for custom handler names.
 
     #### Local JavaScript Files
 
