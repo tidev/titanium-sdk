@@ -435,9 +435,9 @@ methods:
         Connection to the webview:
         ```js
         webView.addScriptMessageHandler('yourHandlerName');
-        webView.addEventListener('message', ({ name }) => {
+        webView.addEventListener('message', ({ name, body }) => {
             if (name === 'yourHandlerName') {
-                console.log(e.body.message);
+                console.log(body.message);
             }
         });
         ```
