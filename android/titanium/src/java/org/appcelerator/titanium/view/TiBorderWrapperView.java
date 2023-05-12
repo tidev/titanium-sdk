@@ -42,7 +42,6 @@ public class TiBorderWrapperView extends FrameLayout
 	private Paint paint;
 	private Rect bounds;
 	private ViewOutlineProvider viewOutlineProvider;
-
 	public TiBorderWrapperView(Context context)
 	{
 		super(context);

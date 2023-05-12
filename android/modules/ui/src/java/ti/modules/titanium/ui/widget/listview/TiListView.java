@@ -689,8 +689,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
+				boolean alwaysInclude = item.getProperties()
+					.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 				// Handle search query.
-				if (query != null) {
+				if (query != null && !alwaysInclude) {
 					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
 					if (searchableText != null) {
 						if (caseInsensitive) {
@@ -764,6 +766,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		//        This can be reproduced when setting a Ti.UI.TextField in the Ti.UI.ListView.headerView for search.
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
+
+		// The activity may be not available anymore, e.g. when a HTTP request started to update the list, but the containing window
+		// was closed before the operation could be completed.
+		if (activity == null) {
+			return;
+		}
 
 		activity.runOnUiThread(new Runnable()
 		{

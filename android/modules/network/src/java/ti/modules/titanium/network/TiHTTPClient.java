@@ -492,6 +492,11 @@ public class TiHTTPClient
 	private String decodeResponseData(String charsetName)
 	{
 		Charset charset;
+
+		if (charsetName.isEmpty()) {
+			return null;
+		}
+
 		try {
 			charset = Charset.forName(charsetName);
 
@@ -1517,7 +1522,7 @@ public class TiHTTPClient
 
 		public void completeSendingMultipart()
 		{
-			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.append("--").append(boundary).append("--").append(LINE_FEED);
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException

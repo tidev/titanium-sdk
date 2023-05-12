@@ -273,6 +273,11 @@
   [[self button] setEnabled:[TiUtils boolValue:value]];
 }
 
+- (void)setTooltip_:(id)value
+{
+  [[self button] setToolTip:[TiUtils stringValue:value]];
+}
+
 - (void)setTitle_:(id)value
 {
   [[self button] setTitle:[TiUtils stringValue:value] forState:UIControlStateNormal];

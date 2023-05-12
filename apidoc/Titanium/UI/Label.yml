@@ -1,7 +1,12 @@
 ---
 name: Titanium.UI.Label
 summary: A text label, with an optional background image.
-description: Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
+description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./label_andorid.png) |  |
+
+    Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
@@ -272,10 +277,21 @@ events:
         summary: This is false. This event does not bubble
         type: Boolean
     platforms: [iphone,ipad, android, macos]
-    osver: {ios: {min: "7.0"}}
     since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
 
 examples:
+  - title: Simple Alloy XML Example
+    example: |
+        Simple label in a Window
+
+        ``` xml
+        <Alloy>
+            <Window>
+                <Label text="Just a label with text"/>
+            </Window>
+        </Alloy>
+        ```
+
   - title: Basic Label
     example: |
         Create a center-aligned label with a text shadow and specified-size font, and another

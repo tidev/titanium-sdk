@@ -594,10 +594,9 @@
         }
       }
 
-      if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-        forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
-        theController.modalInPresentation = forceModal;
-      }
+      forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
+      theController.modalInPresentation = forceModal;
+
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] showModalController:theController animated:animated];
     } else {

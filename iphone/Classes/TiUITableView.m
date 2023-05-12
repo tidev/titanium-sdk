@@ -55,7 +55,9 @@
 
 - (void)dealloc
 {
-  [proxy setCallbackCell:nil];
+  if (proxy != nil && [proxy callbackCell] == self) {
+    [proxy setCallbackCell:nil];
+  }
 
   RELEASE_TO_NIL(proxy);
   RELEASE_TO_NIL(gradientLayer);
@@ -1355,7 +1357,8 @@
     int cellIndex = 0;
     for (TiUITableViewRowProxy *row in [thisSection rows]) {
       id value = [row valueForKey:ourSearchAttribute];
-      if (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound) {
+      BOOL alwaysInclude = [TiUtils boolValue:[row valueForKey:@"filterAlwaysInclude"] def:NO];
+      if (alwaysInclude || (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound)) {
         [thisIndexSet addIndex:cellIndex];
       }
       cellIndex++;
@@ -1878,6 +1881,7 @@
     [self createDimmingView];
   } else {
     _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+    dimmingView = nil;
   }
 }
 

@@ -126,7 +126,7 @@ public class RecurrenceRuleProxy extends KrollProxy
 							weeklyRecurrencesString.append(",");
 						}
 					}
-					finalRRule.append(weeklyRecurrencesString.toString());
+					finalRRule.append(weeklyRecurrencesString);
 					finalRRule.append(";");
 					break;
 				case MONTHLY:
@@ -202,14 +202,14 @@ public class RecurrenceRuleProxy extends KrollProxy
 					days = matchExpression(".*(BYYEARDAY=[0-9]*).*", 10);
 					if (days != null) {
 						//daysOfTheYear
-						this.daysOfTheYear = new int[] { Integer.valueOf(days) };
+						this.daysOfTheYear = new int[] { Integer.parseInt(days) };
 					}
 					break;
 				case MONTHLY:
 					//daysOfTheMonth
 					days = matchExpression(".*(BYMONTHDAY=(-)*[0-9]*).*", 11);
 					if (days != null) {
-						this.daysOfTheMonth = new int[] { Integer.valueOf(days) };
+						this.daysOfTheMonth = new int[] { Integer.parseInt(days) };
 					}
 					//daysOfTheWeek
 					byDay = matchExpression(".*(BYDAY=[,0-9A-Z]*).*", 6);

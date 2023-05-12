@@ -82,7 +82,7 @@
     return [UIApplicationShortcutIcon iconWithTemplateImageName:value];
   }
 
-  if ([value isKindOfClass:[TiBlob class]] && [TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if ([value isKindOfClass:[TiBlob class]]) {
     TiBlob *blob = (TiBlob *)value;
     if (blob.type == TiBlobTypeSystemImage) {
       return [UIApplicationShortcutIcon iconWithSystemImageName:blob.systemImageName];
