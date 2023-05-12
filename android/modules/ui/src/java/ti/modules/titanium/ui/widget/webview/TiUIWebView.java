@@ -647,6 +647,22 @@ public class TiUIWebView extends TiUIView
 		}
 	}
 
+	public void injectCode()
+	{
+		StringBuilder code = new StringBuilder();
+		StringBuilder tiCode = TiWebViewBinding.readResourceFile("binding.min.js");
+		String outCode = tiCode.toString().replaceAll("\"", "\\\\\"")
+			.replace("\n", "").replace("\r", "");
+		code.append("(function addBinding(){");
+		code.append("var s=document.createElement(\"script\");");
+		code.append("s.setAttribute(\"type\",\"text/javascript\");");
+		code.append("s.innerHTML=\"" + outCode + "\";");
+		code.append("document.getElementsByTagName(\"body\")[0].appendChild(s);");
+		code.append("})()");
+		Log.i("---", code.toString());
+		getJSValue(code.toString());
+	}
+
 	public void changeProxyUrl(String url)
 	{
 		if (this.proxy != null) {

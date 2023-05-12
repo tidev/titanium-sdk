@@ -35,23 +35,28 @@ description: |
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
+    <b>Android</b>:
     You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
-    evalJS.
+    [injectCode](Titanium.UI.WebView.injectCode) or manually with evalJS:
 
     ```js
+    // manual version
+    var code = '' // add binding.min.js code in here.
     webview.evalJS(
       'javascript=(function addBinding(){' +
         'var s=document.createElement("script");' +
         's.setAttribute("type","text/javascript");' +
-        's.innerHTML="' + require('/binding.js') + '";'
+        's.innerHTML="' + code + '";'
         +
         'document.getElementsByTagName("body")[0].appendChild(s);' +
       '})()'
     );
     ```
-    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+    The `binding.min.js` file is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
 
-    For iOS check the example in <Titanium.UI.WebView.addScriptMessageHandler>.
+    <b>iOS</b>:
+    For iOS have a look at the example in <Titanium.UI.WebView.addScriptMessageHandler> for custom handler names or if you run the manual evalJS version
+    you have to register `webview.addScriptMessageHandler('_Ti_');` to listen to the default `Ti.App.fireEvents` from the WebView.
 
     #### Local JavaScript Files
 
@@ -314,6 +319,12 @@ methods:
 
   - name: goForward
     summary: Goes forward one entry in this web view's history list, if possible.
+
+
+  - name: injectCode
+    summary: Injects the bindings.js code into the page. Use this to add events to external pages.
+    since: "12.2.0"
+    platforms: [android]
 
   - name: pause
     summary: Pauses native webview plugins.

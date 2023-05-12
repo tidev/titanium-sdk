@@ -120,7 +120,7 @@ public class TiWebViewBinding
 		destroyed = true;
 	}
 
-	private static StringBuilder readResourceFile(String fileName)
+	public static StringBuilder readResourceFile(String fileName)
 	{
 		InputStream stream = null;
 		StringBuilder code = new StringBuilder();
