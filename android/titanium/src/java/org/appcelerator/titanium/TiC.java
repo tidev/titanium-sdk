@@ -432,6 +432,7 @@ public class TiC
 	public static final String PROPERTY_FILTER_ANCHORED = "filterAnchored";
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	public static final String PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED = "filterTouchesWhenObscured";
+	public static final String PROPERTY_FILTER_ALWAYS_INCLUDE = "filterAlwaysInclude";
 	public static final String PROPERTY_FIRSTNAME = "firstName";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM = "firstVisibleItem";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM_INDEX = "firstVisibleItemIndex";
@@ -802,6 +803,7 @@ public class TiC
 	public static final String PROPERTY_VERTICAL_ALIGN = "verticalAlign";
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
 	public static final String PROPERTY_VIDEO_MAX_DURATION = "videoMaximumDuration";
+	public static final String PROPERTY_VIDEO_MAX_SIZE = "videoMaximumSize";
 	public static final String PROPERTY_VIDEO_QUALITY = "videoQuality";
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_VISIBILITY = "visibility";

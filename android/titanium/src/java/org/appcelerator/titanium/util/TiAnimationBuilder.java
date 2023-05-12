@@ -117,6 +117,7 @@ public class TiAnimationBuilder
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
 	protected Integer color = null;
+	protected float rotationY, rotationX = -1;
 	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
@@ -243,6 +244,13 @@ public class TiAnimationBuilder
 			elevation = TiConvert.toFloat(options, TiC.PROPERTY_ELEVATION, -1);
 		}
 
+		if (options.containsKey(TiC.PROPERTY_ROTATION_Y)) {
+			rotationY = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_Y, -1);
+		}
+
+		if (options.containsKey(TiC.PROPERTY_ROTATION_X)) {
+			rotationX = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_X, -1);
+		}
 		this.options = options;
 	}
 
@@ -303,6 +311,13 @@ public class TiAnimationBuilder
 
 		if (elevation >= 0) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "elevation", elevation));
+		}
+
+		if (rotationY >= 0) {
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationY", rotationY));
+		}
+		if (rotationX >= 0) {
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationX", rotationX));
 		}
 
 		if (backgroundColor != null) {
