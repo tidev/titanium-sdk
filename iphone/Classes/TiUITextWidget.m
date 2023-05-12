@@ -151,6 +151,7 @@
 - (void)setAutocorrect_:(id)value
 {
   [[self textWidgetView] setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
+  [[self textWidgetView] setSpellCheckingType:[TiUtils boolValue:value] ? UITextSpellCheckingTypeYes : UITextSpellCheckingTypeNo];
 }
 
 - (void)setAutofillType_:(id)value

@@ -231,6 +231,12 @@ properties:
     type: Boolean
     default: false
 
+  - name: iconColor
+    summary: Color of the search and close icon. Search icon will only work for `iconified:false`.
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: "12.0.0"
+
   - name: keyboardType
     summary: Keyboard type constant to use when the field is focused.
     type: Number

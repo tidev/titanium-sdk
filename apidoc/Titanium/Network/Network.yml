@@ -353,6 +353,25 @@ methods:
 
         **Android Notes**:
         Make sure to also add the `<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>` permission in the `<manifest>` tag of your tiapp.xml.
+        Example:
+
+        ``` js
+        const win = Ti.UI.createWindow();
+        win.addEventListener("open", function() {
+          console.log("Is enabled", Ti.Network.remoteNotificationsEnabled);
+
+          Ti.Network.registerForPushNotifications({
+            success: (e) => {
+              console.log("success", e);
+            },
+            error: (e) => {
+               console.log("error", e);
+            }
+          });
+        });
+        win.open();
+        ```
+        The permission request will only be shown twice. After that it won't show up again and the user has to go to the app permissions to enable it.
     platforms: [iphone, ipad, macos, android]
     parameters:
       - name: config

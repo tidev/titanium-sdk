@@ -176,6 +176,7 @@ public abstract class TiRecyclerViewHolder<V extends TiViewProxy> extends Recycl
 
 			// Create the RippleDrawable.
 			drawable = new RippleDrawable(colorStateList, drawable, maskDrawable);
+			colorControlHighlight.recycle();
 		}
 
 		return drawable;
