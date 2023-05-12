@@ -1400,7 +1400,9 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
  * error.
  */
 iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
-	if (this._tiappSettingsInitialized) {
+	// This logic will also run on a module build when a --device-id argument is provided,
+	// so skip if we're not building an app.
+	if (this._tiappSettingsInitialized || this.cli.argv.type !== 'app') {
 		return;
 	}
 
@@ -3263,7 +3265,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}
 
 	// this path is required to properly build for production
-	const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.tiapp.name, 'BuildProductsPath');
+	const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
 
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {

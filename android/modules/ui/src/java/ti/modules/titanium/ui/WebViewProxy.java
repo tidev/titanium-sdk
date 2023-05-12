@@ -516,6 +516,23 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
+	@Kroll.setProperty
+	public void setAllowFileAccess(boolean enabled)
+	{
+		setPropertyAndFire(TiC.PROPERTY_ALLOW_FILE_ACCESS, enabled);
+	}
+
+	@Kroll.getProperty
+	public boolean getAllowFileAccess()
+	{
+		boolean enabled = true;
+
+		if (hasProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS)) {
+			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS));
+		}
+		return enabled;
+	}
+
 	@Kroll.getProperty
 	public double getProgress()
 	{
