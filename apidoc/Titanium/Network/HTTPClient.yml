@@ -397,7 +397,7 @@ properties:
     permission: read-only
     default: false
     platforms: [android]
-    since: {android: 12.0.0}
+    since: {android: 12.2.0}
 
   - name: location
     summary: Absolute URL of the request.
