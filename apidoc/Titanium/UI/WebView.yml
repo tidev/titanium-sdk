@@ -37,7 +37,7 @@ description: |
 
     <b>Android</b>:
     You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
-    [injectCode](Titanium.UI.WebView.injectCode) or manually with evalJS:
+    [injectEventBindings](Titanium.UI.WebView.injectEventBindings) or manually with evalJS:
 
     ```js
     // manual version
@@ -321,8 +321,8 @@ methods:
     summary: Goes forward one entry in this web view's history list, if possible.
 
 
-  - name: injectCode
-    summary: Injects the bindings.js code into the page. Use this to add events to external pages.
+  - name: injectEventBindings
+    summary: Injects the Titanium event bindings from bindings.js code into an external webpage.
     since: "12.2.0"
     platforms: [android]
 

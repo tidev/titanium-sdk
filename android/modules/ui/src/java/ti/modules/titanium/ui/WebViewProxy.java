@@ -131,11 +131,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.method
-	public void injectCode()
+	public void injectEventBindings()
 	{
 		TiUIWebView view = (TiUIWebView) peekView();
 		if (view != null) {
-			view.injectCode();
+			view.injectEventBindings();
 		}
 	}
 
