@@ -131,6 +131,18 @@ properties:
     summary: Duration of the animation, in milliseconds.
     type: Number
 
+  - name: rotationY
+    summary: Value of the `rotationY` property at the end of the animation.
+    type: Number
+    platforms: [android]
+    since: { android: "12.2.0" }
+
+  - name: rotationX
+    summary: Value of the `rotationX` property at the end of the animation.
+    type: Number
+    platforms: [android]
+    since: { android: "12.2.0" }
+
   - name: elevation
     summary: Value of the `elevation` property at the end of the animation.
     type: Number

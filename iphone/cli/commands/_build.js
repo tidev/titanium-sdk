@@ -173,13 +173,6 @@ function iOSBuilder() {
 	// an array of products (Xcode targets) being built
 	this.products = [];
 
-	// when true and Apple Transport Security is manually enabled via custom Info.plist or
-	// tiapp.xml <ios><plist> section, then injects appcelerator.com whitelisted
-	//
-	// we default to true, but if "ios.whitelist.appcelerator.com" tiapp.xml property is
-	// set to false, then we'll force appcelerator.com to NOT be whitelisted
-	this.whitelistAppceleratorDotCom = true;
-
 	// launch screen storyboard settings
 	this.enableLaunchScreenStoryboard = true;
 	this.defaultLaunchScreenStoryboard = true;
@@ -1407,7 +1400,9 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
  * error.
  */
 iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
-	if (this._tiappSettingsInitialized) {
+	// This logic will also run on a module build when a --device-id argument is provided,
+	// so skip if we're not building an app.
+	if (this._tiappSettingsInitialized || this.cli.argv.type !== 'app') {
 		return;
 	}
 
@@ -2606,11 +2601,6 @@ iOSBuilder.prototype.initialize = async function initialize() {
 	this.buildAssetsDir         = path.join(this.buildDir, 'assets');
 	this.buildManifestFile      = path.join(this.buildDir, 'build-manifest.json');
 
-	if ((this.tiapp.properties && this.tiapp.properties['ios.whitelist.appcelerator.com'] && this.tiapp.properties['ios.whitelist.appcelerator.com'].value === false) || !this.tiapp.analytics) {
-		// force appcelerator.com to not be whitelisted in the Info.plist ATS section
-		this.whitelistAppceleratorDotCom = false;
-	}
-
 	if (!this.tiapp.ios['enable-launch-screen-storyboard'] || appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
 		this.enableLaunchScreenStoryboard = false;
 		this.defaultLaunchScreenStoryboard = false;
@@ -3274,6 +3264,9 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		}
 	}
 
+	// this path is required to properly build for production
+	const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
+
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
 		buildSettings.CODE_SIGN_IDENTITY = `"${this.certDistributionName}"`;
@@ -3297,7 +3290,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: '"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\""',
+			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -3329,7 +3322,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: '"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\""',
+			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir \\"${buildProductsPath}\\""`,
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -4445,28 +4438,6 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		};
 	} else if (plist.NSAppTransportSecurity.NSAllowsArbitraryLoads) {
 		this.logger.info(__('ATS explicitly disabled'));
-	} else if (this.whitelistAppceleratorDotCom) {
-		// we have a whitelist, make sure appcelerator.com is in the list
-		plist.NSAppTransportSecurity || (plist.NSAppTransportSecurity = {});
-		plist.NSAppTransportSecurity.NSAllowsArbitraryLoads = false;
-
-		this.logger.info(__('ATS enabled, injecting appcelerator.com into ATS whitelist'));
-		plist.NSAppTransportSecurity.NSExceptionDomains || (plist.NSAppTransportSecurity.NSExceptionDomains = {});
-		if (!plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com']) {
-			plist.NSAppTransportSecurity.NSExceptionDomains['appcelerator.com'] = {
-				NSExceptionMinimumTLSVersion: 'TLSv1.2',
-				NSExceptionRequiresForwardSecrecy: true,
-				NSExceptionAllowsInsecureHTTPLoads: false,
-				NSRequiresCertificateTransparency: false,
-				NSIncludesSubdomains: true,
-				NSThirdPartyExceptionMinimumTLSVersion: 'TLSv1.2',
-				NSThirdPartyExceptionRequiresForwardSecrecy: true,
-				NSThirdPartyExceptionAllowsInsecureHTTPLoads: true
-			};
-		}
-	} else {
-		this.logger.warn(__('ATS enabled, however *.appcelerator.com are not whitelisted'));
-		this.logger.warn(__('Consider setting the "ios.whitelist.appcelerator.com" property in the tiapp.xml to "true"'));
 	}
 
 	if (this.target === 'device' && this.deviceId === 'itunes') {
@@ -7109,8 +7080,10 @@ iOSBuilder.prototype.invokeXcodeBuild = async function invokeXcodeBuild(next) {
 			this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
 			args.push('EXCLUDED_ARCHS=arm64');
 		}
-	} else if (this.target === 'device' || this.target === 'dist-adhoc') {
+	} else if (this.target === 'device' || this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
 		args.push('-destination', 'generic/platform=iOS');
+	} else if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		args.push('-destination', 'generic/platform=macOS');
 	}
 
 	xcodebuildHook(

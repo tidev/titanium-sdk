@@ -37,7 +37,7 @@ jobs:
           echo "vtag=${VTAG}" >> $GITHUB_ENV
           echo "vtag=${VTAG}" >> $GITHUB_OUTPUT
       - name: Validate version
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         env:
           vtag: ${{ env.vtag }}
         with:
@@ -57,7 +57,7 @@ jobs:
             console.log(`${process.env.vtag} does not exist so continuing`)
 
   android:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
@@ -75,13 +75,13 @@ jobs:
           java-version: '11'
 
   ios:
-    runs-on: macos-12
+    runs-on: macos-13
     name: iOS
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -129,15 +129,15 @@ jobs:
         ref: ${{ github.event.inputs.branch }}
     - run: echo ${{ env.vtag }}
     - name: Download Linux artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: mobilesdk-${{ env.vtag }}-linux
     - name: Download MacOS artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: mobilesdk-${{ env.vtag }}-osx
     - name: Download Windows artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: mobilesdk-${{ env.vtag }}-win32
     - name: Create and push tag

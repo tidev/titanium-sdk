@@ -6,11 +6,11 @@ description: |
     represents the actual data, while the item template represents the style elements of the item.
 
     You should not create `ListItem` objects with a JavaScript factory method, as you do other Titanium proxies.
-    Instead, you should pass a <ListDataItem> array to the `setItems` method of a `ListSection`. The list data items 
+    Instead, you should pass a <ListDataItem> array to the `setItems` method of a `ListSection`. The list data items
     contain the data you want to display in the list.
 
     Alloy applications can use **`<ListItem>`** elements to create `ListItem` objects. `<ListItem>` elements
-    must be nested inside a **`<ListSection>`** element, which itself is nested in a `<ListView>` element, 
+    must be nested inside a **`<ListSection>`** element, which itself is nested in a `<ListView>` element,
     as shown below:
 
     ``` xml
@@ -25,7 +25,7 @@ description: |
     ```
 
     By default, only the `title`, `image` and `accessoryType` keys of the list data item's
-    `properties` dictionary are displayed if an item template is not defined.  See "Default List Items" 
+    `properties` dictionary are displayed if an item template is not defined.  See "Default List Items"
     under "Examples" section for an example of using the default template.
 
 
@@ -101,7 +101,7 @@ description: |
     bind them to the item by using the `events` dictionary of the item template or the child view
     templates respectively. Add the bindings as key-value pairs, where the key is the event name
     and the value is the callback (or array of callbacks for multiple bindings). See "List Items
-    with an Item Template" under "Examples" section for an example of binding a `click` event to an 
+    with an Item Template" under "Examples" section for an example of binding a `click` event to an
     item using an item template.
 platforms: [android, ipad, iphone, macos]
 since: '3.1.0'
@@ -270,40 +270,40 @@ properties:
         Only applies to the built-in templates.
     type: [String, Titanium.UI.Color]
     accessors: false
-    
+
   - name: subtitleColor
     summary: Default text color of the subtitle, as a color name or hex triplet.
     description: |
         This property is only used on iOS and if the ListDataItem `template` property or ListView
-        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>, 
+        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>,
         <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
     type: [String, Titanium.UI.Color]
     accessors: false
     platforms: [iphone, ipad, macos]
     since: "6.1.0"
-    
+
   - name: selectedColor
     summary: Color to use for the item title when the item is selected, as a color name or hex triplet.
     description: |
         This property is only used on iOS.
-        
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     since: "6.0.0"
-    platforms: [iphone,ipad, macos]    
-    
+    platforms: [iphone,ipad, macos]
+
   - name: selectedSubtitleColor
     summary: Color to use for the item subtitle when the item is selected, as a color name or hex triplet.
     description: |
         This property is only used on iOS and if the ListDataItem `template` property or ListView
-        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>, 
+        `defaultItemTemplate` property is either: <Titanium.UI.LIST_ITEM_TEMPLATE_SUBTITLE>,
         <Titanium.UI.LIST_ITEM_TEMPLATE_CONTACTS> or <Titanium.UI.LIST_ITEM_TEMPLATE_SETTINGS>.
 
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     since: "6.1.0"
-    platforms: [iphone,ipad, macos]    
-    
+    platforms: [iphone,ipad, macos]
+
   - name: font
     summary: Font to use for the item title.
     description: |
@@ -350,6 +350,7 @@ properties:
         Specify one of the constants from <Titanium.UI.SELECTION_STYLE_*>.
     type: Number
     platforms: [android, iphone, ipad, macos]
+    constants: Titanium.UI.SELECTION_STYLE_*
     since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
     accessors: false
 
@@ -381,7 +382,7 @@ examples:
 
         var data = [];
         for (var i = 0; i < tasks.length; i++) {
-            data.push({ 
+            data.push({
                 properties: {
                     itemId: tasks[i].id,
                     title: tasks[i].name,
@@ -412,7 +413,7 @@ examples:
 
   - title: Default List Items (Alloy version)
     example: |
-        Alloy version of previous example. For additional Alloy examples of using `ListView`, see <Titanium.UI.ListView>. 
+        Alloy version of previous example. For additional Alloy examples of using `ListView`, see <Titanium.UI.ListView>.
 
         index.xml
         ``` xml
@@ -501,7 +502,7 @@ examples:
         redTemplate.events.click = toggleCheck;
 
         var listView = Ti.UI.createListView({
-            // Maps plainTemplate to 'uncheck' and redTemplate to 'check' 
+            // Maps plainTemplate to 'uncheck' and redTemplate to 'check'
             templates: { 'uncheck': plainTemplate, 'check': redTemplate },
             // Use 'uncheck', that is, the plainTemplate created earlier for all items
             // Can be overridden by the item's template property
@@ -550,7 +551,7 @@ examples:
                 item.template = 'uncheck';
             }
             section.updateItemAt(e.itemIndex, item);
-        } 
+        }
 
         win.add(listView);
         win.open();
@@ -647,7 +648,7 @@ description: |
 
     See <Titanium.UI.ListItem> for examples of using a list data item.
 platforms: [android, ipad, iphone, macos]
-since: '3.1.0' 
+since: '3.1.0'
 properties:
   - name: template
     type: [String, Number]
@@ -676,20 +677,20 @@ name: RowActionType
 summary: Represents the custom edit action for a ListItem.
 description: |
     By default when a listItem has [canEdit](Titanium.UI.ListItem.canEdit) set to true, a left swipe on the the row presens the 'Delete' button.
-    This object lets developers define custom titles for editing actions supported on the row. 
-    This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and 
-    [editaction](Titanium.UI.ListView.editaction) event. 
+    This object lets developers define custom titles for editing actions supported on the row.
+    This object is used in conjunction with the [editActions](Titanium.UI.ListItem.editActions) property and
+    [editaction](Titanium.UI.ListView.editaction) event.
 platforms: [ipad, iphone, macos]
-since: '4.1.0' 
+since: '4.1.0'
 properties:
   - name: title
     type: String
     summary: The title of the row action.
     optional: false
-    
+
   - name: identifier
     summary: |
-        The [identifier](RowActionType. identifier) of the row action. Only included in the event 
+        The [identifier](RowActionType. identifier) of the row action. Only included in the event
         if previously defined. Available in Titanium 6.0.0 and later.
     type: String
 
@@ -698,14 +699,14 @@ properties:
     summary: The style of the row action.
     description: |
         Use one of <Titanium.UI.iOS.ROW_ACTION_STYLE_DEFAULT>, <Titanium.UI.iOS.ROW_ACTION_STYLE_DESTRUCTIVE> or
-        <Titanium.UI.iOS.ROW_ACTION_STYLE_NORMAL> 
+        <Titanium.UI.iOS.ROW_ACTION_STYLE_NORMAL>
     optional: false
 
   - name: color
     type: String
     summary: The background color of the row action.
     description: |
-        By default the background color of the row action is defined by the style applied. Use this property to 
+        By default the background color of the row action is defined by the style applied. Use this property to
         override the default background color of the row action.
     optional: true
 
