@@ -1,0 +1,39 @@
+name: Regen Docs
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [ closed ]
+    branches: [ master ]
+    paths: [ 'apidoc/**' ]
+
+jobs:
+  regen:
+    if: github.repository_owner == 'tidev' && (github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    name: Trigger Regen
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        registry-url: 'https://registry.npmjs.org'
+
+    - name: Install dependencies
+      run: npm ci
+      if: steps.node-cache.outputs.cache-hit != 'true'
+
+    - run: npm run lint:docs
+      name: Lint
+
+    - name: Repository Dispatch
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        event-type: regen-api-docs
+        token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
+        repository: tidev/titanium-docs

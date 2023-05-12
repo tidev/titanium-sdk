@@ -1,11 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -361,6 +362,35 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		String title = TiConvert.toString(tabProxy.getProperty(TiC.PROPERTY_TITLE));
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
+	}
+
+	public void setTabBarVisible(boolean visible)
+	{
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+
+		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
+		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
+		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+
+			// make it a bit slower when moving up again so it won't show the background
+			int duration = !visible ? 200 : 400;
+			LayoutTransition lt = new LayoutTransition();
+			lt.enableTransitionType(LayoutTransition.CHANGING);
+			lt.setDuration(duration);
+			this.tabGroupViewPager.setLayoutTransition(lt);
+			this.tabGroupViewPager.setLayoutParams(params);
+		}
+
+		if (visible) {
+			this.mBottomNavigationView.animate().translationY(0f).setDuration(200);
+		} else {
+			this.mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight()).setDuration(200);
+		}
+
+		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@SuppressLint("RestrictedApi")

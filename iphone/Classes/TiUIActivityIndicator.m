@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -187,7 +187,7 @@
   textColor = [newColor retain];
   if (messageLabel != nil) {
     if (textColor == nil) {
-      [messageLabel setTextColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.labelColor : UIColor.blackColor];
+      [messageLabel setTextColor:UIColor.labelColor];
     } else {
       [messageLabel setTextColor:textColor];
     }

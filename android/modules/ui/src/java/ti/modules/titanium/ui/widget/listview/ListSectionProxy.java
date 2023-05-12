@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -51,11 +51,8 @@ public class ListSectionProxy extends TiViewProxy
 	{
 		final List<ListItemProxy> items = processItems(dataItems);
 
-		for (final ListItemProxy item : items) {
-
-			// Add to current items.
-			this.items.add(item);
-		}
+		// Add to current items.
+		this.items.addAll(items);
 
 		// Notify ListView of new items.
 		update();

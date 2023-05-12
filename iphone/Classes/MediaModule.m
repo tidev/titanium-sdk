@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -36,9 +36,7 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 #import "TiMediaVideoPlayerProxy.h"
 #endif
-#if IS_SDK_IOS_14
 #import <UniformTypeIdentifiers/UTCoreTypes.h>
-#endif
 
 // by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
@@ -1072,16 +1070,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   ENSURE_UI_THREAD(openPhotoGallery, args);
 
   NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
-#if IS_SDK_IOS_14
   if ([TiUtils isIOSVersionOrGreater:@"14.0"] && [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO]) {
     [self showPHPicker:args];
   } else {
-#endif
     [self showPicker:args
             isCamera:NO];
-#if IS_SDK_IOS_14
   }
-#endif
 }
 
 #endif
@@ -1348,13 +1342,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   RELEASE_TO_NIL(musicPicker);
 #endif
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    picker.presentationController.delegate = nil;
-  }
+  picker.presentationController.delegate = nil;
   RELEASE_TO_NIL(picker);
 #endif
 
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   _phPicker.presentationController.delegate = nil;
   RELEASE_TO_NIL(_phPicker);
 #endif
@@ -1455,9 +1447,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   TiApp *tiApp = [TiApp app];
   if (![TiUtils isIPad]) {
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      picker_.presentationController.delegate = self;
-    }
+    picker_.presentationController.delegate = self;
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
@@ -1480,10 +1470,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)updatePopoverNow:(UIViewController *)picker_
 {
   UIViewController *theController = picker_;
-  [theController setModalPresentationStyle:UIModalPresentationPopover];
-  UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
-  [thePresenter setPermittedArrowDirections:arrowDirection];
-  [thePresenter setDelegate:self];
+  if (self.popoverView != nil) {
+    [theController setModalPresentationStyle:UIModalPresentationPopover];
+    UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
+    [thePresenter setPermittedArrowDirections:arrowDirection];
+    [thePresenter setDelegate:self];
+  }
   [[TiApp app] showModalController:theController animated:animatedPicker];
   return;
 }
@@ -1742,12 +1734,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 - (void)showPHPicker:(NSDictionary *)args
 {
   if (_phPicker != nil) {
-    [self sendPickerError:MediaModuleErrorBusy];
-    return;
+    [self destroyPicker];
   }
 
   animatedPicker = YES;
@@ -1970,7 +1961,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
 {
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
   if ([popoverPresentationController presentedViewController] == musicPicker) {
     RELEASE_TO_NIL(musicPicker);
   }
@@ -1984,7 +1975,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   [self closeModalPicker:picker ?: _phPicker];
 #else
   [self closeModalPicker:picker];

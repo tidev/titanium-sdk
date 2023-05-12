@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -67,7 +67,8 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
 	private int horiztonalLayoutPreviousRight = 0;
-
+	int[] horizontal = new int[2];
+	int[] vertical = new int[2];
 	/**
 	 * Custom pixel width to be used by child views when calculating percentage based lengths/positions.
 	 * Set to a negative value if child should be relative to the parent view.
@@ -855,9 +856,6 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		// viewSorter is not needed after this. It's a source of
 		// memory leaks if it retains the views it's holding.
 		viewSorter.clear();
-
-		int[] horizontal = new int[2];
-		int[] vertical = new int[2];
 
 		int currentHeight = 0; // Used by vertical arrangement calcs
 

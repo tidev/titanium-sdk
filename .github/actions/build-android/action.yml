@@ -1,5 +1,5 @@
 name: Android Build
-description: Installs required dependencies and then builds the Android side of the SDK 
+description: Installs required dependencies and then builds the Android side of the SDK
 
 inputs:
   node-version:
@@ -20,13 +20,13 @@ runs:
       shell: bash
 
     - name: Setup Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
     - name: Setup Java
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
         java-version: ${{ inputs.java-version }}
@@ -36,7 +36,7 @@ runs:
       shell: bash
 
     - name: Cache Gradle packages
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.gradle/caches
@@ -49,12 +49,16 @@ runs:
       run: npm run lint:android
       shell: bash
 
+    - name: Set up Homebrew
+      id: set-up-homebrew
+      uses: Homebrew/actions/setup-homebrew@master
+
     - name: Install ccache
       run: brew install ccache
       shell: bash
 
     - name: Retrieve ccache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ env.CCACHE_DIR }}
         key: ${{ runner.os }}-ccache-${{ github.sha }}
@@ -62,7 +66,7 @@ runs:
           ${{ runner.os }}-ccache-
 
     - name: Cache V8
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: dist/android/libv8
         key: libv8-${{ hashFiles('dist/android/libv8/**') }}
@@ -88,7 +92,7 @@ runs:
         dist/tmp/common
       shell: bash
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: android-build
         retention-days: 1
@@ -101,4 +105,3 @@ runs:
         rm -f ~/.gradle/caches/modules-2/modules-2.lock
         rm -f ~/.gradle/caches/modules-2/gc.properties
       shell: bash
-

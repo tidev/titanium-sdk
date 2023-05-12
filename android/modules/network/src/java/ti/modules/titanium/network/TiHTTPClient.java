@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -492,6 +492,11 @@ public class TiHTTPClient
 	private String decodeResponseData(String charsetName)
 	{
 		Charset charset;
+
+		if (charsetName.isEmpty()) {
+			return null;
+		}
+
 		try {
 			charset = Charset.forName(charsetName);
 
@@ -946,7 +951,7 @@ public class TiHTTPClient
 			setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 		} else {
-			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
+			Log.d(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
 		}
 	}
 
@@ -1517,7 +1522,7 @@ public class TiHTTPClient
 
 		public void completeSendingMultipart()
 		{
-			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.append("--").append(boundary).append("--").append(LINE_FEED);
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException

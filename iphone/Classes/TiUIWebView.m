@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -156,12 +156,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)setZoomLevel_:(id)zoomLevel
 {
   ENSURE_TYPE(zoomLevel, NSNumber);
-#if IS_SDK_IOS_14
+
   if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
     [self webView].pageZoom = [zoomLevel floatValue];
     return;
   }
-#endif
+
   [[self webView] evaluateJavaScript:[NSString stringWithFormat:@"document.body.style.zoom = %@;", zoomLevel]
                    completionHandler:nil];
 }

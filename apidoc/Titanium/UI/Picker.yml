@@ -3,9 +3,9 @@ name: Titanium.UI.Picker
 summary: |
     A control used to select one or more fixed values.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./picker_android.png) | ![iOS](./picker_ios.png) | ![Windows](./picker_wp.gif) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./picker_android.png) | ![iOS](./picker_ios.png) |
 
     Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
 
@@ -207,6 +207,9 @@ properties:
     summary: Background color of the picker, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
+
+        Android: If you want to change the backgroundColor you have to set the `borderStyle` to
+        `Ti.UI.INPUT_BORDERSTYLE_ROUNDED` or `Ti.UI.INPUT_BORDERSTYLE_NONE`
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
     since: { iphone: "5.2.0", ipad: "5.2.0", android: "0.9.0"}
@@ -538,6 +541,13 @@ properties:
         for android, and <Titanium.UI.PickerRow> for iphone / ipad.
     type: Font
     platforms: [android]
+
+  - name: color
+    summary: Text color of the Picker
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    availability: creation
+    since: { android: "12.0.0"}
 
 examples:
   - title: Multi-Column Picker using Alloy XML Markup

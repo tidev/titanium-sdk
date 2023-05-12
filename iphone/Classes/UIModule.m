@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -50,6 +50,12 @@
 
 @implementation UIModule
 
+#define FORGET_AND_RELEASE(x) \
+  {                           \
+    [self forgetProxy:x];     \
+    RELEASE_TO_NIL(x);        \
+  }
+
 - (void)dealloc
 {
 #ifdef USE_TI_UIIPAD
@@ -72,9 +78,7 @@
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if ((count == 1) && [type isEqual:@"userinterfacestyle"]) {
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      lastEmittedMode = self.userInterfaceStyle;
-    }
+    lastEmittedMode = self.userInterfaceStyle;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didChangeTraitCollection:)
                                                  name:kTiTraitCollectionChanged
@@ -91,14 +95,12 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    NSNumber *currentMode = self.userInterfaceStyle;
-    if (currentMode == lastEmittedMode) {
-      return;
-    }
-    lastEmittedMode = currentMode;
-    [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
+  NSNumber *currentMode = self.userInterfaceStyle;
+  if (currentMode == lastEmittedMode) {
+    return;
   }
+  lastEmittedMode = currentMode;
+  [self fireEvent:@"userinterfacestyle" withObject:@{ @"value" : currentMode }];
 }
 
 - (NSString *)apiName
@@ -251,15 +253,20 @@ MAKE_SYSTEM_PROP(URL_ERROR_UNKNOWN, NSURLErrorUnknown);
 MAKE_SYSTEM_PROP(URL_ERROR_UNSUPPORTED_SCHEME, NSURLErrorUnsupportedURL);
 
 MAKE_SYSTEM_PROP(AUTOLINK_NONE, UIDataDetectorTypeNone);
-- (NSNumber *)AUTOLINK_ALL
-{
-  return NUMUINTEGER(UIDataDetectorTypeAll);
-}
+MAKE_SYSTEM_PROP_UINTEGER(AUTOLINK_ALL, UIDataDetectorTypeAll);
 MAKE_SYSTEM_PROP(AUTOLINK_PHONE_NUMBERS, UIDataDetectorTypePhoneNumber);
 MAKE_SYSTEM_PROP(AUTOLINK_URLS, UIDataDetectorTypeLink);
 MAKE_SYSTEM_PROP(AUTOLINK_EMAIL_ADDRESSES, UIDataDetectorTypeLink);
 MAKE_SYSTEM_PROP(AUTOLINK_MAP_ADDRESSES, UIDataDetectorTypeAddress);
 MAKE_SYSTEM_PROP(AUTOLINK_CALENDAR, UIDataDetectorTypeCalendarEvent);
+MAKE_SYSTEM_PROP(AUTOLINK_SHIPMENT_TRACKING_NUMBER, UIDataDetectorTypeShipmentTrackingNumber);
+MAKE_SYSTEM_PROP(AUTOLINK_FLIGHT_NUMBER, UIDataDetectorTypeFlightNumber);
+MAKE_SYSTEM_PROP(AUTOLINK_LOOKUP_SUGGESTION, UIDataDetectorTypeLookupSuggestion);
+
+#if IS_SDK_IOS_16
+MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_MONEY, UIDataDetectorTypeMoney, @"16.0");
+MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_PHYSICAL_VALUE, UIDataDetectorTypePhysicalValue, @"16.0");
+#endif
 
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT, UITableViewCellStyleDefault);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS, UITableViewCellStyleValue1);
@@ -321,7 +328,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #ifdef USE_TI_UIPICKER
 
-#if IS_SDK_IOS_13_4
 - (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
@@ -348,9 +354,7 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
   return @(UIDatePickerStyleCompact);
 }
-#endif
 
-#if IS_SDK_IOS_14
 - (NSNumber *)DATE_PICKER_STYLE_INLINE
 {
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
@@ -359,7 +363,6 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
   return @(UIDatePickerStyleInline);
 }
-#endif
 
 #endif // USE_TI_UIPICKER
 
@@ -449,20 +452,13 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
       [self replaceValue:args
                   forKey:@"overrideUserInterfaceStyle"
             notification:NO];
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
-    TiApp.app.window.overrideUserInterfaceStyle = style;
-  }
+  int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+  TiApp.app.window.overrideUserInterfaceStyle = style;
 }
 
 - (NSNumber *)overrideUserInterfaceStyle
 {
-  NSNumber *style = nil;
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    style = @(TiApp.controller.overrideUserInterfaceStyle);
-  } else {
-    style = [self valueForKey:@"overrideUserInterfaceStyle"];
-  }
+  NSNumber *style = @(TiApp.controller.overrideUserInterfaceStyle);
   return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
 }
 
@@ -473,29 +469,17 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    return NUMINT(UIUserInterfaceStyleUnspecified);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleUnspecified);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    return NUMINT(UIUserInterfaceStyleLight);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleLight);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] || [TiUtils isMacOS]) {
-    return NUMINT(UIUserInterfaceStyleDark);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleDark);
 }
 
 - (TiColor *)fetchSemanticColor:(id)color
@@ -506,6 +490,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
     return [TiColor colorNamed:@"black"];
   }
   return tiColor;
+}
+
+- (NSNumber *)statusBarHeight
+{
+  return @(UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame.size.height);
 }
 
 #pragma mark iPhone namespace
@@ -564,6 +553,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return [self createMatrix3D:args];
 }
 
+- (id)availableSystemFontFamilies
+{
+  return [UIFont familyNames];
+}
+
 #ifdef USE_TI_UICLIPBOARD
 - (id)Clipboard
 {
@@ -596,6 +590,10 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 #endif
 #ifdef USE_TI_UICLIPBOARD
   RELEASE_TO_NIL(clipboard);
+#endif
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+  FORGET_AND_RELEASE(_TableViewScrollPosition);
+  FORGET_AND_RELEASE(_ListViewScrollPosition);
 #endif
   [super didReceiveMemoryWarning:notification];
 }
@@ -827,6 +825,24 @@ MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparato
     shortcut = [[TiUIShortcutProxy alloc] init];
   }
   return shortcut;
+}
+#endif
+
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+- (TiUITableViewScrollPositionProxy *)TableViewScrollPosition
+{
+  if (_TableViewScrollPosition == nil) {
+    _TableViewScrollPosition = [[TiUITableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _TableViewScrollPosition;
+}
+
+- (TiUITableViewScrollPositionProxy *)ListViewScrollPosition
+{
+  if (_ListViewScrollPosition == nil) {
+    _ListViewScrollPosition = [[TiUITableViewScrollPositionProxy alloc] _initWithPageContext:[self pageContext]];
+  }
+  return _ListViewScrollPosition;
 }
 #endif
 
