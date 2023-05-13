@@ -42,7 +42,7 @@ const OS_VERSION_PREFIX = 'OS_VERSION: ';
 // Sniff if we're on Travis/Jenkins
 const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
 
-var showFailedOnly = false;
+let showFailedOnly = false;
 
 /**
  * Generates a test app, then runs the app for each platform with our
