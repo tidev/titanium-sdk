@@ -2005,6 +2005,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         NSArray *indexPaths = [[self tableView] indexPathsForVisibleRows];
         NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
         TiUIListSectionProxy *section;
+        CGFloat topSpacing = scrollView.contentOffset.y + scrollView.adjustedContentInset.top;
 
         if ([indexPaths count] > 0) {
           NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
@@ -2016,7 +2017,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
-          [eventArgs setValue:NUMINTEGER(-1) forKey:@"top"];
+          [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
 
           if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section] || forceUpdates) {
             // only log if the item changes or forced
@@ -2032,7 +2033,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
-          [eventArgs setValue:NUMINTEGER(-1) forKey:@"top"];
+          [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
         }
       });
     }
