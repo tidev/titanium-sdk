@@ -84,6 +84,10 @@ extern NSString *const TI_APPLICATION_GUID;
   [httpRequest setMethod:method];
   [httpRequest setUrl:url];
 
+  if ((apsConnectionManager != nil) && ([apsConnectionManager willHandleURL:url])) {
+    apsConnectionDelegate = [[apsConnectionManager connectionDelegateForUrl:url] retain];
+  }
+
   [httpRequest setConnectionDelegate:apsConnectionDelegate];
 
   if ([args count] >= 3) {
