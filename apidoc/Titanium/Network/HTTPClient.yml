@@ -396,8 +396,8 @@ properties:
     type: Boolean
     permission: read-only
     default: false
-    platforms: [android]
-    since: {android: 12.2.0}
+    platforms: [android, iphone, ipad, macos]
+    since: 12.2.0
 
   - name: location
     summary: Absolute URL of the request.
