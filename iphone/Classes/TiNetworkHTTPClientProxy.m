@@ -87,8 +87,7 @@ extern NSString *const TI_APPLICATION_GUID;
   // twitter specifically disallows X-Requested-With so we only add this normal
   // XHR header if not going to twitter. however, other services generally expect
   // this header to indicate an XHR request (such as RoR)
-  if ([[url absoluteString] rangeOfString:@"twitter.com"].location == NSNotFound &&
-      ![TiUtils boolValue:[self valueForUndefinedKey:@"ignoreXRequestedWith"] def:NO]) {
+  if ([[url absoluteString] rangeOfString:@"twitter.com"].location == NSNotFound && ![TiUtils boolValue:[self valueForUndefinedKey:@"ignoreXRequestedWith"] def:NO]) {
     [httpRequest addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
   }
   if ((apsConnectionManager != nil) && ([apsConnectionManager willHandleURL:url])) {
