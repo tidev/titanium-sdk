@@ -79,9 +79,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isSearched;
   UIView *dimmingView;
   BOOL isSearchBarInNavigation;
-  int lastVisibleItem;
-  int lastVisibleSection;
-  BOOL forceUpdates;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -102,7 +99,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
     _defaultSeparatorInsets = UIEdgeInsetsZero;
     _dimsBackgroundDuringPresentation = YES;
-    forceUpdates = NO;
   }
   return self;
 }
@@ -209,7 +205,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (_tableView == nil) {
     UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
     BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
-    forceUpdates = [TiUtils boolValue:[self.proxy valueForKey:@"forceUpdates"] def:NO];
 
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -2019,12 +2014,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
           [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
 
-          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section] || forceUpdates) {
-            // only log if the item changes or forced
-            [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
-            lastVisibleItem = [indexPath row];
-            lastVisibleSection = [indexPath section];
-          }
+          [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
         } else {
           section = [[self listViewProxy] sectionForIndex:0];
 

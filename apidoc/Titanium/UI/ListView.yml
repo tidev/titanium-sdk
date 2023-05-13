@@ -951,23 +951,14 @@ properties:
     since: 3.2.0
 
   - name: continuousUpdate
-    summary: Determines if the scrolling event should fire every time there is a new visible item.
+    summary: Determines if the scrolling event should fire every time the user is dragging the ListView.
     description: |
-        When setting `continuousUpdate` to `true` the [scrolling](Titanium.UI.ListView.scrolling) event will fire every time a new item is scrolled in.
+        When setting `continuousUpdate` to `true` the [scrolling](Titanium.UI.ListView.scrolling) event will fire every time.
+        Otherwise it will only change when you change the scroll direction.
     type: Boolean
     default: false
     platforms: [android, iphone, ipad, macos]
     since: 11.1.0
-
-  - name: forceUpdates
-    summary: Optimize the `continuousUpdate` scrolling event.
-    description: |
-        If `continuousUpdate` is enabled and you set `forceUpdates` to `true` it will fire the scrolling](Titanium.UI.ListView.scrolling) all the time.
-        Otherwise it will only update when a new item is scrolled in (default).
-    type: Boolean
-    default: false
-    platforms: [android, iphone, ipad, macos]
-    since: 12.2.0
 
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
