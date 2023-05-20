@@ -198,24 +198,22 @@ public class TCPProxy extends KrollProxy implements TiStream
 			secure = TiConvert.toBoolean(getProperty("secure"), false);
 
 			try {
+				if (secure) {
+					SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
+					clientSocket = s.createSocket();
+				} else {
+					clientSocket = new Socket();
+				}
+
+				InetSocketAddress endpoint = new InetSocketAddress(host, TiConvert.toInt(getProperty("port")));
+
 				if (timeoutProperty != null) {
 					int timeout = TiConvert.toInt(timeoutProperty, 0);
-
-					if (secure) {
-						SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
-						clientSocket = s.createSocket();
-					} else {
-						clientSocket = new Socket();
-					}
-					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
+					clientSocket.connect(endpoint, timeout);
 				} else {
-					if (secure) {
-						SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
-						clientSocket = s.createSocket(host, TiConvert.toInt(getProperty("port")));
-					} else {
-						clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
-					}
+					clientSocket.connect(endpoint);
 				}
+
 				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 
 			} catch (UnknownHostException e) {
