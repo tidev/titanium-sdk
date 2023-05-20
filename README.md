@@ -1,6 +1,6 @@
 <p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
-<h1 align="center">Titanium SDK<a href="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
+<h1 align="center">Titanium SDK<a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
 
 Welcome to the Titanium SDK open source project. Titanium SDK provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
@@ -187,7 +187,7 @@ Please visit the official documentation site at [https://titaniumsdk.com/](https
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium_mobile/discussions).
+Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium-sdk/discussions).
 
 ### Twitter
 
