@@ -238,13 +238,19 @@ methods:
   - name: startVideoCapture
     summary: Starts video capture using the camera specified.
     platforms: [android, iphone, ipad, macos]
-    since:
-        android: 5.4.0
+    since: "5.4.0"
   - name: stopVideoCapture
     summary: Stops video capture using the camera specified.
     platforms: [android, iphone, ipad, macos]
-    since:
-        android: 5.4.0
+    since: "5.4.0"
+  - name: pauseVideoCapture
+    summary: Pauses video capturing.
+    platforms: [android]
+    since: {android: "12.2.0"}
+  - name: resumeVideoCapture
+    summary: Resumes video capturing.
+    platforms: [android]
+    since: {android: "12.2.0"}
   - name: switchCamera
     summary: |
         Switches between front and rear-facing cameras. Make sure to set one of the below constants to determine
@@ -798,11 +804,40 @@ properties:
     permission: read-only
     since: "7.5.0"
 
-  - name: AUDIO_STATE_WAITING_FOR_QUEUE
-    summary: Player is waiting for audio data to fill the queue.
+  - name: VERTICAL_ALIGN_CENTER
+    summary: Vertical align center
     type: Number
     permission: read-only
-    since: "7.5.0"
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: VERTICAL_ALIGN_TOP
+    summary: Vertical align center
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: VERTICAL_ALIGN_BOTTOM
+    summary: Vertical align center
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: ASPECT_RATIO_4_3
+    summary: Aspect ratio 4:3
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: ASPECT_RATIO_16_9
+    summary: Aspect ratio 16:9
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.2.0"
 
   - name: CAMERA_FLASH_AUTO
     summary: Constant specifying to have the device determine to use the flash or not.
@@ -1105,6 +1140,34 @@ properties:
     summary: Constant for media no video error.
     type: Number
     permission: read-only
+
+  - name: QUALITY_SD
+    summary: Media type constant for SD video recording.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "12.2.0" }
+
+  - name: QUALITY_HD
+    summary: Media type constant for HD video recording.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "12.2.0" }
+
+  - name: QUALITY_FHD
+    summary: Media type constant for FHD video recording.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "12.2.0" }
+
+  - name: QUALITY_UHD
+    summary: Media type constant for UHD video recording.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: { android: "12.2.0" }
 
   - name: QUALITY_HIGH
     summary: Media type constant for high-quality video recording.
@@ -1564,6 +1627,41 @@ properties:
         android: "3.2.0"
     permission: read-only
 
+  - name: aspectRatio
+    summary: Aspect ratio of the image.
+    type: Number
+    constants: Titanium.Media.ASPECT_RATIO_*
+    default: Titanium.Media.ASPECT_RATIO_4_3
+    platforms: [android]
+    since: { android: "12.2.0" }
+    permission: read-only
+
+  - name: scalingMode
+    summary: Scaling mode of the preview image.
+    type: Number
+    constants: [Titanium.Media.IMAGE_SCALING_ASPECT_FIT, Titanium.Media.IMAGE_SCALING_ASPECT_FILL]
+    default: Titanium.Media.IMAGE_SCALING_ASPECT_FILL
+    platforms: [android]
+    since: { android: "12.2.0" }
+    permission: read-only
+
+  - name: verticalAlign
+    summary: Vertical align of the preview image for aspect fit.
+    type: Number
+    constants: Titanium.Media.VERTICAL_ALIGN_*
+    default: Titanium.Media.VERTICAL_ALIGN_CENTER
+    platforms: [android]
+    since: { android: "12.2.0" }
+    permission: read-only
+
+  - name: useCameraX
+    summary: To use the new CameraX classes for "camera with overlay" set `useCameraX` to `true`
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: { android: "12.2.0" }
+    permission: read-only
+
   - name: availableCameraMediaTypes
     summary: Array of media type constants supported for the camera.
     type: Array<String>
@@ -1631,6 +1729,33 @@ properties:
     permission: read-only
     since: "5.2.0"
 
+  - name: cameraOutputSizes
+    summary: |
+        Returns an object of possible `targetImageWidth` and `targetImageHeight` values. The output
+        contains a `cameraType` (front or back) and object of width/height values. You have to set
+        `targetImageWidth` and `targetImageHeight` if you want to change the camera image output size.
+        Note: depeneding on your phone and camera the values won't be used or can be different.
+    type: Object
+    platforms: [android]
+    permission: read-only
+    since: "12.2.0"
+
+  - name: maxZoomLevel
+    summary: |
+        Returns the max zoom level of the camera.
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.2.0"
+
+  - name: minZoomLevel
+    summary: |
+        Returns the min zoom level of the camera.
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.2.0"
+
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
     description: |
@@ -1654,6 +1779,20 @@ properties:
     platforms: [iphone, ipad, macos]
     permission: read-only
 
+  - name: torch
+    summary: |
+        Enable or disable the camera torch.
+    type: Boolean
+    platforms: [android]
+    since:
+        android: "12.2.0"
+
+  - name: zoomLevel
+    summary: |
+        Sets the zoom level of the camera.
+    type: Number
+    platforms: [android]
+    since: "12.2.0"
 # Pseudo-type for showMusicLibrary argument
 
 ---
@@ -1832,6 +1971,12 @@ properties:
     summary: Function to call when the camera is closed after a successful capture/selection.
     type: Callback<CameraMediaItemType>
 
+  - name: open
+    summary: Function to call when the camera is shown
+    type: Callback<CameraOpen>
+    platforms: [android]
+    since: { android: "12.2.0" }
+
   - name: error
     summary: Function to call upon receiving an error.
     type: Callback<FailureResponse>
@@ -1839,6 +1984,12 @@ properties:
   - name: cancel
     summary: Function to call if the user presses the cancel button.
     type: Callback<FailureResponse>
+
+  - name: recording
+    summary: Function to call during recording. Returns size and duration.
+    type: Callback<CameraRecordingCallback>
+    platforms: [android]
+    since: { android: "12.2.0" }
 
   - name: androidback
     summary: Function to call if the user presses the back button.
@@ -1878,6 +2029,31 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     default: false
+
+  - name: zoomEnabled
+    summary: Specifies if pinch to zoom is enabled or not.
+    type: Boolean
+    platforms: [android]
+    default: false
+    since: { android: "12.2.0" }
+
+  - name: targetImageWidth
+    summary: |
+        Maximum width of the saved image. Depending on your phone and your value this might not be
+        exactly the value you specify. Check `Ti.Media.cameraOutputSizes` first.
+    type: Number
+    platforms: [android]
+    default: false
+    since: { android: "12.2.0" }
+
+  - name: targetImageHeight
+    summary: |
+        Maximum height of the saved image. Depending on your phone and your value this might not be
+        exactly the value you specify. Check `Ti.Media.cameraOutputSizes` first.
+    type: Number
+    platforms: [android]
+    default: false
+    since: { android: "12.2.0" }
 
   - name: mediaTypes
     summary: |
@@ -2140,6 +2316,21 @@ properties:
     type: Titanium.UI.iOS.LivePhoto
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
+---
+name: CameraOpen
+summary: Parameters of the open callback
+properties:
+  - name: width
+    summary: Width of the preview camera image
+    type: Number
+    platforms: [android]
+    since: { android: "12.2.0" }
+
+  - name: height
+    summary: Height of the preview camera image
+    type: Number
+    platforms: [android]
+    since: { android: "12.2.0" }
 
 ---
 name: PreviewImageOptions
@@ -2232,3 +2423,13 @@ properties:
     summary: An Array of current output ports for the session. See the `AUDIO_SESSION_PORT` constants.
     type: Array<String>
     constants: Titanium.Media.AUDIO_SESSION_PORT_*
+---
+name: CameraRecordingCallback
+summary: Infos about the current video recording
+properties:
+  - name: duration
+    summary: Length in milliseconds
+    type: Number
+  - name: size
+    summary: Size of the video in bytes
+    type: Number

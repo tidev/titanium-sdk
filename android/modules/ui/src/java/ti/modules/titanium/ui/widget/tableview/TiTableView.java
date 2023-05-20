@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
@@ -671,9 +672,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 					// Maintain true row index.
 					row.index = index++;
+					boolean alwaysInclude = row.getProperties()
+						.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 
 					// Handle search query.
-					if (query != null) {
+					if (query != null && !alwaysInclude) {
 						String attribute = row.getProperties().optString(filterAttribute, null);
 
 						if (attribute != null) {
@@ -748,6 +751,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			}
 		}
 
+		Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
 		// Notify adapter of changes on UI thread.
 		this.adapter.update(rows, force);
 
@@ -790,6 +794,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 						}
 					}
 				}
+				recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 			}
 		});
 	}
