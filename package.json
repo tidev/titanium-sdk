@@ -61,12 +61,15 @@
     "postinstall": "husky install",
     "test": "npm run ios-sanity-check && npm run lint",
     "test:android": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- android",
+    "test:android:onlyFailed": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration:onlyFailed -- android",
     "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js build/**/test-*.js --reporter=mocha-jenkins-reporter",
     "test:ios": "npm run test:iphone",
     "test:iphone": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F iphone",
+    "test:iphone:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration:onlyFailed -- ios -F iphone",
     "test:ipad": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F ipad",
     "test:mac": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -T macos",
-    "test:integration": "node ./build/scons test"
+    "test:integration": "node ./build/scons test",
+    "test:integration:onlyFailed": "node ./build/scons test --only-failed"
   },
   "commitlint": {
     "extends": [

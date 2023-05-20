@@ -3265,7 +3265,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}
 
 	// this path is required to properly build for production
-	const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.tiapp.name, 'BuildProductsPath');
+	const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
 
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
