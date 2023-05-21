@@ -144,9 +144,9 @@ properties:
 
   - name: rotation
     type: Number
-    summary: EXIF rotation of the image if available.
+    summary: EXIF rotation of the image if available. Can be `undefined` if no orientation was found.
     platforms: [android]
-    since: {android: "12.1.0"}
+    since: {android: "12.2.0"}
     permission: read-only
 
 methods:
