@@ -368,6 +368,29 @@ DEFINE_EXCEPTIONS
   }
 }
 
+- (void)setTabBarVisible_:(id)value
+{
+  BOOL visible = [TiUtils boolValue:value];
+
+  if ([self tabBarIsVisible] == visible) {
+    return;
+  }
+
+  CGRect frame = self.tabController.tabBar.frame;
+  CGFloat height = frame.size.height;
+
+  [UIView animateWithDuration:0.3
+                   animations:^{
+                     self.tabController.tabBar.frame = CGRectOffset(frame, 0, visible ? -height : height);
+                   }
+                   completion:nil];
+}
+
+- (BOOL)tabBarIsVisible
+{
+  return self.tabController.tabBar.frame.origin.y < CGRectGetMaxY(self.tabController.view.frame);
+}
+
 - (void)setTabsBackgroundColor_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];

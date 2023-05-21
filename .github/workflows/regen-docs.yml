@@ -19,7 +19,7 @@ jobs:
         fetch-depth: 0
 
     - name: Setup node
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: '16'
         registry-url: 'https://registry.npmjs.org'
@@ -30,7 +30,7 @@ jobs:
 
     - run: npm run lint:docs
       name: Lint
-      
+
     - name: Repository Dispatch
       uses: peter-evans/repository-dispatch@v2
       with:

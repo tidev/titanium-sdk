@@ -730,6 +730,11 @@ public class TiBlob extends KrollProxy
 					imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 				}
 			}
+
+			if (imageResized.getHeight() != dstHeight || imageResized.getWidth() != dstWidth) {
+				// image didn't resize - fallback
+				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
+			}
 			if (img != image && img != imageResized) {
 				img.recycle();
 				img = null;
