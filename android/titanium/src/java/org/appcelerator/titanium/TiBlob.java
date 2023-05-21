@@ -75,7 +75,7 @@ public class TiBlob extends KrollProxy
 		this.height = 0;
 		this.uprightWidth = 0;
 		this.uprightHeight = 0;
-		this.rotation = null;
+		this.rotation = KrollRuntime.UNDEFINED;
 	}
 
 	/**
@@ -144,7 +144,6 @@ public class TiBlob extends KrollProxy
 		blob.height = image.getHeight();
 		blob.uprightWidth = blob.width;
 		blob.uprightHeight = blob.height;
-		blob.rotation = null;
 		return blob;
 	}
 
