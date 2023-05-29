@@ -492,6 +492,11 @@ public class TiHTTPClient
 	private String decodeResponseData(String charsetName)
 	{
 		Charset charset;
+
+		if (charsetName.isEmpty()) {
+			return null;
+		}
+
 		try {
 			charset = Charset.forName(charsetName);
 
@@ -940,14 +945,6 @@ public class TiHTTPClient
 
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
-		// Causes Auth to Fail with twitter and other size apparently block X- as well
-		// Ticket #729, ignore twitter for now
-		if (!hostString.contains("twitter.com")) {
-			setRequestHeader("X-Requested-With", "XMLHttpRequest");
-
-		} else {
-			Log.d(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
-		}
 	}
 
 	public void setRawData(Object data)

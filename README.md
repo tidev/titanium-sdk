@@ -1,6 +1,6 @@
 <p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
-<h1 align="center">Titanium SDK<a href="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
+<h1 align="center">Titanium SDK<a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
 
 Welcome to the Titanium SDK open source project. Titanium SDK provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
@@ -13,6 +13,7 @@ see the [LICENSE](LICENSE) file for specific details.
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
+  - [Sponsors](#sponsors)
   - [Features](#features)
   - [Hyperloop](#hyperloop)
     - [Features](#features-1)
@@ -41,6 +42,15 @@ see the [LICENSE](LICENSE) file for specific details.
       - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
     - [Upgrade gradle and gradle plugin](#upgrade-gradle-and-gradle-plugin)
   - [Legal Stuff](#legal-stuff)
+
+## Sponsors
+
+This project wouldn't be possible without the help of our world wide developer community. Become a sponsor
+today and benefit from 1:1 sessions with the core team, exclusive modules, merchandise and more!
+
+Learn more about sponsoring TiDev, the organization behind the Titanium SDK, [here](https://github.com/sponsors/tidev) 🚀.
+
+<!-- sponsors --><a href="https://github.com/caspahouzer"><img src="https://github.com/caspahouzer.png" width="60px" alt="Sebastian Klaus" /></a><a href="https://github.com/phobeous"><img src="https://github.com/phobeous.png" width="60px" alt="Rodrigo Farfán" /></a><a href="https://github.com/jasonkneen"><img src="https://github.com/jasonkneen.png" width="60px" alt="Jason Kneen" /></a><a href="https://github.com/de1mat"><img src="https://github.com/de1mat.png" width="60px" alt="Matt Delmarter" /></a><a href="https://github.com/dlewis23"><img src="https://github.com/dlewis23.png" width="60px" alt="dlewis23" /></a><a href="https://github.com/dethier1958"><img src="https://github.com/dethier1958.png" width="60px" alt="Daniel Ethier" /></a><a href="https://github.com/AvinashDalvi89"><img src="https://github.com/AvinashDalvi89.png" width="60px" alt="Avinash Dalvi" /></a><a href="https://github.com/zenjoe"><img src="https://github.com/zenjoe.png" width="60px" alt="Joe Kniesek" /></a><a href="https://github.com/desarrollogotit"><img src="https://github.com/desarrollogotit.png" width="60px" alt="" /></a><a href="https://github.com/Astrovic"><img src="https://github.com/Astrovic.png" width="60px" alt="Vittorio Sorbera" /></a><a href="https://github.com/Arood"><img src="https://github.com/Arood.png" width="60px" alt="Marcus Olovsson" /></a><a href="https://github.com/SynaxonAG"><img src="https://github.com/SynaxonAG.png" width="60px" alt="Synaxon AG" /></a><a href="https://github.com/Rearmachine"><img src="https://github.com/Rearmachine.png" width="60px" alt="" /></a><a href="https://github.com/alexlarocca"><img src="https://github.com/alexlarocca.png" width="60px" alt="Alessandro La Rocca" /></a><a href="https://github.com/reshopper"><img src="https://github.com/reshopper.png" width="60px" alt="Reshopper" /></a><a href="https://github.com/safadig"><img src="https://github.com/safadig.png" width="60px" alt="Gus" /></a><a href="https://github.com/designbymind"><img src="https://github.com/designbymind.png" width="60px" alt="Jason David Miller" /></a><a href="https://github.com/greatschism"><img src="https://github.com/greatschism.png" width="60px" alt="Michael Zaladonis" /></a><a href="https://github.com/rlustemberg"><img src="https://github.com/rlustemberg.png" width="60px" alt="Richard Lustemberg" /></a><a href="https://github.com/enzoq"><img src="https://github.com/enzoq.png" width="60px" alt="" /></a><a href="https://github.com/mighty-office"><img src="https://github.com/mighty-office.png" width="60px" alt="Mighty GmbH" /></a><a href="https://github.com/Fruugul"><img src="https://github.com/Fruugul.png" width="60px" alt="Fruugul" /></a><a href="https://github.com/petervaradi"><img src="https://github.com/petervaradi.png" width="60px" alt="" /></a><!-- sponsors -->
 
 ## Features
 
@@ -177,7 +187,7 @@ Please visit the official documentation site at [https://titaniumsdk.com/](https
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium_mobile/discussions).
+Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium-sdk/discussions).
 
 ### Twitter
 

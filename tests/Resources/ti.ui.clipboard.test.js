@@ -14,7 +14,7 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.Clipboard', () => {
 	let win = null;
-	const waitTime = 250;
+	const waitTime = 1500;
 
 	beforeEach(() => {
 		if (win === null) {

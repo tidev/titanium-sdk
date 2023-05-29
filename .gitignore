@@ -28,6 +28,8 @@ npm-debug.log
 /android/titanium/.idea/
 /android/titanium/local.properties
 /android/titanium.bindings.json
+.idea/
+/android/.idea/
 
 # Build dirs
 /dist

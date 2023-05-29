@@ -135,6 +135,9 @@ public class TiUIVideoView
 		if (d.containsKey(TiC.PROPERTY_REPEAT_MODE)) {
 			videoView.setRepeatMode(TiConvert.toInt(d, TiC.PROPERTY_REPEAT_MODE));
 		}
+		if (d.containsKey("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(d, "autoHide"));
+		}
 	}
 
 	@Override
@@ -161,6 +164,8 @@ public class TiUIVideoView
 			videoView.setRepeatMode(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_SHOWS_CONTROLS)) {
 			setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
+		} else if (key.equals("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
