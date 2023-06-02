@@ -1902,7 +1902,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer'.cyan) + '\n');
+				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer'.cyan) + '\n');
 				process.exit(1);
 			}
 
