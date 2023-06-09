@@ -1011,13 +1011,11 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge
 {
-  NSLog(@"[WARN] Called delegate resourceLoader:didCancelAuthenticationChallenge:");
+  NSLog(@"[DEBUG] Cancelled resource loader authentication challenge");
 }
 
 - (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
 {
-  NSLog(@"[WARN] Called delegate resourceLoader:shouldWaitForLoadingOfRequestedResource:");
-
   NSString *contentId = loadingRequest.request.URL.host;
 
   if (contentId) {
@@ -1042,7 +1040,6 @@ NSArray *moviePlayerKeys = nil;
                                               }];
 
       [task resume];
-      NSLog(@"[WARN] Handshake successfully completed!");
 
       return YES;
     } else {
