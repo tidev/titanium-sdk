@@ -44,7 +44,7 @@
   TiVideoPlayerPlaybackState _playbackState;
 
   NSData *fairPlayCertificate;
-  KrollCallback *fairPlayCallback;
+  NSString *fairPlayLicenseURL;
 }
 
 @property (nonatomic, readwrite, assign) id url;

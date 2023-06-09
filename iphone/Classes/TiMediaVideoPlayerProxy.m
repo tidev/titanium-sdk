@@ -147,7 +147,7 @@ NSArray *moviePlayerKeys = nil;
     AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url options:nil];
 
     // Apply DRM validation if configuration is provided
-    if (fairPlayCallback != nil) {
+    if (fairPlayCertificate != nil) {
       [urlAsset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
     }
 
@@ -202,11 +202,11 @@ NSArray *moviePlayerKeys = nil;
 
   NSLog(@"[WARN] Setting \"fairPlayConfiguration\" property …");
 
+  fairPlayLicenseURL = [[TiUtils stringValue:@"licenseURL" properties:params] retain];
   fairPlayCertificate = [[(TiBlob *)params[@"certificate"] data] retain];
-  fairPlayCallback = [params[@"callback"] retain];
 
-  if (fairPlayCertificate == nil || fairPlayCallback == nil) {
-    [self throwException:@"Invalid method call!" subreason:@"Missing certificate or callback" location:CODELOCATION];
+  if (fairPlayCertificate == nil || fairPlayLicenseURL == nil) {
+    [self throwException:@"Invalid method call!" subreason:@"Missing certificate, callback or fairPlayLicenseURL" location:CODELOCATION];
   }
 }
 
@@ -359,8 +359,7 @@ NSArray *moviePlayerKeys = nil;
     AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url options:nil];
 
     // Apply DRM validation if configuration is provided
-    if (fairPlayCallback != nil) {
-      NSLog(@"[WARN] Setting native resourceLoader delegate …");
+    if (fairPlayCertificate != nil) {
       [urlAsset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
     }
 
@@ -1019,52 +1018,39 @@ NSArray *moviePlayerKeys = nil;
 {
   NSLog(@"[WARN] Called delegate resourceLoader:shouldWaitForLoadingOfRequestedResource:");
 
-  AVAssetResourceLoadingDataRequest *dataRequest = loadingRequest.dataRequest;
-  if (dataRequest == nil) {
-    NSLog(@"[ERROR] No data request available!");
+  NSString *contentId = loadingRequest.request.URL.host;
 
-    return NO;
-  }
+  if (contentId) {
+    NSError *error;
+    NSData *contentIdData = [contentId dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *spcData = [loadingRequest streamingContentKeyRequestDataForApp:fairPlayCertificate contentIdentifier:contentIdData options:nil error:&error];
 
-  NSString *licenseURL = [loadingRequest.request.URL.absoluteString ?: @"" stringByReplacingOccurrencesOfString:@"skd" withString:@"https"];
-  id contentIdData = [loadingRequest.request.URL.host ?: @"" dataUsingEncoding:NSUTF8StringEncoding];
-  NSError *error = nil;
-  id spcData = [loadingRequest streamingContentKeyRequestDataForApp:fairPlayCertificate
-                                                  contentIdentifier:contentIdData
-                                                            options:nil
-                                                              error:&error];
-  if (spcData == nil) {
-    NSLog(@"[ERROR] SPC Data is null (received via streamingContentKeyRequestDataForApp:contentIdentifier:options:error)");
-    if (error != nil) {
-      NSLog(@"[ERROR] %@", error.localizedDescription);
+    if (error == nil) {
+      NSMutableURLRequest *ckcRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fairPlayLicenseURL]];
+      [ckcRequest setHTTPMethod:@"POST"];
+      [ckcRequest setHTTPBody:spcData];
+
+      NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+      NSURLSessionDataTask *task = [session dataTaskWithRequest:ckcRequest
+                                              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                if (data) {
+                                                  [loadingRequest.dataRequest respondWithData:data];
+                                                  [loadingRequest finishLoading];
+                                                } else {
+                                                  [loadingRequest finishLoadingWithError:error];
+                                                }
+                                              }];
+
+      [task resume];
+      NSLog(@"[WARN] Handshake successfully completed!");
+
+      return YES;
+    } else {
+      [loadingRequest finishLoadingWithError:error];
     }
-
-    return NO;
   }
 
-  NSString *spc = [spcData base64EncodedStringWithOptions:0];
-  NSLog(@"[WARN] SPC String: %@", spc);
-  NSLog(@"[WARN] Calling previously set \"callback\" function …");
-  NSString *ckcString = [fairPlayCallback call:@[ @{ @"spc" : spc, @"licenseURL" : licenseURL } ] thisObject:self];
-  NSLog(@"[WARN] Callback returned the CKC String: %@", ckcString);
-
-  NSData *ckc = [[NSData alloc] initWithBase64EncodedString:ckcString options:0];
-  NSError *loadingRequestError = nil;
-  [dataRequest respondWithData:ckc];
-
-  loadingRequest.contentInformationRequest.contentType = AVStreamingKeyDeliveryContentKeyType;
-  [loadingRequest finishLoadingWithError:loadingRequestError];
-
-  if (error != nil) {
-    NSLog(@"[ERROR] Loading request error: %@", error.localizedDescription);
-  }
-
-  [fairPlayCallback release];
-  [fairPlayCertificate release];
-
-  NSLog(@"[WARN] Handshake successfully completed!");
-
-  return YES;
+  return NO;
 }
 
 @end
