@@ -52,7 +52,8 @@ description: |
       '})()'
     );
     ```
-    The `binding.min.js` file is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+    
+    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium-sdk/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
 
     <b>iOS</b>:
     For iOS have a look at the example in <Titanium.UI.WebView.addScriptMessageHandler> for custom handler names or if you run the manual evalJS version

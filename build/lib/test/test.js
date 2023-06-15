@@ -42,6 +42,8 @@ const OS_VERSION_PREFIX = 'OS_VERSION: ';
 // Sniff if we're on Travis/Jenkins
 const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
 
+let showFailedOnly = false;
+
 /**
  * Generates a test app, then runs the app for each platform with our
  * test suite. Outputs the results in a JUnit test report,
@@ -54,9 +56,11 @@ const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
  * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
+ * @param {string} [failedOnly] Show only failed tests
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly) {
+	showFailedOnly = failedOnly;
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
 	console.log(platforms);
 	// delete old test app (if does not exist, this will no-op)
@@ -1002,7 +1006,9 @@ async function outputResults(results) {
 				--indents;
 			} else {
 				passes++;
-				console.log(indent() + '  ✓'.green + ' %s '.gray, test.title);
+				if (!showFailedOnly) {
+					console.log(indent() + '  ✓'.green + ' %s '.gray, test.title);
+				}
 			}
 		});
 		--indents;
