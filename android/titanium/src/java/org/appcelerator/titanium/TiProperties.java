@@ -16,6 +16,9 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
+
 /**
  * API for accessing, storing, and modifying application properties that are
  * exposed via Ti.App.Properties.
@@ -24,8 +27,10 @@ public class TiProperties
 {
 	private static final String TAG = "TiProperties";
 	private static JSONObject systemProperties;
+	public static boolean useEncryption = false;
 
 	SharedPreferences preferences;
+	SharedPreferences preferencesPlain;
 
 	/**
 	 * Instantiates the private SharedPreferences collection with the given name and context.
@@ -36,7 +41,8 @@ public class TiProperties
 	 */
 	public TiProperties(Context context, String name, boolean clear)
 	{
-		preferences = context.getSharedPreferences(name, Context.MODE_PRIVATE);
+		preferencesPlain = context.getSharedPreferences(name, Context.MODE_PRIVATE);
+		preferences = preferencesPlain;
 		if (clear) {
 			preferences.edit().clear().commit();
 		}
@@ -53,7 +59,6 @@ public class TiProperties
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "getString called with key:" + key + ", def:" + def);
 		}
-
 		Object value = getPreference(key);
 		if (value != null) {
 			return value.toString();
@@ -65,7 +70,7 @@ public class TiProperties
 	public Object getPreference(String key)
 	{
 		Object value = null;
-		if (systemProperties != null) {
+		if (!useEncryption && systemProperties != null) {
 			try {
 				value = systemProperties.get(key);
 			} catch (JSONException e) {
@@ -76,6 +81,32 @@ public class TiProperties
 			value = preferences.getAll().get(key);
 		}
 		return value;
+	}
+
+	public SharedPreferences.Editor getEditor()
+	{
+		if (useEncryption) {
+			try {
+				MasterKey masterKey = new MasterKey.Builder(TiApplication.getAppCurrentActivity())
+					.setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+					.build();
+
+				SharedPreferences sharedPreferences = EncryptedSharedPreferences.create(
+					TiApplication.getAppCurrentActivity(),
+					"secret_shared_prefs",
+					masterKey,
+					EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+					EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+				);
+				preferences = sharedPreferences;
+				return sharedPreferences.edit();
+			} catch (Exception ex) {
+				Log.e(TAG, "Error: " + ex.getMessage());
+			}
+		} else {
+			preferences = preferencesPlain;
+		}
+		return preferences.edit();
 	}
 
 	/**
@@ -97,7 +128,7 @@ public class TiProperties
 			return;
 		}
 
-		SharedPreferences.Editor editor = preferences.edit();
+		SharedPreferences.Editor editor = getEditor();
 		if (value == null) {
 			editor.remove(key);
 		} else {
@@ -158,7 +189,7 @@ public class TiProperties
 			return;
 		}
 
-		SharedPreferences.Editor editor = preferences.edit();
+		SharedPreferences.Editor editor = getEditor();
 		editor.putInt(key, value);
 		editor.commit();
 	}
@@ -206,7 +237,7 @@ public class TiProperties
 			return;
 		}
 
-		SharedPreferences.Editor editor = preferences.edit();
+		SharedPreferences.Editor editor = getEditor();
 		editor.putString(key, value + "");
 		editor.commit();
 	}
@@ -264,7 +295,7 @@ public class TiProperties
 			return;
 		}
 
-		SharedPreferences.Editor editor = preferences.edit();
+		SharedPreferences.Editor editor = getEditor();
 		editor.putBoolean(key, value);
 		editor.commit();
 	}
@@ -305,7 +336,7 @@ public class TiProperties
 			Log.d(TAG, "setList called with key:" + key + ", value:" + value);
 		}
 
-		SharedPreferences.Editor editor = preferences.edit();
+		SharedPreferences.Editor editor = getEditor();
 		for (int i = 0; i < value.length; i++) {
 			editor.putString(key + "." + i, value[i]);
 		}
@@ -375,7 +406,7 @@ public class TiProperties
 		}
 
 		if (preferences.contains(key)) {
-			SharedPreferences.Editor editor = preferences.edit();
+			SharedPreferences.Editor editor = getEditor();
 			editor.remove(key);
 			editor.commit();
 		}

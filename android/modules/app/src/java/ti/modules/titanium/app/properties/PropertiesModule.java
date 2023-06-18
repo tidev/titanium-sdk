@@ -120,6 +120,13 @@ public class PropertiesModule extends KrollModule
 		}
 	}
 
+	@Kroll.setProperty
+	public void useEncryption(boolean value)
+	{
+		TiProperties.useEncryption = value;
+		appProperties.getEditor();
+	}
+
 	@Override
 	public String getApiName()
 	{
