@@ -137,7 +137,7 @@
     "commander": "8.2.0",
     "commitizen": "4.3.0",
     "conventional-changelog-cli": "2.2.2",
-    "core-js": "3.27.2",
+    "core-js": "3.31.0",
     "core-js-compat": "3.6.5",
     "cz-conventional-changelog": "3.3.0",
     "danger": "10.6.6",
