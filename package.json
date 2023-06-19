@@ -93,7 +93,7 @@
     "appc-tasks": "1.0.3",
     "archiver": "5.3.1",
     "async": "3.2.4",
-    "boxen": "5.1.2",
+    "boxen": "7.1.0",
     "buffer-equal": "1.0.1",
     "clean-css": "5.3.2",
     "colors": "1.4.0",
