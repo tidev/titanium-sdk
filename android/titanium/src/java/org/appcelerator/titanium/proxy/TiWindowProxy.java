@@ -533,6 +533,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
 			if (flagVal) {
+				intent.putExtra(TiC.PROPERTY_FULLSCREEN, flagVal);
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
 			}
 		}

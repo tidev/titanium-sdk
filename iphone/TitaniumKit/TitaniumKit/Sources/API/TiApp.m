@@ -23,6 +23,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <libkern/OSAtomic.h>
 
+#import <TitaniumKit/TitaniumKit-Swift.h>
+
 TiApp *sharedApp;
 
 NSString *TITANIUM_VERSION;
@@ -353,9 +355,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   NSDictionary *userActivityDictionary = launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
 
   // Map user activity if exists
-  if (userActivityDictionary != nil) {
-    NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
-
+  NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
+  if (userActivity != nil && [userActivity isKindOfClass:[NSUserActivity class]]) {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
 
     if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
@@ -1132,8 +1133,9 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
 //TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
+  NSLog(@"[ERROR] Application received error: %@", message);
+
   if ([[TiSharedConfig defaultConfig] showErrorController] == NO) {
-    NSLog(@"[ERROR] Application received error: %@", message);
     return;
   }
   ENSURE_UI_THREAD(showModalError, message);
@@ -1143,6 +1145,25 @@ TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be ru
   RELEASE_TO_NIL(error);
 
   [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
+}
+
+- (void)showDetailedModalError:(TiScriptError *)error
+{
+  if ([[TiSharedConfig defaultConfig] showErrorController] == NO) {
+    NSLog(@"[ERROR] Application received error: %@", error.message);
+    return;
+  }
+  ENSURE_UI_THREAD(showDetailedModalError, error);
+
+  if (@available(iOS 13, *)) {
+    TiErrorController *errorVC = [[TiErrorController alloc] initWithScriptError:error];
+    TiErrorNavigationController *nav = [[[TiErrorNavigationController alloc] initWithRootViewController:errorVC] autorelease];
+    RELEASE_TO_NIL(errorVC);
+
+    [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
+  } else {
+    [self showModalError:error.description];
+  }
 }
 
 - (void)showModalController:(UIViewController *)modalController animated:(BOOL)animated

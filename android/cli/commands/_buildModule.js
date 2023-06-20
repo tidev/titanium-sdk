@@ -252,7 +252,17 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 			}
 
 			// get javac params
-			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
+			this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
+
+			// TODO remove in the next SDK
+			if (cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value) {
+				logger.error(__('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory') + '\n');
+				this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'].value;
+			}
+
+			if (cli.timodule.properties['android.javac.maxMemory'] && cli.timodule.properties['android.javac.maxMemory'].value) {
+				this.javacMaxMemory = cli.timodule.properties['android.javac.maxMemory'].value;
+			}
 
 			// detect java development kit
 			appc.jdk.detect(config, null, function (jdkInfo) {
@@ -413,6 +423,7 @@ AndroidModuleBuilder.prototype.loginfo = async function loginfo() {
 AndroidModuleBuilder.prototype.cleanup = async function cleanup() {
 	// Clean last packaged build in "dist" directory in case this build fails.
 	await fs.emptyDir(this.distDir);
+	await fs.emptyDir(this.buildDir);
 
 	// Delete entire "build" directory tree if we can't find a gradle "module" project directory under it.
 	// This assumes last built module was using older version of Titanium that did not support gradle.
@@ -709,12 +720,14 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	}
 
 	// Add the "example" app project files to the archive.
-	if (await fs.exists(this.exampleDir)) {
+	/*
+  if (await fs.exists(this.exampleDir)) {
 		await this.dirWalker(this.exampleDir, (filePath) => {
 			const zipEntryName = path.join(moduleFolder, 'example', path.relative(this.exampleDir, filePath));
 			dest.append(fs.createReadStream(filePath), { name: zipEntryName });
 		});
 	}
+  */
 
 	// Add the event hook plugin scripts to the archive.
 	const hookFiles = {};
@@ -882,6 +895,18 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 			logger: this.logger.debug
 		}
 	);
+
+	// Copy example/platform to tmp/platform to use a custom build.gradle
+	if (fs.existsSync(path.join(this.exampleDir, 'platform'))) {
+		appc.fs.copyDirSyncRecursive(
+			path.join(this.exampleDir, 'platform'),
+			path.join(tmpProjectDir, 'platform'),
+			{
+				preserve: true,
+				logger: this.logger.debug
+			}
+		);
+	}
 
 	// Unzip module into temp app's "modules" directory.
 	await util.promisify(appc.zip.unzip)(this.moduleZipPath, tmpProjectDir, null);

@@ -879,7 +879,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// Fetch Java max heap size setting.
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
+	this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
+
+	// TODO remove in the next SDK
+	if (cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value) {
+		logger.error(__('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory') + '\n');
+		this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'].value;
+	}
+
+	if (cli.tiapp.properties['android.javac.maxMemory'] && cli.tiapp.properties['android.javac.maxMemory'].value) {
+		this.javacMaxMemory = cli.tiapp.properties['android.javac.maxMemory'].value;
+	}
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
@@ -3722,6 +3732,7 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 			'org.appcelerator.titanium.TiActivity',
 			'org.appcelerator.titanium.TiTranslucentActivity',
 			'org.appcelerator.titanium.TiCameraActivity',
+			'org.appcelerator.titanium.TiCameraXActivity',
 			'org.appcelerator.titanium.TiVideoActivity'
 		];
 		for (const activityName of tiActivityNames) {

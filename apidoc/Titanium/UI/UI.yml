@@ -167,6 +167,9 @@ description:  |
       * logo-dark@3x.png
 
     And you would reference the image as before using `logo-dark.png`
+
+    Android:
+    You can use the native `app/assets/android/images/res-night` folder (extend them with e.g. `res-night-xxhdpi` if needed) for dark-mode images.
 extends: Titanium.Module
 since: "0.4"
 platforms: [android, iphone, ipad, macos]
@@ -1202,7 +1205,7 @@ properties:
     type: Number
     permission: read-only
     since: "12.0.0"
-    osver: { ios: { min: "16.0" } }    
+    osver: { ios: { min: "16.0" } }
     platforms: [iphone, ipad, macos]
 
   - name: AUTOLINK_PHYSICAL_VALUE
@@ -1213,7 +1216,7 @@ properties:
     type: Number
     permission: read-only
     since: "12.0.0"
-    osver: { ios: { min: "16.0" } }    
+    osver: { ios: { min: "16.0" } }
     platforms: [iphone, ipad, macos]
 
   - name: AUTOLINK_EMAIL_ADDRESSES
@@ -1854,15 +1857,6 @@ properties:
     permission: read-only
     platforms: [android]
 
-  - name: KEYBOARD_APPEARANCE_ALERT
-    summary: Use a keyboard appearance suitable for entering text on an alert.
-    type: Number
-    permission: read-only
-    deprecated:
-        since: "5.4.0"
-        removed: "8.0.0"
-    platforms: [iphone, ipad]
-
   - name: KEYBOARD_APPEARANCE_DEFAULT
     summary: Use the platform-specific default keyboard appearance.
     type: Number
@@ -1882,143 +1876,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
     since: "5.2.0"
-
-  - name: KEYBOARD_ASCII
-    summary: Use a keyboard supporting all characters except emoji. Defaults to English letters layout on iOS.
-    description: |
-        This keyboard type allows the end-user to enter numbers, symbols, and non-English letters too.
-        It just launches with the English letters keyboard layout when shown.
-        This type will not allow the end-user to display an emoji keyboard.
-
-        Android keyboards will typically ignore this setting and show the default language keyboard instead,
-        but will still not allow the end-user to enter emoji characters like iOS.
-
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_ASCII](Titanium.UI.KEYBOARD_TYPE_ASCII) instead.
-
-  - name: KEYBOARD_DECIMAL_PAD
-    summary: Use a number pad keyboard layout showing only numbers, decimal separator, and sign character.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-
-        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_DEFAULT>.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD](Titanium.UI.KEYBOARD_TYPE_DECIMAL_PAD) instead.
-
-  - name: KEYBOARD_DEFAULT
-    summary: Use the default keyboard, depending on the platform.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_DEFAULT](Titanium.UI.KEYBOARD_TYPE_DEFAULT) instead.
-
-  - name: KEYBOARD_EMAIL
-    summary: Use a keyboard suitable for composing email, with the standard keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_EMAIL](Titanium.UI.KEYBOARD_TYPE_EMAIL) instead.
-
-  - name: KEYBOARD_NAMEPHONE_PAD
-    summary: Use a keyboard suitable for entering names and phone numbers, with the pad keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD](Titanium.UI.KEYBOARD_TYPE_NAMEPHONE_PAD) instead.
-
-  - name: KEYBOARD_NUMBERS_PUNCTUATION
-    summary: Use a keyboard supporting all characters except emoji, defaulting to numbers layout on iOS.
-    description: |
-        On iOS, this will default to showing the "Numbers and Punctuation" side of the keyboard,
-        but still allows the end-user to switch to other keyboards for entering letters as well.
-        This type will not allow the end-user to display an emoji keyboard.
-
-        On Android, this type displays a normal keyboard defaulting to the letter side,
-        but will not allow the end-user to enter emoji characters like iOS.
-
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    platforms: [android, iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION](Titanium.UI.KEYBOARD_TYPE_NUMBERS_PUNCTUATION) instead.
-
-  - name: KEYBOARD_NUMBER_PAD
-    summary: Use a number pad keyboard layout only showing numbers for entering positive integers.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-
-        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD](Titanium.UI.KEYBOARD_TYPE_NUMBER_PAD) instead.
-
-  - name: KEYBOARD_PHONE_PAD
-    summary: Use a keyboard with a phone-style number pad, with the pad keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-
-        On iPad, this behaves the same as <Titanium.UI.KEYBOARD_NUMBERS_PUNCTUATION>.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_PHONE_PAD](Titanium.UI.KEYBOARD_TYPE_PHONE_PAD) instead.
-
-  - name: KEYBOARD_URL
-    summary: Use a keyboard optimized for entering URLs, with the standard keyboard layout.
-    description: |
-        Use with the <Titanium.UI.TextField.keyboardType> and <Titanium.UI.TextArea.keyboardType>
-        properties.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-    deprecated:
-        since: "5.2.0"
-        removed: "8.0.0"
-        notes: Use [Titanium.UI.KEYBOARD_TYPE_URL](Titanium.UI.KEYBOARD_TYPE_URL) instead.
 
   - name: KEYBOARD_TYPE_DECIMAL_PAD
     type: Number
@@ -2893,6 +2750,13 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
+  - name: availableSystemFontFamilies
+    summary: Returns a list of font families that are provided by the system.
+    type: Array<String>
+    permission: read-only
+    platforms: [android, iphone, ipad, macos]
+    since: "12.1.0"
+
   - name: backgroundColor
     summary: |
         Sets the background color of the master view (when there are no windows or other top-level
@@ -2950,6 +2814,25 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
+  - name: cutoutSize
+    summary:  Returns the position and shape of the Android notch. Read more about the notch [here](https://developer.android.com/develop/ui/views/layout/display-cutout).
+    description: |
+        Using Android 9+ it will return the bounding box of the Android notch. It will return `top`,`left, `width` and `height`.
+    type: CutoutSize
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: statusBarHeight
+    summary: The total height of the status bar including safe area padding.
+    description: |
+        Use this property to determine an absolute spacing to the top in full screen windows. Note: For a more flexible approach, e.g.
+        when allowing rotation, we recommend using the <Titanium.UI.Window.safeAreaPadding> property of the related window.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, macos, android]
+    since: "12.1.0"
+
 examples:
   - title: Color Demo
     example: |
@@ -2989,3 +2872,25 @@ examples:
         win.add(table);
         win.open();
         ```
+
+---
+name: CutoutSize
+summary: Dictionary object of parameters for the <Titanium.UI.cutoutSize>.
+since: "12.1.0"
+platforms: [android]
+properties:
+  - name: top
+    type: Number
+    summary: The top position of the cutout.
+
+  - name: left
+    type: Number
+    summary: The left position of the cutout.
+
+  - name: width
+    type: Number
+    summary: The width of the cutout
+
+  - name: height
+    type: Number
+    summary: The height of the cutout
