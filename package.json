@@ -87,7 +87,7 @@
   "dependencies": {
     "@babel/core": "7.11.6",
     "@babel/types": "7.11.5",
-    "@npmcli/arborist": "2.10.0",
+    "@npmcli/arborist": "6.2.10",
     "always-tail": "0.2.0",
     "ansi-escapes": "4.3.2",
     "appc-tasks": "1.0.3",
