@@ -141,7 +141,7 @@
     "core-js-compat": "3.6.5",
     "cz-conventional-changelog": "3.3.0",
     "danger": "10.6.6",
-    "eslint": "8.13.0",
+    "eslint": "8.43.0",
     "eslint-config-axway": "7.0.0",
     "eslint-plugin-mocha": "10.0.4",
     "folder-hash": "4.0.4",
