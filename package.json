@@ -122,7 +122,7 @@
     "yauzl": "2.10.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "13.2.0",
+    "@commitlint/cli": "17.6.6",
     "@commitlint/config-conventional": "13.2.0",
     "@rollup/plugin-babel": "5.3.0",
     "@rollup/plugin-commonjs": "21.0.3",
