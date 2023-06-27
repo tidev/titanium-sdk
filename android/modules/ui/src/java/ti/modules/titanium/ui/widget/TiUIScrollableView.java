@@ -25,6 +25,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import android.util.DisplayMetrics;
@@ -564,6 +566,23 @@ public class TiUIScrollableView extends TiUIView
 		}
 
 		mPager.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+
+		if (TiConvert.toBoolean(d.containsKey("adjustPadding"), false)) {
+			int finalPaddingLeft = paddingLeft;
+			int finalPaddingRight = paddingRight;
+			mPager.setPageTransformer(false, new ViewPager.PageTransformer()
+			{
+				@Override
+				public void transformPage(@NonNull View page, float position)
+				{
+					if (mPager.getCurrentItem() == 0) {
+						page.setTranslationX(-1 * finalPaddingLeft);
+					} else {
+						page.setTranslationX(0);
+					}
+				}
+			});
+		}
 	}
 
 	@Override
