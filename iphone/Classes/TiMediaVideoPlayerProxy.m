@@ -413,6 +413,8 @@ NSArray *moviePlayerKeys = nil;
       imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
     }
 
+    imageGenerator.appliesPreferredTrackTransform = YES;
+
     [imageGenerator cancelAllCGImageGeneration];
 
     RELEASE_TO_NIL(thumbnailCallback);

@@ -23,8 +23,7 @@ import android.app.Activity;
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
 		TiC.PROPERTY_HEADER_TITLE,
-		TiC.PROPERTY_HEADER_VIEW,
-		TiC.PROPERTY_ITEMS
+		TiC.PROPERTY_HEADER_VIEW
 	})
 public class ListSectionProxy extends TiViewProxy
 {
@@ -51,11 +50,8 @@ public class ListSectionProxy extends TiViewProxy
 	{
 		final List<ListItemProxy> items = processItems(dataItems);
 
-		for (final ListItemProxy item : items) {
-
-			// Add to current items.
-			this.items.add(item);
-		}
+		// Add to current items.
+		this.items.addAll(items);
 
 		// Notify ListView of new items.
 		update();
@@ -197,6 +193,12 @@ public class ListSectionProxy extends TiViewProxy
 		}
 
 		return dataItems;
+	}
+
+	@Kroll.setProperty
+	public void setItems(Object value)
+	{
+		setItems(value, null);
 	}
 
 	/**

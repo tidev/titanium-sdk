@@ -492,6 +492,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
   return tiColor;
 }
 
+- (NSNumber *)statusBarHeight
+{
+  return @(UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame.size.height);
+}
+
 #pragma mark iPhone namespace
 
 #ifdef USE_TI_UIIPAD
@@ -546,6 +551,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 {
   DEPRECATED_REPLACED(@"UI.3DMatrix", @"8.0.0", @"UI.Matrix3D");
   return [self createMatrix3D:args];
+}
+
+- (id)availableSystemFontFamilies
+{
+  return [UIFont familyNames];
 }
 
 #ifdef USE_TI_UICLIPBOARD

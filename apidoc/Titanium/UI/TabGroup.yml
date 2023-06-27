@@ -192,9 +192,9 @@ methods:
         Disable (or re-enable) tab navigation. If tab navigation is disabled, the tabs are hidden and
         the last selected tab window is shown.
     parameters:
-      - name: disable
-        summary: True to disable tab navigation, false to re-enable the tabs.
-        type: Boolean
+      - name: params
+        summary: Boolean to disable tab navigation or dictionary (since 12.1.0).
+        type: disableTabOptions
     platforms: [android]
     since: 3.6.0
 
@@ -588,6 +588,12 @@ properties:
     platforms: [iphone, ipad, macos]
     since: { iphone: "3.1.0", ipad: "3.1.0" }
 
+  - name: tabBarVisible
+    summary: Programmatically shows / hides the bottom tab bar of the tab group.
+    type: Boolean
+    platforms: [android, iphone, ipad, macos]
+    since: "12.1.0"
+
 examples:
   - title: Alloy XML Markup
     example: |
@@ -672,3 +678,19 @@ examples:
         });
         tabGroup.open();
         ```
+---
+name: disableTabOptions
+summary: Dictionary of options for the <Titanium.UI.TabGroup.disableTabOptions> method.
+platforms: [android, iphone, ipad, macos]
+since: {android: "12.1.0", iphone: "12.1.0", ipad: "12.1.0", macos: "12.1.0"}
+properties:
+  - name: animated
+    summary: |
+        Determines whether to use an animated effect to hide/show the navigation bar.
+    type: Boolean
+    default: false
+  - name: enabled
+    summary: |
+        Show or hide the navigation bar.
+    type: Boolean
+    default: false

@@ -182,6 +182,13 @@ properties:
     description: |
         Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state.
 
+  - name: secure
+    type: Boolean
+    summary: Creates a secure socket.
+    since: "12.1.0"
+    default: false
+    platforms: [android]
+
   - name: listenQueueSize
     type: Number
     summary: Max number of pending incoming connections to be allowed when the socket is

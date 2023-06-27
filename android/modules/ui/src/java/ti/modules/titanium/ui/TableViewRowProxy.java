@@ -379,7 +379,7 @@ public class TableViewRowProxy extends TiViewProxy
 		for (final WeakReference ref : clones) {
 			final TableViewRowProxy clone = (TableViewRowProxy) ref.get();
 
-			if (ref != null) {
+			if (ref != null && clone != null) {
 				clone.onPropertyChanged(name, value);
 			}
 		}
