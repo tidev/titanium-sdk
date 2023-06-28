@@ -21,6 +21,8 @@ import org.appcelerator.titanium.io.TiStream;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiStreamHelper;
 
+import javax.net.ssl.SSLSocketFactory;
+
 import ti.modules.titanium.BufferProxy;
 
 @Kroll.proxy(creatableInModule = SocketModule.class)
@@ -35,6 +37,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 	private KrollDict acceptOptions = null;
 	private int state = 0;
 
+	private boolean secure = false;
 	public TCPProxy()
 	{
 		super();
@@ -47,6 +50,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 		if ((state != SocketModule.LISTENING) && (state != SocketModule.CONNECTED)) {
 			Object host = getProperty("host");
 			Object port = getProperty("port");
+			secure = TiConvert.toBoolean(getProperty("secure"), false);
 			if ((host != null) && (port != null) && (TiConvert.toInt(port) > 0)) {
 				new ConnectedSocketThread().start();
 
@@ -191,17 +195,25 @@ public class TCPProxy extends KrollProxy implements TiStream
 		{
 			String host = TiConvert.toString(getProperty("host"));
 			Object timeoutProperty = getProperty("timeout");
+			secure = TiConvert.toBoolean(getProperty("secure"), false);
 
 			try {
+				if (secure) {
+					SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
+					clientSocket = s.createSocket();
+				} else {
+					clientSocket = new Socket();
+				}
+
+				InetSocketAddress endpoint = new InetSocketAddress(host, TiConvert.toInt(getProperty("port")));
+
 				if (timeoutProperty != null) {
 					int timeout = TiConvert.toInt(timeoutProperty, 0);
-
-					clientSocket = new Socket();
-					clientSocket.connect(new InetSocketAddress(host, TiConvert.toInt(getProperty("port"))), timeout);
-
+					clientSocket.connect(endpoint, timeout);
 				} else {
-					clientSocket = new Socket(host, TiConvert.toInt(getProperty("port")));
+					clientSocket.connect(endpoint);
 				}
+
 				updateState(SocketModule.CONNECTED, "connected", buildConnectedCallbackArgs());
 
 			} catch (UnknownHostException e) {
