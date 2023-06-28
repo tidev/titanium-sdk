@@ -205,6 +205,15 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
 
+  - name: badgeTextColor
+    summary: |
+        Set the text color of the badge.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: {android: "12.2.0"}
+
   - name: icon
     summary: Icon URL for this tab.
     description: |
