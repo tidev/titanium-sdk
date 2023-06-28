@@ -16,6 +16,11 @@
 			android:configChanges="${tiActivityConfigChanges}"
 			android:theme="@style/Theme.Titanium.Dark.Fullscreen"/>
 		<activity
+			android:name="ti.modules.titanium.media.TiCameraXActivity"
+			android:exported="false"
+			android:configChanges="${tiActivityConfigChanges}"
+			android:theme="@style/Theme.Titanium.Dark.Fullscreen"/>
+		<activity
 			android:name="ti.modules.titanium.media.TiVideoActivity"
 			android:exported="false"
 			android:configChanges="${tiActivityConfigChanges}"
@@ -30,9 +35,5 @@
 			android:exported="false"
 			android:grantUriPermissions="true"/>
 
-		<service
-			android:name="com.appcelerator.aps.APSAnalyticsService"
-			android:permission="android.permission.BIND_JOB_SERVICE"
-			android:exported="false"/>
 	</application>
 </manifest>

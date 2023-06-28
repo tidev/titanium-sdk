@@ -78,18 +78,8 @@ properties:
         Use `boolean` type for `isLeapMonth`.
     type: Dictionary
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "8.0"}}
     since: {iphone: "3.6.0", ipad: "3.6.0", macos: "9.2.0"}
 
-  - name: created
-    summary: Date and time that the person record was created. Single value. Deprecated since iOS 9.
-    description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-    type: String
-    permission: read-only
-    platforms: [iphone, ipad, macos]
-    osver: {ios: {max: "8.0"}}
-    since: {macos: "9.2.0"}
-    
   - name: date
     summary: Dates associated with the person. Multi-value.
     description: |
@@ -144,7 +134,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: {iphone: "5.0.0", ipad: "5.0.0", macos: "9.2.0"}
 
   - name: image
@@ -209,16 +198,7 @@ properties:
   - name: middlePhonetic
     summary: Phonetic middle name of the person. Single value.
     type: String
-    
-  - name: modified
-    summary: Date and time that the person record was last modified. Single value. Deprecated since iOS 9.
-    description: Date format is "_yyyy_-_MM_-_dd_**T**_HH_**:**_mm_**:**_ss_**.**_SSS_**+0000**"
-    type: String
-    permission: read-only
-    platforms: [iphone, ipad, macos]
-    osver: {ios: {max: "8.0"}}
-    since: {macos: "9.2.0"}
-    
+
   - name: nickname
     summary: Nickname of the person. Single value.
     type: String

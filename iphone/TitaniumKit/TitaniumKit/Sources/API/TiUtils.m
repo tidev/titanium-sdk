@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -797,19 +797,7 @@ static NSDictionary *sizeMap = nil;
 
 + (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
-  }
-  UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-  UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
-  imageView.tintColor = tintColor;
-
-  UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
-  [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
-  UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
-
-  return [tintedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+  return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url
@@ -1365,6 +1353,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
     NSString *callStack = error[@"nativeStack"].toString;
     NSArray<NSString *> *nativeStack = [callStack componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
     [errorDict setObject:nativeStack forKey:@"nativeStack"];
+  }
+  if ([error hasProperty:@"nativeLocation"]) {
+    [errorDict setObject:[error[@"nativeLocation"] toString] forKey:@"nativeLocation"];
   }
 
   return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];

@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -702,10 +702,13 @@ DEFINE_EXCEPTIONS
 
   if (image == nil) {
     NSURL *imageURL = [[self proxy] sanitizeURL:arg];
+    // Try to fix the URL, e.g. if the encoding was missed
+    if ([imageURL isKindOfClass:[NSString class]]) {
+      imageURL = [[self proxy] sanitizeURL:[TiUtils encodeURIParameters:arg]];
+    }
     if (![imageURL isKindOfClass:[NSURL class]]) {
-      [self throwException:@"invalid image type"
-                 subreason:[NSString stringWithFormat:@"expected TiBlob, String, TiFile, was: %@", [arg class]]
-                  location:CODELOCATION];
+      NSLog(@"[ERROR] Invalid image type: Expected TiBlob, String (qualified URL) or TiFile, was: %@", [arg class]);
+      return;
     }
 
     [self loadUrl:imageURL];

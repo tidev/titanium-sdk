@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -135,6 +135,9 @@ public class TiUIVideoView
 		if (d.containsKey(TiC.PROPERTY_REPEAT_MODE)) {
 			videoView.setRepeatMode(TiConvert.toInt(d, TiC.PROPERTY_REPEAT_MODE));
 		}
+		if (d.containsKey("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(d, "autoHide"));
+		}
 	}
 
 	@Override
@@ -161,6 +164,8 @@ public class TiUIVideoView
 			videoView.setRepeatMode(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_SHOWS_CONTROLS)) {
 			setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
+		} else if (key.equals("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

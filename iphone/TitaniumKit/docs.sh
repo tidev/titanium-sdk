@@ -21,10 +21,10 @@ echo "Generating TitaniumKit docs ..."
 jazzy \
   --objc \
   --clean \
-  --author Appcelerator \
-  --author_url https://appcelerator.com \
-  --github_url https://github.com/appcelerator/titanium_mobile \
-  --github-file-prefix https://github.com/appcelerator/titanium_mobile/tree/next \
+  --author TiDev \
+  --author_url https://tidev.io \
+  --github_url https://github.com/tidev/titanium_mobile \
+  --github-file-prefix https://github.com/tidev/titanium-sdk/tree/next \
   --module-version 8.1.0 \
   --sdk iphonesimulator \
   --umbrella-header TitaniumKit/TitaniumKitDocs.h \

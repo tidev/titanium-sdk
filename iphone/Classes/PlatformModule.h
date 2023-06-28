@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -31,6 +31,7 @@ READONLY_PROPERTY(TiPlatformDisplayCaps *, displayCaps, DisplayCaps);
 READONLY_PROPERTY(NSString *, id, Id);
 READONLY_PROPERTY(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 READONLY_PROPERTY(NSString *, identifierForVendor, IdentifierForVendor);
+READONLY_PROPERTY(bool, isTranslatedBinaryOnAppleSilicon, IsTranslatedBinaryOnAppleSilicon);
 READONLY_PROPERTY(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 READONLY_PROPERTY(NSString *, locale, Locale);
 READONLY_PROPERTY(NSString *, macaddress, Macaddress);

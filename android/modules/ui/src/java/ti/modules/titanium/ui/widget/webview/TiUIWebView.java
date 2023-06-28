@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,6 +34,7 @@ import java.util.Map;
 import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -66,6 +67,19 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
+
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A4 = 0;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A5 = 1;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A3 = 2;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A2 = 3;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A1 = 4;
+	@Kroll.constant
+	public static final int PDF_PAGE_AUTO = 5;
 
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
@@ -304,12 +318,6 @@ public class TiUIWebView extends TiUIView
 			settings.setDatabaseEnabled(true);
 		}
 
-		File cacheDir = TiApplication.getInstance().getCacheDir();
-		if (cacheDir != null) {
-			settings.setAppCacheEnabled(true);
-			settings.setAppCachePath(cacheDir.getAbsolutePath());
-		}
-
 		// Enable mixed content mode to allow loading HTTP resources within an HTTPS page.
 		// Note: This is an API Level 21 method. Use reflection to invoke it on older API Levels.
 		boolean mixedContentMode = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MIXED_CONTENT_MODE), false);
@@ -323,6 +331,13 @@ public class TiUIWebView extends TiUIView
 				// ignore...
 			}
 		}
+
+		boolean allowFileAccess = false; //file access should be false by default: https://developer.android.com/reference/android/webkit/WebSettings#setAllowFileAccess(boolean)
+		if (proxy.hasProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS)) {
+			allowFileAccess = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS), false);
+		}
+
+		settings.setAllowFileAccess(allowFileAccess);
 
 		// enable zoom controls by default
 		boolean enableZoom = true;

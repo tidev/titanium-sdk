@@ -34,14 +34,14 @@ description: |
 
     * When used with `scalingMode` set to VIDEO_SCALING_ASPECT_FILL or VIDEO_SCALING_NONE,
       the video content is not correctly clipped to the boundaries of the view.
-      ([TIMOB-7628](https://jira.appcelerator.org/browse/TIMOB-7628))
+      ([TIMOB-7628](https://jira-archive.titaniumsdk.com/TIMOB-7628))
 
     * When a border is set on the view, the video content does not take the border width
       into account, so the video content covers the border.
-      ([TIMOB-7628](https://jira.appcelerator.org/browse/TIMOB-7628))
+      ([TIMOB-7628](https://jira-archive.titaniumsdk.com/TIMOB-7628))
 
     * If a borderRadius is specified, the video content is not clipped to the rounded
-      corners. ([TIMOB-7629](https://jira.appcelerator.org/browse/TIMOB-7629))
+      corners. ([TIMOB-7629](https://jira-archive.titaniumsdk.com/TIMOB-7629))
 
     On Android, using a video player inside a scroll view is not recommended. When scrolling,
     black bars may appear over the video content.
@@ -270,29 +270,6 @@ events:
             is used. Otherwise, this value will be `-1`.
         type: Number
 
-  - name: fullscreen
-    deprecated:
-        since: "7.0.0"
-        notes: This event has been removed in Titanium SDK 7.0.0 as of the official deprecation by Apple.
-        removed: "7.0.0"
-    summary: Fired when a movie changes to or from fullscreen view.
-    description: |
-        On iOS, this event is fired at the beginning of the transition to
-        fullscreen mode. A `duration` property is provided, indicating the duration
-        of the animated transition to or from fullscreen mode.
-    platforms: [iphone, ipad]
-    properties:
-      - name: entering
-        summary: |
-            `true` if the player is entering fullscreen mode, `false` if it is leaving
-            fullscreen mode.
-        type: Boolean
-
-      - name: duration
-        summary: Duration of the animated transition to or from fullscreen mode, in seconds.
-        type: Number
-        platforms: [iphone, ipad, macos]
-
   - name: load
     summary: Fired when the movie play loads.
 
@@ -430,6 +407,18 @@ properties:
         conditions (if the movie is being streamed from a remote source).
     type: Boolean
     default: true
+
+  - name: autoHide
+    summary: Indicates if player is hidden by default and shown when its ready.
+    description: |
+        On Android the background of the video player is set to the primary background color.
+        When switching on `autoHide` it will hide the player until the video is loaded.
+        Then it will automatically show the player. In a <Titanium.UI.ListView> it will hide
+        it again when it is outside the viewport.
+    type: Boolean
+    platforms: [android]
+    since: 12.1.0
+    default: false
 
   - name: backgroundView
     deprecated:
@@ -604,7 +593,6 @@ properties:
     platforms: [iphone, ipad, macos]
     type: Boolean
     default: true
-    osver: {ios: {min: "9.0"}}
 
   - name: playableDuration
     summary: |

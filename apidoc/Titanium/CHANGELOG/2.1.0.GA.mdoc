@@ -22,8 +22,6 @@ applications developed with previous releases. Please read these release notes c
 before installing and using the Release 2.1.0 SDK. In particular, you should review the
 [New in This Release](#new) sections.
 
-[Full list of Issues that were addressed in Release 2.1.0](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13022)
-
 If you are upgrading from Titanium Mobile SDK 2.0.1, this release also includes all fixes included 
 in Release 2.0.2.
 
@@ -60,7 +58,7 @@ Documentation](https://docs.appcelerator.com/titanium/2.1/).
     property for more details.
 
 *   Support for Android and iOS modules combining JavaScript and native code
-    ([TIMOB-9314](https://jira.appcelerator.org/browse/TIMOB-9314)).
+    ([TIMOB-9314](https://jira-archive.titaniumsdk.com/TIMOB-9314)).
 
 *   `ScrollableView` scroll event enhancements. Prior to Release 2.1, the `ScrollableView`
     `scroll` event behavior was not consistent with the `scroll` event on other views. 
@@ -77,13 +75,13 @@ Documentation](https://docs.appcelerator.com/titanium/2.1/).
 
 *   Added `setObject` and `getObject` methods to
     [Ti.App.Properties](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.App.Properties) 
-    ([TIMOB-322](https://jira.appcelerator.org/browse/TIMOB-322)).
+    ([TIMOB-322](https://jira-archive.titaniumsdk.com/TIMOB-322)).
     
 *   New unit test framework. This release includes the first version of the new Anvil unit
     test framework. Anvil is designed as a replacement for the existing Drillbit unit test
     framework, which is based on Titanium Desktop. Anvil is written in JavaScript using 
     Node.js, and is designed to allow for test automation. If you are currently using 
-    Drillbit and you are interested in using Anvil, see the [`driver/README`](https://github.com/appcelerator/titanium_mobile/blob/master/driver/README)
+    Drillbit and you are interested in using Anvil, see the [`driver/README`](https://github.com/tidev/titanium-sdk/blob/master/driver/README)
     file in the Titanium Mobile GitHub repo. 
     
     Anvil supports the same basic types of tests as Drillbit, but each test suite is 
@@ -141,24 +139,21 @@ The following is a sample of notable new Android features and bug fixes in this 
 *   Added x86 emulator support.
 
 *   Added `blur` and `focus` events for lightweight windows 
-    ([TIMOB-9262](https://jira.appcelerator.org/browse/TIMOB-9262)).
+    ([TIMOB-9262](https://jira-archive.titaniumsdk.com/TIMOB-9262)).
 
-*   Added support for `pinch` events ([TIMOB-5224](https://jira.appcelerator.org/browse/TIMOB-5224)).
+*   Added support for `pinch` events ([TIMOB-5224](https://jira-archive.titaniumsdk.com/TIMOB-5224)).
 
 *   Added support for background gradients on views. Only linear background gradients are
     supported on Android at this point
-    ([TIMOB-1125](https://jira.appcelerator.org/browse/TIMOB-1124)).
+    ([TIMOB-1125](https://jira-archive.titaniumsdk.com/TIMOB-1124)).
 
 *   Added support for `addRoute` on map views
-    ([TIMOB-1343](https://jira.appcelerator.org/browse/TIMOB-1343)).
+    ([TIMOB-1343](https://jira-archive.titaniumsdk.com/TIMOB-1343)).
 
 *   Fixes related to `trueHeading` support in compass events 
-    ([TIMOB-9434](https://jira.appcelerator.org/browse/TIMOB-9434), 
-    [TIMOB-8672](https://jira.appcelerator.org/browse/TIMOB-8672)).
+    ([TIMOB-9434](https://jira-archive.titaniumsdk.com/TIMOB-9434), 
+    [TIMOB-8672](https://jira-archive.titaniumsdk.com/TIMOB-8672)).
 
-
-For a complete list of Android features and bug fixes in this release, see: 
-[Fixed Android Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13033)
 
 <a name="ios"></a>
 
@@ -186,7 +181,7 @@ The following section lists notable new iOS features and bug fixes in this relea
     [ScrollableView](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.ScrollableView). 
     Improvements include new properties for customizing the paging control appearance and position: 
     `pagingControlAlpha`, `pagingControlOnTop`, and `overlayEnabled`  
-    ([TIMOB-8995](https://jira.appcelerator.org/browse/TIMOB-8995)). 
+    ([TIMOB-8995](https://jira-archive.titaniumsdk.com/TIMOB-8995)). 
     
     Also, the new `hitRect` property allows a `ScrollableView` to detect touch events outside 
     of its bounds. This is useful when width of the `ScrollableView` is less than the full width of
@@ -199,7 +194,7 @@ The following section lists notable new iOS features and bug fixes in this relea
     See [`tiapp.xml` and `timodule.xml` Reference](https://docs.appcelerator.com/titanium/2.1/index.html#!/guide/tiapp.xml_and_timodule.xml_Reference)
     for details.
 
-*   Added drag and drop for map annotations ([TIMOB-1242](https://jira.appcelerator.org/browse/TIMOB-1242)).
+*   Added drag and drop for map annotations ([TIMOB-1242](https://jira-archive.titaniumsdk.com/TIMOB-1242)).
 
 *   Added `dragStart` and `dragEnd` events on [`TableView`](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.TableView) objects.
 
@@ -233,9 +228,6 @@ The following section lists notable new iOS features and bug fixes in this relea
     *   `Ti.UI.ScrollView` `scale` property --  use `zoomScale` instead.
 
 
-For a complete list of iOS features and bug fixes in this release, see: 
-[Fixed iOS Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13032).
-
 <a name="mobileweb"></a>
 
 ## Mobile Web Fixes and Enhancements
@@ -258,12 +250,9 @@ The following section lists notable new Mobile Web features and bug fixes in thi
     * `View.children` set correctly.
 
 *   Ti.Cloud Module works on Mobile Web in Chrome, Firefox, and Safari
-    ([TIMOB-8877](https://jira.appcelerator.org/browse/TIMOB-8877)).
+    ([TIMOB-8877](https://jira-archive.titaniumsdk.com/TIMOB-8877)).
 
 *   Performance instrumentation for view debugging. <!-- Add link to guide -->
-
-For a complete list of Mobile Web features and bug fixes in this release, see: [Fixed Mobile Web Issues in
-JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13018).
 
 <a name="docs"></a>
 
@@ -272,9 +261,7 @@ JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&request
 ## Documentation Fixes and Enhancements
 
 This release includes a number of documentation fixes and enhancements, including updates
-to the unified documentation site for the Titanium Mobile SDK and Titanium Studio:
-
-*   [Titanium Mobile SDK and Titanium Studio Documentation](https://docs.appcelerator.com/titanium/2.1/)
+to the unified documentation site for the Titanium Mobile SDK and Titanium Studio
 
 *Fixed Documentation Site Issues*
 
@@ -288,8 +275,3 @@ to the unified documentation site for the Titanium Mobile SDK and Titanium Studi
 *   Left-hand navigation tree occasionally stops scrolling. Reloading the site should
     fix this problem.
 *   Display anomalies when a large number of tabs are open.
-    
-For a complete list of documentation fixes in this release, see:
-
-[Fixed Documentation Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13034)
-

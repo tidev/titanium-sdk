@@ -1,10 +1,29 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * TiDev Titanium Mobile
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.listview;
+
+import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+
+import android.app.Activity;
+import android.view.View;
+
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
+import androidx.recyclerview.widget.RecyclerView;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiConvert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,28 +32,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiUIView;
-
-import android.app.Activity;
-import android.view.View;
-
-import androidx.recyclerview.selection.SelectionTracker;
-
 import ti.modules.titanium.ui.UIModule;
+import ti.modules.titanium.ui.ListViewScrollPositionModule;
 import ti.modules.titanium.ui.widget.TiUIListView;
-
-import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 
 @Kroll.proxy(
 	creatableInModule = ti.modules.titanium.ui.UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_CAN_SCROLL,
 		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
+		TiC.PROPERTY_CONTINUOUS_UPDATE,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 		TiC.PROPERTY_EDITING,
 		TiC.PROPERTY_FAST_SCROLL,
@@ -43,6 +50,7 @@ import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 		TiC.PROPERTY_HEADER_TITLE,
 		TiC.PROPERTY_HEADER_VIEW,
 		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE,
 		TiC.PROPERTY_SEARCH_TEXT,
 		TiC.PROPERTY_SEARCH_VIEW,
 		TiC.PROPERTY_SEPARATOR_COLOR,
@@ -269,6 +277,22 @@ public class ListViewProxy extends RecyclerViewProxy
 	}
 
 	/**
+	 * Called when starting a drag-and-drop gesture (touch start)
+	 */
+	public void onMoveGestureStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, null);
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch end)
+	 */
+	public void onMoveGestureEnded()
+	{
+		fireEvent(TiC.EVENT_MOVE_END, null);
+	}
+
+	/**
 	 * Remove section from list at specified index.
 	 *
 	 * @param index Index of section to remove.
@@ -312,7 +336,7 @@ public class ListViewProxy extends RecyclerViewProxy
 	 *
 	 * @return TiListView
 	 */
-	private TiListView getListView()
+	public TiListView getListView()
 	{
 		final TiUIListView view = (TiUIListView) this.view;
 
@@ -519,7 +543,8 @@ public class ListViewProxy extends RecyclerViewProxy
 			// Set list sections.
 			setSections((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_VISIBLE)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE)
+			|| name.equals(TiC.PROPERTY_VISIBLE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {
@@ -530,9 +555,13 @@ public class ListViewProxy extends RecyclerViewProxy
 			}
 
 		} else if (name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
-
 			// Update and refresh list.
 			update(true);
+		} else if (name.equals(TiC.PROPERTY_CONTINUOUS_UPDATE)) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
+			}
 		}
 	}
 
@@ -781,6 +810,14 @@ public class ListViewProxy extends RecyclerViewProxy
 	{
 		final TiListView listView = getListView();
 		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
+		final int position = animation != null ? animation.optInt(TiC.PROPERTY_POSITION, 0) : 0;
+		final RecyclerView.SmoothScroller smoothScrollerToTop =
+			new LinearSmoothScroller(TiApplication.getAppCurrentActivity())
+			{
+				@Override
+				protected int getVerticalSnapPreference()
+				{ return LinearSmoothScroller.SNAP_TO_START; }
+			};
 
 		if (listView != null) {
 			final ListSectionProxy section = getSectionByIndex(sectionIndex);
@@ -792,9 +829,19 @@ public class ListViewProxy extends RecyclerViewProxy
 					final int itemAdapterIndex = listView.getAdapterIndex(item.index);
 					final Runnable action = () -> {
 						if (animated) {
-							listView.getRecyclerView().smoothScrollToPosition(itemAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								smoothScrollerToTop.setTargetPosition(itemAdapterIndex);
+								listView.getRecyclerView().getLayoutManager().startSmoothScroll(smoothScrollerToTop);
+							} else {
+								listView.getRecyclerView().smoothScrollToPosition(itemAdapterIndex);
+							}
 						} else {
-							listView.getRecyclerView().scrollToPosition(itemAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								((LinearLayoutManager) listView.getRecyclerView().getLayoutManager())
+									.scrollToPositionWithOffset(itemAdapterIndex, 0);
+							} else {
+								listView.getRecyclerView().scrollToPosition(itemAdapterIndex);
+							}
 						}
 					};
 

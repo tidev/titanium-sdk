@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -58,7 +58,7 @@
     string = [string substringToIndex:maxLength];
   }
   [(id)[self textWidgetView] setText:string];
-  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string];
+  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string:nil];
 }
 
 - (void)setMaxLength_:(id)value
@@ -151,6 +151,7 @@
 - (void)setAutocorrect_:(id)value
 {
   [[self textWidgetView] setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
+  [[self textWidgetView] setSpellCheckingType:[TiUtils boolValue:value] ? UITextSpellCheckingTypeYes : UITextSpellCheckingTypeNo];
 }
 
 - (void)setAutofillType_:(id)value

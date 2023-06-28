@@ -4,7 +4,7 @@
  * @module lib/gradle-wrapper
  *
  * @copyright
- * Copyright (c) 2009-2019 by Axway, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -174,8 +174,9 @@ class GradleWrapper {
 		}
 
 		// Function which returns a stdout/stderr "data" reading function object and outputs it to given "logFunction".
-		// The "logFunction" argument is expected to be an appc "logger.info" or "logger.error" object.
-		const createReadableDataHandlerUsing = (logFunction) => {
+		// The "logFunction" argument is expected to be a "logger" object that conatins "logger.info" or "logger.error".
+		// The "logType" is a string "error" or "info" to call the correct logger function
+		const createReadableDataHandlerUsing = (logFunction, logType) => {
 			let stringBuffer = '';
 			return (data) => {
 				// Append the received string data to existing buffer.
@@ -190,7 +191,8 @@ class GradleWrapper {
 				// Log the received messages, split by newline. (Strip out carriage returns on Windows.)
 				const messageArray = stringBuffer.substr(0, index).split('\n');
 				for (const nextMessage of messageArray) {
-					logFunction('[GRADLE] ' + nextMessage.replace(/\r/g, ''));
+					let logMethod = (logType === 'info') ? 'info' : nextMessage.includes('Warning: ') ? 'warn' : 'error';
+					logFunction[logMethod]('[GRADLE] ' + nextMessage.replace(/\r/g, ''));
 				}
 
 				// Remove the above logged strings from the buffer.
@@ -207,8 +209,8 @@ class GradleWrapper {
 		await new Promise((resolve, reject) => {
 			const childProcess = exec(commandLineString, { cwd: this._gradlewDirPath });
 			if (this._logger) {
-				childProcess.stdout.on('data', createReadableDataHandlerUsing(this._logger.info));
-				childProcess.stderr.on('data', createReadableDataHandlerUsing(this._logger.error));
+				childProcess.stdout.on('data', createReadableDataHandlerUsing(this._logger, 'info'));
+				childProcess.stderr.on('data', createReadableDataHandlerUsing(this._logger, 'error'));
 			}
 			childProcess.on('error', reject);
 			childProcess.on('exit', (exitCode) => {

@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -879,7 +879,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// Fetch Java max heap size setting.
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
+	this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
+
+	// TODO remove in the next SDK
+	if (cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value) {
+		logger.error(__('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory') + '\n');
+		this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'].value;
+	}
+
+	if (cli.tiapp.properties['android.javac.maxMemory'] && cli.tiapp.properties['android.javac.maxMemory'].value) {
+		this.javacMaxMemory = cli.tiapp.properties['android.javac.maxMemory'].value;
+	}
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
@@ -1074,7 +1084,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 		logger.log();
 		logger.warn(__('%s has been deprecated, please specify the target SDK API using the %s tag:', '<tool-api-level>'.cyan, '<uses-sdk>'.cyan));
 		logger.warn();
-		logger.warn('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.warn('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 		logger.warn('    <android>'.grey);
 		logger.warn('        <manifest>'.grey);
 		logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minTargetApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
@@ -1109,7 +1119,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			)
 		);
 		logger.log();
-		logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+		logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 		logger.log('    <android>'.grey);
 		logger.log('        <manifest>'.grey);
 		logger.log(('            <uses-sdk '
@@ -1136,7 +1146,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 				)
 			);
 			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+			logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 			logger.log('    <android>'.grey);
 			logger.log('        <manifest>'.grey);
 			logger.log(('            <uses-sdk '
@@ -1311,7 +1321,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 
 				logger.log(__('You need to add at least one of the device\'s supported ABIs to the tiapp.xml'));
 				logger.log();
-				logger.log('<ti:app xmlns:ti="http://ti.appcelerator.org">'.grey);
+				logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
 				logger.log('    <!-- snip -->'.grey);
 				logger.log('    <android>'.grey);
 				logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
@@ -2184,6 +2194,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
+	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
 	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
@@ -3721,6 +3732,7 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 			'org.appcelerator.titanium.TiActivity',
 			'org.appcelerator.titanium.TiTranslucentActivity',
 			'org.appcelerator.titanium.TiCameraActivity',
+			'org.appcelerator.titanium.TiCameraXActivity',
 			'org.appcelerator.titanium.TiVideoActivity'
 		];
 		for (const activityName of tiActivityNames) {

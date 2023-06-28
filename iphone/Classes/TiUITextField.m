@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -553,7 +553,7 @@
   if ([ourProxy suppressFocusEvents]) {
     return;
   }
-  [ourProxy noteValueChange:[(UITextField *)textWidgetView text]];
+  [ourProxy noteValueChange:[(UITextField *)textWidgetView text]:nil];
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)tf
@@ -564,7 +564,7 @@
 - (BOOL)textFieldShouldClear:(UITextField *)tf
 {
   // we notify proxy so he can serialize in the model
-  [(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
+  [(TiUITextFieldProxy *)self.proxy noteValueChange:@"":nil];
   return YES;
 }
 

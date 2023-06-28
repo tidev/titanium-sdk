@@ -1,6 +1,6 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -53,6 +53,11 @@
  * Returns the call stack as a static string. May or may not include the most recent function.
  */
 @property (nonatomic, readonly) NSString *backtrace;
+
+/**
+ * Returns the parsed JavaScript stack trace entries consisting of smybol name and source location.
+ */
+@property (nonatomic, readonly) NSArray<NSDictionary *> *parsedJsStack;
 
 /**
  * Returns the native stack as a static string.
