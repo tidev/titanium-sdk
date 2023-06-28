@@ -291,7 +291,7 @@ properties:
         (or `value`) and `to` to define a preselected range.
     type: Boolean
     platforms: [android]
-    since: "10.2.0"
+    since: "12.2.0"
     default: false
 
   - name: format24
@@ -310,7 +310,7 @@ properties:
     summary: Date value for range picker start value.
     type: Date
     platforms: [android]
-    since: "10.2.0"
+    since: "12.2.0"
 
   - name: hintText
     summary: Text to be shown above date/time when picker is shown as a text field or drop-down field.
@@ -432,7 +432,7 @@ properties:
     summary: Date value for range picker end value.
     type: Date
     platforms: [android]
-    since: "10.2.0"
+    since: "12.2.0"
 
   - name: type
     summary: Determines the type of picker displayed
