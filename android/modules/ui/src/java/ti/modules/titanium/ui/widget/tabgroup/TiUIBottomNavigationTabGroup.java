@@ -57,6 +57,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	private BottomNavigationView mBottomNavigationView;
 	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
 	// endregion
+	private TiViewProxy customView;
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -175,7 +176,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			} else {
 				params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
 			}
-			compositeLayout.addView(this.mBottomNavigationView, params);
+			if (this.proxy.hasPropertyAndNotNull(TiC.PROPERTY_CUSTOM_VIEW)) {
+				customView = (TiViewProxy) this.proxy.getProperty(TiC.PROPERTY_CUSTOM_VIEW);
+				customView.getOrCreateView().getNativeView().setMinimumHeight(mBottomNavigationHeightValue);
+				compositeLayout.addView(customView.getOrCreateView().getNativeView(), params);
+			} else {
+				compositeLayout.addView(this.mBottomNavigationView, params);
+			}
 		}
 
 		// Set the ViewPager as a native view.
