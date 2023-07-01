@@ -171,6 +171,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			}
 			compositeLayout.addView(this.tabGroupViewPager, params);
 		}
+
+		// add navigation menu
 		{
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
@@ -182,9 +184,19 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
 			}
 			if (isCustomView) {
+				params.height = mBottomNavigationHeightValue;
 				customView = (TiViewProxy) this.proxy.getProperty(TiC.PROPERTY_CUSTOM_VIEW);
-				customView.getOrCreateView().getNativeView().setMinimumHeight(mBottomNavigationHeightValue);
-				compositeLayout.addView(customView.getOrCreateView().getNativeView(), params);
+				View view = customView.getOrCreateView().getNativeView();
+				view.setMinimumHeight(mBottomNavigationHeightValue);
+				params.optionHeight = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_HEIGHT);
+				view.setLayoutParams(params);
+				if (view.getLayoutParams() != null) {
+					view.getLayoutParams().height = mBottomNavigationHeightValue;
+				}
+
+				compositeLayout.addView(view, params);
+				compositeLayout.setClipChildren(
+					TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
 			} else {
 				compositeLayout.addView(this.mBottomNavigationView, params);
 			}

@@ -287,6 +287,20 @@ properties:
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
 
+  - name: customView
+    summary: Use a custom Ti.UI.View as your BottomNavigationView.
+    type: Titanium.UI.View
+    since: 12.2.0
+    platforms: [android]
+
+  - name: clipViews
+    summary: If disabled and you use a [customView](Titanium.UI.TabGroup.customView) you can move elements outside of the view bounds.
+    type: Boolean
+    default: true
+    availability: creation
+    since: 12.2.0
+    platforms: [android]
+
   - name: paddingLeft
     summary: Left padding of bottom navigation
     description: |
