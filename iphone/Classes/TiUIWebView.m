@@ -83,7 +83,9 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
     _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
-
+#if TARGET_OS_SIMULATOR
+    _webView.inspectable = YES;
+#else
     [_webView setUIDelegate:self];
     [_webView setNavigationDelegate:self];
     [_webView setContentMode:[self contentModeForWebView]];
