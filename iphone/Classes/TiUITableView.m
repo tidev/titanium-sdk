@@ -1643,6 +1643,13 @@
   [table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
 }
 
+- (void)setKeyboardDismissMode_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+  [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
+}
+
 - (void)setSeparatorInsets_:(id)arg
 {
   DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"5.2.0", @"UI.TableView.tableSeparatorInsets")
