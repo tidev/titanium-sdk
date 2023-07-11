@@ -556,10 +556,10 @@ name: ScrollablePadding
 extends: Padding
 summary: Dictionary object of parameters for the padding/insets applied to all kinds of views.
 properties:
-  - name: adjustPadding
+  - name: leftAdjust
     summary: |
-      If set to `true` it will move the first item back to 0 while still keeping left padding for
+      If set it will move the first item according to the `leftAdjust` value while still keeping left padding for
       the next items.
-    type: Boolean
+    type: Number
     since: { android: 12.2.0 }
     platforms: [android]
