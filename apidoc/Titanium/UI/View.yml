@@ -476,7 +476,7 @@ events:
     description: |
         This event is fired when doing a two finger rotation and returning the angle.
         The event occurs continuously until a finger is lifted again.
-    platforms: [android]
+    platforms: [android, iphone, ipad, macos]
     properties:
       - name: rotate
         summary: Rotation in degrees.
