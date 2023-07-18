@@ -181,6 +181,7 @@ DEFINE_EXCEPTIONS
   [doubleTapRecognizer release];
   [twoFingerTapRecognizer release];
   [pinchRecognizer release];
+  [rotationRegognizer release];
   [leftSwipeRecognizer release];
   [rightSwipeRecognizer release];
   [upSwipeRecognizer release];
@@ -241,6 +242,9 @@ DEFINE_EXCEPTIONS
   if ([(TiViewProxy *)proxy _hasListeners:@"pinch"]) {
     [[self gestureRecognizerForEvent:@"pinch"] setEnabled:YES];
   }
+  if ([(TiViewProxy *)proxy _hasListeners:@"rotate"]) {
+    [[self gestureRecognizerForEvent:@"rotate"] setEnabled:YES];
+  }
   if ([(TiViewProxy *)proxy _hasListeners:@"longpress"]) {
     [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
   }
@@ -253,6 +257,7 @@ DEFINE_EXCEPTIONS
       [proxy _hasListeners:@"twofingertap"] ||
       [proxy _hasListeners:@"swipe"] ||
       [proxy _hasListeners:@"pinch"] ||
+      [proxy _hasListeners:@"rotate"] ||
       [proxy _hasListeners:@"longpress"];
 }
 
@@ -1355,6 +1360,17 @@ DEFINE_EXCEPTIONS
   return pinchRecognizer;
 }
 
+- (UIRotationGestureRecognizer *)rotationRegognizer
+{
+  if (rotationRegognizer == nil) {
+    rotationRegognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedRotation:)];
+    [self configureGestureRecognizer:rotationRegognizer];
+    [self addGestureRecognizer:rotationRegognizer];
+  }
+  rotationRegognizer.delegate = self;
+  return rotationRegognizer;
+}
+
 - (UISwipeGestureRecognizer *)leftSwipeRecognizer
 {
   if (leftSwipeRecognizer == nil) {
@@ -1431,6 +1447,14 @@ DEFINE_EXCEPTIONS
   } else {
     [proxy fireEvent:@"singletap" withObject:event];
   }
+}
+
+- (void)recognizedRotation:(UIRotationGestureRecognizer *)recognizer
+{
+  NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          NUMDOUBLE(radiansToDegrees(recognizer.rotation)), @"rotate",
+                                      nil];
+  [self.proxy fireEvent:@"rotate" withObject:event];
 }
 
 - (void)recognizedPinch:(UIPinchGestureRecognizer *)recognizer
@@ -1686,6 +1710,9 @@ DEFINE_EXCEPTIONS
   if ([event isEqualToString:@"pinch"]) {
     return [self pinchRecognizer];
   }
+  if ([event isEqualToString:@"rotate"]) {
+    return [self rotationRegognizer];
+  }
   if ([event isEqualToString:@"longpress"]) {
     return [self longPressRecognizer];
   }
@@ -1741,7 +1768,7 @@ DEFINE_EXCEPTIONS
 {
   if (listenerArray == nil) {
     listenerArray = [[NSArray alloc] initWithObjects:@"singletap",
-                                     @"doubletap", @"twofingertap", @"swipe", @"pinch", @"longpress", nil];
+                                     @"doubletap", @"twofingertap", @"swipe", @"rotate", @"pinch", @"longpress", nil];
   }
   for (NSString *eventName in listenerArray) {
     if ([proxy _hasListeners:eventName]) {

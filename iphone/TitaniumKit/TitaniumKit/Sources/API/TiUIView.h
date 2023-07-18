@@ -82,6 +82,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   UITapGestureRecognizer *doubleTapRecognizer;
   UITapGestureRecognizer *twoFingerTapRecognizer;
   UIPinchGestureRecognizer *pinchRecognizer;
+  UIRotationGestureRecognizer *rotationRegognizer;
   UISwipeGestureRecognizer *leftSwipeRecognizer;
   UISwipeGestureRecognizer *rightSwipeRecognizer;
   UISwipeGestureRecognizer *upSwipeRecognizer;
@@ -105,13 +106,13 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (BOOL)animating;
 
 /**
- Provides access to a proxy object of the view. 
+ Provides access to a proxy object of the view.
  */
 @property (nonatomic, readwrite, assign) TiProxy *proxy;
 
 /**
  Provides access to touch delegate of the view.
- 
+
  Touch delegate is the control that receives all touch events.
  */
 @property (nonatomic, readwrite, assign) UIView *touchDelegate;
@@ -137,6 +138,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property (nonatomic, readonly) UITapGestureRecognizer *doubleTapRecognizer;
 @property (nonatomic, readonly) UITapGestureRecognizer *twoFingerTapRecognizer;
 @property (nonatomic, readonly) UIPinchGestureRecognizer *pinchRecognizer;
+@property (nonatomic, readonly) UIRotationGestureRecognizer *rotationRegognizer;
 @property (nonatomic, readonly) UISwipeGestureRecognizer *leftSwipeRecognizer;
 @property (nonatomic, readonly) UISwipeGestureRecognizer *rightSwipeRecognizer;
 @property (nonatomic, readonly) UILongPressGestureRecognizer *longPressRecognizer;
@@ -242,7 +244,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 /**
  Returns default enablement for interactions.
- 
+
  Subclasses may override.
  @return _YES_ if the control has interactions enabled by default, _NO_ otherwise.
  */
