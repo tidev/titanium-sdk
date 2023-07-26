@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListItemProxy>
 {
 	private static final String TAG = "ListViewAdapter";
+	public boolean allowRecycling = true;
 
 	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
 
@@ -98,6 +99,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 
 		// Update ListViewHolder with new model data.
 		holder.bind(item, selected);
+		holder.setIsRecyclable(allowRecycling);
 	}
 
 	/**

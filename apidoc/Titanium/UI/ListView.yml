@@ -388,7 +388,7 @@ events:
     summary: Fired when a list row has started moving.
     description: |
       This event can be used to change the UI once a new drag-and-drop interaction starts.
-      The event properties are available in Titanium SDK 12.0.0+ 
+      The event properties are available in Titanium SDK 12.0.0+
     since: "11.1.0"
     platforms: [android, iphone, ipad, macos]
     properties:
@@ -1120,6 +1120,15 @@ properties:
     type: HorizontalInsets
     since: "5.4.0"
     platforms: [iphone, ipad, macos]
+
+  - name: preventRecycling
+    description: |
+        If set to `true` the ListItems will keep the values. Use this only if needed e.g. when you have TextFields
+        or Switches in your ItemTemplate.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "12.2.0"
 
   - name: rowSeparatorInsets
     summary: The insets for list view cells (applies to all cells).
