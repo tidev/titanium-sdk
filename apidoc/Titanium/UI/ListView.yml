@@ -1121,15 +1121,6 @@ properties:
     since: "5.4.0"
     platforms: [iphone, ipad, macos]
 
-  - name: preventRecycling
-    description: |
-        If set to `true` the ListItems will keep the values. Use this only if needed e.g. when you have TextFields
-        or Switches in your ItemTemplate.
-    type: Boolean
-    default: false
-    platforms: [android]
-    since: "12.2.0"
-
   - name: rowSeparatorInsets
     summary: The insets for list view cells (applies to all cells).
     description: |
