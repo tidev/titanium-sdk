@@ -40,10 +40,10 @@ enum {
   TiCanvasFillText,
 };
 
-//TODO:  font, textAlign, textBaseline, fillText
-//TODO:  measureText, strokeText, drawImage
-//TODO:  gradients, patterns, toImage
-//TODO:  rotate, scale, transform, translate
+// TODO:  font, textAlign, textBaseline, fillText
+// TODO:  measureText, strokeText, drawImage
+// TODO:  gradients, patterns, toImage
+// TODO:  rotate, scale, transform, translate
 
 @implementation TiUICanvasView
 
@@ -138,7 +138,7 @@ enum {
   BLEND_MODE(source - out, kCGBlendModeSourceOut);
   BLEND_MODE(source - over, kCGBlendModeNormal);
   BLEND_MODE(xor, kCGBlendModeXOR);
-  return kCGBlendModeNormal; //default by HTML canvas spec
+  return kCGBlendModeNormal; // default by HTML canvas spec
 }
 
 - (void)draw:(CGContextRef)context operation:(int)operation args:(NSArray *)args
@@ -257,23 +257,23 @@ enum {
   case TiCanvasFont: {
     ENSURE_ARG_COUNT(args, 1);
     CGContextSelectFont(context, [[args objectAtIndex:0] UTF8String], 40, kCGEncodingMacRoman);
-    //CGContextSetFont(context, fontRef);
+    // CGContextSetFont(context, fontRef);
     break;
   }
   case TiCanvasTextAlign: {
-    //TODO: how to do this in core graphics?
+    // TODO: how to do this in core graphics?
     break;
   }
   case TiCanvasTextBaseline: {
-    //TODO: how to do this in core graphics?
+    // TODO: how to do this in core graphics?
     break;
   }
   case TiCanvasFillText: {
-    //NOTE: Core Graphics doesn't support Unicode text drawing. Suggests ATSUI or Cocoa
+    // NOTE: Core Graphics doesn't support Unicode text drawing. Suggests ATSUI or Cocoa
     NSString *text = [args objectAtIndex:0];
     CGFloat x = [TiUtils floatValue:[args objectAtIndex:1]];
     CGFloat y = [TiUtils floatValue:[args objectAtIndex:2]];
-    //TODO: max support
+    // TODO: max support
     CGContextShowTextAtPoint(context, x, y, [text UTF8String], [text length]);
     break;
   }

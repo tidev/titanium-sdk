@@ -22,12 +22,12 @@
 }
 - (id)entities
 {
-  //TODO
+  // TODO
   return [NSNull null];
 }
 - (id)notations
 {
-  //TODO
+  // TODO
   return [NSNull null];
 }
 - (id)name

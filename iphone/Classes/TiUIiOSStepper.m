@@ -245,9 +245,9 @@
 
 - (UIImage *)imageWithImage:(UIImage *)image fullScale:(bool)full
 {
-  //UIGraphicsBeginImageContext(newSize);
-  // In next line, pass 0.0 to use the current device's pixel scaling factor (and thus account for Retina resolution).
-  // Pass 1.0 to force exact pixel size.
+  // UIGraphicsBeginImageContext(newSize);
+  //  In next line, pass 0.0 to use the current device's pixel scaling factor (and thus account for Retina resolution).
+  //  Pass 1.0 to force exact pixel size.
   [self stepper];
   CGRect bounds = [stepper bounds];
 

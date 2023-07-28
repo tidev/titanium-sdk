@@ -89,7 +89,7 @@ static NSLock *callbackLock;
     return NO;
   }
   KrollCallback *otherCallback = (KrollCallback *)anObject;
-  if (function != NULL) { //TODO: Is there ever two functions with diffent memory pointers
+  if (function != NULL) { // TODO: Is there ever two functions with diffent memory pointers
     // that represent the exact same function? I'm thinking not.
     JSObjectRef ref1 = function;
     JSObjectRef ref2 = [otherCallback function];

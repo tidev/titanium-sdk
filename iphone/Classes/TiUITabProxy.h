@@ -17,7 +17,7 @@
   UINavigationController *controller;
   TiWindowProxy *rootWindow;
   TiWindowProxy *current;
-  //This is an assign only property. TabGroup retains instances of tab.
+  // This is an assign only property. TabGroup retains instances of tab.
   TiUITabGroupProxy *tabGroup;
 
   NSMutableArray *controllerStack;

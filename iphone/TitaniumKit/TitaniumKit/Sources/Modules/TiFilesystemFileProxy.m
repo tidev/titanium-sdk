@@ -371,8 +371,8 @@ FILENOOP(setHidden
   id arg = [args objectAtIndex:0];
 
   if ([arg isKindOfClass:[TiFile class]]) {
-    //allow the ability to append files to another file
-    //e.g. file.append(Ti.Filesystem.getFile('somewhere'));
+    // allow the ability to append files to another file
+    // e.g. file.append(Ti.Filesystem.getFile('somewhere'));
 
     TiFile *file_arg = (TiFile *)arg;
     NSError *err = nil;
@@ -400,7 +400,7 @@ FILENOOP(setHidden
     }
 
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-      //create the file if it doesn't exist already
+      // create the file if it doesn't exist already
       NSError *writeError = nil;
       [data writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&writeError];
       if (writeError != nil) {
@@ -429,7 +429,7 @@ FILENOOP(setHidden
   ENSURE_TYPE(args, NSArray);
   id arg = [args objectAtIndex:0];
 
-  //Short-circuit against non-supported types
+  // Short-circuit against non-supported types
   if (!([arg isKindOfClass:[TiFile class]] || [arg isKindOfClass:[TiBlob class]]
           || [arg isKindOfClass:[NSString class]])) {
     return NUMBOOL(NO);
@@ -438,8 +438,8 @@ FILENOOP(setHidden
   if ([args count] > 1) {
     ENSURE_TYPE([args objectAtIndex:1], NSNumber);
 
-    //We have a second argument, is it truthy?
-    //If yes, we'll hand the args to -append:
+    // We have a second argument, is it truthy?
+    // If yes, we'll hand the args to -append:
     NSNumber *append = [args objectAtIndex:1];
     if ([append boolValue]) {
       return [self append:[args subarrayWithRange:NSMakeRange(0, 1)]];

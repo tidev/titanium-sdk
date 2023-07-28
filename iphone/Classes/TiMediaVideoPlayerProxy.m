@@ -83,7 +83,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For durationavailable event
@@ -210,7 +210,7 @@ NSArray *moviePlayerKeys = nil;
 - (void)setBackgroundView:(id)proxy
 {
   DEPRECATED_REPLACED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"Media.VideoPlayer.overlayView")
-      [self setOverlayView:proxy];
+  [self setOverlayView:proxy];
 }
 
 - (NSNumber *)playing

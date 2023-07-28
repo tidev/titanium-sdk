@@ -42,7 +42,7 @@
 
 - (void)registerForShake
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(shakeEvent:)
                                                name:kTiGestureShakeNotification
@@ -52,7 +52,7 @@
 - (void)registerForOrientation
 {
   [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(rotateEvent:)
                                                name:UIDeviceOrientationDidChangeNotification
@@ -79,7 +79,7 @@
 
 - (void)unregisterForNotificationNamed:(NSString *)oldNotification
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:oldNotification object:nil];
 }
 

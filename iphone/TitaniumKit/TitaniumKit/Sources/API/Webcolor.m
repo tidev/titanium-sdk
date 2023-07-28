@@ -194,7 +194,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
     return nil;
   }
 
-  //Last char must be terminating ).
+  // Last char must be terminating ).
   if ([functionString characterAtIndex:stringLength - 1] != ')') {
     return nil;
   }
@@ -203,7 +203,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
   NSRange nextTokenRange;
   NSUInteger segmentLength;
 
-  searchRange.location = openParensRange.location + 1; //Skipping starting (
+  searchRange.location = openParensRange.location + 1; // Skipping starting (
   searchRange.length = stringLength - searchRange.location - 1; //-1 for terminating ).
 
   nextTokenRange = [functionString rangeOfString:@"," options:NSLiteralSearch range:searchRange];
@@ -211,7 +211,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
     return nil;
   }
 
-  segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
+  segmentLength = nextTokenRange.location - searchRange.location; // This does NOT include a comma.
   float firstArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
 
   searchRange.location += segmentLength + 1;
@@ -222,7 +222,7 @@ int toASCIIHexValue(unichar c) { return (c & 0xF) + (c < 'A' ? 0 : 9); }
     return nil;
   }
 
-  segmentLength = nextTokenRange.location - searchRange.location; //This does NOT include a comma.
+  segmentLength = nextTokenRange.location - searchRange.location; // This does NOT include a comma.
   float secondArg = [[functionString substringWithRange:NSMakeRange(searchRange.location, segmentLength)] floatValue];
 
   searchRange.location += segmentLength + 1;

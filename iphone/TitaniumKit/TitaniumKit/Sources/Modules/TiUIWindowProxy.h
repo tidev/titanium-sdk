@@ -10,7 +10,7 @@
 #import "TiViewProxy.h"
 #import "TiWindowProxy.h"
 
-//TODO: we probably should split this ViewProxy into a a separate TiUIView like normal
+// TODO: we probably should split this ViewProxy into a a separate TiUIView like normal
 
 @interface TiUIWindowProxy : TiWindowProxy {
   @private

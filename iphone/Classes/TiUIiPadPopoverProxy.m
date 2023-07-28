@@ -53,7 +53,7 @@ static NSArray *popoverSequence;
 - (void)dealloc
 {
   if (currentPopover == self) {
-    //This shouldn't happen because we clear it on hide.
+    // This shouldn't happen because we clear it on hide.
     currentPopover = nil;
   }
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -241,7 +241,7 @@ static NSArray *popoverSequence;
   [contentViewProxy windowWillClose];
 
   popoverInitialized = NO;
-  [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
+  [self fireEvent:@"hide" withObject:nil]; // Checking for listeners are done by fireEvent anyways.
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
   [contentViewProxy windowDidClose];
 
@@ -293,7 +293,7 @@ static NSArray *popoverSequence;
 
 - (void)updatePopover:(NSNotification *)notification;
 {
-  //This may be due to a possible race condition of rotating the iPad while another popover is coming up.
+  // This may be due to a possible race condition of rotating the iPad while another popover is coming up.
   if ((currentPopover != self)) {
     return;
   }
@@ -425,7 +425,7 @@ static NSArray *popoverSequence;
     }
   }
 
-  //Fell through.
+  // Fell through.
   UIViewController *presentingController = [[self viewController] presentingViewController];
   popoverPresentationController.sourceView = [presentingController view];
   popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect) ? CGRectMake(presentingController.view.bounds.size.width / 2, presentingController.view.bounds.size.height / 2, 1, 1) : popoverRect);
@@ -447,7 +447,7 @@ static NSArray *popoverSequence;
 
 - (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
 {
-  //This will never be called when using bar button item
+  // This will never be called when using bar button item
   BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, popoverRect);
   UIView *theSourceView = *view;
 

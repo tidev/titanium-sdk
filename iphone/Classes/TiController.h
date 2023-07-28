@@ -7,7 +7,7 @@
 
 #import <TitaniumKit/TiViewProxy.h>
 
-//TODO: rename tab controller
+// TODO: rename tab controller
 
 @protocol TiController
 

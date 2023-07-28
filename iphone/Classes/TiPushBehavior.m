@@ -64,7 +64,7 @@
 
 - (void)updateItems
 {
-  //Update params for reinitialization
+  // Update params for reinitialization
   _angle = [_pushBehavior angle];
   _magnitude = [_pushBehavior magnitude];
   _vector = [_pushBehavior pushDirection];

@@ -33,7 +33,7 @@
 
 - (void)_destroy
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiShutdownNotification object:nil];
   [self shutdown:nil];
   [super _destroy];
@@ -41,7 +41,7 @@
 
 - (void)_configure
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
   [super _configure];
 }
@@ -81,7 +81,7 @@
   BOOL oldCopyExists = [fm fileExistsAtPath:oldPath isDirectory:&isDirectory];
   if (oldCopyExists && isDirectory) {
     NSDirectoryEnumerator *contents = [fm enumeratorAtPath:oldPath];
-    //This gives relative paths. So create full path before moving
+    // This gives relative paths. So create full path before moving
     for (NSString *oldFile in contents) {
       [fm moveItemAtPath:[oldPath stringByAppendingPathComponent:oldFile] toPath:[dbPath stringByAppendingPathComponent:oldFile] error:nil];
     }
@@ -122,9 +122,9 @@
   path = [url path];
 
 #if TARGET_OS_SIMULATOR
-  //TIMOB-6081. Resources are right now symbolic links when running in simulator) so the copy method
-  //of filemanager just creates a link to the original resource.
-  //Resolve the symbolic link if running in simulator
+  // TIMOB-6081. Resources are right now symbolic links when running in simulator) so the copy method
+  // of filemanager just creates a link to the original resource.
+  // Resolve the symbolic link if running in simulator
   NSError *pathError = nil;
   NSDictionary *attributes = [fm attributesOfItemAtPath:path error:&pathError];
   if (pathError != nil) {

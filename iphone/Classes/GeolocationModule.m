@@ -28,7 +28,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)initWithCallback:(JSValue *)callback_ andPromise:(KrollPromise *)promise_
 {
-  //Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
+  // Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
   if (self = [super init]) {
     // FIXME Use JSManagedValue here?
     if (![callback_ isUndefined]) { // guard against user not supplying a callback function!
@@ -1107,13 +1107,13 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
   }
 }
 
-//Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
+// Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
   NSDictionary *todict = [self locationDictionary:[locations lastObject]];
 
-  //Must use dictionary because of singleshot.
+  // Must use dictionary because of singleshot.
   NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
   [event setObject:todict forKey:@"coords"];
   if ([self _hasListeners:@"location"]) {
@@ -1159,7 +1159,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-  //Unfortunately, because of the single shot overloaded here, we can't use the faster eventing.
+  // Unfortunately, because of the single shot overloaded here, we can't use the faster eventing.
   NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
   [event setObject:[self headingDictionary:newHeading] forKey:@"heading"];
 

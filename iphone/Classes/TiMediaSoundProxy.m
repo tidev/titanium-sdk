@@ -281,7 +281,7 @@
     }
   } else if ([url_ isKindOfClass:[TiBlob class]]) {
     TiBlob *blob = (TiBlob *)url_;
-    //TODO: for now we're only supporting File-type blobs
+    // TODO: for now we're only supporting File-type blobs
     if ([blob type] == TiBlobTypeFile) {
       url = [[NSURL fileURLWithPath:[blob path]] retain];
     }

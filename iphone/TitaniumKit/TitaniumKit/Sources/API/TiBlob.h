@@ -44,13 +44,13 @@ READONLY_PROPERTY(NSString *, mimeType, MimeType);
 READONLY_PROPERTY(NSString *, nativePath, NativePath);
 /**
  Return the data size.
- 
+
  For file, data returns the size in bytes, for image, returns the width x height.
  */
 READONLY_PROPERTY(NSUInteger, size, Size);
 /**
  Return a textual representation of the blob.
- 
+
  The method converts data into a textual representation. Appropriate only for types TiBlobTypeFile and TiBlobTypeData.
  */
 READONLY_PROPERTY(NSString *, text, Text);

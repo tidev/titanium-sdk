@@ -82,7 +82,7 @@
 #pragma mark - TiExceptionHandlerDelegate
 
 /**
- * Exception handler delegate protocol. 
+ * Exception handler delegate protocol.
  */
 @protocol TiExceptionHandlerDelegate <NSObject>
 
