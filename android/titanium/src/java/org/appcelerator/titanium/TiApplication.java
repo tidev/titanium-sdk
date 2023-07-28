@@ -198,6 +198,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		if (activity != null) {
 			activityStack.remove(activity);
+
+			if (activityStack.size() == 1) {
+				// only base activity is visible - close app
+				terminateActivityStack();
+			}
 		}
 	}
 
