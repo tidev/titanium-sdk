@@ -5922,7 +5922,11 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
 
 	// Do we need to flatten the default icon?
-	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+	let osName = this.xcodeTargetOS;
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		osName = 'maccatalyst';
+	}
+	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha && osName !== 'maccatalyst') {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({
 			name: path.basename(defaultIcon),
