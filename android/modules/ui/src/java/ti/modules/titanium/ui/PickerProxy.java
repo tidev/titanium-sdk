@@ -645,8 +645,14 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		if (inDate == null) {
 			return null;
 		}
+
+		Calendar calIn = Calendar.getInstance();
+		calIn.setTime(inDate);
+
 		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		cal.setTime(inDate);
+		cal.set(Calendar.MONTH, calIn.get(Calendar.MONTH));
+		cal.set(Calendar.DAY_OF_MONTH, calIn.get(Calendar.DAY_OF_MONTH));
+		cal.set(Calendar.YEAR, calIn.get(Calendar.YEAR));
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
