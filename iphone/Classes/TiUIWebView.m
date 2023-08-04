@@ -83,7 +83,11 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
     _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
-
+#if TARGET_OS_SIMULATOR && __IPHONE_OS_VERSION_MAX_ALLOWED >= 160400
+    if (@available(iOS 16.4, *)) {
+      _webView.inspectable = YES;
+    }
+#endif
     [_webView setUIDelegate:self];
     [_webView setNavigationDelegate:self];
     [_webView setContentMode:[self contentModeForWebView]];

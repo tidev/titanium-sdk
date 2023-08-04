@@ -435,10 +435,23 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_BACKGROUND_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBadgeTextColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_TEXT_COLOR), tabProxy.getActivity()));
 		}
 	}
 
