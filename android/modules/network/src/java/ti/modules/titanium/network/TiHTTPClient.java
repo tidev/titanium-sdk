@@ -947,12 +947,12 @@ public class TiHTTPClient
 		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
 		// Causes Auth to Fail with twitter and other size apparently block X- as well
 		// Ticket #729, ignore twitter for now
-		if (!hostString.contains("twitter.com")) {
-			setRequestHeader("X-Requested-With", "XMLHttpRequest");
+		// if (!hostString.contains("twitter.com")) {
+		// 	setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
-		} else {
-			Log.d(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
-		}
+		// } else {
+		// 	Log.d(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
+		// }
 	}
 
 	public void setRawData(Object data)
