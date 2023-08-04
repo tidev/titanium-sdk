@@ -329,9 +329,20 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)) {
+			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_BACKGROUND_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
+			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+			badgeDrawable.setBadgeTextColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_TEXT_COLOR), tabProxy.getActivity()));
 		}
 	}
 
@@ -400,6 +411,11 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void onTabReselected(TabLayout.Tab tab)
 	{
+	}
+
+	public void setTabMode(int value)
+	{
+		this.mTabLayout.setTabMode(value);
 	}
 
 	private LinearLayout getTabLinearLayoutForIndex(int index)
