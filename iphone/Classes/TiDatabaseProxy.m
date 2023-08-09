@@ -266,7 +266,15 @@
   }
 
   NSError *error = nil;
-  TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:params withError:&error];
+  TiDatabaseResultSetProxy *result = nil;
+
+  // Guard the native exception and re-throw, so it can be caught on the JavaScript side
+  @try {
+    result = [self executeSQL:sql withParams:params withError:&error];
+  } @catch (NSException *exception) {
+    [self throwException:@"failed to execute SQL statement" subreason:[error description] location:CODELOCATION];
+  }
+
   if (error != nil) {
     [self throwException:@"failed to execute SQL statement" subreason:[error description] location:CODELOCATION];
     return nil;

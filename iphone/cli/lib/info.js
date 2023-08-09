@@ -79,7 +79,7 @@ exports.detect = function (types, config, next) {
 						+ __('The maximum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, issue.maxSupportedVer);
 					break;
 				case 'IOS_NO_WWDR_CERT_FOUND':
-					issue.message += '\n' + __('Download and install the certificate from %s', '__https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer__');
+					issue.message += '\n' + __('Download and install the certificate from %s', '__https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer__');
 					break;
 				case 'IOS_NO_KEYCHAINS_FOUND':
 					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or App Store distribution certificates.');

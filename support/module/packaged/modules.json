@@ -35,8 +35,8 @@
 			"integrity": "sha512-RhHIP6xq+KDx1/ErTfLaEK1gdX8UqfXm7//zxiwXLLWmhDwPa5SXDAlpXgkGeqS089bJIUiwD2e1k9gwhUZYCQ=="
 		},
 		"ti.map": {
-			"url": "https://github.com/tidev/ti.map/releases/download/v5.5.1-android/ti.map-android-5.5.1.zip",
-			"integrity": "sha512-v2wyc+RUgfNUpj/44VQnw1+F/EWh8eOK55Us0SnkaUXRMTv/IslPVla6WvvLNRZtUymFH7TKwoLYq66MxE/6Hg=="
+			"url": "https://github.com/tidev/ti.map/releases/download/v5.5.2-android/ti.map-android-5.5.2.zip",
+			"integrity": "sha512-6pXkhmi4zBI4cunRfDcLQrugRhlH4z9GntscLvpoBiK6QQ1i+Te3gQ9HaT1YzF5KyRrOLlleiTGtD4WTlTWvGA=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v2.2.0-android/ti.webdialog-android-2.2.0.zip",
@@ -54,8 +54,8 @@
 	"commonjs": {},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.4/hyperloop-7.0.4.zip",
-			"integrity": "sha512-5Nu6+o5LfE96wp5KHUR8Lj2iyDO3GrOk3WI5jO/RpD3pTxM9Yxuq2oyvfB4xXu/HnDYFsUKNRqIxsVU+9/AAJA=="
+			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.5/hyperloop-7.0.5.zip",
+			"integrity": "sha512-SK8f8nRT63mDiT5k8/JNPXmbQchxdyNyF7tBSTYMqHDxsHL3x0bXr1UuRNXj2Xqq/W3nQf4WiB+M1R+CRRJzsw=="
 		}
 	}
 }

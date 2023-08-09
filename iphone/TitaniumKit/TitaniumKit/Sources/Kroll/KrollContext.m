@@ -194,7 +194,7 @@ static JSValueRef StringFormatCallback(JSContextRef jsContext, JSObjectRef jsFun
 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *format = [KrollObject toID:ctx value:args[0]];
-#if TARGET_OS_SIMULATOR && !__LP64__
+#if TARGET_OS_SIMULATOR && !defined(IS_APPLE_SILICON_DEVICE)
   // convert string references to objects
   format = [format stringByReplacingOccurrencesOfString:@"%@" withString:@"%@_TIDELIMITER_"];
   format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@_TIDELIMITER_"];

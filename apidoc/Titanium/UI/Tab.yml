@@ -196,6 +196,9 @@ properties:
     since: {android: "9.3.0"}
 
   - name: badgeColor
+    deprecated:
+        since: "12.2.0"
+        notes: Use [Titanium.UI.Tab.badgeBackgroundColor](Titanium.UI.Tab.badgeBackgroundColor) instead.
     summary: |
         If this item displays a badge, this color will be used for the badge's background.
         If set to null, the default background color will be used instead.
@@ -204,6 +207,25 @@ properties:
     type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
+
+  - name: badgeBackgroundColor
+    summary: |
+        If this item displays a badge, this color will be used for the badge's background.
+        If set to null, the default background color will be used instead.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.2.0"}
+
+  - name: badgeTextColor
+    summary: |
+        Set the text color of the badge.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: {android: "12.2.0"}
 
   - name: icon
     summary: Icon URL for this tab.

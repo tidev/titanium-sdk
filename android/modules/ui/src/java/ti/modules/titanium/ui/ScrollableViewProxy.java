@@ -23,11 +23,9 @@ import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
-		TiC.PROPERTY_CURRENT_PAGE,
 		TiC.PROPERTY_CACHE_SIZE,
 		TiC.PROPERTY_CLIP_VIEWS,
 		TiC.PROPERTY_PADDING,
-		TiC.PROPERTY_SCROLLING_ENABLED,
 		TiC.PROPERTY_SHOW_PAGING_CONTROL,
 		TiC.PROPERTY_OVER_SCROLL_MODE
 })
@@ -353,11 +351,28 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.setProperty
+	public void setScrollingEnabled(boolean value)
+	{
+		if (scrollableView != null) {
+			scrollableView.setEnabled(value);
+		}
+	}
 	@Kroll.getProperty
 	public boolean getScrollingEnabled()
 	{
 		return (scrollableView != null) ? scrollableView.getEnabled()
 			: getProperties().optBoolean(TiC.PROPERTY_SCROLLING_ENABLED, true);
+	}
+
+	@Kroll.setProperty
+	public void setCurrentPage(int currentPage)
+	{
+		setProperty(TiC.PROPERTY_CURRENT_PAGE, currentPage);
+
+		if (scrollableView != null) {
+			scrollableView.setCurrentPage(currentPage);
+		}
 	}
 
 	@Kroll.getProperty
