@@ -126,6 +126,7 @@
   [self replaceValue:nil forKey:@"barImage" notification:NO];
   [self replaceValue:nil forKey:@"translucent" notification:NO];
   [self replaceValue:nil forKey:@"titleAttributes" notification:NO];
+  [self replaceValue:nil forKey:@"largeTitleAttributes" notification:NO];
   [self replaceValue:NUMBOOL(NO) forKey:@"tabBarHidden" notification:NO];
   [self replaceValue:NUMBOOL(NO) forKey:@"navBarHidden" notification:NO];
   [self replaceValue:NUMBOOL(NO) forKey:@"hidesBarsOnSwipe" notification:NO];
@@ -404,10 +405,10 @@
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
     if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-      if ([self shouldUseNavBarApperance]) {
-        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
-        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
-      }
+      //      if ([self shouldUseNavBarApperance]) {
+      //        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
+      //        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
+      //      }
       navigationBar.largeTitleTextAttributes = theAttributes;
     }
     if ([self shouldUseNavBarApperance]) {
@@ -415,6 +416,55 @@
       navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
     }
     navigationBar.titleTextAttributes = theAttributes;
+  }
+}
+- (void)setLargeTitleAttributes:(id)args
+{
+  ENSURE_UI_THREAD(setLargeTitleAttributes, args);
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+  [self replaceValue:args forKey:@"largeTitleAttributes" notification:NO];
+
+  if (args == nil) {
+    args = [[self tabGroup] valueForUndefinedKey:@"largeTitleAttributes"];
+  }
+
+  NSMutableDictionary *theAttributes = nil;
+  if (args != nil) {
+    theAttributes = [NSMutableDictionary dictionary];
+    if ([args objectForKey:@"color"] != nil) {
+      UIColor *theColor = [[TiUtils colorValue:@"color" properties:args] _color];
+      if (theColor != nil) {
+        [theAttributes setObject:theColor forKey:NSForegroundColorAttributeName];
+      }
+    }
+    if ([args objectForKey:@"shadow"] != nil) {
+      NSShadow *shadow = [TiUtils shadowValue:[args objectForKey:@"shadow"]];
+      if (shadow != nil) {
+        [theAttributes setObject:shadow forKey:NSShadowAttributeName];
+      }
+    }
+
+    if ([args objectForKey:@"font"] != nil) {
+      UIFont *theFont = [[TiUtils fontValue:[args objectForKey:@"font"] def:nil] font];
+      if (theFont != nil) {
+        [theAttributes setObject:theFont forKey:NSFontAttributeName];
+      }
+    }
+
+    if ([theAttributes count] == 0) {
+      theAttributes = nil;
+    }
+  }
+
+  if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
+    UINavigationBar *navigationBar = controller.navigationController.navigationBar;
+    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+      if ([self shouldUseNavBarApperance]) {
+        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
+        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
+      }
+      navigationBar.largeTitleTextAttributes = theAttributes;
+    }
   }
 }
 
@@ -1016,6 +1066,7 @@
   //Need to clear title for titleAttributes to apply correctly on iOS6.
   [[controller navigationItem] setTitle:nil];
   SETPROP(@"titleAttributes", setTitleAttributes);
+  SETPROP(@"largeTitleAttributes", setLargeTitleAttributes);
   SETPROP(@"title", setTitle);
   SETPROP(@"titlePrompt", setTitlePrompt);
   SETPROP(@"largeTitleEnabled", setLargeTitleEnabled);
