@@ -404,13 +404,7 @@
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
-    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-      //      if ([self shouldUseNavBarApperance]) {
-      //        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
-      //        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
-      //      }
-      navigationBar.largeTitleTextAttributes = theAttributes;
-    }
+
     if ([self shouldUseNavBarApperance]) {
       navigationBar.standardAppearance.titleTextAttributes = theAttributes;
       navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
