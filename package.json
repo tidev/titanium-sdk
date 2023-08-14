@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "TiDev Titanium Mobile",
-  "version": "12.2.0",
+  "version": "12.3.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
@@ -61,12 +61,15 @@
     "postinstall": "husky install",
     "test": "npm run ios-sanity-check && npm run lint",
     "test:android": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- android",
+    "test:android:onlyFailed": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration:onlyFailed -- android",
     "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js build/**/test-*.js --reporter=mocha-jenkins-reporter",
     "test:ios": "npm run test:iphone",
     "test:iphone": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F iphone",
+    "test:iphone:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration:onlyFailed -- ios -F iphone",
     "test:ipad": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -F ipad",
     "test:mac": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && ti sdk select $npm_package_version && npm run test:integration -- ios -T macos",
-    "test:integration": "node ./build/scons test"
+    "test:integration": "node ./build/scons test",
+    "test:integration:onlyFailed": "node ./build/scons test --only-failed"
   },
   "commitlint": {
     "extends": [
@@ -97,7 +100,7 @@
     "ejs": "3.1.9",
     "fields": "0.1.24",
     "fs-extra": "10.0.0",
-    "ioslib": "1.7.31",
+    "ioslib": "1.7.32",
     "liveview": "1.5.6",
     "lodash.merge": "4.6.2",
     "markdown": "0.5.0",

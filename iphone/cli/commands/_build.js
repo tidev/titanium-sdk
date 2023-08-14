@@ -1895,7 +1895,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer'.cyan) + '\n');
+				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer'.cyan) + '\n');
 				process.exit(1);
 			}
 
@@ -5922,7 +5922,11 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
 
 	// Do we need to flatten the default icon?
-	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+	let osName = this.xcodeTargetOS;
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		osName = 'maccatalyst';
+	}
+	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha && osName !== 'maccatalyst') {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({
 			name: path.basename(defaultIcon),
