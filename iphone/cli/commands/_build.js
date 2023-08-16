@@ -337,7 +337,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 					}
 				}, this);
 			}, this);
-	} else if (argv.target === 'macos') {
+	} else if (argv.target === 'macos' || argv.target === 'dist-macappstore') {
 		deviceInfo.devices = {};
 	}
 	return this.deviceInfoCache = deviceInfo;
@@ -1274,6 +1274,10 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					break;
 
 				case 'macos':
+					_t.conf.options['device-id'].required = false;
+					break;
+
+				case 'dist-macappstore':
 					_t.conf.options['device-id'].required = false;
 					break;
 			}
