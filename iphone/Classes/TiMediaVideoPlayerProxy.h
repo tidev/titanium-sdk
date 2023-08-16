@@ -13,7 +13,7 @@
 #import <TitaniumKit/TiFile.h>
 #import <TitaniumKit/TiViewProxy.h>
 
-@interface TiMediaVideoPlayerProxy : TiViewProxy {
+@interface TiMediaVideoPlayerProxy : TiViewProxy <AVAssetResourceLoaderDelegate> {
   @protected
   AVPlayerViewController *movie;
   AVPlayerItem *item;
@@ -42,6 +42,9 @@
 
   // Track the playback state for parity
   TiVideoPlayerPlaybackState _playbackState;
+
+  NSData *fairPlayCertificate;
+  NSString *fairPlayLicenseURL;
 }
 
 @property (nonatomic, readwrite, assign) id url;

@@ -24,6 +24,7 @@ public class TiC
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
 	public static final int PERMISSION_CODE_PUSH_NOTIFICATIONS = 107;
+	public static final int PERMISSION_CODE_MEDIA = 108;
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
@@ -241,6 +242,7 @@ public class TiC
 	public static final String PROPERTY_ADD = "add";
 	public static final String PROPERTY_ADDRESS = "address";
 	public static final String PROPERTY_ALLOW_BACKGROUND = "allowBackground";
+	public static final String PROPERTY_ALLOW_FILE_ACCESS = "allowFileAccess";
 	public static final String PROPERTY_ALLOW_MULTIPLE = "allowMultiple";
 	public static final String PROPERTY_ALLOWS_SELECTION_DURING_EDITING = "allowsSelectionDuringEditing";
 	public static final String PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING
@@ -290,7 +292,9 @@ public class TiC
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 	public static final String PROPERTY_BADGE = "badge";
-	public static final String PROPERTY_BADGE_COLOR = "badgeColor";
+	public static final String PROPERTY_BADGE_COLOR = "badgeColor"; // DEPRECATED: Superseded by PROPERTY_BADGE_BACKGROUND_COLOR.
+	public static final String PROPERTY_BADGE_BACKGROUND_COLOR = "badgeBackgroundColor";
+	public static final String PROPERTY_BADGE_TEXT_COLOR = "badgeTextColor";
 	public static final String PROPERTY_TARGET_ITEM_INDEX = "targetItemIndex";
 	public static final String PROPERTY_TARGET_SECTION = "targetSection";
 	public static final String PROPERTY_TARGET_SECTION_INDEX = "targetSectionIndex";
@@ -431,6 +435,7 @@ public class TiC
 	public static final String PROPERTY_FILTER_ANCHORED = "filterAnchored";
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	public static final String PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED = "filterTouchesWhenObscured";
+	public static final String PROPERTY_FILTER_ALWAYS_INCLUDE = "filterAlwaysInclude";
 	public static final String PROPERTY_FIRSTNAME = "firstName";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM = "firstVisibleItem";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM_INDEX = "firstVisibleItemIndex";
@@ -750,6 +755,7 @@ public class TiC
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
 	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
+	public static final String PROPERTY_TAB_MODE = "tabMode";
 	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_TEMPLATES = "templates";
@@ -802,6 +808,7 @@ public class TiC
 	public static final String PROPERTY_VERTICAL_ALIGN = "verticalAlign";
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
 	public static final String PROPERTY_VIDEO_MAX_DURATION = "videoMaximumDuration";
+	public static final String PROPERTY_VIDEO_MAX_SIZE = "videoMaximumSize";
 	public static final String PROPERTY_VIDEO_QUALITY = "videoQuality";
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_VISIBILITY = "visibility";

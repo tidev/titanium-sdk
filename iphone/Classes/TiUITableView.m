@@ -1357,7 +1357,8 @@
     int cellIndex = 0;
     for (TiUITableViewRowProxy *row in [thisSection rows]) {
       id value = [row valueForKey:ourSearchAttribute];
-      if (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound) {
+      BOOL alwaysInclude = [TiUtils boolValue:[row valueForKey:@"filterAlwaysInclude"] def:NO];
+      if (alwaysInclude || (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound)) {
         [thisIndexSet addIndex:cellIndex];
       }
       cellIndex++;
@@ -1640,6 +1641,13 @@
   UITableView *table = [self tableView];
   NSIndexPath *path = [self indexPathFromInt:index];
   [table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
+}
+
+- (void)setKeyboardDismissMode_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+  [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
 }
 
 - (void)setSeparatorInsets_:(id)arg

@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.android.notificationmanager;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -119,6 +120,25 @@ public class NotificationManagerModule extends KrollModule
 			getManager().createNotificationChannel(notificationChannelProxy.getNotificationChannel());
 		}
 		return notificationChannelProxy;
+	}
+
+	@TargetApi(26)
+	@Kroll.getProperty
+	public KrollDict[] getNotificationChannels()
+	{
+		KrollDict[] output = new KrollDict[0];
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			output = new KrollDict[getManager().getNotificationChannels().size()];
+			int i = 0;
+			for (NotificationChannel channel : getManager().getNotificationChannels()) {
+				KrollDict kd = new KrollDict();
+				kd.put("id", channel.getId());
+				kd.put("name", channel.getName());
+				output[i] = kd;
+				i++;
+			}
+		}
+		return output;
 	}
 
 	@TargetApi(26)

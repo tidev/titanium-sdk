@@ -8,6 +8,7 @@ package ti.modules.titanium.ui;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -85,11 +86,23 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Kroll.method
-	public void disableTabNavigation(boolean disable)
+	public void disableTabNavigation(Object params)
 	{
-		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-		if (tabGroup != null) {
-			tabGroup.disableTabNavigation(disable);
+		if (params instanceof Boolean) {
+			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+			if (tabGroup != null) {
+				tabGroup.disableTabNavigation(TiConvert.toBoolean(params, false));
+			}
+		} else if (params instanceof HashMap<?, ?>) {
+			KrollDict options = new KrollDict((HashMap<String, Object>) params);
+			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+			if (tabGroup != null) {
+				if (options.getBoolean(TiC.PROPERTY_ANIMATED)) {
+					setTabBarVisible(options.getBoolean(TiC.PROPERTY_ENABLED));
+				} else {
+					tabGroup.disableTabNavigation(options.getBoolean(TiC.PROPERTY_ENABLED));
+				}
+			}
 		}
 	}
 
@@ -109,6 +122,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.addTab(tab);
+		}
+	}
+
+	@Kroll.setProperty
+	public void setTabBarVisible(boolean visible)
+	{
+		TiUIBottomNavigationTabGroup tabGroup = (TiUIBottomNavigationTabGroup) view;
+
+		if (tabGroup != null) {
+			tabGroup.setTabBarVisible(visible);
 		}
 	}
 
@@ -341,6 +364,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (getProperty(TiC.PROPERTY_STYLE) == null
 			|| ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_DEFAULT) {
 			view = new TiUITabLayoutTabGroup(this, activity);
+
+			if (getProperty(TiC.PROPERTY_TAB_MODE) != null) {
+				((TiUITabLayoutTabGroup) view).setTabMode((Integer) getProperty(TiC.PROPERTY_TAB_MODE));
+			}
 		} else {
 			view = new TiUIBottomNavigationTabGroup(this, activity);
 		}

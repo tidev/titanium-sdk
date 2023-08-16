@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -363,6 +364,35 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
+	public void setTabBarVisible(boolean visible)
+	{
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+
+		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
+		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
+		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+
+			// make it a bit slower when moving up again so it won't show the background
+			int duration = !visible ? 200 : 400;
+			LayoutTransition lt = new LayoutTransition();
+			lt.enableTransitionType(LayoutTransition.CHANGING);
+			lt.setDuration(duration);
+			this.tabGroupViewPager.setLayoutTransition(lt);
+			this.tabGroupViewPager.setLayoutParams(params);
+		}
+
+		if (visible) {
+			this.mBottomNavigationView.animate().translationY(0f).setDuration(200);
+		} else {
+			this.mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight()).setDuration(200);
+		}
+
+		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
+	}
+
 	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateBadge(int index)
@@ -405,10 +435,23 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_BACKGROUND_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBadgeTextColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_TEXT_COLOR), tabProxy.getActivity()));
 		}
 	}
 

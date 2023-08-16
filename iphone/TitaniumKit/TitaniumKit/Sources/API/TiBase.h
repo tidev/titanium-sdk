@@ -536,6 +536,10 @@ enum {
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
 
+#if (defined(__arm64__) || defined(__ARM_ARCH_8_32__))
+#define IS_APPLE_SILICON_DEVICE
+#endif
+
 NSString *hexString(NSData *thedata);
 
 typedef enum {
