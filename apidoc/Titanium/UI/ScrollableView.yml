@@ -561,5 +561,5 @@ properties:
       If set it will move the first item according to the `leftAdjust` value while still keeping left padding for
       the next items.
     type: Number
-    since: { android: 12.2.0 }
+    since: { android: 12.3.0 }
     platforms: [android]
