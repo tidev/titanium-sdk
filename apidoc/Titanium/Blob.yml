@@ -146,7 +146,7 @@ properties:
     type: Number
     summary: EXIF rotation of the image if available. Can be `undefined` if no orientation was found.
     platforms: [android]
-    since: {android: "12.2.0"}
+    since: {android: "12.3.0"}
     permission: read-only
 
 methods:
