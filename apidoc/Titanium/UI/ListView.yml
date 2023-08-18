@@ -968,7 +968,7 @@ properties:
     type: Boolean
     default: false
     platforms: [android, iphone, ipad, macos]
-    since: 12.2.0
+    since: 12.3.0
 
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
