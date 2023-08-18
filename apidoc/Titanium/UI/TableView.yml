@@ -1425,6 +1425,14 @@ properties:
     platforms: [iphone, ipad, macos]
     availability: creation
 
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the table view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad, macos]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "12.2.0"
+
   - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
