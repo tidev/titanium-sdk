@@ -138,7 +138,7 @@ describe('string_decoder', () => {
 		);
 	});
 
-	// FIXMEL Requires native fix in iOS for Ti.Buffer, see https://github.com/appcelerator/titanium_mobile/pull/11095#issue-302964559
+	// FIXMEL Requires native fix in iOS for Ti.Buffer, see https://github.com/tidev/titanium-sdk/pull/11095#issue-302964559
 	it.allBroken('handles invalid utf-8 input', () => {
 		decodeTest('utf-8', Buffer.from('C9B5A941', 'hex'), '\u0275\ufffdA');
 		decodeTest('utf-8', Buffer.from('E2', 'hex'), '\ufffd');

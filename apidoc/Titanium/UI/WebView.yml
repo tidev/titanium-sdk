@@ -49,7 +49,7 @@ description: |
       '})()'
     );
     ```
-    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium-sdk/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
 
     For iOS check the example in <Titanium.UI.WebView.addScriptMessageHandler>.
 
