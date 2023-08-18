@@ -324,7 +324,7 @@ methods:
 
   - name: injectEventBindings
     summary: Injects the Titanium event bindings from bindings.js code into an external webpage.
-    since: "12.2.0"
+    since: "12.3.0"
     platforms: [android]
 
   - name: pause
