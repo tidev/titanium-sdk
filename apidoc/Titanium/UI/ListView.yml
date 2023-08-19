@@ -953,7 +953,7 @@ properties:
   - name: continuousUpdate
     summary: Determines if the scrolling event should fire every time there is a new visible item.
     description: |
-        When setting `continuousUpdate` to `true` the [scrolling](Titanium.UI.ListView.scrolling) event will fire every time.
+        When setting `continuousUpdate` to `true` the [scrolling]
         Otherwise it will only change when you change the scroll direction.
     type: Boolean
     default: false
