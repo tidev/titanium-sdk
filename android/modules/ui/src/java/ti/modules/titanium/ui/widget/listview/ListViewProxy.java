@@ -562,6 +562,11 @@ public class ListViewProxy extends RecyclerViewProxy
 			if (listView != null) {
 				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
 			}
+		} else if (name.equals("forceUpdates")) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setForceUpdates(TiConvert.toBoolean(value, false));
+			}
 		}
 	}
 
