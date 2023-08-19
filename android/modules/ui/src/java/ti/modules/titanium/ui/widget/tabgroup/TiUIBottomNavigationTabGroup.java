@@ -185,6 +185,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			params.autoFillsWidth = true;
 			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
 			this.tabGroupViewPager.setLayoutParams(params);
+			// FIXME change "500" to a calculate value
 			this.mBottomNavigationView.setTranslationY(500);
 		}
 	}
