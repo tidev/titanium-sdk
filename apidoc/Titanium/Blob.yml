@@ -142,6 +142,13 @@ properties:
     since: {android: "7.2.0", iphone: "0.9.0", ipad: "0.9.0", macos: "9.2.0"}
     permission: read-only
 
+  - name: rotation
+    type: Number
+    summary: EXIF rotation of the image if available. Can be `undefined` if no orientation was found.
+    platforms: [android]
+    since: {android: "12.3.0"}
+    permission: read-only
+
 methods:
   - name: toString
     returns:
