@@ -112,6 +112,13 @@ describe('Titanium.App.Properties', function () {
 		should(Ti.App.Properties.getString('test_string')).be.eql('some test string');
 	});
 
+	it.android('set and getString (encrypted)', function () {
+		Ti.App.Properties.useEncryption = true;
+		Ti.App.Properties.setString('test_string_encrypted', 'some test string');
+		should(Ti.App.Properties.getString('test_string_encrypted')).be.eql('some test string');
+		Ti.App.Properties.useEncryption = false;
+	});
+
 	it('setString on property from tiapp doesnt change value', function () {
 		should(Ti.App.Properties.getString('presetString')).be.eql('Hello!');
 		Ti.App.Properties.setString('presetString', 'a new value'); // should log warning

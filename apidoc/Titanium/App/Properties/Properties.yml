@@ -1,7 +1,7 @@
 ---
 name: Titanium.App.Properties
 summary: |
-    The App Properties module is used for storing application-related data in property/value pairs 
+    The App Properties module is used for storing application-related data in property/value pairs
     that persist beyond application sessions and device power cycles.
 description: |
     #### App Properties in the tiapp.xml file
@@ -36,7 +36,7 @@ description: |
 
     Prior to Release 3.2.0, application properties defined in the `tiapp.xml` file could be
     overwritten by these APIs and accessed externally by other applications and modules.
-    
+
 extends: Titanium.Module
 since: "0.5"
 
@@ -49,37 +49,37 @@ methods:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: default
         summary: Default value to return if property does not exist.
         type: Boolean
         optional: true
-        
+
   - name: getDouble
     summary: Returns the value of a property as a double (double-precision, floating point) data type.
     description: |
-        This method must only be used to retrieve properties created with 
-        [setDouble](Titanium.App.Properties.setDouble).  
+        This method must only be used to retrieve properties created with
+        [setDouble](Titanium.App.Properties.setDouble).
     returns:
         type: Number
     parameters:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: default
         summary: Default value to return if property does not exist.
         type: Number
         optional: true
-        
+
   - name: getInt
     summary: |
         Returns the value of a property as an integer data type.
     description: |
-        This method must only be used to retrieve properties created with 
-        [setInt](Titanium.App.Properties.setInt).  
-        
-        Use [getDouble](Titanium.App.Properties.getDouble) and [setDouble](Titanium.App.Properties.setDouble) 
+        This method must only be used to retrieve properties created with
+        [setInt](Titanium.App.Properties.setInt).
+
+        Use [getDouble](Titanium.App.Properties.getDouble) and [setDouble](Titanium.App.Properties.setDouble)
         to store values outside the integer data type range of `-2,147,483,648` to `2,147,483,647`.
     returns:
         type: Number
@@ -87,12 +87,12 @@ methods:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: default
         summary: Default value to return if property does not exist.
         type: Number
         optional: true
-        
+
   - name: getList
     summary: Returns the value of a property as an array data type.
     returns:
@@ -101,12 +101,12 @@ methods:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: default
         summary: Default value to return if property does not exist.
         type: Array<Object>
         optional: true
-         
+
   - name: getObject
     summary: Returns the value of a property as an object.
     returns:
@@ -115,12 +115,12 @@ methods:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: default
         summary: Default value to return if property does not exist.
         type: Object
         optional: true
-        
+
   - name: getString
     summary: Returns the value of a property as a string data type.
     returns:
@@ -129,12 +129,12 @@ methods:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: default
         summary: Default value to return if property does not exist.
         type: String
         optional: true
-        
+
   - name: hasProperty
     summary: Indicates whether a property exists.
     returns:
@@ -143,12 +143,12 @@ methods:
       - name: property
         summary: Name of property.
         type: String
-        
+
   - name: listProperties
     summary: Returns an array of property names.
     returns:
         type: Array<Object>
-        
+
   - name: removeProperty
     summary: Removes a property if it exists, or does nothing otherwise.
     parameters:
@@ -159,97 +159,107 @@ methods:
   - name: removeAllProperties
     summary: Removes all properties that have been set by the user on runtime, or does nothing otherwise.
     since: "6.0.0"
-        
+
   - name: setBool
     summary: |
-        Sets the value of a property as a boolean data type. The property will be created if it 
+        Sets the value of a property as a boolean data type. The property will be created if it
         does not exist.
     parameters:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: value
         summary: Property value.
         type: Boolean
-        
+
   - name: setDouble
     summary: |
-        Sets the value of a property as a double (double-precision, floating point) data type. The 
+        Sets the value of a property as a double (double-precision, floating point) data type. The
         property will be created if it does not exist.
     parameters:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: value
         summary: Property value.
         type: Number
-        
+
   - name: setInt
     summary: |
-        Sets the value of a property as an integer data type. The property will be created if it 
+        Sets the value of a property as an integer data type. The property will be created if it
         does not exist.
     description: |
-        Use [getDouble](Titanium.App.Properties.getDouble) and [setDouble](Titanium.App.Properties.setDouble) 
+        Use [getDouble](Titanium.App.Properties.getDouble) and [setDouble](Titanium.App.Properties.setDouble)
         to store values outside the integer data type range of `-2,147,483,648` to `2,147,483,647`.
     parameters:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: value
         summary: Property value, within the range `-2,147,483,648` to `2,147,483,647`.
         type: Number
-        
+
   - name: setList
     summary: |
-        Sets the value of a property as an array data type. The property will be created if it 
+        Sets the value of a property as an array data type. The property will be created if it
         does not exist.
     parameters:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: value
         summary: Property value.
         type: Array<Object>
-        
+
   - name: setObject
     summary: |
-        Sets the value of a property as an object data type. The property will be created if it 
+        Sets the value of a property as an object data type. The property will be created if it
         does not exist.
     parameters:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: value
         summary: Property value.
         type: Object
-        
+
   - name: setString
     summary: |
-        Sets the value of a property as a string data type. The property will be created if it 
+        Sets the value of a property as a string data type. The property will be created if it
         does not exist.
     parameters:
       - name: property
         summary: Name of property.
         type: String
-        
+
       - name: value
         summary: Property value.
         type: String
-        
+
+properties:
+  - name: useEncryption
+    summary: |
+        If enabled it will use Androids [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
+        to store properties.
+    type: String
+    permission: read-only
+    platforms: [android]
+    since: {android: "12.3.0"}
+
 events:
-  
+
   - name: change
     summary: Fired when a property is changed.
     description: |
-        On iOS, the event is fired when the user re-enters the application after 
+        On iOS, the event is fired when the user re-enters the application after
         making a change using the Settings application.
 
-        The event is also fired when the application changes a property directly using one of the 
+        The event is also fired when the application changes a property directly using one of the
         `Ti.App.iOS.UserDefaults` or `Ti.App.Properties` methods.
     platforms: [iphone, ipad, macos]
     since: "3.0.0"
@@ -263,13 +273,22 @@ examples:
         Ti.App.Properties.setString('givenName', 'Paul');
         Ti.API.info('The value of the givenName property is: ' + Ti.App.Properties.getString('givenName'));
         ```
+  - title: Store encypted properties on Android
+    example: |
+        Store a string in an encrypted property.
+
+        ``` js
+        Ti.App.Properties.useEncryption = true;
+        Ti.App.Properties.setString('string', 'secure value');
+        console.log('get value: ' + Ti.App.Properties.getString('string', 'default'));
+        ```
   - title: Enumerate over saved properties
     example: |
         Output all saved properties to the console.
 
         ``` js
         var props = Ti.App.Properties.listProperties();
-        
+
         for (var i = 0, ilen = props.length; i < ilen; i++){
             var value = Ti.App.Properties.getString(props[i]);
             Ti.API.info(props[i] + ' = ' + value);
