@@ -1278,7 +1278,17 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					break;
 
 				case 'dist-macappstore':
+
+					_t.conf.options['deploy-type'].values = [ 'production' ];
 					_t.conf.options['device-id'].required = false;
+					_t.conf.options['distribution-name'].required = true;
+					_t.conf.options['pp-uuid'].required = true;
+
+					// build lookup maps
+					iosInfo.provisioning.distribution.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
+					});
+
 					break;
 			}
 		},
@@ -1899,7 +1909,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer'.cyan) + '\n');
+				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer'.cyan) + '\n');
 				process.exit(1);
 			}
 
@@ -2864,7 +2874,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecomp
 			return true;
 		}
 
-		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore' || this.target === 'dist-macappstore') {
 			this.logger.info(__('Forcing rebuild: distribution builds require \'xcodebuild\' to be run so that resources are copied into the archive'));
 			return true;
 		}
@@ -3326,7 +3336,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir \\"${buildProductsPath}\\""`,
+			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -5927,10 +5937,10 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 
 	// Do we need to flatten the default icon?
 	let osName = this.xcodeTargetOS;
-	if (this.target === 'macos' || this.target === 'dist-macappstore') {
-		osName = 'maccatalyst';
-	}
-	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha && osName !== 'maccatalyst') {
+ 	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+ 		osName = 'maccatalyst';
+ 	}
+ 	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha && osName !== 'maccatalyst') {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({
 			name: path.basename(defaultIcon),
