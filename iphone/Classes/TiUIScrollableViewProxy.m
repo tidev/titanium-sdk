@@ -88,7 +88,10 @@
 #else
     TiThreadPerformOnMainThread(
         ^{
-          [[oldViewProxy view] removeFromSuperview];
+            [self makeViewPerformSelector:@selector(removeSubview:)
+                               withObject:[oldViewProxy view]
+                           createIfNeeded:NO
+                            waitUntilDone:NO];
         },
         YES);
 #endif
