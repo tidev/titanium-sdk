@@ -6,8 +6,12 @@
  */
 #ifdef USE_TI_UISCROLLABLEVIEW
 
-#import "TiUIScrollableViewProxy.h"
+#if TARGET_OS_MACCATALYST
+#import <AppKit/AppKit.h>
+#endif
+
 #import "TiUIScrollableView.h"
+#import "TiUIScrollableViewProxy.h"
 
 @implementation TiUIScrollableViewProxy
 @synthesize viewProxies;
@@ -88,10 +92,7 @@
 #else
     TiThreadPerformOnMainThread(
         ^{
-            [self makeViewPerformSelector:@selector(removeSubview:)
-                               withObject:[oldViewProxy view]
-                           createIfNeeded:NO
-                            waitUntilDone:NO];
+          [[oldViewProxy view] performSelector:@selector(removeFromSuperview)];
         },
         YES);
 #endif
