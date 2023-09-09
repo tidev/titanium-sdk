@@ -86,7 +86,7 @@ describe('Titanium.UI.AttributedString', function () {
 				attributes: [
 					{
 						type: Ti.UI.ATTRIBUTE_LINK,
-						value: 'https://developer.appcelerator.com',
+						value: 'https://titaniumsdk.com',
 						range: [ 14, 29 ]
 					},
 					{
