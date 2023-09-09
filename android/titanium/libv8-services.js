@@ -171,51 +171,33 @@ async function createSnapshot() {
 		// Requests our server to create snapshot of rolled-up "ti.main" in a C++ header file.
 		let wasSuccessful = false;
 		try {
-			// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
-			// We will send an HTTP request for the snapshot code later.
+			// Post rolled-up "ti.main" script to server and obtain the V8Snapshot.h as a response.
 			console.log('Attempting to request snapshot...');
-			const snapshotUrl = 'http://v8-snapshot.appcelerator.com'; // TODO: Migrate to Github Artifacts once ready
+			const snapshotUrl = 'https://v8-snapshot.titaniumsdk.com/gen';
 			const packageJsonData = await loadPackageJson();
 			const requestOptions = {
 				body: {
 					v8: packageJsonData.v8.version,
 					script: rollupFileContent
 				},
-				json: true
+				json: true,
+				resolveWithFullResponse: true,
+				timeout: 120000	// 2 minutes
 			};
-			const snapshotId = await request.post(snapshotUrl, requestOptions);
+			const response = await request.post(snapshotUrl, requestOptions);
 
-			// Request generated snapshot from server using `snapshotId` obtained from server above.
-			const MAX_ATTEMPTS = 20; // Time-out after two minutes.
-			let attempts;
-			for (attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
-				const response = await request.get(`${snapshotUrl}/snapshot/${snapshotId}`, {
-					simple: false,
-					resolveWithFullResponse: true
-				});
+			if (response.statusCode === 200) {
+				console.log('Writing snapshot...');
+				await fs.writeFile(v8SnapshotHeaderFilePath, response.body);
+				wasSuccessful = true;
+			} else if (response.statusCode === 202) {
 
-				if (response.statusCode === 200) {
-
-					// Server has finished creating a C++ header file containing all V8 snapshots.
-					// Write it to file and flag that we're done.
-					console.log('Writing snapshot...');
-					await fs.writeFile(v8SnapshotHeaderFilePath, response.body);
-					wasSuccessful = true;
-					break;
-				} else if (response.statusCode === 202) {
-
-					// Snapshot server is still building. We need to retry later.
-					console.log('Waiting for snapshot generation...');
-					await new Promise(resolve => setTimeout(resolve, 6000));
-				} else {
-
-					// Give up if received an unexpected response.
-					console.error('Could not generate snapshot, skipping...');
-					break;
-				}
-			}
-			if (attempts > MAX_ATTEMPTS) {
-				console.error('Max retries exceeded fetching snapshot from server, skipping...');
+				// Snapshot server is still building. We need to retry later.
+				console.log('Waiting for snapshot generation...');
+				await new Promise(resolve => setTimeout(resolve, 6000));
+			} else {
+				// Give up if received an unexpected response.
+				console.error('Could not generate snapshot, skipping...');
 			}
 		} catch (err) {
 			console.error(`Failed to request snapshot: ${err}`);
