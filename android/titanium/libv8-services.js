@@ -184,20 +184,30 @@ async function createSnapshot() {
 				resolveWithFullResponse: true,
 				timeout: 120000	// 2 minutes
 			};
-			const response = await request.post(snapshotUrl, requestOptions);
 
-			if (response.statusCode === 200) {
-				console.log('Writing snapshot...');
-				await fs.writeFile(v8SnapshotHeaderFilePath, response.body);
-				wasSuccessful = true;
-			} else if (response.statusCode === 202) {
+			const MAX_ATTEMPTS = 20; // Time-out after two minutes.
+			let attempts;
+			for (attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
+				const response = await request.post(snapshotUrl, requestOptions);
 
-				// Snapshot server is still building. We need to retry later.
-				console.log('Waiting for snapshot generation...');
-				await new Promise(resolve => setTimeout(resolve, 6000));
-			} else {
-				// Give up if received an unexpected response.
-				console.error('Could not generate snapshot, skipping...');
+				if (response.statusCode === 200) {
+					console.log('Writing snapshot...');
+					await fs.writeFile(v8SnapshotHeaderFilePath, response.body);
+					wasSuccessful = true;
+					break;
+				} else if (response.statusCode === 202) {
+
+					// Snapshot server is still building. We need to retry later.
+					console.log('Waiting for snapshot generation...');
+					await new Promise(resolve => setTimeout(resolve, 6000));
+					break;
+				} else {
+					// Give up if received an unexpected response.
+					console.error('Could not generate snapshot, skipping...');
+				}
+			}
+			if (attempts > MAX_ATTEMPTS) {
+				console.error('Max retries exceeded fetching snapshot from server, skipping...');
 			}
 		} catch (err) {
 			console.error(`Failed to request snapshot: ${err}`);
