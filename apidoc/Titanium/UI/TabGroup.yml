@@ -471,6 +471,21 @@ properties:
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0"}
     platforms: [android, iphone, ipad, macos]
 
+  - name: tabMode
+    summary: Property defining which tabMode is used for the TabGroup.
+    description: |
+        Sets the style of the TabGroup tabs.
+
+        [TAB_MODE_SCROLLABLE](Titanium.UI.Android.TAB_MODE_SCROLLABLE) is the best style for showing long tab titles and
+        enables horizontal scrolling (default).
+
+        [TAB_MODE_FIXED](Titanium.UI.Android.TAB_MODE_FIXED) will show all tabs at once.
+    availability: creation
+    constants: Titanium.UI.Android.TAB_MODE_*
+    since: "12.2.0"
+    type: Number
+    platforms: [android]
+
   - name: tabsTintColor
     summary: The tintColor to apply to the tabs.
     description: |

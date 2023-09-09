@@ -337,7 +337,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 					}
 				}, this);
 			}, this);
-	} else if (argv.target === 'macos') {
+	} else if (argv.target === 'macos' || argv.target === 'dist-macappstore') {
 		deviceInfo.devices = {};
 	}
 	return this.deviceInfoCache = deviceInfo;
@@ -1274,6 +1274,10 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					break;
 
 				case 'macos':
+					_t.conf.options['device-id'].required = false;
+					break;
+
+				case 'dist-macappstore':
 					_t.conf.options['device-id'].required = false;
 					break;
 			}
@@ -5922,7 +5926,11 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
 
 	// Do we need to flatten the default icon?
-	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+	let osName = this.xcodeTargetOS;
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		osName = 'maccatalyst';
+	}
+	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha && osName !== 'maccatalyst') {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({
 			name: path.basename(defaultIcon),

@@ -35,11 +35,11 @@ describe('Date', function () {
 		should(date.toLocaleString('de-DE', options)).be.eql('1.3.2020');
 		should(date.toLocaleString('ja-JP', options)).be.eql('2020/3/1');
 
-		should(date.toLocaleString('en-US')).be.equalOneOf([ '3/1/2020, 8:02:05 PM', '3/1/2020, 20:02:05' ]);
-		should(date.toLocaleString('en-US', { hour12: true })).be.eql('3/1/2020, 8:02:05 PM');
-		should(date.toLocaleString('en-US', { hour12: false })).be.eql('3/1/2020, 20:02:05');
+		should(date.toLocaleString('en-US')).be.equalOneOf([ '3/1/2020, 8:02:05 PM', '3/1/2020, 8:02:05 PM', '3/1/2020, 20:02:05' ]);
+		should(date.toLocaleString('en-US', { hour12: true })).be.equalOneOf([ '3/1/2020, 8:02:05 PM', '3/1/2020, 8:02:05 PM' ]);
+		should(date.toLocaleString('en-US', { hour12: false })).be.equalOneOf([ '3/1/2020, 20:02:05', '3/1/2020, 20:02:05' ]);
 		should(date.toLocaleString('en-US', { year: 'numeric' })).be.eql('2020');
-		should(date.toLocaleString('en-US', { hour: 'numeric', hour12: true })).be.eql('8 PM');
+		should(date.toLocaleString('en-US', { hour: 'numeric', hour12: true })).be.equalOneOf([ '8 PM', '8 PM' ]);
 		should(date.toLocaleString('en-US', { weekday: 'long' }).toLowerCase()).be.eql('sunday');
 	});
 
@@ -70,7 +70,7 @@ describe('Date', function () {
 		should(date.toLocaleDateString('en-US')).be.eql('3/1/2020');
 		should(date.toLocaleDateString('en-US', { year: 'numeric' })).be.eql('2020');
 		should(date.toLocaleDateString('en-US', { year: '2-digit' })).be.eql('20');
-		should(date.toLocaleDateString('en-US', { hour: 'numeric', hour12: true })).be.eql('3/1/2020, 12 AM');
+		should(date.toLocaleDateString('en-US', { hour: 'numeric', hour12: true })).be.equalOneOf([ '3/1/2020, 12 AM', '3/1/2020, 12 AM' ]);
 	});
 
 	it('#toLocaleTimeString()', () => {
@@ -95,12 +95,12 @@ describe('Date', function () {
 		should(date.toLocaleTimeString([ 'en-US' ], options)).be.a.String();
 		should(date.toLocaleTimeString([ 'en-US', 'de-DE' ], options)).be.a.String();
 
-		should(date.toLocaleTimeString('en-US', options)).be.equalOneOf([ '8:02:05 PM', '8:02:05 in the evening' ]);
-		should(date.toLocaleTimeString('de-DE', options)).be.equalOneOf([ '8:02:05 PM', '8:02:05 nachm.', '8:02:05 abends' ]);
+		should(date.toLocaleTimeString('en-US', options)).be.equalOneOf([ '8:02:05 PM', '8:02:05 PM', '8:02:05 in the evening' ]);
+		should(date.toLocaleTimeString('de-DE', options)).be.equalOneOf([ '8:02:05 PM', '8:02:05 PM', '8:02:05 nachm.', '8:02:05 abends' ]);
 
-		should(date.toLocaleTimeString('en-US')).be.equalOneOf([ '8:02:05 PM', '20:02:05' ]);
-		should(date.toLocaleTimeString('en-US', { hour12: true })).be.eql('8:02:05 PM');
+		should(date.toLocaleTimeString('en-US')).be.equalOneOf([ '8:02:05 PM', '8:02:05 PM', '20:02:05' ]);
+		should(date.toLocaleTimeString('en-US', { hour12: true })).be.equalOneOf([ '8:02:05 PM', '8:02:05 PM' ]);
 		should(date.toLocaleTimeString('en-US', { hour12: false })).be.eql('20:02:05');
-		should(date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })).be.eql('8 PM');
+		should(date.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true })).be.equalOneOf([ '8 PM', '8 PM' ]);
 	});
 });
