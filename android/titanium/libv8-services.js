@@ -203,6 +203,7 @@ async function createSnapshot() {
 				} else {
 					// Give up if received an unexpected response.
 					console.error('Could not generate snapshot, skipping...');
+					break;
 				}
 			}
 			if (attempts > MAX_ATTEMPTS) {
