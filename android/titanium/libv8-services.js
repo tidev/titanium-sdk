@@ -182,7 +182,7 @@ async function createSnapshot() {
 				},
 				json: true,
 				resolveWithFullResponse: true,
-				timeout: 120000	// 2 minutes
+				timeout: 60 * 1000 * 5
 			};
 
 			const MAX_ATTEMPTS = 20; // Time-out after two minutes.
