@@ -386,7 +386,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://jira.appcelerator.org/browse/TIMOB-2849
+	// https://jira-archive.titaniumsdk.com/TIMOB-2849
 	// Windows does not yet support Ti.Network.Cookie
 	it.windowsMissing('setCookieClearCookieWithMultipleHTTPClients', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
@@ -442,8 +442,8 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://jira.appcelerator.org/browse/TIMOB-11751
-	// https://jira.appcelerator.org/browse/TIMOB-17403
+	// https://jira-archive.titaniumsdk.com/TIMOB-11751
+	// https://jira-archive.titaniumsdk.com/TIMOB-17403
 	// Windows Desktop is timing out here...
 	it('callbackTestForGETMethod', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({

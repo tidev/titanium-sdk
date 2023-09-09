@@ -71,7 +71,7 @@ describe('Titanium.UI.AttributedString', function () {
 	});
 
 	it('colored link', () => {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}

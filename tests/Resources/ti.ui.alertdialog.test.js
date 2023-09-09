@@ -46,7 +46,7 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.title).eql('this is my value'); // fails on iOS, gives undefined
 			bar.titleid = 'other text';
 			should(bar.titleid).eql('other text');
-			should(bar.title).eql('this is my value'); // retains old value if key not found: https://jira.appcelerator.org/browse/TIMOB-23498
+			should(bar.title).eql('this is my value'); // retains old value if key not found: https://jira-archive.titaniumsdk.com/TIMOB-23498
 		});
 
 		it('has no accessors', () => {

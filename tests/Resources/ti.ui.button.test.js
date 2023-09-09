@@ -65,7 +65,7 @@ describe('Titanium.UI.Button', function () {
 			should(bar.title).eql('this is my value');
 			bar.titleid = 'other text'; // key won't get found!
 			should(bar.titleid).eql('other text');
-			should(bar.title).eql('this is my value'); // should retain old value if can't find key! https://jira.appcelerator.org/browse/TIMOB-23498
+			should(bar.title).eql('this is my value'); // should retain old value if can't find key! https://jira-archive.titaniumsdk.com/TIMOB-23498
 		});
 
 		it('has no accessors', () => {
