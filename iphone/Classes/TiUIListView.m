@@ -81,6 +81,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isSearchBarInNavigation;
   int lastVisibleItem;
   int lastVisibleSection;
+  BOOL forceUpdates;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -101,6 +102,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
     _defaultSeparatorInsets = UIEdgeInsetsZero;
     _dimsBackgroundDuringPresentation = YES;
+    forceUpdates = NO;
   }
   return self;
 }
@@ -207,6 +209,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (_tableView == nil) {
     UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
     BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
+    forceUpdates = [TiUtils boolValue:[self.proxy valueForKey:@"forceUpdates"] def:NO];
 
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -2002,6 +2005,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         NSArray *indexPaths = [[self tableView] indexPathsForVisibleRows];
         NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
         TiUIListSectionProxy *section;
+        CGFloat topSpacing = scrollView.contentOffset.y + scrollView.adjustedContentInset.top;
 
         if ([indexPaths count] > 0) {
           NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
@@ -2013,9 +2017,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+          [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
 
-          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section]) {
-            // only log if the item changes
+          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section] || forceUpdates) {
+            // only log if the item changes or forced
             [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
             lastVisibleItem = [indexPath row];
             lastVisibleSection = [indexPath section];
@@ -2028,6 +2033,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+          [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
         }
       });
     }
