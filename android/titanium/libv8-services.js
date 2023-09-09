@@ -200,7 +200,6 @@ async function createSnapshot() {
 					// Snapshot server is still building. We need to retry later.
 					console.log('Waiting for snapshot generation...');
 					await new Promise(resolve => setTimeout(resolve, 6000));
-					break;
 				} else {
 					// Give up if received an unexpected response.
 					console.error('Could not generate snapshot, skipping...');
