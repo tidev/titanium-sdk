@@ -1278,7 +1278,17 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 					break;
 
 				case 'dist-macappstore':
+
+					_t.conf.options['deploy-type'].values = [ 'production' ];
 					_t.conf.options['device-id'].required = false;
+					_t.conf.options['distribution-name'].required = true;
+					_t.conf.options['pp-uuid'].required = true;
+
+					// build lookup maps
+					iosInfo.provisioning.distribution.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
+					});
+
 					break;
 			}
 		},
@@ -2864,7 +2874,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecomp
 			return true;
 		}
 
-		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore' || this.target === 'dist-macappstore') {
 			this.logger.info(__('Forcing rebuild: distribution builds require \'xcodebuild\' to be run so that resources are copied into the archive'));
 			return true;
 		}
@@ -3326,7 +3336,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir \\"${buildProductsPath}\\""`,
+			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
