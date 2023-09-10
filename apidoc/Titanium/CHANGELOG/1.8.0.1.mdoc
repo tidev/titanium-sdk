@@ -21,10 +21,10 @@ Significant Changes In Titanium Mobile
 --------------------------------------
 
 - Several changes for platform parity.
-- V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine. If you would rather use Rhino, see the [tiapp.xml guide](http://wiki.appcelerator.org/display/guides/tiapp.xml+and+timodule.xml+Reference) and look for `ti.android.runtime`. Set it to `rhino` in your `tiapp.xml` file. Or in Titanium Studio, edit `tiapp.xml` and select a runtime from the Android Runtime list (on the Overview tab of the TiApp editor).
+- V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine. If you would rather use Rhino, see the tiapp.xml guide and look for `ti.android.runtime`. Set it to `rhino` in your `tiapp.xml` file. Or in Titanium Studio, edit `tiapp.xml` and select a runtime from the Android Runtime list (on the Overview tab of the TiApp editor).
 - We no longer support Android 2.1 (API 7).
 - We no longer support iOS versions less than 4.0.
-- The new Android runtime support required updating modules support. Modules will have to be ported to `apiversion` 2. [Android Modules Porting Guide](http://wiki.appcelerator.org/display/guides/Android+Module+Porting+Guide+for+1.8.0.1)
+- The new Android runtime support required updating modules support. Modules will have to be ported to `apiversion` 2. Android Modules Porting Guide
 - Replace deprecated API `globalPoint` with a member function on View called `convertPointToView`. [Android-TIMOB-5122](https://jira-archive.titaniumsdk.com/TIMOB-5122), [iOS-TIMOB-5121](https://jira-archive.titaniumsdk.com/TIMOB-5121)
 - `Titanium.Platform.id` is deprecated in this release. A future release will provide alternative API(s). [TIMOB-5980](https://jira-archive.titaniumsdk.com/TIMOB-5980)
 - `Titanium.UI.create3DMatrix` is deprecated, use `Titanium.UI.iOS.create3DMatrix` instead. [TIMOB-4990](https://jira-archive.titaniumsdk.com/TIMOB-4990)
@@ -54,7 +54,7 @@ This version of Titanium Mobile now ships with a beta version of our MobileWeb p
 APIDoc Changes
 --------------
 
-Another exciting addition to our product is an improved documentation system for our APIDocs. We published our [TDoc Specification](http://wiki.appcelerator.org/display/guides/TDoc+Specification) for our APIDoc and have been reworking the docs to comply with the spec. While the real magic is hidden in the source, we're able to actually use the documentation as the specification for the Titanium Mobile API. Our documentation now gets used as an HTML reference, in content assist, provides coverage data for platform parity analysis, and may be generated in other formats as required. Another gain is that we can annotate APIs to the method and property level with supported platforms, versions supported, deprecations, exclusions, and more. We have also worked on content changes and clarifications for many APIs. 
+Another exciting addition to our product is an improved documentation system for our APIDocs. We published our TDoc Specification for our APIDoc and have been reworking the docs to comply with the spec. While the real magic is hidden in the source, we're able to actually use the documentation as the specification for the Titanium Mobile API. Our documentation now gets used as an HTML reference, in content assist, provides coverage data for platform parity analysis, and may be generated in other formats as required. Another gain is that we can annotate APIs to the method and property level with supported platforms, versions supported, deprecations, exclusions, and more. We have also worked on content changes and clarifications for many APIs. 
 
 The new APIDoc format uses some new conventions and annotations which may be unfamiliar. These include new conventions for describing types, and new annotations for describing how properties can be accessed.
 

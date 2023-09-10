@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Alex Fajkowski, Apparent Logic LLC
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
