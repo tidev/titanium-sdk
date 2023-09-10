@@ -1,5 +1,5 @@
 /*
- * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
+ * Copyright (c) 2008 Plausible Labs Cooperative, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
