@@ -1,5 +1,5 @@
 /**
- * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
+ * Copyright (c) 2013, Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
