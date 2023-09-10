@@ -119,7 +119,7 @@ async function generateProject(platforms) {
 			'--platforms', platforms.join(','),
 			'--name', PROJECT_NAME,
 			'--id', APP_ID,
-			'--url', 'http://www.appcelerator.com',
+			'--url', 'https://titaniumsdk.com',
 			'--workspace-dir', path.dirname(PROJECT_DIR),
 			'--no-banner',
 			'--no-prompt' ], { stdio: 'inherit' });
