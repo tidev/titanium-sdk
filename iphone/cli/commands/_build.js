@@ -4670,7 +4670,7 @@ iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents
 			[ /(?!TitaniumKit)(Titanium|Appcelerator)/g, namespace ],
 			[ /titanium/g, '_' + namespace.toLowerCase() ],
 			[ /(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase() ],
-			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* TiDev Titanium Mobile' ], // eslint-disable-line security/detect-non-literal-regexp
+			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Titanium SDK' ], // eslint-disable-line security/detect-non-literal-regexp
 			[ new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date()).getFullYear() + ' by Appcelerator, Inc.' ], // eslint-disable-line security/detect-non-literal-regexp
 			[ /(\* Please see the LICENSE included with this distribution for details.\n)(?! \*\s*\* WARNING)/g, '$1 * \n * WARNING: This is generated code. Modify at your own risk and without support.\n' ]
 		];
