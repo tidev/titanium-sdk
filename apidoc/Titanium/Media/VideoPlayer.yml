@@ -484,6 +484,17 @@ properties:
     type: Number
     default: 0
 
+  - name: fairPlayConfiguration
+    platforms: [iphone, ipad, macos]
+    summary: 'Handle DRM-encrypted video assets using the [Apple FairPlay Streaming API](https://developer.apple.com/streaming/fps/).'
+    description:
+        Secure the delivery of streaming media to devices through the HTTP Live Streaming (HLS) protocol. Using FairPlay Streaming (FPS)
+        technology, content providers, encoding vendors, and delivery networks can encrypt content, securely exchange keys,
+        and protect playback on iOS, iPadOS and macOS.
+    type: FairPlayConfiguration
+    availability: creation
+    since: "12.2.0"
+
   - name: fullscreen
     platforms: [android]
     deprecated:
@@ -711,3 +722,16 @@ properties:
   - name: height
     summary: Height of the movie.
     type: Number
+
+---
+name: FairPlayConfiguration
+summary: An object representing a FairPlay Streaming configuration.
+platforms: [iphone, ipad, macos]
+properties:
+  - name: licenseURL
+    summary: The FairPlay Streaming license URL to handle the server-side authentication flow.
+    type: String
+
+  - name: certificate
+    summary: The FairPlay Streaming public certificate to authenticate the content key request.
+    type: Titanium.Blob

@@ -27,8 +27,7 @@ description: |
     As of Release 3.2.0, any application properties defined in the `tiapp.xml` file are stored in the
     device's secure storage, making them read-only.  Additionally, external access to these
     properties is now restricted.  Other iOS applications cannot access these properties and
-    native Android modules must use the Titanium module API
-    [TiApplication.getAppProperties](https://docs.appcelerator.com/module-apidoc/latest/android/org/appcelerator/platform/TiApplication.html#getAppProperties())
+    native Android modules must use the Titanium module API TiApplication.getAppProperties()
     method to access these properties.
 
     If you need to change the values during runtime, initially create the property with these APIs

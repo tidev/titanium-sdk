@@ -1338,7 +1338,7 @@ public class TiHTTPClient
 						printWriter.close();
 					}
 
-					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
+					// Fix for https://jira-archive.titaniumsdk.com/TIMOB-23309
 					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
 					// This section of the code handles that.
 					if (autoRedirect) {

@@ -56,6 +56,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private SelectionTracker tracker = null;
 	private boolean isScrolling = false;
 	private boolean continuousUpdate = false;
+	private boolean forceUpdate = false;
 	private int lastScrollDeltaY;
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
@@ -157,7 +158,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 					if (continuousUpdate) {
 						if (lastVisibleItem != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX))
 							|| lastVisibleSection
-								   != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX))) {
+								   != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX))
+							|| forceUpdate) {
 							proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
 							lastVisibleItem = TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX));
 							lastVisibleSection = TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX));
@@ -282,6 +284,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
 		continuousUpdate = properties.optBoolean(TiC.PROPERTY_CONTINUOUS_UPDATE, false);
+		forceUpdate = properties.optBoolean("forceUpdates", false);
 
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
@@ -398,6 +401,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, null);
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, -1);
 			}
+
+			payload.put(TiC.PROPERTY_TOP, recyclerView.computeVerticalScrollOffset());
 		}
 
 		// Define visible item count.
@@ -815,6 +820,11 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public void setContinousUpdate(boolean value)
 	{
 		continuousUpdate = value;
+	}
+
+	public void setForceUpdates(boolean value)
+	{
+		forceUpdate = value;
 	}
 
 	public void update()

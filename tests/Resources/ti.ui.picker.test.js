@@ -30,7 +30,7 @@ describe('Titanium.UI.Picker', function () {
 		}
 	});
 
-	// FIXME: Intermittent crashes on macOS: https://jira.appcelerator.org/browse/TIMOB-28296
+	// FIXME: Intermittent crashes on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28296
 	describe('.type is PICKER_TYPE_DATE', () => {
 		it('lifecycle', function (finish) {
 			const date = new Date();

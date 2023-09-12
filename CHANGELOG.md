@@ -980,7 +980,7 @@ Titanium SDK 10.0.0 is a major release of the SDK, addressing high-priority issu
 * [TIMOB-28264](https://jira-archive.titaniumsdk.com/TIMOB-28264) - Improve Ti.UI documentation to reflect current state
 * [TIMOB-28367](https://jira-archive.titaniumsdk.com/TIMOB-28367) - Ti.UI.ProgressBar should smoothly animate value changes
 * [TIMOB-28401](https://jira-archive.titaniumsdk.com/TIMOB-28401) - declare all variables before their usage ([062c06d](https://github.com/tidev/titanium-sdk/commit/062c06d7e1b5c961b693ddc8e154be5d6bf9d6db))
-* replace shortened appcelerator.com URLs with long URLs ([d0caea0](https://github.com/tidev/titanium-sdk/commit/d0caea05e8d21e4aae74818dd6af3a6a30f67bea))
+* replace shortened URLs with long URLs ([d0caea0](https://github.com/tidev/titanium-sdk/commit/d0caea05e8d21e4aae74818dd6af3a6a30f67bea))
 * filepath compatibility with windows ([824488f](https://github.com/tidev/titanium-sdk/commit/824488f419df6917f5fa3ee90cdbc34a927b50da))
 * handle when project has no root package.json ([7b9a747](https://github.com/tidev/titanium-sdk/commit/7b9a747d02552b763c562822b9028ab633f0c847))
 * record output files for process js task ([e7951bd](https://github.com/tidev/titanium-sdk/commit/e7951bdd689666986564fc31d49c680169b1b4bf))
@@ -2476,5 +2476,3 @@ See [Axway Appcelerator Deprecation Policy](https://docs.axway.com/bundle/AMPLIF
 ### Multiple platforms
 
 * [MOD-2545](https://jira-archive.titaniumsdk.com/MOD-2545) - update to 3.3.0-ios, 4.5.0-android module releases ([e1156a0](https://github.com/tidev/titanium-sdk/commit/e1156a09c06a902826c03a5b3ffc2ef31e3c0811))
-
-
