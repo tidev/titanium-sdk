@@ -39,8 +39,8 @@
 			"integrity": "sha512-fXmVVwkE71DlzoBiZ0doCboi2b3c/pEg1Oq7D6D5wV6iR4S4GW1O7yityCTLNDEspZQm6qOLzeqWikBaaU04Ew=="
 		},
 		"ti.webdialog": {
-			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v2.2.0-android/ti.webdialog-android-2.2.0.zip",
-			"integrity": "sha512-YG2OJ/DerRA5m/8xma8jg9aqsjTYjKBlJ+U1EYfPRU/EdLnFpIj/tyloPzMjKhdGK12sdE+rhAqYzbK0VNeB4w=="
+			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v2.3.0-android/ti.webdialog-android-2.3.0.zip",
+			"integrity": "sha512-OsLB3hr6sFqduoUbY2dotQ/Zk7u+eJW8ZKJLG+FzOf9WP/xlUe7S9kz2dMBnI50bnpULnXEYkbr2kb/rNu8lZw=="
 		},
 		"ti.playservices": {
 			"url": "https://github.com/tidev/ti.playservices/releases/download/v18.2.0/ti.playservices-android-18.2.0.zip",
