@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -337,7 +337,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 					}
 				}, this);
 			}, this);
-	} else if (argv.target === 'macos') {
+	} else if (argv.target === 'macos' || argv.target === 'dist-macappstore') {
 		deviceInfo.devices = {};
 	}
 	return this.deviceInfoCache = deviceInfo;
@@ -1275,6 +1275,20 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 
 				case 'macos':
 					_t.conf.options['device-id'].required = false;
+					break;
+
+				case 'dist-macappstore':
+
+					_t.conf.options['deploy-type'].values = [ 'production' ];
+					_t.conf.options['device-id'].required = false;
+					_t.conf.options['distribution-name'].required = true;
+					_t.conf.options['pp-uuid'].required = true;
+
+					// build lookup maps
+					iosInfo.provisioning.distribution.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
+					});
+
 					break;
 			}
 		},
@@ -2860,7 +2874,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecomp
 			return true;
 		}
 
-		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore' || this.target === 'dist-macappstore') {
 			this.logger.info(__('Forcing rebuild: distribution builds require \'xcodebuild\' to be run so that resources are copied into the archive'));
 			return true;
 		}
@@ -3322,7 +3336,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir \\"${buildProductsPath}\\""`,
+			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -4656,7 +4670,7 @@ iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents
 			[ /(?!TitaniumKit)(Titanium|Appcelerator)/g, namespace ],
 			[ /titanium/g, '_' + namespace.toLowerCase() ],
 			[ /(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase() ],
-			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile' ], // eslint-disable-line security/detect-non-literal-regexp
+			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Titanium SDK' ], // eslint-disable-line security/detect-non-literal-regexp
 			[ new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date()).getFullYear() + ' by Appcelerator, Inc.' ], // eslint-disable-line security/detect-non-literal-regexp
 			[ /(\* Please see the LICENSE included with this distribution for details.\n)(?! \*\s*\* WARNING)/g, '$1 * \n * WARNING: This is generated code. Modify at your own risk and without support.\n' ]
 		];

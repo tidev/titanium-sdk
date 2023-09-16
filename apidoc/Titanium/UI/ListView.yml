@@ -388,7 +388,7 @@ events:
     summary: Fired when a list row has started moving.
     description: |
       This event can be used to change the UI once a new drag-and-drop interaction starts.
-      The event properties are available in Titanium SDK 12.0.0+ 
+      The event properties are available in Titanium SDK 12.0.0+
     since: "11.1.0"
     platforms: [android, iphone, ipad, macos]
     properties:
@@ -958,6 +958,16 @@ properties:
     default: false
     platforms: [android, iphone, ipad, macos]
     since: 11.1.0
+
+  - name: forceUpdates
+    summary: Optimize the `continuousUpdate` scrolling event.
+    description: |
+        If `continuousUpdate` is enabled and you set `forceUpdates` to `true` it will fire the scrolling](Titanium.UI.ListView.scrolling) all the time.
+        Otherwise it will only update when a new item is scrolled in (default).
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: 12.3.0
 
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.

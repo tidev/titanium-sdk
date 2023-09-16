@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -751,6 +751,7 @@ public class TiC
 	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
 	public static final String PROPERTY_TABS = "tabs";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	public static final String PROPERTY_TAB_BAR_VISIBLE = "tabBarVisible";
 	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
 	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
 	public static final String PROPERTY_TAB_MODE = "tabMode";
