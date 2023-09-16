@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -11,6 +11,7 @@
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
+#import "TiAppiOSActivityAttributesProxy.h"
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
@@ -500,6 +501,11 @@
 - (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
 {
   return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (TiAppiOSActivityAttributesProxy *)createActivityAttributes:(id)args
+{
+  return [[[TiAppiOSActivityAttributesProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 - (TiAppiOSUserNotificationCategoryProxy *)createUserNotificationCategory:(id)args

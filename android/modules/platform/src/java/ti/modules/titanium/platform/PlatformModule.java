@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -574,7 +574,7 @@ public class PlatformModule extends KrollModule
 	{
 		super.onResume(activity);
 		if (batteryStateReceiver != null) {
-			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
+			Log.d(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
 			registerBatteryReceiver(batteryStateReceiver);
 		}
 	}

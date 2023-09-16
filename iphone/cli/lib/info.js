@@ -4,7 +4,7 @@
  * @module lib/info
  *
  * @copyright
- * Copyright (c) 2014-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -79,7 +79,7 @@ exports.detect = function (types, config, next) {
 						+ __('The maximum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, issue.maxSupportedVer);
 					break;
 				case 'IOS_NO_WWDR_CERT_FOUND':
-					issue.message += '\n' + __('Download and install the certificate from %s', '__http://developer.apple.com/certificationauthority/AppleWWDRCA.cer__');
+					issue.message += '\n' + __('Download and install the certificate from %s', '__https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer__');
 					break;
 				case 'IOS_NO_KEYCHAINS_FOUND':
 					issue.message += '\n' + __('Titanium will most likely not be able to detect any developer or App Store distribution certificates.');

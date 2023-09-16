@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -1353,6 +1353,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
     NSString *callStack = error[@"nativeStack"].toString;
     NSArray<NSString *> *nativeStack = [callStack componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
     [errorDict setObject:nativeStack forKey:@"nativeStack"];
+  }
+  if ([error hasProperty:@"nativeLocation"]) {
+    [errorDict setObject:[error[@"nativeLocation"] toString] forKey:@"nativeLocation"];
   }
 
   return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];

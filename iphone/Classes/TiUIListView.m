@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -81,6 +81,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isSearchBarInNavigation;
   int lastVisibleItem;
   int lastVisibleSection;
+  BOOL forceUpdates;
 }
 
 #ifdef TI_USE_AUTOLAYOUT
@@ -101,6 +102,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     _defaultItemTemplate = [[NSNumber numberWithUnsignedInteger:UITableViewCellStyleDefault] retain];
     _defaultSeparatorInsets = UIEdgeInsetsZero;
     _dimsBackgroundDuringPresentation = YES;
+    forceUpdates = NO;
   }
   return self;
 }
@@ -207,6 +209,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   if (_tableView == nil) {
     UITableViewStyle style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:UITableViewStylePlain];
     BOOL requiresEditingToMove = [TiUtils boolValue:[self.proxy valueForKey:@"requiresEditingToMove"] def:YES];
+    forceUpdates = [TiUtils boolValue:[self.proxy valueForKey:@"forceUpdates"] def:NO];
 
     _tableView = [[UITableView alloc] initWithFrame:self.bounds style:style];
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -508,7 +511,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       for (int j = 0; j < maxItems; j++) {
         NSIndexPath *thePath = [NSIndexPath indexPathForRow:j inSection:i];
         id theValue = [self valueWithKey:@"searchableText" atIndexPath:thePath];
-        if (theValue != nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound) {
+        BOOL alwaysInclude = [TiUtils boolValue:[self valueWithKey:@"filterAlwaysInclude" atIndexPath:thePath] def:NO];
+        if (alwaysInclude || (theValue != nil && [[TiUtils stringValue:theValue] rangeOfString:self.searchString options:searchOpts].location != NSNotFound)) {
           (thisSection != nil) ? [thisSection addObject:thePath] : [singleSection addObject:thePath];
           hasResults = YES;
         }
@@ -1108,7 +1112,21 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   UIDragItem *dragItem = [[UIDragItem alloc] initWithItemProvider:itemProvider];
   dragItem.localObject = identifier;
 
-  [[self proxy] fireEvent:@"movestart"];
+  // Fire an event to react to the move start
+  NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+  TiUIListSectionProxy *theSection = [[self.listViewProxy sectionForIndex:realIndexPath.section] retain];
+  NSDictionary *theItem = [[theSection itemAtIndex:realIndexPath.row] retain];
+  NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                                      theSection, @"section",
+                                                                  NUMINTEGER(realIndexPath.section), @"sectionIndex",
+                                                                  NUMINTEGER(realIndexPath.row), @"itemIndex",
+                                                                  nil];
+
+  [[self proxy] fireEvent:@"movestart" withObject:eventObject];
+
+  [eventObject release];
+  [theItem release];
+  [theSection release];
 
   return @[ dragItem ];
 }
@@ -1140,6 +1158,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     NSString *identifier = [TiUtils stringValue:@"identifier" properties:prop];
     int actionStyle = [TiUtils intValue:@"style" properties:prop def:UITableViewRowActionStyleDefault];
     TiColor *color = [TiUtils colorValue:@"color" properties:prop];
+    id image = [prop objectForKey:@"image"];
 
     UITableViewRowAction *theAction = [UITableViewRowAction rowActionWithStyle:actionStyle
                                                                          title:title
@@ -1178,6 +1197,14 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if (color) {
       theAction.backgroundColor = [color color];
     }
+    if (image) {
+      NSURL *url = [TiUtils toURL:image proxy:(TiProxy *)self.proxy];
+      UIImage *nativeImage = [[ImageLoader sharedLoader] loadImmediateImage:url];
+      if (color) {
+        nativeImage = [self generateImage:nativeImage withBackgroundColor:[color color]];
+      }
+      theAction.backgroundColor = [UIColor colorWithPatternImage:nativeImage];
+    }
     if (!returnArray) {
       returnArray = [NSMutableArray arrayWithObject:theAction];
     } else {
@@ -1186,6 +1213,24 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   return returnArray;
+}
+
+- (UIImage *)generateImage:(UIImage *)image withBackgroundColor:(UIColor *)bgColor
+{
+  CGRect imageRect = CGRectMake(0, 0, image.size.width, image.size.height);
+  UIGraphicsBeginImageContextWithOptions(imageRect.size, false, [UIScreen mainScreen].scale);
+
+  CGContextRef context = UIGraphicsGetCurrentContext();
+  CGContextSaveGState(context);
+
+  [bgColor setFill];
+  CGContextFillRect(context, imageRect);
+  [image drawInRect:imageRect];
+
+  UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+  UIGraphicsEndImageContext();
+
+  return result;
 }
 
 #pragma mark - Editing Support Datasource methods.
@@ -1960,6 +2005,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         NSArray *indexPaths = [[self tableView] indexPathsForVisibleRows];
         NSMutableDictionary *eventArgs = [NSMutableDictionary dictionary];
         TiUIListSectionProxy *section;
+        CGFloat topSpacing = scrollView.contentOffset.y + scrollView.adjustedContentInset.top;
 
         if ([indexPaths count] > 0) {
           NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
@@ -1971,9 +2017,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:NUMINTEGER([indexPath section]) forKey:@"firstVisibleSectionIndex"];
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
+          [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
 
-          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section]) {
-            // only log if the item changes
+          if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section] || forceUpdates) {
+            // only log if the item changes or forced
             [self.proxy fireEvent:@"scrolling" withObject:eventArgs propagate:NO];
             lastVisibleItem = [indexPath row];
             lastVisibleSection = [indexPath section];
@@ -1986,6 +2033,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:NUMINTEGER(0) forKey:@"firstVisibleSectionIndex"];
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
+          [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
         }
       });
     }

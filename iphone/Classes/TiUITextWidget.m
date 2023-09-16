@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -151,6 +151,7 @@
 - (void)setAutocorrect_:(id)value
 {
   [[self textWidgetView] setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
+  [[self textWidgetView] setSpellCheckingType:[TiUtils boolValue:value] ? UITextSpellCheckingTypeYes : UITextSpellCheckingTypeNo];
 }
 
 - (void)setAutofillType_:(id)value

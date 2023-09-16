@@ -16,6 +16,7 @@ const { test, outputResults } = require('./test');
  * @param {string} [program.deviceId] Titanium device id target to run the tests on
  * @param {string} [program.deployType] 'development' || 'test'
  * @param {string} [program.deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [program.onlyFailedTests] boolean
  * @returns {Promise<object>} returns an object whose keys are platform names
  */
 async function runTests(platforms, program) {
@@ -25,7 +26,7 @@ async function runTests(platforms, program) {
 		fs.emptyDir(path.join(snapshotDir, '..', 'generated')),
 		fs.emptyDir(path.join(snapshotDir, '..', 'diffs'))
 	]);
-	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir);
+	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir, program.onlyFailedTests);
 }
 
 /**

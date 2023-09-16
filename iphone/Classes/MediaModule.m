@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -1470,10 +1470,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)updatePopoverNow:(UIViewController *)picker_
 {
   UIViewController *theController = picker_;
-  [theController setModalPresentationStyle:UIModalPresentationPopover];
-  UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
-  [thePresenter setPermittedArrowDirections:arrowDirection];
-  [thePresenter setDelegate:self];
+  if (self.popoverView != nil) {
+    [theController setModalPresentationStyle:UIModalPresentationPopover];
+    UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
+    [thePresenter setPermittedArrowDirections:arrowDirection];
+    [thePresenter setDelegate:self];
+  }
   [[TiApp app] showModalController:theController animated:animatedPicker];
   return;
 }
@@ -1736,8 +1738,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)showPHPicker:(NSDictionary *)args
 {
   if (_phPicker != nil) {
-    [self sendPickerError:MediaModuleErrorBusy];
-    return;
+    [self destroyPicker];
   }
 
   animatedPicker = YES;

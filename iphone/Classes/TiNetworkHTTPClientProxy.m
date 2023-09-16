@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -84,12 +84,6 @@ extern NSString *const TI_APPLICATION_GUID;
   [httpRequest setMethod:method];
   [httpRequest setUrl:url];
 
-  // twitter specifically disallows X-Requested-With so we only add this normal
-  // XHR header if not going to twitter. however, other services generally expect
-  // this header to indicate an XHR request (such as RoR)
-  if ([[url absoluteString] rangeOfString:@"twitter.com"].location == NSNotFound) {
-    [httpRequest addRequestHeader:@"X-Requested-With" value:@"XMLHttpRequest"];
-  }
   if ((apsConnectionManager != nil) && ([apsConnectionManager willHandleURL:url])) {
     apsConnectionDelegate = [[apsConnectionManager connectionDelegateForUrl:url] retain];
   }

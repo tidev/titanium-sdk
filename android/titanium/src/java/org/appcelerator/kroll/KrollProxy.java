@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -1074,7 +1074,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		Object newValue = value;
 
 		if (isLocaleProperty(name)) {
-			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+			Log.d(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
 			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;

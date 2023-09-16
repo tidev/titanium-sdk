@@ -226,6 +226,14 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
+  - name: filterAlwaysInclude
+    summary: |
+      This row will always be visible when you filter your content.
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: "12.2.0"
+
   - name: font
     summary: Font to use for the row title.
     type: Font
@@ -389,6 +397,7 @@ properties:
     description: |
         Specify one of the constants from <Titanium.UI.SELECTION_STYLE_*>.
     type: Number
+    constants: Titanium.UI.SELECTION_STYLE_*
     platforms: [android, iphone, ipad, macos]
     since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget.searchbar;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.InputType;
 import android.view.View;
@@ -157,11 +158,27 @@ public class TiUISearchBar extends TiUIView
 		if (properties.containsKey(TiC.PROPERTY_ICONIFIED_BY_DEFAULT)) {
 			searchView.setIconifiedByDefault(TiConvert.toBoolean(properties, TiC.PROPERTY_ICONIFIED_BY_DEFAULT, false));
 		}
+		if (properties.containsKey(TiC.PROPERTY_ICON_COLOR)) {
+			updateIconColor(searchView, TiConvert.toColor(properties, TiC.PROPERTY_ICON_COLOR, activity));
+		}
 		updateCloseButton();
 		updateInputType();
 
 		// Let base class handle all other properties.
 		super.processProperties(properties);
+	}
+
+	private void updateIconColor(SearchView searchView, int color)
+	{
+		ImageView imgSearch = searchView.findViewById(R.id.search_mag_icon);
+		ImageView imgClose = searchView.findViewById(R.id.search_close_btn);
+
+		if (imgSearch != null) {
+			imgSearch.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+		}
+		if (imgClose != null) {
+			imgClose.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+		}
 	}
 
 	@Override
@@ -206,6 +223,8 @@ public class TiUISearchBar extends TiUIView
 			searchView.setIconifiedByDefault(TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_AUTOCAPITALIZATION) || key.equals(TiC.PROPERTY_AUTOCORRECT)) {
 			updateInputType();
+		} else if (key.equals(TiC.PROPERTY_ICON_COLOR)) {
+			updateIconColor(searchView, TiConvert.toColor(newValue, proxy.getActivity()));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

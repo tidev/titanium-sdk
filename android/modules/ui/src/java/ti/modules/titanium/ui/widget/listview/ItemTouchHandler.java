@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -86,6 +86,10 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private boolean canMove(TiViewProxy holderProxy)
 	{
+		if (holderProxy == null) {
+			return false;
+		}
+
 		final KrollDict recyclerProperties = this.recyclerViewProxy.getProperties();
 		final KrollDict holderProperties = holderProxy.getProperties();
 
