@@ -432,7 +432,7 @@ properties:
     summary: Date value for range picker end value.
     type: Date
     platforms: [android]
-    since: "12.2.0"
+    since: "12.3.0"
 
   - name: type
     summary: Determines the type of picker displayed
