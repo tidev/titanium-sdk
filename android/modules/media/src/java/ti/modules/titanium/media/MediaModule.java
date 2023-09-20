@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -93,7 +93,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int NO_CAMERA = 2;
 	@Kroll.constant
 	public static final int NO_VIDEO = 3;
-
+	@Kroll.constant
+	public static final int NO_FOCUS = 4;
 	@Kroll.constant
 	public static final int IMAGE_SCALING_AUTO = -1;
 	@Kroll.constant
