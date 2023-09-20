@@ -1232,6 +1232,8 @@ properties:
     summary: Constant for camera didn't focus when taking a trying to take a picture.
     type: Number
     permission: read-only
+    since:
+        android: "12.2.1"
 
   - name: VIDEO_CONTROL_DEFAULT
     deprecated:
