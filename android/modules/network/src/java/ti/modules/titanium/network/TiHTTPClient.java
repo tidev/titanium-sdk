@@ -945,7 +945,6 @@ public class TiHTTPClient
 
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
-		
 	}
 
 	public void setRawData(Object data)
