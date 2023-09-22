@@ -457,6 +457,11 @@ static NSArray *popoverSequence;
   }
 
   popoverPresentationController.sourceRect = *rect;
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [popoverPresentationController.containerView setNeedsLayout];
+    [popoverPresentationController.containerView layoutIfNeeded];
+  });
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey, id> *)change context:(void *)context
