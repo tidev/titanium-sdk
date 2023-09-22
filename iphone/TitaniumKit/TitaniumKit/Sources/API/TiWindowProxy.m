@@ -656,7 +656,9 @@
 #pragma mark - TiOrientationController
 - (void)childOrientationControllerChangedFlags:(id<TiOrientationController>)orientationController;
 {
-  [parentController childOrientationControllerChangedFlags:self];
+  if ([parentController respondsToSelector:@selector(childOrientationControllerChangedFlags:)]) {
+    [parentController childOrientationControllerChangedFlags:self];
+  }
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
