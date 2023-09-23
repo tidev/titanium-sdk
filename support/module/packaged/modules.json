@@ -13,8 +13,8 @@
 			"integrity": "sha512-6gnaRtsMZSDoxCnFdqaS2d82zzjPMxc6Ic55PFBXka6olcF8xCWnTrdFfxrkEvO1Y6WdoL0IJTzSVFfnlHChNg=="
 		},
 		"ti.map": {
-			"url": "https://github.com/tidev/ti.map/releases/download/v7.2.0-ios/ti.map-iphone-7.2.0.zip",
-			"integrity": "sha512-n4kZHaoKBW8RJSaaoccAHs85YPh8aRnKtYQ7qN9yZwE+Zbma7Wh8T1qMrAa0E8Mv69DhmizjLjtW8HScZTNraA=="
+			"url": "https://github.com/tidev/ti.map/releases/download/v7.3.0-ios/ti.map-iphone-7.3.0.zip",
+			"integrity": "sha512-fOWlN+KlL5vfXBQ5lb8ZyiRocwmA9EQ/+L7YBYjLzE3N5LB4VMY8qhaz9nc8YhUAODslP6rhMNQsdRKZc8GBcQ=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v3.0.2-ios/ti.webdialog-iphone-3.0.2.zip",
@@ -35,8 +35,8 @@
 			"integrity": "sha512-SJnTl1ZfbsoTUV6lXf5u2AnmYDzK3VVEw1o0KyDRJAz1P5F3dSPvRZOwXpXQYsxQ62nG8XNMz9XsAsXhyzp7Lg=="
 		},
 		"ti.map": {
-			"url": "https://github.com/tidev/ti.map/releases/download/v5.5.3-android/ti.map-android-5.5.3.zip",
-			"integrity": "sha512-fXmVVwkE71DlzoBiZ0doCboi2b3c/pEg1Oq7D6D5wV6iR4S4GW1O7yityCTLNDEspZQm6qOLzeqWikBaaU04Ew=="
+			"url": "https://github.com/tidev/ti.map/releases/download/v5.6.0-android/ti.map-android-5.6.0.zip",
+			"integrity": "sha512-813/XBwQtCZqWP1uFcg+j911HZbyjLUdM6267YtwoVj9ZwbLrYrq9/JWTaYo7bzl0DRfbzxt9gvt35oY6sccWQ=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v2.3.0-android/ti.webdialog-android-2.3.0.zip",
