@@ -144,6 +144,20 @@ properties:
     platforms: [android]
     type: String
 
+  - name: breakStrategy
+    summary: Break strategy (control over paragraph layout). Check [Android breakStrategy](https://developer.android.com/reference/android/widget/TextView#attr_android:breakStrategy) for more infos.
+    platforms: [android]
+    type: Number
+    constants: Titanium.UI.BREAK_*
+    since: "12.3.0"
+
+  - name: hyphenationFrequency
+    summary: Frequency of automatic hyphenation. Check [Android hyphenationFrequency](https://developer.android.com/reference/android/widget/TextView#attr_android:hyphenationFrequency) for more infos.
+    platforms: [android]
+    type: Number
+    constants: Titanium.UI.HYPHEN_*
+    since: "12.3.0"
+
   - name: includeFontPadding
     summary: Includes extra top and bottom padding to make room for accents that go above normal ascent and descent.
     platforms: [android]
@@ -228,7 +242,6 @@ properties:
     summary: Key identifying a string from the locale file to use for the label text.
     description: Only one of `text` or `textid` should be specified.
     type: String
-
 
   - name: wordWrap
     summary: Enable or disable word wrapping in the label.

@@ -443,6 +443,24 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	@Kroll.constant
 	public static final int USER_INTERFACE_STYLE_UNSPECIFIED = Configuration.UI_MODE_NIGHT_UNDEFINED;
 
+	@Kroll.constant
+	public static final int BREAK_SIMPLE = 0;
+	@Kroll.constant
+	public static final int BREAK_HIGH_QUALITY = 1;
+	@Kroll.constant
+	public static final int BREAK_BALANCED = 2;
+
+	@Kroll.constant
+	public static final int HYPHEN_NONE = 0;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL = 1;
+	@Kroll.constant
+	public static final int HYPHEN_FULL = 2;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL_FAST = 3;
+	@Kroll.constant
+	public static final int HYPHEN_FULL_FAST = 4;
+
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
 	public UIModule()
