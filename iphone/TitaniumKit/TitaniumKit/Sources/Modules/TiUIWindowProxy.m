@@ -318,7 +318,7 @@
 
 - (void)setNavTintColor:(id)color
 {
-  __block TiColor *newColor = [TiUtils colorValue:color];
+  __block TiColor *newColor = [[TiUtils colorValue:color] retain];
 
   [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
   TiThreadPerformOnMainThread(
@@ -331,6 +331,7 @@
           UINavigationBar *navBar = [[controller navigationController] navigationBar];
           [navBar setTintColor:[newColor color]];
           [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+          [newColor release];
         }
       },
       NO);
