@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -118,24 +118,17 @@
   ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
   ENSURE_SINGLE_ARG(value, NSString);
 
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (!view) {
-      view = [[UIView alloc] initWithFrame:frame];
-      view.tag = TI_STATUSBAR_TAG;
-      [keyWindow addSubview:view];
-    }
-    view.frame = frame;
-    view.backgroundColor = [[TiUtils colorValue:value] _color];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
-  } else {
-    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
-    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
-      statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
-    }
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (!view) {
+    view = [[UIView alloc] initWithFrame:frame];
+    view.tag = TI_STATUSBAR_TAG;
+    [keyWindow addSubview:view];
   }
+  view.frame = frame;
+  view.backgroundColor = [[TiUtils colorValue:value] _color];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
 }
 
 - (NSNumber *)SCROLL_DECELERATION_RATE_NORMAL
@@ -164,21 +157,20 @@
 #ifdef USE_TI_UILISTVIEW
 - (NSNumber *)ROW_ACTION_STYLE_DEFAULT
 {
-  return NUMINTEGER(UITableViewRowActionStyleDefault);
+  return @(UIContextualActionStyleNormal);
 }
 - (NSNumber *)ROW_ACTION_STYLE_DESTRUCTIVE
 {
-  return NUMINTEGER(UITableViewRowActionStyleDestructive);
+  return @(UIContextualActionStyleDestructive);
 }
 - (NSNumber *)ROW_ACTION_STYLE_NORMAL
 {
-  return NUMINTEGER(UITableViewRowActionStyleNormal);
+  return @(UIContextualActionStyleNormal);
 }
 #endif
 
 #ifdef USE_TI_UIPICKER
 
-#if IS_SDK_IOS_13_4
 - (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
 {
   DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_AUTOMATIC", @"10.0.1", @"UI.DATE_PICKER_STYLE_AUTOMATIC");
@@ -205,9 +197,7 @@
   }
   return @(UIDatePickerStyleCompact);
 }
-#endif
 
-#if IS_SDK_IOS_14
 - (NSNumber *)DATE_PICKER_STYLE_INLINE
 {
   DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_INLINE", @"10.0.1", @"UI.DATE_PICKER_STYLE_INLINE");
@@ -216,7 +206,6 @@
   }
   return @(UIDatePickerStyleInline);
 }
-#endif
 
 #endif
 
@@ -293,13 +282,11 @@
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (view) {
-      view.frame = frame;
-    }
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (view) {
+    view.frame = frame;
   }
 }
 
@@ -310,6 +297,26 @@
     _AlertDialogStyle = [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[self pageContext]];
   }
   return _AlertDialogStyle;
+}
+#endif
+
+#if IS_SDK_IOS_16
+- (NSNumber *)ALERT_SEVERITY_DEFAULT
+{
+  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    return @(-1);
+  }
+
+  return @(UIAlertControllerSeverityDefault);
+}
+
+- (NSNumber *)ALERT_SEVERITY_CRITICAL
+{
+  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    return @(-1);
+  }
+
+  return @(UIAlertControllerSeverityCritical);
 }
 #endif
 
@@ -449,10 +456,6 @@
 
 - (TiBlob *)systemImage:(id)arg
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return nil;
-  }
-
   NSString *systemImage = nil;
   NSDictionary<NSString *, id> *parameters = nil;
 

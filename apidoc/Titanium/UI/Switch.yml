@@ -2,9 +2,9 @@
 name: Titanium.UI.Switch
 summary: An on/off switch control.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./switch_android.png) | ![iOS](./switch_ios.png) | ![Windows](./switch_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./switch_android.png) | ![iOS](./switch_ios.png) |
 
     The appearance of a `Switch` control varies by platform:
 

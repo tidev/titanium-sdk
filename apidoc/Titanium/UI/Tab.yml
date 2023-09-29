@@ -167,7 +167,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "3.1.0"
-    osver: {ios: {min: "5.0"}}
 
   - name: backgroundColor
     summary: Sets the color of the tab when it is inactive.
@@ -197,15 +196,36 @@ properties:
     since: {android: "9.3.0"}
 
   - name: badgeColor
+    deprecated:
+        since: "12.2.0"
+        notes: Use [Titanium.UI.Tab.badgeBackgroundColor](Titanium.UI.Tab.badgeBackgroundColor) instead.
     summary: |
         If this item displays a badge, this color will be used for the badge's background.
         If set to null, the default background color will be used instead.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    osver: {ios: {min: "10.0"}}
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
+
+  - name: badgeBackgroundColor
+    summary: |
+        If this item displays a badge, this color will be used for the badge's background.
+        If set to null, the default background color will be used instead.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.2.0"}
+
+  - name: badgeTextColor
+    summary: |
+        Set the text color of the badge.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: {android: "12.2.0"}
 
   - name: icon
     summary: Icon URL for this tab.
@@ -254,7 +274,6 @@ properties:
     type: [Boolean]
     since: "3.1.3"
     default: true
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad, macos]
 
   - name: activeIconIsMask
@@ -266,7 +285,6 @@ properties:
     type: [Boolean]
     since: "3.1.3"
     default: true
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad, macos]
 
   - name: tintColor
@@ -295,7 +313,6 @@ properties:
         The color of the title of the tab when it's inactive.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
-    osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android, macos]
 
   - name: activeTitleColor
@@ -304,7 +321,6 @@ properties:
         The color of the title of the tab when it's active.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
-    osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android, macos]
 
   - name: window

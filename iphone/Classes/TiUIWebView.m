@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -83,7 +83,11 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
     _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
-
+#if TARGET_OS_SIMULATOR && __IPHONE_OS_VERSION_MAX_ALLOWED >= 160400
+    if (@available(iOS 16.4, *)) {
+      _webView.inspectable = YES;
+    }
+#endif
     [_webView setUIDelegate:self];
     [_webView setNavigationDelegate:self];
     [_webView setContentMode:[self contentModeForWebView]];
@@ -156,12 +160,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (void)setZoomLevel_:(id)zoomLevel
 {
   ENSURE_TYPE(zoomLevel, NSNumber);
-#if IS_SDK_IOS_14
+
   if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
     [self webView].pageZoom = [zoomLevel floatValue];
     return;
   }
-#endif
+
   [[self webView] evaluateJavaScript:[NSString stringWithFormat:@"document.body.style.zoom = %@;", zoomLevel]
                    completionHandler:nil];
 }

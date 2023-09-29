@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.util.TiConvert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 	propertyAccessors = {
 		TiC.PROPERTY_CAN_SCROLL,
 		TiC.PROPERTY_CASE_INSENSITIVE_SEARCH,
+		TiC.PROPERTY_CONTINUOUS_UPDATE,
 		TiC.PROPERTY_DEFAULT_ITEM_TEMPLATE,
 		TiC.PROPERTY_EDITING,
 		TiC.PROPERTY_FAST_SCROLL,
@@ -553,9 +555,18 @@ public class ListViewProxy extends RecyclerViewProxy
 			}
 
 		} else if (name.equals(TiC.PROPERTY_SHOW_SELECTION_CHECK)) {
-
 			// Update and refresh list.
 			update(true);
+		} else if (name.equals(TiC.PROPERTY_CONTINUOUS_UPDATE)) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
+			}
+		} else if (name.equals("forceUpdates")) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setForceUpdates(TiConvert.toBoolean(value, false));
+			}
 		}
 	}
 

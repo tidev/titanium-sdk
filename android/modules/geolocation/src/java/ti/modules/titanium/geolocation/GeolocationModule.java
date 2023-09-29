@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -990,6 +990,30 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		}
 
 		return event;
+	}
+
+	@Kroll.getProperty
+	public int getHeadingTime()
+	{
+		return tiCompass.headingTime;
+	}
+
+	@Kroll.setProperty
+	public void setHeadingTime(int value)
+	{
+		tiCompass.headingTime = value;
+	}
+
+	@Kroll.getProperty
+	public int getHeadingFilter()
+	{
+		return tiCompass.headingFilter;
+	}
+
+	@Kroll.setProperty
+	public void getHeadingFilter(int value)
+	{
+		tiCompass.headingFilter = value;
 	}
 
 	/**

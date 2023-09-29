@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -8,10 +8,12 @@ package ti.modules.titanium.ui.widget;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
 import androidx.annotation.ColorInt;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
@@ -21,6 +23,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -102,7 +105,37 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		// Note: By default it uses a gray ripple for unselected tabs which doesn't match Google's own apps.
 		int colorPrimary = getTabRippleColorFrom(this.tabLayout.getContext());
 		this.tabLayout.setTabRippleColor(TiUIAbstractTabGroup.createRippleColorStateListFrom(colorPrimary));
+		if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_TEXT_COLOR)
+			|| getProxy().hasPropertyAndNotNull(TiC.PROPERTY_TEXT_COLOR)) {
+			// get default colors
+			int selectedTextColor = activity.getResources().getColor(R.color.ti_light_primary);
+			int textColor = tabLayout.getTabTextColors().getDefaultColor();
+			Configuration config;
 
+			// if night mode get dark default color
+			if (activity != null) {
+				config = activity.getResources().getConfiguration();
+			} else {
+				config = TiApplication.getInstance().getResources().getConfiguration();
+			}
+			if ((config.uiMode & Configuration.UI_MODE_NIGHT_YES) != 0) {
+				selectedTextColor = activity.getResources().getColor(R.color.ti_dark_primary);
+			}
+
+			// assign new colors
+			if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_TEXT_COLOR)) {
+				textColor = TiConvert.toColor(getProxy().getProperties().getString(TiC.PROPERTY_TEXT_COLOR), activity);
+			}
+			if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_TEXT_COLOR)) {
+				selectedTextColor =
+					TiConvert.toColor(getProxy().getProperties().getString(TiC.PROPERTY_SELECTED_TEXT_COLOR), activity);
+			} else if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_TEXT_COLOR)) {
+				// no selected color specified but a text color -> use that
+				selectedTextColor = textColor;
+			}
+
+			this.tabLayout.setTabTextColors(textColor, selectedTextColor);
+		}
 		setNativeView(this.tabLayout);
 	}
 

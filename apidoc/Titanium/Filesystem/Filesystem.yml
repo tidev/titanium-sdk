@@ -113,7 +113,6 @@ methods:
         type: String
         repeatable: true
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: "5.4.0"
 
   - name: isExternalStoragePresent

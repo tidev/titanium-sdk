@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -170,17 +170,17 @@ public class TiWebViewClient extends WebViewClient
 			proxy.setPropertyAndFire(TiC.PROPERTY_URL, url);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_TEL)) {
-			Log.i(TAG, "Launching dialer for " + url, Log.DEBUG_MODE);
+			Log.d(TAG, "Launching dialer for " + url, Log.DEBUG_MODE);
 			Intent dialer = Intent.createChooser(new Intent(Intent.ACTION_DIAL, Uri.parse(url)), "Choose Dialer");
 			proxy.getActivity().startActivity(dialer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_MAILTO)) {
-			Log.i(TAG, "Launching mailer for " + url, Log.DEBUG_MODE);
+			Log.d(TAG, "Launching mailer for " + url, Log.DEBUG_MODE);
 			Intent mailer = Intent.createChooser(new Intent(Intent.ACTION_SENDTO, Uri.parse(url)), "Send Message");
 			proxy.getActivity().startActivity(mailer);
 			return true;
 		} else if (url.startsWith(WebView.SCHEME_GEO)) {
-			Log.i(TAG, "Launching app for " + url, Log.DEBUG_MODE);
+			Log.d(TAG, "Launching app for " + url, Log.DEBUG_MODE);
 			/*geo:latitude,longitude
 			geo:latitude,longitude?z=zoom
 			geo:0,0?q=my+street+address

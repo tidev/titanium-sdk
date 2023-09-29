@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -51,7 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) NSString *applicationDescription;
 
 /**
- Deploy type of the application, e.g. "development", currently **unused**.
+ Deploy type of the application, e.g. "development", "test" or "production"
  */
 @property (nonatomic, strong, nullable) NSString *applicationDeployType;
 
@@ -95,8 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Indicates whether or not the error screen should be shown if an
- error occurs. Defaults to `true` for `production` and `test` deploy types,
- `false` for deploy type `development`. Can be overriden by the `hide-error-controller`
+ error occurs. Defaults to `false` for `production` and `true` for `development` and `test`
+ deploy types. Can be overriden by the `hide-error-controller`
  CLI parameter.
  */
 @property (nonatomic, assign) BOOL showErrorController;

@@ -4,9 +4,9 @@ summary: |
     A table view is used to present information, organized in sections and rows, in a
     vertically-scrolling view.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./tableview_android.png) | ![iOS](./tableview_ios.png) | ![Windows](./tableview_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./tableview_android.png) | ![iOS](./tableview_ios.png) |
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection)
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects.
@@ -1425,6 +1425,14 @@ properties:
     platforms: [iphone, ipad, macos]
     availability: creation
 
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the table view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad, macos]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "12.2.0"
+
   - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
@@ -1435,7 +1443,6 @@ properties:
     default: false
     since: 8.1.0
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: searchAsChild
@@ -1508,7 +1515,6 @@ properties:
         ```
     type: HorizontalInsets
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: touchFeedback
@@ -1518,7 +1524,6 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "10.0.0"
 
   - name: tableSeparatorInsets
@@ -1537,7 +1542,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
@@ -1556,7 +1560,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
@@ -1823,8 +1826,8 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected row to.
     type: Number
-    constants: Titanium.UI.iOS.TableViewScrollPosition.*
-    default: <Titanium.UI.iOS.TableViewScrollPosition.NONE>
+    constants: Titanium.UI.TableViewScrollPosition.*
+    default: <Titanium.UI.TableViewScrollPosition.NONE>
 
 ---
 name: TableViewIndexEntry

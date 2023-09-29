@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -24,7 +25,6 @@ import android.graphics.drawable.shapes.RectShape;
 import android.os.Parcelable;
 import android.view.MotionEvent;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup;
@@ -55,9 +55,13 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private boolean hasLaidOutChildren = false;
 	private SelectionTracker tracker = null;
 	private boolean isScrolling = false;
+	private boolean continuousUpdate = false;
+	private boolean forceUpdate = false;
 	private int lastScrollDeltaY;
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
+	private int lastVisibleItem = -1;
+	private int lastVisibleSection = -1;
 	private String filterQuery;
 
 	public TiListView(ListViewProxy proxy)
@@ -141,7 +145,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 				// Only fire `scrolling` event upon direction change.
 				if (proxy.hierarchyHasListener(TiC.EVENT_SCROLLING)
-					&& (lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0)) {
+					&& ((lastScrollDeltaY >= 0 && dy <= 0 || lastScrollDeltaY <= 0 && dy >= 0) || continuousUpdate)) {
 					final KrollDict payload = generateScrollPayload();
 
 					// Determine scroll direction.
@@ -151,7 +155,18 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						payload.put(TiC.PROPERTY_DIRECTION, "down");
 					}
 					payload.put(TiC.EVENT_PROPERTY_VELOCITY, 0);
-					proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
+					if (continuousUpdate) {
+						if (lastVisibleItem != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX))
+							|| lastVisibleSection
+								   != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX))
+							|| forceUpdate) {
+							proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
+							lastVisibleItem = TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX));
+							lastVisibleSection = TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX));
+						}
+					} else {
+						proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
+					}
 				}
 
 				lastScrollDeltaY = dy;
@@ -268,6 +283,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final boolean allowsSelection = properties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false);
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
+		continuousUpdate = properties.optBoolean(TiC.PROPERTY_CONTINUOUS_UPDATE, false);
+		forceUpdate = properties.optBoolean("forceUpdates", false);
 
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
@@ -384,6 +401,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, null);
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, -1);
 			}
+
+			payload.put(TiC.PROPERTY_TOP, recyclerView.computeVerticalScrollOffset());
 		}
 
 		// Define visible item count.
@@ -675,8 +694,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
+				boolean alwaysInclude = item.getProperties()
+					.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 				// Handle search query.
-				if (query != null) {
+				if (query != null && !alwaysInclude) {
 					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
 					if (searchableText != null) {
 						if (caseInsensitive) {
@@ -751,6 +772,12 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final Activity activity = TiApplication.getAppCurrentActivity();
 		final View previousFocus = activity != null ? activity.getCurrentFocus() : null;
 
+		// The activity may be not available anymore, e.g. when a HTTP request started to update the list, but the containing window
+		// was closed before the operation could be completed.
+		if (activity == null) {
+			return;
+		}
+
 		activity.runOnUiThread(new Runnable()
 		{
 			@Override
@@ -789,6 +816,17 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			}
 		});
 	}
+
+	public void setContinousUpdate(boolean value)
+	{
+		continuousUpdate = value;
+	}
+
+	public void setForceUpdates(boolean value)
+	{
+		forceUpdate = value;
+	}
+
 	public void update()
 	{
 		this.update(false);

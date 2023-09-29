@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -221,7 +221,13 @@ public class NotificationChannelProxy extends KrollProxy
 	@Kroll.getProperty
 	public Object getVibrationPattern()
 	{
+		if (channel == null) {
+			return null;
+		}
 		long[] pattern = channel.getVibrationPattern();
+		if (pattern == null) {
+			return null;
+		}
 		Object[] patternArray = new Object[pattern.length];
 		for (int i = 0; i < pattern.length; i++) {
 			patternArray[i] = Long.valueOf(pattern[i]);

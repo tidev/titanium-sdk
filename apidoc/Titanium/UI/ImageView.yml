@@ -17,8 +17,8 @@ description: |
     
     Android Note: Android 6 and later uses runtime permissions to secure the user's privacy. 
     Therefore, you should call <Titanium.Filesystem.requestStoragePermissions> before attempting to load remote images.
-    
-    Read more about remote images and general best practices in the [Image Best Practices Guide](https://wiki.appcelerator.org/display/guides2/Image+Best+Practices#ImageBestPractices-Cachingremoteimages).
+
+    Read more about remote images and general best practices in the [Image Best Practices Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Best_Practices_and_Recommendations/Image_Best_Practices.html#caching-remote-images).
 
     #### Android 9-Patch Scaled Images
 

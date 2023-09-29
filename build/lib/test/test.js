@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -42,6 +42,8 @@ const OS_VERSION_PREFIX = 'OS_VERSION: ';
 // Sniff if we're on Travis/Jenkins
 const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
 
+let showFailedOnly = false;
+
 /**
  * Generates a test app, then runs the app for each platform with our
  * test suite. Outputs the results in a JUnit test report,
@@ -54,9 +56,11 @@ const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
  * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
+ * @param {string} [failedOnly] Show only failed tests
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly) {
+	showFailedOnly = failedOnly;
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
 	console.log(platforms);
 	// delete old test app (if does not exist, this will no-op)
@@ -115,7 +119,7 @@ async function generateProject(platforms) {
 			'--platforms', platforms.join(','),
 			'--name', PROJECT_NAME,
 			'--id', APP_ID,
-			'--url', 'http://www.appcelerator.com',
+			'--url', 'https://titaniumsdk.com',
 			'--workspace-dir', path.dirname(PROJECT_DIR),
 			'--no-banner',
 			'--no-prompt' ], { stdio: 'inherit' });
@@ -299,10 +303,8 @@ async function addTiAppProperties() {
 
 		content.push(line);
 		if (line.indexOf('<ios>') >= 0) {
-			// Force using the JScore on the emulator, not TiCore!
-			content.push('\t\t<use-jscore-framework>true</use-jscore-framework>');
-			// force minimum ios sdk version of 12.0
-			content.push('\t\t<min-ios-ver>12.0</min-ios-ver>');
+			// force minimum ios sdk version of 13.0
+			content.push('\t\t<min-ios-ver>13.0</min-ios-ver>');
 		} else if (line.indexOf('<dict>') >= 0) {
 			// Insert iOS plist settings after the first <dict> element.
 			if (insertPlistSettings) {
@@ -1004,7 +1006,9 @@ async function outputResults(results) {
 				--indents;
 			} else {
 				passes++;
-				console.log(indent() + '  ✓'.green + ' %s '.gray, test.title);
+				if (!showFailedOnly) {
+					console.log(indent() + '  ✓'.green + ' %s '.gray, test.title);
+				}
 			}
 		});
 		--indents;

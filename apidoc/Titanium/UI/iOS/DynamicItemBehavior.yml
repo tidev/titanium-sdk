@@ -12,7 +12,6 @@ description: |
 extends: Titanium.Proxy
 platforms: [iphone, ipad, macos]
 since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
-osver: {ios: {min: "7.0"}}
 properties:
   - name: allowsRotation
     summary: Specifies if this item can rotate.

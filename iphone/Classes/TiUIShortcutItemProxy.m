@@ -1,5 +1,5 @@
 /**
-* Appcelerator Titanium Mobile
+* Titanium SDK
 * Copyright (c) 2020 by Appcelerator, Inc. All Rights Reserved.
 * Licensed under the terms of the Apache Public License
 * Please see the LICENSE included with this distribution for details.
@@ -82,7 +82,7 @@
     return [UIApplicationShortcutIcon iconWithTemplateImageName:value];
   }
 
-  if ([value isKindOfClass:[TiBlob class]] && [TiUtils isIOSVersionOrGreater:@"13.0"]) {
+  if ([value isKindOfClass:[TiBlob class]]) {
     TiBlob *blob = (TiBlob *)value;
     if (blob.type == TiBlobTypeSystemImage) {
       return [UIApplicationShortcutIcon iconWithSystemImageName:blob.systemImageName];

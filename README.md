@@ -1,18 +1,21 @@
 <p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
-<h1 align="center">Titanium <a href="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
+<h1 align="center">Titanium SDK</h1>
 
-Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build
+<p align="center"><a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=master" /></a></p>
+
+Welcome to the Titanium SDK open source project. Titanium SDK provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
 
 Currently supported native platforms are iOS and Android.
 
-Titanium is licensed under the OSI approved Apache Public License (version 2). Please
+Titanium SDK is licensed under the OSI approved Apache Public License (version 2). Please
 see the [LICENSE](LICENSE) file for specific details.
 
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
+  - [Sponsors](#sponsors)
   - [Features](#features)
   - [Hyperloop](#hyperloop)
     - [Features](#features-1)
@@ -42,9 +45,18 @@ see the [LICENSE](LICENSE) file for specific details.
     - [Upgrade gradle and gradle plugin](#upgrade-gradle-and-gradle-plugin)
   - [Legal Stuff](#legal-stuff)
 
+## Sponsors
+
+This project wouldn't be possible without the help of our world wide developer community. Become a sponsor
+today and benefit from 1:1 sessions with the core team, exclusive modules, merchandise and more!
+
+Learn more about sponsoring TiDev, the organization behind the Titanium SDK, [here](https://github.com/sponsors/tidev) 🚀.
+
+<!-- sponsors --><a href="https://github.com/caspahouzer"><img src="https://github.com/caspahouzer.png" width="60px" alt="Sebastian Klaus" /></a><a href="https://github.com/phobeous"><img src="https://github.com/phobeous.png" width="60px" alt="Rodrigo Farfán" /></a><a href="https://github.com/jasonkneen"><img src="https://github.com/jasonkneen.png" width="60px" alt="Jason Kneen" /></a><a href="https://github.com/de1mat"><img src="https://github.com/de1mat.png" width="60px" alt="Matt Delmarter" /></a><a href="https://github.com/dlewis23"><img src="https://github.com/dlewis23.png" width="60px" alt="dlewis23" /></a><a href="https://github.com/dethier1958"><img src="https://github.com/dethier1958.png" width="60px" alt="Daniel Ethier" /></a><a href="https://github.com/AvinashDalvi89"><img src="https://github.com/AvinashDalvi89.png" width="60px" alt="Avinash Dalvi" /></a><a href="https://github.com/zenjoe"><img src="https://github.com/zenjoe.png" width="60px" alt="Joe Kniesek" /></a><a href="https://github.com/desarrollogotit"><img src="https://github.com/desarrollogotit.png" width="60px" alt="" /></a><a href="https://github.com/Astrovic"><img src="https://github.com/Astrovic.png" width="60px" alt="Vittorio Sorbera" /></a><a href="https://github.com/Arood"><img src="https://github.com/Arood.png" width="60px" alt="Marcus Olovsson" /></a><a href="https://github.com/SynaxonAG"><img src="https://github.com/SynaxonAG.png" width="60px" alt="Synaxon AG" /></a><a href="https://github.com/Rearmachine"><img src="https://github.com/Rearmachine.png" width="60px" alt="" /></a><a href="https://github.com/alexlarocca"><img src="https://github.com/alexlarocca.png" width="60px" alt="Alessandro La Rocca" /></a><a href="https://github.com/reshopper"><img src="https://github.com/reshopper.png" width="60px" alt="Reshopper" /></a><a href="https://github.com/safadig"><img src="https://github.com/safadig.png" width="60px" alt="Gus" /></a><a href="https://github.com/designbymind"><img src="https://github.com/designbymind.png" width="60px" alt="Jason David Miller" /></a><a href="https://github.com/greatschism"><img src="https://github.com/greatschism.png" width="60px" alt="Michael Zaladonis" /></a><a href="https://github.com/rlustemberg"><img src="https://github.com/rlustemberg.png" width="60px" alt="Richard Lustemberg" /></a><a href="https://github.com/enzoq"><img src="https://github.com/enzoq.png" width="60px" alt="Vincenzo Quacquarelli" /></a><a href="https://github.com/mighty-office"><img src="https://github.com/mighty-office.png" width="60px" alt="Mighty GmbH" /></a><a href="https://github.com/Fruugul"><img src="https://github.com/Fruugul.png" width="60px" alt="Fruugul" /></a><a href="https://github.com/petervaradi"><img src="https://github.com/petervaradi.png" width="60px" alt="" /></a><a href="https://github.com/korelogic"><img src="https://github.com/korelogic.png" width="60px" alt="Korelogic Limited" /></a><!-- sponsors -->
+
 ## Features
 
-With Titanium, you use JavaScript to code your application. Titanium's compiler will compile
+With Titanium SDK, you use JavaScript to code your application. Titanium's compiler will compile
 your application code into an efficient native executable for each target mobile platform.
 
 - [x] Native apps built using JavaScript (no hybrid, no embedded WebView)
@@ -78,8 +90,8 @@ And much, much more (see our [Documentation](https://titaniumsdk.com/) for more 
 
 ## Hyperloop
 
-Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium apps by native API's using
-JavaScript. Prior to Hyperloop, you would use [native modules](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/Titanium_Module_Concepts.html) to extend the Titanium API. With
+Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium SDK apps by native API's using
+JavaScript. Prior to Hyperloop, you would use [native modules](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/Titanium_Module_Concepts.html) to extend the Titanium SDK API. With
 Hyperloop, you are now able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files)
 and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview).
 
@@ -128,7 +140,7 @@ Check out our [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples
 ## Alloy
 
 [Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
-on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
+on top of Titanium SDK. It is optional. It rocks. Check it out if you're considering using Titanium SDK.
 It is also a separate [open source project](https://github.com/tidev/alloy) available under Apache Public License.
 
 ### Example
@@ -139,7 +151,7 @@ Manage your application scope by separating your code into different models, vie
 
 ```xml
 <Alloy>
-  <Window title="Titanium and Alloy">
+  <Window title="Titanium SDK and Alloy">
     <Button onClick="handleClick" id="myButton">Click me!</Button>
   </Window>
 </Alloy>
@@ -169,15 +181,15 @@ Window: {
 
 ## Getting Help
 
-There are a number of ways to get help with Titanium.
+There are a number of ways to get help with Titanium SDK.
 
 ### Official Documentation, Tutorials and Videos
 
-Please visit the official documentation site at [https://titaniumsdk.com/](https://titaniumsdk.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
+Please visit the official documentation site at [https://titaniumsdk.com/](https://titaniumsdk.com/) for the latest and historical documentation on Titanium SDK, Alloy and other modules.
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium is available on Slack at [TiSlack](https://slack.tidev.io).
+Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium-sdk/discussions).
 
 ### Twitter
 
@@ -185,24 +197,19 @@ Please consider following [@Titanium SDK](http://www.twitter.com/titaniumsdk) an
 
 ### Commercial Support, Licensing
 
-We give our software away for FREE! In order to do that, we have programs for
-companies that require additional level of assistance through training or commercial support,
-need special licensing or want additional levels of capabilities. Please visit the
-[TiDev Website](https://tidev.io) for more information about TiDev or
-email [info@tidev.io](mailto:info@tidev.io).
+We give our software away for FREE! In order to do that, we have programs for companies that require additional level of assistance through training or commercial support, need special licensing or want additional levels of capabilities. Please visit the [TiDev Website](https://tidev.io) for more information about TiDev or email [info@tidev.io](mailto:info@tidev.io).
 
 ## Contributing
 
-Titanium is an open source project.  Titanium wouldn't be where it is now without contributions by the community. Please consider forking Titanium to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
+Titanium SDK is an open source project. Titanium SDK wouldn't be where it is now without contributions by the community. Please consider forking Titanium SDK to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
 
-To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
+To protect the interests of the Titanium SDK contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 
 [You can digitally sign the CLA](https://github.com/tidev/organization-docs/blob/main/AUTHORIZED_CONTRIBUTORS.md) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
 ## Building Locally
 
-Previously Titanium used scons and python scripts to build the SDK.
-If you'd like to build the SDK locally, we've replaced scons with some Node.JS scripts. Typical usage would be:
+If you'd like to build the SDK locally you can use the included npm scripts:
 
 ```bash
 npm ci
@@ -235,7 +242,7 @@ npm run test:ipad
 
 #### How it works
 
-The test suite generates a single Titanium project targeting the specified platform(s), builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
+The test suite generates a single Titanium SDK project targeting the specified platform(s), builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
 
 The tests spit out their results to the console log, and the test scripts listen to the logs to gather the results. We then generate an overview on the console as well as a junit report xml file (to be consume by CI build systems like Jenkins).
 

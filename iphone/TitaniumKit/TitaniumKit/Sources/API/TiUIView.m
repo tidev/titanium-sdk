@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -335,10 +335,17 @@ DEFINE_EXCEPTIONS
 {
   [super traitCollectionDidChange:previousTraitCollection];
 
+  BOOL isInBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+  BOOL isDifferentColor = [self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection];
+
+  if (!isDifferentColor || isInBackground) {
+    return;
+  }
+
   // Redraw the border color
   id borderColor = [self.proxy valueForKey:@"borderColor"];
   if (borderColor != nil) {
-    [self setBorderColor_:borderColor];
+    [self refreshBorder:[TiUtils colorValue:borderColor]._color shouldRefreshWidth:NO];
   }
 
   // Redraw the view shadow color
@@ -350,9 +357,14 @@ DEFINE_EXCEPTIONS
   // Redraw the background gradient
   TiGradient *backgroundGradient = [self.proxy valueForKey:@"backgroundGradient"];
   if (backgroundGradient != nil) {
-    [backgroundGradient clearCache];
-    [backgroundGradient setColors:[backgroundGradient valueForKey:@"colors"]];
-    [self setBackgroundGradient_:backgroundGradient];
+    // Guard the colors to handle a case where gradients have no custom
+    // colors applied
+    id colors = [backgroundGradient valueForKey:@"colors"];
+    if (colors != nil) {
+      [backgroundGradient clearCache];
+      [backgroundGradient setColors:colors];
+      [self setBackgroundGradient_:backgroundGradient];
+    }
   }
 }
 
@@ -542,14 +554,22 @@ DEFINE_EXCEPTIONS
 
 - (void)setBorderColor_:(id)color
 {
-  TiColor *ticolor = [TiUtils colorValue:color];
+  [self refreshBorder:[TiUtils colorValue:color]._color shouldRefreshWidth:YES];
+}
+
+- (void)refreshBorder:(UIColor *)color shouldRefreshWidth:(BOOL)shouldRefreshWidth
+{
   CAShapeLayer *layer = [self borderLayer];
   if (layer == self.layer) {
-    layer.borderWidth = MAX(layer.borderWidth, 1);
-    layer.borderColor = [ticolor _color].CGColor;
+    if (shouldRefreshWidth) {
+      layer.borderWidth = MAX(layer.borderWidth, 1);
+    }
+    layer.borderColor = color.CGColor;
   } else {
-    layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
-    layer.strokeColor = [ticolor _color].CGColor;
+    if (shouldRefreshWidth) {
+      layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
+    }
+    layer.strokeColor = color.CGColor;
   }
 }
 
@@ -578,6 +598,12 @@ DEFINE_EXCEPTIONS
     TiColor *ticolor = [TiUtils colorValue:color];
     super.backgroundColor = [ticolor _color];
   }
+}
+
+- (void)setTooltip_:(id)value
+{
+  UIToolTipInteraction *toolTipInteraction = [[UIToolTipInteraction alloc] initWithDefaultToolTip:[TiUtils stringValue:value]];
+  [self addInteraction:toolTipInteraction];
 }
 
 - (void)setOpacity_:(id)opacity
@@ -955,7 +981,7 @@ DEFINE_EXCEPTIONS
 
 /**
  This section of code for shadow support adapted from contributions by Martin Guillon
- See https://github.com/tidev/titanium_mobile/pull/2996
+ See https://github.com/tidev/titanium-sdk/pull/2996
  */
 - (void)assignShadowPropertyFromLayer:(CALayer *)fromLayer toLayer:(CALayer *)toLayer
 {

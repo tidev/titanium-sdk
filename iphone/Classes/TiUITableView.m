@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -55,7 +55,9 @@
 
 - (void)dealloc
 {
-  [proxy setCallbackCell:nil];
+  if (proxy != nil && [proxy callbackCell] == self) {
+    [proxy setCallbackCell:nil];
+  }
 
   RELEASE_TO_NIL(proxy);
   RELEASE_TO_NIL(gradientLayer);
@@ -1355,7 +1357,8 @@
     int cellIndex = 0;
     for (TiUITableViewRowProxy *row in [thisSection rows]) {
       id value = [row valueForKey:ourSearchAttribute];
-      if (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound) {
+      BOOL alwaysInclude = [TiUtils boolValue:[row valueForKey:@"filterAlwaysInclude"] def:NO];
+      if (alwaysInclude || (value != nil && [[TiUtils stringValue:value] rangeOfString:searchString options:searchOpts].location != NSNotFound)) {
         [thisIndexSet addIndex:cellIndex];
       }
       cellIndex++;
@@ -1640,6 +1643,13 @@
   [table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
 }
 
+- (void)setKeyboardDismissMode_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+  [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
+}
+
 - (void)setSeparatorInsets_:(id)arg
 {
   DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"5.2.0", @"UI.TableView.tableSeparatorInsets")
@@ -1878,6 +1888,7 @@
     [self createDimmingView];
   } else {
     _dimsBackgroundDuringPresentation = [TiUtils boolValue:arg def:YES];
+    dimmingView = nil;
   }
 }
 

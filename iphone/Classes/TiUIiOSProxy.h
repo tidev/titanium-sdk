@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -142,7 +142,13 @@
 @property (nonatomic, readwrite, assign) NSNumber *appBadge;
 @property (nonatomic, readwrite, assign) NSNumber *appSupportsShakeToEdit;
 
-//Modal_Presentation&Transition
+// iOS 16+ alert severity
+#if IS_SDK_IOS_16
+- (NSNumber *)ALERT_SEVERITY_DEFAULT;
+- (NSNumber *)ALERT_SEVERITY_CRITICAL;
+#endif
+
+//Modal Presentation & Transition
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
