@@ -22,7 +22,7 @@ description: |
     [rightTrackImage](Titanium.UI.Slider.rightTrackImage) properties be specified before the properties would be honored. Beginning with
     Titanium SDK 4.0.0 this limitation has been removed. However it is recommended that either both or neither be specified.
 
-    Beginning with 11.1.0 you can use a drawble as a leftTrackImage/rightTrackImage or thumbImage:
+    Beginning with 12.3.0 you can use a drawble as a leftTrackImage/rightTrackImage or thumbImage:
     ``` js
     Ti.UI.createSlider({
       min:1,
