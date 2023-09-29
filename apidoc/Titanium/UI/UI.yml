@@ -1567,6 +1567,62 @@ properties:
     permission: read-only
     platforms: [android]
 
+  - name: HYPHEN_NONE
+    summary: No hyphenation.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_NORMAL
+    summary: Less frequent hyphenation, useful for informal use cases, such as chat messages.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_FULL
+    summary: Standard amount of hyphenation, useful for running text and for screens with limited space for text.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_NORMAL_FAST
+    summary: Same to hyphenationFrequency="normal" but using faster algorithm for measuring hyphenation break points.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_FULL_FAST
+    summary: Same to hyphenationFrequency="full" but using faster algorithm for measuring hyphenation break points.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: BREAK_SIMPLE
+    summary: Line breaking uses simple strategy.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: BREAK_HIGH_QUALITY
+    summary: Line breaking uses high-quality strategy, including hyphenation.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: BREAK_BALANCED
+    summary: Line breaking strategy balances line lengths.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
   - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
     summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
     description: |

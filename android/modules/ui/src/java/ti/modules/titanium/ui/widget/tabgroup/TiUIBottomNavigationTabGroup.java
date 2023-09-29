@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -180,6 +180,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// Set the ViewPager as a native view.
 		setNativeView(this.tabGroupViewPager);
+		if (!TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_TAB_BAR_VISIBLE), true)) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			this.tabGroupViewPager.setLayoutParams(params);
+			// FIXME change "500" to a calculate value https://github.com/tidev/titanium-sdk/issues/13900
+			this.mBottomNavigationView.setTranslationY(500);
+		}
 	}
 
 	/**

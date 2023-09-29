@@ -2,7 +2,7 @@
 /*
  * run.js: Titanium iOS CLI run hook
  *
- * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * See the LICENSE file for more information.
  */
 'use strict';
