@@ -269,6 +269,25 @@ After you've made the changes and compiled the SDK make sure to run the test sui
 
 Some modules like ti.map or ti.facebook are included with the SDK. To update to the latest versions you have to edit the links in `support/module/packaged/modules.json` and run `node build/scons-modules-integrity.js`. This will download the files and update the integrity values.
 
+### Update Android libraries
+The `/android/titanium/build.gradle` file contains various Android libraries that are used in the SDK. If you want to update them check the corresponding release pages:
+* https://developer.android.com/jetpack/androidx/releases/recyclerview
+* https://developer.android.com/jetpack/androidx/releases/swiperefreshlayout
+* https://developer.android.com/jetpack/androidx/releases/camera
+* https://developer.android.com/jetpack/androidx/releases/transition
+* https://developer.android.com/jetpack/androidx/releases/vectordrawable
+* https://developer.android.com/jetpack/androidx/releases/viewpager
+* https://developer.android.com/jetpack/androidx/releases/cardview
+* https://developer.android.com/jetpack/androidx/releases/drawerlayout
+* https://developer.android.com/jetpack/androidx/releases/exifinterface
+* https://developer.android.com/jetpack/androidx/releases/media
+for a new version and change the number in the build.gradle file. Some version numbers are managed inside `/android/templates/build/ti.constants.gradle`. After that build the SDK and run `npm run test` to see if everything is still running. Building Kitchensink, Hyperloop-examples and a custom app is also helpful. 
+
+### Documentation
+
+If you want to help updating and improving the documentation you can checkout the repository and edit the files in `/apidoc/`. Those files are shown in the API documentation at https://titaniumsdk.com/api/ and include all methods, properties, examples and so on. After you made changes run `npm run lint:docs` to see if your changes produce a valid documentation. The PR commit title you create should start with `docs: ` and a proper title like: `docs: updated textfield examples`. 
+All other documentation files (e.g. the guides) are located in the https://github.com/tidev/titanium-docs repository. In case you want to update guides, tutorials or spelling mistakes you clone that repo and follow the README file inside the main folder.
+
 ## Contributing
 
 Interested in contributing? There are several ways you can help contribute to this project.
