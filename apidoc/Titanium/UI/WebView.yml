@@ -43,7 +43,7 @@ description: |
       'javascript=(function addBinding(){' +
         'var s=document.createElement("script");' +
         's.setAttribute("type","text/javascript");' +
-        's.innerHTML="' + /* insert content of binging.min.js */ + '";'
+        's.innerHTML="' + /* insert content of binding.min.js */ + '";'
         +
         'document.getElementsByTagName("body")[0].appendChild(s);' +
       '})()'
