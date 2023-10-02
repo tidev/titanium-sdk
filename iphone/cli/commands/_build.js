@@ -6568,7 +6568,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 
 	const data = ti.i18n.load(this.projectDir, this.logger),
 		header = '/**\n'
-			+ ' * Appcelerator Titanium\n'
+			+ ' * Titanium SDK\n'
 			+ ' * this is a generated file - DO NOT EDIT\n'
 			+ ' */\n\n';
 
