@@ -16,10 +16,6 @@
 #import "TiUITableViewRowProxy.h"
 #endif
 
-static NSCondition *popOverCondition;
-static BOOL currentlyDisplaying = NO;
-TiUIiPadPopoverProxy *currentPopover;
-
 @implementation TiUIiPadPopoverProxy
 
 static NSArray *popoverSequence;
@@ -52,10 +48,6 @@ static NSArray *popoverSequence;
 
 - (void)dealloc
 {
-  if (currentPopover == self) {
-    //This shouldn't happen because we clear it on hide.
-    currentPopover = nil;
-  }
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
@@ -140,9 +132,6 @@ static NSArray *popoverSequence;
 
 - (void)show:(id)args
 {
-  if (popOverCondition == nil) {
-    popOverCondition = [[NSCondition alloc] init];
-  }
 
   if (popoverInitialized) {
     DebugLog(@"Popover is already showing. Ignoring call") return;
@@ -176,14 +165,6 @@ static NSArray *popoverSequence;
         RELEASE_TO_NIL(popoverView);
     return;
   }
-
-  [popOverCondition lock];
-  if (currentlyDisplaying) {
-    [currentPopover hide:nil];
-    [popOverCondition wait];
-  }
-  currentlyDisplaying = YES;
-  [popOverCondition unlock];
   popoverInitialized = YES;
 
   TiThreadPerformOnMainThread(
@@ -221,14 +202,6 @@ static NSArray *popoverSequence;
 
 - (void)cleanup
 {
-  [popOverCondition lock];
-  currentlyDisplaying = NO;
-  if (currentPopover == self) {
-    currentPopover = nil;
-  }
-  [popOverCondition broadcast];
-  [popOverCondition unlock];
-
   if (!popoverInitialized) {
     [closingCondition lock];
     isDismissing = NO;
@@ -268,7 +241,6 @@ static NSArray *popoverSequence;
 - (void)initAndShowPopOver
 {
   deviceRotated = NO;
-  currentPopover = self;
   [contentViewProxy setProxyObserver:self];
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
     UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
