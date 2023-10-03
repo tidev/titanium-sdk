@@ -393,7 +393,7 @@ static NSArray *popoverSequence;
   popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect) ? CGRectMake(presentingController.view.bounds.size.width / 2, presentingController.view.bounds.size.height / 2, 1, 1) : popoverRect);
 }
 
-- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+- (BOOL)presentationControllerShouldDismiss:(UIPopoverPresentationController *)popoverPresentationController
 {
   if ([[self viewController] presentedViewController] != nil) {
     return NO;
@@ -402,12 +402,12 @@ static NSArray *popoverSequence;
   return YES;
 }
 
-- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
   [self cleanup];
 }
 
-- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
+- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView *_Nonnull *)view
 {
   //This will never be called when using bar button item
   BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, popoverRect);
