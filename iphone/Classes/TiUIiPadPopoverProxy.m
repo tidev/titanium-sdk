@@ -242,7 +242,6 @@ static NSArray *popoverSequence;
 
   popoverInitialized = NO;
   [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
   [contentViewProxy windowDidClose];
 
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
@@ -289,15 +288,6 @@ static NSArray *popoverSequence;
     [self updatePopoverNow];
     [contentViewProxy windowDidOpen];
   }
-}
-
-- (void)updatePopover:(NSNotification *)notification;
-{
-  //This may be due to a possible race condition of rotating the iPad while another popover is coming up.
-  if ((currentPopover != self)) {
-    return;
-  }
-  [self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 - (CGSize)contentSize
