@@ -296,11 +296,15 @@ public class AttributedStringProxy extends KrollProxy
 											spannableText.setSpan(urlColorSpan, range[0], range[0] + range[1],
 													Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-											final UnderlineColorSpan[] underlineSpans = spannableText.getSpans(
-												range[0], range[0] + range[1], UnderlineColorSpan.class);
-											if (underlineSpans.length > 0) {
+											if (TiConvert.toBoolean(attr.getProperty("underline"), true)) {
+												final UnderlineColorSpan[] underlineSpans = spannableText.getSpans(
+													range[0], range[0] + range[1], UnderlineColorSpan.class);
+												if (underlineSpans.length > 0) {
 
-												// Disable link underline, allow override with our underline color.
+													// Disable link underline, allow override with our underline color.
+													urlColorSpan.setUnderline(false);
+												}
+											} else {
 												urlColorSpan.setUnderline(false);
 											}
 										}

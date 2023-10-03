@@ -484,6 +484,10 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
+		if (d.containsKey("linkColor")) {
+			tv.setLinkTextColor(TiConvert.toColor(d.getString("linkColor"), TiApplication.getAppCurrentActivity()));
+		}
+
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
