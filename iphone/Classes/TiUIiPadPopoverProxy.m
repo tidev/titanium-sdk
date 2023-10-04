@@ -89,9 +89,9 @@ static NSArray *popoverSequence;
 - (void)setContentView:(id)value
 {
   if (popoverInitialized) {
-    DebugLog(@"[ERROR] Changing contentView when the popover is showing is not supported");
-    return;
+    DebugLog(@"[ERROR] Changing contentView when the popover is showing is not supported") return;
   }
+
   ENSURE_SINGLE_ARG(value, TiViewProxy);
 
   if (contentViewProxy != nil) {
@@ -322,12 +322,13 @@ static NSArray *popoverSequence;
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
       [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
       viewController = [[(TiWindowProxy *)contentViewProxy hostingController] retain];
-      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     } else {
       viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
-      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     }
+
+    [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
   }
+
   viewController.view.clipsToBounds = YES;
   return viewController;
 }
@@ -358,6 +359,11 @@ static NSArray *popoverSequence;
   }
 }
 
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+{
+  return UIModalPresentationNone;
+}
+
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
   [self updatePassThroughViews];
@@ -372,6 +378,7 @@ static NSArray *popoverSequence;
 
     UIView *view = [popoverView view];
     if (view != nil && (view.window != nil)) {
+      popoverPresentationController.permittedArrowDirections = directions;
       popoverPresentationController.sourceView = view;
       popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect) ? [view bounds] : popoverRect);
       return;
@@ -380,13 +387,14 @@ static NSArray *popoverSequence;
 
   //Fell through.
   UIViewController *presentingController = [[self viewController] presentingViewController];
+  popoverPresentationController.permittedArrowDirections = directions;
   popoverPresentationController.sourceView = [presentingController view];
   popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect) ? CGRectMake(presentingController.view.bounds.size.width / 2, presentingController.view.bounds.size.height / 2, 1, 1) : popoverRect);
 }
 
 - (BOOL)presentationControllerShouldDismiss:(UIPopoverPresentationController *)popoverPresentationController
 {
-  if ([[self viewController] presentedViewController] != nil) {
+  if (viewController.presentedViewController != nil) {
     return NO;
   }
   [contentViewProxy windowWillClose];
@@ -419,13 +427,9 @@ static NSArray *popoverSequence;
     UIEdgeInsets oldInsets = [[change objectForKey:@"old"] UIEdgeInsetsValue];
     NSValue *insetsValue = [NSValue valueWithUIEdgeInsets:newInsets];
 
-    if (!UIEdgeInsetsEqualToEdgeInsets(oldInsets, newInsets)) {
+    if (!UIEdgeInsetsEqualToEdgeInsets(oldInsets, newInsets) || deviceRotated) {
       deviceRotated = NO;
       [self updateContentViewWithSafeAreaInsets:insetsValue];
-    } else if (deviceRotated) {
-      // [self viewController]  need a bit of time to set its frame while rotating
-      deviceRotated = NO;
-      [self performSelector:@selector(updateContentViewWithSafeAreaInsets:) withObject:insetsValue afterDelay:.05];
     }
   }
 }
