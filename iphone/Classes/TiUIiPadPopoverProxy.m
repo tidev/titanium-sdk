@@ -132,6 +132,11 @@ static NSArray *popoverSequence;
 
 - (void)show:(id)args
 {
+  [closingCondition lock];
+  while (isDismissing) {
+    [closingCondition wait];
+  }
+  [closingCondition unlock];
 
   if (popoverInitialized) {
     DebugLog(@"Popover is already showing. Ignoring call") return;
@@ -144,13 +149,6 @@ static NSArray *popoverSequence;
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
   [self rememberSelf];
   [self retain];
-
-  [closingCondition lock];
-  if (isDismissing) {
-    [closingCondition wait];
-  }
-  [closingCondition unlock];
-
   animated = [TiUtils boolValue:@"animated" properties:args def:YES];
   popoverView = [[args objectForKey:@"view"] retain];
   NSDictionary *rectProps = [args objectForKey:@"rect"];
@@ -165,11 +163,48 @@ static NSArray *popoverSequence;
         RELEASE_TO_NIL(popoverView);
     return;
   }
-  popoverInitialized = YES;
+
+  deviceRotated = NO;
+
+  [contentViewProxy setProxyObserver:self];
+
+  if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
+    if ([topWindowView isKindOfClass:[TiUIView class]]) {
+      TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
+      if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)theProxy resignFocus];
+      }
+    }
+
+    [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
+    [(TiWindowProxy *)contentViewProxy windowWillOpen];
+
+    [(TiWindowProxy *)contentViewProxy open:nil];
+    [(TiWindowProxy *)contentViewProxy gainFocus];
+  } else {
+    [contentViewProxy windowWillOpen];
+  }
 
   TiThreadPerformOnMainThread(
       ^{
-        [self initAndShowPopOver];
+        [self updateContentSize];
+
+        UIViewController *theController = [self viewController];
+        theController.modalPresentationStyle = UIModalPresentationPopover;
+        theController.popoverPresentationController.permittedArrowDirections = directions;
+        theController.popoverPresentationController.delegate = self;
+
+        if ([self valueForKey:@"backgroundColor"]) {
+          theController.popoverPresentationController.backgroundColor = [[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color];
+        }
+
+        [[[TiApp app] controller] presentViewController:theController
+                                               animated:animated
+                                             completion:^{
+                                               popoverInitialized = YES;
+                                               [contentViewProxy windowDidOpen];
+                                             }];
       },
       YES);
 }
@@ -184,6 +219,7 @@ static NSArray *popoverSequence;
 
   [closingCondition lock];
   isDismissing = YES;
+  [closingCondition signal];
   [closingCondition unlock];
 
   TiThreadPerformOnMainThread(
@@ -211,7 +247,6 @@ static NSArray *popoverSequence;
     return;
   }
   [contentViewProxy setProxyObserver:nil];
-  [contentViewProxy windowWillClose];
 
   popoverInitialized = NO;
   [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
@@ -231,35 +266,11 @@ static NSArray *popoverSequence;
   [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
-  [self performSelector:@selector(release) withObject:nil afterDelay:0.5];
+  [self release];
   [closingCondition lock];
   isDismissing = NO;
   [closingCondition signal];
   [closingCondition unlock];
-}
-
-- (void)initAndShowPopOver
-{
-  deviceRotated = NO;
-  [contentViewProxy setProxyObserver:self];
-  if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
-    if ([topWindowView isKindOfClass:[TiUIView class]]) {
-      TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
-      if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)theProxy resignFocus];
-      }
-    }
-    [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
-    [(TiWindowProxy *)contentViewProxy open:nil];
-    [(TiWindowProxy *)contentViewProxy gainFocus];
-    [self updatePopoverNow];
-  } else {
-    [contentViewProxy windowWillOpen];
-    [contentViewProxy reposition];
-    [self updatePopoverNow];
-    [contentViewProxy windowDidOpen];
-  }
 }
 
 - (CGSize)contentSize
@@ -305,26 +316,6 @@ static NSArray *popoverSequence;
   [contentViewProxy reposition];
 }
 
-- (void)updatePopoverNow
-{
-  // We're in the middle of playing cleanup while a hide() is happening.
-  [closingCondition lock];
-  if (isDismissing) {
-    [closingCondition unlock];
-    return;
-  }
-  [closingCondition unlock];
-  [self updateContentSize];
-  UIViewController *theController = [self viewController];
-  [theController setModalPresentationStyle:UIModalPresentationPopover];
-  UIPopoverPresentationController *thePresentationController = [theController popoverPresentationController];
-  thePresentationController.permittedArrowDirections = directions;
-  thePresentationController.delegate = self;
-  [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
-
-  [[TiApp app] showModalController:theController animated:animated];
-}
-
 - (UIViewController *)viewController
 {
   if (viewController == nil) {
@@ -350,7 +341,7 @@ static NSArray *popoverSequence;
         UIEdgeInsets edgeInsets = [insetsValue UIEdgeInsetsValue];
         viewController.view.frame = CGRectMake(viewController.view.frame.origin.x + edgeInsets.left, viewController.view.frame.origin.y + edgeInsets.top, viewController.view.frame.size.width - edgeInsets.left - edgeInsets.right, viewController.view.frame.size.height - edgeInsets.top - edgeInsets.bottom);
       },
-      NO);
+      YES);
 }
 
 #pragma mark Delegate methods
