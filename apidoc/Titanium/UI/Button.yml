@@ -380,6 +380,7 @@ examples:
   - title: Simple Button Example
     example: |
         ``` js
+        var win = Ti.UI.createWindow();
         var button = Titanium.UI.createButton({
             title: 'Hello',
             top: 10,
@@ -390,6 +391,8 @@ examples:
         {
             Titanium.API.info("You clicked the button");
         });
+        win.add(button);
+        win.open();
         ```
 
   - title: Alloy XML Markup
