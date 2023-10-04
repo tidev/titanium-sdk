@@ -189,6 +189,22 @@ GETTER_IMPL(NSArray<TiCalendarCalendar *> *, allEditableCalendars, AllEditableCa
 }
 GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
 
+- (void)requestCalendarAccessCompletion:(JSValue *)callback isGranted:(BOOL)granted withError:(NSError *)error
+{
+  NSDictionary *propertiesDict;
+  if (error == nil) {
+    NSString *errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
+    propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
+  } else {
+    propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
+  }
+  TiThreadPerformOnMainThread(
+      ^{
+        [callback callWithArguments:@[ propertiesDict ]];
+      },
+      [NSThread isMainThread]);
+}
+
 - (void)requestAuthorization:(JSValue *)callback forEntityType:(EKEntityType)entityType
 {
   NSString *errorStr = nil;
@@ -225,40 +241,13 @@ GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
 
         if (@available(iOS 17.0, *)) {
 
-          NSLog(@"[INFO] Calendar requestAuthorization iOS 17...");
-
           [ourstore requestFullAccessToEventsWithCompletion:^(BOOL granted, NSError *error) {
-            NSDictionary *propertiesDict;
-            if (error == nil) {
-              NSString *errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
-              propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
-            } else {
-              propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
-            }
-            TiThreadPerformOnMainThread(
-                ^{
-                  [callback callWithArguments:@[ propertiesDict ]];
-                },
-                [NSThread isMainThread]);
+            [self requestCalendarAccessCompletion:callback isGranted:granted withError:error];
           }];
         } else {
-
-          NSLog(@"[INFO] Calendar requestAuthorization iOS 16...");
-
           [ourstore requestAccessToEntityType:EKEntityTypeEvent
                                    completion:^(BOOL granted, NSError *error) {
-                                     NSDictionary *propertiesDict;
-                                     if (error == nil) {
-                                       NSString *errorMsg = granted ? nil : @"The user has denied access to events in Calendar.";
-                                       propertiesDict = [TiUtils dictionaryWithCode:(granted ? 0 : 1) message:errorMsg];
-                                     } else {
-                                       propertiesDict = [TiUtils dictionaryWithCode:[error code] message:[TiUtils messageFromError:error]];
-                                     }
-                                     TiThreadPerformOnMainThread(
-                                         ^{
-                                           [callback callWithArguments:@[ propertiesDict ]];
-                                         },
-                                         [NSThread isMainThread]);
+                                     [self requestCalendarAccessCompletion:callback isGranted:granted withError:error];
                                    }];
         }
       },
