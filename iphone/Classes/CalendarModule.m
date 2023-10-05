@@ -240,7 +240,6 @@ GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
         EKEventStore *ourstore = [self store];
 
         if (@available(iOS 17.0, *)) {
-
           [ourstore requestFullAccessToEventsWithCompletion:^(BOOL granted, NSError *error) {
             [self requestCalendarAccessCompletion:callback isGranted:granted withError:error];
           }];
