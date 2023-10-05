@@ -658,23 +658,29 @@ DEFINE_EXCEPTIONS
   // drawing operations on iOS (and presumably Android). By removing this code and instead blitting the [bgImage CGImage]
   // directly into the graphics context, it tesselates from the lower-left.
 
-  UIGraphicsBeginImageContextWithOptions(bgImage.size, NO, bgImage.scale);
-  CGContextRef imageContext = UIGraphicsGetCurrentContext();
-  CGContextDrawImage(imageContext, CGRectMake(0, 0, bgImage.size.width, bgImage.size.height), [bgImage CGImage]);
-  UIImage *translatedImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
+  // Creating the translatedImage
+  UIGraphicsImageRendererFormat *format1 = [[UIGraphicsImageRendererFormat alloc] init];
+  format1.scale = bgImage.scale;
 
-  UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, bgImage.scale);
-  CGContextRef background = UIGraphicsGetCurrentContext();
-  if (background == nil) {
+  UIGraphicsImageRenderer *renderer1 = [[UIGraphicsImageRenderer alloc] initWithSize:bgImage.size format:format1];
+  UIImage *translatedImage = [renderer1 imageWithActions:^(UIGraphicsImageRendererContext *_Nonnull context) {
+    [bgImage drawAtPoint:CGPointZero];
+  }];
+
+  // Creating the renderedBg
+  UIGraphicsImageRendererFormat *format2 = [[UIGraphicsImageRendererFormat alloc] init];
+  format2.scale = bgImage.scale;
+
+  UIGraphicsImageRenderer *renderer2 = [[UIGraphicsImageRenderer alloc] initWithSize:self.bounds.size format:format2];
+  UIImage *renderedBg = [renderer2 imageWithActions:^(UIGraphicsImageRendererContext *_Nonnull context) {
+    UIImage *tiledImage = [UIImage imageWithCGImage:translatedImage.CGImage scale:bgImage.scale orientation:translatedImage.imageOrientation];
+    [tiledImage drawAsPatternInRect:context.format.bounds];
+  }];
+
+  if (renderedBg == nil) {
     //TIMOB-11564. Either width or height of the bounds is zero
-    UIGraphicsEndImageContext();
     return;
   }
-  CGRect imageRect = CGRectMake(0, 0, bgImage.size.width, bgImage.size.height);
-  CGContextDrawTiledImage(background, imageRect, [translatedImage CGImage]);
-  UIImage *renderedBg = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
 
   [self backgroundImageLayer].contents = (id)renderedBg.CGImage;
 }
