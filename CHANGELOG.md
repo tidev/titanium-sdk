@@ -22,6 +22,7 @@ As of this GA release, the previous Titanium SDK patch release (12.2.0) is no lo
 * Hans Knöchel
   * fix crash in “backgroundRepeat”, replace deprecated API ([5ccea28](https://github.com/tidev/titanium_mobile/commit/5ccea2815a770c2b78d07017748049129a51f738))
   * fix crash when setting navTinColor during a view transition ([951877b](https://github.com/tidev/titanium_mobile/commit/951877b29c0655a2f2e9d053d25ddfcdf464c7dd))
+  * revert video player change ([1a7e84b](https://github.com/tidev/titanium_mobile/commit/1a7e84b4e969f4afa0c2108f76b35f5b61146942))
   * bump version ([798523f](https://github.com/tidev/titanium_mobile/commit/798523f86b01fe8e5c1f47169d8c4d30838abb15))
 
 ## Bug Fixes
@@ -35,6 +36,7 @@ As of this GA release, the previous Titanium SDK patch release (12.2.0) is no lo
 * fix app freezing when trying to hide & show popover repeatedly and popover layout issues ([f9fe9b7](https://github.com/tidev/titanium_mobile/commit/f9fe9b76a83415656079b724bca57b166ae6f5ff))
 * fix crash in “backgroundRepeat”, replace deprecated API ([5ccea28](https://github.com/tidev/titanium_mobile/commit/5ccea2815a770c2b78d07017748049129a51f738))
 * fix crash when setting navTinColor during a view transition ([951877b](https://github.com/tidev/titanium_mobile/commit/951877b29c0655a2f2e9d053d25ddfcdf464c7dd))
+* revert video player change ([1a7e84b](https://github.com/tidev/titanium_mobile/commit/1a7e84b4e969f4afa0c2108f76b35f5b61146942))
 
 ## SDK Module Versions
 
