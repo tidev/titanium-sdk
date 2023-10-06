@@ -30,8 +30,6 @@
   BOOL deviceRotated;
 }
 
-- (void)updatePopover:(NSNotification *)notification;
-
 @end
 
 #endif
