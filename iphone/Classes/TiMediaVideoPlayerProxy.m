@@ -174,11 +174,6 @@ NSArray *moviePlayerKeys = nil;
   reallyAttached = YES;
 }
 
-- (void)viewDidAttach
-{
-  [TiApp.controller.topPresentedController addChildViewController:movie];
-}
-
 - (void)viewDidDetach
 {
   [self removeNotificationObserver];
@@ -188,7 +183,6 @@ NSArray *moviePlayerKeys = nil;
   [movie setPlayer:nil];
   RELEASE_TO_NIL(movie);
   reallyAttached = NO;
-  [movie removeFromParentViewController];
 }
 
 - (void)windowWillClose
