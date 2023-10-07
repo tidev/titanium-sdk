@@ -868,6 +868,15 @@ properties:
         The web view's content can also be set using the [data](Titanium.UI.WebView.data) or
         [url](Titanium.UI.WebView.url) properties.
 
+        If you want to get the HTML content of a remote URL you can grab it with this `evalJS` call:
+        ``` js
+        webview.addEventListener('load', function() {
+          webview.evalJS('document.documentElement.outerHTML.toString()', function(data) {
+            console.log(data);
+          });
+        });
+        ```
+
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
