@@ -14,7 +14,7 @@ As of this GA release, the previous Titanium SDK patch release (12.2.0) is no lo
 * narbs
   * [13922] fix(ios): request full access to calendar on ios17 to retain backward compatibility with ios16 (#13923) ([25ab480](https://github.com/tidev/titanium_mobile/commit/25ab480e676591cbb635fa41bf4364ce7614ce82))
 
-* m1ga
+* Michael Gangolf
   * ioslib 1.7.35 ([c6678d8](https://github.com/tidev/titanium_mobile/commit/c6678d849393bf6c0e8ca876a40ba502761d450e))
   * fix Android camera with overlay issues ([d56de28](https://github.com/tidev/titanium_mobile/commit/d56de28d2da32fe4adc174a5f527d163c55910b5))
   * update to new V8Snapshot generator ([ece412a](https://github.com/tidev/titanium_mobile/commit/ece412aff7c0c9ccccea59dbf0f67345f1bf0035))
