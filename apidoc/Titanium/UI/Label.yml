@@ -4,7 +4,7 @@ summary: A text label, with an optional background image.
 description: |
     | Android | iOS |
     | ------- | --- |
-    | ![Android](./label_andorid.png) |  |
+    | ![Android](./label_android.png) |  |
 
     Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
