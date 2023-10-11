@@ -140,10 +140,12 @@ properties:
     platforms: [android, iphone, ipad, macos]
 
   - name: html
-    summary: Simple HTML formatting.
+    summary: Pass a HTML-based string and it will be formatted accordingly.
     description: |
-        For iOS parity you can use Attributed String [html](Titanium.UI.AttributedString.html)
-    platforms: [android]
+        Note that complex html structures like images are not supported.
+        Use a <Titanium.UI.WebView> for those cases.
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "0.8.0", iphone: "12.3.0", ipad: "12.3.0", macos: "12.3.0" }
     type: String
 
   - name: includeFontPadding

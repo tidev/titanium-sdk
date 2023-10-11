@@ -21,19 +21,11 @@
 - (void)_initWithProperties:(NSDictionary *)properties
 {
   NSString *html = [properties valueForKey:@"html"];
-  if (html) {
-    _attributedString = [[NSAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
-                                                         options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
-                                                           NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
-                                              documentAttributes:nil
-                                                           error:nil];
-  } else {
-    NSString *text = [properties valueForKey:@"text"];
-    if (!text) {
-      DebugLog(@"[WARN] Ti.UI.AttributedString.text not set");
-    }
-    _attributedString = [[NSMutableAttributedString alloc] initWithString:text];
+  NSString *text = [properties valueForKey:@"text"];
+  if (!text) {
+    DebugLog(@"[WARN] Ti.UI.AttributedString.text not set");
   }
+  _attributedString = [[NSMutableAttributedString alloc] initWithString:text];
   attributes = [[NSMutableArray alloc] init];
   [super _initWithProperties:properties];
 }
