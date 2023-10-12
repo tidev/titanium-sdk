@@ -20,7 +20,6 @@
 
 - (void)_initWithProperties:(NSDictionary *)properties
 {
-  NSString *html = [properties valueForKey:@"html"];
   NSString *text = [properties valueForKey:@"text"];
   if (!text) {
     DebugLog(@"[WARN] Ti.UI.AttributedString.text not set");
