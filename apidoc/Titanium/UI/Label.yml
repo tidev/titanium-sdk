@@ -4,7 +4,7 @@ summary: A text label, with an optional background image.
 description: |
     | Android | iOS |
     | ------- | --- |
-    | ![Android](./label_andorid.png) |  |
+    | ![Android](./label_android.png) |  |
 
     Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
@@ -140,8 +140,12 @@ properties:
     platforms: [android, iphone, ipad, macos]
 
   - name: html
-    summary: Simple HTML formatting.
-    platforms: [android]
+    summary: Pass a HTML-based string and it will be formatted accordingly.
+    description: |
+        Note that complex html structures like images are not supported.
+        Use a <Titanium.UI.WebView> for those cases.
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "0.8.0", iphone: "12.3.0", ipad: "12.3.0", macos: "12.3.0" }
     type: String
 
   - name: breakStrategy
