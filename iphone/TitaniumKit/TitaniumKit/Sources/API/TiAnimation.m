@@ -23,7 +23,7 @@
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
-@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity, bounce;
+@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity;
 @synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
 - (id)initWithDictionary:(NSDictionary *)properties_ context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
@@ -99,7 +99,6 @@
     SET_FLOAT_PROP(delay, properties);
     SET_FLOAT_PROP(dampingRatio, properties);
     SET_FLOAT_PROP(springVelocity, properties);
-    SET_FLOAT_PROP(bounce, properties);
     SET_INT_PROP(curve, properties);
     SET_INT_PROP(repeat, properties);
     SET_BOOL_PROP(visible, properties);
@@ -160,7 +159,6 @@
   RELEASE_TO_NIL(view);
   RELEASE_TO_NIL(dampingRatio);
   RELEASE_TO_NIL(springVelocity);
-  RELEASE_TO_NIL(bounce);
   RELEASE_TO_NIL(properties);
   [animatedViewProxy release];
   [super dealloc];
@@ -640,27 +638,13 @@
     };
 
     if (dampingRatio != nil || springVelocity != nil) {
-#ifdef __IPHONE_17_0
-      if ([TiUtils isIOSVersionOrGreater:@"17.0"] && bounce != nil) {
-        [UIView animateWithSpringDuration:animationDuration
-                                   bounce:[bounce floatValue]
-                    initialSpringVelocity:[springVelocity floatValue]
-                                    delay:([delay doubleValue] / 1000)
-                                  options:options
-                               animations:animation
-                               completion:complete];
-      } else {
-#endif
-        [UIView animateWithDuration:animationDuration
-                              delay:([delay doubleValue] / 1000)
-             usingSpringWithDamping:[dampingRatio floatValue]
-              initialSpringVelocity:[springVelocity floatValue]
-                            options:options
-                         animations:animation
-                         completion:complete];
-#ifdef __IPHONE_16_4
-      }
-#endif
+      [UIView animateWithDuration:animationDuration
+                            delay:([delay doubleValue] / 1000)
+           usingSpringWithDamping:[dampingRatio floatValue]
+            initialSpringVelocity:[springVelocity floatValue]
+                          options:options
+                       animations:animation
+                       completion:complete];
     } else {
       [UIView animateWithDuration:animationDuration
                             delay:([delay doubleValue] / 1000)

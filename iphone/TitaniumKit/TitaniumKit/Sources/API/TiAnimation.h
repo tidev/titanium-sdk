@@ -139,7 +139,6 @@
 @property (nonatomic, retain, readwrite) TiProxy *view;
 @property (nonatomic, retain, readwrite) NSNumber *dampingRatio;
 @property (nonatomic, retain, readwrite) NSNumber *springVelocity;
-@property (nonatomic, retain, readwrite) NSNumber *bounce;
 
 + (TiAnimation *)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn;
 
