@@ -1228,6 +1228,13 @@ properties:
     type: Number
     permission: read-only
 
+  - name: NO_FOCUS
+    summary: Constant for camera didn't focus when taking a trying to take a picture.
+    type: Number
+    permission: read-only
+    since:
+        android: "12.2.1"
+
   - name: VIDEO_CONTROL_DEFAULT
     deprecated:
         since: "7.0.0"
@@ -2370,7 +2377,7 @@ properties:
   - name: code
     summary: Error code, if applicable.
     type: Number
-    constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.UNKNOWN_ERROR]
+    constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.UNKNOWN_ERROR, Titanium.Media.NO_FOCUS]
     accessors: false
 
   - name: success
