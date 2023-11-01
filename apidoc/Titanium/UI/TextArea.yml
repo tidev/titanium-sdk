@@ -300,6 +300,14 @@ properties:
     default: No hint text.
     platforms: [android]
 
+  - name: hinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [hintText](Titanium.UI.TextArea.hintText) property.
+    description: Only one of `hintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.2.0"
+
   - name: hintTextColor
     summary: Color of hint text that displays when field is empty.
     platforms: [android]

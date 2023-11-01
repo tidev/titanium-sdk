@@ -32,6 +32,7 @@ import android.app.Activity;
 		TiC.PROPERTY_ENABLE_RETURN_KEY,
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_FULLSCREEN,
+		TiC.PROPERTY_HINT_TEXT_ID,
 		TiC.PROPERTY_HINT_TEXT,
 		TiC.PROPERTY_HINT_TEXT_COLOR,
 		TiC.PROPERTY_HINT_TYPE,
@@ -59,6 +60,14 @@ public class TextAreaProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_EDITABLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_COPY, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
+	}
+
+	@Override
+	protected KrollDict getLangConversionTable()
+	{
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_HINT_TEXT_ID);
+		return table;
 	}
 
 	@Override
