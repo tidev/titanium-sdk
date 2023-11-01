@@ -1,5 +1,5 @@
 /**
- * Titanium SDK
+ * Appcelerator Titanium Mobile
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -20,13 +20,13 @@
 // much smoother on the new window during a tab transition
 #define EXTERNAL_JS_WAIT_TIME (150 / 1000)
 
-/** 
+/**
  * This class is a helper that will be used when we have an external
  * window w/ JS so that we can attempt to wait for the window context
  * to be fully loaded on the UI thread (since JS runs in a different
  * thread) and attempt to wait up til EXTERNAL_JS_WAIT_TIME before
  * timing out. If timed out, will go ahead and start opening the window
- * and as the JS context finishes, will continue opening from there - 
+ * and as the JS context finishes, will continue opening from there -
  * this has a nice effect of immediately opening if fast but not delaying
  * if slow (so you get weird button delay effects for example)
  *
@@ -319,7 +319,7 @@
 
 - (void)setNavTintColor:(id)color
 {
-  __block TiColor *newColor = [[TiUtils colorValue:color] retain];
+  __block TiColor *newColor = [TiUtils colorValue:color];
 
   [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
   TiThreadPerformOnMainThread(
@@ -332,7 +332,6 @@
           UINavigationBar *navBar = [[controller navigationController] navigationBar];
           [navBar setTintColor:[newColor color]];
           [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-          [newColor release];
         }
       },
       NO);
@@ -405,7 +404,13 @@
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
-
+    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
+      //      if ([self shouldUseNavBarApperance]) {
+      //        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
+      //        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
+      //      }
+      navigationBar.largeTitleTextAttributes = theAttributes;
+    }
     if ([self shouldUseNavBarApperance]) {
       navigationBar.standardAppearance.titleTextAttributes = theAttributes;
       navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
@@ -454,10 +459,10 @@
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
     if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-      //      if ([self shouldUseNavBarApperance]) {
-      //        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
-      //        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
-      //      }
+      if ([self shouldUseNavBarApperance]) {
+        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
+        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
+      }
       navigationBar.largeTitleTextAttributes = theAttributes;
     }
   }
