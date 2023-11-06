@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -535,8 +535,8 @@ public class TiDrawableReference
 	 */
 	public Bitmap getBitmap(int destWidth, int destHeight)
 	{
-		return getBitmap(null, TiConvert.toTiDimension(new Integer(destWidth), TiDimension.TYPE_WIDTH),
-						 TiConvert.toTiDimension(new Integer(destHeight), TiDimension.TYPE_HEIGHT));
+		return getBitmap(null, TiConvert.toTiDimension(Integer.valueOf(destWidth), TiDimension.TYPE_WIDTH),
+						 TiConvert.toTiDimension(Integer.valueOf(destHeight), TiDimension.TYPE_HEIGHT));
 	}
 	/**
 	 * Gets the bitmap, scaled to a specific width, with the height matching the

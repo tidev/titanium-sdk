@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -271,6 +271,11 @@
 - (void)setEnabled_:(id)value
 {
   [[self button] setEnabled:[TiUtils boolValue:value]];
+}
+
+- (void)setTooltip_:(id)value
+{
+  [[self button] setToolTip:[TiUtils stringValue:value]];
 }
 
 - (void)setTitle_:(id)value

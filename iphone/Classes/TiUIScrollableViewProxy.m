@@ -1,13 +1,17 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UISCROLLABLEVIEW
 
-#import "TiUIScrollableViewProxy.h"
+#if TARGET_OS_MACCATALYST
+#import <AppKit/AppKit.h>
+#endif
+
 #import "TiUIScrollableView.h"
+#import "TiUIScrollableViewProxy.h"
 
 @implementation TiUIScrollableViewProxy
 @synthesize viewProxies;
@@ -88,7 +92,7 @@
 #else
     TiThreadPerformOnMainThread(
         ^{
-          [[oldViewProxy view] removeFromSuperview];
+          [[oldViewProxy view] performSelector:@selector(removeFromSuperview)];
         },
         YES);
 #endif

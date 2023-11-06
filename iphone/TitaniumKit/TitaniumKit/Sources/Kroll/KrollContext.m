@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -194,7 +194,7 @@ static JSValueRef StringFormatCallback(JSContextRef jsContext, JSObjectRef jsFun
 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *format = [KrollObject toID:ctx value:args[0]];
-#if TARGET_OS_SIMULATOR && !__LP64__
+#if TARGET_OS_SIMULATOR && !defined(IS_APPLE_SILICON_DEVICE)
   // convert string references to objects
   format = [format stringByReplacingOccurrencesOfString:@"%@" withString:@"%@_TIDELIMITER_"];
   format = [format stringByReplacingOccurrencesOfString:@"%s" withString:@"%@_TIDELIMITER_"];

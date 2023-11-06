@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -486,6 +486,22 @@
   [self padLabel];
   [(TiViewProxy *)[self proxy] contentsWillChange];
 #endif
+}
+
+- (void)setHtml_:(id)html
+{
+  ENSURE_SINGLE_ARG(html, NSString);
+  [[self proxy] replaceValue:html forKey:@"html" notification:NO];
+
+  NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                          options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                            NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                               documentAttributes:nil
+                                                                            error:nil];
+
+  [[self label] setAttributedText:attributedString];
+  [self padLabel];
+  [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 - (void)setBackgroundPaddingLeft_:(id)left

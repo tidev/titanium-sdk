@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -514,6 +514,23 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		if (v != null) {
 			((TiUIWebView) v).zoomBy(value);
 		}
+	}
+
+	@Kroll.setProperty
+	public void setAllowFileAccess(boolean enabled)
+	{
+		setPropertyAndFire(TiC.PROPERTY_ALLOW_FILE_ACCESS, enabled);
+	}
+
+	@Kroll.getProperty
+	public boolean getAllowFileAccess()
+	{
+		boolean enabled = true;
+
+		if (hasProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS)) {
+			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS));
+		}
+		return enabled;
 	}
 
 	@Kroll.getProperty

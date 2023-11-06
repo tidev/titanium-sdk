@@ -120,3 +120,21 @@ examples:
         win.add(collapsingToolbar);
         win.open();
         ```
+  - title: Alloy example
+    example: |
+        ``` js
+        <Alloy>
+        	<Window>
+
+        		<CollapseToolbar platform="android">
+
+        			<ContentView>
+        				<View backgroundColor="red" height="Ti.UI.SIZE">
+        					<Label>test</Label>
+        				</View>
+        			</ContentView>
+        		</CollapseToolbar>
+
+        	</Window>
+        </Alloy>
+        ```

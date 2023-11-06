@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -331,6 +331,13 @@ public class TiUIWebView extends TiUIView
 				// ignore...
 			}
 		}
+
+		boolean allowFileAccess = false; //file access should be false by default: https://developer.android.com/reference/android/webkit/WebSettings#setAllowFileAccess(boolean)
+		if (proxy.hasProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS)) {
+			allowFileAccess = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS), false);
+		}
+
+		settings.setAllowFileAccess(allowFileAccess);
 
 		// enable zoom controls by default
 		boolean enableZoom = true;

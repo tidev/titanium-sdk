@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -96,7 +96,7 @@ public class TiUICollapseToolbar extends TiUIView
 
 			setNativeView(layout);
 		} catch (Exception e) {
-			Log.i(TAG, "Layout error: " + e.getMessage());
+			Log.e(TAG, "Layout error: " + e.getMessage());
 		}
 	}
 

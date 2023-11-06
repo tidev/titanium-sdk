@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -28,6 +28,8 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.fonts.Font;
+import android.graphics.fonts.SystemFonts;
 import android.os.Build;
 import android.text.InputType;
 import android.text.util.Linkify;
@@ -40,7 +42,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 @Kroll.module
 public class UIModule extends KrollModule implements TiApplication.ConfigurationChangedListener
@@ -439,6 +443,24 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	@Kroll.constant
 	public static final int USER_INTERFACE_STYLE_UNSPECIFIED = Configuration.UI_MODE_NIGHT_UNDEFINED;
 
+	@Kroll.constant
+	public static final int BREAK_SIMPLE = 0;
+	@Kroll.constant
+	public static final int BREAK_HIGH_QUALITY = 1;
+	@Kroll.constant
+	public static final int BREAK_BALANCED = 2;
+
+	@Kroll.constant
+	public static final int HYPHEN_NONE = 0;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL = 1;
+	@Kroll.constant
+	public static final int HYPHEN_FULL = 2;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL_FAST = 3;
+	@Kroll.constant
+	public static final int HYPHEN_FULL_FAST = 4;
+
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
 	public UIModule()
@@ -474,6 +496,31 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 		}
 	}
 
+	@Kroll.getProperty
+	public String[] availableSystemFontFamilies()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			Set<Font> fonts = SystemFonts.getAvailableFonts();
+			String[] list = new String[fonts.size()];
+			int count = 0;
+			for (Font font: fonts) {
+				list[count] = font.getFile().getName().replaceFirst("[.][^.]+$", "");
+				count++;
+			}
+			return list;
+		} else {
+			String path = "/system/fonts";
+			File file = new File(path);
+			File[] ff = file.listFiles();
+			String[] list = new String[ff.length];
+			int count = 0;
+			for (File font: ff) {
+				list[count] = font.getName().replaceFirst("[.][^.]+$", "");
+				count++;
+			}
+			return list;
+		}
+	}
 	@Kroll.setProperty(runOnUiThread = true)
 	public void setBackgroundImage(Object image)
 	{
