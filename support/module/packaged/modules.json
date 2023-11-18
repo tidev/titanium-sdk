@@ -54,8 +54,8 @@
 	"commonjs": {},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.5/hyperloop-7.0.5.zip",
-			"integrity": "sha512-SK8f8nRT63mDiT5k8/JNPXmbQchxdyNyF7tBSTYMqHDxsHL3x0bXr1UuRNXj2Xqq/W3nQf4WiB+M1R+CRRJzsw=="
+			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.6/hyperloop-7.0.6.zip",
+			"integrity": "sha512-ZHmm7GINiCyrjvNMn232G1Tkby6PhwsmSxPZlPNDWH4jRn6iCpjIqX1Ha12MBedma01a4hlvARLaiUQ9j3SPow=="
 		}
 	}
 }
