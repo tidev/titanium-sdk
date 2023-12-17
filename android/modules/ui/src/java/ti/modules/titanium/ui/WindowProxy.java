@@ -45,6 +45,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.transition.ChangeBounds;
 import android.transition.ChangeClipBounds;
 import android.transition.ChangeImageTransform;
@@ -314,10 +318,40 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				Log.w(TAG, "Trying to set a barColor on a Window with ActionBar disabled. Property will be ignored.");
 			}
 		}
+
+		// Handle titleAttributes property.
+		if (hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+			KrollDict innerAttributes = getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
+			int colorInt = TiColorHelper.parseColor(
+				TiConvert.toString(innerAttributes.getString(TiC.PROPERTY_COLOR)), activity);
+			ActionBar actionBar = activity.getSupportActionBar();
+
+			if (actionBar != null) {
+				changeTitleColor(actionBar, colorInt);
+			} else {
+				Log.w(TAG,
+					"Trying to set a titleAttributes on a Window with ActionBar disabled. Property will be ignored.");
+			}
+		}
 		activity.getActivityProxy().getDecorView().add(this);
 
 		// Need to handle the cached activity proxy properties and url window in the JS side.
 		callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
+	}
+
+	private void changeTitleColor(ActionBar actionBar, int colorInt)
+	{
+		SpannableStringBuilder ssb;
+		if (actionBar.getTitle() instanceof SpannableStringBuilder) {
+			ssb = (SpannableStringBuilder) actionBar.getTitle();
+		} else {
+			String abTitle = TiConvert.toString(actionBar.getTitle());
+			ssb = new SpannableStringBuilder(abTitle);
+		}
+
+		ssb.setSpan(new ForegroundColorSpan(colorInt),
+			0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		actionBar.setTitle(ssb);
 	}
 
 	@Override
@@ -403,6 +437,23 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					// Change to background to the new color.
 					actionBar.setBackgroundDrawable(
 						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value), activity)));
+				} else {
+					// Log a warning if there is no ActionBar available.
+					Log.w(TAG, "There is no ActionBar available for this Window.");
+				}
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				// Get a reference to the ActionBar.
+				AppCompatActivity activity = windowActivity.get();
+				ActionBar actionBar = activity.getSupportActionBar();
+				// Check if it is available ( app is using a theme with one or a Toolbar is used as one ).
+				if (actionBar != null) {
+					HashMap innerAttributes = (HashMap) value;
+					changeTitleColor(actionBar,
+						TiConvert.toColor(innerAttributes.get(TiC.PROPERTY_COLOR), activity));
 				} else {
 					// Log a warning if there is no ActionBar available.
 					Log.w(TAG, "There is no ActionBar available for this Window.");
