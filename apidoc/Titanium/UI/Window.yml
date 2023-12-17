@@ -1409,8 +1409,8 @@ properties:
     summary: Title text attributes of the window.
     description: |
         Use this property to specify the color, font and shadow attributes of the title.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     type: titleAttributesParams
 
   - name: titleControl
@@ -1993,8 +1993,8 @@ properties:
 ---
 name: titleAttributesParams
 summary: Dictionary of options for the <Titanium.UI.Window.titleAttributes> property.
-platforms: [iphone, ipad, macos]
-since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
+since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 examples:
   - title: Simple Example
     example: |
@@ -2017,14 +2017,18 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: font
     summary: Font to use for the window title.
     type: Font
+    platforms: [iphone, ipad, macos]
 
   - name: shadow
     summary: Shadow color and offset for the window title.
     type: shadowDict
+    platforms: [iphone, ipad, macos]
 
 ---
 name: shadowDict
