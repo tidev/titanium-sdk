@@ -162,7 +162,7 @@ E('ERR_INTERNAL_ASSERTION', (message) => {
 	const suffix = 'This is caused by either a bug in Titanium '
 		+ 'or incorrect usage of Titanium internals.\n'
 		+ 'Please open an issue with this stack trace at '
-		+ 'https://jira.appcelerator.org\n';
+		+ 'https://github.com/tidev/titanium-sdk/issues\n';
 	return message === undefined ? suffix : `${message}\n${suffix}`;
 }, Error);
 E('ERR_INVALID_ARG_TYPE', (name, expected, actual) => {

@@ -4,7 +4,7 @@
  * @module cli/_build
  *
  * @copyright
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -337,7 +337,7 @@ iOSBuilder.prototype.getDeviceInfo = function getDeviceInfo() {
 					}
 				}, this);
 			}, this);
-	} else if (argv.target === 'macos') {
+	} else if (argv.target === 'macos' || argv.target === 'dist-macappstore') {
 		deviceInfo.devices = {};
 	}
 	return this.deviceInfoCache = deviceInfo;
@@ -1276,6 +1276,20 @@ iOSBuilder.prototype.configOptionTarget = function configOptionTarget(order) {
 				case 'macos':
 					_t.conf.options['device-id'].required = false;
 					break;
+
+				case 'dist-macappstore':
+
+					_t.conf.options['deploy-type'].values = [ 'production' ];
+					_t.conf.options['device-id'].required = false;
+					_t.conf.options['distribution-name'].required = true;
+					_t.conf.options['pp-uuid'].required = true;
+
+					// build lookup maps
+					iosInfo.provisioning.distribution.forEach(function (p) {
+						_t.provisioningProfileLookup[p.uuid.toLowerCase()] = p;
+					});
+
+					break;
 			}
 		},
 		default: 'simulator',
@@ -1400,7 +1414,9 @@ iOSBuilder.prototype.configOptionWatchDeviceId = function configOptionWatchDevic
  * error.
  */
 iOSBuilder.prototype.initTiappSettings = function initTiappSettings() {
-	if (this._tiappSettingsInitialized) {
+	// This logic will also run on a module build when a --device-id argument is provided,
+	// so skip if we're not building an app.
+	if (this._tiappSettingsInitialized || this.cli.argv.type !== 'app') {
 		return;
 	}
 
@@ -1893,7 +1909,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
-				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer'.cyan) + '\n');
+				logger.log(__('Download and install the certificate from %s', 'https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer'.cyan) + '\n');
 				process.exit(1);
 			}
 
@@ -2858,7 +2874,7 @@ iOSBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecomp
 			return true;
 		}
 
-		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+		if (this.target === 'dist-adhoc' || this.target === 'dist-appstore' || this.target === 'dist-macappstore') {
 			this.logger.info(__('Forcing rebuild: distribution builds require \'xcodebuild\' to be run so that resources are copied into the archive'));
 			return true;
 		}
@@ -3263,7 +3279,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 	}
 
 	// this path is required to properly build for production
-	const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.tiapp.name, 'BuildProductsPath');
+	const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
 
 	// add the post-compile build phase for dist-appstore builds
 	if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
@@ -3320,7 +3336,7 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			outputPaths: [],
 			runOnlyForDeploymentPostprocessing: 0,
 			shellPath: '/bin/sh',
-			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir \\"${buildProductsPath}\\""`,
+			shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
 			showEnvVarsInLog: 0
 		};
 		xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -4654,7 +4670,7 @@ iOSBuilder.prototype._scrubiOSSourceFile = function _scrubiOSSourceFile(contents
 			[ /(?!TitaniumKit)(Titanium|Appcelerator)/g, namespace ],
 			[ /titanium/g, '_' + namespace.toLowerCase() ],
 			[ /(org|com)\.appcelerator/g, '$1.' + namespace.toLowerCase() ],
-			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Appcelerator Titanium Mobile' ], // eslint-disable-line security/detect-non-literal-regexp
+			[ new RegExp('\\* ' + namespace + ' ' + namespace + ' Mobile', 'g'), '* Titanium SDK' ], // eslint-disable-line security/detect-non-literal-regexp
 			[ new RegExp('\\* Copyright \\(c\\) \\d{4}(-\\d{4})? by ' + namespace + ', Inc\\.', 'g'), '* Copyright (c) 2009-' + (new Date()).getFullYear() + ' by Appcelerator, Inc.' ], // eslint-disable-line security/detect-non-literal-regexp
 			[ /(\* Please see the LICENSE included with this distribution for details.\n)(?! \*\s*\* WARNING)/g, '$1 * \n * WARNING: This is generated code. Modify at your own risk and without support.\n' ]
 		];
@@ -5920,7 +5936,11 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
 
 	// Do we need to flatten the default icon?
-	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha) {
+	let osName = this.xcodeTargetOS;
+	if (this.target === 'macos' || this.target === 'dist-macappstore') {
+		osName = 'maccatalyst';
+	}
+	if (missingIcons.length !== 0 && defaultIcon && defaultIconChanged && defaultIconHasAlpha && osName !== 'maccatalyst') {
 		this.defaultIcons = [ flattenedDefaultIconDest ];
 		flattenIcons.push({
 			name: path.basename(defaultIcon),
@@ -6548,7 +6568,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 
 	const data = ti.i18n.load(this.projectDir, this.logger),
 		header = '/**\n'
-			+ ' * Appcelerator Titanium\n'
+			+ ' * Titanium SDK\n'
 			+ ' * this is a generated file - DO NOT EDIT\n'
 			+ ' */\n\n';
 
