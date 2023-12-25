@@ -212,7 +212,7 @@ events:
       - name: percentage
         summary: Percentage of the video that is buffered/loaded.
         type: Number
-    since: '12.1.0'
+    since: '12.3.0'
     platforms: [android]
 
   - name: complete
