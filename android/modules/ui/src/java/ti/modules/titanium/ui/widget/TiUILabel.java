@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -22,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
+import android.os.Build;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Selection;
@@ -34,6 +35,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.text.TextPaint;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import androidx.annotation.NonNull;
@@ -470,6 +472,18 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_BREAK_STRATEGY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setBreakStrategy(TiConvert.toInt(d.get(TiC.PROPERTY_BREAK_STRATEGY)));
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_HYPHENATION_FREQUENCY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setHyphenationFrequency(TiConvert.toInt(d.get(TiC.PROPERTY_HYPHENATION_FREQUENCY)));
+			}
+		}
+
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
@@ -597,11 +611,19 @@ public class TiUILabel extends TiUIView
 			} else {
 				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
 				if (oldFontSize != -1) {
-					tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, oldFontSize);
+					tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, oldFontSize);
 					tv.requestLayout();
 				}
 			}
 
+		} else if (key.equals(TiC.PROPERTY_BREAK_STRATEGY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setBreakStrategy(TiConvert.toInt(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_HYPHENATION_FREQUENCY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setHyphenationFrequency(TiConvert.toInt(newValue));
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
