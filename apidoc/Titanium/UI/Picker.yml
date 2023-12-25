@@ -291,7 +291,7 @@ properties:
         (or `value`) and `to` to define a preselected range.
     type: Boolean
     platforms: [android]
-    since: "12.2.0"
+    since: "12.3.0"
     default: false
 
   - name: format24
