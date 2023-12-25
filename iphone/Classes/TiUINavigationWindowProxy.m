@@ -1,5 +1,5 @@
 /**
- * Axway Titanium
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -393,14 +393,14 @@
     UIViewController *parentController = [self windowHoldingController];
     [parentController addChildViewController:navController];
     [navController didMoveToParentViewController:parentController];
-    [navController viewWillAppear:animated];
+    [navController beginAppearanceTransition:YES animated:animated];
   }
   [super viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController viewWillDisappear:animated];
+    [navController endAppearanceTransition];
   }
   [super viewWillDisappear:animated];
 }
@@ -408,14 +408,14 @@
 - (void)viewDidAppear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController viewDidAppear:animated];
+    [navController beginAppearanceTransition:YES animated:animated];
   }
   [super viewDidAppear:animated];
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController viewDidDisappear:animated];
+    [navController endAppearanceTransition];
   }
   [super viewDidDisappear:animated];
 }

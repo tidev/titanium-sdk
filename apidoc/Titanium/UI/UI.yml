@@ -167,6 +167,9 @@ description:  |
       * logo-dark@3x.png
 
     And you would reference the image as before using `logo-dark.png`
+
+    Android:
+    You can use the native `app/assets/android/images/res-night` folder (extend them with e.g. `res-night-xxhdpi` if needed) for dark-mode images.
 extends: Titanium.Module
 since: "0.4"
 platforms: [android, iphone, ipad, macos]
@@ -181,19 +184,6 @@ events:
     osver: {ios: {min: "13.0"}}
 
 methods:
-  - name: create2DMatrix
-    summary: Creates and returns an instance of <Titanium.UI.2DMatrix>.
-    returns:
-        type: Titanium.UI.2DMatrix
-    parameters:
-      - name: parameters
-        summary: Initial transformation of the matrix.
-        type: Matrix2DCreationDict
-        optional: true
-    deprecated:
-        since: "8.0.0"
-        notes: Use [Titanium.UI.createMatrix2D](Titanium.UI.createMatrix2D) instead.
-
   - name: createMatrix2D
     summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
     returns:
@@ -203,19 +193,6 @@ methods:
         summary: Initial transformation of the matrix.
         type: Matrix2DCreationDict
         optional: true
-
-  - name: create3DMatrix
-    summary: Creates and returns an instance of <Titanium.UI.3DMatrix>.
-    returns:
-        type: Titanium.UI.3DMatrix
-    parameters:
-      - name: parameters
-        summary: Initial transformation of the matrix.
-        type: Matrix3DCreationDict
-        optional: true
-    deprecated:
-        since: "8.0.0"
-        notes: Use [Titanium.UI.createMatrix3D](Titanium.UI.createMatrix3D) instead.
 
   - name: createMatrix3D
     summary: Creates and returns an instance of <Titanium.UI.Matrix3D>.
@@ -1564,6 +1541,62 @@ properties:
     permission: read-only
     platforms: [android]
 
+  - name: HYPHEN_NONE
+    summary: No hyphenation.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_NORMAL
+    summary: Less frequent hyphenation, useful for informal use cases, such as chat messages.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_FULL
+    summary: Standard amount of hyphenation, useful for running text and for screens with limited space for text.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_NORMAL_FAST
+    summary: Same to hyphenationFrequency="normal" but using faster algorithm for measuring hyphenation break points.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: HYPHEN_FULL_FAST
+    summary: Same to hyphenationFrequency="full" but using faster algorithm for measuring hyphenation break points.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: BREAK_SIMPLE
+    summary: Line breaking uses simple strategy.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: BREAK_HIGH_QUALITY
+    summary: Line breaking uses high-quality strategy, including hyphenation.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
+  - name: BREAK_BALANCED
+    summary: Line breaking strategy balances line lengths.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+    platforms: [android]
+
   - name: TEXT_ELLIPSIZE_TRUNCATE_WORD_WRAP
     summary: Add ellipses at word boundaries, unless the word itself doesn't fit on a single line.
     description: |
@@ -2747,6 +2780,13 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
+  - name: availableSystemFontFamilies
+    summary: Returns a list of font families that are provided by the system.
+    type: Array<String>
+    permission: read-only
+    platforms: [android, iphone, ipad, macos]
+    since: "12.1.0"
+
   - name: backgroundColor
     summary: |
         Sets the background color of the master view (when there are no windows or other top-level
@@ -2804,6 +2844,25 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "9.1.0"
 
+  - name: cutoutSize
+    summary:  Returns the position and shape of the Android notch. Read more about the notch [here](https://developer.android.com/develop/ui/views/layout/display-cutout).
+    description: |
+        Using Android 9+ it will return the bounding box of the Android notch. It will return `top`,`left, `width` and `height`.
+    type: CutoutSize
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: statusBarHeight
+    summary: The total height of the status bar including safe area padding.
+    description: |
+        Use this property to determine an absolute spacing to the top in full screen windows. Note: For a more flexible approach, e.g.
+        when allowing rotation, we recommend using the <Titanium.UI.Window.safeAreaPadding> property of the related window.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad, macos, android]
+    since: "12.1.0"
+
 examples:
   - title: Color Demo
     example: |
@@ -2843,3 +2902,25 @@ examples:
         win.add(table);
         win.open();
         ```
+
+---
+name: CutoutSize
+summary: Dictionary object of parameters for the <Titanium.UI.cutoutSize>.
+since: "12.1.0"
+platforms: [android]
+properties:
+  - name: top
+    type: Number
+    summary: The top position of the cutout.
+
+  - name: left
+    type: Number
+    summary: The left position of the cutout.
+
+  - name: width
+    type: Number
+    summary: The width of the cutout
+
+  - name: height
+    type: Number
+    summary: The height of the cutout

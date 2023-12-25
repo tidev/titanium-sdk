@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -378,6 +378,17 @@ extern NSString *const TI_APPLICATION_GUID;
 
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
+
+#ifdef __IPHONE_16_4
+  // Ensure that the JSContext is debuggable during development
+  if (@available(iOS 16.4, *)) {
+    BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
+
+    if (!isProduction) {
+      JSGlobalContextSetInspectable([[(KrollBridge *)TiApp.app.krollBridge krollContext] context], YES);
+    }
+  }
+#endif
 
   [super startup];
 }

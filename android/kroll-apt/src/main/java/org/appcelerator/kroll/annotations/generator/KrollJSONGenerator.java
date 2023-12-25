@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -338,9 +338,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 					proxyProperties.put("proxyAttrs", proxyAttrs);
 
 					if (isModule) {
-						StringBuilder b = new StringBuilder();
-						b.append(packageName).append(".").append(proxyClassName);
-						Map<Object, Object> module = getModule(b.toString());
+						Map<Object, Object> module = getModule(packageName + "." + proxyClassName);
 						module.put("apiName", apiName);
 					}
 
@@ -509,7 +507,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 			Map<Object, Object> dynamicProperty = new HashMap<>(params);
 
 			String methodName = utils.getName(element);
-			String defaultName = new String(methodName);
+			String defaultName = methodName;
 			if (defaultName.startsWith("get") || defaultName.startsWith("set")) {
 				defaultName = Character.toLowerCase(defaultName.charAt(3)) + defaultName.substring(4);
 			} else if (defaultName.startsWith("is")) {

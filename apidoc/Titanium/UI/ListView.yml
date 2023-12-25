@@ -4,9 +4,9 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) | ![Windows](./listview_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) |
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
 
@@ -191,7 +191,7 @@ description: |
 
         - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
           be deleted or reordered.
-          
+
         - [requiresEditingToMove](Titanium.UI.ListView.requiresEditingToMove) - Determines if the ListView
           should be able to drag-and-drop without explicitely enabling editing support (like drag bars).
 
@@ -387,9 +387,22 @@ events:
   - name: movestart
     summary: Fired when a list row has started moving.
     description: |
-      This property can be used to change the UI once a new drag-and-drop interaction starts.
+      This event can be used to change the UI once a new drag-and-drop interaction starts.
+      The event properties are available in Titanium SDK 12.0.0+
     since: "11.1.0"
     platforms: [android, iphone, ipad, macos]
+    properties:
+      - name: section
+        summary: List section from which the item is moved.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: section index of the reference item.
+        type: Number
+
+      - name: itemIndex
+        summary: section item index of the reference item.
+        type: Number
 
   - name: moveend
     summary: Fired when a list row has ended moving.
@@ -946,6 +959,16 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: 11.1.0
 
+  - name: forceUpdates
+    summary: Optimize the `continuousUpdate` scrolling event.
+    description: |
+        If `continuousUpdate` is enabled and you set `forceUpdates` to `true` it will fire the scrolling](Titanium.UI.ListView.scrolling) all the time.
+        Otherwise it will only update when a new item is scrolled in (default).
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: 12.3.0
+
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
     description: |
@@ -1088,7 +1111,6 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "10.0.0"
 
   - name: listSeparatorInsets
@@ -1505,7 +1527,7 @@ examples:
         create a refresh control.
 
         ``` js
-        var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        var win = Ti.UI.createWindow();
         var listView = Ti.UI.createListView({height:'90%', top:0});
         var sections = [];
 
@@ -1665,7 +1687,7 @@ examples:
         `app/views/index.xml`:
         ``` xml
         <Alloy>
-            <Window backgroundColor="white">
+            <Window>
                 <ListView id="listView" defaultItemTemplate="template">
 
                     <!-- The Templates tag sets the ListView's templates property -->

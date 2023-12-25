@@ -3,9 +3,9 @@ name: Titanium.UI.Button
 summary: |
     A button widget that has four states: normal, disabled, focused and selected.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./button_android.png) | ![iOS](./button_ios.png) | ![Windows](./button_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./button_android.png) | ![iOS](./button_ios.png) |
 
     A button displays its  selected state while it is being pressed. The focused state is
     only used on Android devices that have navigation keys or a keyboard, to indicate
@@ -356,6 +356,16 @@ properties:
     description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
+  
+  - name: tooltip
+    summary: The default text to display in the control's tooltip.
+    description: |
+         Assigning a value to this property causes the tool tip to be displayed for the view.
+         Setting the property to `null` cancels the display of the tool tip for the view.
+         Note: This property is only used for apps targeting macOS Catalyst.
+    type: String
+    osver: { ios: { min: "15.0" } }
+    since: "12.1.0"
 
   - name: verticalAlign
     summary: |
@@ -370,6 +380,7 @@ examples:
   - title: Simple Button Example
     example: |
         ``` js
+        var win = Ti.UI.createWindow();
         var button = Titanium.UI.createButton({
             title: 'Hello',
             top: 10,
@@ -380,6 +391,8 @@ examples:
         {
             Titanium.API.info("You clicked the button");
         });
+        win.add(button);
+        win.open();
         ```
 
   - title: Alloy XML Markup

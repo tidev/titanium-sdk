@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,7 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.Clipboard', () => {
 	let win = null;
-	const waitTime = 250;
+	const waitTime = 1500;
 
 	beforeEach(() => {
 		if (win === null) {

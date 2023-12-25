@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -24,6 +24,7 @@ public class TiC
 	public static final int PERMISSION_CODE_OLD_CALENDAR = 105;
 	public static final int PERMISSION_CODE_MICROPHONE = 106;
 	public static final int PERMISSION_CODE_PUSH_NOTIFICATIONS = 107;
+	public static final int PERMISSION_CODE_MEDIA = 108;
 
 	public static final String PERMISSION_CALENDAR = "calendar";
 	public static final String PERMISSION_CAMERA = "camera";
@@ -241,6 +242,7 @@ public class TiC
 	public static final String PROPERTY_ADD = "add";
 	public static final String PROPERTY_ADDRESS = "address";
 	public static final String PROPERTY_ALLOW_BACKGROUND = "allowBackground";
+	public static final String PROPERTY_ALLOW_FILE_ACCESS = "allowFileAccess";
 	public static final String PROPERTY_ALLOW_MULTIPLE = "allowMultiple";
 	public static final String PROPERTY_ALLOWS_SELECTION_DURING_EDITING = "allowsSelectionDuringEditing";
 	public static final String PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING
@@ -290,7 +292,9 @@ public class TiC
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 	public static final String PROPERTY_BADGE = "badge";
-	public static final String PROPERTY_BADGE_COLOR = "badgeColor";
+	public static final String PROPERTY_BADGE_COLOR = "badgeColor"; // DEPRECATED: Superseded by PROPERTY_BADGE_BACKGROUND_COLOR.
+	public static final String PROPERTY_BADGE_BACKGROUND_COLOR = "badgeBackgroundColor";
+	public static final String PROPERTY_BADGE_TEXT_COLOR = "badgeTextColor";
 	public static final String PROPERTY_TARGET_ITEM_INDEX = "targetItemIndex";
 	public static final String PROPERTY_TARGET_SECTION = "targetSection";
 	public static final String PROPERTY_TARGET_SECTION_INDEX = "targetSectionIndex";
@@ -315,6 +319,7 @@ public class TiC
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
 	public static final String PROPERTY_BROTHER = "brother";
+	public static final String PROPERTY_BREAK_STRATEGY = "breakStrategy";
 	public static final String PROPERTY_BUTTON = "button";
 	public static final String PROPERTY_BUBBLE_PARENT = "bubbleParent";
 	public static final String PROPERTY_BUBBLES = "bubbles";
@@ -430,6 +435,7 @@ public class TiC
 	public static final String PROPERTY_FILTER_ANCHORED = "filterAnchored";
 	public static final String PROPERTY_FILTER_CASE_INSENSITIVE = "filterCaseInsensitive";
 	public static final String PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED = "filterTouchesWhenObscured";
+	public static final String PROPERTY_FILTER_ALWAYS_INCLUDE = "filterAlwaysInclude";
 	public static final String PROPERTY_FIRSTNAME = "firstName";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM = "firstVisibleItem";
 	public static final String PROPERTY_FIRST_VISIBLE_ITEM_INDEX = "firstVisibleItemIndex";
@@ -455,6 +461,7 @@ public class TiC
 	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
 	public static final String PROPERTY_HIDES_BACK_BUTTON = "hidesBackButton";
+	public static final String PROPERTY_HYPHENATION_FREQUENCY = "hyphenationFrequency";
 	public static final String PROPERTY_FREQUENCY = "frequency";
 	public static final String PROPERTY_FRIEND = "friend";
 	public static final String PROPERTY_FROM = "from";
@@ -485,6 +492,7 @@ public class TiC
 	public static final String PROPERTY_HTML = "html";
 	public static final String PROPERTY_HTTP_ONLY = "httponly";
 	public static final String PROPERTY_ICON = "icon";
+	public static final String PROPERTY_ICON_COLOR = "iconColor";
 	public static final String PROPERTY_ICON_LEVEL = "iconLevel";
 	public static final String PROPERTY_ICONIFIED = "iconified";
 	public static final String PROPERTY_ICONIFIED_BY_DEFAULT = "iconifiedByDefault";
@@ -581,6 +589,7 @@ public class TiC
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
+	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";
 	public static final String PROPERTY_NOTE = "note";
 	public static final String PROPERTY_NUMBER = "number";
@@ -744,8 +753,10 @@ public class TiC
 	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
 	public static final String PROPERTY_TABS = "tabs";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	public static final String PROPERTY_TAB_BAR_VISIBLE = "tabBarVisible";
 	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
 	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
+	public static final String PROPERTY_TAB_MODE = "tabMode";
 	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_TEMPLATES = "templates";
@@ -762,6 +773,7 @@ public class TiC
 	public static final String PROPERTY_TINT = "tint";
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLE_ATTRIBUTES = "titleAttributes";
 	public static final String PROPERTY_TITLE_COLOR = "titleColor";
 	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	public static final String PROPERTY_TITLEID = "titleid";
@@ -798,6 +810,7 @@ public class TiC
 	public static final String PROPERTY_VERTICAL_ALIGN = "verticalAlign";
 	public static final String PROPERTY_VIBRATE_PATTERN = "vibratePattern";
 	public static final String PROPERTY_VIDEO_MAX_DURATION = "videoMaximumDuration";
+	public static final String PROPERTY_VIDEO_MAX_SIZE = "videoMaximumSize";
 	public static final String PROPERTY_VIDEO_QUALITY = "videoQuality";
 	public static final String PROPERTY_VISIBLE = "visible";
 	public static final String PROPERTY_VISIBILITY = "visibility";

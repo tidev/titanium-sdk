@@ -1056,6 +1056,13 @@ methods:
         removed: "9.0.0"
         notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
 
+  - name: stopAnimation
+    summary: Stops a running animation.
+    description: |
+        Stops a running view [Animation](Titanium.UI.Animation).
+    platforms: [android]
+    since: { android: "12.1.0" }
+
   - name: toImage
     summary: Returns an image of the rendered view, as a Blob.
     description: |
@@ -1442,7 +1449,6 @@ properties:
         `backgroundColor` with a small amount of transparency: `backgroundColor:"rgba(255,255,255,254)"`.
     type: [Number, String, Array<Number>, Array<String>]
     default: 0
-    osver: {android: {min: "5.0"}}
 
   - name: borderWidth
     summary: Border width of the view.
@@ -1867,6 +1873,16 @@ properties:
     default: null
     platforms: [iphone, ipad, macos]
 
+  - name: tooltip
+    summary: The default text to display in the control's tooltip.
+    description: |
+         Assigning a value to this property causes the tool tip to be displayed for the view.
+         Setting the property to `null` cancels the display of the tool tip for the view.
+         Note: This property is only used for apps targeting macOS Catalyst.
+    type: String
+    osver: { ios: { min: "15.0" } }
+    since: "12.1.0"
+
   - name: top
     summary: The view's top position.
     description: |
@@ -1895,7 +1911,6 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: touchFeedbackColor
@@ -1903,7 +1918,6 @@ properties:
     description: Defaults to provided theme color.
     type: String
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "6.1.0"
 
   - name: transform
@@ -2038,6 +2052,7 @@ examples:
         Create a rounded view.
 
         ``` js
+        const window = Ti.UI.createWindow();
         var view = Titanium.UI.createView({
             borderRadius:10,
             backgroundColor:'red',
@@ -2045,6 +2060,7 @@ examples:
             height:50
         });
         window.add(view);
+        window.open();
         ```
 
   - title: Alloy XML Markup
@@ -2053,7 +2069,9 @@ examples:
 
         ``` xml
         <Alloy>
+          <Window>
             <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
+          </Window>
         </Alloy>
         ```
 
