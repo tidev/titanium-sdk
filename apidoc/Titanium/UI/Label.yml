@@ -180,7 +180,7 @@ properties:
     platforms: [android]
     type: Number
     permission: read-only
-    since: {android: "12.0.0"}
+    since: {android: "12.3.0"}
 
   - name: lineSpacing
     summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
