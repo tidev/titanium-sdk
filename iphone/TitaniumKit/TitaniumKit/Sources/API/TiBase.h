@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -535,6 +535,10 @@ enum {
 #endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
+
+#if (defined(__arm64__) || defined(__ARM_ARCH_8_32__))
+#define IS_APPLE_SILICON_DEVICE
+#endif
 
 NSString *hexString(NSData *thedata);
 

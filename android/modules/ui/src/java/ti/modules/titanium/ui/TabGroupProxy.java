@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -364,6 +364,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (getProperty(TiC.PROPERTY_STYLE) == null
 			|| ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_DEFAULT) {
 			view = new TiUITabLayoutTabGroup(this, activity);
+
+			if (getProperty(TiC.PROPERTY_TAB_MODE) != null) {
+				((TiUITabLayoutTabGroup) view).setTabMode((Integer) getProperty(TiC.PROPERTY_TAB_MODE));
+			}
 		} else {
 			view = new TiUIBottomNavigationTabGroup(this, activity);
 		}

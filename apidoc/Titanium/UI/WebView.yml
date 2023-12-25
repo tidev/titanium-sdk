@@ -43,7 +43,7 @@ description: |
       'javascript=(function addBinding(){' +
         'var s=document.createElement("script");' +
         's.setAttribute("type","text/javascript");' +
-        's.innerHTML="' + require('/binding.js') + '";'
+        's.innerHTML="' + /* insert content of binding.min.js */ + '";'
         +
         'document.getElementsByTagName("body")[0].appendChild(s);' +
       '})()'
@@ -183,9 +183,7 @@ description: |
     of webview and set the height to webview. See following example.
 
     ``` js
-    var win = Ti.UI.createWindow({
-      backgroundColor: 'white'
-    });
+    var win = Ti.UI.createWindow();
 
     var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
 
@@ -869,6 +867,15 @@ properties:
 
         The web view's content can also be set using the [data](Titanium.UI.WebView.data) or
         [url](Titanium.UI.WebView.url) properties.
+
+        If you want to get the HTML content of a remote URL you can grab it with this `evalJS` call:
+        ``` js
+        webview.addEventListener('load', function() {
+          webview.evalJS('document.documentElement.outerHTML.toString()', function(data) {
+            console.log(data);
+          });
+        });
+        ```
 
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String

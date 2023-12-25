@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -266,7 +266,15 @@
   }
 
   NSError *error = nil;
-  TiDatabaseResultSetProxy *result = [self executeSQL:sql withParams:params withError:&error];
+  TiDatabaseResultSetProxy *result = nil;
+
+  // Guard the native exception and re-throw, so it can be caught on the JavaScript side
+  @try {
+    result = [self executeSQL:sql withParams:params withError:&error];
+  } @catch (NSException *exception) {
+    [self throwException:@"failed to execute SQL statement" subreason:[error description] location:CODELOCATION];
+  }
+
   if (error != nil) {
     [self throwException:@"failed to execute SQL statement" subreason:[error description] location:CODELOCATION];
     return nil;

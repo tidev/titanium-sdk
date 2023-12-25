@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -1641,6 +1641,13 @@
   UITableView *table = [self tableView];
   NSIndexPath *path = [self indexPathFromInt:index];
   [table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
+}
+
+- (void)setKeyboardDismissMode_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+  [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
 }
 
 - (void)setSeparatorInsets_:(id)arg

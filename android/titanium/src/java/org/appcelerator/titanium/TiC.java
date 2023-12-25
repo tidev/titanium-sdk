@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -292,7 +292,9 @@ public class TiC
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 	public static final String PROPERTY_BADGE = "badge";
-	public static final String PROPERTY_BADGE_COLOR = "badgeColor";
+	public static final String PROPERTY_BADGE_COLOR = "badgeColor"; // DEPRECATED: Superseded by PROPERTY_BADGE_BACKGROUND_COLOR.
+	public static final String PROPERTY_BADGE_BACKGROUND_COLOR = "badgeBackgroundColor";
+	public static final String PROPERTY_BADGE_TEXT_COLOR = "badgeTextColor";
 	public static final String PROPERTY_TARGET_ITEM_INDEX = "targetItemIndex";
 	public static final String PROPERTY_TARGET_SECTION = "targetSection";
 	public static final String PROPERTY_TARGET_SECTION_INDEX = "targetSectionIndex";
@@ -317,6 +319,7 @@ public class TiC
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
 	public static final String PROPERTY_BROTHER = "brother";
+	public static final String PROPERTY_BREAK_STRATEGY = "breakStrategy";
 	public static final String PROPERTY_BUTTON = "button";
 	public static final String PROPERTY_BUBBLE_PARENT = "bubbleParent";
 	public static final String PROPERTY_BUBBLES = "bubbles";
@@ -458,6 +461,7 @@ public class TiC
 	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
 	public static final String PROPERTY_HIDES_BACK_BUTTON = "hidesBackButton";
+	public static final String PROPERTY_HYPHENATION_FREQUENCY = "hyphenationFrequency";
 	public static final String PROPERTY_FREQUENCY = "frequency";
 	public static final String PROPERTY_FRIEND = "friend";
 	public static final String PROPERTY_FROM = "from";
@@ -749,8 +753,10 @@ public class TiC
 	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
 	public static final String PROPERTY_TABS = "tabs";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	public static final String PROPERTY_TAB_BAR_VISIBLE = "tabBarVisible";
 	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
 	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
+	public static final String PROPERTY_TAB_MODE = "tabMode";
 	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_TEMPLATES = "templates";
@@ -767,6 +773,7 @@ public class TiC
 	public static final String PROPERTY_TINT = "tint";
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLE_ATTRIBUTES = "titleAttributes";
 	public static final String PROPERTY_TITLE_COLOR = "titleColor";
 	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	public static final String PROPERTY_TITLEID = "titleid";
