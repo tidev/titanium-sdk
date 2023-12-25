@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -309,10 +309,85 @@ describe('Titanium.Blob', function () {
 			should(b.height).be.eql(60);
 		});
 
+		it('with PNG (square)', function () {
+			const blob = Ti.Filesystem.getFile('Logo.png').read();
+			const b = blob.imageAsResized(50, 50);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(50);
+		});
+
 		it('with non-image (JS file) returns null', function () {
 			const blob = Ti.Filesystem.getFile('app.js').read();
 			const b = blob.imageAsResized(50, 60);
 			should.not.exist(b);
+		});
+	});
+
+	describe('#imageAsResized() - non square', function () {
+		it('is a Function', function () {
+			const blob = Ti.Filesystem.getFile('Logo_non_square.png').read();
+			should(blob.imageAsResized).be.a.Function();
+		});
+
+		it('with PNG', function () {
+			const blob = Ti.Filesystem.getFile('Logo_non_square.png').read();
+			const b = blob.imageAsResized(50, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(60);
+		});
+
+		it('with PNG (square)', function () {
+			const blob = Ti.Filesystem.getFile('Logo_non_square.png').read();
+			const b = blob.imageAsResized(50, 50);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(50);
+		});
+
+		it('with non-image (JS file) returns null', function () {
+			const blob = Ti.Filesystem.getFile('app.js').read();
+			const b = blob.imageAsResized(50, 60);
+			should.not.exist(b);
+		});
+	});
+
+	describe('#imageAsResized() from imageview', function () {
+		it('square to non square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(50, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(60);
+		});
+
+		it('non square to non square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo_non_square.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(50, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(50);
+			should(b.height).be.eql(60);
+		});
+
+		it('square to square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(60, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(60);
+			should(b.height).be.eql(60);
+		});
+
+		it('non square to square', function () {
+			const img = Ti.UI.createImageView({ image: 'Logo_non_square.png' });
+			const blob = img.toBlob();
+			const b = blob.imageAsResized(60, 60);
+			should(b).be.an.Object();
+			should(b.width).be.eql(60);
+			should(b.height).be.eql(60);
 		});
 	});
 

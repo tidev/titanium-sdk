@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -14,8 +14,10 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiProperties;
+import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
+import android.content.res.Configuration;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -174,12 +176,20 @@ public class GestureModule extends KrollModule implements SensorEventListener
 	@Kroll.getProperty
 	public boolean getPortrait()
 	{
+		if (this.deviceOrientationMonitor.getLastReadOrientation() == TiDeviceOrientation.UNKNOWN) {
+			int orientation = TiApplication.getAppCurrentActivity().getResources().getConfiguration().orientation;
+			return orientation == Configuration.ORIENTATION_PORTRAIT;
+		}
 		return this.deviceOrientationMonitor.getLastReadOrientation().isPortrait();
 	}
 
 	@Kroll.getProperty
 	public boolean getLandscape()
 	{
+		if (this.deviceOrientationMonitor.getLastReadOrientation() == TiDeviceOrientation.UNKNOWN) {
+			int orientation = TiApplication.getAppCurrentActivity().getResources().getConfiguration().orientation;
+			return orientation == Configuration.ORIENTATION_LANDSCAPE;
+		}
 		return this.deviceOrientationMonitor.getLastReadOrientation().isLandscape();
 	}
 
@@ -187,6 +197,12 @@ public class GestureModule extends KrollModule implements SensorEventListener
 	public int getOrientation()
 	{
 		return this.deviceOrientationMonitor.getLastReadOrientation().toTiIntId();
+	}
+
+	@Kroll.method
+	public void stopListener()
+	{
+		this.deviceOrientationMonitor.stop();
 	}
 
 	@Override

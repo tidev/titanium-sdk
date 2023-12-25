@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -335,10 +335,17 @@ DEFINE_EXCEPTIONS
 {
   [super traitCollectionDidChange:previousTraitCollection];
 
+  BOOL isInBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+  BOOL isDifferentColor = [self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection];
+
+  if (!isDifferentColor || isInBackground) {
+    return;
+  }
+
   // Redraw the border color
   id borderColor = [self.proxy valueForKey:@"borderColor"];
   if (borderColor != nil) {
-    [self setBorderColor_:borderColor];
+    [self refreshBorder:[TiUtils colorValue:borderColor]._color shouldRefreshWidth:NO];
   }
 
   // Redraw the view shadow color
@@ -547,14 +554,22 @@ DEFINE_EXCEPTIONS
 
 - (void)setBorderColor_:(id)color
 {
-  TiColor *ticolor = [TiUtils colorValue:color];
+  [self refreshBorder:[TiUtils colorValue:color]._color shouldRefreshWidth:YES];
+}
+
+- (void)refreshBorder:(UIColor *)color shouldRefreshWidth:(BOOL)shouldRefreshWidth
+{
   CAShapeLayer *layer = [self borderLayer];
   if (layer == self.layer) {
-    layer.borderWidth = MAX(layer.borderWidth, 1);
-    layer.borderColor = [ticolor _color].CGColor;
+    if (shouldRefreshWidth) {
+      layer.borderWidth = MAX(layer.borderWidth, 1);
+    }
+    layer.borderColor = color.CGColor;
   } else {
-    layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
-    layer.strokeColor = [ticolor _color].CGColor;
+    if (shouldRefreshWidth) {
+      layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
+    }
+    layer.strokeColor = color.CGColor;
   }
 }
 
@@ -583,6 +598,12 @@ DEFINE_EXCEPTIONS
     TiColor *ticolor = [TiUtils colorValue:color];
     super.backgroundColor = [ticolor _color];
   }
+}
+
+- (void)setTooltip_:(id)value
+{
+  UIToolTipInteraction *toolTipInteraction = [[UIToolTipInteraction alloc] initWithDefaultToolTip:[TiUtils stringValue:value]];
+  [self addInteraction:toolTipInteraction];
 }
 
 - (void)setOpacity_:(id)opacity
@@ -637,23 +658,29 @@ DEFINE_EXCEPTIONS
   // drawing operations on iOS (and presumably Android). By removing this code and instead blitting the [bgImage CGImage]
   // directly into the graphics context, it tesselates from the lower-left.
 
-  UIGraphicsBeginImageContextWithOptions(bgImage.size, NO, bgImage.scale);
-  CGContextRef imageContext = UIGraphicsGetCurrentContext();
-  CGContextDrawImage(imageContext, CGRectMake(0, 0, bgImage.size.width, bgImage.size.height), [bgImage CGImage]);
-  UIImage *translatedImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
+  // Creating the translatedImage
+  UIGraphicsImageRendererFormat *format1 = [[UIGraphicsImageRendererFormat alloc] init];
+  format1.scale = bgImage.scale;
 
-  UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, bgImage.scale);
-  CGContextRef background = UIGraphicsGetCurrentContext();
-  if (background == nil) {
+  UIGraphicsImageRenderer *renderer1 = [[UIGraphicsImageRenderer alloc] initWithSize:bgImage.size format:format1];
+  UIImage *translatedImage = [renderer1 imageWithActions:^(UIGraphicsImageRendererContext *_Nonnull context) {
+    [bgImage drawAtPoint:CGPointZero];
+  }];
+
+  // Creating the renderedBg
+  UIGraphicsImageRendererFormat *format2 = [[UIGraphicsImageRendererFormat alloc] init];
+  format2.scale = bgImage.scale;
+
+  UIGraphicsImageRenderer *renderer2 = [[UIGraphicsImageRenderer alloc] initWithSize:self.bounds.size format:format2];
+  UIImage *renderedBg = [renderer2 imageWithActions:^(UIGraphicsImageRendererContext *_Nonnull context) {
+    UIImage *tiledImage = [UIImage imageWithCGImage:translatedImage.CGImage scale:bgImage.scale orientation:translatedImage.imageOrientation];
+    [tiledImage drawAsPatternInRect:context.format.bounds];
+  }];
+
+  if (renderedBg == nil) {
     //TIMOB-11564. Either width or height of the bounds is zero
-    UIGraphicsEndImageContext();
     return;
   }
-  CGRect imageRect = CGRectMake(0, 0, bgImage.size.width, bgImage.size.height);
-  CGContextDrawTiledImage(background, imageRect, [translatedImage CGImage]);
-  UIImage *renderedBg = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
 
   [self backgroundImageLayer].contents = (id)renderedBg.CGImage;
 }
@@ -960,7 +987,7 @@ DEFINE_EXCEPTIONS
 
 /**
  This section of code for shadow support adapted from contributions by Martin Guillon
- See https://github.com/tidev/titanium_mobile/pull/2996
+ See https://github.com/tidev/titanium-sdk/pull/2996
  */
 - (void)assignShadowPropertyFromLayer:(CALayer *)fromLayer toLayer:(CALayer *)toLayer
 {

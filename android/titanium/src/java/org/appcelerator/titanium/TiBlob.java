@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -59,6 +59,7 @@ public class TiBlob extends KrollProxy
 	private int height;
 	private int uprightWidth;
 	private int uprightHeight;
+	private Object rotation;
 
 	// This handles the memory cache of images.
 	private final TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -74,6 +75,7 @@ public class TiBlob extends KrollProxy
 		this.height = 0;
 		this.uprightWidth = 0;
 		this.uprightHeight = 0;
+		this.rotation = KrollRuntime.UNDEFINED;
 	}
 
 	/**
@@ -239,6 +241,7 @@ public class TiBlob extends KrollProxy
 				this.height = opts.outHeight;
 
 				int rotation = getImageOrientation();
+				this.rotation = rotation;
 				if ((rotation == 90) || (rotation == 270)) {
 					this.uprightWidth = opts.outHeight;
 					this.uprightHeight = opts.outWidth;
@@ -409,6 +412,12 @@ public class TiBlob extends KrollProxy
 	public int getUprightWidth()
 	{
 		return this.uprightWidth;
+	}
+
+	@Kroll.getProperty
+	public Object getRotation()
+	{
+		return this.rotation;
 	}
 
 	@Kroll.getProperty
@@ -719,6 +728,11 @@ public class TiBlob extends KrollProxy
 					// non squared image
 					imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 				}
+			}
+
+			if (imageResized.getHeight() != dstHeight || imageResized.getWidth() != dstWidth) {
+				// image didn't resize - fallback
+				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 			}
 			if (img != image && img != imageResized) {
 				img.recycle();
