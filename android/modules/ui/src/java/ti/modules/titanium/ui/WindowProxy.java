@@ -526,6 +526,19 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				Activity activity = getWindowActivity();
 				if (activity != null) {
 					activity.setTitle(TiConvert.toString((Object) (msg.obj), ""));
+
+					if (windowActivity != null && windowActivity.get() != null
+						&& windowActivity.get().getSupportActionBar() != null) {
+						ActionBar actionBar = windowActivity.get().getSupportActionBar();
+						if (actionBar.getTitle() instanceof SpannableStringBuilder) {
+							SpannableStringBuilder ssb;
+							ssb = (SpannableStringBuilder) actionBar.getTitle();
+							ssb = new SpannableStringBuilder(TiConvert.toString((Object) (msg.obj), ""));
+							actionBar.setTitle(ssb);
+						} else {
+							actionBar.setTitle(TiConvert.toString((Object) (msg.obj), ""));
+						}
+					}
 				}
 				return true;
 			}
