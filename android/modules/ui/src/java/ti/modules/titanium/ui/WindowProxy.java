@@ -81,6 +81,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 
 	private static int id_toolbar;
+	private int barColor = -1;
 
 	private WeakReference<TiBaseActivity> windowActivity;
 
@@ -349,6 +350,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			ssb = new SpannableStringBuilder(abTitle);
 		}
 
+		barColor = colorInt;
 		ssb.setSpan(new ForegroundColorSpan(colorInt),
 			0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 		actionBar.setTitle(ssb);
@@ -534,6 +536,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 							SpannableStringBuilder ssb;
 							ssb = (SpannableStringBuilder) actionBar.getTitle();
 							ssb = new SpannableStringBuilder(TiConvert.toString((Object) (msg.obj), ""));
+							if (barColor != -1) {
+								ssb.setSpan(new ForegroundColorSpan(barColor),
+									0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+							}
 							actionBar.setTitle(ssb);
 						} else {
 							actionBar.setTitle(TiConvert.toString((Object) (msg.obj), ""));

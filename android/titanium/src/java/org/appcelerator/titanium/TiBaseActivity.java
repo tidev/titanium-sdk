@@ -353,11 +353,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					public void run()
 					{
 						setTitle(fnewTitle);
-
+						/* TODO fix this
 						ActionBarProxy actionBarProxy = activityProxy.getActionBar();
 						if (actionBarProxy != null) {
 							actionBarProxy.setTitle(fnewTitle);
-						}
+						}*/
 					}
 				});
 			}
