@@ -14,8 +14,8 @@
   @private
 }
 
-- (void)parseString:(NSString *)xml;
+      - (void)parseString:(NSString *)xml;
 
-@end
+      @end
 
 #endif

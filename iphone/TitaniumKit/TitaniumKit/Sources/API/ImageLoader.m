@@ -12,7 +12,7 @@
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
 
-//#define DEBUG_IMAGE_CACHE
+// #define DEBUG_IMAGE_CACHE
 
 #ifdef DEBUG_IMAGE_CACHE
 #import <mach/mach.h>

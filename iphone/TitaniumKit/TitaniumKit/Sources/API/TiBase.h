@@ -501,7 +501,7 @@ enum {
 
 #define TI_VERSION_STR STRING(TI_VERSION)
 
-//#define VERBOSE
+// #define VERBOSE
 
 #ifdef VERBOSE
 #define VerboseLog(...) \

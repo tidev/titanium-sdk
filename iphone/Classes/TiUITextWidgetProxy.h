@@ -25,14 +25,14 @@
   @private
 }
 
-// Internal values
-- (void)noteValueChange:(NSString *)newValue:(NSNumber *)contentHeight;
+      // Internal values
+      - (void)noteValueChange:(NSString *)newValue:(NSNumber *)contentHeight;
 
-@property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
-// workaround bridge layer issue clashing with focused:(id)unused method
-// To expose a "focused" property to JS
-@property (readonly, getter=isFocused) BOOL focused;
+      @property (nonatomic, readwrite, assign) BOOL suppressFocusEvents;
+      // workaround bridge layer issue clashing with focused:(id)unused method
+      // To expose a "focused" property to JS
+      @property (readonly, getter=isFocused) BOOL focused;
 
-@end
+      @end
 
 #endif
