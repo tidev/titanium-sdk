@@ -36,13 +36,13 @@ Note that this release includes breaking changes. See
 
 This release includes over 500 bug fixes and improvements:
 
-* [Full list of Issues that were addressed in Release 3.0.0](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14142)
+* Full list of Issues that were addressed in Release 3.0.0
 
-* [Fixed Android Issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14143)
+* Fixed Android Issues
 
-* [Fixed iOS Issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=13739)
+* Fixed iOS Issues
 
-* [Fixed Mobile Web Issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=14145)
+* Fixed Mobile Web Issues
 
 See [New Features](#new) for a summary of new features in this release. 
 
@@ -58,7 +58,7 @@ may require code changes to run your application on Titanium SDK 3.0.
 ###  Node.js Requirement
 
 You must install Node.js to use the new Titanium command-line interface (CLI) and Titanium
-SDK 3.0. See [Installing Node](https://docs.appcelerator.com/titanium/latest/#!/guide/Installing_Node) for
+SDK 3.0. See [Installing Node](https://titaniumsdk.com/api/) for
 details.
 
 <a name="breaking-tabgroup"></a>
@@ -80,7 +80,7 @@ A subsequent blog post will describe how you can take advantage of the action ba
 
 In previous versions of the SDK, each tab group window was in its own activity. In SDK 3.0, the tab group has its own Android activity (exposed as <code>TabGroup.activity</code>). The individual tab windows all share the same activity. This may affect you, for example, if you are creating a different options menu for each window, since you can only associate a single <code>onCreateOptionsMenu</code> callback with the tab group.
 
-To switch menu items when the tabs are switched, you can use the new <code><a href="https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-method-invalidateOptionsMenu" title="Activity.invalidateOptionsMenu" target="_blank">Activity.invalidateOptionsMenu</a></code> method whenever you want to change the contents of the options menu. For example, you could call <code>invalidateOptionsMenu</code> in the focus event handler for each tab window, and add logic in the <code>onCreateOptionsMenu</code> callback to create the appropriate menu items for the active tab.
+To switch menu items when the tabs are switched, you can use the new <code><a href="https://titaniumsdk.com/api/">Activity.invalidateOptionsMenu</a></code> method whenever you want to change the contents of the options menu. For example, you could call <code>invalidateOptionsMenu</code> in the focus event handler for each tab window, and add logic in the <code>onCreateOptionsMenu</code> callback to create the appropriate menu items for the active tab.
 
 #### Application Title Bar
 
@@ -93,11 +93,11 @@ To restore the previous behavior, set the <code>TabGroup.navBarHidden</code> pro
 
 ### Android ActivityIndicator Changes
 
-In SDK 3.0, the Android <code><a href="https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ActivityIndicator">ActivityIndicator</a></code> has been reimplemented to create parity with iOS and Mobile Web. The old <code>ActivityIndicator</code> presented a modal dialog on Android. The new <code>ActivityIndicator</code> is a view that must be added to another view or window in order to be displayed, as on iOS and Mobile Web. (Unlike the iOS activity indicator, however, the Android activity indicator can't be placed in the window title bar.)
+In SDK 3.0, the Android <code><a href="https://titaniumsdk.com/api/">ActivityIndicator</a></code> has been reimplemented to create parity with iOS and Mobile Web. The old <code>ActivityIndicator</code> presented a modal dialog on Android. The new <code>ActivityIndicator</code> is a view that must be added to another view or window in order to be displayed, as on iOS and Mobile Web. (Unlike the iOS activity indicator, however, the Android activity indicator can't be placed in the window title bar.)
 
 In addition, Android and Mobile Web now support <code>Ti.UI.ActivityIndicatorStyle</code>, which contains the same constants as <code>Ti.UI.iPhone.ActivityIndicatorStyle</code>. iOS will support <code>Ti.UI.ActivityIndicatorStyle</code> in a subsequent release.
 
-A new, Android-specific <code><a href="https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Android.ProgressIndicator">ProgressIndicator</a></code> object replaces the old Android activity indicator. You can use ProgressIndicator to create either a modal dialog <em><strong>or</strong></em> a progress bar in the window title. 
+A new, Android-specific <code><a href="https://titaniumsdk.com/api/">ProgressIndicator</a></code> object replaces the old Android activity indicator. You can use ProgressIndicator to create either a modal dialog <em><strong>or</strong></em> a progress bar in the window title. 
 
 Code using the old Android activity indicator will break, since the new activity indicator must be added to a view. To update code for 3.0, you can switch to using the new activity indicator like you do on iOS or Mobile Web. Or to retain the previous behavior, switch to a <code>ProgressIndicator</code>.
 
@@ -189,11 +189,11 @@ network. On Android, debugging takes places over a USB connection.
 
 For details, see the following topics in the Titanium Guides:
 
-*   [Debugging Titanium Applications](https://docs.appcelerator.com/titanium/latest/#!/guide/Debugging_Titanium_Applications)
+*   [Debugging Titanium Applications](https://titaniumsdk.com/api/)
 *   [Debugging on Android
-Devices](https://docs.appcelerator.com/titanium/latest/#!/guide/Debugging_on_Android_Devices)
+Devices](https://titaniumsdk.com/api/)
 *   [Debugging on iOS
-Devices](https://docs.appcelerator.com/titanium/latest/#!/guide/Debugging_on_iOS_Devices)
+Devices](https://titaniumsdk.com/api/)
 
 <a name="alloy"></a>
 
@@ -207,8 +207,8 @@ Titanium from the command line, you can install Alloy manually using `npm`.
 
 For installation instructions and an introduction to the Alloy framework, see:
 
-*   [Alloy Quick Start](https://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Quick_Start)
-*   [Alloy Concepts](https://docs.appcelerator.com/titanium/latest/#!/guide/Alloy_Concepts)
+*   [Alloy Quick Start](https://titaniumsdk.com/api/)
+*   [Alloy Concepts](https://titaniumsdk.com/api/)
 
 <a name="cli"></a>
 
@@ -220,7 +220,7 @@ some tasks are delegated to the Python scripts, so Python is still required to b
 projects.
 
 To use this release, you must install Node.js. See 
-[Installing Node](https://docs.appcelerator.com/titanium/latest/#!/guide/Installing_Node) for
+[Installing Node](https://titaniumsdk.com/api/) for
 details.
 
 For this release, Studio installs the new CLI and uses the new CLI when building with SDK
@@ -239,7 +239,7 @@ to create and build iOS and Android native modules.
 For details, see:
 
 *   [Titanium Command-Line Interface
-Reference](https://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Command-Line_Interface_Reference)
+Reference](https://titaniumsdk.com/api/)
 in the Titanium Guides.
 
 
@@ -402,7 +402,7 @@ for each tab window, this will not work.
 
 For action items, you can add items to the action bar by creating menu items and
 specifying the new
-[`showAsAction`](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.MenuItem-property-showAsAction)
+[`showAsAction`](https://titaniumsdk.com/api/)
 property to `SHOW_AS_ACTION_ALWAYS`, `SHOW_AS_ACTION_IF_ROOM`,
 `SHOW_AS_ACTION_WITH_TEXT` or `SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW`. For example:
 
@@ -468,9 +468,9 @@ show the "up" affordance on a tab group's action bar you could use code like thi
 
 See also:
 
-*   [Android Action Bar](https://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar) in the Titanium Guides.
+*   [Android Action Bar](https://titaniumsdk.com/api/) in the Titanium Guides.
 *   [Action Bar](https://developer.android.com/guide/topics/ui/actionbar.html) in the Android API Guides.
-*   [Android Themes](https://docs.appcelerator.com/titanium/latest/#!/guide/Android_Themes) in the Titanium Guides.
+*   [Android Themes](https://titaniumsdk.com/api/) in the Titanium Guides.
 
 <a name="accessibility"></a>
 
@@ -503,13 +503,13 @@ specify the voice-over text associated with a given UI element.
 </table>
 
 In addition, there are several new system-level events related to accessibility. The new 
-[accessibilityChanged](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App-event-accessibilitychanged),
+[accessibilityChanged](https://titaniumsdk.com/api/),
 event is fired when the system's accessibility mode is changed.
 
 The application can also fire a system event to ask the system to make a voice
 announcement. On iOS the application can also fire events to notify the accessibility system that the
 layout or current screen has changed. For details on these events, see the discussion on
-the [Ti.App](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App) reference
+the [Ti.App](https://titaniumsdk.com/api/) reference
 page.
 
 

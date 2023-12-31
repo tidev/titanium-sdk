@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -35,7 +35,9 @@ import android.app.Activity;
 		TiC.PROPERTY_MAX_LINES,
 		TiC.PROPERTY_LINE_SPACING,
 		TiC.PROPERTY_INCLUDE_FONT_PADDING,
-		TiC.PROPERTY_MINIMUM_FONT_SIZE
+		TiC.PROPERTY_MINIMUM_FONT_SIZE,
+		TiC.PROPERTY_BREAK_STRATEGY,
+		TiC.PROPERTY_HYPHENATION_FREQUENCY
 })
 public class LabelProxy extends TiViewProxy
 {

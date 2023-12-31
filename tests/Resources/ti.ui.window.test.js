@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -570,7 +570,7 @@ describe('Titanium.UI.Window', function () {
 			it('can be assigned new value', () => {
 				win.titleid = 'other text';
 				should(win.titleid).eql('other text');
-				should(win.title).eql('this is my value'); // FIXME Windows: https://jira.appcelerator.org/browse/TIMOB-23498
+				should(win.title).eql('this is my value'); // FIXME Windows: https://jira-archive.titaniumsdk.com/TIMOB-23498
 			});
 
 			it('has no accessors', () => {
@@ -797,7 +797,7 @@ describe('Titanium.UI.Window', function () {
 	describe('events', function () {
 		this.timeout(20000);
 
-		// FIXME https://jira.appcelerator.org/browse/TIMOB-23640
+		// FIXME https://jira-archive.titaniumsdk.com/TIMOB-23640
 		it.windowsDesktopBroken('postlayout event gets fired', function (finish) {
 			win = Ti.UI.createWindow({ backgroundColor: 'yellow' });
 
