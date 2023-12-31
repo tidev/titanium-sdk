@@ -133,7 +133,7 @@
     "@seadub/danger-plugin-junit": "0.3.0",
     "babel-plugin-transform-titanium": "0.1.1",
     "chai": "5.0.0",
-    "clang-format": "1.8.0",
+    "clang-format": "1.6.0",
     "commander": "11.1.0",
     "commitizen": "4.3.0",
     "conventional-changelog-cli": "4.1.0",

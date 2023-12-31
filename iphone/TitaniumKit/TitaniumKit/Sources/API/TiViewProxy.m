@@ -1806,7 +1806,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)willEnqueue
 {
 #ifndef TI_USE_AUTOLAYOUT
-  SET_AND_PERFORM(TiRefreshViewEnqueued, return);
+  SET_AND_PERFORM(TiRefreshViewEnqueued, return );
   [TiLayoutQueue addViewProxy:self];
 #endif
 }
@@ -1823,7 +1823,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)willChangeSize
 {
 #ifndef TI_USE_AUTOLAYOUT
-  SET_AND_PERFORM(TiRefreshViewSize, return);
+  SET_AND_PERFORM(TiRefreshViewSize, return );
 
   if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) {
     [self willChangeLayout];
@@ -1843,7 +1843,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)willChangePosition
 {
 #ifndef TI_USE_AUTOLAYOUT
-  SET_AND_PERFORM(TiRefreshViewPosition, return);
+  SET_AND_PERFORM(TiRefreshViewPosition, return );
 
   if (TiDimensionIsUndefined(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.height)) { // The only time size can be changed by the margins is if the margins define the size.
     [self willChangeSize];
@@ -1890,7 +1890,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)willChangeLayout
 {
-  SET_AND_PERFORM(TiRefreshViewChildrenPosition, return);
+  SET_AND_PERFORM(TiRefreshViewChildrenPosition, return );
 
   [self willEnqueueIfVisible];
 

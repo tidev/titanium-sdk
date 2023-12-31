@@ -13,14 +13,14 @@
   @private
 }
 
-      @property (nonatomic, copy, readwrite) NSString *data;
-      @property (nonatomic, readonly) NSNumber *length;
-      - (NSString *)substringData:(id)args;
-      - (void)appendData:(id)args;
-      - (void)insertData:(id)args;
-      - (void)deleteData:(id)args;
-      - (void)replaceData:(id)args;
+@property (nonatomic, copy, readwrite) NSString *data;
+@property (nonatomic, readonly) NSNumber *length;
+- (NSString *)substringData:(id)args;
+- (void)appendData:(id)args;
+- (void)insertData:(id)args;
+- (void)deleteData:(id)args;
+- (void)replaceData:(id)args;
 
-      @end
+@end
 
 #endif

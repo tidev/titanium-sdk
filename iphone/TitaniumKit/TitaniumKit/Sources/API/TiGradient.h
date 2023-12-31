@@ -38,19 +38,19 @@ typedef enum {
   @private
 }
 
-      @property (nonatomic, readwrite, assign) BOOL backfillStart;
-      @property (nonatomic, readwrite, assign) BOOL backfillEnd;
+@property (nonatomic, readwrite, assign) BOOL backfillStart;
+@property (nonatomic, readwrite, assign) BOOL backfillEnd;
 
-      - (void)paintContext:(CGContextRef)context bounds:(CGRect)bounds;
-      - (void)clearCache;
-      - (void)setColors:(NSArray *)newColors;
+- (void)paintContext:(CGContextRef)context bounds:(CGRect)bounds;
+- (void)clearCache;
+- (void)setColors:(NSArray *)newColors;
 
-      + (TiGradient *)gradientFromObject:(id)value proxy:(TiProxy *)proxy;
++ (TiGradient *)gradientFromObject:(id)value proxy:(TiProxy *)proxy;
 
-      @end
+@end
 
-      @interface TiGradientLayer : CALayer {
-        TiGradient *gradient;
-      }
-      @property (nonatomic, readwrite, retain) TiGradient *gradient;
-      @end
+@interface TiGradientLayer : CALayer {
+  TiGradient *gradient;
+}
+@property (nonatomic, readwrite, retain) TiGradient *gradient;
+@end
