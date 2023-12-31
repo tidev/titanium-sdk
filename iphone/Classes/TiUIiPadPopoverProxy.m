@@ -249,7 +249,7 @@ static NSArray *popoverSequence;
   [contentViewProxy setProxyObserver:nil];
 
   popoverInitialized = NO;
-  [self fireEvent:@"hide" withObject:nil]; // Checking for listeners are done by fireEvent anyways.
+  [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
   [contentViewProxy windowDidClose];
 
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
@@ -385,7 +385,7 @@ static NSArray *popoverSequence;
     }
   }
 
-  // Fell through.
+  //Fell through.
   UIViewController *presentingController = [[self viewController] presentingViewController];
   popoverPresentationController.permittedArrowDirections = directions;
   popoverPresentationController.sourceView = [presentingController view];
@@ -408,7 +408,7 @@ static NSArray *popoverSequence;
 
 - (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView *_Nonnull *)view
 {
-  // This will never be called when using bar button item
+  //This will never be called when using bar button item
   BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, popoverRect);
   UIView *theSourceView = *view;
 

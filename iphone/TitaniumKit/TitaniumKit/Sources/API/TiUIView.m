@@ -22,15 +22,15 @@ void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, C
   VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f", scrollView, keyboardTop, minimumContentHeight);
 
   CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
-  // First, find out how much we have to compensate.
+  //First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
-  // ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+  //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
 
   CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight, 0);
-  // It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+  //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
 
-  // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+  //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   CGFloat bottomInset = MAX(0, obscuredHeight - unimportantArea);
   [scrollView setContentInset:UIEdgeInsetsMake(0, 0, bottomInset, 0)];
@@ -54,14 +54,14 @@ void OffsetScrollViewForRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFl
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
   CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
-  // First, find out how much we have to compensate.
+  //First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
-  // ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+  //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
 
-  // It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+  //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
 
-  // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+  //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   VerboseLog(@"ScrollVisibleRect(%f,%f),%fx%f; obscuredHeight:%f;",
       scrollVisibleRect.origin.x, scrollVisibleRect.origin.y, scrollVisibleRect.size.width, scrollVisibleRect.size.height,
@@ -69,7 +69,7 @@ void OffsetScrollViewForRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFl
 
   scrollVisibleRect.size.height -= MAX(0, obscuredHeight);
 
-  // Okay, the scrollVisibleRect.size now represents the actually visible area.
+  //Okay, the scrollVisibleRect.size now represents the actually visible area.
 
   CGPoint offsetPoint = [scrollView contentOffset];
 
@@ -98,15 +98,15 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
   CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
-  // First, find out how much we have to compensate.
+  //First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
-  // ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+  //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
 
   CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight, 0);
-  // It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+  //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
 
-  // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+  //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   [scrollView setContentInset:UIEdgeInsetsMake(0, 0, MAX(0, obscuredHeight - unimportantArea), 0)];
 
@@ -116,7 +116,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
   scrollVisibleRect.size.height -= MAX(0, obscuredHeight);
 
-  // Okay, the scrollVisibleRect.size now represents the actually visible area.
+  //Okay, the scrollVisibleRect.size now represents the actually visible area.
 
   CGPoint offsetPoint = [scrollView contentOffset];
 
@@ -449,7 +449,7 @@ DEFINE_EXCEPTIONS
   CGRect newBounds = [self bounds];
   if (!CGSizeEqualToSize(oldSize, newBounds.size)) {
     oldSize = newBounds.size;
-    // TIMOB-11197, TC-1264
+    //TIMOB-11197, TC-1264
     if (!animating) {
       [CATransaction begin];
       [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
@@ -678,7 +678,7 @@ DEFINE_EXCEPTIONS
   }];
 
   if (renderedBg == nil) {
-    // TIMOB-11564. Either width or height of the bounds is zero
+    //TIMOB-11564. Either width or height of the bounds is zero
     return;
   }
 
@@ -909,7 +909,7 @@ DEFINE_EXCEPTIONS
 {
   BOOL oldVal = self.hidden;
   self.hidden = ![TiUtils boolValue:visible];
-  // Redraw ourselves if changing from invisible to visible, to handle any changes made
+  //Redraw ourselves if changing from invisible to visible, to handle any changes made
   if (!self.hidden && oldVal) {
     TiViewProxy *viewProxy = (TiViewProxy *)[self proxy];
     [viewProxy willEnqueue];
@@ -960,14 +960,14 @@ DEFINE_EXCEPTIONS
 - (void)updateClipping
 {
   if (clipMode != 0) {
-    // Explicitly overridden
+    //Explicitly overridden
     self.clipsToBounds = (clipMode > 0);
   } else {
     if (_shadowLayer.shadowOpacity > 0) {
-      // If shadow is visible, disble clipping
+      //If shadow is visible, disble clipping
       self.clipsToBounds = NO;
     } else if (self.layer.borderWidth > 0 || self.layer.cornerRadius > 0 || [proxy valueForUndefinedKey:@"borderRadius"]) {
-      // If borderWidth > 0, or borderRadius > 0 enable clipping
+      //If borderWidth > 0, or borderRadius > 0 enable clipping
       self.clipsToBounds = YES;
     } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]) {
       self.clipsToBounds = ([[((TiViewProxy *)self.proxy) children] count] > 0);
@@ -1092,7 +1092,7 @@ DEFINE_EXCEPTIONS
 - (void)updateViewShadowPath
 {
   if (_shadowLayer.shadowOpacity > 0.0f) {
-    // to speedup things
+    //to speedup things
     UIBezierPath *bezierPath = [self bezierPathOfView];
     if (_shadowLayer != self.layer) {
       _shadowLayer.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.bounds.size.height);
@@ -1186,7 +1186,7 @@ DEFINE_EXCEPTIONS
   DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy_);
 }
 
-// Todo: Generalize.
+//Todo: Generalize.
 - (void)setKrollValue:(id)value forKey:(NSString *)key withObject:(id)props
 {
   if (value == [NSNull null]) {
@@ -1223,7 +1223,7 @@ DEFINE_EXCEPTIONS
     [newProxy setView:self];
     [self setProxy:[newProxy retain]];
 
-    // The important sequence first:
+    //The important sequence first:
     for (NSString *thisKey in keySequence) {
       id newValue = [newProxy valueForKey:thisKey];
       id oldValue = [oldProxy valueForKey:thisKey];
@@ -1426,7 +1426,7 @@ DEFINE_EXCEPTIONS
   if ([recognizer numberOfTouchesRequired] == 2) {
     [proxy fireEvent:@"twofingertap" withObject:event];
   } else if ([recognizer numberOfTapsRequired] == 2) {
-    // Because double-tap suppresses touchStart and double-click, we must do this:
+    //Because double-tap suppresses touchStart and double-click, we must do this:
     if ([proxy _hasListeners:@"touchstart"]) {
       [proxy fireEvent:@"touchstart" withObject:event propagate:YES];
     }
@@ -1522,11 +1522,11 @@ DEFINE_EXCEPTIONS
   // The touch never reaches the button, because the touchDelegate is as deep as the touch goes.
 
   /*
-        // delegate to our touch delegate if we're hit but it's not for us
-        if (hasTouchListeners==NO && touchDelegate!=nil)
-        {
-                return touchDelegate;
-        }
+	// delegate to our touch delegate if we're hit but it's not for us
+	if (hasTouchListeners==NO && touchDelegate!=nil)
+	{
+		return touchDelegate;
+	}
      */
 
   return [super hitTest:point withEvent:event];
@@ -1743,7 +1743,7 @@ DEFINE_EXCEPTIONS
   }
 }
 
-- (void)sanitycheckListeners // TODO: This can be optimized and unwound later.
+- (void)sanitycheckListeners //TODO: This can be optimized and unwound later.
 {
   if (listenerArray == nil) {
     listenerArray = [[NSArray alloc] initWithObjects:@"singletap",
