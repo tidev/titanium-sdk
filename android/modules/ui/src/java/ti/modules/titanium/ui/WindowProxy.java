@@ -533,8 +533,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 						&& windowActivity.get().getSupportActionBar() != null) {
 						ActionBar actionBar = windowActivity.get().getSupportActionBar();
 						if (actionBar.getTitle() instanceof SpannableStringBuilder) {
-							SpannableStringBuilder stringBuilder;
-							stringBuilder = new SpannableStringBuilder(TiConvert.toString((Object) (msg.obj), ""));
+							SpannableStringBuilder stringBuilder =
+								new SpannableStringBuilder(TiConvert.toString((Object) (msg.obj), ""));
 							if (barColor != -1) {
 								stringBuilder.setSpan(new ForegroundColorSpan(barColor),
 									0, stringBuilder.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
