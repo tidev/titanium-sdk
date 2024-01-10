@@ -75,10 +75,8 @@ exports.init = function (logger, config, cli) {
 				}
 
 				// ignore logs from cli ignoreLog
-				for (let i = 0, len = ignoreLog.length; i < len; ++i) {
-					if (line.includes(ignoreLog[i])) {
-						return;
-					}
+				if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
+					return;
 				}
 
 				if (levels.indexOf(lastLogger) === -1) {
