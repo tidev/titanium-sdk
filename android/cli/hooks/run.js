@@ -268,10 +268,8 @@ exports.init = function (logger, config, cli) {
 						}
 
 						// ignore some Android logs in info log level
-						for (let i = 0, len = ignoreLog.length; i < len; ++i) {
-							if (line.includes(ignoreLog[i])) {
-								return;
-							}
+						if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
+							return;
 						}
 
 						switch (logLevel) {
