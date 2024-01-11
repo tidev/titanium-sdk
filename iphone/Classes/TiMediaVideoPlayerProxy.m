@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -174,11 +174,6 @@ NSArray *moviePlayerKeys = nil;
   reallyAttached = YES;
 }
 
-- (void)viewDidAttach
-{
-  [TiApp.controller.topPresentedController addChildViewController:movie];
-}
-
 - (void)viewDidDetach
 {
   [self removeNotificationObserver];
@@ -188,7 +183,6 @@ NSArray *moviePlayerKeys = nil;
   [movie setPlayer:nil];
   RELEASE_TO_NIL(movie);
   reallyAttached = NO;
-  [movie removeFromParentViewController];
 }
 
 - (void)windowWillClose

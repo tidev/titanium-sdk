@@ -1810,8 +1810,8 @@ properties:
     summary: Clockwise 2D rotation of the view in degrees.
     description: Translation values are applied to the static post layout value.
     type: Number
-    platforms: [android]
-    since: 5.4.0
+    platforms: [android, iphone, ipad]
+    since: {android: "5.4.0", iphone: "12.3.0", ipad: "12.3.0"}
 
   - name: rotationX
     summary: Clockwise rotation of the view in degrees (x-axis).
@@ -2052,6 +2052,7 @@ examples:
         Create a rounded view.
 
         ``` js
+        const window = Ti.UI.createWindow();
         var view = Titanium.UI.createView({
             borderRadius:10,
             backgroundColor:'red',
@@ -2059,6 +2060,7 @@ examples:
             height:50
         });
         window.add(view);
+        window.open();
         ```
 
   - title: Alloy XML Markup
@@ -2067,7 +2069,9 @@ examples:
 
         ``` xml
         <Alloy>
+          <Window>
             <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
+          </Window>
         </Alloy>
         ```
 

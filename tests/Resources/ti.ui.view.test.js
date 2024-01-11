@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -1090,7 +1090,7 @@ describe('Titanium.UI.View', function () {
 	});
 
 	describe('borderRadius corners', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		before(function () {
 			if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 				this.skip();
@@ -1310,7 +1310,7 @@ describe('Titanium.UI.View', function () {
 				borderRadius: '30px',
 				backgroundColor: 'yellow',
 				viewShadowColor: '#d000',
-				viewShadowRadius: 10, // TODO: Use pixel values for shadows when we can! https://jira.appcelerator.org/browse/TIMOB-28145
+				viewShadowRadius: 10, // TODO: Use pixel values for shadows when we can! https://jira-archive.titaniumsdk.com/TIMOB-28145
 				viewShadowOffset: { x: 5, y: 10 },
 			});
 
@@ -1412,7 +1412,7 @@ describe('Titanium.UI.View', function () {
 	});
 
 	it('rgba fallback', finish => {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
