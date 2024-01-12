@@ -1371,7 +1371,11 @@ public class TiHTTPClient
 
 				} catch (IOException e) {
 					if (!aborted) {
-						throw e;
+						KrollDict data = new KrollDict();
+						data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN,
+							e.getMessage());
+						dispatchCallback(TiC.PROPERTY_ONERROR, data);
+						return;
 					}
 				} finally {
 					if (client != null) {

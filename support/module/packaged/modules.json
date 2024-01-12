@@ -13,8 +13,8 @@
 			"integrity": "sha512-6gnaRtsMZSDoxCnFdqaS2d82zzjPMxc6Ic55PFBXka6olcF8xCWnTrdFfxrkEvO1Y6WdoL0IJTzSVFfnlHChNg=="
 		},
 		"ti.map": {
-			"url": "https://github.com/tidev/ti.map/releases/download/v7.3.0-ios/ti.map-iphone-7.3.0.zip",
-			"integrity": "sha512-fOWlN+KlL5vfXBQ5lb8ZyiRocwmA9EQ/+L7YBYjLzE3N5LB4VMY8qhaz9nc8YhUAODslP6rhMNQsdRKZc8GBcQ=="
+			"url": "https://github.com/tidev/ti.map/releases/download/v7.3.1-ios/ti.map-iphone-7.3.1.zip",
+			"integrity": "sha512-KiZp4JOTjXRLnN6mEy7/97FvPXCAHPI5xFJl3H8yME+rzK+WMZ842L/mgD0iq3pGIHrjD1mz6X2B5vm+oP5stQ=="
 		},
 		"ti.webdialog": {
 			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v3.0.2-ios/ti.webdialog-iphone-3.0.2.zip",
@@ -54,8 +54,8 @@
 	"commonjs": {},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.5/hyperloop-7.0.5.zip",
-			"integrity": "sha512-SK8f8nRT63mDiT5k8/JNPXmbQchxdyNyF7tBSTYMqHDxsHL3x0bXr1UuRNXj2Xqq/W3nQf4WiB+M1R+CRRJzsw=="
+			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.6/hyperloop-7.0.6.zip",
+			"integrity": "sha512-ZHmm7GINiCyrjvNMn232G1Tkby6PhwsmSxPZlPNDWH4jRn6iCpjIqX1Ha12MBedma01a4hlvARLaiUQ9j3SPow=="
 		}
 	}
 }
