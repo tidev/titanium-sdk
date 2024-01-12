@@ -133,7 +133,7 @@ properties:
 
   - name: userInfo
     summary: Custom data object.
-    type: Dictionary<UserInfoDictionary>
+    type: UserInfoDictionary
 
   - name: category
     summary: Category identifier of the notification.
@@ -170,7 +170,7 @@ properties:
   - name: showInForground
     summary: Show notification if app is in foreground
     description: |
-        Only available in iOS >= 10. Boolean if a notification banner is shown if the app is in foreground.
+        Boolean if a notification banner is shown if the app is in foreground.
     type: Number
 
 ---
