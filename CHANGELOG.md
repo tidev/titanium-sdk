@@ -58,7 +58,6 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 
 ### Multiple platforms
 
-* add iOS 17+ spring animations ([be053b0](https://github.com/tidev/titanium_mobile/commit/be053b07ab0a51158e3a6d0e8e7c368f1935aaa5))
 * update minimum node.js version to 16.x ([af08e72](https://github.com/tidev/titanium_mobile/commit/af08e72c3fccdeade7f10e4e983c2c48dea6f491))
 
 ### Android platform
@@ -71,6 +70,7 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 
 ### iOS platform
 
+* add iOS 17+ spring animations ([be053b0](https://github.com/tidev/titanium_mobile/commit/be053b07ab0a51158e3a6d0e8e7c368f1935aaa5))
 * add cli.ignoreLog to ios ([eabedaa](https://github.com/tidev/titanium_mobile/commit/eabedaaf1e7806134b3be9f3c506427b94f524cb))
 * support for html in AttributedStrings ([ca4a7a9](https://github.com/tidev/titanium_mobile/commit/ca4a7a9e77a3c88d9790671eb8abf8d837c409bd))
 * support multi-scene applications ([bfc87a6](https://github.com/tidev/titanium_mobile/commit/bfc87a6517f0b70b82ea760b8d052381bddf1ff4))
