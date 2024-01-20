@@ -55,6 +55,13 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
+  - name: offset
+    summary: Offset of the refresh control view.
+    type: refreshOffset
+    platforms: [android]
+    since: { android: "12.4.0" }
+    availability: creation
+
 events:
   - name: refreshstart
     summary: |
@@ -138,3 +145,13 @@ examples:
 
         $.index.open();
         ```
+---
+name: refreshOffset
+summary: Offset of the refresh control view.
+properties:
+  - name: top
+    summary: Top padding of the map view.
+    type: Number
+  - name: bottom
+    summary: Bottom padding of the map view.
+    type: Number
