@@ -33,6 +33,11 @@ extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 
+BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
+
+// TODO: Remove in SDK 9.0+
+TI_INLINE void waitForMemoryPanicCleared(void); //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+
 @interface TiApp ()
 - (void)checkBackgroundServices;
 - (void)appBoot;
@@ -322,8 +327,14 @@ extern void UIColorFlushCache(void);
     [[TiLogServer defaultLogServer] start];
   }
 
+  // Initialize the root-window
+  window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+
   // Initialize the launch options to be used by the client
   launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
+
+  // Initialize the root-controller
+  [self initController];
 
   // If we have a APNS-UUID, assign it
   NSString *apnsUUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
@@ -1222,22 +1233,6 @@ extern void UIColorFlushCache(void);
 - (KrollBridge *)krollBridge
 {
   return kjsBridge;
-}
-
-#pragma mark UIWindowSceneDelegate
-
-- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
-{
-  return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
-}
-
-- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
-{
-  // Initialize the root-window
-  window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
-
-  // Initialize the root-controller
-  [self initController];
 }
 
 #pragma mark Background Tasks
