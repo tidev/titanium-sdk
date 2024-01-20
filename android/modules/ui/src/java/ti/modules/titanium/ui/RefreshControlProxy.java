@@ -97,9 +97,9 @@ public class RefreshControlProxy extends KrollProxy
 		}
 		if (properties.containsKeyAndNotNull("offset")) {
 			KrollDict offset = properties.getKrollDict("offset");
-			offsetStart = new TiDimension(TiConvert.toInt(offset.get("top"), 0), TiDimension.TYPE_TOP)
+			offsetStart = new TiDimension(TiConvert.toInt(offset.get("start"), 0), TiDimension.TYPE_TOP)
 				.getAsPixels(this.swipeRefreshLayout);
-			offsetEnd = new TiDimension(TiConvert.toInt(offset.get("bottom"), 80), TiDimension.TYPE_BOTTOM)
+			offsetEnd = new TiDimension(TiConvert.toInt(offset.get("end"), 80), TiDimension.TYPE_BOTTOM)
 				.getAsPixels(this.swipeRefreshLayout);
 		}
 	}

@@ -149,9 +149,9 @@ examples:
 name: refreshOffset
 summary: Offset of the refresh control view.
 properties:
-  - name: top
-    summary: Top padding of the map view.
+  - name: start
+    summary: The offset from the top of this view at which the progress spinner should appear.
     type: Number
-  - name: bottom
-    summary: Bottom padding of the map view.
+  - name: end
+    summary: The offset from the top of this view at which the progress spinner should come to rest after a successful swipe gesture.
     type: Number
