@@ -60,6 +60,26 @@ public class LabelProxy extends TiViewProxy
 		return table;
 	}
 
+	@Kroll.getProperty
+	public int getLineCount()
+	{
+		TiUIView v = getOrCreateView();
+		if (v instanceof TiUILabel) {
+			return ((TiUILabel) v).getLineCount();
+		}
+		return 0;
+	}
+
+	@Kroll.getProperty
+	public String getVisibleText()
+	{
+		TiUIView v = getOrCreateView();
+		if (v instanceof TiUILabel) {
+			return ((TiUILabel) v).getVisibleText();
+		}
+		return "";
+	}
+
 	@Override
 	public TiUIView createView(Activity activity)
 	{

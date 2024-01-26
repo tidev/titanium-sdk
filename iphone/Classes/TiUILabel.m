@@ -488,6 +488,22 @@
 #endif
 }
 
+- (void)setHtml_:(id)html
+{
+  ENSURE_SINGLE_ARG(html, NSString);
+  [[self proxy] replaceValue:html forKey:@"html" notification:NO];
+
+  NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                          options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                            NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                               documentAttributes:nil
+                                                                            error:nil];
+
+  [[self label] setAttributedText:attributedString];
+  [self padLabel];
+  [(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
 - (void)setBackgroundPaddingLeft_:(id)left
 {
   padding.origin.x = [TiUtils floatValue:left];

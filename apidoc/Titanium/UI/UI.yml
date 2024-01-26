@@ -184,19 +184,6 @@ events:
     osver: {ios: {min: "13.0"}}
 
 methods:
-  - name: create2DMatrix
-    summary: Creates and returns an instance of <Titanium.UI.2DMatrix>.
-    returns:
-        type: Titanium.UI.2DMatrix
-    parameters:
-      - name: parameters
-        summary: Initial transformation of the matrix.
-        type: Matrix2DCreationDict
-        optional: true
-    deprecated:
-        since: "8.0.0"
-        notes: Use [Titanium.UI.createMatrix2D](Titanium.UI.createMatrix2D) instead.
-
   - name: createMatrix2D
     summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
     returns:
@@ -206,19 +193,6 @@ methods:
         summary: Initial transformation of the matrix.
         type: Matrix2DCreationDict
         optional: true
-
-  - name: create3DMatrix
-    summary: Creates and returns an instance of <Titanium.UI.3DMatrix>.
-    returns:
-        type: Titanium.UI.3DMatrix
-    parameters:
-      - name: parameters
-        summary: Initial transformation of the matrix.
-        type: Matrix3DCreationDict
-        optional: true
-    deprecated:
-        since: "8.0.0"
-        notes: Use [Titanium.UI.createMatrix3D](Titanium.UI.createMatrix3D) instead.
 
   - name: createMatrix3D
     summary: Creates and returns an instance of <Titanium.UI.Matrix3D>.

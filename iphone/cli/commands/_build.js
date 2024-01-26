@@ -1905,7 +1905,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 		}, this);
 
 		// if in the prepare phase and doing a device/dist build...
-		if (cli.argv.target !== 'simulator' || cli.argv.target !== 'macos') {
+		if (cli.argv.target !== 'simulator' && cli.argv.target !== 'macos') {
 			// make sure they have Apple's WWDR cert installed
 			if (!this.iosInfo.certs.wwdr) {
 				logger.error(__('WWDR Intermediate Certificate not found') + '\n');
@@ -6568,7 +6568,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 
 	const data = ti.i18n.load(this.projectDir, this.logger),
 		header = '/**\n'
-			+ ' * Appcelerator Titanium\n'
+			+ ' * Titanium SDK\n'
 			+ ' * this is a generated file - DO NOT EDIT\n'
 			+ ' */\n\n';
 

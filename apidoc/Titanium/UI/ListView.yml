@@ -1527,7 +1527,7 @@ examples:
         create a refresh control.
 
         ``` js
-        var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        var win = Ti.UI.createWindow();
         var listView = Ti.UI.createListView({height:'90%', top:0});
         var sections = [];
 
@@ -1687,7 +1687,7 @@ examples:
         `app/views/index.xml`:
         ``` xml
         <Alloy>
-            <Window backgroundColor="white">
+            <Window>
                 <ListView id="listView" defaultItemTemplate="template">
 
                     <!-- The Templates tag sets the ListView's templates property -->
