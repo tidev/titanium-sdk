@@ -140,7 +140,7 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-    since: {android: "12.4.0", iphone: "6.2.0", ipad: "6.2.0", macos: "6.2.0"}
+    since: {android: "12.4.0", iphone: "6.2.0", ipad: "6.2.0", macos: "9.2.0"}
     platforms: [android, iphone, ipad, macos]
 
 properties:
