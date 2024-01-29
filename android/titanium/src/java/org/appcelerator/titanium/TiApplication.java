@@ -1023,4 +1023,27 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{
 	}
+
+	public void popToRootWindow()
+	{
+		/**
+		 * emulates the iOS Tab.popToRootWindow() by closing all windows above a TabGroup.
+		 */
+		boolean isTabGroup = (activityStack.get(1).get() instanceof TiActivity)
+			&& ((TiActivity) activityStack.get(1).get())
+			.getWindowProxy().getApiName().equals("Ti.UI.TabGroup");
+
+		// no TabGroup - don't do anything
+		if (!isTabGroup) {
+			return;
+		}
+
+		// finish all activities above our TabGroup
+		for (int i = activityStack.size() - 1; i > 1; --i) {
+			if (activityStack.get(i).get() instanceof TiActivity) {
+				TiActivity currentActivity = (TiActivity) activityStack.get(i).get();
+				currentActivity.finish();
+			}
+		}
+	}
 }
