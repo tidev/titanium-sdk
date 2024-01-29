@@ -130,19 +130,18 @@ methods:
       notes: Set the value of the [window](Titanium.UI.Tab.window) property directly.
 
   - name: popToRootWindow
-    # FIXME: I don't think this exists on Android!
     summary: Closes all windows that are currently opened inside the tab.
     description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
       - name: options
         summary: |
-            Options supporting a single `animated` boolean property to determine whether the windows
+            iOS only: Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-    since: "6.2.0"
-    platforms: [iphone, ipad, macos]
+    since: {android: "12.4.0", iphone: "6.2.0", ipad: "6.2.0", macos: "6.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: active
