@@ -39,7 +39,7 @@
 
 - (NSString *)apiName
 {
-  //Should we return Ti.FileSystem.Blob?
+  // Should we return Ti.FileSystem.Blob?
   return @"Ti.Filesystem.File";
 }
 

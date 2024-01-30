@@ -198,7 +198,7 @@ static NSDictionary *iOS9propertyKeys;
         // For case where address is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
         key = @"address";
       } else {
-        //must be a custom label
+        // must be a custom label
         key = [NSString stringWithString:genericProperty.label];
       }
     }

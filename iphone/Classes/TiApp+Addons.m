@@ -21,7 +21,7 @@
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, [completionHandler copy], nil]];
 
-  //Only for simulator builds
+  // Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"fetch"]) {
 
@@ -65,7 +65,7 @@
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, [completionHandler copy], nil]];
 
-  //This only here for Simulator builds.
+  // This only here for Simulator builds.
 
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"remote-notification"]) {

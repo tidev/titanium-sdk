@@ -133,8 +133,8 @@
     if (showMasterInPortrait) {
       if (masterIsOverlayed) {
         /*
-                 * Detail occupies visible area. Master on top.
-                 */
+         * Detail occupies visible area. Master on top.
+         */
         detailSize = CGSizeMake(refSize.width, refSize.height);
         masterSize = CGSizeMake(masterWidth, refSize.height);
         masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
@@ -143,8 +143,8 @@
         detailCenter = CGPointMake(detailSize.width / 2, detailSize.height / 2);
       } else {
         /*
-                 * Side by side. Master+Detail occupy visible area
-                 */
+         * Side by side. Master+Detail occupy visible area
+         */
         masterSize = CGSizeMake(masterWidth, refSize.height);
         masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
         masterCenter = CGPointMake(masterSize.width / 2, masterSize.height / 2);
@@ -155,8 +155,8 @@
 
     } else {
       /*
-             * Side by side. Detail in visible area. Master off screen to left.
-             */
+       * Side by side. Detail in visible area. Master off screen to left.
+       */
       detailSize = CGSizeMake(refSize.width, refSize.height);
       masterSize = CGSizeMake(masterWidth, refSize.height);
       masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
@@ -166,8 +166,8 @@
     }
   } else {
     /*
-         * Side by side. Master+Detail occupy visible area
-         */
+     * Side by side. Master+Detail occupy visible area
+     */
     CGFloat masterWidth = roundf(splitRatioLandscape * refSize.width);
     detailSize = CGSizeMake(refSize.width - masterWidth, refSize.height);
     masterSize = CGSizeMake(masterWidth, refSize.height);

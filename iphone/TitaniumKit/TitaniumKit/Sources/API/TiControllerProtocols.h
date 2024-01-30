@@ -69,7 +69,7 @@
 @required
 - (BOOL)canHostWindows;
 - (UIView *)hostingView;
-//Called by light weight windows from their windowWillOpen, windowWillClose, windowDidOpen, windowDidClose methods
+// Called by light weight windows from their windowWillOpen, windowWillClose, windowDidOpen, windowDidClose methods
 - (void)willOpenWindow:(id<TiWindowProtocol>)theWindow;
 - (void)willCloseWindow:(id<TiWindowProtocol>)theWindow;
 - (void)didOpenWindow:(id<TiWindowProtocol>)theWindow;
@@ -87,18 +87,18 @@
 
 @required
 
-//Background Control
+// Background Control
 - (void)setBackgroundImage:(UIImage *)arg;
 - (void)setBackgroundColor:(UIColor *)arg;
 - (void)dismissDefaultImage;
 
-//Keyboard stuff
+// Keyboard stuff
 - (BOOL)keyboardVisible;
 - (void)dismissKeyboard;
 - (void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 - (void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 
-//ViewController stuff
+// ViewController stuff
 - (TiOrientationFlags)getDefaultOrientations;
 - (UIViewController *)topPresentedController;
 - (UIViewController<TiControllerContainment> *)topContainerController;

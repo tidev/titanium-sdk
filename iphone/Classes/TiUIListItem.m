@@ -141,7 +141,7 @@
   }
 }
 
-//TIMOB-17373. Workaround for separators disappearing on iOS7 and above
+// TIMOB-17373. Workaround for separators disappearing on iOS7 and above
 - (void)ensureVisibleSelectorWithTableView:(UITableView *)tableView
 {
   if ([self selectedOrHighlighted]) {
@@ -177,7 +177,7 @@
 
   if (currentGradient == nil) {
     [gradientLayer removeFromSuperlayer];
-    //Because there's the chance that the other state still has the gradient, let's keep it around.
+    // Because there's the chance that the other state still has the gradient, let's keep it around.
     return;
   }
 
@@ -320,7 +320,7 @@
   if (same) {
     same = [self compareDataItemValue:@"height" withItem:otherItem];
   }
-  //These properties are applied in willDisplayCell. So force reload.
+  // These properties are applied in willDisplayCell. So force reload.
   if (same) {
     same = [self compareDataItemValue:@"backgroundColor" withItem:otherItem];
   }
@@ -335,7 +335,7 @@
 
 - (void)configureCellBackground
 {
-  //Ensure that we store the default backgroundColor
+  // Ensure that we store the default backgroundColor
   if ([_initialValues objectForKey:@"backgroundColor"] == nil) {
     id initialValue = nil;
     if (_templateStyle == TiUIListItemTemplateStyleCustom) {
@@ -360,7 +360,7 @@
   }
   self.backgroundColor = color;
 
-  //Ensure that we store the backgroundImage
+  // Ensure that we store the backgroundImage
   if ([_initialValues objectForKey:@"backgroundImage"] == nil) {
     id initialValue = nil;
     if (_templateStyle == TiUIListItemTemplateStyleCustom) {
@@ -374,7 +374,7 @@
   }
   UIImage *bgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:backgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
   if (bgImage != nil) {
-    //Set the backgroundView to ImageView and set its backgroundColor to bgColor
+    // Set the backgroundView to ImageView and set its backgroundColor to bgColor
     if ([self.backgroundView isKindOfClass:[UIImageView class]]) {
       [(UIImageView *)self.backgroundView setImage:bgImage];
       [(UIImageView *)self.backgroundView setBackgroundColor:[UIColor clearColor]];

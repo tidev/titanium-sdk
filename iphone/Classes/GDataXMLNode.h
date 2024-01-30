@@ -160,7 +160,7 @@ typedef NSUInteger GDataXMLNodeKind;
 
 + (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
 + (id)nodeConsumingXMLNode:(xmlNodePtr)theXMLNode;
-//ADDITIONS FOR DOM MODULE
+// ADDITIONS FOR DOM MODULE
 - (void)setShouldFreeXMLNode:(BOOL)flag;
 
 + (id)createNewDocFragment;
@@ -190,7 +190,7 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)addAttribute:(GDataXMLNode *)attribute;
 
 - (NSString *)resolvePrefixForNamespaceURI:(NSString *)namespaceURI;
-//Need to make this visible. Used in appendChild of ElementProxy
+// Need to make this visible. Used in appendChild of ElementProxy
 + (void)fixUpNamespacesForNode:(xmlNodePtr)nodeToFix graftingToTreeNode:(xmlNodePtr)graftPointNode;
 
 @end
@@ -224,7 +224,7 @@ typedef NSUInteger GDataXMLNodeKind;
 
 - (NSString *)description;
 
-//ADDITIONS FOR DOM MODULE
+// ADDITIONS FOR DOM MODULE
 - (id)importNode:(GDataXMLNode *)theNode recursive:(BOOL)deep;
 - (id)entityRefForName:(NSString *)theName;
 - (xmlDtdPtr)intDTD;

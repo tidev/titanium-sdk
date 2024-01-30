@@ -78,7 +78,7 @@
 - (void)setImage_:(id)newImage
 {
   RELEASE_TO_NIL(imageURL);
-  imageURL = [[TiUtils toURL:newImage proxy:self.proxy] retain]; //If this results in a nil, then it's a proxy.
+  imageURL = [[TiUtils toURL:newImage proxy:self.proxy] retain]; // If this results in a nil, then it's a proxy.
   [self setNeedsDisplay];
 }
 

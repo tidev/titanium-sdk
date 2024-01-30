@@ -29,7 +29,7 @@
 - (void)dealloc
 {
   if ([document docNode] != NULL) {
-    //Ensure that docNode is removed from nodeRegistry
+    // Ensure that docNode is removed from nodeRegistry
     [TiDOMNodeProxy removeNodeForXMLNode:(xmlNodePtr)[document docNode]];
   }
   [super dealloc];
@@ -74,7 +74,7 @@
   ENSURE_ARG_COUNT(args, 1);
   NSString *tagName = nil;
   ENSURE_ARG_AT_INDEX(tagName, args, 0, NSString);
-  //Check name validity
+  // Check name validity
   if (![TiDOMValidator checkAttributeName:tagName]) {
     [self throwException:@"Invalid attribute name" subreason:[NSString stringWithFormat:@"Offending tagName %@", tagName] location:CODELOCATION];
     return [NSNull null];
@@ -115,8 +115,8 @@
     [self throwException:error subreason:suberror location:CODELOCATION];
   }
 
-  //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-  //GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
+  // THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+  // GDataXMLNode* resultNode = (GDataXMLNode*)[GDataXMLElement attributeWithName:tagName URI:theURI stringValue:@""];
   NSString *localName = [GDataXMLNode localNameForName:tagName];
 
   id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
@@ -230,8 +230,8 @@
     [self throwException:error subreason:suberror location:CODELOCATION];
   }
 
-  //THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
-  //GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
+  // THIS WILL NOT WORK UNTIL ADD CHILD IS CALLED SO CREATE A NAMESPACE POINTER AND SET IT EXPLICITLY
+  // GDataXMLElement * resultElement = [GDataXMLElement elementWithName:tagName URI:theURI];
   NSString *localName = [GDataXMLNode localNameForName:tagName];
 
   id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
@@ -255,7 +255,7 @@
   xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
       href, pre);
   [resultElement XMLNode]->ns = theNewNs;
-  //Assume that this NS is defined on this node. Will be fixed later when added to tree
+  // Assume that this NS is defined on this node. Will be fixed later when added to tree
   [resultElement XMLNode]->nsDef = theNewNs;
   [result setDocument:[self document]];
   [result setElement:resultElement];
@@ -387,7 +387,7 @@
   }
 
   NSError *error = nil;
-  //PARAMETER IS SPECIFIED AS LOCAL NAME
+  // PARAMETER IS SPECIFIED AS LOCAL NAME
   NSString *xpath = [NSString stringWithFormat:@"//*[local-name()='%@' and namespace-uri()='%@']", localName, theURI];
 
   NSArray *nodes = [document nodesForXPath:xpath error:&error];

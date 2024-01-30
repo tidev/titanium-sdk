@@ -83,7 +83,7 @@
   }
 
   int curIndex = 0;
-  //Configure the Buttons
+  // Configure the Buttons
   for (id btn in options) {
     NSString *btnName = [TiUtils stringValue:btn];
     if (!IS_NULL_OR_NIL(btnName)) {
@@ -200,7 +200,7 @@
     }
   }
 
-  //Fell through.
+  // Fell through.
   UIViewController *presentingController = [alertController presentingViewController];
   popoverPresentationController.permittedArrowDirections = 0;
   popoverPresentationController.sourceView = [presentingController view];
@@ -210,7 +210,7 @@
 
 - (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
 {
-  //This will never be called when using bar button item
+  // This will never be called when using bar button item
   BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, dialogRect);
   UIView *theSourceView = *view;
   BOOL shouldUseViewBounds = ([theSourceView isKindOfClass:[UIToolbar class]] || [theSourceView isKindOfClass:[UITabBar class]]);

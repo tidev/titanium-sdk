@@ -43,7 +43,7 @@
   NSNumber *lastEmittedMode;
 }
 
-//TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
+// TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
 
 @property (nonatomic, readonly) NSNumber *ANIMATION_CURVE_EASE_IN_OUT;
 @property (nonatomic, readonly) NSNumber *ANIMATION_CURVE_EASE_IN;

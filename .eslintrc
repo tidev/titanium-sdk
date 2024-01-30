@@ -33,9 +33,7 @@
         "kroll": "readonly"
       },
       "rules": {
-        "node/no-deprecated-api": "off",
-        "node/no-unsupported-features/es-syntax": "off",
-        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
+        "node/no-unsupported-features/es-syntax": "off"
       }
     },
     {
@@ -61,9 +59,7 @@
         "sourceType": "module"
       },
       "rules": {
-        "node/no-deprecated-api": "off",
-        "node/no-unsupported-features/es-syntax": "off",
-        "node/no-unsupported-features/node-builtins": ["warn", { "version": "10.11.0" }]
+        "node/no-unsupported-features/es-syntax": "off"
       }
     },
     {

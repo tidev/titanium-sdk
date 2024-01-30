@@ -37,7 +37,7 @@
   NSString *first = [[args objectAtIndex:0] toString];
   if ([first hasPrefix:@"file://"]) {
     NSURL *fileUrl = [NSURL URLWithString:first];
-    //Why not just crop? Because the url may have some things escaped that need to be unescaped.
+    // Why not just crop? Because the url may have some things escaped that need to be unescaped.
     newpath = [fileUrl path];
   } else if ([first characterAtIndex:0] != '/') {
     NSURL *url = [NSURL URLWithString:[self resourcesDirectory]];
@@ -83,7 +83,7 @@
     if (fileProxy != nil) {
       NSArray *payload = @[ [NSNumber numberWithInt:mode] ];
       TiStreamProxy *streamProxy = [fileProxy open:payload];
-      streamProxy.executionContext = self.executionContext; //TIMOB-28324 Should we pass this executionContext in open function of TiFilesystemFileProxy?
+      streamProxy.executionContext = self.executionContext; // TIMOB-28324 Should we pass this executionContext in open function of TiFilesystemFileProxy?
       if (streamProxy != nil) {
         return [self NativeToJSValue:streamProxy];
       }
@@ -112,8 +112,8 @@
 
 - (bool)isExternalStoragePresent
 {
-  //IOS treats the camera connection kit as just that, and does not allow
-  //R/W access to it, which is just as well as it'd mess up cameras.
+  // IOS treats the camera connection kit as just that, and does not allow
+  // R/W access to it, which is just as well as it'd mess up cameras.
   return NO;
 }
 
@@ -218,11 +218,11 @@ GETTER_IMPL(NSString *, lineEnding, LineEnding);
       if (range.location != NSNotFound) {
         NSString *imageArg = nil;
         if ([TiUtils isMacOS]) {
-          imageArg = [newpath substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+          imageArg = [newpath substringFromIndex:range.location + 24]; // Contents/Resources/ for mac
         } else {
           imageArg = [newpath substringFromIndex:range.location + 5];
         }
-        //remove suffixes.
+        // remove suffixes.
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
         imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];

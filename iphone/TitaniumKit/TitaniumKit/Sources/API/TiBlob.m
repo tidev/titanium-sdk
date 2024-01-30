@@ -11,7 +11,7 @@
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-//NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
+// NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "KrollPromise.h"
 #import "TiFilesystemFileProxy.h"
 

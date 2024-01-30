@@ -27,8 +27,8 @@ extern NSString *TitaniumModuleRequireFormat;
   NSDictionary *preload;
   BOOL shutdown;
   BOOL evaluationError;
-  //NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
-  //CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
+  // NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
+  // CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
   CFMutableDictionaryRef registeredProxies;
   NSCondition *shutdownCondition;
   os_unfair_lock proxyLock;

@@ -6,7 +6,6 @@
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 let Console;
@@ -18,14 +17,12 @@ describe('console', function () {
 	});
 
 	it('can be required, exposes global console', () => {
-		// eslint-disable-next-line node/prefer-global/console
 		const requiredConsole = require('console');
 		should(requiredConsole).be.an.Object();
 		should(requiredConsole).eql(global.console);
 	});
 
 	it('exposes constructor as property off global console', () => {
-		// eslint-disable-next-line node/prefer-global/console
 		const requiredConsole = require('console');
 		should(global.console.Console).be.a.Function();
 		should(requiredConsole.Console).be.a.Function();

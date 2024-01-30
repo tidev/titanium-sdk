@@ -131,10 +131,10 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
   // the actual item being moved
   [event setObject:item.userData forKey:@"item"];
 
-  if ([self.proxy _hasListeners:@"dragStart"]) { //TODO: Deprecate old event
+  if ([self.proxy _hasListeners:@"dragStart"]) { // TODO: Deprecate old event
     [self.proxy fireEvent:@"dragStart" withObject:event];
   }
-  if ([item.userData _hasListeners:@"dragStart"]) { //TODO: Deprecate old event
+  if ([item.userData _hasListeners:@"dragStart"]) { // TODO: Deprecate old event
     [item.userData fireEvent:@"dragStart" withObject:event];
   }
   if ([self.proxy _hasListeners:@"dragstart"]) {
@@ -151,10 +151,10 @@ static const NSInteger kDashboardViewDefaultColumnCount = 3;
   // the actual item being moved
   [event setObject:item.userData forKey:@"item"];
 
-  if ([self.proxy _hasListeners:@"dragEnd"]) { //TODO: Deprecate old event
+  if ([self.proxy _hasListeners:@"dragEnd"]) { // TODO: Deprecate old event
     [self.proxy fireEvent:@"dragEnd" withObject:event];
   }
-  if ([item.userData _hasListeners:@"dragEnd"]) { //TODO: Deprecate old event
+  if ([item.userData _hasListeners:@"dragEnd"]) { // TODO: Deprecate old event
     [item.userData fireEvent:@"dragEnd" withObject:event];
   }
   if ([self.proxy _hasListeners:@"dragend"]) {

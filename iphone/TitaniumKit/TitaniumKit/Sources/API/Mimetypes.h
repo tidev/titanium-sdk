@@ -16,7 +16,7 @@ extern const NSString *svgMimeType;
 
 /**
  Converts a file extension into a mime type.
- 
+
  @param ext The extension to convert.
  @return The mime-type converted from the extension.
  */
@@ -24,7 +24,7 @@ extern const NSString *svgMimeType;
 
 /**
  Converts a mime type into a file extension.
- 
+
  @param mimetype The mime type to convert.
  @return The file extension converted from the mime-type.
  */

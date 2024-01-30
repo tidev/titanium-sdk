@@ -62,11 +62,11 @@
 #endif
 
   /*
-	 CSS selector priority order (lowest to highest) is
-	 - Tag selectors
-	 - Classes
-	 - ID selectors
-	*/
+         CSS selector priority order (lowest to highest) is
+         - Tag selectors
+         - Classes
+         - ID selectors
+        */
 
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   if (tags != nil) {

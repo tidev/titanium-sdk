@@ -297,7 +297,6 @@ class GradleWrapper {
 			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], runOptions, (exitCode, out) => {
 				try {
 					if (!exitCode && out && (out.length > 0)) {
-						// eslint-disable-next-line node/no-deprecated-api
 						proxyUrl = url.parse(out.trim());
 					}
 				} catch (ex) {

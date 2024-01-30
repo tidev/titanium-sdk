@@ -31,7 +31,7 @@
   id<KrollDelegate> delegate;
   BOOL stopped;
 
-  //Garbage collection variables.
+  // Garbage collection variables.
   BOOL gcrequest;
   unsigned int loopCount;
 
@@ -130,7 +130,7 @@
 
 KrollContext *GetKrollContext(JSContextRef context);
 
-//TODO: After 1.7, move to individual file and convert KrollInvocation and Callbacks to ExpandedInvocationOperation.
+// TODO: After 1.7, move to individual file and convert KrollInvocation and Callbacks to ExpandedInvocationOperation.
 @interface ExpandedInvocationOperation : NSOperation {
   @private
   id invocationTarget;

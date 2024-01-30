@@ -117,7 +117,7 @@ typedef enum {
 /**
  The ImageLoader class provides a centralized point for loading images in Titanium.
  Using ImageLoader is the preferred way for getting images from remote sources.
- 
+
  The class is singleton and not supposed to be subclassed.
  The instance should not be instantiated directly, but lazily created with <sharedLoader>.
  */

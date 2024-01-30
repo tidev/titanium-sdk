@@ -317,7 +317,7 @@
   ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
 
   NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:args];
-  [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
+  [props removeObjectForKey:@"itemContentType"]; // remove to avoid duplication
 
   TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
 

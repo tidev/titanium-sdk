@@ -98,8 +98,8 @@
   if ((bounds.size.width >= imageSize.width) && (bounds.size.height >= imageSize.height)) {
     [button setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
   } else {
-    //If the bounds are smaller than the image size render it in an imageView and get the image of the view.
-    //Should be pretty inexpensive since it happens rarely. TIMOB-9166
+    // If the bounds are smaller than the image size render it in an imageView and get the image of the view.
+    // Should be pretty inexpensive since it happens rarely. TIMOB-9166
     CGSize unstrechedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
     if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstrechedSize, bounds.size)) {
       UIImageView *theView = [[UIImageView alloc] initWithFrame:bounds];

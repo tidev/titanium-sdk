@@ -58,10 +58,10 @@ USE_VIEW_FOR_VERIFY_HEIGHT
         NSString *errorString = [NSString stringWithFormat:@"%@ does not support being in a toolbar!", currentItem];
         [self throwException:errorString subreason:nil location:CODELOCATION];
         /*
-				 *	Note that this theoretically could mean proxies are improperly remembered
-				 *	if a later entry causes this exception to be thrown. However, the javascript
-				 *	should NOT be using nonproxy objects and the onus is on the Javascript
-				 */
+         *	Note that this theoretically could mean proxies are improperly remembered
+         *	if a later entry causes this exception to be thrown. However, the javascript
+         *	should NOT be using nonproxy objects and the onus is on the Javascript
+         */
       }
 
       if (![oldItems containsObject:currentItem]) {

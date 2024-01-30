@@ -151,7 +151,7 @@ static BOOL alertShowing = NO;
     [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
   }
 
-  //Configure the TextFields
+  // Configure the TextFields
   if ((style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput)) {
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
       textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);

@@ -75,7 +75,7 @@
 
 - (void)dealloc
 {
-  //Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
+  // Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
   TiThreadPerformOnMainThread(
       ^{
         [textWidgetView removeFromSuperview];

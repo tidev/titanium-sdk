@@ -59,7 +59,7 @@ DEFINE_EXCEPTIONS
 - (CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
   if (autoWidth > 0) {
-    //If height is DIP returned a scaled autowidth to maintain aspect ratio
+    // If height is DIP returned a scaled autowidth to maintain aspect ratio
     if (TiDimensionIsDip(height) && autoHeight > 0) {
       return roundf(autoWidth * height.value / autoHeight);
     }
@@ -199,7 +199,7 @@ DEFINE_EXCEPTIONS
     }
 
     if ([eventName isEqualToString:@"start"] && previous == nil) {
-      //TIMOB-18830. Load the first image immediately
+      // TIMOB-18830. Load the first image immediately
       [self timerFired:nil];
     }
 
@@ -234,7 +234,7 @@ DEFINE_EXCEPTIONS
 
 - (UIImage *)rotatedImage:(UIImage *)originalImage
 {
-  //If autorotate is set to false and the image orientation is not UIImageOrientationUp create new image
+  // If autorotate is set to false and the image orientation is not UIImageOrientationUp create new image
   if (![TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"autorotate"] def:YES] && (originalImage.imageOrientation != UIImageOrientationUp)) {
     UIImage *theImage = [UIImage imageWithCGImage:[originalImage CGImage] scale:[originalImage scale] orientation:UIImageOrientationUp];
     return theImage;
@@ -404,8 +404,8 @@ DEFINE_EXCEPTIONS
         }
 
         if (ready) {
-          //NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
-          //but in the future we may want to be more sophisticated
+          // NOTE: for now i'm just making sure you have at least one frame loaded before starting the timer
+          // but in the future we may want to be more sophisticated
           int min = 1;
           readyCount++;
           if (readyCount >= min) {
@@ -446,7 +446,7 @@ DEFINE_EXCEPTIONS
   // if not specified
   NSURL *defURL = [TiUtils toURL:[self.proxy valueForKey:@"defaultImage"] proxy:self.proxy];
 
-  if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO]) { //This is a special case, because it IS built into the bundle despite being in the simulator.
+  if ((defURL == nil) && ![TiUtils boolValue:[self.proxy valueForKey:@"preventDefaultImage"] def:NO]) { // This is a special case, because it IS built into the bundle despite being in the simulator.
     NSString *filePath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"modules/ui/images/photoDefault.png"];
     defURL = [NSURL fileURLWithPath:filePath];
   }
@@ -488,13 +488,13 @@ DEFINE_EXCEPTIONS
       NSString *imageArg = nil;
       if (range.location != NSNotFound) {
         if ([TiUtils isMacOS]) {
-          imageArg = [pathStr substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+          imageArg = [pathStr substringFromIndex:range.location + 24]; // Contents/Resources/ for mac
         } else {
           imageArg = [pathStr substringFromIndex:range.location + 5];
         }
       }
 
-      //remove suffixes.
+      // remove suffixes.
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
@@ -787,7 +787,7 @@ DEFINE_EXCEPTIONS
   autoWidth = imageToUse.size.width;
   autoHeight = imageToUse.size.height;
 
-  //Setting hires to true causes image to de displayed at 50%
+  // Setting hires to true causes image to de displayed at 50%
   if ([TiUtils boolValue:[[self proxy] valueForKey:@"hires"]]) {
     autoWidth = autoWidth / 2;
     autoHeight = autoHeight / 2;

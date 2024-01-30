@@ -75,7 +75,7 @@
   ENSURE_STRING(qualifiedName);
   ENSURE_TYPE_OR_NIL(docType, TIDOMDocumentTypeProxy);
 
-  //Validate the parameters
+  // Validate the parameters
   NSString *error = nil;
   NSString *suberror = nil;
 
@@ -88,7 +88,7 @@
   NSString *prefix = [GDataXMLNode prefixForName:qualifiedName];
   NSString *localName = [GDataXMLNode localNameForName:qualifiedName];
 
-  //Create the new NS pointer
+  // Create the new NS pointer
   xmlChar *pre = NULL;
   xmlChar *href = NULL;
   if (theURI != nil) {
@@ -100,7 +100,7 @@
   xmlNsPtr theNewNs = xmlNewNs(NULL, // parent node
       href, pre);
 
-  //Create the doc node with root element
+  // Create the doc node with root element
   xmlNodePtr rootPtr = xmlNewNode(theNewNs, (xmlChar *)[localName UTF8String]);
   rootPtr->nsDef = theNewNs;
   xmlDocPtr doc = xmlNewDoc(NULL);
@@ -110,7 +110,7 @@
     GDataXMLNode *docTypeNode = [docType node];
     xmlNodePtr ret = xmlAddChild((xmlNodePtr)doc, [docTypeNode XMLNode]);
     if (ret != NULL) {
-      //Now it is part of the tree so switch flag to ensur it gets freed when doc is released
+      // Now it is part of the tree so switch flag to ensur it gets freed when doc is released
       [docTypeNode setShouldFreeXMLNode:NO];
     }
   }
