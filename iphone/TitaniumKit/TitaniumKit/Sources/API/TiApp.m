@@ -416,12 +416,6 @@ extern void UIColorFlushCache(void);
   // If a "application-launch-url" is set, launch it directly
   [self launchToUrl];
 
-  // Boot our kroll-core
-  [self boot];
-
-  // Create application support directory if not exists
-  [self createDefaultDirectories];
-
   return YES;
 }
 
@@ -1238,6 +1232,12 @@ extern void UIColorFlushCache(void);
 
   // Initialize the root-controller
   [self initController];
+
+  // Boot our kroll-core
+  [self boot];
+
+  // Create application support directory if not exists
+  [self createDefaultDirectories];
 }
 
 #pragma mark Background Tasks
