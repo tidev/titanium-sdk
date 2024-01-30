@@ -1975,6 +1975,7 @@ properties:
     description: |
         When `true` the screen will not power down. Note: enabling this feature will use more
         power, thereby adversely affecting run time when on battery.
+        For iOS look at [Titanium.App.idleTimerDisabled](Titanium.App.idleTimerDisabled).
     type: Boolean
     default: false
     platforms: [android]
