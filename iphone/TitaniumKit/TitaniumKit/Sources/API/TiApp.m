@@ -349,31 +349,6 @@ extern void UIColorFlushCache(void);
   return YES;
 }
 
-// Handle URL-schemes / iOS < 9
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
-{
-  [self tryToInvokeSelector:@selector(application:sourceApplication:annotation:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:application, sourceApplication, annotation, nil]];
-
-  [launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
-  [launchOptions setObject:[url absoluteString] forKey:@"url"];
-  [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-
-  if (sourceApplication != nil) {
-    [launchOptions setObject:sourceApplication forKey:@"source"];
-  } else {
-    [launchOptions removeObjectForKey:@"source"];
-  }
-
-  if (appBooted) {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
-  } else {
-    [[self queuedBootEvents] setObject:launchOptions forKey:kTiApplicationLaunchedFromURL];
-  }
-
-  return YES;
-}
-
 #pragma mark Background Fetch
 
 #ifdef USE_TI_FETCH
@@ -1147,6 +1122,7 @@ extern void UIColorFlushCache(void);
   // need to be mapepd from native to JS-types to be used by the client
   NSURL *urlOptions = connectionOptions.URLContexts.allObjects.firstObject.URL;
   NSString *sourceBundleId = connectionOptions.sourceApplication;
+  UNNotificationResponse *notification = connectionOptions.notificationResponse;
   UIApplicationShortcutItem *shortcut = connectionOptions.shortcutItem;
 
   // Map user activity if exists
@@ -1187,6 +1163,12 @@ extern void UIColorFlushCache(void);
     [launchOptions setObject:sourceBundleId forKey:@"source"];
   }
 
+  // Generate remote notification of available
+  if (notification != nil && [notification.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+    [self generateNotification:@{ @"aps" : notification.notification.request.content.userInfo }];
+  }
+
+  // Save shortcut item for later
   if (shortcut != nil) {
     launchedShortcutItem = [shortcut retain];
   }
