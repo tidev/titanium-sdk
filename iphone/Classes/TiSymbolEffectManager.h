@@ -9,6 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(17))
 @interface TiSymbolEffectManager : NSObject
 
 - (instancetype)initWithConfiguration:(NSDictionary *)configuration;
