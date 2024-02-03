@@ -316,105 +316,9 @@ extern void UIColorFlushCache(void);
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions_
 {
-  started = [NSDate timeIntervalSinceReferenceDate];
-  [TiExceptionHandler defaultExceptionHandler];
-  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
-    [[TiLogServer defaultLogServer] start];
-  }
-
-  // Initialize the launch options to be used by the client
-  launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
-
-  // If we have a APNS-UUID, assign it
-  NSString *apnsUUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
-  if (apnsUUID != nil) {
-    remoteDeviceUUID = [apnsUUID copy];
-  }
-
-  [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
-
-  // Get some launch options to validate before finish launching. Some of them
-  // need to be mapepd from native to JS-types to be used by the client
-  NSURL *urlOptions = [launchOptions objectForKey:UIApplicationLaunchOptionsURLKey];
-  NSString *sourceBundleId = [launchOptions objectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-  NSDictionary *_remoteNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
-  UILocalNotification *_localNotification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-  NSNumber *launchedLocation = [launchOptions objectForKey:UIApplicationLaunchOptionsLocationKey];
-  UIApplicationShortcutItem *shortcut = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-  NSDictionary *userActivityDictionary = launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
-
-  // Map user activity if exists
-  NSUserActivity *userActivity = userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"];
-  if (userActivity != nil && [userActivity isKindOfClass:[NSUserActivity class]]) {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
-
-    if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
-      if ([userActivity userInfo] != nil) {
-        [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
-      }
-    }
-
-    if ([userActivity title] != nil) {
-      [dict setObject:[userActivity title] forKey:@"title"];
-    }
-
-    if ([userActivity webpageURL] != nil) {
-      [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
-    }
-
-    if ([userActivity userInfo] != nil) {
-      [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
-    }
-
-    // Update launchOptions so that we send only expected values rather than NSUserActivity
-    [launchOptions setObject:@{ @"UIApplicationLaunchOptionsUserActivityKey" : dict }
-                      forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
-  }
-
-  // Map background location key
-  if (launchedLocation != nil) {
-    [launchOptions setObject:launchedLocation forKey:@"launchOptionsLocationKey"];
-    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocationKey];
-  }
-
-  // Map local notification
-  if (_localNotification != nil) {
-    localNotification = [[[self class] dictionaryWithLocalNotification:_localNotification] retain];
-    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-
-    // Queue the "localnotificationaction" event for iOS 9 and lower.
-    // For iOS 10+, the "userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler" delegate handles it
-    if ([TiUtils isIOSVersionLower:@"9.0"]) {
-      [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:nil];
-    }
-  }
-
-  // Map launched URL
-  if (urlOptions != nil) {
-    [launchOptions setObject:[urlOptions absoluteString] forKey:@"url"];
-    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
-  }
-
-  // Map launched App-ID
-  if (sourceBundleId != nil) {
-    [launchOptions setObject:sourceBundleId forKey:@"source"];
-    [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
-  }
-
-  // Generate remote notification of available
-  if (_remoteNotification != nil) {
-    [self generateNotification:_remoteNotification];
-  }
-  if (shortcut != nil) {
-    launchedShortcutItem = [shortcut retain];
-  }
-
   // Queue selector for usage in modules / Hyperloop
   [self tryToInvokeSelector:@selector(application:didFinishLaunchingWithOptions:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, launchOptions_, nil]];
-
-  // If a "application-launch-url" is set, launch it directly
-  [self launchToUrl];
 
   return YES;
 }
@@ -1227,6 +1131,72 @@ extern void UIColorFlushCache(void);
 {
   // Initialize the root-window
   window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+
+  // Initialize the launch options to be used by the client
+  launchOptions = [[NSMutableDictionary alloc] init];
+
+  // If we have a APNS-UUID, assign it
+  NSString *apnsUUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
+  if (apnsUUID != nil) {
+    remoteDeviceUUID = [apnsUUID copy];
+  }
+
+  [[UNUserNotificationCenter currentNotificationCenter] setDelegate:self];
+
+  // Get some launch options to validate before finish launching. Some of them
+  // need to be mapepd from native to JS-types to be used by the client
+  NSURL *urlOptions = connectionOptions.URLContexts.allObjects.firstObject.URL;
+  NSString *sourceBundleId = connectionOptions.sourceApplication;
+  UIApplicationShortcutItem *shortcut = connectionOptions.shortcutItem;
+
+  // Map user activity if exists
+  NSUserActivity *userActivity = connectionOptions.userActivities.allObjects.firstObject;
+  if (userActivity != nil) {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
+
+    if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+      if ([userActivity userInfo] != nil) {
+        [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+      }
+    }
+
+    if ([userActivity title] != nil) {
+      [dict setObject:[userActivity title] forKey:@"title"];
+    }
+
+    if ([userActivity webpageURL] != nil) {
+      [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+    }
+
+    if ([userActivity userInfo] != nil) {
+      [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+    }
+
+    // Update launchOptions so that we send only expected values rather than NSUserActivity
+    [launchOptions setObject:@{ @"UIApplicationLaunchOptionsUserActivityKey" : dict }
+                      forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+  }
+
+  // Map launched URL
+  if (urlOptions != nil) {
+    [launchOptions setObject:[urlOptions absoluteString] forKey:@"url"];
+  }
+
+  // Map launched App-ID
+  if (sourceBundleId != nil) {
+    [launchOptions setObject:sourceBundleId forKey:@"source"];
+  }
+
+  if (shortcut != nil) {
+    launchedShortcutItem = [shortcut retain];
+  }
+
+  // Queue selector for usage in modules / Hyperloop
+  [self tryToInvokeSelector:@selector(scene:willConnectToSession:options:)
+              withArguments:[NSOrderedSet orderedSetWithObjects:scene, connectionOptions, nil]];
+
+  // If a "application-launch-url" is set, launch it directly
+  [self launchToUrl];
 
   // Initialize the root-controller
   [self initController];
