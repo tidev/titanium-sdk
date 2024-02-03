@@ -7,6 +7,7 @@
 #ifdef USE_TI_UIIMAGEVIEW
 
 #import "TiUIImageView.h"
+#import "TiSymbolEffectManager.h"
 #import "TiUIImageViewProxy.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <TitaniumKit/ImageLoader.h>
@@ -683,6 +684,24 @@ DEFINE_EXCEPTIONS
 
   [imageView setImage:[[imageView image] imageWithRenderingMode:renderingMode]];
   [imageView setTintColor:value ? [[TiUtils colorValue:value] color] : nil];
+}
+
+- (void)addSymbolEffect:(NSDictionary *)args
+{
+  NSString *symbolEffect = [TiUtils stringValue:@"symbolEffect"];
+  BOOL animated = [TiUtils boolValue:@"animated" properties:args def:NO];
+  KrollCallback *callback = [args valueForKey:@"callback"];
+
+  TiSymbolEffectManager *symbolEffectManager = [[TiSymbolEffectManager alloc] initWithConfiguration:args];
+
+  [imageView addSymbolEffect:symbolEffectManager.symbolEffect
+                     options:symbolEffectManager.symbolEffectOptions
+                    animated:animated
+                  completion:^(UISymbolEffectCompletionContext *_Nonnull context) {
+                    if (callback != nil) {
+                      // [callback call:@[@{ @"finished": @(context.isFinished) }] thisObject:self];
+                    }
+                  }];
 }
 
 - (void)setImage_:(id)arg
