@@ -1024,10 +1024,10 @@ extern void UIColorFlushCache(void);
   [Webcolor flushCache];
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
+- (void)sceneWillResignActive:(UIScene *)scene
 {
-  [self tryToInvokeSelector:@selector(applicationWillResignActive:)
-              withArguments:[NSOrderedSet orderedSetWithObject:application]];
+  [self tryToInvokeSelector:@selector(sceneWillResignActive:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
   if ([self forceSplashAsSnapshot]) {
     [window addSubview:[self splashScreenView]];
@@ -1039,13 +1039,11 @@ extern void UIColorFlushCache(void);
   [kjsBridge gc];
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
+- (void)sceneDidBecomeActive:(UIScene *)scene
 {
-  [self tryToInvokeSelector:@selector(applicationDidBecomeActive:)
-              withArguments:[NSOrderedSet orderedSetWithObject:application]];
+  [self tryToInvokeSelector:@selector(sceneDidBecomeActive:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
-  // We should think about placing this inside "applicationWillBecomeActive" instead to make
-  // the UI re-useable again more quickly
   if ([self forceSplashAsSnapshot] && splashScreenView != nil) {
     [[self splashScreenView] removeFromSuperview];
     RELEASE_TO_NIL(splashScreenView);
@@ -1059,10 +1057,10 @@ extern void UIColorFlushCache(void);
   [[ImageLoader sharedLoader] resume];
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application
+- (void)sceneDidEnterBackground:(UIScene *)scene
 {
-  [self tryToInvokeSelector:@selector(applicationDidEnterBackground:)
-              withArguments:[NSOrderedSet orderedSetWithObject:application]];
+  [self tryToInvokeSelector:@selector(sceneDidEnterBackground:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
 
@@ -1091,10 +1089,10 @@ extern void UIColorFlushCache(void);
   });
 }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
+- (void)sceneWillEnterForeground:(UIScene *)scene
 {
-  [self tryToInvokeSelector:@selector(applicationWillEnterForeground:)
-              withArguments:[NSOrderedSet orderedSetWithObject:application]];
+  [self tryToInvokeSelector:@selector(sceneWillEnterForeground:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
   [self flushCompletionHandlerQueue];
   [sessionId release];
