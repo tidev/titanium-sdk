@@ -688,7 +688,6 @@ DEFINE_EXCEPTIONS
 
 - (void)addSymbolEffect:(NSDictionary *)args
 {
-  NSString *symbolEffect = [TiUtils stringValue:@"symbolEffect"];
   BOOL animated = [TiUtils boolValue:@"animated" properties:args def:NO];
   KrollCallback *callback = [args valueForKey:@"callback"];
 
@@ -700,7 +699,7 @@ DEFINE_EXCEPTIONS
                       animated:animated
                     completion:^(UISymbolEffectCompletionContext *_Nonnull context) {
                       if (callback != nil) {
-                        // [callback call:@[@{ @"finished": @(context.isFinished) }] thisObject:self];
+                        [callback call:@[ @{@"finished" : @(context.isFinished)} ] thisObject:self.proxy];
                       }
                     }];
   } else {
