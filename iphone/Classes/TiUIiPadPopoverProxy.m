@@ -16,10 +16,6 @@
 #import "TiUITableViewRowProxy.h"
 #endif
 
-static NSCondition *popOverCondition;
-static BOOL currentlyDisplaying = NO;
-TiUIiPadPopoverProxy *currentPopover;
-
 @implementation TiUIiPadPopoverProxy
 
 static NSArray *popoverSequence;
@@ -52,10 +48,6 @@ static NSArray *popoverSequence;
 
 - (void)dealloc
 {
-  if (currentPopover == self) {
-    //This shouldn't happen because we clear it on hide.
-    currentPopover = nil;
-  }
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
@@ -97,9 +89,9 @@ static NSArray *popoverSequence;
 - (void)setContentView:(id)value
 {
   if (popoverInitialized) {
-    DebugLog(@"[ERROR] Changing contentView when the popover is showing is not supported");
-    return;
+    DebugLog(@"[ERROR] Changing contentView when the popover is showing is not supported") return;
   }
+
   ENSURE_SINGLE_ARG(value, TiViewProxy);
 
   if (contentViewProxy != nil) {
@@ -140,9 +132,11 @@ static NSArray *popoverSequence;
 
 - (void)show:(id)args
 {
-  if (popOverCondition == nil) {
-    popOverCondition = [[NSCondition alloc] init];
+  [closingCondition lock];
+  while (isDismissing) {
+    [closingCondition wait];
   }
+  [closingCondition unlock];
 
   if (popoverInitialized) {
     DebugLog(@"Popover is already showing. Ignoring call") return;
@@ -155,13 +149,6 @@ static NSArray *popoverSequence;
   ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
   [self rememberSelf];
   [self retain];
-
-  [closingCondition lock];
-  if (isDismissing) {
-    [closingCondition wait];
-  }
-  [closingCondition unlock];
-
   animated = [TiUtils boolValue:@"animated" properties:args def:YES];
   popoverView = [[args objectForKey:@"view"] retain];
   NSDictionary *rectProps = [args objectForKey:@"rect"];
@@ -177,18 +164,47 @@ static NSArray *popoverSequence;
     return;
   }
 
-  [popOverCondition lock];
-  if (currentlyDisplaying) {
-    [currentPopover hide:nil];
-    [popOverCondition wait];
+  deviceRotated = NO;
+
+  [contentViewProxy setProxyObserver:self];
+
+  if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
+    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
+    if ([topWindowView isKindOfClass:[TiUIView class]]) {
+      TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
+      if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+        [(id<TiWindowProtocol>)theProxy resignFocus];
+      }
+    }
+
+    [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
+    [(TiWindowProxy *)contentViewProxy windowWillOpen];
+
+    [(TiWindowProxy *)contentViewProxy open:nil];
+    [(TiWindowProxy *)contentViewProxy gainFocus];
+  } else {
+    [contentViewProxy windowWillOpen];
   }
-  currentlyDisplaying = YES;
-  [popOverCondition unlock];
-  popoverInitialized = YES;
 
   TiThreadPerformOnMainThread(
       ^{
-        [self initAndShowPopOver];
+        [self updateContentSize];
+
+        UIViewController *theController = [self viewController];
+        theController.modalPresentationStyle = UIModalPresentationPopover;
+        theController.popoverPresentationController.permittedArrowDirections = directions;
+        theController.popoverPresentationController.delegate = self;
+
+        if ([self valueForKey:@"backgroundColor"]) {
+          theController.popoverPresentationController.backgroundColor = [[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color];
+        }
+
+        [TiApp.app.controller.topPresentedController presentViewController:theController
+                                                                  animated:animated
+                                                                completion:^{
+                                                                  popoverInitialized = YES;
+                                                                  [contentViewProxy windowDidOpen];
+                                                                }];
       },
       YES);
 }
@@ -203,6 +219,7 @@ static NSArray *popoverSequence;
 
   [closingCondition lock];
   isDismissing = YES;
+  [closingCondition signal];
   [closingCondition unlock];
 
   TiThreadPerformOnMainThread(
@@ -221,14 +238,6 @@ static NSArray *popoverSequence;
 
 - (void)cleanup
 {
-  [popOverCondition lock];
-  currentlyDisplaying = NO;
-  if (currentPopover == self) {
-    currentPopover = nil;
-  }
-  [popOverCondition broadcast];
-  [popOverCondition unlock];
-
   if (!popoverInitialized) {
     [closingCondition lock];
     isDismissing = NO;
@@ -238,11 +247,9 @@ static NSArray *popoverSequence;
     return;
   }
   [contentViewProxy setProxyObserver:nil];
-  [contentViewProxy windowWillClose];
 
   popoverInitialized = NO;
   [self fireEvent:@"hide" withObject:nil]; //Checking for listeners are done by fireEvent anyways.
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
   [contentViewProxy windowDidClose];
 
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
@@ -259,45 +266,11 @@ static NSArray *popoverSequence;
   [viewController.view removeObserver:self forKeyPath:@"safeAreaInsets"];
   RELEASE_TO_NIL(viewController);
   RELEASE_TO_NIL(popoverView);
-  [self performSelector:@selector(release) withObject:nil afterDelay:0.5];
+  [self release];
   [closingCondition lock];
   isDismissing = NO;
   [closingCondition signal];
   [closingCondition unlock];
-}
-
-- (void)initAndShowPopOver
-{
-  deviceRotated = NO;
-  currentPopover = self;
-  [contentViewProxy setProxyObserver:self];
-  if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
-    if ([topWindowView isKindOfClass:[TiUIView class]]) {
-      TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
-      if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
-        [(id<TiWindowProtocol>)theProxy resignFocus];
-      }
-    }
-    [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
-    [(TiWindowProxy *)contentViewProxy open:nil];
-    [(TiWindowProxy *)contentViewProxy gainFocus];
-    [self updatePopoverNow];
-  } else {
-    [contentViewProxy windowWillOpen];
-    [contentViewProxy reposition];
-    [self updatePopoverNow];
-    [contentViewProxy windowDidOpen];
-  }
-}
-
-- (void)updatePopover:(NSNotification *)notification;
-{
-  //This may be due to a possible race condition of rotating the iPad while another popover is coming up.
-  if ((currentPopover != self)) {
-    return;
-  }
-  [self performSelector:@selector(updatePopoverNow) withObject:nil afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration] inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
 }
 
 - (CGSize)contentSize
@@ -343,38 +316,19 @@ static NSArray *popoverSequence;
   [contentViewProxy reposition];
 }
 
-- (void)updatePopoverNow
-{
-  // We're in the middle of playing cleanup while a hide() is happening.
-  [closingCondition lock];
-  if (isDismissing) {
-    [closingCondition unlock];
-    return;
-  }
-  [closingCondition unlock];
-  [self updateContentSize];
-  UIViewController *theController = [self viewController];
-  [theController setModalPresentationStyle:UIModalPresentationPopover];
-  UIPopoverPresentationController *thePresentationController = [theController popoverPresentationController];
-  thePresentationController.permittedArrowDirections = directions;
-  thePresentationController.delegate = self;
-  [thePresentationController setBackgroundColor:[[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color]];
-
-  [[TiApp app] showModalController:theController animated:animated];
-}
-
 - (UIViewController *)viewController
 {
   if (viewController == nil) {
     if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
       [(TiWindowProxy *)contentViewProxy setIsManaged:YES];
       viewController = [[(TiWindowProxy *)contentViewProxy hostingController] retain];
-      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     } else {
       viewController = [[TiViewController alloc] initWithViewProxy:contentViewProxy];
-      [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
     }
+
+    [viewController.view addObserver:self forKeyPath:@"safeAreaInsets" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
   }
+
   viewController.view.clipsToBounds = YES;
   return viewController;
 }
@@ -388,7 +342,7 @@ static NSArray *popoverSequence;
         UIEdgeInsets edgeInsets = [insetsValue UIEdgeInsetsValue];
         viewController.view.frame = CGRectMake(viewController.view.frame.origin.x + edgeInsets.left, viewController.view.frame.origin.y + edgeInsets.top, viewController.view.frame.size.width - edgeInsets.left - edgeInsets.right, viewController.view.frame.size.height - edgeInsets.top - edgeInsets.bottom);
       },
-      NO);
+      YES);
 }
 
 #pragma mark Delegate methods
@@ -405,6 +359,11 @@ static NSArray *popoverSequence;
   }
 }
 
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+{
+  return UIModalPresentationNone;
+}
+
 - (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
 {
   [self updatePassThroughViews];
@@ -419,6 +378,7 @@ static NSArray *popoverSequence;
 
     UIView *view = [popoverView view];
     if (view != nil && (view.window != nil)) {
+      popoverPresentationController.permittedArrowDirections = directions;
       popoverPresentationController.sourceView = view;
       popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect) ? [view bounds] : popoverRect);
       return;
@@ -427,25 +387,26 @@ static NSArray *popoverSequence;
 
   //Fell through.
   UIViewController *presentingController = [[self viewController] presentingViewController];
+  popoverPresentationController.permittedArrowDirections = directions;
   popoverPresentationController.sourceView = [presentingController view];
   popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, popoverRect) ? CGRectMake(presentingController.view.bounds.size.width / 2, presentingController.view.bounds.size.height / 2, 1, 1) : popoverRect);
 }
 
-- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+- (BOOL)presentationControllerShouldDismiss:(UIPopoverPresentationController *)popoverPresentationController
 {
-  if ([[self viewController] presentedViewController] != nil) {
+  if (viewController.presentedViewController != nil) {
     return NO;
   }
   [contentViewProxy windowWillClose];
   return YES;
 }
 
-- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
   [self cleanup];
 }
 
-- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
+- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView *_Nonnull *)view
 {
   //This will never be called when using bar button item
   BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, popoverRect);
@@ -466,13 +427,9 @@ static NSArray *popoverSequence;
     UIEdgeInsets oldInsets = [[change objectForKey:@"old"] UIEdgeInsetsValue];
     NSValue *insetsValue = [NSValue valueWithUIEdgeInsets:newInsets];
 
-    if (!UIEdgeInsetsEqualToEdgeInsets(oldInsets, newInsets)) {
+    if (!UIEdgeInsetsEqualToEdgeInsets(oldInsets, newInsets) || deviceRotated) {
       deviceRotated = NO;
       [self updateContentViewWithSafeAreaInsets:insetsValue];
-    } else if (deviceRotated) {
-      // [self viewController]  need a bit of time to set its frame while rotating
-      deviceRotated = NO;
-      [self performSelector:@selector(updateContentViewWithSafeAreaInsets:) withObject:insetsValue afterDelay:.05];
     }
   }
 }

@@ -34,6 +34,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
@@ -46,6 +47,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
@@ -67,6 +70,9 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -338,7 +344,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
 			String oldTitle = (String) getTitle();
 			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
-
+			int colorInt = -1;
+			
 			if (oldTitle == null) {
 				oldTitle = "";
 			}
@@ -347,12 +354,32 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				newTitle = "";
 			}
 
+			if (window.hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+				KrollDict innerAttributes = window.getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
+				colorInt = TiColorHelper.parseColor(
+					TiConvert.toString(innerAttributes.getString(TiC.PROPERTY_COLOR)), this);
+			}
+
 			if (!newTitle.equals(oldTitle)) {
 				final String fnewTitle = newTitle;
+				final int finalColorInt = colorInt;
 				runOnUiThread(new Runnable() {
 					public void run()
 					{
 						setTitle(fnewTitle);
+
+						ActionBar actionBar = getSupportActionBar();
+						if (actionBar != null) {
+							if (finalColorInt != -1) {
+								SpannableStringBuilder ssb;
+								ssb = new SpannableStringBuilder(fnewTitle);
+								ssb.setSpan(new ForegroundColorSpan(finalColorInt),
+									0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+								actionBar.setTitle(ssb);
+							} else {
+								actionBar.setTitle(fnewTitle);
+							}
+						}
 					}
 				});
 			}

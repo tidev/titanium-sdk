@@ -773,6 +773,7 @@ public class TiC
 	public static final String PROPERTY_TINT = "tint";
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLE_ATTRIBUTES = "titleAttributes";
 	public static final String PROPERTY_TITLE_COLOR = "titleColor";
 	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	public static final String PROPERTY_TITLEID = "titleid";

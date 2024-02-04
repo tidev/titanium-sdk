@@ -44,7 +44,7 @@ public class TiProperties
 		preferencesPlain = context.getSharedPreferences(name, Context.MODE_PRIVATE);
 		preferences = preferencesPlain;
 		if (clear) {
-			preferences.edit().clear().commit();
+			preferences.edit().clear().apply();
 		}
 	}
 
@@ -134,7 +134,7 @@ public class TiProperties
 		} else {
 			editor.putString(key, value);
 		}
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -191,7 +191,7 @@ public class TiProperties
 
 		SharedPreferences.Editor editor = getEditor();
 		editor.putInt(key, value);
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -239,7 +239,7 @@ public class TiProperties
 
 		SharedPreferences.Editor editor = getEditor();
 		editor.putString(key, value + "");
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -297,7 +297,7 @@ public class TiProperties
 
 		SharedPreferences.Editor editor = getEditor();
 		editor.putBoolean(key, value);
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -342,7 +342,7 @@ public class TiProperties
 		}
 		editor.putInt(key + ".length", value.length);
 
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -408,7 +408,7 @@ public class TiProperties
 		if (preferences.contains(key)) {
 			SharedPreferences.Editor editor = getEditor();
 			editor.remove(key);
-			editor.commit();
+			editor.apply();
 		}
 	}
 
@@ -417,7 +417,7 @@ public class TiProperties
 	 */
 	public void removeAllProperties()
 	{
-		preferences.edit().clear().commit();
+		preferences.edit().clear().apply();
 	}
 
 	public static void setSystemProperties(JSONObject prop)

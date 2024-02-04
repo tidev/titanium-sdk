@@ -15,7 +15,7 @@ excludes:
     events: [click, dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
     methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage, addEventListener, applyProperties,
-              fireEvent, getViewById, hide, insertAt, removeEventListener, replaceAt, show, startLayout, updateLayout]
+              fireEvent, getViewById, hide, insertAt, removeEventListener, replaceAt, show]
     properties: [accessibilityHidden, accessibilityHint, accessibilityLabel, accessibilityValue,
                  anchorPoint, animatedCenter, backgroundColor, backgroundDisabledColor,
                  backgroundDisabledImage, backgroundFocusedColor, backgroundFocusedImage, backgroundGradient,
