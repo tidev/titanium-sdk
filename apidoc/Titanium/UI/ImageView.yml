@@ -78,12 +78,10 @@ methods:
     osver: { ios: { min: "17.0" } }
     parameters:
       - name: symbolEffect
-        summary: The symbol effect to add.
-        description: One of `pulse`, `bounce`, `appear`, `disappear`, `variableColor` or `scale`.
+        summary: The symbol effect to add. One of `pulse`, `bounce`, `appear`, `disappear`, `variableColor` or `scale`.
         type: String
       - name: options
-        summary: The options for the symbol effect.
-        description: One of `repeating`, `nonRepeating`, `repeatCount` or `speed`.
+        summary: The options for the symbol effect. One of `repeating`, `nonRepeating`, `repeatCount` or `speed`.
         type: String
       - name: animated
         summary: A Boolean value that indicates whether to animate the addition of a `scale`, `appear`, or `disappear` effect.
