@@ -1163,7 +1163,7 @@ extern void UIColorFlushCache(void);
     [launchOptions setObject:sourceBundleId forKey:@"source"];
   }
 
-  // Generate remote notification of available
+  // Generate remote notification if available
   if (notification != nil && [notification.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
     [self generateNotification:@{ @"aps" : notification.notification.request.content.userInfo }];
   }
