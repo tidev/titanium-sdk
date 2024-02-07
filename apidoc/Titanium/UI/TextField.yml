@@ -610,6 +610,15 @@ events:
         summary: New value of the field.
         type: String
 
+  - name: emptyField
+    summary: Fired when the field is empty and you press backspace key again.
+    since: {android: "12.4.0"}
+    platforms: [android]
+    properties:
+      - name: keyCode
+        summary: Key code of the key.
+        type: Number
+
   - name: focus
     summary: Fired when the field gains focus.
     properties:

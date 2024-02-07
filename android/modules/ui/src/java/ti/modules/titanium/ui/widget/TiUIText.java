@@ -140,9 +140,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event)
 			{
-				KrollDict data = new KrollDict();
-				data.put("keyCode", keyCode);
-				fireEvent("emptyField", data);
+				if (tv.getText().length() == 0) {
+					KrollDict data = new KrollDict();
+					data.put("keyCode", keyCode);
+					fireEvent("emptyField", data);
+				}
 				return false;
 			}
 		});
