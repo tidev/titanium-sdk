@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020-Present by Axway, Inc.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  *
  */

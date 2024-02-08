@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -119,7 +119,7 @@ async function generateProject(platforms) {
 			'--platforms', platforms.join(','),
 			'--name', PROJECT_NAME,
 			'--id', APP_ID,
-			'--url', 'http://www.appcelerator.com',
+			'--url', 'https://titaniumsdk.com',
 			'--workspace-dir', path.dirname(PROJECT_DIR),
 			'--no-banner',
 			'--no-prompt' ], { stdio: 'inherit' });

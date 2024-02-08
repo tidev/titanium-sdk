@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -561,6 +561,11 @@ public class ListViewProxy extends RecyclerViewProxy
 			final TiListView listView = getListView();
 			if (listView != null) {
 				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
+			}
+		} else if (name.equals("forceUpdates")) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setForceUpdates(TiConvert.toBoolean(value, false));
 			}
 		}
 	}
