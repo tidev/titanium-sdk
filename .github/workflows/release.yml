@@ -15,7 +15,13 @@ on:
         options:
           - GA
           - RC
+          - RC2
+          - RC3
+          - RC4
           - Beta
+          - Beta2
+          - Beta3
+          - Beta4
 
 jobs:
   validate:
