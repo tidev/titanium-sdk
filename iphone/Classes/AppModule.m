@@ -48,9 +48,12 @@ extern NSString *const TI_APPLICATION_GUID;
 #ifndef TI_USE_AUTOLAYOUT
   [TiLayoutQueue resetQueue];
 #endif
+
+  UIScene *activeScene = UIApplication.sharedApplication.connectedScenes.allObjects.firstObject;
+
   /* Begin backgrounding simulation */
-  [appDelegate applicationWillResignActive:app];
-  [appDelegate applicationDidEnterBackground:app];
+  [appDelegate sceneWillResignActive:activeScene];
+  [appDelegate sceneDidEnterBackground:activeScene];
   [appDelegate endBackgrounding];
   /* End backgrounding simulation */
 
@@ -76,8 +79,8 @@ extern NSString *const TI_APPLICATION_GUID;
 
   /* Begin foregrounding simulation */
   [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
-  [appDelegate applicationWillEnterForeground:app];
-  [appDelegate applicationDidBecomeActive:app];
+  [appDelegate sceneWillEnterForeground:activeScene];
+  [appDelegate sceneDidBecomeActive:activeScene];
   /* End foregrounding simulation */
 }
 
