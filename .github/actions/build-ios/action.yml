@@ -34,7 +34,7 @@ runs:
         iphone/TitaniumKit/build/TitaniumKit.xcframework
       shell: bash
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ios-build
         retention-days: 1

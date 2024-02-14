@@ -92,7 +92,7 @@ runs:
         dist/tmp/common
       shell: bash
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: android-build
         retention-days: 1
