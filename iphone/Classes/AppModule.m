@@ -79,6 +79,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
   /* Begin foregrounding simulation */
   [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
+  [appDelegate scene:activeScene willConnectToSession:activeScene.session options:TiApp.app.connectionOptions];
   [appDelegate sceneWillEnterForeground:activeScene];
   [appDelegate sceneDidBecomeActive:activeScene];
   /* End foregrounding simulation */
