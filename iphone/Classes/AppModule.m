@@ -49,7 +49,18 @@ extern NSString *const TI_APPLICATION_GUID;
   [TiLayoutQueue resetQueue];
 #endif
 
-  UIScene *activeScene = UIApplication.sharedApplication.connectedScenes.allObjects.firstObject;
+  // Get the currently active scene
+  UIScene *activeScene = nil;
+  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+    if (scene.activationState == UISceneActivationStateForegroundActive) {
+      activeScene = scene;
+      break;
+    }
+  }
+
+  if (activeScene == nil) {
+    NSLog(@"[ERROR] No active scene connected - this may lead to an undefined behavior");
+  }
 
   /* Begin backgrounding simulation */
   [appDelegate sceneWillResignActive:activeScene];
