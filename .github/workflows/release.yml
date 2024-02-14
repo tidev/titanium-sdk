@@ -129,7 +129,7 @@ jobs:
       vtag: ${{ needs.validate.outputs.vtag }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
@@ -178,7 +178,7 @@ jobs:
         git commit -m "chore(release): bump version"
         git push
     - name: Regen Builds
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         event-type: regen-builds
         repository: tidev/downloads-www

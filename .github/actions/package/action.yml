@@ -16,13 +16,13 @@ runs:
   using: composite
   steps:
     - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
     - name: Use JDK 11
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'adopt'
         java-version: ${{ inputs.java-version }}
@@ -32,7 +32,7 @@ runs:
       shell: bash
 
     - name: Cache Gradle packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
@@ -58,7 +58,7 @@ runs:
       shell: bash
 
     - name: Cache Native Modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.SDK_BUILD_CACHE_DIR }}
         key: native-modules-${{ github.sha }}
