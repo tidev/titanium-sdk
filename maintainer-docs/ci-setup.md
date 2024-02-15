@@ -73,7 +73,7 @@ For example:
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '16.x'
+          node-version: '20.x'
           java-version: '11'
 ```
 
@@ -89,7 +89,7 @@ For example:
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '16.x'
+          node-version: '20.x'
 ```
 
 ### Package
@@ -104,7 +104,7 @@ For example:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '16.x'
+        node-version: '20.x'
         java-version: '11'
         vtag: ${{ env.vtag }}
 ```

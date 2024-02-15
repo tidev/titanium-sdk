@@ -7,6 +7,9 @@ on:
     - actions_tests
   pull_request:
 
+permissions:
+  actions: write
+
 jobs:
   android:
     runs-on: ubuntu-20.04
@@ -15,13 +18,13 @@ jobs:
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '16.x'
+          node-version: '20.x'
           java-version: '11'
 
   ios:
@@ -33,27 +36,27 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '16.x'
+          node-version: '20.x'
 
   js:
     runs-on: ubuntu-latest
     name: JavaScript
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: '16.x'
+        node-version: '20.x'
         cache: 'npm'
 
     - name: Install dependencies
@@ -71,7 +74,7 @@ jobs:
     needs: [android, ios, js]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Create version tag
@@ -83,6 +86,7 @@ jobs:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '16.x'
+        node-version: '20.x'
         java-version: '11'
         vtag: ${{ env.vtag }}
+        token: ${{ github.token }}
