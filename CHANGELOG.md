@@ -1,4 +1,4 @@
-# [12.3.0](https://github.com/tidev/titanium_mobile/compare/12_2_X...12.3.0) (2024-02-12)
+# [12.3.0](https://github.com/tidev/titanium_mobile/compare/12_2_X...12.3.0) (2024-02-16)
 
 ## About this release
 
@@ -31,6 +31,8 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
   * add empty build.gradle ([2c965e4](https://github.com/tidev/titanium_mobile/commit/2c965e4e1e0950a34f7ef777614260c86b063b7a))
 
 * Hans Knöchel
+  * restore compatibility for Ti.App._resumeRestart() ([4b34d5f](https://github.com/tidev/titanium_mobile/commit/4b34d5ff8660ce3d717ca2e104fcbcfc09462b14))
+  * update 12.3.0 changelog ([5272d8a](https://github.com/tidev/titanium_mobile/commit/5272d8a72a58dc96ee9cfd625d6fd172553ff57e))
   * fix various issues related to the scene migration ([21c2861](https://github.com/tidev/titanium_mobile/commit/21c28613d906cbe210b5fc1dc1f4ca4193e3e1a5))
   * fix debug issues with scenes ([34e0086](https://github.com/tidev/titanium_mobile/commit/34e00861ea8aeeeacddd2155a9013b480e7aa8d0))
   * move issue ([f83062b](https://github.com/tidev/titanium_mobile/commit/f83062b6cda6e2a1aa26fc06abe9b99228f1d6cb))
@@ -44,6 +46,7 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 * Brianggalvez
   * support for html in AttributedStrings ([ca4a7a9](https://github.com/tidev/titanium_mobile/commit/ca4a7a9e77a3c88d9790671eb8abf8d837c409bd))
 
+
 ## Bug Fixes
 
 ### Android platform
@@ -55,11 +58,15 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 * set correct title after titleAttributes update ([53738a1](https://github.com/tidev/titanium_mobile/commit/53738a1d05f0945841cb2247bc0e86fb413e0bc3))
 * xml parser null check ([3c0794f](https://github.com/tidev/titanium_mobile/commit/3c0794f1c7610ccf6870da0ac2d85be7b843e998))
 
-### iOS platform
+### Multiple platforms
 
 * simulator and macos builds don't require wwdr ([8c70a0d](https://github.com/tidev/titanium_mobile/commit/8c70a0db7ad33e62e15128061237935bece49843))
+
+### iOS platform
+
 * fix debug issues with scenes ([34e0086](https://github.com/tidev/titanium_mobile/commit/34e00861ea8aeeeacddd2155a9013b480e7aa8d0))
 * fix various issues related to the scene migration ([21c2861](https://github.com/tidev/titanium_mobile/commit/21c28613d906cbe210b5fc1dc1f4ca4193e3e1a5))
+* restore compatibility for Ti.App._resumeRestart() ([4b34d5f](https://github.com/tidev/titanium_mobile/commit/4b34d5ff8660ce3d717ca2e104fcbcfc09462b14))
 
 ## Features
 
@@ -82,6 +89,9 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 * support for html in AttributedStrings ([ca4a7a9](https://github.com/tidev/titanium_mobile/commit/ca4a7a9e77a3c88d9790671eb8abf8d837c409bd))
 * support multi-scene applications ([bfc87a6](https://github.com/tidev/titanium_mobile/commit/bfc87a6517f0b70b82ea760b8d052381bddf1ff4))
 * view rotation parity ([5c7edd8](https://github.com/tidev/titanium_mobile/commit/5c7edd8588f4f66c74040ad0febb83ce687e925a))
+
+## BREAKING CHANGES
+
 
 ## SDK Module Versions
 
