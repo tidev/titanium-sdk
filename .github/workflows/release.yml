@@ -23,6 +23,9 @@ on:
           - Beta3
           - Beta4
 
+permissions:
+  actions: write
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -31,7 +34,7 @@ jobs:
       vtag: ${{ steps.vtag.outputs.vtag }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
@@ -43,7 +46,7 @@ jobs:
           echo "vtag=${VTAG}" >> $GITHUB_ENV
           echo "vtag=${VTAG}" >> $GITHUB_OUTPUT
       - name: Validate version
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           vtag: ${{ env.vtag }}
         with:
@@ -70,14 +73,14 @@ jobs:
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '16.x'
+          node-version: '20.x'
           java-version: '11'
 
   ios:
@@ -90,14 +93,14 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '16.x'
+          node-version: '20.x'
 
   package:
     runs-on: macos-12
@@ -111,14 +114,15 @@ jobs:
     needs: [validate, android, ios]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '16.x'
+        token: ${{ github.token }}
+        node-version: '20.x'
         java-version: '11'
         vtag: ${{ env.vtag }}
 

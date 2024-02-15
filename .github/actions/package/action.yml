@@ -11,17 +11,20 @@ inputs:
   vtag:
     description: The version tag to be used for the SDK
     required: true
+  token:
+    description: The token used to remove artifacts
+    required: true
 
 runs:
   using: composite
   steps:
-    - name: Use Node.js 16.x
+    - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
-    - name: Use JDK 11
+    - name: Use JDK
       uses: actions/setup-java@v4
       with:
         distribution: 'adopt'
@@ -100,6 +103,7 @@ runs:
 
     - uses: geekyeggo/delete-artifact@v4
       with:
+        token: ${{ env.token }}
         name: |
           android-build
           ios-build
