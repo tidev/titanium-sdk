@@ -48,6 +48,7 @@ extern void UIColorFlushCache(void);
 @synthesize localNotification;
 @synthesize appBooted;
 @synthesize userAgent;
+@synthesize connectionOptions;
 
 + (TiApp *)app
 {
@@ -1062,6 +1063,7 @@ extern void UIColorFlushCache(void);
   RELEASE_TO_NIL(queuedBootEvents);
   RELEASE_TO_NIL(_queuedApplicationSelectors);
   RELEASE_TO_NIL(_applicationDelegates);
+  RELEASE_TO_NIL(_connectionOptions);
 
   [super dealloc];
 }
@@ -1109,6 +1111,12 @@ extern void UIColorFlushCache(void);
 
   // Initialize the launch options to be used by the client
   launchOptions = [[NSMutableDictionary alloc] init];
+
+  // Retain connectionOptions for later use
+  if (_connectionOptions != connectionOptions) {
+    [_connectionOptions release]; // Release any existing object
+    _connectionOptions = [connectionOptions retain]; // Retain the new object
+  }
 
   // If we have a APNS-UUID, assign it
   NSString *apnsUUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
