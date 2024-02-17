@@ -26,6 +26,7 @@
   KrollBridge *kjsBridge;
 
   NSMutableDictionary *launchOptions;
+  UISceneConnectionOptions *_connectionOptions;
   NSTimeInterval started;
 
   int32_t networkActivityCount;
@@ -111,6 +112,13 @@
  @return Dictionary containing details about local notification, or _nil_.
  */
 @property (nonatomic, readonly) NSDictionary *localNotification;
+
+/**
+ Returns details for the last remote notification.
+ 
+ Dictionary containing details about remote notification, or _nil_.
+ */
+@property (nonatomic, readonly) UISceneConnectionOptions *connectionOptions;
 
 /**
  Returns the application's root view controller.
