@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.platform;
 
+import static android.content.Context.BATTERY_SERVICE;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
@@ -399,13 +401,27 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public int getBatteryState()
 	{
-		return batteryState;
+		if (Build.VERSION.SDK_INT >= 26) {
+			Context context = TiApplication.getInstance().getApplicationContext();
+			BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+			int batStatus = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATUS);
+			return batStatus;
+		} else {
+			return batteryState;
+		}
 	}
 
 	@Kroll.getProperty
 	public double getBatteryLevel()
 	{
-		return batteryLevel;
+		if (Build.VERSION.SDK_INT >= 21) {
+			Context context = TiApplication.getInstance().getApplicationContext();
+			BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+			int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+			return batLevel;
+		} else {
+			return batteryLevel;
+		}
 	}
 
 	@Kroll.getProperty
