@@ -77,7 +77,6 @@ public class PlatformModule extends KrollModule
 	private int versionMinor;
 	private int versionPatch;
 	protected int batteryState;
-	protected double batteryLevel;
 	protected boolean batteryStateReady;
 
 	protected BroadcastReceiver batteryStateReceiver;
@@ -87,7 +86,6 @@ public class PlatformModule extends KrollModule
 		super();
 
 		batteryState = BATTERY_STATE_UNKNOWN;
-		batteryLevel = -1;
 
 		// Extract "<major>.<minor>" integers from OS version string.
 		String[] versionComponents = Build.VERSION.RELEASE.split("\\.");
@@ -414,14 +412,10 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public double getBatteryLevel()
 	{
-		if (Build.VERSION.SDK_INT >= 21) {
-			Context context = TiApplication.getInstance().getApplicationContext();
-			BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
-			int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
-			return batLevel;
-		} else {
-			return batteryLevel;
-		}
+		Context context = TiApplication.getInstance().getApplicationContext();
+		BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+		int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+		return batLevel;
 	}
 
 	@Kroll.getProperty
@@ -511,7 +505,7 @@ public class PlatformModule extends KrollModule
 			public void onReceive(Context context, Intent intent)
 			{
 				int scale = intent.getIntExtra(TiC.PROPERTY_SCALE, -1);
-				batteryLevel = convertBatteryLevel(intent.getIntExtra(TiC.PROPERTY_LEVEL, -1), scale);
+				double batteryLevel = convertBatteryLevel(intent.getIntExtra(TiC.PROPERTY_LEVEL, -1), scale);
 				batteryState = convertBatteryStatus(intent.getIntExtra(TiC.PROPERTY_STATUS, -1));
 
 				KrollDict event = new KrollDict();
