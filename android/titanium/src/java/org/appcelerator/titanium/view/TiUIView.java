@@ -111,6 +111,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+	private int maxWidth = -1;
+	private int maxHeight = -1;
 
 	public TiBackgroundDrawable getBackground()
 	{
@@ -784,6 +786,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED)) {
 			setFilterTouchesWhenObscured(TiConvert.toBoolean(newValue, false));
+		} else if (key.equals("maxWidth")) {
+			setMaxWidth(newValue, hasBorder(proxy.getProperties()));
+		} else if (key.equals("maxHeight")) {
+			setMaxHeight(newValue, hasBorder(proxy.getProperties()));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
@@ -1054,6 +1060,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 
+		if (d.containsKey("maxWidth")) {
+			setMaxWidth(d.get("maxWidth"), hasBorder(d));
+		}
+		if (d.containsKey("maxHeight")) {
+			setMaxHeight(d.get("maxHeight"), hasBorder(d));
+		}
 		initializeBorder(d, bgColor);
 
 		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
@@ -1140,6 +1152,36 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
+		}
+	}
+
+	private void setMaxWidth(Object value, Boolean hasBorder)
+	{
+		maxWidth = -1;
+		if (value != null) {
+			maxWidth = TiConvert.toTiDimension(TiConvert.toInt(value),
+				TiDimension.TYPE_WIDTH).getAsPixels(nativeView);
+		}
+
+		if (!hasBorder) {
+			((TiCompositeLayout) nativeView).setMaxWidth(maxWidth);
+		} else {
+			Log.w(TAG, "You can only use maxWidth for Views without borders");
+		}
+	}
+
+	private void setMaxHeight(Object value, Boolean hasBorder)
+	{
+		maxHeight = -1;
+		if (value != null) {
+			maxHeight = TiConvert.toTiDimension(TiConvert.toInt(value),
+				TiDimension.TYPE_HEIGHT).getAsPixels(nativeView);
+		}
+
+		if (!hasBorder) {
+			((TiCompositeLayout) nativeView).setMaxHeight(maxHeight);
+		} else {
+			Log.w(TAG, "You can only use maxHeight for Views without borders");
 		}
 	}
 
@@ -1499,6 +1541,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
+					//borderView.setMaxWidth(maxWidth);	// TODO fix borderView maxWidth
 					// Create new layout params for the child view since we just want the
 					// wrapper to control the layout
 					LayoutParams params = new LayoutParams();
