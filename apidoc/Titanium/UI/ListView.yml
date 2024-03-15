@@ -731,6 +731,16 @@ properties:
     since: 11.0.0
     platforms: [android]
 
+  - name: animation
+    summary: Assign an animation to the ListItems
+    description: |
+        You can use an Android resource ID to assign an animation XML to ListItems. For example 
+        `Titanium.App.Android.R.anim.anim_one` will match `app/platform/android/res/anim/anim_one.xml`.
+    type: Number
+    availability: creation
+    since: 12.0.0
+    platforms: [android]
+
   - name: allowsSelectionDuringEditing
     summary: Determines whether this list view items can be selected while editing the table.
     type: Boolean
