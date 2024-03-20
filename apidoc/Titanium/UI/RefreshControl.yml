@@ -55,6 +55,13 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
+  - name: offset
+    summary: Offset of the refresh control view.
+    type: refreshOffset
+    platforms: [android]
+    since: { android: "12.4.0" }
+    availability: creation
+
 events:
   - name: refreshstart
     summary: |
@@ -138,3 +145,13 @@ examples:
 
         $.index.open();
         ```
+---
+name: refreshOffset
+summary: Offset of the refresh control view.
+properties:
+  - name: start
+    summary: The offset from the top of this view at which the progress spinner should appear.
+    type: Number
+  - name: end
+    summary: The offset from the top of this view at which the progress spinner should come to rest after a successful swipe gesture.
+    type: Number
