@@ -58,7 +58,7 @@ public class LocaleModule extends KrollModule
 	}
 
 	@Kroll.setProperty
-	public void setApplicationLocales(String locales)
+	public void setApplicationLocale(String locales)
 	{
 		if (Build.VERSION.SDK_INT >= 33) {
 			LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(locales);
