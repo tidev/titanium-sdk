@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.TiRHelper;
 import android.os.Build;
 import android.telephony.PhoneNumberUtils;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
 @Kroll.module
