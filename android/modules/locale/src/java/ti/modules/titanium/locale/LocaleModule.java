@@ -23,7 +23,7 @@ import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
-import android.annotation.TargetApi;
+import android.os.Build;
 import android.telephony.PhoneNumberUtils;
 
 import androidx.core.os.LocaleListCompat;
