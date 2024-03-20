@@ -7,9 +7,8 @@
 
 package ti.modules.titanium.contacts;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import android.graphics.Bitmap;
+import android.util.Log;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -17,8 +16,9 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 
-import android.graphics.Bitmap;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Kroll.proxy(parentModule = ContactsModule.class,
 	propertyAccessors = {
@@ -44,17 +44,16 @@ import android.util.Log;
 		TiC.PROPERTY_LASTPHONETIC,
 		TiC.PROPERTY_JOBTITLE,
 		TiC.PROPERTY_DEPARTMENT
-})
+	})
 public class PersonProxy extends KrollProxy
 {
 	private static final String TAG = "Person";
-	private TiBlob image = null;
-	private boolean imageFetched; // lazy load these bitmap images
-	protected boolean hasImage = false;
-	private String fullName = "";
-
 	// Contact Modifications
 	private final HashMap<String, Boolean> modified = new HashMap<>();
+	protected boolean hasImage = false;
+	private TiBlob image = null;
+	private boolean imageFetched; // lazy load these bitmap images
+	private String fullName = "";
 
 	public PersonProxy()
 	{
@@ -189,15 +188,15 @@ public class PersonProxy extends KrollProxy
 			|| name.equals(TiC.PROPERTY_LASTNAME)) {
 			modified.put(TiC.PROPERTY_NAME, true);
 		} else if (name.equals(TiC.PROPERTY_BIRTHDAY) || name.equals(TiC.PROPERTY_ORGANIZATION)
-				   || name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME)
-				   || name.equals(TiC.PROPERTY_PHONE) || name.equals(TiC.PROPERTY_ADDRESS)
-				   || name.equals(TiC.PROPERTY_INSTANTMSG) || name.equals(TiC.PROPERTY_URL)
-				   || name.equals(TiC.PROPERTY_EMAIL) || name.equals(TiC.PROPERTY_RELATED_NAMES)
-				   || name.equals(TiC.PROPERTY_DATE) || name.equals(TiC.PROPERTY_KIND)
-				   || name.equals(TiC.PROPERTY_PREFIX) || name.equals(TiC.PROPERTY_SUFFIX)
-				   || name.equals(TiC.PROPERTY_FIRSTPHONETIC) || name.equals(TiC.PROPERTY_MIDDLEPHONETIC)
-				   || name.equals(TiC.PROPERTY_LASTPHONETIC) || name.equals(TiC.PROPERTY_JOBTITLE)
-				   || name.equals(TiC.PROPERTY_DEPARTMENT)) {
+			|| name.equals(TiC.PROPERTY_NOTE) || name.equals(TiC.PROPERTY_NICKNAME)
+			|| name.equals(TiC.PROPERTY_PHONE) || name.equals(TiC.PROPERTY_ADDRESS)
+			|| name.equals(TiC.PROPERTY_INSTANTMSG) || name.equals(TiC.PROPERTY_URL)
+			|| name.equals(TiC.PROPERTY_EMAIL) || name.equals(TiC.PROPERTY_RELATED_NAMES)
+			|| name.equals(TiC.PROPERTY_DATE) || name.equals(TiC.PROPERTY_KIND)
+			|| name.equals(TiC.PROPERTY_PREFIX) || name.equals(TiC.PROPERTY_SUFFIX)
+			|| name.equals(TiC.PROPERTY_FIRSTPHONETIC) || name.equals(TiC.PROPERTY_MIDDLEPHONETIC)
+			|| name.equals(TiC.PROPERTY_LASTPHONETIC) || name.equals(TiC.PROPERTY_JOBTITLE)
+			|| name.equals(TiC.PROPERTY_DEPARTMENT)) {
 
 			modified.put(name, true);
 		}

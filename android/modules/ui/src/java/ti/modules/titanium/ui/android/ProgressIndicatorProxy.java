@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.android;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -13,7 +15,6 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.TiDialogProxy;
 import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {
@@ -26,7 +27,7 @@ import android.app.Activity;
 		TiC.PROPERTY_MAX,
 		TiC.PROPERTY_CANCELABLE,
 		TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE
-})
+	})
 @Kroll.dynamicApis(methods = { "hide", "show" })
 public class ProgressIndicatorProxy extends TiDialogProxy
 {

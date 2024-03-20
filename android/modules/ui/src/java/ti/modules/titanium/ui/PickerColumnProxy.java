@@ -7,22 +7,20 @@
 package ti.modules.titanium.ui;
 
 import android.util.Log;
-import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 
+import java.util.ArrayList;
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_WIDTH,
-})
+	})
 public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnChangedListener
 {
-	public interface OnChangedListener {
-		void onChanged(PickerColumnProxy proxy);
-	}
-
 	private static final String TAG = "PickerColumnProxy";
 	private final ArrayList<PickerRowProxy> rowList = new ArrayList<>();
 	private final ArrayList<PickerColumnProxy.OnChangedListener> listeners = new ArrayList<>();
@@ -221,5 +219,9 @@ public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnCh
 	public String getApiName()
 	{
 		return "Ti.UI.PickerColumn";
+	}
+
+	public interface OnChangedListener {
+		void onChanged(PickerColumnProxy proxy);
 	}
 }
