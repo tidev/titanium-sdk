@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.os.LocaleListCompat;
 
 @Kroll.module
