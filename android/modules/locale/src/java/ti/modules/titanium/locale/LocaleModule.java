@@ -60,13 +60,15 @@ public class LocaleModule extends KrollModule
 		return TiPlatformHelper.getInstance().getLocale();
 	}
 
-	@TargetApi(33)
-	@Kroll.method
 	@Kroll.setProperty
 	public void setApplicationLocales(String locales)
 	{
-		LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(locales);
-		androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(appLocale);
+		if (Build.VERSION.SDK_INT >= 33) {
+			LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(locales);
+			AppCompatDelegate.setApplicationLocales(appLocale);
+		} else {
+			Log.w(TAG, "Only available for Android 33 and later");
+		}
 	}
 
 	@TargetApi(33)
