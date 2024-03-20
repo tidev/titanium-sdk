@@ -328,6 +328,11 @@ public class AndroidModule extends KrollModule
 		return String.format("#%06X",
 			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
 	}
+	@Kroll.method
+	public void moveToBackground()
+	{
+		TiApplication.getAppRootOrCurrentActivity().moveTaskToBack(true);
+	}
 
 	@Override
 	public String getApiName()
