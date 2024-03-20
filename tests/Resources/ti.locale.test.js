@@ -45,7 +45,7 @@ describe('Titanium.Locale', () => {
 		});
 
 		describe.android('.applicationLocales', () => {
-			it('is a Array', () => {				
+			it('is a Array', () => {
 				should(Ti.Locale).have.a.property('applicationLocales').which.is.an.Array();
 			});
 		});
