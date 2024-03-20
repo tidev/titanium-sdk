@@ -71,12 +71,15 @@ public class LocaleModule extends KrollModule
 		}
 	}
 
-	@TargetApi(33)
-	@Kroll.method
 	@Kroll.getProperty
 	public KrollDict[] getApplicationLocales()
 	{
-		LocaleListCompat localeListCompat = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales();
+		if (Build.VERSION.SDK_INT < 33) {
+			Log.w(TAG, "Only available for Android 33 and later");
+			return null;
+		}
+
+		LocaleListCompat localeListCompat = AppCompatDelegate.getApplicationLocales();
 		int size = localeListCompat.size();
 		KrollDict[] locales = new KrollDict[size];
 		for (int i = 0; i < size; i++) {
