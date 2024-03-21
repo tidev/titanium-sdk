@@ -223,6 +223,7 @@ properties:
     description: |
         Set the UI current active locale for the app.
         When changed, it automatically causes the activity to be restarted.
+        Note: This is only available on Android 33 and up.
     platforms: [android]
     since: "12.4.0"
     type: String
