@@ -2,7 +2,7 @@
 .cxx/
 .externalNativeBuild/
 .gradle/
-.idea/*
+.idea/
 !/.idea/codeStyles/
 !/.idea/inspectionProfiles/
 .project/

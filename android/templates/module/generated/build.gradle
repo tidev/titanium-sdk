@@ -12,7 +12,7 @@ repositories {
 }
 
 // Path to proxy binding JSON file created by "kroll-apt" annotation processor and used to do C/C++ code generation.
-def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.json".toString()
+def tiModuleBindingsJsonPath = "${project.layout.buildDirectory}/ti-generated/json/<%- moduleName %>.json".toString()
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>
@@ -47,7 +47,7 @@ android {
 				// Also have it produce a JSON file of all bindings which is also used to find onAppCreate() method.
 				arguments = [
 					'kroll.outputJsonFilePath': tiModuleBindingsJsonPath,
-					'kroll.outputCppDirPath': "${buildDir}/ti-generated/jni".toString(),
+					'kroll.outputCppDirPath': "${project.layout.buildDirectory}/ti-generated/jni".toString(),
 					'kroll.jsModuleName': '<%- moduleId %>',
 					'kroll.tiBindingsJsonFilePath': '<%- tiBindingsJsonPath.replace(/\\/g, '\\\\') %>'
 				]
@@ -87,13 +87,13 @@ android {
 			java.srcDirs = [
 				'src/main/java',
 				"${projectDir}/../../src",
-				"${buildDir}/ti-generated/java"
+				"${project.layout.buildDirectory}/ti-generated/java"
 			]
 			// C/C++ source code directories.
 			jni.srcDirs = [
 				"${projectDir}/../../jni",
 				"${projectDir}/src/main/jni",
-				"${buildDir}/ti-generated/jni"
+				"${project.layout.buildDirectory}/ti-generated/jni"
 			]
 			// C/C++ "*.so" dependency library paths. These libraries will be added to the app.
 			jniLibs.srcDirs = [
@@ -213,7 +213,7 @@ publishing {
 			groupId '<%- moduleMavenGroupId %>'
 			artifactId '<%- moduleMavenArtifactId %>'
 			version '<%- moduleVersion %>'
-			artifact file("${buildDir}/outputs/aar/${project.name}-release.aar")
+			artifact file("${project.layout.buildDirectory}/outputs/aar/${project.name}-release.aar")
 
 			// Generates the "*.pom" XML file containing all of Titanium's above dependencies.
 			pom.withXml {

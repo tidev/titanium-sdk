@@ -6,12 +6,13 @@
  */
 
 project.ext {
+	tiNdkVersion = '26.2.11394342'
 	tiAndroidXAppCompatLibVersion = '1.6.1'
-	tiAndroidXCoreLibVersion = '1.9.0'
-	tiAndroidXFragmentLibVersion = '1.5.7'
-	tiMaterialLibVersion = '1.6.1'
-	tiPlayServicesBaseLibVersion = '18.2.0'
+	tiAndroidXCoreLibVersion = '1.12.0'
+	tiAndroidXFragmentLibVersion = '1.6.2'
+	tiMaterialLibVersion = '1.11.0'
+	tiPlayServicesBaseLibVersion = '18.3.0'
 	tiManifestPlaceholders = [
-		tiActivityConfigChanges: 'density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode'
+			tiActivityConfigChanges: 'density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode'
 	]
 }
