@@ -217,7 +217,44 @@ properties:
     platforms: [android, iphone, ipad, macos]
     type: String
     permission: read-only
+
+  - name: applicationLocale    
+    summary: Set the UI locale for the app.
+    description: |
+        Set the UI current active locale for the app.
+        When changed, it automatically causes the activity to be restarted.
+    platforms: [android]
+    since: "12.4.0"
+    type: String
+    examples:
+      - title: Setting the UI locale of the app
+        example: |
+            ``` javascript           
+            // This sets the application UI locale.
+            Ti.Locale.applicationLocale = 'en-US';
+            // or
+            Ti.Locale.applicationLocale = 'de';
+            ```   
     
+  - name: applicationLocales
+    permission: read-only
+    summary: Gets the UI locales for the app.
+    description: |
+        Returns an array of objects with the current app UI locales.
+        Note: This is only available on Android 33 and up.        
+    platforms: [android]
+    since: "12.4.0"
+    type: Array
+    examples:
+      - title: Getting UI locale(s) of the app
+        example: |
+            ``` javascript
+            // This returns an array of objects for each locale defined for the application's UI.
+            let appLocales = Ti.Locale.applicationLocales;
+            console.log(appLocales[0].language)
+            console.log(appLocales);
+            ```    
+            
   - name: currentLanguage
     summary: Language of the current system locale, as an ISO 2-letter code.
     description: |
