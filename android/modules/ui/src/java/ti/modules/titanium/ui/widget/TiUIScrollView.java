@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -353,6 +353,9 @@ public class TiUIScrollView extends TiUIView
 	private AttributeSet getAttributeSet(Context context, int resourceId)
 	{
 		AttributeSet attr = null;
+		if (context == null || context.getResources() == null) {
+			return null;
+		}
 		try {
 			XmlPullParser parser = context.getResources().getXml(resourceId);
 			try {

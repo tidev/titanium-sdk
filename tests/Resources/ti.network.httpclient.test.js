@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -132,8 +132,6 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2156-android-invalid-redirect-alert-on-xhr-file-download
-	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1381-android-buffer-large-xhr-downloads
 	it('largeFileWithRedirect', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 6e4
@@ -157,7 +155,6 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/1649-android-httpclientsend-with-no-argument-causes-npe
 	it('emptyPOSTSend', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
@@ -215,7 +212,6 @@ describe('Titanium.Network.HTTPClient', function () {
 		should(xhr.getAllResponseHeaders).be.a.Function();
 	});
 
-	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2339
 	it('responseHeadersBug', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
@@ -386,7 +382,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://jira.appcelerator.org/browse/TIMOB-2849
+	// https://jira-archive.titaniumsdk.com/TIMOB-2849
 	// Windows does not yet support Ti.Network.Cookie
 	it.windowsMissing('setCookieClearCookieWithMultipleHTTPClients', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
@@ -442,8 +438,8 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://jira.appcelerator.org/browse/TIMOB-11751
-	// https://jira.appcelerator.org/browse/TIMOB-17403
+	// https://jira-archive.titaniumsdk.com/TIMOB-11751
+	// https://jira-archive.titaniumsdk.com/TIMOB-17403
 	// Windows Desktop is timing out here...
 	it('callbackTestForGETMethod', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({

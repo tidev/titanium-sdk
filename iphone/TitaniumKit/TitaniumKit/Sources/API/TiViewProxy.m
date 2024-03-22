@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -668,6 +668,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
   [self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
+}
+
+- (void)setRotation:(id)arg
+{
+  float val = ([TiUtils intValue:arg] * M_PI) / 180.0;
+  [self view].transform = CGAffineTransformMakeRotation(val);
 }
 
 - (TiBlob *)toImage:(id)args
