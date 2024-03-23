@@ -30,6 +30,23 @@ describe('Titanium.Locale', () => {
 			should(Ti.Locale.apiName).be.eql('Ti.Locale');
 		});
 
+		describe.android('.applicationLocales', () => {
+			it('is a Array', () => {
+				should(Ti.Locale).have.a.property('applicationLocales').which.is.an.Array();
+			});
+		});
+
+		describe.android('#set applicationLocales(String)', () => {
+			it('has a setter', () => {
+				should(Ti.Locale).have.a.setter('applicationLocales');
+			});
+
+			it('changes .applicationLocales', () => {
+				Ti.Locale.applicationLocales = 'ar';
+				should(Ti.Locale.applicationLocales[0].language).eql('ar');
+			});
+		});
+
 		describe('.currentCountry', () => {
 			it('is a String', () => {
 				should(Ti.Locale).have.a.readOnlyProperty('currentCountry').which.is.a.String();

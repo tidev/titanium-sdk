@@ -10,8 +10,10 @@ import java.text.Collator;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -21,7 +23,11 @@ import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.os.Build;
 import android.telephony.PhoneNumberUtils;
+
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
 
 @Kroll.module
 public class LocaleModule extends KrollModule
@@ -31,6 +37,62 @@ public class LocaleModule extends KrollModule
 	public LocaleModule()
 	{
 		super("Locale");
+	}
+
+	@Kroll.setProperty
+	public void setApplicationLocale(String locales)
+	{
+		if (Build.VERSION.SDK_INT >= 33) {
+			LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(locales);
+			AppCompatDelegate.setApplicationLocales(appLocale);
+		} else {
+			Log.w(TAG, "Only available for Android 33 and later");
+		}
+	}
+
+	@Kroll.getProperty
+	public KrollDict[] getApplicationLocales()
+	{
+		if (Build.VERSION.SDK_INT < 33) {
+			Log.w(TAG, "Only available for Android 33 and later");
+			return null;
+		}
+		LocaleListCompat localeListCompat = AppCompatDelegate.getApplicationLocales();
+		int size = localeListCompat.size();
+		KrollDict[] locales = new KrollDict[size];
+		for (int i = 0; i < size; i++) {
+			Locale locale = localeListCompat.get(i);
+			if (locale != null) {
+				KrollDict localeObj = new KrollDict();
+				localeObj.put("country", locale.getCountry());
+				localeObj.put("iso3_country", locale.getISO3Country());
+				localeObj.put("display_country", locale.getDisplayCountry());
+				localeObj.put("language", locale.getLanguage());
+				localeObj.put("iso3_language", locale.getISO3Language());
+				localeObj.put("display_language", locale.getDisplayLanguage());
+				localeObj.put("variant", locale.getVariant());
+				localeObj.put("display_variant", locale.getDisplayVariant());
+				localeObj.put("script", locale.getScript());
+				localeObj.put("display_script", locale.getDisplayScript());
+				localeObj.put("display_name", locale.getDisplayName());
+				localeObj.put("language_tag", locale.toLanguageTag());
+				Character[] extensionKeys = new Character[locale.getExtensionKeys().size()];
+				String[] extensions = new String[locale.getExtensionKeys().size()];
+				Iterator<Character> extensionKeysSize = locale.getExtensionKeys().iterator();
+				int l = 0;
+				while (extensionKeysSize.hasNext()) {
+					extensionKeys[l] = extensionKeysSize.next();
+					extensions[l] = locale.getExtension(extensionKeys[l]);
+					l++;
+				}
+				localeObj.put("extension_keys", extensionKeys);
+				localeObj.put("extensions", extensions);
+				locales[i] = localeObj;
+			} else {
+				locales[i] = null;
+			}
+		}
+		return locales;
 	}
 
 	@Kroll.getProperty
@@ -79,10 +141,9 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.getCanonicalLocales() static method.
-	 * @param locales
-	 * Can be a string or array of strings providing locale IDs to convert to canonical locale IDs. Can be null.
-	 * @return
-	 * Returns the given locale string IDs converted to "canonical" string IDs. Duplicate locales are removed.
+	 *
+	 * @param locales Can be a string or array of strings providing locale IDs to convert to canonical locale IDs. Can be null.
+	 * @return Returns the given locale string IDs converted to "canonical" string IDs. Duplicate locales are removed.
 	 * Returns an empty array if given locales are invalid/unsupported or if given a null locales argument.
 	 */
 	@Kroll.method
@@ -104,10 +165,10 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.Collator.supportedLocalesOf() static method.
+	 *
 	 * @param locales Can be a string or array of strings providing the locale IDs to search for. Can be null.
 	 * @param options The Intl.Collator.supportedLocalesOf() argument. Currently ignored.
-	 * @return
-	 * Returns a subset of locale IDs from the given argument that are supported by the system.
+	 * @return Returns a subset of locale IDs from the given argument that are supported by the system.
 	 * Returns an empty array if none of the locales are supported or if given a null locales argument.
 	 */
 	@Kroll.method
@@ -120,10 +181,10 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.DateTimeFormat.supportedLocalesOf() static method.
+	 *
 	 * @param locales Can be a string or array of strings providing the locale IDs to search for. Can be null.
 	 * @param options The Intl.DateTimeFormat.supportedLocalesOf() argument. Currently ignored.
-	 * @return
-	 * Returns a subset of locale IDs from the given argument that are supported by the system.
+	 * @return Returns a subset of locale IDs from the given argument that are supported by the system.
 	 * Returns an empty array if none of the locales are supported or if given a null locales argument.
 	 */
 	@Kroll.method
@@ -136,10 +197,10 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.NumberFormat.supportedLocalesOf() static method.
+	 *
 	 * @param locales Can be a string or array of strings providing the locale IDs to search for. Can be null.
 	 * @param options The Intl.NumberFormat.supportedLocalesOf() argument. Currently ignored.
-	 * @return
-	 * Returns a subset of locale IDs from the given argument that are supported by the system.
+	 * @return Returns a subset of locale IDs from the given argument that are supported by the system.
 	 * Returns an empty array if none of the locales are supported or if given a null locales argument.
 	 */
 	@Kroll.method
@@ -176,7 +237,7 @@ public class LocaleModule extends KrollModule
 
 			// Remove leading spaces and plus sign. Number format will fail to parse if there.
 			text = text.trim();
-			if ((text != null) && text.startsWith("+")) {
+			if (text.startsWith("+")) {
 				text = text.substring(1);
 			}
 
