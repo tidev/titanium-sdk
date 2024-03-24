@@ -72,7 +72,6 @@ jar {
 		}
 	}
 	duplicatesStrategy = DuplicatesStrategy.INCLUDE
-	version '1.0.0'
 }
 
 dependencies {

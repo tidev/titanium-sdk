@@ -6,10 +6,6 @@
  */
 package org.appcelerator.kroll.annotations.generator;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -24,8 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
+
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapperBuilder;
+import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
 
 @SuppressWarnings("unchecked")
@@ -59,9 +59,8 @@ public class KrollBindingGenerator
 
 	protected void initTemplates()
 	{
-		fmConfig = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
-		fmConfig.setObjectWrapper((new DefaultObjectWrapperBuilder(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS))
-			.build());
+		fmConfig = new Configuration();
+		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
 		fmConfig.setClassForTemplateLoading(getClass(), "");
 
 		try {
@@ -71,13 +70,9 @@ public class KrollBindingGenerator
 			InputStream v8HeaderStream = loader.getResourceAsStream(templatePackage + "ProxyBindingV8.h.fm");
 			InputStream v8SourceStream = loader.getResourceAsStream(templatePackage + "ProxyBindingV8.cpp.fm");
 
-			v8HeaderTemplate = new Template("ProxyBindingV8.h.fm", new InputStreamReader(
-				v8HeaderStream
-			), fmConfig);
+			v8HeaderTemplate = new Template("ProxyBindingV8.h.fm", new InputStreamReader(v8HeaderStream), fmConfig);
 
-			v8SourceTemplate = new Template("ProxyBindingV8.cpp.fm", new InputStreamReader(
-				v8SourceStream
-			), fmConfig);
+			v8SourceTemplate = new Template("ProxyBindingV8.cpp.fm", new InputStreamReader(v8SourceStream), fmConfig);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -214,7 +209,7 @@ public class KrollBindingGenerator
 						JSONArray list = (JSONArray) newEntryMap.get(listName);
 						for (int i = 0; i < list.size(); i++) {
 							jsonUtils.appendUniqueObject(origEntryMap, listName, "id",
-								(Map<Object, Object>) list.get(i));
+														 (Map<Object, Object>) list.get(i));
 						}
 					}
 				}
@@ -368,7 +363,7 @@ public class KrollBindingGenerator
 		if (dynamicProperties == null) {
 			dynamicProperties = Collections.EMPTY_MAP;
 		}
-		if (!methods.isEmpty() || !dynamicProperties.isEmpty()) {
+		if (methods.size() > 0 || dynamicProperties.size() > 0) {
 			String proxyClassName = (String) root.get("proxyClassName");
 			for (String propertyName : propertyAccessors) {
 
@@ -378,20 +373,20 @@ public class KrollBindingGenerator
 				if (dynamicProperties.containsKey(propertyName)) {
 					System.out.println(
 						"[WARN] Clashing property definition in proxy.propertyAccessors and a @Kroll.set/getProperty "
-							+ "annotations for property '" + proxyClassName + "." + propertyName + "'.");
+						+ "annotations for property '" + proxyClassName + "." + propertyName + "'.");
 					Map<String, Object> dynamicProperty = (Map<String, Object>) dynamicProperties.get(propertyName);
 					if ((Boolean) dynamicProperty.get("set")) { // there's a setter
 						// is getter defined?
 						if ((Boolean) dynamicProperty.get("get")) {
 							System.err.println(
 								"Likely fix is to remove from proxy.propertyAccessors listing, as both getter and "
-									+ "setter methods are defined.");
+								+ "setter methods are defined.");
 						} else {
 							System.err.println(
 								"Likely fix is to remove from proxy.propertyAccessors listing, as a setter method "
-									+ "is already defined. A getter IS NOT defined, so you may want to add a "
-									+ "@Kroll.getProperty implementation as well (or rely n the default getter "
-									+ "generated, which uses #onPropertyChanged() to react).");
+								+ "is already defined. A getter IS NOT defined, so you may want to add a "
+								+ "@Kroll.getProperty implementation as well (or rely n the default getter generated, "
+								+ "which uses #onPropertyChanged() to react).");
 						}
 						System.exit(1);
 					} else {
@@ -399,10 +394,10 @@ public class KrollBindingGenerator
 						// This may be a valid usage pattern: override getProperty, wants the "default" set implementation
 						System.out.println(
 							"[WARN] This will use the 'default' implementation for a setter and treat the property as "
-								+ "readwrite, with a non-default getter.");
+							+ "readwrite, with a non-default getter.");
 						System.out.println(
 							"[WARN] This is not an error, but you may want to consider adding a @Kroll.setProperty "
-								+ "implementation and then removing from proxy.propertyAccessors listing.");
+							+ "implementation and then removing from proxy.propertyAccessors listing.");
 					}
 					// Don't check for clashing methods, since we handle that for dynamic properties in next loop (and we have a dynamic property with same name)
 					continue;
@@ -417,11 +412,11 @@ public class KrollBindingGenerator
 				if (hasClashingGetter && hasClashingSetter) {
 					System.err.println(
 						"Clashing method definitions in proxy.propertyAccessors and @Kroll.method annotations for "
-							+ "property accessors on '" + proxyClassName + "." + propertyName
-							+ " - get" + upperProp + "() and set" + upperProp + "()'.");
+						+ "property accessors on '" + proxyClassName + "." + propertyName
+						+ " - get" + upperProp + "() and set" + upperProp + "()'.");
 					System.err.println(
 						"Likely fix is to remove from proxy.propertyAccessors listing, remove @Kroll.method "
-							+ "annotation and add @Kroll.getProperty/@Kroll.setProperty annotations to the methods.");
+						+ "annotation and add @Kroll.getProperty/@Kroll.setProperty annotations to the methods.");
 					System.err.println("Alternately, please rename the methods to avoid the clash.");
 					System.exit(1);
 				}
@@ -429,10 +424,10 @@ public class KrollBindingGenerator
 					// There's a getter due to propertyAccessor entry, but also a method with same name
 					System.err.println(
 						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation for "
-							+ "property accessor '" + proxyClassName + "#get" + upperProp + "()'.");
+						+ "property accessor '" + proxyClassName + "#get" + upperProp + "()'.");
 					System.err.println(
 						"Likely fix is to remove @Kroll.method annotation and add @Kroll.getProperty "
-							+ "annotation to method.");
+						+ "annotation to method.");
 					System.err.println("Alternately, please rename the method to avoid the clash.");
 					System.exit(1);
 				}
@@ -440,10 +435,10 @@ public class KrollBindingGenerator
 					// There's a setter due to propertyAccessor entry, but also a method with same name
 					System.err.println(
 						"Clashing method definition in proxy.propertyAccessors and a @Kroll.method annotation "
-							+ "for property accessor '" + proxyClassName + "#set" + upperProp + "()'.");
+						+ "for property accessor '" + proxyClassName + "#set" + upperProp + "()'.");
 					System.err.println(
 						"Likely fix is to remove @Kroll.method annotation and add @Kroll.setProperty "
-							+ "annotation to method.");
+						+ "annotation to method.");
 					System.err.println("Alternately, please rename the method to avoid the clash.");
 					System.exit(1);
 				}
@@ -461,10 +456,10 @@ public class KrollBindingGenerator
 				// there's no getProperty defined, but there's a method with the target name
 				if (!hasGetter && methods.containsKey(getterName)) {
 					System.err.println("There is no getter assigned to property " + propertyName
-						+ ", but there is a @Kroll.method annotation on the default getter method name: "
-						+ proxyClassName + "#" + getterName + "()");
+									   + ", but there is a @Kroll.method annotation on the default getter method name: "
+									   + proxyClassName + "#" + getterName + "()");
 					System.err.println("Likely fix is to add the @Kroll.getProperty to this method so that obj."
-						+ propertyName + " returns the same value as obj." + getterName + "();");
+									   + propertyName + " returns the same value as obj." + getterName + "();");
 					System.err.println("Alternately, please rename the method to avoid the clash.");
 					System.exit(1);
 				}
@@ -484,11 +479,11 @@ public class KrollBindingGenerator
 					if (args.size() == 1) {
 						System.err.println(
 							"There is no setter assigned to property " + propertyName
-								+ ", but there is a @Kroll.method annotation on the default setter method name: "
-								+ proxyClassName + "#" + setterName + "()");
+							+ ", but there is a @Kroll.method annotation on the default setter method name: "
+							+ proxyClassName + "#" + setterName + "()");
 						System.err.println("Likely fix is to add the @Kroll.setProperty to this method so that obj."
-							+ propertyName + " = value executes the same code as obj." + setterName
-							+ "(value);");
+										   + propertyName + " = value executes the same code as obj." + setterName
+										   + "(value);");
 						System.err.println("Alternately, please rename the method to avoid the clash.");
 						System.exit(1);
 					}

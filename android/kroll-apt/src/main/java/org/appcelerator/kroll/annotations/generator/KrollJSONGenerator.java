@@ -6,8 +6,6 @@
  */
 package org.appcelerator.kroll.annotations.generator;
 
-import org.json.simple.JSONValue;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -32,12 +30,14 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.SimpleElementVisitor9;
+import javax.lang.model.util.SimpleElementVisitor6;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
+import org.json.simple.JSONValue;
+
+@SupportedSourceVersion(SourceVersion.RELEASE_11)
 @SuppressWarnings("unchecked")
 @SupportedAnnotationTypes({
 	KrollJSONGenerator.Kroll_argument,
@@ -214,7 +214,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 			} catch (Exception e) {
 				// file doesn't exist, we'll just create it later
 				debug("No binding data found, creating new data file: %s/%s", this.jarJsonPackageName,
-					this.jarJsonFileName);
+					  this.jarJsonFileName);
 			}
 		}
 	}
@@ -222,18 +222,17 @@ public class KrollJSONGenerator extends AbstractProcessor
 	protected void processKrollProxy(final Element element)
 	{
 		utils.acceptAnnotations(
-			element, new String[] { Kroll_proxy, Kroll_module }, new KrollVisitor<>()
-			{
-				private Map<Object, Object> getProxyProperties(String packageName, String proxyClassName)
+			element, new String[] { Kroll_proxy, Kroll_module }, new KrollVisitor<AnnotationMirror>() {
+				protected Map<Object, Object> getProxyProperties(String packageName, String proxyClassName)
 				{
 					if (properties == null) {
 						properties = new HashMap<>();
 					}
 					return jsonUtils.getOrCreateMap(jsonUtils.getOrCreateMap(properties, "proxies"),
-						packageName + "." + proxyClassName);
+													packageName + "." + proxyClassName);
 				}
 
-				private Map<Object, Object> getModule(String moduleClassName)
+				protected Map<Object, Object> getModule(String moduleClassName)
 				{
 					if (properties == null) {
 						properties = new HashMap<>();
@@ -279,7 +278,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 						String createInModuleClass = (String) proxyAttrs.get("creatableInModule");
 						if (!createInModuleClass.equals(Kroll_DEFAULT)) {
 							jsonUtils.appendUniqueObject(getModule(createInModuleClass), "createProxies",
-								"proxyClassName", proxyAttrs);
+														 "proxyClassName", proxyAttrs);
 						}
 					}
 
@@ -287,7 +286,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 						String parentModuleClass = (String) proxyAttrs.get("parentModule");
 						if (!parentModuleClass.equals(Kroll_DEFAULT)) {
 							jsonUtils.appendUniqueObject(getModule(parentModuleClass), "childModules", "proxyClassName",
-								proxyAttrs);
+														 proxyAttrs);
 						} else {
 							proxyAttrs.remove("parentModule");
 						}
@@ -299,7 +298,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 						HashMap<String, Object> topLevelParams = utils.getAnnotationParams(element, Kroll_topLevel);
 						List<?> topLevelNames = (List<?>) topLevelParams.get("value");
 						if (topLevelNames.size() == 1 && topLevelNames.get(0).equals(DEFAULT_NAME)) {
-							topLevelNames = Collections.singletonList(apiName);
+							topLevelNames = Arrays.asList(apiName);
 						}
 
 						proxyAttrs.put("topLevelNames", topLevelNames);
@@ -308,8 +307,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 					BindingVisitor visitor = new BindingVisitor();
 					final BindingVisitor fVisitor = visitor;
 					if (utils.hasAnnotation(element, Kroll_dynamicApis)) {
-						utils.acceptAnnotations(element, Kroll_dynamicApis, new KrollVisitor<>()
-						{
+						utils.acceptAnnotations(element, Kroll_dynamicApis, new KrollVisitor<AnnotationMirror>() {
 							@Override
 							public boolean visit(AnnotationMirror annotation, Object arg)
 							{
@@ -354,7 +352,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 	}
 
 	protected class BindingVisitor
-		extends SimpleElementVisitor9<Object, Object> implements KrollVisitor<AnnotationMirror>
+		extends SimpleElementVisitor6<Object, Object> implements KrollVisitor<AnnotationMirror>
 	{
 		@Override
 		public String visitExecutable(ExecutableElement e, Object p)
@@ -610,12 +608,12 @@ public class KrollJSONGenerator extends AbstractProcessor
 			String defaultType = null;
 			if (isMethod) {
 				List<? extends VariableElement> params = ((ExecutableElement) element).getParameters();
-				if (!params.isEmpty()) {
+				if (params.size() > 0) {
 					VariableElement firstParam = params.get(0);
 					defaultType = utils.getType(firstParam);
 				} else {
 					warn("Skipping injection into method %s, at least one argument is required in a setter",
-						utils.getName(element));
+						 utils.getName(element));
 					return;
 				}
 			} else {
@@ -781,7 +779,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 				writer.close();
 			} catch (Exception e) {
 				debug("Exception trying to generate JSON: %s/%s, %s", this.jarJsonPackageName, this.jarJsonFileName,
-					e.getMessage());
+					  e.getMessage());
 			}
 		}
 
