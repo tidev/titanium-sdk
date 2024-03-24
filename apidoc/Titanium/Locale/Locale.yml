@@ -14,7 +14,7 @@ since: "1.5"
 methods:
   - name: formatTelephoneNumber
     summary: Formats a telephone number according to the current system locale.
-    platforms: [ android ]
+    platforms: [android]
     returns:
       type: String
     parameters:
@@ -29,7 +29,7 @@ methods:
       `getCurrencyCode('en-US')` returns `USD`. See the `xe.com` website 
       [Currency List](http://www.xe.com/iso4217.php#section2) section of the `www.xe.com` website for 
       reference.
-    platforms: [ android, iphone, ipad, macos ]
+    platforms: [android, iphone, ipad, macos]
     returns:
       type: String
     parameters:
@@ -49,7 +49,7 @@ methods:
       `getCurrencySymbol('USD')` returns `$`. See the 
       [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
       `www.xe.com` website for reference.
-    platforms: [ android, iphone, ipad, macos ]
+    platforms: [android, iphone, ipad, macos]
     returns:
       type: String
     parameters:
@@ -73,7 +73,7 @@ methods:
       
       When changing to a language with a different layout direction, such as English to Arabic or vice-versa,
       you will need to close and re-open the window in order to apply the new right-to-left setting.
-    platforms: [ iphone, ipad, android, macos ]
+    platforms: [iphone, ipad, android, macos]
     parameters:
       - name: language
         summary: The specified ISO 639-1 code.
@@ -86,7 +86,7 @@ methods:
       `getLocaleCurrencySymbol('en-US')` returns `$`. See the 
       [Currency Symbols](http://www.xe.com/symbols.php#section2) section of the 
       `www.xe.com` website for reference.
-    platforms: [ android, iphone, ipad, macos ]
+    platforms: [android, iphone, ipad, macos]
     returns:
       type: String
     parameters:
@@ -167,7 +167,7 @@ methods:
 
   - name: parseDecimal
     summary: Parses a number from the given string using the current or given locale.
-    platforms: [ android, iphone, ipad, macos ]
+    platforms: [android, iphone, ipad, macos]
     returns:
       type: Number
       summary: Returns the parsed number. Returns `NaN` (Not-a-Number) if given string is invalid.
@@ -214,7 +214,25 @@ properties:
       This property holds a value such as `US` or `GB`. See the 
       [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
       country codes section of wikipedia for reference.
-    platforms: [ android, iphone, ipad, macos ]
+    platforms: [android, iphone, ipad, macos]
+    type: String
+    permission: read-only
+
+  - name: currentLanguage
+    summary: Language of the current system locale, as an ISO 2-letter code.
+    description: |
+      This property holds a value such as `en` or `fr`. See the 
+      [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) section of wikipedia for reference.
+    type: String
+    permission: read-only
+
+  - name: currentLocale
+    summary: Current system locale, as a combination of ISO 2-letter language and country codes.
+    description: |
+      This property holds a value such as `en-US` or `en-GB`.
+      See the [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
+      [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
+      sections of wikipedia for reference.
     type: String
     permission: read-only
 
@@ -255,21 +273,3 @@ properties:
           console.log(appLocales[0].language)
           console.log(appLocales);
           ```
-
-  - name: currentLanguage
-    summary: Language of the current system locale, as an ISO 2-letter code.
-    description: |
-      This property holds a value such as `en` or `fr`. See the 
-      [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) section of wikipedia for reference.
-    type: String
-    permission: read-only
-
-  - name: currentLocale
-    summary: Current system locale, as a combination of ISO 2-letter language and country codes.
-    description: |
-      This property holds a value such as `en-US` or `en-GB`.
-      See the [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
-      [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
-      sections of wikipedia for reference.
-    type: String
-    permission: read-only

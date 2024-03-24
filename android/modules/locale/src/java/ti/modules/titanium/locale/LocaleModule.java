@@ -237,7 +237,7 @@ public class LocaleModule extends KrollModule
 
 			// Remove leading spaces and plus sign. Number format will fail to parse if there.
 			text = text.trim();
-			if (text.startsWith("+")) {
+			if ((text != null) && text.startsWith("+")) {
 				text = text.substring(1);
 			}
 
