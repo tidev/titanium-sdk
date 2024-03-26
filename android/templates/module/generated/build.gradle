@@ -162,7 +162,7 @@ project.afterEvaluate {
 }
 
 // Hook into Java compile task.
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
 	// Log all Java linting errors/warnings.
 	options.compilerArgs << "-Xlint:all"
 
