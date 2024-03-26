@@ -16,8 +16,9 @@ def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>
+	namespace '<%- moduleId %>'
 	defaultConfig {
-		minSdkVersion 19
+		minSdkVersion 21
 		targetSdkVersion <%- compileSdkVersion %>
 		versionName '<%- moduleVersion %>'
 
@@ -66,6 +67,9 @@ android {
 		ndk {
 			abiFilters <%- "'" + moduleArchitectures.join("','") + "'" %>
 		}
+	}
+	buildFeatures {
+		buildConfig true
 	}
 	externalNativeBuild {
 		ndkBuild {
@@ -122,11 +126,11 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_11
-		targetCompatibility JavaVersion.VERSION_11
+		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_17
 	}
 	kotlinOptions {
-		jvmTarget = "11"
+		jvmTarget = "17"
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
@@ -155,14 +159,23 @@ preBuild.doFirst {
 // Set up project to compile Java side before compiling the C/C++ side.
 // We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
 project.afterEvaluate {
-	externalNativeBuildDebug.dependsOn compileDebugJavaWithJavac
-	externalNativeBuildRelease.dependsOn compileReleaseJavaWithJavac
-	buildNdkBuildDebug.dependsOn compileDebugJavaWithJavac
-	buildNdkBuildRelease.dependsOn compileReleaseJavaWithJavac
+	tasks.configureEach {
+		if (it.name == 'compileReleaseJavaWithJavac') {
+			externalNativeBuildRelease.mustRunAfter it
+		} else if (it.name == 'compileDebugJavaWithJavac') {
+			externalNativeBuildDebug.mustRunAfter it
+		} else if (it.name == 'buildNdkBuildRelease[armeabi-v7a]' || it.name == 'buildNdkBuildRelease[arm64-v8a]' || it.name == 'buildNdkBuildRelease[x86]' || it.name == 'buildNdkBuildRelease[x86_64]') {
+			it.mustRunAfter('compileReleaseJavaWithJavac')
+		} else if (it.name == 'buildNdkBuildDebug[armeabi-v7a]' || it.name == 'buildNdkBuildDebug[arm64-v8a]' || it.name == 'buildNdkBuildDebug[x86]' || it.name == 'buildNdkBuildDebug[x86_64]') {
+			it.mustRunAfter('compileDebugJavaWithJavac')
+		} else if (it.name == 'generateReleaseAssets') {
+			it.dependsOn generateReleaseRFile
+		}
+	}
 }
 
 // Hook into Java compile task.
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
 	// Log all Java linting errors/warnings.
 	options.compilerArgs << "-Xlint:all"
 
@@ -176,7 +189,7 @@ tasks.withType(JavaCompile) {
 			environment 'TI_MODULE_GENERATED_JS_DIR', "${projectDir}/build/ti-generated/js"
 			environment 'TI_MODULE_ID', '<%- moduleId %>'
 			environment 'TI_MODULE_NAMESPACE', '<%- moduleId.toLowerCase() %>'
-			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir.replace(/\\/g, '\\\\') %>'
+			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir.replace(/\\/g, ' \ \ \ \ ') %>'
 			executable = 'node'
 			workingDir = projectDir
 			args = ['generate-cpp-files.js']

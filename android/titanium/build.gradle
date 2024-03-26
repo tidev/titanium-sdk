@@ -74,6 +74,9 @@ android {
 			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
 		}
 	}
+	buildFeatures {
+		buildConfig true
+	}
 	externalNativeBuild {
 		cmake {
 			version '3.10.2'
@@ -193,7 +196,6 @@ tasks.withType(JavaCompile).configureEach {
 // Set up project to compile Java side before compiling the C/C++ side.
 // We must do this because our "kroll-apt" Java annotation processor generates C++ source files.
 project.afterEvaluate {
-	preBuild.mustRunAfter externalNativeBuildRelease
 	tasks.configureEach {
 		if (it.name == 'compileReleaseJavaWithJavac') {
 			externalNativeBuildRelease.mustRunAfter it
@@ -203,6 +205,8 @@ project.afterEvaluate {
 			it.mustRunAfter('compileReleaseJavaWithJavac')
 		} else if (it.name == 'buildCMakeDebug[armeabi-v7a]' || it.name == 'buildCMakeDebug[arm64-v8a]' || it.name == 'buildCMakeDebug[x86]' || it.name == 'buildCMakeDebug[x86_64]') {
 			it.mustRunAfter('compileDebugJavaWithJavac')
+		} else if (it.name == 'generateReleaseAssets') {
+			it.dependsOn generateReleaseRFile
 		}
 	}
 }
@@ -312,7 +316,7 @@ publishing {
 			artifactId 'titanium'
 			version tiBuildVersionString
 			artifact file("${buildDir}/outputs/aar/titanium-release.aar")
-			println("MavenPublication.name => ${MavenPublication.name}");
+
 			// Generates the "*.pom" XML file containing all of Titanium's above dependencies,
 			// but excluding Google Play Services dependencies which is optional.
 			pom.withXml {
