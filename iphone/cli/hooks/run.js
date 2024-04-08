@@ -20,6 +20,7 @@ exports.init = function (logger, config, cli) {
 			const i18n = require('node-appc').i18n(__dirname);
 			const __ = i18n.__;
 			const __n = i18n.__n;
+			const ignoreLog = config.cli.ignoreLog || [];
 
 			if (cli.argv['build-only']) {
 				logger.info(__('Performed build only, skipping running of the application'));
@@ -72,6 +73,12 @@ exports.init = function (logger, config, cli) {
 					lastLogger = m[2].toLowerCase();
 					line = m[4].trim();
 				}
+
+				// ignore logs from cli ignoreLog
+				if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
+					return;
+				}
+
 				if (levels.indexOf(lastLogger) === -1) {
 					logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 				} else {

@@ -242,6 +242,7 @@ enum {
 - (id)animatedCenter;
 
 - (void)setBackgroundGradient:(id)arg;
+- (void)setRotation:(id)arg;
 - (TiBlob *)toImage:(id)args;
 - (TiPoint *)contentOffset;
 
