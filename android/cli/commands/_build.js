@@ -2213,10 +2213,12 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	// Create a "local.properties" file providing a path to the Android SDK directory.
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
-	// Copy our root "build.gradle" template script to the root build directory.
-	await fs.copyFile(
-		path.join(this.templatesDir, 'root.build.gradle'),
-		path.join(this.buildDir, 'build.gradle'));
+	// Generate root "build.gradle" template script to the root build directory.
+	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'root.build.gradle'));
+	buildGradleContent = ejs.render(buildGradleContent.toString(), {
+		classpathes: [],
+	});
+	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
 	// Copy our Titanium template's gradle constants file.
 	// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.

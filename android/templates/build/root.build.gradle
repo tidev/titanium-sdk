@@ -10,7 +10,17 @@ buildscript {
 		classpath 'com.android.tools.build:gradle:7.0.4'
 		classpath 'com.google.gms:google-services:4.3.10'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+		<% for(var i=0; i<classpathes.length; i++) {%>
+		classpath '<%= classpathes[i] %>'
+		<% } %>
 	}
+}
+
+// Load the module developer's optional "root.build.gradle" file from "<moduel>/android" directory.
+// This gradle file is expected to provide the module's "dependencies".
+def moduleRootBuildGradlePath = "${projectDir}/../root.build.gradle"
+if (file(moduleRootBuildGradlePath).exists()) {
+	apply from: moduleRootBuildGradlePath
 }
 
 allprojects {
