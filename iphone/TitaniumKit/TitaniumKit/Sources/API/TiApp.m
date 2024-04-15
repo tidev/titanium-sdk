@@ -324,7 +324,20 @@ extern void UIColorFlushCache(void);
   return YES;
 }
 
-// Handle URL-schemes / iOS >= 9
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+{
+  UIOpenURLContext *primaryContext = URLContexts.allObjects.firstObject;
+
+  NSDictionary<UIApplicationOpenURLOptionsKey, id> *options = @{
+    UIApplicationOpenURLOptionsSourceApplicationKey : NULL_IF_NIL(primaryContext.options.sourceApplication)
+  };
+
+  [self application:[UIApplication sharedApplication] openURL:primaryContext.URL options:options];
+}
+
+// Handle URL-schemes. Note that this selector is not called automatically anymore in iOS 13+
+// because of the scene management. Instead, the above "scene:openURLContexts:" selector is called
+// that forwards the call for maximum backwards compatibility
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options
 {
   [self tryToInvokeSelector:@selector(application:openURL:options:)
