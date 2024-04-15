@@ -1198,11 +1198,19 @@ extern void UIColorFlushCache(void);
   [self tryToInvokeSelector:@selector(scene:willConnectToSession:options:)
               withArguments:[NSOrderedSet orderedSetWithObjects:scene, connectionOptions, nil]];
 
-  // If a "application-launch-url" is set, launch it directly
-  [self launchToUrl];
+  // Catch exceptions
+  [TiExceptionHandler defaultExceptionHandler];
+
+  // Enable device logs (e.g. for physical devices)
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   // Initialize the root-controller
   [self initController];
+
+  // If a "application-launch-url" is set, launch it directly
+  [self launchToUrl];
 
   // Boot our kroll-core
   [self boot];
