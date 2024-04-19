@@ -99,7 +99,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<>();
@@ -738,11 +737,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return proxy;
 	}
 
-	public boolean isAnalyticsEnabled()
-	{
-		return false;
-	}
-
 	/**
 	 * Determines if Titanium's JavaScript runtime should run on the main UI thread or not
 	 * based on the "tiapp.xml" property "run-on-main-thread".
@@ -753,26 +747,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean runOnMainThread()
 	{
 		return true;
-	}
-
-	public void setFilterAnalyticsEvents(String[] events)
-	{
-		filteredAnalyticsEvents = events;
-	}
-
-	public boolean isAnalyticsFiltered(String eventName)
-	{
-		if (filteredAnalyticsEvents == null) {
-			return false;
-		}
-
-		for (int i = 0; i < filteredAnalyticsEvents.length; ++i) {
-			String currentName = filteredAnalyticsEvents[i];
-			if (eventName.equals(currentName)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override

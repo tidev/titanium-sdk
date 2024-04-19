@@ -1541,9 +1541,6 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		// Notify plugins that we're about to begin.
 		await new Promise(resolve => cli.emit('build.pre.construct', this, resolve));
 
-		// Post build anlytics.
-		await this.doAnalytics();
-
 		// Initialize build system. Checks if we need to do a clean or incremental build.
 		await this.initialize();
 		await this.loginfo();
@@ -1600,35 +1597,6 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 	if (finished) {
 		finished();
 	}
-};
-
-AndroidBuilder.prototype.doAnalytics = async function doAnalytics() {
-	const cli = this.cli;
-	let eventName = 'android.' + cli.argv.target;
-
-	if (cli.argv.target === 'dist-playstore') {
-		eventName = 'android.distribute.playstore';
-	} else if (this.allowDebugging && this.debugPort) {
-		eventName += '.debug';
-	} else if (this.allowProfiling && this.profilerPort) {
-		eventName += '.profile';
-	} else {
-		eventName += '.run';
-	}
-
-	cli.addAnalyticsEvent(eventName, {
-		name: cli.tiapp.name,
-		publisher: cli.tiapp.publisher,
-		url: cli.tiapp.url,
-		image: cli.tiapp.icon,
-		appid: cli.tiapp.id,
-		description: cli.tiapp.description,
-		type: cli.argv.type,
-		guid: cli.tiapp.guid,
-		version: cli.tiapp.version,
-		copyright: cli.tiapp.copyright,
-		date: (new Date()).toDateString()
-	});
 };
 
 AndroidBuilder.prototype.initialize = async function initialize() {
@@ -1865,12 +1833,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (!this.tiapp.analytics !== !manifest.analytics) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
-		this.logger.info('  ' + __('Was: %s', !!manifest.analytics));
-		this.logger.info('  ' + __('Now: %s', !!this.tiapp.analytics));
-		return true;
-	}
 	if (this.tiapp.publisher !== manifest.publisher) {
 		this.logger.info(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.publisher));
@@ -3821,7 +3783,6 @@ AndroidBuilder.prototype.writeBuildManifest = async function writeBuildManifest(
 			outputDir: this.cli.argv['output-dir'],
 			name: this.tiapp.name,
 			id: this.tiapp.id,
-			analytics: this.tiapp.analytics,
 			publisher: this.tiapp.publisher,
 			url: this.tiapp.url,
 			version: this.tiapp.version,
