@@ -58,16 +58,17 @@
 
 - (NSDate *)createTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp", @"7.3.0", @"Filesystem.File.createdAt()");
-  return [self createdAt:nil];
+  DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.createTimestamp", @"7.3.0", @"12.4.0", @"Filesystem.File.createdAt()");
+  return [NSDate new];
 }
 
 - (NSDate *)createTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp()", @"7.3.0", @"Filesystem.File.createdAt()");
-  return [self createdAt:unused];
+  DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.createTimestamp()", @"7.3.0", @"12.4.0", @"Filesystem.File.createdAt()");
+  return [NSDate new];
 }
 
+#ifdef USE_TI_FILESYSTEMCREATEDAT
 - (NSDate *)createdAt:(id)unused
 {
   NSError *error = nil;
@@ -82,19 +83,21 @@
   }
   return result;
 }
+#endif
 
 - (NSDate *)modificationTimestamp
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp", @"7.3.0", @"Filesystem.File.modifiedAt()");
-  return [self modifiedAt:nil];
+  DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.modificationTimestamp", @"7.3.0", @"12.4.0", @"Filesystem.File.modifiedAt()");
+  return [NSDate new];
 }
 
 - (NSDate *)modificationTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"Filesystem.File.modifiedAt()");
-  return [self modifiedAt:nil];
+  DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"12.4.0", @"Filesystem.File.modifiedAt()");
+  return [NSDate new];
 }
 
+#ifdef USE_TI_FILESYSTEMMODIFIEDAT
 - (NSDate *)modifiedAt:(id)unused
 {
   NSError *error = nil;
@@ -104,6 +107,7 @@
   }
   return [resultDict objectForKey:NSFileModificationDate];
 }
+#endif
 
 - (NSNumber *)symbolicLink
 {
@@ -147,6 +151,7 @@ FILENOOP(setHidden
   return resultArray;
 }
 
+#ifdef USE_TI_FILESYSTEMSPACEAVAILABLE
 - (NSNumber *)spaceAvailable:(id)unused
 {
   NSError *error = nil;
@@ -157,6 +162,7 @@ FILENOOP(setHidden
   }
   return [resultDict objectForKey:NSFileSystemFreeSize];
 }
+#endif
 
 - (NSString *)getProtectionKey:(id)args
 {
