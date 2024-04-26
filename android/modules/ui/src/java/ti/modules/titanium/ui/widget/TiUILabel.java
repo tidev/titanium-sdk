@@ -799,4 +799,16 @@ public class TiUILabel extends TiUIView
 		textView.setText(text, MaterialTextView.BufferType.NORMAL);
 		textView.requestLayout();
 	}
+
+	public int getLineCount()
+	{
+		MaterialTextView textView = (MaterialTextView) getNativeView();
+		return textView.getLineCount();
+	}
+
+	public String getVisibleText()
+	{
+		MaterialTextView textView = (MaterialTextView) getNativeView();
+		return textView.getLayout().getText().toString();
+	}
 }

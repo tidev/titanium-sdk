@@ -353,6 +353,9 @@ public class TiUIScrollView extends TiUIView
 	private AttributeSet getAttributeSet(Context context, int resourceId)
 	{
 		AttributeSet attr = null;
+		if (context == null || context.getResources() == null) {
+			return null;
+		}
 		try {
 			XmlPullParser parser = context.getResources().getXml(resourceId);
 			try {

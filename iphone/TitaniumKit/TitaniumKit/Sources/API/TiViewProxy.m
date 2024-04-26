@@ -670,6 +670,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
 }
 
+- (void)setRotation:(id)arg
+{
+  float val = ([TiUtils intValue:arg] * M_PI) / 180.0;
+  [self view].transform = CGAffineTransformMakeRotation(val);
+}
+
 - (TiBlob *)toImage:(id)args
 {
   KrollCallback *callback = nil;
