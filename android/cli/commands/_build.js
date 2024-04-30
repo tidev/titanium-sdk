@@ -3206,7 +3206,7 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		root.appendChild(dom.createTextNode('\n'));
 
 		// Create the XML file under the Android "res/values-<locale>" folder.
-		const defaultLang = this.tiapp.defaultLang ? this.tiapp.defaultLang : 'en';
+		const defaultLang = this.tiapp.defaultLang || 'en';
 		const localeSuffixName = (locale === defaultLang ? '' : '-' + resolveRegionName(locale));
 		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
 		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
