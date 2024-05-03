@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -191,6 +191,11 @@ public class AndroidModule extends KrollModule
 	public static final int TABS_STYLE_DEFAULT = 0;
 	@Kroll.constant
 	public static final int TABS_STYLE_BOTTOM_NAVIGATION = 1;
+
+	@Kroll.constant
+	public static final int TAB_MODE_FIXED = 1;
+	@Kroll.constant
+	public static final int TAB_MODE_SCROLLABLE = 0;
 
 	@Kroll.constant
 	public static final int TRANSITION_NONE = TiUIView.TRANSITION_NONE;

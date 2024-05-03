@@ -1,7 +1,7 @@
 {
 	"name": "titanium-mobile-ios",
 	"title": "iOS",
-	"description": "TiDev Titanium Mobile iOS",
+	"description": "Titanium SDK iOS",
 	"keywords": [
 		"appcelerator",
 		"titanium",
@@ -19,7 +19,7 @@
 		"ios sdk": ">=13.0 <=16.x"
 	},
 	"engines": {
-		"node": ">=12.13.0"
+		"node": ">=16.0.0"
 	},
 	"repository": {
 		"type": "git",

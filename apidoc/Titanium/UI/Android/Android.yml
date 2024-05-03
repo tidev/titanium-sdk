@@ -894,6 +894,20 @@ properties:
     platforms: [android]
     since: "8.0.0"
 
+  - name: TAB_MODE_FIXED
+    summary: Set the TabGroup tab mode to fixed (default).
+    type: Number
+    availability: creation
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: TAB_MODE_SCROLLABLE
+    summary: Set the TabGroup tab mode to scrollable.
+    type: Number
+    availability: creation
+    platforms: [android]
+    since: "12.2.0"
+
   - name: SCROLL_FLAG_ENTER_ALWAYS
     summary: When entering (scrolling on screen) the view will scroll on any downwards scroll event, regardless of whether the scrolling view is also scrolling. This is commonly referred to as the 'quick return' pattern.
     type: Number
@@ -937,7 +951,7 @@ properties:
     since: "12.1.0"
 
   - name: SCROLL_FLAG_SNAP_MARGINS
-    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself. 
+    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself.
     type: Number
     permission: read-only
     platforms: [android]

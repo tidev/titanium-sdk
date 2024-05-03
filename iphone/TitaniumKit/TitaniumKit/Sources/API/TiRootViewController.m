@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -696,7 +696,8 @@
   if (![TiSharedConfig defaultConfig].debugEnabled) {
     return;
   }
-  //FIRST DISMISS ALL MODAL WINDOWS
+
+  // Dismiss all currently opened windows
   UIViewController *topVC = [self topPresentedController];
   if (topVC != self) {
     UIViewController *presenter = [topVC presentingViewController];
@@ -706,7 +707,8 @@
                                   }];
     return;
   }
-  //At this point all modal stuff is done. Go ahead and clean up proxies.
+
+  // Clean up proxies.
   NSArray *modalCopy = [modalWindows copy];
   NSArray *windowCopy = [containedWindows copy];
 
@@ -725,7 +727,8 @@
     [windowCopy release];
   }
 
-  DebugLog(@"[INFO] UI SHUTDOWN COMPLETE. TRYING TO RESUME RESTART");
+  DebugLog(@"[WARN] Calling the private `_restart()` API should not be done in production, as restarting an app is not a recommended native concept.");
+
   if ([arg respondsToSelector:@selector(_resumeRestart:)]) {
     [arg performSelector:@selector(_resumeRestart:) withObject:nil];
   } else {

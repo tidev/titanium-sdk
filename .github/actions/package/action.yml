@@ -16,13 +16,13 @@ runs:
   using: composite
   steps:
     - name: Use Node.js 16.x
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
     - name: Use JDK 11
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v3
       with:
         distribution: 'adopt'
         java-version: ${{ inputs.java-version }}
@@ -32,7 +32,7 @@ runs:
       shell: bash
 
     - name: Cache Gradle packages
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: |
           ~/.gradle/caches
@@ -41,7 +41,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v3
       with:
         name: android-build
 
@@ -49,7 +49,7 @@ runs:
       run: tar -xzvf android-build.tar.gz
       shell: bash
 
-    - uses: actions/download-artifact@v2
+    - uses: actions/download-artifact@v3
       with:
         name: ios-build
 
@@ -58,7 +58,7 @@ runs:
       shell: bash
 
     - name: Cache Native Modules
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ env.SDK_BUILD_CACHE_DIR }}
         key: native-modules-${{ github.sha }}
@@ -70,21 +70,21 @@ runs:
       shell: bash
 
     - name: Archive OSX artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: mobilesdk-${{ inputs.vtag }}-osx
         path: |
           dist/mobilesdk-*-osx.zip
 
     - name: Archive win32 artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: mobilesdk-${{ inputs.vtag }}-win32
         path: |
           dist/mobilesdk-*-win32.zip
 
     - name: Archive Linux artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: mobilesdk-${{ inputs.vtag }}-linux
         path: |
@@ -98,7 +98,7 @@ runs:
         rm -f ~/.gradle/caches/modules-2/gc.properties
       shell: bash
 
-    - uses: geekyeggo/delete-artifact@v1
+    - uses: geekyeggo/delete-artifact@v2
       with:
         name: |
           android-build

@@ -38,7 +38,7 @@ This has no requirements.
 
 This is the release workflow that will automatically build and create a new release on the repository. Before running this step you have completed all the required steps in the [release guide](./releasing-the-sdk.md)
 
-1. Navigate to the [workflow page](https://github.com/tidev/titanium_mobile/actions/workflows/release.yml)
+1. Navigate to the [workflow page](https://github.com/tidev/titanium-sdk/actions/workflows/release.yml)
 2. Click `Run workflow`
    * Leave `Use workflow from` as the default
    * Enter the branch to release from

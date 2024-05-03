@@ -3206,7 +3206,8 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		root.appendChild(dom.createTextNode('\n'));
 
 		// Create the XML file under the Android "res/values-<locale>" folder.
-		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
+		const defaultLang = this.tiapp.defaultLang || 'en';
+		const localeSuffixName = (locale === defaultLang ? '' : '-' + resolveRegionName(locale));
 		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
 		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
 		this.logger.debug(__('Writing %s strings => %s', locale.cyan, filePath.cyan));
@@ -3732,6 +3733,7 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 			'org.appcelerator.titanium.TiActivity',
 			'org.appcelerator.titanium.TiTranslucentActivity',
 			'org.appcelerator.titanium.TiCameraActivity',
+			'org.appcelerator.titanium.TiCameraXActivity',
 			'org.appcelerator.titanium.TiVideoActivity'
 		];
 		for (const activityName of tiActivityNames) {

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -95,8 +95,8 @@ FILENOOP(setHidden
 
 - (NSDate *)createTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.createTimestamp()", @"7.3.0", @"Filesystem.File.createdAt()");
-  return [self createdAt:unused];
+  DEPRECATED_REPLACED_REMOVED(@"Filesystem.Blob.createTimestamp()", @"7.3.0", @"12.4.0", @"Filesystem.File.createdAt()");
+  return [NSDate new];
 }
 
 - (NSDate *)createdAt:(id)unused
@@ -106,8 +106,8 @@ FILENOOP(setHidden
 
 - (NSDate *)modificationTimestamp:(id)unused
 {
-  DEPRECATED_REPLACED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"Filesystem.File.modifiedAt()");
-  return [self modifiedAt:nil];
+  DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"12.4.0", @"Filesystem.File.modifiedAt()");
+  return [NSDate new];
 }
 
 - (NSDate *)modifiedAt:(id)unused

@@ -1,7 +1,7 @@
 {
 	"name": "titanium-mobile-android",
 	"title": "Android",
-	"description": "TiDev Titanium Mobile Android",
+	"description": "Titanium SDK Android",
 	"keywords": [
 		"tidev",
 		"titanium",
@@ -27,7 +27,7 @@
 		"java": ">=11.x"
 	},
 	"engines": {
-		"node": ">=12.13.0"
+		"node": ">=16.0.0"
 	},
 	"repository": {
 		"type": "git",
