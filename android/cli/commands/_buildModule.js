@@ -563,7 +563,7 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 	let buildGradleContent = await fs.readFile(path.join(this.moduleTemplateDir, 'build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		compileSdkVersion: this.compileSdkVersion,
-		plugins: this.manifest.plugins.split(','),
+		plugins: (this.manifest.plugins || '').split(','),
 		krollAptJarPath: path.join(this.platformPath, 'kroll-apt.jar'),
 		minSdkVersion: this.minSupportedApiLevel,
 		moduleAuthor: this.manifest.author,
