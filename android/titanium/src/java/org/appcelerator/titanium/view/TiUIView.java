@@ -111,6 +111,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+	private int minWidth = -1;
 	private int maxWidth = -1;
 	private int maxHeight = -1;
 
@@ -788,6 +789,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			setFilterTouchesWhenObscured(TiConvert.toBoolean(newValue, false));
 		} else if (key.equals("maxWidth")) {
 			setMaxWidth(newValue, hasBorder(proxy.getProperties()));
+		} else if (key.equals("minWidth")) {
+			setMinWidth(newValue, hasBorder(proxy.getProperties()));
 		} else if (key.equals("maxHeight")) {
 			setMaxHeight(newValue, hasBorder(proxy.getProperties()));
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
@@ -1063,6 +1066,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (d.containsKey("maxWidth")) {
 			setMaxWidth(d.get("maxWidth"), hasBorder(d));
 		}
+		if (d.containsKey("minWidth")) {
+			setMinWidth(d.get("minWidth"), hasBorder(d));
+		}
 		if (d.containsKey("maxHeight")) {
 			setMaxHeight(d.get("maxHeight"), hasBorder(d));
 		}
@@ -1167,6 +1173,21 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			((TiCompositeLayout) nativeView).setMaxWidth(maxWidth);
 		} else {
 			Log.w(TAG, "You can only use maxWidth for Views without borders");
+		}
+	}
+
+	private void setMinWidth(Object value, Boolean hasBorder)
+	{
+		minWidth = -1;
+		if (value != null) {
+			minWidth = TiConvert.toTiDimension(TiConvert.toInt(value),
+				TiDimension.TYPE_WIDTH).getAsPixels(nativeView);
+		}
+
+		if (!hasBorder) {
+			((TiCompositeLayout) nativeView).setMinWidth(minWidth);
+		} else {
+			Log.w(TAG, "You can only use minWidth for Views without borders");
 		}
 	}
 
