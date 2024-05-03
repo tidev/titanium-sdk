@@ -324,7 +324,20 @@ extern void UIColorFlushCache(void);
   return YES;
 }
 
-// Handle URL-schemes / iOS >= 9
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+{
+  UIOpenURLContext *primaryContext = URLContexts.allObjects.firstObject;
+
+  NSDictionary<UIApplicationOpenURLOptionsKey, id> *options = @{
+    UIApplicationOpenURLOptionsSourceApplicationKey : NULL_IF_NIL(primaryContext.options.sourceApplication)
+  };
+
+  [self application:[UIApplication sharedApplication] openURL:primaryContext.URL options:options];
+}
+
+// Handle URL-schemes. Note that this selector is not called automatically anymore in iOS 13+
+// because of the scene management. Instead, the above "scene:openURLContexts:" selector is called
+// that forwards the call for maximum backwards compatibility
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options
 {
   [self tryToInvokeSelector:@selector(application:openURL:options:)
@@ -1185,11 +1198,19 @@ extern void UIColorFlushCache(void);
   [self tryToInvokeSelector:@selector(scene:willConnectToSession:options:)
               withArguments:[NSOrderedSet orderedSetWithObjects:scene, connectionOptions, nil]];
 
-  // If a "application-launch-url" is set, launch it directly
-  [self launchToUrl];
+  // Catch exceptions
+  [TiExceptionHandler defaultExceptionHandler];
+
+  // Enable device logs (e.g. for physical devices)
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   // Initialize the root-controller
   [self initController];
+
+  // If a "application-launch-url" is set, launch it directly
+  [self launchToUrl];
 
   // Boot our kroll-core
   [self boot];
