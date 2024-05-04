@@ -1957,7 +1957,7 @@ properties:
         You can use the setting in combination with `width: Ti.UI.FILL` to set a maximum width.
         The view won't extend the `maxWidth` value.
     type: Number
-    since: {android: "12.2.0"}
+    since: {android: "12.4.0"}
     platforms: [android]
 
   - name: maxHeight
@@ -1966,7 +1966,25 @@ properties:
         You can use the setting in combination with `height: Ti.UI.FILL` to set a maximum height.
         The view won't extend the `maxHeight` value.
     type: Number
-    since: {android: "12.2.0"}
+    since: {android: "12.4.0"}
+    platforms: [android]
+
+  - name: minWidth
+    summary: Minimum width of the View, in platform-specific units.
+    description: |
+        You can use the setting in combination with `width: Ti.UI.SIZE` to set a minimum width.
+        The view won't be smaller than the `minWidth` value.
+    type: Number
+    since: {android: "12.4.0"}
+    platforms: [android]
+
+  - name: minHeight
+    summary: Minimum height of the View, in platform-specific units.
+    description: |
+        You can use the setting in combination with `height: Ti.UI.SIZE` to set a minimum height.
+        The view won't be smaller than the `minHeight` value.
+    type: Number
+    since: {android: "12.4.0"}
     platforms: [android]
 
   - name: horizontalWrap
