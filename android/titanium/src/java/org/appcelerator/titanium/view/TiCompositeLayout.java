@@ -70,6 +70,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private int viewMinWidth = -1;
 	private int viewMaxWidth = -1;
 	private int viewMaxHeight = -1;
+	private int viewMinHeight = -1;
 	int[] horizontal = new int[2];
 	int[] vertical = new int[2];
 	/**
@@ -652,6 +653,9 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		}
 		if (viewMaxHeight != -1 && measuredHeight > viewMaxHeight) {
 			measuredHeight = viewMaxHeight;
+		}
+		if (viewMinHeight != -1 && measuredHeight < viewMinHeight) {
+			measuredHeight = viewMinHeight;
 		}
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
@@ -1261,6 +1265,10 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	public void setMaxHeight(Integer value)
 	{
 		viewMaxHeight = value;
+	}
+	public void setMinHeight(Integer value)
+	{
+		viewMinHeight = value;
 	}
 
 	public void setEnableHorizontalWrap(boolean enable)
