@@ -90,7 +90,7 @@
 					<key>UISceneConfigurationName</key>
 					<string>Default Configuration</string>
 					<key>UISceneDelegateClassName</key>
-					<string>TiApp</string>
+					<string>TiSceneDelegate</string>
 				</dict>
 			</array>
 		</dict>

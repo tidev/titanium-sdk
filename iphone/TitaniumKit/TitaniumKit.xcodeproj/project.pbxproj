@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -21,6 +21,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		3A39A6B12BE6AFFB0019C843 /* TiSceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A39A6B02BE6AFFB0019C843 /* TiSceneDelegate.m */; };
+		3A39A6B22BE6AFFB0019C843 /* TiSceneDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 3A39A6AF2BE6AFFB0019C843 /* TiSceneDelegate.h */; };
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
 		4A1FF4432523262A00A0F923 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1FF4422523262A00A0F923 /* ErrorView.swift */; };
@@ -191,6 +193,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3A39A6AF2BE6AFFB0019C843 /* TiSceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiSceneDelegate.h; sourceTree = "<group>"; };
+		3A39A6B02BE6AFFB0019C843 /* TiSceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiSceneDelegate.m; sourceTree = "<group>"; };
 		4A175274218B64E70094C7B6 /* KrollTimerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollTimerManager.h; sourceTree = "<group>"; };
 		4A175275218B64E70094C7B6 /* KrollTimerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollTimerManager.m; sourceTree = "<group>"; };
 		4A1FF4422523262A00A0F923 /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
@@ -504,6 +508,8 @@
 				DB15FD051F0A892500A82C45 /* Ti3DMatrix.m */,
 				DB15FC921F0A860600A82C45 /* TiAnimation.h */,
 				DB15FC931F0A860600A82C45 /* TiAnimation.m */,
+				3A39A6AF2BE6AFFB0019C843 /* TiSceneDelegate.h */,
+				3A39A6B02BE6AFFB0019C843 /* TiSceneDelegate.m */,
 				DB15FC4B1F0A848200A82C45 /* TiApp.h */,
 				DB15FC4C1F0A848200A82C45 /* TiApp.m */,
 				DB258D231F097680000D0D8D /* TiBase.h */,
@@ -723,6 +729,7 @@
 				DB15FD201F0A8A5E00A82C45 /* TiComplexValue.h in Headers */,
 				DB5813E72075FCF200CA1437 /* TiDefines.h in Headers */,
 				DB24E0502076824C0033B2B1 /* TiSharedConfig.h in Headers */,
+				3A39A6B22BE6AFFB0019C843 /* TiSceneDelegate.h in Headers */,
 				DB15FC3D1F0A833100A82C45 /* KrollObject.h in Headers */,
 				DB15FCA81F0A866300A82C45 /* TiRect.h in Headers */,
 				DB15FC891F0A859800A82C45 /* TiExceptionHandler.h in Headers */,
@@ -834,6 +841,7 @@
 			files = (
 				DB15FD091F0A892500A82C45 /* Ti3DMatrix.m in Sources */,
 				DB15FCB91F0A874F00A82C45 /* TopTiModule.m in Sources */,
+				3A39A6B12BE6AFFB0019C843 /* TiSceneDelegate.m in Sources */,
 				DB15FC4E1F0A848200A82C45 /* TiApp.m in Sources */,
 				DB15FCB11F0A86E600A82C45 /* TiBindingTiValue.m in Sources */,
 				DB15FC461F0A838E00A82C45 /* TiColor.m in Sources */,

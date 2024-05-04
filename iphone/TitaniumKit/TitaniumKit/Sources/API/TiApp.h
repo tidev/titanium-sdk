@@ -16,7 +16,7 @@
 /**
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  */
-@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate, UIWindowSceneDelegate> {
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate> {
   UIWindow *window;
   UIImageView *loadView;
   UIView *splashScreenView;
@@ -112,13 +112,6 @@
  @return Dictionary containing details about local notification, or _nil_.
  */
 @property (nonatomic, readonly) NSDictionary *localNotification;
-
-/**
- Returns details for the last remote notification.
- 
- Dictionary containing details about remote notification, or _nil_.
- */
-@property (nonatomic, readonly) UISceneConnectionOptions *connectionOptions;
 
 /**
  Returns the application's root view controller.
@@ -277,6 +270,23 @@
 - (void)tryToInvokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments;
 
 /**
+ Returns details for the last remote notification.
+ 
+ Dictionary containing details about remote notification, or _nil_.
+ */
+@property (nonatomic, strong) UISceneConnectionOptions *connectionOptions;
+
+/**
+   The splash screen view used when the app is booted.
+ */
+- (UIView *)splashScreenView;
+
+/**
+  Clear out the pending completion handlers.
+ */
+- (void)flushCompletionHandlerQueue;
+
+/**
  Tries to post a given notification with the given name. If the app did not finish launching so far, it will be queued
  and processed once the JSCore bridge is ready.
  
@@ -301,5 +311,21 @@
 - (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result removeAfterExecution:(BOOL)removeAfterExecution;
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key;
 - (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo;
+
+#pragma mark UIWindowSceneDelegate
+
+- (void)sceneWillResignActive:(UIScene *)scene;
+
+- (void)sceneDidBecomeActive:(UIScene *)scene;
+
+- (void)sceneDidEnterBackground:(UIScene *)scene;
+
+- (void)sceneWillEnterForeground:(UIScene *)scene;
+
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts;
+
+- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options;
+
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions;
 
 @end

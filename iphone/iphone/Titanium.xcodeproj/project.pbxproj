@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -161,6 +161,7 @@
 		3A1E40511BEAC73D00943233 /* TiUIiOSMenuPopup.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A1E40501BEAC73D00943233 /* TiUIiOSMenuPopup.m */; };
 		3A275F3E1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A275F3D1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m */; };
 		3A38F30424D6EBBD00CC6EFB /* TiUtils+Addons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */; };
+		3A39A6B52BE6B1360019C843 /* TiApp+Scenes.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A39A6B42BE6B1360019C843 /* TiApp+Scenes.m */; };
 		3A3BBAF51D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */; };
 		3A527EB327E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A527EB227E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m */; };
 		3A5AD7261BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7251BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m */; };
@@ -609,6 +610,8 @@
 		3A275F3C1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIActivityIndicatorStyleProxy.h; sourceTree = "<group>"; };
 		3A275F3D1BA881B300EC4912 /* TiUIActivityIndicatorStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIActivityIndicatorStyleProxy.m; sourceTree = "<group>"; };
 		3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TiUtils+Addons.swift"; sourceTree = "<group>"; };
+		3A39A6B32BE6B1360019C843 /* TiApp+Scenes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TiApp+Scenes.h"; sourceTree = "<group>"; };
+		3A39A6B42BE6B1360019C843 /* TiApp+Scenes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "TiApp+Scenes.m"; sourceTree = "<group>"; };
 		3A3BBAF31D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationCenterProxy.h; sourceTree = "<group>"; };
 		3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationCenterProxy.m; sourceTree = "<group>"; };
 		3A527EB027E0F77700A470D6 /* TiUITableViewScrollPositionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewScrollPositionProxy.h; sourceTree = "<group>"; };
@@ -1984,6 +1987,8 @@
 				DBF30945210F3B420001F770 /* TiApp+Addons.h */,
 				DBF30946210F3B420001F770 /* TiApp+Addons.m */,
 				3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */,
+				3A39A6B32BE6B1360019C843 /* TiApp+Scenes.h */,
+				3A39A6B42BE6B1360019C843 /* TiApp+Scenes.m */,
 				DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */,
 				DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */,
 			);
@@ -2178,6 +2183,7 @@
 				24CA8B92111161FE0084E2DE /* TiUISearchBar.m in Sources */,
 				6CF8E95921CDA58800519245 /* TiUITabbedBarProxy.m in Sources */,
 				84DEE9171815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */,
+				3A39A6B52BE6B1360019C843 /* TiApp+Scenes.m in Sources */,
 				159C599B1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m in Sources */,
 				24CA8B95111161FE0084E2DE /* TiUIProgressBarProxy.m in Sources */,
 				3AA4EC262320352B00703A20 /* TiUIListView.m in Sources */,
