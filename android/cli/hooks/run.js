@@ -254,10 +254,10 @@ exports.init = function (logger, config, cli) {
 
 						// start of a new log message
 						if (device.appPidRegExp.test(line)) {
-							line = line.trim().replace(device.appPidRegExp, ':');
+							line = line.replace(/^ {1,2}/, '').replace(device.appPidRegExp, ':');
 							logLevel = line.charAt(0).toLowerCase();
 							if (tiapiRegExp.test(line)) {
-								line = line.replace(tiapiRegExp, '').trim();
+								line = line.replace(tiapiRegExp, '').replace(/^ {1,2}/, '');
 							} else {
 								line = line.replace(/^\w\/(\w+)\s*:/g, '$1:').grey;
 							}
