@@ -828,7 +828,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   }
   if ([self doesntOverrideFireEventWithSource]) {
     // TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
-    //  For now, we're shortcutting to suppress false warnings.
+    // For now, we're shortcutting to suppress false warnings.
     [self fireEvent:type withObject:params propagate:bubble reportSuccess:NO errorCode:0 message:nil];
     return;
   }
