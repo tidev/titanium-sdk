@@ -253,6 +253,15 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int SCROLL_FLAG_SNAP_MARGINS = 32;
 
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_DEFAULT = 0;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_VERTICAL = 1;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL = 2;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_ALL = 3;
+
 	public AndroidModule()
 	{
 		super();
