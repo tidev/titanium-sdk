@@ -115,7 +115,7 @@
 
 /**
  Returns details for the last remote notification.
- 
+
  Dictionary containing details about remote notification, or _nil_.
  */
 @property (nonatomic, readonly) UISceneConnectionOptions *connectionOptions;
