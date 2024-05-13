@@ -13,6 +13,9 @@ let foundError = false;
 
 checkDependencies(lockfile.dependencies);
 function checkDependencies(deps) {
+	if (deps === undefined) {
+		return;
+	}
 	const packageNames = Object.keys(deps);
 	for (const packageName of packageNames) {
 		const whatever = deps[packageName];
