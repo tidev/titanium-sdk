@@ -450,10 +450,10 @@
 
   NSUInteger viewsCount = [[self proxy] viewCount];
   /*
-        Reset readd here since refreshScrollView is called from
-        frameSizeChanged with readd false and the views might
-        not yet have been added on first launch
-        */
+  Reset readd here since refreshScrollView is called from
+  frameSizeChanged with readd false and the views might
+  not yet have been added on first launch
+  */
   readd = ([[sv subviews] count] == 0);
 
   for (int c = 0; c < viewsCount; c++) {
