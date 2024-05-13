@@ -54,7 +54,8 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_CACHE_MODE,
 		TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
-		TiC.PROPERTY_ON_LINK
+		TiC.PROPERTY_ON_LINK,
+		TiC.PROPERTY_SCROLLBARS
 })
 public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
