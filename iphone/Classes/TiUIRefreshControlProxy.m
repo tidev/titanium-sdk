@@ -78,6 +78,17 @@
       NO);
 }
 
+- (void)setBackgroundColor:(id)value
+{
+  [self replaceValue:value forKey:@"backgroundColor" notification:NO];
+
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setBackgroundColor:[[TiUtils colorValue:value] color]];
+      },
+      NO);
+}
+
 - (void)beginRefreshing:(id)unused
 {
   TiThreadPerformOnMainThread(
