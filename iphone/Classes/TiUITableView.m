@@ -2858,7 +2858,7 @@
   }
 
   // This section of code now moved to [TiUITextWidgetView updateKeyboardStatus]
-  //  Update keyboard status to insure that any fields actively being edited remain in view
+  // Update keyboard status to insure that any fields actively being edited remain in view
   // if ([[[TiApp app] controller] keyboardVisible]) {
   //     [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
   // }

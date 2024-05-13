@@ -504,10 +504,10 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     [table dispatchAction:action];
   } else {
     // No table, we have to do the data update ourselves.
-    //  If we don't handle it, the row gets dropped on the ground,
-    //  but if we create the tableview, there's this horrible issue where
-    //  the uitableview isn't fully formed, it gets this message to do an action,
-    //  and ends up throwing an exception because we're out of bounds.
+    // If we don't handle it, the row gets dropped on the ground,
+    // but if we create the tableview, there's this horrible issue where
+    // the uitableview isn't fully formed, it gets this message to do an action,
+    // and ends up throwing an exception because we're out of bounds.
     [section remove:row];
   }
 }

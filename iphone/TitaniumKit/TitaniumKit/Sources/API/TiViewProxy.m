@@ -1633,10 +1633,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // 1.4 where we can figure out why the drawing is screwed up since
   // the views aren't reattaching.
   /*
-        if (view!=nil && [view retainCount]==1)
-        {
-                [self detachView];
-        }*/
+  if (view!=nil && [view retainCount]==1)
+  {
+      [self detachView];
+  }*/
   [super didReceiveMemoryWarning:notification];
 }
 
