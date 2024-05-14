@@ -28,7 +28,7 @@
 #pragma mark - Internal Use
 - (UIRefreshControl *)control
 {
-  //Must be called on main thread
+  // Must be called on main thread
   if (_refreshControl == nil) {
     _refreshControl = [UIRefreshControl new];
     [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];

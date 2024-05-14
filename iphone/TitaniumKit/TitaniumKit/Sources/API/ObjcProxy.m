@@ -297,7 +297,7 @@
   }
 }
 
-//For subclasses to override
+// For subclasses to override
 - (NSString *)apiName
 {
   DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");

@@ -69,7 +69,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     }
 
     if (type == -1) {
-      //TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
+      // TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
       picker = (UIControl *)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
       ((UIPickerView *)picker).delegate = self;
       ((UIPickerView *)picker).dataSource = self;
@@ -119,11 +119,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)reloadColumn:(id)column
 {
-  //TODO: DatePicker checking should have been done long before the main thread.
+  // TODO: DatePicker checking should have been done long before the main thread.
   if ([self isDatePicker]) {
     return;
   }
-  //Because the other logic checking and massaging is done in the proxy, we can jump to the chase.
+  // Because the other logic checking and massaging is done in the proxy, we can jump to the chase.
   [(UIPickerView *)[self picker] reloadAllComponents];
 }
 
@@ -135,7 +135,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (TiProxy *)selectedRowForColumn:(NSInteger)column
 {
   if ([self isDatePicker]) {
-    //FIXME
+    // FIXME
     return nil;
   }
   NSInteger row = [(UIPickerView *)picker selectedRowInComponent:column];
@@ -251,7 +251,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
-//TODO: minute interval
+// TODO: minute interval
 
 - (void)setValue_:(id)date
 {
@@ -331,7 +331,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 // returns width of column and height of row for each component.
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component
 {
-  //TODO: add blain's super duper width algorithm
+  // TODO: add blain's super duper width algorithm
   NSArray *theColumns = [self columns];
   if (component >= [theColumns count]) {
     return 0;
@@ -376,10 +376,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
   CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component] - 20, [self pickerView:pickerView rowHeightForComponent:component]);
 
-  //Get the View
+  // Get the View
   UIView *theView = [rowproxy viewWithFrame:frame reusingView:view];
 
-  //Configure Accessibility
+  // Configure Accessibility
   theView.isAccessibilityElement = YES;
   theView.accessibilityLabel = [TiUtils stringValue:[rowproxy valueForUndefinedKey:@"accessibilityLabel"]];
   theView.accessibilityValue = [TiUtils stringValue:[rowproxy valueForUndefinedKey:@"accessibilityValue"]];
