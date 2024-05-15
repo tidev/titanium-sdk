@@ -689,6 +689,7 @@ public class TiC
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
 	public static final String PROPERTY_SCROLLABLE = "scrollable";
+	public static final String PROPERTY_SCROLLBARS = "scrollbars";
 	public static final String PROPERTY_SEARCH = "search";
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
 	public static final String PROPERTY_SEARCH_TEXT = "searchText";
