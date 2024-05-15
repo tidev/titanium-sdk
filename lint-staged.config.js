@@ -1,6 +1,4 @@
-'use strict';
-
-const { ESLint } = require('eslint');
+import { ESLint } from 'eslint';
 
 const eslint = new ESLint();
 
@@ -11,7 +9,7 @@ const asyncFilter = async (arr, predicate) => {
 	}, []);
 };
 
-module.exports = {
+export default {
 	'android/**/*.java': filenames => {
 		return `node ./build/scons gradlew checkJavaStyle --args --console plain -PchangedFiles='${filenames.join(',')}'`;
 	},

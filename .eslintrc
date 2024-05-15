@@ -1,17 +1,19 @@
 {
   "extends": [ "axway/env-node"],
   "parserOptions": {
-    "sourceType": "script"
+    "sourceType": "module"
   },
   "rules": {
     "no-use-before-define": ["error", { "functions": false, "classes": false, "variables": true }],
-    "promise/catch-or-return": [ "warn", { "terminationMethod": [ "catch", "finally" ]} ]
+    "promise/catch-or-return": [ "warn", { "terminationMethod": [ "catch", "finally" ]} ],
+    "promise/always-return": "off",
+    "promise/no-callback-in-promise": "off"
   },
   "overrides": [
     {
       "files": [ "android/runtime/common/src/js/**/*.js", "android/modules/**/src/js/**/*.js" ],
       "parserOptions": {
-        "ecmaVersion": 2020
+        "ecmaVersion": 2024
       },
       "globals": {
         "kroll": "readonly",
@@ -65,7 +67,7 @@
     {
       "files": [ "cli/lib/tasks/*.js", "cli/hooks/webpack.js", "cli/lib/webpack/**/*.js" ],
       "parserOptions": {
-        "ecmaVersion": 2017,
+        "ecmaVersion": 2020,
         "sourceType": "module"
       }
     }

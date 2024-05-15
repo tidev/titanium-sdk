@@ -1,10 +1,8 @@
-'use strict';
+import { Arborist } from '@npmcli/arborist';
+import fs from 'fs-extra';
+import path from 'node:path';
 
-const { Arborist } = require('@npmcli/arborist');
-const fs = require('fs-extra');
-const path = require('path');
-
-const copier = {};
+export const copier = {};
 
 /**
  * Reads of the node_modules on disk, and then produces a Set of paths to copy that match the
@@ -141,5 +139,3 @@ async function gatherChildren (children, includeOptional, includePeers) {
 
 	return filteredChildren;
 }
-
-module.exports = copier;

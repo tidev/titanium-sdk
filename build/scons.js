@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-'use strict';
 
-const commander = require('commander');
-const version = require('../package.json').version;
+import { program } from 'commander';
+import fs from 'node:fs';
 
-commander
+const { version } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+
+program
 	.version(version)
 	.command('check-lockfile', 'Ensures there\'s no mismatch between version string and assumed version from url in our package-lock.json')
 	.command('clean [platforms]', 'clean up build directories for one or more platforms')

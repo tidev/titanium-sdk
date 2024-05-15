@@ -2,6 +2,7 @@
   "name": "titanium-mobile",
   "description": "Titanium SDK",
   "version": "12.3.0",
+  "type": "module",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
@@ -146,8 +147,8 @@
     "eslint-plugin-mocha": "10.2.0",
     "folder-hash": "4.0.4",
     "glob": "8.1.0",
-    "husky": "8.0.3",
-    "lint-staged": "11.1.2",
+    "husky": "9.0.11",
+    "lint-staged": "15.2.2",
     "lockfile-lint": "4.10.1",
     "mocha": "9.2.2",
     "mocha-jenkins-reporter": "0.4.8",
