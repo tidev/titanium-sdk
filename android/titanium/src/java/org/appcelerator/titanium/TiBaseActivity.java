@@ -345,7 +345,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			String oldTitle = (String) getTitle();
 			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
 			int colorInt = -1;
-			
+
 			if (oldTitle == null) {
 				oldTitle = "";
 			}
@@ -1602,7 +1602,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// "isFinishing" will return true if the Android OS won't restore this destroyed activity later.
 		// This happens when finish() method is called of end-user back navigates out of the activity.
-		// Note: Will breturn false if system intends to restore the activity later, which happens if
+		// Note: Will return false if system intends to restore the activity later, which happens if
 		//       system setting "Don't keep activities" is enabled or "Background process limit" was exceeded.
 		boolean isFinishing = isFinishing();
 
