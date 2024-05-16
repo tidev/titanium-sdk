@@ -18,6 +18,7 @@ import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -33,6 +34,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
@@ -70,7 +73,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		// Header attributes.
 		setTitleAttributes("header", context, this.headerTitle);
 
-		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder_outer_content_container);
+		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder);
 
 		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
 
@@ -92,6 +95,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	 * @param proxy    ListItemProxy to bind.
 	 * @param selected Is row selected.
 	 */
+	@SuppressLint("ClickableViewAccessibility")
 	public void bind(final ListItemProxy proxy, final boolean selected)
 	{
 		reset();
@@ -165,7 +169,6 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 			this.rightImage.setVisibility(View.VISIBLE);
 
 			RecyclerView.ViewHolder mViewHolder = this;
-
 			this.rightImage.setOnTouchListener(new View.OnTouchListener()
 			{
 				@Override
@@ -252,7 +255,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 					borderView.setAddStatesFromChildren(true);
 
 					// Amend maximum size for content to parent ListView measured height.
-					this.content.setChildFillHeight(nativeListView.getMeasuredHeight());
+					this.container.setMinimumHeight(nativeListView.getMeasuredHeight());
 
 					// Add ListViewItem to content.
 					this.content.addView(borderView, view.getLayoutParams());
@@ -362,6 +365,16 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 						this.header.addView(headerView, view.getLayoutParams());
 						this.header.setVisibility(View.VISIBLE);
+
+						ConstraintSet constraintSet = new ConstraintSet();
+						constraintSet.clone((ConstraintLayout) this.container);
+						constraintSet.connect(R.id.titanium_ui_listview_holder_content, ConstraintSet.TOP,
+							R.id.titanium_ui_listview_holder_header, ConstraintSet.BOTTOM, 0);
+						constraintSet.connect(R.id.titanium_ui_listview_holder_left_image, ConstraintSet.TOP,
+							R.id.titanium_ui_listview_holder_header, ConstraintSet.BOTTOM, 0);
+						constraintSet.connect(R.id.titanium_ui_listview_holder_right_image, ConstraintSet.TOP,
+							R.id.titanium_ui_listview_holder_header, ConstraintSet.BOTTOM, 0);
+						constraintSet.applyTo((ConstraintLayout) this.container);
 					}
 				}
 			}
@@ -396,6 +409,16 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 						this.footer.addView(footerView, view.getLayoutParams());
 						this.footer.setVisibility(View.VISIBLE);
+
+						ConstraintSet constraintSet = new ConstraintSet();
+						constraintSet.clone((ConstraintLayout) this.container);
+						constraintSet.connect(R.id.titanium_ui_listview_holder_content, ConstraintSet.BOTTOM,
+							R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
+						constraintSet.connect(R.id.titanium_ui_listview_holder_left_image, ConstraintSet.BOTTOM,
+							R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
+						constraintSet.connect(R.id.titanium_ui_listview_holder_right_image, ConstraintSet.BOTTOM,
+							R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
+						constraintSet.applyTo((ConstraintLayout) this.container);
 					}
 				}
 			}
