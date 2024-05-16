@@ -1,20 +1,20 @@
 /*
  Copyright (C) 2008 Stig Brautaset. All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
- 
+
  Redistributions of source code must retain the above copyright notice, this
  list of conditions and the following disclaimer.
- 
+
  Redistributions in binary form must reproduce the above copyright notice,
  this list of conditions and the following disclaimer in the documentation
  and/or other materials provided with the distribution.
- 
+
  Neither the name of the author nor the names of its contributors may be used
  to endorse or promote products derived from this software without specific
  prior written permission.
- 
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -182,7 +182,7 @@ static char ctrl[0x24];
 /**
  Returns a string containing JSON representation of the passed in value, or nil on error.
  If nil is returned and @p error is not NULL, @p *error can be interrogated to find the cause of the error.
- 
+
  @param value any instance that can be represented as a JSON fragment
  @param allowScalar wether to return json fragments for scalar objects
  @param error used to return an error by reference (pass NULL if this is not desired)
@@ -208,7 +208,7 @@ static char ctrl[0x24];
 /**
  Returns a string containing JSON representation of the passed in value, or nil on error.
  If nil is returned and @p error is not NULL, @p error can be interrogated to find the cause of the error.
- 
+
  @param value any instance that can be represented as a JSON fragment
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
@@ -220,7 +220,7 @@ static char ctrl[0x24];
 /**
  Returns a string containing JSON representation of the passed in value, or nil on error.
  If nil is returned and @p error is not NULL, @p error can be interrogated to find the cause of the error.
- 
+
  @param value a NSDictionary or NSArray instance
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
@@ -414,7 +414,7 @@ static char ctrl[0x24];
 /**
  Returns the object represented by the passed-in string or nil on error. The returned object can be
  a string, number, boolean, null, array or dictionary.
- 
+
  @param repr the json string to parse
  @param allowScalar whether to return objects for JSON fragments
  @param error used to return an error by reference (pass NULL if this is not desired)
@@ -460,7 +460,7 @@ static char ctrl[0x24];
 /**
  Returns the object represented by the passed-in string or nil on error. The returned object can be
  a string, number, boolean, null, array or dictionary.
- 
+
  @param repr the json string to parse
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
@@ -472,7 +472,7 @@ static char ctrl[0x24];
 /**
  Returns the object represented by the passed-in string or nil on error. The returned object
  will be either a dictionary or an array.
- 
+
  @param repr the json string to parse
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
@@ -922,10 +922,10 @@ static char ctrl[0x24];
     int d = (uc >= '0' && uc <= '9')
         ? uc - '0'
         : (uc >= 'a' && uc <= 'f')
-            ? (uc - 'a' + 10)
-            : (uc >= 'A' && uc <= 'F')
-                ? (uc - 'A' + 10)
-                : -1;
+        ? (uc - 'a' + 10)
+        : (uc >= 'A' && uc <= 'F')
+        ? (uc - 'A' + 10)
+        : -1;
     if (d == -1) {
       if (error)
         *error = err(EUNICODE, @"Missing hex digit in quad");

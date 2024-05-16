@@ -125,7 +125,7 @@ async function generateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
 		}
 
 		// Delete snapshot blob.
-		await fs.unlink(blobPath);
+		await fs.remove(blobPath);
 	}
 
 	// Generate 'V8Snapshots.h' from template
