@@ -7,6 +7,15 @@
 	android:clipToPadding="false"
 	android:outlineProvider="bounds">
 
+	<org.appcelerator.titanium.view.TiCompositeLayout
+		android:id="@+id/titanium_ui_listview_holder_content"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:addStatesFromChildren="true"
+		app:layout_constraintBottom_toTopOf="@+id/titanium_ui_listview_holder_footer_title"
+		app:layout_constraintStart_toEndOf="@id/titanium_ui_listview_holder_left_image"
+		app:layout_constraintTop_toBottomOf="@+id/titanium_ui_listview_holder_header_title" />
+
 	<ImageView
 		android:id="@+id/titanium_ui_listview_holder_left_image"
 		android:layout_width="wrap_content"
@@ -58,15 +67,6 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent" />
 
-
-	<org.appcelerator.titanium.view.TiCompositeLayout
-		android:id="@+id/titanium_ui_listview_holder_content"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:addStatesFromChildren="true"
-		app:layout_constraintBottom_toTopOf="@+id/titanium_ui_listview_holder_footer_title"
-		app:layout_constraintStart_toEndOf="@id/titanium_ui_listview_holder_left_image"
-		app:layout_constraintTop_toBottomOf="@+id/titanium_ui_listview_holder_header_title" />
 
 	<org.appcelerator.titanium.view.TiCompositeLayout
 		android:id="@+id/titanium_ui_listview_holder_header"
