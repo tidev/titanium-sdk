@@ -70,9 +70,8 @@
 
 	<org.appcelerator.titanium.view.TiCompositeLayout
 		android:id="@+id/titanium_ui_listview_holder_header"
-		android:layout_width="0dp"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="0dp"
 		android:focusable="false"
 		android:focusableInTouchMode="false"
 		app:layout_constraintEnd_toEndOf="parent"
@@ -81,9 +80,8 @@
 
 	<org.appcelerator.titanium.view.TiCompositeLayout
 		android:id="@+id/titanium_ui_listview_holder_footer"
-		android:layout_width="0dp"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="0dp"
 		android:focusable="false"
 		android:focusableInTouchMode="false"
 		app:layout_constraintBottom_toBottomOf="parent"
