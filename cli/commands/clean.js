@@ -246,8 +246,8 @@ export function run(logger, config, cli) {
 
 		// Now wrap the actual cleaning of the module (specific to a given platform),
 		// in hooks so a module itself could potentially do additional cleanup itself
-		cli.fireHook('clean.module.pre', function () {
-			cli.fireHook('clean.module.' + platform + '.pre', async function () {
+		cli.emit('clean.module.pre', function () {
+			cli.emit('clean.module.' + platform + '.pre', async function () {
 
 				// Do the actual cleaning per-sdk _cleanModule command
 				const { run } = await import(cleanModule);
@@ -269,8 +269,8 @@ export function run(logger, config, cli) {
 						logger.log.end();
 					}
 
-					cli.fireHook('clean.module.' + platform + '.post', function () {
-						cli.fireHook('clean.module.post', function () {
+					cli.emit('clean.module.' + platform + '.post', function () {
+						cli.emit('clean.module.post', function () {
 							done();
 						});
 					});
@@ -285,8 +285,8 @@ export function run(logger, config, cli) {
 				return function (next) {
 					// scan platform SDK specific clean hooks
 					cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
-					cli.fireHook('clean.pre', function () {
-						cli.fireHook('clean.' + platform + '.pre', function () {
+					cli.emit('clean.pre', function () {
+						cli.emit('clean.' + platform + '.pre', function () {
 							var dir = path.join(buildDir, platform);
 							if (appc.fs.exists(dir)) {
 								logger.debug(`Deleting ${dir.cyan}`);
@@ -301,8 +301,8 @@ export function run(logger, config, cli) {
 							} else {
 								logger.debug(`Build log does not exist ${dir.cyan}`);
 							}
-							cli.fireHook('clean.' + platform + '.post', function () {
-								cli.fireHook('clean.post', function () {
+							cli.emit('clean.' + platform + '.post', function () {
+								cli.emit('clean.post', function () {
 									next();
 								});
 							});
@@ -320,20 +320,20 @@ export function run(logger, config, cli) {
 				});
 			}
 
-			cli.fireHook('clean.pre', function () {
+			cli.emit('clean.pre', function () {
 				async.series(fs.readdirSync(buildDir).map(function (dir) {
 					return function (next) {
 						var file = path.join(buildDir, dir);
-						cli.fireHook('clean.' + dir + '.pre', function () {
+						cli.emit('clean.' + dir + '.pre', function () {
 							logger.debug(`Deleting ${file.cyan}`);
 							fs.removeSync(file);
-							cli.fireHook('clean.' + dir + '.post', function () {
+							cli.emit('clean.' + dir + '.post', function () {
 								next();
 							});
 						});
 					};
 				}), function () {
-					cli.fireHook('clean.post', function () {
+					cli.emit('clean.post', function () {
 						done();
 					});
 				});

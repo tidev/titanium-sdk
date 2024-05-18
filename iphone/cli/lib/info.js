@@ -65,14 +65,14 @@ exports.detect = function (types, config, next) {
 		this.issues.forEach(function (issue) {
 			switch (issue.id) {
 				case 'IOS_SECURITY_EXECUTABLE_NOT_FOUND':
-					issue.message += '\n' + __('If you know where this executable is, you can tell the Titanium CLI where it located by running \'%stitanium config osx.executables.security /path/to/security\'.', process.env.APPC_ENV ? 'appc ' : '');
+					issue.message += '\nIf you know where this executable is, you can tell the Titanium CLI where it located by running \'ti config osx.executables.security /path/to/security\'.';
 					break;
 				case 'IOS_XCODE_SELECT_EXECUTABLE_NOT_FOUND':
-					issue.message += '\n' + __('If you know where this executable is, you can tell the Titanium CLI where it located by running \'%stitanium config osx.executables.xcodeSelect /path/to/xcode-select\'.', process.env.APPC_ENV ? 'appc ' : '');
+					issue.message += '\nIf you know where this executable is, you can tell the Titanium CLI where it located by running \'ti config osx.executables.xcodeSelect /path/to/xcode-select\'.';
 					break;
 				case 'IOS_XCODE_TOO_OLD':
-					issue.message = __('Xcode %s is too old and is no longer supported by Titanium SDK %s.', '__' + issue.xcodeVer + '__', manifestJson.version) + '\n'
-						+ __('The minimum supported Xcode version by Titanium SDK %s is Xcode %s.', manifestJson.version, issue.minSupportedVer);
+					issue.message = `Xcode __${issue.xcodeVer}__ is too old and is no longer supported by Titanium SDK ${manifestJson.version}.\n`
+						+ `The minimum supported Xcode version by Titanium SDK ${manifestJson.version} is Xcode ${issue.minSupportedVer}.`;
 					break;
 				case 'IOS_XCODE_TOO_NEW':
 					issue.message = __('Xcode %s may or may not work with Titanium SDK %s.', '__' + issue.xcodeVer + '__', manifestJson.version) + '\n'

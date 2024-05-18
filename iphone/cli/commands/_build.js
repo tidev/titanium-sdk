@@ -44,6 +44,10 @@ const appc = require('node-appc'),
 	plist = require('simple-plist'),
 	version = appc.version,
 	merge = require('lodash.merge');
+
+// import { createRequire } from 'node:module';
+
+// const require = createRequire(import.meta.url);
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 

@@ -226,7 +226,7 @@ export class WebpackService extends EventEmitter {
 		return new Promise((resolve, reject) => {
 			const showTimeoutInfo = () => {
 				const buildUrl = `${this.webUiUrl}/build/${this.jobIdentifier}`.cyan;
-				const logcatCommand = `${process.env.APPC_ENV ? 'appc ' : ''}appcd logcat "*webpack*"`;
+				const logcatCommand = 'appcd logcat "*webpack*"';
 				this.logger.info('Did not receive any Webpack status updates in the last 30 seconds while waiting');
 				this.logger.info('for the build to complete.');
 				this.logger.info('');

@@ -37,18 +37,18 @@ Android is a trademark of Google Inc.`;
  * @classdesc Implements the CLI command interface for the create command.
  * @constructor
  */
-class CreateCommand {
+export class CreateCommand {
 	constructor() {
 		this.creators = {};
 	}
 
 	/**
-	* Defines the create command's CLI configuration.
-	* @param {Object} logger - The logger instance
-	* @param {Object} config - The CLI config
-	* @param {Object} cli - The CLI instance
-	* @return {Function}
-	*/
+	 * Defines the create command's CLI configuration.
+	 * @param {Object} logger - The logger instance
+	 * @param {Object} config - The CLI config
+	 * @param {Object} cli - The CLI instance
+	 * @return {Function}
+	 */
 	config(logger, config, cli) {
 		this.logger = logger;
 		this.config = config;

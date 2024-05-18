@@ -1,7 +1,7 @@
 import ejs from 'ejs';
 import fs from 'fs-extra';
 import path from 'node:path';
-import { spawn } from 'node:child_process'; // eslint-disable-line security/detect-child-process
+import { spawn } from 'node:child_process';
 
 export function templateHookDir(logger, config, cli) {
 	const templatePath = path.resolve(templateHookDir, '..', 'template');
@@ -39,11 +39,12 @@ async function updatePackageJson(projectPath, data) {
 }
 
 async function renderReadme(projectPath, data) {
-	const isAppcCli = !!process.env.APPC_ENV;
-	const buildCmd = isAppcCli ? 'appc run' : 'ti build';
 	const readmePath = path.join(projectPath, 'README.md');
 	const readmeTemplate = await fs.readFile(readmePath, 'utf-8');
-	const readmeContent = ejs.render(readmeTemplate, { buildCmd, ...data });
+	const readmeContent = ejs.render(readmeTemplate, {
+		buildCmd: 'ti build',
+		...data
+	});
 	return fs.writeFile(readmePath, readmeContent);
 }
 
