@@ -7,7 +7,8 @@
     "no-use-before-define": ["error", { "functions": false, "classes": false, "variables": true }],
     "promise/catch-or-return": [ "warn", { "terminationMethod": [ "catch", "finally" ]} ],
     "promise/always-return": "off",
-    "promise/no-callback-in-promise": "off"
+    "promise/no-callback-in-promise": "off",
+    "security/detect-child-process": "off"
   },
   "overrides": [
     {

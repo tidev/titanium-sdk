@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import fs from 'node:fs';
+import fs from 'fs-extra';
 
-const { version } = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+const { version } = fs.readJsonSync('package.json');
 
 program
 	.version(version)

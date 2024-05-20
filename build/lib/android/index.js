@@ -1,17 +1,13 @@
-'use strict';
-
-const path = require('path');
-const fs = require('fs-extra');
-const utils = require('../utils');
-const { spawn } = require('child_process'); // eslint-disable-line security/detect-child-process
-const copyFile = utils.copyFile;
-const copyFiles = utils.copyFiles;
-const copyAndModifyFile = utils.copyAndModifyFile;
-const globCopy = utils.globCopy;
+import path from 'node:path';
+import fs from 'fs-extra';
+import { copyFile, copyFiles, copyAndModifyFile, globCopy } from '../utils.js';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'node:url';
 
 // Determine if we're running on a Windows machine.
 const isWindows = (process.platform === 'win32');
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '..', '..', '..');
 const TITANIUM_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'android');
 const DIST_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'dist', 'android');
@@ -21,7 +17,7 @@ const GRADLEW_FILE_PATH = path.join(TITANIUM_ANDROID_PATH, isWindows ? 'gradlew.
 const GRADLE_CONSOLE_MODE = (process.env.TRAVIS || process.env.JENKINS || process.env.CI) ? 'plain' : 'rich';
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
-class Android {
+export default class Android {
 	/**
 	 * @param {Object} options options object
 	 * @param {String} options.androidSdk path to the Android SDK to build with
@@ -40,7 +36,7 @@ class Android {
 	}
 
 	babelOptions() {
-		const v8Version = require(path.join(ROOT_DIR, 'android', 'package.json')).v8.version; // eslint-disable-line security/detect-non-literal-require
+		const v8Version = fs.readJsonSync(path.join(ROOT_DIR, 'android', 'package.json')).v8.version;
 		const v8VersionGroup = v8Version.match(V8_STRING_VERSION_REGEXP);
 		const version = parseInt(v8VersionGroup[1] + v8VersionGroup[2]);
 
@@ -130,7 +126,7 @@ class Android {
 		await fs.mkdirs(ZIP_HEADER_INCLUDE_PATH);
 		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime', 'v8', 'src', 'native'), ZIP_HEADER_INCLUDE_PATH);
 		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime', 'v8', 'generated'), ZIP_HEADER_INCLUDE_PATH);
-		const v8Props = require(path.join(TITANIUM_ANDROID_PATH, 'package.json')).v8; // eslint-disable-line security/detect-non-literal-require
+		const v8Props = fs.readJsonSync(path.join(TITANIUM_ANDROID_PATH, 'package.json')).v8; // eslint-disable-line security/detect-non-literal-require
 		const LIBV8_INCLUDE_PATH = path.join(DIST_ANDROID_PATH, 'libv8', v8Props.version, v8Props.mode, 'include');
 		await globCopy('**/*.h', LIBV8_INCLUDE_PATH, ZIP_HEADER_INCLUDE_PATH);
 
@@ -259,5 +255,3 @@ async function createLocalPropertiesFile(sdkPath) {
 	];
 	await fs.writeFile(filePath, fileLines.join('\n') + '\n');
 }
-
-module.exports = Android;

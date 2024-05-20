@@ -1,19 +1,17 @@
-'use strict';
+import path from 'node:path';
+import fs from 'fs-extra';
+import { promisify } from 'node:util';
+import glob from 'glob';
+import { spawn } from 'node:child_process';  // eslint-disable-line security/detect-child-process
+import { copyFiles, copyAndModifyFile } from './utils.js';
 
-const path = require('path');
-const fs = require('fs-extra');
-const utils = require('./utils');
-const promisify = require('util').promisify;
-const glob = promisify(require('glob'));
-const spawn = require('child_process').spawn;  // eslint-disable-line security/detect-child-process
-const copyFiles = utils.copyFiles;
-const copyAndModifyFile = utils.copyAndModifyFile;
+const globPromise = promisify(glob);
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const IOS_ROOT = path.join(ROOT_DIR, 'iphone');
 const IOS_LIB = path.join(IOS_ROOT, 'lib');
 
-class IOS {
+export default class IOS {
 	/**
 	 * @param {Object} options options object
 	 * @param {String} options.sdkVersion version of Titanium SDK
@@ -29,7 +27,7 @@ class IOS {
 
 	babelOptions() {
 		// eslint-disable-next-line security/detect-non-literal-require
-		const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
+		const { minIosVersion } = fs.readJsonSync(path.join(ROOT_DIR, 'iphone/package.json'));
 
 		return {
 			targets: {
@@ -114,7 +112,7 @@ class IOS {
 
 		// Create redirecting headers in iphone/include/ pointing to iphone/Classes/ headers
 		// TODO: Use map and Promise.all to run these in parallel
-		const classesHeaders = await glob('**/*.h', { cwd: path.join(IOS_ROOT, 'Classes') });
+		const classesHeaders = await globPromise('**/*.h', { cwd: path.join(IOS_ROOT, 'Classes') });
 		for (const classHeader of classesHeaders) {
 			let depth = 1;
 			if (classHeader.includes(path.sep)) { // there's a sub-directory
@@ -172,5 +170,3 @@ class IOS {
 		return fs.writeFile(dest, newContents);
 	}
 }
-
-module.exports = IOS;

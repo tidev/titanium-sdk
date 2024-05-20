@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-'use strict';
 
-const version = require('../package.json').version;
-const program = require('commander');
+import { program } from 'commander';
+import fs from 'fs-extra';
+import { Builder } from './lib/builder.js';
+
+const { version } = fs.readJsonSync('../package.json');
 
 program.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
@@ -10,7 +12,6 @@ program.option('-v, --sdk-version [version]', 'Override the SDK version we repor
 	.option('-a, --all', 'Clean every OS/platform')
 	.parse(process.argv);
 
-const Builder = require('./lib/builder');
 new Builder(program.opts(), program.args).clean()
 	.then(() => process.exit(0))
 	.catch(err => {

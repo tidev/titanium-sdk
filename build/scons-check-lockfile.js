@@ -6,9 +6,9 @@
  * tried to manually update the lockfile (or a bad merge occurred)
  */
 
-import fs from 'node:fs';
+import fs from 'fs-extra';
 
-const lockfile = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+const lockfile = fs.readJsonSync('package-lock.json');
 
 let foundError = false;
 

@@ -1,8 +1,10 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
-const version = require('../package.json').version;
+import { program } from 'commander';
+import fs from 'fs-extra';
+import { Builder } from './lib/builder.js';
+
+const { version } = fs.readJsonSync('../package.json');
 
 program
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
@@ -10,7 +12,6 @@ program
 	.option('-a, --all', 'Build a ti.main.js file for every target OS')
 	.parse(process.argv);
 
-const Builder = require('./lib/builder');
 new Builder(program.opts(), program.args).build()
 	.then(() => process.exit(0))
 	.catch(err => {

@@ -3,20 +3,26 @@
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
-'use strict';
 
-const path = require('path');
-const fs = require('fs-extra');
-const colors = require('colors'); // eslint-disable-line no-unused-vars
-const ejs = require('ejs');
-const StreamSplitter = require('stream-splitter');
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
+import path from 'node:path';
+import fs from 'fs-extra';
+import 'colors';
+import ejs from 'ejs';
+import StreamSplitter from 'stream-splitter';
+import child_process, { spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+import stripAnsi from 'strip-ansi';
+import glob from 'glob';
+import { unzip } from '../utils.js';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
 const titanium = require.resolve('titanium');
-const { promisify } = require('util');
-const stripAnsi = require('strip-ansi');
-const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const glob = promisify(require('glob'));
-const utils = require('../utils');
+
+const exec = promisify(child_process.exec);
+const globPromise = promisify(glob);
 
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
@@ -59,7 +65,7 @@ let showFailedOnly = false;
  * @param {string} [failedOnly] Show only failed tests
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly) {
+export async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly) {
 	showFailedOnly = failedOnly;
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
 	console.log(platforms);
@@ -157,9 +163,9 @@ async function copyMochaAssets() {
 		(async () => {
 			await fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules'));
 			const modulesSourceDir = path.join(SOURCE_DIR, 'modules-source');
-			const zipPaths = await glob('*/*/dist/*.zip', { cwd: modulesSourceDir });
+			const zipPaths = await globPromise('*/*/dist/*.zip', { cwd: modulesSourceDir });
 			for (const nextZipPath of zipPaths) {
-				await utils.unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
+				await unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
 			}
 		})(),
 		// platform
@@ -770,7 +776,7 @@ class DeviceTestDetails {
  * @param {Promise[]} snapshotPromises array to hold promises for grabbign generated images
  * @returns {Promise<object>}
  */
-async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
+export async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	return new Promise((resolve, reject) => {
 		const deviceMap = new Map();
 		let started = false;
@@ -963,7 +969,7 @@ async function outputJUnitXML(jsonResults, prefix) {
 /**
  * @param {object[]} results test results
  */
-async function outputResults(results) {
+export async function outputResults(results) {
 	const suites = {};
 
 	// start
@@ -1021,8 +1027,3 @@ async function outputResults(results) {
 	const total = skipped + failures + passes;
 	console.log('%d Total Tests: %d passed, %d failed, %d skipped.', total, passes, failures, skipped);
 }
-
-// public API
-exports.test = test;
-exports.outputResults = outputResults;
-exports.handleBuild = handleBuild;

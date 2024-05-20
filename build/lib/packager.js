@@ -1,15 +1,19 @@
-'use strict';
+import path from 'node:path';
+import os from 'node:os';
+import { exec } from 'child_process';
+import fs from 'fs-extra';
+import {
+	cachedDownloadPath,
+	cacheUnzip,
+	copyFile,
+	copyFiles,
+	downloadURL,
+	unzip
+} from './utils.js';
+import { fileURLToPath } from 'url';
 
-const promisify = require('util').promisify;
-const path = require('path');
-const os = require('os');
-const exec = promisify(require('child_process').exec);  // eslint-disable-line security/detect-child-process
-const fs = require('fs-extra');
-const packageJSON = require('../../package.json');
-const utils = require('./utils');
-const copyFile = utils.copyFile;
-const copyFiles = utils.copyFiles;
-
+const packageJSON = fs.readJsonSync('../../package.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '../..');
 const TMP_DIR = path.join(ROOT_DIR, 'dist', 'tmp');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
@@ -45,7 +49,7 @@ async function zip(cwd, filename) {
 	return copyFile(outputFolder, destFolder, path.basename(filename));
 }
 
-class Packager {
+export class Packager {
 	/**
 	 * @param {String} outputDir path to place the temp files and zipfile
 	 * @param {String} targetOS  'win32', 'linux', or 'osx'
@@ -134,7 +138,7 @@ class Packager {
 	 */
 	async packageNodeModules() {
 		console.log('Copying production npm dependencies');
-		const moduleCopier = require('../../cli/lib/module-copier');
+		const { moduleCopier } = await import('../../cli/lib/module-copier.js');
 		// Copy node_modules/
 		await moduleCopier.execute(this.srcDir, this.zipSDKDir);
 
@@ -163,7 +167,7 @@ class Packager {
 		}
 
 		// Include 'ti.cloak'
-		return utils.unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
+		return unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
 	}
 
 	/**
@@ -233,8 +237,7 @@ class Packager {
 
 		let modules = []; // module objects holding url/integrity
 		// Read modules.json, grab the object for each supportedPlatform
-		// eslint-disable-next-line security/detect-non-literal-require
-		const modulesJSON = require(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json'));
+		const modulesJSON = fs.readJsonSync(path.join(SUPPORT_DIR, 'module', 'packaged', 'modules.json'));
 		supportedPlatforms.forEach(platform => {
 			const modulesForPlatform = modulesJSON[platform];
 			if (modulesForPlatform) {
@@ -273,11 +276,11 @@ class Packager {
 
 	async handleModule(m) {
 		// download (with caching based on integrity hash)
-		const zipFile = await utils.downloadURL(m.url, m.integrity, { progress: false });
+		const zipFile = await downloadURL(m.url, m.integrity, { progress: false });
 		// then unzip to temp dir (again with caching based on inut integrity hash)
-		const tmpZipPath = utils.cachedDownloadPath(m.url);
+		const tmpZipPath = cachedDownloadPath(m.url);
 		const tmpOutDir = tmpZipPath.substring(0, tmpZipPath.length - '.zip'.length); // drop .zip
-		await utils.cacheUnzip(zipFile, m.integrity, tmpOutDir);
+		await cacheUnzip(zipFile, m.integrity, tmpOutDir);
 		// then copy from tmp dir over to this.zipDir
 		// Might have to tweak this a bit! probably want to copy some subdir
 		console.log(`Copying ${tmpOutDir} to ${this.zipDir}`);
@@ -315,7 +318,7 @@ class Packager {
 	async zipPlatforms() {
 		// TODO: do in parallel?
 		for (const p of this.platforms) {
-			const Platform = require(`./${p}`); // eslint-disable-line security/detect-non-literal-require
+			const { default: Platform } = await import(`./${p}.js`);
 			await new Platform({
 				sdkVersion: this.version,
 				versionTag: this.versionTag,
@@ -341,5 +344,3 @@ class Packager {
 		return fs.remove(this.zipDir);
 	}
 }
-
-module.exports = Packager;
