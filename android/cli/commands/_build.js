@@ -3879,7 +3879,7 @@ class AndroidBuilder extends Builder {
 }
 
 // create the builder instance and expose the public api
-const androidBuilder = new AndroidBuilder(module);
-export const config = androidBuilder.config.bind(androidBuilder);
-export const validate = androidBuilder.validate.bind(androidBuilder);
-export const run = androidBuilder.run.bind(androidBuilder);
+const builder = new AndroidBuilder(module);
+export const config = builder.config.bind(builder);
+export const validate = builder.validate.bind(builder);
+export const run = builder.run.bind(builder);
