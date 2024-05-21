@@ -17,7 +17,7 @@ const GRADLEW_FILE_PATH = path.join(TITANIUM_ANDROID_PATH, isWindows ? 'gradlew.
 const GRADLE_CONSOLE_MODE = (process.env.TRAVIS || process.env.JENKINS || process.env.CI) ? 'plain' : 'rich';
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 
-export default class Android {
+export class AndroidBuilder {
 	/**
 	 * @param {Object} options options object
 	 * @param {String} options.androidSdk path to the Android SDK to build with
@@ -255,3 +255,5 @@ async function createLocalPropertiesFile(sdkPath) {
 	];
 	await fs.writeFile(filePath, fileLines.join('\n') + '\n');
 }
+
+export default AndroidBuilder;

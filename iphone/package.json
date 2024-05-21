@@ -2,6 +2,7 @@
 	"name": "titanium-mobile-ios",
 	"title": "iOS",
 	"description": "Titanium SDK iOS",
+	"type": "module",
 	"keywords": [
 		"appcelerator",
 		"titanium",

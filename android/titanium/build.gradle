@@ -147,7 +147,7 @@ task updateV8Library() {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
+			args = ['libv8-update-library.js']
 		}
 	}
 }
@@ -199,7 +199,7 @@ def getChangedFiles() {
 task snapshotTiCommonFiles() {
 	inputs.dir "${projectDir}/../../common/Resources"
 	inputs.file "${projectDir}/../../build/lib/builder.js"
-	inputs.file "${projectDir}/../../build/lib/android/index.js"
+	inputs.file "${projectDir}/../../build/lib/android.js"
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
 	doLast {
 		exec {

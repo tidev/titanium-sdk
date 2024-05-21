@@ -177,3 +177,5 @@ export class Color {
 		return Color.fallback();
 	}
 }
+
+export default Color;

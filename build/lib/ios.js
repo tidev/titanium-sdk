@@ -11,7 +11,7 @@ const ROOT_DIR = path.join(__dirname, '../..');
 const IOS_ROOT = path.join(ROOT_DIR, 'iphone');
 const IOS_LIB = path.join(IOS_ROOT, 'lib');
 
-export default class IOS {
+export class IOS {
 	/**
 	 * @param {Object} options options object
 	 * @param {String} options.sdkVersion version of Titanium SDK
@@ -170,3 +170,5 @@ export default class IOS {
 		return fs.writeFile(dest, newContents);
 	}
 }
+
+export default IOS;
