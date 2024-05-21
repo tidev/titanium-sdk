@@ -1,19 +1,20 @@
 package org.appcelerator.titanium.view;
 
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
-
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	private boolean fragmentCommitted = false;
 	protected boolean fragmentOnly = false;
 	private ArrayList<TiUIView> childrenToRealize = new ArrayList<>();
+	FragmentManager manager = null;
 
 	public TiUIFragment(TiViewProxy proxy, Activity activity)
 	{
@@ -46,14 +48,29 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 				}
 
 				@Override
+				protected void onDetachedFromWindow()
+				{
+					if (manager != null && !manager.isDestroyed()) {
+						removeMyFragments();
+						manager.executePendingTransactions();
+					}
+
+					super.onDetachedFromWindow();
+					transactionCommitted = false;
+
+					int size = getChildCount();
+					for (int i = size - 1; i >= 0; i--) {
+						removeViewAt(i);
+					}
+				}
+
+				@Override
 				protected void onAttachedToWindow()
 				{
 					super.onAttachedToWindow();
-					if (!transactionCommitted) {
-						transactionCommitted = true;
-						FragmentManager manager = ((FragmentActivity) getContext()).getSupportFragmentManager();
+					if (manager != null) {
 						FragmentTransaction transaction = manager.beginTransaction();
-						transaction.runOnCommit(onCommitRunnable);
+						transaction.setReorderingAllowed(true);
 						fragment = createFragment();
 						transaction.add(getId(), fragment);
 						transaction.commitAllowingStateLoss();
@@ -62,6 +79,24 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 			};
 			container.setId(View.generateViewId());
 			setNativeView(container);
+
+			if (manager == null) {
+				manager = ((FragmentActivity) activity).getSupportFragmentManager();
+			}
+		}
+	}
+
+	private void removeMyFragments()
+	{
+		FragmentTransaction transaction = manager.beginTransaction();
+		boolean hasFragments = false;
+
+		for (Fragment fragment : manager.getFragments()) {
+			transaction.remove(fragment);
+			hasFragments = true;
+		}
+		if (hasFragments) {
+			transaction.commitNowAllowingStateLoss();
 		}
 	}
 
@@ -143,20 +178,17 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 	@Override
 	public void release()
 	{
-		if (fragment != null) {
-			FragmentManager fragmentManager = fragment.getFragmentManager();
-			if (fragmentManager != null) {
-				FragmentTransaction transaction = null;
-				Fragment tabFragment = fragmentManager.findFragmentById(android.R.id.tabcontent);
-				if (tabFragment != null) {
-					FragmentManager childManager = fragment.getActivity().getSupportFragmentManager();
-					transaction = childManager.beginTransaction();
-				} else {
-					transaction = fragmentManager.beginTransaction();
-				}
-				transaction.remove(fragment);
-				transaction.commit();
+		if (fragment != null && manager != null) {
+			FragmentTransaction transaction = null;
+			Fragment tabFragment = manager.findFragmentById(android.R.id.tabcontent);
+			if (tabFragment != null) {
+				FragmentManager childManager = fragment.getActivity().getSupportFragmentManager();
+				transaction = childManager.beginTransaction();
+			} else {
+				transaction = manager.beginTransaction();
 			}
+			transaction.remove(fragment);
+			transaction.commitNowAllowingStateLoss();
 		}
 		super.release();
 	}
