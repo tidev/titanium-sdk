@@ -84,7 +84,7 @@ export function run(logger, config, cli, finished) {
 		maxlen,
 		sdkPath = cli.sdk.path,
 		templateDir,
-		propsList = [ 'sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid' ],
+		propsList = [ 'sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'guid' ],
 		deploymentTargets = tiapp['deployment-targets'];
 
 	args.length === 0 && output === 'report' && logger.banner();
@@ -264,19 +264,12 @@ export function run(logger, config, cli, finished) {
 				case 'guid':
 					tiapp[key] = value = args[1] || '';
 					break;
-				case 'analytics':
-					if (!~[ 'true', 'false' ].indexOf(args[1])) {
-						logger.error(`Invalid value for analytics ${args[1]}\n`);
-						process.exit(1);
-					}
-					tiapp['analytics'] = value = args[1];
-					break;
 				default:
 					logger.error('Invalid tiapp.xml key "' + key + '"');
 					break;
 			}
 			logger.log('tiapp.xml saving is currently not supported');
-			// logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
+			// logger.log(`${(key + '').cyan} was successfully set to ${(value + '').cyan}\n`);
 			// tiapp.save(tiappPath);
 			break;
 	}

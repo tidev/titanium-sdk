@@ -2324,9 +2324,6 @@ iOSBuilder.prototype.run = async function run(logger, config, cli, finished) {
 			});
 		});
 
-		// Post build anlytics.
-		await this.doAnalytics();
-
 		// Initialize build system. Checks if we need to do a clean or incremental build.
 		await this.initialize(); // sets a lot of fields/properties
 		await this.determineLogServerPort(); // needs to be run before loginfo and createXcodeProject (sets this.tiLogServerPort)
@@ -2507,38 +2504,6 @@ iOSBuilder.prototype.run = async function run(logger, config, cli, finished) {
 	}
 };
 
-/**
- * Creates and adds the analytics event for the build.
- */
-iOSBuilder.prototype.doAnalytics = async function doAnalytics() {
-	const cli = this.cli;
-	let eventName = this.deviceFamily + '.' + cli.argv.target;
-
-	if (cli.argv.target === 'dist-appstore' || cli.argv.target === 'dist-adhoc') {
-		eventName = this.deviceFamily + '.distribute.' + cli.argv.target.replace('dist-', '');
-	} else if (this.allowDebugging && cli.argv['debug-host']) {
-		eventName += '.debug';
-	} else if (this.allowProfiling && cli.argv['profiler-host']) {
-		eventName += '.profile';
-	} else {
-		eventName += '.run';
-	}
-
-	cli.addAnalyticsEvent(eventName, {
-		name:        this.tiapp.name,
-		publisher:   this.tiapp.publisher,
-		url:         this.tiapp.url,
-		image:       this.tiapp.icon,
-		appid:       this.tiapp.id,
-		description: this.tiapp.description,
-		type:        cli.argv.type,
-		guid:        this.tiapp.guid,
-		version:     this.tiapp.version,
-		copyright:   this.tiapp.copyright,
-		date:        (new Date()).toDateString()
-	});
-};
-
 iOSBuilder.prototype.initialize = async function initialize() {
 	const argv = this.cli.argv;
 
@@ -2563,7 +2528,6 @@ iOSBuilder.prototype.initialize = async function initialize() {
 	this.currentBuildManifest.forceCopy          = this.forceCopy               = !!argv['force-copy'];
 	this.currentBuildManifest.name               = this.tiapp.name;
 	this.currentBuildManifest.id                 = this.tiapp.id;
-	this.currentBuildManifest.analytics          = this.tiapp.analytics;
 	this.currentBuildManifest.publisher          = this.tiapp.publisher;
 	this.currentBuildManifest.url                = this.tiapp.url;
 	this.currentBuildManifest.version            = this.tiapp.version;
@@ -2996,7 +2960,6 @@ iOSBuilder.prototype.checkIfNeedToRecompile = async function checkIfNeedToRecomp
 		const tiappSettings = {
 			name:        'project name',
 			id:          'app id',
-			analytics:   'analytics flag',
 			publisher:   'publisher',
 			url:         'url',
 			version:     'version',
@@ -4556,7 +4519,7 @@ iOSBuilder.prototype.writeMain = async function writeMain() {
 		__DEPLOYTYPE__:       this.deployType,
 		__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
 		__APP_ID__:           this.tiapp.id,
-		__APP_ANALYTICS__:    String(Object.prototype.hasOwnProperty.call(this.tiapp, 'analytics') ? !!this.tiapp.analytics : true),
+		__APP_ANALYTICS__:    'false',
 		__APP_PUBLISHER__:    this.tiapp.publisher,
 		__APP_URL__:          this.tiapp.url,
 		__APP_NAME__:         this.tiapp.name,
@@ -6620,7 +6583,7 @@ iOSBuilder.prototype.writeI18NFiles = function writeI18NFiles() {
 };
 
 iOSBuilder.prototype.processTiSymbols = function processTiSymbols() {
-	this.logger.info(__('Processing Titanium symbols'));
+	this.logger.info('Processing Titanium symbols');
 
 	const namespaces = {
 			analytics: 1,

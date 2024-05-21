@@ -3,8 +3,11 @@
 import { program } from 'commander';
 import fs from 'fs-extra';
 import { Builder } from './lib/builder.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const { version } = fs.readJsonSync('../package.json');
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
 
 program.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')

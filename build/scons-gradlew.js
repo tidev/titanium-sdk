@@ -2,8 +2,12 @@
 
 import { program } from 'commander';
 import fs from 'fs-extra';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const { version } = fs.readJsonSync('../package.json');
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
+
 const argsIndex = process.argv.indexOf('--args');
 const mainArgs = (argsIndex >= 0) ? process.argv.slice(0, argsIndex) : process.argv;
 const gradlewArgs = (argsIndex >= 0) ? process.argv.slice(argsIndex + 1) : null;

@@ -3,14 +3,12 @@
  * project folder and then configures them in the Xcode project
  */
 
-'use strict';
-
-const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
-const fs = require('fs-extra');
-const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
-const path = require('path');
-const plist = require('simple-plist');
-const { promisify } = require('util');
+import { exec } from 'child_process';
+import fs from 'fs-extra';
+import { IncrementalFileTask } from 'appc-tasks';
+import path from 'node:path';
+import plist from 'simple-plist';
+import { promisify } from 'util';
 
 const parsePlist = promisify(plist.readFile);
 
@@ -22,12 +20,12 @@ const FRAMEWORK_TYPE_DYNAMIC = 'dynamic';
 const MAC_CATALYST_PLATFORM_VARIANT = 'maccatalyst';
 const IOS_PLATFORM = 'ios';
 
-exports.cliVersion = '>=3.2.1';
+export const cliVersion = '>=3.2.1';
 
-exports.init = function (logger, config, cli) {
+export function init(logger, config, cli) {
 	let frameworkManager = new FrameworkManager(cli, config, logger);
 	frameworkManager.initialize();
-};
+}
 
 /**
  * Manages all available frameworks either from modules or the project itself.

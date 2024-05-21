@@ -10,11 +10,11 @@ import {
 	downloadURL,
 	unzip
 } from './utils.js';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
-const packageJSON = fs.readJsonSync('../../package.json');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '../..');
+const packageJSON = fs.readJsonSync(path.join(ROOT_DIR, 'package.json'));
 const TMP_DIR = path.join(ROOT_DIR, 'dist', 'tmp');
 const SUPPORT_DIR = path.join(ROOT_DIR, 'support');
 

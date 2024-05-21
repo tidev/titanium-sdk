@@ -8,7 +8,6 @@
 import appc from 'node-appc';
 import fields from 'fields';
 import fs from 'fs-extra';
-import jsanalyze from 'node-titanium-sdk/lib/jsanalyze';
 import path from 'node:path';
 import sprintf from 'sprintf';
 import ti from 'node-titanium-sdk';
@@ -302,22 +301,6 @@ export async function run(logger, config, cli, finished) {
 		logger.error('Unable to find platform specific build command\n');
 		logger.log(`Your SDK installation may be corrupt. You can reinstall it by running '${(cli.argv.$ + ' sdk install --force --default').cyan}'.\n`);
 		process.exit(1);
-	}
-
-	if (config.get('cli.sendAPIUsage', true)) {
-		cli.on('build.finalize', function (builder) {
-			const deployType = builder.deployType || cli.argv['deploy-type'] || null;
-			if (deployType === 'production') {
-				cli.addAnalyticsEvent('Titanium API Usage', {
-					platform: platform,
-					tisdkname: (ti.manifest && ti.manifest.name) || (cli.sdk && cli.sdk.name) || null,
-					tisdkver: (ti.manifest && ti.manifest.version) || (cli.sdk && cli.sdk.name) || null,
-					deployType: deployType,
-					target: builder.target || cli.argv.target || null,
-					usage: jsanalyze.getAPIUsage()
-				}, 'ti.apiusage');
-			}
-		});
 	}
 
 	let counter = 0;

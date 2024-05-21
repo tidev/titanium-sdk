@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'fs-extra';
-import { copyFile, copyFiles, copyAndModifyFile, globCopy } from '../utils.js';
+import { copyFile, copyFiles, copyAndModifyFile, globCopy } from './utils.js';
 import { spawn } from 'child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -8,9 +8,9 @@ import { fileURLToPath } from 'node:url';
 const isWindows = (process.platform === 'win32');
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT_DIR = path.join(__dirname, '..', '..', '..');
-const TITANIUM_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'android');
-const DIST_ANDROID_PATH = path.join(__dirname, '..', '..', '..', 'dist', 'android');
+const ROOT_DIR = path.join(__dirname, '..', '..');
+const TITANIUM_ANDROID_PATH = path.join(ROOT_DIR, 'android');
+const DIST_ANDROID_PATH = path.join(ROOT_DIR, 'dist', 'android');
 const GRADLEW_FILE_PATH = path.join(TITANIUM_ANDROID_PATH, isWindows ? 'gradlew.bat' : 'gradlew');
 // On CI server, use plain output to avoid nasty progress bars filling up logs
 // But on local dev, use the nice UI

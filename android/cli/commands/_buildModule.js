@@ -946,7 +946,7 @@ export class AndroidModuleBuilder extends Builder {
 }
 
 // create the builder instance and expose the public api
-const androidModuleBuilder = new AndroidModuleBuilder(module);
-export const config = androidModuleBuilder.config.bind(androidModuleBuilder);
-export const validate = androidModuleBuilder.validate.bind(androidModuleBuilder);
-export const run = androidModuleBuilder.run.bind(androidModuleBuilder);
+const moduleBuilder = new AndroidModuleBuilder(module);
+export const config = moduleBuilder.config.bind(moduleBuilder);
+export const validate = moduleBuilder.validate.bind(moduleBuilder);
+export const run = moduleBuilder.run.bind(moduleBuilder);

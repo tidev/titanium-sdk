@@ -7,7 +7,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import { getHash } from './git.js';
 import { installSDK, installSDKFromZipFile, timestamp } from './utils.js';
-import Packager from './packager.js';
+import { Packager } from './packager.js';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
@@ -60,7 +60,7 @@ function determineBabelOptions(babelOptions) {
  * @returns {String}
  */
 function getCorejsVersion() {
-	const packageLock = fs.readJsonSync('../../package-lock.json');
+	const packageLock = fs.readJsonSync(path.join(__dirname, '../../package-lock.json'));
 	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
 		const { version } = packageLock.dependencies['core-js'];
 		return version;

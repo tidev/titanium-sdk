@@ -6,8 +6,8 @@ import fs from 'fs-extra';
 import yaml from 'js-yaml';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const { version } = fs.readJsonSync('../package.json');
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
 
 /**
  *

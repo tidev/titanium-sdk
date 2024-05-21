@@ -287,23 +287,6 @@ export class ModuleCreator extends Creator {
 				});
 			}, this);
 
-			tasks.push(function (next) {
-				// send the analytics
-				this.cli.addAnalyticsEvent('project.create.module', {
-					name: variables.moduleName,
-					author: variables.author,
-					moduleid: variables.moduleId,
-					description: '',
-					guid: variables.guid,
-					version: '1.0.0',
-					copyright: 'copyright: Copyright (c) ' + variables.year + ' by ' + variables.publisher,
-					minsdk: this.sdk.name,
-					platforms: platforms.original.join(', '),
-					date: (new Date()).toDateString()
-				});
-				next();
-			});
-
 			appc.async.series(this, tasks, callback);
 		}.bind(this));
 	}

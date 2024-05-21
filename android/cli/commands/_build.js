@@ -1898,12 +1898,6 @@ class AndroidBuilder extends Builder {
 			return true;
 		}
 
-		if (!this.tiapp.analytics !== !manifest.analytics) {
-			this.logger.info('Forcing rebuild: tiapp.xml analytics flag changed since last build');
-			this.logger.info(`  Was: ${!!manifest.analytics}`);
-			this.logger.info(`  Now: ${!!this.tiapp.analytics}`);
-			return true;
-		}
 		if (this.tiapp.publisher !== manifest.publisher) {
 			this.logger.info('Forcing rebuild: tiapp.xml publisher changed since last build');
 			this.logger.info(`  Was: ${manifest.publisher}`);
@@ -3858,7 +3852,6 @@ class AndroidBuilder extends Builder {
 				outputDir: this.cli.argv['output-dir'],
 				name: this.tiapp.name,
 				id: this.tiapp.id,
-				analytics: this.tiapp.analytics,
 				publisher: this.tiapp.publisher,
 				url: this.tiapp.url,
 				version: this.tiapp.version,

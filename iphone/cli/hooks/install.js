@@ -5,19 +5,17 @@
  * See the LICENSE file for more information.
  */
 
-'use strict';
+import appc from 'node-appc';
+import async from 'async';
+import fs from 'node:fs';
+import ioslib from 'ioslib';
+import path from 'node:path';
 
-const appc = require('node-appc'),
-	async = require('async'),
-	fs = require('fs'),
-	ioslib = require('ioslib'),
-	path = require('path'),
-	run = appc.subprocess.run,
-	__ = appc.i18n(__dirname).__;
+const { run } = appc.subprocess;
 
-exports.cliVersion = '>=3.2';
+export const cliVersion = '>=3.2';
 
-exports.init = function (logger, config, cli) {
+export function init(logger, config, cli) {
 	cli.addHook('build.post.compile', {
 		priority: 8000,
 		post: function (builder, finished) {
@@ -26,7 +24,7 @@ exports.init = function (logger, config, cli) {
 			}
 
 			if (cli.argv['build-only']) {
-				logger.info(__('Performed build only, skipping installing of the application'));
+				logger.info('Performed build only, skipping installing of the application');
 				return finished();
 			}
 
@@ -43,16 +41,16 @@ exports.init = function (logger, config, cli) {
 				// if we don't have a deviceId, or it's "itunes", or it's "all", but not devices are connected,
 				// then install to iTunes
 				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId && !Object.keys(devices).length)) {
-					logger.info(__('Installing application into iTunes'));
+					logger.info('Installing application into iTunes');
 
 					let ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
 					fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
 					run('open', [ '-b', 'com.apple.itunes', ipa ], function (code) {
 						if (code) {
-							return finished(new appc.exception(__('Failed to launch iTunes')));
+							return finished(new appc.exception('Failed to launch iTunes'));
 						}
 
-						logger.info(__('Initiating iTunes sync'));
+						logger.info('Initiating iTunes sync');
 						run('osascript', path.join(builder.platformPath, 'itunes_sync.scpt'), function (code, out, err) {
 							if (code) {
 								if (err.indexOf('(-1708)') !== -1) {
@@ -60,9 +58,9 @@ exports.init = function (logger, config, cli) {
 									//
 									// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
 									//       then wait for them to accept it and then try again
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
+									finished(new appc.exception('Failed to initiate iTunes sync', err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
 								} else {
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
+									finished(new appc.exception('Failed to initiate iTunes sync', err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
 								}
 							} else {
 								finished();
@@ -96,7 +94,7 @@ exports.init = function (logger, config, cli) {
 
 					if (force || runningCount <= 0) {
 						if (startLog) {
-							const endLogTxt = __('End application log');
+							const endLogTxt = 'End application log';
 							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
 						}
 						process.exit(0);
@@ -108,7 +106,7 @@ exports.init = function (logger, config, cli) {
 					const device = devices[udid];
 					let lastLogger = 'debug';
 
-					logger.info(__('Installing app on device: %s', device.name.cyan));
+					logger.info(`Installing app on device: ${device.name.cyan}`);
 
 					const handle = handles[udid] = ioslib.device
 						.install(udid, builder.xcodeAppDir, {
@@ -116,13 +114,13 @@ exports.init = function (logger, config, cli) {
 							logPort: builder.tiLogServerPort
 						})
 						.on('installed', function () {
-							logger.info(__('App successfully installed on device: %s', device.name.cyan));
+							logger.info(`App successfully installed on device: ${device.name.cyan}`);
 							if (++installCount === udids.length && !startLog) {
 								setTimeout(function () {
 									if (process.env.STUDIO_VERSION) {
-										logger.log(__('Please manually launch the application').magenta + '\n');
+										logger.log('Please manually launch the application'.magenta + '\n');
 									} else {
-										logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
+										logger.log('Please manually launch the application or press CTRL-C to quit'.magenta + '\n');
 									}
 								}, 50);
 							}
@@ -139,10 +137,10 @@ exports.init = function (logger, config, cli) {
 									try {
 										const headers = JSON.parse(msg);
 										if (headers.appId !== builder.tiapp.id) {
-											logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, builder.tiLogServerPort));
-											logger.error(__('Stop the running Titanium app, then rebuild this app'));
-											logger.error(__('-or-'));
-											logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml'));
+											logger.error(`Another Titanium app "${headers.appId}" is currently running and using the log server port ${builder.tiLogServerPort}`);
+											logger.error('Stop the running Titanium app, then rebuild this app');
+											logger.error('-or-');
+											logger.error('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml');
 											handle.stop();
 
 											if (--runningCount <= 0) {
@@ -159,7 +157,7 @@ exports.init = function (logger, config, cli) {
 							}
 
 							if (!startLog) {
-								const startLogTxt = __('Start application log');
+								const startLogTxt = 'Start application log';
 								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 								startLog = true;
 							}
@@ -194,17 +192,17 @@ exports.init = function (logger, config, cli) {
 							err = err.message || err.toString();
 							let details;
 							if (err.indexOf('0xe8008017') !== -1) {
-								details = __('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.');
+								details = 'Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.';
 							} else if (err.indexOf('0xe8008019') !== -1) {
-								details = __('Chances are there is a signing issue. Clean the project and try building the project again.');
+								details = 'Chances are there is a signing issue. Clean the project and try building the project again.';
 							} else if (err.indexOf('0xe800007f') !== -1) {
-								details = __('Try reconnecting your device and try again.');
+								details = 'Try reconnecting your device and try again.';
 							} else if (err.indexOf('0xe8008016') !== -1) {
-								details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.; or your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
+								details = 'Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.; or your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.';
 							} else if (err.indexOf('0xe800001a') !== -1) {
-								details = __('Failed to transfer app to device. Check if your devices is registered in your provisioning profile.');
+								details = 'Failed to transfer app to device. Check if your devices is registered in your provisioning profile.';
 							} else {
-								details = __('For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.');
+								details = 'For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.';
 							}
 							next(new appc.exception(err, details));
 						});
@@ -218,4 +216,4 @@ exports.init = function (logger, config, cli) {
 			});
 		}
 	});
-};
+}
