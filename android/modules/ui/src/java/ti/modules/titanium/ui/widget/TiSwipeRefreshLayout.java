@@ -93,8 +93,8 @@ public class TiSwipeRefreshLayout extends SwipeRefreshLayout
 	 * Updates this view's width and height based on the given width and height constraints.
 	 * <p>
 	 * Given arguments size and size mode can be extracted by the Android "View.MeasureSpec" class.
-	 * @param widthMeasureSpec Provides the parent's width contraints and size mode.
-	 * @param heightMeasureSpec Provides the parent's height contraints and size mode.
+	 * @param widthMeasureSpec Provides the parent's width constraints and size mode.
+	 * @param heightMeasureSpec Provides the parent's height constraints and size mode.
 	 */
 	@Override
 	public void onMeasure(int widthMeasureSpec, int heightMeasureSpec)

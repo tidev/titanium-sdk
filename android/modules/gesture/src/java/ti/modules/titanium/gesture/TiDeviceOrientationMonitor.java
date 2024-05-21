@@ -82,7 +82,7 @@ public final class TiDeviceOrientationMonitor
 		if (value instanceof SensorManager) {
 			this.sensorManager = (SensorManager) value;
 		} else {
-			Log.w(TAG, "Unable to aquire SensorManager.");
+			Log.w(TAG, "Unable to acquire SensorManager.");
 		}
 
 		// Create an event handler for the Android "OrientationEventListener".
@@ -370,7 +370,7 @@ public final class TiDeviceOrientationMonitor
 					break;
 			}
 
-			// Do not continue if the device rotation matrix has not been udpated above.
+			// Do not continue if the device rotation matrix has not been updated above.
 			if (!wasRotationMatrixUpdated) {
 				return;
 			}
