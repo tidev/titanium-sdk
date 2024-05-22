@@ -224,7 +224,14 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     [[self picker] setBackgroundColor:[[TiUtils colorValue:value] _color]];
   }
 }
-
+- (void)setOverrideUserInterfaceStyle_:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSNumber);
+  if (picker != nil) {
+    int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+    ((UIDatePicker *)[self picker]).overrideUserInterfaceStyle = style;
+  }
+}
 - (void)setDateTimeColor_:(id)value
 {
   // Guard date picker and iOS 14+ date picker style
