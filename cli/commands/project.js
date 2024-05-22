@@ -114,7 +114,7 @@ export function run(logger, config, cli, finished) {
 					return Math.max(a, b.length);
 				}, 0);
 				for (p in tiapp['deployment-targets']) {
-					logger.log('  %s = %s', appc.string.rpad(p, maxlen), (deploymentTargets[p] + '').cyan);
+					logger.log(`  ${appc.string.rpad(p, maxlen)} = ${(deploymentTargets[p] + '').cyan}`);
 				}
 				logger.log();
 
@@ -124,7 +124,7 @@ export function run(logger, config, cli, finished) {
 					return Math.max(a, b.length);
 				}, 0);
 				propsList.forEach(function (key) {
-					logger.log('  %s = %s', appc.string.rpad(key, maxlen), String(tiapp[key] || 'not specified').cyan);
+					logger.log(`  ${appc.string.rpad(key, maxlen)} = ${String(tiapp[key] || 'not specified').cyan}`);
 				});
 				logger.log();
 			}
@@ -154,7 +154,7 @@ export function run(logger, config, cli, finished) {
 						return Math.max(a, b.length);
 					}, 0);
 					for (p in tiapp['deployment-targets']) {
-						logger.log('  %s = %s', appc.string.rpad(p, maxlen), (deploymentTargets[p] + '').cyan);
+						logger.log(`  ${appc.string.rpad(p, maxlen)} = ${(deploymentTargets[p] + '').cyan}`);
 					}
 					logger.log();
 				}

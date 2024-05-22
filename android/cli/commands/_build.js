@@ -17,7 +17,7 @@ import { detect as androidDetect } from '../lib/detect.js';
 import { AndroidManifest } from '../lib/android-manifest.js';
 import appc from 'node-appc';
 import async from 'async';
-import { Builder } from 'node-titanium-sdk/lib/builder.js';
+import Builder from 'node-titanium-sdk/lib/builder.js';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { ProcessDrawablesTask } from '../lib/process-drawables-task.js';

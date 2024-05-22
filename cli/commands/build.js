@@ -11,7 +11,7 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import sprintf from 'sprintf';
 import ti from 'node-titanium-sdk';
-import tiappxml from 'node-titanium-sdk/lib/tiappxml';
+import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -96,7 +96,7 @@ export function config(logger, config, cli) {
 									if (!platform) {
 										throw new Error('Invalid platform');
 									} else if (ti.availablePlatforms.indexOf(platform) === -1) {
-										throw new Error('Invalid platform: %s', platform);
+										throw new Error(`Invalid platform: ${platform}`);
 									}
 									return true;
 								}
@@ -310,7 +310,7 @@ export async function run(logger, config, cli, finished) {
 		if (!counter++) {
 			const delta = appc.time.prettyDiff(cli.startTime, Date.now());
 			if (err) {
-				logger.error('An error occurred during build after %s', delta);
+				logger.error(`An error occurred during build after ${delta}`);
 				if (err instanceof appc.exception) {
 					err.dump(logger.error);
 				} else if (err !== true) {

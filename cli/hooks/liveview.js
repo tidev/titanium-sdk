@@ -1,1 +1,1 @@
-export * from 'liveview/hook/lvhook';
+export * from 'liveview/hook/lvhook.js';

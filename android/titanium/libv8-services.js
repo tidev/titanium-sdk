@@ -139,7 +139,7 @@ async function generateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
  * Does a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" JS files.
  * Will then generate a C++ header file providing a V8 snapshot of the rolled-up JS for fast startup times.
  */
-export async function createSnapshot() {
+async function createSnapshot() {
 	// Perform a transpile/polyfill/rollup of our common JS files.
 	// This contains our "ti.main.js" which the app executes on startup before executing the "app.js" file.
 	const rollupOutputDirPath = path.join(__dirname, 'build', 'outputs', 'ti-assets', 'Resources');
@@ -232,7 +232,7 @@ export async function createSnapshot() {
  * Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
  * If not, then this function will automatically download/install it. Function will do nothing if already installed.
  */
-export async function updateLibrary() {
+async function updateLibrary() {
 	// Fetch info about the V8 library we should be building with.
 	// This info is stored in our "package.json" under "titanium_mobile/android" folder.
 	const packageJsonData = await loadPackageJson();
@@ -265,35 +265,28 @@ export async function updateLibrary() {
 	return fs.copy(tmpExtractDir, installedLibV8DirPath);
 }
 
-/**
- * Does a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" JS files.
- * Will then generate a C++ header file providing a V8 snapshot of the rolled-up JS for fast startup times.
- *
- * Will exit the process when the async operation ends. Intended to be called from the command line.
- */
-export function createSnapshotThenExit() {
-	exitWhenDone(createSnapshot());
-}
-
-/**
- * Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
- * If not, then this function will automatically download/install it. Function will do nothing if alredy installed.
- *
- * Will exit the process when the async operation ends. Intended to be called from the command line.
- */
-export function updateLibraryThenExit() {
-	exitWhenDone(updateLibrary());
-}
-
-/**
- * Exits the process when the given promise's operation ends.
- * @param {Promise} promise The promise to be monitored. Cannot be null/undefined.
- */
-function exitWhenDone(promise) {
-	promise
-		.then(() => process.exit(0))
-		.catch((err) => {
+if (import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(import.meta.url)) {
+	if (process.argv[2] === 'create-snapshot') {
+		/**
+		 * Does a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" JS files.
+		 * Will then generate a C++ header file providing a V8 snapshot of the rolled-up JS for fast startup times.
+		 *
+		 * Will exit the process when the async operation ends. Intended to be called from the command line.
+		 */
+		createSnapshot().catch(err => {
 			console.error(err);
 			process.exit(1);
 		});
+	} else if (process.argv[2] === 'updateLibrary') {
+		/**
+		* Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
+		* If not, then this function will automatically download/install it. Function will do nothing if alredy installed.
+		*
+		* Will exit the process when the async operation ends. Intended to be called from the command line.
+		*/
+		updateLibrary().catch(err => {
+			console.error(err);
+			process.exit(1);
+		});
+	}
 }

@@ -11,7 +11,7 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import sprintf from 'sprintf';
 import async from 'async';
-import tiappxml from 'node-titanium-sdk/lib/tiappxml';
+import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import fields from 'fields';
 import { fileURLToPath } from 'node:url';
 

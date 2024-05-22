@@ -147,7 +147,7 @@ task updateV8Library() {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['libv8-update-library.js']
+			args = ['libv8-services.js', 'update-library']
 		}
 	}
 }
@@ -205,7 +205,7 @@ task snapshotTiCommonFiles() {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').createSnapshotThenExit()"]
+			args = ['libv8-services.js', 'create-snapshot']
 		}
 	}
 }

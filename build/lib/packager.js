@@ -138,7 +138,7 @@ export class Packager {
 	 */
 	async packageNodeModules() {
 		console.log('Copying production npm dependencies');
-		const { moduleCopier } = await import('../../cli/lib/module-copier.js');
+		const moduleCopier = await import('../../cli/lib/module-copier.js');
 		// Copy node_modules/
 		await moduleCopier.execute(this.srcDir, this.zipSDKDir);
 

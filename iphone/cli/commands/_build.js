@@ -14,7 +14,7 @@
 import appc from 'node-appc';
 import async from 'async';
 import bufferEqual from 'buffer-equal';
-import { Builder } from 'node-titanium-sdk/lib/builder.js';
+import Builder from 'node-titanium-sdk/lib/builder.js';
 import crypto from 'node:crypto';
 import { cyan } from 'colors';
 import { DOMParser } from 'xmldom';
@@ -5285,7 +5285,7 @@ class iOSBuilder extends Builder {
 		]);
 		let combined = gather.mergeMaps(firstWave);
 
-		const { moduleCopier } = await import('../../../cli/lib/module-copier.js');
+		const moduleCopier = await import('../../../cli/lib/module-copier.js');
 		const dirSet = await moduleCopier.gather(this.projectDir);
 		const nodeModuleDirs = Array.from(dirSet);
 		const secondWave = await Promise.all(nodeModuleDirs.map(async dir => {

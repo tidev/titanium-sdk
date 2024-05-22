@@ -21,7 +21,7 @@ import fs from 'fs-extra';
 import moment from 'moment';
 import path from 'node:path';
 import ti from 'node-titanium-sdk';
-import tiappxml from 'node-titanium-sdk/lib/tiappxml';
+import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 
 /**
  * Creates Apple Watch™ projects.
