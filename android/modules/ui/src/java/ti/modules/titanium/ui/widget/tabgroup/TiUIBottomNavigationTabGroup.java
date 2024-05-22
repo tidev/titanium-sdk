@@ -344,11 +344,17 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		try {
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)) {
+			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
+			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-				drawable = new RippleDrawable(createRippleColorStateListFrom(getActiveColor(tabProxy)), drawable, null);
+				int color = getActiveColor(tabProxy);
+				if (hasTouchFeedbackColor) {
+					color = TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR),
+						tabProxy.getActivity());
+				}
+				drawable = new RippleDrawable(createRippleColorStateListFrom(color), drawable, null);
 				bottomMenuView.getChildAt(index).setBackground(drawable);
 			}
 		} catch (Exception e) {

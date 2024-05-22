@@ -208,7 +208,7 @@
 	"Forcing rebuild: Android minimum SDK changed since last build": "Forcing rebuild: Android minimum SDK changed since last build",
 	"Forcing rebuild: Android target SDK changed since last build": "Forcing rebuild: Android target SDK changed since last build",
 	"Forcing rebuild: tiapp.xml properties changed since last build": "Forcing rebuild: tiapp.xml properties changed since last build",
-	"Forcing rebuild: Android activites in tiapp.xml changed since last build": "Forcing rebuild: Android activites in tiapp.xml changed since last build",
+	"Forcing rebuild: Android activities in tiapp.xml changed since last build": "Forcing rebuild: Android activites in tiapp.xml changed since last build",
 	"Forcing rebuild: Android services in tiapp.xml SDK changed since last build": "Forcing rebuild: Android services in tiapp.xml SDK changed since last build",
 	"Forcing rebuild: One or more JSS files changed since last build": "Forcing rebuild: One or more JSS files changed since last build",
 	"Forcing rebuild: mergeCustomAndroidManifest config has changed since last build": "Forcing rebuild: mergeCustomAndroidManifest config has changed since last build",
