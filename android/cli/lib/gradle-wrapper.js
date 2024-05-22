@@ -172,7 +172,7 @@ export class GradleWrapper {
 		}
 
 		// Function which returns a stdout/stderr "data" reading function object and outputs it to given "logFunction".
-		// The "logFunction" argument is expected to be a "logger" object that conatins "logger.info" or "logger.error".
+		// The "logFunction" argument is expected to be a "logger" object that contains "logger.info" or "logger.error".
 		// The "logType" is a string "error" or "info" to call the correct logger function
 		const createReadableDataHandlerUsing = (logFunction, logType) => {
 			let stringBuffer = '';

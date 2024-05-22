@@ -258,7 +258,7 @@ export function init(logger, config, cli) {
 								line = line.replace(/^\w\/(\w+)\s*:/g, '$1:').grey;
 							}
 							line = deviceName + line;
-						// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
+						// if it begins with something like "E/SQLiteLog( 1659):" it's not a continuation, don't log it.
 						} else if (nonTiLogRegexp.test(line)) {
 							return;
 						}

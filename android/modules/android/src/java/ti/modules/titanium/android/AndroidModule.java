@@ -561,7 +561,7 @@ public class AndroidModule extends KrollModule
 				// Remove this listener from the runtime's static collection.
 				KrollRuntime.removeOnDisposingListener(this);
 
-				// Unregister all currently registerd broadcast receviers.
+				// Unregister all currently registered broadcast receivers.
 				// They can no longer be handled by the terminating JavaScript runtime.
 				while (registeredBroadcastReceiverProxyList.isEmpty() == false) {
 					unregisterBroadcastReceiver(registeredBroadcastReceiverProxyList.pollFirst());

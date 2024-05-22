@@ -781,7 +781,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		// Update fullscreen edit handling.
-		// We might have to diable it due to Google bugs with password handling of certain input types.
+		// We might have to disable it due to Google bugs with password handling of certain input types.
 		handleFullscreen(d);
 
 		// Force keyboard to use English if enabled. (Not all keyboards honor this setting.)

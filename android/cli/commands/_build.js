@@ -389,10 +389,10 @@ class AndroidBuilder extends Builder {
 									// if there are no devices/emulators, error
 									if (!Object.keys(opts).length) {
 										if (cli.argv.target === 'device') {
-											logger.warn('Unable to find any devices, possibily due to missing dependencies.\n');
+											logger.warn('Unable to find any devices, possibly due to missing dependencies.\n');
 											logger.log('Continuing with build... (will attempt to install missing dependencies)\n');
 										} else {
-											logger.warn('Unable to find any emulators, possibily due to missing dependencies.\n');
+											logger.warn('Unable to find any emulators, possibly due to missing dependencies.\n');
 											logger.log('Continuing with build... (will attempt to install missing dependencies)\n');
 										}
 										_t.buildOnly = true;
@@ -745,7 +745,7 @@ class AndroidBuilder extends Builder {
 												return callback(new Error(msg));
 											}
 
-											// empty the alias array. it is important that we don't destory the original
+											// empty the alias array. it is important that we don't destroy the original
 											// instance since it was passed by reference to the alias select list
 											while (_t.keystoreAliases.length) {
 												_t.keystoreAliases.pop();
@@ -1107,7 +1107,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// we need to translate the sdk to a real api level (i.e. L => 20, MNC => 22) so that
-		// we can valiate them
+		// we can validate them
 		function getRealAPILevel(ver) {
 			return (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
 		}
@@ -1509,7 +1509,7 @@ class AndroidBuilder extends Builder {
 						process.exit(1);
 					}
 
-					// For CommonJS modules, verfiy we can find the main script to be loaded by require() method.
+					// For CommonJS modules, verify we can find the main script to be loaded by require() method.
 					if (!module.native) {
 						// Look for legacy "<module.id>.js" script file first.
 						let jsFilePath = path.join(module.modulePath, module.id + '.js');
@@ -1983,7 +1983,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		if (this.activitiesHash !== manifest.activitiesHash) {
-			this.logger.info('Forcing rebuild: Android activites in tiapp.xml changed since last build');
+			this.logger.info('Forcing rebuild: Android activities in tiapp.xml changed since last build');
 			this.logger.info(`  Was: ${manifest.activitiesHash}`);
 			this.logger.info(`  Now: ${this.activitiesHash}`);
 			return true;
@@ -2170,7 +2170,7 @@ class AndroidBuilder extends Builder {
 			}
 
 			// Check if the module has a maven repository directory.
-			// If it does, then we can leverage gradle/maven's depency management system.
+			// If it does, then we can leverage gradle/maven's dependency management system.
 			let dependencyString = null;
 			const repositoryDirPath = path.join(nextModule.modulePath, 'm2repository');
 			if (await fs.exists(repositoryDirPath)) {
@@ -2225,7 +2225,7 @@ class AndroidBuilder extends Builder {
 		gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
 		await gradlew.writeGradlePropertiesFile(gradleProperties);
 
-		// Copy optional "gradle.properties" file contents from Titainum project to the above generated file.
+		// Copy optional "gradle.properties" file contents from Titanium project to the above generated file.
 		// These properties must be copied to the end of the file so that they can override Titanium's default properties.
 		const customGradlePropertiesFilePath = path.join(this.projectDir, 'platform', 'android', 'gradle.properties');
 		if (await fs.exists(customGradlePropertiesFilePath)) {

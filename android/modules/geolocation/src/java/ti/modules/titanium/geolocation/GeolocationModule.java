@@ -392,7 +392,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			// FIXME: Why can't we just track some boolean flag for this?
 			if (currentPositionCallback.size() == 0) {
 				HashMap<String, LocationProviderProxy> locationProviders = simpleLocationProviders;
-				// FIXME: why does this differ from how we enable in getCurrentPostion()?
+				// FIXME: why does this differ from how we enable in getCurrentPosition()?
 				if (getManualMode()) {
 					locationProviders = androidModule.manualLocationProviders;
 				}

@@ -61,7 +61,7 @@ export class AndroidModuleBuilder extends Builder {
 			isApiVersionUpdateRequired = (this.manifest.apiversion !== cliModuleAPIVersion);
 		}
 
-		// Determin if the "manifest" file's "minsdk" needs updating.
+		// Determine if the "manifest" file's "minsdk" needs updating.
 		// As of Titanium 9.0.0, modules are built as AARs to an "m2repository". Not supported on older Titanium versions.
 		let isMinSdkUpdateRequired = false;
 		const minSupportedSdkVersionMajorNumber = 9;
@@ -875,7 +875,7 @@ export class AndroidModuleBuilder extends Builder {
 		await fs.mkdirs(tmpDir);
 
 		// Generate a new Titanium app in the temp directory which we'll later copy the "example" files to.
-		// Note: App must have a diffentent id/package-name. Avoids class name collision with module generating Java code.
+		// Note: App must have a different id/package-name. Avoids class name collision with module generating Java code.
 		this.logger.debug(`Staging module project at ${tmpDir.cyan}`);
 		await runTiCommand(
 			process.execPath,

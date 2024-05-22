@@ -222,7 +222,7 @@ async function createSnapshot() {
 				process.exit(1);
 			}
 
-			// Generaet an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
+			// Generate an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
 			await fs.writeFile(v8SnapshotHeaderFilePath, '// Failed to generate V8 snapshots. See build log.');
 		}
 	}
