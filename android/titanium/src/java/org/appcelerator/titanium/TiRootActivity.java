@@ -186,7 +186,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 					// Recreate this activity on the current task.
 					if (isActivityForResult) {
-						// This activtiy was created via startActivityForResult().
+						// This activity was created via startActivityForResult().
 						// "Forward" the result handling to the next activity we're about to start-up.
 						Intent relaunchIntent = newIntent;
 						if (relaunchIntent == null) {
@@ -304,9 +304,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 						}
 					});
 					if (KrollRuntime.getActivityRefCount() > 0) {
-						Activity currentActvitiy = getTiApp().getCurrentActivity();
-						if (currentActvitiy != null) {
-							currentActvitiy.finishAffinity();
+						Activity currentActivity = getTiApp().getCurrentActivity();
+						if (currentActivity != null) {
+							currentActivity.finishAffinity();
 						}
 						TiApplication.terminateActivityStack();
 					} else {
