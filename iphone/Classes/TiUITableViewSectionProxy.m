@@ -104,8 +104,8 @@
 
 - (TiUITableViewRowProxy *)rowAtIndex:(NSUInteger)index
 {
-  //Because rowAtIndex is used internally, with an int, it can't be used by the Javascript.
-  //The javascript passes in an NSArray pointer, not an index. And things blow up.
+  // Because rowAtIndex is used internally, with an int, it can't be used by the Javascript.
+  // The javascript passes in an NSArray pointer, not an index. And things blow up.
   return [rows objectAtIndex:index];
 }
 

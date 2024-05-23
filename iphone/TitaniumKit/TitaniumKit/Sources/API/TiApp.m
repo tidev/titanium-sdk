@@ -324,7 +324,20 @@ extern void UIColorFlushCache(void);
   return YES;
 }
 
-// Handle URL-schemes / iOS >= 9
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+{
+  UIOpenURLContext *primaryContext = URLContexts.allObjects.firstObject;
+
+  NSDictionary<UIApplicationOpenURLOptionsKey, id> *options = @{
+    UIApplicationOpenURLOptionsSourceApplicationKey : NULL_IF_NIL(primaryContext.options.sourceApplication)
+  };
+
+  [self application:[UIApplication sharedApplication] openURL:primaryContext.URL options:options];
+}
+
+// Handle URL-schemes. Note that this selector is not called automatically anymore in iOS 13+
+// because of the scene management. Instead, the above "scene:openURLContexts:" selector is called
+// that forwards the call for maximum backwards compatibility
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<NSString *, id> *)options
 {
   [self tryToInvokeSelector:@selector(application:openURL:options:)
@@ -359,7 +372,7 @@ extern void UIColorFlushCache(void);
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, [completionHandler copy], nil]];
 
-  //Only for simulator builds
+  // Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"fetch"]) {
 
@@ -448,7 +461,7 @@ extern void UIColorFlushCache(void);
       [self application:[UIApplication sharedApplication] handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
     }
   } else {
-    //NOTE Local notifications should be handled similar to BG above which ultimately calls handleRemoteNotificationWithIdentifier as this will allow BG Actions to execute.
+    // NOTE Local notifications should be handled similar to BG above which ultimately calls handleRemoteNotificationWithIdentifier as this will allow BG Actions to execute.
     RELEASE_TO_NIL(localNotification);
     localNotification = [[[self class] dictionaryWithUserNotification:response.notification
                                                        withIdentifier:response.actionIdentifier] retain];
@@ -659,7 +672,7 @@ extern void UIColorFlushCache(void);
   }
 }
 
-//Called to mark the end of background transfer while in the background.
+// Called to mark the end of background transfer while in the background.
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key
 {
   if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
@@ -710,7 +723,7 @@ extern void UIColorFlushCache(void);
 
 #pragma mark Background Transfer Service
 
-//Delegate callback for Background Transfer completes.
+// Delegate callback for Background Transfer completes.
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
   // Generate unique key with timestamp.
@@ -733,7 +746,7 @@ extern void UIColorFlushCache(void);
 
 #pragma mark Background Transfer Service Delegates.
 
-//TODO: Move these delegates to the module post 3.2.0
+// TODO: Move these delegates to the module post 3.2.0
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
@@ -801,7 +814,7 @@ extern void UIColorFlushCache(void);
   if (!uploadTaskResponses) {
     uploadTaskResponses = [[NSMutableDictionary alloc] init];
   }
-  //This dictionary will mutate if delegate is called
+  // This dictionary will mutate if delegate is called
   NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
   if (!responseObj) {
     NSMutableData *responseData = [NSMutableData dataWithData:data];
@@ -875,7 +888,7 @@ extern void UIColorFlushCache(void);
 
   NSNotificationCenter *theNotificationCenter = [NSNotificationCenter defaultCenter];
   _willTerminate = YES;
-  //This will send out the 'close' message.
+  // This will send out the 'close' message.
   [theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
   NSCondition *condition = [[NSCondition alloc] init];
 
@@ -886,7 +899,7 @@ extern void UIColorFlushCache(void);
     [[TiLogServer defaultLogServer] stop];
   }
 
-  //This will shut down the modules.
+  // This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
@@ -978,7 +991,7 @@ extern void UIColorFlushCache(void);
   [sessionId release];
   sessionId = [[TiUtils createUUID] retain];
 
-  //TIMOB-3432. Ensure url is cleared when resume event is fired.
+  // TIMOB-3432. Ensure url is cleared when resume event is fired.
   [launchOptions removeObjectForKey:@"url"];
   [launchOptions removeObjectForKey:@"source"];
 
@@ -991,7 +1004,7 @@ extern void UIColorFlushCache(void);
   [self endBackgrounding];
 }
 
-//TODO: this should be compiled out in production mode
+// TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
   NSLog(@"[ERROR] Application received error: %@", message);
@@ -1185,11 +1198,19 @@ extern void UIColorFlushCache(void);
   [self tryToInvokeSelector:@selector(scene:willConnectToSession:options:)
               withArguments:[NSOrderedSet orderedSetWithObjects:scene, connectionOptions, nil]];
 
-  // If a "application-launch-url" is set, launch it directly
-  [self launchToUrl];
+  // Catch exceptions
+  [TiExceptionHandler defaultExceptionHandler];
+
+  // Enable device logs (e.g. for physical devices)
+  if ([[TiSharedConfig defaultConfig] logServerEnabled]) {
+    [[TiLogServer defaultLogServer] start];
+  }
 
   // Initialize the root-controller
   [self initController];
+
+  // If a "application-launch-url" is set, launch it directly
+  [self launchToUrl];
 
   // Boot our kroll-core
   [self boot];
@@ -1333,7 +1354,7 @@ extern void UIColorFlushCache(void);
     backgroundServices = [[NSMutableArray alloc] initWithCapacity:1];
   }
 
-  //Only add if it isn't already added
+  // Only add if it isn't already added
   if (![backgroundServices containsObject:proxy]) {
     [backgroundServices addObject:proxy];
   }
