@@ -205,7 +205,7 @@ public final class JSDebugger
 		{
 			inspectorMessages.offer(message); // put message into queue
 
-			// if we haven't initialied yet, sniff the incoming messages
+			// if we haven't initialized yet, sniff the incoming messages
 			if (!JSDebugger.this.ready.get()) {
 				// copy any waiting messages into our initial queue
 				String nextMessage = inspectorMessages.poll();
