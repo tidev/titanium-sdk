@@ -56,7 +56,7 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 		TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
 		TiC.PROPERTY_ON_LINK,
 		TiC.PROPERTY_SCROLLBARS
-})
+	})
 
 public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
@@ -70,9 +70,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
 	private static final Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<>();
+	private static final int frequestID = 0;
 	private static String fusername;
 	private static String fpassword;
-	private static final int frequestID = 0;
 	PrintManager printManager;
 	private Message postCreateMessage;
 
