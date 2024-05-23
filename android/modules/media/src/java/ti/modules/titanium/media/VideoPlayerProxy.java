@@ -760,7 +760,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			fireComplete(MediaModule.VIDEO_FINISH_REASON_USER_EXITED);
 		}
 
-		// Cancel any Thumbnail requests and releasing TiMediaMetadataRetriver resource
+		// Cancel any Thumbnail requests and releasing TiMediaMetadataRetriever resource
 		cancelAllThumbnailImageRequests();
 	}
 
@@ -792,7 +792,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	/**
 	 * Convenience method for creating a response handler that is used when getting a
-	 * bitmmap.
+	 * bitmap.
 	 *
 	 * @param callback Javascript function that the response handler will invoke
 	 *                 once the bitmap response is ready
