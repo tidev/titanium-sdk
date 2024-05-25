@@ -280,6 +280,17 @@ class Categorizer {
 						}
 					}
 				}
+			case 'webp':
+				if (this.platform === 'android') {
+					if (this.excludeAssestsDir !== null) {
+						let testPath = this.excludeAssestsDir;
+						const checkRegEx = new RegExp(`${testPath}`);
+						if (!relPath.match(checkRegEx)) {
+							results.imageAssets.set(relPath, info);
+							return;
+						}
+					}
+				}
 				// fall through to lump with JPG...
 
 			case 'jpg':
