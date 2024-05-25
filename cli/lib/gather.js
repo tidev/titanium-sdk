@@ -253,7 +253,7 @@ class Categorizer {
 			case 'css':
 				results.cssFiles.set(relPath, info);
 				break;
-
+			case 'webp':
 			case 'png':
 				if (this.platform === 'ios') {
 					// check if we have an app icon
@@ -271,17 +271,6 @@ class Categorizer {
 						results.launchImages.set(relPath, info);
 						return;
 					}
-					if (this.excludeAssestsDir !== null) {
-						let testPath = this.excludeAssestsDir;
-						const checkRegEx = new RegExp(`${testPath}`);
-						if (!relPath.match(checkRegEx)) {
-							results.imageAssets.set(relPath, info);
-							return;
-						}
-					}
-				}
-			case 'webp':
-				if (this.platform === 'android') {
 					if (this.excludeAssestsDir !== null) {
 						let testPath = this.excludeAssestsDir;
 						const checkRegEx = new RegExp(`${testPath}`);
