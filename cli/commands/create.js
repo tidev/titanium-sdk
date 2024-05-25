@@ -184,7 +184,7 @@ CreateCommand.prototype.run = function run(logger, config, cli, finished) {
 			}
 
 			if (cli.argv.alloy !== undefined) {
-				execSync('alloy new \'' + cli.argv['workspace-dir'] + '/' + cli.argv.name + '\'');
+				execSync('alloy new \'' + path.join(cli.argv['workspace-dir'], cli.argv.name) + '\'');
 			}
 
 			finished(err);
