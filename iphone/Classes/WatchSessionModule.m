@@ -243,7 +243,7 @@
   }
   ENSURE_SINGLE_ARG(value, NSDictionary)
 
-  [[self watchSession] transferUserInfo:value];
+      [[self watchSession] transferUserInfo:value];
 }
 
 // sent in background
@@ -280,7 +280,7 @@
   }
   ENSURE_SINGLE_ARG(value, NSDictionary)
 
-  [[self watchSession] transferCurrentComplicationUserInfo:value];
+      [[self watchSession] transferCurrentComplicationUserInfo:value];
 }
 
 - (void)cancelAllUserInfoTransfers:(id)value

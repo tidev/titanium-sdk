@@ -922,10 +922,10 @@ static char ctrl[0x24];
     int d = (uc >= '0' && uc <= '9')
         ? uc - '0'
         : (uc >= 'a' && uc <= 'f')
-        ? (uc - 'a' + 10)
-        : (uc >= 'A' && uc <= 'F')
-        ? (uc - 'A' + 10)
-        : -1;
+            ? (uc - 'a' + 10)
+            : (uc >= 'A' && uc <= 'F')
+                ? (uc - 'A' + 10)
+                : -1;
     if (d == -1) {
       if (error)
         *error = err(EUNICODE, @"Missing hex digit in quad");

@@ -90,9 +90,9 @@ static NSArray *contactKeysWithoutImage;
   RELEASE_TO_NIL(contactStore)
   saveRequest = nil;
   RELEASE_TO_NIL(contactPicker)
-  [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                  name:CNContactStoreDidChangeNotification
-                                                object:nil];
+      [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                      name:CNContactStoreDidChangeNotification
+                                                    object:nil];
   [super dealloc];
 }
 
