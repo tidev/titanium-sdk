@@ -591,9 +591,9 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setForceSplashAsSnapshot:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)
-      [self replaceValue:args
-                  forKey:@"forceSplashAsSnapshot"
-            notification:NO];
+  [self replaceValue:args
+              forKey:@"forceSplashAsSnapshot"
+        notification:NO];
   BOOL flag = [TiUtils boolValue:args def:NO];
   [[TiApp app] setForceSplashAsSnapshot:flag];
 }
