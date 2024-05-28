@@ -1653,7 +1653,7 @@
 - (void)setSeparatorInsets_:(id)arg
 {
   DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"5.2.0", @"UI.TableView.tableSeparatorInsets")
-      [self setTableSeparatorInsets_:arg];
+  [self setTableSeparatorInsets_:arg];
 }
 
 - (void)setTableSeparatorInsets_:(id)arg
