@@ -173,7 +173,7 @@
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
 
 /**
-    Checks the force touch capibility of the current device.
+ * Checks the force touch capibility of the current device.
  */
 - (NSNumber *)forceTouchSupported;
 
