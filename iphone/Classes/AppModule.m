@@ -48,23 +48,9 @@ extern NSString *const TI_APPLICATION_GUID;
 #ifndef TI_USE_AUTOLAYOUT
   [TiLayoutQueue resetQueue];
 #endif
-
-  // Get the currently active scene
-  UIScene *activeScene = nil;
-  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-    if (scene.activationState == UISceneActivationStateForegroundActive) {
-      activeScene = scene;
-      break;
-    }
-  }
-
-  if (activeScene == nil) {
-    NSLog(@"[ERROR] No active scene connected - this may lead to an undefined behavior");
-  }
-
   /* Begin backgrounding simulation */
-  [appDelegate sceneWillResignActive:activeScene];
-  [appDelegate sceneDidEnterBackground:activeScene];
+  [appDelegate applicationWillResignActive:app];
+  [appDelegate applicationDidEnterBackground:app];
   [appDelegate endBackgrounding];
   /* End backgrounding simulation */
 
@@ -90,9 +76,8 @@ extern NSString *const TI_APPLICATION_GUID;
 
   /* Begin foregrounding simulation */
   [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
-  [appDelegate scene:activeScene willConnectToSession:activeScene.session options:TiApp.app.connectionOptions];
-  [appDelegate sceneWillEnterForeground:activeScene];
-  [appDelegate sceneDidBecomeActive:activeScene];
+  [appDelegate applicationWillEnterForeground:app];
+  [appDelegate applicationDidBecomeActive:app];
   /* End foregrounding simulation */
 }
 
@@ -606,9 +591,9 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setForceSplashAsSnapshot:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)
-  [self replaceValue:args
-              forKey:@"forceSplashAsSnapshot"
-        notification:NO];
+      [self replaceValue:args
+                  forKey:@"forceSplashAsSnapshot"
+            notification:NO];
   BOOL flag = [TiUtils boolValue:args def:NO];
   [[TiApp app] setForceSplashAsSnapshot:flag];
 }

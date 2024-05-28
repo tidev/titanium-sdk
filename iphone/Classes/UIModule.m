@@ -449,9 +449,9 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 - (void)setOverrideUserInterfaceStyle:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)
-  [self replaceValue:args
-              forKey:@"overrideUserInterfaceStyle"
-        notification:NO];
+      [self replaceValue:args
+                  forKey:@"overrideUserInterfaceStyle"
+            notification:NO];
   int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
   TiApp.app.window.overrideUserInterfaceStyle = style;
 }
