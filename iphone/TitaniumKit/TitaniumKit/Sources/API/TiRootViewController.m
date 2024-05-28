@@ -696,7 +696,7 @@
   if (![TiSharedConfig defaultConfig].debugEnabled) {
     return;
   }
-  //FIRST DISMISS ALL MODAL WINDOWS
+  // FIRST DISMISS ALL MODAL WINDOWS
   UIViewController *topVC = [self topPresentedController];
   if (topVC != self) {
     UIViewController *presenter = [topVC presentingViewController];
@@ -706,7 +706,7 @@
                                   }];
     return;
   }
-  //At this point all modal stuff is done. Go ahead and clean up proxies.
+  // At this point all modal stuff is done. Go ahead and clean up proxies.
   NSArray *modalCopy = [modalWindows copy];
   NSArray *windowCopy = [containedWindows copy];
 
