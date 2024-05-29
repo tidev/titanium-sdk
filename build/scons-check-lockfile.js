@@ -16,7 +16,7 @@ function checkDependencies(deps) {
 	const packageNames = Object.keys(deps);
 	for (const packageName of packageNames) {
 		const whatever = deps[packageName];
-		const version = whatever.version;
+		const version = whatever.version.replace('@', '-').replace('npm:', '');
 		const resolved = whatever.resolved;
 		if (resolved && !resolved.endsWith(`${version}.tgz`)) {
 			console.error(`There may be a mismatched url (${resolved}) for the given version (${version}) of dependency ${packageName}`);
