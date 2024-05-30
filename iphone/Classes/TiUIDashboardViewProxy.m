@@ -78,7 +78,7 @@ NSArray *dashboardKeySequence;
 {
   for (TiViewProxy *proxy in data) {
     ENSURE_TYPE(proxy, TiUIDashboardItemProxy)
-        [self rememberProxy:proxy];
+    [self rememberProxy:proxy];
   }
 
   [self replaceValue:data forKey:@"data" notification:NO];

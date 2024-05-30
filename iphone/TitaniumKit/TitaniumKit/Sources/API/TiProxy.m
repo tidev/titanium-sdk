@@ -1120,7 +1120,7 @@ DEFINE_EXCEPTIONS
 - (void)applyProperties:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSDictionary)
-      [self setValuesForKeysWithDictionary:args];
+  [self setValuesForKeysWithDictionary:args];
 }
 
 - (NSDictionary *)allProperties
