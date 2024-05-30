@@ -180,27 +180,27 @@
 - (void)addSubview:(nonnull UIView *)view
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] addSubview:wrapperView];
+  [[self contentView] addSubview:wrapperView];
 }
 
 - (void)insertSubview:(UIView *)view aboveSubview:(UIView *)siblingSubview
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] insertSubview:wrapperView
-                           aboveSubview:siblingSubview];
+  [[self contentView] insertSubview:wrapperView
+                       aboveSubview:siblingSubview];
 }
 
 - (void)insertSubview:(UIView *)view atIndex:(NSInteger)index
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] insertSubview:wrapperView
-                                atIndex:index];
+  [[self contentView] insertSubview:wrapperView
+                            atIndex:index];
 }
 - (void)insertSubview:(UIView *)view belowSubview:(UIView *)siblingSubview
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] insertSubview:wrapperView
-                           belowSubview:siblingSubview];
+  [[self contentView] insertSubview:wrapperView
+                       belowSubview:siblingSubview];
 }
 #endif
 

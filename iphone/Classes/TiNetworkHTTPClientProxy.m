@@ -395,53 +395,53 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setOnload:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onload"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onload"
+        notification:NO];
   hasOnload = (callback == nil) ? NO : YES;
 }
 - (void)setOnerror:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onerror"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onerror"
+        notification:NO];
   hasOnerror = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOnreadystatechange:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onreadystatechange"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onreadystatechange"
+        notification:NO];
   hasOnreadystatechange = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOndatastream:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"ondatastream"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"ondatastream"
+        notification:NO];
   hasOndatastream = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOnsendstream:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onsendstream"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onsendstream"
+        notification:NO];
   hasOnsendstream = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOnredirect:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onredirect"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onredirect"
+        notification:NO];
   hasOnredirect = (callback == nil) ? NO : YES;
   ;
 }
