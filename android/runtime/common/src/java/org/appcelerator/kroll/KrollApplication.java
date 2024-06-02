@@ -16,15 +16,11 @@ import org.appcelerator.kroll.common.TiDeployData;
 public interface KrollApplication {
 	boolean DEFAULT_RUN_ON_MAIN_THREAD = false;
 
-	int getThreadStackSize();
-
 	Activity getCurrentActivity();
 
 	void waitForCurrentActivity(CurrentActivityListener l);
 
 	TiDeployData getDeployData();
-
-	boolean isFastDevMode();
 
 	String getAppGUID();
 

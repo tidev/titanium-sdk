@@ -66,7 +66,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private static final String PROPERTY_THREAD_STACK_SIZE = "ti.android.threadstacksize";
 	private static final String PROPERTY_COMPILE_JS = "ti.android.compilejs";
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
-	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long mainThreadId = 0;
 
 	protected static TiApplication tiApp = null;
@@ -74,14 +73,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
-	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024; // 16K as a "sane" default
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
-	public static final String PROPERTY_FASTDEV = "ti.android.fastdev";
 	public static final int TRIM_MEMORY_RUNNING_LOW = 10; // Application.TRIM_MEMORY_RUNNING_LOW for API 16+
-
-	// Whether or not using legacy window. This is set in the application's tiapp.xml with the
-	// "ti.android.useLegacyWindow" property.
-	public static boolean USE_LEGACY_WINDOW = false;
 
 	private String baseUrl;
 	private String startUrl;
@@ -99,7 +92,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<>();
@@ -475,7 +467,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
-		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
 		// Start listening for system locale changes.
 		startLocaleMonitor();
@@ -755,26 +746,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return true;
 	}
 
-	public void setFilterAnalyticsEvents(String[] events)
-	{
-		filteredAnalyticsEvents = events;
-	}
-
-	public boolean isAnalyticsFiltered(String eventName)
-	{
-		if (filteredAnalyticsEvents == null) {
-			return false;
-		}
-
-		for (int i = 0; i < filteredAnalyticsEvents.length; ++i) {
-			String currentName = filteredAnalyticsEvents[i];
-			if (eventName.equals(currentName)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
 	public String getDeployType()
 	{
@@ -820,12 +791,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return defaultUnit;
 	}
 
-	@Override
-	public int getThreadStackSize()
-	{
-		return getAppProperties().getInt(PROPERTY_THREAD_STACK_SIZE, DEFAULT_THREAD_STACK_SIZE);
-	}
-
 	public boolean forceCompileJS()
 	{
 		return getAppProperties().getBool(PROPERTY_COMPILE_JS, false);
@@ -835,22 +800,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public TiDeployData getDeployData()
 	{
 		return deployData;
-	}
-
-	@Override
-	public boolean isFastDevMode()
-	{
-		/* Fast dev is enabled by default in development mode, and disabled otherwise
-		 * When the property is set, it overrides the default behavior on emulator only
-		 * Deploy types are as follow:
-		 *    Emulator: 'development'
-		 *    Device: 'test'
-		 */
-		boolean development = getDeployType().equals(TiApplication.DEPLOY_TYPE_DEVELOPMENT);
-		if (!development) {
-			return false;
-		}
-		return getAppProperties().getBool(TiApplication.PROPERTY_FASTDEV, development);
 	}
 
 	public static void launch()
