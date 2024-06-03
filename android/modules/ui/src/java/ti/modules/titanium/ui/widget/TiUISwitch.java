@@ -7,13 +7,17 @@
 package ti.modules.titanium.ui.widget;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+
 import androidx.appcompat.widget.AppCompatToggleButton;
+
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.switchmaterial.SwitchMaterial;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
@@ -23,13 +27,14 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
+
 import ti.modules.titanium.ui.UIModule;
 
 public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 {
 	private static final String TAG = "TiUISwitch";
 
-	private View.OnLayoutChangeListener layoutListener;
+	private final View.OnLayoutChangeListener layoutListener;
 	private boolean oldValue = false;
 
 	public TiUISwitch(TiViewProxy proxy)
@@ -37,7 +42,8 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 		super(proxy);
 		Log.d(TAG, "Creating a switch", Log.DEBUG_MODE);
 
-		this.layoutListener = new View.OnLayoutChangeListener() {
+		this.layoutListener = new View.OnLayoutChangeListener()
+		{
 			@Override
 			public void onLayoutChange(
 				View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom)
@@ -56,6 +62,34 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 
 		if (d.containsKey(TiC.PROPERTY_STYLE)) {
 			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), UIModule.SWITCH_STYLE_SLIDER));
+		}
+
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+			CompoundButton currentButton = (CompoundButton) getNativeView();
+			if (currentButton instanceof SwitchMaterial) {
+
+				int colActive = d.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
+					? TiConvert.toColor(d, TiC.PROPERTY_ACTIVE_TINT_COLOR)
+					: TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR);
+				int colNormal = d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
+					? TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR)
+					: TiConvert.toColor(d, TiC.PROPERTY_ACTIVE_TINT_COLOR);
+
+				ColorStateList trackStates = new ColorStateList(
+					new int[][] {
+						new int[] { -android.R.attr.state_enabled },
+						new int[] { android.R.attr.state_checked },
+						new int[] {}
+					},
+					new int[] {
+						colNormal,
+						colActive,
+						colNormal
+					}
+				);
+				((SwitchMaterial) currentButton).setTrackTintList(trackStates);
+			}
 		}
 
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
@@ -151,7 +185,7 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
- 	}
+	}
 
 	@Override
 	public void onCheckedChanged(CompoundButton btn, boolean value)

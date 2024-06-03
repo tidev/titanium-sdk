@@ -23,6 +23,8 @@ import android.app.Activity;
 		TiC.PROPERTY_COLOR,
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_TEXT_ALIGN,
+		TiC.PROPERTY_TINT_COLOR,
+		TiC.PROPERTY_ACTIVE_TINT_COLOR,
 		TiC.PROPERTY_VERTICAL_ALIGN
 })
 public class SwitchProxy extends TiViewProxy
