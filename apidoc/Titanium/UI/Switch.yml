@@ -124,8 +124,8 @@ properties:
         Android: Track color of the Material Switch.
     type: [String, Titanium.UI.Color]
     default: undefined
-    platforms: [android, iphone, ipad, macos]
-    since: {android: 12.4.0, iphone: 3.3.0, ipad: 3.3.0, macos: 3.3.0}
+    platforms: [android, iphone, ipad]
+    since: {android: 12.4.0, iphone: 3.3.0, ipad: 3.3.0}
 
   - name: activeTintColor
     summary: The color used to tint the track of the switch when it is turned on.
