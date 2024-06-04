@@ -64,6 +64,34 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), UIModule.SWITCH_STYLE_SLIDER));
 		}
 
+		if (d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_THUMB_COLOR)
+			|| d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR)) {
+			CompoundButton currentButton = (CompoundButton) getNativeView();
+			if (currentButton instanceof SwitchMaterial) {
+
+				int colActive = d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR)
+					? TiConvert.toColor(d, TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR)
+					: TiConvert.toColor(d, TiC.EVENT_PROPERTY_THUMB_COLOR);
+				int colNormal = d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_THUMB_COLOR)
+					? TiConvert.toColor(d, TiC.EVENT_PROPERTY_THUMB_COLOR)
+					: TiConvert.toColor(d, TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR);
+
+				ColorStateList trackStates = new ColorStateList(
+					new int[][] {
+						new int[] { -android.R.attr.state_enabled },
+						new int[] { android.R.attr.state_checked },
+						new int[] {}
+					},
+					new int[] {
+						colNormal,
+						colActive,
+						colNormal
+					}
+				);
+				((SwitchMaterial) currentButton).setThumbTintList(trackStates);
+			}
+		}
+
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
 			CompoundButton currentButton = (CompoundButton) getNativeView();

@@ -138,6 +138,28 @@ properties:
     platforms: [android]
     since: {android: 12.4.0}
 
+  - name: activeThumbColor
+    summary: The color used to tint the thumb icon of the switch when it is turned on.
+    description: |
+        The color used to tint the thumb icon of the switch when it is turned on.
+
+        Android: Active thumb color of the Material Switch.
+    type: [String, Titanium.UI.Color]
+    default: undefined
+    platforms: [android]
+    since: {android: 12.4.0}
+
+  - name: thumbColor
+    summary: The color used to tint the thumb icon of the switch when it is turned off.
+    description: |
+        The color used to tint the thumb icon of the switch when it is turned off.
+
+        Android: Inactive thumb color of the Material Switch.
+    type: [String, Titanium.UI.Color]
+    default: undefined
+    platforms: [android]
+    since: {android: 12.4.0}
+
   - name: onTintColor
     summary: The color used to tint the appearance of the switch when it is turned on.
     type: [String, Titanium.UI.Color]

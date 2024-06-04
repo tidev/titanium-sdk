@@ -142,6 +142,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_TAB = "tab";
 	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
 	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
+	public static final String EVENT_PROPERTY_THUMB_COLOR = "thumbColor";
+	public static final String EVENT_PROPERTY_ACTIVE_THUMB_COLOR = "activeThumbColor";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 	public static final String EVENT_PROPERTY_X = "x";
