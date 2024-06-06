@@ -133,3 +133,63 @@ examples:
 
         win.add(label);
         ```
+  - title: Links with underline color.
+    example: |
+        ``` js
+        const win = Ti.UI.createWindow({
+        	backgroundColor: 'gray',
+        	layout: 'vertical'
+        });
+        const lbl_a = createLink();
+        const lbl_b = createLink();
+
+        colorLink(lbl_b);
+
+        win.add([lbl_a, lbl_b]);
+        win.open();
+
+        function createLink() {
+        	const label = Ti.UI.createLabel({
+        		top: 20,
+        		attributedString: Ti.UI.createAttributedString({
+        			text: 'Check out Titanium SDK',
+        			attributes: [{
+        				type: Ti.UI.ATTRIBUTE_LINK,
+        				value: 'https://titaniumsdk.com',
+        				range: [10, 12]
+        			}]
+        		})
+        	});
+
+        	label.addEventListener('link', e => {
+        		Ti.Platform.openURL(e.url);
+        	});
+
+        	return label;
+        }
+
+        function colorLink(lbl) {
+        	const attributedString = lbl.attributedString;
+        	const textColor = 'purple';
+        	const underlineColor = 'yellow';
+
+        	for (const attribute of attributedString.attributes) {
+        		if (attribute.type === Ti.UI.ATTRIBUTE_LINK) {
+
+        			// Set new link color.
+        			attributedString.addAttribute({
+        				type: Ti.UI.ATTRIBUTE_FOREGROUND_COLOR,
+        				value: textColor,
+        				range: attribute.range
+        			});
+
+        			// Set new underline color.
+        			attributedString.addAttribute({
+        				type: Ti.UI.ATTRIBUTE_UNDERLINE_COLOR,
+        				value: underlineColor,
+        				range: attribute.range
+        			});
+        		}
+        	}
+        }
+        ```
