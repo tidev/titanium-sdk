@@ -632,7 +632,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
-	 * Starts dragging programatically.
+	 * Starts dragging programmatically.
 	 *
 	 * @param vHolder The dedicated view holder
 	 */

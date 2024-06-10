@@ -449,7 +449,7 @@ public class TCPProxy extends KrollProxy implements TiStream
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new IOException("Error occured when closing socket");
+			throw new IOException("Error occurred when closing socket");
 		}
 	}
 

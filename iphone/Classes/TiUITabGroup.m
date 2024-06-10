@@ -101,7 +101,7 @@ DEFINE_EXCEPTIONS
 {
   // Do nothing if no tabs are being focused or blurred (or the window is opening)
   if (focusedTabProxy == nil && newFocus == nil) {
-    //TIMOB-10796. Ensure activeTab is set to focused on early return
+    // TIMOB-10796. Ensure activeTab is set to focused on early return
     if (focusedTabProxy != nil) {
       [self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
     }
@@ -156,7 +156,7 @@ DEFINE_EXCEPTIONS
       [self.proxy fireEvent:@"focus" withObject:event];
     }
   }
-  //TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
+  // TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
   if ([(TiUITabGroupProxy *)[self proxy] canFocusTabs]) {
     [focusedTabProxy handleDidFocus:event];
   }
@@ -180,7 +180,7 @@ DEFINE_EXCEPTIONS
   if ([[moreController viewControllers] count] != 1) {
     return;
   }
-  //Update the actual nav bar here in case the windows changed the stuff.
+  // Update the actual nav bar here in case the windows changed the stuff.
   UINavigationBar *navBar = [moreController navigationBar];
   [navBar setBarStyle:navBarStyle];
   [navBar setTitleTextAttributes:theAttributes];
@@ -264,11 +264,11 @@ DEFINE_EXCEPTIONS
 {
   NSArray *moreViewControllerStack = [navigationController viewControllers];
   NSUInteger stackHeight = [moreViewControllerStack count];
-  if (stackHeight < 2) { //No more faux roots.
+  if (stackHeight < 2) { // No more faux roots.
     if (focusedTabProxy != nil) {
       [self handleDidShowTab:nil];
     }
-    //Ensure that the moreController has only top edge extended
+    // Ensure that the moreController has only top edge extended
     [TiUtils configureController:viewController withObject:[NSDictionary dictionaryWithObject:NUMINT(1) forKey:@"extendEdges"]];
     return;
   }
@@ -288,7 +288,7 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  if (stackHeight == 2) { //One for the picker, one for the faux root.
+  if (stackHeight == 2) { // One for the picker, one for the faux root.
     if (tabProxy != focusedTabProxy) {
       [self handleDidShowTab:tabProxy];
     }
@@ -395,7 +395,7 @@ DEFINE_EXCEPTIONS
 {
   TiColor *color = [TiUtils colorValue:value];
   UITabBar *tabBar = [controller tabBar];
-  //A nil tintColor is fine, too.
+  // A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
 #if IS_SDK_IOS_15
   if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
@@ -442,14 +442,14 @@ DEFINE_EXCEPTIONS
 
 - (void)setShadowImage_:(id)value
 {
-  //Because we still support XCode 4.3, we cannot use the shadowImage property
+  // Because we still support XCode 4.3, we cannot use the shadowImage property
   [controller.tabBar setShadowImage:[self loadImage:value]];
 }
 
 - (void)setActiveTabIconTint_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
-  //A nil tintColor is fine, too.
+  // A nil tintColor is fine, too.
   controller.tabBar.tintColor = color.color;
 }
 

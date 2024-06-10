@@ -326,7 +326,7 @@
       ^{
         if (controller != nil) {
           if (newColor == nil) {
-            //Get from TabGroup
+            // Get from TabGroup
             newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
           }
           UINavigationBar *navBar = [[controller navigationController] navigationBar];
@@ -497,7 +497,7 @@
     [ourNB setBackgroundImage:resizableImage
                 forBarMetrics:UIBarMetricsDefault];
 
-    //You can only set up the shadow image with a custom background image.
+    // You can only set up the shadow image with a custom background image.
     id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
     theImage = [TiUtils toImage:shadowImageValue proxy:self];
 
@@ -511,7 +511,7 @@
     } else {
       BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
       if (clipValue) {
-        //Set an empty Image.
+        // Set an empty Image.
         ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
         if ([self shouldUseNavBarApperance]) {
           ourNB.standardAppearance.shadowColor = nil;
@@ -571,7 +571,7 @@
 
 - (void)updateNavButtons
 {
-  //Update LeftNavButton
+  // Update LeftNavButton
   NSDictionary *lProperties = [self valueForUndefinedKey:@"leftNavSettings"];
   id leftNavButtons = [self valueForUndefinedKey:@"leftNavButtons"];
   if (!IS_NULL_OR_NIL(leftNavButtons)) {
@@ -580,7 +580,7 @@
     leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
     [self setLeftNavButton:leftNavButtons withObject:lProperties];
   }
-  //Update RightNavButton
+  // Update RightNavButton
   NSDictionary *rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
   id rightNavButtons = [self valueForUndefinedKey:@"rightNavButtons"];
   if (!IS_NULL_OR_NIL(rightNavButtons)) {
@@ -629,7 +629,7 @@
   NSArray *curValues = [self valueForUndefinedKey:@"rightNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
 
-  //Clean up current values
+  // Clean up current values
   for (TiViewProxy *curProxy in curValues) {
     if (![(NSArray *)arg containsObject:curProxy]) {
       [curProxy removeBarButtonView];
@@ -699,7 +699,7 @@
   NSArray *curValues = [self valueForUndefinedKey:@"leftNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
 
-  //Clean up current values
+  // Clean up current values
   for (TiViewProxy *curProxy in curValues) {
     if (![(NSArray *)arg containsObject:curProxy]) {
       [curProxy removeBarButtonView];
@@ -792,8 +792,8 @@
   ENSURE_UI_THREAD_1_ARG(proxy);
   [self replaceValue:proxy forKey:@"backButtonTitle" notification:NO];
   if (controller != nil) {
-    [self refreshBackButton]; //Because this is actually a property of a DIFFERENT view controller,
-    //we can't attach this until we're in the navbar stack.
+    [self refreshBackButton]; // Because this is actually a property of a DIFFERENT view controller,
+    // we can't attach this until we're in the navbar stack.
   }
 }
 
@@ -802,15 +802,15 @@
   ENSURE_UI_THREAD_1_ARG(proxy);
   [self replaceValue:proxy forKey:@"backButtonTitleImage" notification:NO];
   if (controller != nil) {
-    [self refreshBackButton]; //Because this is actually a property of a DIFFERENT view controller,
-    //we can't attach this until we're in the navbar stack.
+    [self refreshBackButton]; // Because this is actually a property of a DIFFERENT view controller,
+    // we can't attach this until we're in the navbar stack.
   }
 }
 
 - (void)updateNavBar
 {
-  //Called from the view when the screen rotates.
-  //Resize titleControl and barImage based on navbar bounds
+  // Called from the view when the screen rotates.
+  // Resize titleControl and barImage based on navbar bounds
   if (!shouldUpdateNavBar || controller == nil || [controller navigationController] == nil) {
     return; // No need to update the title if not in a nav controller
   }
@@ -838,7 +838,7 @@
   availableTitleSize.width = barFrame.size.width - (2 * TI_NAVBAR_BUTTON_WIDTH);
   availableTitleSize.height = barFrame.size.height;
 
-  //Check for titlePrompt. Ugly hack. Assuming 50% for prompt height.
+  // Check for titlePrompt. Ugly hack. Assuming 50% for prompt height.
   if (ourNavItem.prompt != nil) {
     availableTitleSize.height /= 2.0f;
     barFrame.origin.y = barFrame.size.height = availableTitleSize.height;
@@ -850,7 +850,7 @@
   if ([oldView isKindOfClass:[TiUIView class]]) {
     TiViewProxy *oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
     if (oldProxy == titleControl) {
-      //relayout titleControl
+      // relayout titleControl
       CGRect barBounds;
       barBounds.origin = CGPointZero;
 #ifndef TI_USE_AUTOLAYOUT
@@ -859,7 +859,7 @@
       [oldView setBounds:barBounds];
       [oldView setAutoresizingMask:UIViewAutoresizingNone];
 
-      //layout the titleControl children
+      // layout the titleControl children
       [titleControl layoutChildren:NO];
 
       return;
@@ -871,7 +871,7 @@
     newTitleView = [titleControl barButtonViewForSize:availableTitleSize];
   } else {
     NSURL *path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
-    //Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
+    // Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:CGSizeZero];
     if (image != nil) {
       if ([oldView isKindOfClass:[UIImageView class]]) {
@@ -1063,7 +1063,7 @@
     return;
   }
 
-  //Need to clear title for titleAttributes to apply correctly on iOS6.
+  // Need to clear title for titleAttributes to apply correctly on iOS6.
   [[controller navigationItem] setTitle:nil];
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"largeTitleAttributes", setLargeTitleAttributes);
@@ -1115,7 +1115,7 @@
   if (view) {
     id top = [[self safeAreaViewProxy] valueForKey:@"top"];
     if (top && [top floatValue] != frame.size.height) {
-      //TIMOB-28323: Once fixed by apple, remove it.
+      // TIMOB-28323: Once fixed by apple, remove it.
       frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
     }
     view.frame = frame;
