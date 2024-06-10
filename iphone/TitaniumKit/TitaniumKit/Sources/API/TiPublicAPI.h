@@ -61,12 +61,12 @@
 #else
 
 #define TI_PUBLIC_METHOD(methodName, returnType) \
-  //No-op
+  // No-op
 
 #define TI_PUBLIC_METHOD_ARG_OBJECT(argPosition, argName, argType, argOptional, argCheck) \
-  //No-op
+  // No-op
 
 #define TI_PUBLIC_METHOD_END_ARGS(methodName, returnType) \
   -(returnType)methodName : (id)args
 
-#endif //Debug
+#endif // Debug

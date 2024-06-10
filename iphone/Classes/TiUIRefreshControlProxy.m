@@ -28,7 +28,7 @@
 #pragma mark - Internal Use
 - (UIRefreshControl *)control
 {
-  //Must be called on main thread
+  // Must be called on main thread
   if (_refreshControl == nil) {
     _refreshControl = [UIRefreshControl new];
     [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];
@@ -74,6 +74,17 @@
   TiThreadPerformOnMainThread(
       ^{
         [[self control] setTintColor:[[TiUtils colorValue:value] color]];
+      },
+      NO);
+}
+
+- (void)setBackgroundColor:(id)value
+{
+  [self replaceValue:value forKey:@"backgroundColor" notification:NO];
+
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setBackgroundColor:[[TiUtils colorValue:value] color]];
       },
       NO);
 }
