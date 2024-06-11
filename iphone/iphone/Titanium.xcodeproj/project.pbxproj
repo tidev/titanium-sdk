@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -179,6 +179,7 @@
 		3AB913801BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AB9137F1BB61FDA0063A4AD /* TiUIiOSPreviewActionProxy.m */; };
 		3ABA85AB1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3ABA85AA1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m */; };
 		3AC8F4592916A6B900A8A3D7 /* TiAppiOSActivityAttributesProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AC8F4582916A6B900A8A3D7 /* TiAppiOSActivityAttributesProxy.m */; };
+		3AD017762C186DF800779F34 /* TiFilesystemFileProxy+Addons.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AD017752C186DF800779F34 /* TiFilesystemFileProxy+Addons.m */; };
 		673144D6211DBAD7001BDBF2 /* TiUIApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 673144D5211DBAD7001BDBF2 /* TiUIApplication.m */; };
 		6CF8E95921CDA58800519245 /* TiUITabbedBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 6CF8E95821CDA58800519245 /* TiUITabbedBarProxy.m */; };
 		823CC8AC1B7F0E4D00D220C7 /* WatchSessionModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 823CC8AB1B7F0E4D00D220C7 /* WatchSessionModule.m */; };
@@ -642,6 +643,8 @@
 		3ABA85AA1D7204B100BCD3F1 /* TiAppiOSSearchQueryProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSSearchQueryProxy.m; sourceTree = "<group>"; };
 		3AC8F4572916A6B900A8A3D7 /* TiAppiOSActivityAttributesProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiAppiOSActivityAttributesProxy.h; sourceTree = "<group>"; };
 		3AC8F4582916A6B900A8A3D7 /* TiAppiOSActivityAttributesProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSActivityAttributesProxy.m; sourceTree = "<group>"; };
+		3AD017742C186DF800779F34 /* TiFilesystemFileProxy+Addons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TiFilesystemFileProxy+Addons.h"; sourceTree = "<group>"; };
+		3AD017752C186DF800779F34 /* TiFilesystemFileProxy+Addons.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "TiFilesystemFileProxy+Addons.m"; sourceTree = "<group>"; };
 		50115A9315D5DE0500122055 /* ThirdpartyNS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThirdpartyNS.h; path = ../Classes/ThirdpartyNS.h; sourceTree = SOURCE_ROOT; };
 		673144D4211DBAD7001BDBF2 /* TiUIApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TiUIApplication.h; path = ../Classes/TiUIApplication.h; sourceTree = "<group>"; };
 		673144D5211DBAD7001BDBF2 /* TiUIApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TiUIApplication.m; path = ../Classes/TiUIApplication.m; sourceTree = "<group>"; };
@@ -1986,6 +1989,8 @@
 				3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */,
 				DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */,
 				DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */,
+				3AD017742C186DF800779F34 /* TiFilesystemFileProxy+Addons.h */,
+				3AD017752C186DF800779F34 /* TiFilesystemFileProxy+Addons.m */,
 			);
 			name = "TitaniumKit Extensions";
 			sourceTree = "<group>";
@@ -2304,6 +2309,7 @@
 				1923696320E48C2A00567508 /* TiUIiOSWebViewDecisionHandlerProxy.m in Sources */,
 				24F29F83122105C70099351D /* LocaleModule.m in Sources */,
 				D4AB36F5123DE20200DED4A0 /* TiUIClipboardProxy.m in Sources */,
+				3AD017762C186DF800779F34 /* TiFilesystemFileProxy+Addons.m in Sources */,
 				DA9BE36F127F8F6C000FE9E1 /* UIImageExtras.m in Sources */,
 				1923696220E48C2A00567508 /* TiUIiOSWebViewConfigurationProxy.m in Sources */,
 				24ADC5121299F60C0014DB75 /* TiAppiOSProxy.m in Sources */,
