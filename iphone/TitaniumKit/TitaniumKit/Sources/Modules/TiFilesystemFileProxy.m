@@ -68,23 +68,6 @@
   return [NSDate new];
 }
 
-#ifdef USE_TI_FILESYSTEMCREATEDAT
-- (NSDate *)createdAt:(id)unused
-{
-  NSError *error = nil;
-  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
-  if (error != nil) {
-    [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
-  }
-  // Have to do this one up special because of 3.x bug where NSFileCreationDate is sometimes undefined
-  NSDate *result = [resultDict objectForKey:NSFileCreationDate];
-  if (result == nil) {
-    result = [resultDict objectForKey:NSFileModificationDate];
-  }
-  return result;
-}
-#endif
-
 - (NSDate *)modificationTimestamp
 {
   DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.modificationTimestamp", @"7.3.0", @"12.4.0", @"Filesystem.File.modifiedAt()");
@@ -96,18 +79,6 @@
   DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"12.4.0", @"Filesystem.File.modifiedAt()");
   return [NSDate new];
 }
-
-#ifdef USE_TI_FILESYSTEMMODIFIEDAT
-- (NSDate *)modifiedAt:(id)unused
-{
-  NSError *error = nil;
-  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfItemAtPath:path error:&error];
-  if (error != nil) {
-    [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
-  }
-  return [resultDict objectForKey:NSFileModificationDate];
-}
-#endif
 
 - (NSNumber *)symbolicLink
 {
@@ -150,19 +121,6 @@ FILENOOP(setHidden
   }
   return resultArray;
 }
-
-#ifdef USE_TI_FILESYSTEMSPACEAVAILABLE
-- (NSNumber *)spaceAvailable:(id)unused
-{
-  NSError *error = nil;
-  NSDictionary *resultDict = [[NSFileManager defaultManager] attributesOfFileSystemForPath:path error:&error];
-  if (error != nil) {
-    NSLog(@"[ERROR] Could not receive available space: %@", error.localizedDescription);
-    return @(0.0);
-  }
-  return [resultDict objectForKey:NSFileSystemFreeSize];
-}
-#endif
 
 - (NSString *)getProtectionKey:(id)args
 {
