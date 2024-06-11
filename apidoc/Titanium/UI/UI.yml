@@ -2406,6 +2406,18 @@ properties:
     permission: read-only
     since: "10.0.0"
 
+  - name: TABS_STYLE_DEFAULT
+    summary: Default tab style.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: TABS_STYLE_BOTTOM_NAVIGATION
+    summary: Bottom navigation style.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
   - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
     summary: The row divider is hidden.
     type: Number
