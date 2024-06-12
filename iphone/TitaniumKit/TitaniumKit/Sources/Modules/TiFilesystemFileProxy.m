@@ -68,7 +68,6 @@
   return [NSDate new];
 }
 
-#ifdef USE_TI_FILESYSTEMCREATEDAT
 - (NSDate *)createdAt:(id)unused
 {
   NSError *error = nil;
@@ -76,14 +75,13 @@
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
-  // Have to do this one up special because of 3.x bug where NSFileCreationDate is sometimes undefined
-  NSDate *result = [resultDict objectForKey:NSFileCreationDate];
+
+  NSDate *result = [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"CreationDate"]];
   if (result == nil) {
-    result = [resultDict objectForKey:NSFileModificationDate];
+    result = [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"ModificationDate"]];
   }
   return result;
 }
-#endif
 
 - (NSDate *)modificationTimestamp
 {
@@ -97,7 +95,6 @@
   return [NSDate new];
 }
 
-#ifdef USE_TI_FILESYSTEMMODIFIEDAT
 - (NSDate *)modifiedAt:(id)unused
 {
   NSError *error = nil;
@@ -105,9 +102,8 @@
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
-  return [resultDict objectForKey:NSFileModificationDate];
+  return [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"ModificationDate"]];
 }
-#endif
 
 - (NSNumber *)symbolicLink
 {
@@ -151,7 +147,6 @@ FILENOOP(setHidden
   return resultArray;
 }
 
-#ifdef USE_TI_FILESYSTEMSPACEAVAILABLE
 - (NSNumber *)spaceAvailable:(id)unused
 {
   NSError *error = nil;
@@ -160,9 +155,8 @@ FILENOOP(setHidden
     NSLog(@"[ERROR] Could not receive available space: %@", error.localizedDescription);
     return @(0.0);
   }
-  return [resultDict objectForKey:NSFileSystemFreeSize];
+  return [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"SystemFreeSize"]];
 }
-#endif
 
 - (NSString *)getProtectionKey:(id)args
 {
@@ -597,6 +591,12 @@ FILENOOP(setHidden
   }
 
   return success;
+}
+
+// Utility method to construct enums to access the filesystem
+- (NSString *)prefixedFileKeyForIdentifier:(NSString *)identifier
+{
+  return [@"NSFile" stringByAppendingString:identifier];
 }
 
 @end
