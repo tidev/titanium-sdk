@@ -1,18 +1,20 @@
-## [12.3.1](https://github.com/tidev/titanium_mobile/compare/12_3_0_GA...12.3.1) (2024-05-30)
+## [12.3.1](https://github.com/tidev/titanium_mobile/compare/12_3_0_GA...12.3.1) (2024-06-12)
 
 ## About this release
 
 Titanium SDK 12.3.1 is a patch release of the SDK, addressing high-priority issues from previous releases.
 
-As of this release, the previous Titanium SDK patch release (12.3.0) is no longer supported.
+As of this GA release, the previous Titanium SDK patch release (12.3.0) is no longer supported.
 
 
 ## Community Credits
 
 * Hans Knöchel
+  * fix(ios): fix privacy-related Filesystem APIs (#14063) ([ff0bd64](https://github.com/tidev/titanium_mobile/commit/ff0bd64f9f4c8d44247a028f5a266481bfa82f78))
+  * add 12.3.1 changelog ([f92e4e0](https://github.com/tidev/titanium_mobile/commit/f92e4e02509cb045b46db4ea2f67bc25495d096a))
+  * update package-lock.json after merge conflicts ([eadd4fe](https://github.com/tidev/titanium_mobile/commit/eadd4fece5f8ac77c0a1b35e7af18d131ecc416d))
   * handle first privacy manifest changes ([a6f8ed4](https://github.com/tidev/titanium_mobile/commit/a6f8ed48843334686ab6ace07c52066c4a74dbfc))
   * Revert "feat(ios): support multi-scene applications (#13941)" ([8570d92](https://github.com/tidev/titanium_mobile/commit/8570d922175ba60f2554249d75fdf4505471c110))
-  * bump version ([570442b](https://github.com/tidev/titanium_mobile/commit/570442bc1d144b230cb4ecf58ae5dfa4052966ab))
 
 * Michael Gangolf
   * node-appc update ([54acc65](https://github.com/tidev/titanium_mobile/commit/54acc65fc870754b4eb869abd9a3328584752464))
