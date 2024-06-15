@@ -57,7 +57,7 @@ properties:
 
   - name: offset
     summary: Offset of the refresh control view.
-    type: refreshOffset
+    type: RefreshControlOffset
     platforms: [android]
     since: { android: "12.4.0" }
     availability: creation
@@ -146,7 +146,7 @@ examples:
         $.index.open();
         ```
 ---
-name: refreshOffset
+name: RefreshControlOffset
 summary: Offset of the refresh control view.
 properties:
   - name: start
