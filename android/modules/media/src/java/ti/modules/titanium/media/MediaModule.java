@@ -1700,6 +1700,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				Log.e(TAG, "Camera preview is not open, unable to switch camera.");
 				return;
 			}
+			activity.switchCamera(whichCamera);
 		}
 	}
 

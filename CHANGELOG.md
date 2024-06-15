@@ -1,4 +1,53 @@
-# [12.3.0](https://github.com/tidev/titanium_mobile/compare/12_2_X...12.3.0) (2024-01-19)
+## [12.3.1](https://github.com/tidev/titanium_mobile/compare/12_3_0_GA...12.3.1) (2024-06-12)
+
+## About this release
+
+Titanium SDK 12.3.1 is a patch release of the SDK, addressing high-priority issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release (12.3.0) is no longer supported.
+
+
+## Community Credits
+
+* Hans Knöchel
+  * fix(ios): fix privacy-related Filesystem APIs (#14063) ([ff0bd64](https://github.com/tidev/titanium_mobile/commit/ff0bd64f9f4c8d44247a028f5a266481bfa82f78))
+  * add 12.3.1 changelog ([f92e4e0](https://github.com/tidev/titanium_mobile/commit/f92e4e02509cb045b46db4ea2f67bc25495d096a))
+  * update package-lock.json after merge conflicts ([eadd4fe](https://github.com/tidev/titanium_mobile/commit/eadd4fece5f8ac77c0a1b35e7af18d131ecc416d))
+  * handle first privacy manifest changes ([a6f8ed4](https://github.com/tidev/titanium_mobile/commit/a6f8ed48843334686ab6ace07c52066c4a74dbfc))
+  * Revert "feat(ios): support multi-scene applications (#13941)" ([8570d92](https://github.com/tidev/titanium_mobile/commit/8570d922175ba60f2554249d75fdf4505471c110))
+
+* Michael Gangolf
+  * node-appc update ([54acc65](https://github.com/tidev/titanium_mobile/commit/54acc65fc870754b4eb869abd9a3328584752464))
+  * fix noresults event in ListView width custom query ([d9ecad7](https://github.com/tidev/titanium_mobile/commit/d9ecad760b6ea2be6089a00939bc95ba6527202f))
+  * node-titanium-sdk update ([feffa23](https://github.com/tidev/titanium_mobile/commit/feffa239ca35c5fbf208583e3c78299631bfca66))
+  * Ti.UI.Tab selected event returns no data ([abc9e81](https://github.com/tidev/titanium_mobile/commit/abc9e81bd38c01bc3de48219707aa4d1d06e94fe))
+  * touchFeedbackColor not working for a bottomNavigation tab ([4639ced](https://github.com/tidev/titanium_mobile/commit/4639cede2baeca7e2f7670595bf376ef94bd77fa))
+  * switchCamera method was missing ([5fc9115](https://github.com/tidev/titanium_mobile/commit/5fc91157528805bc984ad05eba851328162c0797))
+
+## Bug Fixes
+
+### Android platform
+
+* fix noresults event in ListView width custom query ([d9ecad7](https://github.com/tidev/titanium_mobile/commit/d9ecad760b6ea2be6089a00939bc95ba6527202f))
+* switchCamera method was missing ([5fc9115](https://github.com/tidev/titanium_mobile/commit/5fc91157528805bc984ad05eba851328162c0797))
+* Ti.UI.Tab selected event returns no data ([abc9e81](https://github.com/tidev/titanium_mobile/commit/abc9e81bd38c01bc3de48219707aa4d1d06e94fe))
+* touchFeedbackColor not working for a bottomNavigation tab ([4639ced](https://github.com/tidev/titanium_mobile/commit/4639cede2baeca7e2f7670595bf376ef94bd77fa))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 12.1.0 | 14.0.0 |
+| ti.map | 5.6.0 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.2.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.6 | 7.0.6 |
+
+# [12.3.0](https://github.com/tidev/titanium_mobile/compare/12_2_X...12.3.0) (2024-02-16)
 
 ## About this release
 
@@ -7,7 +56,7 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 ## Community Credits
 
 * Michael Gangolf
-  * update ti.map ([241ba55](https://github.com/tidev/titanium_mobile/commit/241ba55b130671ac07e7309941520b2ed1a86058))
+  * fix Android FAB tintColor ([0c1bf92](https://github.com/tidev/titanium_mobile/commit/0c1bf9238593fd364dd8a887a7b190f339602def))
   * update minimum node.js version to 16.x ([af08e72](https://github.com/tidev/titanium_mobile/commit/af08e72c3fccdeade7f10e4e983c2c48dea6f491))
   * set correct title after titleAttributes update ([53738a1](https://github.com/tidev/titanium_mobile/commit/53738a1d05f0945841cb2247bc0e86fb413e0bc3))
   * optimize TiProperties ([e364209](https://github.com/tidev/titanium_mobile/commit/e3642099bacfebaaa0c0835a9a39dd9c2a521934))
@@ -31,6 +80,10 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
   * add empty build.gradle ([2c965e4](https://github.com/tidev/titanium_mobile/commit/2c965e4e1e0950a34f7ef777614260c86b063b7a))
 
 * Hans Knöchel
+  * restore compatibility for Ti.App._resumeRestart() ([4b34d5f](https://github.com/tidev/titanium_mobile/commit/4b34d5ff8660ce3d717ca2e104fcbcfc09462b14))
+  * update 12.3.0 changelog ([5272d8a](https://github.com/tidev/titanium_mobile/commit/5272d8a72a58dc96ee9cfd625d6fd172553ff57e))
+  * fix various issues related to the scene migration ([21c2861](https://github.com/tidev/titanium_mobile/commit/21c28613d906cbe210b5fc1dc1f4ca4193e3e1a5))
+  * fix debug issues with scenes ([34e0086](https://github.com/tidev/titanium_mobile/commit/34e00861ea8aeeeacddd2155a9013b480e7aa8d0))
   * move issue ([f83062b](https://github.com/tidev/titanium_mobile/commit/f83062b6cda6e2a1aa26fc06abe9b99228f1d6cb))
   * add 12.3.0 changelog ([1e58137](https://github.com/tidev/titanium_mobile/commit/1e58137bb4886324ceb4bcf527b7550e963b10bc))
   * support multi-scene applications ([bfc87a6](https://github.com/tidev/titanium_mobile/commit/bfc87a6517f0b70b82ea760b8d052381bddf1ff4))
@@ -42,10 +95,12 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 * Brianggalvez
   * support for html in AttributedStrings ([ca4a7a9](https://github.com/tidev/titanium_mobile/commit/ca4a7a9e77a3c88d9790671eb8abf8d837c409bd))
 
+
 ## Bug Fixes
 
 ### Android platform
 
+* fix Android FAB tintColor ([0c1bf92](https://github.com/tidev/titanium_mobile/commit/0c1bf9238593fd364dd8a887a7b190f339602def))
 * fix TextArea hinttextid ([845a08d](https://github.com/tidev/titanium_mobile/commit/845a08d650134950ab7ef7325d362f6406b3eada))
 * null check in ScrollView getAttributeSet ([c3c6cde](https://github.com/tidev/titanium_mobile/commit/c3c6cde3aa596dc7db8db66bf0665137e5eaece5))
 * return more httpclient errors to Ti ([fafdde6](https://github.com/tidev/titanium_mobile/commit/fafdde61c520ac09c374aad3c97c9b8c1c34422f))
@@ -55,6 +110,12 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 ### Multiple platforms
 
 * simulator and macos builds don't require wwdr ([8c70a0d](https://github.com/tidev/titanium_mobile/commit/8c70a0db7ad33e62e15128061237935bece49843))
+
+### iOS platform
+
+* fix debug issues with scenes ([34e0086](https://github.com/tidev/titanium_mobile/commit/34e00861ea8aeeeacddd2155a9013b480e7aa8d0))
+* fix various issues related to the scene migration ([21c2861](https://github.com/tidev/titanium_mobile/commit/21c28613d906cbe210b5fc1dc1f4ca4193e3e1a5))
+* restore compatibility for Ti.App._resumeRestart() ([4b34d5f](https://github.com/tidev/titanium_mobile/commit/4b34d5ff8660ce3d717ca2e104fcbcfc09462b14))
 
 ## Features
 
@@ -78,12 +139,15 @@ Titanium SDK 12.3.0 is a minor release of the SDK, addressing high-priority issu
 * support multi-scene applications ([bfc87a6](https://github.com/tidev/titanium_mobile/commit/bfc87a6517f0b70b82ea760b8d052381bddf1ff4))
 * view rotation parity ([5c7edd8](https://github.com/tidev/titanium_mobile/commit/5c7edd8588f4f66c74040ad0febb83ce687e925a))
 
+## BREAKING CHANGES
+
+
 ## SDK Module Versions
 
 | Module      | Android version | iOS Version |
 | ----------- | --------------- | ----------- |
 | facebook | 12.1.0 | 14.0.0 |
-| ti.map | 5.6.1 | 7.3.1 |
+| ti.map | 5.6.0 | 7.3.1 |
 | ti.webdialog | 2.3.0 | 3.0.2 |
 | ti.playservices | 18.2.0 | n/a |
 | ti.identity | 3.1.0 | 5.0.0 |

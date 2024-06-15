@@ -160,7 +160,7 @@
 }
 
 - (void)removeView:(id)args
-{ //TODO: Refactor this properly.
+{ // TODO: Refactor this properly.
 #if defined(TI_USE_AUTOLAYOUT)
   ENSURE_UI_THREAD(removeView, args)
 #endif
@@ -253,7 +253,7 @@
 
 - (void)willChangeSize
 {
-  //Ensure the size change signal goes to children
+  // Ensure the size change signal goes to children
   NSArray *curViews = [self views];
   for (TiViewProxy *child in curViews) {
     [child parentSizeWillChange];
@@ -267,7 +267,7 @@
 
   if (!hasChild) {
     return;
-    //In the case of views added with addView, as they are not part of children, they should be ignored.
+    // In the case of views added with addView, as they are not part of children, they should be ignored.
   }
   [super childWillResize:child];
 }
@@ -299,14 +299,14 @@
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }
-    //Hideous hack is hideous. This should stave off the bugs until layout is streamlined
+    // Hideous hack is hideous. This should stave off the bugs until layout is streamlined
     [ourView refreshScrollView:[[self view] bounds] readd:YES];
     scrollWrappers = [[ourView scrollview] subviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }
   }
-  //Adding the view to a scrollable view is invalid.
+  // Adding the view to a scrollable view is invalid.
   return nil;
 }
 #endif

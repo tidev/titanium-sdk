@@ -90,7 +90,7 @@
 @property (nonatomic, readonly) NSNumber *LIVEPHOTO_PLAYBACK_STYLE_HINT;
 @property (nonatomic, readonly) NSNumber *LIVEPHOTO_PLAYBACK_STYLE_FULL;
 
-//Modules
+// Modules
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 @property (nonatomic, readwrite, assign) TiUIiOSAnimationStyleProxy *animationStyleProxy;
 #endif
@@ -148,7 +148,7 @@
 - (NSNumber *)ALERT_SEVERITY_CRITICAL;
 #endif
 
-//Modal Presentation & Transition
+// Modal Presentation & Transition
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
@@ -173,7 +173,7 @@
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
 
 /**
-    Checks the force touch capibility of the current device.
+ * Checks the force touch capibility of the current device.
  */
 - (NSNumber *)forceTouchSupported;
 
