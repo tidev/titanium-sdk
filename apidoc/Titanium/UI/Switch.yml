@@ -128,7 +128,6 @@ properties:
     since: {android: 12.4.0, iphone: 3.3.0, ipad: 3.3.0}
 
   - name: onThumbColor
-    summary: The color used to tint the thumb icon of the switch when it is turned on.
     description: |
         The color used to tint the thumb icon of the switch when it is turned on.
 
@@ -139,7 +138,6 @@ properties:
     since: {android: 12.4.0}
 
   - name: thumbColor
-    summary: The color used to tint the thumb icon of the switch when it is turned off.
     description: |
         The color used to tint the thumb icon of the switch when it is turned off.
 
