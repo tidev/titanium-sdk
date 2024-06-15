@@ -394,6 +394,15 @@ properties:
     platforms: [android]
     since: "5.0.0"
 
+  - name: textAlign
+    summary: |
+        Horizontal text alignment of the date picker when using <Titanium.UI.PICKER_TYPE_DATE>.
+    type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
+    default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>,
+    platforms: [android]
+    since: "12.4.0"
+
   - name: datePickerStyle
     summary: Determines how a date or time picker should appear.
     description: |
