@@ -16,6 +16,7 @@ def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>
+	ndkVersion '22.1.7171670'
 	defaultConfig {
 		minSdkVersion 19
 		targetSdkVersion <%- compileSdkVersion %>
@@ -59,7 +60,8 @@ android {
 				arguments.addAll([
 					'APP_STL:=c++_shared',
 					"-j${Runtime.runtime.availableProcessors()}".toString(),
-					'--output-sync=none'
+					'--output-sync=none',
+					'APP_LD=deprecated'
 				])
 			}
 		}
@@ -168,7 +170,7 @@ tasks.withType(JavaCompile) {
 
 	// Execute our "generate-cpp-files.js" script after Java compile to finish generating C++ files.
 	// Depends on the JSON file produced by our "kroll-apt" Java annotation processor.
-	// TODO: Our annnotation processor should do ALL of the proxy code generation. Don't piece-meal it.
+	// TODO: Our annotation processor should do ALL of the proxy code generation. Don't piece-meal it.
 	doLast {
 		exec {
 			environment 'TI_MODULE_BINDINGS_JSON_FILE', tiModuleBindingsJsonPath
@@ -246,7 +248,7 @@ publishing {
 	}
 }
 
-// Load the module developer's optional "build.gradle" file from "<moduel>/android" directory.
+// Load the module developer's optional "build.gradle" file from "<module>/android" directory.
 // This gradle file is expected to provide the module's "dependencies".
 def moduleBuildGradlePath = "${projectDir}/../../build.gradle"
 if (file(moduleBuildGradlePath).exists()) {

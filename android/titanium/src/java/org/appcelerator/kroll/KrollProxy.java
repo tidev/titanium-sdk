@@ -513,7 +513,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			Object oldValue = properties.get(name);
 			Object value = options.get(name);
 
-			// dont just fire the change event, make sure we set the property back on the KrollObject
+			// don't just fire the change event, make sure we set the property back on the KrollObject
 			// since the property change may not be driven from JS (KrollObject->Java proxy)
 			setProperty(name, value);
 
