@@ -2338,7 +2338,17 @@
   [self fireRowsSelectedEvent];
 }
 
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [self swipeConfigurationForState:@"leading" withIndexPath:indexPath isDefault:NO];
+}
+
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [self swipeConfigurationForState:@"trailing" withIndexPath:indexPath isDefault:YES];
+}
+
+- (UISwipeActionsConfiguration *)swipeConfigurationForState:(NSString *)state withIndexPath:(NSIndexPath *)indexPath isDefault:(BOOL)isDefault
 {
   TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
   TiUITableViewSectionProxy *section = [self sectionForIndex:indexPath.section];
@@ -2349,19 +2359,14 @@
     return nil;
   }
 
-  NSArray<NSDictionary *> *editActions = [row valueForKey:@"editActions"];
+  NSArray<NSDictionary *> *editActionProxies = (NSArray *)[row valueForKey:@"editActions"];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:isDefault ? @"state == nil OR state == %@" : @"state == %@", state];
+  NSArray<NSDictionary *> *editActions = [editActionProxies filteredArrayUsingPredicate:predicate];
+  NSMutableArray<UIContextualAction *> *nativeEditActions = [NSMutableArray arrayWithCapacity:editActions.count];
 
-  if (IS_NULL_OR_NIL(editActions)) {
+  if (IS_NULL_OR_NIL(editActions) || editActions.count == 0) {
     return nil;
   }
-
-  return [self swipeConfigurationFromRow:row andSection:section indexPath:indexPath];
-}
-
-- (UISwipeActionsConfiguration *)swipeConfigurationFromRow:(TiUITableViewRowProxy *)row andSection:(TiUITableViewSectionProxy *)section indexPath:(NSIndexPath *)indexPath
-{
-  NSArray<NSDictionary *> *editActions = [row valueForKey:@"editActions"];
-  NSMutableArray<UIContextualAction *> *nativeEditActions = [NSMutableArray arrayWithCapacity:editActions.count];
 
   for (id prop in editActions) {
     NSString *title = [TiUtils stringValue:@"title" properties:prop];
