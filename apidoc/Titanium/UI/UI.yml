@@ -490,8 +490,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad, macos]
-    since: "3.6.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {iphone: "3.6.0", ipad: "3.6.0", android: "10.0.0"}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
