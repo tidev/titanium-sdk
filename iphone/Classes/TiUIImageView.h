@@ -45,6 +45,7 @@
 - (void)resume;
 
 - (void)setImage_:(id)arg;
+- (void)addSymbolEffect:(NSDictionary *)args;
 
 @end
 
