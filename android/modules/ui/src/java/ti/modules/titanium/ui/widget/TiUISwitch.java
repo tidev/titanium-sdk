@@ -64,17 +64,17 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 			setStyle(TiConvert.toInt(d.get(TiC.PROPERTY_STYLE), UIModule.SWITCH_STYLE_SLIDER));
 		}
 
-		if (d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_THUMB_COLOR)
-			|| d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR)) {
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_THUMB_COLOR)
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_ON_THUMB_COLOR)) {
 			CompoundButton currentButton = (CompoundButton) getNativeView();
 			if (currentButton instanceof SwitchMaterial) {
 
-				int colActive = d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR)
-					? TiConvert.toColor(d, TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR)
-					: TiConvert.toColor(d, TiC.EVENT_PROPERTY_THUMB_COLOR);
-				int colNormal = d.containsKeyAndNotNull(TiC.EVENT_PROPERTY_THUMB_COLOR)
-					? TiConvert.toColor(d, TiC.EVENT_PROPERTY_THUMB_COLOR)
-					: TiConvert.toColor(d, TiC.EVENT_PROPERTY_ACTIVE_THUMB_COLOR);
+				int colActive = d.containsKeyAndNotNull(TiC.PROPERTY_ON_THUMB_COLOR)
+					? TiConvert.toColor(d, TiC.PROPERTY_ON_THUMB_COLOR)
+					: TiConvert.toColor(d, TiC.PROPERTY_THUMB_COLOR);
+				int colNormal = d.containsKeyAndNotNull(TiC.PROPERTY_THUMB_COLOR)
+					? TiConvert.toColor(d, TiC.PROPERTY_THUMB_COLOR)
+					: TiConvert.toColor(d, TiC.PROPERTY_ON_THUMB_COLOR);
 
 				ColorStateList trackStates = new ColorStateList(
 					new int[][] {
@@ -93,16 +93,16 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 		}
 
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_ON_TINT_COLOR)) {
 			CompoundButton currentButton = (CompoundButton) getNativeView();
 			if (currentButton instanceof SwitchMaterial) {
 
-				int colActive = d.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)
-					? TiConvert.toColor(d, TiC.PROPERTY_ACTIVE_TINT_COLOR)
+				int colActive = d.containsKeyAndNotNull(TiC.PROPERTY_ON_TINT_COLOR)
+					? TiConvert.toColor(d, TiC.PROPERTY_ON_TINT_COLOR)
 					: TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR);
 				int colNormal = d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
 					? TiConvert.toColor(d, TiC.PROPERTY_TINT_COLOR)
-					: TiConvert.toColor(d, TiC.PROPERTY_ACTIVE_TINT_COLOR);
+					: TiConvert.toColor(d, TiC.PROPERTY_ON_TINT_COLOR);
 
 				ColorStateList trackStates = new ColorStateList(
 					new int[][] {

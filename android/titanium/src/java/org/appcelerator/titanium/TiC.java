@@ -142,8 +142,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_TAB = "tab";
 	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
 	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
-	public static final String EVENT_PROPERTY_THUMB_COLOR = "thumbColor";
-	public static final String EVENT_PROPERTY_ACTIVE_THUMB_COLOR = "activeThumbColor";
+	public static final String PROPERTY_THUMB_COLOR = "thumbColor";
+	public static final String PROPERTY_ON_THUMB_COLOR = "onThumbColor";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 	public static final String EVENT_PROPERTY_X = "x";
@@ -610,6 +610,7 @@ public class TiC
 	public static final String PROPERTY_ON_RESTART = "onRestart";
 	public static final String PROPERTY_ON_PAUSE = "onPause";
 	public static final String PROPERTY_ON_STOP = "onStop";
+	public static final String PROPERTY_ON_TINT_COLOR = "onTintColor";
 	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 	public static final String PROPERTY_ON_DESTROY = "onDestroy";
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";

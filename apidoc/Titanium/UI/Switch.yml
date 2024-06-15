@@ -127,7 +127,7 @@ properties:
     platforms: [android, iphone, ipad]
     since: {android: 12.4.0, iphone: 3.3.0, ipad: 3.3.0}
 
-  - name: activeTintColor
+  - name: onTintColor
     summary: The color used to tint the track of the switch when it is turned on.
     description: |
         The color used to tint the track of the switch when it is turned on.
@@ -138,7 +138,7 @@ properties:
     platforms: [android]
     since: {android: 12.4.0}
 
-  - name: activeThumbColor
+  - name: onThumbColor
     summary: The color used to tint the thumb icon of the switch when it is turned on.
     description: |
         The color used to tint the thumb icon of the switch when it is turned on.
@@ -165,7 +165,7 @@ properties:
     type: [String, Titanium.UI.Color]
     default: undefined
     platforms: [iphone, ipad, macos]
-    since: "3.3.0"
+    since: {android: 12.4.0, iphone: 3.3.0, ipad: 3.3.0}
 
   - name: thumbTintColor
     summary: The color used to tint the appearance of the thumb.
