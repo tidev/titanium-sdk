@@ -215,13 +215,10 @@ public class TiUIOptionBar extends TiUIView
 				new int[][] {
 					new int[] { -android.R.attr.state_checked },
 					new int[] { android.R.attr.state_checked },
-					new int[] {}
-
 				},
 				new int[] {
 					oldColors.getColorForState(new int[] { -android.R.attr.state_checked }, R.attr.colorOnSurface),
-					col,
-					oldColors.getColorForState(new int[] { }, R.attr.colorOnSurface),
+					col
 				}
 			);
 			button.setBackgroundTintList(trackStates);
@@ -233,12 +230,10 @@ public class TiUIOptionBar extends TiUIView
 				new int[][] {
 					new int[] { -android.R.attr.state_checked },
 					new int[] { android.R.attr.state_checked },
-					new int[] {}
 				},
 				new int[] {
 					oldColors.getColorForState(new int[] { -android.R.attr.state_checked }, R.attr.colorOnSurface),
-					col,
-					oldColors.getColorForState(new int[] { }, R.attr.colorOnSurface),
+					col
 				}
 			);
 			button.setStrokeColor(trackStates);
