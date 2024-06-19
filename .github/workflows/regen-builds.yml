@@ -1,7 +1,5 @@
 name: Regen Builds
 on:
-  release:
-    types: [published, released]
   workflow_run:
     workflows: [Build]
     types: [completed]
