@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -13,7 +15,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIButton;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -30,7 +31,7 @@ import android.app.Activity;
 		TiC.PROPERTY_SHADOW_COLOR,
 		TiC.PROPERTY_SHADOW_RADIUS,
 		TiC.PROPERTY_TINT_COLOR
-})
+	})
 public class ButtonProxy extends TiViewProxy
 {
 	public ButtonProxy()
