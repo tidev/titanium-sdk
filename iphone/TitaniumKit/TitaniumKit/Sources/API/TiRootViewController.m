@@ -696,8 +696,7 @@
   if (![TiSharedConfig defaultConfig].debugEnabled) {
     return;
   }
-
-  // Dismiss all currently opened windows
+  // FIRST DISMISS ALL MODAL WINDOWS
   UIViewController *topVC = [self topPresentedController];
   if (topVC != self) {
     UIViewController *presenter = [topVC presentingViewController];
@@ -707,8 +706,7 @@
                                   }];
     return;
   }
-
-  // Clean up proxies.
+  // At this point all modal stuff is done. Go ahead and clean up proxies.
   NSArray *modalCopy = [modalWindows copy];
   NSArray *windowCopy = [containedWindows copy];
 
@@ -727,8 +725,7 @@
     [windowCopy release];
   }
 
-  DebugLog(@"[WARN] Calling the private `_restart()` API should not be done in production, as restarting an app is not a recommended native concept.");
-
+  DebugLog(@"[INFO] UI SHUTDOWN COMPLETE. TRYING TO RESUME RESTART");
   if ([arg respondsToSelector:@selector(_resumeRestart:)]) {
     [arg performSelector:@selector(_resumeRestart:) withObject:nil];
   } else {

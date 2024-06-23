@@ -443,7 +443,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 						// Request the parent to scroll if one of the following is true:
 						// - EditText is not scrollable. (ie: All text fits within the box.)
-						// - EditText is scrollabe, but cannot scroll any further in given direction.
+						// - EditText is scrollable, but cannot scroll any further in given direction.
 						if (!isScrollEnabled || !canScrollFurther) {
 							wasHandled = dispatchNestedPreScroll(deltaX, deltaY, null, null);
 							wasHandled |= dispatchNestedScroll(0, 0, deltaX, deltaY, null);

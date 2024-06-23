@@ -314,7 +314,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	 * Set header and footer views of holder.
 	 *
 	 * @param listViewProxy ListView proxy.
-	 * @param properties   Properties containing header and footer entires.
+	 * @param properties   Properties containing header and footer entries.
 	 * @param updateHeader Boolean to determine if the header should be updated.
 	 * @param updateFooter Boolean to determine if the footer should be updated.
 	 */
