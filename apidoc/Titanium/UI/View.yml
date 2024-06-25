@@ -1159,6 +1159,16 @@ properties:
     platforms: [android, iphone, ipad, macos]
     type: String
 
+  - name: accessibilityDisableLongPress
+    summary: Boolean value to remove the long press notification for the device's accessibility service.
+    description: |
+        Will disable the "double tap and hold for long press" message when selecting an item.
+    since: "12.4.0"
+    platforms: [android]
+    default: true
+    availability: creation
+    type: Boolean
+
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
     description: |
