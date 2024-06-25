@@ -60,6 +60,30 @@ properties:
     default: horizontal
     availability: creation
 
+  - name: selectedBackgroundColor
+    summary: Background color of the selected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
+
+  - name: selectedTextColor
+    summary: Text color of the selected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
+
+  - name: selectedBorderColor
+    summary: Border color of the selected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
+
+  - name: color
+    summary: Text color of the unselected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
+
 examples:
   - title: Text-Only Buttons
     example: |
