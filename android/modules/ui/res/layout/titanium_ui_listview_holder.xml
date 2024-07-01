@@ -1,96 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/titanium_ui_listview_holder"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:clipToPadding="false"
-    android:outlineProvider="bounds">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/titanium_ui_listview_holder"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:clipToPadding="false"
+	android:outlineProvider="bounds">
 
-    <!-- Header Container -->
-    <RelativeLayout
-        android:id="@+id/titanium_ui_listview_holder_header_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true">
+	<org.appcelerator.titanium.view.TiCompositeLayout
+		android:id="@+id/titanium_ui_listview_holder_content"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:addStatesFromChildren="true"
+		app:layout_constraintBottom_toTopOf="@+id/titanium_ui_listview_holder_footer_title"
+		app:layout_constraintStart_toEndOf="@id/titanium_ui_listview_holder_left_image"
+		app:layout_constraintTop_toBottomOf="@+id/titanium_ui_listview_holder_header_title" />
 
-        <org.appcelerator.titanium.view.TiCompositeLayout
-            android:id="@+id/titanium_ui_listview_holder_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
-        <TextView
-            android:id="@+id/titanium_ui_listview_holder_header_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="18dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:gravity="center_vertical"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
-    </RelativeLayout>
+	<ImageView
+		android:id="@+id/titanium_ui_listview_holder_left_image"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:paddingStart="6dp"
+		android:paddingEnd="0dp"
+		app:layout_constraintBottom_toTopOf="@id/titanium_ui_listview_holder_footer_title"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/titanium_ui_listview_holder_header_title" />
 
-    <!-- Outer Content Container -->
-    <RelativeLayout
-        android:id="@+id/titanium_ui_listview_holder_outer_content_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/titanium_ui_listview_holder_header_container"
-        android:addStatesFromChildren="true">
+	<ImageView
+		android:id="@+id/titanium_ui_listview_holder_right_image"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="6dp"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		app:layout_constraintBottom_toBottomOf="@id/titanium_ui_listview_holder_footer_title"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/titanium_ui_listview_holder_header_title" />
 
-            <ImageView
-                android:id="@+id/titanium_ui_listview_holder_left_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="6dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false"/>
+	<TextView
+		android:id="@+id/titanium_ui_listview_holder_header_title"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:gravity="center_vertical"
+		android:minHeight="18dp"
+		android:paddingLeft="5dp"
+		android:paddingRight="5dp"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
 
-            <org.appcelerator.titanium.view.TiCompositeLayout
-                android:id="@+id/titanium_ui_listview_holder_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/titanium_ui_listview_holder_left_image"
-                android:addStatesFromChildren="true"/>
+	<TextView
+		android:id="@+id/titanium_ui_listview_holder_footer_title"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		android:gravity="center_vertical"
+		android:minHeight="18dp"
+		android:paddingLeft="5dp"
+		android:paddingRight="5dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
 
-            <ImageView
-                android:id="@+id/titanium_ui_listview_holder_right_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="6dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false"/>
 
-    </RelativeLayout>
+	<org.appcelerator.titanium.view.TiCompositeLayout
+		android:id="@+id/titanium_ui_listview_holder_header"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Footer Container -->
-    <RelativeLayout
-        android:id="@+id/titanium_ui_listview_holder_footer_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/titanium_ui_listview_holder_outer_content_container">
+	<org.appcelerator.titanium.view.TiCompositeLayout
+		android:id="@+id/titanium_ui_listview_holder_footer"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:focusable="false"
+		android:focusableInTouchMode="false"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent" />
 
-        <org.appcelerator.titanium.view.TiCompositeLayout
-            android:id="@+id/titanium_ui_listview_holder_footer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:focusable="false"
-            android:focusableInTouchMode="false"/>
-        <TextView
-            android:id="@+id/titanium_ui_listview_holder_footer_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="18dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:gravity="center_vertical"
-            android:focusable="false"
-            android:focusableInTouchMode="false" />
-    </RelativeLayout>
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
