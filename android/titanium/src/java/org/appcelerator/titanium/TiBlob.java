@@ -12,6 +12,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ThumbnailUtils;
 import android.util.Base64;
+
+import androidx.exifinterface.media.ExifInterface;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,6 +31,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollStreamHelper;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.util.TiBlobLruCache;
+import org.appcelerator.titanium.util.TiExifHelper;
 import org.appcelerator.titanium.util.TiImageHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 
@@ -60,6 +64,7 @@ public class TiBlob extends KrollProxy
 	private int uprightWidth;
 	private int uprightHeight;
 	private Object rotation;
+	private static ExifInterface exifData;
 
 	// This handles the memory cache of images.
 	private final TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -95,6 +100,10 @@ public class TiBlob extends KrollProxy
 	 */
 	public static TiBlob blobFromFile(TiBaseFile file)
 	{
+		try (InputStream stream = file.getInputStream()) {
+			// set exif data from stream if available
+			exifData = new ExifInterface(stream);
+		} catch (Exception ex) {}
 		return blobFromFile(file, TiMimeTypeHelper.getMimeType(file.nativePath()));
 	}
 
@@ -110,6 +119,12 @@ public class TiBlob extends KrollProxy
 		if (mimeType == null) {
 			mimeType = TiMimeTypeHelper.getMimeType(file.nativePath());
 		}
+
+		try (InputStream stream = file.getInputStream()) {
+			// set exif data from stream if available
+			exifData = new ExifInterface(stream);
+		} catch (Exception ex) {}
+
 		TiBlob blob = new TiBlob(TYPE_FILE, file, mimeType);
 		blob.loadBitmapInfo();
 		return blob;
@@ -756,6 +771,21 @@ public class TiBlob extends KrollProxy
 			}
 		}
 		return null;
+	}
+
+	@Kroll.getProperty
+	public KrollDict getExif()
+	{
+		KrollDict kd = new KrollDict();
+		String[] attributes = TiExifHelper.attributes;
+		if (exifData != null) {
+			for (int i = 0; i < attributes.length; i++) {
+				String value = exifData.getAttribute(attributes[i]);
+				if (value != null)
+					kd.put(attributes[i], value);
+			}
+		}
+		return kd;
 	}
 
 	@Kroll.method
