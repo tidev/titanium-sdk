@@ -560,12 +560,12 @@ public class EventProxy extends KrollProxy
 	}
 
 	@Kroll.method
-	public boolean remove(Object eventId)
+	public boolean remove()
 	{
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 
 		try {
-			Uri deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, TiConvert.toInt(eventId));
+			Uri deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, TiConvert.toInt(id));
 			contentResolver.delete(deleteUri, null, null);
 		} catch (IllegalArgumentException e) {
 			return false;
