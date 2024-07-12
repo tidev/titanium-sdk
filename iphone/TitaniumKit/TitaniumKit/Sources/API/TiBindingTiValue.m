@@ -158,7 +158,7 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
       for (uint c = 0; c < len; ++c) {
         JSValueRef valueRef = JSObjectGetPropertyAtIndex(jsContext, obj, c, NULL);
         id value = TiBindingTiValueToNSObject(jsContext, valueRef);
-        //TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
+        // TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
         if (value == nil) {
           [resultArray addObject:[NSNull null]];
         } else {

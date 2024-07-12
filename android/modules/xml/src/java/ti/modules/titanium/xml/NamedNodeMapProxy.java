@@ -25,6 +25,9 @@ public class NamedNodeMapProxy extends KrollProxy
 	@Kroll.getProperty
 	public int getLength()
 	{
+		if (map == null) {
+			return 0;
+		}
 		return map.getLength();
 	}
 

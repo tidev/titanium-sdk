@@ -231,7 +231,7 @@ public class TiResponseCache extends ResponseCache
 	 * @param uri The URI to fetch the endpoint of. Can be null.
 	 * @return
 	 * If the given URI is cached and references a redirect response, then the returned URI will
-	 * be the redirect's "location" URI.
+	 * be the redirects "location" URI.
 	 * <p>
 	 * If the given URI does not reference a redirect, then the given URI is returned.
 	 * <p>

@@ -100,7 +100,7 @@ public class TiFile extends TiBaseFile
 	/**
 	 * Attempts to create a directory named by the trailing filename of this file.
 	 * @param recursive  whether to recursively create any missing parent directories in the path.
-	 * @return  true if directory was sucessfully created, false otherwise.
+	 * @return  true if directory was successfully created, false otherwise.
 	 */
 	@Override
 	public boolean createDirectory(boolean recursive)

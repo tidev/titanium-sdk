@@ -142,6 +142,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_TAB = "tab";
 	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
 	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
+	public static final String PROPERTY_THUMB_COLOR = "thumbColor";
+	public static final String PROPERTY_ON_THUMB_COLOR = "onThumbColor";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 	public static final String EVENT_PROPERTY_X = "x";
@@ -228,6 +230,7 @@ public class TiC
 	public static final String PROPERTY_ACCESSIBILITY_HINT = "accessibilityHint";
 	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
 	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
+	public static final String PROPERTY_ACCESSIBILITY_DISABLE_LONG = "accessibilityDisableLongPress";
 	public static final String PROPERTY_ACCESSORY_TYPE = "accessoryType";
 	public static final String PROPERTY_ACTION = "action";
 	public static final String PROPERTY_ACTION_VIEW = "actionView";
@@ -607,6 +610,7 @@ public class TiC
 	public static final String PROPERTY_ON_RESTART = "onRestart";
 	public static final String PROPERTY_ON_PAUSE = "onPause";
 	public static final String PROPERTY_ON_STOP = "onStop";
+	public static final String PROPERTY_ON_TINT_COLOR = "onTintColor";
 	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 	public static final String PROPERTY_ON_DESTROY = "onDestroy";
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
@@ -689,6 +693,7 @@ public class TiC
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
 	public static final String PROPERTY_SCROLLABLE = "scrollable";
+	public static final String PROPERTY_SCROLLBARS = "scrollbars";
 	public static final String PROPERTY_SEARCH = "search";
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
 	public static final String PROPERTY_SEARCH_TEXT = "searchText";
@@ -773,6 +778,7 @@ public class TiC
 	public static final String PROPERTY_TINT = "tint";
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLE_ATTRIBUTES = "titleAttributes";
 	public static final String PROPERTY_TITLE_COLOR = "titleColor";
 	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	public static final String PROPERTY_TITLEID = "titleid";
