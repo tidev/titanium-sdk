@@ -498,9 +498,9 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		if (tabProxy == null) {
 			return;
 		}
-
 		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
+		updateIconTint();
 	}
 
 	@Override
