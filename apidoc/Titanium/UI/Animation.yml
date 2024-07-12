@@ -135,7 +135,7 @@ properties:
     summary: Value of the `rotation` property at the end of the animation.
     type: Number
     platforms: [android]
-    since: { android: "12.3.0" }
+    since: { android: "12.5.0" }
 
   - name: rotationY
     summary: Value of the `rotationY` property at the end of the animation.
