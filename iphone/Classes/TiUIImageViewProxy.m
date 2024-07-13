@@ -62,6 +62,14 @@ static NSArray *imageKeySequence;
   [self replaceValue:NUMFLOAT(DEFAULT_IMAGEVIEW_INTERVAL) forKey:@"duration" notification:NO];
 }
 
+- (void)addSymbolEffect:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+
+  TiUIImageView *iv = (TiUIImageView *)[self view];
+  [iv addSymbolEffect:args];
+}
+
 - (void)start:(id)args
 {
   TiThreadPerformOnMainThread(

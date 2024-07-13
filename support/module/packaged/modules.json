@@ -43,8 +43,8 @@
 			"integrity": "sha512-OsLB3hr6sFqduoUbY2dotQ/Zk7u+eJW8ZKJLG+FzOf9WP/xlUe7S9kz2dMBnI50bnpULnXEYkbr2kb/rNu8lZw=="
 		},
 		"ti.playservices": {
-			"url": "https://github.com/tidev/ti.playservices/releases/download/v18.2.0/ti.playservices-android-18.2.0.zip",
-			"integrity": "sha512-ifkAeWKqAFrNuKrlS8CnWEjDA4akCjPL1YpQ8VSN/pxik9vngJ4jjSHoqIhM5/WQR0CtBURKbqNWkbbWKu5unQ=="
+			"url": "https://github.com/tidev/ti.playservices/releases/download/v18.3.0/ti.playservices-android-18.3.0.zip",
+			"integrity": "sha512-Sg9tKSbleTZmEcQMoHX57bQOIKqDh+TzLjxASozqB/YJR1rbsXL3Ighdf5kQl4WvAIkjIvYlwoPLWWtY7HxjEw=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/tidev/titanium-identity/releases/download/v3.1.0-android/ti.identity-android-3.1.0.zip",

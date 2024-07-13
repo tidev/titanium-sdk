@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -207,6 +208,58 @@ public class TiUIOptionBar extends TiUIView
 		MaterialButton button = new MaterialButton(context, null, attributeId);
 		button.setEnabled(isEnabled);
 		button.setText(title);
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
+			ColorStateList oldColors = button.getBackgroundTintList();
+			int col = TiConvert.toColor((String) proxy.getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR), context);
+			ColorStateList trackStates = new ColorStateList(
+				new int[][] {
+					new int[] { -android.R.attr.state_checked },
+					new int[] { android.R.attr.state_checked },
+				},
+				new int[] {
+					oldColors.getColorForState(new int[] { -android.R.attr.state_checked }, R.attr.colorOnSurface),
+					col
+				}
+			);
+			button.setBackgroundTintList(trackStates);
+		}
+		if (proxy.hasPropertyAndNotNull("selectedBorderColor")) {
+			ColorStateList oldColors = button.getStrokeColor();
+			int col = TiConvert.toColor((String) proxy.getProperty("selectedBorderColor"), context);
+			ColorStateList trackStates = new ColorStateList(
+				new int[][] {
+					new int[] { -android.R.attr.state_checked },
+					new int[] { android.R.attr.state_checked },
+				},
+				new int[] {
+					oldColors.getColorForState(new int[] { -android.R.attr.state_checked }, R.attr.colorOnSurface),
+					col
+				}
+			);
+			button.setStrokeColor(trackStates);
+		}
+		if (proxy.hasPropertyAndNotNull("selectedTextColor") || proxy.hasPropertyAndNotNull(TiC.PROPERTY_COLOR)) {
+			int textCol = button.getCurrentHintTextColor();
+			int selCol = button.getCurrentTextColor();
+
+			if (proxy.hasPropertyAndNotNull("selectedTextColor")) {
+				selCol = TiConvert.toColor((String) proxy.getProperty("selectedTextColor"), context);
+			}
+			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_COLOR)) {
+				textCol = TiConvert.toColor((String) proxy.getProperty(TiC.PROPERTY_COLOR), context);
+			}
+			ColorStateList trackStates = new ColorStateList(
+				new int[][] {
+					new int[] { -android.R.attr.state_checked },
+					new int[] { android.R.attr.state_checked },
+				},
+				new int[] {
+					textCol,
+					selCol,
+				}
+			);
+			button.setTextColor(trackStates);
+		}
 		if ((accessibilityLabel != null) && !accessibilityLabel.isEmpty()) {
 			button.setContentDescription(accessibilityLabel);
 		}

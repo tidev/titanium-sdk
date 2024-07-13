@@ -414,7 +414,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		return "Ti.UI.TableView";
 	}
 
-	// NOTE: For internal use only.
+	@Kroll.getProperty
 	public KrollDict getContentOffset()
 	{
 		final TiTableView tableView = getTableView();
