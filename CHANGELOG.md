@@ -1,11 +1,25 @@
-# [12.4.0](https://github.com/tidev/titanium_mobile/compare/12_3_X...12.4.0) (2024-07-10)
+# [12.4.0](https://github.com/tidev/titanium_mobile/compare/12_3_X...12.4.0) (2024-07-17)
 
 ## About this release
 
 Titanium SDK 12.4.0 is a minor release of the SDK, adding new features and platform updates.
 
-
 ## Community Credits
+
+* Hans Knöchel
+  * add 12.4.0 changelog ([874e5f2](https://github.com/tidev/titanium_mobile/commit/874e5f2a86a1a58f99f4de50378c824e5b67029f))
+  * add missing “Calendar.Event.remove” method ([d1bbe8a](https://github.com/tidev/titanium_mobile/commit/d1bbe8ac2d5fc8530858bcaa48b56d94b9c407e4))
+  * add swipe actions support for Ti.UI.TableView ([40808cd](https://github.com/tidev/titanium_mobile/commit/40808cd5ffed82abaeb7e7523100f901f336298f))
+  * add iOS 17+ symbol effects ([84ccadb](https://github.com/tidev/titanium_mobile/commit/84ccadbdcbe9b800ebc08dbac8ae5eaeac36a7f8))
+  * update changelog ([9f144c1](https://github.com/tidev/titanium_mobile/commit/9f144c12c28fe6ead59237759c53c40509f3d4cc))
+  * bump master to 12.4.0 ([2f1212f](https://github.com/tidev/titanium_mobile/commit/2f1212fd9e46a4a8aeae0af7a850aaa7bff34e52))
+  * address all whitespace-related linting issues part 2 ([8c92dc7](https://github.com/tidev/titanium_mobile/commit/8c92dc7521219efebad8943a5305348014bd32e4))
+  * address all whitespace-related linting issues ([e2bf653](https://github.com/tidev/titanium_mobile/commit/e2bf653d406b772deeafb504a0b9f68e363cf3e5))
+  * fix linting issues ([bf24bf2](https://github.com/tidev/titanium_mobile/commit/bf24bf26ae07ebda2e2d70c23de198bac6b2ba8e))
+  * Revert "feat(ios): support multi-scene applications (#13941)" ([82203d7](https://github.com/tidev/titanium_mobile/commit/82203d782fd499a33723bf86b41e1019e50bc99d))
+  * fix some open issues related to scenes ([a0a3aea](https://github.com/tidev/titanium_mobile/commit/a0a3aeaf666b864fbcb75e57f011a142dbae715c))
+  * fix debug issues with scenes ([8bcd5c3](https://github.com/tidev/titanium_mobile/commit/8bcd5c31a8dc86415c231a6086c1d83bbb183565))
+  * Revert "feat(ios): support multi-scene applications (#13941)" ([4a1d20f](https://github.com/tidev/titanium_mobile/commit/4a1d20f43c82296dd21bfd760fa63b65927e98fd))
 
 * Michael Gangolf
   * optionBar color properties ([d5cff3c](https://github.com/tidev/titanium_mobile/commit/d5cff3c32d33b2df2469af949c54c4bab1734676))
@@ -49,27 +63,12 @@ Titanium SDK 12.4.0 is a minor release of the SDK, adding new features and platf
   * fix some doc errors ([cf14a9b](https://github.com/tidev/titanium_mobile/commit/cf14a9b4ed83cef111e80d87189cc3e89a906d11))
   * update ti.map ([5eb950c](https://github.com/tidev/titanium_mobile/commit/5eb950ce1c3392f26496a6c6317b5dea24eee9e4))
 
-* Hans Knöchel
-  * add missing “Calendar.Event.remove” method ([d1bbe8a](https://github.com/tidev/titanium_mobile/commit/d1bbe8ac2d5fc8530858bcaa48b56d94b9c407e4))
-  * add swipe actions support for Ti.UI.TableView ([40808cd](https://github.com/tidev/titanium_mobile/commit/40808cd5ffed82abaeb7e7523100f901f336298f))
-  * add iOS 17+ symbol effects ([84ccadb](https://github.com/tidev/titanium_mobile/commit/84ccadbdcbe9b800ebc08dbac8ae5eaeac36a7f8))
-  * update changelog ([9f144c1](https://github.com/tidev/titanium_mobile/commit/9f144c12c28fe6ead59237759c53c40509f3d4cc))
-  * bump master to 12.4.0 ([2f1212f](https://github.com/tidev/titanium_mobile/commit/2f1212fd9e46a4a8aeae0af7a850aaa7bff34e52))
-  * address all whitespace-related linting issues part 2 ([8c92dc7](https://github.com/tidev/titanium_mobile/commit/8c92dc7521219efebad8943a5305348014bd32e4))
-  * address all whitespace-related linting issues ([e2bf653](https://github.com/tidev/titanium_mobile/commit/e2bf653d406b772deeafb504a0b9f68e363cf3e5))
-  * fix linting issues ([bf24bf2](https://github.com/tidev/titanium_mobile/commit/bf24bf26ae07ebda2e2d70c23de198bac6b2ba8e))
-  * Revert "feat(ios): support multi-scene applications (#13941)" ([82203d7](https://github.com/tidev/titanium_mobile/commit/82203d782fd499a33723bf86b41e1019e50bc99d))
-  * fix some open issues related to scenes ([a0a3aea](https://github.com/tidev/titanium_mobile/commit/a0a3aeaf666b864fbcb75e57f011a142dbae715c))
-  * update 12.3.0 changelog ([f97a27b](https://github.com/tidev/titanium_mobile/commit/f97a27b72d7c3195badc3fecac725f5888f3a572))
-  * fix debug issues with scenes ([8bcd5c3](https://github.com/tidev/titanium_mobile/commit/8bcd5c31a8dc86415c231a6086c1d83bbb183565))
-  * Revert "feat(ios): support multi-scene applications (#13941)" ([4a1d20f](https://github.com/tidev/titanium_mobile/commit/4a1d20f43c82296dd21bfd760fa63b65927e98fd))
-  * add 12.3.0.GA changelog ([4cc78b0](https://github.com/tidev/titanium_mobile/commit/4cc78b0d2d506d987ddd0cc58c785a8c18f3ef26))
-
-
 ## Bug Fixes
 
 ### Multiple platforms
 
+* address all whitespace-related linting issues ([e2bf653](https://github.com/tidev/titanium_mobile/commit/e2bf653d406b772deeafb504a0b9f68e363cf3e5))
+* address all whitespace-related linting issues part 2 ([8c92dc7](https://github.com/tidev/titanium_mobile/commit/8c92dc7521219efebad8943a5305348014bd32e4))
 * create alloy project with spaces with --alloy ([c601e7e](https://github.com/tidev/titanium_mobile/commit/c601e7e7579b7b527cc2321b63c82232b169faf4))
 * fix linting issues ([bf24bf2](https://github.com/tidev/titanium_mobile/commit/bf24bf26ae07ebda2e2d70c23de198bac6b2ba8e))
 
