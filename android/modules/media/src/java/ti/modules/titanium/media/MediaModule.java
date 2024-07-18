@@ -1116,6 +1116,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
 
+		if (options.containsKeyAndNotNull("maxImages")
+			&& options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)
+				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			galleryIntent = new TiIntentWrapper(new Intent(MediaStore.ACTION_PICK_IMAGES));
+			galleryIntent.getIntent().putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, options.getInt("maxImages"));
+		}
+
 		boolean isSelectingPhoto = false;
 		boolean isSelectingVideo = false;
 		if (options.containsKey(TiC.PROPERTY_MEDIA_TYPES)) {

@@ -560,6 +560,7 @@ public class TiC
 	public static final String PROPERTY_MAX_AGE = "maxAge";
 	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 	public static final String PROPERTY_MAX_ELEVATION = "maxElevation";
+	public static final String PROPERTY_MAX_IMAGES = "maxImages";
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";

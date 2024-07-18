@@ -2235,6 +2235,14 @@ properties:
     osver: {ios: {min: "14.0"}}
     since: { android: "6.0.0", iphone: "9.2.0", ipad: "9.2.0" }
 
+  - name: maxImages
+    summary: Specifies the number of images a user can select at maximum.
+    description: |
+        Only available on Android API 21 and above and with `allowMultiple:true`
+    type: Boolean
+    platforms: [android]
+    since: { android: "12.5.0" }
+
   - name: selectionLimit
     summary: Specifies number of media item that can be selected.
     description: |
