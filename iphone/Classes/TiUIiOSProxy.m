@@ -154,19 +154,10 @@
   return NUMINT(-1);
 }
 
-#ifdef USE_TI_UILISTVIEW
-- (NSNumber *)ROW_ACTION_STYLE_DEFAULT
-{
-  return @(UIContextualActionStyleNormal);
-}
-- (NSNumber *)ROW_ACTION_STYLE_DESTRUCTIVE
-{
-  return @(UIContextualActionStyleDestructive);
-}
-- (NSNumber *)ROW_ACTION_STYLE_NORMAL
-{
-  return @(UIContextualActionStyleNormal);
-}
+#if defined(USE_TI_UILISTVIEW) || defined(USE_TI_UITABLEVIEW)
+MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_DEFAULT, UIContextualActionStyleNormal);
+MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_DESTRUCTIVE, UIContextualActionStyleDestructive);
+MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 #endif
 
 #ifdef USE_TI_UIPICKER

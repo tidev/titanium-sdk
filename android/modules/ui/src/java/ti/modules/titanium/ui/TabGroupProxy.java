@@ -569,7 +569,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		tabProxy.onSelectionChanged(true);
 		tabProxy.onFocusChanged(true, focusEventData);
 
-		tabProxy.fireEvent(TiC.EVENT_SELECTED, focusEventData, false);
+		tabProxy.fireEvent(TiC.EVENT_SELECTED, focusEventData.clone(), false);
 	}
 
 	@Override
