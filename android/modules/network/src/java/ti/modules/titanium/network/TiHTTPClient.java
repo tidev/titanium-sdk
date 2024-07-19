@@ -89,7 +89,7 @@ public class TiHTTPClient
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
 	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
 	private static final String TITANIUM_USER_AGENT =
-		"Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
+		"Titanium SDK/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
 		+ "; Android API Level: " + Integer.toString(Build.VERSION.SDK_INT) + "; "
 		+ TiPlatformHelper.getInstance().getLocale() + ";)";
 	private static final String[] FALLBACK_CHARSETS = { "UTF_8", "ISO_8859_1" };
@@ -1371,7 +1371,11 @@ public class TiHTTPClient
 
 				} catch (IOException e) {
 					if (!aborted) {
-						throw e;
+						KrollDict data = new KrollDict();
+						data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN,
+							e.getMessage());
+						dispatchCallback(TiC.PROPERTY_ONERROR, data);
+						return;
 					}
 				} finally {
 					if (client != null) {

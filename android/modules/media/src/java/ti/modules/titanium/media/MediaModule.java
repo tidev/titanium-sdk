@@ -93,7 +93,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int NO_CAMERA = 2;
 	@Kroll.constant
 	public static final int NO_VIDEO = 3;
-
+	@Kroll.constant
+	public static final int NO_FOCUS = 4;
 	@Kroll.constant
 	public static final int IMAGE_SCALING_AUTO = -1;
 	@Kroll.constant
@@ -1699,6 +1700,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				Log.e(TAG, "Camera preview is not open, unable to switch camera.");
 				return;
 			}
+			activity.switchCamera(whichCamera);
 		}
 	}
 

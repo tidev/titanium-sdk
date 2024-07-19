@@ -389,7 +389,10 @@ properties:
     description: |
         Set to `false` to allow the previous or next pages to be seen. Note that
         ScrollableView's [width](Titanium.UI.ScrollableView.width) must be smaller than its parent
-        view in order to make this property effective.
+        view in order to make this property effective on iOS.
+        For Android you have to set the [padding](Titanium.UI.ScrollableView.padding) property.
+
+        Check the `Scrollable View with multiple visible views` example for both platforms.
     type: Boolean
     availability: creation
     default: true
@@ -442,6 +445,7 @@ examples:
         scrollable view.
 
         ``` js
+        var win = Ti.UI.createWindow();
         var img1 = Ti.UI.createImageView({
             image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
             'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +

@@ -9,15 +9,15 @@
 #import <TitaniumKit/TiViewController.h>
 #import <TitaniumKit/TiViewProxy.h>
 
-//The iPadPopoverProxy should be seen more as like a window or such, because
-//The popover controller will contain the viewController, which has the view.
-//If the view had the logic, you get some nasty dependency loops.
+// The iPadPopoverProxy should be seen more as like a window or such, because
+// The popover controller will contain the viewController, which has the view.
+// If the view had the logic, you get some nasty dependency loops.
 @interface TiUIiPadPopoverProxy : TiProxy <UIPopoverControllerDelegate, UIPopoverPresentationControllerDelegate, TiProxyObserver> {
   @private
   UIViewController *viewController;
   TiViewProxy *contentViewProxy;
 
-  //We need to hold onto this information for whenever the status bar rotates.
+  // We need to hold onto this information for whenever the status bar rotates.
   TiViewProxy *popoverView;
   CGRect popoverRect;
   BOOL animated;
@@ -29,8 +29,6 @@
   TiDimension poHeight;
   BOOL deviceRotated;
 }
-
-- (void)updatePopover:(NSNotification *)notification;
 
 @end
 

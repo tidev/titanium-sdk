@@ -253,6 +253,15 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int SCROLL_FLAG_SNAP_MARGINS = 32;
 
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_DEFAULT = 0;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_VERTICAL = 1;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL = 2;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_ALL = 3;
+
 	public AndroidModule()
 	{
 		super();
@@ -327,6 +336,11 @@ public class AndroidModule extends KrollModule
 		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
 		return String.format("#%06X",
 			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
+	}
+	@Kroll.method
+	public void moveToBackground()
+	{
+		TiApplication.getAppRootOrCurrentActivity().moveTaskToBack(true);
 	}
 
 	@Override

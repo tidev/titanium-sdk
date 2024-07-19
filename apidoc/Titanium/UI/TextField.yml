@@ -610,6 +610,15 @@ events:
         summary: New value of the field.
         type: String
 
+  - name: empty
+    summary: Fired when the field is empty and you press backspace key again.
+    since: {android: "12.4.0"}
+    platforms: [android]
+    properties:
+      - name: keyCode
+        summary: Key code of the key.
+        type: Number
+
   - name: focus
     summary: Fired when the field gains focus.
     properties:
@@ -630,9 +639,7 @@ examples:
         Create a simple text field with green text color.
 
         ``` js
-        var win = Ti.UI.createWindow({
-          backgroundColor: 'white'
-        });
+        var win = Ti.UI.createWindow();
 
         var textField = Ti.UI.createTextField({
           backgroundColor: '#fafafa',
@@ -654,9 +661,7 @@ examples:
         This code excerpt creates a text field with a toolbar:
 
         ``` js
-        var win = Ti.UI.createWindow({
-            backgroundColor: 'white'
-        });
+        var win = Ti.UI.createWindow();
 
         var send = Ti.UI.createButton({
             title: 'Send',

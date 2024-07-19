@@ -450,7 +450,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		}
 	}
 
-	// NOTE: For internal use only.
+	@Kroll.getProperty
 	public KrollDict getContentOffset()
 	{
 		final TiListView listView = getListView();
