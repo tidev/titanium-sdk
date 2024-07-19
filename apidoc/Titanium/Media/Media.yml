@@ -2243,6 +2243,12 @@ properties:
     platforms: [android]
     since: { android: "12.5.0" }
 
+  - name: pathOnly
+    summary: Do not include the blob in the result
+    type: Boolean
+    platforms: [android]
+    since: { android: "12.5.0" }
+
   - name: selectionLimit
     summary: Specifies number of media item that can be selected.
     description: |
@@ -2291,6 +2297,12 @@ properties:
   - name: media
     summary: The media object, as a [Blob](Titanium.Blob).
     type: Titanium.Blob
+
+  - name: path
+    summary: The path of the image when returning data from the gallery.
+    type: String
+    platforms: [android]
+    since: "12.5.0"
 
   - name: mediaType
     summary: The type of media, either `MEDIA_TYPE_PHOTO`, `MEDIA_TYPE_LIVEPHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
