@@ -29,6 +29,11 @@ methods:
         type: String
     since: { android: "12.0.0" }
 
+  - name: moveToBackground
+    summary: Moves the app to the background
+    platforms: [android]
+    since: { android: "12.4.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
