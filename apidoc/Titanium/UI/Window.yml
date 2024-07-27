@@ -1354,7 +1354,7 @@ properties:
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
 
   - name: statusBarColor
-    summary: The color of the status bar for this window.
+    summary: The color of the status bar (top bar) for this window.
     type: [Number]
     platforms: [android]
     since: {android: "12.5.0"}
