@@ -91,7 +91,7 @@ public class TiBlob extends KrollProxy
 	/**
 	 * Creates a blob from a file and sets a mimeType based on the file name.
 	 * @param file the file used to create blob.
-	 * @return new instane of TiBlob.
+	 * @return new instance of TiBlob.
 	 */
 	public static TiBlob blobFromFile(TiBaseFile file)
 	{

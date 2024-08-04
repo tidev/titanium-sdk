@@ -52,7 +52,7 @@ That simply places the message in a queue. One of the two threads spun up after 
 
 ### Handling messages coming from the Debugger
 
-The second thread spun up after a connection is made simply reads lines from the debugger's stream and does very basic parsing of the message. Once the headers are stripped, we grab the JSON body and call down into C++ to do a V8::Debug::SendCommand to give the command to V8.
+The second thread spun up after a connection is made simply reads lines from the debuggers stream and does very basic parsing of the message. Once the headers are stripped, we grab the JSON body and call down into C++ to do a V8::Debug::SendCommand to give the command to V8.
 
 The next step is to call V8::Debug::ProcessDebugMessages(). We do so indirectly by using a Handler.post(Runnable) to ensure this gets called on the main thread.
 

@@ -10,8 +10,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 
-import com.appcelerator.aps.APSAnalytics;
-
 import org.appcelerator.kroll.KrollModule;
 
 public class TiApplicationLifecycle implements Application.ActivityLifecycleCallbacks
@@ -50,11 +48,6 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 				}
 				appModule.fireEvent(TiC.EVENT_RESUMED, null);
 			}
-
-			// Post analytics for this event, if enabled.
-			if (this.tiApp.isAnalyticsEnabled()) {
-				APSAnalytics.getInstance().sendAppForegroundEvent();
-			}
 		}
 
 		// Increment number of "started" activities. These are activities that are currently in the foreground.
@@ -75,11 +68,6 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 			if (appModule != null) {
 				appModule.fireEvent(TiC.EVENT_PAUSE, null);
 				appModule.fireEvent(TiC.EVENT_PAUSED, null);
-			}
-
-			// Post analytics for this event, if enabled.
-			if (this.tiApp.isAnalyticsEnabled()) {
-				APSAnalytics.getInstance().sendAppBackgroundEvent();
 			}
 		}
 

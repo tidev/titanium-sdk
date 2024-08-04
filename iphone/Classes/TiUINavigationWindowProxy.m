@@ -117,7 +117,7 @@
   [window setIsManaged:YES];
   [window setTab:(TiViewProxy<TiTab> *)self];
   [window setParentOrientationController:self];
-  //Send to open. Will come back after _handleOpen returns true.
+  // Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
     if (args != nil) {
@@ -172,7 +172,7 @@
 
 - (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated
 {
-  //NO OP NOW
+  // NO OP NOW
 }
 
 #pragma mark - UINavigationControllerDelegate
@@ -220,9 +220,9 @@
       }
     }
     if (winclosing) {
-      //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
-      //as first responders. This is ok since tab is not nil so no message will be sent to
-      //hosting controller.
+      // TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+      // as first responders. This is ok since tab is not nil so no message will be sent to
+      // hosting controller.
       [current windowWillClose];
     }
   }
@@ -538,7 +538,7 @@
 {
   [super willChangeSize];
 
-  //TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
+  // TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
   for (UIViewController *thisController in [navController viewControllers]) {
     if ([thisController isKindOfClass:[TiViewController class]]) {
       TiViewProxy *thisProxy = [(TiViewController *)thisController proxy];
