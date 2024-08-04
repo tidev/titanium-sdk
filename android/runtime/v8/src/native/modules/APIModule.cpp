@@ -119,7 +119,7 @@ void APIModule::logInfo(const FunctionCallbackInfo<Value>& args)
 	std::string cppStr(*message);
 
 	int maxChunk = 4050;
-	for (int i = 0; i < cppStr.length(); i+=maxChunk) {
+	for (size_t i = 0, len = cppStr.length(); i < len; i+=maxChunk) {
 		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, cppStr.substr(i , maxChunk).c_str());
 	}
 }
