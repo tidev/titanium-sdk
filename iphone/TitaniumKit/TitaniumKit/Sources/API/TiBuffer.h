@@ -27,9 +27,9 @@
 - (NSNumber *)append:(id)args;
 - (NSNumber *)insert:(id)args;
 
-//This API is meant for the Javascript, and because of ARC conflating this with
-//copy from NSObject(UIResponderStandardEditActions), we can't declare it here.
-//Note that this does not affect calling from JS.
+// This API is meant for the Javascript, and because of ARC conflating this with
+// copy from NSObject(UIResponderStandardEditActions), we can't declare it here.
+// Note that this does not affect calling from JS.
 #if !__has_feature(objc_arc)
 - (NSNumber *)copy:(id)args;
 #endif
