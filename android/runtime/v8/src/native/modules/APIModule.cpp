@@ -122,11 +122,7 @@ void APIModule::logInfo(const FunctionCallbackInfo<Value>& args)
 	int chunkCount = cppStr.length() / maxChunk;
 	for (int i = 0; i <= chunkCount; i++) {
 		int max = maxChunk * (i + 1);
-		if (max >= cppStr.length()) {
-			APIModule::logInternal(LOG_LEVEL_INFO, LCAT, cppStr.substr(maxChunk * i).c_str());
-		} else {
-			APIModule::logInternal(LOG_LEVEL_INFO, LCAT, cppStr.substr(maxChunk * i , max).c_str());
-		}
+		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, cppStr.substr(maxChunk * i , max).c_str());
 	}
 }
 
