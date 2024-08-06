@@ -1,7 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Titanium SDK",
-  "version": "12.4.1",
+  "version": "12.5.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
@@ -100,7 +100,7 @@
     "ejs": "3.1.9",
     "fields": "0.1.24",
     "fs-extra": "11.2.0",
-    "ioslib": "1.7.35",
+    "ioslib": "1.7.37",
     "liveview": "1.5.6",
     "lodash.merge": "4.6.2",
     "markdown": "0.5.0",
@@ -157,7 +157,7 @@
     "rollup": "2.76.0",
     "ssri": "10.0.4",
     "stream-splitter": "0.3.2",
-    "strip-ansi": "7.1.0",
+    "strip-ansi": "6.0.1",
     "titanium": "6.1.1",
     "titanium-docgen": "4.10.4"
   },
