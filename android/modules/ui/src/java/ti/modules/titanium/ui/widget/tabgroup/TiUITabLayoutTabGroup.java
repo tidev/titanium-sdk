@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -411,6 +412,17 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void onTabReselected(TabLayout.Tab tab)
 	{
+		if (tab != null) {
+			int index = tab.getPosition();
+			if ((index >= 0) && (index < this.tabs.size())) {
+				TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+				if (tabProxy != null) {
+					KrollDict data = new KrollDict();
+					data.put("index", index);
+					tabProxy.fireEvent(TiC.EVENT_RESELECTED, data, false);
+				}
+			}
+		}
 	}
 
 	public void setTabMode(int value)
