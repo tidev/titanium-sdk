@@ -62,16 +62,17 @@
     return;
   }
   RELEASE_TO_NIL(file);
-  TiThreadPerformOnMainThread(^{
-    [self configureRecorder];
-    if (recorder != nil) {
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
-      [[TiMediaAudioSession sharedSession] startAudioSession];
-      [recorder record];
-      curState = RecordStarted;
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        [self configureRecorder];
+        if (recorder != nil) {
+          [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionBegin:) name:kTiMediaAudioSessionInterruptionBegin object:[TiMediaAudioSession sharedSession]];
+          [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioInterruptionEnd:) name:kTiMediaAudioSessionInterruptionEnd object:[TiMediaAudioSession sharedSession]];
+          [[TiMediaAudioSession sharedSession] startAudioSession];
+          [recorder record];
+          curState = RecordStarted;
+        }
+      },
       YES);
 }
 
@@ -81,16 +82,17 @@
     return;
   }
   __block TiFilesystemFileProxy *theProxy = nil;
-  TiThreadPerformOnMainThread(^{
-    if (recorder != nil) {
-      [recorder stop];
-      [[TiMediaAudioSession sharedSession] stopAudioSession];
-    }
-    curState = RecordStopped;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    theProxy = [[[TiFilesystemFileProxy alloc] initWithFile:[file path]] retain];
-    RELEASE_TO_NIL_AUTORELEASE(recorder);
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (recorder != nil) {
+          [recorder stop];
+          [[TiMediaAudioSession sharedSession] stopAudioSession];
+        }
+        curState = RecordStopped;
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        theProxy = [[[TiFilesystemFileProxy alloc] initWithFile:[file path]] retain];
+        RELEASE_TO_NIL_AUTORELEASE(recorder);
+      },
       YES);
   return [theProxy autorelease];
 }
@@ -100,12 +102,13 @@
   if (curState != RecordStarted) {
     return;
   }
-  TiThreadPerformOnMainThread(^{
-    if (recorder != nil) {
-      [recorder pause];
-      curState = RecordPaused;
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (recorder != nil) {
+          [recorder pause];
+          curState = RecordPaused;
+        }
+      },
       YES);
 }
 
@@ -114,12 +117,13 @@
   if (curState != RecordPaused) {
     return;
   }
-  TiThreadPerformOnMainThread(^{
-    if (recorder != nil) {
-      [recorder record];
-      curState = RecordStarted;
-    }
-  },
+  TiThreadPerformOnMainThread(
+      ^{
+        if (recorder != nil) {
+          [recorder record];
+          curState = RecordStarted;
+        }
+      },
       YES);
 }
 

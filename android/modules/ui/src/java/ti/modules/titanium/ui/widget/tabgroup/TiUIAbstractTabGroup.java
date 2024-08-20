@@ -357,7 +357,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	}
 
 	/**
-	 * Method for creating a RippleDrawable to be used as a bacgkround for an item in the Controller.
+	 * Method for creating a RippleDrawable to be used as a background for an item in the Controller.
 	 * Creates the RippleDrawable for two states - the provided state and its negative value.
 	 * If the properties are not set the method falls back to the colorPrimary of the current theme.
 	 * The previous implementation of TabGroup added the ripple effect by default for tabs, thus this

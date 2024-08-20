@@ -13,10 +13,17 @@
 #import "TiRootViewController.h"
 #import <JavaScriptCore/JavaScriptCore.h>
 
+extern BOOL applicationInMemoryPanic; // TODO: Remove in SDK 9.0+
+
+// TODO: Remove in SDK 9.0+
+TI_INLINE void waitForMemoryPanicCleared() // WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+{
+}
+
 /**
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  */
-@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate, UIWindowSceneDelegate> {
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate> {
   UIWindow *window;
   UIImageView *loadView;
   UIView *splashScreenView;
@@ -26,7 +33,6 @@
   KrollBridge *kjsBridge;
 
   NSMutableDictionary *launchOptions;
-  UISceneConnectionOptions *_connectionOptions;
   NSTimeInterval started;
 
   int32_t networkActivityCount;
@@ -84,7 +90,7 @@
 
 /**
  Returns application's primary window.
- 
+
  Convenience method to access the application's primary window
  */
 @property (nonatomic, retain) IBOutlet UIWindow *window;
@@ -101,24 +107,17 @@
 
 /**
  Returns details for the last remote notification.
- 
+
  Dictionary containing details about remote notification, or _nil_.
  */
 @property (nonatomic, readonly) NSDictionary *remoteNotification;
 
 /**
  Returns local notification that has bees sent on the application.
- 
+
  @return Dictionary containing details about local notification, or _nil_.
  */
 @property (nonatomic, readonly) NSDictionary *localNotification;
-
-/**
- Returns details for the last remote notification.
- 
- Dictionary containing details about remote notification, or _nil_.
- */
-@property (nonatomic, readonly) UISceneConnectionOptions *connectionOptions;
 
 /**
  Returns the application's root view controller.
@@ -164,14 +163,14 @@
 
 /**
  Returns the queued boot events scheduled with `tryToPostNotification:withNotificationName:completionHandler:``.
- 
+
  @return The dictionary of queued boot events.
  */
 - (NSMutableDictionary *)queuedBootEvents;
 
 /**
  Returns application launch options
- 
+
  The method provides access to application launch options that became available when application just launched.
  @return The launch options dictionary.
  */
@@ -179,14 +178,14 @@
 
 /**
  Returns remote UUID for the current running device.
- 
+
  @return Current device UUID.
  */
 - (NSString *)remoteDeviceUUID;
 
 /**
  Tells application to show network activity indicator.
- 
+
  Every call of startNetwork should be paired with <stopNetwork>.
  @see stopNetwork
  */
@@ -194,7 +193,7 @@
 
 /**
  Tells application to hide network activity indicator.
- 
+
  Every call of stopNetwork should have corresponding <startNetwork> call.
  @see startNetwork
  */
@@ -202,14 +201,14 @@
 
 /**
  Generates a native notification from the given dictionary.
- 
+
  @param dict The dictionary to use to generate the native notification.
  */
 - (void)generateNotification:(NSDictionary *)dict;
 
 /**
  Tells application to display modal error.
- 
+
  @param message The message to show in the modal error screen.
  */
 - (void)showModalError:(NSString *)message;
@@ -221,7 +220,7 @@
 
 /**
  Tells application to display modal view controller.
- 
+
  @param controller The view controller to display.
  @param animated If _YES_, animates the view controller as it’s presented; otherwise, does not.
  */
@@ -229,7 +228,7 @@
 
 /**
  Tells application to hide modal view controller.
- 
+
  @param controller The view controller to hide.
  @param animated If _YES_, animates the view controller as it’s hidden; otherwise, does not.
  */
@@ -237,7 +236,7 @@
 
 /**
  Returns unique identifier for the current application launch.
- 
+
  @return Current session id.
  */
 - (NSString *)sessionId;
@@ -270,7 +269,7 @@
 /**
  Tries to invoke a given selector with the given arguments. If the app did not finish launching so far, it will be queued
  and processed once the JSCore bridge is ready.
- 
+
  @param selector The selector to invoke.
  @param arguments The arguments to pass to the selector.
  */
@@ -279,7 +278,7 @@
 /**
  Tries to post a given notification with the given name. If the app did not finish launching so far, it will be queued
  and processed once the JSCore bridge is ready.
- 
+
  @param _notification The dictionary of user-info to pass to the notification.
  @param _notificationName The name of the notification to schedule.
  @param completionHandler The optional completion handler to invoke if requried.
@@ -289,7 +288,7 @@
 /**
  Tries to post a given background-mode notification with the given name. If the app did not finish launching so far, it will be queued
  and processed once the JSCore bridge is ready.
- 
+
  @param userInfo The dictionary of user-info to pass to the notification.
  @param notificationName The name of the notification to schedule.
  */

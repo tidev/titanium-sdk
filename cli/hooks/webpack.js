@@ -35,6 +35,9 @@ exports.init = (logger, config, cli) => {
 	cli.on('cli:command-loaded', (hookData) => {
 		const command = hookData.command;
 		commandName = command.name;
+		if (typeof command.name === 'function') {
+			commandName = command.name();
+		}
 	});
 
 	cli.on('cli:post-validate', () => {

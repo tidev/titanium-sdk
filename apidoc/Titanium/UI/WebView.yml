@@ -1138,6 +1138,14 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: {android: "7.3.0", iphone: "7.3.0", ipad: "7.3.0", macos: "9.2.0"}
 
+  - name: scrollbars
+    summary: Enable or disable horizontal/vertical scrollbars in a WebView.
+    type: Number
+    constants: Titanium.UI.Android.WEBVIEW_SCROLLBARS_*
+    platforms: [android]
+    since: "12.3.0"
+    default: <Titanium.UI.Android.WEBVIEW_SCROLLBARS_DEFAULT>
+
   - name: allowsBackForwardNavigationGestures
     summary: |
         A Boolean value indicating whether horizontal swipe gestures will trigger back-forward list navigations.

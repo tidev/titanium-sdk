@@ -226,6 +226,14 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
+  - name: editActions
+    summary: Specifies custom action items to be shown when when a list item is edited.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.TableView>.
+    type: Array<RowActionType>
+    since: 12.4.0
+    platforms: [iphone, ipad, macos]
+
   - name: filterAlwaysInclude
     summary: |
       This row will always be visible when you filter your content.

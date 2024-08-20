@@ -138,7 +138,7 @@
     if ([optionalType isNumber] || [optionalType isString]) {
       DatabaseFieldType type = [optionalType toInt32];
       if (type != FieldTypeUnknown) {
-        //cast result on the way out if type constant was passed
+        // cast result on the way out if type constant was passed
         result = [self _transformObject:result toType:type];
       }
     }
@@ -158,7 +158,7 @@
     if ([optionalType isNumber] || [optionalType isString]) {
       DatabaseFieldType type = [optionalType toInt32];
       if (type != FieldTypeUnknown) {
-        //cast result on the way out if type constant was passed
+        // cast result on the way out if type constant was passed
         result = [self _transformObject:result toType:type];
       }
     }
