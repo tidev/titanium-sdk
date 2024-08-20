@@ -361,6 +361,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		TabLayout.Tab tab = this.mTabLayout.getTabAt(index);
 		tab.setIcon(TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON)));
 		scaleIconToFit(tab);
+		updateIconTint();
 	}
 
 	@Override

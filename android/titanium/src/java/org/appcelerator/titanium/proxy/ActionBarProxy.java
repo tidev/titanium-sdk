@@ -15,6 +15,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, TiC.PROPERTY_CUSTOM_VIEW })
@@ -102,6 +103,17 @@ public class ActionBarProxy extends KrollProxy
 			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 
 			actionBar.setBackgroundDrawable(backgroundImage);
+		} else {
+			// fallback check with TiDrawableReference
+			TiDrawableReference source = TiDrawableReference.fromUrl(this, url);
+			if (source.getDrawable() != null) {
+				actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+				actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+				actionBar.setBackgroundDrawable(source.getDrawable());
+			} else {
+				// fail - show error
+				Log.e(TAG, "Image " + url + " not found");
+			}
 		}
 	}
 
