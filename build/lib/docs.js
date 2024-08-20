@@ -23,7 +23,10 @@ class Documentation {
 		const outputFile = path.join(this.outputDir, filename);
 
 		return new Promise((resolve, reject) => {
-			const prc = spawn(cmdPath, args, { cwd: DOC_DIR });
+			const prc = spawn(cmdPath, args, {
+				cwd: DOC_DIR,
+				shell: process.platform === 'win32'
+			});
 			prc.stdout.on('data', data => console.log(data.toString().trim()));
 			prc.stderr.on('data', data => console.error(data.toString().trim()));
 			prc.on('close', code => {
