@@ -370,15 +370,6 @@ events:
         type: Titanium.UI.Tab
     platforms: [android, iphone, ipad, macos]
 
-  - name: reselected
-    summary: Fired when the current tab is selected again.
-    since: {android: "12.5.0"}
-    properties:
-      - name: index
-        summary: Index of the current active tab.
-        type: Number
-    platforms: [android]
-
 examples:
   - title: Simple Tab Example
     example: |
