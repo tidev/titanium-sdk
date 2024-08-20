@@ -73,7 +73,7 @@ public class DatabaseModule extends KrollModule
 					throw new IllegalArgumentException("Ti.Database.open() was given invalid URL: " + fileString);
 				}
 			} else {
-				// Assume we were given a databas file name only. (This is the most common case.)
+				// Assume we were given a database file name only. (This is the most common case.)
 				dbName = fileString;
 			}
 		} else if (file != null) {

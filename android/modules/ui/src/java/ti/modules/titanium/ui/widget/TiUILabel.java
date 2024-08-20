@@ -247,7 +247,7 @@ public class TiUILabel extends TiUIView
 		{
 			int value = textView.getWidth();
 			{
-				// Exlude the view's padding and borders.
+				// Exclude the view's padding and borders.
 				value -= textView.getTotalPaddingLeft() + textView.getTotalPaddingRight();
 			}
 			if ((this.layoutParams != null) && (this.layoutParams.optionWidth != null)
