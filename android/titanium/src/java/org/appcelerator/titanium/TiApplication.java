@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
@@ -961,7 +962,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		};
 
-		registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+			int receiverFlags = Context.RECEIVER_EXPORTED;
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED), receiverFlags);
+		} else {
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		}
 	}
 
 	private void stopLocaleMonitor()

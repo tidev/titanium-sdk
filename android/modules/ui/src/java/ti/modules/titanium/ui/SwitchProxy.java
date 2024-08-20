@@ -25,8 +25,12 @@ import ti.modules.titanium.ui.widget.TiUISwitch;
 		TiC.PROPERTY_COLOR,
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_TEXT_ALIGN,
-		TiC.PROPERTY_VERTICAL_ALIGN
-	})
+		TiC.PROPERTY_TINT_COLOR,
+		TiC.PROPERTY_ON_TINT_COLOR,
+		TiC.PROPERTY_VERTICAL_ALIGN,
+		TiC.PROPERTY_ON_THUMB_COLOR,
+		TiC.PROPERTY_THUMB_COLOR
+})
 public class SwitchProxy extends TiViewProxy
 {
 	public SwitchProxy()
