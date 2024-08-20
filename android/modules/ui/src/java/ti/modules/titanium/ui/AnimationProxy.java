@@ -27,7 +27,7 @@ import org.appcelerator.titanium.view.TiAnimation;
 		TiC.PROPERTY_WIDTH,
 		TiC.PROPERTY_HEIGHT,
 		TiC.PROPERTY_BACKGROUND_COLOR
-})
+	})
 public class AnimationProxy extends TiAnimation
 {
 	@Override
