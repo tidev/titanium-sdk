@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+import android.os.Message;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -13,8 +16,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIActivityIndicator;
-import android.app.Activity;
-import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -24,7 +25,7 @@ import android.os.Message;
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_STYLE,
 		TiC.PROPERTY_INDICATOR_COLOR
-})
+	})
 @Kroll.dynamicApis(methods = { "hide", "show" })
 public class ActivityIndicatorProxy extends TiViewProxy
 {
