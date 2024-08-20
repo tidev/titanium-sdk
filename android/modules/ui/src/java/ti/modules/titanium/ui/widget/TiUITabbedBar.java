@@ -409,11 +409,8 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			// First, update the proxy's "index" property.
 			proxy.setProperty(TiC.PROPERTY_INDEX, index);
 
-			if (this.tabLayout.getTabAt(index).getIcon() != null
-				&& proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
-				this.tabLayout.getTabAt(index).getIcon().setColorFilter(
-					TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR),
-						TiApplication.getAppCurrentActivity()), PorterDuff.Mode.SRC_IN);
+			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+				setTintColor(this.tabLayout.getTabAt(index), TiC.PROPERTY_ACTIVE_TINT_COLOR);
 			}
 
 			// Last, fire a "click" event.
@@ -429,10 +426,8 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	public void onTabUnselected(TabLayout.Tab tab)
 	{
 		// set old tint color again
-		if (tab.getIcon() != null && proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
-			tab.getIcon().setColorFilter(
-				TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR), TiApplication.getAppCurrentActivity()),
-				PorterDuff.Mode.SRC_IN);
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+			setTintColor(tab, TiC.PROPERTY_TINT_COLOR);
 		}
 	}
 
