@@ -136,11 +136,8 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			}
 			this.tabLayout.setTabTextColors(textColor, selectedTextColor);
 		}
-		if (this.tabLayout.getTabAt(0).getIcon() != null
-			&& getProxy().hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
-			this.tabLayout.getTabAt(0).getIcon().setColorFilter(
-				TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_ACTIVE_TINT_COLOR),
-					TiApplication.getAppCurrentActivity()), PorterDuff.Mode.SRC_IN);
+		if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+			setTintColor(this.tabLayout.getTabAt(0), TiC.PROPERTY_ACTIVE_TINT_COLOR);
 		}
 		setNativeView(this.tabLayout);
 	}
@@ -268,9 +265,8 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 						tab.setIcon(((Drawable) value));
 						TiUITabLayoutTabGroup.scaleIconToFit(tab);
 
-						if (tab.getIcon() != null && proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
-							tab.getIcon().setColorFilter(TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR),
-								TiApplication.getAppCurrentActivity()), PorterDuff.Mode.SRC_IN);
+						if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+							setTintColor(tab, TiC.PROPERTY_TINT_COLOR);
 						}
 					} else {
 						tab.setText(value.toString());
@@ -290,6 +286,14 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 					}
 				}
 				break;
+		}
+	}
+
+	private void setTintColor(TabLayout.Tab tab, String color)
+	{
+		if (tab != null && tab.getIcon() != null) {
+			tab.getIcon().setColorFilter(TiConvert.toColor(proxy.getProperty(color),
+				TiApplication.getAppCurrentActivity()), PorterDuff.Mode.SRC_IN);
 		}
 	}
 
