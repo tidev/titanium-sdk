@@ -155,7 +155,6 @@ public class TiC
 	public static final String EVENT_MOVE_END = "moveend";
 	public static final String EVENT_REFRESH_END = "refreshend";
 	public static final String EVENT_REFRESH_START = "refreshstart";
-	public static final String EVENT_RESELECTED = "reselected";
 	public static final String EVENT_REGION_CHANGED = "regionchanged";
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_RESUMED = "resumed";
