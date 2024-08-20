@@ -416,7 +416,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			int index = tab.getPosition();
 			if ((index >= 0) && (index < this.tabs.size())) {
 				TiViewProxy tabProxy = this.tabs.get(index).getProxy();
-				if (tabProxy != null) {
+				if (tabProxy != null && tabProxy.hasListeners(TiC.EVENT_RESELECTED)) {
 					KrollDict data = new KrollDict();
 					data.put("index", index);
 					tabProxy.fireEvent(TiC.EVENT_RESELECTED, data, false);
