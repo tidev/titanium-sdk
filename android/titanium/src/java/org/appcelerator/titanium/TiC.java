@@ -560,6 +560,7 @@ public class TiC
 	public static final String PROPERTY_MAX_AGE = "maxAge";
 	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 	public static final String PROPERTY_MAX_ELEVATION = "maxElevation";
+	public static final String PROPERTY_MAX_IMAGES = "maxImages";
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";
@@ -640,6 +641,7 @@ public class TiC
 	public static final String PROPERTY_PASSWORD = "password";
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PATH = "path";
+	public static final String PROPERTY_PATH_ONLY = "pathOnly";
 	public static final String PROPERTY_PERSISTENT = "persistent";
 	public static final String PROPERTY_PHONE = "phone";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
