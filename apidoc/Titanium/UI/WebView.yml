@@ -1027,6 +1027,13 @@ properties:
     since: "1.8.0"
     default: true
 
+  - name: fill
+    summary: If `true` the body inside the WebView will have a height by default
+    type: Boolean
+    platforms: [android]
+    since: "12.6.0"
+    default: false
+
   - name: mixedContentMode
     summary: If `true`, allows the loading of insecure resources from a secure origin.
     description: |
