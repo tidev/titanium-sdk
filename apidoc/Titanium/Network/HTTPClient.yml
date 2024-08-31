@@ -493,7 +493,7 @@ properties:
     type: String
     permission: read-only
 
-  - name: responseDict
+  - name: responseDictionary
     summary: Response as JSON object.
     description: Set to `null` if the content type returned by the server was not a JSON or if the content could
         not be parsed.
