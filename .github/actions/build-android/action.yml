@@ -16,7 +16,7 @@ runs:
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get update -y -qq
-        sudo apt-get install -y -qq gperf libatomic1:i386 libc6:i386 libncurses5:i386 libstdc++6:i386
+#        sudo apt-get install -y -qq gperf libatomic1:i386 libc6:i386 libncurses5:i386 libstdc++6:i386
       shell: bash
 
     - name: Setup Node.js
@@ -28,7 +28,8 @@ runs:
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'oracle'
+        distribution: 'temurin'
+        cache: 'gradle'
         java-version: ${{ inputs.java-version }}
 
     - name: Install dependencies
