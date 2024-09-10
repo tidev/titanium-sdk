@@ -393,14 +393,14 @@
     UIViewController *parentController = [self windowHoldingController];
     [parentController addChildViewController:navController];
     [navController didMoveToParentViewController:parentController];
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewWillDisappear:animated];
   }
   [super viewWillDisappear:animated];
 }
@@ -408,14 +408,14 @@
 - (void)viewDidAppear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewDidAppear:animated];
   }
   [super viewDidAppear:animated];
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewDidDisappear:animated];
   }
   [super viewDidDisappear:animated];
 }
