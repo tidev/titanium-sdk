@@ -662,39 +662,4 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	{
 		return "Ti.UI.WebView";
 	}
-
-	private static class EvalJSRunnable implements Runnable
-	{
-		private final TiUIWebView view;
-		private final KrollObject krollObject;
-		private final String code;
-		private final KrollFunction callback;
-
-		public EvalJSRunnable(TiUIWebView view, KrollObject krollObject, String code, KrollFunction callback)
-		{
-			this.view = view;
-			this.krollObject = krollObject;
-			this.code = code;
-			this.callback = callback;
-		}
-
-		public void run()
-		{
-			// Runs the "old" API we built
-			String result = view.getJSValue(code);
-			callback.callAsync(krollObject, new Object[] { result });
-		}
-
-		public void runAsync()
-		{
-			// Runs the newer API provided by Android
-			view.getWebView().evaluateJavascript(code, new ValueCallback<String>()
-			{
-				public void onReceiveValue(String value)
-				{
-					callback.callAsync(krollObject, new Object[] { value });
-				}
-			});
-		}
-	}
 }
