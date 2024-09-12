@@ -59,9 +59,9 @@ android {
 				// Set up "kroll-apt" @Kroll annotation processor to generate C/C++ code bindings between V8/Java.
 				// Also have it produce a JSON file of all bindings to be used by module build system.
 				arguments = [
-						'kroll.outputJsonFilePath': "${projectDir}/../../dist/android/titanium.bindings.json".toString(),
-						'kroll.outputCppDirPath'  : "${projectDir}/../runtime/v8/generated".toString(),
-						'kroll.jsModuleName'      : 'titanium'
+					'kroll.outputJsonFilePath': "${projectDir}/../../dist/android/titanium.bindings.json".toString(),
+					'kroll.outputCppDirPath'  : "${projectDir}/../runtime/v8/generated".toString(),
+					'kroll.jsModuleName'      : 'titanium'
 				]
 			}
 		}
