@@ -247,7 +247,7 @@ public class TiUILabel extends TiUIView
 		{
 			int value = textView.getWidth();
 			{
-				// Exlude the view's padding and borders.
+				// Exclude the view's padding and borders.
 				value -= textView.getTotalPaddingLeft() + textView.getTotalPaddingRight();
 			}
 			if ((this.layoutParams != null) && (this.layoutParams.optionWidth != null)
@@ -798,5 +798,17 @@ public class TiUILabel extends TiUIView
 		// Update the view's text.
 		textView.setText(text, MaterialTextView.BufferType.NORMAL);
 		textView.requestLayout();
+	}
+
+	public int getLineCount()
+	{
+		MaterialTextView textView = (MaterialTextView) getNativeView();
+		return textView.getLineCount();
+	}
+
+	public String getVisibleText()
+	{
+		MaterialTextView textView = (MaterialTextView) getNativeView();
+		return textView.getLayout().getText().toString();
 	}
 }

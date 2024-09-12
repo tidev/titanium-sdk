@@ -51,6 +51,7 @@ import android.view.ViewParent;
 	TiC.PROPERTY_ON_BACK,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_TITLE_ATTRIBUTES,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
 public abstract class TiWindowProxy extends TiViewProxy

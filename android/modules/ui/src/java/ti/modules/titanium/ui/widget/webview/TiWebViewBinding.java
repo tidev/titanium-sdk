@@ -22,6 +22,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,12 +89,14 @@ public class TiWebViewBinding
 	private AppBinding appBinding;
 	private TiReturn tiReturn;
 	private WebView webView;
+	private TiViewProxy proxy;
 	private boolean interfacesAdded = false;
 
-	public TiWebViewBinding(WebView webView)
+	public TiWebViewBinding(WebView webView, TiViewProxy proxy)
 	{
 		codeSnippets = new Stack<String>();
 		this.webView = webView;
+		this.proxy = proxy;
 		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
 		tiReturn = new TiReturn();
@@ -254,6 +257,7 @@ public class TiWebViewBinding
 				if (json != null && !json.equals("undefined")) {
 					dict = new KrollDict(new JSONObject(json));
 				}
+				dict.put("source", proxy);
 				module.fireEvent(event, dict);
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing event JSON", e);

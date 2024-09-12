@@ -456,6 +456,14 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
 			zoomBy(getWebView(), TiConvert.toFloat(d, TiC.PROPERTY_ZOOM_LEVEL));
 		}
+
+		if (d.containsKey(TiC.PROPERTY_SCROLLBARS)) {
+			int scrollbarValue = TiConvert.toInt(d, TiC.PROPERTY_SCROLLBARS);
+			webView.setVerticalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL);
+			webView.setHorizontalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_VERTICAL);
+		}
 	}
 
 	@Override
@@ -496,6 +504,12 @@ public class TiUIWebView extends TiUIView
 			zoomBy(webView, TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
 			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_SCROLLBARS.equals(key)) {
+			int scrollbarValue = TiConvert.toInt(newValue);
+			webView.setVerticalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL);
+			webView.setHorizontalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_VERTICAL);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}

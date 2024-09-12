@@ -15,7 +15,13 @@ on:
         options:
           - GA
           - RC
+          - RC2
+          - RC3
+          - RC4
           - Beta
+          - Beta2
+          - Beta3
+          - Beta4
 
 jobs:
   validate:
@@ -171,4 +177,9 @@ jobs:
         git add package-lock.json
         git commit -m "chore(release): bump version"
         git push
-
+    - name: Regen Builds
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        event-type: regen-builds
+        repository: tidev/downloads-www
+        token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}

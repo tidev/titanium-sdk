@@ -632,7 +632,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
-	 * Starts dragging programatically.
+	 * Starts dragging programmatically.
 	 *
 	 * @param vHolder The dedicated view holder
 	 */
@@ -667,6 +667,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
 		String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
+		filterQuery = query;
 		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
