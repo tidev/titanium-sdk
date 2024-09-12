@@ -13,6 +13,6 @@ project.ext {
 	tiMaterialLibVersion = '1.6.1'
 	tiPlayServicesBaseLibVersion = '18.2.0'
 	tiManifestPlaceholders = [
-			tiActivityConfigChanges: 'density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode'
+		tiActivityConfigChanges: 'density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode'
 	]
 }
