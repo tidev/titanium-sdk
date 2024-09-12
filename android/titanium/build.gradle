@@ -139,8 +139,8 @@ tasks.register('updateV8Library') {
 		def v8MakeFile = file(v8MakeFilePath)
 		v8MakeFile.getParentFile().mkdirs()
 		v8MakeFile.text = [
-				"set(LIBV8_VERSION \"${packageJson.v8.version}\")",
-				"set(LIBV8_MODE \"${packageJson.v8.mode}\")"
+			"set(LIBV8_VERSION \"${packageJson.v8.version}\")",
+			"set(LIBV8_MODE \"${packageJson.v8.mode}\")"
 		].join('\n') + '\n'
 
 		// Download/install the V8 library referenced in our "package.json", if not already done.
