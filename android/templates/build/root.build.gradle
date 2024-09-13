@@ -31,6 +31,6 @@ allprojects {
 	project.apply from: "${rootDir}/ti.constants.gradle"
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
 	delete rootProject.buildDir
 }
