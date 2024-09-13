@@ -27,10 +27,10 @@ tasks.register('untar') {
 
 	// Use "ant" to extract the given tarball.
 	ant.untar(
-		compression: project.properties.compression,
-		overwrite: project.properties.overwrite,
-		src: project.properties.src,
-		dest: project.properties.dest)
+			compression: project.properties.compression,
+			overwrite: project.properties.overwrite,
+			src: project.properties.src,
+			dest: project.properties.dest)
 }
 
 defaultTasks 'untar'

@@ -48,7 +48,9 @@ android {
 	defaultConfig {
 		compileSdk 33
 		minSdkVersion 21
-		targetSdkVersion 33
+		targetSdkVersion 34
+		versionName tiBuildVersionString
+		versionCode tiBuildVersionCode
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())
 		buildConfigField('String', 'VERSION_NAME', '"' + tiBuildVersionString + '"')
 		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
@@ -79,7 +81,7 @@ android {
 	}
 	externalNativeBuild {
 		cmake {
-			version '3.10.2'
+			version '3.22.1'
 			path "${projectDir}/../runtime/v8/src/native/CMakeLists.txt"
 		}
 	}
@@ -139,8 +141,8 @@ tasks.register('updateV8Library') {
 		def v8MakeFile = file(v8MakeFilePath)
 		v8MakeFile.getParentFile().mkdirs()
 		v8MakeFile.text = [
-			"set(LIBV8_VERSION \"${packageJson.v8.version}\")",
-			"set(LIBV8_MODE \"${packageJson.v8.mode}\")"
+				"set(LIBV8_VERSION \"${packageJson.v8.version}\")",
+				"set(LIBV8_MODE \"${packageJson.v8.mode}\")"
 		].join('\n') + '\n'
 
 		// Download/install the V8 library referenced in our "package.json", if not already done.
@@ -150,6 +152,20 @@ tasks.register('updateV8Library') {
 			args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
 		}
 	}
+}
+
+preBuild.dependsOn updateV8Library
+tasks.withType(ExternalNativeCleanTask).configureEach {
+	dependsOn updateV8Library
+}
+
+// Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
+// Will trigger a build failure if any violations have been detected.
+// Customize all the Checkstyle tasks
+tasks.withType(Checkstyle).configureEach {
+	// Specify all files that should be checked
+	classpath = files()
+	source android.sourceSets.main.java.srcDirs
 }
 
 // Execute Checkstyle on all files

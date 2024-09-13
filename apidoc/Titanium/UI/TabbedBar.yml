@@ -44,12 +44,24 @@ properties:
     availability: creation
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "9.0.0", ipad: "9.0.0", android: "12.0.0"}
+  - name: selectedBackgroundColor
+    summary: Background color of the selected tab indicator.
+    type: [ String, Titanium.UI.Color ]
+    availability: creation
+    platforms: [android]
+    since: {android: "8.0.0"}
   - name: selectedTextColor
     summary: Color of the selected text
     type: [ String, Titanium.UI.Color ]
     availability: creation
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "9.0.0", ipad: "9.0.0", android: "12.0.0"}
+  - name: activeTintColor
+    summary: Icon tint color of the selected tab
+    type: [ String, Titanium.UI.Color ]
+    availability: creation
+    platforms: [android]
+    since: {android: "12.5.0"}
   - name: style
     summary: Style of the tabbed bar.
     description: |
@@ -60,10 +72,10 @@ properties:
 
         The `BAR` style specifies a more compact style and allows the bar's background
         color or gradient to show through.
-        For Android:
-        [Titanium.UI.TABS_STYLE_*]
-        In Android [style](Titanium.UI.TabbedBar.style) is only supported in the creation dictionary
-        of the proxy.
+
+        For Android use [Titanium.UI.TABS_STYLE_DEFAULT](Titanium.UI.TABS_STYLE_DEFAULT) or
+        [Titanium.UI.TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.TABS_STYLE_BOTTOM_NAVIGATION) and
+        it is only supported in the creation dictionary of the proxy.
     type: Number
     default: Titanium.UI.iOS.SystemButtonStyle.PLAIN for iOS, Ti.UI.TABS_STYLE_DEFAULT for Android
 examples:

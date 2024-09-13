@@ -66,6 +66,7 @@ android {
 			storePassword tiKeystorePassword
 			keyAlias tiKeystoreAliasName
 			keyPassword tiKeystoreAliasPassword
+			enableV3Signing true
 		}
 	}
 	buildTypes {

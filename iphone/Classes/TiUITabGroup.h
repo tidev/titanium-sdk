@@ -8,7 +8,7 @@
 
 #import <TitaniumKit/TiUIView.h>
 
-//To handle the more tab, we're a delegate of it.
+// To handle the more tab, we're a delegate of it.
 @class TiUITabProxy;
 @interface TiUITabGroup : TiUIView <UITabBarControllerDelegate, UINavigationControllerDelegate> {
   @private

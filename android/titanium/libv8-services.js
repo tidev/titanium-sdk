@@ -125,7 +125,7 @@ async function generateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
 		}
 
 		// Delete snapshot blob.
-		await fs.unlink(blobPath);
+		await fs.remove(blobPath);
 	}
 
 	// Generate 'V8Snapshots.h' from template
@@ -222,7 +222,7 @@ async function createSnapshot() {
 				process.exit(1);
 			}
 
-			// Generaet an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
+			// Generate an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
 			await fs.writeFile(v8SnapshotHeaderFilePath, '// Failed to generate V8 snapshots. See build log.');
 		}
 	}
@@ -277,7 +277,7 @@ function createSnapshotThenExit() {
 
 /**
  * Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
- * If not, then this function will automatically download/install it. Function will do nothing if alredy installed.
+ * If not, then this function will automatically download/install it. Function will do nothing if already installed.
  *
  * Will exit the process when the async operation ends. Intended to be called from the command line.
  */
