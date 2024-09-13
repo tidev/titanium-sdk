@@ -56,6 +56,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.R;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
@@ -85,8 +86,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			case UIModule.INPUT_BORDERSTYLE_LINE:
 			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
 				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					proxy.getActivity(), com.google.android.material.R.style
-					.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
+					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
 				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {

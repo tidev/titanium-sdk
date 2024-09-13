@@ -50,6 +50,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import com.google.android.material.R;
 
 /**
  *  Abstract class representing Tab Navigation in Titanium. Abstract methods in it
@@ -187,9 +188,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		try {
 			final int[] idArray = new int[] {
 				android.R.attr.colorBackground,
-				com.google.android.material.R.attr.colorPrimary,
-				com.google.android.material.R.attr.colorSurface,
-				com.google.android.material.R.attr.colorOnSurface
+				R.attr.colorPrimary,
+				R.attr.colorSurface,
+				R.attr.colorOnSurface
 			};
 			final TypedArray typedArray =  activity.getTheme().obtainStyledAttributes(idArray);
 

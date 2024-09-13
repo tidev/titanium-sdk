@@ -26,6 +26,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
+import com.google.android.material.R;
 
 public class TiUISearchBar extends TiUIView
 {
@@ -169,8 +170,8 @@ public class TiUISearchBar extends TiUIView
 
 	private void updateIconColor(SearchView searchView, int color)
 	{
-		ImageView imgSearch = searchView.findViewById(com.google.android.material.R.id.search_mag_icon);
-		ImageView imgClose = searchView.findViewById(com.google.android.material.R.id.search_close_btn);
+		ImageView imgSearch = searchView.findViewById(R.id.search_mag_icon);
+		ImageView imgClose = searchView.findViewById(R.id.search_close_btn);
 
 		if (imgSearch != null) {
 			imgSearch.setColorFilter(color, PorterDuff.Mode.SRC_IN);
@@ -299,7 +300,7 @@ public class TiUISearchBar extends TiUIView
 		}
 
 		// Fetch close button from the search view.
-		View view = searchView.findViewById(com.google.android.material.R.id.search_close_btn);
+		View view = searchView.findViewById(R.id.search_close_btn);
 		if (!(view instanceof ImageView)) {
 			return;
 		}
@@ -367,7 +368,7 @@ public class TiUISearchBar extends TiUIView
 	{
 		SearchView searchView = getSearchView();
 		if (searchView != null) {
-			View view = searchView.findViewById(com.google.android.material.R.id.search_src_text);
+			View view = searchView.findViewById(R.id.search_src_text);
 			if (view instanceof EditText) {
 				return (EditText) view;
 			}

@@ -25,6 +25,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
+import com.google.android.material.R;
 
 public class TiUIActivityIndicator extends TiUIView
 {
@@ -151,14 +152,14 @@ public class TiUIActivityIndicator extends TiUIView
 
 		// Update indicator to use a big or small style.
 		int[] idArray = new int[] {
-			com.google.android.material.R.attr.trackThickness,
-			com.google.android.material.R.attr.indicatorSize,
-			com.google.android.material.R.attr.indicatorInset
+			R.attr.trackThickness,
+			R.attr.indicatorSize,
+			R.attr.indicatorInset
 		};
-		int themeId = com.google.android.material.R.style
+		int themeId = R.style
 			.Widget_MaterialComponents_CircularProgressIndicator_ExtraSmall;
 		if ((styleId == BIG) || (styleId == BIG_DARK)) {
-			themeId = com.google.android.material.R.style.Widget_MaterialComponents_CircularProgressIndicator_Medium;
+			themeId = R.style.Widget_MaterialComponents_CircularProgressIndicator_Medium;
 		}
 		ContextThemeWrapper context = new ContextThemeWrapper(this.progress.getContext(), themeId);
 		TypedArray typedArray = context.obtainStyledAttributes(null, idArray, 0, 0);

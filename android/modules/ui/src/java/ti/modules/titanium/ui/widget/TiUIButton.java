@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.R;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -59,23 +60,23 @@ public class TiUIButton extends TiUIView
 		styleId = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_STYLE), styleId);
 		switch (styleId) {
 			case UIModule.BUTTON_STYLE_OPTION_POSITIVE:
-				styleId = com.google.android.material.R.attr.buttonBarPositiveButtonStyle;
+				styleId = R.attr.buttonBarPositiveButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_OPTION_NEGATIVE:
-				styleId = com.google.android.material.R.attr.buttonBarNegativeButtonStyle;
+				styleId = R.attr.buttonBarNegativeButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_OPTION_NEUTRAL:
-				styleId = com.google.android.material.R.attr.buttonBarNeutralButtonStyle;
+				styleId = R.attr.buttonBarNeutralButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_OUTLINED:
-				styleId = com.google.android.material.R.attr.materialButtonOutlinedStyle;
+				styleId = R.attr.materialButtonOutlinedStyle;
 				break;
 			case UIModule.BUTTON_STYLE_TEXT:
-				styleId = com.google.android.material.R.attr.borderlessButtonStyle;
+				styleId = R.attr.borderlessButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_FILLED:
 			default:
-				styleId = com.google.android.material.R.attr.materialButtonStyle;
+				styleId = R.attr.materialButtonStyle;
 				break;
 		}
 
