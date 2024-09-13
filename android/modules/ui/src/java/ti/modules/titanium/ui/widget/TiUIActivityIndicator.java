@@ -156,8 +156,7 @@ public class TiUIActivityIndicator extends TiUIView
 			R.attr.indicatorSize,
 			R.attr.indicatorInset
 		};
-		int themeId = R.style
-			.Widget_MaterialComponents_CircularProgressIndicator_ExtraSmall;
+		int themeId = R.style.Widget_MaterialComponents_CircularProgressIndicator_ExtraSmall;
 		if ((styleId == BIG) || (styleId == BIG_DARK)) {
 			themeId = R.style.Widget_MaterialComponents_CircularProgressIndicator_Medium;
 		}
