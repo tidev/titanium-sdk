@@ -87,8 +87,8 @@ android {
 		main {
 			manifest.srcFile 'AndroidManifest.xml'
 			assets.srcDirs = [
-					'assets',
-					"${projectDir}/../modules/ui/assets"
+				'assets',
+				"${projectDir}/../modules/ui/assets"
 			]
 			java.srcDirs = [
 					'src/java',
