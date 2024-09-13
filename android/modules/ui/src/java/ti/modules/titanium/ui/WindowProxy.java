@@ -69,8 +69,10 @@ import ti.modules.titanium.ui.widget.TiView;
 		TiC.PROPERTY_MODAL,
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 		TiC.PROPERTY_FLAG_SECURE,
-		TiC.PROPERTY_BAR_COLOR
+		TiC.PROPERTY_BAR_COLOR,
+		TiC.PROPERTY_STATUS_BAR_COLOR
 	})
+
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
@@ -320,6 +322,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
+		if (hasProperty(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+			int colorInt = TiColorHelper.parseColor(
+				TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)), activity);
+			win.setStatusBarColor(colorInt);
+		}
+
 		// Handle titleAttributes property.
 		if (hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
 			KrollDict innerAttributes = getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
@@ -443,6 +451,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 					// Log a warning if there is no ActionBar available.
 					Log.w(TAG, "There is no ActionBar available for this Window.");
 				}
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				AppCompatActivity activity = windowActivity.get();
+				int colorInt = TiColorHelper.parseColor(TiConvert.toString(value), activity);
+				activity.getWindow().setStatusBarColor(colorInt);
 			}
 		}
 
