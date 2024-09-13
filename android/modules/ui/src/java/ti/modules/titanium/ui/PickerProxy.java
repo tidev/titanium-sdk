@@ -34,7 +34,6 @@ import com.google.android.material.timepicker.TimeFormat;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -166,7 +165,8 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 			case UIModule.INPUT_BORDERSTYLE_LINE:
 			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
 				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					activity, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
+					activity, com.google.android.material.R.style
+					.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
 				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {
@@ -179,13 +179,15 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 			case UIModule.INPUT_BORDERSTYLE_NONE:
 			case UIModule.INPUT_BORDERSTYLE_UNDERLINED:
 				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					activity, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
+					activity, com.google.android.material.R.style
+					.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
 				break;
 			case UIModule.INPUT_BORDERSTYLE_FILLED:
 			default:
 				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					activity, R.style.Widget_MaterialComponents_TextInputLayout_FilledBox_ExposedDropdownMenu));
+					activity, com.google.android.material.R.style
+					.Widget_MaterialComponents_TextInputLayout_FilledBox_ExposedDropdownMenu));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_FILLED);
 				break;
 		}

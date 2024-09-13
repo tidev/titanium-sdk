@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import com.google.android.material.color.MaterialColors;
 import java.lang.ref.WeakReference;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -61,7 +60,8 @@ public class TiImageView extends ViewGroup
 	{
 		super(context);
 
-		this.defaultRippleColor = MaterialColors.getColor(context, R.attr.colorControlHighlight, Color.DKGRAY);
+		this.defaultRippleColor = MaterialColors.getColor(context,
+			com.google.android.material.R.attr.colorControlHighlight, Color.DKGRAY);
 		this.imageRippleColor = this.defaultRippleColor;
 
 		this.imageView = new ImageView(context);

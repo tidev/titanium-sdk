@@ -15,7 +15,6 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -86,7 +85,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			case UIModule.INPUT_BORDERSTYLE_LINE:
 			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
 				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
+					proxy.getActivity(), com.google.android.material.R.style
+					.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
 				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {

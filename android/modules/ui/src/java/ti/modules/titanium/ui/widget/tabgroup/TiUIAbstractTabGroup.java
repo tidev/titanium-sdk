@@ -33,7 +33,6 @@ import android.view.ViewGroup;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -188,9 +187,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		try {
 			final int[] idArray = new int[] {
 				android.R.attr.colorBackground,
-				R.attr.colorPrimary,
-				R.attr.colorSurface,
-				R.attr.colorOnSurface
+				com.google.android.material.R.attr.colorPrimary,
+				com.google.android.material.R.attr.colorSurface,
+				com.google.android.material.R.attr.colorOnSurface
 			};
 			final TypedArray typedArray =  activity.getTheme().obtainStyledAttributes(idArray);
 

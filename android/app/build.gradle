@@ -9,8 +9,8 @@ apply plugin: 'com.android.application'
 
 // Set up Android app project.
 android {
+  compileSdkVersion 34
 	ndkVersion project.ext.tiNdkVersion
-	//namespace 'com.titanium.test'
 	defaultConfig {
 		applicationId 'com.titanium.test'
 		minSdkVersion 21
