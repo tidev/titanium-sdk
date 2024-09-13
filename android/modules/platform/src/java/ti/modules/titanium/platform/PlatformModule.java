@@ -259,7 +259,7 @@ public class PlatformModule extends KrollModule
 						   @Kroll.argument(optional = true) Object arg2, @Kroll.argument(optional = true) Object arg3)
 	{
 		// If given an optional callback, then call this method recursively without the callback.
-		// Note: We might also receieve an optional KrollDict argument. This is iOS only and should be ignored.
+		// Note: We might also receive an optional KrollDict argument. This is iOS only and should be ignored.
 		KrollFunction callback = null;
 		if (arg2 instanceof KrollFunction) {
 			callback = (KrollFunction) arg2;
@@ -471,7 +471,7 @@ public class PlatformModule extends KrollModule
 			// TODO Sort processors by index, fill in model name by preceding if unknown
 
 		} catch (IOException ex) {
-			// somethign went wrong, create "default" set of processors?
+			// something went wrong, create "default" set of processors?
 			this.processors = new ArrayList<>(processorCount);
 			for (int i = 0; i < processorCount; i++) {
 				this.processors.add(Processor.unknown(i));

@@ -17,7 +17,7 @@
 // Has to happen on main thread or notifications screw up
 - (void)initializePlayer
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc addObserver:self selector:@selector(stateDidChange:) name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
   [nc addObserver:self selector:@selector(playingDidChange:) name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
@@ -30,7 +30,7 @@
 {
   if (self = [super _initWithPageContext:context]) {
     player = player_;
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserver:self selector:@selector(stateDidChange:) name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
     [nc addObserver:self selector:@selector(playingDidChange:) name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
@@ -43,7 +43,7 @@
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc removeObserver:self name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
   [nc removeObserver:self name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
@@ -252,7 +252,7 @@
 // TODO: Change to KrollCallback properties for faster response times?
 - (void)stateDidChange:(NSNotification *)note
 {
-  if ([self _hasListeners:@"stateChange"]) { //TODO: Deprecate old event.
+  if ([self _hasListeners:@"stateChange"]) { // TODO: Deprecate old event.
     [self fireEvent:@"stateChange"];
   }
   if ([self _hasListeners:@"statechange"]) {
@@ -262,7 +262,7 @@
 
 - (void)playingDidChange:(NSNotification *)note
 {
-  if ([self _hasListeners:@"playingChange"]) { //TODO: Deprecate old event.
+  if ([self _hasListeners:@"playingChange"]) { // TODO: Deprecate old event.
     [self fireEvent:@"playingChange"];
   }
   if ([self _hasListeners:@"playingchange"]) {
@@ -272,7 +272,7 @@
 
 - (void)volumeDidChange:(NSNotification *)note
 {
-  if ([self _hasListeners:@"volumeChange"]) { //TODO: Deprecate old event.
+  if ([self _hasListeners:@"volumeChange"]) { // TODO: Deprecate old event.
     [self fireEvent:@"volumeChange"];
   }
   if ([self _hasListeners:@"volumechange"]) {
