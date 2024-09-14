@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,9 +27,9 @@
 - (NSNumber *)append:(id)args;
 - (NSNumber *)insert:(id)args;
 
-//This API is meant for the Javascript, and because of ARC conflating this with
-//copy from NSObject(UIResponderStandardEditActions), we can't declare it here.
-//Note that this does not affect calling from JS.
+// This API is meant for the Javascript, and because of ARC conflating this with
+// copy from NSObject(UIResponderStandardEditActions), we can't declare it here.
+// Note that this does not affect calling from JS.
 #if !__has_feature(objc_arc)
 - (NSNumber *)copy:(id)args;
 #endif

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -51,6 +51,7 @@ import android.view.ViewParent;
 	TiC.PROPERTY_ON_BACK,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_TITLE_ATTRIBUTES,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
 public abstract class TiWindowProxy extends TiViewProxy
@@ -533,6 +534,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
 			if (flagVal) {
+				intent.putExtra(TiC.PROPERTY_FULLSCREEN, flagVal);
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
 			}
 		}

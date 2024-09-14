@@ -1,12 +1,11 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 let Console;
@@ -18,14 +17,12 @@ describe('console', function () {
 	});
 
 	it('can be required, exposes global console', () => {
-		// eslint-disable-next-line node/prefer-global/console
 		const requiredConsole = require('console');
 		should(requiredConsole).be.an.Object();
 		should(requiredConsole).eql(global.console);
 	});
 
 	it('exposes constructor as property off global console', () => {
-		// eslint-disable-next-line node/prefer-global/console
 		const requiredConsole = require('console');
 		should(global.console.Console).be.a.Function();
 		should(requiredConsole.Console).be.a.Function();

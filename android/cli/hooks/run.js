@@ -1,7 +1,7 @@
 /*
  * run.js: Titanium Android run hook
  *
- * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -18,6 +18,7 @@ exports.cliVersion = '>=3.2';
 
 exports.init = function (logger, config, cli) {
 	let deviceInfo = [];
+	const ignoreLog = config.cli.ignoreLog || [];
 
 	cli.on('build.pre.compile', {
 		priority: 8000,
@@ -253,16 +254,21 @@ exports.init = function (logger, config, cli) {
 
 						// start of a new log message
 						if (device.appPidRegExp.test(line)) {
-							line = line.trim().replace(device.appPidRegExp, ':');
+							line = line.replace(/^ {1,2}/, '').replace(device.appPidRegExp, ':');
 							logLevel = line.charAt(0).toLowerCase();
 							if (tiapiRegExp.test(line)) {
-								line = line.replace(tiapiRegExp, '').trim();
+								line = line.replace(tiapiRegExp, '').replace(/^ {1,2}/, '');
 							} else {
 								line = line.replace(/^\w\/(\w+)\s*:/g, '$1:').grey;
 							}
 							line = deviceName + line;
-						// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
+						// if it begins with something like "E/SQLiteLog( 1659):" it's not a continuation, don't log it.
 						} else if (nonTiLogRegexp.test(line)) {
+							return;
+						}
+
+						// ignore some Android logs in info log level
+						if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
 							return;
 						}
 

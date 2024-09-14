@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -357,7 +357,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	}
 
 	/**
-	 * Method for creating a RippleDrawable to be used as a bacgkround for an item in the Controller.
+	 * Method for creating a RippleDrawable to be used as a background for an item in the Controller.
 	 * Creates the RippleDrawable for two states - the provided state and its negative value.
 	 * If the properties are not set the method falls back to the colorPrimary of the current theme.
 	 * The previous implementation of TabGroup added the ripple effect by default for tabs, thus this
@@ -566,7 +566,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 					properties.getString(TiC.PROPERTY_ACTIVE_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString, activity);
 			}
-			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		} else {
 			color = ColorUtils.setAlphaComponent(this.colorOnSurfaceInt, 153);  // 60% opacity
 			if (tabProperties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
@@ -575,9 +574,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 					properties.getString(TiC.PROPERTY_TINT_COLOR));
 				color = TiColorHelper.parseColor(colorString, activity);
 			}
-			drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		}
-
+		drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
 		return drawable;
 	}
 

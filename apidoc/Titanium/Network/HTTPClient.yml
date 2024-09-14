@@ -493,6 +493,13 @@ properties:
     type: String
     permission: read-only
 
+  - name: responseDictionary
+    summary: Response as JSON object.
+    description: Set to `null` if the content type returned by the server was not a JSON or if the content could
+        not be parsed.
+    type: String
+    permission: read-only
+
   - name: responseXML
     summary: Response object as an XML DOM Document object.
     description:
@@ -554,7 +561,6 @@ properties:
     default: false
     type: Boolean
     platforms: [iphone, ipad]
-    osver: {ios: {min: "11.0"}}
     since: '9.2.0'
 
   - name: username

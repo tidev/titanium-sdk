@@ -1,17 +1,20 @@
 ---
 name: Titanium.UI.RefreshControl
 summary: |
-    The RefreshControl is a representation of the native iOS 
-    [UIRefreshControl](https://developer.apple.com/documentation/uikit/uirefreshcontrol) 
+    The RefreshControl is a representation of the native iOS
+    [UIRefreshControl](https://developer.apple.com/documentation/uikit/uirefreshcontrol)
     and Android [SwipeRefreshLayout](https://developer.android.com/reference/android/support/v4/widget/SwipeRefreshLayout.html).
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./refreshcontrol_android.png) |  |
 
-    You use a `RefreshControl` with a <Titanium.UI.TableView>, <Titanium.UI.ListView> or <Titanium.UI.ScrollView> object. 
-    It provides an alternate method to implement **pull to refresh** functionality provided by 
+    You use a `RefreshControl` with a <Titanium.UI.TableView>, <Titanium.UI.ListView> or <Titanium.UI.ScrollView> object.
+    It provides an alternate method to implement **pull to refresh** functionality provided by
     <Titanium.UI.TableView.headerPullView> and <Titanium.UI.ListView.pullView> properties.
-    
+
     Use the <Titanium.UI.createRefreshControl> method to create a RefreshControl.
-    
+
     **Important iOS 10+ Note**: If you use the RefreshControl inside a <Titanium.UI.Window> that has the `largeTitleEnabled` property
     set to `true`, you also need to set the `extendEdges` property to either `[Ti.UI.EXTEND_EDGE_TOP]` or `[Ti.UI.EXTEND_EDGE_ALL]`
     in order to prevent a flickering of the refresh spinner. In Titanium SDK 8+, the `extendEdges` property will be set to `[Ti.UI.EXTEND_EDGE_ALL]`
@@ -24,22 +27,22 @@ methods:
   - name: beginRefreshing
     summary: Tells the control that a refresh operation was started programmatically.
     description: |
-        Call this method when an external event source triggers a programmatic refresh of your table. 
-        This method updates the state of the refresh control to reflect the in-progress refresh operation. 
-        When the refresh operation ends, be sure to call the [endRefreshing](Titanium.UI.RefreshControl.endRefreshing) 
+        Call this method when an external event source triggers a programmatic refresh of your table.
+        This method updates the state of the refresh control to reflect the in-progress refresh operation.
+        When the refresh operation ends, be sure to call the [endRefreshing](Titanium.UI.RefreshControl.endRefreshing)
         method to return the control to its default state.
-        Note: When triggering the refreshing programmatically, the styling is not applied and the refresh control is tinted 
+        Note: When triggering the refreshing programmatically, the styling is not applied and the refresh control is tinted
         in the native gray.
   - name: endRefreshing
     summary: Tells the control that a refresh operation has ended.
     description: |
-        Call this method at the end of any refresh operation (whether it was initiated programmatically or by the user) 
-        to return the refresh control to its default state. 
+        Call this method at the end of any refresh operation (whether it was initiated programmatically or by the user)
+        to return the refresh control to its default state.
 properties:
   - name: title
-    summary: The attributed title of the control. 
+    summary: The attributed title of the control.
     description: |
-        Title text is only supported on iOS. Android will ignore this property. 
+        Title text is only supported on iOS. Android will ignore this property.
     type: Titanium.UI.AttributedString
     platforms: [iphone, ipad, macos]
     since: { iphone: "3.2.0", ipad: "3.2.0" }
@@ -47,15 +50,23 @@ properties:
   - name: tintColor
     summary: The tint color for the refresh control, as a color name or hex triplet.
     description: |
-        For information about color values, see the "Colors" section of <Titanium.UI>. 
+        For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
+  - name: backgroundColor
+    summary: The background color for the refresh control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
+    since: { iphone: "12.4.0", ipad: "12.4.0", macos: "12.4.0" }
+
 events:
   - name: refreshstart
-    summary: | 
-        Fired in response to a user initiated an action to refresh the contents of the 
+    summary: |
+        Fired in response to a user initiated an action to refresh the contents of the
         table view, list view or scroll view.
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
@@ -64,8 +75,8 @@ events:
         summary: This is false. This event does not bubble
         type: Boolean
   - name: refreshend
-    summary: | 
-        Fired in response to a user finished action to refresh the contents of the 
+    summary: |
+        Fired in response to a user finished action to refresh the contents of the
         table view, list view or scroll view.
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "6.0.0", ipad: "6.0.0" }
@@ -108,4 +119,30 @@ examples:
         });
         win.add(listView);
         win.open();
+        ```
+
+  - title: Alloy example
+    example: |
+        TableView with a RefreshControl
+
+        ``` xml
+        <Alloy>
+            <Window>
+                <TableView id="table">
+                  <RefreshControl id="refresh" onRefreshstart="refreshstart"/>
+                    <TableViewSection id="sectionFruit" headerTitle="Fruit">
+                        <TableViewRow title="Apple"/>
+                        <TableViewRow title="Bananas"/>
+                    </TableViewSection>
+                </TableView>
+            </Window>
+        </Alloy>
+        ```
+
+        ``` js
+        function refreshstart(e){
+          $.refresh.endRefreshing();
+        }
+
+        $.index.open();
         ```

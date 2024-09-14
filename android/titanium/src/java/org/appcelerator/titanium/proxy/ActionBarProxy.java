@@ -1,20 +1,23 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2012-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.proxy;
 
 import android.graphics.drawable.Drawable;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, TiC.PROPERTY_CUSTOM_VIEW })
@@ -23,7 +26,7 @@ public class ActionBarProxy extends KrollProxy
 	private static final String TAG = "ActionBarProxy";
 	private static final String ACTION_BAR_NOT_AVAILABLE_MESSAGE = "ActionBar is not enabled";
 
-	private ActionBar actionBar;
+	private final ActionBar actionBar;
 	private boolean showTitleEnabled = true;
 
 	public ActionBarProxy(AppCompatActivity activity)
@@ -33,7 +36,7 @@ public class ActionBarProxy extends KrollProxy
 		// Guard against calls to ActionBar made before inflating the ActionBarView
 		if (actionBar != null) {
 			actionBar.setDisplayOptions(ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME
-										| ActionBar.DISPLAY_SHOW_TITLE);
+				| ActionBar.DISPLAY_SHOW_TITLE);
 		} else {
 			Log.w(TAG, "Trying to get a reference to ActionBar before its container was inflated.");
 		}
@@ -77,16 +80,6 @@ public class ActionBarProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setNavigationMode(int navigationMode)
-	{
-		if (actionBar != null) {
-			actionBar.setNavigationMode(navigationMode);
-		} else {
-			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
-		}
-	}
-
-	@Kroll.setProperty
 	public void setBackgroundImage(String url)
 	{
 		if (actionBar == null) {
@@ -102,27 +95,17 @@ public class ActionBarProxy extends KrollProxy
 			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 
 			actionBar.setBackgroundDrawable(backgroundImage);
-		}
-	}
-
-	@Kroll.setProperty
-	public void setTitle(String title)
-	{
-		if (actionBar != null) {
-			actionBar.setTitle(title);
 		} else {
-			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
-		}
-	}
-
-	@Kroll.setProperty
-	public void setSubtitle(String subTitle)
-	{
-		if (actionBar != null) {
-			actionBar.setDisplayShowTitleEnabled(true);
-			actionBar.setSubtitle(subTitle);
-		} else {
-			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
+			// fallback check with TiDrawableReference
+			TiDrawableReference source = TiDrawableReference.fromUrl(this, url);
+			if (source.getDrawable() != null) {
+				actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+				actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+				actionBar.setBackgroundDrawable(source.getDrawable());
+			} else {
+				// fail - show error
+				Log.e(TAG, "Image " + url + " not found");
+			}
 		}
 	}
 
@@ -152,6 +135,17 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getSubtitle();
 	}
 
+	@Kroll.setProperty
+	public void setSubtitle(String subTitle)
+	{
+		if (actionBar != null) {
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setSubtitle(subTitle);
+		} else {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
+		}
+	}
+
 	@Kroll.getProperty
 	public String getTitle()
 	{
@@ -161,13 +155,33 @@ public class ActionBarProxy extends KrollProxy
 		return (String) actionBar.getTitle();
 	}
 
+	@Kroll.setProperty
+	public void setTitle(String title)
+	{
+		if (actionBar != null) {
+			actionBar.setTitle(title);
+		} else {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
+		}
+	}
+
 	@Kroll.getProperty
 	public int getNavigationMode()
 	{
 		if (actionBar == null) {
 			return 0;
 		}
-		return (int) actionBar.getNavigationMode();
+		return actionBar.getNavigationMode();
+	}
+
+	@Kroll.setProperty
+	public void setNavigationMode(int navigationMode)
+	{
+		if (actionBar != null) {
+			actionBar.setNavigationMode(navigationMode);
+		} else {
+			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
+		}
 	}
 
 	@Kroll.method

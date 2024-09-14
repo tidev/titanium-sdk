@@ -3,7 +3,7 @@
  * Logic for creating new Titanium apps.
  *
  * @copyright
- * Copyright (c) 2014-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License

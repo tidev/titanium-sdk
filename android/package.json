@@ -1,44 +1,37 @@
 {
 	"name": "titanium-mobile-android",
 	"title": "Android",
-	"description": "Appcelerator Titanium Mobile Android",
+	"description": "Titanium SDK Android",
 	"keywords": [
-		"appcelerator",
+		"tidev",
 		"titanium",
 		"mobile",
 		"android"
 	],
 	"version": "__VERSION__",
-	"author": "Appcelerator, Inc. <info@appcelerator.com>",
-	"maintainers": [
-		"Chris Barber <cbarber@axway.com>",
-		"Chris Williams <cwilliams@axway.com>",
-		"Gary Mathews <gmathews@axway.com>",
-		"Josh Quick <jquick@axway.com>",
-		"Yordan Banev <ybanev@axway.com>"
-	],
+	"author": "TiDev, Inc. <npm@tidev.io>",
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
 	"v8": {
-		"version": "9.4.146.16",
+		"version": "8.8.278.17",
 		"mode": "release",
-		"integrity": "sha512-847cJy3cPwIBEE57UdaexZjvnNbzgoW7kSr8cGn1unp0jtXBAitGbfJl+t4Ts1nUheWQWDZdbuCTiLqdmLDolA=="
+		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
 	"minSDKVersion": "21",
-	"compileSDKVersion": "31",
+	"compileSDKVersion": "33",
 	"vendorDependencies": {
-		"android sdk": ">=23.x <=31.x",
-		"android build tools": ">=30.0.2 <=31.x",
-		"android platform tools": "31.x",
-		"android tools": "<=26.x",
+		"android sdk": ">=23.x <=34.x",
+		"android build tools": ">=30.0.2 <=34.x",
+		"android platform tools": "33.x",
+		"android tools": "<=34.x",
 		"android ndk": ">=r21 <=r22b",
 		"java": ">=11.x"
 	},
 	"engines": {
-		"node": ">=12.13.0"
+		"node": ">=16.0.0"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/appcelerator/titanium_mobile.git"
+		"url": "git://github.com/tidev/titanium_mobile.git"
 	},
 	"license": "Apache-2.0"
 }

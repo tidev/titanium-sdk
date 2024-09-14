@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)initWithCallback:(JSValue *)callback_ andPromise:(KrollPromise *)promise_
 {
-  //Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
+  // Ignore analyzer warning here. Delegate will call autorelease onLoad or onError.
   if (self = [super init]) {
     // FIXME Use JSManagedValue here?
     if (![callback_ isUndefined]) { // guard against user not supplying a callback function!
@@ -730,12 +730,10 @@ MAKE_SYSTEM_PROP_DBL(ACCURACY_KILOMETER, kCLLocationAccuracyKilometer);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_THREE_KILOMETERS, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_LOW, kCLLocationAccuracyThreeKilometers);
 MAKE_SYSTEM_PROP_DBL(ACCURACY_BEST_FOR_NAVIGATION, kCLLocationAccuracyBestForNavigation);
-#if IS_SDK_IOS_14
 MAKE_SYSTEM_PROP_DBL(ACCURACY_REDUCED, kCLLocationAccuracyReduced);
 
 MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_FULL, CLAccuracyAuthorizationFullAccuracy);
 MAKE_SYSTEM_PROP(ACCURACY_AUTHORIZATION_REDUCED, CLAccuracyAuthorizationReducedAccuracy);
-#endif
 
 MAKE_SYSTEM_PROP(AUTHORIZATION_UNKNOWN, kCLAuthorizationStatusNotDetermined);
 MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, kCLAuthorizationStatusAuthorizedAlways);
@@ -855,7 +853,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   return promise.JSValue;
 }
 
-#if IS_SDK_IOS_14
 - (void)requestTemporaryFullAccuracyAuthorization:(NSString *)purposeKey withCallback:(JSValue *)callback
 {
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
@@ -891,7 +888,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
   }
   return [[self locationPermissionManager] accuracyAuthorization];
 }
-#endif
 
 READWRITE_IMPL(bool, allowsBackgroundLocationUpdates, AllowsBackgroundLocationUpdates);
 GETTER_IMPL(NSString *, lastGeolocation, LastGeolocation);
@@ -1111,13 +1107,13 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
   }
 }
 
-//Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
+// Using new delegate instead of the old deprecated method - (void)locationManager:didUpdateToLocation:fromLocation:
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
   NSDictionary *todict = [self locationDictionary:[locations lastObject]];
 
-  //Must use dictionary because of singleshot.
+  // Must use dictionary because of singleshot.
   NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
   [event setObject:todict forKey:@"coords"];
   if ([self _hasListeners:@"location"]) {
@@ -1163,7 +1159,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
 {
-  //Unfortunately, because of the single shot overloaded here, we can't use the faster eventing.
+  // Unfortunately, because of the single shot overloaded here, we can't use the faster eventing.
   NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
   [event setObject:[self headingDictionary:newHeading] forKey:@"heading"];
 

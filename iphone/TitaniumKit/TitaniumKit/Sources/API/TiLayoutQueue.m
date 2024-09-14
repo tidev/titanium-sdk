@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
   layoutArray = nil;
 
   if ((layoutTimer != NULL) && ([localLayoutArray count] == 0)) {
-    //Might as well stop the timer for now.
+    // Might as well stop the timer for now.
     CFRunLoopTimerInvalidate(layoutTimer);
     CFRelease(layoutTimer);
     layoutTimer = NULL;
@@ -82,13 +82,13 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 
   if (layoutArray == nil) {
     layoutArray = [[NSMutableArray alloc] initWithObjects:newViewProxy, nil];
-  } else if ([layoutArray containsObject:newViewProxy]) { //Nothing to do here. Already added.
+  } else if ([layoutArray containsObject:newViewProxy]) { // Nothing to do here. Already added.
     pthread_mutex_unlock(&layoutMutex);
     return;
-  } else if ([layoutArray containsObject:[newViewProxy parent]]) { //For safety reasons, we do add this to the list. But since the parent's already here,
-    //We add it to the FIRST so that children draw before parents, giving us good layout values for later!
+  } else if ([layoutArray containsObject:[newViewProxy parent]]) { // For safety reasons, we do add this to the list. But since the parent's already here,
+    // We add it to the FIRST so that children draw before parents, giving us good layout values for later!
     [layoutArray insertObject:newViewProxy atIndex:0];
-  } else { //We might be someone's parent... but that means that children should draw FIRST.
+  } else { // We might be someone's parent... but that means that children should draw FIRST.
     // This is because in many cases, parent size is determined by child size (e.g. auto, vert. layout, etc.)
     [layoutArray addObject:newViewProxy];
   }

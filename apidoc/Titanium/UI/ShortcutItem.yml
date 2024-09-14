@@ -87,7 +87,7 @@ description: |
     </ti:app>
     ```
     Static shortcuts can be translated in the `i18n/<language>/app.xml` file. Dynamic shortcuts can be translated by using the
-    methods described [in the Wiki](https://wiki.appcelerator.org/display/guides2/Internationalization).
+    methods described in the Wiki.
 extends: Titanium.Proxy
 since: { android: 7.5.0, iphone: 9.1.0, ipad: 9.1.0 }
 platforms: [android, iphone, ipad, macos]
@@ -123,7 +123,7 @@ properties:
   - name: title
     summary: Title of the shortcut.
     description: |
-        In iOS the title can be localized. See [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        In iOS the title can be localized. See here
         for more infos.
     type: String
     platforms: [android, iphone, ipad, macos]
@@ -132,7 +132,7 @@ properties:
   - name: description
     summary: Description of the shortcut.
     description: |
-        In iOS the description can be localized. See [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        In iOS the description can be localized. See here
         for more infos. 
     type: String
     platforms: [android, iphone, ipad, macos]

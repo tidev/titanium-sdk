@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,7 @@ static NSArray *scrollViewKeySequence;
 - (NSArray *)keySequence
 {
   if (scrollViewKeySequence == nil) {
-    //URL has to be processed first since the spinner depends on URL being remote
+    // URL has to be processed first since the spinner depends on URL being remote
     scrollViewKeySequence = [[NSArray arrayWithObjects:@"minZoomScale", @"maxZoomScale", @"zoomScale", nil] retain];
   }
   return scrollViewKeySequence;
@@ -57,8 +57,8 @@ static NSArray *scrollViewKeySequence;
 - (void)windowWillOpen
 {
   [super windowWillOpen];
-  //Since layout children is overridden in scrollview need to make sure that
-  //a full layout occurs atleast once if view is attached
+  // Since layout children is overridden in scrollview need to make sure that
+  // a full layout occurs atleast once if view is attached
   if ([self viewAttached]) {
     [self contentsWillChange];
   }
@@ -126,7 +126,7 @@ static NSArray *scrollViewKeySequence;
   CGFloat result = 0.0;
 
   if (TiLayoutRuleIsVertical(layoutProperties.layoutStyle)) {
-    //Vertical layout. Just get the maximum child width
+    // Vertical layout. Just get the maximum child width
     CGFloat thisWidth = 0.0;
     NSArray *subproxies = [self children];
     for (TiViewProxy *thisChildProxy in subproxies) {
@@ -136,11 +136,11 @@ static NSArray *scrollViewKeySequence;
       }
     }
   } else if (TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle)) {
-    //Horizontal Layout with auto width. Stretch Indefinitely.
+    // Horizontal Layout with auto width. Stretch Indefinitely.
     NSArray *subproxies = [self children];
     for (TiViewProxy *thisChildProxy in subproxies) {
       if ([thisChildProxy widthIsAutoFill]) {
-        //result += size.width;
+        // result += size.width;
         result += [thisChildProxy minimumParentWidthForSize:size];
       } else if (TiDimensionIsPercent(thisChildProxy->layoutProperties.width)) {
         result += [thisChildProxy minimumParentWidthForSize:size];
@@ -193,7 +193,7 @@ static NSArray *scrollViewKeySequence;
     NSArray *subproxies = [self children];
     for (TiViewProxy *thisChildProxy in subproxies) {
       if ([thisChildProxy heightIsAutoFill]) {
-        //result += size.height;
+        // result += size.height;
         result += [thisChildProxy minimumParentHeightForSize:size];
       } else if (TiDimensionIsPercent(thisChildProxy->layoutProperties.height)) {
         result += [thisChildProxy minimumParentHeightForSize:size];
@@ -207,7 +207,7 @@ static NSArray *scrollViewKeySequence;
       NSArray *subproxies = [self children];
       for (TiViewProxy *thisChildProxy in subproxies) {
         if ([thisChildProxy heightIsAutoFill]) {
-          //thisHeight = size.height;
+          // thisHeight = size.height;
           thisHeight = [thisChildProxy minimumParentHeightForSize:contentSize];
         } else if (TiDimensionIsPercent(thisChildProxy->layoutProperties.height)) {
           thisHeight = [thisChildProxy minimumParentHeightForSize:size];
@@ -219,7 +219,7 @@ static NSArray *scrollViewKeySequence;
         }
       }
     } else {
-      //Not flexible width and wraps
+      // Not flexible width and wraps
       result = [super autoHeightForSize:contentSize];
     }
   } else {
@@ -269,7 +269,7 @@ static NSArray *scrollViewKeySequence;
       verticalLayoutBoundary += bounds.size.height;
       return bounds;
     } else if (flexibleContentHeight) {
-      //Match autoHeight behavior
+      // Match autoHeight behavior
       if ([child heightIsAutoFill]) {
         bounds.origin.y = verticalLayoutBoundary;
         bounds.size.height = [child minimumParentHeightForSize:viewBounds.size];
@@ -285,7 +285,7 @@ static NSArray *scrollViewKeySequence;
     }
   } else if (TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle)) {
     if (flexibleContentWidth) {
-      //Match autoWidth behavior
+      // Match autoWidth behavior
       bounds.origin.x = horizontalLayoutBoundary;
       bounds.size.width = [child minimumParentWidthForSize:viewBounds.size];
       horizontalLayoutBoundary += bounds.size.width;
@@ -391,7 +391,7 @@ static NSArray *scrollViewKeySequence;
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView_ // scrolling has ended
 {
-  if ([self _hasListeners:@"scrollEnd"]) { //TODO: Deprecate old event.
+  if ([self _hasListeners:@"scrollEnd"]) { // TODO: Deprecate old event.
     [self fireEvent:@"scrollEnd" withObject:nil];
   }
   if ([self _hasListeners:@"scrollend"]) {
@@ -430,7 +430,7 @@ static NSArray *scrollViewKeySequence;
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-  if ([self _hasListeners:@"dragStart"]) { //TODO: Deprecate old event
+  if ([self _hasListeners:@"dragStart"]) { // TODO: Deprecate old event
     [self fireEvent:@"dragStart" withObject:nil];
   }
   if ([self _hasListeners:@"dragstart"]) {
@@ -438,11 +438,11 @@ static NSArray *scrollViewKeySequence;
   }
 }
 
-//listerner which tells when dragging ended in the scroll view.
+// listerner which tells when dragging ended in the scroll view.
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
-  if ([self _hasListeners:@"dragEnd"]) { //TODO: Deprecate old event
+  if ([self _hasListeners:@"dragEnd"]) { // TODO: Deprecate old event
     [self fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate], @"decelerate", nil]];
   }
   if ([self _hasListeners:@"dragend"]) {

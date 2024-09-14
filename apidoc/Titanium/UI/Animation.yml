@@ -48,6 +48,11 @@ since: "0.9"
 platforms: [android, iphone, ipad, macos]
 
 events:
+  - name: cancel
+    summary: Fired when the animation is canceled.
+    since: "12.1.0"
+    platforms: [android]
+
   - name: complete
     summary: Fired when the animation completes.
 
@@ -126,6 +131,18 @@ properties:
     summary: Duration of the animation, in milliseconds.
     type: Number
 
+  - name: rotationY
+    summary: Value of the `rotationY` property at the end of the animation.
+    type: Number
+    platforms: [android]
+    since: { android: "12.2.0" }
+
+  - name: rotationX
+    summary: Value of the `rotationX` property at the end of the animation.
+    type: Number
+    platforms: [android]
+    since: { android: "12.2.0" }
+
   - name: elevation
     summary: Value of the `elevation` property at the end of the animation.
     type: Number
@@ -171,6 +188,16 @@ properties:
     type: Number
     platforms: [iphone, ipad, macos]
     since: "8.1.0"
+
+  - name: bounce
+    summary: The animation bounce. If set, the animation uses the iOS 17+ spring animation.
+    description: |
+        When `bounce` is 0, there are no bounces, positive values indicate increasing amounts of bounciness up to a maximum
+        of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
+    type: Number
+    platforms: [iphone, ipad, macos]
+    since: "12.2.0"
+    osver: { ios: { min: "17.0" } }
 
   - name: top
     summary: Value of the `top` property at the end of the animation.

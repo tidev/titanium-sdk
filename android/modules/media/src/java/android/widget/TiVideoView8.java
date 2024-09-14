@@ -16,8 +16,8 @@
 
 /**
  * Modifications copyright:
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -107,6 +107,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 								   // preparing
 	@SuppressWarnings("unused")
 	private int mStateWhenSuspended; // state before calling suspend()
+	private boolean autoHide = false;
 
 	// TITANIUM
 	private TiPlaybackListener mPlaybackListener;
@@ -239,7 +240,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			}
 			constantDeprecationWarning(mScalingMode);
 		}
-		Log.i(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
+		Log.d(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
 		setMeasuredDimension(width, height);
 	}
 
@@ -492,6 +493,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					// so
 					// start the video here instead of in the callback.
 					if (mTargetState == STATE_PLAYING) {
+						if (autoHide) {
+							setAlpha(1);
+						}
 						start();
 						if (mMediaController != null) {
 							mMediaController.show();
@@ -635,6 +639,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				mMediaController.hide();
 			if (mCurrentState != STATE_SUSPEND) {
 				release(true);
+			}
+			if (autoHide) {
+				setAlpha(0);
 			}
 		}
 	};
@@ -883,5 +890,13 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public void setAutoHide(boolean value)
+	{
+		if (value) {
+			setAlpha(0);
+		}
+		autoHide = value;
 	}
 }

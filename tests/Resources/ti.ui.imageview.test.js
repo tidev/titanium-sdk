@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -8,6 +8,8 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const utilities = require('./utilities/utilities');
+const isAndroid = utilities.isAndroid();
 
 describe('Titanium.UI.ImageView', function () {
 	this.timeout(5000);
@@ -168,13 +170,16 @@ describe('Titanium.UI.ImageView', function () {
 			imageView.image = fromFile;
 		});
 
-		function doBlobTest(blob, finish) {
+		function doBlobTest(testName, blob, finish) {
 			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView({ image: blob });
 			imageView.addEventListener('postlayout', function listener(e) {
 				try {
 					imageView.removeEventListener(e.type, listener);
 					should(imageView.size.width > 0).be.true();
+					if (isAndroid) {
+						should(imageView).matchImage('snapshots/' + testName + '.png');
+					}
 					finish();
 				} catch (err) {
 					finish(err);
@@ -186,12 +191,16 @@ describe('Titanium.UI.ImageView', function () {
 
 		it('with Ti.Blob PNG', function (finish) {
 			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png').read();
-			doBlobTest(blob, finish);
+			setTimeout(function () {
+				doBlobTest('png', blob, finish);
+			}, 100);
 		});
 
 		it('with Ti.Blob WebP', function (finish) {
 			const blob = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.webp').read();
-			doBlobTest(blob, finish);
+			setTimeout(function () {
+				doBlobTest('webp', blob, finish);
+			}, 100);
 		});
 
 		it.windowsBroken('with redirected URL and autorotate set to true', function (finish) {
@@ -279,6 +288,22 @@ describe('Titanium.UI.ImageView', function () {
 
 		it('with imageTouchFeedbackColor', function (finish) {
 			test({ image: 'Logo.png', imageTouchFeedback: true, imageTouchFeedbackColor: 'yellow' }, finish);
+		});
+
+		it('with WebP res file', function (finish) {
+			win = Ti.UI.createWindow();
+			const imageView = Ti.UI.createImageView({ image: '/images/logo.webp' });
+			imageView.addEventListener('postlayout', function listener(e) {
+				try {
+					imageView.removeEventListener(e.type, listener);
+					should(imageView).matchImage('snapshots/webp_res.png');
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			});
+			win.add(imageView);
+			win.open();
 		});
 	});
 

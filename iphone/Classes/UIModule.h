@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -21,6 +21,10 @@
 #import "TiUIShortcutProxy.h"
 #endif
 
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+#import "TiUITableViewScrollPositionProxy.h"
+#endif
+
 @interface UIModule : TiModule {
 
   @private
@@ -39,7 +43,7 @@
   NSNumber *lastEmittedMode;
 }
 
-//TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
+// TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
 
 @property (nonatomic, readonly) NSNumber *ANIMATION_CURVE_EASE_IN_OUT;
 @property (nonatomic, readonly) NSNumber *ANIMATION_CURVE_EASE_IN;
@@ -172,6 +176,13 @@
 @property (nonatomic, readonly) NSNumber *AUTOLINK_EMAIL_ADDRESSES;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_MAP_ADDRESSES;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_CALENDAR;
+@property (nonatomic, readonly) NSNumber *AUTOLINK_SHIPMENT_TRACKING_NUMBER;
+@property (nonatomic, readonly) NSNumber *AUTOLINK_FLIGHT_NUMBER;
+@property (nonatomic, readonly) NSNumber *AUTOLINK_LOOKUP_SUGGESTION;
+#if IS_SDK_IOS_16
+@property (nonatomic, readonly) NSNumber *AUTOLINK_MONEY;
+@property (nonatomic, readonly) NSNumber *AUTOLINK_PHYSICAL_VALUE;
+#endif
 
 @property (nonatomic, readonly) NSString *SIZE;
 @property (nonatomic, readonly) NSString *FILL;
@@ -303,6 +314,11 @@
 
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
 @property (nonatomic, readonly) TiUIShortcutProxy *Shortcut;
+#endif
+
+#if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
+@property (nonatomic, readwrite, assign) TiUITableViewScrollPositionProxy *TableViewScrollPosition;
+@property (nonatomic, readwrite, assign) TiUITableViewScrollPositionProxy *ListViewScrollPosition;
 #endif
 
 @end

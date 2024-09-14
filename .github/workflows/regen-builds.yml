@@ -1,0 +1,22 @@
+name: Regen Builds
+on:
+  workflow_run:
+    workflows: [Build]
+    types: [completed]
+    branches:
+    - master
+    - "[0-9]+_[0-9]+_X"
+
+jobs:
+  on-success:
+    if: github.repository_owner == 'tidev'
+    runs-on: ubuntu-latest
+    name: Regenerate build
+    steps:
+    - name: Repository Dispatch
+      if: github.event.workflow_run.conclusion == 'success'
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        event-type: regen-builds
+        repository: tidev/downloads-www
+        token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}

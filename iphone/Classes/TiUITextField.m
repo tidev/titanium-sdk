@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -58,7 +58,7 @@
 
 - (void)setTouchHandler:(TiUIView *)handler
 {
-  //Assign only. No retain
+  // Assign only. No retain
   touchHandler = handler;
 }
 
@@ -269,7 +269,7 @@
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
   [super dealloc];
 }
@@ -289,7 +289,7 @@
     [(TiTextField *)textWidgetView setTouchHandler:self];
     [self addSubview:textWidgetView];
     self.clipsToBounds = YES;
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     NSNotificationCenter *theNC = [NSNotificationCenter defaultCenter];
     [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
   }
@@ -441,7 +441,7 @@
   [(TiTextField *)[self textWidgetView] setClearButtonMode:[TiUtils intValue:value]];
 }
 
-//TODO: rename
+// TODO: rename
 
 - (void)setLeftButton_:(id)value
 {
@@ -450,7 +450,7 @@
     TiUIView *leftview = [vp view];
     [(TiTextField *)[self textWidgetView] setLeftView:leftview];
   } else {
-    //TODO:
+    // TODO:
   }
 }
 
@@ -465,7 +465,7 @@
     TiViewProxy *vp = (TiViewProxy *)value;
     [(TiTextField *)[self textWidgetView] setRightView:[vp view]];
   } else {
-    //TODO:
+    // TODO:
   }
 }
 
@@ -503,7 +503,7 @@
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
 
-  //TIMOB-14563. Set the right text value.
+  // TIMOB-14563. Set the right text value.
   if ([ourProxy suppressFocusEvents]) {
     NSString *theText = [ourProxy valueForKey:@"value"];
     [tf setText:theText];
@@ -522,7 +522,7 @@
 
 - (BOOL)textField:(UITextField *)tf shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-  //sanity check for undo bug. Does nothing if undo pressed for certain keyboardsTypes and under some conditions.
+  // sanity check for undo bug. Does nothing if undo pressed for certain keyboardsTypes and under some conditions.
   if (range.length + range.location > [[tf text] length]) {
     return NO;
   }
@@ -541,7 +541,7 @@
 - (void)textFieldDidEndEditing:(UITextField *)tf
 {
   [self textWidget:tf didBlurWithText:[tf text]];
-  //TIMOB-18365. Value not updated when autocorrect is up and return is pressed
+  // TIMOB-18365. Value not updated when autocorrect is up and return is pressed
   [self textFieldDidChange:nil];
 }
 
@@ -549,11 +549,11 @@
 {
   TiUITextWidgetProxy *ourProxy = (TiUITextWidgetProxy *)[self proxy];
 
-  //TIMOB-14563. This is incorrect when passowrd mark is used. Just ignore.
+  // TIMOB-14563. This is incorrect when passowrd mark is used. Just ignore.
   if ([ourProxy suppressFocusEvents]) {
     return;
   }
-  [ourProxy noteValueChange:[(UITextField *)textWidgetView text]];
+  [ourProxy noteValueChange:[(UITextField *)textWidgetView text]:nil];
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)tf
@@ -564,7 +564,7 @@
 - (BOOL)textFieldShouldClear:(UITextField *)tf
 {
   // we notify proxy so he can serialize in the model
-  [(TiUITextFieldProxy *)self.proxy noteValueChange:@""];
+  [(TiUITextFieldProxy *)self.proxy noteValueChange:@"":nil];
   return YES;
 }
 

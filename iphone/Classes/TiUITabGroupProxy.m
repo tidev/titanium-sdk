@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,7 @@ static NSArray *tabGroupKeySequence;
 - (NSArray *)keySequence
 {
   if (tabGroupKeySequence == nil) {
-    //URL has to be processed first since the spinner depends on URL being remote
+    // URL has to be processed first since the spinner depends on URL being remote
     tabGroupKeySequence = [[NSArray arrayWithObjects:@"tabs", @"activeTab", nil] retain];
   }
   return tabGroupKeySequence;
@@ -94,7 +94,7 @@ static NSArray *tabGroupKeySequence;
       }
     }
 
-    //TODO: close all the tabs and fire events
+    // TODO: close all the tabs and fire events
 
     [tabProxy removeFromTabGroup];
     [tabProxy setParentOrientationController:nil];
@@ -328,7 +328,7 @@ static NSArray *tabGroupKeySequence;
   [super willChangeSize];
 
   [tabs makeObjectsPerformSelector:@selector(willChangeSize)];
-  //TODO: Shouldn't tabs have a lock protecting them?
+  // TODO: Shouldn't tabs have a lock protecting them?
 }
 
 @end

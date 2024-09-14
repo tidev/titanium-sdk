@@ -1,12 +1,10 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.util;
-
-import java.util.ArrayList;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -15,15 +13,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 
+import java.util.ArrayList;
+
 @SuppressWarnings("deprecation")
 public class TiNinePatchHelper
 {
-	private static class SegmentColor
-	{
-		int index;
-		int color;
-	}
-
 	public Drawable process(Drawable d)
 	{
 		Drawable nd = d;
@@ -199,8 +193,8 @@ public class TiNinePatchHelper
 		numColors = colors.size();
 
 		// Figure out the size / looks like padded to 32bits.
-		int size = 32 + // wasDeserialized, numXDivs, numYDivs, numColors, padLeft, padRight, padTop, padBottom
-				   numXDivs * 32 + numYDivs * 32 + numColors * 32;
+		int size = 32 // wasDeserialized, numXDivs, numYDivs, numColors, padLeft, padRight, padTop, padBottom
+			+ numXDivs * 32 + numYDivs * 32 + numColors * 32;
 
 		chunk = new byte[size];
 		chunk[0] = 0;
@@ -244,5 +238,11 @@ public class TiNinePatchHelper
 		a[offset + 1] = (byte) ((0x0000FF00 & v) >> 8);
 		a[offset + 2] = (byte) ((0x00FF0000 & v) >> 16);
 		a[offset + 3] = (byte) ((0xFF000000 & v) >> 24);
+	}
+
+	private static class SegmentColor
+	{
+		int index;
+		int color;
 	}
 }

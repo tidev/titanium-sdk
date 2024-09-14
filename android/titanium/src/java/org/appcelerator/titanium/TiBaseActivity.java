@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,6 +34,7 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
@@ -46,6 +47,8 @@ import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
@@ -67,6 +70,9 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -99,7 +105,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private Intent launchIntent = null;
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
-
+	private Context baseContext;
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -338,6 +344,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
 			String oldTitle = (String) getTitle();
 			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
+			int colorInt = -1;
 
 			if (oldTitle == null) {
 				oldTitle = "";
@@ -347,12 +354,32 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				newTitle = "";
 			}
 
+			if (window.hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+				KrollDict innerAttributes = window.getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
+				colorInt = TiColorHelper.parseColor(
+					TiConvert.toString(innerAttributes.getString(TiC.PROPERTY_COLOR)), this);
+			}
+
 			if (!newTitle.equals(oldTitle)) {
 				final String fnewTitle = newTitle;
+				final int finalColorInt = colorInt;
 				runOnUiThread(new Runnable() {
 					public void run()
 					{
 						setTitle(fnewTitle);
+
+						ActionBar actionBar = getSupportActionBar();
+						if (actionBar != null) {
+							if (finalColorInt != -1) {
+								SpannableStringBuilder ssb;
+								ssb = new SpannableStringBuilder(fnewTitle);
+								ssb.setSpan(new ForegroundColorSpan(finalColorInt),
+									0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+								actionBar.setTitle(ssb);
+							} else {
+								actionBar.setTitle(fnewTitle);
+							}
+						}
 					}
 				});
 			}
@@ -631,6 +658,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	protected void attachBaseContext(Context newBase)
 	{
+		baseContext = newBase;
 		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
 	}
 
@@ -1574,7 +1602,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// "isFinishing" will return true if the Android OS won't restore this destroyed activity later.
 		// This happens when finish() method is called of end-user back navigates out of the activity.
-		// Note: Will breturn false if system intends to restore the activity later, which happens if
+		// Note: Will return false if system intends to restore the activity later, which happens if
 		//       system setting "Don't keep activities" is enabled or "Background process limit" was exceeded.
 		boolean isFinishing = isFinishing();
 
@@ -1616,6 +1644,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (activityProxy != null) {
 			activityProxy.release();
 			activityProxy = null;
+		}
+
+		if (baseContext != null) {
+			baseContext = null;
 		}
 
 		// Remove this activity from the app-wide Titanium UI stack.
@@ -1850,5 +1882,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (this.safeAreaMonitor != null) {
 			this.safeAreaMonitor.removeInsetsProvider(provider);
 		}
+	}
+
+	public Context getInitialBaseContext()
+	{
+		return baseContext;
 	}
 }

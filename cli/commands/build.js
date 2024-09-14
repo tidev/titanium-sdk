@@ -1,7 +1,7 @@
 /*
  * build.js: Titanium Mobile CLI build command
  *
- * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
@@ -121,7 +121,7 @@ exports.config = function config(logger, config, cli) {
 								if (fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
 									let tiapp;
 									try {
-										tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
+										tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'), cli.argv.platform);
 									} catch (ex) {
 										logger.error(ex);
 										logger.log();

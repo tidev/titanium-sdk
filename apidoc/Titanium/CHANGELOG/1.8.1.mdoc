@@ -7,16 +7,14 @@ improvements.
 
 Please see the updated [Titanium Mobile Reference Documentation for 1.8.1](/apidoc/mobile/1.8.1). 
 
-[Full list of Issues that were addressed in 1.8.1](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12454)
+Full list of Issues that were addressed in 1.8.1
 
 
 Significant Changes In Titanium Mobile
 --------------------------------------
 
 - As of Release 1.8.0.1, Xcode 3.2.6 is no longer supported. This was documented in
-  the [Titanium Compatibility
-  Matrix](https://wiki.appcelerator.org/display/guides/Titanium+Compatibility+Matrix),
-  but mistakenly omitted from the release notes.
+  the Titanium Compatibility Matrix, but mistakenly omitted from the release notes.
 
 
 Known Issues
@@ -24,9 +22,9 @@ Known Issues
 
 The following are known issues in Release 1.8.1: 
 
-- Android: TableViewRow memory leak. [TIMOB-4367](http://jira.appcelerator.org/browse/TIMOB-4367)
+- Android: TableViewRow memory leak. [TIMOB-4367](https://jira-archive.titaniumsdk.com/TIMOB-4367)
 
-- Android: Memory leak for proxies that have no references. [TIMOB-7409](http://jira.appcelerator.org/browse/TIMOB-7409)
+- Android: Memory leak for proxies that have no references. [TIMOB-7409](https://jira-archive.titaniumsdk.com/TIMOB-7409)
 
 We are actively working on fixes for these issues, and plan to have fixes available in the
 continuous integration (CI) build in the next week.
@@ -38,22 +36,22 @@ The following sections list notable new features and bug fixes in Android.
 
 *New Feature*
 
--   Support for using a `Ti.Blob` object to set the `Ti.Map.Annotation.image` property. [TIMOB-6967](http://jira.appcelerator.org/browse/TIMOB-6967)
+-   Support for using a `Ti.Blob` object to set the `Ti.Map.Annotation.image` property. [TIMOB-6967](https://jira-archive.titaniumsdk.com/TIMOB-6967)
 
     This feature is also supported on iOS.
 
 *Bug Fixes:*
 
--   V8: Enable 3rd party module build for Windows. [TIMOB-6685](http://jira.appcelerator.org/browse/TIMOB-6685)
+-   V8: Enable 3rd party module build for Windows. [TIMOB-6685](https://jira-archive.titaniumsdk.com/TIMOB-6685)
    
     Note that some additional software installs may be required. See 
     [Requirements for Building Android Modules on Windows](#android_modules), below.
 
--   UI - heavyweight window open event fired twice. [TIMOB-6816](http://jira.appcelerator.org/browse/TIMOB-6816)
+-   UI - heavyweight window open event fired twice. [TIMOB-6816](https://jira-archive.titaniumsdk.com/TIMOB-6816)
 
--   MapView not updating regions. [TIMOB-2104](http://jira.appcelerator.org/browse/TIMOB-2104)`
+-   MapView not updating regions. [TIMOB-2104](https://jira-archive.titaniumsdk.com/TIMOB-2104)`
 
-For a complete list of Android fixes in this release, see: [Fixed Android Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12455).
+For a complete list of Android fixes in this release, see: Fixed Android Issues in JIRA.
 
 
 iOS Changes
@@ -63,17 +61,17 @@ The following sections list notable new features and bug fixes in iOS.
 
 *New Features*
 
- -  Support for using a `Ti.Blob` object to set the `Ti.Map.Annotation.image` property. [TIMOB-6895](http://jira.appcelerator.org/browse/TIMOB-6895)
+ -  Support for using a `Ti.Blob` object to set the `Ti.Map.Annotation.image` property. [TIMOB-6895](https://jira-archive.titaniumsdk.com/TIMOB-6895)
 
     This feature is also supported on Android.
 
- -  Support for repeating backgrounds on a view. [TIMOB-4690](http://jira.appcelerator.org/browse/TIMOB-4690)
+ -  Support for repeating backgrounds on a view. [TIMOB-4690](https://jira-archive.titaniumsdk.com/TIMOB-4690)
 
     Setting `backgroundRepeat` to `true` causes the view's background image to be tiled.
     This feature is currently only supported on iOS, and will be added to other platforms in
     subsequent releases.
 
- -  Support for getting current latitude and longitude delta from a MapView. [TIMOB-6831](http://jira.appcelerator.org/browse/TIMOB-6831)
+ -  Support for getting current latitude and longitude delta from a MapView. [TIMOB-6831](https://jira-archive.titaniumsdk.com/TIMOB-6831)
   
     This feature allows the application to determine the current zoom level of the map view. This 
     feature is currently only supported on iOS, and will be added to other platforms in
@@ -92,15 +90,15 @@ The following sections list notable new features and bug fixes in iOS.
 
 *Bug Fixes:*
 
- -  Database migration fixes. [TIMOB-6756](http://jira.appcelerator.org/browse/TIMOB-6756)
+ -  Database migration fixes. [TIMOB-6756](https://jira-archive.titaniumsdk.com/TIMOB-6756)
 
- -  Databases not symlinked on install. [TIMOB-6081](http://jira.appcelerator.org/browse/TIMOB-6081)
+ -  Databases not symlinked on install. [TIMOB-6081](https://jira-archive.titaniumsdk.com/TIMOB-6081)
 
  -  Two module fixes:
 
-     -  Native JS modules detected by compiler. [TIMOB-5815](http://jira.appcelerator.org/browse/TIMOB-5815) 
+     -  Native JS modules detected by compiler. [TIMOB-5815](https://jira-archive.titaniumsdk.com/TIMOB-5815) 
 
-     -  Modules not building on Lion. [TIMOB-7001](http://jira.appcelerator.org/browse/TIMOB-7001)
+     -  Modules not building on Lion. [TIMOB-7001](https://jira-archive.titaniumsdk.com/TIMOB-7001)
 
     If you are working on iOS modules, see 
     [Updating Native JS Modules for iOS](#ios_modules) to see if these fixes apply to you.
@@ -108,12 +106,12 @@ The following sections list notable new features and bug fixes in iOS.
  -  Two fixes to HTTP header handling:
 
     -   A regression in 1.8.0.1 that caused an exception to be thrown when setting a request
-        header to `null`. [TIMOB-6828](http://jira.appcelerator.org/browse/TIMOB-6828)
+        header to `null`. [TIMOB-6828](https://jira-archive.titaniumsdk.com/TIMOB-6828)
 
     -   The `getResponseHeader` method incorrectly used a case-sensitive match on response header names.
-        [TIMOB-6832](http://jira.appcelerator.org/browse/TIMOB-6832)
+        [TIMOB-6832](https://jira-archive.titaniumsdk.com/TIMOB-6832)
 
-For a complete list of iOS fixes in this release, see: [Fixed iOS Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12456).
+For a complete list of iOS fixes in this release, see: Fixed iOS Issues in JIRA.
 
 Mobile Web Changes
 ------------------
@@ -135,7 +133,7 @@ following UI objects are at or near parity with the other platforms:
 -   WebView
 -   Window
 
-For a complete list of Mobile Web fixes in this release, see: [Fixed Mobile Web Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12457).
+For a complete list of Mobile Web fixes in this release, see: Fixed Mobile Web Issues in JIRA.
 
 
 
@@ -152,9 +150,9 @@ This release includes a number of documentation fixes and enhancements, includin
     objects.
 
 -   A new guide section, 
-   [Debugging and Profiling](https://wiki.appcelerator.org/display/guides/Debugging+and+Profiling).
+   Debugging and Profiling.
 
-[Fixed Documentation Issues in JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12458)
+Fixed Documentation Issues in JIRA
 
 
 <a name="android_modules"></a>
@@ -184,7 +182,7 @@ You may need to update your iOS modules if either of the following applies to yo
   Lion with Titanium Mobile 1.8.0.1.
 
 - You have a native iOS module that includes JavaScript code which uses Titanium APIs. 
-  Due to the issue described in [TIMOB-5815](http://jira.appcelerator.org/browse/TIMOB-5815),
+  Due to the issue described in [TIMOB-5815](https://jira-archive.titaniumsdk.com/TIMOB-5815),
   applicatons using your module may fail to compile if the module references APIs not
   used by the application. 
 

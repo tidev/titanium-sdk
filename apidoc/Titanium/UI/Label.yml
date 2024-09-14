@@ -1,7 +1,12 @@
 ---
 name: Titanium.UI.Label
 summary: A text label, with an optional background image.
-description: Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
+description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./label_android.png) |  |
+
+    Use the <Titanium.UI.createLabel> method or **`<Label>`** Alloy element to create a label.
 extends: Titanium.UI.View
 since: "0.8"
 excludes:
@@ -75,6 +80,17 @@ properties:
     constants: Titanium.UI.AUTOLINK_*
     platforms: [android]
 
+  - name: autoSize
+    summary: Automatically scales the label into its size.
+    description: |
+        To use `autoSize` you have to set a `width` and `height` to the label and it will
+        automatically increase the font size to fill up the space. The actual `fontSize`
+        value stays the same.
+    type: Boolean
+    default: false,
+    platforms: [android]
+    since: "11.1.0"
+
   - name: backgroundPaddingBottom
     summary: Number of pixels to extend the background image past the label on the bottom.
     type: Number
@@ -124,9 +140,27 @@ properties:
     platforms: [android, iphone, ipad, macos]
 
   - name: html
-    summary: Simple HTML formatting.
-    platforms: [android]
+    summary: Pass a HTML-based string and it will be formatted accordingly.
+    description: |
+        Note that complex html structures like images are not supported.
+        Use a <Titanium.UI.WebView> for those cases.
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "0.8.0", iphone: "12.3.0", ipad: "12.3.0", macos: "12.3.0" }
     type: String
+
+  - name: breakStrategy
+    summary: Break strategy (control over paragraph layout). Check [Android breakStrategy](https://developer.android.com/reference/android/widget/TextView#attr_android:breakStrategy) for more infos.
+    platforms: [android]
+    type: Number
+    constants: Titanium.UI.BREAK_*
+    since: "12.3.0"
+
+  - name: hyphenationFrequency
+    summary: Frequency of automatic hyphenation. Check [Android hyphenationFrequency](https://developer.android.com/reference/android/widget/TextView#attr_android:hyphenationFrequency) for more infos.
+    platforms: [android]
+    type: Number
+    constants: Titanium.UI.HYPHEN_*
+    since: "12.3.0"
 
   - name: includeFontPadding
     summary: Includes extra top and bottom padding to make room for accents that go above normal ascent and descent.
@@ -140,6 +174,12 @@ properties:
     platforms: [android]
     type: Number
     since: "4.1.0"
+
+  - name: lineCount
+    summary: Returns the amount of lines the content is acually using. Is equal or lower than `maxLines`.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
 
   - name: lineSpacing
     summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
@@ -213,6 +253,12 @@ properties:
     description: Only one of `text` or `textid` should be specified.
     type: String
 
+  - name: visibleText
+    summary: Returns the actual text seen on the screen. If the text is ellipsized it will be different to the normal `text`.
+    platforms: [android]
+    type: String
+    permission: read-only
+    since: {android: "12.3.0"}
 
   - name: wordWrap
     summary: Enable or disable word wrapping in the label.
@@ -261,10 +307,21 @@ events:
         summary: This is false. This event does not bubble
         type: Boolean
     platforms: [iphone,ipad, android, macos]
-    osver: {ios: {min: "7.0"}}
     since: {iphone: "3.2.0", ipad: "3.2.0", android: "4.0.0"}
 
 examples:
+  - title: Simple Alloy XML Example
+    example: |
+        Simple label in a Window
+
+        ``` xml
+        <Alloy>
+            <Window>
+                <Label text="Just a label with text"/>
+            </Window>
+        </Alloy>
+        ```
+
   - title: Basic Label
     example: |
         Create a center-aligned label with a text shadow and specified-size font, and another

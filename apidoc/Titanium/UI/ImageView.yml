@@ -17,8 +17,8 @@ description: |
     
     Android Note: Android 6 and later uses runtime permissions to secure the user's privacy. 
     Therefore, you should call <Titanium.Filesystem.requestStoragePermissions> before attempting to load remote images.
-    
-    Read more about remote images and general best practices in the [Image Best Practices Guide](https://wiki.appcelerator.org/display/guides2/Image+Best+Practices#ImageBestPractices-Cachingremoteimages).
+
+    Read more about remote images and general best practices in the [Image Best Practices Guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Best_Practices_and_Recommendations/Image_Best_Practices.html#caching-remote-images).
 
     #### Android 9-Patch Scaled Images
 
@@ -70,6 +70,26 @@ methods:
     platforms: [android, iphone, ipad, macos]
     returns:
         type: Titanium.Blob
+  
+  - name: addSymbolEffect
+    summary: Adds a symbol effect to the image view with specified options, animation, and callback.
+    platforms: [iphone, ipad, macos]
+    since: "12.4.0"
+    osver: { ios: { min: "17.0" } }
+    parameters:
+      - name: symbolEffect
+        summary: The symbol effect to add. One of `pulse`, `bounce`, `appear`, `disappear`, `variableColor` or `scale`.
+        type: String
+      - name: options
+        summary: The options for the symbol effect. One of `repeating`, `nonRepeating`, `repeatCount` or `speed`.
+        type: String
+      - name: animated
+        summary: A Boolean value that indicates whether to animate the addition of a `scale`, `appear`, or `disappear` effect.
+        type: Boolean
+        default: false
+      - name: callback
+        summary: A callback the system calls after the effect’s addition is complete.
+        type: Callback
 
 events:
   - name: change

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -101,7 +101,7 @@ DEFINE_EXCEPTIONS
       if ([[proxy_ view] isKindOfClass:[UIControl class]]) {
         [(UIControl *)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
       }
-      //Sanity check. If the view bounds are zero set the bounds to auto dimensions
+      // Sanity check. If the view bounds are zero set the bounds to auto dimensions
       CGRect bounds = [[proxy_ view] bounds];
       if (bounds.size.width == 0) {
         CGFloat desiredWidth = [proxy_ autoWidthForSize:CGSizeMake(1000, 1000)];
@@ -136,7 +136,7 @@ DEFINE_EXCEPTIONS
   self.accessibilityIdentifier = [TiUtils composeAccessibilityIdentifier:self];
 
   self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"] def:0.0];
-  //A width of 0 is treated as Auto by the iPhone OS, so this is safe.
+  // A width of 0 is treated as Auto by the iPhone OS, so this is safe.
   // we need to listen manually to proxy change events if we want to be
   // able to change them dynamically
   proxy.modelDelegate = self;
@@ -193,8 +193,8 @@ DEFINE_EXCEPTIONS
   UIView *buttonView = [self customView];
 
   if ([buttonView isKindOfClass:[TiUIButton class]]) {
-    //TODO: when using a TiUIButton, for some reason the setEnabled doesn't work.
-    //So we're just going to let it do all the work of updating.
+    // TODO: when using a TiUIButton, for some reason the setEnabled doesn't work.
+    // So we're just going to let it do all the work of updating.
     [(TiUIButton *)buttonView setEnabled_:value];
   } else {
     BOOL enabled = [TiUtils boolValue:value];

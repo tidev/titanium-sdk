@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -949,5 +949,25 @@ describe('Titanium.UI.WebView', function () {
 			win.add(webView);
 			win.open();
 		});
+	});
+
+	it('url with clientCertChallenge', function (finish) {
+		const url = 'https://device.login.microsoftonline.com';
+
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			url: url
+		});
+
+		webView.addEventListener('error', function () {
+			finish(new Error('clientCertChallenge must be handled correctly.'));
+		});
+
+		webView.addEventListener('load', function () {
+			finish();
+		});
+
+		win.add(webView);
+		win.open();
 	});
 });

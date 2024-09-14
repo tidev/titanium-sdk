@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,16 +13,16 @@ targetCompatibility = JavaVersion.VERSION_11
 // Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
 // Will trigger a build failure if any violations have been detected.
 // Customize all the Checkstyle tasks
-tasks.withType(Checkstyle) {
+tasks.withType(Checkstyle).configureEach {
 	// Specify all files that should be checked
 	classpath = files()
 	source 'src/main/java'
 }
 // Execute Checkstyle on all files
-task checkJavaStyle(type: Checkstyle) {
+tasks.register('checkJavaStyle', Checkstyle) {
 	// include '**/*.java'
 }
-task checkstyleChanged(type: Checkstyle) {
+tasks.register('checkstyleChanged', Checkstyle) {
 	include getChangedFiles()
 }
 
@@ -47,7 +47,7 @@ def getChangedFiles() {
 }
 
 // Hook into Java compile task.
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
 	// Check Java code for mistakes before compiling.
 	dependsOn checkJavaStyle
 

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -45,7 +45,10 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import androidx.annotation.NonNull;
+import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -154,6 +157,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private final AtomicBoolean bLayoutPending = new AtomicBoolean();
 	private final AtomicBoolean bTransformPending = new AtomicBoolean();
 
+	private TiAnimationBuilder tiBuilder;
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
@@ -358,12 +362,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return;
 		}
 
-		TiAnimationBuilder builder = proxy.getPendingAnimation();
-		if (builder == null) {
+		tiBuilder = proxy.getPendingAnimation();
+		if (tiBuilder == null) {
 			return;
 		}
 
-		proxy.clearAnimation(builder);
+		proxy.clearAnimation(tiBuilder);
 
 		// If a view is "visible" but not currently seen (such as because it's covered or
 		// its position is currently set to be fully outside its parent's region),
@@ -391,12 +395,20 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "starting animation", Log.DEBUG_MODE);
 		}
-
-		builder.start(proxy, outerView);
+		tiBuilder.start(proxy, outerView);
 
 		if (invalidateParent) {
 			((View) viewParent).postInvalidate();
 		}
+	}
+
+	public void stopAnimation()
+	{
+		View outerView = getOuterView();
+		if (outerView == null || bTransformPending.get() || tiBuilder == null) {
+			return;
+		}
+		tiBuilder.stop(outerView);
 	}
 
 	public void listenerAdded(String type, int count, KrollProxy proxy)
@@ -951,6 +963,17 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
+		} else if (key.equals(TiC.PROPERTY_VIEW_SHADOW_COLOR)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				if (nativeView != null) {
+					nativeView.setOutlineAmbientShadowColor(TiConvert.toColor(TiConvert.toString(newValue),
+						TiApplication.getAppCurrentActivity()));
+					nativeView.setOutlineSpotShadowColor(TiConvert.toColor(TiConvert.toString(newValue),
+						TiApplication.getAppCurrentActivity()));
+				}
+			} else {
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
+			}
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -1105,6 +1128,19 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			ViewCompat.setTranslationZ(nativeView, TiConvert.toFloat(d, TiC.PROPERTY_TRANSLATION_Z));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_VIEW_SHADOW_COLOR) && !nativeViewNull) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+				nativeView.setOutlineAmbientShadowColor(
+					TiConvert.toColor(TiConvert.toString(d, TiC.PROPERTY_VIEW_SHADOW_COLOR),
+						TiApplication.getAppCurrentActivity()));
+				nativeView.setOutlineSpotShadowColor(
+					TiConvert.toColor(TiConvert.toString(d, TiC.PROPERTY_VIEW_SHADOW_COLOR),
+						TiApplication.getAppCurrentActivity()));
+			} else {
+				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
+			}
+		}
+
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
@@ -1149,7 +1185,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						background.setBackgroundDrawable(currentDrawable);
 
 					} else {
-						nativeView.setBackgroundDrawable(null);
+						nativeView.setBackground(null);
 						currentDrawable.setCallback(null);
 						if (currentDrawable instanceof TiBackgroundDrawable) {
 							((TiBackgroundDrawable) currentDrawable).releaseDelegate();
@@ -1157,7 +1193,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					}
 				}
 			}
-			nativeView.setBackgroundDrawable(background);
+			nativeView.setBackground(background);
 		}
 	}
 
@@ -1882,6 +1918,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
 			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
+
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG)) {
+			if (TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG))) {
+				removeAccessibilityLongClick();
+			}
+		}
 		registerTouchEvents(touchable);
 
 		// Previously, we used the single tap handling above to fire our click event. It doesn't
@@ -2329,5 +2371,20 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return null;
 		}
 		return composeContentDescription(proxy.getProperties());
+	}
+
+	public void removeAccessibilityLongClick()
+	{
+		ViewCompat.setAccessibilityDelegate(nativeView, new AccessibilityDelegateCompat()
+		{
+			@Override
+			public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+														  @NonNull AccessibilityNodeInfoCompat info)
+			{
+				super.onInitializeAccessibilityNodeInfo(host, info);
+				info.removeAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK);
+				info.setLongClickable(false);
+			}
+		});
 	}
 }

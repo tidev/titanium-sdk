@@ -10,7 +10,7 @@
  * @module lib/android-manifest
  *
  * @copyright
- * Copyright (c) 2009-2019 by Axway, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -711,7 +711,7 @@ function isElementNode(node) {
  * @param {Object} node The XML node object to check. Can be null/undefined.
  * @returns {Boolean}
  * Returns true if given node is text between XLM elements or attributes.
- * Returns false if not or given an invalild argument.
+ * Returns false if not or given an invalid argument.
  * @private
  */
 function isTextNode(node) {

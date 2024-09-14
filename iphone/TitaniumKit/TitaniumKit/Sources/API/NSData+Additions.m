@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,12 +11,12 @@
 #pragma mark Hex
 
 /* HEX specific routines are copyright:
- 
+
  Copyright (c) 2006, Big Nerd Ranch, Inc.
  All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- 
+
  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  Neither the name of Big Nerd Ranch, Inc. nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
@@ -94,9 +94,9 @@ NSData *AES128EncryptWithKey(NSData *thedata, NSString *key)
 
   NSUInteger dataLength = [thedata length];
 
-  //See the doc: For block ciphers, the output size will always be less than or
-  //equal to the input size plus the size of one block.
-  //That's why we need to add the size of one block here
+  // See the doc: For block ciphers, the output size will always be less than or
+  // equal to the input size plus the size of one block.
+  // That's why we need to add the size of one block here
   size_t bufferSize = dataLength + kCCBlockSizeAES128;
   void *buffer = malloc(bufferSize);
   if (buffer == NULL) {
@@ -110,11 +110,11 @@ NSData *AES128EncryptWithKey(NSData *thedata, NSString *key)
       buffer, bufferSize, /* output */
       &numBytesEncrypted);
   if (cryptStatus == kCCSuccess) {
-    //the returned NSData takes ownership of the buffer and will free it on deallocation
+    // the returned NSData takes ownership of the buffer and will free it on deallocation
     return [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
   }
 
-  free(buffer); //free the buffer;
+  free(buffer); // free the buffer;
   return nil;
 }
 #endif

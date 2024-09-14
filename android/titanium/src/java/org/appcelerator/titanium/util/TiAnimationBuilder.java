@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,6 +14,7 @@ import java.util.List;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -116,6 +117,7 @@ public class TiAnimationBuilder
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
 	protected Integer color = null;
+	protected float rotationY, rotationX = -1;
 	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
@@ -126,6 +128,7 @@ public class TiAnimationBuilder
 	protected View view;
 	protected AnimatorHelper animatorHelper;
 	protected TiViewProxy viewProxy;
+	protected AnimatorSet animatorSet;
 
 	public TiAnimationBuilder()
 	{
@@ -229,17 +232,25 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			backgroundColor = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR);
+			backgroundColor = TiConvert.toColor(options, TiC.PROPERTY_BACKGROUND_COLOR,
+				TiApplication.getAppCurrentActivity());
 		}
 
 		if (options.containsKey(TiC.PROPERTY_COLOR)) {
-			color = TiConvert.toColor(options, TiC.PROPERTY_COLOR);
+			color = TiConvert.toColor(options, TiC.PROPERTY_COLOR, TiApplication.getAppCurrentActivity());
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ELEVATION)) {
 			elevation = TiConvert.toFloat(options, TiC.PROPERTY_ELEVATION, -1);
 		}
 
+		if (options.containsKey(TiC.PROPERTY_ROTATION_Y)) {
+			rotationY = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_Y, -1);
+		}
+
+		if (options.containsKey(TiC.PROPERTY_ROTATION_X)) {
+			rotationX = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_X, -1);
+		}
 		this.options = options;
 	}
 
@@ -300,6 +311,13 @@ public class TiAnimationBuilder
 
 		if (elevation >= 0) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "elevation", elevation));
+		}
+
+		if (rotationY >= 0) {
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationY", rotationY));
+		}
+		if (rotationX >= 0) {
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationX", rotationX));
 		}
 
 		if (backgroundColor != null) {
@@ -613,7 +631,7 @@ public class TiAnimationBuilder
 		if (delay != null) {
 			as.setStartDelay(delay.longValue());
 		}
-
+		animatorSet = as;
 		return as;
 	}
 
@@ -1015,6 +1033,20 @@ public class TiAnimationBuilder
 
 		if (tdm == null || tdm.canUsePropertyAnimators()) {
 			buildPropertyAnimators().start();
+		}
+	}
+
+	public void stop(View view)
+	{
+		if (animatorSet != null) {
+			animatorSet.removeAllListeners();
+			animatorSet.cancel();
+			animatorSet = null;
+		}
+		view.clearAnimation();
+		setAnimationRunningFor(view, false);
+		if (animationProxy != null) {
+			animationProxy.fireEvent(TiC.EVENT_CANCEL, null);
 		}
 	}
 

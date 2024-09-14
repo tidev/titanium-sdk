@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2019 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
@@ -113,11 +113,9 @@
   case NSNetServicesTimeoutError:
     return @"TimeoutError";
     break;
-#if IS_SDK_IOS_14
   case NSNetServicesMissingRequiredConfigurationError:
     return @"MissingRequiredConfigurationError";
     break;
-#endif
   }
 
   return @"";

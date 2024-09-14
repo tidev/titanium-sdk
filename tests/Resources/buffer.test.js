@@ -1,14 +1,12 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2019-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 /* eslint security/detect-new-buffer: "off" */
-/* eslint node/no-deprecated-api: ["error", { ignoreGlobalItems: ['new Buffer()']}]  */
-/* eslint node/no-unsupported-features/node-builtins: ["error", { version: ">=8.2.0" }] */
 'use strict';
 const should = require('./utilities/assertions');
 let BufferModule;
@@ -50,7 +48,6 @@ describe('buffer', () => {
 
 describe('Buffer', () => {
 	it('is available off the \'buffer\' module as Buffer', () => {
-		// eslint-disable-next-line node/prefer-global/buffer
 		should.exist(BufferModule.Buffer);
 	});
 
@@ -1784,6 +1781,7 @@ describe('Buffer', () => {
 				buf.writeUIntBE(1099511627776, 0, 5);
 			}, RangeError);
 			should.throws(() => {
+				// eslint-disable-next-line no-loss-of-precision
 				buf.writeUIntBE(72057594037927941, 0, 6);
 			}, RangeError);
 		});
@@ -1828,6 +1826,7 @@ describe('Buffer', () => {
 				buf.writeUIntLE(1099511627776, 0, 5);
 			}, RangeError);
 			should.throws(() => {
+				// eslint-disable-next-line no-loss-of-precision
 				buf.writeUIntLE(72057594037927941, 0, 6);
 			}, RangeError);
 		});

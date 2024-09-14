@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -35,7 +35,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
   id target;
   KrollContext *context;
   JSContextRef jsContext;
-  KrollBridge *bridge; //Used only in finalizing for sake of safe lookup.
+  KrollBridge *bridge; // Used only in finalizing for sake of safe lookup.
 }
 @property (nonatomic, assign) BOOL finalized;
 @property (nonatomic, readonly) KrollBridge *bridge;
@@ -52,10 +52,10 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 
 /**
  Checks if a property with the given name exists on our target.
- 
+
  Contains all the magic of valueForKey withouth trying to retrieve any actual
  value.
- 
+
  The checks for property existance are done in the following order:
  * The Kroll object's own statics and properties cache
  * Dynamic getter and setter in the form of getSomeProperty or setSomeProperty
@@ -66,11 +66,11 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
  * Method with the same name on the target and single parameter
  * Method with the same name on the target and no parameter
  * Create factory method
- 
+
  As soon as one of the above checks passes this method returns true, meaning
  the property exists. If none of the checks passed the property does not exists
  and the method returns false.
- 
+
  @param propertyName The property name to check for.
  */
 - (BOOL)hasProperty:(NSString *)propertyName;
@@ -80,7 +80,7 @@ bool KrollDeleteProperty(JSContextRef ctx, JSObjectRef object, JSStringRef prope
 - (void)setStaticValue:(id)value forKey:(NSString *)key purgable:(BOOL)purgable;
 - (id)target;
 
-//TODO: Lots of copypasted code in these methods could be refactored out.
+// TODO: Lots of copypasted code in these methods could be refactored out.
 @property (nonatomic, assign) JSObjectRef propsObject;
 - (JSObjectRef)jsobject;
 - (JSValueRef)jsvalueForUndefinedKey:(NSString *)key;

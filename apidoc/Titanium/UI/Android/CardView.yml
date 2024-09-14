@@ -2,6 +2,10 @@
 name: Titanium.UI.Android.CardView
 summary: CardView provides a layout container with rounded corners and a shadow indicating the view is elevated.
 description: |
+    | Android |
+    | ------- |
+    | ![Android](./cardview_android.png) |
+
     Use a CardView to layout content that:
 
       * Comprises multiple data types
@@ -35,7 +39,7 @@ properties:
     since: "5.1.2"
 
   - name: elevation
-    summary: Elevation for CardView. 
+    summary: Elevation for CardView.
     type: Number
     since: "5.1.2"
 
@@ -85,6 +89,17 @@ properties:
     since: "5.1.2"
 
 examples:
+  - title: Simple Alloy example
+    example: |
+        ``` xml
+        <Alloy>
+            <Window >
+                <CardView height="100" width="200">
+                  <Label text="CardView example"/>
+                </CardView>
+            </Window>
+        </Alloy>
+        ```
   - title: CardView used in a ScrollView
     example: |
         The following example creates a CardView used in a ScrollView.

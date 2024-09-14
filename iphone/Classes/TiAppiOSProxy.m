@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,6 +11,7 @@
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
+#import "TiAppiOSActivityAttributesProxy.h"
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
@@ -316,7 +317,7 @@
   ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
 
   NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:args];
-  [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
+  [props removeObjectForKey:@"itemContentType"]; // remove to avoid duplication
 
   TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
 
@@ -500,6 +501,11 @@
 - (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
 {
   return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (TiAppiOSActivityAttributesProxy *)createActivityAttributes:(id)args
+{
+  return [[[TiAppiOSActivityAttributesProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 - (TiAppiOSUserNotificationCategoryProxy *)createUserNotificationCategory:(id)args
@@ -1072,31 +1078,21 @@
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_UNSPECIFIED", @"9.1.0", @"UI.USER_INTERFACE_STYLE_UNSPECIFIED");
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UIUserInterfaceStyleUnspecified);
-  }
 
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleUnspecified);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_LIGHT", @"9.1.0", @"UI.USER_INTERFACE_STYLE_LIGHT");
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UIUserInterfaceStyleLight);
-  }
 
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleLight);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_DARK", @"9.1.0", @"UI.USER_INTERFACE_STYLE_DARK");
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UIUserInterfaceStyleDark);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleDark);
 }
 
 #pragma mark UTI Text Type Constants

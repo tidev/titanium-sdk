@@ -4,9 +4,9 @@ summary: |
     A list view is used to present information, organized in to sections and items,
     in a vertically-scrolling view.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) | ![Windows](./listview_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./listview_android.png) | ![iOS](./listview_ios.png) |
 
     Use the <Titanium.UI.createListView> method or **`<ListView>`** Alloy element to create a `ListView`.
 
@@ -191,6 +191,9 @@ description: |
 
         - [editing](Titanium.UI.ListView.editing) - Determines if the List View is in a state where items can
           be deleted or reordered.
+
+        - [requiresEditingToMove](Titanium.UI.ListView.requiresEditingToMove) - Determines if the ListView
+          should be able to drag-and-drop without explicitely enabling editing support (like drag bars).
 
         - [pruneSectionsOnEdit](Titanium.UI.ListView.pruneSectionsOnEdit) - When this property is set to true and the
           user action results in a section having no other items, the section is deleted from the List View. Please note
@@ -381,6 +384,33 @@ events:
         summary: section item index of the reference item.
         type: Number
 
+  - name: movestart
+    summary: Fired when a list row has started moving.
+    description: |
+      This event can be used to change the UI once a new drag-and-drop interaction starts.
+      The event properties are available in Titanium SDK 12.0.0+
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+    properties:
+      - name: section
+        summary: List section from which the item is moved.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: section index of the reference item.
+        type: Number
+
+      - name: itemIndex
+        summary: section item index of the reference item.
+        type: Number
+
+  - name: moveend
+    summary: Fired when a list row has ended moving.
+    description: |
+      This property can be used to change the UI once a drag-and-drop interaction ends.
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+
   - name: move
     summary: Fired when a list row is moved to a different location by the user.
     description: |
@@ -461,7 +491,6 @@ events:
         Fired when new list items are prefetched. The items are ordered ascending by geometric distance
         from the list view. Note that this event is only available on iOS 10 and later.
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
@@ -476,7 +505,6 @@ events:
         Fired when list items that previously were considered as candidates for pre-fetching were not
         actually used. Note that this event is only available on iOS 10 and later
     since: 6.1.0
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     description: |
         Use the `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
@@ -506,7 +534,6 @@ events:
         before the user action.
     platforms: [iphone, ipad, macos]
     since: 5.0.0
-    osver: {ios: {min: "8.0"}}
     properties:
       - name: action
         summary: The [title](RowActionType.title) as defined in the row action object.
@@ -657,6 +684,12 @@ properties:
         ipad: 3.2.0
     platforms: [android, iphone, ipad, macos]
 
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
+
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
     description: |
@@ -675,6 +708,15 @@ properties:
     since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     platforms: [android, iphone, ipad, macos]
 
+  - name: requiresEditingToMove
+    summary: Determines if the list view should allow drag-and-drop even without going into the editing mode
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.ListView>.
+    type: Boolean
+    default: true
+    since: "11.1.0"
+    platforms: [android, iphone, ipad, macos]
+
   - name: fastScroll
     summary: Sets the fastScroll mode on Android ListViews.
     description: |
@@ -683,6 +725,16 @@ properties:
     type: Boolean
     default: false
     since: 7.5.0
+    platforms: [android]
+
+  - name: fixedSize
+    summary: Sets fixedSize mode on Android ListViews.
+    description: |
+        Set it to `true` if all ListItems have the same size to gain some performance.
+    type: Boolean
+    default: false
+    availability: creation
+    since: 11.0.0
     platforms: [android]
 
   - name: allowsSelectionDuringEditing
@@ -904,6 +956,25 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: 3.2.0
 
+  - name: continuousUpdate
+    summary: Determines if the scrolling event should fire every time there is a new visible item.
+    description: |
+        When setting `continuousUpdate` to `true` the [scrolling](Titanium.UI.ListView.scrolling) event will fire every time a new item is scrolled in.
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: 11.1.0
+
+  - name: forceUpdates
+    summary: Optimize the `continuousUpdate` scrolling event.
+    description: |
+        If `continuousUpdate` is enabled and you set `forceUpdates` to `true` it will fire the scrolling](Titanium.UI.ListView.scrolling) all the time.
+        Otherwise it will only update when a new item is scrolled in (default).
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: 12.3.0
+
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
     description: |
@@ -998,7 +1069,6 @@ properties:
         Set this to a dictionary with two keys, `left` specifying inset from left edge and `right` specifying the inset from the right edge.
     type: HorizontalInsets
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
@@ -1038,7 +1108,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: touchFeedback
@@ -1048,7 +1117,6 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "10.0.0"
 
   - name: listSeparatorInsets
@@ -1067,7 +1135,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.4.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
@@ -1086,7 +1153,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: dimBackgroundForSearch
@@ -1110,7 +1176,6 @@ properties:
     default: false
     since: 8.1.0
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: resultsBackgroundColor
@@ -1468,7 +1533,7 @@ examples:
         create a refresh control.
 
         ``` js
-        var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        var win = Ti.UI.createWindow();
         var listView = Ti.UI.createListView({height:'90%', top:0});
         var sections = [];
 
@@ -1628,7 +1693,7 @@ examples:
         `app/views/index.xml`:
         ``` xml
         <Alloy>
-            <Window backgroundColor="white">
+            <Window>
                 <ListView id="listView" defaultItemTemplate="template">
 
                     <!-- The Templates tag sets the ListView's templates property -->
@@ -1781,7 +1846,7 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected cell to.
     type: Number
-    constants: [Titanium.UI.iOS.ListViewScrollPosition.*, Titanium.UI.Windows.ListViewScrollPosition.*]
+    constants: [Titanium.UI.iOS.ListViewScrollPosition.*, Titanium.UI.ListViewScrollPosition.*]
     default: Titanium.UI.iOS.ListViewScrollPosition.NONE
 
 ---

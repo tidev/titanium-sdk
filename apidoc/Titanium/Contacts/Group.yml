@@ -47,14 +47,8 @@ properties:
   - name: name
     summary: Name of this group.
     type: String
-    
-  - name: recordId
-    summary: Record identifier of the group. Single value. Deprecated for iOS 9 and later.
-    type: Number
-    osver: {ios: {max: "8.0"}}
 
   - name: identifier
     summary: Identifier of the group.
     type: String
     permission: read-only
-    osver: {ios: {min: "9.0"}}

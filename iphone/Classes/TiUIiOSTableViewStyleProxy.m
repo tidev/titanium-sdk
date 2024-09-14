@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,10 +18,7 @@
 
 - (NSNumber *)INSET_GROUPED
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UITableViewStyleInsetGrouped);
-  }
-  return NUMINT(0);
+  return NUMINT(UITableViewStyleInsetGrouped);
 }
 
 MAKE_SYSTEM_PROP(PLAIN, UITableViewStylePlain);

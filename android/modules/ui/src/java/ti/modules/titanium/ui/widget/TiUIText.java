@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -135,6 +135,22 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		this.tv.setOnEditorActionListener(this);
 		this.tv.setOnFocusChangeListener(this);
 		this.tv.setIncludeFontPadding(true);
+		if (proxy.hasListeners("empty")) {
+			this.tv.setOnKeyListener(new View.OnKeyListener()
+			{
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event)
+				{
+					if (tv.getText().length() == 0) {
+						KrollDict data = new KrollDict();
+						data.put("keyCode", keyCode);
+						fireEvent("empty", data);
+					}
+					return false;
+				}
+			});
+		}
+
 		if (field) {
 			this.tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 		} else {
@@ -781,7 +797,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		// Update fullscreen edit handling.
-		// We might have to diable it due to Google bugs with password handling of certain input types.
+		// We might have to disable it due to Google bugs with password handling of certain input types.
 		handleFullscreen(d);
 
 		// Force keyboard to use English if enabled. (Not all keyboards honor this setting.)

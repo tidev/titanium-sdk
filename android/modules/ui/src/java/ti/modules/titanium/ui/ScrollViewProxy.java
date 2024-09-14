@@ -1,21 +1,23 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.view.TiUIView;
+
+import java.util.HashMap;
 
 import ti.modules.titanium.ui.widget.TiUIScrollView;
-import android.app.Activity;
-import java.util.HashMap;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -28,7 +30,7 @@ import java.util.HashMap;
 		TiC.PROPERTY_CAN_CANCEL_EVENTS,
 		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_REFRESH_CONTROL
-})
+	})
 public class ScrollViewProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
@@ -65,16 +67,16 @@ public class ScrollViewProxy extends TiViewProxy
 		handleScrollTo(x, y, animated);
 	}
 
-	@Kroll.setProperty
-	public void setScrollingEnabled(Object enabled)
-	{
-		getScrollView().setScrollingEnabled(enabled);
-	}
-
 	@Kroll.getProperty
 	public boolean getScrollingEnabled()
 	{
 		return getScrollView().getScrollingEnabled();
+	}
+
+	@Kroll.setProperty
+	public void setScrollingEnabled(Object enabled)
+	{
+		getScrollView().setScrollingEnabled(enabled);
 	}
 
 	@Kroll.method

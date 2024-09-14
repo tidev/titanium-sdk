@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -114,7 +114,7 @@ public class TiUIScrollView extends TiUIView
 
 		/**
 		 * Gets the value set via the setParentContentWidth() method.
-		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * Note that this value is not assigned automatically. The owner must assign it.
 		 * @return Returns the parent view's width, excluding its left/right padding.
 		 */
 		public int getParentContentWidth()
@@ -136,7 +136,7 @@ public class TiUIScrollView extends TiUIView
 
 		/**
 		 * Gets the value set via the setParentContentHeight() method.
-		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * Note that this value is not assigned automatically. The owner must assign it.
 		 * @return Returns the parent view's height, excluding its top/bottom padding.
 		 */
 		public int getParentContentHeight()
@@ -353,6 +353,9 @@ public class TiUIScrollView extends TiUIView
 	private AttributeSet getAttributeSet(Context context, int resourceId)
 	{
 		AttributeSet attr = null;
+		if (context == null || context.getResources() == null) {
+			return null;
+		}
 		try {
 			XmlPullParser parser = context.getResources().getXml(resourceId);
 			try {

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -557,6 +557,21 @@ public class EventProxy extends KrollProxy
 		// insert the record
 		values.put("event_id", getId());
 		contentResolver.insert(extPropsUri, values);
+	}
+
+	@Kroll.method
+	public boolean remove()
+	{
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+
+		try {
+			Uri deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, TiConvert.toInt(id));
+			contentResolver.delete(deleteUri, null, null);
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override

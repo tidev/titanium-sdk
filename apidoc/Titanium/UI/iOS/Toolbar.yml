@@ -73,7 +73,6 @@ properties:
         top of the screen just below the status bar for this property to work as expected. This **must** be specified at creation.
     type: Boolean
     default: Undefined. Behaves as if set to false.
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
     availability: creation

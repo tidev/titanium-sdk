@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -62,11 +62,11 @@
 #endif
 
   /*
-	 CSS selector priority order (lowest to highest) is
-	 - Tag selectors
-	 - Classes
-	 - ID selectors
-	*/
+  CSS selector priority order (lowest to highest) is
+  - Tag selectors
+  - Classes
+  - ID selectors
+  */
 
   NSMutableDictionary *result = [NSMutableDictionary dictionary];
   if (tags != nil) {

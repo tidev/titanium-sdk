@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,7 +39,7 @@
 + (void)flushCache;
 + (BOOL)isDarkColor:(UIColor *)color;
 
-//constants for iOS background texture colors.
+// constants for iOS background texture colors.
 
 extern NSString *const IOS_COLOR_SCROLLVIEW_TEXTURED_BACKGROUND;
 extern NSString *const IOS_COLOR_VIEW_FLIPSIDE_BACKGROUND;
