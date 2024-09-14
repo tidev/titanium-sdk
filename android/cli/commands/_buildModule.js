@@ -58,6 +58,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 	const manifestModuleAPIVersion = this.manifest.apiversion;
 	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
 	let newVersion = semver.inc(this.manifest.version, 'major');
+	this.tiSdkVersion = cliSDKVersion;
 
 	// Determine if the "manifest" file's "apiversion" needs updating.
 	let isApiVersionUpdateRequired = false;
@@ -873,6 +874,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 			'-u', 'localhost',
 			'-d', tmpDir,
 			'-p', 'android',
+			'--sdk', this.tiSdkVersion,
 			'--force'
 		],
 		this.logger
@@ -917,7 +919,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 
 	// Run the temp app.
 	this.logger.debug(__('Running example project...', tmpDir.cyan));
-	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir, '--sdk', this.tiSdkVersion ];
 	if (this.target) {
 		buildArgs.push('-T');
 		buildArgs.push(this.target);
