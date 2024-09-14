@@ -74,7 +74,7 @@ async function generateI18n () {
 	const project = path.join(projectDir, '..');
 
 	const i18nData = i18n.load(project);
-	const fileHeader = '/**\n * Appcelerator Titanium\n * this is a generated file - DO NOT EDIT\n */\n\n';
+	const fileHeader = '/**\n * Titanium SDK\n * this is a generated file - DO NOT EDIT\n */\n\n';
 	for (const [ language, data ] of Object.entries(i18nData)) {
 		const dir = path.join(appDir, `${language}.lproj`);
 		await fs.ensureDir(dir);

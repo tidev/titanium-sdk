@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -135,7 +135,7 @@ public class TiWebChromeClient extends WebChromeClient
 	/**
 	 * Called when the HTML is requesting permission to do WebRTC audio/video capture or access a media resource.
 	 * This method will prompt the end-user for permission to grant access to the requested web resource.
-	 * @param request Object providing the grant/deny callback and the resoruces being requested.
+	 * @param request Object providing the grant/deny callback and the resources being requested.
 	 */
 	@Override
 	public void onPermissionRequest(final PermissionRequest request)
@@ -539,7 +539,7 @@ public class TiWebChromeClient extends WebChromeClient
 			}
 		};
 
-		// Display the file chooser or catpure activity.
+		// Display the file chooser or capture activity.
 		try {
 			Intent intent = createFileChooserIntentFrom(chooserParams);
 			activity.launchActivityForResult(intent, activity.getUniqueResultCode(), resultHandler);

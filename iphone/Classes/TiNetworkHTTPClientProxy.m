@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -69,7 +69,7 @@ extern NSString *const TI_APPLICATION_GUID;
   if ([httpRequest response] != nil) {
     APSHTTPResponseState curState = [[httpRequest response] readyState];
     if ((curState == APSHTTPResponseStateUnsent) || (curState == APSHTTPResponseStateDone)) {
-      //Clear out the client + delegate and continue
+      // Clear out the client + delegate and continue
       RELEASE_TO_NIL(httpRequest);
       RELEASE_TO_NIL(apsConnectionDelegate);
     } else {
@@ -326,11 +326,11 @@ extern NSString *const TI_APPLICATION_GUID;
   }
   NSInteger responseCode = [response status];
   /**
-     *    Per customer request, successful communications that resulted in an
-     *    4xx or 5xx response is treated as an error instead of an onload.
-     *    For backwards compatibility, if no error handler is provided, even
-     *    an 4xx or 5xx response will fall back onto an onload.
-     */
+   *    Per customer request, successful communications that resulted in an
+   *    4xx or 5xx response is treated as an error instead of an onload.
+   *    For backwards compatibility, if no error handler is provided, even
+   *    an 4xx or 5xx response will fall back onto an onload.
+   */
   if (hasOnerror && (responseCode >= 400) && (responseCode <= 599)) {
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:responseCode message:@"HTTP error"];
     [event setObject:@"error" forKey:@"type"];
@@ -395,53 +395,53 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setOnload:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onload"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onload"
+        notification:NO];
   hasOnload = (callback == nil) ? NO : YES;
 }
 - (void)setOnerror:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onerror"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onerror"
+        notification:NO];
   hasOnerror = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOnreadystatechange:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onreadystatechange"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onreadystatechange"
+        notification:NO];
   hasOnreadystatechange = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOndatastream:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"ondatastream"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"ondatastream"
+        notification:NO];
   hasOndatastream = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOnsendstream:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onsendstream"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onsendstream"
+        notification:NO];
   hasOnsendstream = (callback == nil) ? NO : YES;
   ;
 }
 - (void)setOnredirect:(id)callback
 {
   ENSURE_SINGLE_ARG_OR_NIL(callback, KrollCallback)
-      [self replaceValue:callback
-                  forKey:@"onredirect"
-            notification:NO];
+  [self replaceValue:callback
+              forKey:@"onredirect"
+        notification:NO];
   hasOnredirect = (callback == nil) ? NO : YES;
   ;
 }

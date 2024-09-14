@@ -29,6 +29,11 @@ methods:
         type: String
     since: { android: "12.0.0" }
 
+  - name: moveToBackground
+    summary: Moves the app to the background
+    platforms: [android]
+    since: { android: "12.4.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
@@ -894,6 +899,20 @@ properties:
     platforms: [android]
     since: "8.0.0"
 
+  - name: TAB_MODE_FIXED
+    summary: Set the TabGroup tab mode to fixed (default).
+    type: Number
+    availability: creation
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: TAB_MODE_SCROLLABLE
+    summary: Set the TabGroup tab mode to scrollable.
+    type: Number
+    availability: creation
+    platforms: [android]
+    since: "12.2.0"
+
   - name: SCROLL_FLAG_ENTER_ALWAYS
     summary: When entering (scrolling on screen) the view will scroll on any downwards scroll event, regardless of whether the scrolling view is also scrolling. This is commonly referred to as the 'quick return' pattern.
     type: Number
@@ -937,11 +956,39 @@ properties:
     since: "12.1.0"
 
   - name: SCROLL_FLAG_SNAP_MARGINS
-    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself. 
+    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself.
     type: Number
     permission: read-only
     platforms: [android]
     since: "12.1.0"
+
+  - name: WEBVIEW_SCROLLBARS_DEFAULT
+    summary: Show horizontal and vertical scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_VERTICAL
+    summary: Hide vertical scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL
+    summary: Hide horizontal scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_ALL
+    summary: Hide all scrollbars in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
 
 examples:
   - title: Android Preferences Example

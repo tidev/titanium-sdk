@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -17,46 +17,46 @@
 extern JSStringRef kTiStringLength;
 
 /** Event lifecycle, a documentation.
- 
+
  The event structures are designed to be threadsafe, yet don't have a lock.
  How is this so? The trick is the lifecycle and atomic transactions on pendingEvents:
- 
+
  Creation:
-	Immutable variables can be set, only one thread has access.
-	Can call FireEvent.
+        Immutable variables can be set, only one thread has access.
+        Can call FireEvent.
  FireEvent:
-	While searching for new targetProxy, only one thread has access.
-	pendingEvents is set to the number of threads that will be accessing it.
-	Once targetProxy found, the event becomes fully immutable again, and event
-	is sent to multiple run loops.
+        While searching for new targetProxy, only one thread has access.
+        pendingEvents is set to the number of threads that will be accessing it.
+        Once targetProxy found, the event becomes fully immutable again, and event
+        is sent to multiple run loops.
  EventProcess:
-	Event is immutable during processing
-	cancelBubble is mutable, but blindly set during processing, thus no race
-	Once done processing, the pendingEvents is atomically decrimented.
-	Once pendingEvents reaches 0, we are certain that no other threads are using
-	this event. During this time, the event is again mutable for purposes of
-	propagation- caching and then fireEvent.
-	This also means that while processing, the event will NOT be deallocated
-	under us.
+        Event is immutable during processing
+        cancelBubble is mutable, but blindly set during processing, thus no race
+        Once done processing, the pendingEvents is atomically decrimented.
+        Once pendingEvents reaches 0, we are certain that no other threads are using
+        this event. During this time, the event is again mutable for purposes of
+        propagation- caching and then fireEvent.
+        This also means that while processing, the event will NOT be deallocated
+        under us.
  */
 
 struct TiBindingEventOpaque {
-  //Abstraction values and tread safety.
-  int pendingEvents; //Mutable, acts as lock of sorts due to atomic decrement
-  bool bubbles; //Immutable
-  bool cancelBubble; //Mutable, set to true
-  bool reportError; //Immutable
-  NSInteger errorCode; //Immutable
-  //Objective C version
-  TiProxy *targetProxy; //Immutable in-event, mutable for bubbling.
-  TiProxy *sourceProxy; //Immutable
-  NSString *eventString; //Immutable
-  NSDictionary *payloadDictionary; //Immutable
-  NSString *errorMessageString; //Immutable
-  //Immutable caching.
-  JSStringRef eventStringRef; //Immutable
-  JSStringRef errorMessageStringRef; //Immutable
-  //Mutable caching in future.
+  // Abstraction values and tread safety.
+  int pendingEvents; // Mutable, acts as lock of sorts due to atomic decrement
+  bool bubbles; // Immutable
+  bool cancelBubble; // Mutable, set to true
+  bool reportError; // Immutable
+  NSInteger errorCode; // Immutable
+  // Objective C version
+  TiProxy *targetProxy; // Immutable in-event, mutable for bubbling.
+  TiProxy *sourceProxy; // Immutable
+  NSString *eventString; // Immutable
+  NSDictionary *payloadDictionary; // Immutable
+  NSString *errorMessageString; // Immutable
+  // Immutable caching.
+  JSStringRef eventStringRef; // Immutable
+  JSStringRef errorMessageStringRef; // Immutable
+  // Mutable caching in future.
   JSContextRef contextRef;
   JSObjectRef eventObjectRef;
 };
@@ -117,7 +117,7 @@ TiProxy *TiBindingEventNextBubbleTargetProxy(TiBindingEvent event, TiProxy *curr
     parentOnly = false;
     currentTarget = [currentTarget parentForBubbling];
 
-    //TIMOB-11691. Ensure that tableviewrowproxy modifies the event object before passing it along.
+    // TIMOB-11691. Ensure that tableviewrowproxy modifies the event object before passing it along.
     if ([currentTarget respondsToSelector:@selector(createEventObject:)]) {
       NSDictionary *curPayload = event->payloadDictionary;
       NSDictionary *modifiedPayload = [currentTarget performSelector:@selector(createEventObject:) withObject:curPayload];
@@ -158,7 +158,7 @@ void TiBindingEventFire(TiBindingEvent event)
   pthread_once(&jsBindingRunOnce, TiBindingInitialize);
   TiProxy *targetProxy = TiBindingEventNextBubbleTargetProxy(event, event->targetProxy, false);
 
-  if (targetProxy == nil) { //Nobody to target, we're done here.
+  if (targetProxy == nil) { // Nobody to target, we're done here.
     TiBindingEventDispose(event);
     return;
   }
@@ -170,17 +170,17 @@ void TiBindingEventFire(TiBindingEvent event)
     event->targetProxy = [targetProxy retain];
   }
   event->pendingEvents = runloopcount;
-  if (runloopcount == 1) { //Main case: One run loop.
+  if (runloopcount == 1) { // Main case: One run loop.
     TiBindingRunLoop ourRunLoop = [targetProxy primaryBindingRunLoop];
     if (ourRunLoop != nil) { // It's possible that the one remaining runloop
-      //Was not the primaryBindingRunLoop. In which case, we flow to the
-      //multiple run loops as an edge case.
+      // Was not the primaryBindingRunLoop. In which case, we flow to the
+      // multiple run loops as an edge case.
       TiBindingRunLoopEnqueue(ourRunLoop, TiBindingEventProcess, event);
       return;
     }
   }
 
-  if (runloopcount > 0) { //Edge case: Multiple run loops.
+  if (runloopcount > 0) { // Edge case: Multiple run loops.
     NSArray *runLoopArray = [targetProxy bindingRunLoopArray];
     for (TiBindingRunLoop thisRunLoop in runLoopArray) {
       TiBindingRunLoopEnqueue(thisRunLoop, TiBindingEventProcess, event);
@@ -188,7 +188,7 @@ void TiBindingEventFire(TiBindingEvent event)
     return;
   }
 
-  //Extreme edge case. Proxy thinks it still has listeners, but no run loops?!
+  // Extreme edge case. Proxy thinks it still has listeners, but no run loops?!
   TiProxy *newTarget = TiBindingEventNextBubbleTargetProxy(event, targetProxy, YES);
   if (event->targetProxy != newTarget) {
     [event->targetProxy release];
@@ -216,7 +216,7 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
   }
 
   if (callbackCount > 0) {
-    //Convert to JSObjectRefs
+    // Convert to JSObjectRefs
     if (eventObjectRef == NULL) {
       eventObjectRef = TiBindingTiValueFromNSDictionary(context, event->payloadDictionary);
     }
@@ -236,7 +236,7 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
     JSObjectSetProperty(context, eventObjectRef, jsEventTypeStringRef, eventStringRef, kJSPropertyAttributeReadOnly, NULL);
     JSObjectSetProperty(context, eventObjectRef, jsEventSourceStringRef, eventSourceRef, kJSPropertyAttributeReadOnly, NULL);
 
-    //Error reporting
+    // Error reporting
     if (event->reportError) {
       JSValueRef successValue = JSValueMakeBoolean(context, (event->errorCode == 0));
       JSValueRef codeValue = JSValueMakeNumber(context, (double)event->errorCode);
@@ -269,25 +269,25 @@ void TiBindingEventProcess(TiBindingRunLoop runloop, void *payload)
       // Note cancel bubble
       cancelBubbleValue = JSObjectGetProperty(context, eventObjectRef, jsEventCancelBubbleStringRef, NULL);
       if (JSValueToBoolean(context, cancelBubbleValue)) {
-        event->cancelBubble = true; //Because we only set true, not read nor set false, there's no race condition?
+        event->cancelBubble = true; // Because we only set true, not read nor set false, there's no race condition?
       }
     }
   }
 
   int pendingEvents = OSAtomicDecrement32Barrier(&event->pendingEvents);
   if (pendingEvents > 0) {
-    //Only the last event process gets to do propagation.
+    // Only the last event process gets to do propagation.
     return;
   }
 
-  //Last one processing the event for this proxy, pass it on to the parent.
+  // Last one processing the event for this proxy, pass it on to the parent.
   TiProxy *newTarget = TiBindingEventNextBubbleTargetProxy(event, event->targetProxy, YES);
   if (event->targetProxy != newTarget) {
     [event->targetProxy release];
     event->targetProxy = [newTarget retain];
   }
   TiBindingEventFire(event);
-  //See who gets it next.
+  // See who gets it next.
 }
 
 void TiBindingEventDispose(TiBindingEvent event)
@@ -307,7 +307,7 @@ void TiBindingEventDispose(TiBindingEvent event)
     JSValueUnprotect(event->contextRef, event->eventObjectRef);
   }
   if (event->contextRef != NULL) {
-    //TODO: Do we protect and release the context ref?
+    // TODO: Do we protect and release the context ref?
   }
   free(event);
 }

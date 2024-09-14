@@ -1,5 +1,5 @@
 //
-//  TiDev Titanium Mobile
+//  Titanium SDK
 //  WARNING: this is a generated file and should not be modified
 //
 

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -193,7 +193,7 @@
 
   if (currentGradient == nil) {
     [gradientLayer removeFromSuperlayer];
-    //Because there's the chance that the other state still has the gradient, let's keep it around.
+    // Because there's the chance that the other state still has the gradient, let's keep it around.
     return;
   }
 
@@ -396,10 +396,10 @@
   return height < 1 ? tableview.rowHeight : height;
 }
 
-//Allows use of scrollsToTop property on a table.
-//Useful when you have multiple tables in your view, you can
-//set which table will respond to tap on status bar to scroll to top.
-//http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html
+// Allows use of scrollsToTop property on a table.
+// Useful when you have multiple tables in your view, you can
+// set which table will respond to tap on status bar to scroll to top.
+// http://developer.apple.com/library/ios/#documentation/uikit/reference/UIScrollView_Class/Reference/UIScrollView.html
 - (void)setScrollsToTop_:(id)value
 {
   [[self tableView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
@@ -459,7 +459,7 @@
     BOOL initBackGround = YES;
     id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
     if (style == UITableViewStyleGrouped) {
-      //If the style is grouped do not call this method unless a backgroundColor is specified
+      // If the style is grouped do not call this method unless a backgroundColor is specified
       initBackGround = (bgInitValue != nil);
     }
     if (initBackGround) {
@@ -541,7 +541,7 @@
     return;
   }
 
-  //Table views hate having 0 sections, so we have to act like it has at least 1.
+  // Table views hate having 0 sections, so we have to act like it has at least 1.
   oldCount = MAX(1, oldCount);
   newCount = MAX(1, newCount);
 
@@ -567,8 +567,8 @@
 
 - (void)replaceData:(NSMutableArray *)data animation:(UITableViewRowAnimation)animation
 {
-  //Technically, we should assert that sections is non-nil, but this code
-  //won't have any problems in the case that it is actually nil.
+  // Technically, we should assert that sections is non-nil, but this code
+  // won't have any problems in the case that it is actually nil.
   TiUITableViewProxy *ourProxy = (TiUITableViewProxy *)[self proxy];
 
   NSUInteger oldCount = ourProxy.sectionCount.unsignedIntegerValue;
@@ -588,13 +588,13 @@
 
   [ourProxy setInternalSections:data];
 
-  int newCount = 0; //Since we're iterating anyways, we might as well not get count.
+  int newCount = 0; // Since we're iterating anyways, we might as well not get count.
 
   for (TiUITableViewSectionProxy *section in [(TiUITableViewProxy *)[self proxy] internalSections]) {
     [section setTable:self];
     [section setSection:newCount++];
     [ourProxy rememberSection:section];
-    //TODO: Shouldn't this be done by Section itself? Doesn't it already?
+    // TODO: Shouldn't this be done by Section itself? Doesn't it already?
     for (TiUITableViewRowProxy *row in section) {
       row.section = section;
       row.parent = section;
@@ -605,7 +605,7 @@
   }
 }
 
-//Assertions no longer are needed; we ensure that the sections are not nil.
+// Assertions no longer are needed; we ensure that the sections are not nil.
 - (void)updateRow:(TiUITableViewRowProxy *)row
 {
   row.table = self;
@@ -676,10 +676,10 @@
   [row.section reorderRows];
 }
 
-//Because UITableView does not like having 0 sections, we MUST maintain the facade of having at least one section,
-//albeit with 0 rows. Because of this, we might come across several times where this fictional first section will
-//be asked about. Because we don't want the sections array throwing range exceptions, sectionForIndex MUST be used
-//for this protection.
+// Because UITableView does not like having 0 sections, we MUST maintain the facade of having at least one section,
+// albeit with 0 rows. Because of this, we might come across several times where this fictional first section will
+// be asked about. Because we don't want the sections array throwing range exceptions, sectionForIndex MUST be used
+// for this protection.
 - (TiUITableViewSectionProxy *)sectionForIndex:(NSInteger)index
 {
   NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
@@ -787,7 +787,7 @@
         TiUITableViewRowProxy *moveRow = [[[updateSection rows] objectAtIndex:rowIndex] retain];
 
         [removeRows addObject:[NSIndexPath indexPathForRow:i inSection:updateSectionIndex]];
-        /*We need to save the row proxy before deleting it, as the KrollObject might get finalized 
+        /*We need to save the row proxy before deleting it, as the KrollObject might get finalized
                      before appendRow can happen and thus leaving the proxy with no KrollObject associated with it.*/
         [(TiUITableViewProxy *)[self proxy] rememberProxy:moveRow];
         [self deleteRow:moveRow];
@@ -808,7 +808,7 @@
     [self appendRow:row];
     for (TiUITableViewRowProxy *moveRow in addRows) {
       [self appendRow:moveRow];
-      //Removing the temporarly saved proxy.
+      // Removing the temporarly saved proxy.
       [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
     }
     if (![self isSearchStarted]) {
@@ -1042,10 +1042,10 @@
       [self hideSearchScreen:nil];
     } else {
       /*
-             TIMOB-7397. Observed that `searchBarTextDidBeginEditing` delegate 
-             method was being called on screen transition which was causing a 
-             visual glitch. Checking for isFirstResponder at this point always 
-             returns false. Calling blur here so that the UISearchBar resigns 
+             TIMOB-7397. Observed that `searchBarTextDidBeginEditing` delegate
+             method was being called on screen transition which was causing a
+             visual glitch. Checking for isFirstResponder at this point always
+             returns false. Calling blur here so that the UISearchBar resigns
              as first responder on main thread
             */
       [searchField performSelector:@selector(blur:) withObject:nil];
@@ -1057,8 +1057,8 @@
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
   UIView *result = [super hitTest:point withEvent:event];
-  if (result == self) { //There is no valid reason why the TiUITableView will get an
-    //touch event; it should ALWAYS be a child view.
+  if (result == self) { // There is no valid reason why the TiUITableView will get an
+    // touch event; it should ALWAYS be a child view.
     return nil;
   }
   return result;
@@ -1143,7 +1143,7 @@
     [event setObject:NUMBOOL(viaSearch) forKey:@"search"];
 
     if (indexPath != nil) {
-      //We have index path. Let us fill out section and row information. Also since the
+      // We have index path. Let us fill out section and row information. Also since the
       NSInteger sectionIdx = [indexPath section];
       NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
       TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
@@ -1183,7 +1183,7 @@
   [event setObject:NUMBOOL(viaSearch) forKey:@"search"];
 
   if (indexPath != nil) {
-    //We have index path. Let us fill out section and row information. Also since the
+    // We have index path. Let us fill out section and row information. Also since the
     NSInteger sectionIdx = [indexPath section];
     NSArray *sections = [(TiUITableViewProxy *)[self proxy] internalSections];
     TiUITableViewSectionProxy *section = [self sectionForIndex:sectionIdx];
@@ -1202,7 +1202,7 @@
       [[self proxy] fireEvent:@"twofingertap" withObject:event];
     }
   } else if ([recognizer numberOfTapsRequired] == 2) {
-    //Because double-tap suppresses touchStart and double-click, we must do this:
+    // Because double-tap suppresses touchStart and double-click, we must do this:
     if ([[self proxy] _hasListeners:@"touchstart"]) {
       [[self proxy] fireEvent:@"touchstart" withObject:event propagate:YES];
     }
@@ -1230,7 +1230,7 @@
     BOOL search = [searchController isActive];
 
     if (indexPath == nil) {
-      //indexPath will also be nil if you click the header of the first section. TableView Bug??
+      // indexPath will also be nil if you click the header of the first section. TableView Bug??
       TiUITableViewSectionProxy *section = [self sectionForIndex:0];
       if (section != nil) {
         CGRect headerRect = [ourTableView rectForHeaderInSection:0];
@@ -1257,7 +1257,7 @@
     }
 
     if (!search) {
-      //Make sure that the point does not fall into the rect for header or footer views
+      // Make sure that the point does not fall into the rect for header or footer views
       CGRect headerRect = [ourTableView rectForHeaderInSection:[indexPath section]];
       CGRect footerRect = [ourTableView rectForFooterInSection:[indexPath section]];
       if (CGRectContainsPoint(headerRect, point) || CGRectContainsPoint(footerRect, point)) {
@@ -1321,8 +1321,8 @@
   if ([searchString length] == 0) {
     RELEASE_TO_NIL(searchResultIndexes);
 
-    //Need to reload the tableview, as some of the cells might be reused as part
-    //of a previous search and as a result may not be visible on screen.
+    // Need to reload the tableview, as some of the cells might be reused as part
+    // of a previous search and as a result may not be visible on screen.
     [tableview reloadData];
 
     return;
@@ -1336,7 +1336,7 @@
     searchResultIndexEnumerator = [searchResultIndexes objectEnumerator];
   }
 
-  //TODO: If the search is adding letters to the previous search string, do it by elimination instead of adding.
+  // TODO: If the search is adding letters to the previous search string, do it by elimination instead of adding.
 
   NSString *ourSearchAttribute = filterAttribute;
   if (ourSearchAttribute == nil) {
@@ -1348,7 +1348,7 @@
   for (TiUITableViewSectionProxy *thisSection in [(TiUITableViewProxy *)[self proxy] internalSections]) {
     NSMutableIndexSet *thisIndexSet = [searchResultIndexEnumerator nextObject];
     if (thisIndexSet == nil) {
-      searchResultIndexEnumerator = nil; //Make sure we don't use the enumerator anymore.
+      searchResultIndexEnumerator = nil; // Make sure we don't use the enumerator anymore.
       thisIndexSet = [NSMutableIndexSet indexSet];
       [searchResultIndexes addObject:thisIndexSet];
     } else {
@@ -1622,7 +1622,7 @@
 - (TiUIView *)sectionView:(NSInteger)section forLocation:(NSString *)location section:(TiUITableViewSectionProxy **)sectionResult
 {
   TiUITableViewSectionProxy *proxy = [self sectionForIndex:section];
-  //In the event that proxy is nil, this all flows out to returning nil safely anyways.
+  // In the event that proxy is nil, this all flows out to returning nil safely anyways.
   if (sectionResult != nil) {
     *sectionResult = proxy;
   }
@@ -1643,10 +1643,17 @@
   [table scrollToRowAtIndexPath:path atScrollPosition:position animated:animated];
 }
 
+- (void)setKeyboardDismissMode_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  [[self tableView] setKeyboardDismissMode:[TiUtils intValue:value def:UIScrollViewKeyboardDismissModeNone]];
+  [[self proxy] replaceValue:value forKey:@"keyboardDismissMode" notification:NO];
+}
+
 - (void)setSeparatorInsets_:(id)arg
 {
   DEPRECATED_REPLACED(@"UI.TableView.separatorInsets", @"5.2.0", @"UI.TableView.tableSeparatorInsets")
-      [self setTableSeparatorInsets_:arg];
+  [self setTableSeparatorInsets_:arg];
 }
 
 - (void)setTableSeparatorInsets_:(id)arg
@@ -1812,9 +1819,9 @@
   isSearchBarInNavigation = [TiUtils boolValue:[self.proxy valueForKey:@"showSearchBarInNavBar"] def:NO];
 
   if (search != nil) {
-    //TODO: now that we're using the search controller, we can move away from
-    //doing our own custom search screen since the controller gives this to us
-    //for free
+    // TODO: now that we're using the search controller, we can move away from
+    // doing our own custom search screen since the controller gives this to us
+    // for free
     searchField = [search retain];
     if (!isSearchBarInNavigation) {
       [searchField windowWillOpen];
@@ -2129,12 +2136,12 @@
 
   if (cell == nil) {
     if (row.callbackCell != nil) {
-      //Ensure that the proxy is associated with one cell only
+      // Ensure that the proxy is associated with one cell only
       [row.callbackCell setProxy:nil];
     }
     cell = [[[TiUITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:row.tableClass row:row] autorelease];
   } else {
-    //Ensure that the row is detached if reusing cells did not do so.
+    // Ensure that the row is detached if reusing cells did not do so.
     [row prepareTableRowForReuse];
     // Have to reset the proxy on the cell, and the row's callback cell, as it may have been cleared in reuse operations (or reassigned)
     [(TiUITableViewCell *)cell setProxy:row];
@@ -2155,7 +2162,7 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)ourTableView
 {
-  //TIMOB-15526
+  // TIMOB-15526
   if ([searchController isActive] && ourTableView.backgroundColor == [UIColor clearColor]) {
     ourTableView.backgroundColor = [UIColor whiteColor];
   }
@@ -2208,7 +2215,7 @@
       NSIndexSet *thisSectionSet = [NSIndexSet indexSetWithIndex:[indexPath section]];
       if ([(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue > 0) {
         [table deleteSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
-      } else //There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
+      } else // There always must be at least one section. So instead, we have it reload to clear out the header and footer, etc.
       {
         [table reloadSections:thisSectionSet withRowAnimation:UITableViewRowAnimationFade];
       }
@@ -2228,23 +2235,23 @@
 
   TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 
-  //If editable, then this is always true.
+  // If editable, then this is always true.
   if ([TiUtils boolValue:[row valueForKey:@"editable"] def:editable]) {
     return YES;
   }
 
-  //Elsewhise, when not editing nor moving, return NO, so that swipes don't trigger.
+  // Elsewhise, when not editing nor moving, return NO, so that swipes don't trigger.
 
   if (!editing && !moving) {
     return NO;
   }
 
-  //Otherwise, when editing or moving, make sure that both can be done.
+  // Otherwise, when editing or moving, make sure that both can be done.
 
   return [TiUtils boolValue:[row valueForKey:@"moveable"] def:moving || moveable] || [TiUtils boolValue:[row valueForKey:@"editable"] def:editing];
 
-  //Why are we checking editable twice? Well, once it's with the default of editable. The second time with the default of editing.
-  //Effectively, editable is being tri-state.
+  // Why are we checking editable twice? Well, once it's with the default of editable. The second time with the default of editing.
+  // Effectively, editable is being tri-state.
 }
 
 - (BOOL)tableView:(UITableView *)ourTableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2270,9 +2277,9 @@
   RETURN_IF_SEARCH_TABLE_VIEW(UITableViewCellEditingStyleNone);
   TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
 
-  //Yes, this looks similar to canEdit, but here we need to make the distinction between moving and editing.
+  // Yes, this looks similar to canEdit, but here we need to make the distinction between moving and editing.
 
-  //Actually, it's easier than that. editable or editing causes this to default true. Otherwise, it's the editable flag.
+  // Actually, it's easier than that. editable or editing causes this to default true. Otherwise, it's the editable flag.
   if ([TiUtils boolValue:[row valueForKey:@"editable"] def:editable || editing]) {
     return UITableViewCellEditingStyleDelete;
   }
@@ -2288,7 +2295,7 @@
   NSInteger toRowIndex = [destinationIndexPath row];
 
   if ((fromSectionIndex == toSectionIndex) && (fromRowIndex == toRowIndex)) {
-    //No need to fire a move event if the row never moved
+    // No need to fire a move event if the row never moved
     return;
   }
 
@@ -2331,6 +2338,73 @@
   [self fireRowsSelectedEvent];
 }
 
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [self swipeConfigurationForState:@"leading" withIndexPath:indexPath isDefault:NO];
+}
+
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [self swipeConfigurationForState:@"trailing" withIndexPath:indexPath isDefault:YES];
+}
+
+- (UISwipeActionsConfiguration *)swipeConfigurationForState:(NSString *)state withIndexPath:(NSIndexPath *)indexPath isDefault:(BOOL)isDefault
+{
+  TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+  TiUITableViewSectionProxy *section = [self sectionForIndex:indexPath.section];
+
+  BOOL canEdit = [TiUtils boolValue:[row valueForKey:@"editable"] def:NO];
+
+  if (!canEdit) {
+    return nil;
+  }
+
+  NSArray<NSDictionary *> *editActionProxies = (NSArray *)[row valueForKey:@"editActions"];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:isDefault ? @"state == nil OR state == %@" : @"state == %@", state];
+  NSArray<NSDictionary *> *editActions = [editActionProxies filteredArrayUsingPredicate:predicate];
+  NSMutableArray<UIContextualAction *> *nativeEditActions = [NSMutableArray arrayWithCapacity:editActions.count];
+
+  if (IS_NULL_OR_NIL(editActions) || editActions.count == 0) {
+    return nil;
+  }
+
+  for (id prop in editActions) {
+    NSString *title = [TiUtils stringValue:@"title" properties:prop];
+    NSString *identifier = [TiUtils stringValue:@"identifier" properties:prop];
+    UIContextualActionStyle style = [TiUtils intValue:@"style" properties:prop def:UIContextualActionStyleNormal];
+    TiColor *color = [TiUtils colorValue:@"color" properties:prop];
+    id image = [prop objectForKey:@"image"];
+
+    UIContextualAction *action = [UIContextualAction contextualActionWithStyle:style
+                                                                         title:title
+                                                                       handler:^(UIContextualAction *_Nonnull action, __kindof UIView *_Nonnull sourceView, void (^_Nonnull completionHandler)(BOOL)) {
+                                                                         completionHandler(YES);
+
+                                                                         [[self proxy] fireEvent:@"editaction"
+                                                                                      withObject:@{
+                                                                                        @"index" : @(indexPath.row),
+                                                                                        @"row" : row,
+                                                                                        @"section" : section,
+                                                                                        @"action" : NULL_IF_NIL(action.title),
+                                                                                        @"identifier" : NULL_IF_NIL(identifier)
+                                                                                      }];
+                                                                       }];
+
+    if (color != nil) {
+      action.backgroundColor = color.color;
+    }
+
+    if (image != nil) {
+      NSURL *url = [TiUtils toURL:image proxy:(TiProxy *)self.proxy];
+      action.image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+    }
+
+    [nativeEditActions addObject:action];
+  }
+
+  return [UISwipeActionsConfiguration configurationWithActions:nativeEditActions];
+}
+
 #pragma mark Collation
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView
@@ -2368,7 +2442,7 @@
   TiUITableViewRowProxy *rowProxy = [self rowForIndexPath:path];
 
   if ([rowProxy callbackCell] == nil) {
-    //Not displayed at present. Go ahead and scroll to row and reperform selectRow after delay
+    // Not displayed at present. Go ahead and scroll to row and reperform selectRow after delay
     [[self tableView] scrollToRowAtIndexPath:path atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
     NSDictionary *dict = [NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"];
     NSArray *newArgs = [NSArray arrayWithObjects:NUMINTEGER(index), dict, nil];
@@ -2670,15 +2744,15 @@
 #endif
   }
   /*
-     * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
-     * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
-     * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
-     * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
-     * provided it is NOT the empty string.
-     * 
-     * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
-     * return a 0.0 height that is overridden by the system.
-     */
+   * This behavior is slightly more complex between iOS 4 and iOS 5 than you might believe, and Apple's
+   * documentation is once again misleading. It states that in iOS 4 this value was "ignored if
+   * -[delegate tableView:viewForHeaderInSection:] returned nil" but apparently a non-nil value for
+   * -[delegate tableView:titleForHeaderInSection:] is considered a valid value for height handling as well,
+   * provided it is NOT the empty string.
+   *
+   * So for parity with iOS 4, iOS 5 must similarly treat the empty string header as a 'nil' value and
+   * return a 0.0 height that is overridden by the system.
+   */
   else if ([sectionProxy headerTitle] != nil) {
     if ([[sectionProxy headerTitle] isEqualToString:@""]) {
       return size;
@@ -2829,7 +2903,7 @@
 {
   // suspend image loader while we're scrolling to improve performance
   [[ImageLoader sharedLoader] suspend];
-  if ([self.proxy _hasListeners:@"dragStart"]) { //TODO: Deprecate old event.
+  if ([self.proxy _hasListeners:@"dragStart"]) { // TODO: Deprecate old event.
     [self.proxy fireEvent:@"dragStart" withObject:nil];
   }
   if ([self.proxy _hasListeners:@"dragstart"]) {
@@ -2843,25 +2917,25 @@
     // resume image loader when we're done scrolling
     [[ImageLoader sharedLoader] resume];
   }
-  if ([self.proxy _hasListeners:@"dragEnd"]) { //TODO: Deprecate old event
+  if ([self.proxy _hasListeners:@"dragEnd"]) { // TODO: Deprecate old event
     [self.proxy fireEvent:@"dragEnd" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate], @"decelerate", nil]];
   }
   if ([self.proxy _hasListeners:@"dragend"]) {
     [self.proxy fireEvent:@"dragend" withObject:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:decelerate], @"decelerate", nil]];
   }
 
-  //This section of code now moved to [TiUITextWidgetView updateKeyboardStatus]
+  // This section of code now moved to [TiUITextWidgetView updateKeyboardStatus]
   // Update keyboard status to insure that any fields actively being edited remain in view
-  //if ([[[TiApp app] controller] keyboardVisible]) {
-  //    [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
-  //}
+  // if ([[[TiApp app] controller] keyboardVisible]) {
+  //     [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+  // }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
   // resume image loader when we're done scrolling
   [[ImageLoader sharedLoader] resume];
-  if ([self.proxy _hasListeners:@"scrollEnd"]) { //TODO: Deprecate old event.
+  if ([self.proxy _hasListeners:@"scrollEnd"]) { // TODO: Deprecate old event.
     [self.proxy fireEvent:@"scrollEnd" withObject:[self eventObjectForScrollView:scrollView]];
   }
   if ([self.proxy _hasListeners:@"scrollend"]) {

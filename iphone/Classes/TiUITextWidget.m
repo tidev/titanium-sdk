@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -75,7 +75,7 @@
 
 - (void)dealloc
 {
-  //Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
+  // Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
   TiThreadPerformOnMainThread(
       ^{
         [textWidgetView removeFromSuperview];

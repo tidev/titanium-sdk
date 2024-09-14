@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -53,10 +53,6 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE,
 	TiC.PROPERTY_BACKGROUND_FOCUSED_IMAGE,
 	TiC.PROPERTY_BACKGROUND_DISABLED_IMAGE,
-	TiC.PROPERTY_BACKGROUND_COLOR,
-	TiC.PROPERTY_BACKGROUND_SELECTED_COLOR,
-	TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR,
-	TiC.PROPERTY_BACKGROUND_DISABLED_COLOR,
 	TiC.PROPERTY_BACKGROUND_PADDING,
 	TiC.PROPERTY_BACKGROUND_GRADIENT,
 	// border properties
@@ -98,7 +94,8 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
 	TiC.PROPERTY_TRANSITION_NAME,
 	TiC.PROPERTY_HIDDEN_BEHAVIOR,
-	TiC.PROPERTY_ANCHOR_POINT
+	TiC.PROPERTY_ANCHOR_POINT,
+	TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG
 })
 public abstract class TiViewProxy extends KrollProxy
 {
@@ -1068,6 +1065,12 @@ public abstract class TiViewProxy extends KrollProxy
 		return this.parent.get();
 	}
 
+	@Kroll.setProperty
+	public void setBackgroundColor(String color)
+	{
+		setPropertyAndFire(TiC.PROPERTY_BACKGROUND_COLOR, color);
+	}
+
 	@Kroll.getProperty
 	public String getBackgroundColor()
 	{
@@ -1100,6 +1103,12 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(tiBackgroundDrawable, TiUIHelper.BACKGROUND_DEFAULT_STATE_1);
 	}
 
+	@Kroll.setProperty
+	public void setBackgroundSelectedColor(String color)
+	{
+		setPropertyAndFire(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, color);
+	}
+
 	@Kroll.getProperty
 	public String getBackgroundSelectedColor()
 	{
@@ -1122,6 +1131,12 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_SELECTED_STATE);
 	}
 
+	@Kroll.setProperty
+	public void setBackgroundFocusedColor(String color)
+	{
+		setPropertyAndFire(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR, color);
+	}
+
 	@Kroll.getProperty
 	public String getBackgroundFocusedColor()
 	{
@@ -1142,6 +1157,12 @@ public abstract class TiViewProxy extends KrollProxy
 			return null;
 		}
 		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_FOCUSED_STATE);
+	}
+
+	@Kroll.setProperty
+	public void setBackgroundDisabledColor(String color)
+	{
+		setPropertyAndFire(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR, color);
 	}
 
 	@Kroll.getProperty

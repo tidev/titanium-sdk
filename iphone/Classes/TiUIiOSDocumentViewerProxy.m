@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -88,10 +88,10 @@
 {
   ENSURE_TYPE(value, NSString);
   NSURL *url = [self _toURL:value proxy:self];
-  //UIDocumentInteractionController is recommended to be a new instance for every different url
-  //instead of having titanium developer create a new instance every time a new document url is loaded
-  //we assume that setUrl is called to change doc, so we go ahead and release the controller and create
-  //a new one when asked to present
+  // UIDocumentInteractionController is recommended to be a new instance for every different url
+  // instead of having titanium developer create a new instance every time a new document url is loaded
+  // we assume that setUrl is called to change doc, so we go ahead and release the controller and create
+  // a new one when asked to present
   RELEASE_TO_NIL(controller);
   [self replaceValue:url forKey:@"url" notification:NO];
 }

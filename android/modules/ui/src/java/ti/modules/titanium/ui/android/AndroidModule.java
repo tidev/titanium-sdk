@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -193,6 +193,11 @@ public class AndroidModule extends KrollModule
 	public static final int TABS_STYLE_BOTTOM_NAVIGATION = 1;
 
 	@Kroll.constant
+	public static final int TAB_MODE_FIXED = 1;
+	@Kroll.constant
+	public static final int TAB_MODE_SCROLLABLE = 0;
+
+	@Kroll.constant
 	public static final int TRANSITION_NONE = TiUIView.TRANSITION_NONE;
 	@Kroll.constant
 	public static final int TRANSITION_EXPLODE = TiUIView.TRANSITION_EXPLODE;
@@ -247,6 +252,15 @@ public class AndroidModule extends KrollModule
 	public static final int SCROLL_FLAG_SNAP = 16;
 	@Kroll.constant
 	public static final int SCROLL_FLAG_SNAP_MARGINS = 32;
+
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_DEFAULT = 0;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_VERTICAL = 1;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL = 2;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_ALL = 3;
 
 	public AndroidModule()
 	{
@@ -322,6 +336,11 @@ public class AndroidModule extends KrollModule
 		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
 		return String.format("#%06X",
 			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
+	}
+	@Kroll.method
+	public void moveToBackground()
+	{
+		TiApplication.getAppRootOrCurrentActivity().moveTaskToBack(true);
 	}
 
 	@Override
