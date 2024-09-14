@@ -756,7 +756,14 @@ public class AndroidModule extends KrollModule
 				filter.addAction(TiConvert.toString(action));
 			}
 
-			TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+				&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+				int receiverFlags = Context.RECEIVER_EXPORTED;
+				TiApplication.getInstance().registerReceiver(
+					receiverProxy.getBroadcastReceiver(), filter, receiverFlags);
+			} else {
+				TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			}
 			if (this.registeredBroadcastReceiverProxyList.contains(receiverProxy) == false) {
 				this.registeredBroadcastReceiverProxyList.add(receiverProxy);
 			}

@@ -67,7 +67,7 @@
 @property (nonatomic, readonly) NSNumber *CLIP_MODE_ENABLED;
 @property (nonatomic, readonly) NSNumber *CLIP_MODE_DISABLED;
 
-#ifdef USE_TI_UILISTVIEW
+#if defined(USE_TI_UILISTVIEW) || defined(USE_TI_UITABLEVIEW)
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_DEFAULT;
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_DESTRUCTIVE;
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_NORMAL;

@@ -16,6 +16,7 @@ def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>
+	ndkVersion '22.1.7171670'
 	defaultConfig {
 		minSdkVersion 19
 		targetSdkVersion <%- compileSdkVersion %>
@@ -59,7 +60,8 @@ android {
 				arguments.addAll([
 					'APP_STL:=c++_shared',
 					"-j${Runtime.runtime.availableProcessors()}".toString(),
-					'--output-sync=none'
+					'--output-sync=none',
+					'APP_LD=deprecated'
 				])
 			}
 		}
@@ -162,7 +164,7 @@ project.afterEvaluate {
 }
 
 // Hook into Java compile task.
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
 	// Log all Java linting errors/warnings.
 	options.compilerArgs << "-Xlint:all"
 

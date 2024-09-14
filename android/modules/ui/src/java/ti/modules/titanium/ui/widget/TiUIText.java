@@ -135,6 +135,22 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		this.tv.setOnEditorActionListener(this);
 		this.tv.setOnFocusChangeListener(this);
 		this.tv.setIncludeFontPadding(true);
+		if (proxy.hasListeners("empty")) {
+			this.tv.setOnKeyListener(new View.OnKeyListener()
+			{
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event)
+				{
+					if (tv.getText().length() == 0) {
+						KrollDict data = new KrollDict();
+						data.put("keyCode", keyCode);
+						fireEvent("empty", data);
+					}
+					return false;
+				}
+			});
+		}
+
 		if (field) {
 			this.tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 		} else {
