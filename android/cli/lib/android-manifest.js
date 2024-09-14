@@ -711,7 +711,7 @@ function isElementNode(node) {
  * @param {Object} node The XML node object to check. Can be null/undefined.
  * @returns {Boolean}
  * Returns true if given node is text between XLM elements or attributes.
- * Returns false if not or given an invalild argument.
+ * Returns false if not or given an invalid argument.
  * @private
  */
 function isTextNode(node) {

@@ -1,11 +1,12 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -24,7 +25,7 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -179,6 +180,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// Set the ViewPager as a native view.
 		setNativeView(this.tabGroupViewPager);
+		if (!TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_TAB_BAR_VISIBLE), true)) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
+			this.tabGroupViewPager.setLayoutParams(params);
+			// FIXME change "500" to a calculate value https://github.com/tidev/titanium-sdk/issues/13900
+			this.mBottomNavigationView.setTranslationY(500);
+		}
 	}
 
 	/**
@@ -229,14 +238,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
 		switch (shiftMode) {
 			case 0:
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
 				break;
 			case 1:
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_AUTO);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_AUTO);
 				break;
 			case 2:
 				// NOTE: Undocumented for now, will create new property that has parity with iOS.
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_UNLABELED);
 				break;
 		}
 	}
@@ -335,11 +344,17 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		try {
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)) {
+			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
+			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-				drawable = new RippleDrawable(createRippleColorStateListFrom(getActiveColor(tabProxy)), drawable, null);
+				int color = getActiveColor(tabProxy);
+				if (hasTouchFeedbackColor) {
+					color = TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR),
+						tabProxy.getActivity());
+				}
+				drawable = new RippleDrawable(createRippleColorStateListFrom(color), drawable, null);
 				bottomMenuView.getChildAt(index).setBackground(drawable);
 			}
 		} catch (Exception e) {
@@ -361,6 +376,35 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		String title = TiConvert.toString(tabProxy.getProperty(TiC.PROPERTY_TITLE));
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
+	}
+
+	public void setTabBarVisible(boolean visible)
+	{
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+
+		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
+		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
+		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+
+			// make it a bit slower when moving up again so it won't show the background
+			int duration = !visible ? 200 : 400;
+			LayoutTransition lt = new LayoutTransition();
+			lt.enableTransitionType(LayoutTransition.CHANGING);
+			lt.setDuration(duration);
+			this.tabGroupViewPager.setLayoutTransition(lt);
+			this.tabGroupViewPager.setLayoutParams(params);
+		}
+
+		if (visible) {
+			this.mBottomNavigationView.animate().translationY(0f).setDuration(200);
+		} else {
+			this.mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight()).setDuration(200);
+		}
+
+		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@SuppressLint("RestrictedApi")
@@ -405,10 +449,23 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_BACKGROUND_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBadgeTextColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_TEXT_COLOR), tabProxy.getActivity()));
 		}
 	}
 
@@ -444,6 +501,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
+		updateIconTint();
 	}
 
 	@Override

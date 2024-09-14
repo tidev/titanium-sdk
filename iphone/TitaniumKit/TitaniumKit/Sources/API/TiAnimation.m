@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,7 +23,7 @@
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
-@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity;
+@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity, bounce;
 @synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
 - (id)initWithDictionary:(NSDictionary *)properties_ context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
@@ -99,6 +99,7 @@
     SET_FLOAT_PROP(delay, properties);
     SET_FLOAT_PROP(dampingRatio, properties);
     SET_FLOAT_PROP(springVelocity, properties);
+    SET_FLOAT_PROP(bounce, properties);
     SET_INT_PROP(curve, properties);
     SET_INT_PROP(repeat, properties);
     SET_BOOL_PROP(visible, properties);
@@ -159,6 +160,7 @@
   RELEASE_TO_NIL(view);
   RELEASE_TO_NIL(dampingRatio);
   RELEASE_TO_NIL(springVelocity);
+  RELEASE_TO_NIL(bounce);
   RELEASE_TO_NIL(properties);
   [animatedViewProxy release];
   [super dealloc];
@@ -268,7 +270,7 @@
   if ([animation isReverse]) {
 
     animation = [animation reverseAnimation]; // Use the original animation for correct eventing
-    //Make sure we have the animatedViewProxy so we can correctly signal end of animation
+    // Make sure we have the animatedViewProxy so we can correctly signal end of animation
     if ([(id)animation.animatedView isKindOfClass:[TiUIView class]]) {
       RELEASE_TO_NIL(animatedViewProxy);
       TiUIView *v = (TiUIView *)animation.animatedView;
@@ -493,7 +495,7 @@
         [(TiUIView *)view_ setTransform_:transform];
       }
 
-      if ([view_ isKindOfClass:[TiUIView class]]) { //TODO: Shouldn't we be updating the proxy's properties to reflect this?
+      if ([view_ isKindOfClass:[TiUIView class]]) { // TODO: Shouldn't we be updating the proxy's properties to reflect this?
         TiUIView *uiview = (TiUIView *)view_;
 #ifndef TI_USE_AUTOLAYOUT
         LayoutConstraint *layoutProperties = [(TiViewProxy *)[uiview proxy] layoutProperties];
@@ -537,7 +539,7 @@
           BOOL hasBackgroundImage = (bgdLayer != nil);
 
           if (hasGradient && hasBackgroundImage) {
-            //Avoid duplicte animations on the same layer
+            // Avoid duplicte animations on the same layer
             hasBackgroundImage = gradientLayer != bgdLayer;
           }
 
@@ -638,13 +640,27 @@
     };
 
     if (dampingRatio != nil || springVelocity != nil) {
-      [UIView animateWithDuration:animationDuration
-                            delay:([delay doubleValue] / 1000)
-           usingSpringWithDamping:[dampingRatio floatValue]
-            initialSpringVelocity:[springVelocity floatValue]
-                          options:options
-                       animations:animation
-                       completion:complete];
+#ifdef __IPHONE_17_0
+      if ([TiUtils isIOSVersionOrGreater:@"17.0"] && bounce != nil) {
+        [UIView animateWithSpringDuration:animationDuration
+                                   bounce:[bounce floatValue]
+                    initialSpringVelocity:[springVelocity floatValue]
+                                    delay:([delay doubleValue] / 1000)
+                                  options:options
+                               animations:animation
+                               completion:complete];
+      } else {
+#endif
+        [UIView animateWithDuration:animationDuration
+                              delay:([delay doubleValue] / 1000)
+             usingSpringWithDamping:[dampingRatio floatValue]
+              initialSpringVelocity:[springVelocity floatValue]
+                            options:options
+                         animations:animation
+                         completion:complete];
+#ifdef __IPHONE_17_0
+      }
+#endif
     } else {
       [UIView animateWithDuration:animationDuration
                             delay:([delay doubleValue] / 1000)
@@ -673,8 +689,8 @@
             // and then we need to add our new view
             for (UIView *subview in [transitionView subviews]) {
               if (subview != view_) {
-                //Making sure the view being transitioned off is properly removed
-                //from the view hierarchy.
+                // Making sure the view being transitioned off is properly removed
+                // from the view hierarchy.
                 if ([subview isKindOfClass:[TiUIView class]]) {
                   TiUIView *subView = (TiUIView *)subview;
                   TiViewProxy *ourProxy = (TiViewProxy *)subView.proxy;
@@ -686,9 +702,9 @@
             }
             [transitionView addSubview:view_];
 
-            //AnimationStarted needs to be called here, otherwise the animation flags for
-            //the view being transitioned will end up in a improper state, resulting in
-            //layout warning.
+            // AnimationStarted needs to be called here, otherwise the animation flags for
+            // the view being transitioned will end up in a improper state, resulting in
+            // layout warning.
             [self animationStarted:[NSString stringWithFormat:@"%@", (void *)theview]
                            context:self];
           }
@@ -697,7 +713,7 @@
                             finished:[NSNumber numberWithBool:finished]
                              context:self];
 
-            //Adding the new view to the transition view's hierarchy.
+            // Adding the new view to the transition view's hierarchy.
             TiViewProxy *parentProxy = (TiViewProxy *)transitionView.proxy;
             TiViewProxy *child = (TiViewProxy *)view_.proxy;
             [parentProxy add:child];

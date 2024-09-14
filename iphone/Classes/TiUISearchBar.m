@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -234,7 +234,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"focus"]) {
     [self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
   }
@@ -250,7 +250,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"blur"]) {
     [self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
   }
@@ -266,7 +266,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"change"]) {
     [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
   }
@@ -282,7 +282,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"return"]) {
     [self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
   }

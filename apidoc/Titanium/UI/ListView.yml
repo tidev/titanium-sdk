@@ -388,7 +388,7 @@ events:
     summary: Fired when a list row has started moving.
     description: |
       This event can be used to change the UI once a new drag-and-drop interaction starts.
-      The event properties are available in Titanium SDK 12.0.0+ 
+      The event properties are available in Titanium SDK 12.0.0+
     since: "11.1.0"
     platforms: [android, iphone, ipad, macos]
     properties:
@@ -684,6 +684,12 @@ properties:
         ipad: 3.2.0
     platforms: [android, iphone, ipad, macos]
 
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
+
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
     description: |
@@ -958,6 +964,16 @@ properties:
     default: false
     platforms: [android, iphone, ipad, macos]
     since: 11.1.0
+
+  - name: forceUpdates
+    summary: Optimize the `continuousUpdate` scrolling event.
+    description: |
+        If `continuousUpdate` is enabled and you set `forceUpdates` to `true` it will fire the scrolling](Titanium.UI.ListView.scrolling) all the time.
+        Otherwise it will only update when a new item is scrolled in (default).
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: 12.3.0
 
   - name: keepSectionsInSearch
     summary: Determines if the section information is displayed in the search results when using the `searchText` property.
@@ -1517,7 +1533,7 @@ examples:
         create a refresh control.
 
         ``` js
-        var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        var win = Ti.UI.createWindow();
         var listView = Ti.UI.createListView({height:'90%', top:0});
         var sections = [];
 
@@ -1677,7 +1693,7 @@ examples:
         `app/views/index.xml`:
         ``` xml
         <Alloy>
-            <Window backgroundColor="white">
+            <Window>
                 <ListView id="listView" defaultItemTemplate="template">
 
                     <!-- The Templates tag sets the ListView's templates property -->

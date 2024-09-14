@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -210,7 +210,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 				}
 
 				properties = (Map<Object, Object>) JSONValue.parseWithException(new FileReader(jsonPath));
-				debug("Succesfully loaded existing binding data: " + jsonPath);
+				debug("Successfully loaded existing binding data: " + jsonPath);
 			} catch (Exception e) {
 				// file doesn't exist, we'll just create it later
 				debug("No binding data found, creating new data file: %s/%s", this.jarJsonPackageName,

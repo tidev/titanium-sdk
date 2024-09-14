@@ -1,12 +1,19 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.media;
 
-import java.lang.ref.WeakReference;
+import android.app.Activity;
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
+import android.webkit.URLUtil;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -23,15 +30,9 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import java.lang.ref.WeakReference;
+
 import ti.modules.titanium.media.TiThumbnailRetriever.ThumbnailResponseHandler;
-import android.app.Activity;
-import android.content.Intent;
-import android.media.MediaPlayer;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
-import android.webkit.URLUtil;
 
 @Kroll.proxy(creatableInModule = MediaModule.class,
 	propertyAccessors = {
@@ -43,14 +44,15 @@ import android.webkit.URLUtil;
 		TiC.PROPERTY_PLAYABLE_DURATION,
 		TiC.PROPERTY_VOLUME,
 		TiC.PROPERTY_SHOWS_CONTROLS,
-})
+	})
 public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifecycleEvent
 {
-	private static final String TAG = "VideoPlayerProxy";
-
+	// The player doesn't automatically preserve its current location and seek back to
+	// there when being resumed.  This internal property lets us track that.
+	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
 	protected static final int CONTROL_MSG_ACTIVITY_AVAILABLE = 101;
 	protected static final int CONTROL_MSG_CONFIG_CHANGED = 102;
-
+	private static final String TAG = "VideoPlayerProxy";
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	private static final int MSG_PLAY = MSG_FIRST_ID + 101;
 	private static final int MSG_STOP = MSG_FIRST_ID + 102;
@@ -64,16 +66,10 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	private static final int MSG_HIDE_MEDIA_CONTROLLER = MSG_FIRST_ID + 110;
 	private static final int MSG_SET_VIEW_FROM_ACTIVITY = MSG_FIRST_ID + 111;
 	private static final int MSG_REPEAT_CHANGE = MSG_FIRST_ID + 112;
-
 	// Keeping these out of TiC because I believe we'll stop supporting them
 	// in favor of the documented property, which is "mediaControlStyle".
 	private static final String PROPERTY_MOVIE_CONTROL_MODE = "movieControlMode";
 	private static final String PROPERTY_MOVIE_CONTROL_STYLE = "movieControlStyle";
-
-	// The player doesn't automatically preserve its current location and seek back to
-	// there when being resumed.  This internal property lets us track that.
-	public static final String PROPERTY_SEEK_TO_ON_RESUME = "__seek_to_on_resume__";
-
 	protected int mediaControlStyle = MediaModule.VIDEO_CONTROL_DEFAULT;
 	protected int scalingMode = MediaModule.VIDEO_SCALING_RESIZE_ASPECT;
 	private int loadState = MediaModule.VIDEO_LOAD_STATE_UNKNOWN;
@@ -127,6 +123,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 	 * a TiUIVideoView so we have on common interface to the VideoView
 	 * and so we can handle child views in our standard way without any
 	 * extra code beyond this here.
+	 *
 	 * @param layout The content view of the TiVideoActivity. It already contains a VideoView.
 	 */
 	//
@@ -192,11 +189,13 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	/**
 	 * Create handler used for communication from TiVideoActivity to this proxy.
+	 *
 	 * @return Returns the handler used to send commands to the video view.
 	 */
 	private Handler createControlHandler()
 	{
-		return new Handler(new Handler.Callback() {
+		return new Handler(new Handler.Callback()
+		{
 			@Override
 			public boolean handleMessage(Message msg)
 			{
@@ -613,7 +612,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		setProperty(TiC.PROPERTY_DURATION, duration);
 		setProperty(TiC.PROPERTY_PLAYABLE_DURATION, duration);
 		setProperty(TiC.PROPERTY_END_PLAYBACK_TIME,
-					duration); // Currently we're not doing anything else with this property in Android.
+			duration); // Currently we're not doing anything else with this property in Android.
 		if (!hasProperty(TiC.PROPERTY_INITIAL_PLAYBACK_TIME)) {
 			setProperty(TiC.PROPERTY_INITIAL_PLAYBACK_TIME, 0);
 		}
@@ -761,7 +760,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			fireComplete(MediaModule.VIDEO_FINISH_REASON_USER_EXITED);
 		}
 
-		// Cancel any Thumbnail requests and releasing TiMediaMetadataRetriver resource
+		// Cancel any Thumbnail requests and releasing TiMediaMetadataRetriever resource
 		cancelAllThumbnailImageRequests();
 	}
 
@@ -778,7 +777,7 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 			Uri uri = Uri.parse(url);
 			mTiThumbnailRetriever.setUri(uri);
 			mTiThumbnailRetriever.getBitmap(TiConvert.toIntArray(times), TiConvert.toInt(option),
-											createThumbnailResponseHandler(callback));
+				createThumbnailResponseHandler(callback));
 		}
 	}
 
@@ -793,16 +792,17 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 
 	/**
 	 * Convenience method for creating a response handler that is used when getting a
-	 * bitmmap.
+	 * bitmap.
 	 *
-	 * @param callback          Javascript function that the response handler will invoke
-	 *                          once the bitmap response is ready
-	 * @return                  the bitmap response handler
+	 * @param callback Javascript function that the response handler will invoke
+	 *                 once the bitmap response is ready
+	 * @return the bitmap response handler
 	 */
 	private ThumbnailResponseHandler createThumbnailResponseHandler(final KrollFunction callback)
 	{
 		final VideoPlayerProxy videoPlayerProxy = this;
-		return new ThumbnailResponseHandler() {
+		return new ThumbnailResponseHandler()
+		{
 			@Override
 			public void handleThumbnailResponse(KrollDict bitmapResponse)
 			{

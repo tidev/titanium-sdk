@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -26,7 +26,7 @@ NSString *TitaniumModuleRequireFormat = @"(function(exports){"
                                          "if(module.exports !== __OXP){return module.exports;}"
                                          "return exports;})({})";
 
-//Defined private method inside TiBindingRunLoop.m (Perhaps to move to .c?)
+// Defined private method inside TiBindingRunLoop.m (Perhaps to move to .c?)
 void TiBindingRunLoopAnnounceStart(TiBindingRunLoop runLoop);
 
 os_unfair_lock krollBridgeRegistryLock = OS_UNFAIR_LOCK_INIT;
@@ -47,7 +47,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)registerForMemoryWarning
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didReceiveMemoryWarning:)
                                                name:UIApplicationDidReceiveMemoryWarningNotification
@@ -56,7 +56,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)unregisterForMemoryWarning
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 }
 
@@ -300,7 +300,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     shutdownCondition = [condition retain];
     shutdown = YES;
     // fire a notification event to our listeners
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
     [[NSNotificationCenter defaultCenter] postNotification:notification];
 
@@ -383,7 +383,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   NSURL *startURL = nil;
-  //if we have a preload dictionary, register those static key/values into our namespace
+  // if we have a preload dictionary, register those static key/values into our namespace
   if (preload != nil) {
     // Guard for top level Titanium object being unassigned. likley means we had issues
     // setting up ti.kernel.js, so we likely need to skip most everything here.
@@ -437,7 +437,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   if (!shutdown) {
     shutdown = YES;
     // fire a notification event to our listeners
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
     [[NSNotificationCenter defaultCenter] postNotification:notification];
   }
@@ -474,8 +474,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
   if (registeredProxies == NULL) {
     registeredProxies = CFDictionaryCreateMutable(NULL, 10, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   }
-  //NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
-  //CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
+  // NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
+  // CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
 
   CFDictionaryAddValue(registeredProxies, proxy, ourKrollObject);
   os_unfair_lock_unlock(&proxyLock);
@@ -507,7 +507,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   os_unfair_lock_lock(&proxyLock);
   if (registeredProxies != NULL) {
     CFDictionaryRemoveValue(registeredProxies, proxy);
-    //Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
+    // Don't bother with removing the empty registry. It's small and leaves on dealloc anyways.
   }
   os_unfair_lock_unlock(&proxyLock);
   [proxy unboundBridge:self];
@@ -579,8 +579,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
     [results addObject:currentBridge];
   }
 
-  //Why do we wait so long? In case someone tries to dealloc the krollBridge while we're looking at it.
-  //registryObjects nor the registry does a retain here!
+  // Why do we wait so long? In case someone tries to dealloc the krollBridge while we're looking at it.
+  // registryObjects nor the registry does a retain here!
   os_unfair_lock_unlock(&krollBridgeRegistryLock);
   return results;
 }
@@ -620,8 +620,8 @@ CFMutableSetRef krollBridgeRegistry = nil;
       break;
     }
   }
-  //Why not CFSetContainsValue? Because bridge may not be a valid pointer, and SetContainsValue
-  //will ask it for a hash!
+  // Why not CFSetContainsValue? Because bridge may not be a valid pointer, and SetContainsValue
+  // will ask it for a hash!
   os_unfair_lock_unlock(&krollBridgeRegistryLock);
 
   return result;
@@ -648,7 +648,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 - (int)forceGarbageCollectNow;
 {
   [context gc];
-  //Actually forcing garbage collect now will cause a deadlock.
+  // Actually forcing garbage collect now will cause a deadlock.
   return 0;
 }
 

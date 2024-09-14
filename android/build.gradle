@@ -1,12 +1,12 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
 
 buildscript {
-	ext.kotlin_version = '1.6.21'
+	ext.kotlin_version = '1.8.20'
 
 	repositories {
 		google()
@@ -14,7 +14,7 @@ buildscript {
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:7.0.4'
-		classpath 'com.google.gms:google-services:4.3.10'
+		classpath 'com.google.gms:google-services:4.3.15'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 		classpath 'org.codehaus.groovy:groovy-json:3.0.11'
 	}
@@ -29,7 +29,7 @@ allprojects {
 	// Load plugin used to enforce our Java coding style guidelines.
 	project.apply plugin: 'checkstyle'
 	checkstyle {
-		toolVersion = '8.38'
+		toolVersion = '10.11.0'
 		configFile file("${rootDir}/checkstyle.xml");
 		ignoreFailures false
 		showViolations true
@@ -39,6 +39,6 @@ allprojects {
 	project.apply from: "${rootDir}/templates/build/ti.constants.gradle"
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
 	delete rootProject.buildDir
 }

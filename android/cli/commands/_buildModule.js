@@ -58,6 +58,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 	const manifestModuleAPIVersion = this.manifest.apiversion;
 	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
 	let newVersion = semver.inc(this.manifest.version, 'major');
+	this.tiSdkVersion = cliSDKVersion;
 
 	// Determine if the "manifest" file's "apiversion" needs updating.
 	let isApiVersionUpdateRequired = false;
@@ -65,7 +66,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 		isApiVersionUpdateRequired = (this.manifest.apiversion !== cliModuleAPIVersion);
 	}
 
-	// Determin if the "manifest" file's "minsdk" needs updating.
+	// Determine if the "manifest" file's "minsdk" needs updating.
 	// As of Titanium 9.0.0, modules are built as AARs to an "m2repository". Not supported on older Titanium versions.
 	let isMinSdkUpdateRequired = false;
 	const minSupportedSdkVersionMajorNumber = 9;
@@ -495,6 +496,7 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "gradle.properties" file. Will add network proxy settings if needed.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
 	gradleProperties.push({
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
@@ -859,7 +861,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 	await fs.mkdirs(tmpDir);
 
 	// Generate a new Titanium app in the temp directory which we'll later copy the "example" files to.
-	// Note: App must have a diffentent id/package-name. Avoids class name collision with module generating Java code.
+	// Note: App must have a different id/package-name. Avoids class name collision with module generating Java code.
 	this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
 	await runTiCommand(
 		process.execPath,
@@ -872,6 +874,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 			'-u', 'localhost',
 			'-d', tmpDir,
 			'-p', 'android',
+			'--sdk', this.tiSdkVersion,
 			'--force'
 		],
 		this.logger
@@ -896,6 +899,18 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 		}
 	);
 
+	// Copy example/platform to tmp/platform to use a custom build.gradle
+	if (fs.existsSync(path.join(this.exampleDir, 'platform'))) {
+		appc.fs.copyDirSyncRecursive(
+			path.join(this.exampleDir, 'platform'),
+			path.join(tmpProjectDir, 'platform'),
+			{
+				preserve: true,
+				logger: this.logger.debug
+			}
+		);
+	}
+
 	// Unzip module into temp app's "modules" directory.
 	await util.promisify(appc.zip.unzip)(this.moduleZipPath, tmpProjectDir, null);
 
@@ -904,7 +919,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 
 	// Run the temp app.
 	this.logger.debug(__('Running example project...', tmpDir.cyan));
-	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir, '--sdk', this.tiSdkVersion ];
 	if (this.target) {
 		buildArgs.push('-T');
 		buildArgs.push(this.target);

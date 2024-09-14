@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -67,7 +67,7 @@
 @property (nonatomic, readonly) NSNumber *CLIP_MODE_ENABLED;
 @property (nonatomic, readonly) NSNumber *CLIP_MODE_DISABLED;
 
-#ifdef USE_TI_UILISTVIEW
+#if defined(USE_TI_UILISTVIEW) || defined(USE_TI_UITABLEVIEW)
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_DEFAULT;
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_DESTRUCTIVE;
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_NORMAL;
@@ -90,7 +90,7 @@
 @property (nonatomic, readonly) NSNumber *LIVEPHOTO_PLAYBACK_STYLE_HINT;
 @property (nonatomic, readonly) NSNumber *LIVEPHOTO_PLAYBACK_STYLE_FULL;
 
-//Modules
+// Modules
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 @property (nonatomic, readwrite, assign) TiUIiOSAnimationStyleProxy *animationStyleProxy;
 #endif
@@ -148,7 +148,7 @@
 - (NSNumber *)ALERT_SEVERITY_CRITICAL;
 #endif
 
-//Modal Presentation & Transition
+// Modal Presentation & Transition
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
@@ -173,7 +173,7 @@
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
 
 /**
-    Checks the force touch capibility of the current device.
+ * Checks the force touch capibility of the current device.
  */
 - (NSNumber *)forceTouchSupported;
 

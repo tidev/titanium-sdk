@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,8 +23,7 @@ import android.app.Activity;
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
 		TiC.PROPERTY_HEADER_TITLE,
-		TiC.PROPERTY_HEADER_VIEW,
-		TiC.PROPERTY_ITEMS
+		TiC.PROPERTY_HEADER_VIEW
 	})
 public class ListSectionProxy extends TiViewProxy
 {
@@ -194,6 +193,12 @@ public class ListSectionProxy extends TiViewProxy
 		}
 
 		return dataItems;
+	}
+
+	@Kroll.setProperty
+	public void setItems(Object value)
+	{
+		setItems(value, null);
 	}
 
 	/**

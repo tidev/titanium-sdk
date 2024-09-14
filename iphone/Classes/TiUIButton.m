@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -98,8 +98,8 @@
   if ((bounds.size.width >= imageSize.width) && (bounds.size.height >= imageSize.height)) {
     [button setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
   } else {
-    //If the bounds are smaller than the image size render it in an imageView and get the image of the view.
-    //Should be pretty inexpensive since it happens rarely. TIMOB-9166
+    // If the bounds are smaller than the image size render it in an imageView and get the image of the view.
+    // Should be pretty inexpensive since it happens rarely. TIMOB-9166
     CGSize unstrechedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
     if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstrechedSize, bounds.size)) {
       UIImageView *theView = [[UIImageView alloc] initWithFrame:bounds];
@@ -271,6 +271,11 @@
 - (void)setEnabled_:(id)value
 {
   [[self button] setEnabled:[TiUtils boolValue:value]];
+}
+
+- (void)setTooltip_:(id)value
+{
+  [[self button] setToolTip:[TiUtils stringValue:value]];
 }
 
 - (void)setTitle_:(id)value

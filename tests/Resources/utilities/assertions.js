@@ -39,7 +39,7 @@ should.Assertion.add('propertyWithDescriptor', function (propName, desc) {
 	}
 
 	// first let's see if we can find the property up the prototype chain...
-	// need to call hasOwnProperty in a funky way due to https://jira.appcelerator.org/browse/TIMOB-23504
+	// need to call hasOwnProperty in a funky way due to https://jira-archive.titaniumsdk.com/TIMOB-23504
 	while (!Object.prototype.hasOwnProperty.call(target, propName)) {
 		target = Object.getPrototypeOf(target); // go up the prototype chain
 		if (!target) {

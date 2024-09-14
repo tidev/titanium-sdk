@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -151,7 +151,7 @@ static BOOL alertShowing = NO;
     [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
   }
 
-  //Configure the TextFields
+  // Configure the TextFields
   if ((style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput)) {
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
       textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);

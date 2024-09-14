@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -180,27 +180,27 @@
 - (void)addSubview:(nonnull UIView *)view
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] addSubview:wrapperView];
+  [[self contentView] addSubview:wrapperView];
 }
 
 - (void)insertSubview:(UIView *)view aboveSubview:(UIView *)siblingSubview
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] insertSubview:wrapperView
-                           aboveSubview:siblingSubview];
+  [[self contentView] insertSubview:wrapperView
+                       aboveSubview:siblingSubview];
 }
 
 - (void)insertSubview:(UIView *)view atIndex:(NSInteger)index
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] insertSubview:wrapperView
-                                atIndex:index];
+  [[self contentView] insertSubview:wrapperView
+                            atIndex:index];
 }
 - (void)insertSubview:(UIView *)view belowSubview:(UIView *)siblingSubview
 {
   WRAP_TI_VIEW(view)
-      [[self contentView] insertSubview:wrapperView
-                           belowSubview:siblingSubview];
+  [[self contentView] insertSubview:wrapperView
+                       belowSubview:siblingSubview];
 }
 #endif
 
@@ -261,7 +261,7 @@
     [scrollview setClipsToBounds:clipsToBounds];
     [self insertSubview:scrollview atIndex:0];
 
-    //Update clips to bounds only if cornerRadius and backgroundImage are not set
+    // Update clips to bounds only if cornerRadius and backgroundImage are not set
     if ((self.layer.cornerRadius == 0) && (self.backgroundImage == nil)) {
       [self setClipsToBounds:clipsToBounds];
     }
@@ -450,10 +450,10 @@
 
   NSUInteger viewsCount = [[self proxy] viewCount];
   /*
-	Reset readd here since refreshScrollView is called from
-	frameSizeChanged with readd false and the views might 
-	not yet have been added on first launch
-	*/
+  Reset readd here since refreshScrollView is called from
+  frameSizeChanged with readd false and the views might
+  not yet have been added on first launch
+  */
   readd = ([[sv subviews] count] == 0);
 
   for (int c = 0; c < viewsCount; c++) {
@@ -505,7 +505,7 @@
     [scrollview setContentOffset:CGPointMake(lastPage * visibleBounds.size.width, 0)];
     [self manageCache:[self currentPage]];
   }
-  //To make sure all subviews are properly resized.
+  // To make sure all subviews are properly resized.
   UIScrollView *sv = [self scrollview];
   for (UIView *view in [sv subviews]) {
     for (TiUIView *sView in [view subviews]) {
@@ -568,7 +568,7 @@
   }
 
   if ((scrollview != nil) && ([[scrollview subviews] count] > 0)) {
-    //No need to readd. Just set up the correct frame bounds
+    // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }
 }
@@ -584,7 +584,7 @@
   }
 
   if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
-    //No need to readd. Just set up the correct frame bounds
+    // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }
 }
@@ -680,7 +680,7 @@
 #endif
   pagingControlOnTop = [TiUtils boolValue:args def:NO];
   if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
-    //No need to readd. Just set up the correct frame bounds
+    // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }
 }
@@ -692,7 +692,7 @@
 #endif
   overlayEnabled = [TiUtils boolValue:args def:NO];
   if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
-    //No need to readd. Just set up the correct frame bounds
+    // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }
 }
@@ -817,7 +817,7 @@
   UIPageControl *pageControl = [self pagecontrol];
   NSInteger currentPage = _currentPage;
 #endif
-  //switch page control at 50% across the center - this visually looks better
+  // switch page control at 50% across the center - this visually looks better
   CGFloat pageWidth = scrollview.frame.size.width;
   NSInteger page = currentPage;
   float nextPageAsFloat = ((scrollview.contentOffset.x - pageWidth / 2) / pageWidth) + 0.5;
@@ -866,7 +866,7 @@
   UIScrollView *scrollview = [self scrollview];
   UIPageControl *pageControl = [self pagecontrol];
 #else
-  //Since we are now managing cache at end of scroll, ensure quick scroll is disabled to avoid blank screens.
+  // Since we are now managing cache at end of scroll, ensure quick scroll is disabled to avoid blank screens.
   if (pageChanged) {
 #endif
   [scrollview setUserInteractionEnabled:!decelerate];
@@ -903,7 +903,7 @@
                     forKey:@"currentPage"
               notification:NO];
 
-  if ([self.proxy _hasListeners:@"scrollEnd"]) { //TODO: Deprecate old event.
+  if ([self.proxy _hasListeners:@"scrollEnd"]) { // TODO: Deprecate old event.
     [self.proxy fireEvent:@"scrollEnd"
                withObject:[NSDictionary dictionaryWithObjectsAndKeys:
                                             NUMINTEGER(pageNum), @"currentPage",
