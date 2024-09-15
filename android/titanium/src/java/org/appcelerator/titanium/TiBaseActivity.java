@@ -55,6 +55,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
@@ -68,7 +69,6 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -133,7 +133,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
 	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<>();
-
+	private static int selectedTheme = R.style.Theme_Titanium_Light;
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
@@ -671,7 +671,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
-
+		setTheme(selectedTheme);
 		this.inForeground = true;
 		this.launchIntent = getIntent();
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
@@ -1239,7 +1239,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		final int NIGHT_MASK = Configuration.UI_MODE_NIGHT_MASK;
 		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
 			this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
-			ActivityCompat.recreate(this);
+			this.setSelectedTheme(this.lastNightMode);
+			this.recreate();
 		}
 		this.lastUIModeFlags = newConfig.uiMode;
 	}
@@ -1254,9 +1255,31 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public void applyNightMode()
 	{
 		int mode = AppCompatDelegate.getDefaultNightMode();
+		this.setSelectedTheme(mode);
 		if (this.inForeground && (mode != this.lastNightMode)) {
 			this.lastNightMode = mode;
-			ActivityCompat.recreate(this);
+			this.recreate();
+		}
+	}
+
+	private void setSelectedTheme(int lastNightMode)
+	{
+		if (this.lastNightMode == AppCompatDelegate.MODE_NIGHT_YES) {
+			selectedTheme = R.style.Theme_Titanium_Dark;
+		} else {
+			/**
+			 * At first,try to read the app them from the is defined by
+			 * the user from the manifest.
+			 */
+			try {
+				ApplicationInfo app = getPackageManager().getApplicationInfo(
+					TiApplication.getInstance().getPackageName(),
+					PackageManager.GET_META_DATA
+				);
+				selectedTheme = app.theme;
+			} catch (PackageManager.NameNotFoundException e) {
+				selectedTheme = R.style.Theme_Titanium_App;
+			}
 		}
 	}
 
