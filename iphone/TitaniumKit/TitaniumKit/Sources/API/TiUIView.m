@@ -1312,6 +1312,7 @@ DEFINE_EXCEPTIONS
 {
   if (singleTapRecognizer == nil) {
     singleTapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedTap:)];
+    [singleTapRecognizer setNumberOfTapsRequired:1];
     [self configureGestureRecognizer:singleTapRecognizer];
     [self addGestureRecognizer:singleTapRecognizer];
     if (doubleTapRecognizer != nil) {
@@ -1434,6 +1435,8 @@ DEFINE_EXCEPTIONS
       [proxy fireEvent:@"dblclick" withObject:event propagate:YES];
     }
     [proxy fireEvent:@"doubletap" withObject:event];
+  } else if ([recognizer numberOfTapsRequired] == 1 && [proxy _hasListeners:@"click"]) {
+    [proxy fireEvent:@"click" withObject:event propagate:YES];
   } else {
     [proxy fireEvent:@"singletap" withObject:event];
   }
