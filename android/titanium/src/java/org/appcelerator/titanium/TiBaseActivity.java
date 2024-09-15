@@ -1240,9 +1240,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
 			this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
 			this.setSelectedTheme(this.lastNightMode);
-			this.recreate();
+			this.updateActivity();
 		}
 		this.lastUIModeFlags = newConfig.uiMode;
+	}
+
+	private void updateActivity()
+	{
+		/**
+		 * Set root activity to null to avoid duplication which causes the window
+		 * to lose all it's content when the activity is recreated.
+		 */
+		getTiApp().setRootActivity(null);
+		this.recreate();
 	}
 
 	@Override
@@ -1258,7 +1268,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		this.setSelectedTheme(mode);
 		if (this.inForeground && (mode != this.lastNightMode)) {
 			this.lastNightMode = mode;
-			this.recreate();
+			this.updateActivity();
 		}
 	}
 
