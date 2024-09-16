@@ -11,7 +11,6 @@ import android.graphics.Color;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
 
@@ -175,11 +174,8 @@ public class RefreshControlProxy extends KrollProxy
 		// Fetch and store the new tint color value.
 		if (colorName == null) {
 			this.tintColor = RefreshControlProxy.DEFAULT_TINT_COLOR;
-		} else if (colorName instanceof String) {
-			this.tintColor = TiColorHelper.parseColor((String) colorName, getActivity());
 		} else {
-			Log.e(TAG, "Property '" + TiC.PROPERTY_TINT_COLOR + "' must be of type string.");
-			return;
+			this.tintColor = TiColorHelper.parseColor(colorName, getActivity());
 		}
 
 		// Do not continue if a view has not been assigned to the refresh control yet.

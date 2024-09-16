@@ -225,13 +225,12 @@ public class TiUITableView extends TiUIView
 
 			boolean hasColor = name.equals(TiC.PROPERTY_SEPARATOR_COLOR) && value != null;
 			if (hasColor || properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
-				String colorString;
+				int color;
 				if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
-					colorString = TiConvert.toString(value);
+					color = TiConvert.toColor(value, proxy.getActivity());
 				} else {
-					colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
+					color = TiConvert.toColor(properties.get(TiC.PROPERTY_SEPARATOR_COLOR), proxy.getActivity());
 				}
-				final int color = TiConvert.toColor(colorString, proxy.getActivity());
 
 				// Set separator with specified color.
 				this.tableView.setSeparator(color, height);

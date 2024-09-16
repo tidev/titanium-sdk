@@ -312,7 +312,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Handle barColor property.
 		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
-			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)), activity);
+			int colorInt = TiColorHelper.parseColor(getProperty(TiC.PROPERTY_BAR_COLOR), activity);
 			ActionBar actionBar = activity.getSupportActionBar();
 			// Guard for using a theme with actionBar disabled.
 			if (actionBar != null) {
@@ -446,7 +446,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				if (actionBar != null) {
 					// Change to background to the new color.
 					actionBar.setBackgroundDrawable(
-						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value), activity)));
+						new ColorDrawable(TiColorHelper.parseColor(value, activity)));
 				} else {
 					// Log a warning if there is no ActionBar available.
 					Log.w(TAG, "There is no ActionBar available for this Window.");

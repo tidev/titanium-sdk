@@ -326,7 +326,7 @@ public class TiUIPlainDropDownPicker extends TiUIPlainPicker
 				if (color == null) {
 					textView.setTextColor(this.defaultTextColor);
 				} else {
-					textView.setTextColor(TiConvert.toColor(rowProxy.getColor(), rowProxy.getActivity()));
+					textView.setTextColor(TiConvert.toColor(color, rowProxy.getActivity()));
 				}
 			}
 		}

@@ -219,13 +219,12 @@ public class TiUIListView extends TiUIView
 			if (height == 0) {
 				this.listView.setSeparator(0, height);
 			} else if (hasColor || properties.containsKeyAndNotNull(TiC.PROPERTY_SEPARATOR_COLOR)) {
-				String colorString;
+				int color;
 				if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
-					colorString = TiConvert.toString(value);
+					color = TiConvert.toColor(value, proxy.getActivity());
 				} else {
-					colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
+					color = TiConvert.toColor(properties.get(TiC.PROPERTY_SEPARATOR_COLOR), proxy.getActivity());
 				}
-				final int color = TiConvert.toColor(colorString, proxy.getActivity());
 
 				// Set separator with specified color.
 				this.listView.setSeparator(color, height);

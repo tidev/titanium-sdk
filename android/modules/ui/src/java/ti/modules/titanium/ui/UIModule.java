@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
@@ -42,6 +43,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import java.util.WeakHashMap;
 import java.io.File;
 import java.util.List;
 import java.util.Set;
@@ -463,6 +465,31 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
+	protected static WeakHashMap<UIStyleChangedListener, Object> uiStyleChangedListeners = new WeakHashMap<>();
+
+	public interface UIStyleChangedListener {
+		void onUserInterfaceStyleChanged(int styleId);
+	}
+
+	public static void addUIStyleChangedListener(UIStyleChangedListener a)
+	{
+		Log.d(TAG, "addUIStyleChangedListener");
+		uiStyleChangedListeners.put(a, null);
+	}
+
+	public static void removeUIStyleChangedListener(UIStyleChangedListener a)
+	{
+		Log.d(TAG, "removeUIStyleChangedListener");
+		uiStyleChangedListeners.remove(a);
+	}
+
+	public static void notifyUIStyleChangedListeners(int styleId)
+	{
+		for (UIStyleChangedListener listener: uiStyleChangedListeners.keySet()) {
+			listener.onUserInterfaceStyleChanged(styleId);
+		}
+	}
+
 	public UIModule()
 	{
 		super();
@@ -483,12 +510,12 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	public void setBackgroundColor(String color)
+	public void setBackgroundColor(Object color)
 	{
 		doSetBackgroundColor(color);
 	}
 
-	protected void doSetBackgroundColor(String color)
+	protected void doSetBackgroundColor(Object color)
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
@@ -624,6 +651,17 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 		return getUserInterfaceStyle(TiApplication.getInstance().getResources().getConfiguration());
 	}
 
+	@Kroll.method
+	public ColorProxy fetchSemanticColor(Object value)
+	{
+		if (value instanceof ColorProxy) {
+			return (ColorProxy) value;
+		} else if (value instanceof String) {
+			return TiColorHelper.getColorProxy(value);
+		}
+		return null;
+	}
+
 	@Kroll.getProperty
 	public int statusBarHeight()
 	{
@@ -709,6 +747,7 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 		KrollDict event = new KrollDict();
 		event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
 		fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+		notifyUIStyleChangedListeners(lastEmittedStyle);
 
 	}
 }
