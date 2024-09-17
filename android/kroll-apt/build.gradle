@@ -7,8 +7,10 @@
 
 apply plugin: 'java'
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
 
 // Checks our Java code against our style guidelines and for common coding mistakes using "checkstyle.xml".
 // Will trigger a build failure if any violations have been detected.
@@ -55,6 +57,7 @@ tasks.withType(JavaCompile).configureEach {
 	// building with JDK newer than the Java version we're targeting. (Ex: Build with JDK 8, but target Java 7.)
 	// Note: Build tool wants a reference to runtime JAR of the same version we're targeting. Not going to happen.
 	options.compilerArgs << '-Xlint:-options'
+	options.incremental = true
 }
 
 // Bundle the below library dependencies within this project's built JAR.

@@ -200,10 +200,10 @@ public class TiUIOptionBar extends TiUIView
 
 		// Create a button with given settings and add it to view group.
 		Context context = buttonGroup.getContext();
-		int attributeId = R.attr.materialButtonOutlinedStyle;
+		int attributeId = com.google.android.material.R.attr.materialButtonOutlinedStyle;
 		if (title.isEmpty() && (imageDrawable != null)) {
 			context = new ContextThemeWrapper(context, R.style.Widget_Titanium_OutlinedButton_IconOnly);
-			attributeId = R.attr.materialButtonToggleGroupStyle;
+			attributeId = com.google.android.material.R.attr.materialButtonToggleGroupStyle;
 		}
 		MaterialButton button = new MaterialButton(context, null, attributeId);
 		button.setEnabled(isEnabled);
@@ -217,8 +217,8 @@ public class TiUIOptionBar extends TiUIView
 					new int[] { android.R.attr.state_checked },
 				},
 				new int[] {
-					oldColors.getColorForState(new int[] { -android.R.attr.state_checked }, R.attr.colorOnSurface),
-					col
+					oldColors.getColorForState(new int[] { -android.R.attr.state_checked },
+						com.google.android.material.R.attr.colorOnSurface), col
 				}
 			);
 			button.setBackgroundTintList(trackStates);
@@ -232,8 +232,8 @@ public class TiUIOptionBar extends TiUIView
 					new int[] { android.R.attr.state_checked },
 				},
 				new int[] {
-					oldColors.getColorForState(new int[] { -android.R.attr.state_checked }, R.attr.colorOnSurface),
-					col
+					oldColors.getColorForState(new int[] { -android.R.attr.state_checked },
+						com.google.android.material.R.attr.colorOnSurface), col
 				}
 			);
 			button.setStrokeColor(trackStates);
