@@ -2042,7 +2042,6 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 
 		// Load "AndroidManifest.xml", replace ${tiapp.properties['key']} variables, and save to above directories.
 		const manifest = await AndroidManifest.fromFilePath(sourceManifestFilePath);
-		manifest.setPackageName(moduleInfo.manifest.moduleid);
 		manifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
 		await manifest.writeToFilePath(path.join(debugDirPath, 'AndroidManifest.xml'));
 		await manifest.writeToFilePath(path.join(releaseDirPath, 'AndroidManifest.xml'));
@@ -2065,7 +2064,6 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 		this.logger.error(`Unable to load Android <manifest/> content from: ${tiModuleXmlFilePath}`);
 		throw ex;
 	}
-	mainManifest.setPackageName(moduleInfo.manifest.moduleid);
 	await mainManifest.writeToFilePath(path.join(projectSrcMainDirPath, 'AndroidManifest.xml'));
 
 	// Generate a "build.gradle" file for this project from the SDK's "lib.build.gradle" EJS template.
@@ -2157,6 +2155,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
 	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
+	gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
@@ -3681,9 +3680,6 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 
 	// Write secondary "AndroidManifest.xml" if not empty.
 	if (!secondaryManifest.isEmpty()) {
-		// Make sure package name is set in <manifest/> so that ".ClassName" references in XML can be resolved.
-		secondaryManifest.setPackageName(this.appid);
-
 		// Replace ${tiapp.properties['key']} placeholders in manifest.
 		secondaryManifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
 
