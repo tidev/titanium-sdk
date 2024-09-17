@@ -9,7 +9,8 @@ apply plugin: 'com.android.application'
 
 // Set up Android app project.
 android {
-	compileSdkVersion 33
+  compileSdkVersion 34
+	ndkVersion project.ext.tiNdkVersion
 	defaultConfig {
 		applicationId 'com.titanium.test'
 		minSdkVersion 21
@@ -18,9 +19,6 @@ android {
 		versionName '1.0'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
-	}
-	lintOptions {
-		checkReleaseBuilds false
 	}
 	sourceSets {
 		main {
@@ -31,8 +29,12 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_11
-		targetCompatibility JavaVersion.VERSION_11
+		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_17
+	}
+	namespace 'com.titanium.test'
+	lint {
+		checkReleaseBuilds false
 	}
 }
 

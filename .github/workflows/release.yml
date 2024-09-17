@@ -77,8 +77,8 @@ jobs:
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '16.x'
-          java-version: '11'
+          node-version: '18.x'
+          java-version: '17'
 
   ios:
     runs-on: macos-13
@@ -97,7 +97,7 @@ jobs:
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '16.x'
+          node-version: '18.x'
 
   package:
     runs-on: macos-12
@@ -116,8 +116,8 @@ jobs:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '16.x'
-        java-version: '11'
+        node-version: '18.x'
+        java-version: '17'
         vtag: ${{ env.vtag }}
 
   release:

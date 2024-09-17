@@ -15,7 +15,6 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -57,6 +56,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.R;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
