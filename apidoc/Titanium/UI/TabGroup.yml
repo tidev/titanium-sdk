@@ -609,6 +609,16 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: "12.1.0"
 
+  - name: interactiveDismissModeEnabled
+    summary: |
+        A boolean indicating whether or not child windows of this tab group
+        should have the ability to be swipe-to-closed over the full width of it's window or not.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad, macos]
+    since: "12.5.0"
+    availability: creation
+
 examples:
   - title: Alloy XML Markup
     example: |
