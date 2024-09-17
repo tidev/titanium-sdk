@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.listview;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -17,6 +18,8 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -46,6 +49,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 {
 	private static final String TAG = "ListViewHolder";
+	private static final Logger log = LoggerFactory.getLogger(ListViewHolder.class);
 
 	// Top
 	private final TiCompositeLayout header;
@@ -412,8 +416,16 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 						ConstraintSet constraintSet = new ConstraintSet();
 						constraintSet.clone((ConstraintLayout) this.container);
-						constraintSet.connect(R.id.titanium_ui_listview_holder_content, ConstraintSet.BOTTOM,
-							R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
+						Log.i("----", "C: " + this.content.getChildCount());
+						if (this.content.getChildCount() > 0) {
+							// attach to content
+							constraintSet.connect(R.id.titanium_ui_listview_holder_content, ConstraintSet.BOTTOM,
+								R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
+						} else {
+							// attach to header
+							constraintSet.connect(R.id.titanium_ui_listview_holder_header, ConstraintSet.BOTTOM,
+								R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
+						}
 						constraintSet.connect(R.id.titanium_ui_listview_holder_left_image, ConstraintSet.BOTTOM,
 							R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
 						constraintSet.connect(R.id.titanium_ui_listview_holder_right_image, ConstraintSet.BOTTOM,
