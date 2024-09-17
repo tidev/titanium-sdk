@@ -516,7 +516,7 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');
 	let buildGradleContent = await fs.readFile(path.join(templatesDir, 'root.build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
-		classpaths: this.manifest.classpaths?.split(',') ?? [],
+		classpaths: (this.manifest.classpaths?.split(',') ?? []).filter(classpath => classpath !== ''),
 	});
 	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
@@ -564,7 +564,7 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 	let buildGradleContent = await fs.readFile(path.join(this.moduleTemplateDir, 'build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		compileSdkVersion: this.compileSdkVersion,
-		plugins: (this.manifest.plugins || '').split(','),
+		plugins: (this.manifest.plugins?.split(',') ?? []).filter(plugin => plugin !== ''),
 		krollAptJarPath: path.join(this.platformPath, 'kroll-apt.jar'),
 		minSdkVersion: this.minSupportedApiLevel,
 		moduleAuthor: this.manifest.author,
