@@ -2177,7 +2177,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	// Generate root "build.gradle" template script to the root build directory.
 	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'root.build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
-		classpathes: [],
+		classpaths: [],
 	});
 	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
