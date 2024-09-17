@@ -268,7 +268,11 @@ exports.init = function (logger, config, cli) {
 						}
 
 						// ignore some Android logs in info log level
-						if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
+						if (typeof ignoreLog === 'string') {
+							if (line.includes(ignoreLog)) {
+								return;
+							}
+						} else if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
 							return;
 						}
 
