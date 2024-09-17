@@ -23,7 +23,6 @@ import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
-import android.os.Build;
 import android.telephony.PhoneNumberUtils;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -40,23 +39,15 @@ public class LocaleModule extends KrollModule
 	}
 
 	@Kroll.setProperty
-	public void setApplicationLocale(String locales)
+	public void setApplicationLocales(String locales)
 	{
-		if (Build.VERSION.SDK_INT >= 33) {
-			LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(locales);
-			AppCompatDelegate.setApplicationLocales(appLocale);
-		} else {
-			Log.w(TAG, "Only available for Android 33 and later");
-		}
+		LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(locales);
+		AppCompatDelegate.setApplicationLocales(appLocale);
 	}
 
 	@Kroll.getProperty
 	public KrollDict[] getApplicationLocales()
 	{
-		if (Build.VERSION.SDK_INT < 33) {
-			Log.w(TAG, "Only available for Android 33 and later");
-			return null;
-		}
 		LocaleListCompat localeListCompat = AppCompatDelegate.getApplicationLocales();
 		int size = localeListCompat.size();
 		KrollDict[] locales = new KrollDict[size];

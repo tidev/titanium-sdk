@@ -236,39 +236,26 @@ properties:
     type: String
     permission: read-only
 
-  - name: applicationLocale
-    summary: Set the UI locale for the app.
+  - name: applicationLocales
+    summary: Set Per-app languages.
     description: |
-      Set the UI current active locale for the app.
-      When changed, it automatically causes the activity to be restarted.
-      Note: This is only available on Android 33 and up.
+      Manage Per-app languages.
+      Note: This is only available on Android API 33 and above.
     platforms: [ android ]
-    since: "12.4.0"
+    since: "12.6.0"
     type: String
     examples:
-      - title: Setting the UI locale of the app
+      - title: Setting and reading Per-app languages.
         example: |
           ``` javascript           
-          // This sets the application UI locale.
-          Ti.Locale.applicationLocale = 'en-US';
+          // To sets the applications' Per-app languages.
+          Ti.Locale.applicationLocales = 'en-US';
           // or
-          Ti.Locale.applicationLocale = 'de';
-          ```
+          Ti.Locale.applicationLocales = 'de,ar,en-US';
 
-  - name: applicationLocales
-    permission: read-only
-    summary: Gets the UI locales for the app.
-    description: |
-      Returns an array of objects with the current app UI locales.
-      Note: This is only available on Android 33 and up.
-    platforms: [ android ]
-    since: "12.4.0"
-    type: Array
-    examples:
-      - title: Getting UI locale(s) of the app
-        example: |
-          ``` javascript
-          // This returns an array of objects for each locale defined for the application's UI.
+          To read the property, it will return an array of the defined
+          Per-app languages, if none is defined, it will return an empty array.
+          // This returns an array of objects for each locale defined in the applications' Per-app languages.
           let appLocales = Ti.Locale.applicationLocales;
           console.log(appLocales[0].language)
           console.log(appLocales);
