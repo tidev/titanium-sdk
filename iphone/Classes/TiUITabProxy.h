@@ -30,6 +30,8 @@
   BOOL activeIconOriginal;
 
   id<TiOrientationController> parentOrientationController;
+
+  UIPanGestureRecognizer *fullWidthBackGestureRecognizer;
 }
 
 - (void)setTabGroup:(TiUITabGroupProxy *)proxy;
