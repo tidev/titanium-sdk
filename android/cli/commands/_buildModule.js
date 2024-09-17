@@ -516,7 +516,7 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');
 	let buildGradleContent = await fs.readFile(path.join(templatesDir, 'root.build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
-		classpaths: this.manifest.classpaths.split(','),
+		classpaths: this.manifest.classpaths?.split(',') ?? [],
 	});
 	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
