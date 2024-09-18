@@ -413,12 +413,12 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 						ConstraintSet constraintSet = new ConstraintSet();
 						constraintSet.clone((ConstraintLayout) this.container);
 
-						int holderId = R.id.titanium_ui_listview_holder_header;
+						int constraintStartId = R.id.titanium_ui_listview_holder_header;
 						if (this.content.getChildCount() > 0) {
-							holderId = R.id.titanium_ui_listview_holder_content;
+							constraintStartId = R.id.titanium_ui_listview_holder_content;
 						}
-						
-						constraintSet.connect(holderId, ConstraintSet.BOTTOM,
+
+						constraintSet.connect(constraintStartId, ConstraintSet.BOTTOM,
 							R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
 						constraintSet.connect(R.id.titanium_ui_listview_holder_left_image, ConstraintSet.BOTTOM,
 							R.id.titanium_ui_listview_holder_footer, ConstraintSet.TOP, 0);
