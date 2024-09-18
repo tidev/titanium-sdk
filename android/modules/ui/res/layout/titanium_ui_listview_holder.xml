@@ -12,9 +12,9 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:addStatesFromChildren="true"
-		app:layout_constraintBottom_toTopOf="@+id/titanium_ui_listview_holder_footer_title"
+		app:layout_constraintEnd_toStartOf="@id/titanium_ui_listview_holder_right_image"
 		app:layout_constraintStart_toEndOf="@id/titanium_ui_listview_holder_left_image"
-		app:layout_constraintTop_toBottomOf="@+id/titanium_ui_listview_holder_header_title" />
+		app:layout_constraintTop_toBottomOf="@+id/barrierHeader" />
 
 	<ImageView
 		android:id="@+id/titanium_ui_listview_holder_left_image"
@@ -24,9 +24,9 @@
 		android:focusableInTouchMode="false"
 		android:paddingStart="6dp"
 		android:paddingEnd="0dp"
-		app:layout_constraintBottom_toTopOf="@id/titanium_ui_listview_holder_footer_title"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/titanium_ui_listview_holder_header_title" />
+		app:layout_constraintTop_toTopOf="@id/titanium_ui_listview_holder_content"
+		app:layout_constraintBottom_toBottomOf="@id/titanium_ui_listview_holder_content" />
 
 	<ImageView
 		android:id="@+id/titanium_ui_listview_holder_right_image"
@@ -35,9 +35,9 @@
 		android:layout_marginEnd="6dp"
 		android:focusable="false"
 		android:focusableInTouchMode="false"
-		app:layout_constraintBottom_toBottomOf="@id/titanium_ui_listview_holder_footer_title"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/titanium_ui_listview_holder_header_title" />
+		app:layout_constraintTop_toTopOf="@id/titanium_ui_listview_holder_content"
+		app:layout_constraintBottom_toBottomOf="@id/titanium_ui_listview_holder_content" />
 
 	<TextView
 		android:id="@+id/titanium_ui_listview_holder_header_title"
@@ -63,10 +63,16 @@
 		android:minHeight="18dp"
 		android:paddingLeft="5dp"
 		android:paddingRight="5dp"
-		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent" />
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/titanium_ui_listview_holder_content" />
 
+	<androidx.constraintlayout.widget.Barrier
+		android:id="@+id/barrierHeader"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:barrierDirection="bottom"
+		app:constraint_referenced_ids="titanium_ui_listview_holder_header,titanium_ui_listview_holder_header_title" />
 
 	<org.appcelerator.titanium.view.TiCompositeLayout
 		android:id="@+id/titanium_ui_listview_holder_header"
@@ -84,7 +90,7 @@
 		android:layout_height="wrap_content"
 		android:focusable="false"
 		android:focusableInTouchMode="false"
-		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/titanium_ui_listview_holder_content"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent" />
 
