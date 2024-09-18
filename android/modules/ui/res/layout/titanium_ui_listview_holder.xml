@@ -12,7 +12,6 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:addStatesFromChildren="true"
-		app:layout_constraintEnd_toStartOf="@id/titanium_ui_listview_holder_right_image"
 		app:layout_constraintStart_toEndOf="@id/titanium_ui_listview_holder_left_image"
 		app:layout_constraintTop_toBottomOf="@+id/barrierHeader" />
 
