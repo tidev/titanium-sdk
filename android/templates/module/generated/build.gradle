@@ -3,6 +3,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+<% for(var i=0; i<plugins.length; i++) {%>
+apply plugin: '<%= plugins[i] %>'
+<% } %>
 
 repositories {
 	maven {
