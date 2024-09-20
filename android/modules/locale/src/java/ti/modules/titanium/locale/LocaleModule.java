@@ -10,8 +10,10 @@ import java.text.Collator;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
@@ -21,7 +23,11 @@ import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
 
+import android.os.Build;
 import android.telephony.PhoneNumberUtils;
+
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
 
 @Kroll.module
 public class LocaleModule extends KrollModule
@@ -31,6 +37,62 @@ public class LocaleModule extends KrollModule
 	public LocaleModule()
 	{
 		super("Locale");
+	}
+
+	@Kroll.setProperty
+	public void setApplicationLocales(String locales)
+	{
+		if (Build.VERSION.SDK_INT < 33) {
+			Log.w(TAG, "This property is only supported on android API 33 and above.");
+			return;
+		}
+		LocaleListCompat appLocale = LocaleListCompat.forLanguageTags(locales);
+		AppCompatDelegate.setApplicationLocales(appLocale);
+	}
+
+	@Kroll.getProperty
+	public KrollDict[] getApplicationLocales()
+	{
+		if (Build.VERSION.SDK_INT < 33) {
+			Log.w(TAG, "This property is only supported on android API 33 and above.");
+			return new KrollDict[0];
+		}
+		LocaleListCompat localeListCompat = AppCompatDelegate.getApplicationLocales();
+		int size = localeListCompat.size();
+		KrollDict[] locales = new KrollDict[size];
+		for (int i = 0; i < size; i++) {
+			Locale locale = localeListCompat.get(i);
+			if (locale != null) {
+				KrollDict localeObj = new KrollDict();
+				localeObj.put("country", locale.getCountry());
+				localeObj.put("iso3_country", locale.getISO3Country());
+				localeObj.put("display_country", locale.getDisplayCountry());
+				localeObj.put("language", locale.getLanguage());
+				localeObj.put("iso3_language", locale.getISO3Language());
+				localeObj.put("display_language", locale.getDisplayLanguage());
+				localeObj.put("variant", locale.getVariant());
+				localeObj.put("display_variant", locale.getDisplayVariant());
+				localeObj.put("script", locale.getScript());
+				localeObj.put("display_script", locale.getDisplayScript());
+				localeObj.put("display_name", locale.getDisplayName());
+				localeObj.put("language_tag", locale.toLanguageTag());
+				Character[] extensionKeys = new Character[locale.getExtensionKeys().size()];
+				String[] extensions = new String[locale.getExtensionKeys().size()];
+				Iterator<Character> extensionKeysSize = locale.getExtensionKeys().iterator();
+				int l = 0;
+				while (extensionKeysSize.hasNext()) {
+					extensionKeys[l] = extensionKeysSize.next();
+					extensions[l] = locale.getExtension(extensionKeys[l]);
+					l++;
+				}
+				localeObj.put("extension_keys", extensionKeys);
+				localeObj.put("extensions", extensions);
+				locales[i] = localeObj;
+			} else {
+				locales[i] = null;
+			}
+		}
+		return locales;
 	}
 
 	@Kroll.getProperty
