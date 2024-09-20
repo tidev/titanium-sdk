@@ -512,11 +512,13 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "local.properties" file providing a path to the Android SDK directory.
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
-	// Copy our root "build.gradle" template script to the root build directory.
+	// Generate root "build.gradle" template script to the root build directory.
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');
-	await fs.copyFile(
-		path.join(templatesDir, 'root.build.gradle'),
-		path.join(this.buildDir, 'build.gradle'));
+	let buildGradleContent = await fs.readFile(path.join(templatesDir, 'root.build.gradle'));
+	buildGradleContent = ejs.render(buildGradleContent.toString(), {
+		classpaths: (this.manifest.classpaths?.split(',') ?? []).filter(classpath => classpath !== ''),
+	});
+	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
 	// Copy our Titanium template's gradle constants file.
 	// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
@@ -562,6 +564,7 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 	let buildGradleContent = await fs.readFile(path.join(this.moduleTemplateDir, 'build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		compileSdkVersion: this.compileSdkVersion,
+		plugins: (this.manifest.plugins?.split(',') ?? []).filter(plugin => plugin !== ''),
 		krollAptJarPath: path.join(this.platformPath, 'kroll-apt.jar'),
 		minSdkVersion: this.minSupportedApiLevel,
 		moduleAuthor: this.manifest.author,
