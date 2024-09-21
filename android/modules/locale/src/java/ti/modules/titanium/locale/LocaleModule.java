@@ -54,7 +54,7 @@ public class LocaleModule extends KrollModule
 	public KrollDict[] getApplicationLocales()
 	{
 		if (Build.VERSION.SDK_INT < 33) {
-			Log.w(TAG, "This property is only supported on android API 33 and above.");
+			Log.w(TAG, "This property is only supported on Android API level 33 and above.");
 			return new KrollDict[0];
 		}
 		LocaleListCompat localeListCompat = AppCompatDelegate.getApplicationLocales();
