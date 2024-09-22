@@ -451,6 +451,6 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	@ColorInt
 	private static int getTabRippleColorFrom(Context context)
 	{
-		return MaterialColors.getColor(context, R.attr.colorPrimary, Color.DKGRAY);
+		return MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, Color.DKGRAY);
 	}
 }
