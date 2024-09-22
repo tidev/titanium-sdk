@@ -65,17 +65,17 @@ public class LocaleModule extends KrollModule
 			if (locale != null) {
 				KrollDict localeObj = new KrollDict();
 				localeObj.put("country", locale.getCountry());
-				localeObj.put("iso3_country", locale.getISO3Country());
-				localeObj.put("display_country", locale.getDisplayCountry());
+				localeObj.put("iso3Country", locale.getISO3Country());
+				localeObj.put("displayCountry", locale.getDisplayCountry());
 				localeObj.put("language", locale.getLanguage());
-				localeObj.put("iso3_language", locale.getISO3Language());
-				localeObj.put("display_language", locale.getDisplayLanguage());
+				localeObj.put("iso3Language", locale.getISO3Language());
+				localeObj.put("displayLanguage", locale.getDisplayLanguage());
 				localeObj.put("variant", locale.getVariant());
-				localeObj.put("display_variant", locale.getDisplayVariant());
+				localeObj.put("displayVariant", locale.getDisplayVariant());
 				localeObj.put("script", locale.getScript());
-				localeObj.put("display_script", locale.getDisplayScript());
-				localeObj.put("display_name", locale.getDisplayName());
-				localeObj.put("language_tag", locale.toLanguageTag());
+				localeObj.put("displayScript", locale.getDisplayScript());
+				localeObj.put("displayName", locale.getDisplayName());
+				localeObj.put("languageTag", locale.toLanguageTag());
 				Character[] extensionKeys = new Character[locale.getExtensionKeys().size()];
 				String[] extensions = new String[locale.getExtensionKeys().size()];
 				Iterator<Character> extensionKeysSize = locale.getExtensionKeys().iterator();
@@ -141,10 +141,9 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.getCanonicalLocales() static method.
-	 * @param locales
-	 * Can be a string or array of strings providing locale IDs to convert to canonical locale IDs. Can be null.
-	 * @return
-	 * Returns the given locale string IDs converted to "canonical" string IDs. Duplicate locales are removed.
+	 *
+	 * @param locales Can be a string or array of strings providing locale IDs to convert to canonical locale IDs. Can be null.
+	 * @return Returns the given locale string IDs converted to "canonical" string IDs. Duplicate locales are removed.
 	 * Returns an empty array if given locales are invalid/unsupported or if given a null locales argument.
 	 */
 	@Kroll.method
@@ -166,10 +165,10 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.Collator.supportedLocalesOf() static method.
+	 *
 	 * @param locales Can be a string or array of strings providing the locale IDs to search for. Can be null.
 	 * @param options The Intl.Collator.supportedLocalesOf() argument. Currently ignored.
-	 * @return
-	 * Returns a subset of locale IDs from the given argument that are supported by the system.
+	 * @return Returns a subset of locale IDs from the given argument that are supported by the system.
 	 * Returns an empty array if none of the locales are supported or if given a null locales argument.
 	 */
 	@Kroll.method
@@ -182,10 +181,10 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.DateTimeFormat.supportedLocalesOf() static method.
+	 *
 	 * @param locales Can be a string or array of strings providing the locale IDs to search for. Can be null.
 	 * @param options The Intl.DateTimeFormat.supportedLocalesOf() argument. Currently ignored.
-	 * @return
-	 * Returns a subset of locale IDs from the given argument that are supported by the system.
+	 * @return Returns a subset of locale IDs from the given argument that are supported by the system.
 	 * Returns an empty array if none of the locales are supported or if given a null locales argument.
 	 */
 	@Kroll.method
@@ -198,10 +197,10 @@ public class LocaleModule extends KrollModule
 
 	/**
 	 * Undocumented method used to implement the JavaScript Intl.NumberFormat.supportedLocalesOf() static method.
+	 *
 	 * @param locales Can be a string or array of strings providing the locale IDs to search for. Can be null.
 	 * @param options The Intl.NumberFormat.supportedLocalesOf() argument. Currently ignored.
-	 * @return
-	 * Returns a subset of locale IDs from the given argument that are supported by the system.
+	 * @return Returns a subset of locale IDs from the given argument that are supported by the system.
 	 * Returns an empty array if none of the locales are supported or if given a null locales argument.
 	 */
 	@Kroll.method
