@@ -242,7 +242,7 @@ properties:
     description: |
         This property holds the values of Android's Per-app languages which is an array of defined Per-app languages, 
         if no languages defined, an empty array will be returned. You can set the value of it like this `en-US,en-GB,ar-SA`.
-        This property requires android API 33 and above.
+        This property requires Android API level 33 and above.
         See the [Android's Per-app languages](https://developer.android.com/guide/topics/resources/app-languages).
     type: Array
     since: "12.6.0"
