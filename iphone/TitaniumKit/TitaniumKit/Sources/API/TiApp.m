@@ -33,6 +33,11 @@ extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 
+BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
+
+// TODO: Remove in SDK 9.0+
+TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+
 @interface TiApp ()
 - (void)checkBackgroundServices;
 - (void)appBoot;
@@ -322,8 +327,14 @@ extern void UIColorFlushCache(void);
     [[TiLogServer defaultLogServer] start];
   }
 
+  // Initialize the root-window
+  window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+
   // Initialize the launch options to be used by the client
   launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
+
+  // Initialize the root-controller
+  [self initController];
 
   // If we have a APNS-UUID, assign it
   NSString *apnsUUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
@@ -416,6 +427,12 @@ extern void UIColorFlushCache(void);
   // If a "application-launch-url" is set, launch it directly
   [self launchToUrl];
 
+  // Boot our kroll-core
+  [self boot];
+
+  // Create application support directory if not exists
+  [self createDefaultDirectories];
+
   return YES;
 }
 
@@ -479,7 +496,7 @@ extern void UIColorFlushCache(void);
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, [completionHandler copy], nil]];
 
-  //Only for simulator builds
+  // Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"fetch"]) {
 
@@ -568,7 +585,7 @@ extern void UIColorFlushCache(void);
       [self application:[UIApplication sharedApplication] handleActionWithIdentifier:response.actionIdentifier forRemoteNotification:response.notification.request.content.userInfo withResponseInfo:responseInfo completionHandler:completionHandler];
     }
   } else {
-    //NOTE Local notifications should be handled similar to BG above which ultimately calls handleRemoteNotificationWithIdentifier as this will allow BG Actions to execute.
+    // NOTE Local notifications should be handled similar to BG above which ultimately calls handleRemoteNotificationWithIdentifier as this will allow BG Actions to execute.
     RELEASE_TO_NIL(localNotification);
     localNotification = [[[self class] dictionaryWithUserNotification:response.notification
                                                        withIdentifier:response.actionIdentifier] retain];
@@ -779,7 +796,7 @@ extern void UIColorFlushCache(void);
   }
 }
 
-//Called to mark the end of background transfer while in the background.
+// Called to mark the end of background transfer while in the background.
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key
 {
   if ([backgroundTransferCompletionHandlers objectForKey:key] != nil) {
@@ -830,7 +847,7 @@ extern void UIColorFlushCache(void);
 
 #pragma mark Background Transfer Service
 
-//Delegate callback for Background Transfer completes.
+// Delegate callback for Background Transfer completes.
 - (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)(void))completionHandler
 {
   // Generate unique key with timestamp.
@@ -853,7 +870,7 @@ extern void UIColorFlushCache(void);
 
 #pragma mark Background Transfer Service Delegates.
 
-//TODO: Move these delegates to the module post 3.2.0
+// TODO: Move these delegates to the module post 3.2.0
 
 - (void)URLSession:(NSURLSession *)session downloadTask:(NSURLSessionDownloadTask *)downloadTask didFinishDownloadingToURL:(NSURL *)location
 {
@@ -921,7 +938,7 @@ extern void UIColorFlushCache(void);
   if (!uploadTaskResponses) {
     uploadTaskResponses = [[NSMutableDictionary alloc] init];
   }
-  //This dictionary will mutate if delegate is called
+  // This dictionary will mutate if delegate is called
   NSMutableDictionary *responseObj = [uploadTaskResponses objectForKey:@(dataTask.taskIdentifier)];
   if (!responseObj) {
     NSMutableData *responseData = [NSMutableData dataWithData:data];
@@ -995,7 +1012,7 @@ extern void UIColorFlushCache(void);
 
   NSNotificationCenter *theNotificationCenter = [NSNotificationCenter defaultCenter];
   _willTerminate = YES;
-  //This will send out the 'close' message.
+  // This will send out the 'close' message.
   [theNotificationCenter postNotificationName:kTiWillShutdownNotification object:self];
   NSCondition *condition = [[NSCondition alloc] init];
 
@@ -1006,7 +1023,7 @@ extern void UIColorFlushCache(void);
     [[TiLogServer defaultLogServer] stop];
   }
 
-  //This will shut down the modules.
+  // This will shut down the modules.
   [theNotificationCenter postNotificationName:kTiShutdownNotification object:self];
   RELEASE_TO_NIL(condition);
   RELEASE_TO_NIL(kjsBridge);
@@ -1100,7 +1117,7 @@ extern void UIColorFlushCache(void);
   [sessionId release];
   sessionId = [[TiUtils createUUID] retain];
 
-  //TIMOB-3432. Ensure url is cleared when resume event is fired.
+  // TIMOB-3432. Ensure url is cleared when resume event is fired.
   [launchOptions removeObjectForKey:@"url"];
   [launchOptions removeObjectForKey:@"source"];
 
@@ -1113,7 +1130,7 @@ extern void UIColorFlushCache(void);
   [self endBackgrounding];
 }
 
-//TODO: this should be compiled out in production mode
+// TODO: this should be compiled out in production mode
 - (void)showModalError:(NSString *)message
 {
   NSLog(@"[ERROR] Application received error: %@", message);
@@ -1216,28 +1233,6 @@ extern void UIColorFlushCache(void);
 - (KrollBridge *)krollBridge
 {
   return kjsBridge;
-}
-
-#pragma mark UIWindowSceneDelegate
-
-- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
-{
-  return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
-}
-
-- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
-{
-  // Initialize the root-window
-  window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
-
-  // Initialize the root-controller
-  [self initController];
-
-  // Boot our kroll-core
-  [self boot];
-
-  // Create application support directory if not exists
-  [self createDefaultDirectories];
 }
 
 #pragma mark Background Tasks
@@ -1375,7 +1370,7 @@ extern void UIColorFlushCache(void);
     backgroundServices = [[NSMutableArray alloc] initWithCapacity:1];
   }
 
-  //Only add if it isn't already added
+  // Only add if it isn't already added
   if (![backgroundServices containsObject:proxy]) {
     [backgroundServices addObject:proxy];
   }

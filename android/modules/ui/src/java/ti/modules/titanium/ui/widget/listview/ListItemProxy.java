@@ -580,7 +580,7 @@ public class ListItemProxy extends TiViewProxy
 	/**
 	 * Override getRect() to amend dimensions.
 	 *
-	 * @return Dictinary of view dimensions.
+	 * @return Dictionary of view dimensions.
 	 */
 	@Override
 	public KrollDict getRect()

@@ -684,6 +684,12 @@ properties:
         ipad: 3.2.0
     platforms: [android, iphone, ipad, macos]
 
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
+
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
     description: |
