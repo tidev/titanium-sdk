@@ -7,20 +7,7 @@
 		android:id="@+id/bottomNavBar_content"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_above="@+id/bottomNavBar">
-
-		<TextView
-			android:id="@+id/descTextView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:layout_gravity="bottom"
-			android:background="@android:color/holo_blue_light"
-			android:padding="10dp"
-			android:text="Demo text view"
-			android:textColor="@android:color/white"
-			android:textSize="22sp" />
-
-	</FrameLayout>
+		android:layout_above="@+id/bottomNavBar" />
 
 	<com.google.android.material.bottomnavigation.BottomNavigationView
 		android:id="@+id/bottomNavBar"

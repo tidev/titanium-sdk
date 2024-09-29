@@ -19,6 +19,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
 
 import java.lang.ref.WeakReference;
 
@@ -39,6 +40,17 @@ public class BottomNavigationProxy extends TiWindowProxy implements TiActivityWi
 		// Don't open if app is closing or closed
 		if (topActivity == null || topActivity.isFinishing()) {
 			return;
+		}
+
+		if (getProperty(TiC.PROPERTY_THEME) != null) {
+			try {
+				String themeName = getProperty(TiC.PROPERTY_THEME).toString();
+				int theme = TiRHelper.getResource("style."
+					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
+				topActivity.setTheme(theme);
+				topActivity.getApplicationContext().setTheme(theme);
+			} catch (Exception e) {
+			}
 		}
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
@@ -70,13 +82,12 @@ public class BottomNavigationProxy extends TiWindowProxy implements TiActivityWi
 	@Override
 	protected void handleClose(@NonNull KrollDict options)
 	{
-		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
-
 		// Remove this TabGroup proxy from the active/open collection.
 		// Note: If the activity's onCreate() can't find this proxy, then it'll automatically destroy itself.
 		//       This is needed in case the proxy's close() method was called before the activity was created.
 		TiActivityWindows.removeWindow(this);
-
+		bottomNavigationActivity.clear();
+		bottomNavigation.release();
 		// Release views/resources.
 		modelListener = null;
 		releaseViews();
@@ -107,6 +118,7 @@ public class BottomNavigationProxy extends TiWindowProxy implements TiActivityWi
 		setActivity(activity);
 
 		view = new TiUIBottomNavigation(this, activity);
+
 		setModelListener(view);
 	}
 
@@ -114,7 +126,6 @@ public class BottomNavigationProxy extends TiWindowProxy implements TiActivityWi
 	public void handleCreationDict(KrollDict options)
 	{
 		super.handleCreationDict(options);
-
 		// Support setting orientation modes at creation.
 		Object orientationModes = options.get(TiC.PROPERTY_ORIENTATION_MODES);
 		if (orientationModes instanceof Object[]) {
@@ -131,12 +142,9 @@ public class BottomNavigationProxy extends TiWindowProxy implements TiActivityWi
 			tabs = options.get(TiC.PROPERTY_TABS);
 			TiUIBottomNavigation tabGroup = (TiUIBottomNavigation) view;
 			if (tabGroup != null) {
-				tabGroup.setTabs((Object[]) tabs);
+				tabGroup.setTabs(tabs);
 			}
 		}
-		if (options.containsKeyAndNotNull(TiC.PROPERTY_THEME)) {
-			Log.i("---", "a Theme: " + options.get(TiC.PROPERTY_THEME));
-		}
-
 	}
+
 }

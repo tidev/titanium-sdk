@@ -1,22 +1,30 @@
 package ti.modules.titanium.ui.widget;
 
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import java.util.ArrayList;
+
+import ti.modules.titanium.ui.TabProxy;
+import ti.modules.titanium.ui.widget.tabgroup.TiUITab;
 
 public class TiUIBottomNavigation extends TiUIView implements BottomNavigationView.OnItemSelectedListener
 {
@@ -26,8 +34,9 @@ public class TiUIBottomNavigation extends TiUIView implements BottomNavigationVi
 	static int id_bottomNavigation = 0;
 	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
 	private RelativeLayout layout = null;
-	private TiViewProxy centerView;
+	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
+	private Object[] tabsArray;
 
 	public TiUIBottomNavigation(TiViewProxy proxy, TiBaseActivity activity)
 	{
@@ -40,59 +49,100 @@ public class TiUIBottomNavigation extends TiUIView implements BottomNavigationVi
 			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppRootOrCurrentActivity());
 			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
 			bottomNavigation = layout.findViewById(id_bottomNavigation);
+			centerView = layout.findViewById(id_content);
 
 			bottomNavigation.setOnItemSelectedListener(this);
-
 			activity.setLayout(layout);
-			setTabs(new Object[2]);
+
+			if (proxy.hasProperty(TiC.PROPERTY_TABS)) {
+				setTabs(proxy.getProperty(TiC.PROPERTY_TABS));
+				selectTab(0);
+			}
+
 		} catch (Exception ex) {
 			Log.e(TAG, "XML resources could not be found!!!" + ex.getMessage());
 		}
 
 	}
 
-	@Override
-	public boolean onNavigationItemSelected(@NonNull MenuItem item)
+	public void updateBadge(int index)
 	{
-		Log.i("----", "Selected item: " + item.getItemId());
-		return false;
-	}
+		if ((index < 0) || (index >= tabsArray.length)) {
+			return;
+		}
 
-	public void setTabs(Object[] tabs)
-	{
-		Log.i("---", "hier");
-		for (Object tabView : tabs) {
-			Log.i("---", "1");
-			MenuItem menuItem = bottomNavigation.getMenu().add(0, this.mMenuItemsArray.size(), 0, "");
-			menuItem.setTitle("test");
-			menuItem.setIcon(R.drawable.titanium_icon_checkcircle);
-			// Set the click listener.
-			//menuItem.setOnMenuItemClickListener(this);
-			// Add the MenuItem to the menu of BottomNavigationView.
-			this.mMenuItemsArray.add(menuItem);
+		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+		if (tabProxy == null) {
+			return;
+		}
+
+		Object badgeValue = tabProxy.getProperty(TiC.PROPERTY_BADGE);
+		if ((badgeValue == null) && !TiUIHelper.isUsingMaterialTheme(bottomNavigation.getContext())) {
+			return;
+		}
+
+		int menuItemId = bottomNavigation.getMenu().getItem(index).getItemId();
+		BadgeDrawable badgeDrawable = bottomNavigation.getOrCreateBadge(menuItemId);
+		if (badgeValue != null) {
+			badgeDrawable.setVisible(true);
+			badgeDrawable.setNumber(TiConvert.toInt(badgeValue, 0));
+		} else {
+			badgeDrawable.setVisible(false);
 		}
 	}
 
-//	public void setContent(TiViewProxy viewProxy)
-//	{
-//		if (viewProxy == null || viewProxy == this.centerView) {
-//			return;
-//		}
-//
-//		viewProxy.setActivity(proxy.getActivity());
-//		TiUIView contentView = viewProxy.getOrCreateView();
-//
-//		View view = contentView.getOuterView();
-//		LinearLayout container = (LinearLayout) layout.findViewById(id_content);
-//		TiCompositeLayout content = (TiCompositeLayout) container.getChildAt(1);
-//		ViewParent viewParent = view.getParent();
-//		if (viewParent != null && viewParent != content && viewParent instanceof ViewGroup) {
-//			((ViewGroup) viewParent).removeView(view);
-//		}
-//		content.addView(view, contentView.getLayoutParams());
-//		if (this.centerView != null) {
-//			content.removeView(this.centerView.getOrCreateView().getNativeView());
-//		}
-//		this.centerView = viewProxy;
-//	}
+	private void selectTab(int id)
+	{
+		TabProxy tp = ((TabProxy) tabsArray[id]);
+		if (tp != null) {
+			TiUITab abstractTab = new TiUITab(tp);
+
+			centerView.removeAllViews();
+			TiUIView view = abstractTab.getWindowProxy().getOrCreateView();
+			if (view != null) {
+				centerView.addView(view.getOuterView());
+			}
+
+		}
+	}
+
+	@Override
+	public boolean onNavigationItemSelected(@NonNull MenuItem item)
+	{
+		item.setChecked(true);
+		selectTab(item.getItemId());
+		return true;
+	}
+
+	public void setTabs(Object tabs)
+	{
+		if (tabs instanceof Object[] objArray) {
+			tabsArray = objArray;
+			for (Object tabView : tabsArray) {
+				if (tabView instanceof TabProxy tp) {
+					MenuItem menuItem = bottomNavigation.getMenu().add(0, this.mMenuItemsArray.size(), 0, "");
+					tp.setNavBar(this, menuItem.getItemId());
+					menuItem.setTitle(tp.getProperty(TiC.PROPERTY_TITLE).toString());
+					Drawable drawable = TiUIHelper.getResourceDrawable(tp.getProperty(TiC.PROPERTY_ICON));
+					menuItem.setIcon(drawable);
+					this.mMenuItemsArray.add(menuItem);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		if (layout != null) {
+			layout.removeAllViews();
+			layout = null;
+		}
+		if (centerView != null) {
+			centerView.removeAllViews();
+			centerView = null;
+		}
+		super.release();
+		proxy = null;
+	}
 }
