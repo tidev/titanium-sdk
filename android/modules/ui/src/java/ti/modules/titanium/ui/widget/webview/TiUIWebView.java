@@ -375,6 +375,10 @@ public class TiUIWebView extends TiUIView
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
+		if (proxy.hasProperty(TiC.LAYOUT_FILL) && TiConvert.toBoolean(proxy.getProperty(TiC.LAYOUT_FILL), false)) {
+			params.height = TiCompositeLayout.LayoutParams.MATCH_PARENT;
+			params.width = TiCompositeLayout.LayoutParams.MATCH_PARENT;
+		}
 
 		setNativeView(webView);
 	}
