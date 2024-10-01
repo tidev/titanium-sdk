@@ -48,9 +48,23 @@ extern NSString *const TI_APPLICATION_GUID;
 #ifndef TI_USE_AUTOLAYOUT
   [TiLayoutQueue resetQueue];
 #endif
+
+  // Get the currently active scene
+  UIScene *activeScene = nil;
+  for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+    if (scene.activationState == UISceneActivationStateForegroundActive) {
+      activeScene = scene;
+      break;
+    }
+  }
+
+  if (activeScene == nil) {
+    NSLog(@"[ERROR] No active scene connected - this may lead to an undefined behavior");
+  }
+
   /* Begin backgrounding simulation */
-  [appDelegate applicationWillResignActive:app];
-  [appDelegate applicationDidEnterBackground:app];
+  [appDelegate sceneWillResignActive:activeScene];
+  [appDelegate sceneDidEnterBackground:activeScene];
   [appDelegate endBackgrounding];
   /* End backgrounding simulation */
 
@@ -76,8 +90,9 @@ extern NSString *const TI_APPLICATION_GUID;
 
   /* Begin foregrounding simulation */
   [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
-  [appDelegate applicationWillEnterForeground:app];
-  [appDelegate applicationDidBecomeActive:app];
+  [appDelegate scene:activeScene willConnectToSession:activeScene.session options:TiApp.app.connectionOptions];
+  [appDelegate sceneWillEnterForeground:activeScene];
+  [appDelegate sceneDidBecomeActive:activeScene];
   /* End foregrounding simulation */
 }
 
