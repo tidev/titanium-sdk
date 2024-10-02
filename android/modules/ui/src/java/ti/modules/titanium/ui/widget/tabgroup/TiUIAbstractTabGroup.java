@@ -454,7 +454,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		// Set action bar color.
 		if (proxy != null) {
 			final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
-			if (actionBar != null) {
+			if (actionBar != null && !this.tabs.isEmpty()) {
 				final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
 				final KrollDict windowProperties = windowProxy.getProperties();
 				final KrollDict properties = getProxy().getProperties();

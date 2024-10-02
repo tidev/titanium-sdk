@@ -15,7 +15,6 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import ti.modules.titanium.ui.widget.TiUIBottomNavigation;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 
 import android.app.Activity;
@@ -40,11 +39,9 @@ public class TabProxy extends TiViewProxy
 	private static final String TAG = "TabProxy";
 
 	private TabGroupProxy tabGroupProxy;
-	private TiUIBottomNavigation navBar;
 	private TiWindowProxy window;
 	private boolean windowOpened = false;
 	private int windowId;
-	private int navBarId;
 
 	public TabProxy()
 	{
@@ -144,12 +141,6 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
-	public void setNavBar(TiUIBottomNavigation bottomNav, int idx)
-	{
-		this.navBar = bottomNav;
-		this.navBarId = idx;
-	}
-
 	public void setWindowId(int id)
 	{
 		windowId = id;
@@ -237,13 +228,6 @@ public class TabProxy extends TiViewProxy
 	public void onPropertyChanged(String name, Object value)
 	{
 		super.onPropertyChanged(name, value);
-
-		if (navBar != null) {
-			if (name.equals(TiC.PROPERTY_BADGE)) {
-				navBar.updateBadge(this.navBarId);
-			}
-			return;
-		}
 
 		// Fetch the TabGroup's view. If currently null, then we have to wait for TabGroup activity to be created.
 		TiUIView view = (this.tabGroupProxy != null) ? this.tabGroupProxy.peekView() : null;

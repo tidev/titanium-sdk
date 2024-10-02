@@ -39,6 +39,7 @@ import java.util.HashMap;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigation;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
@@ -367,7 +368,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				((TiUITabLayoutTabGroup) view).setTabMode((Integer) getProperty(TiC.PROPERTY_TAB_MODE));
 			}
 		} else {
-			view = new TiUIBottomNavigationTabGroup(this, activity);
+			if (TiConvert.toBoolean(getProperty("newLayout"), false)) {
+				view = new TiUIBottomNavigation(this, activity);
+			} else {
+				view = new TiUIBottomNavigationTabGroup(this, activity);
+			}
 		}
 		// If we have set a title before the creation of the native view, set it now.
 		if (this.tabGroupTitle != null) {
