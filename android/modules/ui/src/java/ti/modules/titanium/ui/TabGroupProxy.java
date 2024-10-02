@@ -50,7 +50,8 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 		TiC.PROPERTY_SWIPEABLE,
 		TiC.PROPERTY_AUTO_TAB_TITLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
-		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
+		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK,
+		TiC.PROPERTY_INDICATOR_COLOR
 	})
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -326,7 +327,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// set theme for XML layout
-		if (((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
+		if (hasProperty(TiC.PROPERTY_STYLE)
+			&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
 			&& getProperty(TiC.PROPERTY_THEME) != null) {
 			try {
 				String themeName = getProperty(TiC.PROPERTY_THEME).toString();

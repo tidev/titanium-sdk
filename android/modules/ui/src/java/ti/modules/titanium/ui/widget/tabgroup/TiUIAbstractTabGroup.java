@@ -116,6 +116,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public abstract void updateTabBackgroundDrawable(int index);
 
 	/**
+	 * Material 3 active indicator color
+	 *
+	 * @param color color
+	 */
+	public abstract void updateActiveIndicatorColor(int color);
+
+	/**
 	 * Update the tab's title to the proper text.
 	 *
 	 * @param index of the Tab to update.
@@ -495,6 +502,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		} else {
 			setBackgroundColor(getDefaultBackgroundColor());
 		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_INDICATOR_COLOR)) {
+			updateActiveIndicatorColor(TiConvert.toColor(d, TiC.PROPERTY_INDICATOR_COLOR, proxy.getActivity()));
+		}
 		super.processProperties(d);
 	}
 
@@ -516,6 +526,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			for (TiUITab tabView : tabs) {
 				updateTabBackgroundDrawable(tabs.indexOf(tabView));
 			}
+		} else if (key.equals(TiC.PROPERTY_INDICATOR_COLOR)) {
+			updateActiveIndicatorColor(TiColorHelper.parseColor(newValue.toString(), proxy.getActivity()));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
