@@ -44,7 +44,7 @@ android {
 	compileSdkVersion 33
 	defaultConfig {
 		minSdkVersion 21
-		targetSdkVersion 33
+		targetSdkVersion 34
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())
@@ -74,7 +74,7 @@ android {
 	}
 	externalNativeBuild {
 		cmake {
-			version '3.10.2'
+			version '3.22.1+'
 			path "${projectDir}/../runtime/v8/src/native/CMakeLists.txt"
 		}
 	}
@@ -254,7 +254,7 @@ dependencies {
 	implementation 'androidx.exifinterface:exifinterface:1.3.6'
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
 	implementation 'androidx.media:media:1.6.0'
-	implementation 'androidx.recyclerview:recyclerview:1.3.1'
+	implementation 'androidx.recyclerview:recyclerview:1.3.2'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 	implementation 'androidx.transition:transition:1.4.1'
