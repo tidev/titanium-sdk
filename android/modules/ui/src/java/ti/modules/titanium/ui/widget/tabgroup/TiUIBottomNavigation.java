@@ -51,16 +51,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
-		if (proxy.getProperty(TiC.PROPERTY_THEME) != null) {
-			try {
-				String themeName = proxy.getProperty(TiC.PROPERTY_THEME).toString();
-				int theme = TiRHelper.getResource("style."
-					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
-				activity.setTheme(theme);
-				activity.getApplicationContext().setTheme(theme);
-			} catch (Exception e) {
-			}
-		}
 	}
 
 	// Overriding addTab method to provide a proper guard for trying to add more tabs than the limit

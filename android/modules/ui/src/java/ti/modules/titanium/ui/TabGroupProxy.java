@@ -324,6 +324,20 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (topActivity == null || topActivity.isFinishing()) {
 			return;
 		}
+
+		// set theme for XML layout
+		if (((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
+			&& getProperty(TiC.PROPERTY_THEME) != null) {
+			try {
+				String themeName = getProperty(TiC.PROPERTY_THEME).toString();
+				int theme = TiRHelper.getResource("style."
+					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
+				topActivity.setTheme(theme);
+				topActivity.getApplicationContext().setTheme(theme);
+			} catch (Exception e) {
+			}
+		}
+
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
