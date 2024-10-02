@@ -21,6 +21,7 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollObject;
 import org.appcelerator.kroll.KrollPromise;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.ContextSpecific;
@@ -39,6 +40,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -67,11 +70,15 @@ import android.provider.MediaStore;
 import android.util.Size;
 import android.view.Window;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.AspectRatio;
 
 @Kroll.module
 @ContextSpecific
-public class MediaModule extends KrollModule implements Handler.Callback
+public class MediaModule extends KrollModule implements Handler.Callback, TiActivityResultHandler
 {
 	private static final String TAG = "TiMedia";
 
@@ -237,6 +244,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int VERTICAL_ALIGN_TOP = 1;
 	@Kroll.constant
 	public static final int VERTICAL_ALIGN_BOTTOM = 2;
+	private static final Logger log = LoggerFactory.getLogger(MediaModule.class);
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
@@ -965,7 +973,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	}
 
 	/**
-	 * @see org.appcelerator.kroll.KrollProxy#handleMessage(android.os.Message)
+	 * @see KrollProxy#handleMessage(Message)
 	 */
 	@Override
 	public boolean handleMessage(Message message)
@@ -1180,6 +1188,38 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		final int code = allowMultiple ? PICK_IMAGE_MULTIPLE : PICK_IMAGE_SINGLE;
 
+		ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+		AppCompatActivity appCompatActivity = (AppCompatActivity) TiApplication.getAppRootOrCurrentActivity();
+		if (allowMultiple) {
+			pickMedia = appCompatActivity
+				.registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uri -> {
+					Log.i("---", "Res");
+					if (uri != null) {
+						// done
+					} else {
+						// error
+					}
+				});
+		} else {
+			pickMedia = appCompatActivity
+				.registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+					Log.i("---", "Res");
+					if (uri != null) {
+						// done
+						String path = uri.toString();
+						Log.i("---", "URI: " + path);
+						if (fSuccessCallback != null) {
+							fSuccessCallback.callAsync(getKrollObject(), createDictForImage(path));
+						}
+					} else {
+						// error
+					}
+				});
+		}
+		pickMedia.launch(new PickVisualMediaRequest.Builder()
+			.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+			.build());
+		/*
 		activitySupport.launchActivityForResult(galleryIntent.getIntent(), code, new TiActivityResultHandler() {
 			@Override
 			public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
@@ -1311,6 +1351,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				}
 			}
 		});
+		*/
 	}
 
 	protected static KrollDict createDictForImage(String path)
@@ -1767,5 +1808,17 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public String getApiName()
 	{
 		return "Ti.Media";
+	}
+
+	@Override
+	public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
+	{
+		Log.i("----", "TEST");
+	}
+
+	@Override
+	public void onError(Activity activity, int requestCode, Exception e)
+	{
+
 	}
 }
