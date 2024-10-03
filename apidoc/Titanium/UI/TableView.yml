@@ -1427,6 +1427,14 @@ properties:
     platforms: [iphone,ipad, macos]
     since: 2.1.2
 
+  - name: scrollType
+    summary: |
+        Change the type of the TableView to be `horizontal` or `vertical`.
+    description: Change the type of the TableView to be `horizontal` or `vertical`.
+    type: String
+    platforms: [android]
+    since: 10.0.0
+
   - name: search
     summary: Search field to use for the table view.
     description: |
