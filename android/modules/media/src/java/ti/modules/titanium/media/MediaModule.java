@@ -41,8 +41,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -248,7 +246,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int VERTICAL_ALIGN_TOP = 1;
 	@Kroll.constant
 	public static final int VERTICAL_ALIGN_BOTTOM = 2;
-	private static final Logger log = LoggerFactory.getLogger(MediaModule.class);
 
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
@@ -1211,140 +1208,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
 				.build());
 		}
-
-		/*
-		activitySupport.launchActivityForResult(galleryIntent.getIntent(), code, new TiActivityResultHandler() {
-			@Override
-			public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
-			{
-				if (requestCode != code) {
-					return;
-				}
-
-				// Do not continue if no selection was made.
-				Log.d(TAG, "OnResult called: " + resultCode, Log.DEBUG_MODE);
-				if ((resultCode == Activity.RESULT_CANCELED) || (data == null)) {
-					if (fCancelCallback != null) {
-						KrollDict response = new KrollDict();
-						response.putCodeAndMessage(NO_ERROR, null);
-						fCancelCallback.callAsync(getKrollObject(), response);
-					}
-					return;
-				}
-
-				// Fetch a URI to file selected. (Only applicable to single file selection.)
-				Uri uri = data.getData();
-				String path = (uri != null) ? uri.toString() : null;
-
-				// Handle multiple file selection, if enabled.
-				if (requestCode == PICK_IMAGE_MULTIPLE) {
-					// Wrap all selected file(s) in Titanium "CameraMediaItemType" dictionaries.
-					ArrayList<KrollDict> selectedFiles = new ArrayList<>();
-					ClipData clipData = data.getClipData();
-					if (clipData != null) {
-						// Fetch file(s) from clip data.
-						int count = clipData.getItemCount();
-						for (int index = 0; index < count; index++) {
-							ClipData.Item item = clipData.getItemAt(index);
-							if ((item == null) || (item.getUri() == null)) {
-								continue;
-							}
-							KrollDict dictionary = createDictForImage(item.getUri().toString());
-							if (dictionary == null) {
-								continue;
-							}
-							selectedFiles.add(dictionary);
-						}
-					} else if (path != null) {
-						// Only a single file was found.
-						KrollDict dictionary = createDictForImage(path);
-						if (dictionary != null) {
-							selectedFiles.add(dictionary);
-						}
-					}
-
-					// Copy each selected file to either an "images" or "videos" collection.
-					ArrayList<KrollDict> selectedImages = new ArrayList<>();
-					ArrayList<KrollDict> selectedVideos = new ArrayList<>();
-					for (KrollDict dictionary : selectedFiles) {
-						String mediaType = dictionary.getString("mediaType");
-						if (mediaType != null) {
-							if (mediaType.equals(MEDIA_TYPE_PHOTO)) {
-								selectedImages.add(dictionary);
-							} else if (mediaType.equals(MEDIA_TYPE_VIDEO)) {
-								selectedVideos.add(dictionary);
-							}
-						}
-					}
-
-					// Invoke a callback with the selection result.
-					if (selectedImages.isEmpty() && selectedVideos.isEmpty()) {
-						if (selectedFiles.isEmpty()) {
-							// Invoke the "cancel" callback if no files were selected.
-							if (fCancelCallback != null) {
-								KrollDict response = new KrollDict();
-								response.putCodeAndMessage(NO_ERROR, null);
-								fCancelCallback.callAsync(getKrollObject(), response);
-							}
-						} else {
-							// Invoke the "error" callback if non-image/video files were selected.
-							String message = "Invalid file types were selected";
-							Log.e(TAG, message);
-							if (fErrorCallback != null) {
-								fErrorCallback.callAsync(getKrollObject(),
-															createErrorResponse(UNKNOWN_ERROR, message));
-							}
-						}
-					} else {
-						// Invoke the "success" callback with the selected file(s).
-						if (fSuccessCallback != null) {
-							KrollDict d = new KrollDict();
-							d.putCodeAndMessage(NO_ERROR, null);
-							d.put("images", selectedImages.toArray(new KrollDict[0]));
-							d.put("videos", selectedVideos.toArray(new KrollDict[0]));
-							fSuccessCallback.callAsync(getKrollObject(), d);
-						}
-					}
-					return;
-				}
-
-				// Handle single file selection.
-				try {
-					//Check for invalid path
-					if (path == null) {
-						String msg = "File path is invalid";
-						Log.e(TAG, msg);
-						if (fErrorCallback != null) {
-							fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
-						}
-						return;
-					}
-					if (fSuccessCallback != null) {
-						fSuccessCallback.callAsync(getKrollObject(), createDictForImage(path));
-					}
-				} catch (OutOfMemoryError e) {
-					String msg = "Not enough memory to get image: " + e.getMessage();
-					Log.e(TAG, msg);
-					if (fErrorCallback != null) {
-						fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
-					}
-				}
-			}
-
-			@Override
-			public void onError(Activity activity, int requestCode, Exception e)
-			{
-				if (requestCode != code) {
-					return;
-				}
-				String msg = "Gallery problem: " + e.getMessage();
-				Log.e(TAG, msg, e);
-				if (fErrorCallback != null) {
-					fErrorCallback.callAsync(getKrollObject(), createErrorResponse(UNKNOWN_ERROR, msg));
-				}
-			}
-		});
-		*/
 	}
 
 	protected static KrollDict createDictForImage(String path)
