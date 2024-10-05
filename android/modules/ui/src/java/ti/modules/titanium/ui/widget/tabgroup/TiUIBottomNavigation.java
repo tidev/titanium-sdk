@@ -24,9 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
 
 import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.shape.MaterialShapeDrawable;
 
 import org.appcelerator.titanium.TiApplication;
@@ -52,12 +52,13 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	static int id_layout = 0;
 	static int id_content = 0;
 	static int id_bottomNavigation = 0;
-	private final int currentlySelectedIndex = -1;
+	private int currentlySelectedIndex = -1;
 	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
 	private RelativeLayout layout = null;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private Object[] tabsArray;
+	protected final static String TAG = "TiUIBottomNavigation";
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -69,7 +70,15 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void addTab(TabProxy tabProxy)
 	{
-
+		if (this.bottomNavigation == null) {
+			return;
+		}
+		final int MAX_TABS = this.bottomNavigation.getMaxItemCount();
+		if (this.tabs.size() < MAX_TABS) {
+			super.addTab(tabProxy);
+		} else {
+			Log.w(TAG, "Bottom style TabGroup cannot have more than " + MAX_TABS + " tabs.");
+		}
 	}
 
 	public void setTabs(Object tabs)
@@ -83,9 +92,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 					Drawable drawable = TiUIHelper.getResourceDrawable(tp.getProperty(TiC.PROPERTY_ICON));
 					menuItem.setIcon(drawable);
 					mMenuItemsArray.add(menuItem);
+					int index = this.mMenuItemsArray.size() - 1;
+					updateDrawablesAfterNewItem(index);
 				}
 			}
 		}
+
 	}
 
 	@Override
@@ -129,7 +141,19 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void addTabItemInController(TiViewProxy tabProxy)
 	{
-
+		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
+		switch (shiftMode) {
+			case 0:
+				this.bottomNavigation.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
+				break;
+			case 1:
+				this.bottomNavigation.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_AUTO);
+				break;
+			case 2:
+				// NOTE: Undocumented for now, will create new property that has parity with iOS.
+				this.bottomNavigation.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_UNLABELED);
+				break;
+		}
 	}
 
 	/**
@@ -140,7 +164,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void removeTabItemFromController(int position)
 	{
-
+		this.bottomNavigation.getMenu().clear();
+		this.mMenuItemsArray.clear();
+		for (TiUITab tabView : tabs) {
+			addTabItemInController(tabView.getProxy());
+		}
 	}
 
 	/**
@@ -152,6 +180,16 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void selectTabItemInController(int position)
 	{
 
+	}
+
+	private void updateDrawablesAfterNewItem(int index)
+	{
+		updateTabTitle(index);
+		updateTabIcon(index);
+		updateBadge(index);
+		updateBadgeColor(index);
+		updateTabTitleColor(index);
+		updateTabBackgroundDrawable(index);
 	}
 
 	@Override
@@ -190,7 +228,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	{
 		try {
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
-			TiViewProxy tabProxy = tabs.get(index).getProxy();
+			TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
 			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
 			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
 				BottomNavigationMenuView bottomMenuView =
@@ -205,7 +243,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				bottomMenuView.getChildAt(index).setBackground(drawable);
 			}
 		} catch (Exception e) {
-			org.appcelerator.kroll.common.Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
 	}
 
@@ -216,7 +254,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			return;
 		}
 
-		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
 		if (tabProxy == null) {
 			return;
 		}
@@ -260,14 +298,14 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			return;
 		}
 
-		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
 		if (tabProxy == null) {
 			return;
 		}
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
-			org.appcelerator.kroll.common.Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			int menuItemId = this.bottomNavigation.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.bottomNavigation.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
@@ -292,17 +330,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void updateTabTitleColor(int index)
 	{
 		try {
-			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
-			TiViewProxy tabProxy = tabs.get(index).getProxy();
+			TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
 			if (hasCustomTextColor(tabProxy)) {
-				// Set the TextView textColor.
-				BottomNavigationMenuView bottomMenuView =
-					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
-				((BottomNavigationItemView) bottomMenuView.getChildAt(index))
-					.setTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
+				this.bottomNavigation.setItemTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
 			}
 		} catch (Exception e) {
-			org.appcelerator.kroll.common.Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
 	}
 
@@ -330,7 +363,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 			bottomNavigation.setItemActiveIndicatorColor(myList);
 		} catch (Exception e) {
-			org.appcelerator.kroll.common.Log.w(TAG, WARNING_LAYOUT_MESSAGE);
+			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
 	}
 
@@ -341,7 +374,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			return;
 		}
 
-		TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
 		if (tabProxy == null) {
 			return;
 		}
@@ -353,8 +386,8 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 	private void updateIconTint()
 	{
-		for (int i = 0; i < this.tabs.size(); i++) {
-			final TiViewProxy tabProxy = this.tabs.get(i).getProxy();
+		for (int i = 0; i < this.bottomNavigation.getMenu().size(); i++) {
+			TiViewProxy tabProxy = ((TabProxy) tabsArray[i]);
 			if (hasCustomIconTint(tabProxy)) {
 				final boolean selected = i == currentlySelectedIndex;
 				Drawable drawable = this.bottomNavigation.getMenu().getItem(i).getIcon();
@@ -378,6 +411,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void selectTab(int tabIndex)
 	{
 		super.selectTab(tabIndex);
+		currentlySelectedIndex = tabIndex;
 
 		TabProxy tp = ((TabProxy) tabsArray[tabIndex]);
 		if (tp != null) {
@@ -389,6 +423,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				centerView.addView(view.getOuterView());
 			}
 		}
+		updateIconTint();
 	}
 
 	@Override

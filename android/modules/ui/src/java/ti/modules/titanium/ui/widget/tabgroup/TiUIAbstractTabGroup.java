@@ -562,7 +562,6 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (drawable == null) {
 			return null;
 		}
-
 		// Clone existing drawable so color filter applies correctly.
 		drawable = drawable.getConstantState().newDrawable();
 
