@@ -2012,7 +2012,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         TiUIListSectionProxy *section;
         CGFloat topSpacing = scrollView.contentOffset.y + scrollView.adjustedContentInset.top;
 
-        NSString *direction = [NSNull null];
+        NSString *direction = @"unknown";
 
         if (self.lastContentOffset > scrollView.contentOffset.y) {
           direction = @"down";
@@ -2122,7 +2122,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
   if ([[self proxy] _hasListeners:@"scrolling"]) {
-    NSString *direction = nil;
+    NSString *direction = @"unknown";
 
     if (velocity.y > 0) {
       direction = @"up";
