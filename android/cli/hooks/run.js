@@ -87,7 +87,7 @@ exports.init = function (logger, config, cli) {
 				const adb = new ADB(config);
 				adb.devices(function (err, devices) {
 					if (err) {
-						err.toString.split('\n').forEach(logger.error);
+						err.toString().split('\n').forEach(logger.error);
 						logger.log();
 						process.exit(1);
 					}

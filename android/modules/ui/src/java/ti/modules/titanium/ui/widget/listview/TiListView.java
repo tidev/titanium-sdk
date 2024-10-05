@@ -571,6 +571,18 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		return null;
 	}
 
+	public ListItemProxy getVisibleItemAt(int index)
+	{
+		final View itemView = getLayoutManager().findViewByPosition(index);
+
+		if (itemView == null) {
+			return null;
+		}
+
+		// Obtain list item proxy
+		return ((ListViewHolder) recyclerView.getChildViewHolder(itemView)).getProxy();
+	}
+
 	/**
 	 * Obtain last visible list item proxy.
 	 *
