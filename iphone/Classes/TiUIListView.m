@@ -80,8 +80,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isSearched;
   UIView *dimmingView;
   BOOL isSearchBarInNavigation;
-  int lastVisibleItem;
-  int lastVisibleSection;
+  NSInteger lastVisibleItem;
+  NSInteger lastVisibleSection;
   BOOL forceUpdates;
 }
 
