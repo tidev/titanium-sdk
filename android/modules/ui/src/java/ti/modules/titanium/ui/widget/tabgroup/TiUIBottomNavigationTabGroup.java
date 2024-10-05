@@ -29,7 +29,6 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
-import com.google.android.material.R;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -80,18 +79,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		}
 	}
 
-	@SuppressLint("PrivateResource")
 	@Override
 	public void addViews(TiBaseActivity activity)
 	{
 		// Manually calculate the proper position of the BottomNavigationView.
-		this.mBottomNavigationHeightValue
-			= activity.getResources().getDimensionPixelSize(R.dimen.design_bottom_navigation_height);
-
-		if (activity.getTheme().toString().indexOf("Material3") > -1) {
-			this.mBottomNavigationHeightValue
-				= activity.getResources().getDimensionPixelSize(R.dimen.m3_bottom_nav_min_height);
-		}
+		int resourceID = activity.getResources().getIdentifier("design_bottom_navigation_height", "dimen",
+															   activity.getPackageName());
+		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
 
 		// Fetch padding properties. If at least 1 property is non-zero, then show a floating tab bar.
 		final TiDimension paddingLeft = TiConvert.toTiDimension(
