@@ -26,6 +26,15 @@ description: |
     one to be opened later, but the root of the application must be a heavyweight window to prevent
     it exiting. Tabs cannot be removed from the tab group once added, and tabs cannot be reordered.
 
+    * If you use a BottomNavigation on Android with a Material 3 theme you'll have to create a file
+    `/app/platform/android/res/values/dimens.xml` and add to fix the height of the menu:
+    ```xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <resources>
+      <dimen name="design_bottom_navigation_height">80dp</dimen>
+    </resources>
+    ```
+
     * On iOS, more than one tab group may exist, and may be opened and closed as required.
     Each tab can contain a stack of windows, and the user can switch between them by tapping the
     tab's associated control. Tabs can be removed, and the user may (optionally) be allowed to
