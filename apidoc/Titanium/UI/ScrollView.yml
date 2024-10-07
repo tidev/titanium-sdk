@@ -220,6 +220,7 @@ events:
             Indicates whether scrolling will continue but decelerate, now that the drag gesture has
             been released by the touch. If `false`, scrolling will stop immediately.
             Is always `true` on Android.
+        type: Boolean
       - name: x
         summary: X coordinate from the scrollable touch position.
         type: Number
