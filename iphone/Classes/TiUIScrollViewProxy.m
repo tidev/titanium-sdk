@@ -435,7 +435,8 @@ static NSArray *scrollViewKeySequence;
                                               NUMFLOAT(offset.x), @"x",
                                           NUMFLOAT(offset.y), @"y",
                                           NUMBOOL([scrollView isDecelerating]), @"decelerating",
-                                          [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize", nil];
+                                          [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+                                          nil];
   if ([self _hasListeners:@"dragStart"]) { // TODO: Deprecate old event
     [self fireEvent:@"dragStart" withObject:drag_dict];
   }
@@ -445,7 +446,6 @@ static NSArray *scrollViewKeySequence;
 }
 
 // listerner which tells when dragging ended in the scroll view.
-
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
   CGPoint offset = [scrollView contentOffset];
@@ -453,8 +453,8 @@ static NSArray *scrollViewKeySequence;
                                               NUMFLOAT(offset.x), @"x",
                                           NUMFLOAT(offset.y), @"y",
                                           [NSNumber numberWithBool:decelerate], @"decelerate", nil,
-                                          [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize", nil];
-    
+                                          [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+                                          nil];
   if ([self _hasListeners:@"dragEnd"]) { // TODO: Deprecate old event
     [self fireEvent:@"dragEnd" withObject:drag_dict];
   }
