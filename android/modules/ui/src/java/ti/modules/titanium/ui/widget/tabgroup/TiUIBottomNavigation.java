@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
@@ -229,6 +230,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		try {
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+			boolean hasTouchFeedback = TiConvert.toBoolean(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK), true);
 			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
 			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
 				BottomNavigationMenuView bottomMenuView =
@@ -241,6 +243,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				}
 				drawable = new RippleDrawable(createRippleColorStateListFrom(color), drawable, null);
 				bottomMenuView.getChildAt(index).setBackground(drawable);
+			}
+
+			if (!hasTouchFeedback) {
+				Drawable drawable = new RippleDrawable(ColorStateList.valueOf(Color.TRANSPARENT), null, null);
+				this.bottomNavigation.getChildAt(0).setBackground(drawable);
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
