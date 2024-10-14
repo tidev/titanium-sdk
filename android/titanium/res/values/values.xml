@@ -48,6 +48,7 @@
 		<item name="android:textAllCaps">false</item>
 		<item name="textAllCaps">false</item>
 		<item name="titaniumIsSolidTheme">false</item>
+		<item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
 	</style>
 
 	<!-- Titanium's dark material theme without an action bar. -->
@@ -109,6 +110,13 @@
 		<item name="android:textAllCaps">false</item>
 		<item name="textAllCaps">false</item>
 		<item name="titaniumIsSolidTheme">false</item>
+		<item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+	</style>
+
+	<!-- This will set the fade in animation on all your activities by default -->
+	<style name="WindowAnimationTransition">
+		<item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+		<item name="android:windowExitAnimation">@android:anim/fade_out</item>
 	</style>
 
 	<!-- Titanium's light material theme without an action bar. -->
@@ -206,7 +214,9 @@
 
 	<!-- The default theme Titanium applies to the <application/> in the manifest. -->
 	<!-- Our "_build.js" will replace parent with ".NoTitleBar" or ".Fullscreen" if set in "tiapp.xml". -->
-	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight.Solid"/>
+	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight.Solid">
+		<item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+	</style>
 
 	<!-- The app theme which all Titanium activities will use by default. -->
 	<!-- Our "_build.js" will replace parent if "AndroidManifest.xml" was assigned a custom application theme. -->
