@@ -50,6 +50,7 @@ import ti.modules.titanium.ui.TabProxy;
 public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements BottomNavigationView.OnItemSelectedListener
 {
 
+	protected final static String TAG = "TiUIBottomNavigation";
 	static int id_layout = 0;
 	static int id_content = 0;
 	static int id_bottomNavigation = 0;
@@ -59,7 +60,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private Object[] tabsArray;
-	protected final static String TAG = "TiUIBottomNavigation";
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -90,8 +90,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (tabView instanceof TabProxy tp) {
 					MenuItem menuItem = bottomNavigation.getMenu().add(0, mMenuItemsArray.size(), 0, "");
 					menuItem.setTitle(tp.getProperty(TiC.PROPERTY_TITLE).toString());
-					Drawable drawable = TiUIHelper.getResourceDrawable(tp.getProperty(TiC.PROPERTY_ICON));
-					menuItem.setIcon(drawable);
+					if (tp.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
+						menuItem.setIcon(setIcon(tp.getProperty(TiC.PROPERTY_ICON)));
+					}
 					mMenuItemsArray.add(menuItem);
 					int index = this.mMenuItemsArray.size() - 1;
 					updateDrawablesAfterNewItem(index);
@@ -99,6 +100,17 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 		}
 
+	}
+
+	private Drawable setIcon(Object icon)
+	{
+		Drawable drawable = null;
+		if (icon instanceof Number) {
+			drawable = TiUIHelper.getResourceDrawable((int) icon);
+		} else {
+			drawable = TiUIHelper.getResourceDrawable(icon);
+		}
+		return drawable;
 	}
 
 	@Override
@@ -386,8 +398,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			return;
 		}
 
-		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
-		this.bottomNavigation.getMenu().getItem(index).setIcon(drawable);
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
+			this.bottomNavigation.getMenu().getItem(index).setIcon(setIcon(tabProxy.getProperty(TiC.PROPERTY_ICON)));
+		}
 		updateIconTint();
 	}
 
