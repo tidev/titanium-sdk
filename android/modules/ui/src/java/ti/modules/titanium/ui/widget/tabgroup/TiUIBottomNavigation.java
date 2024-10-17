@@ -59,7 +59,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private RelativeLayout layout = null;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
-	private Object[] tabsArray;
+	private ArrayList<Object> tabsArray = new ArrayList<>();
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -85,8 +85,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void setTabs(Object tabs)
 	{
 		if (tabs instanceof Object[] objArray) {
-			tabsArray = objArray;
+
 			for (Object tabView : tabsArray) {
+				tabsArray.add(tabView);
 				if (tabView instanceof TabProxy tp) {
 					MenuItem menuItem = bottomNavigation.getMenu().add(0, mMenuItemsArray.size(), 0, "");
 					menuItem.setTitle(tp.getProperty(TiC.PROPERTY_TITLE).toString());
@@ -154,6 +155,21 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void addTabItemInController(TiViewProxy tabProxy)
 	{
+		// Guard for the limit of tabs in the BottomNavigationView.
+		if (this.mMenuItemsArray.size() == 5) {
+			Log.e(TAG, "Trying to add more than five tabs in a TabGroup with TABS_STYLE_BOTTOM_NAVIGATION style.");
+			return;
+		}
+		tabsArray.add(tabProxy);
+		MenuItem menuItem = bottomNavigation.getMenu().add(0, mMenuItemsArray.size(), 0, "");
+		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
+			menuItem.setIcon(setIcon(tabProxy.getProperty(TiC.PROPERTY_ICON)));
+		}
+		mMenuItemsArray.add(menuItem);
+		int index = this.mMenuItemsArray.size() - 1;
+		updateDrawablesAfterNewItem(index);
+
 		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
 		switch (shiftMode) {
 			case 0:
@@ -208,6 +224,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void setBackgroundColor(int colorInt)
 	{
+		if (bottomNavigation == null) {
+			return;
+		}
 		// Update tab bar's background color.
 		Drawable drawable = bottomNavigation.getBackground();
 		if (drawable instanceof MaterialShapeDrawable shapeDrawable) {
@@ -241,7 +260,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	{
 		try {
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
-			TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+			TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 			boolean hasTouchFeedback = TiConvert.toBoolean(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK), true);
 			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
 			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
@@ -269,11 +288,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void updateTabTitle(int index)
 	{
-		if ((index < 0) || (index >= this.tabs.size())) {
+		if ((index < 0) || (index >= this.tabs.size()) || tabsArray == null || tabsArray.isEmpty()) {
 			return;
 		}
 
-		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+		TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 		if (tabProxy == null) {
 			return;
 		}
@@ -286,11 +305,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void updateBadge(int index)
 	{
-		if ((index < 0) || (index >= tabsArray.length)) {
+		if ((index < 0) || (index >= tabsArray.size())) {
 			return;
 		}
 
-		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+		TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 		if (tabProxy == null) {
 			return;
 		}
@@ -317,7 +336,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			return;
 		}
 
-		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+		TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 		if (tabProxy == null) {
 			return;
 		}
@@ -349,7 +368,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void updateTabTitleColor(int index)
 	{
 		try {
-			TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+			TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 			if (hasCustomTextColor(tabProxy)) {
 				this.bottomNavigation.setItemTextColor(textColorStateList(tabProxy, android.R.attr.state_checked));
 			}
@@ -389,11 +408,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void updateTabIcon(int index)
 	{
-		if ((index < 0) || (index >= this.tabs.size())) {
+		if ((index < 0) || (index >= this.tabs.size()) || tabsArray == null || tabsArray.isEmpty()) {
 			return;
 		}
 
-		TiViewProxy tabProxy = ((TabProxy) tabsArray[index]);
+		TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 		if (tabProxy == null) {
 			return;
 		}
@@ -407,7 +426,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private void updateIconTint()
 	{
 		for (int i = 0; i < this.bottomNavigation.getMenu().size(); i++) {
-			TiViewProxy tabProxy = ((TabProxy) tabsArray[i]);
+			TiViewProxy tabProxy = ((TabProxy) tabsArray.get(i));
 			if (hasCustomIconTint(tabProxy)) {
 				final boolean selected = i == currentlySelectedIndex;
 				Drawable drawable = this.bottomNavigation.getMenu().getItem(i).getIcon();
@@ -432,8 +451,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	{
 		super.selectTab(tabIndex);
 		currentlySelectedIndex = tabIndex;
-
-		TabProxy tp = ((TabProxy) tabsArray[tabIndex]);
+		if (tabsArray == null || tabsArray.isEmpty()) {
+			return;
+		}
+		TabProxy tp = ((TabProxy) tabsArray.get(tabIndex));
 		if (tp != null) {
 			TiUITab abstractTab = new TiUITab(tp);
 
