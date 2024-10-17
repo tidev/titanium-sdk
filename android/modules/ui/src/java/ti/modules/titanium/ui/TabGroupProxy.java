@@ -39,6 +39,7 @@ import java.util.HashMap;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigation;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
@@ -49,7 +50,8 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 		TiC.PROPERTY_SWIPEABLE,
 		TiC.PROPERTY_AUTO_TAB_TITLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
-		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
+		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK,
+		TiC.PROPERTY_INDICATOR_COLOR
 	})
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -323,6 +325,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (topActivity == null || topActivity.isFinishing()) {
 			return;
 		}
+
+		// set theme for XML layout
+		if (hasProperty(TiC.PROPERTY_STYLE)
+			&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
+			&& getProperty(TiC.PROPERTY_THEME) != null) {
+			try {
+				String themeName = getProperty(TiC.PROPERTY_THEME).toString();
+				int theme = TiRHelper.getResource("style."
+					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
+				topActivity.setTheme(theme);
+				topActivity.getApplicationContext().setTheme(theme);
+			} catch (Exception e) {
+			}
+		}
+
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
@@ -367,7 +384,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				((TiUITabLayoutTabGroup) view).setTabMode((Integer) getProperty(TiC.PROPERTY_TAB_MODE));
 			}
 		} else {
-			view = new TiUIBottomNavigationTabGroup(this, activity);
+			if (TiConvert.toBoolean(getProperty("newLayout"), false)) {
+				view = new TiUIBottomNavigation(this, activity);
+			} else {
+				view = new TiUIBottomNavigationTabGroup(this, activity);
+			}
 		}
 		// If we have set a title before the creation of the native view, set it now.
 		if (this.tabGroupTitle != null) {
