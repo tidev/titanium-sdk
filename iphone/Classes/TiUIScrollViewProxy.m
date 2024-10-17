@@ -431,17 +431,17 @@ static NSArray *scrollViewKeySequence;
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
   CGPoint offset = [scrollView contentOffset];
-  NSDictionary *drag_dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                              NUMFLOAT(offset.x), @"x",
-                                          NUMFLOAT(offset.y), @"y",
-                                          NUMBOOL([scrollView isDecelerating]), @"decelerating",
-                                          [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
-                                          nil];
+  NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                         NUMFLOAT(offset.x), @"x",
+                                     NUMFLOAT(offset.y), @"y",
+                                     NUMBOOL([scrollView isDecelerating]), @"decelerating",
+                                     [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+                                     nil];
   if ([self _hasListeners:@"dragStart"]) { // TODO: Deprecate old event
-    [self fireEvent:@"dragStart" withObject:drag_dict];
+    [self fireEvent:@"dragStart" withObject:dict];
   }
   if ([self _hasListeners:@"dragstart"]) {
-    [self fireEvent:@"dragstart" withObject:drag_dict];
+    [self fireEvent:@"dragstart" withObject:dict];
   }
 }
 
@@ -449,17 +449,17 @@ static NSArray *scrollViewKeySequence;
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
   CGPoint offset = [scrollView contentOffset];
-  NSDictionary *drag_dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                              NUMFLOAT(offset.x), @"x",
-                                          NUMFLOAT(offset.y), @"y",
-                                          [NSNumber numberWithBool:decelerate], @"decelerate", nil,
-                                          [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
-                                          nil];
+  NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                         NUMFLOAT(offset.x), @"x",
+                                     NUMFLOAT(offset.y), @"y",
+                                     [NSNumber numberWithBool:decelerate], @"decelerate", nil,
+                                     [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
+                                     nil];
   if ([self _hasListeners:@"dragEnd"]) { // TODO: Deprecate old event
-    [self fireEvent:@"dragEnd" withObject:drag_dict];
+    [self fireEvent:@"dragEnd" withObject:dict];
   }
   if ([self _hasListeners:@"dragend"]) {
-    [self fireEvent:@"dragend" withObject:drag_dict];
+    [self fireEvent:@"dragend" withObject:dict];
   }
 }
 
