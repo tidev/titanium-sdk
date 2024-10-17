@@ -28,11 +28,14 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
+import com.google.android.material.shape.ShapeAppearanceModel;
 
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -55,11 +58,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	static int id_content = 0;
 	static int id_bottomNavigation = 0;
 	private int currentlySelectedIndex = -1;
-	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
+	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<MenuItem>();
 	private RelativeLayout layout = null;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
-	private ArrayList<Object> tabsArray = new ArrayList<>();
+	private ArrayList<Object> tabsArray = new ArrayList<Object>();
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -82,27 +85,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 	}
 
-	public void setTabs(Object tabs)
-	{
-		if (tabs instanceof Object[] objArray) {
-
-			for (Object tabView : tabsArray) {
-				tabsArray.add(tabView);
-				if (tabView instanceof TabProxy tp) {
-					MenuItem menuItem = bottomNavigation.getMenu().add(0, mMenuItemsArray.size(), 0, "");
-					menuItem.setTitle(tp.getProperty(TiC.PROPERTY_TITLE).toString());
-					if (tp.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
-						menuItem.setIcon(setIcon(tp.getProperty(TiC.PROPERTY_ICON)));
-					}
-					mMenuItemsArray.add(menuItem);
-					int index = this.mMenuItemsArray.size() - 1;
-					updateDrawablesAfterNewItem(index);
-				}
-			}
-		}
-
-	}
-
 	private Drawable setIcon(Object icon)
 	{
 		Drawable drawable = null;
@@ -118,6 +100,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void addViews(TiBaseActivity activity)
 	{
 		mMenuItemsArray = new ArrayList<>();
+		if (tabsArray == null) {
+			tabsArray = new ArrayList<Object>();
+		}
+
 		try {
 			id_layout = TiRHelper.getResource("layout.titanium_ui_bottom_navigation");
 			id_content = TiRHelper.getResource("id.bottomNavBar_content");
@@ -131,9 +117,52 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			bottomNavigation.setOnItemSelectedListener(this);
 			activity.setLayout(layout);
 
-			if (proxy.hasProperty(TiC.PROPERTY_TABS)) {
-				setTabs(proxy.getProperty(TiC.PROPERTY_TABS));
-				selectTab(0);
+			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_LEFT)
+				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_RIGHT)
+				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_BOTTOM)) {
+				// Floating Bottom Navigation
+				// Fetch padding properties. If at least 1 property is non-zero, then show a floating tab bar.
+				final TiDimension paddingLeft = TiConvert.toTiDimension(
+					proxy.getProperty(TiC.PROPERTY_PADDING_LEFT), TiDimension.TYPE_LEFT);
+				final TiDimension paddingRight = TiConvert.toTiDimension(
+					proxy.getProperty(TiC.PROPERTY_PADDING_RIGHT), TiDimension.TYPE_RIGHT);
+				final TiDimension paddingBottom = TiConvert.toTiDimension(
+					proxy.getProperty(TiC.PROPERTY_PADDING_BOTTOM), TiDimension.TYPE_BOTTOM);
+				final boolean isFloating
+					= ((paddingLeft != null) && (paddingLeft.getValue() > 0))
+					|| ((paddingRight != null) && (paddingRight.getValue() > 0))
+					|| ((paddingBottom != null) && (paddingBottom.getValue() > 0));
+
+				if (isFloating) {
+					// Set up tab bar to look like a floating toolbar with rounded corners.
+					int pLeft = (paddingLeft != null) ? paddingLeft.getAsPixels(bottomNavigation) : 0;
+					int pRight = (paddingRight != null) ? paddingRight.getAsPixels(bottomNavigation) : 0;
+					int pBottom = (paddingBottom != null) ? paddingBottom.getAsPixels(bottomNavigation) : 0;
+
+					MaterialShapeDrawable shapeDrawable = null;
+					Drawable background = bottomNavigation.getBackground();
+					if (background instanceof MaterialShapeDrawable) {
+						shapeDrawable = (MaterialShapeDrawable) background;
+					} else {
+						shapeDrawable = new MaterialShapeDrawable();
+						background = shapeDrawable;
+						bottomNavigation.setBackground(shapeDrawable);
+					}
+					ShapeAppearanceModel model = shapeDrawable.getShapeAppearanceModel();
+					float radius = (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(bottomNavigation);
+					model = model.toBuilder().setAllCorners(CornerFamily.ROUNDED, radius).build();
+					shapeDrawable.setShapeAppearanceModel(model);
+					bottomNavigation.setPadding((int) (radius * 0.75), 0, (int) (radius * 0.75), 0);
+					bottomNavigation.setElevation(
+						(new TiDimension("8dp", TiDimension.TYPE_BOTTOM)).getAsPixels(bottomNavigation));
+					RelativeLayout.LayoutParams params
+						= (RelativeLayout.LayoutParams) bottomNavigation.getLayoutParams();
+					params.setMargins(pLeft, 0, pRight, pBottom);
+
+					RelativeLayout.LayoutParams paramsCenter
+						= (RelativeLayout.LayoutParams) centerView.getLayoutParams();
+					paramsCenter.removeRule(RelativeLayout.ABOVE);
+				}
 			}
 
 		} catch (Exception ex) {
@@ -160,6 +189,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			Log.e(TAG, "Trying to add more than five tabs in a TabGroup with TABS_STYLE_BOTTOM_NAVIGATION style.");
 			return;
 		}
+		Log.i("---", "SIZE: " + tabsArray.size());
 		tabsArray.add(tabProxy);
 		MenuItem menuItem = bottomNavigation.getMenu().add(0, mMenuItemsArray.size(), 0, "");
 		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
@@ -426,12 +456,14 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private void updateIconTint()
 	{
 		for (int i = 0; i < this.bottomNavigation.getMenu().size(); i++) {
-			TiViewProxy tabProxy = ((TabProxy) tabsArray.get(i));
-			if (hasCustomIconTint(tabProxy)) {
-				final boolean selected = i == currentlySelectedIndex;
-				Drawable drawable = this.bottomNavigation.getMenu().getItem(i).getIcon();
-				drawable = updateIconTint(tabProxy, drawable, selected);
-				this.bottomNavigation.getMenu().getItem(i).setIcon(drawable);
+			if (i < tabsArray.size()) {
+				TiViewProxy tabProxy = ((TabProxy) tabsArray.get(i));
+				if (hasCustomIconTint(tabProxy)) {
+					final boolean selected = i == currentlySelectedIndex;
+					Drawable drawable = this.bottomNavigation.getMenu().getItem(i).getIcon();
+					drawable = updateIconTint(tabProxy, drawable, selected);
+					this.bottomNavigation.getMenu().getItem(i).setIcon(drawable);
+				}
 			}
 		}
 	}
