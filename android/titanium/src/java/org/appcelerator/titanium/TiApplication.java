@@ -68,7 +68,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long mainThreadId = 0;
-	private static boolean softRestart = false;
 
 	protected static TiApplication tiApp = null;
 
@@ -192,6 +191,21 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		if (activity != null) {
 			activityStack.add(new WeakReference<>(activity));
+
+			if (activityStack.size() > 0) {
+				WeakReference<Activity> activityRef;
+				Activity currentActivity;
+				activityRef = activityStack.get(0);
+				if (activityRef.get() instanceof TiRootActivity) {
+					activityStack.remove(activityRef);
+					if (activityRef != null) {
+						currentActivity = activityRef.get();
+						if (currentActivity != null && !currentActivity.isFinishing()) {
+							currentActivity.finish();
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -199,20 +213,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		if (activity != null) {
 			activityStack.remove(activity);
-			if (activityStack.size() == 1) {
-				boolean isTiRootActivity = (activityStack.get(0).get() instanceof TiRootActivity);
-				boolean canFinishRoot = TiBaseActivity.canFinishRoot;
-				if (isTiRootActivity && canFinishRoot) {
-					if (softRestart) {
-						// soft restart was true (e.g. liveview) so keep the last activity
-						// but set softRestart to false again
-						softRestart = false;
-					} else {
-						// last activity is root activity - close it
-						terminateActivityStack();
-					}
-				}
-			}
 		}
 	}
 
@@ -900,7 +900,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void softRestart()
 	{
 		// Fetch the root activity hosting the JavaScript runtime.
-		softRestart = true;
 		TiRootActivity rootActivity = getRootActivity();
 		if (rootActivity == null) {
 			// Root activity not found. This can happen when:
