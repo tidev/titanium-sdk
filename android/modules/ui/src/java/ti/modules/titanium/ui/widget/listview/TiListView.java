@@ -153,6 +153,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						payload.put(TiC.PROPERTY_DIRECTION, "up");
 					} else if (dy < 0) {
 						payload.put(TiC.PROPERTY_DIRECTION, "down");
+					} else {
+						payload.put(TiC.PROPERTY_DIRECTION, "unknown");
 					}
 					payload.put(TiC.EVENT_PROPERTY_VELOCITY, 0);
 					if (continuousUpdate) {
@@ -569,6 +571,18 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		}
 
 		return null;
+	}
+
+	public ListItemProxy getVisibleItemAt(int index)
+	{
+		final View itemView = getLayoutManager().findViewByPosition(index);
+
+		if (itemView == null) {
+			return null;
+		}
+
+		// Obtain list item proxy
+		return ((ListViewHolder) recyclerView.getChildViewHolder(itemView)).getProxy();
 	}
 
 	/**

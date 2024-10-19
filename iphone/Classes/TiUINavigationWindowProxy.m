@@ -16,9 +16,16 @@
 
 - (void)_destroy
 {
+  if (fullWidthBackGestureRecognizer != nil) {
+    [fullWidthBackGestureRecognizer setDelegate:nil];
+    [navController.view removeGestureRecognizer:fullWidthBackGestureRecognizer];
+  }
+
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(navController);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
+
   [super _destroy];
 }
 
@@ -88,13 +95,44 @@
     [TiUtils configureController:navController withObject:self];
     [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
     [[navController interactivePopGestureRecognizer] setDelegate:self];
+
+    BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
+    if (interactiveDismissModeEnabled) {
+      [self configureFullWidthSwipeToClose];
+    }
   }
   return navController;
+}
+
+- (void)configureFullWidthSwipeToClose
+{
+  fullWidthBackGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
+
+  if (navController.interactivePopGestureRecognizer == nil) {
+    return;
+  }
+
+  id targets = [navController.interactivePopGestureRecognizer valueForKey:@"targets"];
+  if (targets == nil) {
+    return;
+  }
+
+  [fullWidthBackGestureRecognizer setValue:targets forKey:@"targets"];
+  [fullWidthBackGestureRecognizer setDelegate:self];
+  [navController.view addGestureRecognizer:fullWidthBackGestureRecognizer];
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
   BOOL isRootWindow = (current == rootWindow);
+
+  BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
+  if (interactiveDismissModeEnabled && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+    BOOL isSystemSwipeToCloseEnabled = navController.interactivePopGestureRecognizer.isEnabled == YES;
+    BOOL areThereStackedViewControllers = navController.viewControllers.count > 1;
+
+    return isSystemSwipeToCloseEnabled || areThereStackedViewControllers;
+  }
 
   if (current != nil && !isRootWindow) {
     return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
@@ -393,14 +431,14 @@
     UIViewController *parentController = [self windowHoldingController];
     [parentController addChildViewController:navController];
     [navController didMoveToParentViewController:parentController];
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewWillDisappear:animated];
   }
   [super viewWillDisappear:animated];
 }
@@ -408,14 +446,14 @@
 - (void)viewDidAppear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewDidAppear:animated];
   }
   [super viewDidAppear:animated];
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewDidDisappear:animated];
   }
   [super viewDidDisappear:animated];
 }
