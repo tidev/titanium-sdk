@@ -40,6 +40,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
@@ -562,8 +563,14 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		if (drawable == null) {
 			return null;
 		}
+
 		// Clone existing drawable so color filter applies correctly.
-		drawable = drawable.getConstantState().newDrawable();
+		if (drawable.getConstantState() == null && drawable.getClass() == TiIconDrawable.class) {
+			// TiIconDrawable
+			drawable = drawable.mutate();
+		} else {
+			drawable = drawable.getConstantState().newDrawable();
+		}
 
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();

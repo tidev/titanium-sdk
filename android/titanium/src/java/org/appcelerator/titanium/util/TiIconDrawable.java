@@ -120,6 +120,15 @@ public class TiIconDrawable extends Drawable
 		paint.setColorFilter(null);
 	}
 
+	@Override
+	public boolean setState(int[] stateSet)
+	{
+		int oldValue = paint.getAlpha();
+		int newValue = isEnabled(stateSet) ? alpha : alpha / 2;
+		paint.setAlpha(newValue);
+		return oldValue != newValue;
+	}
+
 	public void setStyle(Paint.Style style)
 	{
 		paint.setStyle(style);
