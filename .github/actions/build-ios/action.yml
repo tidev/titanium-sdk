@@ -9,10 +9,10 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Use Node.js 16.x
-      uses: actions/setup-node@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: '16.x'
+        node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
     - name: Install dependencies
@@ -34,7 +34,7 @@ runs:
         iphone/TitaniumKit/build/TitaniumKit.xcframework
       shell: bash
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ios-build
         retention-days: 1
