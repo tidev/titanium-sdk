@@ -2154,9 +2154,9 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
-	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
 	gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
+	gradleProperties.push({ key: 'org.gradle.configuration-cache', value: 'true' });
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 	// Copy optional "gradle.properties" file contents from Titanium project to the above generated file.
