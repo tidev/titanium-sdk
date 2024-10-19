@@ -382,7 +382,7 @@ properties:
     summary: Sets the pages within this Scrollable View.
     description: |
         Android:
-        Since 12.3.0 the width of each child view can be set between 0 and screen width.
+        Since 12.6.0 the width of each child view can be set between 0 and screen width.
         ```
         const win = Ti.UI.createWindow();
         const view1 = Ti.UI.createView({ backgroundColor:'#123', width: 200 });
