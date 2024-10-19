@@ -6,9 +6,15 @@
  */
 package ti.modules.titanium.ui;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -27,19 +33,14 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.view.LayoutInflater;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -49,27 +50,24 @@ import android.view.LayoutInflater;
 		TiC.PROPERTY_AUTO_TAB_TITLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
-})
+	})
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "TabGroupProxy";
 	private static final String PROPERTY_POST_TAB_GROUP_CREATED = "postTabGroupCreated";
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
-
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static final int MSG_ADD_TAB = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 102;
 	private static final int MSG_GET_ACTIVE_TAB = MSG_FIRST_ID + 103;
 	private static final int MSG_SET_TABS = MSG_FIRST_ID + 104;
 	private static final int MSG_DISABLE_TAB_NAVIGATION = MSG_FIRST_ID + 105;
-
-	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-
-	private ArrayList<TabProxy> tabs = new ArrayList<>();
+	private static int id_toolbar;
+	private final ArrayList<TabProxy> tabs = new ArrayList<>();
 	private WeakReference<AppCompatActivity> tabGroupActivity = new WeakReference<>(null);
 	private Object selectedTab; // NOTE: Can be TabProxy or Number
 	private String tabGroupTitle = null;
-	private static int id_toolbar;
 	private boolean autoTabTitle = false;
 
 	public TabGroupProxy()
@@ -167,12 +165,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	private TabProxy getActiveTabProxy()
-	{
-		Object activeTab = getActiveTab();
-		return (activeTab != null) ? parseTab(activeTab) : null;
-	}
-
 	@Kroll.setProperty
 	public void setActiveTab(Object tabOrIndex)
 	{
@@ -195,6 +187,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// called to fire events and update the active tab.
 			tabGroup.selectTab(tab);
 		}
+	}
+
+	private TabProxy getActiveTabProxy()
+	{
+		Object activeTab = getActiveTab();
+		return (activeTab != null) ? parseTab(activeTab) : null;
 	}
 
 	@Kroll.getProperty(name = "activity")
@@ -337,7 +335,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.startActivity(intent);
 			topActivity.overridePendingTransition(0, 0);
 		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-				   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
 			topActivity.startActivity(intent);
 			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
@@ -569,7 +567,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		tabProxy.onSelectionChanged(true);
 		tabProxy.onFocusChanged(true, focusEventData);
 
-		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
+		tabProxy.fireEvent(TiC.EVENT_SELECTED, focusEventData.clone(), false);
 	}
 
 	@Override

@@ -87,7 +87,7 @@ exports.init = function (logger, config, cli) {
 				const adb = new ADB(config);
 				adb.devices(function (err, devices) {
 					if (err) {
-						err.toString.split('\n').forEach(logger.error);
+						err.toString().split('\n').forEach(logger.error);
 						logger.log();
 						process.exit(1);
 					}
@@ -254,21 +254,25 @@ exports.init = function (logger, config, cli) {
 
 						// start of a new log message
 						if (device.appPidRegExp.test(line)) {
-							line = line.trim().replace(device.appPidRegExp, ':');
+							line = line.replace(/^ {1,2}/, '').replace(device.appPidRegExp, ':');
 							logLevel = line.charAt(0).toLowerCase();
 							if (tiapiRegExp.test(line)) {
-								line = line.replace(tiapiRegExp, '').trim();
+								line = line.replace(tiapiRegExp, '').replace(/^ {1,2}/, '');
 							} else {
 								line = line.replace(/^\w\/(\w+)\s*:/g, '$1:').grey;
 							}
 							line = deviceName + line;
-						// if it begins with something like "E/SQLiteLog( 1659):" it's not a contination, don't log it.
+						// if it begins with something like "E/SQLiteLog( 1659):" it's not a continuation, don't log it.
 						} else if (nonTiLogRegexp.test(line)) {
 							return;
 						}
 
 						// ignore some Android logs in info log level
-						if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
+						if (typeof ignoreLog === 'string') {
+							if (line.includes(ignoreLog)) {
+								return;
+							}
+						} else if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
 							return;
 						}
 

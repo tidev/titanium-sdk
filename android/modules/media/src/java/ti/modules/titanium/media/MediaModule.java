@@ -241,6 +241,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
 	private boolean useCameraX = false;
+	private static boolean pathOnly = false;
 
 	public MediaModule()
 	{
@@ -1116,6 +1117,15 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
 
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_MAX_IMAGES)
+			&& options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)
+				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			// set max image count
+			galleryIntent = new TiIntentWrapper(new Intent(MediaStore.ACTION_PICK_IMAGES));
+			galleryIntent.getIntent()
+				.putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, options.getInt(TiC.PROPERTY_MAX_IMAGES));
+		}
+
 		boolean isSelectingPhoto = false;
 		boolean isSelectingVideo = false;
 		if (options.containsKey(TiC.PROPERTY_MEDIA_TYPES)) {
@@ -1161,6 +1171,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)) {
 			allowMultiple = TiConvert.toBoolean(options.get(TiC.PROPERTY_ALLOW_MULTIPLE));
 			galleryIntent.getIntent().putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
+		}
+
+		pathOnly = false;
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_PATH_ONLY)) {
+			pathOnly = options.getBoolean(TiC.PROPERTY_PATH_ONLY);
 		}
 
 		final int code = allowMultiple ? PICK_IMAGE_MULTIPLE : PICK_IMAGE_SINGLE;
@@ -1401,16 +1416,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		d.put("width", width);
 		d.put("height", height);
 
-		// Add the image/video's crop dimensiosn to the dictionary.
+		// Add the image/video's crop dimension to the dictionary.
 		KrollDict cropRect = new KrollDict();
 		cropRect.put("x", 0);
 		cropRect.put("y", 0);
 		cropRect.put("width", width);
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
-
+		d.put("path", imageData.getNativePath());
 		// Add the blob to the dictionary.
-		d.put("media", imageData);
+		if (!pathOnly) {
+			d.put("media", imageData);
+		}
 		return d;
 	}
 
@@ -1700,6 +1717,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				Log.e(TAG, "Camera preview is not open, unable to switch camera.");
 				return;
 			}
+			activity.switchCamera(whichCamera);
 		}
 	}
 
