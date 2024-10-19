@@ -117,6 +117,15 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
 
+  - name: linkColor
+    summary: Color of the link inside a label, as a color name or hex triplet.
+    description: |
+        If you enable `autoLink` on Android or add an AttributedString link it will use this color.
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: "12.3.0"
+
   - name: ellipsize
     summary: |
         Causes words in the text that are longer than the view is wide to be ellipsized instead of broken in the middle.
