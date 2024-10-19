@@ -7,23 +7,28 @@
 package ti.modules.titanium.ui;
 
 import android.graphics.Color;
-import java.util.HashSet;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiColorHelper;
+
+import java.util.HashSet;
+
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TINT_COLOR,
 		TiC.PROPERTY_TITLE,
-})
+	})
 public class RefreshControlProxy extends KrollProxy
 {
-	/** The default Android log tag name to be used by this class. */
+	/**
+	 * The default Android log tag name to be used by this class.
+	 */
 	private static final String TAG = "RefreshControlProxy";
 
 	/**
@@ -39,7 +44,9 @@ public class RefreshControlProxy extends KrollProxy
 	 */
 	private static final HashSet<RefreshControlProxy> assignedControls = new HashSet<>();
 
-	/** Color integer value to be applied to the refresh layout's progress indicator. */
+	/**
+	 * Color integer value to be applied to the refresh layout's progress indicator.
+	 */
 	private int tintColor = DEFAULT_TINT_COLOR;
 
 	/**
@@ -48,14 +55,55 @@ public class RefreshControlProxy extends KrollProxy
 	 */
 	private TiSwipeRefreshLayout swipeRefreshLayout;
 
-	/** Creates a new Titanium "RefreshControl" proxy binding. */
+	/**
+	 * Creates a new Titanium "RefreshControl" proxy binding.
+	 */
 	public RefreshControlProxy()
 	{
 		super();
 	}
 
 	/**
+	 * Unassigns the given view from a RefreshControlProxy instance that was once assigned to
+	 * it via the assignTo() method. A view is expected to call this method when removed from the
+	 * window or to disable pull-down refresh support.
+	 *
+	 * @param view The view to be unassigned from a refresh control, if currently assigned. Can be null.
+	 */
+	public static void unassignFrom(TiSwipeRefreshLayout view)
+	{
+		// Validate argument.
+		if (view == null) {
+			return;
+		}
+
+		// Attempt to find a refresh control that is currently assigned to the given view.
+		RefreshControlProxy proxy = null;
+		for (RefreshControlProxy nextProxy : RefreshControlProxy.assignedControls) {
+			if ((nextProxy != null) && (nextProxy.swipeRefreshLayout == view)) {
+				proxy = nextProxy;
+				break;
+			}
+		}
+		if (proxy == null) {
+			return;
+		}
+
+		// Remove the refresh event listener.
+		proxy.swipeRefreshLayout.setOnRefreshListener(null);
+
+		// Disable pull-down refresh support.
+		proxy.endRefreshing();
+		proxy.swipeRefreshLayout.setSwipeRefreshEnabled(false);
+
+		// Unassign the view from the refresh control.
+		RefreshControlProxy.assignedControls.remove(proxy);
+		proxy.swipeRefreshLayout = null;
+	}
+
+	/**
 	 * Fetches the JavaScript type name of this proxy object.
+	 *
 	 * @return Returns the unique type name of this proxy object.
 	 */
 	@Override
@@ -69,6 +117,7 @@ public class RefreshControlProxy extends KrollProxy
 	 * <p>
 	 * Expected to be called on the runtime thread when the
 	 * JavaScript Ti.UI.createRefreshControl() function has been invoked.
+	 *
 	 * @param properties Dictionary of property settings.
 	 */
 	@Override
@@ -94,7 +143,8 @@ public class RefreshControlProxy extends KrollProxy
 	/**
 	 * Called when a single property setting has been changed.
 	 * Expected to be called on the JavaScript runtime thread.
-	 * @param name The unique name of the property that was changed.
+	 *
+	 * @param name  The unique name of the property that was changed.
 	 * @param value The property new value. Can be null.
 	 */
 	@Override
@@ -116,9 +166,9 @@ public class RefreshControlProxy extends KrollProxy
 
 	/**
 	 * Stores the given tint color value to be applied to the refresh progress indicator.
-	 * @param colorName
-	 * The color value to be applied. Expected to be a string such as "red", "blue", "#00FF00", etc.
-	 * Can be null, in which case, the progress indicator will revert back to its default color.
+	 *
+	 * @param colorName The color value to be applied. Expected to be a string such as "red", "blue", "#00FF00", etc.
+	 *                  Can be null, in which case, the progress indicator will revert back to its default color.
 	 */
 	private void onTintColorChanged(Object colorName)
 	{
@@ -141,7 +191,9 @@ public class RefreshControlProxy extends KrollProxy
 		this.swipeRefreshLayout.setColorSchemeColors(tintColor);
 	}
 
-	/** Displays the refresh progress indicator if a SwipeRefreshLayout is currently assigned. */
+	/**
+	 * Displays the refresh progress indicator if a SwipeRefreshLayout is currently assigned.
+	 */
 	@Kroll.method
 	public void beginRefreshing()
 	{
@@ -162,7 +214,9 @@ public class RefreshControlProxy extends KrollProxy
 		fireEvent(TiC.EVENT_REFRESH_START, null);
 	}
 
-	/** Hides the refresh progress indicator if a SwipeRefreshLayout is currently assigned. */
+	/**
+	 * Hides the refresh progress indicator if a SwipeRefreshLayout is currently assigned.
+	 */
 	@Kroll.method
 	public void endRefreshing()
 	{
@@ -195,10 +249,10 @@ public class RefreshControlProxy extends KrollProxy
 	 * <p>
 	 * If this refresh control is currently assigned to another view, then it will be automatically
 	 * unassigned from the previous view before being assigned the given view.
-	 * @param view
-	 * The view to be assigned to this refresh control.
-	 * <p>
-	 * Can be null, in which case, this method will do nothing.
+	 *
+	 * @param view The view to be assigned to this refresh control.
+	 *             <p>
+	 *             Can be null, in which case, this method will do nothing.
 	 */
 	public void assignTo(TiSwipeRefreshLayout view)
 	{
@@ -222,7 +276,8 @@ public class RefreshControlProxy extends KrollProxy
 		// Set up the given view for pull-down refresh support.
 		view.setColorSchemeColors(this.tintColor);
 		view.setSwipeRefreshEnabled(true);
-		view.setOnRefreshListener(new TiSwipeRefreshLayout.OnRefreshListener() {
+		view.setOnRefreshListener(new TiSwipeRefreshLayout.OnRefreshListener()
+		{
 			@Override
 			public void onRefresh()
 			{
@@ -231,43 +286,5 @@ public class RefreshControlProxy extends KrollProxy
 				fireEvent(TiC.EVENT_REFRESH_START, null);
 			}
 		});
-	}
-
-	/**
-	 * Unassigns the given view from a RefreshControlProxy instance that was once assigned to
-	 * it via the assignTo() method. A view is expected to call this method when removed from the
-	 * window or to disable pull-down refresh support.
-	 * @param view
-	 * The view to be unassigned from a refresh control, if currently assigned. Can be null.
-	 */
-	public static void unassignFrom(TiSwipeRefreshLayout view)
-	{
-		// Validate argument.
-		if (view == null) {
-			return;
-		}
-
-		// Attempt to find a refresh control that is currently assigned to the given view.
-		RefreshControlProxy proxy = null;
-		for (RefreshControlProxy nextProxy : RefreshControlProxy.assignedControls) {
-			if ((nextProxy != null) && (nextProxy.swipeRefreshLayout == view)) {
-				proxy = nextProxy;
-				break;
-			}
-		}
-		if (proxy == null) {
-			return;
-		}
-
-		// Remove the refresh event listener.
-		proxy.swipeRefreshLayout.setOnRefreshListener(null);
-
-		// Disable pull-down refresh support.
-		proxy.endRefreshing();
-		proxy.swipeRefreshLayout.setSwipeRefreshEnabled(false);
-
-		// Unassign the view from the refresh control.
-		RefreshControlProxy.assignedControls.remove(proxy);
-		proxy.swipeRefreshLayout = null;
 	}
 }

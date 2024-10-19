@@ -77,8 +77,8 @@
 - (CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
   /*
-     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to 
-     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for 
+     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to
+     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for
      attributed strings till we move to the new measurement API. Hence take both and return MAX.
      */
   CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
@@ -97,7 +97,7 @@
   CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
   UIControlContentVerticalAlignment alignment = verticalAlign;
   if (alignment == UIControlContentVerticalAlignmentFill) {
-    //IOS7 layout issue fix with attributed string.
+    // IOS7 layout issue fix with attributed string.
     if (actualLabelSize.height < initialLabelFrame.size.height) {
       alignment = UIControlContentVerticalAlignmentCenter;
     } else {
@@ -307,7 +307,7 @@
   if ([recognizer numberOfTouchesRequired] == 2) {
     [self.proxy fireEvent:@"twofingertap" withObject:event];
   } else if ([recognizer numberOfTapsRequired] == 2) {
-    //Because double-tap suppresses touchStart and double-click, we must do this:
+    // Because double-tap suppresses touchStart and double-click, we must do this:
     if ([self.proxy _hasListeners:@"touchstart"]) {
       [self.proxy fireEvent:@"touchstart" withObject:event propagate:YES];
     }
@@ -368,11 +368,11 @@
 - (void)didMoveToSuperview
 {
   /*
-	 *	Because of how we re-use the same cells in both a tableview and its
-	 *	search table, there is the chance that the label is transported between
-	 *	the two views before a selected search row is deselected. In other
-	 *	words, make sure we're not highlighted when changing superviews.
-	 */
+   *	Because of how we re-use the same cells in both a tableview and its
+   *	search table, there is the chance that the label is transported between
+   *	the two views before a selected search row is deselected. In other
+   *	words, make sure we're not highlighted when changing superviews.
+   */
   [self setHighlighted:NO];
   [super didMoveToSuperview];
 }
@@ -380,8 +380,8 @@
 - (void)didMoveToWindow
 {
   /*
-     * See above
-     */
+   * See above
+   */
   [self setHighlighted:NO];
   [super didMoveToWindow];
 }
@@ -486,6 +486,22 @@
   [self padLabel];
   [(TiViewProxy *)[self proxy] contentsWillChange];
 #endif
+}
+
+- (void)setHtml_:(id)html
+{
+  ENSURE_SINGLE_ARG(html, NSString);
+  [[self proxy] replaceValue:html forKey:@"html" notification:NO];
+
+  NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                          options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                            NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                               documentAttributes:nil
+                                                                            error:nil];
+
+  [[self label] setAttributedText:attributedString];
+  [self padLabel];
+  [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 - (void)setBackgroundPaddingLeft_:(id)left

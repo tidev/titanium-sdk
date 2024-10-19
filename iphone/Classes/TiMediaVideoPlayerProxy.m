@@ -83,7 +83,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For durationavailable event
@@ -174,11 +174,6 @@ NSArray *moviePlayerKeys = nil;
   reallyAttached = YES;
 }
 
-- (void)viewDidAttach
-{
-  [TiApp.controller.topPresentedController addChildViewController:movie];
-}
-
 - (void)viewDidDetach
 {
   [self removeNotificationObserver];
@@ -188,7 +183,6 @@ NSArray *moviePlayerKeys = nil;
   [movie setPlayer:nil];
   RELEASE_TO_NIL(movie);
   reallyAttached = NO;
-  [movie removeFromParentViewController];
 }
 
 - (void)windowWillClose
@@ -232,7 +226,7 @@ NSArray *moviePlayerKeys = nil;
 - (void)setBackgroundView:(id)proxy
 {
   DEPRECATED_REPLACED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"Media.VideoPlayer.overlayView")
-      [self setOverlayView:proxy];
+  [self setOverlayView:proxy];
 }
 
 - (NSNumber *)playing

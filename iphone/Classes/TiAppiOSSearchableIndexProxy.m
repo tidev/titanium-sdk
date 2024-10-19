@@ -32,7 +32,7 @@
 
   ENSURE_UI_THREAD(addToDefaultSearchableIndex, args);
 
-  //Convert from Proxy to search item
+  // Convert from Proxy to search item
   NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
   for (TiAppiOSSearchableItemProxy *item in searchItems) {
     [items addObject:item.item];

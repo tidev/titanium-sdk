@@ -184,19 +184,6 @@ events:
     osver: {ios: {min: "13.0"}}
 
 methods:
-  - name: create2DMatrix
-    summary: Creates and returns an instance of <Titanium.UI.2DMatrix>.
-    returns:
-        type: Titanium.UI.2DMatrix
-    parameters:
-      - name: parameters
-        summary: Initial transformation of the matrix.
-        type: Matrix2DCreationDict
-        optional: true
-    deprecated:
-        since: "8.0.0"
-        notes: Use [Titanium.UI.createMatrix2D](Titanium.UI.createMatrix2D) instead.
-
   - name: createMatrix2D
     summary: Creates and returns an instance of <Titanium.UI.Matrix2D>.
     returns:
@@ -206,19 +193,6 @@ methods:
         summary: Initial transformation of the matrix.
         type: Matrix2DCreationDict
         optional: true
-
-  - name: create3DMatrix
-    summary: Creates and returns an instance of <Titanium.UI.3DMatrix>.
-    returns:
-        type: Titanium.UI.3DMatrix
-    parameters:
-      - name: parameters
-        summary: Initial transformation of the matrix.
-        type: Matrix3DCreationDict
-        optional: true
-    deprecated:
-        since: "8.0.0"
-        notes: Use [Titanium.UI.createMatrix3D](Titanium.UI.createMatrix3D) instead.
 
   - name: createMatrix3D
     summary: Creates and returns an instance of <Titanium.UI.Matrix3D>.
@@ -516,8 +490,8 @@ properties:
 
         See <Attribute> for more information.
     type: Number
-    platforms: [iphone, ipad, macos]
-    since: "3.6.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {iphone: "3.6.0", ipad: "3.6.0", android: "10.0.0"}
     permission: read-only
 
   - name: ATTRIBUTE_STRIKETHROUGH_COLOR
@@ -2431,6 +2405,18 @@ properties:
     type: Number
     permission: read-only
     since: "10.0.0"
+
+  - name: TABS_STYLE_DEFAULT
+    summary: Default tab style.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
+
+  - name: TABS_STYLE_BOTTOM_NAVIGATION
+    summary: Bottom navigation style.
+    type: Number
+    since: "8.0.0"
+    permission: read-only
 
   - name: TABLE_VIEW_SEPARATOR_STYLE_NONE
     summary: The row divider is hidden.

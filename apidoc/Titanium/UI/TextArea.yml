@@ -300,6 +300,14 @@ properties:
     default: No hint text.
     platforms: [android]
 
+  - name: hinttextid
+    summary: |
+        Key identifying a string from the locale file to use for the
+        [hintText](Titanium.UI.TextArea.hintText) property.
+    description: Only one of `hintText` or `hinttextid` should be specified.
+    type: String
+    since: "6.2.0"
+
   - name: hintTextColor
     summary: Color of hint text that displays when field is empty.
     platforms: [android]
@@ -556,9 +564,7 @@ examples:
         This example creates a highly customized text area.
 
         ``` js
-        var win = Ti.UI.createWindow({
-          backgroundColor: 'white'
-        });
+        var win = Ti.UI.createWindow();
         var textArea = Ti.UI.createTextArea({
           borderWidth: 2,
           borderColor: '#bbb',
@@ -622,7 +628,7 @@ examples:
 
         ``` xml
         <Alloy>
-            <Window id="win" backgroundColor="white">
+            <Window id="win">
                 <TextArea id="textArea"
                     borderWidth="2" borderColor="#bbb" borderRadius="5"
                     color="#888" textAlign="left" value="I am a textarea"

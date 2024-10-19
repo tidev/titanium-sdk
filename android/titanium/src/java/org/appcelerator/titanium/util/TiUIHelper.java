@@ -713,7 +713,7 @@ public class TiUIHelper
 			/**
 			 * Loads the given image and returns it's decode bitmap wrapped in a drawable.
 			 * @param filePath Path or URL to the image file to be loaded. Can be null.
-			 * @return Returns a drawble object used to draw the give image file.
+			 * @return Returns a drawable object used to draw the give image file.
 			 *         <p>
 			 *         Returns null if failed to load the image or if given a null argument.
 			 */

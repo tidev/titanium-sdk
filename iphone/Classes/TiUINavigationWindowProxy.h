@@ -16,6 +16,8 @@
   TiWindowProxy *current;
   BOOL transitionIsAnimating;
   BOOL transitionWithGesture;
+
+  UIPanGestureRecognizer *fullWidthBackGestureRecognizer;
 }
 
 // Private API
