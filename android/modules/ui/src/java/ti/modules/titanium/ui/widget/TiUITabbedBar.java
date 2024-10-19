@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
 import androidx.annotation.ColorInt;
@@ -133,8 +134,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 				// no selected color specified but a text color -> use that
 				selectedTextColor = textColor;
 			}
-
 			this.tabLayout.setTabTextColors(textColor, selectedTextColor);
+		}
+		if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+			setTintColor(this.tabLayout.getTabAt(0), TiC.PROPERTY_ACTIVE_TINT_COLOR);
 		}
 		setNativeView(this.tabLayout);
 	}
@@ -261,6 +264,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 					if (value instanceof Drawable) {
 						tab.setIcon(((Drawable) value));
 						TiUITabLayoutTabGroup.scaleIconToFit(tab);
+
+						if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+							setTintColor(tab, TiC.PROPERTY_TINT_COLOR);
+						}
 					} else {
 						tab.setText(value.toString());
 					}
@@ -279,6 +286,14 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 					}
 				}
 				break;
+		}
+	}
+
+	private void setTintColor(TabLayout.Tab tab, String color)
+	{
+		if (tab != null && tab.getIcon() != null) {
+			tab.getIcon().setColorFilter(TiConvert.toColor(proxy.getProperty(color),
+				TiApplication.getAppCurrentActivity()), PorterDuff.Mode.SRC_IN);
 		}
 	}
 
@@ -394,6 +409,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			// First, update the proxy's "index" property.
 			proxy.setProperty(TiC.PROPERTY_INDEX, index);
 
+			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+				setTintColor(this.tabLayout.getTabAt(index), TiC.PROPERTY_ACTIVE_TINT_COLOR);
+			}
+
 			// Last, fire a "click" event.
 			if (!skipClickEvent) {
 				KrollDict data = new KrollDict();
@@ -406,7 +425,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	@Override
 	public void onTabUnselected(TabLayout.Tab tab)
 	{
-		// No override
+		// set old tint color again
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+			setTintColor(tab, TiC.PROPERTY_TINT_COLOR);
+		}
 	}
 
 	@Override
@@ -429,6 +451,6 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	@ColorInt
 	private static int getTabRippleColorFrom(Context context)
 	{
-		return MaterialColors.getColor(context, R.attr.colorPrimary, Color.DKGRAY);
+		return MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, Color.DKGRAY);
 	}
 }

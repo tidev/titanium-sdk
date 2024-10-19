@@ -62,7 +62,7 @@ static NSArray *contactKeysWithoutImage;
   _includeNote = YES;
 }
 
-//used for fetch predicates.
+// used for fetch predicates.
 + (NSArray *)contactKeysWithImage
 {
   if (contactKeysWithImage == nil) {
@@ -71,7 +71,7 @@ static NSArray *contactKeysWithoutImage;
   return contactKeysWithImage;
 }
 
-//reserved for future use
+// reserved for future use
 + (NSArray *)contactKeysWithoutImage
 {
   if (contactKeysWithoutImage == nil) {
@@ -90,9 +90,9 @@ static NSArray *contactKeysWithoutImage;
   RELEASE_TO_NIL(contactStore)
   saveRequest = nil;
   RELEASE_TO_NIL(contactPicker)
-      [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                      name:CNContactStoreDidChangeNotification
-                                                    object:nil];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:CNContactStoreDidChangeNotification
+                                                object:nil];
   [super dealloc];
 }
 
@@ -326,7 +326,7 @@ static NSArray *contactKeysWithoutImage;
   if (!_includeNote) {
     [contactKeys removeObject:CNContactNoteKey];
   }
-  //returns empty array or nil if there's an error
+  // returns empty array or nil if there's an error
   contacts = [ourContactStore unifiedContactsMatchingPredicate:[CNContact predicateForContactsMatchingName:arg] keysToFetch:contactKeys error:&error];
   if (!contacts) {
     return nil;
@@ -562,9 +562,9 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
       result = value;
     }
     if ([value isKindOfClass:[NSDateComponents class]]) {
-      //this part of the code is supposed to work for birthday and alternateBirthday
-      //but iOS9 Beta is giving a null value for these properties in `value`, so only
-      //processing `anniversary` and `other` here.
+      // this part of the code is supposed to work for birthday and alternateBirthday
+      // but iOS9 Beta is giving a null value for these properties in `value`, so only
+      // processing `anniversary` and `other` here.
       //			if ([contactProperty.key isEqualToString:CNContactNonGregorianBirthdayKey]) {
       //				NSDateComponents *dateComps = (NSDateComponents*)value;
       //				result = [NSDictionary dictionaryWithObjectsAndKeys: dateComps.calendar.calendarIdentifier,@"calendarIdentifier",NUMLONG(dateComps.era),@"era",NUMLONG(dateComps.year),@"year",NUMLONG(dateComps.month),@"month",NUMLONG(dateComps.day),@"day",NUMBOOL(dateComps.isLeapMonth),@"isLeapMonth", nil];

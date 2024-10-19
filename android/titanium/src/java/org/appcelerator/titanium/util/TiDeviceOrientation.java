@@ -165,7 +165,7 @@ public enum TiDeviceOrientation {
 		boolean isUprightOrientationPortrait = displayInfo.isUprightOrientationPortrait();
 
 		// Configure display info object with given rotation and device's upright orientation.
-		// Note: The below width/height doesn't need to match the device's actual dispaly size.
+		// Note: The below width/height doesn't need to match the device's actual display size.
 		//       They just need to indicate if the device is portrait/landscape for given rotation.
 		switch (value) {
 			case Surface.ROTATION_0:
@@ -302,7 +302,7 @@ public enum TiDeviceOrientation {
 	 * Returns a portrait or landscape orientation if the display's upright orientation
 	 * was successfully acquired.
 	 * <p>
-	 * Returns UNKNOWN if failed to aquire the default display's information.
+	 * Returns UNKNOWN if failed to acquire the default display's information.
 	 */
 	public static TiDeviceOrientation fromUprightPositionOfDefaultDisplay()
 	{
@@ -321,7 +321,7 @@ public enum TiDeviceOrientation {
 	 * Returns a portrait or landscape orientation if the display's upright orientation
 	 * was successfully acquired.
 	 * <p>
-	 * Returns UNKNOWN if given a null argument or failed to aquire display info.
+	 * Returns UNKNOWN if given a null argument or failed to acquire display info.
 	 */
 	public static TiDeviceOrientation fromUprightPositionOf(Display display)
 	{
@@ -395,7 +395,7 @@ public enum TiDeviceOrientation {
 		public boolean isUprightOrientationPortrait()
 		{
 			// Determine if the display size is portrait.
-			// Note: A square display size is considred portrait. (The most commonly used orientation.)
+			// Note: A square display size is considered portrait. (The most commonly used orientation.)
 			boolean result;
 			switch (this.rotationId) {
 				case Surface.ROTATION_0:

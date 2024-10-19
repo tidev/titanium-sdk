@@ -559,6 +559,21 @@ public class EventProxy extends KrollProxy
 		contentResolver.insert(extPropsUri, values);
 	}
 
+	@Kroll.method
+	public boolean remove()
+	{
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+
+		try {
+			Uri deleteUri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, TiConvert.toInt(id));
+			contentResolver.delete(deleteUri, null, null);
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
+
+		return true;
+	}
+
 	@Override
 	public String getApiName()
 	{

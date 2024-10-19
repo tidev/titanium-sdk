@@ -1,7 +1,5 @@
 name: Regen Builds
 on:
-  release:
-    types: [published, released]
   workflow_run:
     workflows: [Build]
     types: [completed]
@@ -17,7 +15,7 @@ jobs:
     steps:
     - name: Repository Dispatch
       if: github.event.workflow_run.conclusion == 'success'
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         event-type: regen-builds
         repository: tidev/downloads-www
