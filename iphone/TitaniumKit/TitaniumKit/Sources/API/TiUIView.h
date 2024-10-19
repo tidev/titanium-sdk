@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -11,7 +11,7 @@
 #ifdef TI_USE_AUTOLAYOUT
 #import "TiLayoutView.h"
 #endif
-//By declaring a scrollView protocol, TiUITextWidget can access
+// By declaring a scrollView protocol, TiUITextWidget can access
 @class TiUIView;
 
 /**
@@ -89,7 +89,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   UISwipeGestureRecognizer *downSwipeRecognizer;
   UILongPressGestureRecognizer *longPressRecognizer;
 
-  //Resizing handling
+  // Resizing handling
   CGSize oldSize;
 
   // Image capping/backgrounds

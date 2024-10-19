@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -91,7 +91,7 @@ public class TiBlob extends KrollProxy
 	/**
 	 * Creates a blob from a file and sets a mimeType based on the file name.
 	 * @param file the file used to create blob.
-	 * @return new instane of TiBlob.
+	 * @return new instance of TiBlob.
 	 */
 	public static TiBlob blobFromFile(TiBaseFile file)
 	{

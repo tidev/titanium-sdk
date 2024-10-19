@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -16,9 +16,9 @@ import org.appcelerator.titanium.util.TiRHelper;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListItemProxy>
 {
@@ -112,7 +112,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 	public ListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
 	{
 		// Create new TableViewHolder instance.
-		final RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
+		final ConstraintLayout layout = (ConstraintLayout) inflater.inflate(id_holder, null);
 		return new ListViewHolder(parent.getContext(), layout);
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -86,9 +86,9 @@
 - (BOOL)suppressesRelayout
 {
   if (controller != nil) {
-    //If controller view is not loaded, sandbox bounds will become zero.
-    //In that case we do not want to mess up our sandbox, which is by default
-    //mainscreen bounds. It will adjust when view loads.
+    // If controller view is not loaded, sandbox bounds will become zero.
+    // In that case we do not want to mess up our sandbox, which is by default
+    // mainscreen bounds. It will adjust when view loads.
     return ![controller isViewLoaded];
   }
   return [super suppressesRelayout];
@@ -206,7 +206,7 @@
 
 - (BOOL)isRootViewAttached
 {
-  //When a modal window is up, just return yes
+  // When a modal window is up, just return yes
   if ([[[TiApp app] controller] presentedViewController] != nil) {
     return YES;
   }
@@ -237,7 +237,7 @@
     openPromise = [[KrollPromise alloc] initInContext:context];
   }
 
-  //Make sure our RootView Controller is attached
+  // Make sure our RootView Controller is attached
   if (![self isRootViewLoaded]) {
     DebugLog(@"[WARN] ROOT VIEW NOT LOADED. WAITING");
     [self performSelector:@selector(open:) withObject:args afterDelay:0.1];
@@ -271,11 +271,11 @@
     openAnimation = [[TiAnimation animationFromArg:args context:[self pageContext] create:NO] retain];
     [self rememberProxy:openAnimation];
   }
-  //TODO Argument Processing
+  // TODO Argument Processing
   id object = [self valueForUndefinedKey:@"orientationModes"];
   _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
 
-  //GO ahead and call open on the UI thread
+  // GO ahead and call open on the UI thread
   TiThreadPerformOnMainThread(
       ^{
         [self openOnUIThread:args];
@@ -698,7 +698,7 @@
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:YES animated:animated];
     [self processForSafeArea];
-    //TODO: need to fix height
+    // TODO: need to fix height
   }
 }
 
@@ -729,7 +729,7 @@
 }
 
 #pragma mark - Appearance and Rotation Callbacks. For subclasses to override.
-//Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
+// Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 - (void)viewWillAppear:(BOOL)animated
 {
   id navBarHidden = [self valueForUndefinedKey:@"navBarHidden"];
@@ -848,7 +848,7 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+  // For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self children];
   for (TiViewProxy *thisProxy in childProxies) {
     if ([thisProxy respondsToSelector:@selector(viewWillTransitionToSize:withTransitionCoordinator:)]) {
@@ -859,7 +859,7 @@
 
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+  // For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self children];
   for (TiViewProxy *thisProxy in childProxies) {
     if ([thisProxy respondsToSelector:@selector(willTransitionToTraitCollection:withTransitionCoordinator:)]) {
@@ -870,7 +870,7 @@
 
 - (void)systemLayoutFittingSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
 {
-  //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+  // For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self children];
   for (TiViewProxy *thisProxy in childProxies) {
     if ([thisProxy respondsToSelector:@selector(systemLayoutFittingSizeDidChangeForChildContentContainer:)]) {
@@ -881,7 +881,7 @@
 
 - (void)preferredContentSizeDidChangeForChildContentContainer:(id<UIContentContainer>)container
 {
-  //For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
+  // For various views (scrollableView, NavGroup etc this info neeeds to be forwarded)
   NSArray *childProxies = [self children];
   for (TiViewProxy *thisProxy in childProxies) {
     if ([thisProxy respondsToSelector:@selector(preferredContentSizeDidChangeForChildContentContainer:)]) {

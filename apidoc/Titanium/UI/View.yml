@@ -1036,38 +1036,6 @@ methods:
         default: "{ animated: false }"
         # FIXME: Support platfroms/osver/since on parameters!
 
-  - name: startLayout
-    summary: Starts a batch update of this view's layout properties.
-    description: |
-        To prevent a layout pass each time a property is modified, call `startLayout` before
-        changing any properties that may change this view's layout. This initiates a batch update
-        mode where layout changes are deferred.
-
-        Call [finishLayout](Titanium.UI.View.finishLayout) to end batch update mode and trigger a
-        layout pass. For example:
-
-        ``` js
-        view.startLayout();
-        view.top = 50;
-        view.left = 50;
-        view.finishLayout();
-        ```
-
-        Note that _any_ property changes made during the batch update _may_ be deferred until
-        `finishLayout` is called. This may vary somewhat by platform. For example, changing the
-        text of a label may trigger a layout pass. In iOS, updating the label text is
-        deferred.
-
-        See also: [updateLayout](Titanium.UI.View.updateLayout),
-        [finishLayout](Titanium.UI.View.finishLayout),
-        [postlayout](Titanium.UI.View.postlayout) event.
-    since: "2.0.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
-
   - name: stopAnimation
     summary: Stops a running animation.
     description: |
@@ -1099,41 +1067,6 @@ methods:
         type: Boolean
         default: false
         optional: true
-
-  - name: updateLayout
-    summary: |
-        Performs a batch update of all supplied layout properties and schedules a layout pass after
-        they have been updated.
-    description: |
-        This is another way to perform a batch update.  The `updateLayout` method is called with a
-        dictionary of layout properties to perform the batch update. For example:
-
-        ``` js
-        view.updateLayout({top:50, left:50});
-        ```
-
-        This is equivalent to the following:
-
-        ``` js
-        view.startLayout();
-        view.top = 50;
-        view.left = 50;
-        view.finishLayout();
-        ```
-
-        See also: [startLayout](Titanium.UI.View.startLayout),
-        [finishLayout](Titanium.UI.View.finishLayout),
-        [postlayout](Titanium.UI.View.postlayout) event.
-    since: "2.0.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.Proxy.applyProperties](Titanium.Proxy.applyProperties) method to batch-update layout properties.
-    parameters:
-      - name: params
-        summary: Layout properties to be updated.
-        type: Dictionary
 
   - name: convertPointToView
     summary: |
@@ -1237,6 +1170,16 @@ properties:
     since: "3.0.0"
     platforms: [android, iphone, ipad, macos]
     type: String
+
+  - name: accessibilityDisableLongPress
+    summary: Boolean value to remove the long press notification for the device's accessibility service.
+    description: |
+        Will disable the "double tap and hold for long press" message when selecting an item.
+    since: "12.4.0"
+    platforms: [android]
+    default: true
+    availability: creation
+    type: Boolean
 
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
@@ -1822,8 +1765,8 @@ properties:
     summary: Clockwise 2D rotation of the view in degrees.
     description: Translation values are applied to the static post layout value.
     type: Number
-    platforms: [android]
-    since: 5.4.0
+    platforms: [android, iphone, ipad]
+    since: {android: "5.4.0", iphone: "12.3.0", ipad: "12.3.0"}
 
   - name: rotationX
     summary: Clockwise rotation of the view in degrees (x-axis).
@@ -2054,6 +1997,7 @@ properties:
     description: |
         When `true` the screen will not power down. Note: enabling this feature will use more
         power, thereby adversely affecting run time when on battery.
+        For iOS look at [Titanium.App.idleTimerDisabled](Titanium.App.idleTimerDisabled).
     type: Boolean
     default: false
     platforms: [android]
@@ -2064,6 +2008,7 @@ examples:
         Create a rounded view.
 
         ``` js
+        const window = Ti.UI.createWindow();
         var view = Titanium.UI.createView({
             borderRadius:10,
             backgroundColor:'red',
@@ -2071,6 +2016,7 @@ examples:
             height:50
         });
         window.add(view);
+        window.open();
         ```
 
   - title: Alloy XML Markup
@@ -2079,7 +2025,9 @@ examples:
 
         ``` xml
         <Alloy>
+          <Window>
             <View id="view" borderRadius="10" backgroundColor="red" width="50" height="50" />
+          </Window>
         </Alloy>
         ```
 

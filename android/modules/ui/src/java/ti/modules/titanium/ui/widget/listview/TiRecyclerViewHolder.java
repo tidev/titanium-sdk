@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -64,8 +64,9 @@ public abstract class TiRecyclerViewHolder<V extends TiViewProxy> extends Recycl
 	{
 		super(viewGroup);
 
-		COLOR_NORMAL = MaterialColors.getColor(context, R.attr.colorButtonNormal, Color.DKGRAY);
-		COLOR_PRIMARY = MaterialColors.getColor(context, R.attr.colorPrimary, Color.DKGRAY);
+		COLOR_NORMAL = MaterialColors.getColor(context, com.google.android.material
+			.R.attr.colorButtonNormal, Color.DKGRAY);
+		COLOR_PRIMARY = MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, Color.DKGRAY);
 		COLOR_SELECTED = ColorUtils.setAlphaComponent(COLOR_PRIMARY, 20);
 
 		if (resources == null) {

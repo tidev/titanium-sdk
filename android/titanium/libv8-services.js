@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
@@ -125,7 +125,7 @@ async function generateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
 		}
 
 		// Delete snapshot blob.
-		await fs.unlink(blobPath);
+		await fs.remove(blobPath);
 	}
 
 	// Generate 'V8Snapshots.h' from template
@@ -171,33 +171,26 @@ async function createSnapshot() {
 		// Requests our server to create snapshot of rolled-up "ti.main" in a C++ header file.
 		let wasSuccessful = false;
 		try {
-			// Post rolled-up "ti.main" script to server and obtain a snapshot ID as a response.
-			// We will send an HTTP request for the snapshot code later.
+			// Post rolled-up "ti.main" script to server and obtain the V8Snapshot.h as a response.
 			console.log('Attempting to request snapshot...');
-			const snapshotUrl = 'http://v8-snapshot.appcelerator.com'; // TODO: Migrate to Github Artifacts once ready
+			const snapshotUrl = 'https://v8-snapshot.titaniumsdk.com/gen';
 			const packageJsonData = await loadPackageJson();
 			const requestOptions = {
 				body: {
 					v8: packageJsonData.v8.version,
 					script: rollupFileContent
 				},
-				json: true
+				json: true,
+				resolveWithFullResponse: true,
+				timeout: 60 * 1000 * 5
 			};
-			const snapshotId = await request.post(snapshotUrl, requestOptions);
 
-			// Request generated snapshot from server using `snapshotId` obtained from server above.
 			const MAX_ATTEMPTS = 20; // Time-out after two minutes.
 			let attempts;
 			for (attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
-				const response = await request.get(`${snapshotUrl}/snapshot/${snapshotId}`, {
-					simple: false,
-					resolveWithFullResponse: true
-				});
+				const response = await request.post(snapshotUrl, requestOptions);
 
 				if (response.statusCode === 200) {
-
-					// Server has finished creating a C++ header file containing all V8 snapshots.
-					// Write it to file and flag that we're done.
 					console.log('Writing snapshot...');
 					await fs.writeFile(v8SnapshotHeaderFilePath, response.body);
 					wasSuccessful = true;
@@ -208,7 +201,6 @@ async function createSnapshot() {
 					console.log('Waiting for snapshot generation...');
 					await new Promise(resolve => setTimeout(resolve, 6000));
 				} else {
-
 					// Give up if received an unexpected response.
 					console.error('Could not generate snapshot, skipping...');
 					break;
@@ -230,7 +222,7 @@ async function createSnapshot() {
 				process.exit(1);
 			}
 
-			// Generaet an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
+			// Generate an empty C++ header. Allows build to succeed and app will load "ti.main.js" normally instead.
 			await fs.writeFile(v8SnapshotHeaderFilePath, '// Failed to generate V8 snapshots. See build log.');
 		}
 	}
@@ -285,7 +277,7 @@ function createSnapshotThenExit() {
 
 /**
  * Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
- * If not, then this function will automatically download/install it. Function will do nothing if alredy installed.
+ * If not, then this function will automatically download/install it. Function will do nothing if already installed.
  *
  * Will exit the process when the async operation ends. Intended to be called from the command line.
  */

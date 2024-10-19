@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -272,7 +272,7 @@ public class TiDrawableReference
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
 	 * <p>
 	 * Uses the given proxy to resolve relative paths to an image file, if applicable.
-	 * @param proxy Used to acquire an activty and resolve relative paths if given object is a string path.
+	 * @param proxy Used to acquire an activity and resolve relative paths if given object is a string path.
 	 * @param object Reference to the image to be loaded such as a file, path, blob, etc.
 	 * @return Returns an instance of TiDrawableReference wrapping the given object.
 	 */

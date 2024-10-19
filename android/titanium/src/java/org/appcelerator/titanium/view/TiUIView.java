@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -45,7 +45,10 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import androidx.annotation.NonNull;
+import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -1935,6 +1938,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			boolean soundEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_SOUND_EFFECTS_ENABLED), true);
 			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
+
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG)) {
+			if (TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG))) {
+				removeAccessibilityLongClick();
+			}
+		}
 		registerTouchEvents(touchable);
 
 		// Previously, we used the single tap handling above to fire our click event. It doesn't
@@ -2382,5 +2391,20 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return null;
 		}
 		return composeContentDescription(proxy.getProperties());
+	}
+
+	public void removeAccessibilityLongClick()
+	{
+		ViewCompat.setAccessibilityDelegate(nativeView, new AccessibilityDelegateCompat()
+		{
+			@Override
+			public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+														  @NonNull AccessibilityNodeInfoCompat info)
+			{
+				super.onInitializeAccessibilityNodeInfo(host, info);
+				info.removeAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK);
+				info.setLongClickable(false);
+			}
+		});
 	}
 }

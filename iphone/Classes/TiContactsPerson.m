@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -198,7 +198,7 @@ static NSDictionary *iOS9propertyKeys;
         // For case where address is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
         key = @"address";
       } else {
-        //must be a custom label
+        // must be a custom label
         key = [NSString stringWithString:genericProperty.label];
       }
     }

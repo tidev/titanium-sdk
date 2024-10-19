@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -33,7 +33,6 @@ import android.view.ViewGroup;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.ActivityProxy;
@@ -51,6 +50,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import com.google.android.material.R;
 
 /**
  *  Abstract class representing Tab Navigation in Titanium. Abstract methods in it
@@ -357,7 +357,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	}
 
 	/**
-	 * Method for creating a RippleDrawable to be used as a bacgkround for an item in the Controller.
+	 * Method for creating a RippleDrawable to be used as a background for an item in the Controller.
 	 * Creates the RippleDrawable for two states - the provided state and its negative value.
 	 * If the properties are not set the method falls back to the colorPrimary of the current theme.
 	 * The previous implementation of TabGroup added the ripple effect by default for tabs, thus this

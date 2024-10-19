@@ -1228,6 +1228,13 @@ properties:
     type: Number
     permission: read-only
 
+  - name: NO_FOCUS
+    summary: Constant for camera didn't focus when taking a trying to take a picture.
+    type: Number
+    permission: read-only
+    since:
+        android: "12.2.1"
+
   - name: VIDEO_CONTROL_DEFAULT
     deprecated:
         since: "7.0.0"
@@ -2228,6 +2235,20 @@ properties:
     osver: {ios: {min: "14.0"}}
     since: { android: "6.0.0", iphone: "9.2.0", ipad: "9.2.0" }
 
+  - name: maxImages
+    summary: Specifies the number of images a user can select at maximum.
+    description: |
+        Only available on Android API 21 and above and with `allowMultiple:true`
+    type: Boolean
+    platforms: [android]
+    since: { android: "12.5.0" }
+
+  - name: pathOnly
+    summary: Do not include the blob in the result
+    type: Boolean
+    platforms: [android]
+    since: { android: "12.5.0" }
+
   - name: selectionLimit
     summary: Specifies number of media item that can be selected.
     description: |
@@ -2276,6 +2297,12 @@ properties:
   - name: media
     summary: The media object, as a [Blob](Titanium.Blob).
     type: Titanium.Blob
+
+  - name: path
+    summary: The path of the image when returning data from the gallery.
+    type: String
+    platforms: [android]
+    since: "12.5.0"
 
   - name: mediaType
     summary: The type of media, either `MEDIA_TYPE_PHOTO`, `MEDIA_TYPE_LIVEPHOTO` or `MEDIA_TYPE_VIDEO` defined in <Titanium.Media>.
@@ -2370,7 +2397,7 @@ properties:
   - name: code
     summary: Error code, if applicable.
     type: Number
-    constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.UNKNOWN_ERROR]
+    constants: [Titanium.Media.DEVICE_BUSY, Titanium.Media.NO_CAMERA, Titanium.Media.UNKNOWN_ERROR, Titanium.Media.NO_FOCUS]
     accessors: false
 
   - name: success

@@ -648,7 +648,7 @@ events:
         ipad: 5.4.0
     properties:
       - name: direction
-        summary: Direction of the scroll either 'up', or 'down'.
+        summary: Direction of the scroll either 'up', 'down' or 'unknown'.
         type: String
 
       - name: velocity
@@ -683,6 +683,12 @@ properties:
         iphone: 3.2.0
         ipad: 3.2.0
     platforms: [android, iphone, ipad, macos]
+
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
 
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
@@ -1527,7 +1533,7 @@ examples:
         create a refresh control.
 
         ``` js
-        var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        var win = Ti.UI.createWindow();
         var listView = Ti.UI.createListView({height:'90%', top:0});
         var sections = [];
 
@@ -1687,7 +1693,7 @@ examples:
         `app/views/index.xml`:
         ``` xml
         <Alloy>
-            <Window backgroundColor="white">
+            <Window>
                 <ListView id="listView" defaultItemTemplate="template">
 
                     <!-- The Templates tag sets the ListView's templates property -->

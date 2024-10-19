@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -18,6 +18,7 @@ import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
@@ -70,7 +71,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		// Header attributes.
 		setTitleAttributes("header", context, this.headerTitle);
 
-		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder_outer_content_container);
+		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder);
 
 		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
 
@@ -92,6 +93,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	 * @param proxy    ListItemProxy to bind.
 	 * @param selected Is row selected.
 	 */
+	@SuppressLint("ClickableViewAccessibility")
 	public void bind(final ListItemProxy proxy, final boolean selected)
 	{
 		reset();
@@ -165,7 +167,6 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 			this.rightImage.setVisibility(View.VISIBLE);
 
 			RecyclerView.ViewHolder mViewHolder = this;
-
 			this.rightImage.setOnTouchListener(new View.OnTouchListener()
 			{
 				@Override
@@ -252,7 +253,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 					borderView.setAddStatesFromChildren(true);
 
 					// Amend maximum size for content to parent ListView measured height.
-					this.content.setChildFillHeight(nativeListView.getMeasuredHeight());
+					this.container.setMinimumHeight(nativeListView.getMeasuredHeight());
 
 					// Add ListViewItem to content.
 					this.content.addView(borderView, view.getLayoutParams());
@@ -311,7 +312,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	 * Set header and footer views of holder.
 	 *
 	 * @param listViewProxy ListView proxy.
-	 * @param properties   Properties containing header and footer entires.
+	 * @param properties   Properties containing header and footer entries.
 	 * @param updateHeader Boolean to determine if the header should be updated.
 	 * @param updateFooter Boolean to determine if the footer should be updated.
 	 */

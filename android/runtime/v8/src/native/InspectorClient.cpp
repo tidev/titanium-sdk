@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -112,7 +112,7 @@ void InspectorClient::CallAndPauseOnStart(const v8::FunctionCallbackInfo<v8::Val
 	assert(args[0]->IsString());
 	assert(args[1]->IsString());
 
-	// Note that this differs from Node's implementation wher ethey expect the first arg to be a pre-compiled function
+	// Note that this differs from Node's implementation where they expect the first arg to be a pre-compiled function
 	// And a variable number of additional arguments to pass to that function.
 	// They wrap the source with a function just like Module.wrap for standard code
 	// Then compile the function and pass it into this method to schedule a pause and then invoke it.
