@@ -190,12 +190,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static void addToActivityStack(Activity activity)
 	{
 		if (activity != null) {
-			activityStack.add(new WeakReference<>(activity));
-
 			if (activityStack.size() > 0) {
+				// remove root activity if another activity is opened
 				WeakReference<Activity> activityRef;
 				Activity currentActivity;
 				activityRef = activityStack.get(0);
+
 				if (activityRef.get() instanceof TiRootActivity) {
 					activityStack.remove(activityRef);
 					if (activityRef != null) {
@@ -206,6 +206,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 					}
 				}
 			}
+
+			activityStack.add(new WeakReference<>(activity));
 		}
 	}
 
