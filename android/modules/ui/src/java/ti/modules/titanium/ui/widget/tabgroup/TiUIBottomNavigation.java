@@ -38,6 +38,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -85,11 +86,14 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 	}
 
-	private Drawable setIcon(Object icon)
+	private Drawable setIcon(Object icon, Object iconFamily)
 	{
 		Drawable drawable = null;
+
 		if (icon instanceof Number) {
 			drawable = TiUIHelper.getResourceDrawable((int) icon);
+		} else if (iconFamily != null) {
+			drawable = new TiIconDrawable(TiConvert.toString(icon), TiConvert.toString(iconFamily));
 		} else {
 			drawable = TiUIHelper.getResourceDrawable(icon);
 		}
@@ -189,12 +193,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			Log.e(TAG, "Trying to add more than five tabs in a TabGroup with TABS_STYLE_BOTTOM_NAVIGATION style.");
 			return;
 		}
-		Log.i("---", "SIZE: " + tabsArray.size());
+
 		tabsArray.add(tabProxy);
 		MenuItem menuItem = bottomNavigation.getMenu().add(0, mMenuItemsArray.size(), 0, "");
 		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
-			menuItem.setIcon(setIcon(tabProxy.getProperty(TiC.PROPERTY_ICON)));
+			menuItem.setIcon(setIcon(tabProxy.getProperty(TiC.PROPERTY_ICON), tabProxy.getProperty("iconFamily")));
 		}
 		mMenuItemsArray.add(menuItem);
 		int index = this.mMenuItemsArray.size() - 1;
@@ -448,7 +452,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
-			this.bottomNavigation.getMenu().getItem(index).setIcon(setIcon(tabProxy.getProperty(TiC.PROPERTY_ICON)));
+			this.bottomNavigation.getMenu().getItem(index).setIcon(setIcon(
+				tabProxy.getProperty(TiC.PROPERTY_ICON),
+				tabProxy.getProperty("iconFamily")
+			));
 		}
 		updateIconTint();
 	}
