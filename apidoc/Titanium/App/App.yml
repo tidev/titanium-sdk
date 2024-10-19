@@ -543,7 +543,7 @@ properties:
 
   - name: idleTimerDisabled
     summary: Determines whether the screen is locked when the device is idle.
-    description: Set to `true` to disable the timer.
+    description: Set to `true` to disable the timer. For Android look at [Titanium.UI.View.keepScreenOn](Titanium.UI.View.keepScreenOn).
     type: Boolean
     platforms: [iphone, ipad, macos]
 

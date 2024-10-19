@@ -223,10 +223,12 @@ GETTER_IMPL(NSString *, locale, Locale);
 }
 GETTER_IMPL(NSString *, macaddress, Macaddress);
 
+#ifdef USE_TI_PLATFORMUPTIME
 - (NSNumber *)uptime
 {
   return [NSNumber numberWithDouble:[[NSProcessInfo processInfo] systemUptime]];
 }
+#endif
 
 - (NSString *)identifierForVendor
 {

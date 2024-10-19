@@ -868,6 +868,15 @@ properties:
         The web view's content can also be set using the [data](Titanium.UI.WebView.data) or
         [url](Titanium.UI.WebView.url) properties.
 
+        If you want to get the HTML content of a remote URL you can grab it with this `evalJS` call:
+        ``` js
+        webview.addEventListener('load', function() {
+          webview.evalJS('document.documentElement.outerHTML.toString()', function(data) {
+            console.log(data);
+          });
+        });
+        ```
+
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
 
@@ -1120,6 +1129,14 @@ properties:
     default: undefined. Behaves as no zoom applied.
     platforms: [android, iphone, ipad, macos]
     since: {android: "7.3.0", iphone: "7.3.0", ipad: "7.3.0", macos: "9.2.0"}
+
+  - name: scrollbars
+    summary: Enable or disable horizontal/vertical scrollbars in a WebView.
+    type: Number
+    constants: Titanium.UI.Android.WEBVIEW_SCROLLBARS_*
+    platforms: [android]
+    since: "12.3.0"
+    default: <Titanium.UI.Android.WEBVIEW_SCROLLBARS_DEFAULT>
 
   - name: allowsBackForwardNavigationGestures
     summary: |
