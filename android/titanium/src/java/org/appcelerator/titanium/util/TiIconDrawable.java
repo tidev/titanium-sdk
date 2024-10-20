@@ -39,7 +39,7 @@ public class TiIconDrawable extends Drawable
 	public static boolean isEnabled(int[] stateSet)
 	{
 		for (int state : stateSet)
-			if (state == android.R.attr.state_enabled)
+			if (state == android.R.attr.state_selected)
 				return true;
 		return false;
 	}
@@ -66,27 +66,6 @@ public class TiIconDrawable extends Drawable
 	public int getIntrinsicWidth()
 	{
 		return size;
-	}
-
-	public TiIconDrawable color(int color)
-	{
-		paint.setColor(color);
-		invalidateSelf();
-		return this;
-	}
-
-	public TiIconDrawable colorRes(int colorRes)
-	{
-		paint.setColor(TiApplication.getAppRootOrCurrentActivity().getResources().getColor(colorRes));
-		invalidateSelf();
-		return this;
-	}
-
-	public TiIconDrawable alpha(int alpha)
-	{
-		setAlpha(alpha);
-		invalidateSelf();
-		return this;
 	}
 
 	@Override
