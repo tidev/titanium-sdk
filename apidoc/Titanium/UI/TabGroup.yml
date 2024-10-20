@@ -526,8 +526,8 @@ properties:
     default: true
     platforms: [iphone, ipad, macos]
 
-  - name: windowFlags
-    summary: Additional flags to set on the Activity Window.
+  - name: flags
+    summary: Additional flags to set on the TabGroup.
     description: |
         Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the statusbar text color to light mode.
     platforms: [android]
