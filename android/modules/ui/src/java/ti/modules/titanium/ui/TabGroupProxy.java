@@ -6,10 +6,14 @@
  */
 package ti.modules.titanium.ui;
 
+import static ti.modules.titanium.android.AndroidModule.STATUS_BAR_LIGHT;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -29,6 +33,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -426,6 +431,22 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Need to handle the cached activity proxy properties in the JS side.
 		callPropertySync(PROPERTY_POST_TAB_GROUP_CREATED, null);
+
+		if (getActivity() != null) {
+			if (hasPropertyAndNotNull(TiC.PROPERTY_WINDOW_FLAGS)) {
+				if (TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) == STATUS_BAR_LIGHT
+					&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					getActivity().getWindow().getDecorView()
+						.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+				}
+			}
+			if (hasPropertyAndNotNull(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+				int colorInt = TiColorHelper.parseColor(
+					TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)),
+					TiApplication.getAppRootOrCurrentActivity());
+				getActivity().getWindow().setStatusBarColor(colorInt);
+			}
+		}
 	}
 
 	@Override

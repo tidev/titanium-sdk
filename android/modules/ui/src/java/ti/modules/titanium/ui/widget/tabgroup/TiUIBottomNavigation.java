@@ -200,6 +200,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
 			menuItem.setIcon(setIcon(tabProxy.getProperty(TiC.PROPERTY_ICON), tabProxy.getProperty("iconFamily")));
 		}
+
 		mMenuItemsArray.add(menuItem);
 		int index = this.mMenuItemsArray.size() - 1;
 		updateDrawablesAfterNewItem(index);
@@ -251,8 +252,13 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		updateTabIcon(index);
 		updateBadge(index);
 		updateBadgeColor(index);
-		updateTabTitleColor(index);
-		updateTabBackgroundDrawable(index);
+
+		for (int i = 0; i < this.bottomNavigation.getMenu().size(); i++) {
+			// Set the title text color.
+			updateTabTitleColor(i);
+			// Set the background drawable.
+			updateTabBackgroundDrawable(i);
+		}
 	}
 
 	@Override
@@ -313,6 +319,14 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			if (!hasTouchFeedback) {
 				Drawable drawable = new RippleDrawable(ColorStateList.valueOf(Color.TRANSPARENT), null, null);
 				this.bottomNavigation.getChildAt(0).setBackground(drawable);
+			}
+
+			if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
+				BottomNavigationMenuView bottomMenuView =
+					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
+				bottomMenuView.getChildAt(index).setBackgroundColor(TiConvert.toColor(
+					tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), TiApplication.getAppRootOrCurrentActivity()
+				));
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);

@@ -427,6 +427,12 @@ properties:
     since: "8.0.0"
     platforms: [android]
 
+  - name: statusBarColor
+    summary: The color of the status bar (top bar) for this window.
+    type: [Number]
+    platforms: [android]
+    since: {android: "12.6.0"}
+
   - name: style
     summary: Property defining which style for the TabGroup to be used.
     description: |
@@ -519,6 +525,15 @@ properties:
     since: "6.2.0"
     default: true
     platforms: [iphone, ipad, macos]
+
+  - name: windowFlags
+    summary: Additional flags to set on the Activity Window.
+    description: |
+        Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the statusbar text color to light mode.
+    platforms: [android]
+    type: Number
+    since: "12.6.0"
+    availability: creation
 
   - name: activeTintColor
     summary: The activeTintColor to apply to tabs.
