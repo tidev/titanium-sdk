@@ -101,4 +101,29 @@ public class CollapseToolbarProxy extends TiViewProxy
 	{
 		collapseToolbar.setNavigationIconColor(TiConvert.toColor(value, TiApplication.getAppCurrentActivity()));
 	}
+	
+	@Kroll.method
+	public void addMenuItem(int itemId, String title, boolean showAsAction)
+	{
+		// int iconResId = TiDrawableReference.fromObject(this, iconPath).getBitmap(false)
+		collapseToolbar.addMenuItem(itemId, title, showAsAction);
+	}
+
+	@Kroll.method
+	public void removeMenuItem(int itemId)
+	{
+		collapseToolbar.removeMenuItem(itemId);
+	}
+
+	@Kroll.method
+	public void clearMenu()
+	{
+		collapseToolbar.clearMenu();
+	}
+
+	@Kroll.method
+	public void setOnMenuItemClickListener(KrollFunction function)
+	{
+		collapseToolbar.setOnMenuItemClickListener(function);
+	}
 }
