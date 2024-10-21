@@ -529,7 +529,7 @@ properties:
   - name: flags
     summary: Additional flags to set on the TabGroup.
     description: |
-        Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the statusbar text color to light mode.
+        Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the status bar text color to light mode.
     platforms: [android]
     type: Number
     since: "12.6.0"

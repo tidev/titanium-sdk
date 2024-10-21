@@ -675,7 +675,7 @@ properties:
     permission: read-only
 
   - name: STATUS_BAR_LIGHT
-    summary: Sets the color of the statusbar to light mode. Needs Android API level 23.
+    summary: Sets the color of the status bar to light mode. Needs Android API level 23.
     type: Number
     permission: read-only
     since: "12.6.0"
