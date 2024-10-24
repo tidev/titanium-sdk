@@ -75,8 +75,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import ti.modules.titanium.gesture.TiDeviceOrientationMonitor;
-
 public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.Provider
 {
 	private static final String TAG = "TiCameraXActivity";
@@ -116,8 +114,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	private ProcessCameraProvider cameraProvider;
 	static int targetResolutionWidth = -1;
 	static int targetResolutionHeight = -1;
-	ImageCapture.Builder imageCaptureBuilder;
-	TiDeviceOrientationMonitor orientationEventHandler;
 	private OrientationEventListener orientationEventListener;
 	private int lastDisplayOrientation = 0;
 
@@ -516,7 +512,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
 				} else {
 					// photo
-					imageCaptureBuilder = new ImageCapture.Builder()
+					ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder()
 						.setFlashMode(cameraFlashMode)
 						.setTargetRotation(rotation);
 
