@@ -1199,14 +1199,39 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		LocalBroadcastManager.getInstance(TiApplication.getAppRootOrCurrentActivity())
 			.registerReceiver(new LocalBroadcastReceiver(), mIntentFilter);
 
-		if (allowMultiple) {
-			((TiBaseActivity) activity).pickMultipleMediaResult.launch(new PickVisualMediaRequest.Builder()
-				.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-				.build());
+		if (isSelectingPhoto && isSelectingVideo) {
+			// photo and video
+			if (allowMultiple) {
+				((TiBaseActivity) activity).pickMultipleMediaResult.launch(new PickVisualMediaRequest.Builder()
+					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+					.build());
+			} else {
+				((TiBaseActivity) activity).pickMediaResult.launch(new PickVisualMediaRequest.Builder()
+					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
+					.build());
+			}
+		} else if (isSelectingPhoto) {
+			// photo
+			if (allowMultiple) {
+				((TiBaseActivity) activity).pickMultipleMediaResult.launch(new PickVisualMediaRequest.Builder()
+					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+					.build());
+			} else {
+				((TiBaseActivity) activity).pickMediaResult.launch(new PickVisualMediaRequest.Builder()
+					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+					.build());
+			}
 		} else {
-			((TiBaseActivity) activity).pickMediaResult.launch(new PickVisualMediaRequest.Builder()
-				.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-				.build());
+			// video
+			if (allowMultiple) {
+				((TiBaseActivity) activity).pickMultipleMediaResult.launch(new PickVisualMediaRequest.Builder()
+					.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE)
+					.build());
+			} else {
+				((TiBaseActivity) activity).pickMediaResult.launch(new PickVisualMediaRequest.Builder()
+					.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE)
+					.build());
+			}
 		}
 	}
 
