@@ -19,7 +19,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Size;
+import android.view.OrientationEventListener;
 import android.view.ScaleGestureDetector;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -73,6 +75,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import ti.modules.titanium.gesture.TiDeviceOrientationMonitor;
+
 public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.Provider
 {
 	private static final String TAG = "TiCameraXActivity";
@@ -112,6 +116,10 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	private ProcessCameraProvider cameraProvider;
 	static int targetResolutionWidth = -1;
 	static int targetResolutionHeight = -1;
+	ImageCapture.Builder imageCaptureBuilder;
+	TiDeviceOrientationMonitor orientationEventHandler;
+	private OrientationEventListener orientationEventListener;
+	private int lastDisplayOrientation = 0;
 
 	public static void takePicture()
 	{
@@ -417,6 +425,30 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		int rotation = getWindowManager().getDefaultDisplay().getRotation();
 
 		Activity activity = TiApplication.getAppCurrentActivity();
+
+		orientationEventListener = new OrientationEventListener(activity)
+		{
+			@Override
+			public void onOrientationChanged(int orientation)
+			{
+				if (orientationEventListener == null || orientation == ORIENTATION_UNKNOWN) {
+					return;
+				}
+				int rotation = getWindowManager().getDefaultDisplay().getRotation();
+				if (lastDisplayOrientation != rotation) {
+					imageCapture.setTargetRotation(rotation);
+					lastDisplayOrientation = rotation;
+				}
+
+			}
+		};
+		if (orientationEventListener.canDetectOrientation()) {
+			orientationEventListener.enable();
+		} else {
+			orientationEventListener.disable();
+			orientationEventListener = null;
+		}
+
 		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
 		cameraProviderFuture.addListener(() -> {
 			try {
@@ -484,7 +516,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					camera = cameraProvider.bindToLifecycle(this, cameraSelector, videoCapture, preview);
 				} else {
 					// photo
-					ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder()
+					imageCaptureBuilder = new ImageCapture.Builder()
 						.setFlashMode(cameraFlashMode)
 						.setTargetRotation(rotation);
 
@@ -493,8 +525,13 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					}
 
 					if (targetResolutionWidth != -1 && targetResolutionHeight != -1) {
-						imageCaptureBuilder.setTargetResolution(
-							new Size(targetResolutionWidth, targetResolutionHeight));
+						if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) {
+							imageCaptureBuilder.setTargetResolution(
+								new Size(targetResolutionWidth, targetResolutionHeight));
+						} else {
+							imageCaptureBuilder.setTargetResolution(
+								new Size(targetResolutionHeight, targetResolutionWidth));
+						}
 					}
 
 					imageCapture = imageCaptureBuilder.build();
@@ -573,6 +610,11 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		if (camera != null) {
 			camera = null;
 		}
+		if (orientationEventListener != null) {
+			orientationEventListener.disable();
+			orientationEventListener = null;
+		}
+
 		// Destroy this activity.
 		super.onDestroy();
 	}
@@ -581,6 +623,10 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public void finish()
 	{
 		overlayProxy = null;
+		if (orientationEventListener != null) {
+			orientationEventListener.disable();
+			orientationEventListener = null;
+		}
 		super.finish();
 	}
 
