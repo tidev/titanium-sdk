@@ -87,7 +87,7 @@ exports.init = function (logger, config, cli) {
 				const adb = new ADB(config);
 				adb.devices(function (err, devices) {
 					if (err) {
-						err.toString.split('\n').forEach(logger.error);
+						err.toString().split('\n').forEach(logger.error);
 						logger.log();
 						process.exit(1);
 					}
@@ -268,7 +268,11 @@ exports.init = function (logger, config, cli) {
 						}
 
 						// ignore some Android logs in info log level
-						if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
+						if (typeof ignoreLog === 'string') {
+							if (line.includes(ignoreLog)) {
+								return;
+							}
+						} else if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
 							return;
 						}
 

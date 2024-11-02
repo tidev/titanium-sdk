@@ -58,7 +58,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 	const manifestModuleAPIVersion = this.manifest.apiversion;
 	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
 	let newVersion = semver.inc(this.manifest.version, 'major');
-	this.tiSdkVersion = cliSDKVersion;
+	this.tiSdkVersion = this.cli.sdk.name;
 
 	// Determine if the "manifest" file's "apiversion" needs updating.
 	let isApiVersionUpdateRequired = false;
@@ -496,7 +496,6 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "gradle.properties" file. Will add network proxy settings if needed.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
-	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
 	gradleProperties.push({
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
@@ -512,11 +511,13 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "local.properties" file providing a path to the Android SDK directory.
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
-	// Copy our root "build.gradle" template script to the root build directory.
+	// Generate root "build.gradle" template script to the root build directory.
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');
-	await fs.copyFile(
-		path.join(templatesDir, 'root.build.gradle'),
-		path.join(this.buildDir, 'build.gradle'));
+	let buildGradleContent = await fs.readFile(path.join(templatesDir, 'root.build.gradle'));
+	buildGradleContent = ejs.render(buildGradleContent.toString(), {
+		classpaths: (this.manifest.classpaths?.split(',') ?? []).filter(classpath => classpath !== ''),
+	});
+	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
 	// Copy our Titanium template's gradle constants file.
 	// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
@@ -562,6 +563,7 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 	let buildGradleContent = await fs.readFile(path.join(this.moduleTemplateDir, 'build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		compileSdkVersion: this.compileSdkVersion,
+		plugins: (this.manifest.plugins?.split(',') ?? []).filter(plugin => plugin !== ''),
 		krollAptJarPath: path.join(this.platformPath, 'kroll-apt.jar'),
 		minSdkVersion: this.minSupportedApiLevel,
 		moduleAuthor: this.manifest.author,
@@ -613,12 +615,6 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 		this.logger.error('Unable to load Android <manifest/> content from "timodule.xml" file.');
 		throw err;
 	}
-	let packageName = moduleId;
-	if (packageName.indexOf('.') < 0) {
-		packageName = `ti.${packageName}`;
-	}
-	mainManifest.setPackageName(packageName);
-	await mainManifest.writeToFilePath(path.join(moduleMainDir, 'AndroidManifest.xml'));
 
 	// Generate Java file used to provide this module's JS source code to Titanium's JS runtime.
 	let fileContent = await fs.readFile(path.join(this.moduleTemplateDir, 'CommonJsSourceProvider.java'));
