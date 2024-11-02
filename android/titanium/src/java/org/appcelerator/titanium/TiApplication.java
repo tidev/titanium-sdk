@@ -69,6 +69,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private static final String PROPERTY_DEFAULT_UNIT = "ti.ui.defaultunit";
 	private static final String PROPERTY_USE_LEGACY_WINDOW = "ti.android.useLegacyWindow";
 	private static long mainThreadId = 0;
+	private static boolean isDevelopment = false;
 
 	protected static TiApplication tiApp = null;
 
@@ -161,7 +162,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		tiApp = this;
 
 		mainThreadId = Looper.getMainLooper().getThread().getId();
-
 		modules = new HashMap<>();
 		TiMessenger.getMessenger(); // initialize message queue for main thread
 	}
@@ -190,7 +190,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static void addToActivityStack(Activity activity)
 	{
 		if (activity != null) {
-			if (activityStack.size() > 0) {
+			if (!isDevelopment && activityStack.size() > 0) {
+				// only in production builds:
 				// remove root activity if another activity is opened
 				WeakReference<Activity> activityRef;
 				Activity currentActivity;
@@ -362,6 +363,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
+		isDevelopment = !TiApplication.getInstance().getDeployType().equals(TiApplication.DEPLOY_TYPE_PRODUCTION);
 
 		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
