@@ -204,6 +204,10 @@
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
+	<!-- The default theme Titanium applies to the <application/> in the manifest. -->
+	<!-- Our "_build.js" will replace parent with ".NoTitleBar" or ".Fullscreen" if set in "tiapp.xml". -->
+	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight.Solid"/>
+
 	<!-- The app theme which all Titanium activities will use by default. -->
 	<!-- Our "_build.js" will replace parent if "AndroidManifest.xml" was assigned a custom application theme. -->
 	<style name="Theme.AppDerived" parent="Theme.Titanium.App"/>
