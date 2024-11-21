@@ -147,9 +147,11 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		Intent mainIntent = Intent.makeMainActivity(getComponentName());
 		mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		mainIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+		mainIntent.setPackage(getPackageName());
 
 		// Fetch the intent this activity was launched with.
 		Intent newIntent = getIntent();
+		newIntent.setPackage(getPackageName());
 
 		// Determine if a Titanium root activity already exists.
 		// Only 1 root activity is allowed at a time to host the one and only Titanium JavaScript runtime.
