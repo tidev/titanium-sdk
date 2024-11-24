@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
@@ -99,7 +100,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<>();
@@ -738,11 +738,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return proxy;
 	}
 
-	public boolean isAnalyticsEnabled()
-	{
-		return false;
-	}
-
 	/**
 	 * Determines if Titanium's JavaScript runtime should run on the main UI thread or not
 	 * based on the "tiapp.xml" property "run-on-main-thread".
@@ -753,26 +748,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean runOnMainThread()
 	{
 		return true;
-	}
-
-	public void setFilterAnalyticsEvents(String[] events)
-	{
-		filteredAnalyticsEvents = events;
-	}
-
-	public boolean isAnalyticsFiltered(String eventName)
-	{
-		if (filteredAnalyticsEvents == null) {
-			return false;
-		}
-
-		for (int i = 0; i < filteredAnalyticsEvents.length; ++i) {
-			String currentName = filteredAnalyticsEvents[i];
-			if (eventName.equals(currentName)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -987,7 +962,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		};
 
-		registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+			int receiverFlags = Context.RECEIVER_EXPORTED;
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED), receiverFlags);
+		} else {
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		}
 	}
 
 	private void stopLocaleMonitor()
