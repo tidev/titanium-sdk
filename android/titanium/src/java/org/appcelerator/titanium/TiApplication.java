@@ -45,6 +45,7 @@ import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
 import ti.modules.titanium.TitaniumModule;
+import ti.modules.titanium.ui.TabGroupProxy;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -1011,9 +1012,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		 * emulates the iOS Tab.popToRootWindow() by closing all windows above a TabGroup.
 		 */
 		boolean isTabGroup = (activityStack.get(1).get() instanceof TiActivity)
-			&& ((TiActivity) activityStack.get(1).get())
-			.getWindowProxy().getApiName().equals("Ti.UI.TabGroup");
-
+			&& ((TiActivity) activityStack.get(1).get()).getWindowProxy() instanceof TabGroupProxy;
 		// no TabGroup - don't do anything
 		if (!isTabGroup) {
 			return;
