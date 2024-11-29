@@ -5907,7 +5907,7 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 				}
 			}
 		
-			if (filename == 'DefaultIcon-Dark.png' || filename == 'DefaultIcon-Tinted.png') {
+			if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
 				this.logger.warn(__('%s contains an alpha channel and will NOT BE flattened against a white background', info.src.replace(this.projectDir + '/', '')));
 				flatten = false;
 			} else {
