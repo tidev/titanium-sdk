@@ -5809,8 +5809,8 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 		'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 		'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
 		'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
-		'-Dark':   { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
-		'-Tinted':   { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
+		'-Dark':        { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
+		'-Tinted':      { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
 		'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
 	};
 	// Add macOS icons if target is macOS
