@@ -5899,7 +5899,7 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 		let flatten = false;
 		if (pngInfo.alpha) {
 			if (defaultIcon && !defaultIconHasAlpha) {
-				if (filename == 'DefaultIcon-Dark.png' || filename == 'DefaultIcon-Tinted.png') {
+				if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
 					// Do nothing
 				} else {
 					this.logger.warn(__('Skipping %s because it has an alpha channel and generating one from %s', info.src.replace(this.projectDir + '/', ''), defaultIcon.replace(this.projectDir + '/', '')));
