@@ -685,6 +685,13 @@ public class VideoPlayerProxy extends TiViewProxy implements TiLifecycle.OnLifec
 		firePlaybackState(MediaModule.VIDEO_PLAYBACK_STATE_SEEKING_BACKWARD);
 	}
 
+	public void onBuffer(int value)
+	{
+		KrollDict kd = new KrollDict();
+		kd.put("percentage", value);
+		fireEvent("buffer", kd);
+	}
+
 	private String getActionName(int action)
 	{
 		switch (action) {
