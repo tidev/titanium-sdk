@@ -33,7 +33,7 @@ public class CalendarUtils
 
 	public static ContentValues createContentValues(CalendarProxy calendar, KrollDict data, EventProxy event)
 	{
-		if (!data.containsKey("title")) {
+		if (!data.containsKey(TiC.PROPERTY_TITLE)) {
 			return null;
 		}
 
@@ -41,8 +41,8 @@ public class CalendarUtils
 		contentValues.put("hasAlarm", 1);
 		contentValues.put("hasExtendedProperties", 1);
 
-		event.title = TiConvert.toString(data, "title");
-		contentValues.put("title", event.title);
+		event.title = TiConvert.toString(data, TiC.PROPERTY_TITLE);
+		contentValues.put(TiC.PROPERTY_TITLE, event.title);
 		contentValues.put("calendar_id", calendar.getId());
 		contentValues.put(CalendarContract.Events.EVENT_TIMEZONE, new Date().toString());
 
@@ -50,22 +50,26 @@ public class CalendarUtils
 			event.location = TiConvert.toString(data, TiC.PROPERTY_LOCATION);
 			contentValues.put(CalendarModule.EVENT_LOCATION, event.location);
 		}
-		if (data.containsKey("description")) {
-			event.description = TiConvert.toString(data, "description");
-			contentValues.put("description", event.description);
+
+		if (data.containsKey(TiC.PROPERTY_DESCRIPTION)) {
+			event.description = TiConvert.toString(data, TiC.PROPERTY_DESCRIPTION);
+			contentValues.put(TiC.PROPERTY_DESCRIPTION, event.description);
 		}
+
 		if (data.containsKey("begin")) {
 			event.begin = TiConvert.toDate(data, "begin");
 			if (event.begin != null) {
 				contentValues.put("dtstart", event.begin.getTime());
 			}
 		}
-		if (data.containsKey("end")) {
-			event.end = TiConvert.toDate(data, "end");
+
+		if (data.containsKey(TiC.PROPERTY_END)) {
+			event.end = TiConvert.toDate(data, TiC.PROPERTY_END);
 			if (event.end != null) {
 				contentValues.put("dtend", event.end.getTime());
 			}
 		}
+
 		if (data.containsKey("allDay")) {
 			event.allDay = TiConvert.toBoolean(data, "allDay");
 			contentValues.put("allDay", event.allDay ? 1 : 0);
