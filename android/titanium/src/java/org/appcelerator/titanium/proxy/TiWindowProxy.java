@@ -568,9 +568,6 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// We're opening child activity from Titanium root activity. Have it exit out of app by default.
 			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
-
-			// Set default value as stated in docs on first window also if not already set above.
-			setProperty(TiC.PROPERTY_EXIT_ON_CLOSE, true);
 		}
 
 		// Set the theme property
