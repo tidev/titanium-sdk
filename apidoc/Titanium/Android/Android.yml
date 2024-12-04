@@ -2566,6 +2566,12 @@ properties:
     permission: read-only
     since: "8.0.0"
 
+  - name: sdkVersion
+    summary: Android SDK version number (e.g. returns 35 for Android 15).
+    type: Number
+    permission: read-only
+    since: "12.7.0"
+
 ---
 name: ServiceIntentOptions
 summary: Options passed to <Titanium.Android.createServiceIntent>.
