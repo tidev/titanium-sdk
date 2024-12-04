@@ -249,7 +249,7 @@ public class CalendarProxy extends KrollProxy
 			// Necessary to keep track of non-null items later.
 			if (contentValues == null) {
 				eventProxies.add(null);
-				Log.e(TAG, "Title was not created, no title found for event");
+				Log.e(TAG, "Event was not created, no title found for event");
 				continue;
 			}
 
