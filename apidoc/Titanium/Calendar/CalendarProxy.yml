@@ -22,13 +22,13 @@ methods:
     description: |
         Use this method to create bulk events for faster performance.
         Success or failed results are returned at same positions as passed in the parameters list.
-        For failed events, it will be *null*, otherwise Titanium.Calendar.Event.
+        For failed events, it will be `null`, otherwise Titanium.Calendar.Event for successful events.
     returns:
-        type: Array<Titanium.Calendar.Event | null>
+        type: Array<Titanium.Calendar.Event>
     parameters:
       - name: propertiesArray
         summary: Array of the event properties
-        type: Array<Dictionary<Titanium.Calendar.Event>
+        type: Array<Dictionary<Titanium.Calendar.Event>>
     platforms: [android]
     since: {android: "12.6.0"}
 
@@ -68,7 +68,6 @@ methods:
         If a specified identifier event does not exist, it will not be treated as a count.
         so count range can be in `0 <= count <= ids.length`.
     returns:
-        name: count
         type: Number
         summary: Count of successfully deleted events.
     parameters:
