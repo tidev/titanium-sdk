@@ -306,7 +306,7 @@ public class CalendarProxy extends KrollProxy
 
 		// Check for permissions.
 		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-		if (!CalendarProxy.hasCalendarPermissions()) {
+		if (!hasCalendarPermissions()) {
 			Log.e(TAG, "Calendar permissions are missing.");
 			return deletedCount;
 		}
