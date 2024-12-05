@@ -100,7 +100,7 @@ jobs:
           node-version: '20.x'
 
   package:
-    runs-on: macos-12
+    runs-on: macos-13
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
