@@ -40,8 +40,8 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
+import org.appcelerator.titanium.util.APSAnalytics;
+import org.appcelerator.titanium.util.APSAnalyticsMeta;
 
 import java.io.BufferedReader;
 import java.io.File;
