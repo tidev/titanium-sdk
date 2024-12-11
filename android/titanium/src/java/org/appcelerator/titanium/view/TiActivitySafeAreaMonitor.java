@@ -7,13 +7,18 @@
 
 package org.appcelerator.titanium.view;
 
+import android.graphics.Insets;
 import android.graphics.Rect;
 import android.os.Build;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
+
+import org.appcelerator.titanium.TiApplication;
+
 import java.util.ArrayList;
 
 /** Tracks safe-area inset changes for a given activity. */
@@ -27,6 +32,7 @@ public class TiActivitySafeAreaMonitor
 	 */
 	public interface OnChangedListener {
 		void onChanged(TiActivitySafeAreaMonitor monitor);
+		void onKeyboardChanged(boolean keyboardVisible, int width, int height, Insets keyboardSize);
 	}
 
 	/** The activity to be monitored. */
@@ -68,11 +74,13 @@ public class TiActivitySafeAreaMonitor
 	/** Region between the screen insets in pixels, relative to the root decor view. */
 	private Rect safeArea;
 
+	private TiApplication tiApp;
+
 	/**
 	 * Creates an object used to track safe-area region changes for the given activity.
 	 * @param activity The activity to be monitored. Cannot be null.
 	 */
-	public TiActivitySafeAreaMonitor(AppCompatActivity activity)
+	public TiActivitySafeAreaMonitor(AppCompatActivity activity, TiApplication app)
 	{
 		// Validate.
 		if (activity == null) {
@@ -80,6 +88,7 @@ public class TiActivitySafeAreaMonitor
 		}
 
 		// Initialize member variables.
+		this.tiApp = app;
 		this.activity = activity;
 		this.isActionBarAddedAsInset = true;
 		this.insetsProviderCollection = new ArrayList<>(8);
@@ -105,6 +114,17 @@ public class TiActivitySafeAreaMonitor
 			@Override
 			public WindowInsets onApplyWindowInsets(View view, WindowInsets insets)
 			{
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+					&& tiApp != null
+					&& tiApp.hasListener("keyboardframechanged")
+				) {
+					boolean keyboardVisible = insets.isVisible(WindowInsets.Type.ime());
+					Insets keyboardSize = insets.getInsets(WindowInsets.Type.ime());
+					if (changeListener != null && view != null) {
+						changeListener.onKeyboardChanged(keyboardVisible, view.getWidth(),
+							view.getHeight(), keyboardSize);
+					}
+				}
 				// Validate.
 				if (view == null) {
 					return insets;
