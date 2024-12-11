@@ -364,6 +364,9 @@ public class AndroidModule extends KrollModule
 	public static final int FLAG_UPDATE_CURRENT = PendingIntent.FLAG_UPDATE_CURRENT;
 
 	@Kroll.constant
+	public static final int STATUS_BAR_LIGHT = 8192;
+
+	@Kroll.constant
 	public static final int RESULT_OK = Activity.RESULT_OK;
 	@Kroll.constant
 	public static final int RESULT_CANCELED = Activity.RESULT_CANCELED;
