@@ -18,11 +18,11 @@ methods:
     platforms: [android, iphone, ipad, macos]
 
   - name: createEvents
-    summary: Create multiple events at once in this Calendar.
+    summary: Creates multiple events at once in this calendar.
     description: |
-        Use this method to create bulk events for faster performance.
-        Success or failed results are returned at same positions as passed in the parameters list.
-        For failed events, it will be `null`, otherwise Titanium.Calendar.Event for successful events.
+        Use this method to bulk-create events for faster performance.
+        Successful or failed results are returned at the same position as passed in the parameters list.
+        For failed events, it will return `null` and <Titanium.Calendar.Event> for successful events.
     returns:
         type: Array<Titanium.Calendar.Event>
     parameters:
@@ -43,9 +43,9 @@ methods:
     platforms: [android, iphone, ipad, macos]
 
   - name: getEventsById
-    summary: Get multiple events with their specified identifier.
+    summary: Gets multiple events with their specified identifier(s).
     description: |
-        Use this method to fetch bulk events for faster performance.
+        Use this method to bulk-fetch events for faster performance.
         Only successful events are returned, so the identifier of events
         should be used to compare which events were not fetched successfully.
     returns:
@@ -53,20 +53,20 @@ methods:
     parameters:
       - name: ids
         summary: Array of identifiers of events.
-        type: [Array<Number>,Array<String>]
+        type: [Array<Number>, Array<String>]
     platforms: [android]
     since: {android: "12.6.0"}
 
   - name: deleteEvents
-    summary: Delete multiple events with their specified identifier.
+    summary: Deletes multiple events with their specified identifier(s).
     description: |
-        Use this method to delete bulk events for faster performance.
-        This method only returns the count of successfully deleted events only.
+        Use this method to bulk-delete events for faster performance.
+        This method only returns the count of successfully deleted events.
         If it is important for apps to know whether the event was deleted or not,
-        then either [event's remove](Titanium.Calendar.Event.remove) method can be used, or 
-        a single identifier can be passed in array of this method argument.
-        If a specified identifier event does not exist, it will not be treated as a count.
-        so count range can be in `0 <= count <= ids.length`.
+        either use the [remove()](Titanium.Calendar.Event.remove) method, or 
+        a single identifier that is passed as an array to this method.
+        If a specified identifier event does not exist, it will not be treated as a count,
+        so the count range can be in `0 <= count <= ids.length`.
     returns:
         type: Number
         summary: Count of successfully deleted events.
