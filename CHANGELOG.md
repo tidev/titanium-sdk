@@ -1,4 +1,4 @@
-# [12.6.0](https://github.com/tidev/titanium_mobile/compare/12_5_X...12.6.0) (2024-11-29)
+# [12.6.0](https://github.com/tidev/titanium_mobile/compare/12_5_X...12.6.0) (2024-12-12)
 
 ## About this release
 
@@ -6,7 +6,11 @@ Titanium SDK 12.6.0 is a minor release of the SDK, adding new features and addre
 
 ## Community Credits
 
+* Prashant Saini
+  * added new methods in Ti.Calendar.Calendar module for bulk operations ([25fb9fd](https://github.com/tidev/titanium_mobile/commit/25fb9fd00a1976f3fd2aada0aa11ecac16e5c832))
+
 * Michael Gangolf
+  * set default exitOnClose property to true ([929aeea](https://github.com/tidev/titanium_mobile/commit/929aeea5127e69462cde5bf3ce4383594838d3a3))
   * update node-titanium-sdk ([5c25ec1](https://github.com/tidev/titanium_mobile/commit/5c25ec197b929c341b1c51a0429c87454ebb9c75))
   * optimize cameraX rotation after camera is active ([69b645f](https://github.com/tidev/titanium_mobile/commit/69b645f185d860b4371ae5c912fd2b36e55bbfda))
   * tableView row parent ([6fc9dcb](https://github.com/tidev/titanium_mobile/commit/6fc9dcbb40d0c1c739af5d9a2b5fe2088f7398fd))
@@ -23,10 +27,13 @@ Titanium SDK 12.6.0 is a minor release of the SDK, adding new features and addre
   * add responseDictionary to HTTPClient documentation ([d98f6a6](https://github.com/tidev/titanium_mobile/commit/d98f6a6fbf5d6406ceb20492ba89410400b6a95c))
 
 * Hans Knöchel
+  * add 12.6.0 changelog ([4fcd806](https://github.com/tidev/titanium_mobile/commit/4fcd806bc23fc37b66962ed046b60c040cc4f796))
+  * fix line ([2e85703](https://github.com/tidev/titanium_mobile/commit/2e857038e3f0ad620bf3f3b0bfd23bab2ec5100d))
   * update hyperloop to 7.0.9 to fix dex issues ([829d4ab](https://github.com/tidev/titanium_mobile/commit/829d4ab2b481e5cb4e5ee399ab8cad419267c21d))
   * update ti.facebook to latest ([5aec767](https://github.com/tidev/titanium_mobile/commit/5aec767eb550e95a2ae86395e6bdfdb661f5e661))
   * update hyperloop to 7.0.8 to support SDK 12.6.0+ ([c5f2132](https://github.com/tidev/titanium_mobile/commit/c5f2132e87d2eca048e2c866ed9e8f2457d7994a))
   * update hyperloop to 7.0.7 ([d084485](https://github.com/tidev/titanium_mobile/commit/d084485ed0bd0c0bfcc84154ad543be4ccdd59cf))
+  * bump master to 12.6.0 ([5b274a7](https://github.com/tidev/titanium_mobile/commit/5b274a769b10fc3f25d2c746d6ec24aec6b5e014))
 
 * dlewis23
   * iOS 18 dark mode icons (#14138) ([8f201d9](https://github.com/tidev/titanium_mobile/commit/8f201d94bd13dc3a7c67ce850d11c828d2ca12e7))
@@ -54,7 +61,12 @@ Titanium SDK 12.6.0 is a minor release of the SDK, adding new features and addre
 * ios click speed ([6cc8830](https://github.com/tidev/titanium_mobile/commit/6cc8830f874474a176cc181390e4d3c18f7b8b38))
 * optimize cameraX rotation after camera is active ([69b645f](https://github.com/tidev/titanium_mobile/commit/69b645f185d860b4371ae5c912fd2b36e55bbfda))
 * override user interface style ([5bebfdb](https://github.com/tidev/titanium_mobile/commit/5bebfdb97f59e3cb76a7eb82d6d940762563b6ab))
+* set default exitOnClose property to true ([929aeea](https://github.com/tidev/titanium_mobile/commit/929aeea5127e69462cde5bf3ce4383594838d3a3))
 * tableView row parent ([6fc9dcb](https://github.com/tidev/titanium_mobile/commit/6fc9dcbb40d0c1c739af5d9a2b5fe2088f7398fd))
+
+### Multiple platforms
+
+* handle x/y position for touch in dragstart/dragend events on iOS ([62e9d4a](https://github.com/tidev/titanium_mobile/commit/62e9d4abfdaf893b854465b8d0766fa662ca6f35))
 
 ## Features
 
@@ -68,6 +80,7 @@ Titanium SDK 12.6.0 is a minor release of the SDK, adding new features and addre
 ### Android platform
 
 * add x/y to ScrollView drag events ([70073c4](https://github.com/tidev/titanium_mobile/commit/70073c425c72d7e3a62ed2bb749c896b0cff832b))
+* added new methods in Ti.Calendar.Calendar module for bulk operations ([25fb9fd](https://github.com/tidev/titanium_mobile/commit/25fb9fd00a1976f3fd2aada0aa11ecac16e5c832))
 * be able to add plugins to build.gradle ([e1212e9](https://github.com/tidev/titanium_mobile/commit/e1212e9fccd79f5c302a8380157288df356081da))
 * enable gradle config caching ([6f0d755](https://github.com/tidev/titanium_mobile/commit/6f0d755e05a01d5abbc66d5610af5f6fdfdceaf8))
 * webview content will fill up the whole Ti.UI.WebView by default ([c817069](https://github.com/tidev/titanium_mobile/commit/c817069cbfc3de352e7fa0d7b93dea45294a7c6e))
@@ -75,8 +88,6 @@ Titanium SDK 12.6.0 is a minor release of the SDK, adding new features and addre
 ### iOS platform
 
 * add direction to ListView scrolling ([81d5d1e](https://github.com/tidev/titanium_mobile/commit/81d5d1e79b13f6677041256e7416f72662c2f2dc))
-* handle x/y position for touch in dragstart/dragend events on iOS ([62e9d4a](https://github.com/tidev/titanium_mobile/commit/62e9d4abfdaf893b854465b8d0766fa662ca6f35))
-* iOS 18 dark mode icons (#14138) ([8f201d9](https://github.com/tidev/titanium_mobile/commit/8f201d94bd13dc3a7c67ce850d11c828d2ca12e7))
 
 ## SDK Module Versions
 
