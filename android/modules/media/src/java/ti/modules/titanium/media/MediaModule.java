@@ -1131,18 +1131,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		Activity activity = TiApplication.getInstance().getCurrentActivity();
 		TiActivitySupport activitySupport = (TiActivitySupport) activity;
 
-		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
-		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
-
-		if (options.containsKeyAndNotNull(TiC.PROPERTY_MAX_IMAGES)
-			&& options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-			// set max image count
-			galleryIntent = new TiIntentWrapper(new Intent(MediaStore.ACTION_PICK_IMAGES));
-			galleryIntent.getIntent()
-				.putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, options.getInt(TiC.PROPERTY_MAX_IMAGES));
-		}
-
 		boolean isSelectingPhoto = false;
 		boolean isSelectingVideo = false;
 		if (options.containsKey(TiC.PROPERTY_MEDIA_TYPES)) {
@@ -1167,19 +1155,12 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			isSelectingPhoto = true;
 		}
 		if (isSelectingPhoto && isSelectingVideo) {
-			galleryIntent.getIntent().setType("*/*");
-			galleryIntent.getIntent().putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "image/*", "video/*" });
 			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		} else if (isSelectingVideo) {
-			galleryIntent.getIntent().setType("video/*");
 			MediaModule.mediaType = MEDIA_TYPE_VIDEO;
 		} else {
-			galleryIntent.getIntent().setType("image/*");
 			MediaModule.mediaType = MEDIA_TYPE_PHOTO;
 		}
-
-		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
-		galleryIntent.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
 
 		final int PICK_IMAGE_SINGLE = activitySupport.getUniqueResultCode();
 		final int PICK_IMAGE_MULTIPLE = activitySupport.getUniqueResultCode();
@@ -1187,7 +1168,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		if (options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)) {
 			allowMultiple = TiConvert.toBoolean(options.get(TiC.PROPERTY_ALLOW_MULTIPLE));
-			galleryIntent.getIntent().putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
 		}
 
 		pathOnly = false;
@@ -1204,33 +1184,36 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (isSelectingPhoto && isSelectingVideo) {
 			// photo and video
 			if (allowMultiple) {
-				((TiBaseActivity) activity).pickMultipleMediaResult.launch(new PickVisualMediaRequest.Builder()
+				((TiBaseActivity) activity).registerMultipleMediaPicker(options.getInt(TiC.PROPERTY_MAX_IMAGES))
+					.launch(new PickVisualMediaRequest.Builder()
 					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
 					.build());
 			} else {
-				((TiBaseActivity) activity).pickMediaResult.launch(new PickVisualMediaRequest.Builder()
+				((TiBaseActivity) activity).registerMediaPicker().launch(new PickVisualMediaRequest.Builder()
 					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
 					.build());
 			}
 		} else if (isSelectingPhoto) {
 			// photo
 			if (allowMultiple) {
-				((TiBaseActivity) activity).pickMultipleMediaResult.launch(new PickVisualMediaRequest.Builder()
+				((TiBaseActivity) activity).registerMultipleMediaPicker(options.getInt(TiC.PROPERTY_MAX_IMAGES))
+					.launch(new PickVisualMediaRequest.Builder()
 					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
 					.build());
 			} else {
-				((TiBaseActivity) activity).pickMediaResult.launch(new PickVisualMediaRequest.Builder()
+				((TiBaseActivity) activity).registerMediaPicker().launch(new PickVisualMediaRequest.Builder()
 					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
 					.build());
 			}
 		} else {
 			// video
 			if (allowMultiple) {
-				((TiBaseActivity) activity).pickMultipleMediaResult.launch(new PickVisualMediaRequest.Builder()
+				((TiBaseActivity) activity).registerMultipleMediaPicker(options.getInt(TiC.PROPERTY_MAX_IMAGES))
+					.launch(new PickVisualMediaRequest.Builder()
 					.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE)
 					.build());
 			} else {
-				((TiBaseActivity) activity).pickMediaResult.launch(new PickVisualMediaRequest.Builder()
+				((TiBaseActivity) activity).registerMediaPicker().launch(new PickVisualMediaRequest.Builder()
 					.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE)
 					.build());
 			}
