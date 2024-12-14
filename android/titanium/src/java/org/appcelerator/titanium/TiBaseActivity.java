@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,6 +49,9 @@ import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
@@ -68,6 +72,7 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -138,6 +143,39 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public static boolean canFinishRoot = true;
 
 	private boolean overridenLayout;
+
+	public ActivityResultLauncher<PickVisualMediaRequest> registerMediaPicker()
+	{
+		return registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+			Intent intent = new Intent();
+			intent.setAction("image");
+			intent.putExtra("uri", uri);
+			LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
+		});
+	}
+
+	public ActivityResultLauncher<PickVisualMediaRequest> registerMultipleMediaPicker(int count)
+	{
+		ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaResult;
+		if (count > 0) {
+			pickMultipleMediaResult
+				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(count), uris -> {
+					Intent intent = new Intent();
+					intent.setAction("image");
+					intent.putExtra("uris", (Serializable) uris);
+					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
+				});
+		} else {
+			pickMultipleMediaResult
+				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
+					Intent intent = new Intent();
+					intent.setAction("image");
+					intent.putExtra("uris", (Serializable) uris);
+					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
+				});
+		}
+		return pickMultipleMediaResult;
+	}
 
 	public static class DialogWrapper
 	{
