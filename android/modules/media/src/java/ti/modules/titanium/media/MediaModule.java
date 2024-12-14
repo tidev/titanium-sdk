@@ -253,6 +253,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	private static boolean pathOnly = false;
 	ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 	private final IntentFilter mIntentFilter;
+	LocalBroadcastReceiver localReceiver;
 
 	KrollFunction fSuccessCallback;
 	KrollFunction fCancelCallback;
@@ -1196,8 +1197,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		final int code = allowMultiple ? PICK_IMAGE_MULTIPLE : PICK_IMAGE_SINGLE;
 
+		localReceiver = new LocalBroadcastReceiver();
 		LocalBroadcastManager.getInstance(TiApplication.getAppRootOrCurrentActivity())
-			.registerReceiver(new LocalBroadcastReceiver(), mIntentFilter);
+			.registerReceiver(localReceiver, mIntentFilter);
 
 		if (isSelectingPhoto && isSelectingVideo) {
 			// photo and video
@@ -1723,18 +1725,22 @@ public class MediaModule extends KrollModule implements Handler.Callback
 						selectedFiles.add(dictionary);
 					}
 
+					// Copy each selected file to either an "images" or "videos" collection.
 					ArrayList<KrollDict> selectedImages = new ArrayList<>();
+					ArrayList<KrollDict> selectedVideos = new ArrayList<>();
 					for (KrollDict dictionary : selectedFiles) {
 						String mediaType = dictionary.getString("mediaType");
 						if (mediaType != null) {
 							if (mediaType.equals(MEDIA_TYPE_PHOTO)) {
 								selectedImages.add(dictionary);
+							} else if (mediaType.equals(MEDIA_TYPE_VIDEO)) {
+								selectedVideos.add(dictionary);
 							}
 						}
 					}
 
 					// Invoke a callback with the selection result.
-					if (selectedImages.isEmpty()) {
+					if (selectedImages.isEmpty() && selectedVideos.isEmpty()) {
 						if (selectedFiles.isEmpty()) {
 							// Invoke the "cancel" callback if no files were selected.
 							if (fCancelCallback != null) {
@@ -1757,10 +1763,14 @@ public class MediaModule extends KrollModule implements Handler.Callback
 							KrollDict d = new KrollDict();
 							d.putCodeAndMessage(NO_ERROR, null);
 							d.put("images", selectedImages.toArray(new KrollDict[0]));
+							d.put("videos", selectedVideos.toArray(new KrollDict[0]));
 							fSuccessCallback.callAsync(getKrollObject(), d);
 						}
 					}
 				}
+
+				LocalBroadcastManager.getInstance(TiApplication.getAppRootOrCurrentActivity())
+					.unregisterReceiver(localReceiver);
 			}
 		}
 
