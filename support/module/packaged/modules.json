@@ -5,8 +5,8 @@
 			"integrity": "sha512-F3t4bOjAfqBuxehOYw+Z4YYP3MT9zeIMLkmigQ/vKU8R7WlwNC/hkmsVG9o+xRsy7eykRPN0QcqtBvgDszPHQg=="
 		},
 		"facebook": {
-			"url": "https://github.com/tidev/ti.facebook/releases/download/ios-14.0.0/facebook-iphone-14.0.0.zip",
-			"integrity": "sha512-8A5+gXdil0bsqSXZHyuvc6NEAJUEdBFq9EZRA2f8Jot5MayvzT2ntmoec8ZuAFJ8gtR/Ti45U5IvfEtYrWmeAQ=="
+			"url": "https://github.com/tidev/ti.facebook/releases/download/ios-15.0.0/facebook-iphone-15.0.0.zip",
+			"integrity": "sha512-6rTYS2lhrM+PHgQuPjzaEax4HySAwv/z/K2UkdSa5kRpu46soSJAPqslCfKoXVQOVxKF2aXVt8PKYZ9r1OKDMg=="
 		},
 		"ti.coremotion": {
 			"url": "https://github.com/tidev/ti.coremotion/releases/download/v4.0.1/ti.coremotion-iphone-4.0.1.zip",
@@ -31,8 +31,8 @@
 	},
 	"android": {
 		"facebook": {
-			"url": "https://github.com/tidev/ti.facebook/releases/download/android-12.1.0/facebook-android-12.1.0.zip",
-			"integrity": "sha512-SJnTl1ZfbsoTUV6lXf5u2AnmYDzK3VVEw1o0KyDRJAz1P5F3dSPvRZOwXpXQYsxQ62nG8XNMz9XsAsXhyzp7Lg=="
+			"url": "https://github.com/tidev/ti.facebook/releases/download/android-13.0.0/facebook-android-13.0.0.zip",
+			"integrity": "sha512-iSSPgfg5AkmeFCHtecOIqKPVXde57hfAs7V08vOCqv4dr6gPYRCVjhEtzJw8kucPBo4kUcH7IS3eDIPaWKn20g=="
 		},
 		"ti.map": {
 			"url": "https://github.com/tidev/ti.map/releases/download/v5.6.1-android/ti.map-android-5.6.1.zip",
@@ -54,8 +54,8 @@
 	"commonjs": {},
 	"hyperloop": {
 		"hyperloop": {
-			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.6/hyperloop-7.0.6.zip",
-			"integrity": "sha512-ZHmm7GINiCyrjvNMn232G1Tkby6PhwsmSxPZlPNDWH4jRn6iCpjIqX1Ha12MBedma01a4hlvARLaiUQ9j3SPow=="
+			"url": "https://github.com/tidev/hyperloop.next/releases/download/v7.0.9/hyperloop-7.0.9.zip",
+			"integrity": "sha512-IhFR4zLLEGAuLz1rgkQprjL5nDuIUHLh0lcAXL+NJPJ3Roy9JsrCuH7JtrKrXelpyp1H6yXQlC+4Wqh1kQLhRg=="
 		}
 	}
 }
