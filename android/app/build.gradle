@@ -86,6 +86,7 @@ dependencies {
 //		exclude group: 'com.google.android.gms'
 	}
 
+  implementation "androidx.activity:activity:1.8.0"
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 }
