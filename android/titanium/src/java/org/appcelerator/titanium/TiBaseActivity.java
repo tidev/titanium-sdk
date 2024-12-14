@@ -68,7 +68,6 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -133,7 +132,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
 	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<>();
-
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
@@ -671,7 +669,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
-
 		this.inForeground = true;
 		this.launchIntent = getIntent();
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
@@ -1239,9 +1236,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		final int NIGHT_MASK = Configuration.UI_MODE_NIGHT_MASK;
 		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
 			this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
-			ActivityCompat.recreate(this);
+			this.updateActivity();
 		}
 		this.lastUIModeFlags = newConfig.uiMode;
+	}
+
+	private void updateActivity()
+	{
+		/**
+		 * Set root activity to null to avoid duplication which causes the window
+		 * to lose all it's content when the activity is recreated.
+		 */
+		getTiApp().setRootActivity(null);
+		this.recreate();
 	}
 
 	@Override
@@ -1256,7 +1263,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		int mode = AppCompatDelegate.getDefaultNightMode();
 		if (this.inForeground && (mode != this.lastNightMode)) {
 			this.lastNightMode = mode;
-			ActivityCompat.recreate(this);
+			this.updateActivity();
 		}
 	}
 
