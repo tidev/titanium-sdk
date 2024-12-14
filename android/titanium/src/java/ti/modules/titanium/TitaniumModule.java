@@ -263,7 +263,7 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (Exception ex) {
-			Log.e(TAG, "Error occured while formatting string", ex);
+			Log.e(TAG, "Error occurred while formatting string", ex);
 			return null;
 		}
 	}

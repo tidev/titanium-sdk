@@ -30,7 +30,7 @@
 
 + (BOOL)checkNamespacePrefix:(NSString *)pName
 {
-  //Can be nil or empty
+  // Can be nil or empty
   if ([pName length] == 0) {
     return YES;
   }

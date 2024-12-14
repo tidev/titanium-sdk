@@ -29,11 +29,11 @@ import androidx.annotation.NonNull;
 import com.google.android.material.color.MaterialColors;
 import java.lang.ref.WeakReference;
 import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import ti.modules.titanium.media.MediaModule;
+import com.google.android.material.R;
 
 public class TiImageView extends ViewGroup
 {

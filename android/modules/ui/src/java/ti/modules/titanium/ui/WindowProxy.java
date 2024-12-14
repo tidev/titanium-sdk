@@ -7,8 +7,37 @@
 
 package ti.modules.titanium.ui;
 
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.os.Message;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.transition.ChangeBounds;
+import android.transition.ChangeClipBounds;
+import android.transition.ChangeImageTransform;
+import android.transition.ChangeTransform;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
@@ -29,54 +58,32 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiUIView;
-import ti.modules.titanium.ui.widget.TiView;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Message;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.transition.ChangeBounds;
-import android.transition.ChangeClipBounds;
-import android.transition.ChangeImageTransform;
-import android.transition.ChangeTransform;
-import android.transition.Explode;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+
+import ti.modules.titanium.ui.widget.TiView;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_MODAL,
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 		TiC.PROPERTY_FLAG_SECURE,
-		TiC.PROPERTY_BAR_COLOR
-})
+		TiC.PROPERTY_BAR_COLOR,
+		TiC.PROPERTY_STATUS_BAR_COLOR
+	})
+
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "WindowProxy";
 	private static final String PROPERTY_POST_WINDOW_CREATED = "postWindowCreated";
 
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static final int MSG_SET_PIXEL_FORMAT = MSG_FIRST_ID + 100;
 	private static final int MSG_SET_TITLE = MSG_FIRST_ID + 101;
-	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-
 	private static int id_toolbar;
+	private int barColor = -1;
 
 	private WeakReference<TiBaseActivity> windowActivity;
 
@@ -151,7 +158,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			topActivity.startActivity(intent);
 			topActivity.overridePendingTransition(0, 0);
 		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-				   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
 			topActivity.startActivity(intent);
 			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
@@ -206,7 +213,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (!animated) {
 			activity.overridePendingTransition(0, 0);
 		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-				   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+			|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
 			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
 			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
 			activity.overridePendingTransition(enterAnimation, exitAnimation);
@@ -314,10 +321,47 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				Log.w(TAG, "Trying to set a barColor on a Window with ActionBar disabled. Property will be ignored.");
 			}
 		}
+
+		if (hasProperty(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+			int colorInt = TiColorHelper.parseColor(
+				TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)), activity);
+			win.setStatusBarColor(colorInt);
+		}
+
+		// Handle titleAttributes property.
+		if (hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+			KrollDict innerAttributes = getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
+			int colorInt = TiColorHelper.parseColor(
+				TiConvert.toString(innerAttributes.getString(TiC.PROPERTY_COLOR)), activity);
+			ActionBar actionBar = activity.getSupportActionBar();
+
+			if (actionBar != null) {
+				changeTitleColor(actionBar, colorInt);
+			} else {
+				Log.w(TAG,
+					"Trying to set a titleAttributes on a Window with ActionBar disabled. Property will be ignored.");
+			}
+		}
 		activity.getActivityProxy().getDecorView().add(this);
 
 		// Need to handle the cached activity proxy properties and url window in the JS side.
 		callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
+	}
+
+	private void changeTitleColor(ActionBar actionBar, int colorInt)
+	{
+		SpannableStringBuilder ssb;
+		if (actionBar.getTitle() instanceof SpannableStringBuilder) {
+			ssb = (SpannableStringBuilder) actionBar.getTitle();
+		} else {
+			String abTitle = TiConvert.toString(actionBar.getTitle());
+			ssb = new SpannableStringBuilder(abTitle);
+		}
+
+		barColor = colorInt;
+		ssb.setSpan(new ForegroundColorSpan(colorInt),
+			0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		actionBar.setTitle(ssb);
 	}
 
 	@Override
@@ -361,7 +405,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		if (hasProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT)) {
 			intent.putExtra(TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
-							TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT), PixelFormat.UNKNOWN));
+				TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_PIXEL_FORMAT), PixelFormat.UNKNOWN));
 		}
 
 		// Set the splitActionBar property
@@ -382,7 +426,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			} else if (TiC.PROPERTY_TITLE.equals(name)) {
 				getMainHandler().obtainMessage(MSG_SET_TITLE, value).sendToTarget();
 			} else if (TiC.PROPERTY_TOP.equals(name) || TiC.PROPERTY_BOTTOM.equals(name)
-					   || TiC.PROPERTY_LEFT.equals(name) || TiC.PROPERTY_RIGHT.equals(name)) {
+				|| TiC.PROPERTY_LEFT.equals(name) || TiC.PROPERTY_RIGHT.equals(name)) {
 				// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
 				return;
 			} else if (TiC.PROPERTY_HIDES_BACK_BUTTON.equals(name)) {
@@ -409,7 +453,38 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		}
+
+		if (name.equals(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				AppCompatActivity activity = windowActivity.get();
+				int colorInt = TiColorHelper.parseColor(TiConvert.toString(value), activity);
+				activity.getWindow().setStatusBarColor(colorInt);
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				// Get a reference to the ActionBar.
+				AppCompatActivity activity = windowActivity.get();
+				ActionBar actionBar = activity.getSupportActionBar();
+				// Check if it is available ( app is using a theme with one or a Toolbar is used as one ).
+				if (actionBar != null) {
+					HashMap innerAttributes = (HashMap) value;
+					changeTitleColor(actionBar,
+						TiConvert.toColor(innerAttributes.get(TiC.PROPERTY_COLOR), activity));
+				} else {
+					// Log a warning if there is no ActionBar available.
+					Log.w(TAG, "There is no ActionBar available for this Window.");
+				}
+			}
+		}
 		super.onPropertyChanged(name, value);
+	}
+
+	@Kroll.getProperty
+	public boolean getSustainedPerformanceMode()
+	{
+		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE), false);
 	}
 
 	@Kroll.setProperty
@@ -420,12 +495,6 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (activity instanceof TiBaseActivity) {
 			((TiBaseActivity) activity).setSustainMode(mode);
 		}
-	}
-
-	@Kroll.getProperty
-	public boolean getSustainedPerformanceMode()
-	{
-		return TiConvert.toBoolean(getProperty(TiC.PROPERTY_SUSTAINED_PERFORMANCE_MODE), false);
 	}
 
 	@Override
@@ -465,7 +534,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				if (activity != null) {
 					Window win = activity.getWindow();
 					if (win != null) {
-						win.setFormat(TiConvert.toInt((Object) (msg.obj), PixelFormat.UNKNOWN));
+						win.setFormat(TiConvert.toInt(msg.obj, PixelFormat.UNKNOWN));
 						win.getDecorView().invalidate();
 					}
 				}
@@ -474,7 +543,23 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			case MSG_SET_TITLE: {
 				Activity activity = getWindowActivity();
 				if (activity != null) {
-					activity.setTitle(TiConvert.toString((Object) (msg.obj), ""));
+					activity.setTitle(TiConvert.toString(msg.obj, ""));
+
+					if (windowActivity != null && windowActivity.get() != null
+						&& windowActivity.get().getSupportActionBar() != null) {
+						ActionBar actionBar = windowActivity.get().getSupportActionBar();
+						if (actionBar.getTitle() instanceof SpannableStringBuilder) {
+							SpannableStringBuilder stringBuilder =
+								new SpannableStringBuilder(TiConvert.toString(msg.obj, ""));
+							if (barColor != -1) {
+								stringBuilder.setSpan(new ForegroundColorSpan(barColor),
+									0, stringBuilder.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+							}
+							actionBar.setTitle(stringBuilder);
+						} else {
+							actionBar.setTitle(TiConvert.toString(msg.obj, ""));
+						}
+					}
 				}
 				return true;
 			}
@@ -512,7 +597,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	/**
 	 * Helper method to apply activity transitions.
-	 * @param win The window holding the activity.
+	 *
+	 * @param win   The window holding the activity.
 	 * @param props The property dictionary.
 	 */
 	private void applyActivityTransitions(Window win, KrollDict props)
@@ -558,8 +644,9 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 	/**
 	 * Creates a transition for the supplied transition type.
+	 *
 	 * @param props The property dictionary.
-	 * @param key The transition type
+	 * @param key   The transition type
 	 * @return A Transition or null if UIModule.TRANSITION_NONE or unknown transition is specified.
 	 */
 	@SuppressLint({ "InlinedApi", "RtlHardcoded" })

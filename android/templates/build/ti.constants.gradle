@@ -6,7 +6,8 @@
  */
 
 project.ext {
-	tiAndroidXAppCompatLibVersion = '1.6.1'
+	tiNdkVersion = '26.2.11394342'
+	tiAndroidXAppCompatLibVersion = '1.4.1'
 	tiAndroidXCoreLibVersion = '1.9.0'
 	tiAndroidXFragmentLibVersion = '1.5.7'
 	tiMaterialLibVersion = '1.6.1'
