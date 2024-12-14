@@ -2338,6 +2338,73 @@
   [self fireRowsSelectedEvent];
 }
 
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [self swipeConfigurationForState:@"leading" withIndexPath:indexPath isDefault:NO];
+}
+
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [self swipeConfigurationForState:@"trailing" withIndexPath:indexPath isDefault:YES];
+}
+
+- (UISwipeActionsConfiguration *)swipeConfigurationForState:(NSString *)state withIndexPath:(NSIndexPath *)indexPath isDefault:(BOOL)isDefault
+{
+  TiUITableViewRowProxy *row = [self rowForIndexPath:indexPath];
+  TiUITableViewSectionProxy *section = [self sectionForIndex:indexPath.section];
+
+  BOOL canEdit = [TiUtils boolValue:[row valueForKey:@"editable"] def:NO];
+
+  if (!canEdit) {
+    return nil;
+  }
+
+  NSArray<NSDictionary *> *editActionProxies = (NSArray *)[row valueForKey:@"editActions"];
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:isDefault ? @"state == nil OR state == %@" : @"state == %@", state];
+  NSArray<NSDictionary *> *editActions = [editActionProxies filteredArrayUsingPredicate:predicate];
+  NSMutableArray<UIContextualAction *> *nativeEditActions = [NSMutableArray arrayWithCapacity:editActions.count];
+
+  if (IS_NULL_OR_NIL(editActions) || editActions.count == 0) {
+    return nil;
+  }
+
+  for (id prop in editActions) {
+    NSString *title = [TiUtils stringValue:@"title" properties:prop];
+    NSString *identifier = [TiUtils stringValue:@"identifier" properties:prop];
+    UIContextualActionStyle style = [TiUtils intValue:@"style" properties:prop def:UIContextualActionStyleNormal];
+    TiColor *color = [TiUtils colorValue:@"color" properties:prop];
+    id image = [prop objectForKey:@"image"];
+
+    UIContextualAction *action = [UIContextualAction contextualActionWithStyle:style
+                                                                         title:title
+                                                                       handler:^(UIContextualAction *_Nonnull action, __kindof UIView *_Nonnull sourceView, void (^_Nonnull completionHandler)(BOOL)) {
+                                                                         completionHandler(YES);
+
+                                                                         [[self proxy] fireEvent:@"editaction"
+                                                                                      withObject:@{
+                                                                                        @"index" : @(indexPath.row),
+                                                                                        @"row" : row,
+                                                                                        @"section" : section,
+                                                                                        @"action" : NULL_IF_NIL(action.title),
+                                                                                        @"identifier" : NULL_IF_NIL(identifier)
+                                                                                      }];
+                                                                       }];
+
+    if (color != nil) {
+      action.backgroundColor = color.color;
+    }
+
+    if (image != nil) {
+      NSURL *url = [TiUtils toURL:image proxy:(TiProxy *)self.proxy];
+      action.image = [[ImageLoader sharedLoader] loadImmediateImage:url];
+    }
+
+    [nativeEditActions addObject:action];
+  }
+
+  return [UISwipeActionsConfiguration configurationWithActions:nativeEditActions];
+}
+
 #pragma mark Collation
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)ourTableView

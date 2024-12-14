@@ -156,10 +156,10 @@ public class TiUIButtonBar extends TiUIView
 
 		// Create a button with given settings and add it to view group.
 		Context context = buttonGroup.getContext();
-		int attributeId = R.attr.materialButtonOutlinedStyle;
+		int attributeId = com.google.android.material.R.attr.materialButtonOutlinedStyle;
 		if (title.isEmpty() && (imageDrawable != null)) {
 			context = new ContextThemeWrapper(context, R.style.Widget_Titanium_OutlinedButton_IconOnly);
-			attributeId = R.attr.materialButtonToggleGroupStyle;
+			attributeId = com.google.android.material.R.attr.materialButtonToggleGroupStyle;
 		}
 		MaterialButton button = new MaterialButton(context, null, attributeId);
 		button.setText(title);

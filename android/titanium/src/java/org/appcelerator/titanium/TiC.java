@@ -142,6 +142,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_TAB = "tab";
 	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
 	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
+	public static final String PROPERTY_THUMB_COLOR = "thumbColor";
+	public static final String PROPERTY_ON_THUMB_COLOR = "onThumbColor";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 	public static final String EVENT_PROPERTY_X = "x";
@@ -303,6 +305,7 @@ public class TiC
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
 	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 	public static final String PROPERTY_BAR_COLOR = "barColor";
+	public static final String PROPERTY_STATUS_BAR_COLOR = "statusBarColor";
 	public static final String PROPERTY_BASE_URL = "baseUrl";
 	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
 	public static final String PROPERTY_BIG_TEXT = "bigText";
@@ -558,6 +561,7 @@ public class TiC
 	public static final String PROPERTY_MAX_AGE = "maxAge";
 	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 	public static final String PROPERTY_MAX_ELEVATION = "maxElevation";
+	public static final String PROPERTY_MAX_IMAGES = "maxImages";
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";
@@ -608,6 +612,7 @@ public class TiC
 	public static final String PROPERTY_ON_RESTART = "onRestart";
 	public static final String PROPERTY_ON_PAUSE = "onPause";
 	public static final String PROPERTY_ON_STOP = "onStop";
+	public static final String PROPERTY_ON_TINT_COLOR = "onTintColor";
 	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 	public static final String PROPERTY_ON_DESTROY = "onDestroy";
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
@@ -637,6 +642,7 @@ public class TiC
 	public static final String PROPERTY_PASSWORD = "password";
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PATH = "path";
+	public static final String PROPERTY_PATH_ONLY = "pathOnly";
 	public static final String PROPERTY_PERSISTENT = "persistent";
 	public static final String PROPERTY_PHONE = "phone";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";

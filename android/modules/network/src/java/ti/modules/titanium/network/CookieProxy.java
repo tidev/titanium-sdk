@@ -7,16 +7,16 @@
 
 package ti.modules.titanium.network;
 
-import java.net.HttpCookie;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
-
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+
+import java.net.HttpCookie;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 @Kroll.proxy(creatableInModule = NetworkModule.class,
 	propertyAccessors = {
@@ -28,14 +28,15 @@ import org.appcelerator.titanium.util.TiConvert;
 		TiC.PROPERTY_SECURE,
 		TiC.PROPERTY_HTTP_ONLY,
 		TiC.PROPERTY_VERSION
-})
+	})
 public class CookieProxy extends KrollProxy
 {
+	public static final SimpleDateFormat systemExpiryDateFormatter =
+		new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'");
 	private static final String TAG = "CookieProxy";
 	private static final TimeZone timezone = TimeZone.getTimeZone("GMT");
 	private static final SimpleDateFormat httpExpiryDateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-	public static final SimpleDateFormat systemExpiryDateFormatter =
-		new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss 'GMT'");
+
 	static
 	{
 		httpExpiryDateFormatter.setTimeZone(timezone);
@@ -53,7 +54,7 @@ public class CookieProxy extends KrollProxy
 	{
 		super();
 		if (cookie instanceof HttpCookie) {
-			httpCookie = (HttpCookie) cookie;
+			httpCookie = cookie;
 			setProperty(TiC.PROPERTY_NAME, httpCookie.getName());
 			setProperty(TiC.PROPERTY_VALUE, httpCookie.getValue());
 			setProperty(TiC.PROPERTY_DOMAIN, httpCookie.getDomain());

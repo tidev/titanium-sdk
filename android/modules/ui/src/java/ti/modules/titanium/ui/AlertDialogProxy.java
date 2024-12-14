@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -14,7 +16,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIDialog;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -29,7 +30,7 @@ import android.app.Activity;
 		TiC.PROPERTY_OK,
 		TiC.PROPERTY_OKID,
 		TiC.PROPERTY_PERSISTENT
-})
+	})
 public class AlertDialogProxy extends TiViewProxy
 {
 	public AlertDialogProxy()
@@ -63,7 +64,8 @@ public class AlertDialogProxy extends TiViewProxy
 		// dialog should occur above the "topmost" activity, so if activity
 		// stack transitions are occurring, try to give them a chance to "settle"
 		// before determining which Activity should be the context for the AlertDialog.
-		TiUIHelper.runUiDelayedIfBlock(new Runnable() {
+		TiUIHelper.runUiDelayedIfBlock(new Runnable()
+		{
 			@Override
 			public void run()
 			{
