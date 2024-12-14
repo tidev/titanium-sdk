@@ -453,7 +453,7 @@ events:
     since: { android: "2.1.0", iphone: "2.1.0", ipad: "2.1.0" }
     properties:
       - name: direction
-        summary: Direction of the swipe, either `left` or `right`.
+        summary: Direction of the swipe, either `left`, `right` or `unknown`.
         type: String
 
       - name: index
