@@ -5809,6 +5809,8 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 		'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 		'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
 		'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
+		'-Dark':        { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
+		'-Tinted':      { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
 		'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
 	};
 	// Add macOS icons if target is macOS
@@ -5897,12 +5899,22 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 		let flatten = false;
 		if (pngInfo.alpha) {
 			if (defaultIcon && !defaultIconHasAlpha) {
-				this.logger.warn(__('Skipping %s because it has an alpha channel and generating one from %s', info.src.replace(this.projectDir + '/', ''), defaultIcon.replace(this.projectDir + '/', '')));
-				return;
+				if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
+					// Do nothing
+				} else {
+					this.logger.warn(__('Skipping %s because it has an alpha channel and generating one from %s', info.src.replace(this.projectDir + '/', ''), defaultIcon.replace(this.projectDir + '/', '')));
+					return;
+				}
 			}
 
-			this.logger.warn(__('%s contains an alpha channel and will be flattened against a white background', info.src.replace(this.projectDir + '/', '')));
-			flatten = true;
+			if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
+				this.logger.warn(__('%s contains an alpha channel and will NOT BE flattened against a white background', info.src.replace(this.projectDir + '/', '')));
+				flatten = false;
+			} else {
+				this.logger.warn(__('%s contains an alpha channel and will be flattened against a white background', info.src.replace(this.projectDir + '/', '')));
+				flatten = true;
+			}
+
 			flattenIcons.push(info);
 		}
 

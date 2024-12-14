@@ -58,7 +58,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 	const manifestModuleAPIVersion = this.manifest.apiversion;
 	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
 	let newVersion = semver.inc(this.manifest.version, 'major');
-	this.tiSdkVersion = cliSDKVersion;
+	this.tiSdkVersion = this.cli.sdk.name;
 
 	// Determine if the "manifest" file's "apiversion" needs updating.
 	let isApiVersionUpdateRequired = false;
@@ -496,7 +496,6 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "gradle.properties" file. Will add network proxy settings if needed.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
-	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
 	gradleProperties.push({
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
