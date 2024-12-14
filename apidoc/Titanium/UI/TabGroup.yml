@@ -26,14 +26,7 @@ description: |
     one to be opened later, but the root of the application must be a heavyweight window to prevent
     it exiting. Tabs cannot be removed from the tab group once added, and tabs cannot be reordered.
 
-    * If you use a BottomNavigation on Android with a Material 3 theme you'll have to create a file
-    `/app/platform/android/res/values/dimens.xml` and add to fix the height of the menu:
-    ```xml
-    <?xml version="1.0" encoding="utf-8"?>
-    <resources>
-      <dimen name="design_bottom_navigation_height">80dp</dimen>
-    </resources>
-    ```
+    * If you use a BottomNavigation on Android with a Material 3 theme you should set `newLayout:true`.
 
     * On iOS, more than one tab group may exist, and may be opened and closed as required.
     Each tab can contain a stack of windows, and the user can switch between them by tapping the
@@ -440,7 +433,7 @@ properties:
     summary: The color of the status bar (top bar) for this window.
     type: [Number]
     platforms: [android]
-    since: {android: "12.6.0"}
+    since: {android: "12.7.0"}
 
   - name: style
     summary: Property defining which style for the TabGroup to be used.
@@ -541,7 +534,7 @@ properties:
         Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the status bar text color to light mode.
     platforms: [android]
     type: Number
-    since: "12.6.0"
+    since: "12.7.0"
     availability: creation
 
   - name: activeTintColor
@@ -643,6 +636,17 @@ properties:
     since: "12.5.0"
     availability: creation
 
+  - name: newLayout
+    summary: |
+        Only used for a BottomNavigation setup. If set to `true` it will use an optimized BottomNavigation
+        setup with fixes for Material 3 layouts and new properties: `indicatorColor` and `iconFamily`.
+        The new BottomNavigation will only load the active Activity and doesn't support `swipeable`.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "12.7.0"
+    availability: creation
+
 examples:
   - title: Alloy XML Markup
     example: |
@@ -726,6 +730,40 @@ examples:
           tabsBackgroundColor: "#F7F7F7",
         });
         tabGroup.open();
+        ```
+
+  - title: BottomNavigation Material3 example
+    example: |
+        Create a BottomNavigation TabGroup with a Material3 theme using the new layout.
+
+        ``` js
+        const win1 = Ti.UI.createWindow();
+        const win2 = Ti.UI.createWindow();
+        const tab1 = Ti.UI.createTab({
+        	window: win1,
+        	title: 'Tab 1',
+        	icon: '/images/appicon.png'
+        });
+        const tab2 = Ti.UI.createTab({
+        	window: win2,
+        	title: 'Tab 2',
+        	icon: '/images/appicon.png'
+        });
+
+        win1.add(Ti.UI.createLabel({text: "Tab 1 - click to set badge"}));
+        win2.add(Ti.UI.createLabel({text: "Tab 2"}));
+        win1.addEventListener("click", function() {
+        	tab1.badge = 20;
+        });
+
+        const bottomNav = Ti.UI.createTabGroup({
+        	tabs: [tab1, tab2],
+        	theme: "Theme.Titanium.Material3.DayNight",
+        	newLayout: true,
+        	style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION
+        });
+
+        bottomNav.open();
         ```
 ---
 name: disableTabOptions
