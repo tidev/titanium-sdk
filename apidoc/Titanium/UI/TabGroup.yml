@@ -26,7 +26,7 @@ description: |
     one to be opened later, but the root of the application must be a heavyweight window to prevent
     it exiting. Tabs cannot be removed from the tab group once added, and tabs cannot be reordered.
 
-    * If you use a BottomNavigation on Android with a Material 3 theme you should set `newLayout:true`.
+    * If you use a BottomNavigation on Android with a Material 3 theme you should set `experimental:true`.
 
     * On iOS, more than one tab group may exist, and may be opened and closed as required.
     Each tab can contain a stack of windows, and the user can switch between them by tapping the
@@ -636,7 +636,7 @@ properties:
     since: "12.5.0"
     availability: creation
 
-  - name: newLayout
+  - name: experimental
     summary: |
         Only used for a BottomNavigation setup. If set to `true` it will use an optimized BottomNavigation
         setup with fixes for Material 3 layouts and new properties: `indicatorColor` and `iconFamily`.
@@ -759,7 +759,7 @@ examples:
         const bottomNav = Ti.UI.createTabGroup({
         	tabs: [tab1, tab2],
         	theme: "Theme.Titanium.Material3.DayNight",
-        	newLayout: true,
+        	experimental: true,
         	style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION
         });
 

@@ -255,13 +255,13 @@ properties:
          otherwise.
 
          #### Android Tab Icons
-         Can be used in combination with `iconFamily` in a BottomNavigation setup with `newLayout:true`.
+         Can be used in combination with `iconFamily` in a BottomNavigation setup with `experimental:true`.
     type: String
 
   - name: iconFamily
     summary: Specifies the font family or specific font to use.
     description: |
-        When using a BottomNavigation setup with `newLayout:true` you can use this property in combination
+        When using a BottomNavigation setup with `experimental:true` you can use this property in combination
         with an `icon` to use an icon-font for the tab icons:
 
         ``` js
