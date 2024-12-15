@@ -59,7 +59,7 @@ properties:
     summary: Offset of the refresh control view.
     type: RefreshControlOffset
     platforms: [android]
-    since: { android: "12.4.0" }
+    since: { android: "12.7.0" }
     availability: creation
 
   - name: backgroundColor
