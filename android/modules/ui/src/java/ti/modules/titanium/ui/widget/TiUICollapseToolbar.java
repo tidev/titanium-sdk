@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
@@ -49,9 +51,10 @@ public class TiUICollapseToolbar extends TiUIView
 	ImageView imageView = null;
 	MaterialToolbar toolbar = null;
 	KrollFunction homeIconFunction = null;
+	KrollFunction menuItemClickFunction = null;
 	boolean homeAsUp = false;
 	TiViewProxy localContentView = null;
-
+	
 	public TiUICollapseToolbar(TiViewProxy proxy)
 	{
 		super(proxy);
@@ -255,6 +258,51 @@ public class TiUICollapseToolbar extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_NAVIGATION_ICON_COLOR)) {
 			setNavigationIconColor(TiConvert.toColor(d.getString(TiC.PROPERTY_NAVIGATION_ICON_COLOR), activity));
+		}
+	}
+	public void addMenuItem(int itemId, String title, boolean showAsAction)
+	{
+		if (toolbar != null) {
+			Menu menu = toolbar.getMenu();
+			MenuItem item = menu.add(Menu.NONE, itemId, Menu.NONE, title);
+			// item.setIcon(iconResId);
+			item.setShowAsAction(showAsAction ? MenuItem.SHOW_AS_ACTION_ALWAYS : MenuItem.SHOW_AS_ACTION_NEVER);
+		}
+	}
+
+	public void removeMenuItem(int itemId)
+	{
+		if (toolbar != null) {
+			Menu menu = toolbar.getMenu();
+			MenuItem item = menu.findItem(itemId);
+			if (item != null) {
+				menu.removeItem(itemId);
+			}
+		}
+	}
+
+	public void clearMenu()
+	{
+		if (toolbar != null) {
+			Menu menu = toolbar.getMenu();
+			menu.clear();
+		}
+	}
+	public void setOnMenuItemClickListener(KrollFunction value)
+	{
+		Log.d(TAG, "inside setOnMenuItemClickListener");
+		this.menuItemClickFunction = value;
+		if (toolbar != null) {
+			toolbar.setOnMenuItemClickListener(item -> {
+				Log.d(TAG, "inside toolbar.setOnMenuItemClickListener");
+
+				if (menuItemClickFunction != null) {
+					KrollDict event = new KrollDict();
+					event.put("menuItemId", item.getItemId());
+					menuItemClickFunction.callAsync(proxy.getKrollObject(), new Object[]{event});
+				}
+				return true;
+			});
 		}
 	}
 }
