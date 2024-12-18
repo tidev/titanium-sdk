@@ -196,6 +196,15 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	public static void removeFromActivityStack(Activity activity)
 	{
+		// check if no windows are left - happens when closing windows quickly with exitOnClose:false
+		if (TiActivityWindows.getWindowCount() == 0) {
+			Activity currentActivity = getAppCurrentActivity();
+			if (currentActivity instanceof TiBaseActivity) {
+				// close app otherwise it won't restore correctly
+				currentActivity.finishAffinity();
+				TiApplication.terminateActivityStack();
+			}
+		}
 		if (activity != null) {
 			activityStack.remove(activity);
 		}
