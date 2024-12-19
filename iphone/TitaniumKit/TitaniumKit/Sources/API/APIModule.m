@@ -40,7 +40,11 @@
     }
     [newArray addObject:obj];
   }];
-  NSLog(@"[%@] %@", [severity uppercaseString], [newArray componentsJoinedByString:@" "]);
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+  // or @"yyyy-MM-dd hh:mm:ss a" if you prefer the time with AM/PM
+
+  NSLog(@"[%@] %@ %@", [severity uppercaseString], [dateFormatter stringFromDate:[NSDate date]], [newArray componentsJoinedByString:@" "]);
 }
 
 - (id)transform:(id)arg
