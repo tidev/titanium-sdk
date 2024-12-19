@@ -363,6 +363,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	}
 
 	@Override
+	public void updateActiveIndicatorColor(int color)
+	{
+
+	}
+
+	@Override
 	public void updateTabTitle(int index)
 	{
 		if ((index < 0) || (index >= this.tabs.size())) {
