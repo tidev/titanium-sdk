@@ -339,7 +339,9 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 				// Handle header title.
 				this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER_TITLE));
 				this.headerTitle.setVisibility(View.VISIBLE);
-
+				if (this.content.getChildCount() == 0) {
+					this.container.addView(new View(context));
+				}
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 
 				// Handle header view.
@@ -373,7 +375,9 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 				// Handle footer title.
 				this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER_TITLE));
 				this.footerTitle.setVisibility(View.VISIBLE);
-
+				if (this.content.getChildCount() == 0) {
+					this.container.addView(new View(context));
+				}
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 
 				// Handle footer view.
