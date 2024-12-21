@@ -1418,7 +1418,7 @@ describe('Titanium.UI.ListView', function () {
 		should(view).matchImage('snapshots/listViewItem_template.png', { maxPixelMismatch: OS_IOS ? 23 : 0 }); // 23 pixels differ on actual iPhone
 	});
 
-	itListView header & footer', function () {
+	it('ListView header & footer', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
