@@ -38,7 +38,9 @@
 			android:alwaysRetainTaskState="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
+				<% if (!skipLauncher) { %>
 				<category android:name="android.intent.category.LAUNCHER" />
+				<% } %>
 			</intent-filter>
 		</activity>
 
