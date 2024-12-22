@@ -13,7 +13,8 @@ methods:
     summary: Changes the Android app icon at runtime.
     description: |
         You have to add `<activity-alias>` nodes for every icon to the tiapp.xml and use `changeIcon()` to switch from one
-        to another. Check the the `Change Android icon at runtime` example for more details.
+        to another. Check the the `Change Android icon at runtime` example for more details. The app has to keep track of
+        the current icon state in order to set the from/to parameters.
     since: "12.7.0"
     parameters:
       - name: from
