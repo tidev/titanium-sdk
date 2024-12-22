@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.app;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -64,17 +65,24 @@ public class AndroidModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void changeIcon(String oldPackage, String newPackage)
+	public void changeIcon(KrollDict options)
 	{
-		String pkgName = TiApplication.getInstance().getPackageName();
-		TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
-			new ComponentName(pkgName, pkgName + "." + oldPackage),
-			PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-		);
-		TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
-			new ComponentName(pkgName, pkgName + "." + newPackage),
-			PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-		);
+		if (options.containsKeyAndNotNull("from") && options.containsKeyAndNotNull("to")) {
+			String oldPackage = options.getString("from");
+			String newPackage = options.getString("to");
+			String pkgName = TiApplication.getInstance().getPackageName();
+
+			TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
+				new ComponentName(pkgName, pkgName + "." + oldPackage),
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+			);
+			TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
+				new ComponentName(pkgName, pkgName + "." + newPackage),
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+			);
+		} else {
+			Log.e(TAG, "Parameters missing. Please provide 'from' and 'to'");
+		}
 	}
 
 	@Kroll.getProperty

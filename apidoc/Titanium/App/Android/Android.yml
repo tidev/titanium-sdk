@@ -2,12 +2,26 @@
 name: Titanium.App.Android
 summary: A module used to access Android application resources.
 description: |
-    For more information, refer to the official documentation on the Android Developer website about 
+    For more information, refer to the official documentation on the Android Developer website about
     [application resources](https://developer.android.com/guide/topics/resources/index.html).
 extends: Titanium.Module
 since: "1.5"
 platforms: [android]
 
+methods:
+  - name: changeIcon
+    summary: Changes the Android app icon at runtime.
+    description: |
+        You have to add `<activity-alias>` nodes for every icon to the tiapp.xml and use `changeIcon()` to switch from one
+        to another. Check the the `Change Android icon at runtime` example for more details.
+    since: "12.7.0"
+    parameters:
+      - name: from
+        type: String
+        summary: <activity-alias> `android:name` (without leading dot) of the current icon that is going to be deactivated.
+      - name: to
+        type: String
+        summary: <activity-alias> `android:name` (without leading dot) of the icon that is going to be activated.
 properties:
   - name: R
     summary: The `R` namespace for application resources.
@@ -33,14 +47,14 @@ properties:
 
   - name: appVersionCode
     summary: |
-        The version number of the application. 
+        The version number of the application.
     type: Number
     permission: read-only
     since: 3.3.0
-    
+
   - name: appVersionName
     summary: |
-        The version name of the application. 
+        The version name of the application.
     type: String
     permission: read-only
     since: 3.3.0
@@ -76,24 +90,71 @@ events:
 examples:
   - title: Custom String Resource
     example: |
-        
-        Custom Android resources may be placed in `platform/android` in the project root.  
-        For example, to utilize a custom localization file, create and populate 
+
+        Custom Android resources may be placed in `platform/android` in the project root.
+        For example, to utilize a custom localization file, create and populate
         `platform/android/res/values/mystrings.xml` with the following data.
-        
+
         ``` xml
         <?xml version="1.0" encoding="utf-8"?>
         <resources>
             <string name="mystring">testing 1 2 3</string>
         </resources>
         ```
-        
+
         In Javascript, this can be accessed as follows.
-    
+
         ``` js
         var activity = Ti.Android.currentActivity;
         var R = Ti.App.Android.R;
-        
+
         var mystring = activity.getString(R.string.mystring);
         Ti.API.debug("mystring = " + mystring);
+        ```
+  - title: Change Android icon at runtime
+    example: |
+
+        Add these `<activity-alias>` nodes into the tiapp.xml `<application>` block:
+
+        ``` xml
+        <activity-alias android:enabled="true" android:name=".default" android:targetActivity=".TestActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        <activity-alias android:icon="@mipmap/ic_launcher" android:name=".red" android:enabled="false" android:targetActivity=".TestActivity" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+        ```
+
+        Change the `android:targetActivity` to point at your main activity, `android:name` is used inside the JavaScript code
+        to switch between the alias nodes and `android:icon` will be the new icon.
+
+        In Javascript, this can be accessed as follows.
+
+        ``` js
+        const win = Ti.UI.createWindow({layout: "vertical"});
+
+        const btn1 = Ti.UI.createButton({title: "switch to red"});
+        const btn2 = Ti.UI.createButton({title: "switch to default"});
+
+        btn1.addEventListener("click", function() {
+          Ti.App.Android.changeIcon({
+            from: "default",
+            to: "red"
+        	});
+        });
+        btn2.addEventListener("click", function() {
+          Ti.App.Android.changeIcon({
+            from: "red",
+            to: "default"
+        	});
+        });
+
+        win.add([btn1, btn2]);
+        win.open();
         ```
