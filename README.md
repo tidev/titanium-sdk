@@ -258,9 +258,11 @@ The gradle (tool, build system) and gradle plugin (plugin that adds several feat
 * `android/gradle/wrapper/gradle-wrapper.properties`
 * `android/templates/build/root.build.gradle`.
 
-You can run `./android/gradlew wrapper --gradle-version 7.4.2 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+You can run `./android/gradlew wrapper --gradle-version 8.5 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+
 To update the plugin to a newer version (check https://mvnrepository.com/artifact/com.android.tools.build/gradle?repo=google) you have to change the `build.gradle` and `root.build.gradle` from the links above.
-When you change the gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`.
+
+When you change the gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`. It will also tell you the minimum required version. E.g. `com.android.tools.build:gradle:8.5.x` (plugin) /android/gradle/wrapper/gradle-wrapper.properties to be 8.7 (tool).
 If needed make sure the other libraries e.g. the kotlin version in `build.gradle` are working with the current setup.
 
 After you've made the changes and compiled the SDK make sure to run the test suite, build the kitchensink and hyperloop example app. Create a and build a module (java and kotlin) and run those in a test app too.
@@ -281,11 +283,12 @@ The `/android/titanium/build.gradle` file contains various Android libraries tha
 * https://developer.android.com/jetpack/androidx/releases/drawerlayout
 * https://developer.android.com/jetpack/androidx/releases/exifinterface
 * https://developer.android.com/jetpack/androidx/releases/media
-for a new version and change the number in the build.gradle file. Some version numbers are managed inside `/android/templates/build/ti.constants.gradle`. After that build the SDK and run `npm run test` to see if everything is still running. Building Kitchensink, Hyperloop-examples and a custom app is also helpful. 
+
+for a new version and change the number in the build.gradle file. Some version numbers are managed inside `/android/templates/build/ti.constants.gradle`. After that build the SDK and run `npm run test` to see if everything is still running. Building Kitchensink, Hyperloop-examples and a custom app is also helpful.
 
 ### Documentation
 
-If you want to help updating and improving the documentation you can checkout the repository and edit the files in `/apidoc/`. Those files are shown in the API documentation at https://titaniumsdk.com/api/ and include all methods, properties, examples and so on. After you made changes run `npm run lint:docs` to see if your changes produce a valid documentation. The PR commit title you create should start with `docs: ` and a proper title like: `docs: updated textfield examples`. 
+If you want to help updating and improving the documentation you can checkout the repository and edit the files in `/apidoc/`. Those files are shown in the API documentation at https://titaniumsdk.com/api/ and include all methods, properties, examples and so on. After you made changes run `npm run lint:docs` to see if your changes produce a valid documentation. The PR commit title you create should start with `docs: ` and a proper title like: `docs: updated textfield examples`.
 All other documentation files (e.g. the guides) are located in the https://github.com/tidev/titanium-docs repository. In case you want to update guides, tutorials or spelling mistakes you clone that repo and follow the README file inside the main folder.
 
 ## Contributing
