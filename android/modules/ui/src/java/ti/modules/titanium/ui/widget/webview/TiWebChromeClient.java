@@ -561,7 +561,7 @@ public class TiWebChromeClient extends WebChromeClient
 	private Intent createFileChooserIntentFrom(WebChromeClient.FileChooserParams chooserParams)
 	{
 		// Create the intent.
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
+		Intent intent = new Intent();
 
 		// Set the intent's category, if needed.
 		if (!chooserParams.isCaptureEnabled()) {
@@ -623,17 +623,14 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// If capturing a photo/video, create a file for it in the gallery and get a "content://" URI to it.
-		switch (actionName) {
-			case MediaStore.ACTION_IMAGE_CAPTURE:
-				mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
-				break;
-			case MediaStore.ACTION_VIDEO_CAPTURE:
-				mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
-				break;
-			default:
-				mCaptureFileUri = null;
-				break;
+		if (hasImageMimeType) {
+			mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
+		} else if (hasVideoMimeType) {
+			mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
+		} else {
+			mCaptureFileUri = null;
 		}
+		
 		if (mCaptureFileUri != null) {
 			intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			intent.setClipData(ClipData.newRawUri("", mCaptureFileUri));
