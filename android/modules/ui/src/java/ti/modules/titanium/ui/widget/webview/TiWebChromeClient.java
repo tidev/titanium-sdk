@@ -561,7 +561,7 @@ public class TiWebChromeClient extends WebChromeClient
 	private Intent createFileChooserIntentFrom(WebChromeClient.FileChooserParams chooserParams)
 	{
 		// Create the intent.
-		Intent intent = new Intent();
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT, null);
 
 		// Set the intent's category, if needed.
 		if (!chooserParams.isCaptureEnabled()) {
@@ -646,10 +646,17 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// If multiple apps can handle the intent, then let the end-user choose which one to use.
-		intent = Intent.createChooser(intent, chooserParams.getTitle());
+
+		Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+		chooser.putExtra(Intent.EXTRA_INTENT, intent);
+		chooser.putExtra(Intent.EXTRA_TITLE, chooserParams.getTitle());
+
+		Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		Intent[] intentArray = { cameraIntent };
+		chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
 
 		// Return the final intent for file selection or image/video capturing.
-		return intent;
+		return chooser;
 	}
 
 	/**
