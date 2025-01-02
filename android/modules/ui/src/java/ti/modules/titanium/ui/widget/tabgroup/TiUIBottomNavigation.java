@@ -196,7 +196,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 		tabsArray.add(tabProxy);
 		MenuItem menuItem = bottomNavigation.getMenu().add(0, mMenuItemsArray.size(), 0, "");
-		menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TITLE)) {
+			menuItem.setTitle(tabProxy.getProperty(TiC.PROPERTY_TITLE).toString());
+		}
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_ICON)) {
 			menuItem.setIcon(setIcon(tabProxy.getProperty(TiC.PROPERTY_ICON), tabProxy.getProperty("iconFamily")));
 		}
