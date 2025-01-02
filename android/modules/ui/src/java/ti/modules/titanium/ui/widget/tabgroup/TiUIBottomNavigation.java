@@ -243,7 +243,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	@Override
 	public void selectTabItemInController(int position)
 	{
-
+		// select first tab and fire event
+		currentlySelectedIndex = position;
+		((TabGroupProxy) getProxy()).onTabSelected(position);
 	}
 
 	private void updateDrawablesAfterNewItem(int index)
@@ -503,10 +505,20 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void selectTab(int tabIndex)
 	{
 		super.selectTab(tabIndex);
-		currentlySelectedIndex = tabIndex;
 		if (tabsArray == null || tabsArray.isEmpty()) {
 			return;
 		}
+
+		// unselected event
+		if ((currentlySelectedIndex >= 0) && (tabIndex != currentlySelectedIndex)
+			&& (currentlySelectedIndex < this.tabs.size()) && (getProxy() != null)) {
+			TiViewProxy tabProxy = ((TabProxy) tabsArray.get(currentlySelectedIndex));
+			if (tabProxy != null) {
+				tabProxy.fireEvent(TiC.EVENT_UNSELECTED, null, false);
+			}
+		}
+		currentlySelectedIndex = tabIndex;
+
 		TabProxy tp = ((TabProxy) tabsArray.get(tabIndex));
 		if (tp != null) {
 			TiUITab abstractTab = new TiUITab(tp);
