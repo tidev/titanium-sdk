@@ -9,7 +9,7 @@ apply plugin: 'com.android.application'
 
 // Set up Android app project.
 android {
-  compileSdkVersion 34
+	compileSdkVersion 34
 	ndkVersion project.ext.tiNdkVersion
 	defaultConfig {
 		applicationId 'com.titanium.test'
@@ -82,11 +82,11 @@ tasks.withType(JavaCompile).configureEach {
 // Define library dependencies used by this app.
 dependencies {
 	implementation(project(':titanium')) {
-// Uncomment the below to exclude Google Play Services from app.
-//		exclude group: 'com.google.android.gms'
+	// Uncomment the below to exclude Google Play Services from app.
+	//		exclude group: 'com.google.android.gms'
 	}
 
-	implementation "androidx.activity:activity:1.6.0"
+	implementation "androidx.activity:activity:1.8.0"
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
 }

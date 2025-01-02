@@ -46,7 +46,7 @@ android {
 	ndkVersion project.ext.tiNdkVersion
 	namespace 'org.appcelerator.titanium'
 	defaultConfig {
-		compileSdk 33
+		compileSdk 34
 		minSdkVersion 21
 		targetSdkVersion 34
 		versionName tiBuildVersionString
@@ -285,11 +285,11 @@ dependencies {
 	implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
 	implementation 'androidx.exifinterface:exifinterface:1.3.7'
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
-	implementation 'androidx.media:media:1.6.0'
+	implementation 'androidx.media:media:1.7.0'
 	implementation 'androidx.recyclerview:recyclerview:1.3.2'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-	implementation 'androidx.transition:transition:1.4.1'
+	implementation 'androidx.transition:transition:1.5.1'
 	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
 	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
 	implementation 'androidx.viewpager:viewpager:1.0.0'
