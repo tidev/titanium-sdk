@@ -39,6 +39,7 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
+import org.appcelerator.titanium.util.TiPickMultipleVisualMedia;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.appcelerator.titanium.view.TiActionBarStyleHandler;
@@ -143,39 +144,54 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public static boolean canFinishRoot = true;
 
 	private boolean overridenLayout;
+	public TiPickMultipleVisualMedia customPicker = new TiPickMultipleVisualMedia(10);
 
-	public ActivityResultLauncher<PickVisualMediaRequest> registerMediaPicker()
-	{
-		return registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+	public ActivityResultLauncher<PickVisualMediaRequest> pickMediaResult
+		= registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
 			Intent intent = new Intent();
 			intent.setAction("image");
 			intent.putExtra("uri", uri);
 			LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
 		});
-	}
 
-	public ActivityResultLauncher<PickVisualMediaRequest> registerMultipleMediaPicker(int count)
-	{
-		ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaResult;
-		if (count > 0) {
-			pickMultipleMediaResult
-				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(count), uris -> {
-					Intent intent = new Intent();
-					intent.setAction("image");
-					intent.putExtra("uris", (Serializable) uris);
-					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
-				});
-		} else {
-			pickMultipleMediaResult
-				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
-					Intent intent = new Intent();
-					intent.setAction("image");
-					intent.putExtra("uris", (Serializable) uris);
-					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
-				});
-		}
-		return pickMultipleMediaResult;
-	}
+	public ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaResultMax
+		= registerForActivityResult(customPicker, uris -> {
+			Intent intent = new Intent();
+			intent.setAction("image");
+			intent.putExtra("uris", (Serializable) uris);
+			LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
+		});
+
+	public ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaResult
+		= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
+			Intent intent = new Intent();
+			intent.setAction("image");
+			intent.putExtra("uris", (Serializable) uris);
+			LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
+		});
+
+//	public ActivityResultLauncher<PickVisualMediaRequest> registerMultipleMediaPicker(int count)
+//	{
+//		ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaResult;
+//		if (count > 0) {
+//			pickMultipleMediaResult
+//				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(count), uris -> {
+//					Intent intent = new Intent();
+//					intent.setAction("image");
+//					intent.putExtra("uris", (Serializable) uris);
+//					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
+//				});
+//		} else {
+//			pickMultipleMediaResult
+//				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
+//					Intent intent = new Intent();
+//					intent.setAction("image");
+//					intent.putExtra("uris", (Serializable) uris);
+//					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
+//				});
+//		}
+//		return pickMultipleMediaResult;
+//	}
 
 	public static class DialogWrapper
 	{

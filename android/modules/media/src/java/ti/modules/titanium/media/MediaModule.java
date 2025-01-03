@@ -1176,47 +1176,38 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 
 		final int code = allowMultiple ? PICK_IMAGE_MULTIPLE : PICK_IMAGE_SINGLE;
-
+		int maxCount = 0;
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_MAX_IMAGES)) {
+			maxCount = options.getInt(TiC.PROPERTY_MAX_IMAGES);
+		}
 		localReceiver = new LocalBroadcastReceiver();
 		LocalBroadcastManager.getInstance(TiApplication.getAppRootOrCurrentActivity())
 			.registerReceiver(localReceiver, mIntentFilter);
 
+		PickVisualMediaRequest.Builder pickerBuilder = new PickVisualMediaRequest.Builder();
 		if (isSelectingPhoto && isSelectingVideo) {
 			// photo and video
-			if (allowMultiple) {
-				((TiBaseActivity) activity).registerMultipleMediaPicker(options.getInt(TiC.PROPERTY_MAX_IMAGES))
-					.launch(new PickVisualMediaRequest.Builder()
-					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
-					.build());
-			} else {
-				((TiBaseActivity) activity).registerMediaPicker().launch(new PickVisualMediaRequest.Builder()
-					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE)
-					.build());
-			}
+			pickerBuilder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageAndVideo.INSTANCE);
 		} else if (isSelectingPhoto) {
 			// photo
-			if (allowMultiple) {
-				((TiBaseActivity) activity).registerMultipleMediaPicker(options.getInt(TiC.PROPERTY_MAX_IMAGES))
-					.launch(new PickVisualMediaRequest.Builder()
-					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-					.build());
-			} else {
-				((TiBaseActivity) activity).registerMediaPicker().launch(new PickVisualMediaRequest.Builder()
-					.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-					.build());
-			}
+			pickerBuilder.setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE);
 		} else {
 			// video
-			if (allowMultiple) {
-				((TiBaseActivity) activity).registerMultipleMediaPicker(options.getInt(TiC.PROPERTY_MAX_IMAGES))
-					.launch(new PickVisualMediaRequest.Builder()
-					.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE)
-					.build());
+			pickerBuilder.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE);
+		}
+
+		TiBaseActivity baseActivity = ((TiBaseActivity) activity);
+		if (allowMultiple) {
+			if (maxCount > 1) {
+				// use max item count
+				baseActivity.customPicker.updateMaxItems(maxCount);
+				baseActivity.pickMultipleMediaResultMax.launch(pickerBuilder.build());
 			} else {
-				((TiBaseActivity) activity).registerMediaPicker().launch(new PickVisualMediaRequest.Builder()
-					.setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly.INSTANCE)
-					.build());
+				// single item picker
+				baseActivity.pickMultipleMediaResult.launch(pickerBuilder.build());
 			}
+		} else {
+			baseActivity.pickMediaResult.launch(pickerBuilder.build());
 		}
 	}
 
