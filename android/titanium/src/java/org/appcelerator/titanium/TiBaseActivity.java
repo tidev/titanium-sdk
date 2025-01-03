@@ -170,29 +170,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
 		});
 
-//	public ActivityResultLauncher<PickVisualMediaRequest> registerMultipleMediaPicker(int count)
-//	{
-//		ActivityResultLauncher<PickVisualMediaRequest> pickMultipleMediaResult;
-//		if (count > 0) {
-//			pickMultipleMediaResult
-//				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(count), uris -> {
-//					Intent intent = new Intent();
-//					intent.setAction("image");
-//					intent.putExtra("uris", (Serializable) uris);
-//					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
-//				});
-//		} else {
-//			pickMultipleMediaResult
-//				= registerForActivityResult(new ActivityResultContracts.PickMultipleVisualMedia(), uris -> {
-//					Intent intent = new Intent();
-//					intent.setAction("image");
-//					intent.putExtra("uris", (Serializable) uris);
-//					LocalBroadcastManager.getInstance(TiApplication.getAppCurrentActivity()).sendBroadcast(intent);
-//				});
-//		}
-//		return pickMultipleMediaResult;
-//	}
-
 	public static class DialogWrapper
 	{
 		boolean isPersistent;
