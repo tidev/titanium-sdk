@@ -9,13 +9,16 @@ package ti.modules.titanium.ui.widget.webview;
 import android.Manifest;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Message;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +31,9 @@ import android.webkit.WebStorage.QuotaUpdater;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
@@ -525,7 +531,7 @@ public class TiWebChromeClient extends WebChromeClient
 						deleteCaptureFileUri();
 					}
 				}
-
+				Log.d(TAG, "onShowFileChooser() selected " + ((results != null) ? results.length : 0) + " file(s).");
 				// Invoke WebView's callback with selected file(s).
 				filePathCallback.onReceiveValue(results);
 			}
@@ -600,6 +606,7 @@ public class TiWebChromeClient extends WebChromeClient
 			} else {
 				actionName = MediaStore.ACTION_IMAGE_CAPTURE;
 			}
+
 		} else if ((acceptTypes.length > 1) && !hasImageMimeType && !hasVideoMimeType) {
 			// Only use this action when given multiple mime types, but none of them are photos/videos.
 			// Will show files from storage, but won't show files from photo gallery or camera's sandbox.
@@ -622,17 +629,43 @@ public class TiWebChromeClient extends WebChromeClient
 			}
 		}
 
-		// If capturing a photo/video, create a file for it in the gallery and get a "content://" URI to it.
-		switch (actionName) {
-			case MediaStore.ACTION_IMAGE_CAPTURE:
-				mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
-				break;
-			case MediaStore.ACTION_VIDEO_CAPTURE:
-				mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
-				break;
-			default:
-				mCaptureFileUri = null;
-				break;
+		// If capturing a video, create a file for it in the gallery and get a "content://" URI to it.
+		// If capturing an image, create a file for it in the storage and get a "file://" URI to it.
+		/* it needs .provider defined in tiapp.xml in <application> tag like this:
+			<provider
+				android:name="androidx.core.content.FileProvider"
+				android:authorities="<your.package.name>.provider"
+				android:exported="false"
+				android:grantUriPermissions="true">
+				<meta-data
+					android:name="android.support.FILE_PROVIDER_PATHS"
+					android:resource="@xml/file_paths" />
+			</provider>
+			and defined file_paths.xml in res/xml folder like this:
+			<paths xmlns:android="http://schemas.android.com/apk/res/android">
+				<external-path
+					name="external_files"
+					path="." />
+			</paths>
+		 */
+		File imageStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+			Environment.DIRECTORY_PICTURES), TiApplication.getInstance().getPackageName());
+		if (!imageStorageDir.exists()) {
+			imageStorageDir.mkdirs();
+		}
+		String fileName = "IMG_" + System.currentTimeMillis() + ".jpg";
+		StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+		StrictMode.setVmPolicy(builder.build());
+		if (hasImageMimeType) {
+
+			File file = new File(imageStorageDir + File.separator + fileName);
+			mCaptureFileUri = Uri.fromFile(file);
+
+		} else if (hasVideoMimeType) {
+			mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
+		} else {
+			File file = new File(imageStorageDir + File.separator + fileName);
+			mCaptureFileUri = Uri.fromFile(file);
 		}
 		if (mCaptureFileUri != null) {
 			intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -644,12 +677,20 @@ public class TiWebChromeClient extends WebChromeClient
 		if (chooserParams.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE) {
 			intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
 		}
-
+		Context context = TiApplication.getInstance().getApplicationContext();
 		// If multiple apps can handle the intent, then let the end-user choose which one to use.
-		intent = Intent.createChooser(intent, chooserParams.getTitle());
+		Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+		chooser.putExtra(Intent.EXTRA_INTENT, intent);
+		chooser.putExtra(Intent.EXTRA_TITLE, chooserParams.getTitle());
+		Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+			FileProvider.getUriForFile(context, context.getPackageName() + ".provider",
+				new File(imageStorageDir + File.separator + fileName)));
+		Intent[] intentArray = { cameraIntent };
+		chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
 
 		// Return the final intent for file selection or image/video capturing.
-		return intent;
+		return chooser;
 	}
 
 	/**
