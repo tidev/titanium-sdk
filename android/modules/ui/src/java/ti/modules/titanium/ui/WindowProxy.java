@@ -71,7 +71,7 @@ import ti.modules.titanium.ui.widget.TiView;
 		TiC.PROPERTY_FLAG_SECURE,
 		TiC.PROPERTY_BAR_COLOR,
 		TiC.PROPERTY_STATUS_BAR_COLOR,
-		"uiFlags"
+		TiC.PROPERTY_UI_FLAGS
 	})
 
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -329,8 +329,8 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			win.setStatusBarColor(colorInt);
 		}
 
-		if (hasProperty("uiFlags")) {
-			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty("uiFlags")));
+		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
+			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
 		}
 
 		// Handle titleAttributes property.
@@ -467,7 +467,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
-		if (name.equals("uiFlags")) {
+		if (name.equals(TiC.PROPERTY_UI_FLAGS)) {
 			if (windowActivity != null && windowActivity.get() != null) {
 				AppCompatActivity activity = windowActivity.get();
 				activity.getWindow().getDecorView().setSystemUiVisibility(TiConvert.toInt(value));
