@@ -587,7 +587,11 @@ public abstract class TiViewProxy extends KrollProxy
 				if (arg instanceof TiViewProxy) {
 					add((TiViewProxy) arg);
 				} else {
-					Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+					if (arg == null) {
+						Log.w(TAG, "add() unsupported array object: null");
+					} else {
+						Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+					}
 				}
 			}
 		} else if (args instanceof TiViewProxy) {
