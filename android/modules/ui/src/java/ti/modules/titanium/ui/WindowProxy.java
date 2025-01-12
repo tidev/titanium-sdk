@@ -70,7 +70,8 @@ import ti.modules.titanium.ui.widget.TiView;
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 		TiC.PROPERTY_FLAG_SECURE,
 		TiC.PROPERTY_BAR_COLOR,
-		TiC.PROPERTY_STATUS_BAR_COLOR
+		TiC.PROPERTY_STATUS_BAR_COLOR,
+		TiC.PROPERTY_UI_FLAGS
 	})
 
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -328,6 +329,10 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			win.setStatusBarColor(colorInt);
 		}
 
+		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
+			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
+		}
+
 		// Handle titleAttributes property.
 		if (hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
 			KrollDict innerAttributes = getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
@@ -459,6 +464,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				AppCompatActivity activity = windowActivity.get();
 				int colorInt = TiColorHelper.parseColor(TiConvert.toString(value), activity);
 				activity.getWindow().setStatusBarColor(colorInt);
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_UI_FLAGS)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				AppCompatActivity activity = windowActivity.get();
+				activity.getWindow().getDecorView().setSystemUiVisibility(TiConvert.toInt(value));
 			}
 		}
 
