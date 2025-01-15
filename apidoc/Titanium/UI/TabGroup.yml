@@ -54,7 +54,7 @@ excludes:
                  anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
                  backgroundRepeat,backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,
-                 borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
+                 borderColor,borderRadius,borderWidth,bottom,children,focusable,height,
                  horizontalWrap,layout,left,opacity,right,softKeyboardOnFocus,
                  top,transform,width,zIndex]
     events: [click, dblclick, doubletap, keypressed, longclick, longpress, pinch, postlayout,
@@ -288,6 +288,13 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
+
+  - name: enabled
+    summary: |
+        Enables or disables the menu in a BottomNavigation. If disabled you can't change to a different tab.
+    type: Number
+    default: true
+    since: { android: "12.7.0" }
 
   - name: paddingLeft
     summary: Left padding of bottom navigation
