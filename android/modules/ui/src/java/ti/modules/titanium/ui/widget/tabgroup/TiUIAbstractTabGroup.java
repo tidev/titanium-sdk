@@ -152,6 +152,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	public abstract String getTabTitle(int index);
 
+	/**
+	 * Enables/disables tab menu
+	 *
+	 * @param enabled value
+	 */
+	public abstract void setEnabled(Boolean enabled);
+
 	// region protected fields
 	protected final static String TAG = "TiUIAbstractTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE =

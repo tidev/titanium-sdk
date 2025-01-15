@@ -382,6 +382,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		return this.mTabLayout.getTabAt(index).getText().toString();
 	}
 
+	@Override
+	public void setEnabled(Boolean enabled)
+	{
+
+	}
+
 	/**
 	 * After a tab is selected send the index for the ViewPager to select the proper page.
 	 *

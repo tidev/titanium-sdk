@@ -520,6 +520,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		return this.mBottomNavigationView.getMenu().getItem(index).getTitle().toString();
 	}
 
+	@Override
+	public void setEnabled(Boolean enabled)
+	{
+		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
+			this.mBottomNavigationView.getMenu().getItem(i).setEnabled(enabled);
+		}
+	}
+
 	/**
 	 * After a menu item is clicked this method sends the proper index to the ViewPager to a select
 	 * a page. Also takes care of sending SELECTED/UNSELECTED events from the proper tabs.

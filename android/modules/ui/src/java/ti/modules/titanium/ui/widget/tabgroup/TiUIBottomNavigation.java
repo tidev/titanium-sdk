@@ -504,6 +504,14 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	}
 
 	@Override
+	public void setEnabled(Boolean enabled)
+	{
+		for (int i = 0; i < this.bottomNavigation.getMenu().size(); i++) {
+			this.bottomNavigation.getMenu().getItem(i).setEnabled(enabled);
+		}
+	}
+
+	@Override
 	public void selectTab(int tabIndex)
 	{
 		super.selectTab(tabIndex);

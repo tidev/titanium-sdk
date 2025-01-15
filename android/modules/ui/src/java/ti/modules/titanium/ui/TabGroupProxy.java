@@ -76,6 +76,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private Object selectedTab; // NOTE: Can be TabProxy or Number
 	private String tabGroupTitle = null;
 	private boolean autoTabTitle = false;
+	private boolean tabEnabled = true;
 
 	public TabGroupProxy()
 	{
@@ -196,6 +197,22 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.setProperty
+	public void setEnabled(Boolean enabled)
+	{
+		tabEnabled = enabled;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+		if (tabGroup != null) {
+			tabGroup.setEnabled(enabled);
+		}
+	}
+
+	@Kroll.getProperty
+	public Boolean getEnabled()
+	{
+		return tabEnabled;
+	}
+
 	private TabProxy getActiveTabProxy()
 	{
 		Object activeTab = getActiveTab();
@@ -285,6 +302,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TAB)) {
 			setActiveTab(options.get(TiC.PROPERTY_ACTIVE_TAB));
+		}
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_ENABLED)) {
+			setEnabled(options.getBoolean(TiC.PROPERTY_ENABLED));
 		}
 	}
 
