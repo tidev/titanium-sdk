@@ -1539,6 +1539,16 @@ properties:
     since: "3.3.0"
     availability: creation
 
+  - name: uiFlags
+    summary: Additional UI flags to set on the Activity Window.
+    description: |
+        See [WindowManager.LayoutParams](https://developer.android.com/reference/android/view/View#setSystemUiVisibility\(int\)) for a
+        list of additional flags that can be assigned to this property. For example, you can use `8192` (SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) to set
+        the status bar text color to a dark color.
+    platforms: [android]
+    type: Number
+    since: "12.7.0"
+
   - name: windowSoftInputMode
     summary: |
         Determines whether a window's soft input area (ie software keyboard) is visible
