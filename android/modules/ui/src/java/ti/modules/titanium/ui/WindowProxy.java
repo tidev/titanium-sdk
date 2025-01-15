@@ -7,8 +7,6 @@
 
 package ti.modules.titanium.ui;
 
-import static ti.modules.titanium.android.AndroidModule.STATUS_BAR_LIGHT;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -16,7 +14,6 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
