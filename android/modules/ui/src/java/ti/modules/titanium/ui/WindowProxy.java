@@ -332,14 +332,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			win.setStatusBarColor(colorInt);
 		}
 
-		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-			}
-		}
-
-    if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
+   		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
 			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
 		}
 
