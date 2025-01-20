@@ -694,16 +694,6 @@
       NO);
 }
 
-- (void)hideTabBar:(id)value
-{
-  [self setTabBarHidden:[NSNumber numberWithBool:YES]];
-}
-
-- (void)showTabBar:(id)value
-{
-  [self setTabBarHidden:[NSNumber numberWithBool:NO]];
-}
-
 - (void)refreshBackButton
 {
   ENSURE_UI_THREAD_0_ARGS;
