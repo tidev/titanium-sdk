@@ -308,7 +308,6 @@ public class TiUIWebView extends TiUIView
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
-//		webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
