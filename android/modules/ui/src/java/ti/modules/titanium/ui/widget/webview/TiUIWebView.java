@@ -64,6 +64,8 @@ public class TiUIWebView extends TiUIView
 	private float zoomLevel = TiApplication.getInstance().getResources().getDisplayMetrics().density;
 	private float initScale = zoomLevel;
 
+	public boolean softwareMode = false;
+
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
@@ -465,6 +467,10 @@ public class TiUIWebView extends TiUIView
 				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL);
 			webView.setHorizontalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
 				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_VERTICAL);
+		}
+
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_SOFTWARE_MODE)) {
+			setSoftwareMode(TiConvert.toBoolean(d, TiC.PROPERTY_SOFTWARE_MODE));
 		}
 	}
 
@@ -1075,6 +1081,7 @@ public class TiUIWebView extends TiUIView
 	{
 		WebView webView = getWebView();
 		if (webView != null) {
+			softwareMode = value;
 			if (value) {
 				webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 			} else {
