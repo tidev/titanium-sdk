@@ -305,10 +305,11 @@ public class TiUIWebView extends TiUIView
 		}
 		webView.setVerticalScrollbarOverlay(true);
 
+		boolean multipleWindows = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MULTIPLE_WINDOWS), true);
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
-		settings.setSupportMultipleWindows(true);
+		settings.setSupportMultipleWindows(multipleWindows);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
