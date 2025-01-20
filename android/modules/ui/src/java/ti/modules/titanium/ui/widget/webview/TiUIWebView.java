@@ -308,6 +308,7 @@ public class TiUIWebView extends TiUIView
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
+//		webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		settings.setSupportMultipleWindows(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
@@ -1070,4 +1071,17 @@ public class TiUIWebView extends TiUIView
 	{
 		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
 	}
+
+	public void setSoftwareMode(Boolean value)
+	{
+		WebView webView = getWebView();
+		if (webView != null) {
+			if (value) {
+				webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+			} else {
+				webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+			}
+		}
+	}
+
 }

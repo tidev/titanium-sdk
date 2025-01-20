@@ -75,6 +75,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fpassword;
 	PrintManager printManager;
 	private Message postCreateMessage;
+	private boolean softwareMode = false;
 
 	public WebViewProxy()
 	{
@@ -242,6 +243,22 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			return currWebView.getRequestHeaders();
 		}
 		return new HashMap<String, String>();
+	}
+
+	@Kroll.setProperty
+	public void setSoftwareMode(Boolean value)
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			softwareMode = value;
+			currWebView.setSoftwareMode(value);
+		}
+	}
+
+	@Kroll.getProperty
+	public boolean getSoftwareMode()
+	{
+		return softwareMode;
 	}
 
 	@Kroll.setProperty

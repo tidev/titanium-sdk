@@ -1020,6 +1020,16 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "2.0.0", ipad: "2.0.0", macos: "9.2.0"}
 
+  - name: softwareMode
+    summary: A Boolean value indicating the render mode of the WebView
+    description: |
+        Set to `true` (software rendering) if you use `Ti.Media.takeScreensho()` or `toImage()` and the WebView contains local HTML files.
+        Otherwise the WebView might be empty in the screenshot/image.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "12.7.0"}
+
   - name: enableZoomControls
     summary: If `true`, zoom controls are enabled.
     type: Boolean
