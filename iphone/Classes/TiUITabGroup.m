@@ -370,20 +370,16 @@ DEFINE_EXCEPTIONS
 
 - (void)setTabBarVisible_:(id)value
 {
-  BOOL visible = [TiUtils boolValue:value];
+  [self hideTabBar:[TiUtils boolValue:value] animated:NO];
+}
 
-  if ([self tabBarIsVisible] == visible) {
-    return;
+- (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated
+{
+  if (@available(iOS 18.0, *)) {
+    [self.tabController setTabBarHidden:hidden animated:animated];
+  } else {
+    self.tabController.tabBar.hidden = hidden;
   }
-
-  CGRect frame = self.tabController.tabBar.frame;
-  CGFloat height = frame.size.height;
-
-  [UIView animateWithDuration:0.3
-                   animations:^{
-                     self.tabController.tabBar.frame = CGRectOffset(frame, 0, visible ? -height : height);
-                   }
-                   completion:nil];
 }
 
 - (BOOL)tabBarIsVisible

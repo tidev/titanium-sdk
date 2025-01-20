@@ -246,6 +246,22 @@ methods:
         since: "10.0.0"
         removed: "10.0.0"
         notes: Use the <Titanium.UI.TabGroup.tabs> property instead.
+  
+  - name: showTabBar
+    summary: Shows the tab bar with animation.
+    description: |
+        This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
+        To show tab bar without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `false`.
+    platforms: [iphone, ipad, macos]
+    since: "12.7.0"
+
+  - name: hideTabBar
+    summary: Hides the tab bar with animation.
+    description: |
+        This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
+        To hide tab bar without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `true`.
+    platforms: [iphone, ipad, macos]
+    since: "12.7.0"
 
 properties:
   - name: activeTab
@@ -614,7 +630,10 @@ properties:
 
   - name: tabBarVisible
     summary: Programmatically shows / hides the bottom tab bar of the tab group.
+    description: |
+        This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
     type: Boolean
+    default: true
     platforms: [android, iphone, ipad, macos]
     since: "12.1.0"
 
