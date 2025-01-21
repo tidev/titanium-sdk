@@ -7,8 +7,6 @@
 /* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-deprecated-api: "off" */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');

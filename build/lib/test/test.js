@@ -315,7 +315,7 @@ async function addTiAppProperties() {
 		} else if (line.indexOf('<use-app-thinning>') >= 0) {
 			content.pop();
 			content.push('\t\t<use-app-thinning>false</use-app-thinning>');
-		// Grab contents of modules/modules.xml to inject as moduel listing for tiapp.xml
+		// Grab contents of modules/modules.xml to inject as module listing for tiapp.xml
 		// This allows PR to override
 		} else if (line.indexOf('<modules>') >= 0) {
 			// remove open tag

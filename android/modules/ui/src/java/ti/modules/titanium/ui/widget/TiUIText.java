@@ -15,7 +15,6 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -57,6 +56,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.R;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
@@ -67,6 +67,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	private int viewHeightInLines;
 	private int maxLines = Integer.MAX_VALUE;
 	private int hintTextPadding;
+	private HashMap<String, Object> defaultPadding = new HashMap<String, Object>();
 	private InputFilterHandler inputFilterHandler;
 
 	protected TiUIEditText tv;
@@ -135,6 +136,22 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		this.tv.setOnEditorActionListener(this);
 		this.tv.setOnFocusChangeListener(this);
 		this.tv.setIncludeFontPadding(true);
+		if (proxy.hasListeners("empty")) {
+			this.tv.setOnKeyListener(new View.OnKeyListener()
+			{
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event)
+				{
+					if (tv.getText().length() == 0) {
+						KrollDict data = new KrollDict();
+						data.put("keyCode", keyCode);
+						fireEvent("empty", data);
+					}
+					return false;
+				}
+			});
+		}
+
 		if (field) {
 			this.tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 		} else {
@@ -143,6 +160,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		textInputLayout.addView(this.tv, new TextInputLayout.LayoutParams(
 			TextInputLayout.LayoutParams.MATCH_PARENT, TextInputLayout.LayoutParams.MATCH_PARENT));
 
+		// store default padding
+		this.defaultPadding.put(TiC.PROPERTY_TOP, this.tv.getPaddingTop());
+		this.defaultPadding.put(TiC.PROPERTY_RIGHT, this.tv.getPaddingRight());
+		this.defaultPadding.put(TiC.PROPERTY_BOTTOM, this.tv.getPaddingBottom());
+		this.defaultPadding.put(TiC.PROPERTY_LEFT, this.tv.getPaddingLeft());
 		setNativeView(textInputLayout);
 	}
 
@@ -310,28 +332,39 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 	private void setTextPadding(HashMap<String, Object> d)
 	{
-		int paddingLeft = textInputLayout.getPaddingLeft();
-		int paddingRight = textInputLayout.getPaddingRight();
-		int paddingTop = textInputLayout.getPaddingTop();
-		int paddingBottom = textInputLayout.getPaddingBottom();
+		int paddingLeft = tv.getPaddingLeft();
+		int paddingRight = tv.getPaddingRight();
+		int paddingTop = tv.getPaddingTop();
+		int paddingBottom = tv.getPaddingBottom();
 
-		if (d.containsKey(TiC.PROPERTY_LEFT)) {
-			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
+		if (d == null) {
+			// reset to default padding
+			paddingLeft = (int) this.defaultPadding.get(TiC.PROPERTY_LEFT);
+			paddingRight = (int) this.defaultPadding.get(TiC.PROPERTY_RIGHT);
+			paddingTop = (int) this.defaultPadding.get(TiC.PROPERTY_TOP);
+			paddingBottom = (int) this.defaultPadding.get(TiC.PROPERTY_BOTTOM);
+		} else {
+			if (d.containsKey(TiC.PROPERTY_LEFT)) {
+				paddingLeft = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0),
+					TiDimension.TYPE_LEFT).getAsPixels(textInputLayout);
+			}
+
+			if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+				paddingRight = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0),
+					TiDimension.TYPE_RIGHT).getAsPixels(textInputLayout);
+			}
+
+			if (d.containsKey(TiC.PROPERTY_TOP)) {
+				paddingTop = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0),
+					TiDimension.TYPE_TOP).getAsPixels(textInputLayout);
+			}
+
+			if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+				paddingBottom = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0),
+					TiDimension.TYPE_BOTTOM).getAsPixels(textInputLayout);
+			}
 		}
-
-		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
-			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_TOP)) {
-			paddingTop = TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
-			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
-		}
-
-		textInputLayout.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 	}
 
 	@Override
@@ -781,7 +814,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		// Update fullscreen edit handling.
-		// We might have to diable it due to Google bugs with password handling of certain input types.
+		// We might have to disable it due to Google bugs with password handling of certain input types.
 		handleFullscreen(d);
 
 		// Force keyboard to use English if enabled. (Not all keyboards honor this setting.)
@@ -967,6 +1000,9 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			this.textInputLayout.setHint(hintText);
 			this.textInputLayout.setHintEnabled(true);
 		}
+
+		this.defaultPadding.put(TiC.PROPERTY_TOP, (type == UIModule.HINT_TYPE_ANIMATED)
+			? this.hintTextPadding : this.defaultPadding.get(TiC.PROPERTY_BOTTOM));
 
 		this.tv.setPadding(
 			this.tv.getPaddingLeft(),

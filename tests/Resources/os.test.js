@@ -6,7 +6,6 @@
  */
 /* eslint-env node, titanium, mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');

@@ -648,7 +648,7 @@ events:
         ipad: 5.4.0
     properties:
       - name: direction
-        summary: Direction of the scroll either 'up', or 'down'.
+        summary: Direction of the scroll either 'up', 'down' or 'unknown'.
         type: String
 
       - name: velocity
@@ -658,6 +658,30 @@ events:
       - name: targetContentOffset
         summary: |
            The expected y axis offset when the scrolling action decelerates to a stop.
+        type: Number
+      
+      - name: visibleItemCount
+        summary: The number of visible items in the list view when the event fires.
+        type: Number
+
+      - name: firstVisibleItem
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible. May be -1 on iOS.
+        type: [Object, Number]
+
+      - name: firstVisibleSection
+        summary: The first visible section in the list view when the event fires.
+        type: Titanium.UI.ListSection
+
+      - name: firstVisibleItemIndex
+        summary: |
+            The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
+        type: Number
+
+      - name: firstVisibleSectionIndex
+        summary: |
+            The index of the first visible section in the list view when the event fires.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
 properties:
@@ -683,6 +707,12 @@ properties:
         iphone: 3.2.0
         ipad: 3.2.0
     platforms: [android, iphone, ipad, macos]
+
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
 
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
