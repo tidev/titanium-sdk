@@ -30,8 +30,6 @@ public class TiDeployData
 	protected static final String DEBUGGER_PORT = "debuggerPort";
 	protected static final String PROFILER_ENABLED = "profilerEnabled";
 	protected static final String PROFILER_PORT = "profilerPort";
-	protected static final String FASTDEV_PORT = "fastdevPort";
-	protected static final String FASTDEV_LISTEN = "fastdevListen";
 
 	private KrollApplication krollApp;
 	private JSONObject deployData;
@@ -125,41 +123,6 @@ public class TiDeployData
 		}
 
 		return deployData.optInt(PROFILER_PORT, -1);
-	}
-
-	/**
-	 * @return The "fastdev" http server port, or -1
-	 */
-	public int getFastDevPort()
-	{
-		// fastdev is deprecated
-		return -1;
-
-		/*
-		if (isDeployTypeDisabled()) {
-			return -1;
-		}
-
-		return deployData.optInt(FASTDEV_PORT, -1);
-		*/
-	}
-
-	/**
-	 * @return Whether or not Fastdev mode should listen for a connection (default false)
-	 *  This is useful for situations where adb forward or other external methods are necessary
-	 */
-	public boolean getFastDevListen()
-	{
-		// fastdev is deprecated
-		return false;
-
-		/*
-		if (isDeployTypeDisabled()) {
-			return false;
-		}
-
-		return deployData.optBoolean(FASTDEV_LISTEN, false);
-		*/
 	}
 
 	private boolean isDeployTypeDisabled()
