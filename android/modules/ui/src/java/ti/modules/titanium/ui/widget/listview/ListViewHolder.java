@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
@@ -50,7 +51,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	private final TextView headerTitle;
 
 	// Middle
-	private final ViewGroup container;
+	private final ConstraintLayout container;
 	private final ImageView leftImage;
 	private final TiCompositeLayout content;
 	private final ImageView rightImage;
@@ -339,6 +340,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 				// Handle header title.
 				this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER_TITLE));
 				this.headerTitle.setVisibility(View.VISIBLE);
+				resetLayoutParams();
 
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 
@@ -373,6 +375,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 				// Handle footer title.
 				this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER_TITLE));
 				this.footerTitle.setVisibility(View.VISIBLE);
+				resetLayoutParams();
 
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 
@@ -493,5 +496,15 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 			// Set title default background color.
 			title.setBackgroundColor(COLOR_GRAY);
 		}
+	}
+
+	private void resetLayoutParams()
+	{
+		ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+			ConstraintLayout.LayoutParams.MATCH_PARENT,
+			ConstraintLayout.LayoutParams.WRAP_CONTENT
+		);
+
+		this.container.setLayoutParams(params);
 	}
 }
