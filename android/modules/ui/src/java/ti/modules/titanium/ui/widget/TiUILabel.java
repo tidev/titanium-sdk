@@ -809,10 +809,6 @@ public class TiUILabel extends TiUIView
 	public String getVisibleText()
 	{
 		MaterialTextView textView = (MaterialTextView) getNativeView();
-		if (textView != null && textView.getLayout() != null) {
-			return textView.getLayout().getText().toString();
-		} else {
-			return "";
-		}
+		return textView.getLayout().getText().toString();
 	}
 }
