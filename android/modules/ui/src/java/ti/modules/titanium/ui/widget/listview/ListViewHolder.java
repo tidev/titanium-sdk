@@ -69,9 +69,6 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 		this.headerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header_title);
 
-		// Header attributes.
-		setTitleAttributes("header", context, this.headerTitle);
-
 		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder);
 
 		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
@@ -83,9 +80,6 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		this.footer = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer);
 
 		this.footerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer_title);
-
-		// Footer attributes.
-		setTitleAttributes("footer", context, this.footerTitle);
 	}
 
 	/**
@@ -337,6 +331,9 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		if (updateHeader) {
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)) {
 
+				// Header attributes.
+				setTitleAttributes("header", context, this.headerTitle);
+
 				// Handle header title.
 				this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER_TITLE));
 				this.headerTitle.setVisibility(View.VISIBLE);
@@ -371,6 +368,9 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		}
 		if (updateFooter) {
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)) {
+
+				// Footer attributes.
+				setTitleAttributes("footer", context, this.footerTitle);
 
 				// Handle footer title.
 				this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER_TITLE));
