@@ -803,12 +803,20 @@ public class TiUILabel extends TiUIView
 	public int getLineCount()
 	{
 		MaterialTextView textView = (MaterialTextView) getNativeView();
-		return textView.getLineCount();
+		if (textView != null && textView.getLayout() != null) {
+			return textView.getLineCount();
+		} else {
+			return 0;
+		}
 	}
 
 	public String getVisibleText()
 	{
 		MaterialTextView textView = (MaterialTextView) getNativeView();
-		return textView.getLayout().getText().toString();
+		if (textView != null && textView.getLayout() != null) {
+			return textView.getLayout().getText().toString();
+		} else {
+			return "";
+		}
 	}
 }
