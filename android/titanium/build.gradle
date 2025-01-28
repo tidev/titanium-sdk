@@ -278,6 +278,7 @@ dependencies {
 	compileOnly project(':kroll-apt')
 
 	// AndroidX Library dependencies.
+	implementation "androidx.activity:activity:1.6.0"
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
 	implementation 'androidx.cardview:cardview:1.0.0'
 	implementation "androidx.core:core:${project.ext.tiAndroidXCoreLibVersion}"
