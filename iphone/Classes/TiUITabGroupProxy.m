@@ -141,6 +141,16 @@ static NSArray *tabGroupKeySequence;
   tabs = [newTabOrder mutableCopy];
 }
 
+- (void)hideTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:YES animated:YES];
+}
+
+- (void)showTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:NO animated:YES];
+}
+
 #pragma mark Window Management
 
 - (void)windowWillOpen
