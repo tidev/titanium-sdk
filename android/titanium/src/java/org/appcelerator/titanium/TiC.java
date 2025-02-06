@@ -770,6 +770,7 @@ public class TiC
 	public static final String PROPERTY_TEMPLATES = "templates";
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_COLOR = "textColor";
+	public static final String PROPERTY_TEXT_TRANSFORM = "textTransform";
 	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_THEME = "theme";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
