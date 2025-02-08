@@ -179,15 +179,20 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 //	V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
 //	V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
-
-/*
-  Runtime* rt = Runtime::current();
-    Isolate* isolate = rt->isolate();
-*/
-
+	
 	v8::Isolate* isolate = data.GetIsolate();
+	v8::Local<v8::Promise> _promise = data.GetPromise();
 	v8::Local<v8::Value> value = data.GetValue();
 	v8::PromiseRejectEvent e = data.GetEvent();
+	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
+
+	String::Utf8Value utf8Message(V8Runtime::v8_isolate, data->Get());
+	String::Utf8Value utf8ScriptName(V8Runtime::v8_isolate, data->GetScriptResourceName());
+	LOGE(TAG, *utf8Message);
+	LOGE(TAG, "%s @ %d >>> %s",
+		*utf8ScriptName,
+		msg->GetLineNumber(context).FromMaybe(-1),
+		msg->GetSourceLine(context).ToLocalChecked());
 
 	if (event == v8::kPromiseRejectWithNoHandler) {
 		if (!value.IsEmpty()) {
@@ -197,46 +202,6 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 			LOGE("Unhandled Promise Rejection with no message",);
 		}
 	}
-}
-	
-	
-/*
-    v8::Local<v8::Context> _context = isolate->context();
-    v8::Local<v8::Array> _promise_error;
-
-    if (rt->m_promise_error.IsEmpty()) {
-        _promise_error = v8::Array::New(isolate->m_isolate);
-        rt->m_promise_error.Reset(isolate->m_isolate, _promise_error);
-    } else
-        _promise_error = rt->m_promise_error.Get(isolate->m_isolate);
-
- if (e == v8::kPromiseRejectWithNoHandler) {
-        v8::Local<v8::Array> o = v8::Array::New(isolate->m_isolate);
-        o->Set(_context, 0, data.GetPromise()).IsJust();
-        o->Set(_context, 1, data.GetValue()).IsJust();
-        _promise_error->Set(_context, rt->m_promise_error_no++, o).IsJust();
-    } else if (e == v8::kPromiseHandlerAddedAfterReject) {
-        v8::Local<v8::Promise> _promise = data.GetPromise();
-        if (!_promise.IsEmpty()) {
-            JSArray ks = _promise_error->GetPropertyNames(_context);
-            int32_t len = ks->Length();
-
-            for (int32_t i = 0; i < len; i++) {
-                JSValue k = ks->Get(_context, i);
-                JSValue v = _promise_error->Get(_context, k);
-
-                v8::Local<v8::Array> o = v8::Local<v8::Array>::Cast(v);
-                v = o->Get(_context, 0);
-
-                bool e = _promise->Equals(_context, v).FromMaybe(false);
-                if (e) {
-                    _promise_error->Delete(_context, k).IsJust();
-                }
-            }
-        }
-    }
-*/
-	LOGE(TAG, "Error");
 }
 
 extern "C" {
