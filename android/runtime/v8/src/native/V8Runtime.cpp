@@ -202,6 +202,9 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 			LOGE("Unhandled Promise Rejection with no message",);
 		}
 	}
+
+//        V8::TryCatch tryCatch(isolate);
+//        titanium::V8Util::fatalException(isolate, tryCatch);
 }
 
 extern "C" {
