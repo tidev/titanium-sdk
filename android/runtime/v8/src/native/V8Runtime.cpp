@@ -176,6 +176,10 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 
 } // namespace titanium
 
+static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
+	LOGE(TAG, "Error");
+}
+
 extern "C" {
 
 using namespace titanium;
@@ -223,6 +227,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
 		// isolate->SetAutorunMicrotasks(false);
 		// isolate->SetFatalErrorHandler(OnFatalError);
+		isolate->SetPromiseRejectCallback(_PromiseRejectCallback);
 		isolate->SetCaptureStackTraceForUncaughtExceptions(true, 10, v8::StackTrace::kOverview);
 	} else {
 		isolate = V8Runtime::v8_isolate;
