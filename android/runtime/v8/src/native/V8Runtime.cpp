@@ -225,6 +225,10 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 	// Now without StackTrace ( available for Promises? )
 
 	titanium::JNIEnv* env = JNIUtil::getJNIEnv();
+
+	// TODO TOCK : Alternative
+	// titanium::JNIEnv* env = JNIScope::getEnv();
+
     	if (!env) {
         	return;
     	}
@@ -240,9 +244,9 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 		title,
 		errorMessage,
 		resourceName,
-		-1 /* null */ /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
+		title /* null */ /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
 		title /* null */ /*sourceLine*/,
-		-1 /* null */ /*message->GetEndColumn(context).FromMaybe(-1)*/,
+		title /* null */ /*message->GetEndColumn(context).FromMaybe(-1)*/,
 		title /* null */ /*jsStackString*/,
 		title /* null */ /*javaStackString*/);
 	env->DeleteLocalRef(title);
