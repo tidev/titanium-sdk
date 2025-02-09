@@ -186,13 +186,27 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 	v8::PromiseRejectEvent e = data.GetEvent();
 	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
 
+	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
+	v8::String::Utf8Value utf8Message(isolate, message->Get());
+	v8::String::Utf8Value utf8ScriptName(isolate, message->GetScriptResourceName());
+	v8::Local<v8::String> sourceLine = message->GetSourceLine(context).ToLocalChecked();
+    	v8::String::Utf8Value utf8SourceLine(isolate, sourceLine);
+	
+/*
+	// Alternative version:
+
 	String::Utf8Value utf8Message(V8Runtime::v8_isolate, data->Get());
 	String::Utf8Value utf8ScriptName(V8Runtime::v8_isolate, data->GetScriptResourceName());
-	LOGE(TAG, *utf8Message);
-	LOGE(TAG, "%s @ %d >>> %s",
-		*utf8ScriptName,
-		msg->GetLineNumber(context).FromMaybe(-1),
-		msg->GetSourceLine(context).ToLocalChecked());
+ 	LOGE(TAG, *utf8Message);
+	LOGE(TAG, "%s", *utf8ScriptName);
+
+*/
+	
+	LOGE(TAG, "%s", *utf8Message);
+    	LOGE(TAG, "%s @ %d >>> %s",
+        	*utf8ScriptName,
+        	message->GetLineNumber(context).FromMaybe(-1),
+        	*utf8SourceLine);
 
 	if (event == v8::kPromiseRejectWithNoHandler) {
 		if (!value.IsEmpty()) {
