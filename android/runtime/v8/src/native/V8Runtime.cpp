@@ -177,14 +177,16 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 } // namespace titanium
 
 static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
-//	V8Util::openJSErrorDialog(V8Runtime::v8_isolate, tryCatch);
-//	V8Util::reportException(V8Runtime::v8_isolate, tryCatch, true);
+
+	// Extract main Objects
 	
 	v8::Isolate* isolate = data.GetIsolate();
 	v8::Local<v8::Promise> _promise = data.GetPromise();
 	v8::Local<v8::Value> value = data.GetValue();
 	v8::PromiseRejectEvent e = data.GetEvent();
 	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
+
+	// Extract Error message
 
 	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
 	v8::String::Utf8Value utf8Message(isolate, message->Get());
@@ -201,6 +203,8 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 	LOGE(TAG, "%s", *utf8ScriptName);
 
 */
+
+	// Log Error message to Console
 	
 	LOGE(TAG, "%s", *utf8Message);
     	LOGE(TAG, "%s @ %d >>> %s",
@@ -217,8 +221,39 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 		}
 	}
 
-//        V8::TryCatch tryCatch(isolate);
-//        titanium::V8Util::fatalException(isolate, tryCatch);
+	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
+	// Now without StackTrace ( available for Promises? )
+
+	JNIEnv* env = JNIUtil::getJNIEnv();
+    	if (!env) {
+        	return;
+    	}
+	jstring title = env->NewStringUTF("Rejected Promises");
+	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
+	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
+//	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(Null(isolate).As<Value>()));
+//	jstring jsStackString = TypeConverter::jsValueToJavaString(isolate, env, jsStack);
+//	jstring javaStackString = TypeConverter::jsValueToJavaString(isolate, env, javaStack);
+	env->CallStaticVoidMethod(
+		JNIUtil::krollRuntimeClass,
+		JNIUtil::krollRuntimeDispatchExceptionMethod,
+		title,
+		errorMessage,
+		resourceName,
+		title /* null */ /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
+		title /* null */ /*sourceLine*/,
+		title /* null */ /*message->GetEndColumn(context).FromMaybe(-1)*/,
+		title /* null */ /*jsStackString*/,
+		title /* null */ /*javaStackString*/;
+	env->DeleteLocalRef(title);
+	env->DeleteLocalRef(errorMessage);
+	env->DeleteLocalRef(resourceName);
+	/*
+        env->DeleteLocalRef(sourceLine);
+	env->DeleteLocalRef(jsStackString);
+	env->DeleteLocalRef(javaStackString);
+	*/
+	
 }
 
 extern "C" {
