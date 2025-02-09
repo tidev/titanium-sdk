@@ -244,11 +244,11 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 		title,
 		errorMessage,
 		resourceName,
-		title /* null */ /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
-		title /* null */ /*sourceLine*/,
-		title /* null */ /*message->GetEndColumn(context).FromMaybe(-1)*/,
-		title /* null */ /*jsStackString*/,
-		title /* null */ /*javaStackString*/);
+		title /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
+		title /*sourceLine*/,
+		title /*message->GetEndColumn(context).FromMaybe(-1)*/,
+		title /*jsStackString*/,
+		title /*javaStackString*/);
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
