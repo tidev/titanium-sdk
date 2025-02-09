@@ -180,10 +180,10 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 
 	// Extract main Objects
 	
-	v8::Isolate* isolate = data.GetIsolate();
-	v8::Local<v8::Promise> _promise = data.GetPromise();
+	v8::Local<v8::Promise> promise = data.GetPromise();
+	v8::Isolate* isolate = promise->GetIsolate();
 	v8::Local<v8::Value> value = data.GetValue();
-	v8::PromiseRejectEvent e = data.GetEvent();
+	v8::PromiseRejectEvent event = data.GetEvent();
 	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
 
 	// Extract Error message
@@ -217,26 +217,26 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 			v8::String::Utf8Value error(isolate, value);
 			LOGE("Unhandled Promise Rejection: %s", *error);
 		} else {
-			LOGE("Unhandled Promise Rejection with no message",);
+			LOGE("Unhandled Promise Rejection with no message");
 		}
 	}
 
 	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
 	// Now without StackTrace ( available for Promises? )
 
-	JNIEnv* env = JNIUtil::getJNIEnv();
+	titanium::JNIEnv* env = JNIUtil::getJNIEnv();
     	if (!env) {
         	return;
     	}
 	jstring title = env->NewStringUTF("Rejected Promises");
-	jstring errorMessage = TypeConverter::jsValueToJavaString(isolate, env, message->Get());
-	jstring resourceName = TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
-//	jstring sourceLine = TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(Null(isolate).As<Value>()));
-//	jstring jsStackString = TypeConverter::jsValueToJavaString(isolate, env, jsStack);
-//	jstring javaStackString = TypeConverter::jsValueToJavaString(isolate, env, javaStack);
+	jstring errorMessage = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->Get());
+	jstring resourceName = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
+//	jstring sourceLine = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(Null(isolate).As<Value>()));
+//	jstring jsStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, jsStack);
+//	jstring javaStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, javaStack);
 	env->CallStaticVoidMethod(
-		JNIUtil::krollRuntimeClass,
-		JNIUtil::krollRuntimeDispatchExceptionMethod,
+		titanium::JNIUtil::krollRuntimeClass,
+		titanium::JNIUtil::krollRuntimeDispatchExceptionMethod,
 		title,
 		errorMessage,
 		resourceName,
@@ -244,7 +244,7 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 		title /* null */ /*sourceLine*/,
 		-1 /* null */ /*message->GetEndColumn(context).FromMaybe(-1)*/,
 		title /* null */ /*jsStackString*/,
-		title /* null */ /*javaStackString*/;
+		title /* null */ /*javaStackString*/);
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
