@@ -240,9 +240,9 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 		title,
 		errorMessage,
 		resourceName,
-		title /* null */ /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
+		-1 /* null */ /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
 		title /* null */ /*sourceLine*/,
-		title /* null */ /*message->GetEndColumn(context).FromMaybe(-1)*/,
+		-1 /* null */ /*message->GetEndColumn(context).FromMaybe(-1)*/,
 		title /* null */ /*jsStackString*/,
 		title /* null */ /*javaStackString*/;
 	env->DeleteLocalRef(title);
