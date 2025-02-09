@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- Todo remove windowOptOutEdgeToEdgeEnforcement after implementing Edge-to-edge -->
+
+	<style name="Theme.Titanium.DayNight.Solid" parent="Theme.Titanium.Light.Solid">
+		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+	</style>
+
+	<style name="Base.Theme.Titanium.Light" parent="Theme.MaterialComponents.Light.DarkActionBar">
+		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+	</style>
+
+	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight.Solid">
+		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+	</style>
+
+	<style name="Theme.AppDerived" parent="Theme.Titanium.App">
+		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+	</style>
+
+	<style name="Base.Theme.Titanium.Dark" parent="Theme.MaterialComponents">
+		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+	</style>
+</resources>
