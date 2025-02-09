@@ -157,6 +157,52 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	LOGE(EXC_TAG, *error);
 }
 
+void V8Util::reportRejection(Isolate* isolate, TryCatch &tryCatch, bool showLine)
+{
+	HandleScope scope(isolate);
+	Local<Context> context = isolate->GetCurrentContext();
+	Local<Message> message = tryCatch.Message();
+
+	if (showLine && !message.IsEmpty()) {
+		String::Utf8Value filename(isolate, message->GetScriptResourceName());
+		String::Utf8Value msg(isolate, message->Get());
+		Maybe<int> linenum = message->GetLineNumber(context);
+		LOGE(EXC_TAG, "Exception occurred at %s:%i: %s", *filename, linenum.FromMaybe(-1), *msg);
+	}
+
+	// Log the stack trace if we have one
+	MaybeLocal<Value> maybeStackTrace = tryCatch.StackTrace(context);
+	if (!maybeStackTrace.IsEmpty()) {
+		Local<Value> stack = maybeStackTrace.ToLocalChecked();
+		String::Utf8Value trace(isolate, stack);
+		if (trace.length() > 0 && !stack->IsUndefined()) {
+			LOGD(EXC_TAG, *trace);
+			return;
+		}
+	}
+
+	// no/empty stack trace, so if the exception is an object,
+	// try to get the 'message' and 'name' properties
+	Local<Value> exception = tryCatch.Exception();
+	if (exception->IsObject()) {
+		Local<Object> exceptionObj = exception.As<Object>();
+		MaybeLocal<Value> message = exceptionObj->Get(context, NEW_SYMBOL(isolate, "message"));
+		MaybeLocal<Value> name = exceptionObj->Get(context, NEW_SYMBOL(isolate, "name"));
+
+		if (!message.IsEmpty() && !message.ToLocalChecked()->IsUndefined() && !name.IsEmpty() && !name.ToLocalChecked()->IsUndefined()) {
+			String::Utf8Value nameValue(isolate, name.ToLocalChecked());
+			String::Utf8Value messageValue(isolate, message.ToLocalChecked());
+			LOGE(EXC_TAG, "%s: %s", *nameValue, *messageValue);
+			return;
+		}
+	}
+
+	// Fall back to logging exception as a string
+	String::Utf8Value error(isolate, exception);
+	LOGE(EXC_TAG, *error);
+}
+
+
 void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 {
 	JNIEnv *env = JNIUtil::getJNIEnv();
@@ -220,6 +266,10 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 }
 
 static int uncaughtExceptionCounter = 0;
+
+/**
+	TODO TOCK: As long as I see this counter is NEVER increased NOWadays!
+*/
 
 void V8Util::fatalException(Isolate* isolate, TryCatch &tryCatch)
 {
