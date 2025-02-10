@@ -212,6 +212,7 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
         	message->GetLineNumber(context).FromMaybe(-1),
         	*utf8SourceLine);
 
+/*
 	if (event == v8::kPromiseRejectWithNoHandler) {
 		if (!value.IsEmpty()) {
 			v8::String::Utf8Value error(isolate, value);
@@ -220,6 +221,7 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 			LOGE("Unhandled Promise Rejection with no message");
 		}
 	}
+*/
 
 	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
 	// Now without StackTrace ( available for Promises? )
