@@ -157,51 +157,57 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	LOGE(EXC_TAG, *error);
 }
 
-void V8Util::reportRejection(Isolate* isolate, TryCatch &tryCatch, bool showLine)
+void V8Util::reportRejection(v8::PromiseRejectMessage data)
 {
-	HandleScope scope(isolate);
-	Local<Context> context = isolate->GetCurrentContext();
-	Local<Message> message = tryCatch.Message();
+	// Extract main Objects	
+	v8::Local<v8::Promise> promise = data.GetPromise();
+	v8::Isolate* isolate = promise->GetIsolate();
+	v8::Local<v8::Value> value = data.GetValue();
+	v8::PromiseRejectEvent event = data.GetEvent();
+	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
+	// Extract Error message
+	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
+	v8::String::Utf8Value utf8Message(isolate, message->Get());
+	v8::String::Utf8Value utf8ScriptName(isolate, message->GetScriptResourceName());
+	v8::Local<v8::String> sourceLine = message->GetSourceLine(context).ToLocalChecked();
+    	v8::String::Utf8Value utf8SourceLine(isolate, sourceLine);
+	// Log Error message to Console
+	LOGE(TAG, "%s", *utf8Message);
+    	LOGE(TAG, "%s @ %d >>> %s",
+        	*utf8ScriptName,
+        	message->GetLineNumber(context).FromMaybe(-1),
+        	*utf8SourceLine);
 
-	if (showLine && !message.IsEmpty()) {
-		String::Utf8Value filename(isolate, message->GetScriptResourceName());
-		String::Utf8Value msg(isolate, message->Get());
-		Maybe<int> linenum = message->GetLineNumber(context);
-		LOGE(EXC_TAG, "Exception occurred at %s:%i: %s", *filename, linenum.FromMaybe(-1), *msg);
-	}
+	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
+	// Now without StackTrace ( available for Promises? )
 
-	// Log the stack trace if we have one
-	MaybeLocal<Value> maybeStackTrace = tryCatch.StackTrace(context);
-	if (!maybeStackTrace.IsEmpty()) {
-		Local<Value> stack = maybeStackTrace.ToLocalChecked();
-		String::Utf8Value trace(isolate, stack);
-		if (trace.length() > 0 && !stack->IsUndefined()) {
-			LOGD(EXC_TAG, *trace);
-			return;
-		}
-	}
-
-	// no/empty stack trace, so if the exception is an object,
-	// try to get the 'message' and 'name' properties
-	Local<Value> exception = tryCatch.Exception();
-	if (exception->IsObject()) {
-		Local<Object> exceptionObj = exception.As<Object>();
-		MaybeLocal<Value> message = exceptionObj->Get(context, NEW_SYMBOL(isolate, "message"));
-		MaybeLocal<Value> name = exceptionObj->Get(context, NEW_SYMBOL(isolate, "name"));
-
-		if (!message.IsEmpty() && !message.ToLocalChecked()->IsUndefined() && !name.IsEmpty() && !name.ToLocalChecked()->IsUndefined()) {
-			String::Utf8Value nameValue(isolate, name.ToLocalChecked());
-			String::Utf8Value messageValue(isolate, message.ToLocalChecked());
-			LOGE(EXC_TAG, "%s: %s", *nameValue, *messageValue);
-			return;
-		}
-	}
-
-	// Fall back to logging exception as a string
-	String::Utf8Value error(isolate, exception);
-	LOGE(EXC_TAG, *error);
+	JNIEnv* env = titanium::JNIUtil::getJNIEnv();
+	jstring title = env->NewStringUTF("Rejected Promises");
+	jstring errorMessage = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->Get());
+	jstring resourceName = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
+//	jstring sourceLine = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(Null(isolate).As<Value>()));
+//	jstring jsStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, jsStack);
+//	jstring javaStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, javaStack);
+	env->CallStaticVoidMethod(
+		titanium::JNIUtil::krollRuntimeClass,
+		titanium::JNIUtil::krollRuntimeDispatchExceptionMethod,
+		title,
+		errorMessage,
+		resourceName,
+		title /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
+		title /*sourceLine*/,
+		title /*message->GetEndColumn(context).FromMaybe(-1)*/,
+		title /*jsStackString*/,
+		title /*javaStackString*/);
+	env->DeleteLocalRef(title);
+	env->DeleteLocalRef(errorMessage);
+	env->DeleteLocalRef(resourceName);
+	/*
+        env->DeleteLocalRef(sourceLine);
+	env->DeleteLocalRef(jsStackString);
+	env->DeleteLocalRef(javaStackString);
+	*/
 }
-
 
 void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 {
