@@ -165,12 +165,13 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 	v8::Local<v8::Value> value = data.GetValue();
 	v8::PromiseRejectEvent event = data.GetEvent();
 	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
-	// Extract Error message
+	
+	// Extract Error message	
 	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
 	v8::String::Utf8Value utf8Message(isolate, message->Get());
 	v8::String::Utf8Value utf8ScriptName(isolate, message->GetScriptResourceName());
-	v8::Local<v8::String> sourceLine = message->GetSourceLine(context).ToLocalChecked();
-    	v8::String::Utf8Value utf8SourceLine(isolate, sourceLine);
+	v8::Local<v8::String> logSourceLine = message->GetSourceLine(context).ToLocalChecked();
+    	v8::String::Utf8Value utf8SourceLine(isolate, logSourceLine);
 	// Log Error message to Console
 	LOGE(TAG, "%s", *utf8Message);
     	LOGE(TAG, "%s @ %d >>> %s",
@@ -178,35 +179,57 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
         	message->GetLineNumber(context).FromMaybe(-1),
         	*utf8SourceLine);
 
+	// Obtain javascript and java stack traces
+
+	Local<Value> jsStack;
+	Local<Value> javaStack;
+
+	if (value->IsObject()) {
+		Local<Object> error = value.As<Object>();
+		jsStack = error->Get(context, STRING_NEW(isolate, "stack")).FromMaybe(Undefined(isolate).As<Value>());
+		javaStack = error->Get(context, STRING_NEW(isolate, "nativeStack")).FromMaybe(Undefined(isolate).As<Value>());
+	}
+
+	// javascript stack trace not provided? obtain current javascript stack trace
+	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
+		Local<StackTrace> frames = message->GetStackTrace();
+		if (frames.IsEmpty() || !frames->GetFrameCount()) {
+			frames = StackTrace::CurrentStackTrace(isolate, MAX_STACK);
+		}
+		if (!frames.IsEmpty()) {
+			std::string stackString = V8Util::stackTraceString(isolate, frames);
+			if (!stackString.empty()) {
+				jsStack = String::NewFromUtf8(isolate, stackString.c_str(), v8::NewStringType::kNormal).ToLocalChecked().As<Value>();
+			}
+		}
+	}
+
 	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
-	// Now without StackTrace ( available for Promises? )
 
 	JNIEnv* env = titanium::JNIUtil::getJNIEnv();
-	jstring title = env->NewStringUTF("Rejected Promises");
+	jstring title = env->NewStringUTF("Rejected Promise");
 	jstring errorMessage = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->Get());
 	jstring resourceName = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
-//	jstring sourceLine = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(Null(isolate).As<Value>()));
-//	jstring jsStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, jsStack);
-//	jstring javaStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, javaStack);
+	jstring sourceLine = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(Null(isolate).As<Value>()));
+	jstring jsStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, jsStack);
+	jstring javaStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, javaStack);
 	env->CallStaticVoidMethod(
 		titanium::JNIUtil::krollRuntimeClass,
 		titanium::JNIUtil::krollRuntimeDispatchExceptionMethod,
 		title,
 		errorMessage,
 		resourceName,
-		title /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
-		title /*sourceLine*/,
-		title /*message->GetEndColumn(context).FromMaybe(-1)*/,
-		title /*jsStackString*/,
-		title /*javaStackString*/);
+		message->GetLineNumber(context).FromMaybe(-1),
+		sourceLine,
+		message->GetEndColumn(context).FromMaybe(-1),
+		jsStackString,
+		javaStackString);
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
-	/*
         env->DeleteLocalRef(sourceLine);
 	env->DeleteLocalRef(jsStackString);
 	env->DeleteLocalRef(javaStackString);
-	*/
 }
 
 void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
