@@ -176,92 +176,6 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 
 } // namespace titanium
 
-static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
-
-	// Extract main Objects
-	
-	v8::Local<v8::Promise> promise = data.GetPromise();
-	v8::Isolate* isolate = promise->GetIsolate();
-	v8::Local<v8::Value> value = data.GetValue();
-	v8::PromiseRejectEvent event = data.GetEvent();
-	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
-
-	// Extract Error message
-
-	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
-	v8::String::Utf8Value utf8Message(isolate, message->Get());
-	v8::String::Utf8Value utf8ScriptName(isolate, message->GetScriptResourceName());
-	v8::Local<v8::String> sourceLine = message->GetSourceLine(context).ToLocalChecked();
-    	v8::String::Utf8Value utf8SourceLine(isolate, sourceLine);
-	
-/*
-	// Alternative version:
-
-	String::Utf8Value utf8Message(V8Runtime::v8_isolate, data->Get());
-	String::Utf8Value utf8ScriptName(V8Runtime::v8_isolate, data->GetScriptResourceName());
- 	LOGE(TAG, *utf8Message);
-	LOGE(TAG, "%s", *utf8ScriptName);
-
-*/
-
-	// Log Error message to Console
-	
-	LOGE(TAG, "%s", *utf8Message);
-    	LOGE(TAG, "%s @ %d >>> %s",
-        	*utf8ScriptName,
-        	message->GetLineNumber(context).FromMaybe(-1),
-        	*utf8SourceLine);
-
-/*
-	if (event == v8::kPromiseRejectWithNoHandler) {
-		if (!value.IsEmpty()) {
-			v8::String::Utf8Value error(isolate, value);
-			LOGE("Unhandled Promise Rejection: %s", *error);
-		} else {
-			LOGE("Unhandled Promise Rejection with no message");
-		}
-	}
-*/
-
-	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
-	// Now without StackTrace ( available for Promises? )
-
-	JNIEnv* env = titanium::JNIUtil::getJNIEnv();
-
-	// TODO TOCK : Alternative
-	// titanium::JNIEnv* env = JNIScope::getEnv();
-
-    	if (!env) {
-        	return;
-    	}
-	jstring title = env->NewStringUTF("Rejected Promises");
-	jstring errorMessage = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->Get());
-	jstring resourceName = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetScriptResourceName());
-//	jstring sourceLine = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->GetSourceLine(context).FromMaybe(Null(isolate).As<Value>()));
-//	jstring jsStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, jsStack);
-//	jstring javaStackString = titanium::TypeConverter::jsValueToJavaString(isolate, env, javaStack);
-	env->CallStaticVoidMethod(
-		titanium::JNIUtil::krollRuntimeClass,
-		titanium::JNIUtil::krollRuntimeDispatchExceptionMethod,
-		title,
-		errorMessage,
-		resourceName,
-		title /*message->GetLineNumber(context).FromMaybe(-1)*/ ,
-		title /*sourceLine*/,
-		title /*message->GetEndColumn(context).FromMaybe(-1)*/,
-		title /*jsStackString*/,
-		title /*javaStackString*/);
-	env->DeleteLocalRef(title);
-	env->DeleteLocalRef(errorMessage);
-	env->DeleteLocalRef(resourceName);
-	/*
-        env->DeleteLocalRef(sourceLine);
-	env->DeleteLocalRef(jsStackString);
-	env->DeleteLocalRef(javaStackString);
-	*/
-	
-}
-
 extern "C" {
 
 using namespace titanium;
@@ -309,7 +223,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
 		// isolate->SetAutorunMicrotasks(false);
 		// isolate->SetFatalErrorHandler(OnFatalError);
-		isolate->SetPromiseRejectCallback(_PromiseRejectCallback);
+		isolate->SetPromiseRejectCallback(V8Util::reportRejection);
 		isolate->SetCaptureStackTraceForUncaughtExceptions(true, 10, v8::StackTrace::kOverview);
 	} else {
 		isolate = V8Runtime::v8_isolate;
