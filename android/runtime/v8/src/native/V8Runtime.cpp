@@ -224,7 +224,7 @@ static void _PromiseRejectCallback(v8::PromiseRejectMessage data) {
 	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
 	// Now without StackTrace ( available for Promises? )
 
-	titanium::JNIEnv* env = JNIUtil::getJNIEnv();
+	titanium::JNIEnv* env = titanium::JNIUtil::getJNIEnv();
 
 	// TODO TOCK : Alternative
 	// titanium::JNIEnv* env = JNIScope::getEnv();
