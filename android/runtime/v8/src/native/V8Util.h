@@ -161,6 +161,7 @@ public:
 	static void objectExtend(v8::Local<v8::Object> dest, v8::Local<v8::Object> src); // TODO: Remove when we do a breaking change!
 	static void objectExtend(v8::Isolate* isolate, v8::Local<v8::Object> dest, v8::Local<v8::Object> src);
 	static void reportException(v8::Isolate* isolate, v8::TryCatch &tryCatch, bool showLine = true);
+	static void reportRejection(v8::PromiseRejectMessage data);
 	static void openJSErrorDialog(v8::Isolate* isolate, v8::TryCatch &tryCatch);
 	static void fatalException(v8::Isolate* isolate, v8::TryCatch &tryCatch);
 	static v8::Local<v8::String> jsonStringify(v8::Isolate* isolate, v8::Local<v8::Value> value);
