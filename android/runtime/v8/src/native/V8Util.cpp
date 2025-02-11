@@ -165,19 +165,19 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 	v8::Local<v8::Value> value = data.GetValue();
 	v8::PromiseRejectEvent event = data.GetEvent();
 	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
-	
+
 	// Extract Error message	
 	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
 	v8::String::Utf8Value utf8Message(isolate, message->Get());
 	v8::String::Utf8Value utf8ScriptName(isolate, message->GetScriptResourceName());
 	v8::Local<v8::String> logSourceLine = message->GetSourceLine(context).ToLocalChecked();
-    	v8::String::Utf8Value utf8SourceLine(isolate, logSourceLine);
+	v8::String::Utf8Value utf8SourceLine(isolate, logSourceLine);
 	// Log Error message to Console
 	LOGE(TAG, "%s", *utf8Message);
-    	LOGE(TAG, "%s @ %d >>> %s",
-        	*utf8ScriptName,
-        	message->GetLineNumber(context).FromMaybe(-1),
-        	*utf8SourceLine);
+	LOGE(TAG, "%s @ %d >>> %s",
+		*utf8ScriptName,
+		message->GetLineNumber(context).FromMaybe(-1),
+		*utf8SourceLine);
 
 	// Obtain javascript and java stack traces
 
@@ -227,7 +227,7 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
-        env->DeleteLocalRef(sourceLine);
+	env->DeleteLocalRef(sourceLine);
 	env->DeleteLocalRef(jsStackString);
 	env->DeleteLocalRef(javaStackString);
 }
