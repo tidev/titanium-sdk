@@ -296,10 +296,6 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 
 static int uncaughtExceptionCounter = 0;
 
-/**
-	TODO TOCK: As long as I see this counter is NEVER increased NOWadays!
-*/
-
 void V8Util::fatalException(Isolate* isolate, TryCatch &tryCatch)
 {
 	HandleScope scope(isolate);
