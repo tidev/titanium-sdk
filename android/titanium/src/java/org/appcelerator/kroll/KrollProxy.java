@@ -1253,7 +1253,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				}
 			}
 		} catch (Throwable t) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			TiApplication.handleInternalException(t);
 		}
 
 		return false;

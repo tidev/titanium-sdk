@@ -341,6 +341,14 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public static void handleInternalException(Throwable throwable)
+	{
+		final UncaughtExceptionHandler currentExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+		if (currentExceptionHandler != null) {
+			currentExceptionHandler.uncaughtException(Thread.currentThread(), throwable);
+		}
+	}
+
 	@Override
 	public void onCreate()
 	{
