@@ -95,6 +95,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private String defaultUnit;
 	private BroadcastReceiver localeReceiver;
 	private AccessibilityManager accessibilityManager = null;
+	private UncaughtExceptionHandler nativeExceptionHandler = null;
 
 	protected TiDeployData deployData;
 	protected ITiAppInfo appInfo;
@@ -346,6 +347,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
+		// Reference to android run-time exception handler to delegate exceptions properly.
+		nativeExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+
 		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
@@ -364,6 +368,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// throw exception as KrollException
 				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, null, javaStack);
+
+				if (nativeExceptionHandler != null) {
+					nativeExceptionHandler.uncaughtException(t, e);
+				}
 			}
 		});
 
