@@ -2153,6 +2153,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	//       This is needed because using both libraries will cause class name collisions, causing a build failure.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '35' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
 	gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
