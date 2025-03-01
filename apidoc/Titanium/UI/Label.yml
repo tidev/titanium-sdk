@@ -247,7 +247,7 @@ properties:
     summary: Property that specifies how to capitialize the text. Can be `lowercase`, `uppercase` or `none` (default)
     type: String
     default: "none"
-    since: {android: "12.7.0"}
+    since: "12.7.0"
 
   - name: textAlign
     summary: Text alignment.
