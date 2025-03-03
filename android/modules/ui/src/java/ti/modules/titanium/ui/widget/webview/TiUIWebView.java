@@ -475,8 +475,8 @@ public class TiUIWebView extends TiUIView
 				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_VERTICAL);
 		}
 
-		if (d.containsKeyAndNotNull(TiC.PROPERTY_SOFTWARE_MODE)) {
-			setLayerType(TiConvert.toInt(d, TiC.PROPERTY_SOFTWARE_MODE));
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_LAYER_TYPE)) {
+			setLayerType(TiConvert.toInt(d, TiC.PROPERTY_LAYER_TYPE));
 		}
 	}
 
