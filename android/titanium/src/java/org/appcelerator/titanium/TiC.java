@@ -864,6 +864,7 @@ public class TiC
 	public static final String PROPERTY_DEPARTMENT = "department";
 	public static final String PROPERTY_FIXED_SIZE = "fixedSize";
 	public static final String PROPERTY_UI_FLAGS = "uiFlags";
+	public static final String PROPERTY_LAYER_TYPE = "layerType";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
