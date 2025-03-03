@@ -64,8 +64,6 @@ public class TiUIWebView extends TiUIView
 	private float zoomLevel = TiApplication.getInstance().getResources().getDisplayMetrics().density;
 	private float initScale = zoomLevel;
 
-	public boolean softwareMode = false;
-
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
@@ -82,6 +80,14 @@ public class TiUIWebView extends TiUIView
 	public static final int PDF_PAGE_DIN_A1 = 4;
 	@Kroll.constant
 	public static final int PDF_PAGE_AUTO = 5;
+
+	@Kroll.constant
+	public static final int LAYER_TYPE_NONE = View.LAYER_TYPE_NONE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_SOFTWARE = View.LAYER_TYPE_SOFTWARE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_HARDWARE = View.LAYER_TYPE_HARDWARE;
+	public int layerType = LAYER_TYPE_NONE;
 
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
@@ -470,7 +476,7 @@ public class TiUIWebView extends TiUIView
 		}
 
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_SOFTWARE_MODE)) {
-			setSoftwareMode(TiConvert.toBoolean(d, TiC.PROPERTY_SOFTWARE_MODE));
+			setLayerType(TiConvert.toInt(d, TiC.PROPERTY_SOFTWARE_MODE));
 		}
 	}
 
@@ -1077,16 +1083,11 @@ public class TiUIWebView extends TiUIView
 		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
 	}
 
-	public void setSoftwareMode(Boolean value)
+	public void setLayerType(int value)
 	{
 		WebView webView = getWebView();
 		if (webView != null) {
-			softwareMode = value;
-			if (value) {
-				webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-			} else {
-				webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-			}
+			webView.setLayerType(value, null);
 		}
 	}
 

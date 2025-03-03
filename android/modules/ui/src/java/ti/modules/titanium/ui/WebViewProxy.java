@@ -245,22 +245,22 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.setProperty
-	public void setSoftwareMode(Boolean value)
+	public void setLayerType(int value)
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
-			currWebView.setSoftwareMode(value);
+			currWebView.setLayerType(value);
 		}
 	}
 
 	@Kroll.getProperty
-	public boolean getSoftwareMode()
+	public int getLayerType()
 	{
 		TiUIWebView currWebView = getWebView();
 		if (currWebView != null) {
-			return currWebView.softwareMode;
+			return currWebView.layerType;
 		}
-		return false;
+		return 0;
 	}
 
 	@Kroll.setProperty
