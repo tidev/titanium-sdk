@@ -81,13 +81,7 @@ public class TiUIWebView extends TiUIView
 	@Kroll.constant
 	public static final int PDF_PAGE_AUTO = 5;
 
-	@Kroll.constant
-	public static final int LAYER_TYPE_NONE = View.LAYER_TYPE_NONE;
-	@Kroll.constant
-	public static final int LAYER_TYPE_SOFTWARE = View.LAYER_TYPE_SOFTWARE;
-	@Kroll.constant
-	public static final int LAYER_TYPE_HARDWARE = View.LAYER_TYPE_HARDWARE;
-	public int layerType = LAYER_TYPE_NONE;
+	public int layerType = WebViewProxy.LAYER_TYPE_NONE;
 
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
@@ -1087,6 +1081,7 @@ public class TiUIWebView extends TiUIView
 	{
 		WebView webView = getWebView();
 		if (webView != null) {
+			layerType = value;
 			webView.setLayerType(value, null);
 		}
 	}
