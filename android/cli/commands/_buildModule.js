@@ -616,6 +616,8 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 		throw err;
 	}
 
+	await mainManifest.writeToFilePath(path.join(moduleMainDir, 'AndroidManifest.xml'));
+
 	// Generate Java file used to provide this module's JS source code to Titanium's JS runtime.
 	let fileContent = await fs.readFile(path.join(this.moduleTemplateDir, 'CommonJsSourceProvider.java'));
 	fileContent = ejs.render(fileContent.toString(), { moduleId: moduleId });
