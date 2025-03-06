@@ -253,7 +253,26 @@ properties:
          (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
+
+         #### Android Tab Icons
+         Can be used in combination with `iconFamily` in a BottomNavigation setup with `experimental:true`.
     type: String
+
+  - name: iconFamily
+    summary: Specifies the font family or specific font to use.
+    description: |
+        When using a BottomNavigation setup with `experimental:true` you can use this property in combination
+        with an `icon` to use an icon-font for the tab icons:
+
+        ``` js
+        '#tab1': {
+          icon: "\ueac1",
+          iconFamily: "tabler-icons"
+        }
+        ```
+    since: "12.7.0"
+    type: String
+    platforms: [android]
 
   - name: iconInsets
     summary: The icon inset or outset for each edge.
