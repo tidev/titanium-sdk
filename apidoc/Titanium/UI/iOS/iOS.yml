@@ -29,7 +29,25 @@ methods:
     description: |
         More details on SF Symbols can be found [here](https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview).
         One can download SF Symbols app from [here](https://developer.apple.com/design/downloads/SF-Symbols.dmg) and
-        use it to lookup the built-in SF Symbol name.
+        use it to lookup the built-in SF Symbol name. Example:
+        ``` js
+        const win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+
+        const imageView = Ti.UI.createImageView({
+          image:  Ti.UI.iOS.systemImage('folder'), // folder icon
+          height: Ti.UI.FILL
+        });
+
+        // iOS 17+ symbol effect
+        imageView.addSymbolEffect({
+          symbolEffect: 'bounce',
+          animated: true,
+          options: { repeatCount: 4 }
+        });
+
+        win.add(imageView);
+        win.open();
+        ```
     parameters:
       - name: name
         summary: Name of SF Symbol.
