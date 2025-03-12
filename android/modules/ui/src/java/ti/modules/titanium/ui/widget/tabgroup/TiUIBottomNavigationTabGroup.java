@@ -363,6 +363,12 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	}
 
 	@Override
+	public void updateActiveIndicatorColor(int color)
+	{
+
+	}
+
+	@Override
 	public void updateTabTitle(int index)
 	{
 		if ((index < 0) || (index >= this.tabs.size())) {
@@ -512,6 +518,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return null;
 		}
 		return this.mBottomNavigationView.getMenu().getItem(index).getTitle().toString();
+	}
+
+	@Override
+	public void setEnabled(Boolean enabled)
+	{
+		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
+			this.mBottomNavigationView.getMenu().getItem(i).setEnabled(enabled);
+		}
 	}
 
 	/**
