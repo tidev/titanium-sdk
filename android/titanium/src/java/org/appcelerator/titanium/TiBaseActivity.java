@@ -790,7 +790,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		try {
 			windowCreated(savedInstanceState);
 		} catch (Throwable t) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			TiApplication.handleInternalException(t);
 		}
 
 		// set the current activity back to what it was originally
@@ -817,7 +817,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			try {
 				window.onWindowActivityCreated();
 			} catch (Throwable t) {
-				Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+				TiApplication.handleInternalException(t);
 			}
 		}
 		if (activityProxy != null) {
@@ -1338,7 +1338,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			data.put(TiC.EVENT_PROPERTY_SOURCE, this.activityProxy);
 			this.activityProxy.callPropertySync(propertyName, new Object[] { data });
 		} catch (Throwable ex) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, ex);
+			TiApplication.handleInternalException(ex);
 		}
 	}
 
