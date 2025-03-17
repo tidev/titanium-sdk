@@ -1317,9 +1317,39 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		onPrepareOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
-	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
+	public boolean removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		// TODO stub
+		return lifecycleListeners.remove(listener);
+	}
+
+	public boolean removeOnInstanceStateEventListener(OnInstanceStateEvent listener)
+	{
+		return instanceStateListeners.remove(listener);
+	}
+
+	public boolean removeOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
+	{
+		return windowFocusChangedListeners.remove(listener);
+	}
+
+	public boolean removeInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
+	{
+		return interceptOnBackPressedListeners.remove(listener);
+	}
+
+	public boolean removeOnActivityResultListener(OnActivityResultEvent listener)
+	{
+		return onActivityResultListeners.remove(listener);
+	}
+
+	public boolean removeOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
+	{
+		return onCreateOptionsMenuListeners.remove(listener);
+	}
+
+	public boolean removeOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
+	{
+		return onPrepareOptionsMenuListeners.remove(listener);
 	}
 
 	private void dispatchCallback(String propertyName, KrollDict data)
@@ -1670,8 +1700,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
-		super.onSaveInstanceState(outState);
-
 		// If activity is being temporarily destroyed, then save settings to be restored when activity is recreated.
 		if (!isFinishing()) {
 			if (supportHelper != null) {
@@ -1692,6 +1720,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
