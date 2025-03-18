@@ -206,6 +206,10 @@ methods:
         type: disableTabOptions
     platforms: [android]
     since: 3.6.0
+    deprecated:
+        since: "12.7.0"
+        removed: "12.7.0"
+        notes: Use the <Titanium.UI.TabGroup.disableTabNavigation> property instead.
 
   - name: getActiveTab
     summary: Gets the currently-active tab.
@@ -252,7 +256,7 @@ methods:
     description: |
         This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
         To show tab bar without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `false`.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     since: "12.7.0"
 
   - name: hideTabBar
@@ -260,7 +264,7 @@ methods:
     description: |
         This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
         To hide tab bar without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `true`.
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
     since: "12.7.0"
 
 properties:
@@ -311,6 +315,17 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
+
+  - name: disableTabNavigation
+    summary: |
+        Disables the TabGroup swipe navigation and its Tabs click, without showing/hiding the TabGroup.
+    description: |
+        To show/hide the TabGroup with animation, use either <Titanium.UI.TabGroup.showTabBar> or <Titanium.UI.TabGroup.hideTabBar>.
+        To show/hide the TabGroup without animation use <Titanium.UI.TabGroup.tabBarVisible>.
+    type: Boolean
+    default: false
+    since: 12.7.0
+    platforms: [android]
 
   - name: paddingLeft
     summary: Left padding of bottom navigation
