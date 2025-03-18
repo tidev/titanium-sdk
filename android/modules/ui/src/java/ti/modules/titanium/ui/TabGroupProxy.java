@@ -35,7 +35,6 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
@@ -69,6 +68,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private Object selectedTab; // NOTE: Can be TabProxy or Number
 	private String tabGroupTitle = null;
 	private boolean autoTabTitle = false;
+	private boolean isTabBarVisible = true;
+	private boolean isTabNavigationDisabled = false;
 
 	public TabGroupProxy()
 	{
@@ -83,24 +84,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		return tabs.indexOf(tabProxy);
 	}
 
-	@Kroll.method
-	public void disableTabNavigation(Object params)
+	@Kroll.setProperty
+	public void disableTabNavigation(boolean disable)
 	{
-		if (params instanceof Boolean) {
-			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-			if (tabGroup != null) {
-				tabGroup.disableTabNavigation(TiConvert.toBoolean(params, false));
-			}
-		} else if (params instanceof HashMap<?, ?>) {
-			KrollDict options = new KrollDict((HashMap<String, Object>) params);
-			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-			if (tabGroup != null) {
-				if (options.getBoolean(TiC.PROPERTY_ANIMATED)) {
-					setTabBarVisible(options.getBoolean(TiC.PROPERTY_ENABLED));
-				} else {
-					tabGroup.disableTabNavigation(options.getBoolean(TiC.PROPERTY_ENABLED));
-				}
-			}
+		isTabNavigationDisabled = disable;
+
+		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
+			bottomTabGroup.disableTabNavigation(isTabNavigationDisabled);
+		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
+			tabGroupDefault.disableTabNavigation(isTabNavigationDisabled);
 		}
 	}
 
@@ -126,10 +118,33 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty
 	public void setTabBarVisible(boolean visible)
 	{
-		TiUIBottomNavigationTabGroup tabGroup = (TiUIBottomNavigationTabGroup) view;
+		isTabBarVisible = visible;
 
-		if (tabGroup != null) {
-			tabGroup.setTabBarVisible(visible);
+		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
+			bottomTabGroup.setTabGroupVisibility(visible);
+		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
+			tabGroupDefault.setTabGroupVisibility(visible);
+		}
+	}
+
+	@Kroll.method
+	public void showTabBar()
+	{
+		showHideTabBar(true);
+	}
+
+	@Kroll.method
+	public void hideTabBar()
+	{
+		showHideTabBar(false);
+	}
+
+	private void showHideTabBar(boolean visible)
+	{
+		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
+			bottomTabGroup.showHideTabBar(visible);
+		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
+			tabGroupDefault.showHideTabBar(visible);
 		}
 	}
 
@@ -220,8 +235,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		tabs.clear();
 
-		if (obj instanceof Object[]) {
-			Object[] objArray = (Object[]) obj;
+		if (obj instanceof Object[] objArray) {
 			for (Object tabProxy : objArray) {
 				if (tabProxy instanceof TabProxy) {
 					addTab((TabProxy) tabProxy);
@@ -278,6 +292,14 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TAB)) {
 			setActiveTab(options.get(TiC.PROPERTY_ACTIVE_TAB));
+		}
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_TAB_BAR_VISIBLE)) {
+			isTabBarVisible = options.optBoolean(TiC.PROPERTY_TAB_BAR_VISIBLE, isTabBarVisible);
+		}
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_DISABLE_TAB_NAVIGATION)) {
+			isTabNavigationDisabled = options.optBoolean(
+				TiC.PROPERTY_DISABLE_TAB_NAVIGATION, isTabNavigationDisabled
+			);
 		}
 	}
 
@@ -461,6 +483,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Prevent any duplicate events from firing by marking
 		// this group has having focus.
 		isFocused = true;
+
+		// Update UI if these properties are set before the native view is created.
+		disableTabNavigation(isTabNavigationDisabled);
+		setTabBarVisible(isTabBarVisible);
 	}
 
 	@Override

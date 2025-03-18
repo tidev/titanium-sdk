@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -51,6 +53,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import com.google.android.material.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
 
 /**
  *  Abstract class representing Tab Navigation in Titanium. Abstract methods in it
@@ -648,6 +652,61 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			ColorUtils.setAlphaComponent(colorInt, 0)
 		};
 		return new ColorStateList(rippleStates, rippleColors);
+	}
+
+	public void setTabGroupVisibilityWithAnimation(View view, boolean visible)
+	{
+		if (this.proxy == null || this.proxy.peekView() == null) {
+			return;
+		}
+
+		int translationY = view.getHeight();
+		if (view instanceof TabLayout) {
+			translationY = -translationY;
+		}
+
+		view.animate()
+			.translationY(visible ? 0 : translationY)
+			.setDuration(250)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationStart(Animator animation)
+				{
+					if (visible) {
+						view.setVisibility(View.VISIBLE);
+					}
+				}
+
+				@Override
+				public void onAnimationEnd(Animator animation)
+				{
+					if (!visible) {
+						view.setVisibility(View.GONE);
+					}
+				}
+			});
+
+		updateInsets(view);
+	}
+
+	public void setTabGroupVisibility(View view, boolean visible)
+	{
+		if (this.proxy == null || this.proxy.peekView() == null) {
+			return;
+		}
+
+		view.setVisibility(visible ? View.VISIBLE : View.GONE);
+		view.requestLayout();
+		updateInsets(view);
+	}
+
+	private void updateInsets(View view)
+	{
+		if (view instanceof BottomNavigationView) {
+			this.insetsProvider.setBottomBasedOn(view);
+		} else {
+			this.insetsProvider.setTopBasedOn(view);
+		}
 	}
 
 	/**

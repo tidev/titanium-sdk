@@ -762,6 +762,7 @@ public class TiC
 	public static final String PROPERTY_TABS = "tabs";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	public static final String PROPERTY_TAB_BAR_VISIBLE = "tabBarVisible";
+	public static final String PROPERTY_DISABLE_TAB_NAVIGATION = "disableTabNavigation";
 	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
 	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
 	public static final String PROPERTY_TAB_MODE = "tabMode";

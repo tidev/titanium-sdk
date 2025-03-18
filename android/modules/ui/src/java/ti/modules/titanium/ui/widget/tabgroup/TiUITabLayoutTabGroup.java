@@ -61,13 +61,22 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		enableTabsTouch();
+	}
 
-		// Show/hide the tab bar.
-		this.mTabLayout.setVisibility(disable ? View.GONE : View.VISIBLE);
-		this.mTabLayout.requestLayout();
+	private void enableTabsTouch()
+	{
+		LinearLayout tabStrip = ((LinearLayout) mTabLayout.getChildAt(0));
+		if (tabStrip == null) {
+			return;
+		}
 
-		// Update top inset. (Will remove top inset if tab bar is "gone".)
-		this.insetsProvider.setTopBasedOn(this.mTabLayout);
+		for (int i = 0; i < mTabLayout.getTabCount(); i++) {
+			View tab = tabStrip.getChildAt(i);
+			if (tab != null) {
+				tab.setOnTouchListener((v, event) -> tabsDisabled);
+			}
+		}
 	}
 
 	@Override
@@ -197,6 +206,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		this.mTabLayout.clearOnTabSelectedListeners();
 		this.mTabLayout.getTabAt(position).select();
 		this.mTabLayout.addOnTabSelectedListener(this);
+		enableTabsTouch();
 	}
 
 	@Override
@@ -487,5 +497,15 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 				break;
 			}
 		}
+	}
+
+	public void showHideTabBar(boolean visible)
+	{
+		super.setTabGroupVisibilityWithAnimation(mTabLayout, visible);
+	}
+
+	public void setTabGroupVisibility(boolean visible)
+	{
+		super.setTabGroupVisibility(mTabLayout, visible);
 	}
 }

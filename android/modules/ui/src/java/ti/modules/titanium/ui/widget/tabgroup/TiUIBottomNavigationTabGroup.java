@@ -180,14 +180,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// Set the ViewPager as a native view.
 		setNativeView(this.tabGroupViewPager);
-		if (!TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_TAB_BAR_VISIBLE), true)) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
-			this.tabGroupViewPager.setLayoutParams(params);
-			// FIXME change "500" to a calculate value https://github.com/tidev/titanium-sdk/issues/13900
-			this.mBottomNavigationView.setTranslationY(500);
-		}
 	}
 
 	/**
@@ -198,23 +190,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
-
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		ViewParent viewParent = this.tabGroupViewPager.getParent();
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(disable ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			this.tabGroupViewPager.setLayoutParams(params);
-		}
-
-		// Show/hide the tab bar.
-		this.mBottomNavigationView.setVisibility(disable ? View.GONE : View.VISIBLE);
-		this.mBottomNavigationView.requestLayout();
-
-		// Update top inset. (Will remove bottom inset if tab bar is "gone".)
-		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@Override
@@ -378,7 +353,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
-	public void setTabBarVisible(boolean visible)
+	public void showHideTabBar(boolean visible)
 	{
 		ViewParent viewParent = this.tabGroupViewPager.getParent();
 
@@ -389,22 +364,30 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			params.autoFillsWidth = true;
 			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
 
-			// make it a bit slower when moving up again so it won't show the background
-			int duration = !visible ? 200 : 400;
 			LayoutTransition lt = new LayoutTransition();
 			lt.enableTransitionType(LayoutTransition.CHANGING);
-			lt.setDuration(duration);
+			lt.setDuration(250);
 			this.tabGroupViewPager.setLayoutTransition(lt);
 			this.tabGroupViewPager.setLayoutParams(params);
 		}
 
-		if (visible) {
-			this.mBottomNavigationView.animate().translationY(0f).setDuration(200);
-		} else {
-			this.mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight()).setDuration(200);
+		super.setTabGroupVisibilityWithAnimation(mBottomNavigationView, visible);
+	}
+
+	public void setTabGroupVisibility(boolean visible)
+	{
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+
+		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
+		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
+		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+			this.tabGroupViewPager.setLayoutParams(params);
 		}
 
-		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
+		super.setTabGroupVisibility(mBottomNavigationView, visible);
 	}
 
 	@SuppressLint("RestrictedApi")
@@ -523,6 +506,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public boolean onMenuItemClick(MenuItem item)
 	{
+		if (tabsDisabled) {
+			return true;
+		}
+
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
 		// Guard for clicking on the currently selected tab.
