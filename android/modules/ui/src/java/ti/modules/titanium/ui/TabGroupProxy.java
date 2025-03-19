@@ -69,7 +69,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private String tabGroupTitle = null;
 	private boolean autoTabTitle = false;
 	private boolean isTabBarVisible = true;
-	private boolean isTabNavigationDisabled = false;
+	private boolean isTabGroupEnabled = true;
 
 	public TabGroupProxy()
 	{
@@ -85,15 +85,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Kroll.setProperty
-	public void disableTabNavigation(boolean disable)
+	public void setEnabled(boolean enabled)
 	{
-		isTabNavigationDisabled = disable;
+		isTabGroupEnabled = enabled;
 
 		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
-			bottomTabGroup.disableTabNavigation(isTabNavigationDisabled);
+			bottomTabGroup.disableTabNavigation(!isTabGroupEnabled);
 		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
-			tabGroupDefault.disableTabNavigation(isTabNavigationDisabled);
+			tabGroupDefault.disableTabNavigation(!isTabGroupEnabled);
 		}
+	}
+
+	@Kroll.getProperty
+	public boolean getEnabled()
+	{
+		return isTabGroupEnabled;
 	}
 
 	@Kroll.method
@@ -296,10 +302,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_TAB_BAR_VISIBLE)) {
 			isTabBarVisible = options.optBoolean(TiC.PROPERTY_TAB_BAR_VISIBLE, isTabBarVisible);
 		}
-		if (options.containsKeyAndNotNull(TiC.PROPERTY_DISABLE_TAB_NAVIGATION)) {
-			isTabNavigationDisabled = options.optBoolean(
-				TiC.PROPERTY_DISABLE_TAB_NAVIGATION, isTabNavigationDisabled
-			);
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_ENABLED)) {
+			isTabGroupEnabled = options.optBoolean(TiC.PROPERTY_ENABLED, isTabGroupEnabled);
 		}
 	}
 
@@ -485,7 +489,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		isFocused = true;
 
 		// Update UI if these properties are set before the native view is created.
-		disableTabNavigation(isTabNavigationDisabled);
+		setEnabled(isTabGroupEnabled);
 		setTabBarVisible(isTabBarVisible);
 	}
 

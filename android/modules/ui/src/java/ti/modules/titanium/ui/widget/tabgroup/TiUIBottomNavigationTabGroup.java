@@ -13,6 +13,7 @@ import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewParent;
@@ -190,6 +191,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		enableBottomTabs();
+	}
+
+	private void enableBottomTabs()
+	{
+		Menu menu = this.mBottomNavigationView.getMenu();
+		for (int i = 0; i < menu.size(); i++) {
+			menu.getItem(i).setEnabled(!tabsDisabled);
+		}
 	}
 
 	@Override
