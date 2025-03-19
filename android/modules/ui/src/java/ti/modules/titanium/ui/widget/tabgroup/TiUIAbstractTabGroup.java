@@ -695,6 +695,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			return;
 		}
 
+		int translationY = view.getHeight();
+		if (view instanceof TabLayout) {
+			translationY = -translationY;
+		}
+
+		view.setTranslationY(visible ? 0 : translationY);
 		view.setVisibility(visible ? View.VISIBLE : View.GONE);
 		view.requestLayout();
 		updateInsets(view);
