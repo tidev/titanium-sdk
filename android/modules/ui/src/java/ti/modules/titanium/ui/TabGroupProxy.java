@@ -6,10 +6,14 @@
  */
 package ti.modules.titanium.ui;
 
+import static ti.modules.titanium.android.AndroidModule.STATUS_BAR_LIGHT;
+
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -29,6 +33,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -38,6 +43,7 @@ import java.util.ArrayList;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigation;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 
@@ -48,7 +54,8 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 		TiC.PROPERTY_SWIPEABLE,
 		TiC.PROPERTY_AUTO_TAB_TITLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
-		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
+		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK,
+		TiC.PROPERTY_INDICATOR_COLOR
 	})
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -210,6 +217,22 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.setProperty
+	public void setEnabled(Boolean enabled)
+	{
+		tabEnabled = enabled;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+		if (tabGroup != null) {
+			tabGroup.setEnabled(enabled);
+		}
+	}
+
+	@Kroll.getProperty
+	public Boolean getEnabled()
+	{
+		return tabEnabled;
+	}
+
 	private TabProxy getActiveTabProxy()
 	{
 		Object activeTab = getActiveTab();
@@ -349,6 +372,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (topActivity == null || topActivity.isFinishing()) {
 			return;
 		}
+
+		// set theme for XML layout
+		if (hasProperty(TiC.PROPERTY_STYLE)
+			&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
+			&& getProperty(TiC.PROPERTY_THEME) != null) {
+			try {
+				String themeName = getProperty(TiC.PROPERTY_THEME).toString();
+				int theme = TiRHelper.getResource("style."
+					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
+				topActivity.setTheme(theme);
+				topActivity.getApplicationContext().setTheme(theme);
+			} catch (Exception e) {
+			}
+		}
+
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
@@ -393,7 +431,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				((TiUITabLayoutTabGroup) view).setTabMode((Integer) getProperty(TiC.PROPERTY_TAB_MODE));
 			}
 		} else {
-			view = new TiUIBottomNavigationTabGroup(this, activity);
+			if (TiConvert.toBoolean(getProperty("experimental"), false)) {
+				view = new TiUIBottomNavigation(this, activity);
+			} else {
+				view = new TiUIBottomNavigationTabGroup(this, activity);
+			}
 		}
 		// If we have set a title before the creation of the native view, set it now.
 		if (this.tabGroupTitle != null) {
@@ -431,6 +473,22 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Need to handle the cached activity proxy properties in the JS side.
 		callPropertySync(PROPERTY_POST_TAB_GROUP_CREATED, null);
+
+		if (getActivity() != null) {
+			if (hasPropertyAndNotNull(TiC.PROPERTY_FLAGS)) {
+				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT
+					&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+					getActivity().getWindow().getDecorView()
+						.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+				}
+			}
+			if (hasPropertyAndNotNull(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+				int colorInt = TiColorHelper.parseColor(
+					TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)),
+					TiApplication.getAppRootOrCurrentActivity());
+				getActivity().getWindow().setStatusBarColor(colorInt);
+			}
+		}
 	}
 
 	@Override

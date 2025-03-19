@@ -246,6 +246,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	}
 
 	@Override
+	public void updateActiveIndicatorColor(int color)
+	{
+
+	}
+
+	@Override
 	public void updateTabTitle(int index)
 	{
 		if ((index < 0) || (index >= this.tabs.size())) {
@@ -384,6 +390,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		}
 
 		return this.mTabLayout.getTabAt(index).getText().toString();
+	}
+
+	@Override
+	public void setEnabled(Boolean enabled)
+	{
+
 	}
 
 	/**

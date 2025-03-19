@@ -9,7 +9,7 @@ on:
 
 jobs:
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1

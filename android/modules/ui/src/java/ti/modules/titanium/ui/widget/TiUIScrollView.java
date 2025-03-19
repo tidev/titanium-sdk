@@ -1014,34 +1014,45 @@ public class TiUIScrollView extends TiUIView
 		view.computeScroll();
 	}
 
-	public void scrollToBottom()
+	public void scrollToBottom(boolean animated)
 	{
 		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
 			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
 		} else if (view instanceof TiVerticalScrollView) {
-			((TiVerticalScrollView) view).fullScroll(View.FOCUS_DOWN);
+			if (animated == false) {
+				((TiVerticalScrollView) view).fullScroll(View.FOCUS_DOWN);
+			} else {
+				NestedScrollView nestedScrollView = ((TiVerticalScrollView) view);
+				nestedScrollView.smoothScrollBy(0, nestedScrollView.getChildAt(0).getHeight());
+			}
 		}
 	}
 
-	public void scrollToTop()
+	public void scrollToTop(boolean animated)
 	{
 		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
 			// Scroll to the left-most side of the horizontal scroll view.
 			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_LEFT);
 		} else if (view instanceof TiVerticalScrollView) {
-			// Scroll to the top of the vertical scroll view.
-			// Note: There is a bug in Google's NestedScrollView where smooth scrolling to top fails
-			//       and can scroll down instead. We must work-around it by temporarily disabling it.
-			TiVerticalScrollView verticalScrollView = (TiVerticalScrollView) view;
-			boolean wasEnabled = verticalScrollView.isSmoothScrollingEnabled();
-			verticalScrollView.setSmoothScrollingEnabled(false);
-			try {
-				((TiVerticalScrollView) view).fullScroll(View.FOCUS_UP);
-			} finally {
-				verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
+			if (animated == false) {
+				// Scroll to the top of the vertical scroll view.
+				// Note: There is a bug in Google's NestedScrollView where smooth scrolling to top fails
+				//       and can scroll down instead. We must work-around it by temporarily disabling it.
+				TiVerticalScrollView verticalScrollView = (TiVerticalScrollView) view;
+				boolean wasEnabled = verticalScrollView.isSmoothScrollingEnabled();
+				verticalScrollView.setSmoothScrollingEnabled(false);
+				try {
+					((TiVerticalScrollView) view).fullScroll(View.FOCUS_UP);
+				} finally {
+					verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
+				}
+			} else {
+				NestedScrollView nestedScrollView = ((TiVerticalScrollView) view);
+				nestedScrollView.smoothScrollBy(0, -nestedScrollView.getChildAt(0).getHeight());
 			}
+
 		}
 	}
 

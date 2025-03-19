@@ -42,6 +42,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
@@ -120,6 +121,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	public abstract void updateTabBackgroundDrawable(int index);
 
 	/**
+	 * Material 3 active indicator color
+	 *
+	 * @param color color
+	 */
+	public abstract void updateActiveIndicatorColor(int color);
+
+	/**
 	 * Update the tab's title to the proper text.
 	 *
 	 * @param index of the Tab to update.
@@ -147,6 +155,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 * @return Returns the tab's title.
 	 */
 	public abstract String getTabTitle(int index);
+
+	/**
+	 * Enables/disables tab menu
+	 *
+	 * @param enabled value
+	 */
+	public abstract void setEnabled(Boolean enabled);
 
 	// region protected fields
 	protected final static String TAG = "TiUIAbstractTabGroup";
@@ -458,7 +473,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		// Set action bar color.
 		if (proxy != null) {
 			final ActionBar actionBar = ((AppCompatActivity) proxy.getActivity()).getSupportActionBar();
-			if (actionBar != null) {
+			if (actionBar != null && !this.tabs.isEmpty()) {
 				final TiWindowProxy windowProxy = ((TabProxy) this.tabs.get(tabIndex).getProxy()).getWindow();
 				final KrollDict windowProperties = windowProxy.getProperties();
 				final KrollDict properties = getProxy().getProperties();
@@ -499,6 +514,9 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		} else {
 			setBackgroundColor(getDefaultBackgroundColor());
 		}
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_INDICATOR_COLOR)) {
+			updateActiveIndicatorColor(TiConvert.toColor(d, TiC.PROPERTY_INDICATOR_COLOR, proxy.getActivity()));
+		}
 		super.processProperties(d);
 	}
 
@@ -520,6 +538,8 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			for (TiUITab tabView : tabs) {
 				updateTabBackgroundDrawable(tabs.indexOf(tabView));
 			}
+		} else if (key.equals(TiC.PROPERTY_INDICATOR_COLOR)) {
+			updateActiveIndicatorColor(TiColorHelper.parseColor(newValue.toString(), proxy.getActivity()));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -556,7 +576,12 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		}
 
 		// Clone existing drawable so color filter applies correctly.
-		drawable = drawable.getConstantState().newDrawable();
+		if (drawable.getConstantState() == null && drawable.getClass() == TiIconDrawable.class) {
+			// TiIconDrawable
+			drawable = drawable.mutate();
+		} else {
+			drawable = drawable.getConstantState().newDrawable();
+		}
 
 		final KrollDict tabProperties = tabProxy.getProperties();
 		final KrollDict properties = getProxy().getProperties();
