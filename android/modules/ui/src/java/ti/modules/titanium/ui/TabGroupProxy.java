@@ -217,22 +217,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.setProperty
-	public void setEnabled(Boolean enabled)
-	{
-		tabEnabled = enabled;
-		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-		if (tabGroup != null) {
-			tabGroup.setEnabled(enabled);
-		}
-	}
-
-	@Kroll.getProperty
-	public Boolean getEnabled()
-	{
-		return tabEnabled;
-	}
-
 	private TabProxy getActiveTabProxy()
 	{
 		Object activeTab = getActiveTab();
