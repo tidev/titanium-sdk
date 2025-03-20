@@ -535,6 +535,18 @@ methods:
         default: "{ animated: true }"
     platforms: [iphone, ipad, macos]
 
+  - name: hideTabBar
+    summary: Hides the tab bar. Must be called before opening the window.
+    description: |
+        To hide the tab bar when opening a window as a child of a tab, call
+        `hideTabBar` or set `tabBarHidden` to `true` **before** opening the window.
+        If the window is not a child of a tab, this method has no effect.
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
+     
   - name: open
     summary: Opens the window.
     parameters:
@@ -583,6 +595,18 @@ methods:
         default: "{ animated: true }"
     platforms: [iphone, ipad, macos]
 
+  - name: showTabBar
+    summary: Shows the tab bar. Must be called before opening the window.
+    description: |
+        To show the tab bar when opening a window as a child of a tab, call
+        `showTabBar` or set `tabBarHidden` to `false` **before** opening the window.
+        If the window is not a child of a tab, this method has no effect.
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
+        
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
