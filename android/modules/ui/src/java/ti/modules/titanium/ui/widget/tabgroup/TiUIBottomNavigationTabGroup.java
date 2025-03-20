@@ -191,10 +191,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
-		enableBottomTabs();
+		updateTabsInteraction();
 	}
 
-	private void enableBottomTabs()
+	/**
+	 * Enable or disable tabs click event.
+	 */
+	private void updateTabsInteraction()
 	{
 		Menu menu = this.mBottomNavigationView.getMenu();
 		for (int i = 0; i < menu.size(); i++) {

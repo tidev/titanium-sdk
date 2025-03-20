@@ -40,6 +40,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
@@ -89,6 +90,37 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public int getTabIndex(TabProxy tabProxy)
 	{
 		return tabs.indexOf(tabProxy);
+	}
+
+	@Kroll.method
+	public void disableTabNavigation(Object params)
+	{
+		String message
+			= "Ti.UI.TabGroup.disableTabNavigation() has been deprecated in 12.7.0 in favor of"
+			+ " Ti.UI.TabGroup.tabBarVisible and Ti.UI.TabGroup.enabled properties."
+			+ " Ti.UI.TabGroup.disableTabNavigation() will be removed since 13.0.0.";
+		Log.w(TAG, message);
+
+		if (params instanceof Boolean) {
+			boolean isEnabled = !TiConvert.toBoolean(params, false);
+			setEnabled(isEnabled);
+			setTabBarVisible(isEnabled);
+			return;
+		}
+
+		if (params instanceof HashMap<?, ?>) {
+			KrollDict options = new KrollDict((HashMap<String, Object>) params);
+
+			boolean isEnabled = !options.optBoolean(TiC.PROPERTY_ENABLED, false);
+			boolean isAnimated = options.optBoolean(TiC.PROPERTY_ANIMATED, false);
+			setEnabled(isEnabled);
+
+			if (isAnimated) {
+				showHideTabBar(isEnabled);
+			} else {
+				setTabBarVisible(isEnabled);
+			}
+		}
 	}
 
 	@Kroll.setProperty
