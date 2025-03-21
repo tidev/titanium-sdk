@@ -6,6 +6,9 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.LayoutTransition;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -29,12 +32,14 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
@@ -42,6 +47,7 @@ import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -52,6 +58,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 import com.google.android.material.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
 
 /**
  *  Abstract class representing Tab Navigation in Titanium. Abstract methods in it
@@ -154,10 +162,15 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 
 	/**
 	 * Enables/disables tab menu
-	 *
-	 * @param enabled value
 	 */
-	public abstract void setEnabled(Boolean enabled);
+	public abstract void setEnabled();
+
+	/**
+	 * Returns the navigation-view associated with this TabGroup.
+	 * Generally used to check if it's height is available or should be requested later.
+	 * @return view
+	 */
+	public abstract void onViewSizeAvailable(Runnable runnable);
 
 	// region protected fields
 	protected final static String TAG = "TiUIAbstractTabGroup";
@@ -673,6 +686,89 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 			ColorUtils.setAlphaComponent(colorInt, 0)
 		};
 		return new ColorStateList(rippleStates, rippleColors);
+	}
+
+	public void setTabGroupVisibilityWithAnimation(View view, boolean visible)
+	{
+		if (this.proxy == null || this.proxy.peekView() == null) {
+			return;
+		}
+
+		int translationY = view.getHeight();
+		if (view instanceof TabLayout) {
+			translationY = -translationY;
+		}
+
+		view.animate()
+			.translationY(visible ? 0 : translationY)
+			.setDuration(250)
+			.setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationStart(Animator animation)
+				{
+					if (visible) {
+						view.setVisibility(View.VISIBLE);
+					}
+				}
+
+				@Override
+				public void onAnimationEnd(Animator animation)
+				{
+					if (!visible) {
+						view.setVisibility(View.GONE);
+					}
+				}
+			});
+
+		updateInsets(view);
+	}
+
+	public void setTabGroupVisibility(View view, boolean visible)
+	{
+		if (this.proxy == null || this.proxy.peekView() == null) {
+			return;
+		}
+
+		int translationY = view.getHeight();
+		if (view instanceof TabLayout) {
+			translationY = -translationY;
+		}
+
+		view.setTranslationY(visible ? 0 : translationY);
+		view.setVisibility(visible ? View.VISIBLE : View.GONE);
+		view.requestLayout();
+		updateInsets(view);
+	}
+
+	public void setTabGroupViewPagerLayout(boolean visible, int viewHeight, boolean animated)
+	{
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+
+		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
+		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
+		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(!visible ? 0 : viewHeight, TiDimension.TYPE_BOTTOM);
+
+			if (animated) {
+				LayoutTransition lt = new LayoutTransition();
+				lt.enableTransitionType(LayoutTransition.CHANGING);
+				lt.setDuration(250);
+				this.tabGroupViewPager.setLayoutTransition(lt);
+			}
+
+			this.tabGroupViewPager.setLayoutParams(params);
+		}
+	}
+
+	private void updateInsets(View view)
+	{
+		if (view instanceof BottomNavigationView) {
+			this.insetsProvider.setBottomBasedOn(view);
+		} else {
+			this.insetsProvider.setTopBasedOn(view);
+		}
 	}
 
 	/**

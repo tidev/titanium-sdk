@@ -370,9 +370,32 @@ DEFINE_EXCEPTIONS
 
 - (void)setTabBarVisible_:(id)value
 {
-  BOOL visible = [TiUtils boolValue:value];
+  bool isIOSVersionLowerThan18 = [TiUtils isIOSVersionLower:@"18.0"];
+  if (isIOSVersionLowerThan18) {
+    DEPRECATED_REPLACED_REMOVED(@"UI.TabGroup.tabBarVisible's animation on iOS <= 17 is",
+        @"12.7.0", @"13.0.0",
+        @"UI.TabGroup.showTabBar/hideTabBar methods.");
+  }
 
-  if ([self tabBarIsVisible] == visible) {
+  [self hideTabBar:![TiUtils boolValue:value def:YES] animated:isIOSVersionLowerThan18];
+}
+
+- (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated
+{
+  // iOS 18+
+  if (@available(iOS 18.0, *)) {
+    [self.tabController setTabBarHidden:hidden animated:animated];
+    return;
+  }
+
+  // iOS 17 or below without animation.
+  if (!animated) {
+    self.tabController.tabBar.hidden = hidden;
+    return;
+  }
+
+  // iOS 17 or below with animation.
+  if (isTabBarHidden == hidden) {
     return;
   }
 
@@ -380,15 +403,19 @@ DEFINE_EXCEPTIONS
   CGFloat height = frame.size.height;
 
   [UIView animateWithDuration:0.3
-                   animations:^{
-                     self.tabController.tabBar.frame = CGRectOffset(frame, 0, visible ? -height : height);
-                   }
-                   completion:nil];
-}
+      animations:^{
+        self.tabController.tabBar.frame = CGRectOffset(frame, 0, hidden ? height : -height);
+      }
+      completion:^(BOOL finished) {
+        if (finished) {
+          isTabBarHidden = hidden;
 
-- (BOOL)tabBarIsVisible
-{
-  return self.tabController.tabBar.frame.origin.y < CGRectGetMaxY(self.tabController.view.frame);
+          // Adjust the bottom padding for the current tab view.
+          CGRect viewFrame = self.tabController.view.frame;
+          CGFloat viewHeight = viewFrame.size.height + (hidden ? height : -height);
+          self.tabController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewHeight);
+        }
+      }];
 }
 
 - (void)setTabsBackgroundColor_:(id)value
@@ -648,7 +675,7 @@ DEFINE_EXCEPTIONS
 
         self.tabController.view.frame = self.bounds;
         [self addSubview:self.tabController.view];
-
+        isTabBarHidden = NO;
         [TiApp.controller.topPresentedController addChildViewController:self.tabController];
       },
       NO);

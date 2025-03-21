@@ -20,12 +20,15 @@
   TiColor *barColor;
   TiColor *navTintColor;
   NSMutableDictionary *theAttributes;
+
+  BOOL isTabBarHidden;
 }
 
 - (UITabBarController *)tabController;
 
 - (void)open:(id)args;
 - (void)close:(id)args;
+- (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated;
 
 - (NSDictionary *)focusEvent;
 

@@ -696,11 +696,13 @@
 
 - (void)hideTabBar:(id)value
 {
+  DEPRECATED_REPLACED_REMOVED(@"UI.Window.hideTabBar()", @"12.7.0", @"13.0.0", @"UI.Window.tabBarHidden");
   [self setTabBarHidden:[NSNumber numberWithBool:YES]];
 }
 
 - (void)showTabBar:(id)value
 {
+  DEPRECATED_REPLACED_REMOVED(@"UI.Window.showTabBar()", @"12.7.0", @"13.0.0", @"UI.Window.tabBarHidden");
   [self setTabBarHidden:[NSNumber numberWithBool:NO]];
 }
 

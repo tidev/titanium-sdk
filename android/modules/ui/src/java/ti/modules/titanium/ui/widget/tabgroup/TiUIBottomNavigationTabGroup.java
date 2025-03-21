@@ -6,16 +6,15 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.Window;
 
 import androidx.annotation.ColorInt;
@@ -180,14 +179,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// Set the ViewPager as a native view.
 		setNativeView(this.tabGroupViewPager);
-		if (!TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_TAB_BAR_VISIBLE), true)) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(0, TiDimension.TYPE_BOTTOM);
-			this.tabGroupViewPager.setLayoutParams(params);
-			// FIXME change "500" to a calculate value https://github.com/tidev/titanium-sdk/issues/13900
-			this.mBottomNavigationView.setTranslationY(500);
-		}
 	}
 
 	/**
@@ -198,23 +189,19 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		setEnabled();
+	}
 
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		ViewParent viewParent = this.tabGroupViewPager.getParent();
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(disable ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			this.tabGroupViewPager.setLayoutParams(params);
+	/**
+	 * Enable or disable tabs click event.
+	 */
+	@Override
+	public void setEnabled()
+	{
+		Menu menu = this.mBottomNavigationView.getMenu();
+		for (int i = 0; i < menu.size(); i++) {
+			menu.getItem(i).setEnabled(!tabsDisabled);
 		}
-
-		// Show/hide the tab bar.
-		this.mBottomNavigationView.setVisibility(disable ? View.GONE : View.VISIBLE);
-		this.mBottomNavigationView.requestLayout();
-
-		// Update top inset. (Will remove bottom inset if tab bar is "gone".)
-		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@Override
@@ -384,33 +371,28 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
-	public void setTabBarVisible(boolean visible)
+	public void showHideTabBar(boolean visible)
 	{
-		ViewParent viewParent = this.tabGroupViewPager.getParent();
+		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, true);
+		super.setTabGroupVisibilityWithAnimation(mBottomNavigationView, visible);
+	}
 
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+	public void setTabGroupVisibility(boolean visible)
+	{
+		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, false);
+		super.setTabGroupVisibility(mBottomNavigationView, visible);
+	}
 
-			// make it a bit slower when moving up again so it won't show the background
-			int duration = !visible ? 200 : 400;
-			LayoutTransition lt = new LayoutTransition();
-			lt.enableTransitionType(LayoutTransition.CHANGING);
-			lt.setDuration(duration);
-			this.tabGroupViewPager.setLayoutTransition(lt);
-			this.tabGroupViewPager.setLayoutParams(params);
-		}
-
-		if (visible) {
-			this.mBottomNavigationView.animate().translationY(0f).setDuration(200);
+	@Override
+	public void onViewSizeAvailable(Runnable runnable)
+	{
+		if (mBottomNavigationView.getHeight() > 0) {
+			// Height is already available, run immediately.
+			runnable.run();
 		} else {
-			this.mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight()).setDuration(200);
+			// Height not available, post it to run after a layout pass.
+			mBottomNavigationView.post(runnable);
 		}
-
-		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@SuppressLint("RestrictedApi")
@@ -520,14 +502,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		return this.mBottomNavigationView.getMenu().getItem(index).getTitle().toString();
 	}
 
-	@Override
-	public void setEnabled(Boolean enabled)
-	{
-		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
-			this.mBottomNavigationView.getMenu().getItem(i).setEnabled(enabled);
-		}
-	}
-
 	/**
 	 * After a menu item is clicked this method sends the proper index to the ViewPager to a select
 	 * a page. Also takes care of sending SELECTED/UNSELECTED events from the proper tabs.
@@ -537,6 +511,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public boolean onMenuItemClick(MenuItem item)
 	{
+		if (tabsDisabled) {
+			return true;
+		}
+
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
 		// Guard for clicking on the currently selected tab.
