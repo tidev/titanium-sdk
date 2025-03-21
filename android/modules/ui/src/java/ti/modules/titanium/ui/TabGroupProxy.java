@@ -166,6 +166,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			bottomTabGroup.setTabGroupVisibility(visible);
 		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
 			tabGroupDefault.setTabGroupVisibility(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.setTabGroupVisibility(visible);
 		}
 	}
 
@@ -187,6 +189,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			bottomTabGroup.showHideTabBar(visible);
 		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
 			tabGroupDefault.showHideTabBar(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.showHideTabBar(visible);
 		}
 	}
 
