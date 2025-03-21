@@ -383,6 +383,18 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		super.setTabGroupVisibility(mBottomNavigationView, visible);
 	}
 
+	@Override
+	public void onViewSizeAvailable(Runnable runnable)
+	{
+		if (mBottomNavigationView.getHeight() > 0) {
+			// Height is already available, run immediately.
+			runnable.run();
+		} else {
+			// Height not available, post it to run after a layout pass.
+			mBottomNavigationView.post(runnable);
+		}
+	}
+
 	@SuppressLint("RestrictedApi")
 	@Override
 	public void updateBadge(int index)

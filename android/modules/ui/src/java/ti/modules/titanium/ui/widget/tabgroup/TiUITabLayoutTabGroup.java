@@ -518,4 +518,16 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		super.setTabGroupVisibility(mTabLayout, visible);
 	}
+
+	@Override
+	public void onViewSizeAvailable(Runnable runnable)
+	{
+		if (mTabLayout.getHeight() > 0) {
+			// Height is already available, run immediately.
+			runnable.run();
+		} else {
+			// Height not available, post it to run after a layout pass.
+			mTabLayout.post(runnable);
+		}
+	}
 }

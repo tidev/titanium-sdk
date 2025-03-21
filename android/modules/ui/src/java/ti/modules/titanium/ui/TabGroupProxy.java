@@ -560,8 +560,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		isFocused = true;
 
 		// Update UI if these properties are set before the native view is created.
-		setEnabled(isTabGroupEnabled);
-		setTabBarVisible(isTabBarVisible);
+		tabGroup.onViewSizeAvailable(() -> {
+			setEnabled(isTabGroupEnabled);
+			setTabBarVisible(isTabBarVisible);
+		});
 	}
 
 	@Override

@@ -165,6 +165,13 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	 */
 	public abstract void setEnabled();
 
+	/**
+	 * Returns the navigation-view associated with this TabGroup.
+	 * Generally used to check if it's height is available or should be requested later.
+	 * @return view
+	 */
+	public abstract void onViewSizeAvailable(Runnable runnable);
+
 	// region protected fields
 	protected final static String TAG = "TiUIAbstractTabGroup";
 	protected static final String WARNING_LAYOUT_MESSAGE =
