@@ -191,13 +191,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
-		updateTabsInteraction();
+		setEnabled();
 	}
 
 	/**
 	 * Enable or disable tabs click event.
 	 */
-	private void updateTabsInteraction()
+	@Override
+	public void setEnabled()
 	{
 		Menu menu = this.mBottomNavigationView.getMenu();
 		for (int i = 0; i < menu.size(); i++) {
@@ -514,14 +515,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return null;
 		}
 		return this.mBottomNavigationView.getMenu().getItem(index).getTitle().toString();
-	}
-
-	@Override
-	public void setEnabled(Boolean enabled)
-	{
-		for (int i = 0; i < this.mBottomNavigationView.getMenu().size(); i++) {
-			this.mBottomNavigationView.getMenu().getItem(i).setEnabled(enabled);
-		}
 	}
 
 	/**

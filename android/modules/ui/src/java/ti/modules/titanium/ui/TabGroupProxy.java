@@ -127,11 +127,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public void setEnabled(boolean enabled)
 	{
 		isTabGroupEnabled = enabled;
-
-		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
-			bottomTabGroup.disableTabNavigation(!isTabGroupEnabled);
-		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
-			tabGroupDefault.disableTabNavigation(!isTabGroupEnabled);
+		if (view != null) {
+			((TiUIAbstractTabGroup) view).disableTabNavigation(!isTabGroupEnabled);
 		}
 	}
 

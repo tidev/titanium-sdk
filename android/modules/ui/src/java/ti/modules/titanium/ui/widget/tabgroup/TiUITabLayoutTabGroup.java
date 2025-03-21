@@ -61,13 +61,14 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
-		updateTabsInteraction();
+		setEnabled();
 	}
 
 	/**
 	 * Enable or disable tabs click event.
 	 */
-	private void updateTabsInteraction()
+	@Override
+	public void setEnabled()
 	{
 		LinearLayout tabStrip = ((LinearLayout) mTabLayout.getChildAt(0));
 		if (tabStrip == null) {
@@ -209,7 +210,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		this.mTabLayout.clearOnTabSelectedListeners();
 		this.mTabLayout.getTabAt(position).select();
 		this.mTabLayout.addOnTabSelectedListener(this);
-		updateTabsInteraction();
+		setEnabled();
 	}
 
 	@Override
@@ -393,12 +394,6 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		}
 
 		return this.mTabLayout.getTabAt(index).getText().toString();
-	}
-
-	@Override
-	public void setEnabled(Boolean enabled)
-	{
-
 	}
 
 	/**
