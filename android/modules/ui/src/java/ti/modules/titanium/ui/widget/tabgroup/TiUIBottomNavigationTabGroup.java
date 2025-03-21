@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -16,7 +15,6 @@ import android.os.Build;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.Window;
 
 import androidx.annotation.ColorInt;
@@ -375,38 +373,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	public void showHideTabBar(boolean visible)
 	{
-		ViewParent viewParent = this.tabGroupViewPager.getParent();
-
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-
-			LayoutTransition lt = new LayoutTransition();
-			lt.enableTransitionType(LayoutTransition.CHANGING);
-			lt.setDuration(250);
-			this.tabGroupViewPager.setLayoutTransition(lt);
-			this.tabGroupViewPager.setLayoutParams(params);
-		}
-
+		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, true);
 		super.setTabGroupVisibilityWithAnimation(mBottomNavigationView, visible);
 	}
 
 	public void setTabGroupVisibility(boolean visible)
 	{
-		ViewParent viewParent = this.tabGroupViewPager.getParent();
-
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			this.tabGroupViewPager.setLayoutParams(params);
-		}
-
+		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, false);
 		super.setTabGroupVisibility(mBottomNavigationView, visible);
 	}
 
