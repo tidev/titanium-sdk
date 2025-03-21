@@ -651,6 +651,7 @@ properties:
     summary: Programmatically shows / hides the bottom tab bar of the tab group.
     description: |
         This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
+        Notes: Animation effect is applied on iOS <= 17, but will be removed in SDK 13.0.0. 
     type: Boolean
     default: true
     platforms: [android, iphone, ipad, macos]

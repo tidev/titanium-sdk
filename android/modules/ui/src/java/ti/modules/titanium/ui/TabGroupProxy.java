@@ -98,7 +98,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		String message
 			= "Ti.UI.TabGroup.disableTabNavigation() has been deprecated in 12.7.0 in favor of"
 			+ " Ti.UI.TabGroup.tabBarVisible and Ti.UI.TabGroup.enabled properties."
-			+ " Ti.UI.TabGroup.disableTabNavigation() will be removed since 13.0.0.";
+			+ " Ti.UI.TabGroup.disableTabNavigation() will be removed in 13.0.0.";
 		Log.w(TAG, message);
 
 		if (params instanceof Boolean) {
