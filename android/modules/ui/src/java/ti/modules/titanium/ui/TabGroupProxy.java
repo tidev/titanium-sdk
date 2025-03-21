@@ -132,6 +132,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			bottomTabGroup.disableTabNavigation(!isTabGroupEnabled);
 		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
 			tabGroupDefault.disableTabNavigation(!isTabGroupEnabled);
+		} else if (view instanceof TiUIBottomNavigation bottomTabGroup) {
+			bottomTabGroup.disableTabNavigation(!isTabGroupEnabled);
 		}
 	}
 
@@ -169,6 +171,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			bottomTabGroup.setTabGroupVisibility(visible);
 		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
 			tabGroupDefault.setTabGroupVisibility(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomTabGroup) {
+			bottomTabGroup.showHideTabBar(visible, false);
 		}
 	}
 
@@ -190,6 +194,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			bottomTabGroup.showHideTabBar(visible);
 		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
 			tabGroupDefault.showHideTabBar(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomTabGroup) {
+			bottomTabGroup.showHideTabBar(visible, true);
 		}
 	}
 

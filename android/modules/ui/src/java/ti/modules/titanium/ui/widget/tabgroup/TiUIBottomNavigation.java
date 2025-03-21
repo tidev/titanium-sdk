@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewParent;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
@@ -41,6 +43,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 
 import java.util.ArrayList;
@@ -64,7 +67,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
-
+	private int mBottomNavigationHeightValue;
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
@@ -120,6 +123,8 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 			bottomNavigation.setOnItemSelectedListener(this);
 			activity.setLayout(layout);
+
+			mBottomNavigationHeightValue = bottomNavigation.getHeight();
 
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_LEFT)
 				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_RIGHT)
@@ -183,6 +188,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		setEnabled(!disable);
 	}
 
 	@Override
@@ -549,5 +555,31 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		selectTab(item.getItemId());
 		((TabGroupProxy) getProxy()).onTabSelected(item.getItemId());
 		return true;
+	}
+
+	public void showHideTabBar(boolean visible, boolean animate)
+	{
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+
+		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
+		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
+		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
+			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
+			params.autoFillsWidth = true;
+			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
+
+			if (animate) {
+				LayoutTransition lt = new LayoutTransition();
+				lt.enableTransitionType(LayoutTransition.CHANGING);
+				lt.setDuration(250);
+				this.tabGroupViewPager.setLayoutTransition(lt);
+			}
+			this.tabGroupViewPager.setLayoutParams(params);
+		}
+		if (animate) {
+			super.setTabGroupVisibilityWithAnimation(bottomNavigation, visible);
+		} else {
+			super.setTabGroupVisibility(bottomNavigation, visible);
+		}
 	}
 }
