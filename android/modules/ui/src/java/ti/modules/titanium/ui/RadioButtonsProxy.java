@@ -16,13 +16,14 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIRadioButtons;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_LABELS,
+	TiC.PROPERTY_LABELS, TiC.PROPERTY_SELECTED_INDEX
 })
 public class RadioButtonsProxy extends TiViewProxy
 {
 	@Override
 	public TiUIView createView(Activity activity)
 	{
+		defaultValues.put(TiC.PROPERTY_SELECTED_INDEX, -1);
 		return new TiUIRadioButtons(this);
 	}
 

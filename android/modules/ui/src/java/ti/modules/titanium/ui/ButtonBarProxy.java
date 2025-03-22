@@ -14,14 +14,13 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIButtonBar;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_LABELS, TiC.PROPERTY_SELECTED_INDEX
+	TiC.PROPERTY_LABELS
 })
 public class ButtonBarProxy extends TiViewProxy
 {
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		defaultValues.put(TiC.PROPERTY_SELECTED_INDEX, -1);
 		return new TiUIButtonBar(this);
 	}
 
