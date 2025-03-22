@@ -1141,6 +1141,16 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_CLIP_MODE) && !nativeViewNull) {
+			if (nativeView != null
+				&& TiConvert.toInt(d, TiC.PROPERTY_CLIP_MODE) == -1
+				&& nativeView instanceof ViewGroup viewGroup
+				&& viewGroup.getParent() == null) {
+				viewGroup.setClipChildren(false);
+				viewGroup.setClipToPadding(false);
+			}
+		}
+
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}

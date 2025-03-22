@@ -437,6 +437,13 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	public static final int HIDDEN_BEHAVIOR_INVISIBLE = View.INVISIBLE;
 
 	@Kroll.constant
+	public static final int CLIP_MODE_DEFAULT  = 0;
+	@Kroll.constant
+	public static final int CLIP_MODE_ENABLED  = 1;
+	@Kroll.constant
+	public static final int CLIP_MODE_DISABLED = -1;
+
+	@Kroll.constant
 	public static final int USER_INTERFACE_STYLE_LIGHT = Configuration.UI_MODE_NIGHT_NO;
 	@Kroll.constant
 	public static final int USER_INTERFACE_STYLE_DARK = Configuration.UI_MODE_NIGHT_YES;
