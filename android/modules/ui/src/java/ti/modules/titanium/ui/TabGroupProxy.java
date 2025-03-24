@@ -76,7 +76,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private Object selectedTab; // NOTE: Can be TabProxy or Number
 	private String tabGroupTitle = null;
 	private boolean autoTabTitle = false;
-	private boolean tabEnabled = true;
+	private boolean isTabBarVisible = true;
+	private boolean isTabGroupEnabled = true;
 
 	public TabGroupProxy()
 	{
@@ -94,22 +95,47 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.method
 	public void disableTabNavigation(Object params)
 	{
+		String message
+			= "Ti.UI.TabGroup.disableTabNavigation() has been deprecated in 12.7.0 in favor of"
+			+ " Ti.UI.TabGroup.tabBarVisible and Ti.UI.TabGroup.enabled properties."
+			+ " Ti.UI.TabGroup.disableTabNavigation() will be removed in 13.0.0.";
+		Log.w(TAG, message);
+
 		if (params instanceof Boolean) {
-			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-			if (tabGroup != null) {
-				tabGroup.disableTabNavigation(TiConvert.toBoolean(params, false));
-			}
-		} else if (params instanceof HashMap<?, ?>) {
+			boolean isEnabled = !TiConvert.toBoolean(params, false);
+			setEnabled(isEnabled);
+			setTabBarVisible(isEnabled);
+			return;
+		}
+
+		if (params instanceof HashMap<?, ?>) {
 			KrollDict options = new KrollDict((HashMap<String, Object>) params);
-			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-			if (tabGroup != null) {
-				if (options.getBoolean(TiC.PROPERTY_ANIMATED)) {
-					setTabBarVisible(options.getBoolean(TiC.PROPERTY_ENABLED));
-				} else {
-					tabGroup.disableTabNavigation(options.getBoolean(TiC.PROPERTY_ENABLED));
-				}
+
+			boolean isEnabled = !options.optBoolean(TiC.PROPERTY_ENABLED, false);
+			boolean isAnimated = options.optBoolean(TiC.PROPERTY_ANIMATED, false);
+			setEnabled(isEnabled);
+
+			if (isAnimated) {
+				showHideTabBar(isEnabled);
+			} else {
+				setTabBarVisible(isEnabled);
 			}
 		}
+	}
+
+	@Kroll.setProperty
+	public void setEnabled(boolean enabled)
+	{
+		isTabGroupEnabled = enabled;
+		if (view != null) {
+			((TiUIAbstractTabGroup) view).disableTabNavigation(!isTabGroupEnabled);
+		}
+	}
+
+	@Kroll.getProperty
+	public boolean getEnabled()
+	{
+		return isTabGroupEnabled;
 	}
 
 	@Kroll.method
@@ -134,10 +160,37 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Kroll.setProperty
 	public void setTabBarVisible(boolean visible)
 	{
-		TiUIBottomNavigationTabGroup tabGroup = (TiUIBottomNavigationTabGroup) view;
+		isTabBarVisible = visible;
 
-		if (tabGroup != null) {
-			tabGroup.setTabBarVisible(visible);
+		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
+			bottomTabGroup.setTabGroupVisibility(visible);
+		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
+			tabGroupDefault.setTabGroupVisibility(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.setTabGroupVisibility(visible);
+		}
+	}
+
+	@Kroll.method
+	public void showTabBar()
+	{
+		showHideTabBar(true);
+	}
+
+	@Kroll.method
+	public void hideTabBar()
+	{
+		showHideTabBar(false);
+	}
+
+	private void showHideTabBar(boolean visible)
+	{
+		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
+			bottomTabGroup.showHideTabBar(visible);
+		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
+			tabGroupDefault.showHideTabBar(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.showHideTabBar(visible);
 		}
 	}
 
@@ -197,22 +250,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	@Kroll.setProperty
-	public void setEnabled(Boolean enabled)
-	{
-		tabEnabled = enabled;
-		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-		if (tabGroup != null) {
-			tabGroup.setEnabled(enabled);
-		}
-	}
-
-	@Kroll.getProperty
-	public Boolean getEnabled()
-	{
-		return tabEnabled;
-	}
-
 	private TabProxy getActiveTabProxy()
 	{
 		Object activeTab = getActiveTab();
@@ -244,8 +281,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		tabs.clear();
 
-		if (obj instanceof Object[]) {
-			Object[] objArray = (Object[]) obj;
+		if (obj instanceof Object[] objArray) {
 			for (Object tabProxy : objArray) {
 				if (tabProxy instanceof TabProxy) {
 					addTab((TabProxy) tabProxy);
@@ -303,8 +339,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TAB)) {
 			setActiveTab(options.get(TiC.PROPERTY_ACTIVE_TAB));
 		}
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_TAB_BAR_VISIBLE)) {
+			isTabBarVisible = options.optBoolean(TiC.PROPERTY_TAB_BAR_VISIBLE, isTabBarVisible);
+		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_ENABLED)) {
-			setEnabled(options.getBoolean(TiC.PROPERTY_ENABLED));
+			isTabGroupEnabled = options.optBoolean(TiC.PROPERTY_ENABLED, isTabGroupEnabled);
 		}
 	}
 
@@ -523,6 +562,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Prevent any duplicate events from firing by marking
 		// this group has having focus.
 		isFocused = true;
+
+		// Update UI if these properties are set before the native view is created.
+		tabGroup.onViewSizeAvailable(() -> {
+			setEnabled(isTabGroupEnabled);
+			setTabBarVisible(isTabBarVisible);
+		});
 	}
 
 	@Override
