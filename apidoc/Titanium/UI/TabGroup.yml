@@ -201,8 +201,6 @@ methods:
     since: 3.6.0
     deprecated:
         since: "12.7.0"
-        removed: "13.0.0"
-        notes: Use the <Titanium.UI.TabGroup.enabled | Titanium.UI.TabGroup.tabBarVisible> properties instead.
 
   - name: getActiveTab
     summary: Gets the currently-active tab.

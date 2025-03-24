@@ -370,31 +370,28 @@ DEFINE_EXCEPTIONS
 
 - (void)setTabBarVisible_:(id)value
 {
-  bool isIOSVersionLowerThan18 = [TiUtils isIOSVersionLower:@"18.0"];
-  if (isIOSVersionLowerThan18) {
-    DEPRECATED_REPLACED_REMOVED(@"UI.TabGroup.tabBarVisible's animation on iOS <= 17 is",
+  BOOL isiOS17OrLower = [TiUtils isIOSVersionLower:@"18.0"];
+  if (isiOS17OrLower) {
+    DEPRECATED_REPLACED_REMOVED(@"UI.TabGroup.tabBarVisible animation on iOS < 18 is",
         @"12.7.0", @"13.0.0",
         @"UI.TabGroup.showTabBar/hideTabBar methods.");
   }
 
-  [self hideTabBar:![TiUtils boolValue:value def:YES] animated:isIOSVersionLowerThan18];
+  [self hideTabBar:![TiUtils boolValue:value def:YES] animated:isiOS17OrLower];
 }
 
 - (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated
 {
-  // iOS 18+
   if (@available(iOS 18.0, *)) {
     [self.tabController setTabBarHidden:hidden animated:animated];
     return;
   }
 
-  // iOS 17 or below without animation.
   if (!animated) {
     self.tabController.tabBar.hidden = hidden;
     return;
   }
 
-  // iOS 17 or below with animation.
   if (isTabBarHidden == hidden) {
     return;
   }
