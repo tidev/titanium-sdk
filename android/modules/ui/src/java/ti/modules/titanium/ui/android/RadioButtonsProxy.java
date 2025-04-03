@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package ti.modules.titanium.ui;
+package ti.modules.titanium.ui.android;
 
 import android.app.Activity;
 
@@ -15,7 +15,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIRadioButtons;
 
-@Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
+@Kroll.proxy(creatableInModule = AndroidModule.class, propertyAccessors = {
 	TiC.PROPERTY_LABELS, TiC.PROPERTY_SELECTED_INDEX
 })
 public class RadioButtonsProxy extends TiViewProxy
