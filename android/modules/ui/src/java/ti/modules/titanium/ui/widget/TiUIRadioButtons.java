@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -39,14 +40,53 @@ public class TiUIRadioButtons extends TiUIView
 			return;
 		}
 
-		if (properties.containsKey(TiC.PROPERTY_SELECTED_INDEX)) {
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_SELECTED_INDEX)) {
 			proxy.setProperty(TiC.PROPERTY_SELECTED_INDEX, properties.getInt(TiC.PROPERTY_SELECTED_INDEX));
 		}
-		if (properties.containsKey(TiC.PROPERTY_LABELS)) {
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_LABELS)) {
 			processLabels(properties.get(TiC.PROPERTY_LABELS));
+		}
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
+			setTextColor(TiConvert.toColor(
+				properties.get(TiC.PROPERTY_COLOR), TiApplication.getAppRootOrCurrentActivity()));
+		}
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+			setActiveColor(TiConvert.toColor(
+				properties.get(TiC.PROPERTY_TINT_COLOR), TiApplication.getAppRootOrCurrentActivity()));
 		}
 
 		super.processProperties(properties);
+	}
+
+	private void setActiveColor(int color)
+	{
+		if (this.proxy == null) {
+			return;
+		}
+
+		RadioGroup radioGroup = getRadioGroup();
+		if (radioGroup == null) {
+			return;
+		}
+		for (int i = 0; i < radioGroup.getChildCount(); ++i) {
+			((RadioButton) radioGroup.getChildAt(i)).setButtonTintList(ColorStateList.valueOf(color));
+		}
+	}
+
+	private void setTextColor(int color)
+	{
+		if (this.proxy == null) {
+			return;
+		}
+
+		RadioGroup radioGroup = getRadioGroup();
+		if (radioGroup == null) {
+			return;
+		}
+
+		for (int i = 0; i < radioGroup.getChildCount(); ++i) {
+			((RadioButton) radioGroup.getChildAt(i)).setTextColor(color);
+		}
 	}
 
 	@Override
@@ -58,6 +98,10 @@ public class TiUIRadioButtons extends TiUIView
 
 		if (key.equals(TiC.PROPERTY_LABELS)) {
 			processLabels(newValue);
+		} else if (key.equals(TiC.PROPERTY_COLOR)) {
+			setTextColor(TiConvert.toColor(newValue, TiApplication.getAppRootOrCurrentActivity()));
+		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
+			setActiveColor(TiConvert.toColor(newValue, TiApplication.getAppRootOrCurrentActivity()));
 		} else if (key.equals(TiC.PROPERTY_SELECTED_INDEX)) {
 			RadioGroup radioGroup = getRadioGroup();
 			int newIndex = TiConvert.toInt(newValue);
