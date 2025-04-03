@@ -27,6 +27,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -141,14 +142,15 @@ public class TiUIButton extends TiUIView
 		super.processProperties(d);
 
 		boolean needShadow = false;
-
 		Activity activity = proxy.getActivity();
 		AppCompatButton btn = (AppCompatButton) getNativeView();
-		if (!d.containsKey(TiC.PROPERTY_IMAGE) && d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
-			// Reset the padding here if the background color is set. By default the padding will be calculated
-			// for the button, but if we set a background color, it will not look centered unless we reset the padding.
-			btn.setPadding(8, 0, 8, 0);
+
+		if (d.containsKey(TiC.PROPERTY_PADDING) || (!d.containsKey(TiC.PROPERTY_IMAGE)
+			&& d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR))) {
+			HashMap padding = (HashMap) d.get(TiC.PROPERTY_PADDING);
+			setPadding(padding);
 		}
+
 		if ((btn instanceof MaterialButton) && d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK)) {
 			// We only override MaterialButton's native ripple effect if "touchFeedback" property is defined.
 			ColorStateList colorStateList = null;
@@ -213,6 +215,35 @@ public class TiUIButton extends TiUIView
 		btn.invalidate();
 	}
 
+	private void setPadding(HashMap padding)
+	{
+		int paddingLeft = nativeView.getPaddingLeft();
+		int paddingTop = nativeView.getPaddingTop();
+		int paddingRight = nativeView.getPaddingRight();
+		int paddingBottom = nativeView.getPaddingBottom();
+		Activity activity = proxy.getActivity();
+		AppCompatButton btn = (AppCompatButton) getNativeView();
+
+		if (padding.containsKey(TiC.PROPERTY_LEFT)) {
+			paddingLeft = TiConvert.toTiDimension(TiConvert.toInt(padding.get(TiC.PROPERTY_LEFT), 0),
+				TiDimension.TYPE_LEFT).getAsPixels(nativeView);
+		}
+		if (padding.containsKey(TiC.PROPERTY_RIGHT)) {
+			paddingRight = TiConvert.toTiDimension(TiConvert.toInt(padding.get(TiC.PROPERTY_RIGHT), 0),
+				TiDimension.TYPE_RIGHT).getAsPixels(nativeView);
+		}
+		if (padding.containsKey(TiC.PROPERTY_TOP)) {
+			paddingTop = TiConvert.toTiDimension(TiConvert.toInt(padding.get(TiC.PROPERTY_TOP), 0),
+				TiDimension.TYPE_TOP).getAsPixels(nativeView);
+		}
+		if (padding.containsKey(TiC.PROPERTY_BOTTOM)) {
+			paddingBottom = TiConvert.toTiDimension(TiConvert.toInt(padding.get(TiC.PROPERTY_BOTTOM), 0),
+				TiDimension.TYPE_BOTTOM).getAsPixels(nativeView);
+		}
+
+		btn.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+	}
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
@@ -274,6 +305,8 @@ public class TiUIButton extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue), activity);
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
+		} else if (key.equals(TiC.PROPERTY_PADDING)) {
+			setPadding((HashMap) newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
