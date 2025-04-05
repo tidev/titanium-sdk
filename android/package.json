@@ -24,10 +24,10 @@
 		"android platform tools": "33.x",
 		"android tools": "<=34.x",
 		"android ndk": ">=r21 <=r22b",
-		"java": ">=11.x"
+		"java": ">=17.x"
 	},
 	"engines": {
-		"node": ">=16.0.0"
+		"node": ">=18.0.0"
 	},
 	"repository": {
 		"type": "git",
