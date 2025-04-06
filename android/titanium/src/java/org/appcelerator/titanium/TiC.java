@@ -770,6 +770,7 @@ public class TiC
 	public static final String PROPERTY_TEMPLATES = "templates";
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_COLOR = "textColor";
+	public static final String PROPERTY_TEXT_TRANSFORM = "textTransform";
 	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_THEME = "theme";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
@@ -862,6 +863,8 @@ public class TiC
 	public static final String PROPERTY_JOBTITLE = "jobTitle";
 	public static final String PROPERTY_DEPARTMENT = "department";
 	public static final String PROPERTY_FIXED_SIZE = "fixedSize";
+	public static final String PROPERTY_UI_FLAGS = "uiFlags";
+	public static final String PROPERTY_LAYER_TYPE = "layerType";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

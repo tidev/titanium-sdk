@@ -17,7 +17,7 @@ platforms: [android, iphone, ipad, macos]
 extends: Titanium.UI.Window
 since: "8.0.0"
 excludes:
-    methods: [removeAllChildren, setToolbar, hideTabBar]
+    methods: [removeAllChildren, setToolbar]
     properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
                 barColor, barImage, leftNavButton, rightNavButton, title, titleControl,
                 titlePrompt, titleImage, titleid, titlepromptid, url, backButtonTitle,
