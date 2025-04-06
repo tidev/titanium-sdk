@@ -198,9 +198,9 @@ description: |
     The shadow of the view is drawn using a rounded rectangle with the arc radius set to the `borderRadius` property.
 
     The `clipMode` property lets the user control the clipping behavior of the View.
-    Setting this to <Titanium.UI.iOS.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
-    Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
-    When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is defined by the following rules applied in order.
+    Setting this to <Titanium.UI.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
+    Setting this to <Titanium.UI.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
+    When set to <Titanium.UI.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is defined by the following rules applied in order.
 
     * If the `viewShadowColor` is defined to be a color with alpha > 0, clipping is disabled.
     * If the `borderWidth` or `borderRadius` of the view is set to a value > 0, clipping is enabled.
@@ -1431,15 +1431,17 @@ properties:
   - name: clipMode
     summary: View's clipping behavior.
     description: |
-        Setting this to <Titanium.UI.iOS.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
-        Setting this to <Titanium.UI.iOS.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
-        When set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred.
-        See section on iOS Clipping Behavior in <Titanium.UI.View>.
+        Setting this to <Titanium.UI.CLIP_MODE_ENABLED> enforces all child views to be clipped to this views bounds.
+        Setting this to <Titanium.UI.CLIP_MODE_DISABLED> allows child views to be drawn outside the bounds of this view.
+        When set to <Titanium.UI.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred.
+        See section on Clipping Behavior in <Titanium.UI.View>.
 
-        Defaults to `undefined`. Behaves as if set to <Titanium.UI.iOS.CLIP_MODE_DEFAULT>.
+        Android: This property is "creation only" and has to be on the top-level view.
+
+        Defaults to `undefined`. Behaves as if set to <Titanium.UI.CLIP_MODE_DEFAULT>.
     type: Number
-    platforms: [iphone, ipad, macos]
-    since: "3.3.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.7.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: elevation
     summary: Base elevation of the view relative to its parent in pixels.

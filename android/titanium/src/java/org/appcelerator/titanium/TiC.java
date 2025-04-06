@@ -362,6 +362,7 @@ public class TiC
 	public static final String PROPERTY_CLASS_NAMES = "classNames";
 	public static final String PROPERTY_CLEAR_ON_EDIT = "clearOnEdit";
 	public static final String PROPERTY_CLIP_VIEWS = "clipViews";
+	public static final String PROPERTY_CLIP_MODE = "clipMode";
 	public static final String PROPERTY_CODE = "code";
 	public static final String PROPERTY_COLOR = "color";
 	public static final String PROPERTY_COLUMNS = "columns";
