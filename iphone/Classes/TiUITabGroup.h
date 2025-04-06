@@ -8,7 +8,7 @@
 
 #import <TitaniumKit/TiUIView.h>
 
-//To handle the more tab, we're a delegate of it.
+// To handle the more tab, we're a delegate of it.
 @class TiUITabProxy;
 @interface TiUITabGroup : TiUIView <UITabBarControllerDelegate, UINavigationControllerDelegate> {
   @private
@@ -20,12 +20,15 @@
   TiColor *barColor;
   TiColor *navTintColor;
   NSMutableDictionary *theAttributes;
+
+  BOOL isTabBarHidden;
 }
 
 - (UITabBarController *)tabController;
 
 - (void)open:(id)args;
 - (void)close:(id)args;
+- (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated;
 
 - (NSDictionary *)focusEvent;
 

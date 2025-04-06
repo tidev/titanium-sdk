@@ -294,6 +294,21 @@ properties:
     since: "12.3.0"
     default: false
 
+  - name: overrideUserInterfaceStyle
+    summary: Forces the picker to used assigned theme instead of the system theme.
+    description: |
+        When set to [USER_INTERFACE_STYLE_DARK](Titanium.UI.USER_INTERFACE_STYLE_DARK) or
+        [USER_INTERFACE_STYLE_LIGHT](Titanium.UI.USER_INTERFACE_STYLE_LIGHT), the picker will ignore
+        the system's current theme and use the theme assigned to this property instead.
+
+        When set to [USER_INTERFACE_STYLE_UNSPECIFIED](Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED),
+        the picker will use the system's current theme.
+    type: Number
+    default: Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED
+    constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    osver: {ios: {min: "13.0"}}
+    since: "12.4.0"
+
   - name: format24
     summary: |
         Determines whether the Time pickers display in 24-hour or 12-hour clock format.
@@ -411,6 +426,15 @@ properties:
     default: false (Android)
     platforms: [android]
     since: "5.0.0"
+
+  - name: textAlign
+    summary: |
+        Horizontal text alignment of the date picker when using <Titanium.UI.PICKER_TYPE_DATE>.
+    type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
+    default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>,
+    platforms: [android]
+    since: "12.4.0"
 
   - name: datePickerStyle
     summary: Determines how a date or time picker should appear.

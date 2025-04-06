@@ -175,6 +175,12 @@ properties:
     type: Number
     since: "4.1.0"
 
+  - name: lineCount
+    summary: Returns the amount of lines the content is acually using. Is equal or lower than `maxLines`.
+    type: Number
+    permission: read-only
+    since: "12.3.0"
+
   - name: lineSpacing
     summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
     platforms: [android]
@@ -237,6 +243,12 @@ properties:
         See the example in [label](Titanium.UI.Label) for a demonstration.
     type: String
 
+  - name: textTransform
+    summary: Property that specifies how to capitialize the text. Can be `lowercase`, `uppercase` or `none` (default)
+    type: String
+    default: "none"
+    since: "12.7.0"
+
   - name: textAlign
     summary: Text alignment.
     type: [String, Number]
@@ -246,6 +258,13 @@ properties:
     summary: Key identifying a string from the locale file to use for the label text.
     description: Only one of `text` or `textid` should be specified.
     type: String
+
+  - name: visibleText
+    summary: Returns the actual text seen on the screen. If the text is ellipsized it will be different to the normal `text`.
+    platforms: [android]
+    type: String
+    permission: read-only
+    since: {android: "12.3.0"}
 
   - name: wordWrap
     summary: Enable or disable word wrapping in the label.

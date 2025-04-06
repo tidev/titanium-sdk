@@ -17,7 +17,7 @@ static NSArray *tabGroupKeySequence;
 - (NSArray *)keySequence
 {
   if (tabGroupKeySequence == nil) {
-    //URL has to be processed first since the spinner depends on URL being remote
+    // URL has to be processed first since the spinner depends on URL being remote
     tabGroupKeySequence = [[NSArray arrayWithObjects:@"tabs", @"activeTab", nil] retain];
   }
   return tabGroupKeySequence;
@@ -94,7 +94,7 @@ static NSArray *tabGroupKeySequence;
       }
     }
 
-    //TODO: close all the tabs and fire events
+    // TODO: close all the tabs and fire events
 
     [tabProxy removeFromTabGroup];
     [tabProxy setParentOrientationController:nil];
@@ -139,6 +139,16 @@ static NSArray *tabGroupKeySequence;
 {
   RELEASE_TO_NIL(tabs);
   tabs = [newTabOrder mutableCopy];
+}
+
+- (void)hideTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:YES animated:YES];
+}
+
+- (void)showTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:NO animated:YES];
 }
 
 #pragma mark Window Management
@@ -328,7 +338,7 @@ static NSArray *tabGroupKeySequence;
   [super willChangeSize];
 
   [tabs makeObjectsPerformSelector:@selector(willChangeSize)];
-  //TODO: Shouldn't tabs have a lock protecting them?
+  // TODO: Shouldn't tabs have a lock protecting them?
 }
 
 @end
