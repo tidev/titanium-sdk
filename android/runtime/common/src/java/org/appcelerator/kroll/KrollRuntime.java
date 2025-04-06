@@ -538,7 +538,9 @@ public abstract class KrollRuntime implements Handler.Callback
 			}
 
 			// Handle exception with defaultExceptionHandler
-			instance.primaryExceptionHandler.handleException(exceptionMessage);
+			if (instance.primaryExceptionHandler != null) {
+				instance.primaryExceptionHandler.handleException(exceptionMessage);
+			}
 		}
 	}
 
