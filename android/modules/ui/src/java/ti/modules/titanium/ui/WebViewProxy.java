@@ -15,6 +15,7 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
@@ -75,6 +76,13 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fpassword;
 	PrintManager printManager;
 	private Message postCreateMessage;
+
+	@Kroll.constant
+	public static final int LAYER_TYPE_NONE = View.LAYER_TYPE_NONE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_SOFTWARE = View.LAYER_TYPE_SOFTWARE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_HARDWARE = View.LAYER_TYPE_HARDWARE;
 
 	public WebViewProxy()
 	{
@@ -242,6 +250,25 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			return currWebView.getRequestHeaders();
 		}
 		return new HashMap<String, String>();
+	}
+
+	@Kroll.setProperty
+	public void setLayerType(int value)
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			currWebView.setLayerType(value);
+		}
+	}
+
+	@Kroll.getProperty
+	public int getLayerType()
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			return currWebView.layerType;
+		}
+		return 0;
 	}
 
 	@Kroll.setProperty
