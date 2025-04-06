@@ -192,6 +192,10 @@ public class AttributedStringProxy extends KrollProxy
 					for (AttributeProxy attr : attributes) {
 						if (attr.hasProperty(TiC.PROPERTY_TYPE)) {
 							Object type = attr.getProperty(TiC.PROPERTY_TYPE);
+							if (type == null) {
+								Log.e(TAG, "AttributedString type not found");
+								continue;
+							}
 							int[] range = null;
 							Object inRange = attr.getProperty(TiC.PROPERTY_ATTRIBUTE_RANGE);
 							if (inRange instanceof Object[]) {
@@ -287,7 +291,8 @@ public class AttributedStringProxy extends KrollProxy
 											spannableText.setSpan(
 												new AttributedStringRoundBackground(
 													TiConvert.toColor(TiConvert.toString(
-														borderValues.get(TiC.PROPERTY_BACKGROUND_COLOR), "#fff")
+														borderValues.get(TiC.PROPERTY_BACKGROUND_COLOR), "#fff"),
+														activity
 													),
 													TiConvert.toColor(TiConvert.toString(
 														borderValues.get(TiC.PROPERTY_COLOR), "#000"), activity),
