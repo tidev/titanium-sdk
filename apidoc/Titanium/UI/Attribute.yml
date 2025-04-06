@@ -131,7 +131,7 @@ properties:
         Default value is `true`. If set to false and you use a `ATTRIBUTE_LINK` it won't underline the link.
     type: Boolean
     platforms: [android]
-    since: "12.3.0"
+    since: "12.7.0"
 
 ---
 name: ParagraphAttribute
