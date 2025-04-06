@@ -1256,8 +1256,12 @@ public class TiUIHelper
 				// Get the backgroundDrawable background as a StateListDrawable.
 				StateListDrawable stateListDrawable = (StateListDrawable) simpleDrawable;
 				// Get the reflection methods.
+				String methodName = "getStateDrawableIndex";
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+					methodName = "findStateDrawableIndex";
+				}
 				Method getStateDrawableIndexMethod =
-					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
+					StateListDrawable.class.getMethod(methodName, int[].class);
 				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
 				// Get the disabled state's (as defined in TiUIHelper) index.
 				int index = (int) getStateDrawableIndexMethod.invoke(stateListDrawable, state);

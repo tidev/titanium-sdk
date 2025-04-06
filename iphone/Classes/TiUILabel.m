@@ -414,9 +414,26 @@
 
 - (void)setText_:(id)text
 {
-  [[self label] setText:[TiUtils stringValue:text]];
+  originalText = [TiUtils stringValue:text];
+
+  [[self label] setText:originalText];
   [self padLabel];
   [(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+- (void)setTextTransform_:(id)value
+{
+  NSString *textTransform = [TiUtils stringValue:value];
+
+  if ([textTransform isEqualToString:@"uppercase"]) {
+    [[self label] setText:[originalText uppercaseString]];
+  } else if ([textTransform isEqualToString:@"lowercase"]) {
+    [[self label] setText:[originalText lowercaseString]];
+  } else {
+    [[self label] setText:originalText];
+  }
+
+  [self padLabel];
 }
 
 - (void)setColor_:(id)color
