@@ -34,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.ref.WeakReference;
@@ -50,7 +51,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	private final TextView headerTitle;
 
 	// Middle
-	private final ViewGroup container;
+	private final ConstraintLayout container;
 	private final ImageView leftImage;
 	private final TiCompositeLayout content;
 	private final ImageView rightImage;
@@ -68,9 +69,6 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 		this.headerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header_title);
 
-		// Header attributes.
-		setTitleAttributes("header", context, this.headerTitle);
-
 		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder);
 
 		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
@@ -82,9 +80,6 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		this.footer = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer);
 
 		this.footerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer_title);
-
-		// Footer attributes.
-		setTitleAttributes("footer", context, this.footerTitle);
 	}
 
 	/**
@@ -335,70 +330,24 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		// Handle `header` and `footer`.
 		if (updateHeader) {
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)) {
-
-				// Handle header title.
-				this.headerTitle.setText(properties.getString(TiC.PROPERTY_HEADER_TITLE));
-				this.headerTitle.setVisibility(View.VISIBLE);
+				String titleText = properties.getString(TiC.PROPERTY_HEADER_TITLE);
+				handleHeaderFooterTitle(context, this.headerTitle, titleText, "header");
 
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
-
 				// Handle header view.
 				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-				if ((context instanceof Activity) && (headerProxy.getActivity() != context)) {
-					headerProxy.releaseViews();
-					headerProxy.setActivity((Activity) context);
-				}
-
-				final TiUIView view = headerProxy.getOrCreateView();
-				if (view != null) {
-					final View headerView = view.getOuterView();
-					if (headerView != null) {
-						final ViewGroup parent = (ViewGroup) headerView.getParent();
-						if (parent != null) {
-							parent.removeView(headerView);
-						}
-
-						// Amend maximum size for header to parent ListView measured height.
-						this.header.setChildFillHeight(nativeListView.getMeasuredHeight());
-
-						this.header.addView(headerView, view.getLayoutParams());
-						this.header.setVisibility(View.VISIBLE);
-					}
-				}
+				handleHeaderFooterView(context, nativeListView, this.header, headerProxy);
 			}
 		}
+
 		if (updateFooter) {
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)) {
-
-				// Handle footer title.
-				this.footerTitle.setText(properties.getString(TiC.PROPERTY_FOOTER_TITLE));
-				this.footerTitle.setVisibility(View.VISIBLE);
+				String titleText = properties.getString(TiC.PROPERTY_FOOTER_TITLE);
+				handleHeaderFooterTitle(context, this.footerTitle, titleText, "footer");
 
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
-
-				// Handle footer view.
 				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-				if ((context instanceof Activity) && (footerProxy.getActivity() != context)) {
-					footerProxy.releaseViews();
-					footerProxy.setActivity((Activity) context);
-				}
-
-				final TiUIView view = footerProxy.getOrCreateView();
-				if (view != null) {
-					final View footerView = view.getOuterView();
-					if (footerView != null) {
-						final ViewGroup parent = (ViewGroup) footerView.getParent();
-						if (parent != null) {
-							parent.removeView(footerView);
-						}
-
-						// Amend maximum size for footer to parent ListView measured height.
-						this.footer.setChildFillHeight(nativeListView.getMeasuredHeight());
-
-						this.footer.addView(footerView, view.getLayoutParams());
-						this.footer.setVisibility(View.VISIBLE);
-					}
-				}
+				handleHeaderFooterView(context, nativeListView, this.footer, footerProxy);
 			}
 		}
 	}
@@ -492,6 +441,50 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 			// Set title default background color.
 			title.setBackgroundColor(COLOR_GRAY);
+		}
+	}
+
+	private void handleHeaderFooterTitle(Context context, TextView textView, CharSequence text, String themePrefix)
+	{
+		// Set attributes.
+		setTitleAttributes(themePrefix, context, textView);
+
+		// Handle title.
+		textView.setText(text);
+		textView.setVisibility(View.VISIBLE);
+
+		// Reset layout params to trigger layout update.
+		this.container.setLayoutParams(new ConstraintLayout.LayoutParams(
+			ConstraintLayout.LayoutParams.MATCH_PARENT,
+			ConstraintLayout.LayoutParams.WRAP_CONTENT
+		));
+	}
+
+	private void handleHeaderFooterView(
+		Context context,
+		View nativeListView,
+		TiCompositeLayout viewContainer,
+		TiViewProxy headerOrFooterViewProxy)
+	{
+		if ((context instanceof Activity) && (headerOrFooterViewProxy.getActivity() != context)) {
+			headerOrFooterViewProxy.releaseViews();
+			headerOrFooterViewProxy.setActivity((Activity) context);
+		}
+
+		final TiUIView view = headerOrFooterViewProxy.getOrCreateView();
+		if (view != null) {
+			final View headerOrFooterView = view.getOuterView();
+			if (headerOrFooterView != null) {
+				final ViewGroup parent = (ViewGroup) headerOrFooterView.getParent();
+				if (parent != null) {
+					parent.removeView(headerOrFooterView);
+				}
+
+				// Amend maximum size for header to parent ListView measured height.
+				viewContainer.setChildFillHeight(nativeListView.getMeasuredHeight());
+				viewContainer.addView(headerOrFooterView, view.getLayoutParams());
+				viewContainer.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 }

@@ -81,6 +81,8 @@ public class TiUIWebView extends TiUIView
 	@Kroll.constant
 	public static final int PDF_PAGE_AUTO = 5;
 
+	public int layerType = WebViewProxy.LAYER_TYPE_NONE;
+
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
 	private reloadTypes reloadMethod = reloadTypes.DEFAULT;
@@ -465,6 +467,10 @@ public class TiUIWebView extends TiUIView
 				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL);
 			webView.setHorizontalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
 				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_VERTICAL);
+		}
+
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_LAYER_TYPE)) {
+			setLayerType(TiConvert.toInt(d, TiC.PROPERTY_LAYER_TYPE));
 		}
 	}
 
@@ -1070,4 +1076,14 @@ public class TiUIWebView extends TiUIView
 	{
 		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
 	}
+
+	public void setLayerType(int value)
+	{
+		WebView webView = getWebView();
+		if (webView != null) {
+			layerType = value;
+			webView.setLayerType(value, null);
+		}
+	}
+
 }
