@@ -340,6 +340,9 @@ properties:
     type: Number
     permission: read-only
     since: "3.3.0"
+    deprecated:
+        since: "12.7.0"
+        notes: Use [Titanium.UI.CLIP_MODE_DEFAULT](Titanium.UI.CLIP_MODE_DEFAULT) instead.
 
   - name: CLIP_MODE_DISABLED
     summary: |
@@ -347,6 +350,9 @@ properties:
     type: Number
     permission: read-only
     since: "3.3.0"
+    deprecated:
+        since: "12.7.0"
+        notes: Use [Titanium.UI.CLIP_MODE_DISABLED](Titanium.UI.CLIP_MODE_DISABLED) instead.
 
   - name: CLIP_MODE_ENABLED
     summary: |
@@ -354,6 +360,9 @@ properties:
     type: Number
     permission: read-only
     since: "3.3.0"
+    deprecated:
+        since: "12.7.0"
+        notes: Use [Titanium.UI.CLIP_MODE_ENABLED](Titanium.UI.CLIP_MODE_ENABLED) instead.
 
   - name: COLLISION_MODE_ALL
     summary: |
