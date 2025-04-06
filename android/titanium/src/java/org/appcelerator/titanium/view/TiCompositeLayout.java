@@ -60,7 +60,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private boolean needsSort;
 	protected LayoutArrangement arrangement;
 
-	// Used by horizonal arrangement calculations
+	// Used by horizontal arrangement calculations
 	private int horizontalLayoutTopBuffer = 0;
 	private int horizontalLayoutCurrentLeft = 0;
 	private int horizontalLayoutLineHeight = 0;
@@ -71,6 +71,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private int viewMaxWidth = -1;
 	private int viewMaxHeight = -1;
 	private int viewMinHeight = -1;
+
 	int[] horizontal = new int[2];
 	int[] vertical = new int[2];
 	/**
@@ -256,7 +257,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 	/**
 	 * Configures this layout to size and position child views that use a percentage based
-	 * width/height and top/bottom/left/right/center properties reatlive to this parent
+	 * width/height and top/bottom/left/right/center properties relative to this parent
 	 * layout's width and height.
 	 * <p>
 	 * This is the default setting.
@@ -891,7 +892,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 						horizontalLayoutLineHeight = 0;
 						horizontalLayoutTopBuffer = 0;
 						horizontalLayoutLastIndexBeforeWrap = 0;
-						horiztonalLayoutPreviousRight = 0;
+						horizontalLayoutPreviousRight = 0;
 						updateRowForHorizontalWrap(right, i);
 					}
 					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom,
@@ -1018,19 +1019,19 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 		TiDimension optionLeft = params.optionLeft;
 		TiDimension optionRight = params.optionRight;
-		int left = horizontalLayoutCurrentLeft + horiztonalLayoutPreviousRight;
+		int left = horizontalLayoutCurrentLeft + horizontalLayoutPreviousRight;
 		int optionLeftValue = 0;
 		if (optionLeft != null) {
 			optionLeftValue = optionLeft.getAsPixels(this);
 			left += optionLeftValue;
 		}
-		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
+		horizontalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
 		// If it's fill width with horizontal wrap, just take up remaining
 		// space.
 		int right = left + measuredWidth;
 
-		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
+		if (enableHorizontalWrap && ((right + horizontalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it
 			// down.
 			left = optionLeftValue;
