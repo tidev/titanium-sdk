@@ -66,7 +66,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private int horizontalLayoutLineHeight = 0;
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
-	private int horiztonalLayoutPreviousRight = 0;
+	private int horizontalLayoutPreviousRight = 0;
 	private int viewMinWidth = -1;
 	private int viewMaxWidth = -1;
 	private int viewMaxHeight = -1;
