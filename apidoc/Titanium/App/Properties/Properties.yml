@@ -247,7 +247,7 @@ properties:
     type: String
     permission: read-only
     platforms: [android]
-    since: {android: "12.4.0"}
+    since: {android: "12.7.0"}
 
 events:
 
