@@ -1,3 +1,315 @@
+## [12.6.4](https://github.com/tidev/titanium_mobile/compare/12_6_3_GA...12.6.4) (2025-04-04)
+
+## About this release
+
+Titanium SDK 12.6.4 is a patch release of the SDK, fixing the compatibility with Xcode 16.3 and later.
+Please make sure to use this version in order to build apps for iOS 18.4 and later, as Apple has
+introduced a breaking change affecting the discovery of simulators between Xcode 16.2 and 16.3.
+
+As of this GA release, the previous Titanium SDK patch release (12.6.3) is no longer supported.
+
+## Community Credits
+
+* Michael Gangolf
+  * ioslib update ([872fd89](https://github.com/tidev/titanium_mobile/commit/872fd893e0573910069bee4d5f0246e387660dc9))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 13.0.0 | 15.0.0 |
+| ti.map | 5.6.1 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.3.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.9 | 7.0.9 |
+
+## [12.6.3](https://github.com/tidev/titanium_mobile/compare/12_6_2_GA...12.6.3) (2025-03-06)
+
+## About this release
+
+Titanium SDK 12.6.3 is a patch release of the SDK, addressing high-priority Androod issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release (12.6.2) is no longer supported.
+
+
+## Community Credits
+
+* Prashant Saini
+  * android modules with timodule.xml manifest entry breaks since 12.6.x ([3cac65b](https://github.com/tidev/titanium_mobile/commit/3cac65bb5322e1cefda35b37a83f7c6119f9ccb3))
+  * prevent ANR Bad Behaviour warnings from Google ([2862aa1](https://github.com/tidev/titanium_mobile/commit/2862aa15514e94250a7468f8322c13c83b34980b))
+
+
+## Bug Fixes
+
+### Android platform
+
+* android modules with timodule.xml manifest entry breaks since 12.6.x ([3cac65b](https://github.com/tidev/titanium_mobile/commit/3cac65bb5322e1cefda35b37a83f7c6119f9ccb3))
+* prevent ANR Bad Behaviour warnings from Google ([2862aa1](https://github.com/tidev/titanium_mobile/commit/2862aa15514e94250a7468f8322c13c83b34980b))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 13.0.0 | 15.0.0 |
+| ti.map | 5.6.1 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.3.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.9 | 7.0.9 |
+
+## [12.6.2](https://github.com/tidev/titanium_mobile/compare/12_6_1_GA...12.6.2) (2025-02-03)
+
+## About this release
+
+Titanium SDK 12.6.2 is a patch release of the SDK, addressing high-priority issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release (12.6.1) is no longer supported.
+
+## Community Credits
+
+* Michael Gangolf
+  * fix crash when using window.add([]) with a null object ([506bad4](https://github.com/tidev/titanium_mobile/commit/506bad4d8de3b2111daf7557ee051f648bae1905))
+  * make android mocha tests run again ([31ae72d](https://github.com/tidev/titanium_mobile/commit/31ae72dfc73389f7977d08a4afd5d812f42be803))
+  * missing null checks in Ti.UI.Label methods ([0015ff1](https://github.com/tidev/titanium_mobile/commit/0015ff1bdbc8df99b775d6355d7ac7295a099213))
+  * fix tableView parent ([9d419d8](https://github.com/tidev/titanium_mobile/commit/9d419d89ba92c86cb30d90c36607cada56d04fd9))
+  * fix path error on Windows module builds ([73e4120](https://github.com/tidev/titanium_mobile/commit/73e4120ef88e28b2435aa52c8a79d440feb28a81))
+  * expose uiFlags ([cbb0998](https://github.com/tidev/titanium_mobile/commit/cbb099811b6a687b78f5ec592dc024a6f6fa4b7b))
+
+* Prashant Saini
+  * fix global header/footer title in ListView ([1cac525](https://github.com/tidev/titanium_mobile/commit/1cac525fef9b518e4146ef77ec73eb4fbd39db0f))
+
+* Hans Knöchel
+  * restore old scons dependencies to fix local Xcode build ([14d054a](https://github.com/tidev/titanium_mobile/commit/14d054a7b09ea128ffe2917b7853e7fbbda1d14d))
+  * fix plist entry entry for non-existing fonts ([2cf5a8e](https://github.com/tidev/titanium_mobile/commit/2cf5a8e89cda4848111cbefae99c00036dca2069))
+  
+
+## Bug Fixes
+
+### Android platform
+
+* fix crash when using window.add([]) with a null object ([506bad4](https://github.com/tidev/titanium_mobile/commit/506bad4d8de3b2111daf7557ee051f648bae1905))
+* fix global header/footer title in ListView ([1cac525](https://github.com/tidev/titanium_mobile/commit/1cac525fef9b518e4146ef77ec73eb4fbd39db0f))
+* fix path error on Windows module builds ([73e4120](https://github.com/tidev/titanium_mobile/commit/73e4120ef88e28b2435aa52c8a79d440feb28a81))
+* fix tableView parent ([9d419d8](https://github.com/tidev/titanium_mobile/commit/9d419d89ba92c86cb30d90c36607cada56d04fd9))
+* missing null checks in Ti.UI.Label methods ([0015ff1](https://github.com/tidev/titanium_mobile/commit/0015ff1bdbc8df99b775d6355d7ac7295a099213))
+
+### Multiple platforms
+
+* restore old scons dependencies to fix local Xcode build ([14d054a](https://github.com/tidev/titanium_mobile/commit/14d054a7b09ea128ffe2917b7853e7fbbda1d14d))
+* fix plist entry entry for non-existing fonts ([2cf5a8e](https://github.com/tidev/titanium_mobile/commit/2cf5a8e89cda4848111cbefae99c00036dca2069))
+* make android mocha tests run again ([31ae72d](https://github.com/tidev/titanium_mobile/commit/31ae72dfc73389f7977d08a4afd5d812f42be803))
+
+## Features
+
+### Android platform
+
+* expose uiFlags ([cbb0998](https://github.com/tidev/titanium_mobile/commit/cbb099811b6a687b78f5ec592dc024a6f6fa4b7b))
+
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 13.0.0 | 15.0.0 |
+| ti.map | 5.6.1 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.3.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.9 | 7.0.9 |
+
+## [12.6.1](https://github.com/tidev/titanium_mobile/compare/12_6_0_GA...12.6.1) (2024-12-19)
+
+## About this release
+
+Titanium SDK 12.6.1 is a patch release of the SDK, addressing a regression related to click events on iOS from 12.6.0.
+
+## Community Credits
+
+* Michael Gangolf
+  * ios workflow update ([94d9cac](https://github.com/tidev/titanium_mobile/commit/94d9cace7c98d8b670e20bd0f56ac0fe839b86da))
+
+* Hans Knöchel
+  * Revert "fix(android): ios click speed (#14115)" (#14153) ([53227e4](https://github.com/tidev/titanium_mobile/commit/53227e41b2855dcc5008b43fecd0c4720d22c073))
+  * bump version ([82d9471](https://github.com/tidev/titanium_mobile/commit/82d9471170bb6f19526d94d87353e9d8b689e081))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 13.0.0 | 15.0.0 |
+| ti.map | 5.6.1 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.3.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.9 | 7.0.9 |
+
+# [12.6.0](https://github.com/tidev/titanium_mobile/compare/12_5_X...12.6.0) (2024-12-12)
+
+## About this release
+
+Titanium SDK 12.6.0 is a minor release of the SDK, adding new features and addressing potential bugs from previous releases.
+
+## Community Credits
+
+* Prashant Saini
+  * added new methods in Ti.Calendar.Calendar module for bulk operations ([25fb9fd](https://github.com/tidev/titanium_mobile/commit/25fb9fd00a1976f3fd2aada0aa11ecac16e5c832))
+
+* Michael Gangolf
+  * set default exitOnClose property to true ([929aeea](https://github.com/tidev/titanium_mobile/commit/929aeea5127e69462cde5bf3ce4383594838d3a3))
+  * update node-titanium-sdk ([5c25ec1](https://github.com/tidev/titanium_mobile/commit/5c25ec197b929c341b1c51a0429c87454ebb9c75))
+  * optimize cameraX rotation after camera is active ([69b645f](https://github.com/tidev/titanium_mobile/commit/69b645f185d860b4371ae5c912fd2b36e55bbfda))
+  * tableView row parent ([6fc9dcb](https://github.com/tidev/titanium_mobile/commit/6fc9dcbb40d0c1c739af5d9a2b5fe2088f7398fd))
+  * findStateDrawableIndex reflection method ([4364a7c](https://github.com/tidev/titanium_mobile/commit/4364a7c1c6b8b826ceb5e2bb0f35648e88e4b2de))
+  * fix starting activity when launching from home screen ([c69e2ec](https://github.com/tidev/titanium_mobile/commit/c69e2ecfcd5594fd9a6e137b25537d6501084044))
+  * webview content will fill up the whole Ti.UI.WebView by default ([c817069](https://github.com/tidev/titanium_mobile/commit/c817069cbfc3de352e7fa0d7b93dea45294a7c6e))
+  * fix Material3 BottomNavigation height ([d83d64e](https://github.com/tidev/titanium_mobile/commit/d83d64ef4573d5301337d813c6f104b95566f888))
+  * add x/y to ScrollView drag events ([70073c4](https://github.com/tidev/titanium_mobile/commit/70073c425c72d7e3a62ed2bb749c896b0cff832b))
+  * enable gradle config caching ([6f0d755](https://github.com/tidev/titanium_mobile/commit/6f0d755e05a01d5abbc66d5610af5f6fdfdceaf8))
+  * add direction to ListView scrolling ([81d5d1e](https://github.com/tidev/titanium_mobile/commit/81d5d1e79b13f6677041256e7416f72662c2f2dc))
+  * build module with example app ([b8d1a8f](https://github.com/tidev/titanium_mobile/commit/b8d1a8fe6a8a7b6c4d2209f2873f4a3eb0c52981))
+  * update NotificationChannel example ([cd0b55f](https://github.com/tidev/titanium_mobile/commit/cd0b55fd4a7263b96f31918f229cf3f1b6de0aa0))
+  * update gradle files ([f3676e1](https://github.com/tidev/titanium_mobile/commit/f3676e19e1eacadba532010f511f6123efc0f244))
+  * add responseDictionary to HTTPClient documentation ([d98f6a6](https://github.com/tidev/titanium_mobile/commit/d98f6a6fbf5d6406ceb20492ba89410400b6a95c))
+
+* Hans Knöchel
+  * add 12.6.0 changelog ([4fcd806](https://github.com/tidev/titanium_mobile/commit/4fcd806bc23fc37b66962ed046b60c040cc4f796))
+  * fix line ([2e85703](https://github.com/tidev/titanium_mobile/commit/2e857038e3f0ad620bf3f3b0bfd23bab2ec5100d))
+  * update hyperloop to 7.0.9 to fix dex issues ([829d4ab](https://github.com/tidev/titanium_mobile/commit/829d4ab2b481e5cb4e5ee399ab8cad419267c21d))
+  * update ti.facebook to latest ([5aec767](https://github.com/tidev/titanium_mobile/commit/5aec767eb550e95a2ae86395e6bdfdb661f5e661))
+  * update hyperloop to 7.0.8 to support SDK 12.6.0+ ([c5f2132](https://github.com/tidev/titanium_mobile/commit/c5f2132e87d2eca048e2c866ed9e8f2457d7994a))
+  * update hyperloop to 7.0.7 ([d084485](https://github.com/tidev/titanium_mobile/commit/d084485ed0bd0c0bfcc84154ad543be4ccdd59cf))
+  * bump master to 12.6.0 ([5b274a7](https://github.com/tidev/titanium_mobile/commit/5b274a769b10fc3f25d2c746d6ec24aec6b5e014))
+
+* dlewis23
+  * iOS 18 dark mode icons (#14138) ([8f201d9](https://github.com/tidev/titanium_mobile/commit/8f201d94bd13dc3a7c67ce850d11c828d2ca12e7))
+
+* Abdullah Al-Faqeir
+  * override user interface style ([5bebfdb](https://github.com/tidev/titanium_mobile/commit/5bebfdb97f59e3cb76a7eb82d6d940762563b6ab))
+  * fixing not finding themes when building sdk app.js ([5dd0259](https://github.com/tidev/titanium_mobile/commit/5dd0259b7a2310f92f45f78e52913437d93b4677))
+  * be able to add plugins to build.gradle ([e1212e9](https://github.com/tidev/titanium_mobile/commit/e1212e9fccd79f5c302a8380157288df356081da))
+  * gradle 8 ([50d8604](https://github.com/tidev/titanium_mobile/commit/50d8604ea40b4c2aacb55ee1128a2706f421715c))
+  * ios click speed ([6cc8830](https://github.com/tidev/titanium_mobile/commit/6cc8830f874474a176cc181390e4d3c18f7b8b38))
+
+* Douglas Alves
+  * handle x/y position for touch in dragstart/dragend events on iOS ([62e9d4a](https://github.com/tidev/titanium_mobile/commit/62e9d4abfdaf893b854465b8d0766fa662ca6f35))
+
+
+## Bug Fixes
+
+### Android platform
+
+* build module with example app ([b8d1a8f](https://github.com/tidev/titanium_mobile/commit/b8d1a8fe6a8a7b6c4d2209f2873f4a3eb0c52981))
+* findStateDrawableIndex reflection method ([4364a7c](https://github.com/tidev/titanium_mobile/commit/4364a7c1c6b8b826ceb5e2bb0f35648e88e4b2de))
+* fix Material3 BottomNavigation height ([d83d64e](https://github.com/tidev/titanium_mobile/commit/d83d64ef4573d5301337d813c6f104b95566f888))
+* fix starting activity when launching from home screen ([c69e2ec](https://github.com/tidev/titanium_mobile/commit/c69e2ecfcd5594fd9a6e137b25537d6501084044))
+* fixing not finding themes when building sdk app.js ([5dd0259](https://github.com/tidev/titanium_mobile/commit/5dd0259b7a2310f92f45f78e52913437d93b4677))
+* ios click speed ([6cc8830](https://github.com/tidev/titanium_mobile/commit/6cc8830f874474a176cc181390e4d3c18f7b8b38))
+* optimize cameraX rotation after camera is active ([69b645f](https://github.com/tidev/titanium_mobile/commit/69b645f185d860b4371ae5c912fd2b36e55bbfda))
+* override user interface style ([5bebfdb](https://github.com/tidev/titanium_mobile/commit/5bebfdb97f59e3cb76a7eb82d6d940762563b6ab))
+* set default exitOnClose property to true ([929aeea](https://github.com/tidev/titanium_mobile/commit/929aeea5127e69462cde5bf3ce4383594838d3a3))
+* tableView row parent ([6fc9dcb](https://github.com/tidev/titanium_mobile/commit/6fc9dcbb40d0c1c739af5d9a2b5fe2088f7398fd))
+
+### Multiple platforms
+
+* handle x/y position for touch in dragstart/dragend events on iOS ([62e9d4a](https://github.com/tidev/titanium_mobile/commit/62e9d4abfdaf893b854465b8d0766fa662ca6f35))
+
+## Features
+
+### Multiple platforms
+
+* update ti.facebook to latest ([5aec767](https://github.com/tidev/titanium_mobile/commit/5aec767eb550e95a2ae86395e6bdfdb661f5e661))
+* update hyperloop to 7.0.7 ([d084485](https://github.com/tidev/titanium_mobile/commit/d084485ed0bd0c0bfcc84154ad543be4ccdd59cf))
+* update hyperloop to 7.0.8 to support SDK 12.6.0+ ([c5f2132](https://github.com/tidev/titanium_mobile/commit/c5f2132e87d2eca048e2c866ed9e8f2457d7994a))
+* update hyperloop to 7.0.9 to fix dex issues ([829d4ab](https://github.com/tidev/titanium_mobile/commit/829d4ab2b481e5cb4e5ee399ab8cad419267c21d))
+
+### Android platform
+
+* add x/y to ScrollView drag events ([70073c4](https://github.com/tidev/titanium_mobile/commit/70073c425c72d7e3a62ed2bb749c896b0cff832b))
+* added new methods in Ti.Calendar.Calendar module for bulk operations ([25fb9fd](https://github.com/tidev/titanium_mobile/commit/25fb9fd00a1976f3fd2aada0aa11ecac16e5c832))
+* be able to add plugins to build.gradle ([e1212e9](https://github.com/tidev/titanium_mobile/commit/e1212e9fccd79f5c302a8380157288df356081da))
+* enable gradle config caching ([6f0d755](https://github.com/tidev/titanium_mobile/commit/6f0d755e05a01d5abbc66d5610af5f6fdfdceaf8))
+* webview content will fill up the whole Ti.UI.WebView by default ([c817069](https://github.com/tidev/titanium_mobile/commit/c817069cbfc3de352e7fa0d7b93dea45294a7c6e))
+
+### iOS platform
+
+* add direction to ListView scrolling ([81d5d1e](https://github.com/tidev/titanium_mobile/commit/81d5d1e79b13f6677041256e7416f72662c2f2dc))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 13.0.0 | 15.0.0 |
+| ti.map | 5.6.1 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.3.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.9 | 7.0.9 |
+
+## [12.5.1](https://github.com/tidev/titanium_mobile/compare/12_5_0_GA...12.5.1) (2024-10-02)
+
+## About this release
+
+Titanium SDK 12.5.1 is a patch release of the SDK, addressing high-priority issues from previous releases.
+
+As of this GA release, the previous Titanium SDK patch release (12.5.0) is no longer supported.
+
+## Community Credits
+
+* Hans Knöchel
+  * update ioslib to 1.7.38 to fix incremental builds in Xcode 16 ([a72b174](https://github.com/tidev/titanium_mobile/commit/a72b174030844f48b3bc173a13cb55ad639d31b9))
+  * update ioslib to 1.7.39 to support Xcode 16 provisioning profile handling ([a762523](https://github.com/tidev/titanium_mobile/commit/a762523f887c458f4312db8d664dbe33abb45d65))
+  * update compatibility for iOS 18+ and Xcode 16+ ([a55e6a8](https://github.com/tidev/titanium_mobile/commit/a55e6a8929a654dc8fbba53f810930f75b9c9891))
+
+* Prashant Saini
+  * marker event was only triggered for first and last visible section items ([edc6163](https://github.com/tidev/titanium_mobile/commit/edc6163ed1a6e267e3022d6f8aa1e0ff09999013))
+  * ListView has empty cells while scrolling up/down (#14119) ([d4abe90](https://github.com/tidev/titanium_mobile/commit/d4abe90817a7b971c9b3ac77149635277c4923c2))
+
+* Michael Gangolf
+  * allow ignoreLog to be a single string ([15b0eb6](https://github.com/tidev/titanium_mobile/commit/15b0eb64f8fec642b51895ccca7f7922704f1f33))
+  * fix ListView layout with header and footer only ([3012280](https://github.com/tidev/titanium_mobile/commit/3012280a418bc354bbfb7c1762ca0a241e696131))
+
+## Bug Fixes
+
+### Multiple platforms
+
+* allow ignoreLog to be a single string ([15b0eb6](https://github.com/tidev/titanium_mobile/commit/15b0eb64f8fec642b51895ccca7f7922704f1f33))
+* update ioslib to 1.7.38 to fix incremental builds in Xcode 16 ([a72b174](https://github.com/tidev/titanium_mobile/commit/a72b174030844f48b3bc173a13cb55ad639d31b9))
+
+### Android platform
+
+* fix ListView layout with header and footer only ([3012280](https://github.com/tidev/titanium_mobile/commit/3012280a418bc354bbfb7c1762ca0a241e696131))
+* fix toString() call when adb devices fails ([a6870b9](https://github.com/tidev/titanium_mobile/commit/a6870b9eca47f3e78f96f6c3c11f42dc7f42ffa4))
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 12.1.0 | 14.0.0 |
+| ti.map | 5.6.1 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.3.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.6 | 7.0.6 |
+
 # [12.5.0](https://github.com/tidev/titanium_mobile/compare/12_4_X...12.5.0) (2024-09-16)
 
 ## About this release
