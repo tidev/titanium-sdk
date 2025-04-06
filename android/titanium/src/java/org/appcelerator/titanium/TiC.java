@@ -142,6 +142,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_TAB = "tab";
 	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
 	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
+	public static final String PROPERTY_THUMB_COLOR = "thumbColor";
+	public static final String PROPERTY_ON_THUMB_COLOR = "onThumbColor";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 	public static final String EVENT_PROPERTY_X = "x";
@@ -228,6 +230,7 @@ public class TiC
 	public static final String PROPERTY_ACCESSIBILITY_HINT = "accessibilityHint";
 	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
 	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
+	public static final String PROPERTY_ACCESSIBILITY_DISABLE_LONG = "accessibilityDisableLongPress";
 	public static final String PROPERTY_ACCESSORY_TYPE = "accessoryType";
 	public static final String PROPERTY_ACTION = "action";
 	public static final String PROPERTY_ACTION_VIEW = "actionView";
@@ -302,6 +305,7 @@ public class TiC
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
 	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 	public static final String PROPERTY_BAR_COLOR = "barColor";
+	public static final String PROPERTY_STATUS_BAR_COLOR = "statusBarColor";
 	public static final String PROPERTY_BASE_URL = "baseUrl";
 	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
 	public static final String PROPERTY_BIG_TEXT = "bigText";
@@ -559,6 +563,7 @@ public class TiC
 	public static final String PROPERTY_MAX_AGE = "maxAge";
 	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 	public static final String PROPERTY_MAX_ELEVATION = "maxElevation";
+	public static final String PROPERTY_MAX_IMAGES = "maxImages";
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";
@@ -609,6 +614,7 @@ public class TiC
 	public static final String PROPERTY_ON_RESTART = "onRestart";
 	public static final String PROPERTY_ON_PAUSE = "onPause";
 	public static final String PROPERTY_ON_STOP = "onStop";
+	public static final String PROPERTY_ON_TINT_COLOR = "onTintColor";
 	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 	public static final String PROPERTY_ON_DESTROY = "onDestroy";
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
@@ -638,6 +644,7 @@ public class TiC
 	public static final String PROPERTY_PASSWORD = "password";
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PATH = "path";
+	public static final String PROPERTY_PATH_ONLY = "pathOnly";
 	public static final String PROPERTY_PERSISTENT = "persistent";
 	public static final String PROPERTY_PHONE = "phone";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
@@ -691,6 +698,7 @@ public class TiC
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
 	public static final String PROPERTY_SCROLLABLE = "scrollable";
+	public static final String PROPERTY_SCROLLBARS = "scrollbars";
 	public static final String PROPERTY_SEARCH = "search";
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
 	public static final String PROPERTY_SEARCH_TEXT = "searchText";
@@ -764,6 +772,7 @@ public class TiC
 	public static final String PROPERTY_TEMPLATES = "templates";
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_COLOR = "textColor";
+	public static final String PROPERTY_TEXT_TRANSFORM = "textTransform";
 	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_THEME = "theme";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
@@ -856,6 +865,8 @@ public class TiC
 	public static final String PROPERTY_JOBTITLE = "jobTitle";
 	public static final String PROPERTY_DEPARTMENT = "department";
 	public static final String PROPERTY_FIXED_SIZE = "fixedSize";
+	public static final String PROPERTY_UI_FLAGS = "uiFlags";
+	public static final String PROPERTY_LAYER_TYPE = "layerType";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

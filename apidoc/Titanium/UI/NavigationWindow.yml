@@ -17,7 +17,7 @@ platforms: [android, iphone, ipad, macos]
 extends: Titanium.UI.Window
 since: "8.0.0"
 excludes:
-    methods: [removeAllChildren, setToolbar, hideTabBar]
+    methods: [removeAllChildren, setToolbar]
     properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
                 barColor, barImage, leftNavButton, rightNavButton, title, titleControl,
                 titlePrompt, titleImage, titleid, titlepromptid, url, backButtonTitle,
@@ -30,6 +30,16 @@ properties:
     type: Titanium.UI.Window
     availability: creation
     optional: false
+
+  - name: interactiveDismissModeEnabled
+    summary: |
+        A boolean indicating whether or not child windows of this navigation window
+        should have the ability to be swipe-to-closed over the full width of it's window or not.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad, macos]
+    since: "12.5.0"
+    availability: creation
 
 methods:
   - name: closeWindow

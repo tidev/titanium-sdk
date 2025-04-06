@@ -392,6 +392,9 @@ properties:
 
   - name: uptime
     summary: System uptime since last boot in seconds.
+    description: |
+        **Important**: When developing for the Apple ecosystem, using this API requires the `NSPrivacyAccessedAPICategorySystemBootTime`
+        property set in the privacy manifest that was introduced in iOS 17. You can learn more about it [here](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api).
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
