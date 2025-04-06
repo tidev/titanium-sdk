@@ -183,6 +183,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		setEnabled();
 	}
 
 	@Override
@@ -504,10 +505,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	}
 
 	@Override
-	public void setEnabled(Boolean enabled)
+	public void setEnabled()
 	{
 		for (int i = 0; i < this.bottomNavigation.getMenu().size(); i++) {
-			this.bottomNavigation.getMenu().getItem(i).setEnabled(enabled);
+			this.bottomNavigation.getMenu().getItem(i).setEnabled(!tabsDisabled);
 		}
 	}
 
@@ -549,5 +550,27 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		selectTab(item.getItemId());
 		((TabGroupProxy) getProxy()).onTabSelected(item.getItemId());
 		return true;
+	}
+
+	public void showHideTabBar(boolean visible)
+	{
+		super.setTabGroupVisibilityWithAnimation(bottomNavigation, visible);
+	}
+
+	public void setTabGroupVisibility(boolean visible)
+	{
+		super.setTabGroupVisibility(bottomNavigation, visible);
+	}
+
+	@Override
+	public void onViewSizeAvailable(Runnable runnable)
+	{
+		if (bottomNavigation.getHeight() > 0) {
+			// Height is already available, run immediately.
+			runnable.run();
+		} else {
+			// Height not available, post it to run after a layout pass.
+			bottomNavigation.post(runnable);
+		}
 	}
 }
