@@ -68,7 +68,7 @@ import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 		TiC.PROPERTY_SELECTION_OPENS,
 		TiC.PROPERTY_VALUE,
 		TiC.PROPERTY_DATE_PICKER_RANGE
-})
+	})
 
 public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChangedListener
 {
