@@ -94,24 +94,6 @@ async function checkCommitMessages() {
 	}
 }
 
-// Check that we have a JIRA Link in the body
-async function checkJIRA() {
-	// Don't require dependabot dependency updates require a JIRA ticket
-	if (github.pr.user.type === 'Bot') {
-		return;
-	}
-
-	const body = github.pr.body || '';
-	// TODO: Cross-reference JIRA tickets linked in PR body versus in commit messages!
-	const hasJIRALink = body.match(/https:\/\/jira\.appcelerator\.org\/browse\/[A-Z]+-\d+/);
-	if (!hasJIRALink) {
-		labelsToAdd.add(Label.NEEDS_JIRA);
-		warn('There is no linked JIRA ticket in the PR body. Please include the URL of the relevant JIRA ticket. If you need to, you may file a ticket on ' + danger.utils.href('https://jira.appcelerator.org/secure/CreateIssue!default.jspa', 'JIRA'));
-	} else {
-		labelsToRemove.add(Label.NEEDS_JIRA);
-	}
-}
-
 // Check that if we modify the Android or iOS SDK, we also update the tests
 // Also, assign labels based on changes to different dir paths
 async function checkChangedFileLocations() {
@@ -334,7 +316,6 @@ async function main() {
 		checkNPMTestOutput(),
 		checkCommitMessages(),
 		checkStats(github.pr),
-		checkJIRA(),
 		linkToSDK(),
 		checkForIOSCrash(),
 		junit({ pathToReport: './junit.*.xml', onlyWarn: true }),

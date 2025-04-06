@@ -29,6 +29,11 @@ methods:
         type: String
     since: { android: "12.0.0" }
 
+  - name: moveToBackground
+    summary: Moves the app to the background
+    platforms: [android]
+    since: { android: "12.4.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
@@ -537,6 +542,16 @@ properties:
     availability: creation
     permission: read-only
 
+  - name: SOFT_INPUT_ADJUST_NOTHING
+    summary: |
+        The window will not be resized, and it will not be panned to make its focus visible.
+    description: |
+        Used with the <Titanium.UI.Window.windowSoftInputMode> property.
+    type: Number
+    availability: creation
+    permission: read-only
+    since: 12.1.0
+
   - name: SOFT_INPUT_ADJUST_UNSPECIFIED
     summary: |
         Use the system-default behavior to determine how the soft input area (ie software keyboard)
@@ -658,6 +673,12 @@ properties:
         request.
     type: Number
     permission: read-only
+
+  - name: STATUS_BAR_LIGHT
+    summary: Sets the color of the status bar to light mode. Needs Android API level 23.
+    type: Number
+    permission: read-only
+    since: "12.7.0"
 
   - name: SWITCH_STYLE_CHECKBOX
     summary: Display a checkbox.
@@ -883,6 +904,97 @@ properties:
     permission: read-only
     platforms: [android]
     since: "8.0.0"
+
+  - name: TAB_MODE_FIXED
+    summary: Set the TabGroup tab mode to fixed (default).
+    type: Number
+    availability: creation
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: TAB_MODE_SCROLLABLE
+    summary: Set the TabGroup tab mode to scrollable.
+    type: Number
+    availability: creation
+    platforms: [android]
+    since: "12.2.0"
+
+  - name: SCROLL_FLAG_ENTER_ALWAYS
+    summary: When entering (scrolling on screen) the view will scroll on any downwards scroll event, regardless of whether the scrolling view is also scrolling. This is commonly referred to as the 'quick return' pattern.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED
+    summary: An additional flag for 'enterAlways' which modifies the returning view to only initially scroll back to it's collapsed height. Once the scrolling view has reached the end of it's scroll range, the remainder of this view will be scrolled into view. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+    summary: When exiting (scrolling off screen) the view will be scrolled until it is 'collapsed'. The collapsed height is defined by the view's minimum height.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_NO_SCROLL
+    summary: Disable scrolling on the view. This flag should not be combined with any of the other scroll flags.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SCROLL
+    summary: The view will be scroll in direct relation to scroll events. This flag needs to be set for any of the other flags to take effect. If any sibling views before this one do not have this flag, then this value has no effect.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP
+    summary: Upon a scroll ending, if the view is only partially visible then it will be snapped and scrolled to its closest edge. For example, if the view only has its bottom 25% displayed, it will be scrolled off screen completely. Conversely, if its bottom 75% is visible then it will be scrolled fully into view.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: SCROLL_FLAG_SNAP_MARGINS
+    summary: An additional flag to be used with 'snap'. If set, the view will be snapped to its top and bottom margins, as opposed to the edges of the view itself.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.1.0"
+
+  - name: WEBVIEW_SCROLLBARS_DEFAULT
+    summary: Show horizontal and vertical scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_VERTICAL
+    summary: Hide vertical scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL
+    summary: Hide horizontal scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_ALL
+    summary: Hide all scrollbars in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
 
 examples:
   - title: Android Preferences Example

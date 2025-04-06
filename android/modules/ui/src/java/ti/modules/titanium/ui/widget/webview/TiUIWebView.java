@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -34,6 +34,7 @@ import java.util.Map;
 import javax.crypto.CipherInputStream;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
+import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBlob;
@@ -66,6 +67,21 @@ public class TiUIWebView extends TiUIView
 	public static final int PLUGIN_STATE_OFF = 0;
 	public static final int PLUGIN_STATE_ON = 1;
 	public static final int PLUGIN_STATE_ON_DEMAND = 2;
+
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A4 = 0;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A5 = 1;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A3 = 2;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A2 = 3;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A1 = 4;
+	@Kroll.constant
+	public static final int PDF_PAGE_AUTO = 5;
+
+	public int layerType = WebViewProxy.LAYER_TYPE_NONE;
 
 	private static enum reloadTypes { DEFAULT, DATA, HTML, URL }
 
@@ -318,6 +334,13 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
+		boolean allowFileAccess = false; //file access should be false by default: https://developer.android.com/reference/android/webkit/WebSettings#setAllowFileAccess(boolean)
+		if (proxy.hasProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS)) {
+			allowFileAccess = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS), false);
+		}
+
+		settings.setAllowFileAccess(allowFileAccess);
+
 		// enable zoom controls by default
 		boolean enableZoom = true;
 
@@ -354,6 +377,8 @@ public class TiUIWebView extends TiUIView
 		TiCompositeLayout.LayoutParams params = getLayoutParams();
 		params.autoFillsHeight = true;
 		params.autoFillsWidth = true;
+		params.height = TiCompositeLayout.LayoutParams.MATCH_PARENT;
+		params.width = TiCompositeLayout.LayoutParams.MATCH_PARENT;
 
 		setNativeView(webView);
 	}
@@ -435,6 +460,18 @@ public class TiUIWebView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_ZOOM_LEVEL)) {
 			zoomBy(getWebView(), TiConvert.toFloat(d, TiC.PROPERTY_ZOOM_LEVEL));
 		}
+
+		if (d.containsKey(TiC.PROPERTY_SCROLLBARS)) {
+			int scrollbarValue = TiConvert.toInt(d, TiC.PROPERTY_SCROLLBARS);
+			webView.setVerticalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL);
+			webView.setHorizontalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_VERTICAL);
+		}
+
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_LAYER_TYPE)) {
+			setLayerType(TiConvert.toInt(d, TiC.PROPERTY_LAYER_TYPE));
+		}
 	}
 
 	@Override
@@ -475,6 +512,12 @@ public class TiUIWebView extends TiUIView
 			zoomBy(webView, TiConvert.toFloat(newValue, 1.0f));
 		} else if (TiC.PROPERTY_USER_AGENT.equals(key)) {
 			((WebViewProxy) getProxy()).setUserAgent(TiConvert.toString(newValue));
+		} else if (TiC.PROPERTY_SCROLLBARS.equals(key)) {
+			int scrollbarValue = TiConvert.toInt(newValue);
+			webView.setVerticalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL);
+			webView.setHorizontalScrollBarEnabled(scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_DEFAULT
+				|| scrollbarValue == AndroidModule.WEBVIEW_SCROLLBARS_HIDE_VERTICAL);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -1033,4 +1076,14 @@ public class TiUIWebView extends TiUIView
 	{
 		Log.d(TAG, "Do not disable HW acceleration for WebView.", Log.DEBUG_MODE);
 	}
+
+	public void setLayerType(int value)
+	{
+		WebView webView = getWebView();
+		if (webView != null) {
+			layerType = value;
+			webView.setLayerType(value, null);
+		}
+	}
+
 }

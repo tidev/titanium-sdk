@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -56,6 +56,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private SelectionTracker tracker = null;
 	private boolean isScrolling = false;
 	private boolean continuousUpdate = false;
+	private boolean forceUpdate = false;
 	private int lastScrollDeltaY;
 	private int scrollOffsetX = 0;
 	private int scrollOffsetY = 0;
@@ -152,12 +153,15 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						payload.put(TiC.PROPERTY_DIRECTION, "up");
 					} else if (dy < 0) {
 						payload.put(TiC.PROPERTY_DIRECTION, "down");
+					} else {
+						payload.put(TiC.PROPERTY_DIRECTION, "unknown");
 					}
 					payload.put(TiC.EVENT_PROPERTY_VELOCITY, 0);
 					if (continuousUpdate) {
 						if (lastVisibleItem != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX))
 							|| lastVisibleSection
-								   != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX))) {
+								   != TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX))
+							|| forceUpdate) {
 							proxy.fireSyncEvent(TiC.EVENT_SCROLLING, payload);
 							lastVisibleItem = TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_ITEM_INDEX));
 							lastVisibleSection = TiConvert.toInt(payload.get(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX));
@@ -282,6 +286,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final boolean allowsMultipleSelection
 			= properties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false);
 		continuousUpdate = properties.optBoolean(TiC.PROPERTY_CONTINUOUS_UPDATE, false);
+		forceUpdate = properties.optBoolean("forceUpdates", false);
 
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
@@ -398,6 +403,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, null);
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION_INDEX, -1);
 			}
+
+			payload.put(TiC.PROPERTY_TOP, recyclerView.computeVerticalScrollOffset());
 		}
 
 		// Define visible item count.
@@ -566,6 +573,18 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		return null;
 	}
 
+	public ListItemProxy getVisibleItemAt(int index)
+	{
+		final View itemView = getLayoutManager().findViewByPosition(index);
+
+		if (itemView == null) {
+			return null;
+		}
+
+		// Obtain list item proxy
+		return ((ListViewHolder) recyclerView.getChildViewHolder(itemView)).getProxy();
+	}
+
 	/**
 	 * Obtain last visible list item proxy.
 	 *
@@ -627,7 +646,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
-	 * Starts dragging programatically.
+	 * Starts dragging programmatically.
 	 *
 	 * @param vHolder The dedicated view holder
 	 */
@@ -662,6 +681,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
 
 		String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
+		filterQuery = query;
 		final boolean caseInsensitive = properties.optBoolean(TiC.PROPERTY_CASE_INSENSITIVE_SEARCH, true);
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
@@ -689,8 +709,10 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			int filteredIndex = 0;
 			for (final ListItemProxy item : sectionItems) {
 
+				boolean alwaysInclude = item.getProperties()
+					.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 				// Handle search query.
-				if (query != null) {
+				if (query != null && !alwaysInclude) {
 					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
 					if (searchableText != null) {
 						if (caseInsensitive) {
@@ -813,6 +835,11 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public void setContinousUpdate(boolean value)
 	{
 		continuousUpdate = value;
+	}
+
+	public void setForceUpdates(boolean value)
+	{
+		forceUpdate = value;
 	}
 
 	public void update()

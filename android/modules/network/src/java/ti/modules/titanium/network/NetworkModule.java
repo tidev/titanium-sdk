@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -211,6 +211,9 @@ public class NetworkModule extends KrollModule
 					break;
 				case ConnectivityManager.TYPE_MOBILE:
 					type = NetworkModule.NETWORK_MOBILE;
+					break;
+				case ConnectivityManager.TYPE_ETHERNET:
+					type = NetworkModule.NETWORK_LAN;
 					break;
 				default:
 					type = NetworkModule.NETWORK_UNKNOWN;
@@ -522,7 +525,9 @@ public class NetworkModule extends KrollModule
 			KrollDict event = new KrollDict();
 			event.put("success", true);
 			event.put("type", "remote");
-			successCallback.callAsync(getKrollObject(), new KrollDict());
+			if (successCallback != null) {
+				successCallback.callAsync(getKrollObject(), new KrollDict());
+			}
 			return;
 		}
 
@@ -536,16 +541,23 @@ public class NetworkModule extends KrollModule
 				@NonNull TiBaseActivity activity, int requestCode,
 				@NonNull String[] permissions, @NonNull int[] grantResults)
 			{
-				Boolean isGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+				Boolean isGranted = false;
+				if (grantResults.length > 0) {
+					isGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+				}
 
 				KrollDict event = new KrollDict();
 				event.put("success", isGranted);
 				event.put("type", "remote");
 
 				if (isGranted) {
-					successCallback.callAsync(getKrollObject(), event);
+					if (successCallback != null) {
+						successCallback.callAsync(getKrollObject(), event);
+					}
 				} else {
-					errorCallback.callAsync(getKrollObject(), event);
+					if (errorCallback != null) {
+						errorCallback.callAsync(getKrollObject(), event);
+					}
 				}
 
 				// Unregister this callback.

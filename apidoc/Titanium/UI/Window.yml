@@ -540,10 +540,13 @@ methods:
     description: |
         To hide the tab bar when opening a window as a child of a tab, call
         `hideTabBar` or set `tabBarHidden` to `true` **before** opening the window.
-
         If the window is not a child of a tab, this method has no effect.
     platforms: [iphone, ipad, macos]
-
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
+     
   - name: open
     summary: Opens the window.
     parameters:
@@ -592,6 +595,18 @@ methods:
         default: "{ animated: true }"
     platforms: [iphone, ipad, macos]
 
+  - name: showTabBar
+    summary: Shows the tab bar. Must be called before opening the window.
+    description: |
+        To show the tab bar when opening a window as a child of a tab, call
+        `showTabBar` or set `tabBarHidden` to `false` **before** opening the window.
+        If the window is not a child of a tab, this method has no effect.
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
+        
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
@@ -645,19 +660,6 @@ events:
         user dismisses the keyboard with the back button or when the
         user closes a full-screen video which is embedded in a web view
         with the back button.
-
-        As of 5.0.0, you can create an event that can prevent accidental closure of the
-        app due to hitting the back button to many times.
-
-        ``` js
-        var win = Ti.UI.createWindow(
-            { // some code... }
-        );
-        // more code
-        win.addEventListener("windows:back", function()
-            { alert("Back pressed"); }
-        );
-        ```
     since: '3.0.0'
 
   - name: androidcamera
@@ -1366,6 +1368,12 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
 
+  - name: statusBarColor
+    summary: The color of the status bar (top bar) for this window.
+    type: [Number]
+    platforms: [android]
+    since: {android: "12.5.0"}
+
   - name: sustainedPerformanceMode
     summary: Maintain a sustainable level of performance.
     description: |
@@ -1422,8 +1430,8 @@ properties:
     summary: Title text attributes of the window.
     description: |
         Use this property to specify the color, font and shadow attributes of the title.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     type: titleAttributesParams
 
   - name: titleControl
@@ -1539,10 +1547,22 @@ properties:
 
         Setting <Titanium.UI.Window.fullscreen> to `true` automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN)
         flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
+
+        Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the status bar text color to light mode.
     platforms: [android]
     type: Number
     since: "3.3.0"
     availability: creation
+
+  - name: uiFlags
+    summary: Additional UI flags to set on the Activity Window.
+    description: |
+        See [WindowManager.LayoutParams](https://developer.android.com/reference/android/view/View#setSystemUiVisibility\(int\)) for a
+        list of additional flags that can be assigned to this property. For example, you can use `8192` (SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) to set
+        the status bar text color to a dark color.
+    platforms: [android]
+    type: Number
+    since: "12.7.0"
 
   - name: windowSoftInputMode
     summary: |
@@ -2006,8 +2026,8 @@ properties:
 ---
 name: titleAttributesParams
 summary: Dictionary of options for the <Titanium.UI.Window.titleAttributes> property.
-platforms: [iphone, ipad, macos]
-since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
+since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 examples:
   - title: Simple Example
     example: |
@@ -2030,14 +2050,18 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: font
     summary: Font to use for the window title.
     type: Font
+    platforms: [iphone, ipad, macos]
 
   - name: shadow
     summary: Shadow color and offset for the window title.
     type: shadowDict
+    platforms: [iphone, ipad, macos]
 
 ---
 name: shadowDict

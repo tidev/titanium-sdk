@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -364,6 +364,9 @@ public class AndroidModule extends KrollModule
 	public static final int FLAG_UPDATE_CURRENT = PendingIntent.FLAG_UPDATE_CURRENT;
 
 	@Kroll.constant
+	public static final int STATUS_BAR_LIGHT = 8192;
+
+	@Kroll.constant
 	public static final int RESULT_OK = Activity.RESULT_OK;
 	@Kroll.constant
 	public static final int RESULT_CANCELED = Activity.RESULT_CANCELED;
@@ -561,7 +564,7 @@ public class AndroidModule extends KrollModule
 				// Remove this listener from the runtime's static collection.
 				KrollRuntime.removeOnDisposingListener(this);
 
-				// Unregister all currently registerd broadcast receviers.
+				// Unregister all currently registered broadcast receivers.
 				// They can no longer be handled by the terminating JavaScript runtime.
 				while (registeredBroadcastReceiverProxyList.isEmpty() == false) {
 					unregisterBroadcastReceiver(registeredBroadcastReceiverProxyList.pollFirst());
@@ -756,7 +759,14 @@ public class AndroidModule extends KrollModule
 				filter.addAction(TiConvert.toString(action));
 			}
 
-			TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+				&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+				int receiverFlags = Context.RECEIVER_EXPORTED;
+				TiApplication.getInstance().registerReceiver(
+					receiverProxy.getBroadcastReceiver(), filter, receiverFlags);
+			} else {
+				TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			}
 			if (this.registeredBroadcastReceiverProxyList.contains(receiverProxy) == false) {
 				this.registeredBroadcastReceiverProxyList.add(receiverProxy);
 			}

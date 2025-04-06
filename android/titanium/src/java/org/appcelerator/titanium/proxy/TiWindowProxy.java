@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -51,6 +51,7 @@ import android.view.ViewParent;
 	TiC.PROPERTY_ON_BACK,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_TITLE_ATTRIBUTES,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
 public abstract class TiWindowProxy extends TiViewProxy
@@ -533,6 +534,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
 			if (flagVal) {
+				intent.putExtra(TiC.PROPERTY_FULLSCREEN, flagVal);
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
 			}
 		}
@@ -566,6 +568,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// We're opening child activity from Titanium root activity. Have it exit out of app by default.
 			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+
+			// Set default value on first window proxy also if not already set above.
+			setProperty(TiC.PROPERTY_EXIT_ON_CLOSE, true);
 		}
 
 		// Set the theme property

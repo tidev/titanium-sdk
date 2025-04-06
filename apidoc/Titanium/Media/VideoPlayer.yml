@@ -408,6 +408,18 @@ properties:
     type: Boolean
     default: true
 
+  - name: autoHide
+    summary: Indicates if player is hidden by default and shown when its ready.
+    description: |
+        On Android the background of the video player is set to the primary background color.
+        When switching on `autoHide` it will hide the player until the video is loaded.
+        Then it will automatically show the player. In a <Titanium.UI.ListView> it will hide
+        it again when it is outside the viewport.
+    type: Boolean
+    platforms: [android]
+    since: 12.1.0
+    default: false
+
   - name: backgroundView
     deprecated:
         since: "7.0.0"
@@ -471,6 +483,17 @@ properties:
         (the natural end time), and changing the value has no effect.
     type: Number
     default: 0
+
+  - name: fairPlayConfiguration
+    platforms: [iphone, ipad, macos]
+    summary: 'Handle DRM-encrypted video assets using the [Apple FairPlay Streaming API](https://developer.apple.com/streaming/fps/).'
+    description:
+        Secure the delivery of streaming media to devices through the HTTP Live Streaming (HLS) protocol. Using FairPlay Streaming (FPS)
+        technology, content providers, encoding vendors, and delivery networks can encrypt content, securely exchange keys,
+        and protect playback on iOS, iPadOS and macOS.
+    type: FairPlayConfiguration
+    availability: creation
+    since: "12.2.0"
 
   - name: fullscreen
     platforms: [android]
@@ -551,6 +574,15 @@ properties:
         fired when the natural size is known.
     platforms: [iphone, ipad, macos]
     type: MovieSize
+
+  - name: speed
+    summary: Playback speed of the video.
+    description: |
+      Playback speed of the video. Android: only available for API level >= 23.
+    type: Number
+    platforms: [android]
+    since: 12.4.0
+    availability: creation
 
   - name: overlayView
     summary: Use the overlay view to add additional custom views between the video content and the controls.
@@ -699,3 +731,16 @@ properties:
   - name: height
     summary: Height of the movie.
     type: Number
+
+---
+name: FairPlayConfiguration
+summary: An object representing a FairPlay Streaming configuration.
+platforms: [iphone, ipad, macos]
+properties:
+  - name: licenseURL
+    summary: The FairPlay Streaming license URL to handle the server-side authentication flow.
+    type: String
+
+  - name: certificate
+    summary: The FairPlay Streaming public certificate to authenticate the content key request.
+    type: Titanium.Blob

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -450,7 +450,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		}
 	}
 
-	// NOTE: For internal use only.
+	@Kroll.getProperty
 	public KrollDict getContentOffset()
 	{
 		final TiListView listView = getListView();
@@ -562,6 +562,11 @@ public class ListViewProxy extends RecyclerViewProxy
 			if (listView != null) {
 				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
 			}
+		} else if (name.equals("forceUpdates")) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setForceUpdates(TiConvert.toBoolean(value, false));
+			}
 		}
 	}
 
@@ -626,8 +631,15 @@ public class ListViewProxy extends RecyclerViewProxy
 			return;
 		}
 
-		final ListItemProxy[] items =
-			new ListItemProxy[] { listView.getFirstVisibleItem(), listView.getLastVisibleItem()};
+		final ArrayList<ListItemProxy> items = new ArrayList<>();
+		final LinearLayoutManager lm = listView.getLayoutManager();
+		final int firstVisibleItemPos = lm.findFirstVisibleItemPosition();
+		final int lastVisibleItemPos = lm.findLastVisibleItemPosition();
+
+		// ideally markers should be triggered for all visible items between first and last visible ones
+		for (int i = firstVisibleItemPos; i <= lastVisibleItemPos; i++) {
+			items.add(listView.getVisibleItemAt(i));
+		}
 
 		for (final ListItemProxy item : items) {
 			if (item != null) {

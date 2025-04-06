@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -443,7 +443,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 						// Request the parent to scroll if one of the following is true:
 						// - EditText is not scrollable. (ie: All text fits within the box.)
-						// - EditText is scrollabe, but cannot scroll any further in given direction.
+						// - EditText is scrollable, but cannot scroll any further in given direction.
 						if (!isScrollEnabled || !canScrollFurther) {
 							wasHandled = dispatchNestedPreScroll(deltaX, deltaY, null, null);
 							wasHandled |= dispatchNestedScroll(0, 0, deltaX, deltaY, null);

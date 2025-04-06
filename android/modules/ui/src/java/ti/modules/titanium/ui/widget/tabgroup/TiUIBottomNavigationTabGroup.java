@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -12,9 +12,9 @@ import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewParent;
 import android.view.Window;
 
 import androidx.annotation.ColorInt;
@@ -24,7 +24,7 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -189,23 +189,19 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		setEnabled();
+	}
 
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		ViewParent viewParent = this.tabGroupViewPager.getParent();
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(disable ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			this.tabGroupViewPager.setLayoutParams(params);
+	/**
+	 * Enable or disable tabs click event.
+	 */
+	@Override
+	public void setEnabled()
+	{
+		Menu menu = this.mBottomNavigationView.getMenu();
+		for (int i = 0; i < menu.size(); i++) {
+			menu.getItem(i).setEnabled(!tabsDisabled);
 		}
-
-		// Show/hide the tab bar.
-		this.mBottomNavigationView.setVisibility(disable ? View.GONE : View.VISIBLE);
-		this.mBottomNavigationView.requestLayout();
-
-		// Update top inset. (Will remove bottom inset if tab bar is "gone".)
-		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@Override
@@ -229,14 +225,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
 		switch (shiftMode) {
 			case 0:
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
 				break;
 			case 1:
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_AUTO);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_AUTO);
 				break;
 			case 2:
 				// NOTE: Undocumented for now, will create new property that has parity with iOS.
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_UNLABELED);
 				break;
 		}
 	}
@@ -335,16 +331,28 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		try {
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)) {
+			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
+			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-				drawable = new RippleDrawable(createRippleColorStateListFrom(getActiveColor(tabProxy)), drawable, null);
+				int color = getActiveColor(tabProxy);
+				if (hasTouchFeedbackColor) {
+					color = TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR),
+						tabProxy.getActivity());
+				}
+				drawable = new RippleDrawable(createRippleColorStateListFrom(color), drawable, null);
 				bottomMenuView.getChildAt(index).setBackground(drawable);
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
+	}
+
+	@Override
+	public void updateActiveIndicatorColor(int color)
+	{
+
 	}
 
 	@Override
@@ -361,6 +369,30 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		String title = TiConvert.toString(tabProxy.getProperty(TiC.PROPERTY_TITLE));
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
+	}
+
+	public void showHideTabBar(boolean visible)
+	{
+		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, true);
+		super.setTabGroupVisibilityWithAnimation(mBottomNavigationView, visible);
+	}
+
+	public void setTabGroupVisibility(boolean visible)
+	{
+		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, false);
+		super.setTabGroupVisibility(mBottomNavigationView, visible);
+	}
+
+	@Override
+	public void onViewSizeAvailable(Runnable runnable)
+	{
+		if (mBottomNavigationView.getHeight() > 0) {
+			// Height is already available, run immediately.
+			runnable.run();
+		} else {
+			// Height not available, post it to run after a layout pass.
+			mBottomNavigationView.post(runnable);
+		}
 	}
 
 	@SuppressLint("RestrictedApi")
@@ -405,10 +437,23 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_BACKGROUND_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBadgeTextColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_TEXT_COLOR), tabProxy.getActivity()));
 		}
 	}
 
@@ -444,6 +489,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
+		updateIconTint();
 	}
 
 	@Override
@@ -465,6 +511,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public boolean onMenuItemClick(MenuItem item)
 	{
+		if (tabsDisabled) {
+			return true;
+		}
+
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
 		// Guard for clicking on the currently selected tab.

@@ -196,6 +196,9 @@ properties:
     since: {android: "9.3.0"}
 
   - name: badgeColor
+    deprecated:
+        since: "12.2.0"
+        notes: Use [Titanium.UI.Tab.badgeBackgroundColor](Titanium.UI.Tab.badgeBackgroundColor) instead.
     summary: |
         If this item displays a badge, this color will be used for the badge's background.
         If set to null, the default background color will be used instead.
@@ -204,6 +207,25 @@ properties:
     type: [String, Titanium.UI.Color]
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
+
+  - name: badgeBackgroundColor
+    summary: |
+        If this item displays a badge, this color will be used for the badge's background.
+        If set to null, the default background color will be used instead.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.2.0"}
+
+  - name: badgeTextColor
+    summary: |
+        Set the text color of the badge.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: {android: "12.2.0"}
 
   - name: icon
     summary: Icon URL for this tab.
@@ -231,7 +253,26 @@ properties:
          (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
+
+         #### Android Tab Icons
+         Can be used in combination with `iconFamily` in a BottomNavigation setup with `experimental:true`.
     type: String
+
+  - name: iconFamily
+    summary: Specifies the font family or specific font to use.
+    description: |
+        When using a BottomNavigation setup with `experimental:true` you can use this property in combination
+        with an `icon` to use an icon-font for the tab icons:
+
+        ``` js
+        '#tab1': {
+          icon: "\ueac1",
+          iconFamily: "tabler-icons"
+        }
+        ```
+    since: "12.7.0"
+    type: String
+    platforms: [android]
 
   - name: iconInsets
     summary: The icon inset or outset for each edge.
@@ -307,26 +348,6 @@ properties:
     availability: creation
 
 events:
-  - name: blur
-    summary: Fired when the tab loses focus.
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) event instead.
-    properties:
-      - name: index
-        summary: Index of the current active tab.
-        type: Number
-      - name: previousIndex
-        summary: Index of the previous active tab.
-        type: Number
-      - name: tab
-        summary: Current active tab object.
-        type: Titanium.UI.Tab
-      - name: previousTab
-        summary: Previous active tab object.
-        type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad]
 
   - name: unselected
     summary: Fired when the tab is no longer selected.
@@ -349,27 +370,6 @@ events:
   - name: click
     summary: Fired when this tab is clicked in the tab group.
     exclude-platforms: [iphone, ipad, macos]
-
-  - name: focus
-    summary: Fired when the tab gains focus.
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) event instead.
-    properties:
-      - name: index
-        summary: Index of the current active tab.
-        type: Number
-      - name: previousIndex
-        summary: Index of the previous active tab.
-        type: Number
-      - name: tab
-        summary: Current active tab object.
-        type: Titanium.UI.Tab
-      - name: previousTab
-        summary: Previous active tab object.
-        type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad]
 
   - name: selected
     summary: Fired when the tab is selected.

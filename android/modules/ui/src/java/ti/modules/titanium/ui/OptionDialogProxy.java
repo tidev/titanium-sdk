@@ -1,10 +1,12 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
+
+import android.app.Activity;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -12,7 +14,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIDialog;
-import android.app.Activity;
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_ANDROID_VIEW,
@@ -22,7 +24,7 @@ import android.app.Activity;
 		TiC.PROPERTY_TITLE,
 		TiC.PROPERTY_TITLEID,
 		TiC.PROPERTY_PERSISTENT
-})
+	})
 public class OptionDialogProxy extends TiDialogProxy
 {
 	public OptionDialogProxy()
