@@ -6,23 +6,18 @@
  */
 package ti.modules.titanium.ui.widget.webview;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.FeatureInfo;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Environment;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
-import android.webkit.CookieManager;
-import android.webkit.DownloadListener;
-import android.webkit.URLUtil;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import androidx.annotation.RequiresApi;
@@ -33,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -383,39 +377,6 @@ public class TiUIWebView extends TiUIView
 		params.autoFillsWidth = true;
 		params.height = TiCompositeLayout.LayoutParams.MATCH_PARENT;
 		params.width = TiCompositeLayout.LayoutParams.MATCH_PARENT;
-
-		/*
-			enable file download from <a href download> tag
-			it starts download automatically in the background and
-			shows a notification
-		 */
-		webView.setDownloadListener(new DownloadListener() {
-			@Override
-			public void onDownloadStart(String url, String userAgent,
-										String contentDisposition,
-										String mimeType, long contentLength)
-			{
-				String guessedMimeType = URLConnection.guessContentTypeFromName(url);
-				DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-				request.setMimeType(guessedMimeType);
-				String cookies = CookieManager.getInstance().getCookie(url);
-				request.addRequestHeader("cookie", cookies);
-				request.addRequestHeader("User-Agent", userAgent);
-				request.setDescription("Downloading...");
-				request.setTitle(URLUtil.guessFileName(url, contentDisposition, guessedMimeType));
-				request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-				request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(url,
-					contentDisposition, guessedMimeType));
-				Context context = TiApplication.getInstance().getApplicationContext();
-				DownloadManager dm = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-				dm.enqueue(request);
-				KrollDict kd = new KrollDict();
-				kd.put("status", "started");
-				kd.put("url", url);
-				kd.put("target", Environment.DIRECTORY_DOWNLOADS);
-				fireEvent("download", kd);
-			}
-		});
 
 		setNativeView(webView);
 	}
