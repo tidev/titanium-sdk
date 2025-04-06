@@ -7,6 +7,8 @@
 
 package ti.modules.titanium.ui;
 
+import static ti.modules.titanium.android.AndroidModule.STATUS_BAR_LIGHT;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -14,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
@@ -70,7 +73,8 @@ import ti.modules.titanium.ui.widget.TiView;
 		TiC.PROPERTY_WINDOW_PIXEL_FORMAT,
 		TiC.PROPERTY_FLAG_SECURE,
 		TiC.PROPERTY_BAR_COLOR,
-		TiC.PROPERTY_STATUS_BAR_COLOR
+		TiC.PROPERTY_STATUS_BAR_COLOR,
+		TiC.PROPERTY_UI_FLAGS
 	})
 
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -328,6 +332,17 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			win.setStatusBarColor(colorInt);
 		}
 
+		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
+			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
+		}
+
+		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
+			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0
+				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+			}
+		}
+
 		// Handle titleAttributes property.
 		if (hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
 			KrollDict innerAttributes = getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
@@ -459,6 +474,13 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				AppCompatActivity activity = windowActivity.get();
 				int colorInt = TiColorHelper.parseColor(TiConvert.toString(value), activity);
 				activity.getWindow().setStatusBarColor(colorInt);
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_UI_FLAGS)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				AppCompatActivity activity = windowActivity.get();
+				activity.getWindow().getDecorView().setSystemUiVisibility(TiConvert.toInt(value));
 			}
 		}
 
