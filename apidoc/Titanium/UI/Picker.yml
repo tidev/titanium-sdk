@@ -325,7 +325,7 @@ properties:
     summary: Date value for range picker start value.
     type: Date
     platforms: [android]
-    since: "12.3.0"
+    since: "12.7.0"
 
   - name: hintText
     summary: Text to be shown above date/time when picker is shown as a text field or drop-down field.
