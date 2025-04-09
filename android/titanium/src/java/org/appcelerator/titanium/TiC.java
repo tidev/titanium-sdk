@@ -45,6 +45,7 @@ public class TiC
 	 */
 	public static final int ERROR_CODE_UNKNOWN = -1;
 	public static final int ERROR_CODE_NO_ERROR = 0;
+	public static final int ERROR_CODE_TIMEOUT = -1001;
 
 	public static final String EVENT_ADDED_TO_TAB = "addedtotab";
 	public static final String EVENT_ANDROID_BACK = "androidback";
