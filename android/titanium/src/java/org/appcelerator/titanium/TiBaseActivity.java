@@ -1317,39 +1317,39 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		onPrepareOptionsMenuListeners.add(new WeakReference<>(listener));
 	}
 
-	public boolean removeOnLifecycleEventListener(OnLifecycleEvent listener)
+	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		return lifecycleListeners.remove(listener);
+		lifecycleListeners.remove(listener);
 	}
 
-	public boolean removeOnInstanceStateEventListener(OnInstanceStateEvent listener)
+	public void removeOnInstanceStateEventListener(OnInstanceStateEvent listener)
 	{
-		return instanceStateListeners.remove(listener);
+		instanceStateListeners.remove(listener);
 	}
 
-	public boolean removeOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
+	public void removeOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
 	{
-		return windowFocusChangedListeners.remove(listener);
+		windowFocusChangedListeners.remove(listener);
 	}
 
-	public boolean removeInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
+	public void removeInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
 	{
-		return interceptOnBackPressedListeners.remove(listener);
+		interceptOnBackPressedListeners.remove(listener);
 	}
 
-	public boolean removeOnActivityResultListener(OnActivityResultEvent listener)
+	public void removeOnActivityResultListener(OnActivityResultEvent listener)
 	{
-		return onActivityResultListeners.remove(listener);
+		onActivityResultListeners.remove(listener);
 	}
 
-	public boolean removeOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
+	public void removeOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
 	{
-		return onCreateOptionsMenuListeners.remove(listener);
+		onCreateOptionsMenuListeners.remove(listener);
 	}
 
-	public boolean removeOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
+	public void removeOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
 	{
-		return onPrepareOptionsMenuListeners.remove(listener);
+		onPrepareOptionsMenuListeners.remove(listener);
 	}
 
 	private void dispatchCallback(String propertyName, KrollDict data)
