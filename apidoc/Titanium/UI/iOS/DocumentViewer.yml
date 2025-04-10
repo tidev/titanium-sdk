@@ -1,120 +1,128 @@
 ---
 name: Titanium.UI.iOS.DocumentViewer
 summary: |
-    A DocumentViewer provides in-app support for managing user interactions with files on the
-    local system.
+  A DocumentViewer provides in-app support for managing user interactions with files on the
+  local system.
 description: |
-    The DocumentViewer is created by the <Titanium.UI.iOS.createDocumentViewer> method.
+  The DocumentViewer is created by the <Titanium.UI.iOS.createDocumentViewer> method.
 
-    Use this class to present an user interface for previewing files,
-    such as an e-mail program that previews attachments.
+  Use this class to present an user interface for previewing files,
+  such as an e-mail program that previews attachments.
 
-    The DocumentViewer displays previews for the following document types:
+  The DocumentViewer displays previews for the following document types:
 
-      * Microsoft Office (DOC, XLS, PPT) (Office 97-2004), the XML versions are not supported
-      * Portable Document Format files (PDF)
-      * Images (JPEG, GIF, PNG)
-      * Rich Text Format files (RTF)
-      * HTML and XML files
-      * Plain text files
-      * Comma-separated value files (CSV)
+    * Microsoft Office (DOC, XLS, PPT) (Office 97-2004), the XML versions are not supported
+    * Portable Document Format files (PDF)
+    * Images (JPEG, GIF, PNG)
+    * Rich Text Format files (RTF)
+    * HTML and XML files
+    * Plain text files
+    * Comma-separated value files (CSV)
 
-    Note: Using HTML content in the DocumentViewer is not recommended, since it does not support
-    all HTML-capabilities. Please use <Titanium.UI.WebView> to display complex HTML files.
+  Note: Using HTML content in the DocumentViewer is not recommended, since it does not support
+  all HTML-capabilities. Please use <Titanium.UI.WebView> to display complex HTML files.
 
-    You can launch the document either in the document viewer or with another application with the
-    options menu. To use the options menu, you need to specify a view with the `show` method to
-    anchor the options menu to.
+  You can launch the document either in the document viewer or with another application with the
+  options menu. To use the options menu, you need to specify a view with the `show` method to
+  anchor the options menu to.
 
-    In the document viewer, click the **Done** button to dismiss the document viewer or click the
-    right navigation button to open the options menu to perform another action with the document,
-    such as printing the document or opening the document in another application.
+  In the document viewer, click the **Done** button to dismiss the document viewer or click the
+  right navigation button to open the options menu to perform another action with the document,
+  such as printing the document or opening the document in another application.
 
-    **Note for iOS 11 and later**
-    When using the DocumentViewer in iOS 11 and later, documents need to be placed in the app-bundle
-    in order to be shared to third-party apps. This is a privacy restriction and can be solved by
-    using either a document from the `Resources` directory (classic Titanium) or `app/assets` (Alloy).
-    Alternatively, documents can also be stored in the <Titanium.Filesystem.applicationCacheDirectory>
-    or <Titanium.Filesystem.applicationDataDirectory>.
+  **Note for iOS 11 and later**
+  When using the DocumentViewer in iOS 11 and later, documents need to be placed in the app-bundle
+  in order to be shared to third-party apps. This is a privacy restriction and can be solved by
+  using either a document from the `Resources` directory (classic Titanium) or `app/assets` (Alloy).
+  Alternatively, documents can also be stored in the <Titanium.Filesystem.applicationCacheDirectory>
+  or <Titanium.Filesystem.applicationDataDirectory>.
 
-    **Note for iOS 11.2 and later**
-    Apple introduced a regression in iOS 11.2 that forces **all** files to be in the application data
-    directory. We handle this workaround for you in Titanium SDK 7.0.2+, but you
-    can also work around it without an SDK update. Here is an example:
+  **Note for iOS 11.2 and later**
+  Apple introduced a regression in iOS 11.2 that forces **all** files to be in the application data
+  directory. We handle this workaround for you in Titanium SDK 7.0.2+, but you
+  can also work around it without an SDK update. Here is an example:
 
-    ``` js
-    var fileName = 'example.pdf';
+  ``` js
+  var fileName = 'example.pdf';
 
-    // For iOS 11.2, workaround the Apple issue by creating a temporary file and
-    // reference it. It will be removed from filesystem once the app closes.
-    // Read more here: http://nshipster.com/nstemporarydirectory/
-    if (isiOS11_2()) {
-      fileName = fileInApplicationDataDirectory(fileName);
+  // For iOS 11.2, workaround the Apple issue by creating a temporary file and
+  // reference it. It will be removed from filesystem once the app closes.
+  // Read more here: http://nshipster.com/nstemporarydirectory/
+  if (isiOS11_2()) {
+    fileName = fileInApplicationDataDirectory(fileName);
+  }
+
+  var docViewer = Ti.UI.iOS.createDocumentViewer({
+    url: fileName
+  });
+
+  docViewer.show();
+
+  // Check if the current device runs iOS 11.2+
+  function isiOS11_2() {
+    var version = Ti.Platform.version.split(".");
+    return (parseInt(version[0]) >= 11 && parseInt(version[1]) >= 2);
+  }
+
+  // Create a temporary file with the contents of the old file
+  // Expects the file to be in the resources directory. If you receive the file
+  // from an API-call, receive pass the Ti.Blob/Ti.File/text to "write" directly.
+  function fileInApplicationDataDirectory(fileName) {
+    var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, fileName);
+
+    if (!file.exists()) {
+      alert('File does not exist in resources!');
+      return;
     }
 
-    var docViewer = Ti.UI.iOS.createDocumentViewer({
-      url: fileName
-    });
+    var newFile = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, fileName);
+    newFile.createFile();
 
-    docViewer.show();
-
-    // Check if the current device runs iOS 11.2+
-    function isiOS11_2() {
-      var version = Ti.Platform.version.split(".");
-      return (parseInt(version[0]) >= 11 && parseInt(version[1]) >= 2);
+    if (!newFile.exists()) {
+      alert('New file could not be created in application data directory!');
+      return;
     }
 
-    // Create a temporary file with the contents of the old file
-    // Expects the file to be in the resources directory. If you receive the file
-    // from an API-call, receive pass the Ti.Blob/Ti.File/text to "write" directly.
-    function fileInApplicationDataDirectory(fileName) {
-      var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, fileName);
+    newFile.write(file);
 
-      if (!file.exists()) {
-        alert('File does not exist in resources!');
-        return;
-      }
+    return newFile.nativePath;
+  }
+  ```
 
-      var newFile = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, fileName);
-      newFile.createFile();
-
-      if (!newFile.exists()) {
-        alert('New file could not be created in application data directory!');
-        return;
-      }
-
-      newFile.write(file);
-
-      return newFile.nativePath;
-    }
-    ```
-
-    Read more about the issue in [TIMOB-25680](https://jira-archive.titaniumsdk.com/TIMOB-25680).
+  Read more about the issue in [TIMOB-25680](https://jira-archive.titaniumsdk.com/TIMOB-25680).
 extends: Titanium.Proxy
 platforms: [iphone, ipad, macos]
-since: {iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0"}
+since: { iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0" }
 properties:
   - name: name
     summary: Name of the file (without the path).
     description: |
-        Only returns a value after the document has been previewed.
+      Only returns a value after the document has been previewed.
     type: String
     permission: read-only
 
   - name: url
     summary: URL of the document being previewed.
     description: |
-        Important note: For iOS 11.2 and later, you need to reference this URL
-        from either the application data directory or temporary directory. Read
-        more about this change in the "Note for iOS 11.2 and later" paragraph of
-        the API summary.
+      Important note: For iOS 11.2 and later, you need to reference this URL
+      from either the application data directory or temporary directory. Read
+      more about this change in the "Note for iOS 11.2 and later" paragraph of
+      the API summary.
     type: String
 
   - name: annotation
     summary: Custom property list information for the target file.
     description: |
-        Use this property to pass information about the document type to the app responsible for opening it.
+      Use this property to pass information about the document type to the app responsible for opening it.
     type: [Dictionary, Array, String, Number, Date]
+
+  - name: title
+    summary: Title of the file.
+    description: |
+      Use this property to specify the document title that is displayed in the navigation bar.
+      If not set, it uses the URL path of the loaded document.
+    type: String
+    since: "12.7.0"
 
 methods:
   - name: hide
@@ -128,7 +136,7 @@ methods:
   - name: show
     summary: Displays the document viewer over the current view.
     description: |
-        To show the options menu, set the `view` key of the options object.
+      To show the options menu, set the `view` key of the options object.
     parameters:
       - name: options
         summary: Display options.
@@ -148,59 +156,59 @@ events:
 examples:
   - title: Document Viewer Example
     example: |
-        In the example below, the navigation bar's right button opens the options menu,
-        while the window button immediately launches the document in the document viewer.
+      In the example below, the navigation bar's right button opens the options menu,
+      while the window button immediately launches the document in the document viewer.
 
-        ``` js
-        var navButton = Ti.UI.createButton({
-            title: 'Launch'
-        });
+      ``` js
+      var navButton = Ti.UI.createButton({
+          title: 'Launch'
+      });
 
-        var win = Ti.UI.createWindow({
-            rightNavButton: navButton
-        });
+      var win = Ti.UI.createWindow({
+          rightNavButton: navButton
+      });
 
-        var navWin = Ti.UI.createNavigationWindow({
-            window: win
-        });
+      var navWin = Ti.UI.createNavigationWindow({
+          window: win
+      });
 
-        var winButton = Ti.UI.createButton({
-            title: 'Launch',
-            height: 40,
-            width: 200,
-            top: 270
-        });
+      var winButton = Ti.UI.createButton({
+          title: 'Launch',
+          height: 40,
+          width: 200,
+          top: 270
+      });
 
-        win.add(winButton);
+      win.add(winButton);
 
-        // Create a document viewer to preview a PDF file ("Example.pdf")
-        docViewer = Ti.UI.iOS.createDocumentViewer({
-            url: 'Example.pdf'
-        });
+      // Create a document viewer to preview a PDF file ("Example.pdf")
+      docViewer = Ti.UI.iOS.createDocumentViewer({
+          url: 'Example.pdf'
+      });
 
-        // Opens the options menu and when the user clicks on 'Quick Look'
-        // the document viewer launches with an animated transition
-        navButton.addEventListener('click', function() {
-            docViewer.show({
-                view: navButton,
-                animated: true
-            });
-        });
+      // Opens the options menu and when the user clicks on 'Quick Look'
+      // the document viewer launches with an animated transition
+      navButton.addEventListener('click', function() {
+          docViewer.show({
+              view: navButton,
+              animated: true
+          });
+      });
 
-        // The document viewer immediately launches without an animation
-        winButton.addEventListener('click', function(){
-            docViewer.show()
-        });
+      // The document viewer immediately launches without an animation
+      winButton.addEventListener('click', function(){
+          docViewer.show()
+      });
 
-        navWin.open();
-        ```
+      navWin.open();
+      ```
 
 ---
 name: DocumentViewerOptions
 summary: A simple object for specifying options when showing or dismissing a <Titanium.UI.iOS.DocumentViewer>.
 description: The `view` property does not apply to the `hide` method.
 platforms: [iphone, ipad, macos]
-since: {iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0"}
+since: { iphone: "2.1.1", ipad: "2.1.1", macos: "9.2.0" }
 properties:
   - name: animated
     summary: Indicates whether to animate the transition.
@@ -210,11 +218,11 @@ properties:
   - name: view
     summary: Anchors the options menu to the specified view.
     description: |
-        Only used with the `show` method.
+      Only used with the `show` method.
 
-        Currently, this property can only be set to a button in the <Titanium.UI.iOS.Toolbar>,
-        or the window's `leftNavButton` or `rightNavButton` property.
+      Currently, this property can only be set to a button in the <Titanium.UI.iOS.Toolbar>,
+      or the window's `leftNavButton` or `rightNavButton` property.
 
-        If this property is not specified, the `show` method launches the document in the viewer
-        without showing the options menu.
+      If this property is not specified, the `show` method launches the document in the viewer
+      without showing the options menu.
     type: Titanium.UI.View
