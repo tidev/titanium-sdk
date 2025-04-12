@@ -261,8 +261,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 							@Override
 							public boolean inSelectionHotspot(@NonNull MotionEvent e)
 							{
-								if (holder.getProxy() instanceof ListItemProxy) {
-									final ListItemProxy item = (ListItemProxy) holder.getProxy();
+								if (holder.getProxy() != null) {
+									final ListItemProxy item = holder.getProxy();
 
 									// Prevent selection of placeholders.
 									return !item.isPlaceholder();
@@ -567,7 +567,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
 			// Obtain first visible list item proxy.
-			return (ListItemProxy) firstVisibleHolder.getProxy();
+			return firstVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -601,7 +601,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible list item proxy.
-			return (ListItemProxy) lastVisibleHolder.getProxy();
+			return lastVisibleHolder.getProxy();
 		}
 
 		return null;
