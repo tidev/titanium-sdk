@@ -3,4 +3,21 @@
 	<application>
 		<meta-data android:name="metatadata1" android:value="Metadata 1"/>
 	</application>
+	<queries>
+		<!-- Allows "http://" and "https://" web URLs. -->
+		<intent>
+			<action android:name="android.intent.action.VIEW"/>
+			<data android:scheme="https"/>
+		</intent>
+		<!-- Allows "mailto:" URLs to an e-mail app. -->
+		<intent>
+			<action android:name="android.intent.action.VIEW"/>
+			<data android:scheme="mailto"/>
+		</intent>
+		<!-- Allows file URLs to local image files. -->
+		<intent>
+			<action android:name="android.intent.action.VIEW"/>
+			<data android:mimeType="image/*"/>
+		</intent>
+	</queries>
 </manifest>

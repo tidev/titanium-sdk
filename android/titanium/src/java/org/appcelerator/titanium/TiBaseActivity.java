@@ -790,7 +790,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		try {
 			windowCreated(savedInstanceState);
 		} catch (Throwable t) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			TiApplication.handleInternalException(t);
 		}
 
 		// set the current activity back to what it was originally
@@ -817,7 +817,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			try {
 				window.onWindowActivityCreated();
 			} catch (Throwable t) {
-				Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+				TiApplication.handleInternalException(t);
 			}
 		}
 		if (activityProxy != null) {
@@ -1319,7 +1319,37 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		// TODO stub
+		lifecycleListeners.remove(listener);
+	}
+
+	public void removeOnInstanceStateEventListener(OnInstanceStateEvent listener)
+	{
+		instanceStateListeners.remove(listener);
+	}
+
+	public void removeOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
+	{
+		windowFocusChangedListeners.remove(listener);
+	}
+
+	public void removeInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
+	{
+		interceptOnBackPressedListeners.remove(listener);
+	}
+
+	public void removeOnActivityResultListener(OnActivityResultEvent listener)
+	{
+		onActivityResultListeners.remove(listener);
+	}
+
+	public void removeOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
+	{
+		onCreateOptionsMenuListeners.remove(listener);
+	}
+
+	public void removeOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
+	{
+		onPrepareOptionsMenuListeners.remove(listener);
 	}
 
 	private void dispatchCallback(String propertyName, KrollDict data)
@@ -1338,7 +1368,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			data.put(TiC.EVENT_PROPERTY_SOURCE, this.activityProxy);
 			this.activityProxy.callPropertySync(propertyName, new Object[] { data });
 		} catch (Throwable ex) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, ex);
+			TiApplication.handleInternalException(ex);
 		}
 	}
 
@@ -1670,8 +1700,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
-		super.onSaveInstanceState(outState);
-
 		// If activity is being temporarily destroyed, then save settings to be restored when activity is recreated.
 		if (!isFinishing()) {
 			if (supportHelper != null) {
@@ -1692,6 +1720,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
