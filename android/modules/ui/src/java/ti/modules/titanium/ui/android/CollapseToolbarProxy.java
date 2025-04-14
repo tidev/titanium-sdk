@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.android;
 
 import android.app.Activity;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -50,7 +51,7 @@ public class CollapseToolbarProxy extends TiViewProxy
 	public void setContentView(Object obj)
 	{
 		if (obj instanceof TiViewProxy) {
-			setPropertyAndFire(TiC.PROPERTY_CONTENT_VIEW, (TiViewProxy) obj);
+			setPropertyAndFire(TiC.PROPERTY_CONTENT_VIEW, obj);
 		}
 	}
 
@@ -100,5 +101,23 @@ public class CollapseToolbarProxy extends TiViewProxy
 	public void setNavigationIconColor(String value)
 	{
 		collapseToolbar.setNavigationIconColor(TiConvert.toColor(value, TiApplication.getAppCurrentActivity()));
+	}
+
+	@Kroll.method
+	public void addMenuItem(KrollDict options)
+	{
+		collapseToolbar.addMenuItem(options);
+	}
+
+	@Kroll.method
+	public void removeMenuItem(int itemId)
+	{
+		collapseToolbar.removeMenuItem(itemId);
+	}
+
+	@Kroll.method
+	public void clearMenu()
+	{
+		collapseToolbar.clearMenu();
 	}
 }
