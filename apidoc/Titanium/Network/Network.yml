@@ -479,7 +479,8 @@ properties:
         Indicates a 4G network
     description: |
         This constant is also a possible value for the `networkType` property of the
-        [registerForNetworkOverride](Titanium.Network.registerForNetworkOverride) event.
+        [registerForNetworkOverride](Titanium.Network.registerForNetworkOverride) event and
+        [networkSubtype](Titanium.Network.networkSubtype) event.
     type: Number
     permission: read-only
 
@@ -489,6 +490,33 @@ properties:
     description: |
         This constant is also a possible value for the `networkType` property of the
         [registerForNetworkOverride](Titanium.Network.registerForNetworkOverride) event.
+    type: Number
+    permission: read-only
+
+  - name: NETWORK_TYPE_2G
+    summary: |
+        Indicates a 2G network
+    description: |
+        This constant is also a possible value for the `networkType` property of the
+        [networkSubtype](Titanium.Network.networkSubtype) event.
+    type: Number
+    permission: read-only
+
+  - name: NETWORK_TYPE_3G
+    summary: |
+        Indicates a 3G network
+    description: |
+        This constant is also a possible value for the `networkType` property of the
+        [networkSubtype](Titanium.Network.networkSubtype) event.
+    type: Number
+    permission: read-only
+
+  - name: NETWORK_TYPE_WIFI
+    summary: |
+        Indicates a WIFI network
+    description: |
+        This constant is also a possible value for the `networkType` property of the
+        [networkSubtype](Titanium.Network.networkSubtype) event.
     type: Number
     permission: read-only
 
@@ -566,6 +594,16 @@ properties:
     type: Number
     constants: Titanium.Network.NETWORK_*
     permission: read-only
+
+  - name: networkSubtype
+    summary: Network sub type value as a constant.
+    description: |
+        One of the `NETWORK_TYPE` constants defined in <Titanium.Network>.
+    type: Number
+    constants: Titanium.Network.NETWORK_TYPE_*
+    permission: read-only
+    platforms: [android]
+    since: "12.7.0"
 
   - name: networkTypeName
     summary: Network type as a String. Returns one of `NONE`, `WIFI`, `LAN`, `MOBILE`, or `UNKNOWN`.
