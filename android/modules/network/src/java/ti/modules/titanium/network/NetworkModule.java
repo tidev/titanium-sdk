@@ -128,6 +128,7 @@ public class NetworkModule extends KrollModule
 	private boolean isListeningForConnectivity;
 	private TiNetworkListener networkListener;
 	private ConnectivityManager connectivityManager;
+	private DisplayInfoCallback displayInfoCallback;
 
 	private final Handler messageHandler = new Handler() {
 		public void handleMessage(Message msg)
@@ -211,15 +212,25 @@ public class NetworkModule extends KrollModule
 	}
 
 	@Kroll.method
-	public void getNetworkOverride(KrollDict options)
+	public void registerForNetworkOverride(KrollDict options)
 	{
 		Context a = TiApplication.getAppRootOrCurrentActivity();
 		if (a != null && options.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)
 			&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			KrollFunction clbSuccess = (KrollFunction) options.get(TiC.PROPERTY_SUCCESS);
-			DisplayInfoCallback callback = new DisplayInfoCallback(clbSuccess);
+			displayInfoCallback = new DisplayInfoCallback(clbSuccess);
 			TelephonyManager telephonyManager = (TelephonyManager) a.getSystemService(Context.TELEPHONY_SERVICE);
-			telephonyManager.registerTelephonyCallback(a.getMainExecutor(), callback);
+			telephonyManager.registerTelephonyCallback(a.getMainExecutor(), displayInfoCallback);
+		}
+	}
+
+	@Kroll.method
+	public void removeNetworkOverride()
+	{
+		Context a = TiApplication.getAppRootOrCurrentActivity();
+		if (a != null && displayInfoCallback != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			TelephonyManager telephonyManager = (TelephonyManager) a.getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager.unregisterTelephonyCallback(displayInfoCallback);
 		}
 	}
 
