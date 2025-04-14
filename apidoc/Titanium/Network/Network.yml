@@ -155,6 +155,22 @@ methods:
     platforms: [android]
     since: "3.2.0"
 
+  - name: registerForNetworkOverride
+    summary: |
+        Registers an event to listen to network override events to identify 4G or 5G networks.
+    parameters:
+      - name: success
+        summary: Callback that is triggered when the network override changes.
+        type: Callback<NetworkOverrideData>
+    platforms: [android]
+    since: "12.7.0"
+
+  - name: removeNetworkOverride
+    summary: |
+        Unregisteres the registerForNetworkOverride event.
+    platforms: [android]
+    since: "12.7.0"
+
   - name: createBonjourBrowser
     summary: Creates and returns a `BonjourBrowser` object.
     platforms: [iphone, ipad, macos]
@@ -458,6 +474,24 @@ properties:
     type: Number
     permission: read-only
 
+  - name: NETWORK_TYPE_4G
+    summary: |
+        Indicates a 4G network
+    description: |
+        This constant is also a possible value for the `networkType` property of the
+        [registerForNetworkOverride](Titanium.Network.registerForNetworkOverride) event.
+    type: Number
+    permission: read-only
+
+  - name: NETWORK_TYPE_5G_NSA
+    summary: |
+        Indicates a 5G NSA network
+    description: |
+        This constant is also a possible value for the `networkType` property of the
+        [registerForNetworkOverride](Titanium.Network.registerForNetworkOverride) event.
+    type: Number
+    permission: read-only
+
   - name: NOTIFICATION_TYPE_ALERT
     summary: Constant value for an Alert style push notification.
     platforms: [iphone, ipad, macos]
@@ -679,3 +713,48 @@ properties:
     summary: Boolean indicating if notification was received while app was in background.
     type: Boolean
     since: "3.1.0"
+
+---
+name: NetworkOverrideData
+summary: |
+    A simple object passed to the
+    [registerForNetworkOverride](Titanium.Network.registerForNetworkOverride) success callback.
+properties:
+  - name: is5gNsa
+    summary: 5G NSA
+    type: Boolean
+    platforms: [android]
+    since: "12.7.0"
+
+  - name: networkType
+    summary: Network type value as a constant.
+    description: |
+        One of the `NETWORK_TYPE` constants defined in <Titanium.Network>.
+    type: Number
+    constants: Titanium.Network.NETWORK_TYPE_*
+    platforms: [android]
+    since: "12.7.0"
+
+examples:
+  - title: Check for 5G networks (Android only)
+    example: |
+      ``` js
+      const win = Ti.UI.createWindow();
+      const lbl = Ti.UI.createLabel({text: "-"});
+      const btn = Ti.UI.createButton({title: "unregister event", bottom: 0});
+      win.add([lbl, btn]);
+
+      btn.addEventListener('click', function() {
+        Ti.Network.removeNetworkOverride();
+      });
+
+      win.addEventListener('open', function() {
+        Ti.Network.registerForNetworkOverride({
+          success: function(e) {
+            lbl.text = "Type: " + ((e.networkType == Ti.Network.NETWORK_TYPE_4G) ? "4G" : "5G_NSA") + " (is5gNsa: " + e.is5gNsa + ")";
+          }
+        });
+      });
+
+      win.open();
+      ```
