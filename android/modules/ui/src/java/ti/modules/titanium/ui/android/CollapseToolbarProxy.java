@@ -12,7 +12,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -50,8 +49,8 @@ public class CollapseToolbarProxy extends TiViewProxy
 	@Kroll.setProperty
 	public void setContentView(Object obj)
 	{
-		if (obj instanceof TiViewProxy) {
-			setPropertyAndFire(TiC.PROPERTY_CONTENT_VIEW, obj);
+		if (obj instanceof TiViewProxy && collapseToolbar != null) {
+			collapseToolbar.setContentView((TiViewProxy) obj);
 		}
 	}
 
