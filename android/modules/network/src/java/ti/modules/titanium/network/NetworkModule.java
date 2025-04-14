@@ -73,6 +73,12 @@ public class NetworkModule extends KrollModule
 	public static final int NETWORK_TYPE_4G = 0;
 	@Kroll.constant
 	public static final int NETWORK_TYPE_5G_NSA = 1;
+	@Kroll.constant
+	public static final int NETWORK_TYPE_2G = 2;
+	@Kroll.constant
+	public static final int NETWORK_TYPE_3G = 3;
+	@Kroll.constant
+	public static final int NETWORK_TYPE_WIFI = 4;
 
 	@Kroll.constant
 	public static final int TLS_DEFAULT = 0;
@@ -276,6 +282,65 @@ public class NetworkModule extends KrollModule
 			}
 		} catch (SecurityException e) {
 			Log.w(TAG, "Permission has been removed. Cannot determine network type: " + e.getMessage());
+		}
+		return type;
+	}
+	@Kroll.getProperty
+	public int getNetworkSubtype()
+	{
+		int type = NETWORK_UNKNOWN;
+
+		// start event needs network type. So get it if we don't have it.
+		if (connectivityManager == null) {
+			connectivityManager = getConnectivityManager();
+		}
+
+		try {
+			NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+			if (ni != null && ni.isAvailable() && ni.isConnected()) {
+				type = networkSubTypeToTitanium(true, ni.getSubtype());
+			} else {
+				type = NetworkModule.NETWORK_NONE;
+			}
+		} catch (SecurityException e) {
+			Log.w(TAG, "Permission has been removed. Cannot determine network type: " + e.getMessage());
+		}
+		return type;
+	}
+
+	private int networkSubTypeToTitanium(boolean b, int subtype)
+	{
+		int type = NetworkModule.NETWORK_UNKNOWN;
+		switch (subtype) {
+			case TelephonyManager.NETWORK_TYPE_EDGE:
+			case TelephonyManager.NETWORK_TYPE_GPRS:
+				type = NETWORK_TYPE_2G;
+				break;
+			case TelephonyManager.NETWORK_TYPE_1xRTT:
+			case TelephonyManager.NETWORK_TYPE_CDMA:
+			case TelephonyManager.NETWORK_TYPE_EVDO_0:
+			case TelephonyManager.NETWORK_TYPE_EVDO_A:
+			case TelephonyManager.NETWORK_TYPE_EVDO_B:
+			case TelephonyManager.NETWORK_TYPE_HSDPA:
+			case TelephonyManager.NETWORK_TYPE_HSPA:
+			case TelephonyManager.NETWORK_TYPE_HSUPA:
+			case TelephonyManager.NETWORK_TYPE_IDEN:
+			case TelephonyManager.NETWORK_TYPE_UMTS:
+			case TelephonyManager.NETWORK_TYPE_EHRPD:
+			case TelephonyManager.NETWORK_TYPE_HSPAP:
+			case TelephonyManager.NETWORK_TYPE_TD_SCDMA:
+				type = NETWORK_TYPE_3G;
+				break;
+			case TelephonyManager.NETWORK_TYPE_LTE:
+				type = NETWORK_TYPE_4G;
+				break;
+			case TelephonyManager.NETWORK_TYPE_IWLAN:
+				type = NETWORK_TYPE_WIFI;
+				break;
+			case TelephonyManager.NETWORK_TYPE_GSM:
+			case TelephonyManager.NETWORK_TYPE_UNKNOWN:
+			default:
+				type = NetworkModule.NETWORK_UNKNOWN;
 		}
 		return type;
 	}
