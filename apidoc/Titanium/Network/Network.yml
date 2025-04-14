@@ -493,6 +493,14 @@ properties:
     type: Number
     permission: read-only
 
+  - name: NETWORK_TYPE_5G_SA
+    summary: |
+        Indicates a 5G SA network
+    description: |
+        This constant is also a possible return value of [networkSubtype](Titanium.Network.networkSubtype).
+    type: Number
+    permission: read-only
+
   - name: NETWORK_TYPE_2G
     summary: |
         Indicates a 2G network

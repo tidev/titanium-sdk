@@ -79,6 +79,8 @@ public class NetworkModule extends KrollModule
 	public static final int NETWORK_TYPE_3G = 3;
 	@Kroll.constant
 	public static final int NETWORK_TYPE_WIFI = 4;
+	@Kroll.constant
+	public static final int NETWORK_TYPE_5G_SA = 5;
 
 	@Kroll.constant
 	public static final int TLS_DEFAULT = 0;
@@ -333,6 +335,9 @@ public class NetworkModule extends KrollModule
 				break;
 			case TelephonyManager.NETWORK_TYPE_LTE:
 				type = NETWORK_TYPE_4G;
+				break;
+			case TelephonyManager.NETWORK_TYPE_NR:
+				type = (Build.VERSION.SDK_INT  >= 29 ? NETWORK_TYPE_5G_SA : NETWORK_UNKNOWN);
 				break;
 			case TelephonyManager.NETWORK_TYPE_IWLAN:
 				type = NETWORK_TYPE_WIFI;
