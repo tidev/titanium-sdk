@@ -528,6 +528,33 @@ properties:
     type: Number
     permission: read-only
 
+  - name: NETWORK_OVERRIDE_NSA
+    summary: |
+        Indicates a NSA override.
+    description: |
+        This constant is also a possible value for the `networkOverrideType` property of the
+        [networkSubtype](Titanium.Network.networkSubtype) event.
+    type: Number
+    permission: read-only
+
+  - name: NETWORK_OVERRIDE_MMWAVE
+    summary: |
+        Indicates a MMWAVE override.
+    description: |
+        This constant is also a possible value for the `networkOverrideType` property of the
+        [networkSubtype](Titanium.Network.networkSubtype) event.
+    type: Number
+    permission: read-only
+
+  - name: NETWORK_OVERRIDE_ADVANCED
+    summary: |
+        Indicates a ADVANCED override.
+    description: |
+        This constant is also a possible value for the `networkOverrideType` property of the
+        [networkSubtype](Titanium.Network.networkSubtype) event.
+    type: Number
+    permission: read-only
+
   - name: NOTIFICATION_TYPE_ALERT
     summary: Constant value for an Alert style push notification.
     platforms: [iphone, ipad, macos]
@@ -778,6 +805,15 @@ properties:
         One of the `NETWORK_TYPE` constants defined in <Titanium.Network>.
     type: Number
     constants: Titanium.Network.NETWORK_TYPE_*
+    platforms: [android]
+    since: "12.7.0"
+
+  - name: networkOverrideType
+    summary: Network override type value as a constant.
+    description: |
+        One of the `NETWORK_OVERRIDE` constants defined in <Titanium.Network>.
+    type: Number
+    constants: Titanium.Network.NETWORK_OVERRIDE_*
     platforms: [android]
     since: "12.7.0"
 

@@ -82,6 +82,16 @@ public class NetworkModule extends KrollModule
 	@Kroll.constant
 	public static final int NETWORK_TYPE_5G_SA = 5;
 
+	@SuppressLint("InlinedApi")
+	@Kroll.constant
+	public static final int NETWORK_OVERRIDE_NSA = TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA;
+	@SuppressLint("InlinedApi")
+	@Kroll.constant
+	public static final int NETWORK_OVERRIDE_MMWAVE = TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE;
+	@SuppressLint("InlinedApi")
+	@Kroll.constant
+	public static final int NETWORK_OVERRIDE_ADVANCED = TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_ADVANCED;
+
 	@Kroll.constant
 	public static final int TLS_DEFAULT = 0;
 	@Kroll.constant
@@ -902,6 +912,7 @@ public class NetworkModule extends KrollModule
 					|| overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_ADVANCED;
 			KrollDict kd = new KrollDict();
 			kd.put("is5gNsa", is5gNsa);
+			kd.put("networkOverrideType", overrideNetworkType);
 			kd.put("networkType", is5gNsa ? NETWORK_TYPE_5G_NSA : NETWORK_TYPE_4G);
 			clbSuccess.call(getKrollObject(), kd);
 		}
