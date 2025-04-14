@@ -27,6 +27,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -37,6 +38,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.telephony.TelephonyCallback;
+import android.telephony.TelephonyDisplayInfo;
+import android.telephony.TelephonyManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 
@@ -64,6 +68,11 @@ public class NetworkModule extends KrollModule
 	public static final int NETWORK_LAN = 3;
 	@Kroll.constant
 	public static final int NETWORK_UNKNOWN = 4;
+
+	@Kroll.constant
+	public static final int NETWORK_TYPE_4G = 0;
+	@Kroll.constant
+	public static final int NETWORK_TYPE_5G_NSA = 1;
 
 	@Kroll.constant
 	public static final int TLS_DEFAULT = 0;
@@ -199,6 +208,19 @@ public class NetworkModule extends KrollModule
 			Log.w(TAG, "ConnectivityManager was null", Log.DEBUG_MODE);
 		}
 		return result;
+	}
+
+	@Kroll.method
+	public void getNetworkOverride(KrollDict options)
+	{
+		Context a = TiApplication.getAppRootOrCurrentActivity();
+		if (a != null && options.containsKeyAndNotNull(TiC.PROPERTY_SUCCESS)
+			&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			KrollFunction clbSuccess = (KrollFunction) options.get(TiC.PROPERTY_SUCCESS);
+			DisplayInfoCallback callback = new DisplayInfoCallback(clbSuccess);
+			TelephonyManager telephonyManager = (TelephonyManager) a.getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager.registerTelephonyCallback(a.getMainExecutor(), callback);
+		}
 	}
 
 	protected int networkTypeToTitanium(boolean online, int androidType)
@@ -776,5 +798,31 @@ public class NetworkModule extends KrollModule
 	public String getApiName()
 	{
 		return "Ti.Network";
+	}
+
+	@SuppressLint("NewApi")
+	private final class DisplayInfoCallback extends TelephonyCallback
+		implements TelephonyCallback.DisplayInfoListener
+	{
+		KrollFunction clbSuccess;
+
+		public DisplayInfoCallback(KrollFunction clb)
+		{
+			clbSuccess = clb;
+		}
+
+		@Override
+		public void onDisplayInfoChanged(TelephonyDisplayInfo telephonyDisplayInfo)
+		{
+			int overrideNetworkType = telephonyDisplayInfo.getOverrideNetworkType();
+			boolean is5gNsa =
+				overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA
+					|| overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA_MMWAVE
+					|| overrideNetworkType == TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_ADVANCED;
+			KrollDict kd = new KrollDict();
+			kd.put("is5gNsa", is5gNsa);
+			kd.put("networkType", is5gNsa ? NETWORK_TYPE_5G_NSA : NETWORK_TYPE_4G);
+			clbSuccess.call(getKrollObject(), kd);
+		}
 	}
 }
