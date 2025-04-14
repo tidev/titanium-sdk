@@ -258,7 +258,7 @@ The gradle (tool, build system) and gradle plugin (plugin that adds several feat
 * `android/gradle/wrapper/gradle-wrapper.properties`
 * `android/templates/build/root.build.gradle`.
 
-You can run `./android/gradlew wrapper --gradle-version 8.5 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+In the `android/` folder you can run `./gradlew wrapper --gradle-version 8.10 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
 
 To update the plugin to a newer version (check https://mvnrepository.com/artifact/com.android.tools.build/gradle?repo=google) you have to change the `build.gradle` and `root.build.gradle` from the links above.
 
