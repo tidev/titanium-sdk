@@ -70,6 +70,8 @@ public class NetworkModule extends KrollModule
 	public static final int NETWORK_UNKNOWN = 4;
 
 	@Kroll.constant
+	public static final int NETWORK_TYPE_UNKNOWN = -1;
+	@Kroll.constant
 	public static final int NETWORK_TYPE_4G = 0;
 	@Kroll.constant
 	public static final int NETWORK_TYPE_5G_NSA = 1;
@@ -147,6 +149,7 @@ public class NetworkModule extends KrollModule
 	private TiNetworkListener networkListener;
 	private ConnectivityManager connectivityManager;
 	private DisplayInfoCallback displayInfoCallback;
+	TelephonyManager telephonyManager;
 
 	private final Handler messageHandler = new Handler() {
 		public void handleMessage(Message msg)
@@ -237,7 +240,7 @@ public class NetworkModule extends KrollModule
 			&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			KrollFunction clbSuccess = (KrollFunction) options.get(TiC.PROPERTY_SUCCESS);
 			displayInfoCallback = new DisplayInfoCallback(clbSuccess);
-			TelephonyManager telephonyManager = (TelephonyManager) a.getSystemService(Context.TELEPHONY_SERVICE);
+			telephonyManager = (TelephonyManager) a.getSystemService(Context.TELEPHONY_SERVICE);
 			telephonyManager.registerTelephonyCallback(a.getMainExecutor(), displayInfoCallback);
 		}
 	}
@@ -245,10 +248,9 @@ public class NetworkModule extends KrollModule
 	@Kroll.method
 	public void removeNetworkOverride()
 	{
-		Context a = TiApplication.getAppRootOrCurrentActivity();
-		if (a != null && displayInfoCallback != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-			TelephonyManager telephonyManager = (TelephonyManager) a.getSystemService(Context.TELEPHONY_SERVICE);
+		if (telephonyManager != null && displayInfoCallback != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			telephonyManager.unregisterTelephonyCallback(displayInfoCallback);
+			telephonyManager = null;
 		}
 	}
 
@@ -297,32 +299,31 @@ public class NetworkModule extends KrollModule
 		}
 		return type;
 	}
+
 	@Kroll.getProperty
 	public int getNetworkSubtype()
 	{
-		int type = NETWORK_UNKNOWN;
-
-		// start event needs network type. So get it if we don't have it.
+		int type = NETWORK_TYPE_UNKNOWN;
 		if (connectivityManager == null) {
 			connectivityManager = getConnectivityManager();
 		}
 
-		try {
-			NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-			if (ni != null && ni.isAvailable() && ni.isConnected()) {
-				type = networkSubTypeToTitanium(true, ni.getSubtype());
-			} else {
-				type = NetworkModule.NETWORK_NONE;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			try {
+				NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
+				if (ni != null && ni.isAvailable() && ni.isConnected()) {
+					type = networkSubTypeToTitanium(ni.getSubtype());
+				}
+			} catch (Exception e) {
+				Log.w(TAG, "Error reading subType: " + e.getMessage());
 			}
-		} catch (SecurityException e) {
-			Log.w(TAG, "Permission has been removed. Cannot determine network type: " + e.getMessage());
 		}
 		return type;
 	}
 
-	private int networkSubTypeToTitanium(boolean b, int subtype)
+	private int networkSubTypeToTitanium(int subtype)
 	{
-		int type = NetworkModule.NETWORK_UNKNOWN;
+		int type = NETWORK_TYPE_UNKNOWN;
 		switch (subtype) {
 			case TelephonyManager.NETWORK_TYPE_EDGE:
 			case TelephonyManager.NETWORK_TYPE_GPRS:
@@ -347,7 +348,7 @@ public class NetworkModule extends KrollModule
 				type = NETWORK_TYPE_4G;
 				break;
 			case TelephonyManager.NETWORK_TYPE_NR:
-				type = (Build.VERSION.SDK_INT  >= 29 ? NETWORK_TYPE_5G_SA : NETWORK_UNKNOWN);
+				type = (Build.VERSION.SDK_INT  >= 29 ? NETWORK_TYPE_5G_SA : NETWORK_TYPE_UNKNOWN);
 				break;
 			case TelephonyManager.NETWORK_TYPE_IWLAN:
 				type = NETWORK_TYPE_WIFI;
@@ -355,7 +356,7 @@ public class NetworkModule extends KrollModule
 			case TelephonyManager.NETWORK_TYPE_GSM:
 			case TelephonyManager.NETWORK_TYPE_UNKNOWN:
 			default:
-				type = NetworkModule.NETWORK_UNKNOWN;
+				type = NETWORK_TYPE_UNKNOWN;
 		}
 		return type;
 	}
