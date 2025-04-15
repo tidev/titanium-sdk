@@ -17,7 +17,7 @@
 		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
 	"minSDKVersion": "21",
-	"compileSDKVersion": "33",
+	"compileSDKVersion": "34",
 	"vendorDependencies": {
 		"android sdk": ">=23.x <=34.x",
 		"android build tools": ">=30.0.2 <=34.x",
