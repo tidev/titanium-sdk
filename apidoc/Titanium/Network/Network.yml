@@ -633,7 +633,8 @@ properties:
   - name: networkSubtype
     summary: Network sub type value as a constant.
     description: |
-        One of the `NETWORK_TYPE` constants defined in <Titanium.Network>.
+        One of the `NETWORK_TYPE` constants defined in <Titanium.Network>. Needs one of the following permissions:
+        `android.permission.READ_PHONE_STATE` or `android.permission.READ_BASIC_PHONE_STATE permission`.
     type: Number
     constants: Titanium.Network.NETWORK_TYPE_*
     permission: read-only
