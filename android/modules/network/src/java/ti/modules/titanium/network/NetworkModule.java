@@ -300,22 +300,20 @@ public class NetworkModule extends KrollModule
 		return type;
 	}
 
+	@SuppressLint("MissingPermission")
 	@Kroll.getProperty
 	public int getNetworkSubtype()
 	{
 		int type = NETWORK_TYPE_UNKNOWN;
-		if (connectivityManager == null) {
-			connectivityManager = getConnectivityManager();
-		}
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			try {
-				NetworkInfo ni = connectivityManager.getActiveNetworkInfo();
-				if (ni != null && ni.isAvailable() && ni.isConnected()) {
-					type = networkSubTypeToTitanium(ni.getSubtype());
+				if (telephonyManager != null) {
+					type = networkSubTypeToTitanium(telephonyManager.getDataNetworkType());
 				}
 			} catch (Exception e) {
-				Log.w(TAG, "Error reading subType: " + e.getMessage());
+				Log.w(TAG, "getNetworkSubtype needs android.permission.READ_PHONE_STATE "
+					+ "or android.permission.READ_BASIC_PHONE_STATE permission. " + e.getMessage());
 			}
 		}
 		return type;
@@ -327,17 +325,18 @@ public class NetworkModule extends KrollModule
 		switch (subtype) {
 			case TelephonyManager.NETWORK_TYPE_EDGE:
 			case TelephonyManager.NETWORK_TYPE_GPRS:
+			case TelephonyManager.NETWORK_TYPE_CDMA:
+			case TelephonyManager.NETWORK_TYPE_1xRTT:
+			case TelephonyManager.NETWORK_TYPE_GSM:
+			case TelephonyManager.NETWORK_TYPE_IDEN:
 				type = NETWORK_TYPE_2G;
 				break;
-			case TelephonyManager.NETWORK_TYPE_1xRTT:
-			case TelephonyManager.NETWORK_TYPE_CDMA:
 			case TelephonyManager.NETWORK_TYPE_EVDO_0:
 			case TelephonyManager.NETWORK_TYPE_EVDO_A:
 			case TelephonyManager.NETWORK_TYPE_EVDO_B:
 			case TelephonyManager.NETWORK_TYPE_HSDPA:
 			case TelephonyManager.NETWORK_TYPE_HSPA:
 			case TelephonyManager.NETWORK_TYPE_HSUPA:
-			case TelephonyManager.NETWORK_TYPE_IDEN:
 			case TelephonyManager.NETWORK_TYPE_UMTS:
 			case TelephonyManager.NETWORK_TYPE_EHRPD:
 			case TelephonyManager.NETWORK_TYPE_HSPAP:
@@ -353,7 +352,6 @@ public class NetworkModule extends KrollModule
 			case TelephonyManager.NETWORK_TYPE_IWLAN:
 				type = NETWORK_TYPE_WIFI;
 				break;
-			case TelephonyManager.NETWORK_TYPE_GSM:
 			case TelephonyManager.NETWORK_TYPE_UNKNOWN:
 			default:
 				type = NETWORK_TYPE_UNKNOWN;
