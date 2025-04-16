@@ -359,7 +359,7 @@ properties:
         Note that complex html structures like images are not supported.
         Use a <Titanium.UI.WebView> for those cases.
     platforms: [android, iphone, ipad, macos]
-    since: { iphone: "12.7.0", ipad: "12.7.0", macos: "12.7.0" }
+    since: { android: "12.7.0", iphone: "12.7.0", ipad: "12.7.0", macos: "12.7.0" }
     type: String
 
   - name: keyboardToolbar
