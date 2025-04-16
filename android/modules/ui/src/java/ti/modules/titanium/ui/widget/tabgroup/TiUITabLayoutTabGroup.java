@@ -476,7 +476,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		super.selectTab(tabIndex);
 
-		// Update the selected tab's colors. (TabLayour resets colors when a selection is made.)
+		// Update the selected tab's colors. (TabLayout resets colors when a selection is made.)
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
 

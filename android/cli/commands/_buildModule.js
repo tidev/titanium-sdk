@@ -391,7 +391,7 @@ AndroidModuleBuilder.prototype.initialize = async function initialize() {
 	this.resourcesDir = await getPathForProjectDirName('Resources');
 
 	// Fetch the "timodule.xml" file and load it.
-	// Provides Android specific info such as "AndroidManfiest.xml" elements and module dependencies.
+	// Provides Android specific info such as "AndroidManifest.xml" elements and module dependencies.
 	this.timoduleXmlFile = path.join(this.projectDir, 'timodule.xml');
 	if (await fs.exists(this.timoduleXmlFile)) {
 		this.timodule = new tiappxml(this.timoduleXmlFile);
