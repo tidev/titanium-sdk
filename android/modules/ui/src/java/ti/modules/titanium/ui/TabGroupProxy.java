@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -384,9 +385,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		Activity topActivity = TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
-		if (topActivity == null || topActivity.isFinishing()) {
+		Activity topActivity = getActivity();
+		if (topActivity == null || topActivity.isFinishing() || topActivity.isDestroyed()) {
+			return;
+		}
+
+		/**
+		 * As reported here on Google: https://issuetracker.google.com/issues/293645024
+		 * WindowContainer may not be available in very rare cases on devices running Android 12/13.
+		 * Internally, it seems that the WindowContainer will always be used from the top-most activity,
+		 * so perhaps we can post this call again on main-handler looper to open the TabGroup anyhow?
+		 */
+		Window window = topActivity.getWindow();
+		View decorView = window != null ? window.getDecorView() : null;
+		if (decorView == null || decorView.getDisplay() == null) {
 			return;
 		}
 
