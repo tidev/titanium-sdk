@@ -117,7 +117,8 @@ public class TiAnimationBuilder
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
 	protected Integer color = null;
-	protected float rotationY, rotationX = -1;
+	private float INITIAL_ROTATION = 999999f;
+	protected float rotationY, rotationX, rotation = INITIAL_ROTATION;
 	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
@@ -245,11 +246,15 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ROTATION_Y)) {
-			rotationY = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_Y, -1);
+			rotationY = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_Y, INITIAL_ROTATION);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ROTATION_X)) {
-			rotationX = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_X, -1);
+			rotationX = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_X, INITIAL_ROTATION);
+		}
+
+		if (options.containsKey(TiC.PROPERTY_ROTATION)) {
+			rotation = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION, INITIAL_ROTATION);
 		}
 		this.options = options;
 	}
@@ -313,11 +318,14 @@ public class TiAnimationBuilder
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "elevation", elevation));
 		}
 
-		if (rotationY >= 0) {
+		if (rotationY != INITIAL_ROTATION) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationY", rotationY));
 		}
-		if (rotationX >= 0) {
+		if (rotationX != INITIAL_ROTATION) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationX", rotationX));
+		}
+		if (rotation != INITIAL_ROTATION) {
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", rotation));
 		}
 
 		if (backgroundColor != null) {
