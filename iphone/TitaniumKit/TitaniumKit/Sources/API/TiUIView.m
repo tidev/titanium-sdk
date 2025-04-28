@@ -181,7 +181,7 @@ DEFINE_EXCEPTIONS
   [doubleTapRecognizer release];
   [twoFingerTapRecognizer release];
   [pinchRecognizer release];
-  [rotationRegognizer release];
+  [rotationRecognizer release];
   [leftSwipeRecognizer release];
   [rightSwipeRecognizer release];
   [upSwipeRecognizer release];
@@ -1366,15 +1366,15 @@ DEFINE_EXCEPTIONS
   return pinchRecognizer;
 }
 
-- (UIRotationGestureRecognizer *)rotationRegognizer
+- (UIRotationGestureRecognizer *)rotationRecognizer
 {
-  if (rotationRegognizer == nil) {
-    rotationRegognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedRotation:)];
-    [self configureGestureRecognizer:rotationRegognizer];
-    [self addGestureRecognizer:rotationRegognizer];
+  if (rotationRecognizer == nil) {
+    rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedRotation:)];
+    [self configureGestureRecognizer:rotationRecognizer];
+    [self addGestureRecognizer:rotationRecognizer];
   }
-  rotationRegognizer.delegate = self;
-  return rotationRegognizer;
+  rotationRecognizer.delegate = self;
+  return rotationRecognizer;
 }
 
 - (UISwipeGestureRecognizer *)leftSwipeRecognizer
@@ -1717,7 +1717,7 @@ DEFINE_EXCEPTIONS
     return [self pinchRecognizer];
   }
   if ([event isEqualToString:@"rotate"]) {
-    return [self rotationRegognizer];
+    return [self rotationRecognizer];
   }
   if ([event isEqualToString:@"longpress"]) {
     return [self longPressRecognizer];
