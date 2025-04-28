@@ -401,6 +401,10 @@ public class TiUILabel extends TiUIView
 								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_LETTER_SPACING)) {
+			float value = TiConvert.toFloat(d.get(TiC.PROPERTY_LETTER_SPACING));
+			tv.setLetterSpacing(value);
+		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
 			if (color == null) {
@@ -605,8 +609,11 @@ public class TiUILabel extends TiUIView
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
 				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0),
-								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+					TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
+		} else if (key.equals(TiC.PROPERTY_LETTER_SPACING)) {
+			float val = TiConvert.toFloat(newValue);
+			tv.setLetterSpacing(val);
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			// Update the view's height.
 			// Note: We may need to update lines/maxLines settings when switching to an auto-sized height.
