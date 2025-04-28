@@ -532,6 +532,8 @@ public class TiC
 	public static final String PROPERTY_LAYOUT = "layout";
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
 	public static final String PROPERTY_LEFT_DRAWER_LOCK_MODE = "leftDrawerLockMode";
+
+	public static final String PROPERTY_LETTER_SPACING = "letterSpacing";
 	public static final String PROPERTY_LINES = "lines";
 	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
