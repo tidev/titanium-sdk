@@ -240,7 +240,7 @@ methods:
         type: String
 
 properties:
-  - name: encryption
+  - name: encrypt
     summary: |
         If enabled it will use Androids [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
         to store properties.
@@ -276,7 +276,7 @@ examples:
         Store a string in an encrypted property.
 
         ``` js
-        Ti.App.Properties.useEncryption = true;
+        Ti.App.Properties.encrypt = true;
         Ti.App.Properties.setString('string', 'secure value');
         console.log('get value: ' + Ti.App.Properties.getString('string', 'default'));
         ```

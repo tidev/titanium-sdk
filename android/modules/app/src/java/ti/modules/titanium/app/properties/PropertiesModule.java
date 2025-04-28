@@ -121,7 +121,7 @@ public class PropertiesModule extends KrollModule
 	}
 
 	@Kroll.setProperty
-	public void encryption(boolean value)
+	public void encrypt(boolean value)
 	{
 		TiProperties.useEncryption = value;
 		appProperties.getEditor();
