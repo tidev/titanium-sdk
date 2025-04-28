@@ -240,14 +240,14 @@ methods:
         type: String
 
 properties:
-  - name: useEncryption
+  - name: encryption
     summary: |
         If enabled it will use Androids [EncryptedSharedPreferences](https://developer.android.com/reference/androidx/security/crypto/EncryptedSharedPreferences)
         to store properties.
     type: String
     permission: read-only
     platforms: [android]
-    since: {android: "12.7.0"}
+    since: {android: "12.8.0"}
 
 events:
 

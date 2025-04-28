@@ -292,7 +292,7 @@ dependencies {
 	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
 	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
 	implementation 'androidx.viewpager:viewpager:1.0.0'
-	implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+	implementation 'androidx.security:security-crypto:1.1.0-alpha07'
 	implementation 'androidx.annotation:annotation:1.7.1'
 
 	// Google's "Material Components" themed UI library.

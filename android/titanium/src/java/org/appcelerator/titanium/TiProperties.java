@@ -100,9 +100,7 @@ public class TiProperties
 				);
 				preferences = sharedPreferences;
 				return sharedPreferences.edit();
-			} catch (Exception ex) {
-				Log.e(TAG, "Error: " + ex.getMessage());
-			}
+			} catch (Exception ex) {}
 		} else {
 			preferences = preferencesPlain;
 		}
