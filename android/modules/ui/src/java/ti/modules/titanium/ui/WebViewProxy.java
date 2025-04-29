@@ -89,7 +89,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	public static final int PDF_PAGE_DIN_A1 = 4;
 	@Kroll.constant
 	public static final int PDF_PAGE_AUTO = 5;
-	@Kroll.constant	
+	@Kroll.constant
 	public static final int LAYER_TYPE_NONE = View.LAYER_TYPE_NONE;
 	@Kroll.constant
 	public static final int LAYER_TYPE_SOFTWARE = View.LAYER_TYPE_SOFTWARE;
