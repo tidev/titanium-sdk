@@ -688,6 +688,21 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		appEventProxies.remove(appEventProxy);
 	}
 
+	public boolean hasListener(String eventName)
+	{
+		for (WeakReference<KrollProxy> weakProxy : appEventProxies) {
+			KrollProxy appEventProxy = weakProxy.get();
+			if (appEventProxy == null) {
+				continue;
+			}
+			if (appEventProxy.hasListeners(eventName)) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+
 	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
 		boolean handled = false;
@@ -696,7 +711,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (appEventProxy == null) {
 				continue;
 			}
-
 			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
 			handled = handled || proxyHandled;
 		}
