@@ -48,6 +48,7 @@ import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
@@ -69,6 +70,12 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.util.Consumer;
+import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter;
+import androidx.window.layout.DisplayFeature;
+import androidx.window.layout.FoldingFeature;
+import androidx.window.layout.WindowInfoTracker;
+import androidx.window.layout.WindowLayoutInfo;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -107,6 +114,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
 	public boolean keyboardVisible = false;
+	private WindowInfoTrackerCallbackAdapter windowInfoTracker;
+	private final LayoutStateChangeCallback layoutStateChangeCallback =
+		new LayoutStateChangeCallback();
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -867,6 +877,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 		setCustomActionBar();
+
+		windowInfoTracker = new WindowInfoTrackerCallbackAdapter(WindowInfoTracker.getOrCreate(this));
 	}
 
 	private void setCustomActionBar()
@@ -1561,6 +1573,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		applyNightMode();
+		windowInfoTracker.addWindowLayoutInfoListener(
+			TiApplication.getAppRootOrCurrentActivity(), Runnable::run, layoutStateChangeCallback);
 	}
 
 	@Override
@@ -1587,6 +1601,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		windowInfoTracker.removeWindowLayoutInfoListener(layoutStateChangeCallback);
 	}
 
 	@Override
@@ -1956,5 +1972,27 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public Context getInitialBaseContext()
 	{
 		return baseContext;
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.N)
+	class LayoutStateChangeCallback implements Consumer<WindowLayoutInfo>
+	{
+		@Override
+		public void accept(WindowLayoutInfo newLayoutInfo)
+		{
+			TiBaseActivity.this.runOnUiThread(() -> {
+				try {
+					DisplayFeature displayFeatureList = newLayoutInfo.getDisplayFeatures().get(0);
+					if (displayFeatureList instanceof FoldingFeature foldingFeature) {
+						KrollDict kd = new KrollDict();
+						kd.put("state", foldingFeature.getState().toString());
+						kd.put("occlusionType", foldingFeature.getOcclusionType().toString());
+						TiApplication.getInstance().fireAppEvent("windowState", kd);
+					}
+				} catch (Exception ex) {
+					
+				}
+			});
+		}
 	}
 }
