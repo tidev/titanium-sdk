@@ -18,6 +18,7 @@ import android.view.Window;
 import android.view.WindowInsets;
 
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 
 import java.util.ArrayList;
 
@@ -74,8 +75,6 @@ public class TiActivitySafeAreaMonitor
 	/** Region between the screen insets in pixels, relative to the root decor view. */
 	private Rect safeArea;
 
-	private TiApplication tiApp;
-
 	/**
 	 * Creates an object used to track safe-area region changes for the given activity.
 	 * @param activity The activity to be monitored. Cannot be null.
@@ -88,7 +87,6 @@ public class TiActivitySafeAreaMonitor
 		}
 
 		// Initialize member variables.
-		this.tiApp = app;
 		this.activity = activity;
 		this.isActionBarAddedAsInset = true;
 		this.insetsProviderCollection = new ArrayList<>(8);
@@ -114,9 +112,11 @@ public class TiActivitySafeAreaMonitor
 			@Override
 			public WindowInsets onApplyWindowInsets(View view, WindowInsets insets)
 			{
+				TiApplication tiApp = TiApplication.getInstance();
+
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 					&& tiApp != null
-					&& tiApp.hasListener("keyboardframechanged")
+					&& tiApp.hasListener(TiC.EVENT_KEYBOARD_FRAME_CHANGED)
 				) {
 					boolean keyboardVisible = insets.isVisible(WindowInsets.Type.ime());
 					Insets keyboardSize = insets.getInsets(WindowInsets.Type.ime());

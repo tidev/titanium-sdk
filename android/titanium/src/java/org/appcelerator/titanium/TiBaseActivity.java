@@ -791,13 +791,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			@Override
 			public void onKeyboardChanged(boolean isVisible, int width, int height, Insets keyboardSize)
 			{
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-					&& isVisible != keyboardVisible
-					&& tiApp != null
-					&& tiApp.hasListener("keyboardframechanged")) {
-					KrollDict kdAll = new KrollDict();
-					KrollDict kdFrame = new KrollDict();
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || tiApp == null) return;
 
+				if (isVisible != keyboardVisible && tiApp.hasListener(TiC.EVENT_KEYBOARD_FRAME_CHANGED)) {
 					KrollDict kdX = new KrollDict();
 					kdX.put("left", keyboardSize.left);
 					kdX.put("right", keyboardSize.right);
@@ -805,13 +801,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					KrollDict kdY = new KrollDict();
 					kdX.put("top", keyboardSize.top);
 					kdX.put("bottom", keyboardSize.bottom);
+
+					KrollDict kdFrame = new KrollDict();
 					kdFrame.put("x", kdX);
 					kdFrame.put("y", kdY);
 					kdFrame.put("height", keyboardSize.bottom);
 					kdFrame.put("width", width - keyboardSize.left - keyboardSize.right);
+
+					KrollDict kdAll = new KrollDict();
 					kdAll.put("keyboardFrame", kdFrame);
 					kdAll.put("animationDuration", 0);
-					tiApp.fireAppEvent("keyboardframechanged", kdAll);
+
+					tiApp.fireAppEvent(TiC.EVENT_KEYBOARD_FRAME_CHANGED, kdAll);
 					keyboardVisible = isVisible;
 				}
 			}

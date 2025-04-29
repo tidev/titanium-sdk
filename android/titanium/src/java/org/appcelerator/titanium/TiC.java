@@ -80,6 +80,7 @@ public class TiC
 	public static final String EVENT_SELECTED = "selected";
 	public static final String EVENT_UNSELECTED = "unselected";
 	public static final String EVENT_KEY_PRESSED = "keypressed";
+	public static final String EVENT_KEYBOARD_FRAME_CHANGED = "keyboardframechanged";
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_ITEM_CLICK = "itemclick";
 	public static final String EVENT_ITEMS_SELECTED = "itemsselected";
