@@ -540,10 +540,13 @@ methods:
     description: |
         To hide the tab bar when opening a window as a child of a tab, call
         `hideTabBar` or set `tabBarHidden` to `true` **before** opening the window.
-
         If the window is not a child of a tab, this method has no effect.
     platforms: [iphone, ipad, macos]
-
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
+     
   - name: open
     summary: Opens the window.
     parameters:
@@ -592,6 +595,18 @@ methods:
         default: "{ animated: true }"
     platforms: [iphone, ipad, macos]
 
+  - name: showTabBar
+    summary: Shows the tab bar. Must be called before opening the window.
+    description: |
+        To show the tab bar when opening a window as a child of a tab, call
+        `showTabBar` or set `tabBarHidden` to `false` **before** opening the window.
+        If the window is not a child of a tab, this method has no effect.
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
+        
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
@@ -1532,6 +1547,8 @@ properties:
 
         Setting <Titanium.UI.Window.fullscreen> to `true` automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN)
         flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
+
+        Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the status bar text color to light mode.
     platforms: [android]
     type: Number
     since: "3.3.0"

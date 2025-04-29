@@ -45,6 +45,7 @@ public class TiC
 	 */
 	public static final int ERROR_CODE_UNKNOWN = -1;
 	public static final int ERROR_CODE_NO_ERROR = 0;
+	public static final int ERROR_CODE_TIMEOUT = -1001;
 
 	public static final String EVENT_ADDED_TO_TAB = "addedtotab";
 	public static final String EVENT_ANDROID_BACK = "androidback";
@@ -159,6 +160,7 @@ public class TiC
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_RESUMED = "resumed";
 	public static final String EVENT_RETURN = "return";
+	public static final String EVENT_ROTATE = "rotate";
 	public static final String EVENT_ROWS_SELECTED = "rowsselected";
 	public static final String EVENT_SCROLL = "scroll";
 	public static final String EVENT_SCROLLEND = "scrollend";
@@ -531,6 +533,8 @@ public class TiC
 	public static final String PROPERTY_LAYOUT = "layout";
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
 	public static final String PROPERTY_LEFT_DRAWER_LOCK_MODE = "leftDrawerLockMode";
+
+	public static final String PROPERTY_LETTER_SPACING = "letterSpacing";
 	public static final String PROPERTY_LINES = "lines";
 	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
@@ -770,6 +774,7 @@ public class TiC
 	public static final String PROPERTY_TEMPLATES = "templates";
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_COLOR = "textColor";
+	public static final String PROPERTY_TEXT_TRANSFORM = "textTransform";
 	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_THEME = "theme";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
@@ -863,6 +868,7 @@ public class TiC
 	public static final String PROPERTY_DEPARTMENT = "department";
 	public static final String PROPERTY_FIXED_SIZE = "fixedSize";
 	public static final String PROPERTY_UI_FLAGS = "uiFlags";
+	public static final String PROPERTY_LAYER_TYPE = "layerType";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";
