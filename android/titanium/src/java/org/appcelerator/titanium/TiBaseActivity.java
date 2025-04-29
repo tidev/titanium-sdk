@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -1981,16 +1982,16 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		public void accept(WindowLayoutInfo newLayoutInfo)
 		{
 			TiBaseActivity.this.runOnUiThread(() -> {
-				try {
-					DisplayFeature displayFeatureList = newLayoutInfo.getDisplayFeatures().get(0);
-					if (displayFeatureList instanceof FoldingFeature foldingFeature) {
+				List<DisplayFeature> displayFeatures = newLayoutInfo.getDisplayFeatures();
+				for (DisplayFeature feature : displayFeatures) {
+					if (feature instanceof FoldingFeature foldingFeature) {
 						KrollDict kd = new KrollDict();
 						kd.put("state", foldingFeature.getState().toString());
 						kd.put("occlusionType", foldingFeature.getOcclusionType().toString());
+						kd.put("orientation", foldingFeature.getOrientation().toString());
+						kd.put("isSeparating", foldingFeature.isSeparating());
 						TiApplication.getInstance().fireAppEvent("windowState", kd);
 					}
-				} catch (Exception ex) {
-					
 				}
 			});
 		}
