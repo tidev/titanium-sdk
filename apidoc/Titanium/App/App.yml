@@ -398,7 +398,7 @@ events:
         summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
         type: Number
     platforms: [android, iphone, ipad, macos]
-    since: {android: "12.6.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
+    since: {android: "12.7.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: significanttimechange
     summary: Fired when there is a significant change in the time.
