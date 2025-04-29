@@ -32,6 +32,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.method.BaseKeyListener;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -288,6 +289,13 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_HTML)) {
+			Spanned text = Html.fromHtml(TiConvert.toString(d, TiC.PROPERTY_HTML));
+			if (text != null) {
+				tv.setText(text, TextView.BufferType.SPANNABLE);
+			}
+		}
+
 		// Update virtual keyboard to use view's current IME settings.
 		restartInputMethodManager();
 
@@ -465,6 +473,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				}
 				this.maxLines = value;
 				updateTextField();
+			}
+		} else if (key.equals(TiC.PROPERTY_HTML)) {
+			Spanned text = Html.fromHtml(TiConvert.toString(newValue));
+			if (text != null) {
+				tv.setText(text, TextView.BufferType.SPANNABLE);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
