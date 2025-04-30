@@ -115,6 +115,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
 	public boolean keyboardVisible = false;
+	private static boolean hasWindowLayoutInfoListener = false;
 	private WindowInfoTrackerCallbackAdapter windowInfoTracker;
 	private final LayoutStateChangeCallback layoutStateChangeCallback =
 		new LayoutStateChangeCallback();
@@ -1574,8 +1575,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		applyNightMode();
-		windowInfoTracker.addWindowLayoutInfoListener(
-			TiApplication.getAppRootOrCurrentActivity(), Runnable::run, layoutStateChangeCallback);
+		if (!hasWindowLayoutInfoListener) {
+			windowInfoTracker.addWindowLayoutInfoListener(
+				TiApplication.getAppRootOrCurrentActivity(), Runnable::run, layoutStateChangeCallback);
+			hasWindowLayoutInfoListener = true;
+		}
 	}
 
 	@Override
@@ -1603,7 +1607,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		windowInfoTracker.removeWindowLayoutInfoListener(layoutStateChangeCallback);
+		if (hasWindowLayoutInfoListener) {
+			windowInfoTracker.removeWindowLayoutInfoListener(layoutStateChangeCallback);
+			hasWindowLayoutInfoListener = false;
+		}
 	}
 
 	@Override
@@ -1983,14 +1990,27 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		{
 			TiBaseActivity.this.runOnUiThread(() -> {
 				List<DisplayFeature> displayFeatures = newLayoutInfo.getDisplayFeatures();
-				for (DisplayFeature feature : displayFeatures) {
-					if (feature instanceof FoldingFeature foldingFeature) {
-						KrollDict kd = new KrollDict();
-						kd.put("state", foldingFeature.getState().toString());
-						kd.put("occlusionType", foldingFeature.getOcclusionType().toString());
-						kd.put("orientation", foldingFeature.getOrientation().toString());
-						kd.put("isSeparating", foldingFeature.isSeparating());
-						TiApplication.getInstance().fireAppEvent("windowState", kd);
+				if (displayFeatures.toArray().length == 0) {
+					// closed
+					KrollDict kd = new KrollDict();
+					String orientation = TiApplication.getInstance().getResources().getConfiguration()
+						.orientation == Configuration.ORIENTATION_LANDSCAPE ? "HORIZONTAL" : "VERTICAL";
+					kd.put("state", "CLOSED");
+					kd.put("occlusionType", "NONE");
+					kd.put("orientation", orientation);
+					kd.put("isSeparating", false);
+					TiApplication.getInstance().fireAppEvent("windowState", kd);
+				} else {
+					// other states
+					for (DisplayFeature feature : displayFeatures) {
+						if (feature instanceof FoldingFeature foldingFeature) {
+							KrollDict kd = new KrollDict();
+							kd.put("state", foldingFeature.getState().toString());
+							kd.put("occlusionType", foldingFeature.getOcclusionType().toString());
+							kd.put("orientation", foldingFeature.getOrientation().toString());
+							kd.put("isSeparating", foldingFeature.isSeparating());
+							TiApplication.getInstance().fireAppEvent("windowState", kd);
+						}
 					}
 				}
 			});
