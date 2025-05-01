@@ -1436,7 +1436,7 @@ properties:
         When set to <Titanium.UI.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred.
         See section on Clipping Behavior in <Titanium.UI.View>.
 
-        Android: This property is "creation only" and has to be on the top-level view.
+        Android: Has to be on the top-level view.
 
         Defaults to `undefined`. Behaves as if set to <Titanium.UI.CLIP_MODE_DEFAULT>.
     type: Number

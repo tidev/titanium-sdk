@@ -978,7 +978,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		} else if (key.equals(TiC.PROPERTY_CLIP_MODE)) {
 			if (nativeView != null) {
-				setClipMode(TiConvert.toInt(newValue));
+				setClipMode(TiConvert.toInt(newValue, UIModule.CLIP_MODE_DEFAULT));
 			}
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
@@ -1148,7 +1148,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		if (d.containsKey(TiC.PROPERTY_CLIP_MODE) && !nativeViewNull) {
-			setClipMode(TiConvert.toInt(d, TiC.PROPERTY_CLIP_MODE));
+			setClipMode(TiConvert.toInt(d, UIModule.CLIP_MODE_DEFAULT));
 		}
 
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
@@ -1209,16 +1209,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	private void setClipMode(int clipMode)
 	{
-
 		if (nativeView instanceof ViewGroup viewGroup) {
-			if (clipMode == UIModule.CLIP_MODE_DISABLED) {
-				viewGroup.setClipChildren(false);
-				viewGroup.setClipToPadding(false);
-			} else {
-				viewGroup.setClipChildren(true);
-				viewGroup.setClipToPadding(true);
-			}
-			viewGroup.invalidate();
+			viewGroup.setClipChildren(clipMode != UIModule.CLIP_MODE_DISABLED);
+			viewGroup.setClipToPadding(clipMode != UIModule.CLIP_MODE_DISABLED)
 		}
 	}
 
