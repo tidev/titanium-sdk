@@ -1210,8 +1210,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private void setClipMode(int clipMode)
 	{
 		if (nativeView instanceof ViewGroup viewGroup) {
-			viewGroup.setClipChildren(clipMode != UIModule.CLIP_MODE_DISABLED);
-			viewGroup.setClipToPadding(clipMode != UIModule.CLIP_MODE_DISABLED);
+			viewGroup.setClipChildren(clipMode == UIModule.CLIP_MODE_ENABLED);
+			viewGroup.setClipToPadding(clipMode == UIModule.CLIP_MODE_ENABLED);
 		}
 	}
 
