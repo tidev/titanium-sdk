@@ -91,108 +91,111 @@ public class TiThumbnailRetriever implements Handler.Callback
 
 	private AsyncTask<Object, Void, Integer> getBitmapTask()
 	{
-		task = new AsyncTask<Object, Void, Integer>() {
-			@Override
-			protected Integer doInBackground(Object... args)
-			{
-				ThumbnailResponseHandler mThumbnailResponseHandler = null;
-				MediaMetadataRetriever mMediaMetadataRetriever = null;
-				KrollDict event = null;
-				Uri mUri = (Uri) args[0];
-				int[] arrayOfTimes = (int[]) args[1];
-				int option = (Integer) args[2];
-				mThumbnailResponseHandler = (ThumbnailResponseHandler) args[3];
-				mMediaMetadataRetriever = (MediaMetadataRetriever) args[4];
+		task = new BackgroundTask();
+		return task;
+	}
 
-				try {
-					int response = setDataSource(mUri, mMediaMetadataRetriever);
-					if (response < 0) {
-						//Setting Data Source of MediaMetadataRetriever failed
+	private static class BackgroundTask extends AsyncTask<Object, Void, Integer>
+	{
+		@Override
+		protected Integer doInBackground(Object... args)
+		{
+			TiThumbnailRetriever.ThumbnailResponseHandler mThumbnailResponseHandler = null;
+			MediaMetadataRetriever mMediaMetadataRetriever = null;
+			KrollDict event = null;
+			Uri mUri = (Uri) args[0];
+			int[] arrayOfTimes = (int[]) args[1];
+			int option = (Integer) args[2];
+			mThumbnailResponseHandler = (TiThumbnailRetriever.ThumbnailResponseHandler) args[3];
+			mMediaMetadataRetriever = (MediaMetadataRetriever) args[4];
+
+			try {
+				int response = setDataSource(mUri, mMediaMetadataRetriever);
+				if (response < 0) {
+					//Setting Data Source of MediaMetadataRetriever failed
+					return null;
+				}
+
+				for (int sec : arrayOfTimes) {
+					//If request is cancelled, do not continue with fetching thumbnail
+					if (isCancelled()) {
 						return null;
 					}
 
-					for (int sec : arrayOfTimes) {
-						//If request is cancelled, do not continue with fetching thumbnail
-						if (isCancelled()) {
-							return null;
-						}
-
-						Bitmap mBitmapFrame = getFrameAtTime(mUri, sec, option, mMediaMetadataRetriever);
-						if (mBitmapFrame != null) {
-							event = new KrollDict();
-							event.put(TiC.PROPERTY_TIME, sec);
-							event.put(TiC.ERROR_PROPERTY_CODE, TiC.ERROR_CODE_NO_ERROR);
-							event.put(TiC.PROPERTY_SUCCESS, true);
-							event.put(TiC.PROPERTY_IMAGE, TiBlob.blobFromImage(mBitmapFrame));
-						} else {
-							event = new KrollDict();
-							event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error getting Thumbnail");
-						}
-
-						mThumbnailResponseHandler.handleThumbnailResponse(event);
+					Bitmap mBitmapFrame = getFrameAtTime(mUri, sec, option, mMediaMetadataRetriever);
+					if (mBitmapFrame != null) {
+						event = new KrollDict();
+						event.put(TiC.PROPERTY_TIME, sec);
+						event.put(TiC.ERROR_PROPERTY_CODE, TiC.ERROR_CODE_NO_ERROR);
+						event.put(TiC.PROPERTY_SUCCESS, true);
+						event.put(TiC.PROPERTY_IMAGE, TiBlob.blobFromImage(mBitmapFrame));
+					} else {
+						event = new KrollDict();
+						event.putCodeAndMessage(TiC.ERROR_CODE_UNKNOWN, "Error getting Thumbnail");
 					}
 
-				} catch (Throwable t) {
-					Log.e(TAG, "Error retrieving thumbnail [" + t.getMessage() + "]", t, Log.DEBUG_MODE);
+					mThumbnailResponseHandler.handleThumbnailResponse(event);
 				}
+
+			} catch (Throwable t) {
+				Log.e(TAG, "Error retrieving thumbnail [" + t.getMessage() + "]", t, Log.DEBUG_MODE);
+			}
+			return -1;
+		}
+
+		public Bitmap getFrameAtTime(Uri mUri, int sec, int option, MediaMetadataRetriever mMediaMetadataRetriever)
+		{
+			if (mUri != null) {
+				// getFrameAtTime uses Microseconds.
+				// Multiplying sec with 1000000 to get Microseconds.
+				Bitmap bm = mMediaMetadataRetriever.getFrameAtTime(sec * 1000000, option);
+				return bm;
+			}
+			return null;
+		}
+
+		@SuppressLint("NewApi")
+		private int setDataSource(Uri mUri, MediaMetadataRetriever mMediaMetadataRetriever)
+		{
+			int returnCode = 0;
+			if (mUri == null) {
 				return -1;
 			}
 
-			public Bitmap getFrameAtTime(Uri mUri, int sec, int option, MediaMetadataRetriever mMediaMetadataRetriever)
-			{
-				if (mUri != null) {
-					// getFrameAtTime uses Microseconds.
-					// Multiplying sec with 1000000 to get Microseconds.
-					Bitmap bm = mMediaMetadataRetriever.getFrameAtTime(sec * 1000000, option);
-					return bm;
-				}
-				return null;
-			}
+			try {
+				if (URLUtil.isAssetUrl(mUri.toString())) { // DST: 20090606 detect
+					// asset url
+					AssetFileDescriptor afd = null;
+					try {
+						String path = mUri.toString().substring("file:///android_asset/".length());
+						afd = TiApplication.getAppCurrentActivity().getAssets().openFd(path);
+						mMediaMetadataRetriever.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
+							afd.getLength());
 
-			@SuppressLint("NewApi")
-			private int setDataSource(Uri mUri, MediaMetadataRetriever mMediaMetadataRetriever)
-			{
-				int returnCode = 0;
-				if (mUri == null) {
-					return -1;
-				}
-
-				try {
-					if (URLUtil.isAssetUrl(mUri.toString())) { // DST: 20090606 detect
-															   // asset url
-						AssetFileDescriptor afd = null;
-						try {
-							String path = mUri.toString().substring("file:///android_asset/".length());
-							afd = TiApplication.getAppCurrentActivity().getAssets().openFd(path);
-							mMediaMetadataRetriever.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),
-																  afd.getLength());
-
-						} catch (FileNotFoundException ex) {
-							Log.e(TAG, "Unable to open content: " + mUri, ex);
-							returnCode = -1;
-						} finally {
-							if (afd != null) {
-								afd.close();
-							}
-						}
-					} else {
-						mUri = TiUIHelper.getRedirectUri(mUri);
-						if (URLUtil.isNetworkUrl(mUri.toString())) {
-							mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
-						} else {
-							mMediaMetadataRetriever.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
+					} catch (FileNotFoundException ex) {
+						Log.e(TAG, "Unable to open content: " + mUri, ex);
+						returnCode = -1;
+					} finally {
+						if (afd != null) {
+							afd.close();
 						}
 					}
-				} catch (IOException ex) {
-					Log.e(TAG, "Unable to open content: " + mUri, ex);
-					return -1;
-				} catch (IllegalArgumentException ex) {
-					Log.e(TAG, "Unable to open content: " + mUri, ex);
-					return -1;
+				} else {
+					mUri = TiUIHelper.getRedirectUri(mUri);
+					if (URLUtil.isNetworkUrl(mUri.toString())) {
+						mMediaMetadataRetriever.setDataSource(mUri.toString(), new HashMap<String, String>());
+					} else {
+						mMediaMetadataRetriever.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri);
+					}
 				}
-				return returnCode;
+			} catch (IOException ex) {
+				Log.e(TAG, "Unable to open content: " + mUri, ex);
+				return -1;
+			} catch (IllegalArgumentException ex) {
+				Log.e(TAG, "Unable to open content: " + mUri, ex);
+				return -1;
 			}
-		};
-		return task;
+			return returnCode;
+		}
 	}
 }
