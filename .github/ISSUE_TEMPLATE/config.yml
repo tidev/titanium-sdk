@@ -1,7 +1,0 @@
-contact_links:
-  - name: Github Discussions
-    url: https://github.com/tidev/titanium-sdk/discussions
-    about: Ask a question in Github Discussions
-  - name: TiDev
-    url: https://slack.tidev.io
-    about: Talk to other Titanium developers on Slack
