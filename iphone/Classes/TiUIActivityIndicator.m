@@ -92,9 +92,9 @@
 {
   if (indicatorView == nil) {
     indicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:style];
-    //TIMOB-17572. When a cell is reused all animations are removed. That will hide the
-    //ActivityIndicator. Setting it to false ensures that visibility is controlled by the
-    //visible property of the ActivityIndicator (initialized to false)
+    // TIMOB-17572. When a cell is reused all animations are removed. That will hide the
+    // ActivityIndicator. Setting it to false ensures that visibility is controlled by the
+    // visible property of the ActivityIndicator (initialized to false)
     [indicatorView setHidesWhenStopped:NO];
     if (spinnerColor != nil) {
       [indicatorView setColor:spinnerColor];
@@ -287,7 +287,7 @@
   messageLabel = [self messageLabel];
   indicatorView = [self indicatorView];
 #endif
-  //TIMOB-15293
+  // TIMOB-15293
   if (([self window] != nil) && (indicatorView != nil) && (![indicatorView isAnimating])) {
     BOOL visible = [TiUtils boolValue:[[self proxy] valueForKey:@"visible"] def:NO];
     if (visible) {

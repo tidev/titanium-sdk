@@ -133,7 +133,7 @@ properties:
 
   - name: userInfo
     summary: Custom data object.
-    type: Dictionary
+    type: UserInfoDictionary
 
   - name: category
     summary: Category identifier of the notification.
@@ -159,6 +159,19 @@ properties:
           - radius: The radius of the region.
           - identifier: The identifier of the region.
     type: Dictionary
+
+---
+name: UserInfoDictionary
+summary: |
+    Dictionary object of parameters.
+platforms: [iphone, ipad, macos]
+
+properties:
+  - name: showInForground
+    summary: Show notification if app is in foreground
+    description: |
+        Boolean if a notification banner is shown if the app is in foreground.
+    type: Number
 
 ---
 name: GetUserNotificationSettings

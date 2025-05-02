@@ -253,7 +253,7 @@ class Categorizer {
 			case 'css':
 				results.cssFiles.set(relPath, info);
 				break;
-
+			case 'webp':
 			case 'png':
 				if (this.platform === 'ios') {
 					// check if we have an app icon

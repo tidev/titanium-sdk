@@ -377,7 +377,7 @@
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For playbackState property / playbackstate event
@@ -472,11 +472,7 @@
   if (_player.timeControlStatus == AVPlayerTimeControlStatusPlaying) {
     _state = TiAudioPlayerStatePlaying;
   } else if (_player.timeControlStatus == AVPlayerTimeControlStatusPaused) {
-    if (_player.currentItem.currentTime.value == 0.0 || oldState == TiAudioPlayerStateStopping) {
-      _state = TiAudioPlayerStateStopped;
-    } else {
-      _state = TiAudioPlayerStatePaused;
-    }
+    _state = TiAudioPlayerStatePaused;
   } else if (_player.timeControlStatus == AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
     _state = TiAudioPlayerStateWaitingForQueueToStart;
   }
