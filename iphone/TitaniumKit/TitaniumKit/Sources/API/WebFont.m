@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -126,12 +126,12 @@
             }
           }
         } else {
-          //family points to a fully qualified font name (so we hope)
+          // family points to a fully qualified font name (so we hope)
           font = [[UIFont fontWithName:family size:self.size] retain];
         }
       }
       if (font == nil) {
-        //NO valid family specified. Just check for characteristics. Semi bold is ignored here.
+        // NO valid family specified. Just check for characteristics. Semi bold is ignored here.
         if (self.isBoldWeight) {
           UIFont *theFont = [UIFont systemFontOfSize:self.size weight:UIFontWeightBold];
           if (self.isItalicStyle) {
@@ -196,7 +196,7 @@
     didChange = YES;
   }
 
-  float multiplier = 1.0; //Default is px.
+  float multiplier = 1.0; // Default is px.
 
   id sizeObject = [fontDict objectForKey:@"fontSize"];
   if ([sizeObject isKindOfClass:[NSString class]]) {
@@ -204,7 +204,7 @@
     if ([sizeObject hasSuffix:@"px"]) {
       sizeObject = [sizeObject substringToIndex:[sizeObject length] - 2];
     }
-    //TODO: Mod multipler with different suffixes (in, cm, etc)
+    // TODO: Mod multipler with different suffixes (in, cm, etc)
   }
 
   if ([sizeObject respondsToSelector:@selector(floatValue)]) {

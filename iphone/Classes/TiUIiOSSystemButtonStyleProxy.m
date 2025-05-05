@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,9 +16,9 @@
   return @"Ti.UI.iOS.SystemButtonStyle";
 }
 
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DONE, UIBarButtonItemStyleDone, @"Ti.UI.iOS.SystemButtonStyle.DONE", @"10.0.0", @"Ti.UI.BUTTON_STYLE_OPTION_POSITIVE");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BORDERED, UIBarButtonItemStylePlain, @"Ti.UI.iOS.SystemButtonStyle.BORDERED", @"10.0.0", @"Ti.UI.BUTTON_STYLE_OPTION_NEUTRAL");
-MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN, UIBarButtonItemStylePlain, @"Ti.UI.iOS.SystemButtonStyle.PLAIN", @"10.0.0", @"Ti.UI.BUTTON_STYLE_OPTION_NEUTRAL");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DONE, UIBarButtonItemStyleDone, @"UI.iOS.SystemButtonStyle.DONE", @"10.0.0", @"UI.BUTTON_STYLE_OPTION_POSITIVE");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BORDERED, UIBarButtonItemStylePlain, @"UI.iOS.SystemButtonStyle.BORDERED", @"10.0.0", @"UI.BUTTON_STYLE_OPTION_NEUTRAL");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(PLAIN, UIBarButtonItemStylePlain, @"UI.iOS.SystemButtonStyle.PLAIN", @"10.0.0", @"UI.BUTTON_STYLE_OPTION_NEUTRAL");
 
 @end
 

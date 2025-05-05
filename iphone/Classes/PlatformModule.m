@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -223,10 +223,12 @@ GETTER_IMPL(NSString *, locale, Locale);
 }
 GETTER_IMPL(NSString *, macaddress, Macaddress);
 
+#ifdef USE_TI_PLATFORMUPTIME
 - (NSNumber *)uptime
 {
   return [NSNumber numberWithDouble:[[NSProcessInfo processInfo] systemUptime]];
 }
+#endif
 
 - (NSString *)identifierForVendor
 {
@@ -256,6 +258,21 @@ GETTER_IMPL(NSString *, identifierForVendor, IdentifierForVendor);
 }
 #endif
 
+- (bool)isTranslatedBinaryOnAppleSilicon
+{
+  // As noted by Apple in https://developer.apple.com/documentation/apple-silicon/about-the-rosetta-translation-environment
+  int ret = 0;
+  size_t size = sizeof(ret);
+  if (sysctlbyname("sysctl.proc_translated", &ret, &size, NULL, 0) == -1) {
+    if (errno == ENOENT) {
+      return 0;
+    }
+    return -1;
+  }
+  return ret;
+}
+
+GETTER_IMPL(bool, isTranslatedBinaryOnAppleSilicon, IsTranslatedBinaryOnAppleSilicon);
 GETTER_IMPL(bool, isAdvertisingTrackingEnabled, IsAdvertisingTrackingEnabled);
 GETTER_IMPL(NSString *, identifierForAdvertising, IdentifierForAdvertising);
 

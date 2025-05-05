@@ -197,9 +197,6 @@ events:
     summary: Fired by the system when the device's accessibility service is turned on or off.
     platforms: [android, iphone, ipad, macos]
     since: {android: "3.0.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
-    osver:
-        android:
-            min: "4.0"
     properties:
       - name: enabled
         summary: Whether accessibility is now enabled or disabled.
@@ -288,14 +285,6 @@ events:
         summary: The URL to the source file.
         type: String
         platforms: [iphone, ipad, macos]
-      - name: backtrace
-        summary: The backtrace of function calls when the error occurred.
-        type: String
-        deprecated:
-          since: "8.0.0"
-          removed: "8.0.0"
-          notes: Use the `stack` property instead.
-        platforms: [iphone, ipad]
       - name: title
         summary: The title for the error.
         type: String
@@ -389,7 +378,7 @@ events:
     summary: Fired when the soft keyboard is presented, on and off the screen.
     description: |
         This event fires when the application presents the soft keyboard on/off the screen . The
-        event returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys,
+        event on iOS returns the dictionary `keyboardFrame` containing `x`, `y`, `height` and `width` keys,
         corresponding to the frame of the keyboard with respect to the screen coordinates.
 
         On Titanium SDK 4.0.0 and later the event also contains a second parameter `animationDuration` representing
@@ -397,6 +386,9 @@ events:
 
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard
         is being dissmissed.
+
+        For Android it will only work using Android 11 and up. The return values are empty but you can use
+        `keyboardVisible` to check if the keyboard is visible or not.
     properties:
       - name: keyboardFrame
         summary: A dictionary with keys x, y, width and height representing the frame of keyboard on screen.
@@ -405,8 +397,8 @@ events:
       - name: animationDuration
         summary: The duration of the keyboard animation. This parameter is only available on Titanium SDK 4.0.0 and later.
         type: Number
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.7.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: significanttimechange
     summary: Fired when there is a significant change in the time.
@@ -554,7 +546,7 @@ properties:
 
   - name: idleTimerDisabled
     summary: Determines whether the screen is locked when the device is idle.
-    description: Set to `true` to disable the timer.
+    description: Set to `true` to disable the timer. For Android look at [Titanium.UI.View.keepScreenOn](Titanium.UI.View.keepScreenOn).
     type: Boolean
     platforms: [iphone, ipad, macos]
 
@@ -620,9 +612,12 @@ properties:
 
   - name: keyboardVisible
     summary: Indicates whether or not the soft keyboard is visible.
+    description: |
+        On Android it will only work using Android 11 and up. Otherwise it will always be false.
     type: Boolean
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    since: {android: "12.7.0", iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: trackUserInteraction
     summary: Indicates whether or not the user interaction shoud be tracked.

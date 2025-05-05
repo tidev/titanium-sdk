@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -253,7 +253,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 		// Use the passed in context
 		MaybeLocal<Object> contextArg = args[sandbox_index]->ToObject(currentContext);
 		if (contextArg.IsEmpty()) {
-			// FIXME Will this ever happen? This is not likley and probably the wrong way to handle this. We should at least log it...
+			// FIXME Will this ever happen? This is not likely and probably the wrong way to handle this. We should at least log it...
 			context.Reset(isolate, Context::New(isolate));
 		} else {
 			nContext = WrappedContext::Unwrap(isolate, contextArg.ToLocalChecked());
@@ -261,7 +261,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 		}
 	}
 
-	// Explicitly set up var to track context we shoudl use for compile/run of script.
+	// Explicitly set up var to track context we should use for compile/run of script.
 	// When "thisContext", use teh current context from the isolate. Otherwise use the context we set in the Persistent above
 	Local<Context> contextToUse = (context_flag == thisContext) ? currentContext : context.Get(isolate);
 

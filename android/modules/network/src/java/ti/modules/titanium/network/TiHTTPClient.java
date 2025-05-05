@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,6 +24,7 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -89,7 +90,7 @@ public class TiHTTPClient
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
 	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
 	private static final String TITANIUM_USER_AGENT =
-		"Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
+		"Titanium SDK/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
 		+ "; Android API Level: " + Integer.toString(Build.VERSION.SDK_INT) + "; "
 		+ TiPlatformHelper.getInstance().getLocale() + ";)";
 	private static final String[] FALLBACK_CHARSETS = { "UTF_8", "ISO_8859_1" };
@@ -492,6 +493,11 @@ public class TiHTTPClient
 	private String decodeResponseData(String charsetName)
 	{
 		Charset charset;
+
+		if (charsetName.isEmpty()) {
+			return null;
+		}
+
 		try {
 			charset = Charset.forName(charsetName);
 
@@ -940,14 +946,6 @@ public class TiHTTPClient
 
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
-		// Causes Auth to Fail with twitter and other size apparently block X- as well
-		// Ticket #729, ignore twitter for now
-		if (!hostString.contains("twitter.com")) {
-			setRequestHeader("X-Requested-With", "XMLHttpRequest");
-
-		} else {
-			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
-		}
 	}
 
 	public void setRawData(Object data)
@@ -1341,7 +1339,7 @@ public class TiHTTPClient
 						printWriter.close();
 					}
 
-					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
+					// Fix for https://jira-archive.titaniumsdk.com/TIMOB-23309
 					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
 					// This section of the code handles that.
 					if (autoRedirect) {
@@ -1371,10 +1369,18 @@ public class TiHTTPClient
 						}
 					}
 					handleResponse(client);
-
 				} catch (IOException e) {
 					if (!aborted) {
-						throw e;
+						KrollDict data = new KrollDict();
+						int errorCode = TiC.ERROR_CODE_UNKNOWN;
+						if (e instanceof SocketTimeoutException) {
+							errorCode = TiC.ERROR_CODE_TIMEOUT;
+						} else if (getStatus() >= 400) {
+							errorCode = getStatus();
+						}
+						data.putCodeAndMessage(errorCode, e.getMessage());
+						dispatchCallback(TiC.PROPERTY_ONERROR, data);
+						return;
 					}
 				} finally {
 					if (client != null) {
@@ -1517,7 +1523,7 @@ public class TiHTTPClient
 
 		public void completeSendingMultipart()
 		{
-			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.append("--").append(boundary).append("--").append(LINE_FEED);
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException

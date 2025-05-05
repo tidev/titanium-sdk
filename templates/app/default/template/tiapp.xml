@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ti:app xmlns:ti="http://ti.appcelerator.org">
+<ti:app xmlns:ti="http://ti.tidev.io">
 	<id>__PROJECT_ID__</id>
 	<name>__PROJECT_NAME__</name>
 	<version>__PROJECT_VERSION__</version>
@@ -42,6 +42,7 @@
 	</ios>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 		<manifest android:versionCode="1">
+			<application android:icon="@mipmap/ic_launcher" />
 		</manifest>
 	</android>
 	<modules>

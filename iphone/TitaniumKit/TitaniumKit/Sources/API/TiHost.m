@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -46,7 +46,7 @@
 
 + (NSURL *)resolveFilePathForAppUrl:(NSURL *)appUrl
 {
-  if (![[appUrl scheme] isEqualToString:@"app"]) { //Whoops! We don't need to translate!
+  if (![[appUrl scheme] isEqualToString:@"app"]) { // Whoops! We don't need to translate!
     return appUrl;
   }
 
@@ -135,7 +135,7 @@
 
 - (KrollBridge *)krollBridge
 {
-  //For subclasses
+  // For subclasses
   return nil;
 }
 

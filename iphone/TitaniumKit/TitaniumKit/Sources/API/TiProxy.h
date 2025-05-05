@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -91,7 +91,7 @@ SEL SetterWithObjectForKrollProperty(NSString *key);
 
 void DoProxyDelegateChangedValuesWithProxy(UIView<TiProxyDelegate> *target, NSString *key, id oldValue, id newValue, TiProxy *proxy);
 void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target, id<NSFastEnumeration> keys, TiProxy *proxy);
-//Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
+// Why are these here? Because they can be commonly used between TiUIView and TiUITableViewCell.
 
 /**
  The base class for Titanium proxies.
@@ -206,7 +206,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
  Return nil if the class does not bubble or there is no parent. Optionally
  return nil if bubbleParent is false -- i.e., bubbleParent must be checked
  as well.
- 
+
  Override this method for views that do not follow the standard children/parent
  model (e.g., table rows). Note that this is NOT for use by JS, because this is
  intentionally an iOS-only solution.
@@ -216,7 +216,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 /**
  Returns an array of properties that must be set on the proxy object in a specific order, ordered from first to last.
  Any properties which are not in this list are set after the listed properties, and are set in undefined order.
- 
+
  Override this method if the order in which properties are set is significant.
  @return The array of property keys.
  */
@@ -236,13 +236,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 
 - (BOOL)retainsJsObjectForKey:(NSString *)key;
 
-//TODO: Find everywhere were we retain a proxy in a non-assignment way, and do remember/forget properly.
+// TODO: Find everywhere were we retain a proxy in a non-assignment way, and do remember/forget properly.
 
 /**
  Tells the proxy to associate another proxy with it.
- 
+
  The associated proxy will be retained.
- Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:>
  @param rememberedProxy The proxy to remember.
  @see forgetProxy:
  */
@@ -250,15 +250,15 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 
 /**
  Tells the proxy to disassociate another proxy from it.
- 
+
  The deassociated proxy will be released.
- Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:> 
+ Note: rememberProxy/forgetProxy are not reference counted - multiple calls to <rememberProxy:> are all undone by a single call to <forgetProxy:>
  @param forgottenProxy The proxy to forget.
  @see rememberProxy:
  */
 - (void)forgetProxy:(TiProxy *)forgottenProxy;
 
-//These are when, say, a window is opened, so you want to do JSValueProtect to make SURE it doesn't go away.
+// These are when, say, a window is opened, so you want to do JSValueProtect to make SURE it doesn't go away.
 
 /**
  Tells the proxy to retain associated JS object.
@@ -270,7 +270,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
  */
 - (void)forgetSelf;
 
-//SetCallback is done internally by setValue:forUndefinedKey:
+// SetCallback is done internally by setValue:forUndefinedKey:
 - (void)fireCallback:(NSString *)type withArg:(NSDictionary *)argDict withSource:(id)source;
 - (void)fireCallback:(NSString *)type withArg:(NSDictionary *)argDict withSource:(id)source withHandler:(void (^)(id result))handler;
 
@@ -290,16 +290,16 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 - (void)fireEvent:(id)args;
 - (void)fireEvent:(NSString *)type withObject:(id)obj;
 
-//For UI events:
+// For UI events:
 - (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)yn;
 
-//For events that report an error or success
+// For events that report an error or success
 - (void)fireEvent:(NSString *)type withObject:(id)obj errorCode:(NSInteger)code message:(NSString *)message;
 
-//What classes should actually override:
+// What classes should actually override:
 - (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString *)message;
 
-//Temporary override point during the transition. Both the one below AND the one above should be overridden if needed.
+// Temporary override point during the transition. Both the one below AND the one above should be overridden if needed.
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
 
 //** Deprecated: bubbling is done at a lower point so source is always 'self' at this point.

@@ -1,10 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.android;
+
+import android.app.Activity;
 
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -12,7 +14,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUICardView;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {
@@ -26,7 +27,7 @@ import android.app.Activity;
 		TiC.PROPERTY_PADDING_LEFT,
 		TiC.PROPERTY_PADDING_RIGHT,
 		TiC.PROPERTY_PADDING_TOP
-})
+	})
 public class CardViewProxy extends TiViewProxy
 {
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;

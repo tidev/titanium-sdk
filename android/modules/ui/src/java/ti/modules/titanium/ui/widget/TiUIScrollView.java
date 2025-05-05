@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -53,6 +53,8 @@ public class TiUIScrollView extends TiUIView
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
 	private int type;
+	private TiDimension xDimension;
+	private TiDimension yDimension;
 
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -114,7 +116,7 @@ public class TiUIScrollView extends TiUIView
 
 		/**
 		 * Gets the value set via the setParentContentWidth() method.
-		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * Note that this value is not assigned automatically. The owner must assign it.
 		 * @return Returns the parent view's width, excluding its left/right padding.
 		 */
 		public int getParentContentWidth()
@@ -136,7 +138,7 @@ public class TiUIScrollView extends TiUIView
 
 		/**
 		 * Gets the value set via the setParentContentHeight() method.
-		 * Note that this value is not assignd automatically. The owner must assign it.
+		 * Note that this value is not assigned automatically. The owner must assign it.
 		 * @return Returns the parent view's height, excluding its top/bottom padding.
 		 */
 		public int getParentContentHeight()
@@ -353,6 +355,9 @@ public class TiUIScrollView extends TiUIView
 	private AttributeSet getAttributeSet(Context context, int resourceId)
 	{
 		AttributeSet attr = null;
+		if (context == null || context.getResources() == null) {
+			return null;
+		}
 		try {
 			XmlPullParser parser = context.getResources().getXml(resourceId);
 			try {
@@ -402,6 +407,9 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent event)
 		{
+			xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
+			yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
+
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
@@ -413,6 +421,9 @@ public class TiUIScrollView extends TiUIView
 				isTouching = false;
 				KrollDict data = new KrollDict();
 				data.put("decelerate", true);
+
+				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
 			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
@@ -472,6 +483,8 @@ public class TiUIScrollView extends TiUIView
 			if (!isScrolling && isTouching) {
 				isScrolling = true;
 				KrollDict data = new KrollDict();
+				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
 
@@ -550,6 +563,9 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent event)
 		{
+			xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
+			yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
+
 			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
@@ -561,6 +577,8 @@ public class TiUIScrollView extends TiUIView
 				isTouching = false;
 				KrollDict data = new KrollDict();
 				data.put("decelerate", true);
+				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
 			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
@@ -600,6 +618,8 @@ public class TiUIScrollView extends TiUIView
 
 			if (!isScrolling && isTouching) {
 				isScrolling = true;
+				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
 
@@ -994,34 +1014,45 @@ public class TiUIScrollView extends TiUIView
 		view.computeScroll();
 	}
 
-	public void scrollToBottom()
+	public void scrollToBottom(boolean animated)
 	{
 		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
 			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
 		} else if (view instanceof TiVerticalScrollView) {
-			((TiVerticalScrollView) view).fullScroll(View.FOCUS_DOWN);
+			if (animated == false) {
+				((TiVerticalScrollView) view).fullScroll(View.FOCUS_DOWN);
+			} else {
+				NestedScrollView nestedScrollView = ((TiVerticalScrollView) view);
+				nestedScrollView.smoothScrollBy(0, nestedScrollView.getChildAt(0).getHeight());
+			}
 		}
 	}
 
-	public void scrollToTop()
+	public void scrollToTop(boolean animated)
 	{
 		View view = this.scrollView;
 		if (view instanceof TiHorizontalScrollView) {
 			// Scroll to the left-most side of the horizontal scroll view.
 			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_LEFT);
 		} else if (view instanceof TiVerticalScrollView) {
-			// Scroll to the top of the vertical scroll view.
-			// Note: There is a bug in Google's NestedScrollView where smooth scrolling to top fails
-			//       and can scroll down instead. We must work-around it by temporarily disabling it.
-			TiVerticalScrollView verticalScrollView = (TiVerticalScrollView) view;
-			boolean wasEnabled = verticalScrollView.isSmoothScrollingEnabled();
-			verticalScrollView.setSmoothScrollingEnabled(false);
-			try {
-				((TiVerticalScrollView) view).fullScroll(View.FOCUS_UP);
-			} finally {
-				verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
+			if (animated == false) {
+				// Scroll to the top of the vertical scroll view.
+				// Note: There is a bug in Google's NestedScrollView where smooth scrolling to top fails
+				//       and can scroll down instead. We must work-around it by temporarily disabling it.
+				TiVerticalScrollView verticalScrollView = (TiVerticalScrollView) view;
+				boolean wasEnabled = verticalScrollView.isSmoothScrollingEnabled();
+				verticalScrollView.setSmoothScrollingEnabled(false);
+				try {
+					((TiVerticalScrollView) view).fullScroll(View.FOCUS_UP);
+				} finally {
+					verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
+				}
+			} else {
+				NestedScrollView nestedScrollView = ((TiVerticalScrollView) view);
+				nestedScrollView.smoothScrollBy(0, -nestedScrollView.getChildAt(0).getHeight());
 			}
+
 		}
 	}
 

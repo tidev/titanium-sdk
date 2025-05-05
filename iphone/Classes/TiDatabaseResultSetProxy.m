@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -138,7 +138,7 @@
     if ([optionalType isNumber] || [optionalType isString]) {
       DatabaseFieldType type = [optionalType toInt32];
       if (type != FieldTypeUnknown) {
-        //cast result on the way out if type constant was passed
+        // cast result on the way out if type constant was passed
         result = [self _transformObject:result toType:type];
       }
     }
@@ -158,7 +158,7 @@
     if ([optionalType isNumber] || [optionalType isString]) {
       DatabaseFieldType type = [optionalType toInt32];
       if (type != FieldTypeUnknown) {
-        //cast result on the way out if type constant was passed
+        // cast result on the way out if type constant was passed
         result = [self _transformObject:result toType:type];
       }
     }

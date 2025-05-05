@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -132,8 +132,6 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2156-android-invalid-redirect-alert-on-xhr-file-download
-	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/1381-android-buffer-large-xhr-downloads
 	it('largeFileWithRedirect', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 6e4
@@ -153,11 +151,10 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://mockbin.org/redirect/301?to=https%3A%2F%2Fraw.githubusercontent.com%2Fappcelerator%2Ftitanium_mobile%2Fmaster%2Ftests%2FResources%2Flarge.jpg');
+		xhr.open('GET', 'https://httpbin.org/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%2Fmaster%2Ftests%2FResources%2Flarge.jpg');
 		xhr.send();
 	});
 
-	// https://appcelerator.lighthouseapp.com/projects/32238-titanium-mobile/tickets/1649-android-httpclientsend-with-no-argument-causes-npe
 	it('emptyPOSTSend', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
@@ -215,7 +212,6 @@ describe('Titanium.Network.HTTPClient', function () {
 		should(xhr.getAllResponseHeaders).be.a.Function();
 	});
 
-	// https://appcelerator.lighthouseapp.com/projects/32238/tickets/2339
 	it('responseHeadersBug', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
@@ -386,7 +382,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://jira.appcelerator.org/browse/TIMOB-2849
+	// https://jira-archive.titaniumsdk.com/TIMOB-2849
 	// Windows does not yet support Ti.Network.Cookie
 	it.windowsMissing('setCookieClearCookieWithMultipleHTTPClients', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
@@ -442,8 +438,8 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	// https://jira.appcelerator.org/browse/TIMOB-11751
-	// https://jira.appcelerator.org/browse/TIMOB-17403
+	// https://jira-archive.titaniumsdk.com/TIMOB-11751
+	// https://jira-archive.titaniumsdk.com/TIMOB-17403
 	// Windows Desktop is timing out here...
 	it('callbackTestForGETMethod', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
@@ -749,7 +745,8 @@ describe('Titanium.Network.HTTPClient', function () {
 			onload: e => {
 				const html = e.source.responseText;
 				try {
-					should(html).match(/id="protocol_tls1_3">(\s*<span\s+title="RFC 8446"\s*>\s*)?(<font color=green>)?Yes/);
+					// should(html).match(/id="protocol_tls1_3">(\s*<span\s+title="RFC 8446"\s*>\s*)?(<font color=green>)?Yes/);
+					should(html).match(/TLS 1.3/);
 				} catch (err) {
 					return finish(err);
 				}
@@ -758,7 +755,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			onerror: _e => finish(new Error('Could not determine TLSv3 support.')),
 			timeout: 8000
 		});
-		client.open('GET', 'https://clienttest.ssllabs.com/ssltest/viewMyClient.html');
+		client.open('GET', 'https://www.howsmyssl.com/a/check');
 		client.send();
 	});
 

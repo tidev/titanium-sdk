@@ -3,7 +3,7 @@
  * Logic for creating new Apple Watch™ apps.
  *
  * @copyright
- * Copyright (c) 2015-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * Apple, iPhone, and iPad are registered trademarks of Apple Inc. Apple Watch
  * is a trademark of Apple Inc.

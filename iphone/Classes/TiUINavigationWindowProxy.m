@@ -1,6 +1,6 @@
 /**
- * Axway Titanium
- * Copyright (c) 2018-present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -16,9 +16,16 @@
 
 - (void)_destroy
 {
+  if (fullWidthBackGestureRecognizer != nil) {
+    [fullWidthBackGestureRecognizer setDelegate:nil];
+    [navController.view removeGestureRecognizer:fullWidthBackGestureRecognizer];
+  }
+
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(navController);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
+
   [super _destroy];
 }
 
@@ -88,13 +95,44 @@
     [TiUtils configureController:navController withObject:self];
     [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
     [[navController interactivePopGestureRecognizer] setDelegate:self];
+
+    BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
+    if (interactiveDismissModeEnabled) {
+      [self configureFullWidthSwipeToClose];
+    }
   }
   return navController;
+}
+
+- (void)configureFullWidthSwipeToClose
+{
+  fullWidthBackGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
+
+  if (navController.interactivePopGestureRecognizer == nil) {
+    return;
+  }
+
+  id targets = [navController.interactivePopGestureRecognizer valueForKey:@"targets"];
+  if (targets == nil) {
+    return;
+  }
+
+  [fullWidthBackGestureRecognizer setValue:targets forKey:@"targets"];
+  [fullWidthBackGestureRecognizer setDelegate:self];
+  [navController.view addGestureRecognizer:fullWidthBackGestureRecognizer];
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
   BOOL isRootWindow = (current == rootWindow);
+
+  BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
+  if (interactiveDismissModeEnabled && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+    BOOL isSystemSwipeToCloseEnabled = navController.interactivePopGestureRecognizer.isEnabled == YES;
+    BOOL areThereStackedViewControllers = navController.viewControllers.count > 1;
+
+    return isSystemSwipeToCloseEnabled || areThereStackedViewControllers;
+  }
 
   if (current != nil && !isRootWindow) {
     return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
@@ -117,7 +155,7 @@
   [window setIsManaged:YES];
   [window setTab:(TiViewProxy<TiTab> *)self];
   [window setParentOrientationController:self];
-  //Send to open. Will come back after _handleOpen returns true.
+  // Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
     if (args != nil) {
@@ -172,7 +210,7 @@
 
 - (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated
 {
-  //NO OP NOW
+  // NO OP NOW
 }
 
 #pragma mark - UINavigationControllerDelegate
@@ -220,9 +258,9 @@
       }
     }
     if (winclosing) {
-      //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
-      //as first responders. This is ok since tab is not nil so no message will be sent to
-      //hosting controller.
+      // TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+      // as first responders. This is ok since tab is not nil so no message will be sent to
+      // hosting controller.
       [current windowWillClose];
     }
   }
@@ -232,9 +270,7 @@
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
   }
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    navController.view.backgroundColor = theWindow.view.backgroundColor;
-  }
+  navController.view.backgroundColor = theWindow.view.backgroundColor;
 }
 
 - (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated
@@ -540,7 +576,7 @@
 {
   [super willChangeSize];
 
-  //TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
+  // TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
   for (UIViewController *thisController in [navController viewControllers]) {
     if ([thisController isKindOfClass:[TiViewController class]]) {
       TiViewProxy *thisProxy = [(TiViewController *)thisController proxy];

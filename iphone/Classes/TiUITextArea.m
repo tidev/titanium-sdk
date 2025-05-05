@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -34,7 +34,7 @@
 
 - (void)setTouchHandler:(TiUIView *)handler
 {
-  //Assign only. No retain
+  // Assign only. No retain
   touchHandler = handler;
 }
 
@@ -52,8 +52,8 @@
 
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
 {
-  //If the content view is of type TiUIView touch events will automatically propagate
-  //If it is not of type TiUIView we will fire touch events with ourself as source
+  // If the content view is of type TiUIView touch events will automatically propagate
+  // If it is not of type TiUIView we will fire touch events with ourself as source
   if ([view isKindOfClass:[TiUIView class]]) {
     touchedContentView = view;
   } else {
@@ -64,10 +64,10 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  //When userInteractionEnabled is false we do nothing since touch events are automatically
-  //propagated. If it is dragging do not do anything.
-  //The reason we are not checking tracking (like in scrollview) is because for some
-  //reason UITextView always returns true for tracking after the initial focus
+  // When userInteractionEnabled is false we do nothing since touch events are automatically
+  // propagated. If it is dragging do not do anything.
+  // The reason we are not checking tracking (like in scrollview) is because for some
+  // reason UITextView always returns true for tracking after the initial focus
 
   UITouch *touch = [touches anyObject];
   [(TiUITextArea *)touchHandler checkLinkForTouch:touch];
@@ -268,7 +268,7 @@
 
 - (void)setBorderStyle_:(id)value
 {
-  //TODO
+  // TODO
 }
 
 - (void)setScrollsToTop_:(id)value
@@ -296,7 +296,7 @@
   return [(UITextView *)[self textWidgetView] hasText];
 }
 
-//TODO: scrollRangeToVisible
+// TODO: scrollRangeToVisible
 
 #pragma mark UITextViewDelegate
 
@@ -337,7 +337,9 @@
 
 - (void)textViewDidChange:(UITextView *)tv
 {
-  [(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]];
+  NSNumber *textareaHeight = [NSNumber numberWithFloat:tv.contentSize.height];
+
+  [(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]:textareaHeight];
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)tv
@@ -349,7 +351,7 @@
     NSDictionary *event = [NSDictionary dictionaryWithObject:rangeDict forKey:@"range"];
     [self.proxy fireEvent:@"selected" withObject:event];
   }
-  //TIMOB-15401. Workaround for UI artifact
+  // TIMOB-15401. Workaround for UI artifact
   if ((tv == textWidgetView) && (!NSEqualRanges(tv.selectedRange, lastSelectedRange))) {
     lastSelectedRange.location = tv.selectedRange.location;
     lastSelectedRange.length = tv.selectedRange.length;
@@ -380,10 +382,10 @@
     return NO;
   }
 
-  //TIMOB-15401. Workaround for UI artifact
+  // TIMOB-15401. Workaround for UI artifact
   if ([tv isScrollEnabled] && [text isEqualToString:@"\n"]) {
     if (curText.length - tv.selectedRange.location == 1) {
-      //Last line. Adjust
+      // Last line. Adjust
       [self adjustOffsetIfRequired:tv];
     }
   }
@@ -398,8 +400,22 @@
   [[self proxy] replaceValue:NUMBOOL(handleLinks) forKey:@"handleLinks" notification:NO];
 }
 
+- (void)setHtml_:(id)html
+{
+  ENSURE_SINGLE_ARG(html, NSString);
+  [[self proxy] replaceValue:html forKey:@"html" notification:NO];
+
+  NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                          options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                            NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                               documentAttributes:nil
+                                                                            error:nil];
+
+  [(UITextView *)[self textWidgetView] setAttributedText:attributedString];
+}
+
 /*
-Text area constrains the text event though the content offset and edge insets are set to 0 
+Text area constrains the text event though the content offset and edge insets are set to 0
 */
 #define TXT_OFFSET 20
 - (CGFloat)contentWidthForWidth:(CGFloat)value
@@ -424,8 +440,8 @@ Text area constrains the text event though the content offset and edge insets ar
 
 - (void)scrollViewDidScroll:(id)scrollView
 {
-  //Ensure that system messages that cause the scrollView to
-  //scroll are ignored if scrollable is set to false
+  // Ensure that system messages that cause the scrollView to
+  // scroll are ignored if scrollable is set to false
   UITextView *ourView = (UITextView *)[self textWidgetView];
   if (![ourView isScrollEnabled]) {
     CGPoint origin = [scrollView contentOffset];

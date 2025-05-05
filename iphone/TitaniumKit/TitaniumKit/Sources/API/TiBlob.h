@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -44,13 +44,13 @@ READONLY_PROPERTY(NSString *, mimeType, MimeType);
 READONLY_PROPERTY(NSString *, nativePath, NativePath);
 /**
  Return the data size.
- 
+
  For file, data returns the size in bytes, for image, returns the width x height.
  */
 READONLY_PROPERTY(NSUInteger, size, Size);
 /**
  Return a textual representation of the blob.
- 
+
  The method converts data into a textual representation. Appropriate only for types TiBlobTypeFile and TiBlobTypeData.
  */
 READONLY_PROPERTY(NSString *, text, Text);

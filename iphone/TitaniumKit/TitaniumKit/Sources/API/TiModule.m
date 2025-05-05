@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -52,7 +52,7 @@
     pageContext = nil;
     pageKrollObject = nil;
   }
-  //DO NOT run super shutdown here, as we want to change the behavior that TiProxy does.
+  // DO NOT run super shutdown here, as we want to change the behavior that TiProxy does.
 }
 
 - (void)setPageContext:(id<TiEvaluator>)evaluator
@@ -99,7 +99,7 @@
 
 - (void)registerForNotifications
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
@@ -112,7 +112,7 @@
 {
   if (classNameLookup == NULL) {
     classNameLookup = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, NULL);
-    //We do not retain the Class, but simply assign them.
+    // We do not retain the Class, but simply assign them.
   }
   TiThreadPerformOnMainThread(
       ^{

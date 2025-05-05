@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
@@ -170,7 +171,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 		final SelectionTracker.Builder trackerBuilder = new SelectionTracker.Builder("table_view_selection",
 			this.recyclerView,
-			new ItemKeyProvider(1)
+			new ItemKeyProvider(ItemKeyProvider.SCOPE_CACHED)
 			{
 				@Nullable
 				@Override
@@ -220,8 +221,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 							@Override
 							public boolean inSelectionHotspot(@NonNull MotionEvent e)
 							{
-								if (holder.getProxy() instanceof TableViewRowProxy) {
-									final TableViewRowProxy row = (TableViewRowProxy) holder.getProxy();
+								if (holder.getProxy() != null) {
+									final TableViewRowProxy row = holder.getProxy();
 
 									// Prevent selection of placeholders.
 									return !row.isPlaceholder();
@@ -341,8 +342,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		if (firstVisibleView != null) {
 			final TableViewHolder firstVisibleHolder =
 				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
-			final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
-			final int firstVisibleIndex = firstVisibleProxy.getIndexInSection();
+			final TableViewRowProxy firstVisibleProxy = firstVisibleHolder.getProxy();
+			int firstVisibleIndex = -1;
+			if (firstVisibleProxy != null) {
+				firstVisibleIndex = firstVisibleProxy.getIndexInSection();
+			}
 			payload.put(TiC.PROPERTY_FIRST_VISIBLE_ITEM, firstVisibleIndex);
 		}
 
@@ -530,7 +534,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
 			// Obtain first visible table row proxy.
-			return (TableViewRowProxy) firstVisibleHolder.getProxy();
+			return firstVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -552,7 +556,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				(TableViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible table row proxy.
-			return (TableViewRowProxy) lastVisibleHolder.getProxy();
+			return lastVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -668,9 +672,11 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 					// Maintain true row index.
 					row.index = index++;
+					boolean alwaysInclude = row.getProperties()
+						.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 
 					// Handle search query.
-					if (query != null) {
+					if (query != null && !alwaysInclude) {
 						String attribute = row.getProperties().optString(filterAttribute, null);
 
 						if (attribute != null) {
@@ -745,8 +751,9 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			}
 		}
 
+		Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
 		// Notify adapter of changes on UI thread.
-		this.adapter.update(this.rows, force);
+		this.adapter.update(rows, force);
 
 		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
@@ -787,6 +794,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 						}
 					}
 				}
+				recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 			}
 		});
 	}

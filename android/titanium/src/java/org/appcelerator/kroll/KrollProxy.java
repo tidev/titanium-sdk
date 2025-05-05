@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -513,7 +513,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			Object oldValue = properties.get(name);
 			Object value = options.get(name);
 
-			// dont just fire the change event, make sure we set the property back on the KrollObject
+			// don't just fire the change event, make sure we set the property back on the KrollObject
 			// since the property change may not be driven from JS (KrollObject->Java proxy)
 			setProperty(name, value);
 
@@ -1074,7 +1074,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		Object newValue = value;
 
 		if (isLocaleProperty(name)) {
-			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+			Log.d(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
 			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;
@@ -1253,7 +1253,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				}
 			}
 		} catch (Throwable t) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			TiApplication.handleInternalException(t);
 		}
 
 		return false;

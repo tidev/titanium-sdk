@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -231,7 +231,7 @@ public class TiResponseCache extends ResponseCache
 	 * @param uri The URI to fetch the endpoint of. Can be null.
 	 * @return
 	 * If the given URI is cached and references a redirect response, then the returned URI will
-	 * be the redirect's "location" URI.
+	 * be the redirects "location" URI.
 	 * <p>
 	 * If the given URI does not reference a redirect, then the given URI is returned.
 	 * <p>

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2017 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -64,7 +64,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	{
 		super();
 
-		// TODO - we shouldnt need this as this proxy is created only from the runtime - double check
+		// TODO - we shouldn't need this as this proxy is created only from the runtime - double check
 		// TODO this needs to happen post-set
 		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 

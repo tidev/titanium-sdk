@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2021 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -443,12 +443,9 @@ public class TiUIScrollableView extends TiUIView
 	{
 		// Do not allow given size to be less than min. (iOS min size is 3.)
 		if (value < ScrollableViewProxy.MIN_CACHE_SIZE) {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("ScrollableView 'cacheSize' cannot be set less than ");
-			stringBuilder.append(ScrollableViewProxy.MIN_CACHE_SIZE);
-			stringBuilder.append(". Given value: ");
-			stringBuilder.append(value);
-			Log.w(TAG, stringBuilder.toString());
+			String stringBuilder = "ScrollableView 'cacheSize' cannot be set less than "
+				+ ScrollableViewProxy.MIN_CACHE_SIZE + ". Given value: " + value;
+			Log.w(TAG, stringBuilder);
 			value = ScrollableViewProxy.MIN_CACHE_SIZE;
 		}
 

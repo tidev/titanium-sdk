@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -164,7 +164,7 @@
   return nil;
 }
 
-//copy of most recent app context sent to watch
+// copy of most recent app context sent to watch
 - (NSDictionary *)recentApplicationContext
 {
   if ([WCSession isSupported]) {
@@ -210,7 +210,7 @@
 #endif
       }];
 }
-//sent to watch so that it can update its state when it wakes
+// sent to watch so that it can update its state when it wakes
 - (void)updateApplicationContext:(id)value
 {
   if (![WCSession isSupported]) {
@@ -230,7 +230,7 @@
   }
 }
 
-//sent in background
+// sent in background
 - (void)transferUserInfo:(id)value
 {
   if (![WCSession isSupported]) {
@@ -243,10 +243,10 @@
   }
   ENSURE_SINGLE_ARG(value, NSDictionary)
 
-      [[self watchSession] transferUserInfo:value];
+  [[self watchSession] transferUserInfo:value];
 }
 
-//sent in background
+// sent in background
 - (void)transferFile:(id)value
 {
   if (![WCSession isSupported]) {
@@ -280,7 +280,7 @@
   }
   ENSURE_SINGLE_ARG(value, NSDictionary)
 
-      [[self watchSession] transferCurrentComplicationUserInfo:value];
+  [[self watchSession] transferCurrentComplicationUserInfo:value];
 }
 
 - (void)cancelAllUserInfoTransfers:(id)value
@@ -330,7 +330,7 @@
     [self fireEvent:@"receivemessage" withObject:@{ @"message" : message }];
   }
 }
-//these are context updates received right after [watchSession activateSession]
+// these are context updates received right after [watchSession activateSession]
 - (void)session:(nonnull WCSession *)session didReceiveApplicationContext:(nonnull NSDictionary<NSString *, id> *)applicationContext
 {
   if ([self _hasListeners:@"receiveapplicationcontext"]) {

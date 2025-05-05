@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -118,12 +118,8 @@
   [[self searchBar] setPlaceholder:[TiUtils stringValue:value]];
 
   if ([[self proxy] valueForUndefinedKey:@"hintTextColor"]) {
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      // Need to call a bit later to get searchTextField loaded
-      [self performSelector:@selector(setHintTextColor_:) withObject:[[self proxy] valueForUndefinedKey:@"hintTextColor"] afterDelay:.01];
-    } else {
-      [self setHintTextColor_:[[self proxy] valueForUndefinedKey:@"hintTextColor"]];
-    }
+    // Need to call a bit later to get searchTextField loaded
+    [self performSelector:@selector(setHintTextColor_:) withObject:[[self proxy] valueForUndefinedKey:@"hintTextColor"] afterDelay:.01];
   }
 }
 
@@ -132,30 +128,13 @@
   id hintText = [self.proxy valueForUndefinedKey:@"hintText"] ?: @"";
 
   NSAttributedString *placeholder = [[NSAttributedString alloc] initWithString:[TiUtils stringValue:hintText] attributes:@{ NSForegroundColorAttributeName : [[TiUtils colorValue:value] _color] }];
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    self.searchBar.searchTextField.attributedPlaceholder = placeholder;
-  } else {
-    [UITextField appearanceWhenContainedInInstancesOfClasses:@[ [UISearchBar class] ]].attributedPlaceholder = placeholder;
-  }
+  self.searchBar.searchTextField.attributedPlaceholder = placeholder;
   RELEASE_TO_NIL(placeholder);
 }
 
 - (void)setColor_:(id)value
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    self.searchBar.searchTextField.textColor = [[TiUtils colorValue:value] _color];
-  } else {
-    // TIMOB-10368
-    // Remove this hack again once iOS exposes this as a public API
-    UIView *searchContainerView = self.searchBar.subviews.firstObject;
-
-    [searchContainerView.subviews enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-      if ([obj isKindOfClass:[UITextField class]]) {
-        ((UITextField *)obj).textColor = [[TiUtils colorValue:value] _color];
-        *stop = YES;
-      }
-    }];
-  }
+  self.searchBar.searchTextField.textColor = [[TiUtils colorValue:value] _color];
 }
 
 - (void)setFieldBackgroundImage_:(id)arg
@@ -255,7 +234,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"focus"]) {
     [self.proxy fireEvent:@"focus" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
   }
@@ -271,7 +250,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"blur"]) {
     [self.proxy fireEvent:@"blur" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"] propagate:NO];
   }
@@ -287,7 +266,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"change"]) {
     [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
   }
@@ -303,7 +282,7 @@
   NSString *text = [searchBar text];
   [self.proxy replaceValue:text forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"return"]) {
     [self.proxy fireEvent:@"return" withObject:[NSDictionary dictionaryWithObject:text forKey:@"value"]];
   }

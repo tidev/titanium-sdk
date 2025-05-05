@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -12,7 +12,7 @@
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
 
-//#define DEBUG_IMAGE_CACHE
+// #define DEBUG_IMAGE_CACHE
 
 #ifdef DEBUG_IMAGE_CACHE
 #import <mach/mach.h>
@@ -159,7 +159,7 @@
     return recentlyResizedImage;
   }
 
-  //TODO: Tweak quality depending on how large the result will be.
+  // TODO: Tweak quality depending on how large the result will be.
   CGInterpolationQuality quality = kCGInterpolationDefault;
 
   [self setRecentlyResizedImage:[UIImageResize
@@ -232,6 +232,10 @@
 
 + (NSString *)cachePathForURL:(NSURL *)url
 {
+  if (url == nil) {
+    return nil;
+  }
+
   if ([url isFileURL]) {
     return [url path];
   }
@@ -315,7 +319,7 @@ DEFINE_EXCEPTIONS
 - (id)init
 {
   if (self = [super init]) {
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
@@ -327,7 +331,7 @@ DEFINE_EXCEPTIONS
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidReceiveMemoryWarningNotification
                                                 object:nil];
@@ -436,7 +440,7 @@ DEFINE_EXCEPTIONS
       NSDate *currentTimeStamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:result.localPath error:&error] objectForKey:NSFileModificationDate];
 
       if (![currentTimeStamp isEqualToDate:result.lastModified]) {
-        //We should remove the cached image as the local file backing cached image has changed.
+        // We should remove the cached image as the local file backing cached image has changed.
         [self purge:url];
         result = nil;
       }
@@ -459,12 +463,12 @@ DEFINE_EXCEPTIONS
       NSString *imageArg = nil;
       if (range.location != NSNotFound) {
         if ([TiUtils isMacOS]) {
-          imageArg = [path substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+          imageArg = [path substringFromIndex:range.location + 24]; // Contents/Resources/ for mac
         } else {
           imageArg = [path substringFromIndex:range.location + 5];
         }
       }
-      //remove suffixes.
+      // remove suffixes.
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
@@ -645,8 +649,8 @@ DEFINE_EXCEPTIONS
 
 - (void)cancel
 {
-  //NOTE: this should only be called on suspend
-  //to cause the queue to be stopped
+  // NOTE: this should only be called on suspend
+  // to cause the queue to be stopped
   [lock lock];
   if (queue != nil) {
     [queue cancelAllOperations];

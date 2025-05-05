@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,7 @@
 #pragma mark - Internal Use
 - (UIRefreshControl *)control
 {
-  //Must be called on main thread
+  // Must be called on main thread
   if (_refreshControl == nil) {
     _refreshControl = [UIRefreshControl new];
     [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];
@@ -74,6 +74,17 @@
   TiThreadPerformOnMainThread(
       ^{
         [[self control] setTintColor:[[TiUtils colorValue:value] color]];
+      },
+      NO);
+}
+
+- (void)setBackgroundColor:(id)value
+{
+  [self replaceValue:value forKey:@"backgroundColor" notification:NO];
+
+  TiThreadPerformOnMainThread(
+      ^{
+        [[self control] setBackgroundColor:[[TiUtils colorValue:value] color]];
       },
       NO);
 }

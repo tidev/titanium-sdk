@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -108,7 +108,7 @@
 - (CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
   if (autoWidth > 0) {
-    //If height is DIP returned a scaled autowidth to maintain aspect ratio
+    // If height is DIP returned a scaled autowidth to maintain aspect ratio
     if (TiDimensionIsDip(height) && autoHeight > 0) {
       return roundf(autoWidth * height.value / autoHeight);
     }

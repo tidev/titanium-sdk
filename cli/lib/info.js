@@ -1,7 +1,7 @@
 /*
  * info.js: Titanium Mobile General SDK-Level "info" command module.
  *
- * Copyright (c) 2014-2017, Appcelerator, Inc.  All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present  All Rights Reserved.
  * See the LICENSE file for more information.
  */
 

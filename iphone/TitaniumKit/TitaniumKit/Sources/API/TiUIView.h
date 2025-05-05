@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -11,7 +11,7 @@
 #ifdef TI_USE_AUTOLAYOUT
 #import "TiLayoutView.h"
 #endif
-//By declaring a scrollView protocol, TiUITextWidget can access
+// By declaring a scrollView protocol, TiUITextWidget can access
 @class TiUIView;
 
 /**
@@ -82,13 +82,14 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   UITapGestureRecognizer *doubleTapRecognizer;
   UITapGestureRecognizer *twoFingerTapRecognizer;
   UIPinchGestureRecognizer *pinchRecognizer;
+  UIRotationGestureRecognizer *rotationRecognizer;
   UISwipeGestureRecognizer *leftSwipeRecognizer;
   UISwipeGestureRecognizer *rightSwipeRecognizer;
   UISwipeGestureRecognizer *upSwipeRecognizer;
   UISwipeGestureRecognizer *downSwipeRecognizer;
   UILongPressGestureRecognizer *longPressRecognizer;
 
-  //Resizing handling
+  // Resizing handling
   CGSize oldSize;
 
   // Image capping/backgrounds
@@ -105,13 +106,13 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (BOOL)animating;
 
 /**
- Provides access to a proxy object of the view. 
+ Provides access to a proxy object of the view.
  */
 @property (nonatomic, readwrite, assign) TiProxy *proxy;
 
 /**
  Provides access to touch delegate of the view.
- 
+
  Touch delegate is the control that receives all touch events.
  */
 @property (nonatomic, readwrite, assign) UIView *touchDelegate;
@@ -137,6 +138,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property (nonatomic, readonly) UITapGestureRecognizer *doubleTapRecognizer;
 @property (nonatomic, readonly) UITapGestureRecognizer *twoFingerTapRecognizer;
 @property (nonatomic, readonly) UIPinchGestureRecognizer *pinchRecognizer;
+@property (nonatomic, readonly) UIRotationGestureRecognizer *rotationRecognizer;
 @property (nonatomic, readonly) UISwipeGestureRecognizer *leftSwipeRecognizer;
 @property (nonatomic, readonly) UISwipeGestureRecognizer *rightSwipeRecognizer;
 @property (nonatomic, readonly) UILongPressGestureRecognizer *longPressRecognizer;
@@ -242,7 +244,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
 /**
  Returns default enablement for interactions.
- 
+
  Subclasses may override.
  @return _YES_ if the control has interactions enabled by default, _NO_ otherwise.
  */

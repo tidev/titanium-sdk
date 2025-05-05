@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -37,6 +37,10 @@ public class TiBlobLruCache extends LruCache<String, Bitmap>
 	@Override
 	protected int sizeOf(String key, Bitmap bitmap)
 	{
+		if (bitmap.isRecycled()) {
+			return 0;
+		}
+
 		int byteCount = bitmap.getRowBytes() * bitmap.getHeight();
 		return byteCount / 1024;
 	}

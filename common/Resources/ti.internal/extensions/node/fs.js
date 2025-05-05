@@ -1387,7 +1387,7 @@ function pipe(srcStream, destStream, callback) {
 	// it also doesn't play as expected when doing Ti.Stream.pump and Ti.Stream.write async each
 	// it ends up doing all reads first and then all writes
 	// so we have to hack here and do Ti.Stream.pump async, but each time the read callback happens we do a *sync* write inside it
-	// See https://jira.appcelerator.org/browse/TIMOB-27321
+	// See https://jira-archive.titaniumsdk.com/TIMOB-27321
 	pipeViaPump(srcStream, destStream, callback);
 }
 
@@ -1403,7 +1403,7 @@ function pipeViaWriteStream(srcStream, destStream, callback) {
 		}
 
 		// Android will only call this at the end or error, so we can safely assume we're done here.
-		// iOS will call per loop iteration, see https://jira.appcelerator.org/browse/TIMOB-27320
+		// iOS will call per loop iteration, see https://jira-archive.titaniumsdk.com/TIMOB-27320
 		callback();
 	});
 }

@@ -1,15 +1,19 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 package ti.modules.titanium.calendar;
 
+import static ti.modules.titanium.calendar.EventProxy.getEventsUri;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -19,11 +23,17 @@ import org.appcelerator.titanium.TiApplication;
 
 import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.CalendarContract;
 import android.text.format.DateUtils;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
+import android.content.OperationApplicationException;
+import android.os.RemoteException;
 
 @Kroll.proxy(parentModule = CalendarModule.class)
 public class CalendarProxy extends KrollProxy
@@ -189,9 +199,144 @@ public class CalendarProxy extends KrollProxy
 	}
 
 	@Kroll.method
+	public EventProxy[] getEventsById(Object args)
+	{
+		ArrayList<EventProxy> events = new ArrayList<>();
+
+		if (args instanceof Object[] eventIds && eventIds.length > 0) {
+			String query = CalendarUtils.prepareQuerySelection("_id", eventIds.length);
+			String[] queryArgs = CalendarUtils.prepareQueryArguments(eventIds);
+
+			events.addAll(EventProxy.queryEvents(query, queryArgs));
+		}
+
+		return events.toArray(new EventProxy[0]);
+	}
+
+	@Kroll.method
 	public EventProxy createEvent(KrollDict data)
 	{
 		return EventProxy.createEvent(this, data);
+	}
+
+	@Kroll.method
+	public EventProxy[] createEvents(Object data)
+	{
+		// Validate arguments to be an array.
+		if (!(data instanceof Object[] dataList && dataList.length > 0)) {
+			Log.e(TAG, "Argument expected to be an array.");
+			return null;
+		}
+
+		// Check for permissions.
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		if (!hasCalendarPermissions()) {
+			Log.e(TAG, "Calendar permissions are missing.");
+			return null;
+		}
+
+		ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+		ArrayList<EventProxy> eventProxies = new ArrayList<>();
+		Map<Integer, Integer> proxyResultIndexMapping = new HashMap<>();
+
+		for (int i = 0, firstIndex = 0; i < dataList.length; i++) {
+			KrollDict krollDict = new KrollDict((HashMap) dataList[i]);
+
+			EventProxy eventProxy = new EventProxy();
+			ContentValues contentValues = CalendarUtils.createContentValues(this, krollDict, eventProxy);
+
+			// We cannot pass null data to ContentProviderOperation.
+			// Necessary to keep track of non-null items later.
+			if (contentValues == null) {
+				eventProxies.add(null);
+				Log.e(TAG, "Event was not created, no title found for event");
+				continue;
+			}
+
+			ContentProviderOperation.Builder builder = ContentProviderOperation
+				.newInsert(CalendarContract.Events.CONTENT_URI)
+				.withValues(contentValues);
+
+			operations.add(builder.build());
+			eventProxies.add(eventProxy);
+
+			proxyResultIndexMapping.put(i, firstIndex);
+			firstIndex++;
+		}
+
+		try {
+			// Execute the batch operation
+			ContentProviderResult[] results = contentResolver.applyBatch(
+				getEventsUri().getAuthority(),
+				operations
+			);
+
+			// Find non-null proxies and map their IDs
+			for (int proxyIndex : proxyResultIndexMapping.keySet()) {
+				int proxyIndexInResults = proxyResultIndexMapping.get(proxyIndex);
+				Uri eventUri = results[proxyIndexInResults].uri;
+
+				if (eventUri != null) {
+					// Set event id to proxy.
+					eventProxies.get(proxyIndex).id = eventUri.getLastPathSegment();
+				} else {
+					// Event failed to get a proper URI path, should set to null in this case too.
+					eventProxies.set(proxyIndex, null);
+				}
+			}
+
+			return eventProxies.toArray(new EventProxy[0]);
+
+		} catch (RemoteException | OperationApplicationException e) {
+			Log.e(TAG, "Batch insert operation failed: " + e.getMessage());
+			return null;
+		}
+	}
+
+	@Kroll.method
+	public int deleteEvents(Object args)
+	{
+		int deletedCount = 0;
+
+		// Validate arguments to be an array.
+		if (!(args instanceof Object[] eventIds && eventIds.length > 0)) {
+			Log.e(TAG, "Argument expected to be an array.");
+			return deletedCount;
+		}
+
+		// Check for permissions.
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		if (!hasCalendarPermissions()) {
+			Log.e(TAG, "Calendar permissions are missing.");
+			return deletedCount;
+		}
+
+		String query = CalendarUtils.prepareQuerySelection("_id", eventIds.length);
+		String[] queryArgs = CalendarUtils.prepareQueryArguments(eventIds);
+
+		ArrayList<ContentProviderOperation> operations = new ArrayList<>();
+		ContentProviderOperation.Builder builder = ContentProviderOperation
+			.newDelete(CalendarContract.Events.CONTENT_URI)
+				.withSelection(query, queryArgs);
+
+		operations.add(builder.build());
+
+		try {
+			// Execute the batch operation
+			ContentProviderResult[] results = contentResolver.applyBatch(
+				getEventsUri().getAuthority(),
+				operations
+			);
+
+			if (results.length > 0 && results[0].count != null) {
+				deletedCount = results[0].count;
+			}
+
+		} catch (RemoteException | OperationApplicationException e) {
+			Log.e(TAG, "Batch deletion failed: " + e.getMessage());
+		}
+
+		return deletedCount;
 	}
 
 	@Kroll.getProperty

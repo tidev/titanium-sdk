@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -154,11 +154,11 @@ extern NSString *const TI_APPLICATION_GUID;
   BOOL needsScanning;
   do {
     needsScanning = NO;
-    for (entry in l) //The fast iteration is blindly fast when l is nil or count.
+    for (entry in l) // The fast iteration is blindly fast when l is nil or count.
     {
-      if ([listener isEqual:[entry listener]]) //NSNumber does the right thing with this too.
+      if ([listener isEqual:[entry listener]]) // NSNumber does the right thing with this too.
       {
-        [l removeObject:entry]; //It's safe to modify the array as long as you break right after.
+        [l removeObject:entry]; // It's safe to modify the array as long as you break right after.
         needsScanning = [l count] > 0;
         break;
       }
@@ -253,7 +253,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   BOOL yn = [TiUtils boolValue:value];
   [UIDevice currentDevice].proximityMonitoringEnabled = yn;
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   if (yn) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(proximityDetectionChanged:)
@@ -287,7 +287,7 @@ extern NSString *const TI_APPLICATION_GUID;
   }
 }
 
-//To fire the keyboard frame change event.
+// To fire the keyboard frame change event.
 - (void)keyboardFrameChanged:(NSNotification *)notification
 {
   if (![self _hasListeners:@"keyboardframechanged"]) {
@@ -370,7 +370,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (void)startup
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
@@ -379,6 +379,17 @@ extern NSString *const TI_APPLICATION_GUID;
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
 
+#ifdef __IPHONE_16_4
+  // Ensure that the JSContext is debuggable during development
+  if (@available(iOS 16.4, *)) {
+    BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
+
+    if (!isProduction) {
+      JSGlobalContextSetInspectable([[(KrollBridge *)TiApp.app.krollBridge krollContext] context], YES);
+    }
+  }
+#endif
+
   [super startup];
 }
 
@@ -386,7 +397,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   // make sure we force any changes made on shutdown
   [[NSUserDefaults standardUserDefaults] synchronize];
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super shutdown:sender];
 }
@@ -580,9 +591,9 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setForceSplashAsSnapshot:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)
-      [self replaceValue:args
-                  forKey:@"forceSplashAsSnapshot"
-            notification:NO];
+  [self replaceValue:args
+              forKey:@"forceSplashAsSnapshot"
+        notification:NO];
   BOOL flag = [TiUtils boolValue:args def:NO];
   [[TiApp app] setForceSplashAsSnapshot:flag];
 }

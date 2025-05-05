@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -100,7 +100,7 @@ public class TiFile extends TiBaseFile
 	/**
 	 * Attempts to create a directory named by the trailing filename of this file.
 	 * @param recursive  whether to recursively create any missing parent directories in the path.
-	 * @return  true if directory was sucessfully created, false otherwise.
+	 * @return  true if directory was successfully created, false otherwise.
 	 */
 	@Override
 	public boolean createDirectory(boolean recursive)

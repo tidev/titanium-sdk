@@ -1,11 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -60,13 +61,26 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		setEnabled();
+	}
 
-		// Show/hide the tab bar.
-		this.mTabLayout.setVisibility(disable ? View.GONE : View.VISIBLE);
-		this.mTabLayout.requestLayout();
+	/**
+	 * Enable or disable tabs click event.
+	 */
+	@Override
+	public void setEnabled()
+	{
+		LinearLayout tabStrip = ((LinearLayout) mTabLayout.getChildAt(0));
+		if (tabStrip == null) {
+			return;
+		}
 
-		// Update top inset. (Will remove top inset if tab bar is "gone".)
-		this.insetsProvider.setTopBasedOn(this.mTabLayout);
+		for (int i = 0; i < mTabLayout.getTabCount(); i++) {
+			View tab = tabStrip.getChildAt(i);
+			if (tab != null) {
+				tab.setOnTouchListener((v, event) -> tabsDisabled);
+			}
+		}
 	}
 
 	@Override
@@ -196,6 +210,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		this.mTabLayout.clearOnTabSelectedListeners();
 		this.mTabLayout.getTabAt(position).select();
 		this.mTabLayout.addOnTabSelectedListener(this);
+		setEnabled();
 	}
 
 	@Override
@@ -232,6 +247,12 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 
 		Drawable backgroundDrawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_selected);
 		this.mTabLayout.setBackground(backgroundDrawable);
+	}
+
+	@Override
+	public void updateActiveIndicatorColor(int color)
+	{
+
 	}
 
 	@Override
@@ -329,9 +350,20 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)) {
+			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_BACKGROUND_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
+			BadgeDrawable badgeDrawable = this.mTabLayout.getTabAt(index).getOrCreateBadge();
+			badgeDrawable.setBadgeTextColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_TEXT_COLOR), tabProxy.getActivity()));
 		}
 	}
 
@@ -350,6 +382,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 		TabLayout.Tab tab = this.mTabLayout.getTabAt(index);
 		tab.setIcon(TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON)));
 		scaleIconToFit(tab);
+		updateIconTint();
 	}
 
 	@Override
@@ -400,6 +433,22 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	@Override
 	public void onTabReselected(TabLayout.Tab tab)
 	{
+		if (tab != null) {
+			int index = tab.getPosition();
+			if ((index >= 0) && (index < this.tabs.size())) {
+				TiViewProxy tabProxy = this.tabs.get(index).getProxy();
+				if (tabProxy != null && tabProxy.hasListeners(TiC.EVENT_SELECTED)) {
+					KrollDict data = new KrollDict();
+					data.put("index", index);
+					tabProxy.fireEvent(TiC.EVENT_SELECTED, data, false);
+				}
+			}
+		}
+	}
+
+	public void setTabMode(int value)
+	{
+		this.mTabLayout.setTabMode(value);
 	}
 
 	private LinearLayout getTabLinearLayoutForIndex(int index)
@@ -427,7 +476,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 	{
 		super.selectTab(tabIndex);
 
-		// Update the selected tab's colors. (TabLayour resets colors when a selection is made.)
+		// Update the selected tab's colors. (TabLayout resets colors when a selection is made.)
 		updateIconTint();
 		updateTabBackgroundDrawable(tabIndex);
 
@@ -457,6 +506,28 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 				((ImageView) childView).setScaleType(ImageView.ScaleType.FIT_CENTER);
 				break;
 			}
+		}
+	}
+
+	public void showHideTabBar(boolean visible)
+	{
+		super.setTabGroupVisibilityWithAnimation(mTabLayout, visible);
+	}
+
+	public void setTabGroupVisibility(boolean visible)
+	{
+		super.setTabGroupVisibility(mTabLayout, visible);
+	}
+
+	@Override
+	public void onViewSizeAvailable(Runnable runnable)
+	{
+		if (mTabLayout.getHeight() > 0) {
+			// Height is already available, run immediately.
+			runnable.run();
+		} else {
+			// Height not available, post it to run after a layout pass.
+			mTabLayout.post(runnable);
 		}
 	}
 }

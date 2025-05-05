@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -422,9 +422,9 @@ static NSArray *touchEventsArray;
 }
 
 - (void)setAnimation:(id)arg
-{ //We don't actually store the animation this way.
-  //Because the setter doesn't have the argument array, we will be passing a nonarray to animate:
-  //In this RARE case, this is okay, because TiAnimation animationFromArg handles with or without array.
+{ // We don't actually store the animation this way.
+  // Because the setter doesn't have the argument array, we will be passing a nonarray to animate:
+  // In this RARE case, this is okay, because TiAnimation animationFromArg handles with or without array.
   [self animate:arg];
 }
 
@@ -485,7 +485,7 @@ LAYOUTPROPERTIES_SETTER(setWidth, width, TiDimensionFromObject, [self willChange
 LAYOUTPROPERTIES_SETTER(setHeight, height, TiDimensionFromObject, [self willChangeSize])
 
 // See below for how we handle setLayout
-//LAYOUTPROPERTIES_SETTER(setLayout,layoutStyle,TiLayoutRuleFromObject,[self willChangeLayout])
+// LAYOUTPROPERTIES_SETTER(setLayout,layoutStyle,TiLayoutRuleFromObject,[self willChangeLayout])
 
 LAYOUTPROPERTIES_SETTER(setMinWidth, minimumWidth, TiFixedValueRuleFromObject, [self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMinHeight, minimumHeight, TiFixedValueRuleFromObject, [self willChangeSize])
@@ -496,7 +496,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
 {
   if ([key isEqualToString:[@"lay" stringByAppendingString:@"out"]]) {
-    //CAN NOT USE THE MACRO
+    // CAN NOT USE THE MACRO
     if (ENFORCE_BATCH_UPDATE) {
       if (updateStarted) {
         [self setTempProperty:value forKey:key];
@@ -659,8 +659,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         }
       },
       YES);
-  //TODO: Should this be a TiPoint? If so, the accessor fetcher might try to
-  //hold onto the point, which is undesired.
+  // TODO: Should this be a TiPoint? If so, the accessor fetcher might try to
+  // hold onto the point, which is undesired.
   return [NSDictionary dictionaryWithObjectsAndKeys:NUMFLOAT(result.x), @"x", NUMFLOAT(result.y), @"y", nil];
 }
 
@@ -668,6 +668,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   TiGradient *newGradient = [TiGradient gradientFromObject:arg proxy:self];
   [self replaceValue:newGradient forKey:@"backgroundGradient" notification:YES];
+}
+
+- (void)setRotation:(id)arg
+{
+  float val = ([TiUtils intValue:arg] * M_PI) / 180.0;
+  [self view].transform = CGAffineTransformMakeRotation(val);
 }
 
 - (TiBlob *)toImage:(id)args
@@ -802,7 +808,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   }
   hidden = newHidden;
 
-  //TODO: If we have an animated show, hide, or setVisible, here's the spot for it.
+  // TODO: If we have an animated show, hide, or setVisible, here's the spot for it.
 
   if (parentVisible) {
     if (hidden) {
@@ -817,7 +823,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (CGFloat)autoWidthForSize:(CGSize)size
 {
   CGFloat suggestedWidth = size.width;
-  //This is the content width, which is implemented by widgets
+  // This is the content width, which is implemented by widgets
   CGFloat contentWidth = -1.0;
   if ([self respondsToSelector:@selector(contentWidthForWidth:)]) {
     contentWidth = [self contentWidthForWidth:suggestedWidth];
@@ -866,7 +872,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (CGFloat)autoHeightForSize:(CGSize)size
 {
   CGFloat width = size.width;
-  //This is the content width, which is implemented by widgets
+  // This is the content width, which is implemented by widgets
   CGFloat contentHeight = -1.0;
   if ([self respondsToSelector:@selector(contentHeightForWidth:)]) {
     contentHeight = [self contentHeightForWidth:width];
@@ -900,7 +906,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       result = thisHeight;
     }
   }
-  //result += currentRowHeight;
+  // result += currentRowHeight;
 
   if (result < contentHeight) {
     result = contentHeight;
@@ -962,7 +968,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
   BOOL recheckForFill = NO;
 
-  //Ensure that autoHeightForSize is called with the lowest limiting bound
+  // Ensure that autoHeightForSize is called with the lowest limiting bound
   CGFloat desiredWidth = MIN([self minimumParentWidthForSize:size], size.width);
 
   CGFloat offset = TiDimensionCalculateValue(layoutProperties.left, size.width)
@@ -1012,7 +1018,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   TiUIView *barButtonView = [self view];
 #ifndef TI_USE_AUTOLAYOUT
-  //TODO: This logic should have a good place in case that refreshLayout is used.
+  // TODO: This logic should have a good place in case that refreshLayout is used.
   LayoutConstraint barButtonLayout = layoutProperties;
   if (TiDimensionIsUndefined(barButtonLayout.width)) {
     barButtonLayout.width = TiDimensionAutoSize;
@@ -1035,7 +1041,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [TiUtils setView:barButtonView positionRect:barBounds];
   [barButtonView setAutoresizingMask:UIViewAutoresizingNone];
 
-  //Ensure all the child views are laid out as well
+  // Ensure all the child views are laid out as well
   [self windowWillOpen];
   [self setParentVisible:YES];
   [self layoutChildren:NO];
@@ -1098,7 +1104,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 #ifndef TI_USE_AUTOLAYOUT
 
     // If parent has a non absolute layout signal the parent that
-    //contents will change else just lay ourselves out
+    // contents will change else just lay ourselves out
     if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
       [parent contentsWillChange];
     } else {
@@ -1119,7 +1125,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return view;
 }
 
-//CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
+// CAUTION: TO BE USED ONLY WITH TABLEVIEW MAGIC
 - (void)setView:(TiUIView *)newView
 {
   if (view != newView) {
@@ -1145,7 +1151,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 #pragma mark Methods subclasses should override for behavior changes
 - (BOOL)optimizeSubviewInsertion
 {
-  //Return YES for any view that implements a wrapperView that is a TiUIView (Button and ScrollView currently) and a basic view
+  // Return YES for any view that implements a wrapperView that is a TiUIView (Button and ScrollView currently) and a basic view
   return ([view isMemberOfClass:[TiUIView class]]);
 }
 
@@ -1180,7 +1186,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)windowWillOpen
 {
-  //TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
+  // TODO: This should be properly handled and moved, but for now, let's force it (Redundantly, I know.)
   if (parent != nil) {
     [self parentWillShow];
   }
@@ -1219,7 +1225,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   pthread_rwlock_unlock(&childrenLock);
 
 #ifndef TI_USE_AUTOLAYOUT
-  //TIMOB-17923 - Do a full layout pass (set proper sandbox) if non absolute layout
+  // TIMOB-17923 - Do a full layout pass (set proper sandbox) if non absolute layout
   if (!absoluteLayout) {
     [self layoutChildren:NO];
   }
@@ -1316,7 +1322,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return view != nil && windowOpened;
 }
 
-//TODO: When swapping about proxies, views are uninitialized, aren't they?
+// TODO: When swapping about proxies, views are uninitialized, aren't they?
 - (BOOL)viewInitialized
 {
   return viewInitialized && (view != nil);
@@ -1360,7 +1366,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return isUsingBarButtonItem;
 }
 
-- (CGRect)appFrame //TODO: Why is this here? It doesn't have anything to do with a specific instance.
+- (CGRect)appFrame // TODO: Why is this here? It doesn't have anything to do with a specific instance.
 {
   CGRect result = [[[[TiApp app] controller] view] bounds];
   return result;
@@ -1490,7 +1496,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   RELEASE_TO_NIL(destroyLock);
   pthread_rwlock_destroy(&childrenLock);
 
-  //Dealing with children is in _destroy, which is called by super dealloc.
+  // Dealing with children is in _destroy, which is called by super dealloc.
   RELEASE_TO_NIL(barButtonItem);
   [super dealloc];
 }
@@ -1571,9 +1577,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   pthread_rwlock_unlock(&childrenLock);
   [super _destroy];
 
-  //Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
-  //As such, we need to have the super happen before we release the view, so that we can insure that the
-  //release that triggers the dealloc happens on the main thread.
+  // Part of super's _destroy is to release the modelDelegate, which in our case is ALSO the view.
+  // As such, we need to have the super happen before we release the view, so that we can insure that the
+  // release that triggers the dealloc happens on the main thread.
 
   if (barButtonItem != nil) {
     if ([NSThread isMainThread]) {
@@ -1604,7 +1610,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)destroy
 {
-  //FIXME- me already have a _destroy, refactor this
+  // FIXME- me already have a _destroy, refactor this
   [self _destroy];
 }
 
@@ -1623,14 +1629,14 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // view if it doesn't yet exist (thus defeating the purpose of
   // this method)
 
-  //NOTE: for now, we're going to have to turn this off until post
-  //1.4 where we can figure out why the drawing is screwed up since
-  //the views aren't reattaching.
+  // NOTE: for now, we're going to have to turn this off until post
+  // 1.4 where we can figure out why the drawing is screwed up since
+  // the views aren't reattaching.
   /*
-	if (view!=nil && [view retainCount]==1)
-	{
-		[self detachView];
-	}*/
+  if (view!=nil && [view retainCount]==1)
+  {
+      [self detachView];
+  }*/
   [super didReceiveMemoryWarning:notification];
 }
 
@@ -1638,7 +1644,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   [self forgetProxy:animation];
   [[self view] animationCompleted];
-  //Let us add ourselves to the queue to cleanup layout
+  // Let us add ourselves to the queue to cleanup layout
   OSAtomicTestAndClearBarrier(TiRefreshViewEnqueued, &dirtyflags);
   [self willEnqueue];
 }
@@ -1698,15 +1704,15 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return [touchEventsArray containsObject:event];
 }
 
-//TODO: Remove once we've properly deprecated.
+// TODO: Remove once we've properly deprecated.
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
 {
   // Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
   // Because of the handling below, we can safely set the view to 'nil' in this case.
   TiUIView *proxyView = [self viewAttached] ? view : nil;
-  //TODO: We have to do view instead of [self view] because of a freaky race condition that can
-  //happen in the background (See bug 2809). This assumes that view == [self view], which may
-  //not always be the case in the future. Then again, we shouldn't be dealing with view in the BG...
+  // TODO: We have to do view instead of [self view] because of a freaky race condition that can
+  // happen in the background (See bug 2809). This assumes that view == [self view], which may
+  // not always be the case in the future. Then again, we shouldn't be dealing with view in the BG...
 
   // Have to handle the situation in which the proxy's view might be nil... like, for example,
   // with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
@@ -1722,9 +1728,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   // Note that some events (like movie 'complete') are fired after the view is removed/dealloc'd.
   // Because of the handling below, we can safely set the view to 'nil' in this case.
   TiUIView *proxyView = [self viewAttached] ? view : nil;
-  //TODO: We have to do view instead of [self view] because of a freaky race condition that can
-  //happen in the background (See bug 2809). This assumes that view == [self view], which may
-  //not always be the case in the future. Then again, we shouldn't be dealing with view in the BG...
+  // TODO: We have to do view instead of [self view] because of a freaky race condition that can
+  // happen in the background (See bug 2809). This assumes that view == [self view], which may
+  // not always be the case in the future. Then again, we shouldn't be dealing with view in the BG...
 
   // Have to handle the situation in which the proxy's view might be nil... like, for example,
   // with table rows.  Automagically assume any nil view we're firing an event for is A-OK.
@@ -1760,7 +1766,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     }
   }
 
-  //TIMOB-15991 Update children as well
+  // TIMOB-15991 Update children as well
   NSArray *childrenArray = [[self children] retain];
   for (id child in childrenArray) {
     if ([child respondsToSelector:@selector(parentListenersChanged)]) {
@@ -1781,7 +1787,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     }
   }
 
-  //TIMOB-15991 Update children as well
+  // TIMOB-15991 Update children as well
   NSArray *childrenArray = [[self children] retain];
   for (id child in childrenArray) {
     if ([child respondsToSelector:@selector(parentListenersChanged)]) {
@@ -1845,7 +1851,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 #ifndef TI_USE_AUTOLAYOUT
   SET_AND_PERFORM(TiRefreshViewPosition, return );
 
-  if (TiDimensionIsUndefined(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.height)) { //The only time size can be changed by the margins is if the margins define the size.
+  if (TiDimensionIsUndefined(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.height)) { // The only time size can be changed by the margins is if the margins define the size.
     [self willChangeSize];
   }
   [self willEnqueueIfVisible];
@@ -1857,14 +1863,14 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
 #ifndef TI_USE_AUTOLAYOUT
   SET_AND_PERFORM(TiRefreshViewZIndex, );
-  //Nothing cascades from here.
+  // Nothing cascades from here.
   [self willEnqueueIfVisible];
 #endif
 }
 
 - (void)willShow;
 {
-  if (dirtyflags) { //If we have any need for changes, let's enroll ourselves.
+  if (dirtyflags) { // If we have any need for changes, let's enroll ourselves.
     [self willEnqueue];
   }
 
@@ -2022,8 +2028,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
   if (isAutoSize) {
     [self willChangeSize];
-  } else if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) { //Since changing size already does this, we only need to check
-    //Layout if the changeSize didn't
+  } else if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) { // Since changing size already does this, we only need to check
+    // Layout if the changeSize didn't
     [self willChangeLayout];
   }
 #endif
@@ -2056,11 +2062,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)parentWillShow
 {
   VerboseLog(@"[INFO] Parent Will Show for %@", self);
-  if (parentVisible) { //Nothing to do here, we're already visible here.
+  if (parentVisible) { // Nothing to do here, we're already visible here.
     return;
   }
   parentVisible = YES;
-  if (!hidden) { //We should propagate this new status! Note this does not change the visible property.
+  if (!hidden) { // We should propagate this new status! Note this does not change the visible property.
     [self willShow];
   }
 }
@@ -2068,11 +2074,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)parentWillHide
 {
   VerboseLog(@"[INFO] Parent Will Hide for %@", self);
-  if (!parentVisible) { //Nothing to do here, we're already visible here.
+  if (!parentVisible) { // Nothing to do here, we're already visible here.
     return;
   }
   parentVisible = NO;
-  if (!hidden) { //We should propagate this new status! Note this does not change the visible property.
+  if (!hidden) { // We should propagate this new status! Note this does not change the visible property.
     [self willHide];
   }
 }
@@ -2085,7 +2091,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 #ifndef TI_USE_AUTOLAYOUT
   UIView *ourSuperview = [[self view] superview];
   if (ourSuperview == nil) {
-    //TODO: Should we even be relaying out? I guess so.
+    // TODO: Should we even be relaying out? I guess so.
     sandboxBounds = CGRectZero;
   } else {
     sandboxBounds = [ourSuperview bounds];
@@ -2113,12 +2119,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   }
 
   BOOL changedFrame = NO;
-  //BUG BARRIER: Code in this block is legacy code that should be factored out.
+  // BUG BARRIER: Code in this block is legacy code that should be factored out.
   if (windowOpened && [self viewAttached]) {
     CGRect oldFrame = [[self view] frame];
     BOOL relayout = ![self suppressesRelayout];
     if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
-      //Do not mess up the sandbox in vertical/horizontal layouts
+      // Do not mess up the sandbox in vertical/horizontal layouts
       relayout = NO;
     }
     if (relayout) {
@@ -2132,7 +2138,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     }
   }
 
-  //END BUG BARRIER
+  // END BUG BARRIER
 
   if (OSAtomicTestAndClearBarrier(TiRefreshViewSize, &dirtyflags)) {
     [self refreshSize];
@@ -2153,18 +2159,18 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     [transferView setCenter:positionCache];
   }
 
-  //We should only recurse if we're a non-absolute layout. Otherwise, the views can take care of themselves.
+  // We should only recurse if we're a non-absolute layout. Otherwise, the views can take care of themselves.
   if (OSAtomicTestAndClearBarrier(TiRefreshViewChildrenPosition, &dirtyflags) && (transferView == nil))
-  //If transferView is non-nil, this will be managed by the table row.
+  // If transferView is non-nil, this will be managed by the table row.
   {
   }
 
   if (transferView != nil) {
-    //TODO: Better handoff of view
+    // TODO: Better handoff of view
     [self setView:transferView];
   }
 
-  //By now, we MUST have our view set to transferView.
+  // By now, we MUST have our view set to transferView.
   if (changedFrame || (transferView != nil)) {
     [view setAutoresizingMask:autoresizeCache];
   }
@@ -2366,7 +2372,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     VerboseLog(@"[INFO] Reposition is exiting early in %@.", self);
     return;
   }
-  if ([NSThread isMainThread]) { //NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
+  if ([NSThread isMainThread]) { // NOTE: This will cause problems with ScrollableView, or is a new wrapper needed?
     [self willChangeSize];
     [self willChangePosition];
 
@@ -2393,7 +2399,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   int i, count = (int)[childArray count];
   int maxHeight = 0;
 
-  //First measure the sandbox bounds
+  // First measure the sandbox bounds
   for (id child in childArray) {
     TiRect *childRect = [[TiRect alloc] init];
     CGRect childBounds = CGRectZero;
@@ -2416,8 +2422,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     [childRect release];
   }
 
-  //If it is a horizontal layout ensure that all the children in a row have the
-  //same height for the sandbox
+  // If it is a horizontal layout ensure that all the children in a row have the
+  // same height for the sandbox
   if (horizontalNoWrap) {
     for (i = 0; i < count; i++) {
       [(TiRect *)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
@@ -2428,13 +2434,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     for (i = 0; i < count; i++) {
       CGRect childSandbox = (CGRect)[(TiRect *)[measuredBounds objectAtIndex:i] rect];
       if (startIndex == -1) {
-        //FIRST ELEMENT
+        // FIRST ELEMENT
         startIndex = i;
         maxHeight = childSandbox.size.height;
         currentTop = childSandbox.origin.y;
       } else {
         if (childSandbox.origin.y != currentTop) {
-          //MOVED TO NEXT ROW
+          // MOVED TO NEXT ROW
           endIndex = i;
           for (int j = startIndex; j < endIndex; j++) {
             [(TiRect *)[measuredBounds objectAtIndex:j] setHeight:[NSNumber numberWithInt:maxHeight]];
@@ -2444,13 +2450,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
           maxHeight = childSandbox.size.height;
           currentTop = childSandbox.origin.y;
         } else if (childSandbox.size.height > maxHeight) {
-          //SAME ROW HEIGHT CHANGED
+          // SAME ROW HEIGHT CHANGED
           maxHeight = childSandbox.size.height;
         }
       }
     }
     if (endIndex == -1) {
-      //LAST ROW
+      // LAST ROW
       for (i = startIndex; i < count; i++) {
         [(TiRect *)[measuredBounds objectAtIndex:i] setHeight:[NSNumber numberWithInt:maxHeight]];
       }
@@ -2473,13 +2479,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       boundingValue = 0;
     }
 
-    //Ensure that autoHeightForSize is called with the lowest limiting bound
+    // Ensure that autoHeightForSize is called with the lowest limiting bound
     CGFloat desiredWidth = MIN([child minimumParentWidthForSize:bounds.size], bounds.size.width);
 
-    //TOP + BOTTOM
+    // TOP + BOTTOM
     CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
         + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
-    //LEFT + RIGHT
+    // LEFT + RIGHT
     CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
         + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
 
@@ -2489,7 +2495,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       bounds.size.height = TiDimensionCalculateValue(constraint, bounds.size.height) + offsetV;
       verticalLayoutBoundary += bounds.size.height;
     } else if (TiDimensionIsAutoFill(constraint)) {
-      //Fill up the remaining
+      // Fill up the remaining
       bounds.size.height = boundingValue;
       verticalLayoutBoundary += bounds.size.height;
     } else if (TiDimensionIsAutoSize(constraint)) {
@@ -2497,11 +2503,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       verticalLayoutBoundary += bounds.size.height;
     } else if (TiDimensionIsAuto(constraint)) {
       if (followsFillBehavior) {
-        //FILL behavior
+        // FILL behavior
         bounds.size.height = boundingValue + offsetV;
         verticalLayoutBoundary += bounds.size.height;
       } else {
-        //SIZE behavior
+        // SIZE behavior
         bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offsetH, boundingValue)] + offsetV;
         verticalLayoutBoundary += bounds.size.height;
       }
@@ -2518,11 +2524,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         bounds.size.height = height + offsetV;
         verticalLayoutBoundary += bounds.size.height;
       } else if (followsFillBehavior) {
-        //FILL behavior
+        // FILL behavior
         bounds.size.height = boundingValue + offsetV;
         verticalLayoutBoundary += bounds.size.height;
       } else {
-        //SIZE behavior
+        // SIZE behavior
         bounds.size.height = [child autoHeightForSize:CGSizeMake(desiredWidth - offsetH, boundingValue)] + offsetV;
         verticalLayoutBoundary += bounds.size.height;
       }
@@ -2533,10 +2539,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     CGFloat boundingWidth = bounds.size.width - horizontalLayoutBoundary;
     CGFloat boundingHeight = bounds.size.height - verticalLayoutBoundary;
 
-    //LEFT + RIGHT
+    // LEFT + RIGHT
     CGFloat offsetH = TiDimensionCalculateValue([child layoutProperties]->left, bounds.size.width)
         + TiDimensionCalculateValue([child layoutProperties]->right, bounds.size.width);
-    //TOP + BOTTOM
+    // TOP + BOTTOM
     CGFloat offsetV = TiDimensionCalculateValue([child layoutProperties]->top, bounds.size.height)
         + TiDimensionCalculateValue([child layoutProperties]->bottom, bounds.size.height);
 
@@ -2565,7 +2571,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH, boundingHeight - offsetV)] + offsetH;
       }
     } else {
-      //This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
+      // This block takes care of auto,SIZE and FILL. If it is size ensure followsFillBehavior is set to false
       recalculateWidth = YES;
       desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH, boundingHeight - offsetV)] + offsetH;
       if (TiDimensionIsAutoSize(constraint)) {
@@ -2577,18 +2583,18 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     CGFloat desiredHeight;
     BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
     if (childIsFixedHeight) {
-      //For percent width is irrelevant
+      // For percent width is irrelevant
       desiredHeight = [child minimumParentHeightForSize:CGSizeMake(0, bounds.size.height)];
       bounds.size.height = desiredHeight;
     }
     if (horizontalWrap && (desiredWidth > boundingWidth)) {
       if (horizontalLayoutBoundary == 0.0) {
-        //This is start of row
+        // This is start of row
         bounds.origin.x = horizontalLayoutBoundary;
         bounds.origin.y = verticalLayoutBoundary;
         if (!childIsFixedHeight) {
-          //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
-          //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+          // TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
+          // desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
           if (isPercent) {
             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width, boundingHeight)];
           } else {
@@ -2599,7 +2605,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         verticalLayoutBoundary += bounds.size.height;
         horizontalLayoutRowHeight = 0.0;
       } else {
-        //This is not the start of row. Move to next row
+        // This is not the start of row. Move to next row
         horizontalLayoutBoundary = 0.0;
         verticalLayoutBoundary += horizontalLayoutRowHeight;
         horizontalLayoutRowHeight = 0;
@@ -2612,8 +2618,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         if (!recalculateWidth) {
           if (desiredWidth < boundingWidth) {
             if (!childIsFixedHeight) {
-              //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
-              //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+              // TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
+              // desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
               if (isPercent) {
                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width, boundingHeight)];
               } else {
@@ -2625,7 +2631,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
             bounds.size.width = desiredWidth;
             horizontalLayoutRowHeight = bounds.size.height;
           } else {
-            //Will take up whole row
+            // Will take up whole row
             if (!childIsFixedHeight) {
               if (isPercent) {
                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width, boundingHeight)];
@@ -2637,7 +2643,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
             verticalLayoutBoundary += bounds.size.height;
           }
         } else if (followsFillBehavior) {
-          //Will take up whole row
+          // Will take up whole row
           if (!childIsFixedHeight) {
             desiredHeight = [child minimumParentHeightForSize:CGSizeMake(boundingWidth, boundingHeight)];
             bounds.size.height = desiredHeight;
@@ -2647,8 +2653,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
           desiredWidth = [child autoWidthForSize:CGSizeMake(boundingWidth - offsetH, boundingHeight - offsetV)] + offsetH;
           if (desiredWidth < boundingWidth) {
             if (!childIsFixedHeight) {
-              //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
-              //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+              // TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
+              // desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
               if (isPercent) {
                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width, boundingHeight)];
               } else {
@@ -2660,7 +2666,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
             horizontalLayoutBoundary = bounds.size.width;
             horizontalLayoutRowHeight = bounds.size.height;
           } else {
-            //Will take up whole row
+            // Will take up whole row
             if (!childIsFixedHeight) {
               if (isPercent) {
                 desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width, boundingHeight)];
@@ -2674,10 +2680,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         }
       }
     } else {
-      //If it fits update the horizontal layout row height
+      // If it fits update the horizontal layout row height
       if (!childIsFixedHeight) {
-        //TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
-        //desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
+        // TIMOB-11998. minimumParentHeightForSize:CGSize will limit width anyways. Pass bounding width here
+        // desiredHeight = [child minimumParentHeightForSize:CGSizeMake(desiredWidth,boundingHeight)];
         if (isPercent) {
           desiredHeight = [child minimumParentHeightForSize:CGSizeMake(bounds.size.width, boundingHeight)];
         } else {
@@ -2692,11 +2698,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         horizontalLayoutRowHeight = bounds.size.height;
       }
       if (!recalculateWidth) {
-        //DIP,PERCENT,UNDEFINED WITH ATLEAST 2 PINS one of them being centerX
+        // DIP,PERCENT,UNDEFINED WITH ATLEAST 2 PINS one of them being centerX
         bounds.size.width = desiredWidth;
         horizontalLayoutBoundary += bounds.size.width;
       } else if (followsFillBehavior) {
-        //FILL that fits in left over space. Move to next row
+        // FILL that fits in left over space. Move to next row
         bounds.size.width = boundingWidth;
         if (horizontalWrap) {
           horizontalLayoutBoundary = 0.0;
@@ -2706,7 +2712,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
           horizontalLayoutBoundary += bounds.size.width;
         }
       } else {
-        //SIZE behavior
+        // SIZE behavior
         bounds.size.width = desiredWidth;
         horizontalLayoutBoundary += bounds.size.width;
       }
@@ -2757,7 +2763,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     OSAtomicTestAndSetBarrier(NEEDS_LAYOUT_CHILDREN, &dirtyflags);
   }
 
-  //TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
+  // TODO: This is really expensive, but what can you do? Laying out the child needs the lock again.
   NSArray *childrenArray = [[self children] retain];
 
   NSUInteger childCount = [childrenArray count];

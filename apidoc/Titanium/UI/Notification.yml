@@ -2,8 +2,12 @@
 name: Titanium.UI.Notification
 summary: A toast notification.
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./toast_android.png) |  |
+
     A toast notification is an unobtrusive, pop-up notification that does not
-    block the UI. Use the <Titanium.UI.createNotification> method or **`<Notification>`** Alloy element 
+    block the UI. Use the <Titanium.UI.createNotification> method or **`<Notification>`** Alloy element
     to create a Toast notification.
 
     On Android, by default, a toast notification appears centered on the bottom half of the screen.
@@ -12,7 +16,7 @@ description: |
 extends: Titanium.Proxy
 since: "0.8"
 platforms: [android]
-examples: 
+examples:
   - title: Simple Toast Notification
     example: |
         The simplest use case is also the most common.
@@ -45,10 +49,10 @@ examples:
         ```
 
 methods:
-- name: show 
+- name: show
   summary: Show the notification.
 properties:
-  - name: message 
+  - name: message
     summary: Notification text to display.
     type: String
   - name: duration
@@ -71,14 +75,14 @@ properties:
     type: Number
     default: 0
   - name: horizontalMargin
-    summary: Horizontal placement of the notification, *as a fraction of the screen width*. 
-    description: Useful values range from -0.5 (far left) to 0.5 (far right). A value 
+    summary: Horizontal placement of the notification, *as a fraction of the screen width*.
+    description: Useful values range from -0.5 (far left) to 0.5 (far right). A value
         of zero indicates default placement.
     type: Number
     default: 0
   - name: verticalMargin
     summary: Vertical placement of the notifcation, *as a fraction of the screen height*.
-    description: Useful values range from -0.5 (top) to 0.5 (bottom). A value 
+    description: Useful values range from -0.5 (top) to 0.5 (bottom). A value
         of zero indicates default placement.
     type: Number
     default: 0

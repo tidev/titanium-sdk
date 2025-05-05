@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,7 @@
   UINavigationController *controller;
   TiWindowProxy *rootWindow;
   TiWindowProxy *current;
-  //This is an assign only property. TabGroup retains instances of tab.
+  // This is an assign only property. TabGroup retains instances of tab.
   TiUITabGroupProxy *tabGroup;
 
   NSMutableArray *controllerStack;
@@ -30,6 +30,8 @@
   BOOL activeIconOriginal;
 
   id<TiOrientationController> parentOrientationController;
+
+  UIPanGestureRecognizer *fullWidthBackGestureRecognizer;
 }
 
 - (void)setTabGroup:(TiUITabGroupProxy *)proxy;

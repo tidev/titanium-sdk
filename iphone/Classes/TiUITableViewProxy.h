@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -19,12 +19,12 @@
 }
 - (void)setData:(id)args withObject:(id)properties;
 - (NSArray *)data;
-//Sections and Data are the sanitized version.
+// Sections and Data are the sanitized version.
 @property (nonatomic, readwrite, copy) NSArray *sections;
 - (NSNumber *)sectionCount;
 
 #pragma mark NON-JS functionality
-//internalSections is until TODO: Stop JS from using ValueForKey
+// internalSections is until TODO: Stop JS from using ValueForKey
 @property (nonatomic, readwrite, retain) NSMutableArray *internalSections;
 
 - (NSInteger)indexForRow:(TiUITableViewRowProxy *)row;

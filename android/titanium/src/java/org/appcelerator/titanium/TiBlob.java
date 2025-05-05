@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -59,6 +59,7 @@ public class TiBlob extends KrollProxy
 	private int height;
 	private int uprightWidth;
 	private int uprightHeight;
+	private Object rotation;
 
 	// This handles the memory cache of images.
 	private final TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -74,6 +75,7 @@ public class TiBlob extends KrollProxy
 		this.height = 0;
 		this.uprightWidth = 0;
 		this.uprightHeight = 0;
+		this.rotation = KrollRuntime.UNDEFINED;
 	}
 
 	/**
@@ -89,7 +91,7 @@ public class TiBlob extends KrollProxy
 	/**
 	 * Creates a blob from a file and sets a mimeType based on the file name.
 	 * @param file the file used to create blob.
-	 * @return new instane of TiBlob.
+	 * @return new instance of TiBlob.
 	 */
 	public static TiBlob blobFromFile(TiBaseFile file)
 	{
@@ -221,7 +223,11 @@ public class TiBlob extends KrollProxy
 
 			switch (type) {
 				case TYPE_FILE:
-					BitmapFactory.decodeStream(getInputStream(), null, opts);
+					try {
+						BitmapFactory.decodeStream(getInputStream(), null, opts);
+					} catch (Exception e) {
+						Log.e(TAG, "Error decoding stream: " + e.getMessage());
+					}
 					break;
 				case TYPE_DATA:
 					byte[] byteArray = (byte[]) data;
@@ -235,6 +241,7 @@ public class TiBlob extends KrollProxy
 				this.height = opts.outHeight;
 
 				int rotation = getImageOrientation();
+				this.rotation = rotation;
 				if ((rotation == 90) || (rotation == 270)) {
 					this.uprightWidth = opts.outHeight;
 					this.uprightHeight = opts.outWidth;
@@ -405,6 +412,12 @@ public class TiBlob extends KrollProxy
 	public int getUprightWidth()
 	{
 		return this.uprightWidth;
+	}
+
+	@Kroll.getProperty
+	public Object getRotation()
+	{
+		return this.rotation;
 	}
 
 	@Kroll.getProperty
@@ -653,7 +666,7 @@ public class TiBlob extends KrollProxy
 			int scaleWidth = imgWidth / dstWidth;
 			int scaleHeight = imgHeight / dstHeight;
 
-			int targetScale = (scaleWidth < scaleHeight) ? scaleWidth : scaleHeight;
+			int targetScale = Math.min(scaleWidth, scaleHeight);
 			int sampleSize = 1;
 			while (targetScale >= 2) {
 				sampleSize *= 2;
@@ -715,6 +728,11 @@ public class TiBlob extends KrollProxy
 					// non squared image
 					imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 				}
+			}
+
+			if (imageResized.getHeight() != dstHeight || imageResized.getWidth() != dstWidth) {
+				// image didn't resize - fallback
+				imageResized = Bitmap.createScaledBitmap(img, dstWidth, dstHeight, true);
 			}
 			if (img != image && img != imageResized) {
 				img.recycle();

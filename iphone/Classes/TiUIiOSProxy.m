@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2010-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -118,24 +118,17 @@
   ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
   ENSURE_SINGLE_ARG(value, NSString);
 
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (!view) {
-      view = [[UIView alloc] initWithFrame:frame];
-      view.tag = TI_STATUSBAR_TAG;
-      [keyWindow addSubview:view];
-    }
-    view.frame = frame;
-    view.backgroundColor = [[TiUtils colorValue:value] _color];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
-  } else {
-    UIView *statusBar = [[[UIApplication sharedApplication] valueForKey:@"statusBarWindow"] valueForKey:@"statusBar"];
-    if ([statusBar respondsToSelector:@selector(setBackgroundColor:)]) {
-      statusBar.backgroundColor = [[TiUtils colorValue:value] _color];
-    }
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (!view) {
+    view = [[UIView alloc] initWithFrame:frame];
+    view.tag = TI_STATUSBAR_TAG;
+    [keyWindow addSubview:view];
   }
+  view.frame = frame;
+  view.backgroundColor = [[TiUtils colorValue:value] _color];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidBecomeKey:) name:UIWindowDidBecomeKeyNotification object:nil];
 }
 
 - (NSNumber *)SCROLL_DECELERATION_RATE_NORMAL
@@ -161,24 +154,14 @@
   return NUMINT(-1);
 }
 
-#ifdef USE_TI_UILISTVIEW
-- (NSNumber *)ROW_ACTION_STYLE_DEFAULT
-{
-  return NUMINTEGER(UITableViewRowActionStyleDefault);
-}
-- (NSNumber *)ROW_ACTION_STYLE_DESTRUCTIVE
-{
-  return NUMINTEGER(UITableViewRowActionStyleDestructive);
-}
-- (NSNumber *)ROW_ACTION_STYLE_NORMAL
-{
-  return NUMINTEGER(UITableViewRowActionStyleNormal);
-}
+#if defined(USE_TI_UILISTVIEW) || defined(USE_TI_UITABLEVIEW)
+MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_DEFAULT, UIContextualActionStyleNormal);
+MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_DESTRUCTIVE, UIContextualActionStyleDestructive);
+MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 #endif
 
 #ifdef USE_TI_UIPICKER
 
-#if IS_SDK_IOS_13_4
 - (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
 {
   DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_AUTOMATIC", @"10.0.1", @"UI.DATE_PICKER_STYLE_AUTOMATIC");
@@ -205,9 +188,7 @@
   }
   return @(UIDatePickerStyleCompact);
 }
-#endif
 
-#if IS_SDK_IOS_14
 - (NSNumber *)DATE_PICKER_STYLE_INLINE
 {
   DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_INLINE", @"10.0.1", @"UI.DATE_PICKER_STYLE_INLINE");
@@ -216,7 +197,6 @@
   }
   return @(UIDatePickerStyleInline);
 }
-#endif
 
 #endif
 
@@ -293,13 +273,11 @@
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-    CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
-    UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
-    if (view) {
-      view.frame = frame;
-    }
+  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
+  UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
+  if (view) {
+    view.frame = frame;
   }
 }
 
@@ -310,6 +288,26 @@
     _AlertDialogStyle = [[TIUIiOSAlertDialogStyleProxy alloc] _initWithPageContext:[self pageContext]];
   }
   return _AlertDialogStyle;
+}
+#endif
+
+#if IS_SDK_IOS_16
+- (NSNumber *)ALERT_SEVERITY_DEFAULT
+{
+  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    return @(-1);
+  }
+
+  return @(UIAlertControllerSeverityDefault);
+}
+
+- (NSNumber *)ALERT_SEVERITY_CRITICAL
+{
+  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    return @(-1);
+  }
+
+  return @(UIAlertControllerSeverityCritical);
 }
 #endif
 
@@ -449,10 +447,6 @@
 
 - (TiBlob *)systemImage:(id)arg
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return nil;
-  }
-
   NSString *systemImage = nil;
   NSDictionary<NSString *, id> *parameters = nil;
 
@@ -699,7 +693,7 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 {
   return [[[TiPushBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-//TiPushBehavior Constants
+// TiPushBehavior Constants
 MAKE_SYSTEM_PROP(PUSH_MODE_CONTINUOUS, 0);
 MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
 #endif
@@ -730,7 +724,7 @@ MAKE_SYSTEM_PROP(PUSH_MODE_INSTANTANEOUS, 1);
 {
   return [[[TiCollisionBehavior alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-//TiCollisionBehavior Constants
+// TiCollisionBehavior Constants
 MAKE_SYSTEM_PROP(COLLISION_MODE_ITEM, 0);
 MAKE_SYSTEM_PROP(COLLISION_MODE_BOUNDARY, 1);
 MAKE_SYSTEM_PROP(COLLISION_MODE_ALL, 2);
@@ -787,7 +781,7 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO, UIApplicationShortcutIconTypeAudio);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE, UIApplicationShortcutIconTypeUpdate);
 #endif
 
-//Modal Transition and Presentatiom
+// Modal Transition and Presentatiom
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL, UIModalTransitionStyleCoverVertical);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL, UIModalTransitionStyleFlipHorizontal);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_CROSS_DISSOLVE, UIModalTransitionStyleCrossDissolve);

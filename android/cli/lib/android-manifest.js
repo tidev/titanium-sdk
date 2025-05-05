@@ -10,7 +10,7 @@
  * @module lib/android-manifest
  *
  * @copyright
- * Copyright (c) 2009-2019 by Axway, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present
  *
  * @license
  * Licensed under the terms of the Apache Public License
@@ -198,7 +198,7 @@ class AndroidManifest {
 	/**
 	 * Sets the <manifest/> element's "package" attribute to the given Java package name.
 	 * @param {String} name
-	 * The Java package name to be assigned such as "com.appceleration.kitchensink". Cannot be null or undefined.
+	 * The Java package name to be assigned such as "com.tidev.kitchensink". Cannot be null or undefined.
 	 */
 	setPackageName(name) {
 		// Validate argument.
@@ -412,7 +412,7 @@ class AndroidManifest {
 	 *
 	 * Note that a gradle build failure will occur if the app's "AndroidManifest.xml" defines an activity attribute
 	 * which conflicts with a library's same activity attribute. Google expects the developer to resolve it by
-	 * defining a "tools:replace" attribute which explicitly defines each attribute that should be replaced/overriden.
+	 * defining a "tools:replace" attribute which explicitly defines each attribute that should be replaced/overridden.
 	 * Since "most" Titanium app developers override existing <application/> and <activity/> attributes, we'll
 	 * do this for them to avoid the massive tech-support issues.
 	 */
@@ -711,7 +711,7 @@ function isElementNode(node) {
  * @param {Object} node The XML node object to check. Can be null/undefined.
  * @returns {Boolean}
  * Returns true if given node is text between XLM elements or attributes.
- * Returns false if not or given an invalild argument.
+ * Returns false if not or given an invalid argument.
  * @private
  */
 function isTextNode(node) {

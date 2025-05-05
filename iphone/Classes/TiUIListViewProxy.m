@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -207,7 +207,7 @@
   static dispatch_once_t onceToken;
   static NSArray *keySequence = nil;
   dispatch_once(&onceToken, ^{
-    keySequence = [[NSArray alloc] initWithObjects:@"style", @"showSearchBarInNavBar", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor", nil];
+    keySequence = [[NSArray alloc] initWithObjects:@"style", @"requiresEditingToMove", @"showSearchBarInNavBar", @"templates", @"defaultItemTemplate", @"sections", @"backgroundColor", nil];
   });
   return keySequence;
 }
@@ -578,7 +578,7 @@
 
 - (BOOL)canAddMarker:(NSIndexPath *)marker
 {
-  //Checks if the marker is part of currently visible rows.
+  // Checks if the marker is part of currently visible rows.
   __block BOOL canAddMarker = YES;
   TiThreadPerformOnMainThread(
       ^{
@@ -602,7 +602,7 @@
     [_markerArray addObject:marker];
     pthread_rwlock_unlock(&_markerLock);
   } else if ([self _hasListeners:@"marker" checkParent:NO]) {
-    //Index path is currently visible. Fire
+    // Index path is currently visible. Fire
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                                         NUMINTEGER(marker.section), @"sectionIndex",
                                                                     NUMINTEGER(marker.row), @"itemIndex",
@@ -623,7 +623,7 @@
     }
     pthread_rwlock_unlock(&_markerLock);
   } else if ([self _hasListeners:@"marker" checkParent:NO]) {
-    //Index path is currently visible. Fire
+    // Index path is currently visible. Fire
     NSMutableDictionary *eventObject = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                                                         NUMINTEGER(marker.section), @"sectionIndex",
                                                                     NUMINTEGER(marker.row), @"itemIndex",
@@ -636,7 +636,7 @@
 - (void)willDisplayCell:(NSIndexPath *)indexPath
 {
   if (([_markerArray count] > 0) && [self _hasListeners:@"marker" checkParent:NO]) {
-    //Never block the UI thread
+    // Never block the UI thread
     int result = pthread_rwlock_trywrlock(&_markerLock);
     if (result != 0) {
       return;
