@@ -56,6 +56,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import androidx.appcompat.view.ContextThemeWrapper;
+
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.R;
 
@@ -196,6 +197,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			// Why transparent?
 			tv.setBackgroundColor(Color.TRANSPARENT);
+			textInputLayout.setBoxBackgroundColor(TiConvert.toColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR),
+				TiApplication.getAppCurrentActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
@@ -395,6 +398,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			this.inputFilterHandler.setMaxLength(TiConvert.toInt(newValue, -1));
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			tv.setBackgroundColor(Color.TRANSPARENT);
+			textInputLayout.setBoxBackgroundColor(TiConvert.toColor(newValue, TiApplication.getAppCurrentActivity()));
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			// TODO: reset to default value when property is null
