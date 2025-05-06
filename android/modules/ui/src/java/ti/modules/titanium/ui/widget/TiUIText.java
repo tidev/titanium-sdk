@@ -56,7 +56,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import androidx.appcompat.view.ContextThemeWrapper;
-
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.R;
 
