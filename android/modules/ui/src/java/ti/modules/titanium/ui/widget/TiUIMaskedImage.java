@@ -131,7 +131,7 @@ public class TiUIMaskedImage extends TiUIView
 	 * @param key The unique name of the property.
 	 * @param oldValue The property's previous value. Can be null.
 	 * @param newValue The property's new value. Can be null.
-	 * @param proxy The proxy that own's the property. Expected to be "MaskedImageProxy".
+	 * @param proxy The proxy that owns the property. Expected to be "MaskedImageProxy".
 	 */
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)

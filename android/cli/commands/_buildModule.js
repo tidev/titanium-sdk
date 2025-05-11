@@ -397,7 +397,7 @@ AndroidModuleBuilder.prototype.initialize = async function initialize() {
 	this.resourcesDir = await getPathForProjectDirName('Resources');
 
 	// Fetch the "timodule.xml" file and load it.
-	// Provides Android specific info such as "AndroidManfiest.xml" elements and module dependencies.
+	// Provides Android specific info such as "AndroidManifest.xml" elements and module dependencies.
 	this.timoduleXmlFile = path.join(this.projectDir, 'timodule.xml');
 	if (await fs.exists(this.timoduleXmlFile)) {
 		this.timodule = new tiappxml(this.timoduleXmlFile);
@@ -502,6 +502,7 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "gradle.properties" file. Will add network proxy settings if needed.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 	gradleProperties.push({
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
@@ -621,6 +622,8 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 		this.logger.error('Unable to load Android <manifest/> content from "timodule.xml" file.');
 		throw err;
 	}
+
+	await mainManifest.writeToFilePath(path.join(moduleMainDir, 'AndroidManifest.xml'));
 
 	// Generate Java file used to provide this module's JS source code to Titanium's JS runtime.
 	let fileContent = await fs.readFile(path.join(this.moduleTemplateDir, 'CommonJsSourceProvider.java'));
