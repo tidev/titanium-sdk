@@ -13,17 +13,10 @@
 #import "TiRootViewController.h"
 #import <JavaScriptCore/JavaScriptCore.h>
 
-extern BOOL applicationInMemoryPanic; // TODO: Remove in SDK 9.0+
-
-// TODO: Remove in SDK 9.0+
-TI_INLINE void waitForMemoryPanicCleared() // WARNING: This must never be run on main thread, or else there is a risk of deadlock!
-{
-}
-
 /**
  TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
  */
-@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate> {
+@interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate, UIWindowSceneDelegate> {
   UIWindow *window;
   UIImageView *loadView;
   UIView *splashScreenView;
