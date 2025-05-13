@@ -197,6 +197,7 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 		this.buildOnly = cli.argv['build-only'];
 		this.target = cli.argv['target'];
 		this.deviceId = cli.argv['device-id'];
+		this.skipBuild = cli.argv['$_'].includes('--skip-build');
 
 		this.cli = cli;
 		this.logger = logger;
@@ -301,28 +302,33 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 
 		// Initialize build variables and directory.
 		await this.initialize();
-		await this.loginfo();
-		await this.cleanup();
 
-		// Notify plugins that we're prepping to compile.
-		await new Promise((resolve) => {
-			cli.emit('build.module.pre.compile', this, resolve);
-		});
+		const outputPath = path.join(this.buildModuleDir, 'build', 'outputs', 'm2repository');
+		if (this.skipBuild && fs.existsSync(outputPath)) {
+			// skip building module
+		} else {
+			await this.loginfo();
+			await this.cleanup();
 
-		// Update module files such as "manifest" if needed.
-		await this.updateModuleFiles();
+			// Notify plugins that we're prepping to compile.
+			await new Promise((resolve) => {
+				cli.emit('build.module.pre.compile', this, resolve);
+			});
 
-		// Generate all gradle project files.
-		await this.generateRootProjectFiles();
-		await this.generateModuleProject();
+			// Update module files such as "manifest" if needed.
+			await this.updateModuleFiles();
 
-		// Build the library and output it to "dist" directory.
-		await this.buildModuleProject();
-		// Notify plugins that the build is done.
-		await new Promise((resolve) => {
-			cli.emit('build.module.post.compile', this, resolve);
-		});
+			// Generate all gradle project files.
+			await this.generateRootProjectFiles();
+			await this.generateModuleProject();
 
+			// Build the library and output it to "dist" directory.
+			await this.buildModuleProject();
+			// Notify plugins that the build is done.
+			await new Promise((resolve) => {
+				cli.emit('build.module.post.compile', this, resolve);
+			});
+		}
 		await this.packageZip();
 
 		await new Promise((resolve) => {
