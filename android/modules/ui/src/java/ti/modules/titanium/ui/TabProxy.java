@@ -253,6 +253,12 @@ public class TabProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.method
+	public void popToRootWindow()
+	{
+		TiApplication.getInstance().popToRootWindow();
+	}
+
 	@Override
 	public String getApiName()
 	{
