@@ -21,6 +21,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -271,16 +272,35 @@ public class TiImageView extends ViewGroup
 	}
 
 	@Override
+	public boolean onInterceptTouchEvent(MotionEvent ev)
+	{
+		ViewParent viewParent = getParent();
+		if (viewParent != null) {
+			// Prevents the parent from getting touch events when zoomed in.
+			boolean isZoomed = zoomHandler != null && !zoomHandler.getMatrix().isIdentity();
+			viewParent.requestDisallowInterceptTouchEvent(isZoomed);
+		}
+
+		return super.onInterceptTouchEvent(ev);
+	}
+
+	@Override
 	public boolean onTouchEvent(MotionEvent ev)
 	{
-		boolean handled = false;
-		if (this.zoomHandler != null) {
-			handled = this.zoomHandler.onTouchEvent(ev);
+		// If we're zoomed in, ensure parent doesn't intercept touches
+		if (zoomHandler != null && !zoomHandler.getMatrix().isIdentity()) {
+			// This prevents the parent from getting touch events when zoomed
+			if (getParent() != null) {
+				getParent().requestDisallowInterceptTouchEvent(true);
+			}
 		}
-		if (!handled) {
-			handled = super.onTouchEvent(ev);
+
+		// If zoom is enabled, let the zoom handler process the touch event
+		if (zoomHandler != null && zoomHandler.onTouchEvent(ev)) {
+			return true;
 		}
-		return handled;
+
+		return super.onTouchEvent(ev);
 	}
 
 	@Override
