@@ -1811,9 +1811,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				// Calculate the angle between the two fingers
 				float deltaX = event.getX(0) - event.getX(1);
 				float deltaY = event.getY(0) - event.getY(1);
-				double radians = Math.atan(deltaY / deltaX);
+				double radians = Math.atan2(deltaY, deltaX);
 				double degrees = Math.toDegrees(radians);
-
+				if (degrees < 0) {
+					degrees += 360;
+				}
 				if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_ROTATE, degrees);
