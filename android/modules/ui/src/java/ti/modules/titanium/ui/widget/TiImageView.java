@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.ui.widget;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -13,10 +14,14 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
-import android.os.SystemClock;
+import android.os.Build;
+import android.util.Log;
+import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -27,6 +32,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.graphics.PorterDuff.Mode;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.android.material.color.MaterialColors;
 import java.lang.ref.WeakReference;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -368,7 +375,6 @@ public class TiImageView extends ViewGroup
 		computeBaseMatrix();
 		Matrix newMatrix = new Matrix(this.baseMatrix);
 		if (this.zoomHandler != null) {
-			this.zoomHandler.applyLimitsToMatrix();
 			newMatrix.postConcat(this.zoomHandler.getMatrix());
 		}
 		this.imageView.setImageMatrix(newMatrix);
@@ -468,11 +474,23 @@ public class TiImageView extends ViewGroup
 		/** Zoom transformation matrix to be applied to the image. */
 		private final Matrix matrix;
 
-		/** Last scale center point used during a pinch-zoom along the x-axis. */
-		private float lastFocusX;
+		/** Store values array for matrix calculations */
+		private final float[] matrixValues = new float[9];
 
-		/** Last scale center point used during a pinch-zoom along the y-axis. */
-		private float lastFocusY;
+		/** Current scale factor of the image */
+		private float currentScale = 1.0f;
+
+		/** Minimum allowed scale */
+		private static final float MIN_SCALE = 1.0f;
+
+		/** Maximum allowed scale */
+		private static final float MAX_SCALE = 5.0f;
+
+		/** Duration for smooth animations in milliseconds */
+		private static final long ANIMATION_DURATION = 250;
+
+		/** Value animator for smooth transitions */
+		private ValueAnimator scaleAnimator;
 
 		public ZoomHandler(@NonNull TiImageView tiImageView)
 		{
@@ -502,147 +520,222 @@ public class TiImageView extends ViewGroup
 				return false;
 			}
 
-			// Fetch zoom position and translation coordinates.
-			float[] matrixValues = new float[9];
-			this.matrix.getValues(matrixValues);
-			final boolean isZoomingIn = this.matrix.isIdentity();
-			final float zoomInScaleFactor = isZoomingIn ? 2.5f : matrixValues[Matrix.MSCALE_X];
-			final float translateX = matrixValues[Matrix.MTRANS_X];
-			final float translateY = matrixValues[Matrix.MTRANS_Y];
-			final float zoomInX = e.getX();
-			final float zoomInY = e.getY();
-			final long startTime = SystemClock.uptimeMillis();
+			// Get the current matrix values
+			matrix.getValues(matrixValues);
 
-			// Animate the zoom in/out.
-			this.tiImageView.post(new Runnable() {
+			// Determine if we're zooming in or resetting
+			final boolean isZoomingIn = Math.abs(currentScale - MIN_SCALE) < 0.1f;
+			final float targetScale = isZoomingIn ? MAX_SCALE : MIN_SCALE;
+
+			// Calculate the exact point to zoom around
+			Pair<Float, Float> touchPoint = getValidTouchPoint(tiImageView.imageView, e.getX(), e.getY());
+			final float focusX = touchPoint.first;
+			final float focusY = touchPoint.second;
+
+			// Store the current matrix values
+			final float startScale = currentScale;
+			final float startTransX = matrixValues[Matrix.MTRANS_X];
+			final float startTransY = matrixValues[Matrix.MTRANS_Y];
+
+			// Cancel any existing animations
+			if (scaleAnimator != null && scaleAnimator.isRunning()) {
+				scaleAnimator.cancel();
+			}
+
+			// Create a new animator for smooth zooming
+			scaleAnimator = ValueAnimator.ofFloat(0f, 1f);
+			scaleAnimator.setDuration(ANIMATION_DURATION);
+			scaleAnimator.setInterpolator(interpolator);
+			scaleAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
 				@Override
-				public void run()
+				public void onAnimationUpdate(ValueAnimator animation)
 				{
-					// Do not continue if zoom feature has been disabled.
-					if (tiImageView.zoomHandler != ZoomHandler.this) {
-						return;
-					}
+					float t = (float) animation.getAnimatedValue();
 
-					// Get next position in zoom animation.
-					long deltaTime = SystemClock.uptimeMillis() - startTime;
-					float normalizedValue = Math.min(deltaTime / 250.0f, 1.0f);
-					boolean isAnimationDone = (normalizedValue >= 1.0f);
-					normalizedValue = interpolator.getInterpolation(normalizedValue);
+					// Simple linear interpolation between start and target
+					float newScale = startScale + t * (targetScale - startScale);
+					float newTransX, newTransY;
 
-					// Scale the image.
-					matrix.reset();
 					if (isZoomingIn) {
-						float scaleFactor = (zoomInScaleFactor * normalizedValue) + 1.0f;
-						matrix.postScale(scaleFactor, scaleFactor, zoomInX, zoomInY);
+						// When zooming in, calculate translation to keep the target point fixed
+						float scaleFactor = newScale / startScale;
+						newTransX = focusX - scaleFactor * (focusX - startTransX);
+						newTransY = focusY - scaleFactor * (focusY - startTransY);
 					} else {
-						normalizedValue = 1.0f - normalizedValue;
-						float scaleFactor = ((zoomInScaleFactor - 1.0f) * normalizedValue) + 1.0f;
-						matrix.postScale(scaleFactor, scaleFactor);
-						matrix.postTranslate(translateX * normalizedValue, translateY * normalizedValue);
+						// When zooming out, gradually move to center (proportional to scale change)
+						float fraction = (newScale - 1.0f) / (startScale - 1.0f);
+						if (fraction < 0.01f) fraction = 0; // Avoid floating point issues
+						newTransX = fraction * startTransX;
+						newTransY = fraction * startTransY;
 					}
-					tiImageView.requestLayout();
 
-					// Re-run this runnable if the animation isn't done yet.
-					if (!isAnimationDone) {
-						tiImageView.post(this);
-					}
+					// Apply the new values
+					matrix.reset();
+					matrix.postScale(newScale, newScale);
+					matrix.postTranslate(newTransX, newTransY);
+
+					// Update current scale
+					currentScale = newScale;
+
+					tiImageView.requestLayout();
 				}
 			});
+			scaleAnimator.start();
 			return true;
 		}
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
 		{
-			// Only allow scrolls if image is zoomed and we're not in the middle of doing a pinch-zoom.
-			if (!this.scaleGestureDetector.isInProgress() && !this.matrix.isIdentity()) {
-				this.matrix.postTranslate(-dx, -dy);
-				applyLimitsToMatrix();
-				this.tiImageView.requestLayout();
-				return true;
+			// Only allow scrolls if image is zoomed and we're not pinch-zooming
+			if (this.scaleGestureDetector.isInProgress() || currentScale <= 1.0f) {
+				return false;
 			}
-			return false;
+
+			return applyLimitsToMatrix(dx, dy, null, null);
 		}
 
 		@Override
 		public boolean onScaleBegin(ScaleGestureDetector detector)
 		{
-			this.lastFocusX = detector.getFocusX();
-			this.lastFocusY = detector.getFocusY();
+			// Cancel any ongoing animations
+			if (scaleAnimator != null && scaleAnimator.isRunning()) {
+				scaleAnimator.cancel();
+			}
 			return true;
 		}
 
 		@Override
 		public boolean onScale(ScaleGestureDetector detector)
 		{
-			this.matrix.postScale(
-				detector.getScaleFactor(), detector.getScaleFactor(),
-				detector.getFocusX(), detector.getFocusY());
-			this.matrix.postTranslate(detector.getFocusX() - this.lastFocusX, detector.getFocusY() - this.lastFocusY);
-			applyLimitsToMatrix();
-			this.lastFocusX = detector.getFocusX();
-			this.lastFocusY = detector.getFocusY();
-			this.tiImageView.requestLayout();
-			return true;
+			// Calculate the new scale with limits.
+			float scaleFactor = detector.getScaleFactor();
+
+			// Limit the scale factor for smoother zooming.
+			scaleFactor = Math.max(0.95f, Math.min(scaleFactor, 1.05f));
+
+			float newScale = currentScale * scaleFactor;
+
+			// Check scale limits.
+			if (newScale < MIN_SCALE) {
+				scaleFactor = MIN_SCALE / currentScale;
+				newScale = MIN_SCALE;
+			} else if (newScale > MAX_SCALE) {
+				scaleFactor = MAX_SCALE / currentScale;
+				newScale = MAX_SCALE;
+			}
+
+			// Get the focus point
+			float focusX = detector.getFocusX();
+			float focusY = detector.getFocusY();
+
+			return applyLimitsToMatrix(focusX, focusY, scaleFactor, newScale);
 		}
 
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
-			if (applyLimitsToMatrix()) {
-				this.tiImageView.requestLayout();
+			// Nothing to handle here.
+		}
+
+		public Pair<Float, Float> getValidTouchPoint(ImageView imageView, float touchX, float touchY)
+		{
+			float finalTouchX = touchX;
+			float finalTouchY = touchY;
+
+			Drawable drawable = imageView.getDrawable();
+			// Invalid bitmap dimensions.
+			if (drawable == null) {
+				return new Pair<>(finalTouchX, finalTouchY);
+			}
+
+			// Get the intrinsic dimensions of the bitmap.
+			int intrinsicWidth = drawable.getIntrinsicWidth();
+			int intrinsicHeight = drawable.getIntrinsicHeight();
+
+			// Invalid bitmap dimensions.
+			if (intrinsicWidth <= 0 || intrinsicHeight <= 0) {
+				return new Pair<>(finalTouchX, finalTouchY);
+			}
+
+			// Get the matrix that ImageView uses to draw the bitmap.
+			Matrix imageMatrix = imageView.getImageMatrix();
+
+			// Create a RectF representing the original bitmap's bounds.
+			// ... from (0,0) to (intrinsicWidth, intrinsicHeight)
+			RectF bitmapRect = new RectF(0f, 0f, intrinsicWidth, intrinsicHeight);
+
+			// Apply the ImageView's matrix to the bitmap's bounds.
+			// This will transform bitmapRect to reflect its position and scale within the ImageView.
+			imageMatrix.mapRect(bitmapRect);
+
+			// Now, bitmapRect contains the coordinates of the displayed bitmap
+			// relative to the ImageView's top-left corner.
+			// Check if the touch coordinates are within this transformed rectangle.
+			if (bitmapRect.contains(touchX, touchY)) {
+				return new Pair<>(finalTouchX, finalTouchY);
+			} else {
+				// Returns the center of the image.
+				return new Pair<>(bitmapRect.centerX(), bitmapRect.centerY());
 			}
 		}
 
-		public boolean applyLimitsToMatrix()
-		{
-			// Do not continue if matrix has no translations or scales applied to it. (This is an optimization.)
-			if (this.matrix.isIdentity()) {
-				return false;
+		private boolean applyLimitsToMatrix(Float dx, Float dy, @Nullable Float scaleFactor, @Nullable Float scale) {
+			matrix.getValues(matrixValues);
+			float currentTransX = matrixValues[Matrix.MTRANS_X];
+			float currentTransY = matrixValues[Matrix.MTRANS_Y];
+
+			// Calculate the new translations with limit checks
+			float newTransX = currentTransX - dx;
+			float newTransY = currentTransY - dy;
+
+			if (scaleFactor != null) {
+				newTransX = dx - scaleFactor * (dx - currentTransX);
+				newTransY = dy - scaleFactor * (dy - currentTransY);
+			} else {
+				scale = currentScale;
 			}
 
-			// Fetch matrix values.
-			float[] matrixValues = new float[9];
-			this.matrix.getValues(matrixValues);
+			// Calculate bounds
+			float viewWidth = tiImageView.getWidth();
+			float viewHeight = tiImageView.getHeight();
+			float contentWidth = viewWidth * scale;
+			float contentHeight = viewHeight * scale;
 
-			// Do not allow scale to be less than 1x.
-			if ((matrixValues[Matrix.MSCALE_X] < 1.0f) || (matrixValues[Matrix.MSCALE_Y] < 1.0f)) {
-				this.matrix.reset();
+			// Horizontal bounds
+			float minTransX = viewWidth - contentWidth;
+			float maxTransX = 0;
+
+			// Vertical bounds
+			float minTransY = viewHeight - contentHeight;
+			float maxTransY = 0;
+
+			// Apply bounds to translations
+			if (newTransX < minTransX) newTransX = minTransX;
+			if (newTransX > maxTransX) newTransX = maxTransX;
+			if (newTransY < minTransY) newTransY = minTransY;
+			if (newTransY > maxTransY) newTransY = maxTransY;
+
+			if (scaleFactor != null) {
+				// Update the matrix
+				matrix.reset();
+				matrix.postScale(scale, scale);
+				matrix.postTranslate(newTransX, newTransY);
+
+				// Update the current scale
+				currentScale = scale;
+				tiImageView.requestLayout();
 				return true;
+			} else {
+				// Update the matrix if there's actual movement
+				if (newTransX != currentTransX || newTransY != currentTransY) {
+					matrix.postTranslate(newTransX - currentTransX, newTransY - currentTransY);
+					tiImageView.requestLayout();
+					return true;
+				}
 			}
 
-			// Do not allow scale to be greater than 5x.
-			final float MAX_SCALE = 5.0f;
-			if ((matrixValues[Matrix.MSCALE_X] > MAX_SCALE) || (matrixValues[Matrix.MSCALE_Y] > MAX_SCALE)) {
-				this.matrix.postScale(
-					MAX_SCALE / matrixValues[Matrix.MSCALE_X], MAX_SCALE / matrixValues[Matrix.MSCALE_Y],
-					this.tiImageView.getWidth() / 2.0f, this.tiImageView.getHeight() / 2.0f);
-				this.matrix.getValues(matrixValues);
-			}
-
-			// Fetch min/max bounds the image can be scrolled to, preventing image from being scrolled off-screen.
-			float translateX = -matrixValues[Matrix.MTRANS_X];
-			float translateY = -matrixValues[Matrix.MTRANS_Y];
-			float maxTranslateX = (tiImageView.getWidth() * matrixValues[Matrix.MSCALE_X]) - tiImageView.getWidth();
-			float maxTranslateY = (tiImageView.getHeight() * matrixValues[Matrix.MSCALE_Y]) - tiImageView.getHeight();
-
-			// Apply translation limits.
-			boolean wasChanged = false;
-			if (translateX < 0) {
-				this.matrix.postTranslate(translateX, 0);
-				wasChanged = true;
-			} else if (translateX > maxTranslateX) {
-				this.matrix.postTranslate(translateX - maxTranslateX, 0);
-				wasChanged = true;
-			}
-			if (translateY < 0) {
-				this.matrix.postTranslate(0, translateY);
-				wasChanged = true;
-			} else if (translateY > maxTranslateY) {
-				this.matrix.postTranslate(0, translateY - maxTranslateY);
-				wasChanged = true;
-			}
-			return wasChanged;
+			return false;
 		}
 	}
 }
