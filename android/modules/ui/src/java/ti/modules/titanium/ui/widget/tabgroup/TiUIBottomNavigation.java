@@ -17,12 +17,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
@@ -32,6 +36,7 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -47,6 +52,7 @@ import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import ti.modules.titanium.ui.WindowProxy;
 
 /**
  * TabGroup implementation using BottomNavigationView as a controller.
@@ -55,15 +61,22 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 {
 
 	protected final static String TAG = "TiUIBottomNavigation";
-	static int id_layout = 0;
-	static int id_content = 0;
-	static int id_bottomNavigation = 0;
+	private static int id_layout = 0;
+	private static int id_content = 0;
+	private static int id_bottomNavigation = 0;
 	private int currentlySelectedIndex = -1;
 	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<MenuItem>();
-	private RelativeLayout layout = null;
+	private static DrawerLayout layout = null;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
+	private static AppCompatActivity activity;
+	private TiViewProxy leftView;
+	private TiViewProxy rightView;
+	private FrameLayout leftFrame = null;
+	private FrameLayout rightFrame = null;
+	private int leftWidth;
+	private int rightWidth;
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -114,13 +127,13 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
 
 			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppRootOrCurrentActivity());
-			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
+			layout = (DrawerLayout) inflater.inflate(id_layout, null, false);
 			bottomNavigation = layout.findViewById(id_bottomNavigation);
 			centerView = layout.findViewById(id_content);
 
 			bottomNavigation.setOnItemSelectedListener(this);
+			TiUIBottomNavigation.activity = activity;
 			activity.setLayout(layout);
-
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_LEFT)
 				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_RIGHT)
 				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_BOTTOM)) {
@@ -572,5 +585,117 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			// Height not available, post it to run after a layout pass.
 			bottomNavigation.post(runnable);
 		}
+	}
+
+	private void initLeft()
+	{
+		if (leftFrame != null) {
+			return;
+		}
+		leftFrame = new FrameLayout(proxy.getActivity());
+
+		DrawerLayout.LayoutParams frameLayout = new DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.WRAP_CONTENT,
+			DrawerLayout.LayoutParams.MATCH_PARENT);
+		frameLayout.gravity = GravityCompat.START;
+		leftFrame.setLayoutParams(frameLayout);
+
+		layout.addView(leftFrame);
+	}
+
+	private void initRight()
+	{
+		if (rightFrame != null) {
+			return;
+		}
+		rightFrame = new FrameLayout(proxy.getActivity());
+
+		DrawerLayout.LayoutParams frameLayout = new DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.WRAP_CONTENT,
+			DrawerLayout.LayoutParams.MATCH_PARENT);
+		frameLayout.gravity = GravityCompat.END;
+		rightFrame.setLayoutParams(frameLayout);
+
+		layout.addView(rightFrame);
+	}
+
+	@Override
+	public void processProperties(KrollDict d)
+	{
+		super.processProperties(d);
+		if (d.containsKey(TiC.PROPERTY_LEFT_VIEW)) {
+			Object leftView = d.get(TiC.PROPERTY_LEFT_VIEW);
+			if (leftView instanceof TiViewProxy) {
+				if (leftView instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				this.leftView = (TiViewProxy) leftView;
+				this.initLeft();
+				this.leftFrame.addView(getNativeView(this.leftView));
+			} else {
+				Log.e(TAG, "invalid type for leftView");
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_RIGHT_VIEW)) {
+			Object rightView = d.get(TiC.PROPERTY_RIGHT_VIEW);
+			if (rightView instanceof TiViewProxy) {
+				if (rightView instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				this.rightView = (TiViewProxy) rightView;
+				this.initRight();
+				this.rightFrame.addView(getNativeView(this.rightView));
+			} else {
+				Log.e(TAG, "invalid type for rightView");
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_LEFT_WIDTH)) {
+			if (leftFrame != null) {
+				if (d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.LAYOUT_SIZE)) {
+					leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.WRAP_CONTENT;
+				} else if (d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.LAYOUT_FILL)) {
+					leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+				} else if (!d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.SIZE_AUTO)) {
+					leftWidth = getDevicePixels(d.get(TiC.PROPERTY_LEFT_WIDTH));
+					leftFrame.getLayoutParams().width = leftWidth;
+				}
+			}
+		} else {
+			if (leftFrame != null) {
+				leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_RIGHT_WIDTH)) {
+			if (rightFrame != null) {
+				if (d.get(TiC.PROPERTY_RIGHT_WIDTH).equals(TiC.LAYOUT_SIZE)) {
+					rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.WRAP_CONTENT;
+				} else if (d.get(TiC.PROPERTY_RIGHT_WIDTH).equals(TiC.LAYOUT_FILL)) {
+					rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+				} else if (!d.get(TiC.PROPERTY_RIGHT_WIDTH).equals(TiC.SIZE_AUTO)) {
+					rightWidth = getDevicePixels(d.get(TiC.PROPERTY_RIGHT_WIDTH));
+					rightFrame.getLayoutParams().width = rightWidth;
+				}
+			}
+		} else {
+			if (rightFrame != null) {
+				rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
+		}
+	}
+
+	private int getDevicePixels(Object value)
+	{
+		TiDimension nativeSize = TiConvert.toTiDimension(TiConvert.toString(value), TiDimension.TYPE_WIDTH);
+		return nativeSize.getAsPixels(layout);
+	}
+
+	private View getNativeView(TiViewProxy viewProxy)
+	{
+		TiUIView view = viewProxy.getOrCreateView();
+		View outerView = view.getOuterView();
+		View nativeView = outerView != null ? outerView : view.getNativeView();
+		ViewGroup parentViewGroup = (ViewGroup) nativeView.getParent();
+		if (parentViewGroup != null) {
+			parentViewGroup.removeAllViews();
+		}
+		return nativeView;
 	}
 }
