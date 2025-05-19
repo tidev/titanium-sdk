@@ -14,13 +14,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
-import android.os.Build;
-import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -680,7 +677,8 @@ public class TiImageView extends ViewGroup
 			}
 		}
 
-		private boolean applyLimitsToMatrix(Float dx, Float dy, @Nullable Float scaleFactor, @Nullable Float scale) {
+		private boolean applyLimitsToMatrix(Float dx, Float dy, @Nullable Float scaleFactor, @Nullable Float scale)
+		{
 			matrix.getValues(matrixValues);
 			float currentTransX = matrixValues[Matrix.MTRANS_X];
 			float currentTransY = matrixValues[Matrix.MTRANS_Y];
