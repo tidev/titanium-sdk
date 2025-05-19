@@ -769,6 +769,54 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
+	@Kroll.method
+	public void toggleLeft()
+	{
+		if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.toggleLeft();
+		}
+	}
+
+	@Kroll.method
+	public void openLeft()
+	{
+		if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.openLeft();
+		}
+	}
+
+	@Kroll.method
+	public void closeLeft()
+	{
+		if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.closeLeft();
+		}
+	}
+
+	@Kroll.method
+	public void toggleRight()
+	{
+		if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.toggleRight();
+		}
+	}
+
+	@Kroll.method
+	public void openRight()
+	{
+		if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.openRight();
+		}
+	}
+
+	@Kroll.method
+	public void closeRight()
+	{
+		if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.closeRight();
+		}
+	}
+
 	@Override
 	public String getApiName()
 	{

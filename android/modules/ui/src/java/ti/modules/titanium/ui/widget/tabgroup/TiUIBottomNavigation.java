@@ -698,4 +698,62 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 		return nativeView;
 	}
+
+	public void toggleLeft()
+	{
+		if (layout.isDrawerOpen(GravityCompat.START)) {
+			closeLeft();
+		} else {
+			openLeft();
+		}
+	}
+
+	public void openLeft()
+	{
+		layout.openDrawer(GravityCompat.START);
+	}
+
+	public void closeLeft()
+	{
+		layout.closeDrawer(GravityCompat.START);
+	}
+
+	public void toggleRight()
+	{
+		if (layout.isDrawerOpen(GravityCompat.END)) {
+			closeRight();
+		} else {
+			openRight();
+		}
+	}
+
+	public void openRight()
+	{
+		layout.openDrawer(GravityCompat.END);
+	}
+
+	public void closeRight()
+	{
+		layout.closeDrawer(GravityCompat.END);
+	}
+
+	public boolean isLeftOpen()
+	{
+		return layout.isDrawerOpen(GravityCompat.START);
+	}
+
+	public boolean isRightOpen()
+	{
+		return layout.isDrawerOpen(GravityCompat.END);
+	}
+
+	public boolean isLeftVisible()
+	{
+		return layout.isDrawerVisible(GravityCompat.START);
+	}
+
+	public boolean isRightVisible()
+	{
+		return layout.isDrawerVisible(GravityCompat.END);
+	}
 }
