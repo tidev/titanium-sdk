@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.GravityCompat;
@@ -37,6 +38,7 @@ import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -77,6 +79,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private FrameLayout rightFrame = null;
 	private int leftWidth;
 	private int rightWidth;
+	private ActionBarDrawerToggle drawerToggle = null;
+	static int id_drawer_open_string = 0;
+	static int id_drawer_close_string = 0;
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -600,6 +605,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		leftFrame.setLayoutParams(frameLayout);
 
 		layout.addView(leftFrame);
+
+		if (drawerToggle == null) {
+			initDrawerToggle();
+		}
 	}
 
 	private void initRight()
@@ -615,6 +624,60 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		rightFrame.setLayoutParams(frameLayout);
 
 		layout.addView(rightFrame);
+
+		if (drawerToggle == null) {
+			initDrawerToggle();
+		}
+	}
+
+	private void initDrawerToggle()
+	{
+
+		final AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
+		if (activity == null) {
+			return;
+		}
+		if (activity.getSupportActionBar() != null) {
+			activity.getSupportActionBar().setHomeButtonEnabled(true);
+		}
+
+		drawerToggle = new ActionBarDrawerToggle(activity, layout, id_drawer_open_string, id_drawer_close_string) {
+			@Override
+			public void onDrawerClosed(View drawerView)
+			{
+				super.onDrawerClosed(drawerView);
+				drawerClosedEvent(drawerView);
+			}
+
+			@Override
+			public void onDrawerOpened(View drawerView)
+			{
+				super.onDrawerOpened(drawerView);
+				drawerOpenedEvent(drawerView);
+			}
+
+			@Override
+			public void onDrawerSlide(View drawerView, float slideOffset)
+			{
+				super.onDrawerSlide(drawerView, slideOffset);
+				drawerSlideEvent(drawerView, slideOffset);
+			}
+
+			@Override
+			public void onDrawerStateChanged(int state)
+			{
+				super.onDrawerStateChanged(state);
+				drawerStateChangedEvent(state);
+			}
+		};
+		layout.addDrawerListener(drawerToggle);
+		layout.post(new Runnable() {
+			@Override
+			public void run()
+			{
+				drawerToggle.syncState();
+			}
+		});
 	}
 
 	@Override
@@ -678,6 +741,105 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			if (rightFrame != null) {
 				rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
 			}
+		}
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		super.propertyChanged(key, oldValue, newValue, proxy);
+		if (key.equals(TiC.PROPERTY_LEFT_VIEW)) {
+			if (newValue == null || newValue == this.leftView) {
+				return;
+			}
+			TiViewProxy newProxy = null;
+			int index = 0;
+			if (this.leftView != null) {
+				index = this.leftFrame.indexOfChild(this.leftView.getOrCreateView().getNativeView());
+			}
+			if (newValue instanceof TiViewProxy) {
+				if (newValue instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				newProxy = (TiViewProxy) newValue;
+				initLeft();
+				this.leftFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
+			} else {
+				Log.e(TAG, "invalid type for leftView");
+			}
+			if (this.leftView != null) {
+				this.leftFrame.removeView(this.leftView.getOrCreateView().getNativeView());
+			}
+			this.leftView = newProxy;
+
+		} else if (key.equals(TiC.PROPERTY_RIGHT_VIEW)) {
+			if (newValue == null || newValue == this.rightView) {
+				return;
+			}
+			TiViewProxy newProxy = null;
+			int index = 0;
+			if (this.rightView != null) {
+				index = this.rightFrame.indexOfChild(this.rightView.getOrCreateView().getNativeView());
+			}
+			if (newValue instanceof TiViewProxy) {
+				if (newValue instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				newProxy = (TiViewProxy) newValue;
+				initRight();
+				this.rightFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
+			} else {
+				Log.e(TAG, "invalid type for rightView");
+			}
+			if (this.rightView != null) {
+				this.rightFrame.removeView(this.rightView.getOrCreateView().getNativeView());
+			}
+			this.rightView = newProxy;
+
+		} else if (key.equals(TiC.PROPERTY_LEFT_WIDTH)) {
+			if (leftFrame == null) {
+				return;
+			}
+			initLeft();
+
+			if (newValue.equals(TiC.LAYOUT_SIZE)) {
+				leftWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
+			} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+				leftWidth = DrawerLayout.LayoutParams.MATCH_PARENT;
+			} else if (!newValue.equals(TiC.SIZE_AUTO)) {
+				leftWidth = getDevicePixels(newValue);
+			}
+
+			DrawerLayout.LayoutParams leftFrameLayout =
+				new DrawerLayout.LayoutParams(leftWidth, DrawerLayout.LayoutParams.MATCH_PARENT);
+			leftFrameLayout.gravity = GravityCompat.START;
+			this.leftFrame.setLayoutParams(leftFrameLayout);
+
+		} else if (key.equals(TiC.PROPERTY_RIGHT_WIDTH)) {
+			if (rightFrame == null) {
+				return;
+			}
+			initRight();
+
+			if (newValue.equals(TiC.LAYOUT_SIZE)) {
+				rightWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
+			} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+				rightWidth = DrawerLayout.LayoutParams.MATCH_PARENT;
+			} else if (!newValue.equals(TiC.SIZE_AUTO)) {
+				rightWidth = getDevicePixels(newValue);
+			}
+
+			DrawerLayout.LayoutParams rightFrameLayout =
+				new DrawerLayout.LayoutParams(rightWidth, DrawerLayout.LayoutParams.MATCH_PARENT);
+			rightFrameLayout.gravity = GravityCompat.END;
+			this.rightFrame.setLayoutParams(rightFrameLayout);
+
+		} else if (key.equals(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
+			layout.setDrawerLockMode(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+			layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.START);
+		} else if (key.equals(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+			layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.END);
 		}
 	}
 
@@ -755,5 +917,57 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public boolean isRightVisible()
 	{
 		return layout.isDrawerVisible(GravityCompat.END);
+	}
+
+	private void drawerClosedEvent(View drawerView)
+	{
+		if (proxy.hasListeners(TiC.EVENT_CLOSE)) {
+			KrollDict options = new KrollDict();
+			if (drawerView.equals(leftFrame)) {
+				options.put("drawer", "left");
+			} else if (drawerView.equals(rightFrame)) {
+				options.put("drawer", "right");
+			}
+			proxy.fireEvent(TiC.EVENT_CLOSE, options);
+		}
+	}
+
+	private void drawerOpenedEvent(View drawerView)
+	{
+		if (proxy.hasListeners(TiC.EVENT_OPEN)) {
+			KrollDict options = new KrollDict();
+			if (drawerView.equals(leftFrame)) {
+				options.put("drawer", "left");
+			} else if (drawerView.equals(rightFrame)) {
+				options.put("drawer", "right");
+			}
+			proxy.fireEvent(TiC.EVENT_OPEN, options);
+		}
+	}
+
+	private void drawerStateChangedEvent(int state)
+	{
+		if (proxy.hasListeners(TiC.EVENT_CHANGE)) {
+			KrollDict options = new KrollDict();
+			options.put("state", state);
+			options.put("idle", (state == DrawerLayout.STATE_IDLE));
+			options.put("dragging", (state == DrawerLayout.STATE_DRAGGING));
+			options.put("settling", (state == DrawerLayout.STATE_SETTLING));
+			proxy.fireEvent(TiC.EVENT_CHANGE, options);
+		}
+	}
+
+	private void drawerSlideEvent(View drawerView, float slideOffset)
+	{
+		if (proxy.hasListeners(TiC.EVENT_SLIDE)) {
+			KrollDict options = new KrollDict();
+			options.put("offset", slideOffset);
+			if (drawerView.equals(leftFrame)) {
+				options.put("drawer", "left");
+			} else if (drawerView.equals(rightFrame)) {
+				options.put("drawer", "right");
+			}
+			proxy.fireEvent(TiC.EVENT_SLIDE, options);
+		}
 	}
 }
