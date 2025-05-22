@@ -445,6 +445,18 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 {
   return UIFontTextStyleLargeTitle;
 }
+- (NSNumber *)CLIP_MODE_DEFAULT
+{
+  return NUMINT(0);
+}
+- (NSNumber *)CLIP_MODE_ENABLED
+{
+  return NUMINT(1);
+}
+- (NSNumber *)CLIP_MODE_DISABLED
+{
+  return NUMINT(-1);
+}
 
 - (void)setOverrideUserInterfaceStyle:(id)args
 {
