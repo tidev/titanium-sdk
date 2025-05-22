@@ -1148,7 +1148,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		if (d.containsKey(TiC.PROPERTY_CLIP_MODE) && !nativeViewNull) {
-			setClipMode(TiConvert.toInt(d, UIModule.CLIP_MODE_DEFAULT));
+			setClipMode(TiConvert.toInt(d.getInt(TiC.PROPERTY_CLIP_MODE), UIModule.CLIP_MODE_DEFAULT));
 		}
 
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
@@ -1209,9 +1209,19 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	private void setClipMode(int clipMode)
 	{
-		if (nativeView instanceof ViewGroup viewGroup) {
-			viewGroup.setClipChildren(clipMode == UIModule.CLIP_MODE_ENABLED);
-			viewGroup.setClipToPadding(clipMode == UIModule.CLIP_MODE_ENABLED);
+		if (nativeView == null) {
+			return;
+		}
+
+		TiViewProxy currentProxy = proxy;
+		while (currentProxy.getParent() != null) {
+			if (currentProxy.getOrCreateView().getOuterView() instanceof ViewGroup viewGroup) {
+				viewGroup.setClipChildren(clipMode != UIModule.CLIP_MODE_DISABLED);
+			}
+			currentProxy = currentProxy.getParent();
+			if (currentProxy.getApiName().equals("Ti.UI.Window")) {
+				return;
+			}
 		}
 	}
 
