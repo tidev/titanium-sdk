@@ -276,19 +276,23 @@ public class TiUIListView extends TiUIView
 		int paddingBottom = this.listView.getRecyclerView().getPaddingBottom();
 
 		if (d.containsKey(TiC.PROPERTY_LEFT)) {
-			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
+			paddingLeft = TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0),
+				TiDimension.TYPE_LEFT).getAsPixels(this.listView);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
-			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
+			paddingRight = TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0),
+				TiDimension.TYPE_RIGHT).getAsPixels(this.listView);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_TOP)) {
-			paddingTop = TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0);
+			paddingTop = TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0),
+				TiDimension.TYPE_TOP).getAsPixels(this.listView);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
-			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
+			paddingBottom = TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0),
+				TiDimension.TYPE_BOTTOM).getAsPixels(this.listView);
 		}
 
 		this.listView.getRecyclerView().setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
