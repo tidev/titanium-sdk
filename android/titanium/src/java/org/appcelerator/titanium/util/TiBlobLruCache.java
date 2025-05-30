@@ -37,10 +37,6 @@ public class TiBlobLruCache extends LruCache<String, Bitmap>
 	@Override
 	protected int sizeOf(String key, Bitmap bitmap)
 	{
-		if (bitmap.isRecycled()) {
-			return 0;
-		}
-
 		int byteCount = bitmap.getRowBytes() * bitmap.getHeight();
 		return byteCount / 1024;
 	}
