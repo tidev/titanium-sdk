@@ -448,7 +448,11 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		if (level >= TRIM_MEMORY_RUNNING_LOW) {
 			// Release all the cached images
-			TiBlobLruCache.getInstance().evictAll();
+			try {
+				TiBlobLruCache.getInstance().evictAll();
+			} catch (Exception ex) {
+				Log.e(TAG, ex.getMessage());
+			}
 			TiImageCache.clear();
 
 			// Perform soft garbage collection to reclaim memory.
