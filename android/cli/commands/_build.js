@@ -1047,6 +1047,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	try {
 		if (cli.tiapp.android && cli.tiapp.android.manifest) {
 			this.customAndroidManifest = AndroidManifest.fromXmlString(cli.tiapp.android.manifest);
+
+			// check if we have <activity-alias> nodes
+			this.activityAliasCount = this.customAndroidManifest.xmlDomDocument.getElementsByTagName('application')[0].getElementsByTagName('activity-alias').length;
 		}
 	} catch (ex) {
 		logger.error(__n('Malformed <manifest> definition in the <android> section of the tiapp.xml'));
@@ -3522,7 +3525,8 @@ AndroidBuilder.prototype.fetchNeededManifestSettings = function fetchNeededManif
 	const neededSettings = {
 		queries: neededQueriesDictionary,
 		storagePermissionMaxSdkVersion: storagePermissionMaxSdkVersion,
-		usesPermissions: Object.keys(neededPermissionDictionary)
+		usesPermissions: Object.keys(neededPermissionDictionary),
+		skipLauncher: this.activityAliasCount > 0
 	};
 	return neededSettings;
 };
@@ -3619,7 +3623,8 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 		storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
 		packageName: this.appid,
 		queries: neededManifestSettings.queries,
-		usesPermissions: neededManifestSettings.usesPermissions
+		usesPermissions: neededManifestSettings.usesPermissions,
+		skipLauncher: this.activityAliasCount > 0
 	});
 	const mainManifest = AndroidManifest.fromXmlString(mainManifestContent);
 
