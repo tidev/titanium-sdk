@@ -49,6 +49,27 @@
   [[self proxy] replaceValue:value forKey:@"effect" notification:NO];
 }
 
+#if IS_SDK_IOS_26
+- (void)setGlassEffect_:(id)value
+{
+  ENSURE_TYPE_OR_NIL(value, NSDictionary);
+
+  BOOL isInteractive = [TiUtils boolValue:@"interactive" properties:value def:NO];
+  TiColor *tintColor = [TiUtils colorValue:@"tintColor" properties:value def:nil];
+
+  if (@available(iOS 26.0, *)) {
+    UIGlassEffect *glassEffect = [UIGlassEffect new];
+    glassEffect.interactive = isInteractive;
+    glassEffect.tintColor = tintColor.color;
+
+    [[self blurView] setEffect:glassEffect];
+    [[self proxy] replaceValue:value forKey:@"glassEffect" notification:NO];
+  } else {
+    NSLog(@"[ERROR] Setting glass effects require iOS 26+");
+  }
+}
+#endif
+
 - (void)setWidth_:(id)width_
 {
   width = TiDimensionFromObject(width_);
