@@ -641,6 +641,15 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			activity.getSupportActionBar().setHomeButtonEnabled(true);
 		}
 
+		try {
+			if (id_drawer_open_string == 0) {
+				id_drawer_open_string = TiRHelper.getResource("string.drawer_layout_open");
+			}
+			if (id_drawer_close_string == 0) {
+				id_drawer_close_string = TiRHelper.getResource("string.drawer_layout_close");
+			}
+		} catch (Exception ex) {}
+
 		drawerToggle = new ActionBarDrawerToggle(activity, layout, id_drawer_open_string, id_drawer_close_string) {
 			@Override
 			public void onDrawerClosed(View drawerView)
