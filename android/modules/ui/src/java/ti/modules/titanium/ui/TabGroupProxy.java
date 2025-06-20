@@ -58,7 +58,9 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 		TiC.PROPERTY_AUTO_TAB_TITLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK,
-		TiC.PROPERTY_INDICATOR_COLOR
+		TiC.PROPERTY_INDICATOR_COLOR,
+		TiC.PROPERTY_LEFT_VIEW,
+		TiC.PROPERTY_RIGHT_VIEW
 	})
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {

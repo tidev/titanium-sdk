@@ -763,8 +763,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 			TiViewProxy newProxy = null;
 			int index = 0;
+			boolean isFirst = false;
 			if (this.leftView != null) {
 				index = this.leftFrame.indexOfChild(this.leftView.getOrCreateView().getNativeView());
+			} else {
+				// first left view
+				isFirst = true;
 			}
 			if (newValue instanceof TiViewProxy) {
 				if (newValue instanceof WindowProxy) {
@@ -780,15 +784,22 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				this.leftFrame.removeView(this.leftView.getOrCreateView().getNativeView());
 			}
 			this.leftView = newProxy;
-
+			if (isFirst) {
+				// set initial width
+				leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
 		} else if (key.equals(TiC.PROPERTY_RIGHT_VIEW)) {
 			if (newValue == null || newValue == this.rightView) {
 				return;
 			}
 			TiViewProxy newProxy = null;
 			int index = 0;
+			boolean isFirst = false;
 			if (this.rightView != null) {
 				index = this.rightFrame.indexOfChild(this.rightView.getOrCreateView().getNativeView());
+			} else {
+				// first left view
+				isFirst = true;
 			}
 			if (newValue instanceof TiViewProxy) {
 				if (newValue instanceof WindowProxy) {
@@ -804,7 +815,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				this.rightFrame.removeView(this.rightView.getOrCreateView().getNativeView());
 			}
 			this.rightView = newProxy;
-
+			if (isFirst) {
+				// set initial width
+				rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
 		} else if (key.equals(TiC.PROPERTY_LEFT_WIDTH)) {
 			if (leftFrame == null) {
 				return;
