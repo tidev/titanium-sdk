@@ -797,6 +797,12 @@ public class AndroidModule extends KrollModule
 		return new ServiceProxy(intentProxy);
 	}
 
+	@Kroll.getProperty
+	public int getSdkVersion()
+	{
+		return android.os.Build.VERSION.SDK_INT;
+	}
+
 	@Override
 	public String getApiName()
 	{
