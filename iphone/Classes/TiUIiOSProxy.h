@@ -142,11 +142,8 @@
 @property (nonatomic, readwrite, assign) NSNumber *appBadge;
 @property (nonatomic, readwrite, assign) NSNumber *appSupportsShakeToEdit;
 
-// iOS 16+ alert severity
-#if IS_SDK_IOS_16
 - (NSNumber *)ALERT_SEVERITY_DEFAULT;
 - (NSNumber *)ALERT_SEVERITY_CRITICAL;
-#endif
 
 // Modal Presentation & Transition
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
