@@ -50,7 +50,6 @@ extern NSString *const TI_APPLICATION_GUID;
     httpRequest = [[APSHTTPRequest alloc] init];
     [httpRequest setDelegate:self];
     [httpRequest addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-    [httpRequest addRequestHeader:[NSString stringWithFormat:@"%s-%s%s-%s", "X", "Tita", "nium", "Id"] value:TI_APPLICATION_GUID];
   }
 }
 
