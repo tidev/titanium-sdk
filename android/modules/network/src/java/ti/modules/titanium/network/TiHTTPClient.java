@@ -1473,9 +1473,6 @@ public class TiHTTPClient
 			// This is to set gzip default to disable
 			// https://code.google.com/p/android/issues/detail?id=174949
 			client.setRequestProperty("Accept-Encoding", "identity");
-			if (TiConvert.toBoolean(proxy.getProperty("titaniumId"), true)) {
-				client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
-			}
 			if (parts.size() > 0 && needMultipart) {
 				boundary = HttpUrlConnectionUtils.generateBoundary();
 				client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);

@@ -398,13 +398,6 @@ properties:
     type: String
     permission: read-only
 
-  - name: titaniumId
-    summary: Sets the default X-Titanium-Id in the request header
-    type: Boolean
-    default: true
-    permission: read-only
-    since: {android: 12.8.0}
-
   - name: ondatastream
     summary: Function to be called at regular intervals as the request data is being received.
     description: |
