@@ -509,7 +509,9 @@
   UIScrollView *sv = [self scrollview];
   for (UIView *view in [sv subviews]) {
     for (TiUIView *sView in [view subviews]) {
-      [sView checkBounds];
+      if ([sView respondsToSelector:@selector(checkBounds)]) {
+        [sView checkBounds];
+      }
     }
   }
 
