@@ -291,7 +291,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 }
 #endif
 
-#if IS_SDK_IOS_16
 - (NSNumber *)ALERT_SEVERITY_DEFAULT
 {
   if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
@@ -309,7 +308,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 
   return @(UIAlertControllerSeverityCritical);
 }
-#endif
 
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 - (TiUIiOSAnimationStyleProxy *)AnimationStyle
