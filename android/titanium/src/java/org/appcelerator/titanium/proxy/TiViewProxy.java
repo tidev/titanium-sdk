@@ -59,6 +59,7 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_BORDER_COLOR,
 	TiC.PROPERTY_BORDER_RADIUS,
 	TiC.PROPERTY_BORDER_WIDTH,
+	TiC.PROPERTY_DASHED,
 	// layout / dimension (size/width/height have custom accessors)
 	TiC.PROPERTY_LEFT,
 	TiC.PROPERTY_TOP,
