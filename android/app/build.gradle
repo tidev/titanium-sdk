@@ -82,8 +82,8 @@ tasks.withType(JavaCompile).configureEach {
 // Define library dependencies used by this app.
 dependencies {
 	implementation(project(':titanium')) {
-// Uncomment the below to exclude Google Play Services from app.
-//		exclude group: 'com.google.android.gms'
+	// Uncomment the below to exclude Google Play Services from app.
+	//		exclude group: 'com.google.android.gms'
 	}
 
 	implementation "androidx.activity:activity:1.8.0"
