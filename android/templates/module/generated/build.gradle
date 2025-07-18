@@ -20,7 +20,7 @@ def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.
 android {
 	compileSdkVersion <%- compileSdkVersion %>
 	namespace '<%- moduleId %>'
-	ndkVersion '27.0.12077973'
+	ndkVersion '28.1.13356709'
 	defaultConfig {
 		minSdkVersion 21
 		targetSdkVersion <%- compileSdkVersion %>
