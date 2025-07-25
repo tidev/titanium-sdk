@@ -12,6 +12,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -422,27 +424,27 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 	private void openTabGroup(Activity topActivity, KrollDict options)
 	{
-		try {
-			// set theme for XML layout
-			if (hasProperty(TiC.PROPERTY_STYLE)
-				&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
-				&& getProperty(TiC.PROPERTY_THEME) != null) {
-				try {
-					String themeName = getProperty(TiC.PROPERTY_THEME).toString();
-					int theme = TiRHelper.getResource("style."
-						+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
-					topActivity.setTheme(theme);
-					topActivity.getApplicationContext().setTheme(theme);
-				} catch (Exception e) {
-				}
+		// set theme for XML layout
+		if (hasProperty(TiC.PROPERTY_STYLE)
+			&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
+			&& getProperty(TiC.PROPERTY_THEME) != null) {
+			try {
+				String themeName = getProperty(TiC.PROPERTY_THEME).toString();
+				int theme = TiRHelper.getResource("style."
+					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
+				topActivity.setTheme(theme);
+				topActivity.getApplicationContext().setTheme(theme);
+			} catch (Exception e) {
 			}
+		}
 
-			Intent intent = new Intent(topActivity, TiActivity.class);
-			fillIntent(topActivity, intent);
+		Intent intent = new Intent(topActivity, TiActivity.class);
+		fillIntent(topActivity, intent);
 
-			int windowId = TiActivityWindows.addWindow(this);
-			intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
+		int windowId = TiActivityWindows.addWindow(this);
+		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
+		try {
 			boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
 			if (!animated) {
 				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -463,7 +465,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				}
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("TabGroup could not be opened: " + e);
+			// Last attempt to open the TabGroup (without any animation this time) as reported here:
+			// https://issuetracker.google.com/issues/293645024
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			new Handler(Looper.getMainLooper()).postDelayed(() -> {
+				try {
+					topActivity.startActivity(intent);
+				} catch (Exception ex) {
+					throw new RuntimeException("TabGroup failed to open: " + ex);
+				}
+			}, 500); // Just a hypothetical delay.
 		}
 	}
 
