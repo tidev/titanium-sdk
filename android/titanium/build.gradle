@@ -197,18 +197,18 @@ tasks.register('snapshotTiCommonFiles') {
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
 }
 
-tasks.register('prebuildJs', Exec) {
-  executable = 'node'
-  workingDir = projectDir
-  args = ['prebuild.js']
-}
-
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // Generates C/C++ files providing our Android-only JS files via byte arrays.
 tasks.withType(JavaCompile).configureEach {
 	dependsOn checkJavaStyle
 	dependsOn snapshotTiCommonFiles
-	dependsOn tasks.named('prebuildJs')
+	doLast {
+		exec {
+			executable = 'node'
+			workingDir = projectDir
+			args = ['prebuild.js']
+		}
+	}
 }
 
 // Set up project to compile Java side before compiling the C/C++ side.
