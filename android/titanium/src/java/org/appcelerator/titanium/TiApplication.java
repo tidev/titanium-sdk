@@ -45,6 +45,7 @@ import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
 import ti.modules.titanium.TitaniumModule;
+import ti.modules.titanium.ui.TabGroupProxy;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -687,6 +688,21 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		appEventProxies.remove(appEventProxy);
 	}
 
+	public boolean hasListener(String eventName)
+	{
+		for (WeakReference<KrollProxy> weakProxy : appEventProxies) {
+			KrollProxy appEventProxy = weakProxy.get();
+			if (appEventProxy == null) {
+				continue;
+			}
+			if (appEventProxy.hasListeners(eventName)) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+
 	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
 		boolean handled = false;
@@ -695,7 +711,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (appEventProxy == null) {
 				continue;
 			}
-
 			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
 			handled = handled || proxyHandled;
 		}
@@ -1019,5 +1034,36 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{
+	}
+
+	public void popToRootWindow()
+	{
+		/**
+		 * emulates the iOS Tab.popToRootWindow() by closing all windows above a TabGroup.
+		 */
+		int tabGroupPosition = -1;
+		boolean isTabGroup = false;
+
+		for (int i = 0; i <= activityStack.size(); ++i) {
+			isTabGroup = (activityStack.get(i).get() instanceof TiActivity)
+				&& ((TiActivity) activityStack.get(i).get()).getWindowProxy() instanceof TabGroupProxy;
+			if (isTabGroup) {
+				tabGroupPosition = i;
+				break;
+			}
+		}
+
+		// no TabGroup - don't do anything
+		if (!isTabGroup || tabGroupPosition == -1) {
+			return;
+		}
+
+		// finish all activities above our TabGroup
+		for (int i = activityStack.size() - 1; i > tabGroupPosition; --i) {
+			if (activityStack.get(i).get() instanceof TiActivity) {
+				TiActivity currentActivity = (TiActivity) activityStack.get(i).get();
+				currentActivity.finish();
+			}
+		}
 	}
 }

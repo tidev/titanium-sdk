@@ -324,7 +324,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 	}
 
 	/**
-	 * Method for creating a ColorStateList instance usef for item in the Controller.
+	 * Method for creating a ColorStateList instance use for item in the Controller.
 	 * It creates a ColorStateList with two states - one for the provided parameter and
 	 * one for the negative value of the provided parameter.
 	 * If the properties are not set the method falls back to the textColorPrimary of the
