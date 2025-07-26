@@ -10,7 +10,7 @@ apply plugin: '<%= plugins[i] %>'
 repositories {
 	maven {
 		// Path to the Titanium SDK's "m2repository" containing the "titanium.aar" library.
-		url '<%- tiMavenUrl %>'
+		url = '<%- tiMavenUrl %>'
 	}
 }
 
@@ -19,8 +19,8 @@ def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>
-	namespace '<%- moduleId %>'
-	ndkVersion '27.0.12077973'
+	namespace = '<%- moduleId %>'
+	ndkVersion = '27.0.12077973'
 	defaultConfig {
 		minSdkVersion 21
 		targetSdkVersion <%- compileSdkVersion %>
@@ -44,7 +44,7 @@ android {
 		aaptOptions {
 			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
 			// So, we must redefine ignore string with underscore pattern removed to support this too.
-			ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+			ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
 		}
 		javaCompileOptions {
 			annotationProcessorOptions {
@@ -74,7 +74,7 @@ android {
 		}
 	}
 	buildFeatures {
-		buildConfig true
+		buildConfig = true
 	}
 	externalNativeBuild {
 		ndkBuild {
@@ -228,9 +228,9 @@ publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
 			// Set up maven repo info.
-			groupId '<%- moduleMavenGroupId %>'
-			artifactId '<%- moduleMavenArtifactId %>'
-			version '<%- moduleVersion %>'
+			groupId = '<%- moduleMavenGroupId %>'
+			artifactId = '<%- moduleMavenArtifactId %>'
+			version = '<%- moduleVersion %>'
 			artifact file("${buildDir}/outputs/aar/${project.name}-release.aar")
 
 			// Generates the "*.pom" XML file containing all of Titanium's above dependencies.
@@ -259,7 +259,7 @@ publishing {
 	repositories {
 		maven {
 			// The maven directory tree produced above will be outputted to the following local directory.
-			url "${buildDir}/outputs/m2repository"
+			url = "${buildDir}/outputs/m2repository"
 		}
 	}
 }
