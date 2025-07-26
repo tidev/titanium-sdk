@@ -29,6 +29,7 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 
 @Kroll.module
 @ContextSpecific
@@ -93,9 +94,11 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CONTACTS, permissionCallback,
 				callbackThisObject, promise);
 			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			currentActivity.requestPermissions(
-				new String[] { Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS },
-				TiC.PERMISSION_CODE_CONTACTS);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				currentActivity.requestPermissions(
+					new String[] { Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS },
+					TiC.PERMISSION_CODE_CONTACTS);
+			}
 		});
 	}
 
