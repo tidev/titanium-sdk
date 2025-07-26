@@ -786,8 +786,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			// Show dialog requesting permission.
 			TiBaseActivity.registerPermissionRequestCallback(
 				TiC.PERMISSION_CODE_MICROPHONE, permissionCallback, callbackThisObject, promise);
-			activity.requestPermissions(
-				new String[] { Manifest.permission.RECORD_AUDIO }, TiC.PERMISSION_CODE_MICROPHONE);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				activity.requestPermissions(
+					new String[] { Manifest.permission.RECORD_AUDIO }, TiC.PERMISSION_CODE_MICROPHONE);
+			}
 		});
 	}
 

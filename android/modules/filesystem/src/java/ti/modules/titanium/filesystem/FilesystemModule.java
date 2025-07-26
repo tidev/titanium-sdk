@@ -135,7 +135,9 @@ public class FilesystemModule extends KrollModule
 			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
 			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_EXTERNAL_STORAGE,
 				permissionCallback, callbackThisObject, promise);
-			currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				currentActivity.requestPermissions(permissions, TiC.PERMISSION_CODE_EXTERNAL_STORAGE);
+			}
 		});
 	}
 

@@ -9,6 +9,7 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
+import android.os.Build;
 import android.provider.CalendarContract;
 
 import org.appcelerator.kroll.KrollDict;
@@ -143,9 +144,11 @@ public class CalendarModule extends KrollModule
 			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CALENDAR, permissionCallback,
 				callbackThisObject, promise);
 			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			currentActivity.requestPermissions(
-				new String[] { Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR },
-				TiC.PERMISSION_CODE_CALENDAR);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				currentActivity.requestPermissions(
+					new String[] { Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR },
+					TiC.PERMISSION_CODE_CALENDAR);
+			}
 		});
 	}
 

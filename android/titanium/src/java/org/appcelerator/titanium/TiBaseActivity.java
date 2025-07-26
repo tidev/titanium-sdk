@@ -1038,8 +1038,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			// Invoke the "onBack" property's callback if assigned.
 			if (this.window.hasProperty(TiC.PROPERTY_ON_BACK) && (this.activityProxy != null)) {
 				Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
-				if (value instanceof KrollFunction) {
-					KrollFunction onBackCallback = (KrollFunction) value;
+				if (value instanceof KrollFunction onBackCallback) {
 					onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 					hasBackEventHandler = true;
 				}
@@ -1900,7 +1899,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void setSustainMode(boolean sustainMode)
 	{
-		if (hasSustainMode() && this.sustainMode != sustainMode) {
+		if (hasSustainMode() && this.sustainMode != sustainMode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			getWindow().setSustainedPerformanceMode(sustainMode);
 			this.sustainMode = sustainMode;
 		} else {

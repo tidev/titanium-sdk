@@ -515,10 +515,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	{
 		// Fetch top-most activity in app.
 		Activity activity = TiApplication.getAppCurrentActivity();
-		if (!(activity instanceof AppCompatActivity)) {
+		if (!(activity instanceof AppCompatActivity appCompatActivity)) {
 			return;
 		}
-		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
 
 		// Fetch optional dictionary of settings from 1st argument.
 		HashMap settings;
@@ -666,10 +665,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	{
 		// Fetch top-most activity in app.
 		Activity activity = TiApplication.getAppCurrentActivity();
-		if (!(activity instanceof AppCompatActivity)) {
+		if (!(activity instanceof AppCompatActivity appCompatActivity)) {
 			return;
 		}
-		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
 
 		// Fetch optional dictionary of settings from 1st argument.
 		HashMap settings;

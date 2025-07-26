@@ -52,7 +52,7 @@ public class TiPoint
 		}
 	}
 
-	/*
+	/**
 	 * Create a new point with the 'x' and 'y'
 	 * coordinates as string.
 	 * @param x the x value as string.
