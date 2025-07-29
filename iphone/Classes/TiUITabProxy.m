@@ -32,6 +32,11 @@
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
 
+  if (fullWidthBackGestureRecognizer != nil) {
+    [fullWidthBackGestureRecognizer setDelegate:nil];
+    [controller.view removeGestureRecognizer:fullWidthBackGestureRecognizer];
+  }
+
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
@@ -39,6 +44,8 @@
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
+
   [super _destroy];
 }
 
@@ -260,12 +267,43 @@
     [controllerStack addObject:[self rootController]];
     [controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
     [[controller interactivePopGestureRecognizer] setDelegate:self];
+
+    BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[tabGroup valueForKey:@"interactiveDismissModeEnabled"] def:NO];
+    if (interactiveDismissModeEnabled) {
+      [self configureFullWidthSwipeToClose];
+    }
   }
   return controller;
 }
 
+- (void)configureFullWidthSwipeToClose
+{
+  fullWidthBackGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
+
+  if (controller.interactivePopGestureRecognizer == nil) {
+    return;
+  }
+
+  id targets = [controller.interactivePopGestureRecognizer valueForKey:@"targets"];
+  if (targets == nil) {
+    return;
+  }
+
+  [fullWidthBackGestureRecognizer setValue:targets forKey:@"targets"];
+  [fullWidthBackGestureRecognizer setDelegate:self];
+  [controller.view addGestureRecognizer:fullWidthBackGestureRecognizer];
+}
+
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
+  BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
+  if (interactiveDismissModeEnabled && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
+    BOOL isSystemSwipeToCloseEnabled = controller.interactivePopGestureRecognizer.isEnabled == YES;
+    BOOL areThereStackedViewControllers = controller.viewControllers.count > 1;
+
+    return isSystemSwipeToCloseEnabled || areThereStackedViewControllers;
+  }
+
   if (current != nil) {
     return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
   }
@@ -647,7 +685,6 @@
     activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
   }
   if ((titleColor != nil) || (activeTitleColor != nil)) {
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = UITabBarAppearance.new;
       if (titleColor != nil) {
@@ -665,16 +702,13 @@
       ourItem.standardAppearance = appearance;
       ourItem.scrollEdgeAppearance = appearance;
     } else {
-#endif
       if (titleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
       }
       if (activeTitleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
       }
-#if IS_SDK_IOS_15
     }
-#endif
   }
 
   if (iconInsets != nil) {

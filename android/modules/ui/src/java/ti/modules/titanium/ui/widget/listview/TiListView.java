@@ -153,6 +153,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						payload.put(TiC.PROPERTY_DIRECTION, "up");
 					} else if (dy < 0) {
 						payload.put(TiC.PROPERTY_DIRECTION, "down");
+					} else {
+						payload.put(TiC.PROPERTY_DIRECTION, "unknown");
 					}
 					payload.put(TiC.EVENT_PROPERTY_VELOCITY, 0);
 					if (continuousUpdate) {
@@ -259,8 +261,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 							@Override
 							public boolean inSelectionHotspot(@NonNull MotionEvent e)
 							{
-								if (holder.getProxy() instanceof ListItemProxy) {
-									final ListItemProxy item = (ListItemProxy) holder.getProxy();
+								if (holder.getProxy() != null) {
+									final ListItemProxy item = holder.getProxy();
 
 									// Prevent selection of placeholders.
 									return !item.isPlaceholder();
@@ -565,10 +567,22 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
 			// Obtain first visible list item proxy.
-			return (ListItemProxy) firstVisibleHolder.getProxy();
+			return firstVisibleHolder.getProxy();
 		}
 
 		return null;
+	}
+
+	public ListItemProxy getVisibleItemAt(int index)
+	{
+		final View itemView = getLayoutManager().findViewByPosition(index);
+
+		if (itemView == null) {
+			return null;
+		}
+
+		// Obtain list item proxy
+		return ((ListViewHolder) recyclerView.getChildViewHolder(itemView)).getProxy();
 	}
 
 	/**
@@ -587,7 +601,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible list item proxy.
-			return (ListItemProxy) lastVisibleHolder.getProxy();
+			return lastVisibleHolder.getProxy();
 		}
 
 		return null;

@@ -16,17 +16,17 @@ runs:
       run: |
         sudo dpkg --add-architecture i386
         sudo apt-get update -y -qq
-        sudo apt-get install -y -qq gperf libatomic1:i386 libc6:i386 libncurses5:i386 libstdc++6:i386
+        sudo apt-get install -y -qq gperf libatomic1:i386 libc6:i386 libstdc++6:i386
       shell: bash
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'adopt'
         java-version: ${{ inputs.java-version }}
@@ -36,7 +36,7 @@ runs:
       shell: bash
 
     - name: Cache Gradle packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.gradle/caches
@@ -58,7 +58,7 @@ runs:
           ${{ runner.os }}-ccache-
 
     - name: Cache V8
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: dist/android/libv8
         key: libv8-${{ hashFiles('dist/android/libv8/**') }}
@@ -84,7 +84,7 @@ runs:
         dist/tmp/common
       shell: bash
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: android-build
         retention-days: 1

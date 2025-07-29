@@ -1020,6 +1020,17 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "2.0.0", ipad: "2.0.0", macos: "9.2.0"}
 
+  - name: layerType
+    summary: A value indicating the render mode of the WebView
+    description: |
+        Set to Ti.UI.WebView.LAYER_TYPE_SOFTWARE (software rendering) if you use `Ti.Media.takeScreenshot()` or `toImage()` and the WebView contains local HTML files.
+        Otherwise the WebView might be empty in the screenshot/image. If you change the setting you will have to assing the HTML content again.
+    type: Number
+    constants: Titanium.UI.WebView.LAYER_TYPE_*
+    default: <Titanium.UI.WebView.LAYER_TYPE_NONE>
+    platforms: [android]
+    since: {android: "12.7.0"}
+
   - name: enableZoomControls
     summary: If `true`, zoom controls are enabled.
     type: Boolean
@@ -1203,6 +1214,27 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     permission: read-only
+
+  - name: LAYER_TYPE_NONE
+    summary: Default rendering mode
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.7.0"
+
+  - name: LAYER_TYPE_SOFTWARE
+    summary: Software rendering mode
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.7.0"
+
+  - name: LAYER_TYPE_HARDWARE
+    summary: Hardware rendering mode
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.7.0"
 
   - name: PDF_PAGE_DIN_A5
     summary: PDF paper size

@@ -198,6 +198,14 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [android, iphone, ipad, macos]
+    properties:
+      - name: x
+        summary: X coordinate from the scrollable touch position.
+        type: Number
+
+      - name: y
+        summary: Y coordinate from the scrollable touch position.
+        type: Number
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
   - name: dragend
@@ -213,6 +221,13 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
             Is always `true` on Android.
         type: Boolean
+      - name: x
+        summary: X coordinate from the scrollable touch position.
+        type: Number
+
+      - name: y
+        summary: Y coordinate from the scrollable touch position.
+        type: Number
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
 properties:
