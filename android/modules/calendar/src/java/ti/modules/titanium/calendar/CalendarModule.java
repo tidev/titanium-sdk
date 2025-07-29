@@ -9,7 +9,7 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
-import android.os.Build;
+import android.annotation.SuppressLint;
 import android.provider.CalendarContract;
 
 import org.appcelerator.kroll.KrollDict;
@@ -127,6 +127,7 @@ public class CalendarModule extends KrollModule
 		return CalendarProxy.hasCalendarPermissions();
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestCalendarPermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
@@ -144,11 +145,9 @@ public class CalendarModule extends KrollModule
 			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CALENDAR, permissionCallback,
 				callbackThisObject, promise);
 			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				currentActivity.requestPermissions(
-					new String[] { Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR },
-					TiC.PERMISSION_CODE_CALENDAR);
-			}
+			currentActivity.requestPermissions(
+				new String[] { Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR },
+				TiC.PERMISSION_CODE_CALENDAR);
 		});
 	}
 
