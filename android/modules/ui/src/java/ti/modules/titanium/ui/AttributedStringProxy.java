@@ -120,8 +120,7 @@ public class AttributedStringProxy extends KrollProxy
 			attribute.handleCreationDict(attributeDict);
 			Object obj = getProperty(TiC.PROPERTY_ATTRIBUTES);
 			AttributeProxy[] attributes = null;
-			if (obj instanceof Object[]) {
-				Object[] objArray = (Object[]) obj;
+			if (obj instanceof Object[] objArray) {
 				attributes = new AttributeProxy[objArray.length + 1];
 				for (int i = 0; i < objArray.length; i++) {
 					attributes[i] = AttributedStringProxy.attributeProxyFor(objArray[i], this);
@@ -181,8 +180,7 @@ public class AttributedStringProxy extends KrollProxy
 				Spannable spannableText = new SpannableString(textString);
 				AttributeProxy[] attributes = null;
 				Object obj = attrString.getProperty(TiC.PROPERTY_ATTRIBUTES);
-				if (obj instanceof Object[]) {
-					Object[] objArray = (Object[]) obj;
+				if (obj instanceof Object[] objArray) {
 					attributes = new AttributeProxy[objArray.length];
 					for (int i = 0; i < objArray.length; i++) {
 						attributes[i] = AttributedStringProxy.attributeProxyFor(objArray[i], attrString);
