@@ -303,8 +303,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 
 	private Uri getAttachmentUri(Object attachment)
 	{
-		if (attachment instanceof FileProxy) {
-			FileProxy fileProxy = (FileProxy) attachment;
+		if (attachment instanceof FileProxy fileProxy) {
 			if (fileProxy.isFile()) {
 				File file = getAttachableFileFrom(fileProxy);
 				if (file != null) {
@@ -390,8 +389,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	private void putAddressExtra(Intent intent, String extraType, String ourkey)
 	{
 		Object testprop = this.getProperty(ourkey);
-		if (testprop instanceof Object[]) {
-			Object[] oaddrs = (Object[]) testprop;
+		if (testprop instanceof Object[] oaddrs) {
 			int len = oaddrs.length;
 			String[] addrs = new String[len];
 			for (int i = 0; i < len; i++) {

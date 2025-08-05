@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -114,6 +115,7 @@ public class FilesystemModule extends KrollModule
 					== PackageManager.PERMISSION_GRANTED));
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestStoragePermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)

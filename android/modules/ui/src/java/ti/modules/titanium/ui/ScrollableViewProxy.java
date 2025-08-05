@@ -151,8 +151,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		this.views.clear();
 		if (views instanceof Object[]) {
 			for (final Object nextObject : (Object[]) views) {
-				if (nextObject instanceof TiViewProxy) {
-					TiViewProxy view = (TiViewProxy) nextObject;
+				if (nextObject instanceof TiViewProxy view) {
 					if (!this.views.contains(view)) {
 						view.setActivity(getActivity());
 						view.setParent(this);
@@ -204,8 +203,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertViewsAt(int insertIndex, Object viewObject)
 	{
-		if (viewObject instanceof TiViewProxy) {
-			final TiViewProxy view = (TiViewProxy) viewObject;
+		if (viewObject instanceof TiViewProxy view) {
 
 			if (!this.views.contains(view)) {
 				view.setActivity(getActivity());
@@ -213,8 +211,7 @@ public class ScrollableViewProxy extends TiViewProxy
 				this.views.add(insertIndex, view);
 			}
 
-		} else if (viewObject instanceof Object[]) {
-			Object[] views = (Object[]) viewObject;
+		} else if (viewObject instanceof Object[] views) {
 
 			for (int i = 0; i < views.length; i++) {
 				insertViewsAt(insertIndex, views[i]);
@@ -236,8 +233,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		if (viewObject instanceof Number) {
 			this.views.remove((int) viewObject);
 
-		} else if (viewObject instanceof TiViewProxy) {
-			final TiViewProxy view = (TiViewProxy) viewObject;
+		} else if (viewObject instanceof TiViewProxy view) {
 
 			this.views.remove(view);
 

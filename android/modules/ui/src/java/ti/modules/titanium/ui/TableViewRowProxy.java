@@ -255,8 +255,7 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		final TiViewProxy parent = getParent();
 
-		if (parent instanceof TableViewSectionProxy) {
-			final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+		if (parent instanceof TableViewSectionProxy section) {
 
 			return section.getRowIndex(this);
 		}

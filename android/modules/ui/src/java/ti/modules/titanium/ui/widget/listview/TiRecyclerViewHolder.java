@@ -218,8 +218,7 @@ public abstract class TiRecyclerViewHolder<V extends TiViewProxy> extends Recycl
 			if (currentDrawable instanceof RippleDrawable) {
 				currentDrawable = ((RippleDrawable) currentDrawable).getDrawable(0);
 			}
-			if (currentDrawable instanceof ShapeDrawable) {
-				final ShapeDrawable shapeDrawable = (ShapeDrawable) currentDrawable;
+			if (currentDrawable instanceof ShapeDrawable shapeDrawable) {
 
 				if (shapeDrawable.getShape() == null) {
 					shapeDrawable.setShape(new Shape()

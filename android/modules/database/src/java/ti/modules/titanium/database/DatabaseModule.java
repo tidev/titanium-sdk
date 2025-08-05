@@ -59,8 +59,7 @@ public class DatabaseModule extends KrollModule
 		if (file instanceof TiFileProxy) {
 			// We were given a file proxy. Fetch its file object.
 			dbTiBaseFile = ((TiFileProxy) file).getBaseFile();
-		} else if (file instanceof String) {
-			String fileString = (String) file;
+		} else if (file instanceof String fileString) {
 			if (fileString.startsWith(File.separator)) {
 				// Assume we were given an absolute file system path.
 				dbTiBaseFile = TiFileFactory.createTitaniumFile(fileString, false);
