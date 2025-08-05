@@ -128,8 +128,11 @@ public class ListItemProxy extends TiViewProxy
 			final Object sourceObject = payload.containsKeyAndNotNull(TiC.EVENT_PROPERTY_SOURCE)
 				? payload.get(TiC.EVENT_PROPERTY_SOURCE) : this;
 			final TiViewProxy source = sourceObject instanceof TiViewProxy ? (TiViewProxy) sourceObject : this;
+			final KrollDict properties = getProperties();
 
 			final Object parent = getParent();
+			boolean sectionTouchEnabled = true;
+
 			if (parent instanceof ListSectionProxy) {
 				final ListSectionProxy section = (ListSectionProxy) parent;
 
@@ -137,9 +140,10 @@ public class ListItemProxy extends TiViewProxy
 				payload.putIfAbsent(TiC.PROPERTY_SECTION, section);
 				payload.putIfAbsent(TiC.PROPERTY_SECTION_INDEX, listViewProxy.getIndexOfSection(section));
 				payload.putIfAbsent(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
+				sectionTouchEnabled = section.getProperties().optBoolean(TiC.PROPERTY_TOUCH_ENABLED, true);
 			}
 
-			final Object itemId = getProperties().get(TiC.PROPERTY_ITEM_ID);
+			final Object itemId = properties.get(TiC.PROPERTY_ITEM_ID);
 			if (itemId != null) {
 
 				// Include `itemId` if specified.
@@ -156,9 +160,12 @@ public class ListItemProxy extends TiViewProxy
 				}
 			}
 
-			final int accessoryType = getProperties().optInt(TiC.PROPERTY_ACCESSORY_TYPE,
+			final int accessoryType = properties.optInt(TiC.PROPERTY_ACCESSORY_TYPE,
 				UIModule.LIST_ACCESSORY_TYPE_NONE);
 			final boolean isAccessoryDetail = accessoryType == UIModule.LIST_ACCESSORY_TYPE_DETAIL;
+			final boolean touchEnabled = properties.optBoolean(TiC.PROPERTY_TOUCH_ENABLED, true);
+			final boolean listViewTouchEnabled = listViewProxy.getProperties()
+				.optBoolean(TiC.PROPERTY_TOUCH_ENABLED, true);
 
 			// If item is `LIST_ACCESSORY_TYPE_DETAIL` then `accessoryClicked` will be `true`.
 			payload.put(TiC.EVENT_PROPERTY_ACCESSORY_CLICKED, isAccessoryDetail);
@@ -167,7 +174,8 @@ public class ListItemProxy extends TiViewProxy
 			data = payload;
 
 			// Fire `itemclick` event on ListView.
-			if (fireItemClick && eventName.equals(TiC.EVENT_CLICK)) {
+			if (fireItemClick && eventName.equals(TiC.EVENT_CLICK) && touchEnabled
+				&& sectionTouchEnabled && listViewTouchEnabled) {
 				listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
 			}
 		}
