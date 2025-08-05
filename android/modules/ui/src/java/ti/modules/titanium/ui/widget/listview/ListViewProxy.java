@@ -314,6 +314,12 @@ public class ListViewProxy extends RecyclerViewProxy
 		}
 	}
 
+	// not needed on Android but parity for iOS method call
+	@Kroll.method
+	public void deselectItem(int section, int item)
+	{
+	}
+
 	@Override
 	public String getApiName()
 	{
