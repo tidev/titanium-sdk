@@ -19,7 +19,9 @@ import org.appcelerator.titanium.proxy.RProxy;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 
 @Kroll.module(parentModule = AppModule.class)
 public class AndroidModule extends KrollModule
@@ -68,6 +70,17 @@ public class AndroidModule extends KrollModule
 			initializeVersionValues();
 		}
 		return appVersionCode;
+	}
+
+	@Kroll.getProperty
+	public boolean getIsFoldable()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			return TiApplication.getInstance().getPackageManager()
+				.hasSystemFeature(PackageManager.FEATURE_SENSOR_HINGE_ANGLE);
+		} else {
+			return false;
+		}
 	}
 
 	@Kroll.getProperty
