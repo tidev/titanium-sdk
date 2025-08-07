@@ -400,6 +400,20 @@
   [[self proxy] replaceValue:NUMBOOL(handleLinks) forKey:@"handleLinks" notification:NO];
 }
 
+- (void)setHtml_:(id)html
+{
+  ENSURE_SINGLE_ARG(html, NSString);
+  [[self proxy] replaceValue:html forKey:@"html" notification:NO];
+
+  NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                          options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                            NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                               documentAttributes:nil
+                                                                            error:nil];
+
+  [(UITextView *)[self textWidgetView] setAttributedText:attributedString];
+}
+
 /*
 Text area constrains the text event though the content offset and edge insets are set to 0
 */

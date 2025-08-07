@@ -48,6 +48,9 @@ public class TiUILabel extends TiUIView
 	private static final String TAG = "TiUILabel";
 	private static final float DEFAULT_SHADOW_RADIUS = 1f;
 	private static final float FONT_SIZE_EPSILON = 0.1f;
+	private static final int TEXT_FILTER_DEFAULT = 0;
+	private static final int TEXT_FILTER_UPPERCASE = 1;
+	private static final int TEXT_FILTER_LOWERCASE = 2;
 
 	private int defaultColor;
 	private TruncateAt ellipsize = TruncateAt.END;
@@ -63,6 +66,7 @@ public class TiUILabel extends TiUIView
 	private CharSequence originalText = "";
 	private boolean isInvalidationAndLayoutsEnabled = true;
 	private float oldFontSize = -1.0f;
+	private int textFilter = TEXT_FILTER_DEFAULT;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -397,6 +401,10 @@ public class TiUILabel extends TiUIView
 								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_LETTER_SPACING)) {
+			float value = TiConvert.toFloat(d.get(TiC.PROPERTY_LETTER_SPACING));
+			tv.setLetterSpacing(value);
+		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
 			if (color == null) {
@@ -484,6 +492,16 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_TEXT_TRANSFORM)) {
+			String transformName = TiConvert.toString(d, TiC.PROPERTY_TEXT_TRANSFORM);
+			if (transformName.equals("uppercase")) {
+				textFilter = TEXT_FILTER_UPPERCASE;
+			} else if (transformName.equals("lowercase")) {
+				textFilter = TEXT_FILTER_LOWERCASE;
+			} else if (transformName.equals("none")) {
+				textFilter = TEXT_FILTER_DEFAULT;
+			}
+		}
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
@@ -591,8 +609,11 @@ public class TiUILabel extends TiUIView
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
 				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0),
-								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+					TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
+		} else if (key.equals(TiC.PROPERTY_LETTER_SPACING)) {
+			float val = TiConvert.toFloat(newValue);
+			tv.setLetterSpacing(val);
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			// Update the view's height.
 			// Note: We may need to update lines/maxLines settings when switching to an auto-sized height.
@@ -624,6 +645,16 @@ public class TiUILabel extends TiUIView
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 				tv.setHyphenationFrequency(TiConvert.toInt(newValue));
 			}
+		} else if (key.equals(TiC.PROPERTY_TEXT_TRANSFORM)) {
+			String transformName = TiConvert.toString(newValue);
+			if (transformName.equals("uppercase")) {
+				textFilter = TEXT_FILTER_UPPERCASE;
+			} else if (transformName.equals("lowercase")) {
+				textFilter = TEXT_FILTER_LOWERCASE;
+			} else if (transformName.equals("none")) {
+				textFilter = TEXT_FILTER_DEFAULT;
+			}
+			updateLabelText();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -795,6 +826,15 @@ public class TiUILabel extends TiUIView
 			textView.setSelected(true); // Start the marquee animation.
 		}
 
+		// apply text filer
+		switch (textFilter) {
+			case TEXT_FILTER_UPPERCASE -> {
+				text = text.toString().toUpperCase();
+			}
+			case TEXT_FILTER_LOWERCASE -> {
+				text = text.toString().toLowerCase();
+			}
+		}
 		// Update the view's text.
 		textView.setText(text, MaterialTextView.BufferType.NORMAL);
 		textView.requestLayout();
