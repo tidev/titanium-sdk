@@ -206,7 +206,8 @@ tasks.register('runPrebuild', Exec) {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    dependsOn(checkJavaStyle, snapshotTiCommonFiles, tasks.runPrebuild)
+    dependsOn(checkJavaStyle, snapshotTiCommonFiles)
+    finalizedBy(tasks.runPrebuild)
 }
 
 // Set up project to compile Java side before compiling the C/C++ side.
