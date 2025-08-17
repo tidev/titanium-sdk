@@ -56,15 +56,16 @@
 
   BOOL isInteractive = [TiUtils boolValue:@"interactive" properties:value def:NO];
   TiColor *tintColor = [TiUtils colorValue:@"tintColor" properties:value def:nil];
+  UIGlassEffectStyle style = [TiUtils intValue:@"style" properties:value def:UIGlassEffectStyleRegular];
 
   if (@available(iOS 26.0, *)) {
-    UIGlassEffect *glassEffect = [UIGlassEffect new];
+    UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
     glassEffect.interactive = isInteractive;
     glassEffect.tintColor = tintColor.color;
 
     [[self blurView] setEffect:glassEffect];
     [[self proxy] replaceValue:value forKey:@"glassEffect" notification:NO];
-  } else {
+  } else if (@available(iOS 26.0, *)) {
     NSLog(@"[ERROR] Setting glass effects require iOS 26+");
   }
 }
