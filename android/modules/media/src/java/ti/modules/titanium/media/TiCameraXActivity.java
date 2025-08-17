@@ -225,9 +225,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				// Handle the case where the active recording is paused
 			} else if (videoRecordEvent instanceof VideoRecordEvent.Resume) {
 				// Handles the case where the active recording is resumed
-			} else if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
-				VideoRecordEvent.Finalize finalizeEvent =
-					(VideoRecordEvent.Finalize) videoRecordEvent;
+			} else if (videoRecordEvent instanceof VideoRecordEvent.Finalize finalizeEvent) {
 				// Handles a finalize event for the active recording, checking Finalize.getError()
 				int error = finalizeEvent.getError();
 				if (error != VideoRecordEvent.Finalize.ERROR_NONE) {

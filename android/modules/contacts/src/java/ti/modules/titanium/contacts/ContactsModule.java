@@ -27,6 +27,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 
@@ -76,6 +77,7 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 		return contactsApi.hasContactsPermissions();
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestContactsPermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
