@@ -203,7 +203,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			// Why transparent?
 			tv.setBackgroundColor(Color.TRANSPARENT);
-			if (d.get(TiC.PROPERTY_BACKGROUND_COLOR).equals("transparent")) {
+			if ("transparent".equals(d.get(TiC.PROPERTY_BACKGROUND_COLOR))) {
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
 			} else {
 				textInputLayout.setBoxBackgroundColor(TiConvert.toColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR),
