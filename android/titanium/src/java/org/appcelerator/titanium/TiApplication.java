@@ -1060,8 +1060,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		// finish all activities above our TabGroup
 		for (int i = activityStack.size() - 1; i > tabGroupPosition; --i) {
-			if (activityStack.get(i).get() instanceof TiActivity) {
-				TiActivity currentActivity = (TiActivity) activityStack.get(i).get();
+			if (activityStack.get(i).get() instanceof TiActivity currentActivity) {
 				currentActivity.finish();
 			}
 		}
