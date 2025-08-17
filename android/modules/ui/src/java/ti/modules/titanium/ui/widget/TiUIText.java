@@ -203,7 +203,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			// Why transparent?
 			tv.setBackgroundColor(Color.TRANSPARENT);
-			if ("transparent".equals(d.get(TiC.PROPERTY_BACKGROUND_COLOR))) {
+			if ("transparent".equals(d.get(TiC.PROPERTY_BACKGROUND_COLOR))
+				|| d.get(TiC.PROPERTY_BACKGROUND_COLOR) == null) {
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
 			} else {
 				textInputLayout.setBoxBackgroundColor(TiConvert.toColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR),
@@ -408,7 +409,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			this.inputFilterHandler.setMaxLength(TiConvert.toInt(newValue, -1));
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			tv.setBackgroundColor(Color.TRANSPARENT);
-			if ("transparent".equals(newValue)) {
+			if ("transparent".equals(newValue) || newValue == null) {
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
 			} else {
 				textInputLayout.setBoxBackgroundColor(
