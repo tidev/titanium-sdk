@@ -408,7 +408,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			this.inputFilterHandler.setMaxLength(TiConvert.toInt(newValue, -1));
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			tv.setBackgroundColor(Color.TRANSPARENT);
-			if (newValue.equals("transparent")) {
+			if (("transparent").equals(newValue)) {
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
 			} else {
 				textInputLayout.setBoxBackgroundColor(
