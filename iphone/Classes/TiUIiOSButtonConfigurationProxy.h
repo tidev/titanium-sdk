@@ -4,16 +4,13 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 
 #import <TitaniumKit/TiProxy.h>
 
-@interface TiUIiOSSystemButtonStyleProxy : TiProxy {
-}
+@interface TiUIiOSButtonConfigurationProxy : TiProxy
 
-@property (nonatomic, readonly) NSNumber *DONE;
-@property (nonatomic, readonly) NSNumber *BORDERED;
-@property (nonatomic, readonly) NSNumber *PLAIN;
+@property (nonatomic, strong) UIButtonConfiguration *configuration;
 
 @end
 
