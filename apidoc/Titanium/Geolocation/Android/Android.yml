@@ -52,11 +52,9 @@ description: |
     <Titanium.Geolocation> module are ignored:
 
     *   [Geolocation.accuracy](Titanium.Geolocation.accuracy)
-    *   [Geolocation.frequency](Titanium.Geolocation.frequency)
-    *   [Geolocation.preferredProvider](Titanium.Geolocation.preferredProvider)
 
-    When `manualMode` is `false`, the `accuracy`, `frequency` and `preferredProvider`
-    settings from <Titanium.Geolocation> are used to configure location updates.
+    When `manualMode` is `false`, the `accuracy`
+    setting from <Titanium.Geolocation> is used to configure location updates.
     Any location providers and location rules set in <Titanium.Geolocation.Android> 
     are retained, but they have no effect.
 
@@ -167,9 +165,8 @@ properties:
         If `true`, location updates are controlled by the location providers and location rules 
         configured in this module.
         
-        If `false`, location updates are configured using the  [accuracy](Titanium.Geolocation.accuracy),
-        [frequency](Titanium.Geolocation.frequency) and [preferredProvider](Titanium.Geolocation.preferredProvider)
-        properties in the <Titanium.Geolocation> module.
+        If `false`, location updates are configured using the [accuracy](Titanium.Geolocation.accuracy)
+        property in the <Titanium.Geolocation> module.
     type: Boolean
     default: false
 
