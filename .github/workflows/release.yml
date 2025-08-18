@@ -87,7 +87,7 @@ jobs:
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -104,7 +104,7 @@ jobs:
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:
