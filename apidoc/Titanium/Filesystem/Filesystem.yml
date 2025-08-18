@@ -392,8 +392,3 @@ properties:
 name: RequestStorageAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
-
----
-name: Promise<RequestStorageAccessResult>
-summary: A Promise that resolves to a RequestStorageAccessResult
-extends: Promise

@@ -99,7 +99,7 @@ methods:
         default: fs.constants.F_OK
         optional: true
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: accessSync
@@ -133,7 +133,7 @@ methods:
         summary: options
         optional: true
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: appendFileSync
@@ -164,7 +164,7 @@ methods:
         type: [ String, Number ]
         summary: new mode/permissions
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: chmodSync
@@ -196,7 +196,7 @@ methods:
         type: Number
         summary: new group
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: chownSync
@@ -225,7 +225,7 @@ methods:
         type: Number
         summary: file descriptor
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: closeSync
@@ -260,7 +260,7 @@ methods:
         optional: true
         default: 0
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: copyFileSync
@@ -297,7 +297,7 @@ methods:
         summary: file path
 
       - name: callback
-        type: Callback<Boolean>
+        type: Function<Boolean>
         summary: atypical async callback function that received the result as a single boolean arguments
 
   - name: existsSync(path)
@@ -322,7 +322,7 @@ methods:
         type: [ String, Number ]
         summary: new mode/permissions
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: fchmodSync
@@ -354,7 +354,7 @@ methods:
         type: Number
         summary: new group
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: fchownSync
@@ -383,7 +383,7 @@ methods:
         type: Number
         summary: file descriptor
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: fdatasyncSync
@@ -410,7 +410,7 @@ methods:
         optional: true
         summary: options
       - name: callback
-        type: Callback<fs.StatsResponse>
+        type: Function<Error, fs.Stats>
         summary: typical async callback function
 
   - name: fstatSync
@@ -437,7 +437,7 @@ methods:
         optional: true
         summary: options
       - name: callback
-        type: Callback<fs.StatsResponse>
+        type: Function<Error, fs.Stats>
         summary: typical async callback function
 
   - name: lstatSync
@@ -470,7 +470,7 @@ methods:
         optional: true
         summary: options
       - name: callback
-        type: Callback<fs.StringResponse>
+        type: Function<Error, String>
         summary: typical async callback function. The second argument is an optional path `string`.
 
   - name: mkdirSync
@@ -509,7 +509,7 @@ methods:
         optional: true
         summary: encoding if `string`
       - name: callback
-        type: Callback<fs.StringResponse>
+        type: Function<Error, String>
         summary: typical async callback function. The second argument is the generated path `string`.
 
   - name: mkdtempSync
@@ -551,7 +551,7 @@ methods:
         optional: true
         default: 0o666
       - name: callback
-        type: Callback<fs.NumberResponse>
+        type: Function<Error, Number>
         summary: typical async callback function, the second argument is an integer representing a file descriptor
 
   # Not implemented:
@@ -611,7 +611,7 @@ methods:
         type: Number
         summary: where to begin reading from in the file. *Unused/unsupported in Titanium.*
       - name: callback
-        type: Callback<fs.ReadResponse>
+        type: Function<Error, Number, buffer.Buffer>
         summary: async callback function
 
   - name: readdir
@@ -630,7 +630,7 @@ methods:
         summary: options
         optional: true
       - name: callback
-        type: Callback<fs.ArrayResponse>
+        type: Function<Error, Array<String>>
         summary: |
             Typical async callback function. The second argument is an array of results which may be `String`s, <buffer.Buffer>s, or <fs.Dirent>s
 
@@ -665,7 +665,7 @@ methods:
         summary: encoding `string`, or an options object
         optional: true
       - name: callback
-        type: Callback<fs.StringResponse>
+        type: Function<Error, String>
         summary: typical async callback function, the second argument is either a `string` or a <buffer.Buffer>
 
   - name: readFileSync
@@ -726,7 +726,7 @@ methods:
         # TODO: define a type for fs.realpath.options
         optional: true
       - name: callback
-        type: Callback<fs.StringResponse>
+        type: Function<Error, String>
         summary: typical async callback function
 
   - name: realpath.native
@@ -748,7 +748,7 @@ methods:
         # TODO: define a type for fs.realpath.options
         optional: true
       - name: callback
-        type: Callback<fs.StringResponse>
+        type: Function<Error, String>
         summary: typical async callback function
 
   - name: realpathSync
@@ -798,7 +798,7 @@ methods:
         type: [ String, buffer.Buffer ]
         summary: destination file path
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: renameSync
@@ -822,7 +822,7 @@ methods:
         summary: options
         optional: true
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
   
   # Not implemented:
@@ -880,7 +880,7 @@ methods:
         optional: true
         summary: fs.stat.options
       - name: callback
-        type: Callback<fs.StatsResponse>
+        type: Function<Error, fs.Stats>
         summary: typical async callback function
   
   - name: statSync
@@ -909,7 +909,7 @@ methods:
         type: [ String, buffer.Buffer ]
         summary: the symlink path
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: symlinkSync
@@ -939,7 +939,7 @@ methods:
         default: 0
         summary: target length to truncate to
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: truncateSync
@@ -964,7 +964,7 @@ methods:
         type: [ String, buffer.Buffer ]
         summary: file path
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: unlinkSync
@@ -1006,7 +1006,7 @@ methods:
         type: [ Number, String, Date ]
         summary: modification time
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: utimesSync
@@ -1083,7 +1083,7 @@ methods:
         summary: offset from the beginning of the file where this data should be written (if data to be written is a `Buffer`)
         optional: true
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
 
   - name: writeFile
@@ -1105,7 +1105,7 @@ methods:
         summary: from the beginning of the file where this data should be written
         optional: true
       - name: callback
-        type: Callback<Error>
+        type: Function<Error>
         summary: typical async callback function
   
   - name: writeFileSync
@@ -1753,66 +1753,3 @@ summary: |
     Instances of `fs.ReadStream` are created and returned using the `fs.createReadStream()` function.
 
     **NOTE:** Titanium defines an empty class for this type. No methods/properties are implemented!
-
----
-name: fs.StatsResponse
-since: '8.3.0'
-summary: Argument passed to the fs.Stats callback functions
-properties:
-  - name: error
-    type: Error
-    summary: The error if one occurred
-  - name: stats
-    type: fs.Stats
-    summary: The fs.Stats object
-
----
-name: fs.StringResponse
-since: '8.3.0'
-summary: Argument passed to callback functions expecting a string result
-properties:
-  - name: error
-    type: Error
-    summary: The error if one occurred
-  - name: path
-    type: String
-    summary: The string result (typically a path)
-
----
-name: fs.NumberResponse
-since: '8.3.0'
-summary: Argument passed to callback functions expecting a number result
-properties:
-  - name: error
-    type: Error
-    summary: The error if one occurred
-  - name: fd
-    type: Number
-    summary: The file descriptor
-
----
-name: fs.ReadResponse
-since: '8.3.0'
-summary: Argument passed to the read callback function
-properties:
-  - name: error
-    type: Error
-    summary: The error if one occurred
-  - name: bytesRead
-    type: Number
-    summary: Number of bytes read
-  - name: buffer
-    type: buffer.Buffer
-    summary: The buffer that was read into
-
----
-name: fs.ArrayResponse
-since: '8.3.0'
-summary: Argument passed to callback functions expecting an array result
-properties:
-  - name: error
-    type: Error
-    summary: The error if one occurred
-  - name: files
-    type: Array<String>
-    summary: Array of file names

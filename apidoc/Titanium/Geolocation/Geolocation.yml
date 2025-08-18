@@ -1321,28 +1321,3 @@ properties:
     optional: true
     type: Number
     constants: [Titanium.Geolocation.ACCURACY_AUTHORIZATION_FULL, Titanium.Geolocation.ACCURACY_AUTHORIZATION_REDUCED]
-
----
-name: Promise<ForwardGeocodeResponse>
-summary: A Promise that resolves to a ForwardGeocodeResponse
-extends: Promise
-
----
-name: Promise<HeadingResponse>
-summary: A Promise that resolves to a HeadingResponse
-extends: Promise
-
----
-name: Promise<LocationResults>
-summary: A Promise that resolves to LocationResults
-extends: Promise
-
----
-name: Promise<LocationAuthorizationResponse>
-summary: A Promise that resolves to a LocationAuthorizationResponse
-extends: Promise
-
----
-name: Promise<ReverseGeocodeResponse>
-summary: A Promise that resolves to a ReverseGeocodeResponse
-extends: Promise
