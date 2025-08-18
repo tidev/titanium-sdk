@@ -221,6 +221,20 @@ properties:
     since: "3.2.0"
     platforms: [iphone, ipad, macos]
 
+  - name: configuration
+    summary: Button configuration for modern button styling.
+    description: |
+        A <Titanium.UI.iOS.ButtonConfiguration> object that defines the appearance and behavior 
+        of the button. This provides a modern way to configure buttons with support for titles, 
+        subtitles, images, and various styling options.
+        
+        When using a button configuration, it takes precedence over individual styling properties
+        like `title`, `color`, and `backgroundColor`.
+    type: Titanium.UI.iOS.ButtonConfiguration
+    since: "13.0.0"
+    platforms: [iphone, ipad, macos]
+    osver: {ios: {min: "15.0"}}
+
   - name: enabled
     summary: Set to `true` to enable the button, `false` to disable the button.
     type: Boolean

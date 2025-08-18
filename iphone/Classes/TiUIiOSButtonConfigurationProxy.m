@@ -19,36 +19,36 @@
 
 - (NSArray *)keySequence
 {
-  return @[ @"type" ];
+  return @[ @"style" ];
 }
 
-- (void)setType:(NSString *)type
+- (void)setStyle:(NSString *)style
 {
-  if ([type isEqualToString:@"plain"]) {
+  if ([style isEqualToString:@"plain"]) {
     _configuration = UIButtonConfiguration.plainButtonConfiguration;
-  } else if ([type isEqualToString:@"tinted"]) {
+  } else if ([style isEqualToString:@"tinted"]) {
     _configuration = UIButtonConfiguration.tintedButtonConfiguration;
-  } else if ([type isEqualToString:@"filled"]) {
+  } else if ([style isEqualToString:@"filled"]) {
     _configuration = UIButtonConfiguration.filledButtonConfiguration;
-  } else if ([type isEqualToString:@"gray"]) {
+  } else if ([style isEqualToString:@"gray"]) {
     _configuration = UIButtonConfiguration.grayButtonConfiguration;
-  } else if ([type isEqualToString:@"borderless"]) {
+  } else if ([style isEqualToString:@"borderless"]) {
     _configuration = UIButtonConfiguration.borderlessButtonConfiguration;
-  } else if ([type isEqualToString:@"bordered"]) {
+  } else if ([style isEqualToString:@"bordered"]) {
     _configuration = UIButtonConfiguration.borderedButtonConfiguration;
-  } else if ([type isEqualToString:@"borderedTinted"]) {
+  } else if ([style isEqualToString:@"borderedTinted"]) {
     _configuration = UIButtonConfiguration.borderedTintedButtonConfiguration;
-  } else if ([type isEqualToString:@"borderedProminent"]) {
+  } else if ([style isEqualToString:@"borderedProminent"]) {
     _configuration = UIButtonConfiguration.borderedProminentButtonConfiguration;
   } else if (@available(iOS 26.0, *)) {
 #if IS_SDK_IOS_26
-    if ([type isEqualToString:@"glass"]) {
+    if ([style isEqualToString:@"glass"]) {
       _configuration = UIButtonConfiguration.glassButtonConfiguration;
-    } else if ([type isEqualToString:@"prominentGlass"]) {
+    } else if ([style isEqualToString:@"prominentGlass"]) {
       _configuration = UIButtonConfiguration.prominentGlassButtonConfiguration;
-    } else if ([type isEqualToString:@"clearGlass"]) {
+    } else if ([style isEqualToString:@"clearGlass"]) {
       _configuration = UIButtonConfiguration.clearGlassButtonConfiguration;
-    } else if ([type isEqualToString:@"prominentClearGlass"]) {
+    } else if ([style isEqualToString:@"prominentClearGlass"]) {
       _configuration = UIButtonConfiguration.prominentClearGlassButtonConfiguration;
     }
 #endif
