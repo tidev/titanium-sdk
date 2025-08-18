@@ -18,6 +18,10 @@
 #import "TiUIAttributedStringProxy.h"
 #endif
 
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
+#import "TiUIiOSButtonConfigurationProxy.h"
+#endif
+
 @implementation TiUIButton
 
 #pragma mark Internal
@@ -218,6 +222,13 @@
 }
 #endif
 #pragma mark Public APIs
+
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
+- (void)setConfiguration_:(TiUIiOSButtonConfigurationProxy *)configuration
+{
+  self.button.configuration = configuration.configuration;
+}
+#endif
 
 - (void)setStyle_:(id)style_
 {

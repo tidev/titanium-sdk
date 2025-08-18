@@ -161,7 +161,7 @@ examples:
         
         var button = Ti.UI.createButton({
             title: 'Edit',
-            style: Ti.UI.iOS.SystemButtonStyle.DONE,
+            style: Ti.UI.BUTTON_STYLE_OPTION_POSITIVE,
         });
         
         var toolbar = Ti.UI.iOS.createToolbar({
@@ -223,13 +223,13 @@ examples:
         
         dashboard.addEventListener('edit', function(e) {
           button.title = 'Done';
-          button.style = Ti.UI.iOS.SystemButtonStyle.DONE;
+          button.style = Ti.UI.BUTTON_STYLE_OPTION_POSITIVE;
           isEditable = true;
         });
         
         dashboard.addEventListener('commit', function(e) {
           button.title = 'Edit';
-          button.style = Ti.UI.iOS.SystemButtonStyle.PLAIN;
+          button.style = Ti.UI.BUTTON_STYLE_OPTION_NEUTRAL;
           isEditable = false;
         });
         
@@ -290,13 +290,13 @@ examples:
 
         function handleEdit(e) {
           $.button.title = 'Done';
-          $.button.style = Ti.UI.iOS.SystemButtonStyle.DONE;
+          $.button.style = Ti.UI.BUTTON_STYLE_OPTION_POSITIVE;
           isEditable = true;
         }
 
         function handleCommit(e) {
           $.button.title = 'Edit';
-          $.button.style = Ti.UI.iOS.SystemButtonStyle.PLAIN;
+          $.button.style = Ti.UI.BUTTON_STYLE_OPTION_NEUTRAL;
           isEditable = false;
         }
 
