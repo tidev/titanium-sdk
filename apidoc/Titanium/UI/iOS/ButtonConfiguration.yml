@@ -4,8 +4,9 @@ summary: |
     A configuration object for customizing the appearance and behavior of a button.
 description: |
     The ButtonConfiguration API provides a modern way to configure buttons on iOS with support for 
-    various styles, titles, subtitles, images, and padding. This API wraps the native UIButtonConfiguration 
-    introduced in iOS 15.0.
+    various styles, titles, subtitles, images, and padding. This API wraps the native `UIButtonConfiguration`
+    introduced in iOS 15.0 and represents a modern alternative to the existing Button API while retaining
+    backwards compatibility. In the future, this API may be merged into the root parameters of a button instead.
     
     Use the <Titanium.UI.iOS.createButtonConfiguration> method to create a button configuration.
     
@@ -29,7 +30,6 @@ extends: Titanium.Proxy
 platforms: [iphone, ipad, macos]
 since: {iphone: "13.0.0", ipad: "13.0.0", macos: "13.0.0"}
 osver: {ios: {min: "15.0"}}
-createable: false
 
 properties:
   - name: style
