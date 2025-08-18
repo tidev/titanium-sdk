@@ -25,7 +25,7 @@ jobs:
           java-version: '17'
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-15
     name: iOS
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
@@ -63,7 +63,7 @@ jobs:
       run: npm run lint:js
 
   package:
-    runs-on: macos-13
+    runs-on: macos-15
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
