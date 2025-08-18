@@ -75,7 +75,7 @@ methods:
         Besides the async nature to await the completion behaves identically to `assert.doesNotThrow()`.
     parameters:
       - name: asyncFn
-        type: [ Function, Promise<Object> ]
+        type: [ Function, Promise<Void> ]
         summary: function to invoke
       - name: error
         type: [ RegExp, Function ]
@@ -259,7 +259,7 @@ methods:
         If specified, `message` will be the message provided by the `AssertionError` if the `asyncFn` fails to reject.
     parameters:
       - name: asyncFn
-        type: [ Function, Promise<any> ]
+        type: [ Function, Promise<Void> ]
         summary: function to invoke
       - name: error
         type: [ RegExp, Function, Object, Error ]

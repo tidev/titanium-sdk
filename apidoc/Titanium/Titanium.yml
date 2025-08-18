@@ -112,3 +112,12 @@ properties:
     summary: The byte order of this buffer.
     optional: true
     default: The OS native byte order is used by default. See <Titanium.Codec.getNativeByteOrder>
+
+---
+name: Void
+summary: A return type without a value.
+
+---
+name: Promise<Void>
+summary: A Promise that resolves without a value.
+extends: Promise

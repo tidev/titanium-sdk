@@ -1152,3 +1152,8 @@ properties:
     summary: Error code, if any returned.
     description: May be undefined if `success` is `true`.
     type: Number
+
+---
+name: Promise<EventsAuthorizationResponse>
+summary: A Promise that resolves to an EventsAuthorizationResponse
+extends: Promise

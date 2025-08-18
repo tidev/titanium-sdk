@@ -515,7 +515,7 @@ methods:
         type: [Titanium.UI.Animation, Dictionary<Titanium.UI.Animation>, closeWindowParams]
         optional: true
     returns:
-      type: Promise<any>
+      type: Promise<Void>
       summary: |
           Starting in SDK 10.0.0, this method returns a `Promise` that will be resolved once the window is closed,
           akin to adding a one-time listener for the `close` event. If the window fails to close (for example, because
@@ -555,7 +555,7 @@ methods:
         type: openWindowParams
         optional: true
     returns:
-      type: Promise<any>
+      type: Promise<Void>
       summary: |
           Starting in SDK 10.0.0, this method returns a `Promise` that will be resolved once the window is opened,
           akin to adding a one-time listener for the `open` event. If the window fails to open (for example, because
