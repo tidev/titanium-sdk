@@ -804,12 +804,6 @@ properties:
     permission: read-only
     since: "7.5.0"
 
-  - name: AUDIO_STATE_WAITING_FOR_QUEUE
-    summary: Player is waiting for queued data.
-    type: Number
-    permission: read-only
-    since: "7.5.0"
-
   - name: VERTICAL_ALIGN_CENTER
     summary: Vertical align center
     type: Number
@@ -2466,18 +2460,3 @@ properties:
   - name: size
     summary: Size of the video in bytes
     type: Number
-
----
-name: Promise<RequestCameraAccessResult>
-summary: A Promise that resolves to a RequestCameraAccessResult
-extends: Promise
-
----
-name: Promise<RequestPhotoGalleryAccessResult>
-summary: A Promise that resolves to a RequestPhotoGalleryAccessResult
-extends: Promise
-
----
-name: Promise<MediaAuthorizationResponse>
-summary: A Promise that resolves to a MediaAuthorizationResponse
-extends: Promise

@@ -368,6 +368,7 @@ properties:
         Set this parameter when authentication against NTLM domains along with the [username](Titanium.Network.HTTPClient.username)
         and [password](Titanium.Network.HTTPClient.password) properties.
         iOS supports NTLM authentication natively.
+        Android can be extended using the [addAuthFactory](Titanium.Network.HTTPClient.addAuthFactory) method.
         Must be set before calling [open](Titanium.Network.HTTPClient.open).
     type: String
     default: Undefined
