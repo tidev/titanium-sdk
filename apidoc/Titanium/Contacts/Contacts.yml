@@ -193,7 +193,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<ContactsAuthorizationResponse>
+      type: Promise
     since: {android: "5.1.0", iphone: "5.1.0", ipad: "5.1.0", macos: "9.2.0"}
 
 properties:
