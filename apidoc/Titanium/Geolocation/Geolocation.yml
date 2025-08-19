@@ -215,7 +215,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<ForwardGeocodeResponse>
+      type: Promise
 
   - name: getCurrentHeading
     summary: Retrieves the current compass heading.
@@ -228,7 +228,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<HeadingResponse>
+      type: Promise
 
   - name: getCurrentPosition
     summary: Retrieves the last known location from the device.
@@ -246,7 +246,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<LocationResults>
+      type: Promise
 
   - name: hasLocationPermissions
     summary: Returns `true` if the app has location access.
@@ -299,7 +299,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<LocationAuthorizationResponse>
+      type: Promise
     since: "5.1.0"
 
   - name: requestTemporaryFullAccuracyAuthorization
@@ -382,7 +382,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<ReverseGeocodeResponse>
+      type: Promise
 
 events:
   - name: calibration

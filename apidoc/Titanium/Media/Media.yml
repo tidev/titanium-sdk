@@ -301,7 +301,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<RequestCameraAccessResult>
+      type: Promise
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
@@ -350,7 +350,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<RequestPhotoGalleryAccessResult>
+      type: Promise
     platforms: [android, iphone, ipad, macos]
     since:
         android: "9.3.0"
@@ -460,7 +460,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<MediaAuthorizationResponse>
+      type: Promise
 
 events:
   - name: cameraready

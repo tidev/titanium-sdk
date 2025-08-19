@@ -244,7 +244,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<RequestPermissionAccessResult>
+      type: Promise
     since: "5.4.0"
 
   - name: isServiceRunning

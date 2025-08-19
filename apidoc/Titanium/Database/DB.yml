@@ -82,7 +82,7 @@ methods:
         type: Callback<Object, Titanium.Database.ResultSet>
         optional: true
     returns:
-      type: Promise<Titanium.Database.ResultSet>
+      type: Promise
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
     since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
@@ -114,7 +114,7 @@ methods:
         type: Callback<PossibleBatchQueryError, Array<Titanium.Database.ResultSet>>
         optional: true
     returns:
-      type: Promise<Array<Titanium.Database.ResultSet>>
+      type: Promise
       summary: |
           On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
           If the `Promise` is rejected, the `Error` will have custom properties indicating the `index` of the failed query, and the partial `results` up to that failure. See <PossibleBatchQueryError>.
