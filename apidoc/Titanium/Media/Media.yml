@@ -2467,17 +2467,3 @@ properties:
     summary: Size of the video in bytes
     type: Number
 
----
-name: Promise<RequestCameraAccessResult>
-summary: A Promise that resolves to a RequestCameraAccessResult
-extends: Promise
-
----
-name: Promise<RequestPhotoGalleryAccessResult>
-summary: A Promise that resolves to a RequestPhotoGalleryAccessResult
-extends: Promise
-
----
-name: Promise<MediaAuthorizationResponse>
-summary: A Promise that resolves to a MediaAuthorizationResponse
-extends: Promise

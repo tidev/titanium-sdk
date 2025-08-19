@@ -184,12 +184,3 @@ properties:
     type: Number
     since: { android: "8.1.0", iphone: "8.1.0", ipad: "8.1.0" }
 
----
-name: Promise<Titanium.Database.ResultSet>
-summary: A Promise that resolves to a Titanium.Database.ResultSet
-extends: Promise
-
----
-name: Promise<Array<Titanium.Database.ResultSet>>
-summary: A Promise that resolves to an array of Titanium.Database.ResultSet
-extends: Promise

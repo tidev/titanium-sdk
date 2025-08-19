@@ -303,8 +303,3 @@ methods:
     returns:
         type: Promise<ArrayBuffer>
     summary: Returns a `Promise` that resolves with the contents of the blob as binary data contained in an `ArrayBuffer`.
-
----
-name: Promise<ArrayBuffer>
-summary: A Promise that resolves to an ArrayBuffer
-extends: Promise

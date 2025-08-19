@@ -2586,7 +2586,3 @@ name: RequestPermissionAccessResult
 summary: Argument passed to the callback when a request finishes successfully or erroneously.
 extends: ErrorResponse
 
----
-name: Promise<RequestPermissionAccessResult>
-summary: A Promise that resolves to a RequestPermissionAccessResult
-extends: Promise
