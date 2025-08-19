@@ -74,7 +74,8 @@ import ti.modules.titanium.ui.widget.TiView;
 		TiC.PROPERTY_FLAG_SECURE,
 		TiC.PROPERTY_BAR_COLOR,
 		TiC.PROPERTY_STATUS_BAR_COLOR,
-		TiC.PROPERTY_UI_FLAGS
+		TiC.PROPERTY_UI_FLAGS,
+		TiC.PROPERTY_NAV_BAR_COLOR
 	})
 
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -332,6 +333,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			win.setStatusBarColor(colorInt);
 		}
 
+		if (hasProperty(TiC.PROPERTY_NAV_BAR_COLOR)) {
+			int colorInt = TiColorHelper.parseColor(
+				TiConvert.toString(getProperty(TiC.PROPERTY_NAV_BAR_COLOR)), activity);
+			win.setNavigationBarColor(colorInt);
+		}
+
 		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
 			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
 		}
@@ -474,6 +481,14 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				AppCompatActivity activity = windowActivity.get();
 				int colorInt = TiColorHelper.parseColor(TiConvert.toString(value), activity);
 				activity.getWindow().setStatusBarColor(colorInt);
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_NAV_BAR_COLOR)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				AppCompatActivity activity = windowActivity.get();
+				int colorInt = TiColorHelper.parseColor(TiConvert.toString(value), activity);
+				activity.getWindow().setNavigationBarColor(colorInt);
 			}
 		}
 
