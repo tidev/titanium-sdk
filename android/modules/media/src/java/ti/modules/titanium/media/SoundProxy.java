@@ -84,8 +84,7 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 			path = ((FileProxy) url).getNativePath();
 		} else if (url instanceof String) {
 			path = resolveUrl(null, (String) url);
-		} else if (url instanceof TiBlob) {
-			TiBlob blob = (TiBlob) url;
+		} else if (url instanceof TiBlob blob) {
 			if (blob.getType() == TiBlob.TYPE_FILE) {
 				path = blob.getFile().getNativePath();
 			}

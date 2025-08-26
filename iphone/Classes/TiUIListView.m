@@ -891,7 +891,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
 }
 
-#if IS_SDK_IOS_15
 - (void)setSectionHeaderTopPadding_:(id)value
 {
   if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
@@ -900,7 +899,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
 }
-#endif
 
 - (void)setAllowsMultipleSelectionDuringEditing_:(id)value
 {

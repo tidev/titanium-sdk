@@ -249,11 +249,10 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	public TiWindowProxy getWindow()
 	{
 		Activity activity = getWrappedActivity();
-		if (!(activity instanceof TiBaseActivity)) {
+		if (!(activity instanceof TiBaseActivity tiActivity)) {
 			return null;
 		}
 
-		TiBaseActivity tiActivity = (TiBaseActivity) activity;
 		return tiActivity.getWindowProxy();
 	}
 
