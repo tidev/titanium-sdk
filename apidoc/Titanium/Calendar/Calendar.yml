@@ -76,7 +76,7 @@ methods:
         optional: true
     returns:
       summary: On SDK 10+, this method will return a `Promise` whose resolved value is equivalent to that passed to the optional callback argument.
-      type: Promise<EventsAuthorizationResponse>
+      type: Promise
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
 
