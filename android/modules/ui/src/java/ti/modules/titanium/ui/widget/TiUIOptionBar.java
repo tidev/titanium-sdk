@@ -106,8 +106,7 @@ public class TiUIOptionBar extends TiUIView
 	private void checkOption(int index)
 	{
 		View view = getNativeView();
-		if (view instanceof ViewGroup) {
-			ViewGroup viewGroup = (ViewGroup) view;
+		if (view instanceof ViewGroup viewGroup) {
 			if ((index >= 0) && (index < viewGroup.getChildCount())) {
 				view = viewGroup.getChildAt(index);
 				if (view instanceof Checkable) {
