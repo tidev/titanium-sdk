@@ -227,6 +227,19 @@
 - (void)setConfiguration_:(TiUIiOSButtonConfigurationProxy *)configuration
 {
   self.button.configuration = configuration.configuration;
+
+  // If provided: Apply "backgroundSelectedColor"
+  if (configuration.backgroundSelectedColor != nil || configuration.baseBackgroundColor != nil) {
+    self.button.configurationUpdateHandler = ^(UIButton *b) {
+      UIButtonConfiguration *c = b.configuration;
+      if (b.highlighted && configuration.backgroundSelectedColor != nil) {
+        c.baseBackgroundColor = configuration.backgroundSelectedColor;
+      } else if (configuration.baseBackgroundColor != nil) {
+        c.baseBackgroundColor = configuration.baseBackgroundColor;
+      }
+      b.configuration = c;
+    };
+  }
 }
 #endif
 
@@ -297,6 +310,10 @@
 - (void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
+  if (self.button.configuration != nil) {
+    // Ignored: handled via ButtonConfiguration.attributedString
+    return;
+  }
   ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
   [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
   [[self button] setAttributedTitle:[arg attributedString] forState:UIControlStateNormal];
@@ -343,6 +360,10 @@
 
 - (void)setFont_:(id)font
 {
+  if (self.button.configuration != nil) {
+    // Ignored: handled via ButtonConfiguration.font
+    return;
+  }
   if (font != nil) {
     WebFont *f = [TiUtils fontValue:font def:nil];
     [[[self button] titleLabel] setFont:[f font]];
@@ -443,6 +464,10 @@
 
 - (void)setTextAlign_:(id)align
 {
+  if (self.button.configuration != nil) {
+    // Ignored: handled via ButtonConfiguration.textAlign
+    return;
+  }
   button = [self button];
   NSTextAlignment alignment = [TiUtils textAlignmentValue:align];
   UIControlContentHorizontalAlignment horizontalAlignment = UIControlContentHorizontalAlignmentCenter;

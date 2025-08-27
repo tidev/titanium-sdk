@@ -9,6 +9,10 @@
 #import "TiUIiOSButtonConfigurationProxy.h"
 #import <TitaniumKit/TiBase.h>
 #import <TitaniumKit/TiUtils.h>
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+#import "TiUIAttributedStringProxy.h"
+#endif
+#import <UIKit/UIKit.h>
 
 @implementation TiUIiOSButtonConfigurationProxy
 
@@ -73,7 +77,9 @@
 
 - (void)setBackgroundColor:(id)backgroundColor
 {
-  _configuration.baseBackgroundColor = [TiUtils colorValue:backgroundColor].color;
+  UIColor *color = [TiUtils colorValue:backgroundColor].color;
+  self.baseBackgroundColor = color;
+  _configuration.baseBackgroundColor = color;
 }
 
 - (void)setColor:(id)color
@@ -113,6 +119,70 @@
 - (void)setTitlePadding:(NSNumber *)titlePadding
 {
   _configuration.titlePadding = titlePadding.floatValue;
+}
+
+- (void)setFont:(id)font
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    NSLog(@"[ERROR] Setting \"font\" on the buttonConfiguration is only supported on iOS 15+");
+    return;
+  }
+
+  WebFont *f = [TiUtils fontValue:font def:nil];
+  if (f == nil) {
+    return;
+  }
+
+  if (@available(iOS 15.0, *)) {
+    UIFont *uiFont = [f font];
+    _configuration.titleTextAttributesTransformer = ^NSDictionary<NSAttributedStringKey, id> *_Nonnull(NSDictionary<NSAttributedStringKey, id> *_Nonnull textAttributes)
+    {
+      NSMutableDictionary *attrs = [textAttributes mutableCopy];
+      if (uiFont != nil) {
+        attrs[NSFontAttributeName] = uiFont;
+      }
+      return [attrs copy];
+    };
+  }
+}
+
+- (void)setAttributedString:(id)arg
+{
+#ifdef USE_TI_UIATTRIBUTEDSTRING
+  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
+  _configuration.attributedTitle = [arg attributedString];
+#endif
+}
+
+- (void)setTextAlign:(id)align
+{
+  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
+    NSLog(@"[ERROR] Setting \"textAlign\" on the buttonConfiguration is only supported on iOS 15+");
+    return;
+  }
+
+  UIButtonConfigurationTitleAlignment alignment = UIButtonConfigurationTitleAlignmentAutomatic;
+
+  NSTextAlignment ta = [TiUtils textAlignmentValue:align];
+  switch (ta) {
+  case NSTextAlignmentLeft:
+    alignment = UIButtonConfigurationTitleAlignmentLeading;
+    break;
+  case NSTextAlignmentRight:
+    alignment = UIButtonConfigurationTitleAlignmentTrailing;
+    break;
+  case NSTextAlignmentCenter:
+  default:
+    alignment = UIButtonConfigurationTitleAlignmentCenter;
+    break;
+  }
+
+  _configuration.titleAlignment = alignment;
+}
+
+- (void)setBackgroundSelectedColor:(id)value
+{
+  self.backgroundSelectedColor = [TiUtils colorValue:value].color;
 }
 
 @end
