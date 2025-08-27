@@ -115,6 +115,7 @@
   if (!isPopover) {
     UIPopoverPresentationController *presentationController = alertController.popoverPresentationController;
     presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+    presentationController.delegate = self;
 
     // Configure anchor using `view` for all iOS devices (not iPad only)
     if (dialogView != nil) {
@@ -230,6 +231,13 @@
       presentationController.sourceView = view;
     }
   }
+}
+
+#pragma mark UIPopoverPresentationControllerDelegate
+
+- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
+{
+  [self cleanup];
 }
 
 @end
