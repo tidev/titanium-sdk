@@ -14,7 +14,6 @@
   UIAlertController *alertController;
   TiViewProxy *dialogView;
   UIColor *tintColor;
-  CGRect dialogRect;
   BOOL animated;
   NSUInteger accumulatedOrientationChanges;
   BOOL showDialog;
