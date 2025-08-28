@@ -117,6 +117,42 @@ properties:
     type: Number
     default: 0
 
+  - name: font
+    summary: Font to use for the button title.
+    description: |
+        Sets the font applied to the configuration’s title via the underlying
+        `UIButtonConfiguration.titleTextAttributesTransformer`.
+
+        When using `attributedString`, prefer setting font in the attributed content instead.
+    type: Font
+
+  - name: textAlign
+    summary: Text alignment of the configuration title.
+    description: |
+        Aligns the title within the button’s content area. Maps to
+        `UIButtonConfigurationTitleAlignment`.
+    type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
+
+  - name: attributedString
+    summary: Specify an attributed string for the button title.
+    description: |
+        Sets the configuration’s `attributedTitle`. If set, avoid also setting
+        `title`, `color`, and `font` to prevent conflicting styles.
+    type: Titanium.UI.AttributedString
+
+  - name: backgroundSelectedColor
+    summary: Background color to use while the button is highlighted (pressed).
+    description: |
+        When this configuration is assigned to a <Titanium.UI.Button> and both
+        `backgroundColor` and `backgroundSelectedColor` are provided, the button will
+        automatically swap the configuration’s background to `backgroundSelectedColor`
+        when highlighted and restore the base color when not highlighted.
+
+        This mirrors the traditional `backgroundSelectedColor` behavior on views when
+        used with modern button configurations.
+    type: [String, Titanium.UI.Color]
+
 examples:
   - title: Basic Button Configuration
     example: |
@@ -160,6 +196,32 @@ examples:
                 style: 'borderedProminent',
                 title: 'Get Started',
                 backgroundColor: '#34C759'
+            })
+        });
+        ```
+
+  - title: Typography and Alignment
+    example: |
+        ``` js
+        const button = Ti.UI.createButton({
+            configuration: Ti.UI.iOS.createButtonConfiguration({
+                style: 'filled',
+                title: 'Continue',
+                font: { fontSize: 18, fontWeight: 'semibold' },
+                textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+            })
+        });
+        ```
+
+  - title: Highlighted Background Color
+    example: |
+        ``` js
+        const button = Ti.UI.createButton({
+            configuration: Ti.UI.iOS.createButtonConfiguration({
+                style: 'filled',
+                title: 'Tap Me',
+                backgroundColor: '#007AFF',
+                backgroundSelectedColor: '#005BBB' // shown while pressed
             })
         });
         ```
