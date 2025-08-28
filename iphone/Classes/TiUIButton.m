@@ -228,16 +228,18 @@
 {
   self.button.configuration = configuration.configuration;
 
-  // If provided: Apply "backgroundSelectedColor"
-  if (configuration.backgroundSelectedColor != nil || configuration.baseBackgroundColor != nil) {
-    self.button.configurationUpdateHandler = ^(UIButton *b) {
-      UIButtonConfiguration *c = b.configuration;
-      if (b.highlighted && configuration.backgroundSelectedColor != nil) {
-        c.baseBackgroundColor = configuration.backgroundSelectedColor;
+  // If provided: Handle swap of "backgroundColor" and "backgroundSelectedColor"
+  if (configuration.backgroundSelectedColor != nil && configuration.baseBackgroundColor != nil) {
+    self.button.configurationUpdateHandler = ^(UIButton *button) {
+      UIButtonConfiguration *newConfiguration = button.configuration;
+
+      if (button.highlighted && configuration.backgroundSelectedColor != nil) {
+        newConfiguration.baseBackgroundColor = configuration.backgroundSelectedColor;
       } else if (configuration.baseBackgroundColor != nil) {
-        c.baseBackgroundColor = configuration.baseBackgroundColor;
+        newConfiguration.baseBackgroundColor = configuration.baseBackgroundColor;
       }
-      b.configuration = c;
+
+      button.configuration = newConfiguration;
     };
   }
 }

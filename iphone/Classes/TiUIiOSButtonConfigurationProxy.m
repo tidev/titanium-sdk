@@ -44,8 +44,8 @@
     _configuration = UIButtonConfiguration.borderedTintedButtonConfiguration;
   } else if ([style isEqualToString:@"borderedProminent"]) {
     _configuration = UIButtonConfiguration.borderedProminentButtonConfiguration;
-  } else if (@available(iOS 26.0, *)) {
 #if IS_SDK_IOS_26
+  } else if (@available(iOS 26.0, *)) {
     if ([style isEqualToString:@"glass"]) {
       _configuration = UIButtonConfiguration.glassButtonConfiguration;
     } else if ([style isEqualToString:@"prominentGlass"]) {
@@ -78,8 +78,14 @@
 - (void)setBackgroundColor:(id)backgroundColor
 {
   UIColor *color = [TiUtils colorValue:backgroundColor].color;
-  self.baseBackgroundColor = color;
   _configuration.baseBackgroundColor = color;
+
+  self.baseBackgroundColor = color;
+
+  // If "backgroundSelectedColor" is set, store it for referencing it in "configurationUpdateHandler" later
+  if ([self valueForKey:@"backgroundSelectedColor"]) {
+    self.backgroundSelectedColor = [TiUtils colorValue:[self valueForKey:@"backgroundSelectedColor"]].color;
+  }
 }
 
 - (void)setColor:(id)color
@@ -178,11 +184,6 @@
   }
 
   _configuration.titleAlignment = alignment;
-}
-
-- (void)setBackgroundSelectedColor:(id)value
-{
-  self.backgroundSelectedColor = [TiUtils colorValue:value].color;
 }
 
 @end
