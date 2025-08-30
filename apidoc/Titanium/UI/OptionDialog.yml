@@ -382,13 +382,7 @@ properties:
     optional: true
 
   - name: view
-    summary: View to which to attach the dialog.
+    summary: |
+        View to which to attach the dialog. Prior to iOS 26, this was only
+        used on iPad.
     type: Titanium.UI.View
-
-  - name: rect
-    summary: Positions the arrow of the option dialog relative to the attached view's dimensions.
-    description: |
-        Setting the x, y coordinates to (0, 0) places the dialog in the top-left corner of the
-        view object.  Set both the `width` and `height` properties to 1.
-    type: Dimension
-    optional: true
