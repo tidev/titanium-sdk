@@ -1,0 +1,227 @@
+---
+name: Titanium.UI.iOS.ButtonConfiguration
+summary: |
+    A configuration object for customizing the appearance and behavior of a button.
+description: |
+    The ButtonConfiguration API provides a modern way to configure buttons on iOS with support for 
+    various styles, titles, subtitles, images, and padding. This API wraps the native `UIButtonConfiguration`
+    introduced in iOS 15.0 and represents a modern alternative to the existing Button API while retaining
+    backwards compatibility. In the future, this API may be merged into the root parameters of a button instead.
+    
+    Use the <Titanium.UI.iOS.createButtonConfiguration> method to create a button configuration.
+    
+    Button configurations support several predefined styles:
+    - **plain**: A plain button style with minimal background
+    - **tinted**: A tinted button style with a subtle background
+    - **filled**: A filled button style with a solid background
+    - **gray**: A gray button style
+    - **borderless**: A borderless button style
+    - **bordered**: A bordered button style with an outline
+    - **borderedTinted**: A bordered button style with a tinted outline
+    - **borderedProminent**: A bordered button style with a prominent appearance
+    
+    Additional styles available on iOS 26.0+:
+    - **glass**: A glass-like appearance
+    - **prominentGlass**: A prominent glass-like appearance
+    - **clearGlass**: A clear glass-like appearance
+    - **prominentClearGlass**: A prominent clear glass-like appearance
+
+extends: Titanium.Proxy
+platforms: [iphone, ipad, macos]
+since: {iphone: "13.0.0", ipad: "13.0.0", macos: "13.0.0"}
+osver: {ios: {min: "15.0"}}
+
+properties:
+  - name: style
+    summary: The style of button configuration to create.
+    description: |
+        Sets the base configuration style for the button. This property should be set first
+        as it determines the initial configuration that other properties will modify.
+        
+        Valid string values are:
+        - `"plain"`: A plain button style with minimal background
+        - `"tinted"`: A tinted button style with a subtle background
+        - `"filled"`: A filled button style with a solid background
+        - `"gray"`: A gray button style
+        - `"borderless"`: A borderless button style
+        - `"bordered"`: A bordered button style with an outline
+        - `"borderedTinted"`: A bordered button style with a tinted outline
+        - `"borderedProminent"`: A bordered button style with a prominent appearance
+        - `"glass"`: A glass-like appearance (iOS 26.0+)
+        - `"prominentGlass"`: A prominent glass-like appearance (iOS 26.0+)
+        - `"clearGlass"`: A clear glass-like appearance (iOS 26.0+)
+        - `"prominentClearGlass"`: A prominent clear glass-like appearance (iOS 26.0+)
+    type: String
+    availability: creation
+    
+  - name: title
+    summary: The title text to display on the button.
+    type: String
+    
+  - name: subtitle
+    summary: The subtitle text to display below the title.
+    type: String
+    
+  - name: backgroundColor
+    summary: The background color of the button.
+    description: |
+        Sets the base background color for the button. This color may be modified
+        by the system based on the button state and configuration style.
+    type: [String, Titanium.UI.Color]
+    
+  - name: color
+    summary: The foreground color of the button's content.
+    description: |
+        Sets the base foreground color for the button's title and subtitle text.
+        This color may be modified by the system based on the button state.
+    type: [String, Titanium.UI.Color]
+    
+  - name: image
+    summary: The image to display on the button.
+    description: |
+        The image to display alongside the button's title. Use the imagePlacement
+        property to control where the image appears relative to the title.
+    type: [String, Titanium.Blob, Titanium.Filesystem.File]
+    
+  - name: padding
+    summary: The padding around the button's content.
+    description: |
+        An object with top, left, bottom, and right properties to specify
+        the content insets for the button.
+    type: Padding
+    
+  - name: imagePlacement
+    summary: The placement of the image relative to the title.
+    description: |
+        Controls where the button's image appears relative to its title text.
+        
+        Valid string values are:
+        - `"leading"`: Place the image before the title text
+        - `"trailing"`: Place the image after the title text
+        - `"top"`: Place the image above the title text
+        - `"bottom"`: Place the image below the title text
+    type: String
+    default: "leading"
+    
+  - name: imagePadding
+    summary: The spacing between the image and title.
+    description: |
+        The amount of spacing in points between the button's image and its title text.
+    type: Number
+    default: 0
+    
+  - name: titlePadding
+    summary: The spacing between the title and subtitle.
+    description: |
+        The amount of spacing in points between the button's title and subtitle text.
+    type: Number
+    default: 0
+
+  - name: font
+    summary: Font to use for the button title.
+    description: |
+        Sets the font applied to the configuration’s title via the underlying
+        `UIButtonConfiguration.titleTextAttributesTransformer`.
+
+        When using `attributedString`, prefer setting font in the attributed content instead.
+    type: Font
+
+  - name: textAlign
+    summary: Text alignment of the configuration title.
+    description: |
+        Aligns the title within the button’s content area. Maps to
+        `UIButtonConfigurationTitleAlignment`.
+    type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
+
+  - name: attributedString
+    summary: Specify an attributed string for the button title.
+    description: |
+        Sets the configuration’s `attributedTitle`. If set, avoid also setting
+        `title`, `color`, and `font` to prevent conflicting styles.
+    type: Titanium.UI.AttributedString
+
+  - name: backgroundSelectedColor
+    summary: Background color to use while the button is highlighted (pressed).
+    description: |
+        When this configuration is assigned to a <Titanium.UI.Button> and both
+        `backgroundColor` and `backgroundSelectedColor` are provided, the button will
+        automatically swap the configuration’s background to `backgroundSelectedColor`
+        when highlighted and restore the base color when not highlighted.
+
+        This mirrors the traditional `backgroundSelectedColor` behavior on views when
+        used with modern button configurations.
+    type: [String, Titanium.UI.Color]
+
+examples:
+  - title: Basic Button Configuration
+    example: |
+        ``` js
+        const button = Ti.UI.createButton({
+            configuration: Ti.UI.iOS.createButtonConfiguration({
+                style: 'filled',
+                title: 'Sign In',
+                subtitle: 'with your account',
+                backgroundColor: '#007AFF',
+                color: 'white'
+            })
+        });
+        ```
+        
+  - title: Button with Image and Padding
+    example: |
+        ``` js
+        const button = Ti.UI.createButton({
+            configuration: Ti.UI.iOS.createButtonConfiguration({
+                style: 'borderedTinted',
+                title: 'Upload',
+                image: 'upload-icon.png',
+                imagePlacement: 'leading',
+                imagePadding: 8,
+                padding: {
+                    top: 12,
+                    left: 20,
+                    bottom: 12,
+                    right: 20
+                }
+            })
+        });
+        ```
+        
+  - title: Prominent Button Style
+    example: |
+        ``` js
+        const button = Ti.UI.createButton({
+            configuration: Ti.UI.iOS.createButtonConfiguration({
+                style: 'borderedProminent',
+                title: 'Get Started',
+                backgroundColor: '#34C759'
+            })
+        });
+        ```
+
+  - title: Typography and Alignment
+    example: |
+        ``` js
+        const button = Ti.UI.createButton({
+            configuration: Ti.UI.iOS.createButtonConfiguration({
+                style: 'filled',
+                title: 'Continue',
+                font: { fontSize: 18, fontWeight: 'semibold' },
+                textAlign: Ti.UI.TEXT_ALIGNMENT_CENTER
+            })
+        });
+        ```
+
+  - title: Highlighted Background Color
+    example: |
+        ``` js
+        const button = Ti.UI.createButton({
+            configuration: Ti.UI.iOS.createButtonConfiguration({
+                style: 'filled',
+                title: 'Tap Me',
+                backgroundColor: '#007AFF',
+                backgroundSelectedColor: '#005BBB' // shown while pressed
+            })
+        });
+        ```
