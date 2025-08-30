@@ -307,6 +307,16 @@ properties:
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
 
+  - name: bottomAccessoryView
+    summary: View shown as a bottom accessory attached to the tab bar.
+    description: |
+        Adds a custom view as a bottom accessory of the tab bar. Available on iOS 26+ only (uses the new iOS tab bar accessories).
+
+        Note: Label subviews require explicit width and height set to render properly. Be sure to set `width` and `height` on any `Ti.UI.Label` added to this view.
+    type: Titanium.UI.View
+    platforms: [iphone, ipad, macos]
+    since: "13.0.0"
+
   - name: enabled
     summary: |
         Enables or disables the menu in a BottomNavigation. If disabled you can't change to a different tab.
