@@ -10,61 +10,35 @@
 #import "TiLayoutQueue.h"
 #import "TiViewProxy.h"
 #import <CoreFoundation/CoreFoundation.h>
-#import <pthread.h>
+#import <dispatch/dispatch.h>
+#import <os/lock.h>
 
 #define LAYOUT_TIMER_INTERVAL 0.05
 #define LAYOUT_START_INTERVAL 0.01
 
-NSMutableArray *layoutArray = nil;
-CFRunLoopTimerRef layoutTimer = NULL;
-pthread_mutex_t layoutMutex;
-
-void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
-{
-  NSArray *localLayoutArray = nil;
-
-  // This prevents deadlock if, while laying out, a relayout is requested
-  // (as in the case of redrawing text in a reproxy)
-  pthread_mutex_lock(&layoutMutex);
-  localLayoutArray = layoutArray;
-  layoutArray = nil;
-
-  if ((layoutTimer != NULL) && ([localLayoutArray count] == 0)) {
-    // Might as well stop the timer for now.
-    CFRunLoopTimerInvalidate(layoutTimer);
-    CFRelease(layoutTimer);
-    layoutTimer = NULL;
-  }
-
-  pthread_mutex_unlock(&layoutMutex);
-
-  for (TiViewProxy *thisProxy in localLayoutArray) {
-    [TiLayoutQueue layoutProxy:thisProxy];
-  }
-
-  RELEASE_TO_NIL(localLayoutArray);
-}
+static NSMutableArray *layoutArray = nil;
+static dispatch_source_t layoutTimer = NULL;
+static os_unfair_lock layoutLock = OS_UNFAIR_LOCK_INIT;
 
 @implementation TiLayoutQueue
 
 + (void)initialize
 {
-  pthread_mutex_init(&layoutMutex, NULL);
+  // nothing to initialize; layoutLock is static-initialized
 }
 
 + (void)resetQueue
 {
-  pthread_mutex_lock(&layoutMutex);
+  os_unfair_lock_lock(&layoutLock);
   [layoutArray release];
   layoutArray = nil;
 
   if (layoutTimer != NULL) {
-    CFRunLoopTimerInvalidate(layoutTimer);
-    CFRelease(layoutTimer);
+    dispatch_source_cancel(layoutTimer);
     layoutTimer = NULL;
   }
 
-  pthread_mutex_unlock(&layoutMutex);
+  os_unfair_lock_unlock(&layoutLock);
 }
 
 + (void)layoutProxy:(TiViewProxy *)thisProxy
@@ -78,12 +52,12 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
 
 + (void)addViewProxy:(TiViewProxy *)newViewProxy
 {
-  pthread_mutex_lock(&layoutMutex);
+  os_unfair_lock_lock(&layoutLock);
 
   if (layoutArray == nil) {
     layoutArray = [[NSMutableArray alloc] initWithObjects:newViewProxy, nil];
   } else if ([layoutArray containsObject:newViewProxy]) { // Nothing to do here. Already added.
-    pthread_mutex_unlock(&layoutMutex);
+    os_unfair_lock_unlock(&layoutLock);
     return;
   } else if ([layoutArray containsObject:[newViewProxy parent]]) { // For safety reasons, we do add this to the list. But since the parent's already here,
     // We add it to the FIRST so that children draw before parents, giving us good layout values for later!
@@ -94,14 +68,38 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
   }
 
   if (layoutTimer == NULL) {
-    layoutTimer = CFRunLoopTimerCreate(NULL,
-        CFAbsoluteTimeGetCurrent() + LAYOUT_START_INTERVAL,
-        LAYOUT_TIMER_INTERVAL,
-        0, 0, performLayoutRefresh, NULL);
-    CFRunLoopAddTimer(CFRunLoopGetMain(), layoutTimer, kCFRunLoopCommonModes);
-  }
+    // create GCD timer on main queue to coalesce layout flushes
+    dispatch_queue_t queue = dispatch_get_main_queue();
+    layoutTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+    uint64_t startNsec = (uint64_t)(LAYOUT_START_INTERVAL * NSEC_PER_SEC);
+    uint64_t intervalNsec = (uint64_t)(LAYOUT_TIMER_INTERVAL * NSEC_PER_SEC);
+    dispatch_source_set_timer(layoutTimer,
+        dispatch_time(DISPATCH_TIME_NOW, startNsec),
+        intervalNsec,
+        (uint64_t)(0.001 * NSEC_PER_SEC)); // 1ms leeway
 
-  pthread_mutex_unlock(&layoutMutex);
+    dispatch_source_set_event_handler(layoutTimer, ^{
+      NSArray *localLayoutArray = nil;
+      os_unfair_lock_lock(&layoutLock);
+      localLayoutArray = layoutArray;
+      layoutArray = nil;
+      BOOL shouldStop = (localLayoutArray == nil) || ([localLayoutArray count] == 0);
+      os_unfair_lock_unlock(&layoutLock);
+
+      for (TiViewProxy *thisProxy in localLayoutArray) {
+        [TiLayoutQueue layoutProxy:thisProxy];
+      }
+      RELEASE_TO_NIL(localLayoutArray);
+
+      if (shouldStop) {
+        // no queued work: stop timer to save cycles
+        dispatch_source_cancel(layoutTimer);
+        layoutTimer = NULL;
+      }
+    });
+    dispatch_resume(layoutTimer);
+  }
+  os_unfair_lock_unlock(&layoutLock);
 }
 
 @end
