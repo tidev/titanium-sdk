@@ -1290,6 +1290,46 @@ properties:
     since: "8.0.0"
     permission: read-only
 
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
+    summary: Automatically determine when the tab group minimizes.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to let the system choose the appropriate
+        minimize behavior based on context and platform conventions.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER
+    summary: Do not minimize the tab group.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to keep the tab group visible and prevent
+        it from minimizing in response to scrolling.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP
+    summary: Minimize the tab group when scrolling up.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to minimize the tab group as the user scrolls
+        upward.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN
+    summary: Minimize the tab group when scrolling down.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to minimize the tab group as the user scrolls
+        downward.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
 ---
 name: SystemImageParameters
 summary: |

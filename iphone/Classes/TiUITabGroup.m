@@ -434,6 +434,11 @@ DEFINE_EXCEPTIONS
   [[self tabController] setBottomAccessory:tabAccessory animated:NO];
 }
 
+- (void)setMinimizeBehavior_:(NSNumber *)minimizeBehavior
+{
+  [[self tabController] setTabBarMinimizeBehavior:minimizeBehavior.integerValue];
+}
+
 - (void)setTabsBackgroundColor_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
