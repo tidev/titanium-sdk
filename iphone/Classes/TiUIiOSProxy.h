@@ -169,6 +169,11 @@
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
 
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP;
+
 /**
  * Checks the force touch capibility of the current device.
  */

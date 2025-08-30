@@ -853,6 +853,50 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocum
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
 
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorNever);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorOnScrollUp);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorOnScrollDown);
+  }
+#endif
+
+  return @(-1);
+}
+
 - (TiColor *)fetchSemanticColor:(id)color
 {
   ENSURE_SINGLE_ARG(color, NSString);
