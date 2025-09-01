@@ -54,11 +54,6 @@
 {
   ENSURE_TYPE_OR_NIL(value, NSDictionary);
 
-  if (![TiUtils isIOSVersionOrGreater:@"26.0"]) {
-    NSLog(@"[ERROR] Setting glass effects require iOS 26+");
-    return;
-  }
-
   BOOL isInteractive = [TiUtils boolValue:@"interactive" properties:value def:NO];
   TiColor *tintColor = [TiUtils colorValue:@"tintColor" properties:value def:nil];
   UIGlassEffectStyle style = [TiUtils intValue:@"style" properties:value def:UIGlassEffectStyleRegular];
