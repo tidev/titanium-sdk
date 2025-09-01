@@ -111,7 +111,7 @@ examples:
             bottom: 50
         });
 
-        const isEnabled = true;
+        let isEnabled = true;
         toggleButton.addEventListener("click", () => {
             isEnabled = !isEnabled;
             if (isEnabled) {
