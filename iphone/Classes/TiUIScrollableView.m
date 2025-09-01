@@ -465,17 +465,12 @@ static NSInteger const ScrollableSubviewTag = 100;
   for (int c = 0; c < viewsCount; c++) {
     viewBounds.origin.x = c * visibleBounds.size.width;
 
-    NSLog(@"view #%d, viewBounds %f, %f", c, viewBounds.size.width, viewBounds.size.height)
-
-        if (readd)
-    {
+    if (readd) {
       UIView *view = [[UIView alloc] initWithFrame:viewBounds];
       view.tag = ScrollableSubviewTag;
       [sv addSubview:view];
       [view release];
-    }
-    else
-    {
+    } else {
       UIView *view = [self.scrollableSubviews objectAtIndex:c];
       view.frame = viewBounds;
     }
@@ -517,8 +512,7 @@ static NSInteger const ScrollableSubviewTag = 100;
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
-  NSLog(@"frameSizeChanged %f, %f", visibleBounds.size.width, visibleBounds.size.height) if (!CGRectIsEmpty(visibleBounds))
-  {
+  if (!CGRectIsEmpty(visibleBounds)) {
     [self refreshScrollView:visibleBounds readd:NO];
     [scrollview setContentOffset:CGPointMake(lastPage * visibleBounds.size.width, 0)];
     [self manageCache:[self currentPage]];
