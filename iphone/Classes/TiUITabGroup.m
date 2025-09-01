@@ -413,6 +413,34 @@ DEFINE_EXCEPTIONS
       }];
 }
 
+#if IS_SDK_IOS_26
+- (void)setBottomAccessoryView_:(id)bottomAccessoryViewProxy
+{
+  if (bottomAccessoryView != nil) {
+    [self.proxy forgetProxy:bottomAccessoryView.proxy];
+    RELEASE_TO_NIL(bottomAccessoryView);
+  }
+
+  if (bottomAccessoryViewProxy == [NSNull null]) {
+    [[self tabController] setBottomAccessory:nil];
+    return;
+  }
+
+  [self.proxy rememberProxy:bottomAccessoryViewProxy];
+
+  bottomAccessoryView = [(TiViewProxy *)bottomAccessoryViewProxy view];
+  [bottomAccessoryView retain];
+
+  UITabAccessory *tabAccessory = [[UITabAccessory alloc] initWithContentView:bottomAccessoryView];
+  [[self tabController] setBottomAccessory:tabAccessory animated:NO];
+}
+
+- (void)setMinimizeBehavior_:(NSNumber *)minimizeBehavior
+{
+  [[self tabController] setTabBarMinimizeBehavior:minimizeBehavior.integerValue];
+}
+#endif
+
 - (void)setTabsBackgroundColor_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
