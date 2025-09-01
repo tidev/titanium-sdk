@@ -424,7 +424,7 @@ static NSInteger const ScrollableSubviewTag = 100;
   return result;
 }
 
-- (void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd
+- (void)refreshScrollView:(CGRect)visibleBounds reAdd:(BOOL)reAdd
 {
 #ifndef TI_USE_AUTOLAYOUT
   CGRect viewBounds;
@@ -447,7 +447,7 @@ static NSInteger const ScrollableSubviewTag = 100;
 
   [self refreshPageControl];
 
-  if (readd) {
+  if (reAdd) {
     for (UIView *view in self.scrollableSubviews) {
       [view removeFromSuperview];
     }
@@ -456,16 +456,16 @@ static NSInteger const ScrollableSubviewTag = 100;
 
   NSUInteger viewsCount = [[self proxy] viewCount];
   /*
-  Reset readd here since refreshScrollView is called from
-  frameSizeChanged with readd false and the views might
+  Reset re-add here since refreshScrollView is called from
+  frameSizeChanged with re-add false and the views might
   not yet have been added on first launch
   */
-  readd = !readd ? self.scrollableSubviews.count == 0 : readd;
+  reAdd = !reAdd ? self.scrollableSubviews.count == 0 : reAdd;
 
   for (int c = 0; c < viewsCount; c++) {
     viewBounds.origin.x = c * visibleBounds.size.width;
 
-    if (readd) {
+    if (reAdd) {
       UIView *view = [[UIView alloc] initWithFrame:viewBounds];
       view.tag = ScrollableSubviewTag;
       [sv addSubview:view];
@@ -476,7 +476,7 @@ static NSInteger const ScrollableSubviewTag = 100;
     }
   }
 
-  if (readd && viewsCount > 0) {
+  if (reAdd && viewsCount > 0) {
     [self invalidateScrollableSubviewsCache];
   }
 
@@ -513,7 +513,7 @@ static NSInteger const ScrollableSubviewTag = 100;
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
   if (!CGRectIsEmpty(visibleBounds)) {
-    [self refreshScrollView:visibleBounds readd:NO];
+    [self refreshScrollView:visibleBounds reAdd:NO];
     [scrollview setContentOffset:CGPointMake(lastPage * visibleBounds.size.width, 0)];
     [self manageCache:[self currentPage]];
   }
@@ -572,7 +572,7 @@ static NSInteger const ScrollableSubviewTag = 100;
 - (void)setViews_:(id)args
 {
   if ((scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-    [self refreshScrollView:[self bounds] readd:YES];
+    [self refreshScrollView:[self bounds] reAdd:YES];
   }
 }
 #endif
@@ -600,8 +600,8 @@ static NSInteger const ScrollableSubviewTag = 100;
   }
 
   if ((scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-    // No need to readd. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] readd:NO];
+    // No need to re-add. Just set up the correct frame bounds
+    [self refreshScrollView:[self bounds] reAdd:NO];
   }
 }
 
@@ -616,8 +616,8 @@ static NSInteger const ScrollableSubviewTag = 100;
   }
 
   if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-    // No need to readd. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] readd:NO];
+    // No need to re-add. Just set up the correct frame bounds
+    [self refreshScrollView:[self bounds] reAdd:NO];
   }
 }
 
@@ -712,8 +712,8 @@ static NSInteger const ScrollableSubviewTag = 100;
 #endif
   pagingControlOnTop = [TiUtils boolValue:args def:NO];
   if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-    // No need to readd. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] readd:NO];
+    // No need to re-add. Just set up the correct frame bounds
+    [self refreshScrollView:[self bounds] reAdd:NO];
   }
 }
 
@@ -724,8 +724,8 @@ static NSInteger const ScrollableSubviewTag = 100;
 #endif
   overlayEnabled = [TiUtils boolValue:args def:NO];
   if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-    // No need to readd. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] readd:NO];
+    // No need to re-add. Just set up the correct frame bounds
+    [self refreshScrollView:[self bounds] reAdd:NO];
   }
 }
 
@@ -733,7 +733,7 @@ static NSInteger const ScrollableSubviewTag = 100;
 {
 #ifndef TI_USE_AUTOLAYOUT
   [self refreshScrollView:[self bounds]
-                    readd:YES];
+                    reAdd:YES];
 #else
   [self addSubview:[viewproxy view]];
   [self layoutSubviews];
@@ -756,7 +756,7 @@ static NSInteger const ScrollableSubviewTag = 100;
   }
 #ifndef TI_USE_AUTOLAYOUT
   [self refreshScrollView:[self bounds]
-                    readd:YES];
+                    reAdd:YES];
 #else
   TiViewProxy *viewProxy = (TiViewProxy *)args;
   [self removeSubview:[viewProxy view]];

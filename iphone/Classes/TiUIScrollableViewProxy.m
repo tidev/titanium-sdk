@@ -300,7 +300,7 @@
       return [scrollWrappers objectAtIndex:index];
     }
     // Hideous hack is hideous. This should stave off the bugs until layout is streamlined
-    [ourView refreshScrollView:[[self view] bounds] readd:YES];
+    [ourView refreshScrollView:[[self view] bounds] reAdd:YES];
     scrollWrappers = [ourView scrollableSubviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
