@@ -11,11 +11,15 @@
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
 
+static NSInteger const ScrollableSubviewTag = 100;
+
 @interface TiUIScrollableView (redefiningProxy)
 @property (nonatomic, readonly) TiUIScrollableViewProxy *proxy;
 @end
 
-@implementation TiUIScrollableView
+@implementation TiUIScrollableView {
+  NSArray<UIView *> *_cachedScrollableSubviews;
+}
 
 #pragma mark Internal
 
@@ -40,6 +44,7 @@
   RELEASE_TO_NIL(pageControlBackgroundColor);
   RELEASE_TO_NIL(pageIndicatorColor);
   RELEASE_TO_NIL(currentPageIndicatorColor);
+  RELEASE_TO_NIL(_cachedScrollableSubviews);
   [super dealloc];
 }
 
@@ -292,7 +297,7 @@
 - (void)renderViewForIndex:(int)index
 {
   UIScrollView *sv = [self scrollview];
-  NSArray *svSubviews = [sv subviews];
+  NSArray *svSubviews = self.scrollableSubviews;
   NSUInteger svSubviewsCount = [svSubviews count];
 
   if ((index < 0) || (index >= svSubviewsCount)) {
@@ -443,9 +448,10 @@
   [self refreshPageControl];
 
   if (readd) {
-    for (UIView *view in [sv subviews]) {
+    for (UIView *view in self.scrollableSubviews) {
       [view removeFromSuperview];
     }
+    [self invalidateScrollableSubviewsCache];
   }
 
   NSUInteger viewsCount = [[self proxy] viewCount];
@@ -454,26 +460,36 @@
   frameSizeChanged with readd false and the views might
   not yet have been added on first launch
   */
-  readd = ([[sv subviews] count] == 0);
+  readd = !readd ? self.scrollableSubviews.count == 0 : readd;
 
   for (int c = 0; c < viewsCount; c++) {
     viewBounds.origin.x = c * visibleBounds.size.width;
 
-    if (readd) {
+    NSLog(@"view #%d, viewBounds %f, %f", c, viewBounds.size.width, viewBounds.size.height)
+
+        if (readd)
+    {
       UIView *view = [[UIView alloc] initWithFrame:viewBounds];
+      view.tag = ScrollableSubviewTag;
       [sv addSubview:view];
       [view release];
-    } else {
-      UIView *view = [[sv subviews] objectAtIndex:c];
+    }
+    else
+    {
+      UIView *view = [self.scrollableSubviews objectAtIndex:c];
       view.frame = viewBounds;
     }
+  }
+
+  if (readd && viewsCount > 0) {
+    [self invalidateScrollableSubviewsCache];
   }
 
   [self manageCache:page];
 
   CGSize contentBounds;
   contentBounds.width = viewBounds.size.width * viewsCount;
-  contentBounds.height = viewBounds.size.height - (showPageControl ? pagingControlHeight : 0);
+  contentBounds.height = viewBounds.size.height;
 
   [sv setContentSize:contentBounds];
   [sv setFrame:CGRectMake(0, 0, visibleBounds.size.width, visibleBounds.size.height)];
@@ -498,16 +514,17 @@
   lastPage = [self currentPage];
   [super setBounds:bounds_];
 }
+
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
-  if (!CGRectIsEmpty(visibleBounds)) {
+  NSLog(@"frameSizeChanged %f, %f", visibleBounds.size.width, visibleBounds.size.height) if (!CGRectIsEmpty(visibleBounds))
+  {
     [self refreshScrollView:visibleBounds readd:NO];
     [scrollview setContentOffset:CGPointMake(lastPage * visibleBounds.size.width, 0)];
     [self manageCache:[self currentPage]];
   }
   // To make sure all subviews are properly resized.
-  UIScrollView *sv = [self scrollview];
-  for (UIView *view in [sv subviews]) {
+  for (UIView *view in self.scrollableSubviews) {
     for (TiUIView *sView in [view subviews]) {
       if ([sView respondsToSelector:@selector(checkBounds)]) {
         [sView checkBounds];
@@ -518,6 +535,25 @@
   [super frameSizeChanged:frame bounds:visibleBounds];
 }
 #endif
+
+- (void)invalidateScrollableSubviewsCache
+{
+  RELEASE_TO_NIL(_cachedScrollableSubviews);
+}
+
+- (NSArray<UIView *> *)scrollableSubviews
+{
+  if (_cachedScrollableSubviews == nil) {
+    UIScrollView *sv = [self scrollview];
+    NSArray *allSubviews = [sv subviews];
+
+    _cachedScrollableSubviews = [[allSubviews filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(UIView *view, NSDictionary *bindings) {
+      return view.tag == ScrollableSubviewTag;
+    }]] retain];
+  }
+  return _cachedScrollableSubviews;
+}
+
 #pragma mark Public APIs
 
 - (void)setCacheSize_:(id)args
@@ -541,7 +577,7 @@
 #ifndef TI_USE_AUTOLAYOUT
 - (void)setViews_:(id)args
 {
-  if ((scrollview != nil) && ([scrollview subviews] > 0)) {
+  if ((scrollview != nil) && (self.scrollableSubviews.count > 0)) {
     [self refreshScrollView:[self bounds] readd:YES];
   }
 }
@@ -569,7 +605,7 @@
 #endif
   }
 
-  if ((scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+  if ((scrollview != nil) && (self.scrollableSubviews.count > 0)) {
     // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }
@@ -585,7 +621,7 @@
     pagingControlHeight = 20.0;
   }
 
-  if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
     // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }
@@ -600,7 +636,7 @@
   if (val != nil) {
     RELEASE_TO_NIL(pageControlBackgroundColor);
     pageControlBackgroundColor = [[val _color] retain];
-    if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+    if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
       [[self pagecontrol] setBackgroundColor:pageControlBackgroundColor];
     }
   }
@@ -614,7 +650,7 @@
   if (val != nil) {
     RELEASE_TO_NIL(pageIndicatorColor);
     pageIndicatorColor = [[val _color] retain];
-    if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+    if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
       [[self pagecontrol] setPageIndicatorTintColor:pageIndicatorColor];
     }
   }
@@ -629,7 +665,7 @@
   if (val != nil) {
     RELEASE_TO_NIL(currentPageIndicatorColor);
     currentPageIndicatorColor = [[val _color] retain];
-    if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+    if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
       [[self pagecontrol] setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
     }
   }
@@ -647,7 +683,7 @@
   if (pagingControlAlpha < 0.0) {
     pagingControlAlpha = 0;
   }
-  if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
     [[self pagecontrol] setAlpha:pagingControlAlpha];
   }
 }
@@ -681,7 +717,7 @@
   UIScrollView *scrollview = [self scrollview];
 #endif
   pagingControlOnTop = [TiUtils boolValue:args def:NO];
-  if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
     // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }
@@ -693,7 +729,7 @@
   UIScrollView *scrollview = [self scrollview];
 #endif
   overlayEnabled = [TiUtils boolValue:args def:NO];
-  if (showPageControl && (scrollview != nil) && ([[scrollview subviews] count] > 0)) {
+  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
     // No need to readd. Just set up the correct frame bounds
     [self refreshScrollView:[self bounds] readd:NO];
   }

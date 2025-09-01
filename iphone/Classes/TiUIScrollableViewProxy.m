@@ -295,13 +295,13 @@
 
   if (index != NSNotFound) {
     TiUIScrollableView *ourView = (TiUIScrollableView *)[self view];
-    NSArray *scrollWrappers = [[ourView scrollview] subviews];
+    NSArray *scrollWrappers = [ourView scrollableSubviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }
     // Hideous hack is hideous. This should stave off the bugs until layout is streamlined
     [ourView refreshScrollView:[[self view] bounds] readd:YES];
-    scrollWrappers = [[ourView scrollview] subviews];
+    scrollWrappers = [ourView scrollableSubviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }

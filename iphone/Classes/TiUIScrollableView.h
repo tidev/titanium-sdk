@@ -45,6 +45,7 @@
 #pragma mark - Titanium Internal Use Only
 - (void)manageRotation;
 - (UIScrollView *)scrollview;
+- (NSArray<UIView *> *)scrollableSubviews;
 - (void)setCurrentPage:(id)page animated:(NSNumber *)animate;
 - (void)addView:(id)viewproxy;
 - (void)removeView:(id)args;
