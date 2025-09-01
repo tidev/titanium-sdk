@@ -20,6 +20,10 @@
     [blurView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [blurView setContentMode:[self contentModeForBlurView]];
 
+    // Let the Titanium view handle touch/click events and not the blur view itself.
+    // UIVisualEffectView can intercept touches and prevent TiUIView gesture handling.
+    [blurView setUserInteractionEnabled:NO];
+
     [self addSubview:blurView];
   }
 
@@ -68,6 +72,19 @@
   }
 }
 #endif
+
+- (void)setBorderRadius_:(NSNumber *)borderRadius
+{
+#if IS_SDK_IOS_26
+  // The UICornerConfiguration is necessary to use the iOS 26+ glass effect API
+  if (@available(iOS 26.0, *)) {
+    blurView.cornerConfiguration = [UICornerConfiguration configurationWithRadius:[UICornerRadius fixedRadius:borderRadius.floatValue]];
+    return;
+  }
+#endif
+
+  [super setBorderRadius_:borderRadius];
+}
 
 - (void)setWidth_:(id)width_
 {
