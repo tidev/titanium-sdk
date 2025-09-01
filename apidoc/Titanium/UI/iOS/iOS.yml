@@ -342,7 +342,7 @@ properties:
         style for glass effects and provides a balanced appearance suitable for most use cases.
     type: Number
     permission: read-only
-    since: "14.0.0"
+    since: "13.0.0"
     osver: {ios: {min: "26.0"}}
 
   - name: GLASS_EFFECT_STYLE_CLEAR
@@ -353,7 +353,7 @@ properties:
         This style provides a more transparent appearance while still maintaining the glass effect characteristics.
     type: Number
     permission: read-only
-    since: "14.0.0"
+    since: "13.0.0"
     osver: {ios: {min: "26.0"}}
 
   - name: CLIP_MODE_DEFAULT
