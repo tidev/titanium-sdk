@@ -480,31 +480,11 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
-- (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
-{
-  return NUMINTEGER(UIBlurEffectStyleExtraLight);
-}
-
-- (id)BLUR_EFFECT_STYLE_LIGHT
-{
-  return NUMINTEGER(UIBlurEffectStyleLight);
-}
-
-- (id)BLUR_EFFECT_STYLE_DARK
-{
-  return NUMINTEGER(UIBlurEffectStyleDark);
-}
-
-- (id)BLUR_EFFECT_STYLE_REGULAR
-{
-  return NUMINTEGER(UIBlurEffectStyleRegular);
-}
-
-- (id)BLUR_EFFECT_STYLE_PROMINENT
-{
-  return NUMINTEGER(UIBlurEffectStyleProminent);
-}
-
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_EXTRA_LIGHT, UIBlurEffectStyleExtraLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_LIGHT, UIBlurEffectStyleLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_DARK, UIBlurEffectStyleDark);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_REGULAR, UIBlurEffectStyleRegular);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_PROMINENT, UIBlurEffectStyleProminent);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL, UIBlurEffectStyleSystemUltraThinMaterial);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL, UIBlurEffectStyleSystemThinMaterial);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL, UIBlurEffectStyleSystemMaterial);
@@ -520,6 +500,24 @@ MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK, UIBlurEffectStyleS
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK, UIBlurEffectStyleSystemMaterialDark);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK, UIBlurEffectStyleSystemThickMaterialDark);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK, UIBlurEffectStyleSystemChromeMaterialDark);
+
+#if IS_SDK_IOS_26
+- (NSNumber *)GLASS_EFFECT_STYLE_REGULAR
+{
+  if (@available(iOS 26.0, *)) {
+    return @(UIGlassEffectStyleRegular);
+  }
+  return @(-1);
+}
+
+- (NSNumber *)GLASS_EFFECT_STYLE_CLEAR
+{
+  if (@available(iOS 26.0, *)) {
+    return @(UIGlassEffectStyleClear);
+  }
+  return @(-1);
+}
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP

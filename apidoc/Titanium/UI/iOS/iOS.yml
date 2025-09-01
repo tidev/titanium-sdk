@@ -334,6 +334,28 @@ properties:
     since: "8.2.0"
     osver: {ios: {min: "13.0"}}
 
+  - name: GLASS_EFFECT_STYLE_REGULAR
+    summary: |
+        Use with [BlurView.glassEffect](Titanium.UI.iOS.BlurView.glassEffect) to specify a regular glass effect style.
+    description: |
+        Creates a standard glass effect with regular translucency and blur intensity. This is the default
+        style for glass effects and provides a balanced appearance suitable for most use cases.
+    type: Number
+    permission: read-only
+    since: "13.0.0"
+    osver: {ios: {min: "26.0"}}
+
+  - name: GLASS_EFFECT_STYLE_CLEAR
+    summary: |
+        Use with [BlurView.glassEffect](Titanium.UI.iOS.BlurView.glassEffect) to specify a clear glass effect style.
+    description: |
+        Creates a glass effect with higher translucency and lighter blur intensity compared to the regular style.
+        This style provides a more transparent appearance while still maintaining the glass effect characteristics.
+    type: Number
+    permission: read-only
+    since: "13.0.0"
+    osver: {ios: {min: "26.0"}}
+
   - name: CLIP_MODE_DEFAULT
     summary: |
         Use with <Titanium.UI.View.clipMode> to specify clipping behavior.
