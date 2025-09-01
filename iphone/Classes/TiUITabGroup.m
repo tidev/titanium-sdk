@@ -413,6 +413,7 @@ DEFINE_EXCEPTIONS
       }];
 }
 
+#ifndef IS_SDK_IOS_26
 - (void)setBottomAccessoryView_:(id)bottomAccessoryViewProxy
 {
   if (bottomAccessoryViewProxy == [NSNull null]) {
@@ -438,6 +439,7 @@ DEFINE_EXCEPTIONS
 {
   [[self tabController] setTabBarMinimizeBehavior:minimizeBehavior.integerValue];
 }
+#endif
 
 - (void)setTabsBackgroundColor_:(id)value
 {
