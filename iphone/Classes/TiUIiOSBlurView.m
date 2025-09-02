@@ -75,24 +75,28 @@
 
 - (void)setBorderRadius_:(id)borderRadius
 {
+
 #if IS_SDK_IOS_26
   // The UICornerConfiguration is necessary to use the iOS 26+ glass effect API
   if (@available(iOS 26.0, *)) {
-    if ([borderRadius isKindOfClass:[NSArray class]]) {
-      NSArray<NSNumber *> *borderRadii = (NSArray *)borderRadius;
-      UICornerRadius *topLeft = [[UICornerRadius fixedRadius:borderRadii[0].floatValue] retain];
-      UICornerRadius *topRight = [[UICornerRadius fixedRadius:borderRadii[1].floatValue] retain];
-      UICornerRadius *bottomLeft = [[UICornerRadius fixedRadius:borderRadii[2].floatValue] retain];
-      UICornerRadius *bottomRight = [[UICornerRadius fixedRadius:borderRadii[3].floatValue] retain];
+    NSArray<NSNumber *> *cornerArray = [TiUtils cornerArrayFromRadius:borderRadius];
 
-      blurView.cornerConfiguration = [UICornerConfiguration configurationWithTopLeftRadius:topLeft
-                                                                            topRightRadius:topRight
-                                                                          bottomLeftRadius:bottomLeft
-                                                                         bottomRightRadius:bottomRight];
-    } else {
-      CGFloat fixedBorderRadius = [(NSNumber *)borderRadius floatValue];
+    if (cornerArray.count == 1) {
+      CGFloat fixedBorderRadius = [cornerArray.firstObject floatValue];
       blurView.cornerConfiguration = [UICornerConfiguration configurationWithRadius:[UICornerRadius fixedRadius:fixedBorderRadius]];
+      return;
     }
+
+    UICornerRadius *topLeft = [[UICornerRadius fixedRadius:cornerArray[0].floatValue] retain];
+    UICornerRadius *topRight = [[UICornerRadius fixedRadius:cornerArray[1].floatValue] retain];
+    UICornerRadius *bottomLeft = [[UICornerRadius fixedRadius:cornerArray[2].floatValue] retain];
+    UICornerRadius *bottomRight = [[UICornerRadius fixedRadius:cornerArray[3].floatValue] retain];
+
+    blurView.cornerConfiguration = [UICornerConfiguration configurationWithTopLeftRadius:topLeft
+                                                                          topRightRadius:topRight
+                                                                        bottomLeftRadius:bottomLeft
+                                                                       bottomRightRadius:bottomRight];
+
     return;
   }
 #endif
