@@ -229,12 +229,12 @@
   self.button.configuration = configuration.configuration;
 
   // If provided: Handle swap of "backgroundColor" and "backgroundSelectedColor"
-  if (configuration.backgroundSelectedColor != nil && configuration.baseBackgroundColor != nil) {
+  if (configuration.baseBackgroundSelectedColor != nil && configuration.baseBackgroundColor != nil) {
     self.button.configurationUpdateHandler = ^(UIButton *button) {
       UIButtonConfiguration *newConfiguration = button.configuration;
 
-      if (button.highlighted && configuration.backgroundSelectedColor != nil) {
-        newConfiguration.baseBackgroundColor = configuration.backgroundSelectedColor;
+      if (button.highlighted && configuration.baseBackgroundSelectedColor != nil) {
+        newConfiguration.baseBackgroundColor = configuration.baseBackgroundSelectedColor;
       } else if (configuration.baseBackgroundColor != nil) {
         newConfiguration.baseBackgroundColor = configuration.baseBackgroundColor;
       }

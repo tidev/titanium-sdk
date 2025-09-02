@@ -81,11 +81,12 @@
   _configuration.baseBackgroundColor = color;
 
   self.baseBackgroundColor = color;
+}
 
-  // If "backgroundSelectedColor" is set, store it for referencing it in "configurationUpdateHandler" later
-  if ([self valueForKey:@"backgroundSelectedColor"]) {
-    self.backgroundSelectedColor = [TiUtils colorValue:[self valueForKey:@"backgroundSelectedColor"]].color;
-  }
+- (void)setBackgroundSelectedColor:(id)backgroundSelectedColor
+{
+  UIColor *color = [TiUtils colorValue:backgroundSelectedColor].color;
+  self.baseBackgroundSelectedColor = color;
 }
 
 - (void)setColor:(id)color

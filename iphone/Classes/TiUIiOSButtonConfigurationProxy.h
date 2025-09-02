@@ -12,7 +12,7 @@
 
 @property (nonatomic, strong) UIButtonConfiguration *configuration;
 @property (nonatomic, retain) UIColor *baseBackgroundColor;
-@property (nonatomic, retain) UIColor *backgroundSelectedColor;
+@property (nonatomic, retain) UIColor *baseBackgroundSelectedColor;
 
 @end
 
