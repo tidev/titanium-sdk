@@ -1,3 +1,73 @@
+# [13.0.0](https://github.com/tidev/titanium_mobile/compare/12_8_X...13.0.0) (2025-09-02)
+
+## About this release
+
+Titanium SDK 13.0.0 is a major release of the SDK, providing full support for iOS 26 and Xcode 26.
+
+
+## Community Credits
+
+* Hans Knöchel
+  * build with Xcode 26 ([4d9d041](https://github.com/tidev/titanium_mobile/commit/4d9d0419e00b3c9add07af3487c1d74d664afc92))
+  * add support for modern button configuration ([a7ab5bd](https://github.com/tidev/titanium_mobile/commit/a7ab5bd26af2100e83b00644dbe882087233dda7))
+  * add support for iOS 26+ glass effects ([26a1a86](https://github.com/tidev/titanium_mobile/commit/26a1a8631fdebb3863108588f2cbc5875ec934d9))
+  * support for iOS 26+ bottomAccessoryView API ([99461f5](https://github.com/tidev/titanium_mobile/commit/99461f571cf0d3e5844366d7ba80b1af8b26db2a))
+  * support iOS 26+ source views for non-iPad devices ([ce3752b](https://github.com/tidev/titanium_mobile/commit/ce3752bcfddc5e1139a73ff2344cf4910c5b3a29))
+  * make sure the scrollable view child view is a Ti view ([6549100](https://github.com/tidev/titanium_mobile/commit/65491002402faa05f1cc6a605edcf41c3dd15755))
+  * fix possible build issues related to dsym generation ([98acc26](https://github.com/tidev/titanium_mobile/commit/98acc262d34eb06ff9a46e7f7be38ebfb0d5459c))
+  * disable debug dylib for more stable dev builds ([ac53981](https://github.com/tidev/titanium_mobile/commit/ac539813c5ff4d48b9a586e20aafb95cdf4aa279))
+  * trim trailing new line on html text areas ([8c39dc7](https://github.com/tidev/titanium_mobile/commit/8c39dc72d1b65a2b20a260ee043f02709908d3bc))
+  * trim trailing new line on html labels ([64e0632](https://github.com/tidev/titanium_mobile/commit/64e06321d96d5dc24bdc972db6f0d9ff187270f7))
+
+* Michael Gangolf
+  * fix hidding actionbar in drawerLayout ([d42adf2](https://github.com/tidev/titanium_mobile/commit/d42adf26b86d749b6d037109c9932038a1ca8e2f))
+  * code refactor and cleanup ([6c87189](https://github.com/tidev/titanium_mobile/commit/6c87189a2e01f14ec68ed3920eea2907be1259be))
+  * update ndk, camerax for 16kb page sizes support ([22720c4](https://github.com/tidev/titanium_mobile/commit/22720c465a19a8b3b94a3d1c8506ee14cfd12f6f))
+
+## Bug Fixes
+
+### Android platform
+
+* fix hidding actionbar in drawerLayout ([d42adf2](https://github.com/tidev/titanium_mobile/commit/d42adf26b86d749b6d037109c9932038a1ca8e2f))
+
+### iOS platform
+
+* fix possible build issues related to dsym generation ([98acc26](https://github.com/tidev/titanium_mobile/commit/98acc262d34eb06ff9a46e7f7be38ebfb0d5459c))
+* make sure the scrollable view child view is a Ti view ([6549100](https://github.com/tidev/titanium_mobile/commit/65491002402faa05f1cc6a605edcf41c3dd15755))
+* trim trailing new line on html labels ([64e0632](https://github.com/tidev/titanium_mobile/commit/64e06321d96d5dc24bdc972db6f0d9ff187270f7))
+* trim trailing new line on html text areas ([8c39dc7](https://github.com/tidev/titanium_mobile/commit/8c39dc72d1b65a2b20a260ee043f02709908d3bc))
+
+## Features
+
+### Android platform
+
+* update ndk, camerax for 16kb page sizes support ([22720c4](https://github.com/tidev/titanium_mobile/commit/22720c465a19a8b3b94a3d1c8506ee14cfd12f6f))
+
+### iOS platform
+
+* add support for iOS 26+ glass effects ([26a1a86](https://github.com/tidev/titanium_mobile/commit/26a1a8631fdebb3863108588f2cbc5875ec934d9))
+* add support for modern button configuration ([a7ab5bd](https://github.com/tidev/titanium_mobile/commit/a7ab5bd26af2100e83b00644dbe882087233dda7))
+* support for iOS 26+ bottomAccessoryView API ([99461f5](https://github.com/tidev/titanium_mobile/commit/99461f571cf0d3e5844366d7ba80b1af8b26db2a))
+* support iOS 26+ source views for non-iPad devices ([ce3752b](https://github.com/tidev/titanium_mobile/commit/ce3752bcfddc5e1139a73ff2344cf4910c5b3a29))
+
+## BREAKING CHANGES
+
+* The `rect` property in the `Ti.UI.OptionDialog` has been removed - use the `view` property instead for proper positioning
+
+## SDK Module Versions
+
+| Module      | Android version | iOS Version |
+| ----------- | --------------- | ----------- |
+| facebook | 13.0.0 | 15.0.0 |
+| ti.map | 5.6.1 | 7.3.1 |
+| ti.webdialog | 2.3.0 | 3.0.2 |
+| ti.playservices | 18.3.0 | n/a |
+| ti.identity | 3.1.0 | 5.0.0 |
+| urlSession | n/a | 4.0.1 |
+| ti.coremotion | n/a | 4.0.1 |
+| ti.applesignin | n/a | 3.1.2 |
+| hyperloop | 7.0.9 | 7.0.9 |
+
 # [12.8.0](https://github.com/tidev/titanium_mobile/compare/12_7_X...12.8.0) (2025-07-17)
 
 ## About this release
