@@ -44,16 +44,16 @@
 #import "TiUIiOSStatusBarProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-#import "TiUIiOSSystemButtonStyleProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 #import "TiUIiOSSystemButtonProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSYSTEMICON
 #import "TiUIiOSSystemIconProxy.h"
+#endif
+
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
+#import "TiUIiOSButtonConfigurationProxy.h"
 #endif
 
 #endif
@@ -126,9 +126,6 @@
 
 #ifdef USE_TI_UIIOSSTATUSBAR
 @property (nonatomic, readwrite, assign) TiUIiOSStatusBarProxy *StatusBar;
-#endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-@property (nonatomic, readwrite, assign) TiUIiOSSystemButtonStyleProxy *SystemButtonStyle;
 #endif
 
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
@@ -235,5 +232,8 @@
 #ifdef USE_TI_UIWEBVIEW
 - (id)createWebViewConfiguration:(id)args;
 - (id)createWebViewProcessPool:(id)args;
+#endif
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
+- (id)createButtonConfiguration:(id)args;
 #endif
 @end

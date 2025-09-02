@@ -23,6 +23,21 @@ methods:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
 
+  - name: createButtonConfiguration
+    summary: |
+        Creates a button configuration object for customizing button appearance.
+    description: |
+        Creates a <Titanium.UI.iOS.ButtonConfiguration> object that can be used to configure
+        the appearance and behavior of buttons with modern styling options.
+    parameters:
+      - name: parameters
+        summary: Properties to set on the button configuration.
+        type: Dictionary<Titanium.UI.iOS.ButtonConfiguration>
+    returns:
+      type: Titanium.UI.iOS.ButtonConfiguration
+    since: "13.0.0"
+    osver: {ios: {min: "15.0"}}
+
   - name: systemImage
     summary: |
         Get image from SF Symbols provided by Apple.

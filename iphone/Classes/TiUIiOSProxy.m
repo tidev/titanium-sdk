@@ -258,9 +258,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 #ifdef USE_TI_UIIOSSTATUSBAR
   FORGET_AND_RELEASE(_StatusBar);
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-  FORGET_AND_RELEASE(_SystemButtonStyle);
-#endif
 
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
   FORGET_AND_RELEASE(_SystemButton);
@@ -410,16 +407,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
     _StatusBar = [[TiUIiOSStatusBarProxy alloc] _initWithPageContext:[self pageContext]];
   }
   return _StatusBar;
-}
-#endif
-
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-- (TiUIiOSSystemButtonStyleProxy *)SystemButtonStyle
-{
-  if (_SystemButtonStyle == nil) {
-    _SystemButtonStyle = [[TiUIiOSSystemButtonStyleProxy alloc] _initWithPageContext:[self pageContext]];
-  }
-  return _SystemButtonStyle;
 }
 #endif
 
@@ -825,6 +812,13 @@ MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDispl
 {
   return [[[TiUIiOSWebViewProcessPoolProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
+- (id)createButtonConfiguration:(id)args
+{
+  return [[[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
 
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_NONE, NSURLCredentialPersistenceNone);
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_FOR_SESSION, NSURLCredentialPersistenceForSession);
