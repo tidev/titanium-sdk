@@ -227,7 +227,9 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    // Containment is managed in TiUITabGroup.open. Avoid double-adding here.
+    UIViewController *parentController = [self windowHoldingController];
+    [parentController addChildViewController:tabController];
+    [tabController didMoveToParentViewController:parentController];
     [tabController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
