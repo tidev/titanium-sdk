@@ -8,9 +8,10 @@
 #import "KrollBridge.h"
 #import "KrollObject.h"
 #import "TiExceptionHandler.h"
+#import <os/lock.h>
 
 static NSMutableArray *callbacks;
-static NSLock *callbackLock;
+static os_unfair_lock callbackLock = OS_UNFAIR_LOCK_INIT;
 
 @interface KrollCallback ()
 @property (nonatomic, assign) KrollContext *context;
@@ -22,19 +23,18 @@ static NSLock *callbackLock;
 
 + (void)shutdownContext:(KrollContext *)context
 {
-  [callbackLock lock];
+  os_unfair_lock_lock(&callbackLock);
   for (KrollCallback *callback in callbacks) {
     if ([callback context] == context) {
       callback.context = nil;
     }
   }
-  [callbackLock unlock];
+  os_unfair_lock_unlock(&callbackLock);
 }
 
 + (void)initialize
 {
   if (callbacks == nil) {
-    callbackLock = [[NSLock alloc] init];
     callbacks = TiCreateNonRetainingArray();
   }
 }
@@ -56,9 +56,9 @@ static NSLock *callbackLock;
 
 - (void)dealloc
 {
-  [callbackLock lock];
+  os_unfair_lock_lock(&callbackLock);
   [callbacks removeObject:self];
-  [callbackLock unlock];
+  os_unfair_lock_unlock(&callbackLock);
 
   [type release];
   if ([KrollBridge krollBridgeExists:bridge]) {
