@@ -466,7 +466,6 @@
         [(id)thisProxy gainFocus];
       }
     }
-    [self processForSafeArea];
   }
   TiThreadPerformOnMainThread(
       ^{
@@ -685,7 +684,7 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:NO animated:animated];
-    [self processForSafeArea];
+    [self willChangeSize];
   }
 }
 
@@ -697,8 +696,7 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:YES animated:animated];
-    [self processForSafeArea];
-    // TODO: need to fix height
+    [self willChangeSize];
   }
 }
 
@@ -761,6 +759,12 @@
 
   [self willShow];
 }
+
+- (void)viewSafeAreaInsetsDidChange
+{
+  [self willChangeSize];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
   if (controller != nil) {
@@ -768,6 +772,7 @@
   }
   [self willHide];
 }
+
 - (void)viewDidAppear:(BOOL)animated
 {
   if (isModal && opening) {
@@ -777,6 +782,7 @@
     [self gainFocus];
   }
 }
+
 - (void)viewDidDisappear:(BOOL)animated
 {
   if (isModal && closing) {
