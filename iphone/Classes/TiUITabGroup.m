@@ -666,8 +666,7 @@ DEFINE_EXCEPTIONS
       focusedTabProxy = [theActiveTab retain];
     }
 
-    [self tabController].viewControllers = nil;
-    [self tabController].viewControllers = controllers;
+    self.tabController.viewControllers = controllers;
 
     if (focusedTabProxy != nil && ![tabs containsObject:focusedTabProxy]) {
       if (theActiveTab != nil) {
@@ -692,12 +691,12 @@ DEFINE_EXCEPTIONS
 {
   TiThreadPerformOnMainThread(
       ^{
-        [self.tabController willMoveToParentViewController:TiApp.controller.topPresentedController];
-
-        self.tabController.view.frame = self.bounds;
-        [self addSubview:self.tabController.view];
         isTabBarHidden = NO;
-        [TiApp.controller.topPresentedController addChildViewController:self.tabController];
+        UIViewController *parentController = TiApp.controller.topPresentedController;
+        [parentController addChildViewController:self.tabController];
+        [self addSubview:self.tabController.view];
+        self.tabController.view.frame = self.bounds;
+        [self.tabController didMoveToParentViewController:parentController];
       },
       NO);
 }

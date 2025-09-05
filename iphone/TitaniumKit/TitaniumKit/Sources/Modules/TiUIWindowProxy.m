@@ -236,10 +236,6 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  [self performSelector:@selector(processForSafeArea)
-             withObject:nil
-             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-
   [self performSelector:@selector(updateStatusBarView)
              withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
@@ -688,7 +684,6 @@
       ^{
         if (controller != nil) {
           [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
-          [self processForSafeArea];
         }
       },
       NO);
@@ -1090,8 +1085,8 @@
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
 
-  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
-  safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  // Prefer safe area from our own controller hierarchy so tab/nav containers are respected.
+  safeAreaInset = self.hostingController.view.safeAreaInsets;
 
   if (self.tabGroup) {
     edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
@@ -1153,12 +1148,10 @@
       edgeInsets.right = safeAreaInset.right;
     }
   }
-  if ([TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:NO]) {
-    edgeInsets.top = safeAreaInset.top;
-  }
-  if ([TiUtils boolValue:[self valueForUndefinedKey:@"tabBarHidden"] def:NO]) {
-    edgeInsets.bottom = safeAreaInset.bottom;
-  }
+
+  edgeInsets.top = safeAreaInset.top;
+  edgeInsets.bottom = safeAreaInset.bottom;
+
   return edgeInsets;
 }
 
