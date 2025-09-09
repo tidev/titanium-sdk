@@ -1074,7 +1074,7 @@
   return self.safeAreaViewProxy;
 }
 
-- (bool)processForSafeArea
+- (BOOL)processForSafeArea
 {
   [self setValue:@{ @"top" : NUMFLOAT(0.0),
     @"left" : NUMFLOAT(0.0),
@@ -1102,7 +1102,7 @@
     @"right" : NUMFLOAT(edgeInsets.right) }
           forKey:@"safeAreaPadding"];
 
-  bool safeAreaInsetsChanged = !UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets);
+  BOOL safeAreaInsetsChanged = !UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets);
   oldSafeAreaInsets = edgeInsets;
 
   if (self.shouldExtendSafeArea) {

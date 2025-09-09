@@ -2293,7 +2293,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     if ([self respondsToSelector:@selector(processForSafeArea)]) {
       TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
 
-      bool safeAreaInsetsChanged = [windowProxy processForSafeArea];
+      BOOL safeAreaInsetsChanged = [windowProxy processForSafeArea];
       layoutChanged = layoutChanged || safeAreaInsetsChanged;
       if (safeAreaInsetsChanged && windowProxy.pendingSafeAreaUpdate) {
         // Reset the pending safe area update here because it was already updated in the current layout cycle

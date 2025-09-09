@@ -999,7 +999,7 @@
   [self rememberProxy:transitionProxy];
 }
 
-- (bool)processForSafeArea
+- (BOOL)processForSafeArea
 {
   // Overridden in subclass
   return NO;

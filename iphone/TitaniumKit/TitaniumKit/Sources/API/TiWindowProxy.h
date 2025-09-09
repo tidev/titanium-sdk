@@ -40,7 +40,7 @@
 @property (nonatomic) BOOL isDetailWindow;
 @property (nonatomic) BOOL pendingSafeAreaUpdate;
 
-- (bool)processForSafeArea;
+- (BOOL)processForSafeArea;
 - (UIViewController *)windowHoldingController;
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation;
 
