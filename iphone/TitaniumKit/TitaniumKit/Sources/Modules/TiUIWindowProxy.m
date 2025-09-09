@@ -1173,9 +1173,7 @@
       edgeInsets.right = safeAreaInset.right;
     }
   }
-  if ([TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:NO]) {
-    edgeInsets.top = safeAreaInset.top;
-  }
+  edgeInsets.top = safeAreaInset.top;
   edgeInsets.bottom = safeAreaInset.bottom;
   return edgeInsets;
 }
