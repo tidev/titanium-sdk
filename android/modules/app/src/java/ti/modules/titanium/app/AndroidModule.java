@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.app;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -17,8 +18,10 @@ import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 
 @Kroll.module(parentModule = AppModule.class)
@@ -58,6 +61,27 @@ public class AndroidModule extends KrollModule
 			return ((TiBaseActivity) activity).getActivityProxy();
 		} else {
 			return null;
+		}
+	}
+
+	@Kroll.method
+	public void changeIcon(KrollDict options)
+	{
+		if (options.containsKeyAndNotNull("from") && options.containsKeyAndNotNull("to")) {
+			String oldPackage = options.getString("from");
+			String newPackage = options.getString("to");
+			String pkgName = TiApplication.getInstance().getPackageName();
+
+			TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
+				new ComponentName(pkgName, pkgName + "." + oldPackage),
+				PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+			);
+			TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
+				new ComponentName(pkgName, pkgName + "." + newPackage),
+				PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+			);
+		} else {
+			Log.e(TAG, "Parameters missing. Please provide 'from' and 'to'");
 		}
 	}
 
