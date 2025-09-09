@@ -1074,7 +1074,7 @@
   return self.safeAreaViewProxy;
 }
 
-- (void)processForSafeArea
+- (bool)processForSafeArea
 {
   [self setValue:@{ @"top" : NUMFLOAT(0.0),
     @"left" : NUMFLOAT(0.0),
@@ -1096,18 +1096,17 @@
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
   }
 
-  if (self.shouldExtendSafeArea) {
-    [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
-      @"left" : NUMFLOAT(edgeInsets.left),
-      @"bottom" : NUMFLOAT(edgeInsets.bottom),
-      @"right" : NUMFLOAT(edgeInsets.right) }
-            forKey:@"safeAreaPadding"];
+  [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
+    @"left" : NUMFLOAT(edgeInsets.left),
+    @"bottom" : NUMFLOAT(edgeInsets.bottom),
+    @"right" : NUMFLOAT(edgeInsets.right) }
+          forKey:@"safeAreaPadding"];
 
-    if (!UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets)) {
-      self.safeAreaInsetsUpdated = YES;
-    }
-    oldSafeAreaInsets = edgeInsets;
-    return;
+  bool safeAreaInsetsChanged = !UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets);
+  oldSafeAreaInsets = edgeInsets;
+
+  if (self.shouldExtendSafeArea) {
+    return safeAreaInsetsChanged;
   }
 
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
@@ -1128,6 +1127,8 @@
   if (!oldRight || [oldRight floatValue] != edgeInsets.right) {
     [safeAreaProxy setRight:NUMFLOAT(edgeInsets.right)];
   }
+
+  return safeAreaInsetsChanged;
 }
 
 - (UIEdgeInsets)tabGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
