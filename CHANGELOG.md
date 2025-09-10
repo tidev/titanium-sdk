@@ -12,6 +12,7 @@ Titanium SDK 13.0.0 is a major release of the SDK, providing full support for iO
   * improve safe area detection and trigger relayout ([3c86467](https://github.com/tidev/titanium_mobile/commit/3c864672ed2e91d25cd6b12a589b2cbd7d0c656f))
 
 * Hans Knöchel
+  * update ioslib to 5.1.0 to support Xcode 26 ([c36edc4](https://github.com/tidev/titanium_mobile/commit/c36edc443dd44b9b0e5e3a9e9f51c74538f05504))
   * properly clean build folder ([5347cc5](https://github.com/tidev/titanium_mobile/commit/5347cc5be569ff1365e6c0eb3b8ce47de6e37f5c))
   * add 13.0.0 changelog ([f678a93](https://github.com/tidev/titanium_mobile/commit/f678a93c184ba46269814ea9d7d6bf0ec40ca203))
   * build with Xcode 26 ([4d9d041](https://github.com/tidev/titanium_mobile/commit/4d9d0419e00b3c9add07af3487c1d74d664afc92))
