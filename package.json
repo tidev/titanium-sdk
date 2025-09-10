@@ -165,12 +165,6 @@
     "type": "git",
     "url": "git://github.com/tidev/titanium_mobile.git"
   },
-  "vendorDependencies": {
-    "node": "16.x || 18.x || 20.x"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  },
   "nyc": {
     "exclude": [
       "**/cli/tests/test-*.js",
