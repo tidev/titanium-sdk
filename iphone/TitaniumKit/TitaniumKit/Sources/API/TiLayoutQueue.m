@@ -74,6 +74,8 @@ void performLayoutRefresh(CFRunLoopTimerRef timer, void *info)
   } else {
     [thisProxy refreshView:nil];
   }
+
+  [thisProxy didFinishLayout];
 }
 
 + (void)addViewProxy:(TiViewProxy *)newViewProxy

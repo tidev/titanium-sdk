@@ -320,8 +320,6 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
 
-  [window processForSafeArea];
-
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -468,8 +466,6 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
-
   if (theWindow == rootWindow) {
     // This is probably too late for the root view controller.
     // Figure out how to call open before this callback
@@ -685,7 +681,6 @@
     activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
   }
   if ((titleColor != nil) || (activeTitleColor != nil)) {
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = UITabBarAppearance.new;
       if (titleColor != nil) {
@@ -703,16 +698,13 @@
       ourItem.standardAppearance = appearance;
       ourItem.scrollEdgeAppearance = appearance;
     } else {
-#endif
       if (titleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
       }
       if (activeTitleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
       }
-#if IS_SDK_IOS_15
     }
-#endif
   }
 
   if (iconInsets != nil) {
