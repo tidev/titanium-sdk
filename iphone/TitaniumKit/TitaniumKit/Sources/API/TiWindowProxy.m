@@ -94,6 +94,28 @@
   return [super suppressesRelayout];
 }
 
+- (void)didFinishLayout
+{
+  if (self.pendingSafeAreaUpdate) {
+    self.pendingSafeAreaUpdate = NO;
+    [self willChangeSizeForSafeArea];
+  }
+
+  [super didFinishLayout];
+}
+
+- (void)willChangeSizeForSafeArea
+{
+  if ((*((char *)&dirtyflags) & (1 << (7 - TiRefreshViewSize))) != 0) {
+    // Layout is in progress, defer the safe area update
+    self.pendingSafeAreaUpdate = YES;
+    return;
+  }
+
+  // Proceed with normal size change logic
+  [self willChangeSize];
+}
+
 #pragma mark - Utility Methods
 - (void)windowWillOpen
 {
@@ -762,7 +784,7 @@
 
 - (void)viewSafeAreaInsetsDidChange
 {
-  [self willChangeSize];
+  [self willChangeSizeForSafeArea];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -977,9 +999,10 @@
   [self rememberProxy:transitionProxy];
 }
 
-- (void)processForSafeArea
+- (BOOL)processForSafeArea
 {
   // Overridden in subclass
+  return NO;
 }
 
 @end
