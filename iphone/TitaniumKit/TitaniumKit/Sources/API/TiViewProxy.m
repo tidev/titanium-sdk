@@ -2087,7 +2087,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   VerboseLog(@"[INFO] Did finish layout for %@", self);
 
-  // Noop, can be overridden by subclasses.
+  // No-op, can be overridden by subclasses.
 }
 
 #pragma mark Layout actions
