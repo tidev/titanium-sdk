@@ -28,7 +28,7 @@
 /**
  * The method that will be triggered when a timer fires.
  */
-- (void)timerFired:(nonnull NSTimer *)timer;
+- (void)timerFired:(nullable NSTimer *)timer;
 
 @end
 
@@ -38,9 +38,10 @@
 @interface KrollTimerManager : NSObject
 
 /**
- * Map of timer identifiers and the underlying native NSTimer.
+ * Map of timer identifiers to the underlying native timer objects.
+ * Backed by GCD timers for lower overhead and better accuracy.
  */
-@property (nonatomic, strong, nullable) NSMapTable<NSNumber *, NSTimer *> *timers;
+@property (nonatomic, strong, nullable) NSMapTable<NSNumber *, id> *timers;
 
 /**
  * Initializes the timer manager in the given JS context. Exposes the global set/clear
