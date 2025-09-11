@@ -413,6 +413,34 @@ DEFINE_EXCEPTIONS
       }];
 }
 
+#if IS_SDK_IOS_26
+- (void)setBottomAccessoryView_:(id)bottomAccessoryViewProxy
+{
+  if (bottomAccessoryView != nil) {
+    [self.proxy forgetProxy:bottomAccessoryView.proxy];
+    RELEASE_TO_NIL(bottomAccessoryView);
+  }
+
+  if (bottomAccessoryViewProxy == [NSNull null]) {
+    [[self tabController] setBottomAccessory:nil];
+    return;
+  }
+
+  [self.proxy rememberProxy:bottomAccessoryViewProxy];
+
+  bottomAccessoryView = [(TiViewProxy *)bottomAccessoryViewProxy view];
+  [bottomAccessoryView retain];
+
+  UITabAccessory *tabAccessory = [[UITabAccessory alloc] initWithContentView:bottomAccessoryView];
+  [[self tabController] setBottomAccessory:tabAccessory animated:NO];
+}
+
+- (void)setMinimizeBehavior_:(NSNumber *)minimizeBehavior
+{
+  [[self tabController] setTabBarMinimizeBehavior:minimizeBehavior.integerValue];
+}
+#endif
+
 - (void)setTabsBackgroundColor_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
@@ -638,8 +666,7 @@ DEFINE_EXCEPTIONS
       focusedTabProxy = [theActiveTab retain];
     }
 
-    [self tabController].viewControllers = nil;
-    [self tabController].viewControllers = controllers;
+    self.tabController.viewControllers = controllers;
 
     if (focusedTabProxy != nil && ![tabs containsObject:focusedTabProxy]) {
       if (theActiveTab != nil) {
@@ -664,12 +691,12 @@ DEFINE_EXCEPTIONS
 {
   TiThreadPerformOnMainThread(
       ^{
-        [self.tabController willMoveToParentViewController:TiApp.controller.topPresentedController];
-
-        self.tabController.view.frame = self.bounds;
-        [self addSubview:self.tabController.view];
         isTabBarHidden = NO;
-        [TiApp.controller.topPresentedController addChildViewController:self.tabController];
+        UIViewController *parentController = TiApp.controller.topPresentedController;
+        [parentController addChildViewController:self.tabController];
+        [self addSubview:self.tabController.view];
+        self.tabController.view.frame = self.bounds;
+        [self.tabController didMoveToParentViewController:parentController];
       },
       NO);
 }
