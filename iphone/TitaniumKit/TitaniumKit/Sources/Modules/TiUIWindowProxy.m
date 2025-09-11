@@ -1085,8 +1085,12 @@
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
 
-  // Prefer safe area from our own controller hierarchy so tab/nav containers are respected.
-  safeAreaInset = self.hostingController.view.safeAreaInsets;
+  if (self.isManaged && self.tab) {
+    // Prefer safe area from our own controller hierarchy so tab/nav containers are respected.
+    safeAreaInset = self.hostingController.view.safeAreaInsets;
+  } else {
+    safeAreaInset = TiApp.controller.topContainerController.hostingView.safeAreaInsets;
+  }
 
   if (self.tabGroup) {
     edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
