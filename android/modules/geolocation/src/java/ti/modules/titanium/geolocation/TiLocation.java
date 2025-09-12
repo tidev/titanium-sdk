@@ -20,7 +20,7 @@ import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 
-import com.appcelerator.aps.APSAnalytics;
+import org.appcelerator.titanium.util.APSAnalytics;
 
 public class TiLocation
 {
