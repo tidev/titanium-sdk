@@ -571,8 +571,8 @@ static NSInteger const ScrollableSubviewTag = 100;
 #ifndef TI_USE_AUTOLAYOUT
 - (void)setViews_:(id)args
 {
-  if ((scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-    [self refreshScrollView:[self bounds] reAdd:YES];
+  if (scrollview != nil && self.proxy.viewCount > 0) {
+    [self refreshScrollView:self.bounds reAdd:YES];
   }
 }
 #endif
@@ -599,9 +599,9 @@ static NSInteger const ScrollableSubviewTag = 100;
 #endif
   }
 
-  if ((scrollview != nil) && (self.scrollableSubviews.count > 0)) {
+  if (scrollview != nil && self.proxy.viewCount > 0) {
     // No need to re-add. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] reAdd:NO];
+    [self refreshScrollView:self.bounds reAdd:NO];
   }
 }
 
@@ -615,9 +615,9 @@ static NSInteger const ScrollableSubviewTag = 100;
     pagingControlHeight = 20.0;
   }
 
-  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
+  if (showPageControl && scrollview != nil && self.proxy.viewCount > 0) {
     // No need to re-add. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] reAdd:NO];
+    [self refreshScrollView:self.bounds reAdd:NO];
   }
 }
 
@@ -630,8 +630,8 @@ static NSInteger const ScrollableSubviewTag = 100;
   if (val != nil) {
     RELEASE_TO_NIL(pageControlBackgroundColor);
     pageControlBackgroundColor = [[val _color] retain];
-    if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-      [[self pagecontrol] setBackgroundColor:pageControlBackgroundColor];
+    if (showPageControl && scrollview != nil && self.proxy.viewCount > 0) {
+      [self.pagecontrol setBackgroundColor:pageControlBackgroundColor];
     }
   }
 }
@@ -644,8 +644,8 @@ static NSInteger const ScrollableSubviewTag = 100;
   if (val != nil) {
     RELEASE_TO_NIL(pageIndicatorColor);
     pageIndicatorColor = [[val _color] retain];
-    if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-      [[self pagecontrol] setPageIndicatorTintColor:pageIndicatorColor];
+    if (showPageControl && scrollview != nil && self.proxy.viewCount > 0) {
+      [self.pagecontrol setPageIndicatorTintColor:pageIndicatorColor];
     }
   }
 }
@@ -659,8 +659,8 @@ static NSInteger const ScrollableSubviewTag = 100;
   if (val != nil) {
     RELEASE_TO_NIL(currentPageIndicatorColor);
     currentPageIndicatorColor = [[val _color] retain];
-    if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-      [[self pagecontrol] setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
+    if (showPageControl && scrollview != nil && self.proxy.viewCount > 0) {
+      [self.pagecontrol setCurrentPageIndicatorTintColor:currentPageIndicatorColor];
     }
   }
 }
@@ -677,8 +677,8 @@ static NSInteger const ScrollableSubviewTag = 100;
   if (pagingControlAlpha < 0.0) {
     pagingControlAlpha = 0;
   }
-  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
-    [[self pagecontrol] setAlpha:pagingControlAlpha];
+  if (showPageControl && scrollview != nil && self.proxy.viewCount > 0) {
+    [self.pagecontrol setAlpha:pagingControlAlpha];
   }
 }
 
@@ -711,9 +711,9 @@ static NSInteger const ScrollableSubviewTag = 100;
   UIScrollView *scrollview = [self scrollview];
 #endif
   pagingControlOnTop = [TiUtils boolValue:args def:NO];
-  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
+  if (showPageControl && scrollview != nil && self.proxy.viewCount > 0) {
     // No need to re-add. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] reAdd:NO];
+    [self refreshScrollView:self.bounds reAdd:NO];
   }
 }
 
@@ -723,9 +723,9 @@ static NSInteger const ScrollableSubviewTag = 100;
   UIScrollView *scrollview = [self scrollview];
 #endif
   overlayEnabled = [TiUtils boolValue:args def:NO];
-  if (showPageControl && (scrollview != nil) && (self.scrollableSubviews.count > 0)) {
+  if (showPageControl && scrollview != nil && self.proxy.viewCount > 0) {
     // No need to re-add. Just set up the correct frame bounds
-    [self refreshScrollView:[self bounds] reAdd:NO];
+    [self refreshScrollView:self.bounds reAdd:NO];
   }
 }
 
