@@ -8,7 +8,6 @@
 
 #import "TiUIOptionDialogProxy.h"
 #import "TiToolbarButton.h"
-#import "TiUIButtonProxy.h"
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiTab.h>
 #import <TitaniumKit/TiToolbar.h>
@@ -68,7 +67,9 @@
   animated = [TiUtils boolValue:@"animated" properties:args def:YES];
   id obj = [args objectForKey:@"rect"];
   if (obj != nil) {
-    DEPRECATED_REMOVED(@"UI.OptionDialog", @"13.0.0", @"13.0.0");
+    dialogRect = [TiUtils rectValue:obj];
+  } else {
+    dialogRect = CGRectZero;
   }
 
   RELEASE_TO_NIL(alertController);
@@ -109,18 +110,23 @@
   if ([TiUtils isIPad]) {
     UIViewController *topVC = [[[TiApp app] controller] topPresentedController];
     isPopover = ((topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]));
+    /**
+         ** This block commented out since it seems to have no effect on the alert controller.
+         ** If you read the modalPresentationStyle after setting the value, it still shows UIModalPresentationPopover
+         ** However not configuring the UIPopoverPresentationController seems to do the trick.
+         ** This hack in place to conserve current behavior. Should revisit when iOS7 is dropped so that
+         ** option dialogs are always presented in UIModalPresentationPopover
+         if (isPopover) {
+         alertController.modalPresentationStyle = UIModalPresentationCurrentContext;
+         alertController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+         }
+         */
   }
-
   /*See Comment above. Remove if condition to see difference in behavior on iOS8*/
   if (!isPopover) {
     UIPopoverPresentationController *presentationController = alertController.popoverPresentationController;
     presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     presentationController.delegate = self;
-
-    // Configure anchor using `view` for all iOS devices (not iPad only)
-    if (dialogView != nil) {
-      [self configureSourceView:presentationController];
-    }
   }
 
   [self retain];
@@ -153,6 +159,76 @@
   if (!persistentFlag) {
     [self hide:[NSArray arrayWithObject:[NSDictionary dictionaryWithObject:NUMBOOL(NO) forKey:@"animated"]]];
   }
+}
+
+#pragma mark UIPopoverPresentationControllerDelegate
+- (void)prepareForPopoverPresentation:(UIPopoverPresentationController *)popoverPresentationController
+{
+  if (dialogView != nil) {
+    if ([dialogView supportsNavBarPositioning] && [dialogView isUsingBarButtonItem]) {
+      UIBarButtonItem *theItem = [dialogView barButtonItem];
+      if (theItem != nil) {
+        popoverPresentationController.barButtonItem = [dialogView barButtonItem];
+        return;
+      }
+    }
+
+    if ([dialogView conformsToProtocol:@protocol(TiToolbar)]) {
+      UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
+      if (toolbar != nil) {
+        popoverPresentationController.sourceView = toolbar;
+        popoverPresentationController.sourceRect = [toolbar bounds];
+        return;
+      }
+    }
+
+    if ([dialogView conformsToProtocol:@protocol(TiTab)]) {
+      id<TiTab> tab = (id<TiTab>)dialogView;
+      UITabBar *tabbar = [[tab tabGroup] tabbar];
+      if (tabbar != nil) {
+        popoverPresentationController.sourceView = tabbar;
+        popoverPresentationController.sourceRect = [tabbar bounds];
+        return;
+      }
+    }
+
+    UIView *view = [dialogView view];
+    if (view != nil) {
+      popoverPresentationController.sourceView = view;
+      popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect) ? CGRectMake(view.bounds.size.width / 2, view.bounds.size.height / 2, 1, 1) : dialogRect);
+      return;
+    }
+  }
+
+  // Fell through.
+  UIViewController *presentingController = [alertController presentingViewController];
+  popoverPresentationController.permittedArrowDirections = 0;
+  popoverPresentationController.sourceView = [presentingController view];
+  popoverPresentationController.sourceRect = (CGRectEqualToRect(CGRectZero, dialogRect) ? CGRectMake(presentingController.view.bounds.size.width / 2, presentingController.view.bounds.size.height / 2, 1, 1) : dialogRect);
+  ;
+}
+
+- (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
+{
+  // This will never be called when using bar button item
+  BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, dialogRect);
+  UIView *theSourceView = *view;
+  BOOL shouldUseViewBounds = ([theSourceView isKindOfClass:[UIToolbar class]] || [theSourceView isKindOfClass:[UITabBar class]]);
+
+  if (shouldUseViewBounds) {
+    rect->origin = CGPointMake(theSourceView.bounds.origin.x, theSourceView.bounds.origin.y);
+    rect->size = CGSizeMake(theSourceView.bounds.size.width, theSourceView.bounds.size.height);
+  } else if (!canUseDialogRect) {
+    rect->origin = CGPointMake(theSourceView.bounds.size.width / 2, theSourceView.bounds.size.height / 2);
+    rect->size = CGSizeMake(1, 1);
+  }
+
+  popoverPresentationController.sourceRect = *rect;
+}
+
+- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+{
+  [self cleanup];
 }
 
 #pragma mark Internal Use Only
@@ -193,51 +269,6 @@
     [self forgetSelf];
     [self release];
   }
-}
-
-- (void)configureSourceView:(UIPopoverPresentationController *)presentationController
-{
-  if ([dialogView isKindOfClass:TiUIButtonProxy.class]) {
-    if ([dialogView isUsingBarButtonItem]) {
-      UIBarButtonItem *theItem = [dialogView barButtonItem];
-      if (theItem != nil) {
-        presentationController.barButtonItem = theItem;
-      }
-    } else {
-      UIView *btnView = [dialogView view];
-      if (btnView != nil) {
-        presentationController.sourceView = btnView;
-      }
-    }
-  } else if ([dialogView supportsNavBarPositioning] && [dialogView isUsingBarButtonItem]) {
-    UIBarButtonItem *theItem = [dialogView barButtonItem];
-    if (theItem != nil) {
-      presentationController.barButtonItem = theItem;
-    }
-  } else if ([dialogView conformsToProtocol:@protocol(TiToolbar)]) {
-    UIToolbar *toolbar = [(id<TiToolbar>)dialogView toolbar];
-    if (toolbar != nil) {
-      presentationController.sourceView = toolbar;
-    }
-  } else if ([dialogView conformsToProtocol:@protocol(TiTab)]) {
-    id<TiTab> tab = (id<TiTab>)dialogView;
-    UITabBar *tabbar = [[tab tabGroup] tabbar];
-    if (tabbar != nil) {
-      presentationController.sourceView = tabbar;
-    }
-  } else {
-    UIView *view = [dialogView view];
-    if (view != nil) {
-      presentationController.sourceView = view;
-    }
-  }
-}
-
-#pragma mark UIPopoverPresentationControllerDelegate
-
-- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
-{
-  [self cleanup];
 }
 
 @end
