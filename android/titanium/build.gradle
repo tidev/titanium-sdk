@@ -311,6 +311,9 @@ dependencies {
 	// Reference all local JAR file dependencies.
 	implementation fileTree(dir: 'lib', include: ['*.jar'])
 
+	// BlurView (Dimezis) v2 via JitPack (no BlurTarget)
+	implementation 'com.github.Dimezis:BlurView:version-2.0.5'
+
 	// CameraX
 	def camerax_version = '1.4.2'
 	implementation "androidx.camera:camera-core:$camerax_version"

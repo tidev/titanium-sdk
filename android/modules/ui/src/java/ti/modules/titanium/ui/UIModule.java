@@ -220,6 +220,14 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	@Kroll.constant
 	public static final int BUTTON_STYLE_OPTION_NEUTRAL = 6;
 
+	// BlurView styles (cross-platform constants)
+	@Kroll.constant
+	public static final int BLUR_EFFECT_STYLE_EXTRA_LIGHT = 0;
+	@Kroll.constant
+	public static final int BLUR_EFFECT_STYLE_LIGHT = 1;
+	@Kroll.constant
+	public static final int BLUR_EFFECT_STYLE_DARK = 2;
+
 	@Kroll.constant
 	public static final int DATE_PICKER_STYLE_AUTOMATIC = 1;
 	@Kroll.constant

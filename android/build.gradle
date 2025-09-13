@@ -11,6 +11,7 @@ buildscript {
 	repositories {
 		google()
 		mavenCentral()
+		maven { url 'https://jitpack.io' }
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:8.8.2'
@@ -24,6 +25,14 @@ allprojects {
 	repositories {
 		google()
 		mavenCentral()
+		maven { url 'https://jitpack.io' }
+	}
+
+	// Ensure BlurView v2 is used if other modules request a different version
+	configurations.all { cfg ->
+		resolutionStrategy {
+			force 'com.github.Dimezis:BlurView:version-2.0.5'
+		}
 	}
 
 	// Load plugin used to enforce our Java coding style guidelines.

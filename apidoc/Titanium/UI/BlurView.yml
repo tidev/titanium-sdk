@@ -1,0 +1,58 @@
+---
+name: Titanium.UI.BlurView
+summary: |
+  A blur view providing a background blur effect similar to iOS' UIVisualEffectView.
+
+  The blur is applied to content behind the blur view within the window. Place it above
+  other views to blur anything visible underneath within its bounds.
+extends: Titanium.UI.View
+platforms: [android]
+since: { android: "13.1.0" }
+properties:
+
+  - name: effect
+    summary: Preset blur effect approximation.
+    description: |
+      Maps to Android-specific presets approximating iOS blur styles. Use constants
+      `Titanium.UI.BLUR_EFFECT_STYLE_*`.
+    type: Number
+    constants: Titanium.UI.BLUR_EFFECT_STYLE_*
+    default: undefined (no preset; uses current `blurRadius`/`overlayColor`)
+
+  - name: blurRadius
+    summary: Blur radius intensity in pixels.
+    type: Number
+    default: 16
+
+  - name: overlayColor
+    summary: Color overlay/tint drawn over the blur.
+    description: Hex string, color name, or rgba() string.
+    type: String
+    default: transparent
+
+examples:
+  - title: Basic Blur View (Android)
+    example: |
+      ``` js
+      const win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+
+      // Content behind the blur
+      const bg = Ti.UI.createImageView({
+        image: '/default_app_logo.png',
+        width: Ti.UI.FILL,
+        height: Ti.UI.FILL,
+        scalingMode: Ti.Media.IMAGE_SCALING_ASPECT_FILL
+      });
+
+      // Blur view placed above content, blurs everything behind within its bounds
+      const blur = Ti.UI.createBlurView({
+        width: Ti.UI.FILL,
+        height: 200,
+        top: 100,
+        effect: Ti.UI.BLUR_EFFECT_STYLE_LIGHT
+      });
+
+      win.add(bg);
+      win.add(blur);
+      win.open();
+      ```
