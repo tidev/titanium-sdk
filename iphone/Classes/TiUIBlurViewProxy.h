@@ -4,10 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSBLURVIEW
+#ifdef USE_TI_UIBLURVIEW
 #import <TitaniumKit/TiViewProxy.h>
 
-@interface TiUIiOSBlurViewProxy : TiViewProxy {
+@interface TiUIBlurViewProxy : TiViewProxy {
 }
 
 @end

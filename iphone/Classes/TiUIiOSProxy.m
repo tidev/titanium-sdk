@@ -76,8 +76,8 @@
 #import <PhotosUI/PhotosUI.h>
 #endif
 
-#ifdef USE_TI_UIIOSBLURVIEW
-#import "TiUIiOSBlurViewProxy.h"
+#ifdef USE_TI_UIBLURVIEW
+#import "TiUIBlurViewProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSTEPPER
@@ -466,29 +466,7 @@ BEGIN_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit, NSNumber)
 result = [NSNumber numberWithBool:[[UIApplication sharedApplication] applicationSupportsShakeToEdit]];
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
-#ifdef USE_TI_UIIOSBLURVIEW
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_EXTRA_LIGHT, UIBlurEffectStyleExtraLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_LIGHT, UIBlurEffectStyleLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_DARK, UIBlurEffectStyleDark);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_REGULAR, UIBlurEffectStyleRegular);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_PROMINENT, UIBlurEffectStyleProminent);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL, UIBlurEffectStyleSystemUltraThinMaterial);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL, UIBlurEffectStyleSystemThinMaterial);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL, UIBlurEffectStyleSystemMaterial);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL, UIBlurEffectStyleSystemThickMaterial);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL, UIBlurEffectStyleSystemChromeMaterial);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_LIGHT, UIBlurEffectStyleSystemUltraThinMaterialLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_LIGHT, UIBlurEffectStyleSystemThinMaterialLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_LIGHT, UIBlurEffectStyleSystemMaterialLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_LIGHT, UIBlurEffectStyleSystemThickMaterialLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_LIGHT, UIBlurEffectStyleSystemChromeMaterialLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL_DARK, UIBlurEffectStyleSystemUltraThinMaterialDark);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK, UIBlurEffectStyleSystemThinMaterialDark);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK, UIBlurEffectStyleSystemMaterialDark);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK, UIBlurEffectStyleSystemThickMaterialDark);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK, UIBlurEffectStyleSystemChromeMaterialDark);
-
-#if IS_SDK_IOS_26
+#if defined(USE_TI_UIBLURVIEW) && defined(IS_SDK_IOS_26)
 - (NSNumber *)GLASS_EFFECT_STYLE_REGULAR
 {
   if (@available(iOS 26.0, *)) {
@@ -504,7 +482,6 @@ MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK, UIBlurEffectStyl
   }
   return @(-1);
 }
-#endif
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
@@ -578,10 +555,10 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 }
 #endif
 
-#ifdef USE_TI_UIIOSBLURVIEW
+#ifdef USE_TI_UIBLURVIEW
 - (id)createBlurView:(id)args
 {
-  return [[[TiUIiOSBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  return [[[TiUIBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
