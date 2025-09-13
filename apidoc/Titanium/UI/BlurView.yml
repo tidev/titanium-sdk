@@ -7,7 +7,7 @@ summary: |
   other views to blur anything visible underneath within its bounds.
 extends: Titanium.UI.View
 platforms: [android, iphone, ipad, macos]
-since: { android: "13.1.0" }
+since: { android: "13.0.0" }
 properties:
 
   - name: effect
