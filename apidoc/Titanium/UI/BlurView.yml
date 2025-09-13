@@ -12,6 +12,9 @@ properties:
 
   - name: effect
     summary: The blur effect to apply to the effect view.
+    description: |
+        On iOS, you can also use the Titanium.UI.iOS.BLUR_EFFECT_STYLE_* effects
+        that are platform-specific.
     type: Number
     constants: Titanium.UI.BLUR_EFFECT_STYLE_*
     default: undefined (no preset; uses current `blurRadius`/`overlayColor`) on Android
@@ -38,6 +41,7 @@ properties:
         When the glass effect is enabled, it will override any value set to the `effect` property.
         See <GlassEffectConfiguration> for the available configuration options.
     type: GlassEffectConfiguration
+    platforms: [iphone, ipad, macos]
     osver: {ios: {min: "26.0"}}
 
 examples:

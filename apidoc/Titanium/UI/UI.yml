@@ -2668,28 +2668,29 @@ properties:
     since: "2.0.0"
 
   - name: BLUR_EFFECT_STYLE_EXTRA_LIGHT
-    summary: Preset blur style approximating iOS "extra light".
-    description: Use with [BlurView.effect](Titanium.UI.BlurView.effect) to select a preset.
+    summary: Use with [BlurView.effect](Titanium.UI.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is lighter in hue than the underlying view.
     type: Number
     permission: read-only
-    platforms: [android]
-    since: { android: "13.1.0" }
+    since: "13.0.0"
 
   - name: BLUR_EFFECT_STYLE_LIGHT
-    summary: Preset blur style approximating iOS "light".
-    description: Use with [BlurView.effect](Titanium.UI.BlurView.effect) to select a preset.
+    summary: Use with [BlurView.effect](Titanium.UI.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is the same approximate hue
+        of the underlying view.
     type: Number
     permission: read-only
-    platforms: [android]
-    since: { android: "13.1.0" }
+    since: "13.0.0"
 
   - name: BLUR_EFFECT_STYLE_DARK
-    summary: Preset blur style approximating iOS "dark".
-    description: Use with [BlurView.effect](Titanium.UI.BlurView.effect) to select a preset.
+    summary: Use with [BlurView.effect](Titanium.UI.BlurView.effect) to specify a blur effect.
+    description: |
+        Creates a blurring effect in the view. The area of the view is darker in hue than the underlying view.
     type: Number
     permission: read-only
-    platforms: [android]
-    since: { android: "13.1.0" }
+    since: "13.0.0"
 
   - name: UNKNOWN
     summary: Orientation constant representing an unknown orientation.

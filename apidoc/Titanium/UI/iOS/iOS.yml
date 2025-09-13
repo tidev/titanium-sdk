@@ -161,6 +161,10 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
+    deprecated:
+        since: "13.0.0"
+        removed: "14.0.0"
+        notes: Use <Titanium.UI.BLUR_EFFECT_STYLE_EXTRA_LIGHT> instead.
 
   - name: BLUR_EFFECT_STYLE_LIGHT
     summary: |
@@ -171,6 +175,10 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
+    deprecated:
+        since: "13.0.0"
+        removed: "14.0.0"
+        notes: Use <Titanium.UI.BLUR_EFFECT_STYLE_LIGHT> instead.
 
   - name: BLUR_EFFECT_STYLE_DARK
     summary: |
@@ -180,6 +188,10 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
+    deprecated:
+        since: "13.0.0"
+        removed: "14.0.0"
+        notes: Use <Titanium.UI.BLUR_EFFECT_STYLE_DARK> instead.
 
   - name: BLUR_EFFECT_STYLE_REGULAR
     summary: |
