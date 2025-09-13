@@ -25,7 +25,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import androidx.annotation.Nullable;
 
 import eightbitlab.com.blurview.BlurView;
-// Using v2 API's auto-selected blur algorithm via setupWith(rootView)
+import ti.modules.titanium.ui.UIModule;
 
 public class TiUIBlurView extends TiUIView
 {
@@ -36,8 +36,8 @@ public class TiUIBlurView extends TiUIView
 	private static final String PROPERTY_BLUR_RADIUS = "blurRadius"; // Number
 	private static final String PROPERTY_OVERLAY_COLOR = "overlayColor"; // String color
 
-	private BlurView blurView;
-	private TiCompositeLayout contentLayout;
+	private final BlurView blurView;
+	private final TiCompositeLayout contentLayout;
 
 	// Current config
 	private float blurRadius = 16f;
@@ -184,15 +184,15 @@ public class TiUIBlurView extends TiUIView
 		// These constants are defined on Ti.UI.*
 		// Default values already set on fields.
 		switch (this.effectStyle) {
-			case 0: // EXTRA_LIGHT
+			case UIModule.BLUR_EFFECT_STYLE_EXTRA_LIGHT:
 				this.blurRadius = 12f;
 				this.overlayColor = 0x22FFFFFF; // subtle white tint
 				break;
-			case 1: // LIGHT
+			case UIModule.BLUR_EFFECT_STYLE_LIGHT: // LIGHT
 				this.blurRadius = 16f;
 				this.overlayColor = 0x44FFFFFF; // stronger white tint
 				break;
-			case 2: // DARK
+			case UIModule.BLUR_EFFECT_STYLE_DARK:
 				this.blurRadius = 16f;
 				this.overlayColor = 0x66000000; // dark tint
 				break;
@@ -224,5 +224,4 @@ public class TiUIBlurView extends TiUIView
 		}
 		return proxy.getActivity().getWindow().getDecorView().getBackground();
 	}
-
 }
