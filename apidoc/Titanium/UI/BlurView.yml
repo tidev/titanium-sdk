@@ -6,53 +6,167 @@ summary: |
   The blur is applied to content behind the blur view within the window. Place it above
   other views to blur anything visible underneath within its bounds.
 extends: Titanium.UI.View
-platforms: [android]
+platforms: [android, iphone, ipad, macos]
 since: { android: "13.1.0" }
 properties:
 
   - name: effect
-    summary: Preset blur effect approximation.
-    description: |
-      Maps to Android-specific presets approximating iOS blur styles. Use constants
-      `Titanium.UI.BLUR_EFFECT_STYLE_*`.
+    summary: The blur effect to apply to the effect view.
     type: Number
     constants: Titanium.UI.BLUR_EFFECT_STYLE_*
-    default: undefined (no preset; uses current `blurRadius`/`overlayColor`)
+    default: undefined (no preset; uses current `blurRadius`/`overlayColor`) on Android
 
   - name: blurRadius
     summary: Blur radius intensity in pixels.
     type: Number
     default: 16
+    platforms: [android]
 
   - name: overlayColor
     summary: Color overlay/tint drawn over the blur.
     description: Hex string, color name, or rgba() string.
     type: String
     default: transparent
+    platforms: [android]
+
+  - name: glassEffect
+    summary: The glass effect configuration to apply to the effect view.
+    description: |
+        Glass effects are an alternative to classic blur views introduced in iOS 26, providing
+        a more modern and visually appealing blur effect with additional customization options.
+        
+        When the glass effect is enabled, it will override any value set to the `effect` property.
+        See <GlassEffectConfiguration> for the available configuration options.
+    type: GlassEffectConfiguration
+    osver: {ios: {min: "26.0"}}
 
 examples:
-  - title: Basic Blur View (Android)
+  - title: Basic Blur View
     example: |
-      ``` js
-      const win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+        ``` js
+        const win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 
-      // Content behind the blur
-      const bg = Ti.UI.createImageView({
-        image: '/default_app_logo.png',
-        width: Ti.UI.FILL,
-        height: Ti.UI.FILL,
-        scalingMode: Ti.Media.IMAGE_SCALING_ASPECT_FILL
-      });
+        // Content behind the blur
+        const bg = Ti.UI.createImageView({
+          image: '/default_app_logo.png'
+        });
 
-      // Blur view placed above content, blurs everything behind within its bounds
-      const blur = Ti.UI.createBlurView({
-        width: Ti.UI.FILL,
-        height: 200,
-        top: 100,
-        effect: Ti.UI.BLUR_EFFECT_STYLE_LIGHT
-      });
+        // Blur view placed above content, blurs everything behind within its bounds
+        const blur = Ti.UI.createBlurView({
+          width: 200,
+          height: 200,
+          effect: Ti.UI.BLUR_EFFECT_STYLE_LIGHT
+        });
 
-      win.add(bg);
-      win.add(blur);
-      win.open();
-      ```
+        win.add([bg, blur]);
+        win.open();
+        ```
+
+  - title: Full Featured Blur View (different styles)
+    example: |
+        The following example shows how to create a simple blur view:
+        
+        ``` js
+        const win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+        const target = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
+
+        target.add(Ti.UI.createImageView({
+          image: '/DefaultIcon.png'
+        }));
+
+        const effects = [
+          Ti.UI.BLUR_EFFECT_STYLE_EXTRA_LIGHT,
+          Ti.UI.BLUR_EFFECT_STYLE_LIGHT,
+          Ti.UI.BLUR_EFFECT_STYLE_DARK,
+        ];
+
+        const blur = Ti.UI.createBlurView({
+          width: 200,
+          height: 200,
+          effect: effects[0]
+        });
+
+        // Create circular animation to live-test the blur effect
+        const density = Ti.Platform.osname === 'android' ? Ti.Platform.displayCaps.logicalDensityFactor : 1;
+        const centerX = Ti.Platform.displayCaps.platformWidth / density / 2;
+        const centerY = Ti.Platform.displayCaps.platformHeight / density / 2;
+
+        const radius = 100;
+        let angle = 0;
+
+        const animateCircle = () => {
+          angle += 0.1;
+          const x = centerX + Math.cos(angle) * radius - 100; // subtract half width
+          const y = centerY + Math.sin(angle) * radius - 100; // subtract half height
+
+          blur.animate({
+            left: x,
+            top: y,
+            duration: 50
+          }, () => {
+            animateCircle();
+          });
+        };
+
+        animateCircle();
+
+        const tabs = Ti.UI.createTabbedBar({
+          labels: ['Extra light', 'Light', 'Dark'],
+          bottom: 100
+        });
+
+        tabs.addEventListener('click', ({ index }) => {
+          blur.effect = effects[index];
+        });
+
+        win.add([target, blur, tabs]);
+        win.open();
+        ```
+        
+  - title: Glass Effect View (iOS 26+)
+    example: |
+        The following example shows how to create a blur view with the new glass effect:
+        
+        ``` js
+        const win = Ti.UI.createWindow({
+            backgroundColor: "#fff"
+        });
+
+        const backgroundView = Ti.UI.createImageView({
+            image: 'https://s1.directupload.eu/images/250817/ufgix5hy.jpg',
+            width: Ti.UI.FILL,
+            height: Ti.UI.FILL,
+            scalingMode: Ti.Media.IMAGE_SCALING_ASPECT_FILL
+        });
+
+        const effectView = Ti.UI.createBlurView({
+            width: 250,
+            height: 250,
+            glassEffect: {
+                style: Ti.UI.iOS.GLASS_EFFECT_STYLE_CLEAR,
+                interactive: true
+            }
+        });
+
+        backgroundView.add(effectView);
+
+        const toggleButton = Ti.UI.createButton({
+            title: "Toggle Glass Effect",
+            bottom: 50
+        });
+
+        let isEnabled = true;
+        toggleButton.addEventListener("click", () => {
+            isEnabled = !isEnabled;
+            if (isEnabled) {
+                backgroundView.add(effectView)
+            } else {
+                backgroundView.remove(effectView)
+            }
+        });
+
+        win.add(backgroundView);
+        win.add(toggleButton);
+        win.open();
+        ```
+
