@@ -173,8 +173,6 @@
 		3AA4EC282320352B00703A20 /* TiUIListSectionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC232320352B00703A20 /* TiUIListSectionProxy.m */; };
 		3AA4EC292320352B00703A20 /* TiUIListItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC242320352B00703A20 /* TiUIListItem.m */; };
 		3AA4EC2A2320352B00703A20 /* TiUIListViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AA4EC252320352B00703A20 /* TiUIListViewProxy.m */; };
-		3AAFCA832E75E6BB0076EE62 /* TiUIiOSBlurView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AAFCA802E75E6BB0076EE62 /* TiUIiOSBlurView.m */; };
-		3AAFCA842E75E6BB0076EE62 /* TiUIiOSBlurViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AAFCA822E75E6BB0076EE62 /* TiUIiOSBlurViewProxy.m */; };
 		3AB5E50C253B45E700B2B8FE /* Contacts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AB5E50A253B45E700B2B8FE /* Contacts.framework */; };
 		3AB5E50D253B45E700B2B8FE /* ContactsUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AB5E50B253B45E700B2B8FE /* ContactsUI.framework */; };
 		3AB5E50F253B461200B2B8FE /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AB5E50E253B461200B2B8FE /* CoreServices.framework */; };
@@ -636,10 +634,6 @@
 		3AA4EC232320352B00703A20 /* TiUIListSectionProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListSectionProxy.m; sourceTree = "<group>"; };
 		3AA4EC242320352B00703A20 /* TiUIListItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListItem.m; sourceTree = "<group>"; };
 		3AA4EC252320352B00703A20 /* TiUIListViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIListViewProxy.m; sourceTree = "<group>"; };
-		3AAFCA7F2E75E6BB0076EE62 /* TiUIiOSBlurView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSBlurView.h; sourceTree = "<group>"; };
-		3AAFCA802E75E6BB0076EE62 /* TiUIiOSBlurView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurView.m; sourceTree = "<group>"; };
-		3AAFCA812E75E6BB0076EE62 /* TiUIiOSBlurViewProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSBlurViewProxy.h; sourceTree = "<group>"; };
-		3AAFCA822E75E6BB0076EE62 /* TiUIiOSBlurViewProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSBlurViewProxy.m; sourceTree = "<group>"; };
 		3AB5E50A253B45E700B2B8FE /* Contacts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Contacts.framework; path = System/Library/Frameworks/Contacts.framework; sourceTree = SDKROOT; };
 		3AB5E50B253B45E700B2B8FE /* ContactsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ContactsUI.framework; path = System/Library/Frameworks/ContactsUI.framework; sourceTree = SDKROOT; };
 		3AB5E50E253B461200B2B8FE /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
@@ -1467,7 +1461,6 @@
 			isa = PBXGroup;
 			children = (
 				0BF933871CA0929A0091C7EC /* Stepper */,
-				3AAFCA7C2E75E68A0076EE62 /* Blur View */,
 				3A0B56721C0CD7FE00709DA4 /* LivePhotoView */,
 				3A0E54341BE81111003EE654 /* MenuPopup */,
 				CAC225581BB79659008A332B /* ApplicationShortcuts */,
@@ -1752,17 +1745,6 @@
 				3AA4EC252320352B00703A20 /* TiUIListViewProxy.m */,
 			);
 			name = ListView;
-			sourceTree = "<group>";
-		};
-		3AAFCA7C2E75E68A0076EE62 /* Blur View */ = {
-			isa = PBXGroup;
-			children = (
-				3AAFCA7F2E75E6BB0076EE62 /* TiUIiOSBlurView.h */,
-				3AAFCA802E75E6BB0076EE62 /* TiUIiOSBlurView.m */,
-				3AAFCA812E75E6BB0076EE62 /* TiUIiOSBlurViewProxy.h */,
-				3AAFCA822E75E6BB0076EE62 /* TiUIiOSBlurViewProxy.m */,
-			);
-			name = "Blur View";
 			sourceTree = "<group>";
 		};
 		3AB9137D1BB61EB00063A4AD /* PreviewActions */ = {
@@ -2269,8 +2251,6 @@
 				B637616F1BC5CA4A0070A695 /* TiLayoutDimension.m in Sources */,
 				24EB07D4111D4264001DC2D1 /* TiDOMDocumentProxy.m in Sources */,
 				24EB07E0111D43AE001DC2D1 /* GDataXMLNode.m in Sources */,
-				3AAFCA832E75E6BB0076EE62 /* TiUIiOSBlurView.m in Sources */,
-				3AAFCA842E75E6BB0076EE62 /* TiUIiOSBlurViewProxy.m in Sources */,
 				24EB0809111D4654001DC2D1 /* TiDOMNodeProxy.m in Sources */,
 				24EB080F111D46C0001DC2D1 /* TiDOMElementProxy.m in Sources */,
 				24EB0829111D4BEB001DC2D1 /* TiDOMNamedNodeMapProxy.m in Sources */,

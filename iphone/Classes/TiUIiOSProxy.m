@@ -581,6 +581,8 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIBLURVIEW
 - (id)createBlurView:(id)args
 {
+  DEPRECATED_REPLACED(@"UI.iOS.BlurView", @"13.0.0", @"UI.BlurView (now cross platform!)");
+
   return [[[TiUIBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
