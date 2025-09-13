@@ -185,12 +185,12 @@ public class TiUIBlurView extends TiUIView
 		// Default values already set on fields.
 		switch (this.effectStyle) {
 			case UIModule.BLUR_EFFECT_STYLE_EXTRA_LIGHT:
-				this.blurRadius = 12f;
-				this.overlayColor = 0x22FFFFFF; // subtle white tint
-				break;
-			case UIModule.BLUR_EFFECT_STYLE_LIGHT: // LIGHT
 				this.blurRadius = 16f;
-				this.overlayColor = 0x44FFFFFF; // stronger white tint
+				this.overlayColor = 0x66FFFFFF; // strongest white tint
+				break;
+			case UIModule.BLUR_EFFECT_STYLE_LIGHT:
+				this.blurRadius = 16f;
+				this.overlayColor = 0x44FFFFFF; // medium white tint
 				break;
 			case UIModule.BLUR_EFFECT_STYLE_DARK:
 				this.blurRadius = 16f;
