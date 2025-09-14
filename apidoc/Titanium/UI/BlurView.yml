@@ -15,6 +15,7 @@ properties:
     description: |
         On iOS, you can also use the Titanium.UI.iOS.BLUR_EFFECT_STYLE_* effects
         that are platform-specific.
+        On Android it will add a default blurRadius of 16px. If you want to change the value you have to use `blurRadius` and `overlayColor` instead of the `effect` preset.
     type: Number
     constants: Titanium.UI.BLUR_EFFECT_STYLE_*
     default: undefined (no preset; uses current `blurRadius`/`overlayColor`) on Android
