@@ -40,6 +40,7 @@ Titanium SDK 13.0.0 is a major release of the SDK, providing full support for iO
   * use Xcode 16.4 for building the SDK ([85b7048](https://github.com/tidev/titanium_mobile/commit/85b7048a67db448c6de1a1cbd949d401faafb7d8))
 
 * Michael Gangolf
+  * update hyperloop.next to 7.1.0 to support 16 KB page size ([219f6bc](https://github.com/tidev/titanium_mobile/commit/219f6bcd0872e82e813d54a9ee56a531a8581c45))
   * update module versions ([ffb3607](https://github.com/tidev/titanium_mobile/commit/ffb36078a25f11a02dc454bbef55acf12f27fd1f))
   * keep TableView search results on enter ([0ed2b8d](https://github.com/tidev/titanium_mobile/commit/0ed2b8dce0637c007952b53789b3a973332c073a))
   * fix transparent TextField backgroundColor ([8906cd5](https://github.com/tidev/titanium_mobile/commit/8906cd51997fe3e181e033aa54739ce2d5faac8f))
@@ -102,7 +103,7 @@ Titanium SDK 13.0.0 is a major release of the SDK, providing full support for iO
 | urlSession | n/a | 4.0.1 |
 | ti.coremotion | n/a | 4.0.1 |
 | ti.applesignin | n/a | 3.1.2 |
-| hyperloop | 7.0.9 | 7.0.9 |
+| hyperloop | 7.1.0 | 7.1.0 |
 
 # [12.8.0](https://github.com/tidev/titanium_mobile/compare/12_7_X...12.8.0) (2025-07-17)
 
