@@ -156,12 +156,6 @@
 
 @property (nonatomic, readonly) NSNumber *MODAL_TRANSITION_STYLE_PARTIAL_CURL;
 
-#ifdef USE_TI_UIIOSBLURVIEW
-@property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_EXTRA_LIGHT;
-@property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_LIGHT;
-@property (nonatomic, readonly) NSNumber *BLUR_EFFECT_STYLE_DARK;
-#endif
-
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
@@ -220,7 +214,7 @@
 #ifdef USE_TI_UIIOSMENUPOPUP
 - (id)createMenuPopup:(id)args;
 #endif
-#ifdef USE_TI_UIIOSBLURVIEW
+#ifdef USE_TI_UIBLURVIEW
 - (id)createBlurView:(id)args;
 #endif
 #ifdef USE_TI_UIIOSAPPLICATIONSHORTCUTS

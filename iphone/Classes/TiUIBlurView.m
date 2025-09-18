@@ -5,11 +5,11 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_UIIOSBLURVIEW
-#import "TiUIiOSBlurView.h"
-#import "TiUIiOSBlurViewProxy.h"
+#ifdef USE_TI_UIBLURVIEW
+#import "TiUIBlurView.h"
+#import "TiUIBlurViewProxy.h"
 
-@implementation TiUIiOSBlurView
+@implementation TiUIBlurView
 
 - (UIVisualEffectView *)blurView
 {

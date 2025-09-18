@@ -4,10 +4,10 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSBLURVIEW
+#ifdef USE_TI_UIBLURVIEW
 #import <TitaniumKit/TiUIView.h>
 
-@interface TiUIiOSBlurView : TiUIView {
+@interface TiUIBlurView : TiUIView {
   UIVisualEffectView *blurView;
 
   TiDimension width;

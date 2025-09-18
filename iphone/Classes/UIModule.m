@@ -276,6 +276,12 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_CHECKMARK, UITableViewCellAccessoryCheckmar
 MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DETAIL, UITableViewCellAccessoryDetailDisclosureButton);
 MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclosureIndicator);
 
+#ifdef USE_TI_UIBLURVIEW
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_EXTRA_LIGHT, UIBlurEffectStyleExtraLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_LIGHT, UIBlurEffectStyleLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_DARK, UIBlurEffectStyleDark);
+#endif
+
 - (void)setBackgroundColor:(id)color
 {
   TiRootViewController *controller = [[TiApp app] controller];
