@@ -75,6 +75,11 @@
   _configuration.subtitle = subtitle;
 }
 
+- (void)setLoading:(NSNumber *)loading
+{
+  _configuration.showsActivityIndicator = loading.boolValue;
+}
+
 - (void)setBackgroundColor:(id)backgroundColor
 {
   UIColor *color = [TiUtils colorValue:backgroundColor].color;
