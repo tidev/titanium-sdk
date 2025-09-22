@@ -535,6 +535,11 @@ enum {
  */
 - (void)parentWillHide;
 
+/**
+ Tells the view proxy that rendering via the layout queue finished.
+ */
+- (void)didFinishLayout;
+
 #pragma mark Layout actions
 
 - (void)refreshView:(TiUIView *)transferView;

@@ -258,9 +258,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 #ifdef USE_TI_UIIOSSTATUSBAR
   FORGET_AND_RELEASE(_StatusBar);
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-  FORGET_AND_RELEASE(_SystemButtonStyle);
-#endif
 
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
   FORGET_AND_RELEASE(_SystemButton);
@@ -291,7 +288,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 }
 #endif
 
-#if IS_SDK_IOS_16
 - (NSNumber *)ALERT_SEVERITY_DEFAULT
 {
   if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
@@ -309,7 +305,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 
   return @(UIAlertControllerSeverityCritical);
 }
-#endif
 
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 - (TiUIiOSAnimationStyleProxy *)AnimationStyle
@@ -415,16 +410,6 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 }
 #endif
 
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-- (TiUIiOSSystemButtonStyleProxy *)SystemButtonStyle
-{
-  if (_SystemButtonStyle == nil) {
-    _SystemButtonStyle = [[TiUIiOSSystemButtonStyleProxy alloc] _initWithPageContext:[self pageContext]];
-  }
-  return _SystemButtonStyle;
-}
-#endif
-
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 - (TiUIiOSSystemButtonProxy *)SystemButton
 {
@@ -482,31 +467,11 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
-- (id)BLUR_EFFECT_STYLE_EXTRA_LIGHT
-{
-  return NUMINTEGER(UIBlurEffectStyleExtraLight);
-}
-
-- (id)BLUR_EFFECT_STYLE_LIGHT
-{
-  return NUMINTEGER(UIBlurEffectStyleLight);
-}
-
-- (id)BLUR_EFFECT_STYLE_DARK
-{
-  return NUMINTEGER(UIBlurEffectStyleDark);
-}
-
-- (id)BLUR_EFFECT_STYLE_REGULAR
-{
-  return NUMINTEGER(UIBlurEffectStyleRegular);
-}
-
-- (id)BLUR_EFFECT_STYLE_PROMINENT
-{
-  return NUMINTEGER(UIBlurEffectStyleProminent);
-}
-
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_EXTRA_LIGHT, UIBlurEffectStyleExtraLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_LIGHT, UIBlurEffectStyleLight);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_DARK, UIBlurEffectStyleDark);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_REGULAR, UIBlurEffectStyleRegular);
+MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_PROMINENT, UIBlurEffectStyleProminent);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL, UIBlurEffectStyleSystemUltraThinMaterial);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL, UIBlurEffectStyleSystemThinMaterial);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL, UIBlurEffectStyleSystemMaterial);
@@ -522,6 +487,24 @@ MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THIN_MATERIAL_DARK, UIBlurEffectStyleS
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_MATERIAL_DARK, UIBlurEffectStyleSystemMaterialDark);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_THICK_MATERIAL_DARK, UIBlurEffectStyleSystemThickMaterialDark);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_CHROME_MATERIAL_DARK, UIBlurEffectStyleSystemChromeMaterialDark);
+
+#if IS_SDK_IOS_26
+- (NSNumber *)GLASS_EFFECT_STYLE_REGULAR
+{
+  if (@available(iOS 26.0, *)) {
+    return @(UIGlassEffectStyleRegular);
+  }
+  return @(-1);
+}
+
+- (NSNumber *)GLASS_EFFECT_STYLE_CLEAR
+{
+  if (@available(iOS 26.0, *)) {
+    return @(UIGlassEffectStyleClear);
+  }
+  return @(-1);
+}
+#endif
 #endif
 
 #ifdef USE_TI_UIIOSMENUPOPUP
@@ -854,6 +837,57 @@ MAKE_SYSTEM_PROP(ACTION_POLICY_ALLOW, WKNavigationActionPolicyAllow);
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocumentStart);
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
+
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
+- (id)createButtonConfiguration:(id)args
+{
+  return [[[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+#endif
+
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorNever);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorOnScrollUp);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    return @(UITabBarMinimizeBehaviorOnScrollDown);
+  }
+#endif
+
+  return @(-1);
+}
 
 - (TiColor *)fetchSemanticColor:(id)color
 {

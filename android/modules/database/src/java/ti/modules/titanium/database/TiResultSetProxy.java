@@ -101,8 +101,7 @@ public class TiResultSetProxy extends KrollProxy
 		boolean fromString = false;
 
 		try {
-			if (rs instanceof AbstractWindowedCursor) {
-				AbstractWindowedCursor cursor = (AbstractWindowedCursor) rs;
+			if (rs instanceof AbstractWindowedCursor cursor) {
 
 				if (cursor.isFloat(index)) {
 					result = cursor.getDouble(index);

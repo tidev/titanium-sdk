@@ -26,14 +26,7 @@ description: |
     one to be opened later, but the root of the application must be a heavyweight window to prevent
     it exiting. Tabs cannot be removed from the tab group once added, and tabs cannot be reordered.
 
-    * If you use a BottomNavigation on Android with a Material 3 theme you'll have to create a file
-    `/app/platform/android/res/values/dimens.xml` and add to fix the height of the menu:
-    ```xml
-    <?xml version="1.0" encoding="utf-8"?>
-    <resources>
-      <dimen name="design_bottom_navigation_height">80dp</dimen>
-    </resources>
-    ```
+    * If you use a BottomNavigation on Android with a Material 3 theme you should set `experimental:true`.
 
     * On iOS, more than one tab group may exist, and may be opened and closed as required.
     Each tab can contain a stack of windows, and the user can switch between them by tapping the
@@ -61,7 +54,7 @@ excludes:
                  anchorPoint,animatedCenter,backgroundDisabledColor,backgroundDisabledImage,
                  backgroundFocusedColor,backgroundFocusedImage,backgroundGradient,backgroundImage,backgroundLeftCap,
                  backgroundRepeat,backgroundSelectedColor,backgroundSelectedImage,backgroundTopCap,
-                 borderColor,borderRadius,borderWidth,bottom,children,enabled,focusable,height,
+                 borderColor,borderRadius,borderWidth,bottom,children,focusable,height,
                  horizontalWrap,layout,left,opacity,right,softKeyboardOnFocus,
                  top,transform,width,zIndex]
     events: [click, dblclick, doubletap, keypressed, longclick, longpress, pinch, postlayout,
@@ -206,6 +199,8 @@ methods:
         type: disableTabOptions
     platforms: [android]
     since: 3.6.0
+    deprecated:
+        since: "12.7.0"
 
   - name: getActiveTab
     summary: Gets the currently-active tab.
@@ -246,6 +241,22 @@ methods:
         since: "10.0.0"
         removed: "10.0.0"
         notes: Use the <Titanium.UI.TabGroup.tabs> property instead.
+  
+  - name: showTabBar
+    summary: Shows the tab group with animation.
+    description: |
+        This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
+        To show tab group without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `false`.
+    platforms: [android, iphone, ipad, macos]
+    since: "12.7.0"
+
+  - name: hideTabBar
+    summary: Hides the tab group with animation.
+    description: |
+        This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
+        To hide tab group without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `true`.
+    platforms: [android, iphone, ipad, macos]
+    since: "12.7.0"
 
 properties:
   - name: activeTab
@@ -295,6 +306,32 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
+
+  - name: bottomAccessoryView
+    summary: View shown as a bottom accessory attached to the tab group.
+    description: |
+        Adds a custom view as a bottom accessory of the tab group. Available on iOS 26+ only (uses the new iOS tab group accessories).
+
+        Note: Label subviews require explicit width and height set to render properly. Be sure to set `width` and `height` on any `Ti.UI.Label` added to this view.
+    type: Titanium.UI.View
+    osver: {ios: {min: "26.0"}}
+    platforms: [iphone, ipad, macos]
+    since: "13.0.0"
+
+  - name: minimizeBehavior
+    summary: Defines the minimize behavior for the tab group, if it is supported.
+    type: Number
+    constants: Titanium.UI.iOS.TAB_GROUP_MINIMIZE_BEHAVIOR_*
+    osver: {ios: {min: "26.0"}}
+    platforms: [iphone, ipad, macos]
+    since: "13.0.0"
+
+  - name: enabled
+    summary: |
+        Enables or disables the menu in a BottomNavigation. If disabled you can't change to a different tab.
+    type: Number
+    default: true
+    since: { android: "12.7.0" }
 
   - name: paddingLeft
     summary: Left padding of bottom navigation
@@ -436,6 +473,12 @@ properties:
     since: "8.0.0"
     platforms: [android]
 
+  - name: statusBarColor
+    summary: The color of the status bar (top bar) for this window.
+    type: [Number]
+    platforms: [android]
+    since: {android: "12.7.0"}
+
   - name: style
     summary: Property defining which style for the TabGroup to be used.
     description: |
@@ -510,16 +553,16 @@ properties:
         notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: tabsTranslucent
-    summary: A Boolean value that indicates whether the tab bar is translucent.
+    summary: A Boolean value that indicates whether the tab group is translucent.
     description: |
         When the value of this property is `true`, the tab group adds a translucent effect to its background
-        image or tint color. When translucency is enabled, part of the tab bar's underlying content is able
-        to show through, although the amount that shows through depends on the rest of the tab bar configuration.
+        image or tint color. When translucency is enabled, part of the tab group's underlying content is able
+        to show through, although the amount that shows through depends on the rest of the tab group configuration.
         For example, a background image can wholly or partially obscure the background content. Setting this
-        property to NO causes the tab bar to render its bar tint color or background image on top of an opaque backdrop.
+        property to NO causes the tab group to render its bar tint color or background image on top of an opaque backdrop.
 
-        The default value of this property is dependent on the configuration of the tab bar:
-          * The default value is `true` when the tab bar does not have a custom background image.
+        The default value of this property is dependent on the configuration of the tab group:
+          * The default value is `true` when the tab group does not have a custom background image.
           * The default value is `true` when a custom background image contains any transparency - that is,
             at least one pixel has an alpha value of less than 1.0.
           * The default value is `false` when the custom background image is completely opaque - that is,
@@ -528,6 +571,15 @@ properties:
     since: "6.2.0"
     default: true
     platforms: [iphone, ipad, macos]
+
+  - name: flags
+    summary: Additional flags to set on the TabGroup.
+    description: |
+        Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the status bar text color to light mode.
+    platforms: [android]
+    type: Number
+    since: "12.7.0"
+    availability: creation
 
   - name: activeTintColor
     summary: The activeTintColor to apply to tabs.
@@ -573,7 +625,7 @@ properties:
         notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: shadowImage
-    summary: Image of the shadow placed between the tab bar and the content area.
+    summary: Image of the shadow placed between the tab group and the content area.
     description: |
         The <Titanium.UI.TabGroup.tabsBackgroundImage> property must also be set
         in order for this to take effect.
@@ -613,8 +665,12 @@ properties:
     since: { iphone: "3.1.0", ipad: "3.1.0" }
 
   - name: tabBarVisible
-    summary: Programmatically shows / hides the bottom tab bar of the tab group.
+    summary: Programmatically shows / hides the bottom tab group of the tab group.
+    description: |
+        This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
+        Notes: Animation effect is applied on iOS <= 17, but will be removed in SDK 13.0.0. 
     type: Boolean
+    default: true
     platforms: [android, iphone, ipad, macos]
     since: "12.1.0"
 
@@ -626,6 +682,21 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: "12.5.0"
+    availability: creation
+    deprecated:
+      since: "13.0.0"
+      removed: "13.0.0"
+      notes: This is handled by the operation system in newer versions of iOS.
+
+  - name: experimental
+    summary: |
+        Only used for a BottomNavigation setup. If set to `true` it will use an optimized BottomNavigation
+        setup with fixes for Material 3 layouts and new properties: `indicatorColor` and `iconFamily`.
+        The new BottomNavigation will only load the active Activity and doesn't support `swipeable`.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "12.7.0"
     availability: creation
 
 examples:
@@ -711,6 +782,40 @@ examples:
           tabsBackgroundColor: "#F7F7F7",
         });
         tabGroup.open();
+        ```
+
+  - title: BottomNavigation Material3 example
+    example: |
+        Create a BottomNavigation TabGroup with a Material3 theme using the new layout.
+
+        ``` js
+        const win1 = Ti.UI.createWindow();
+        const win2 = Ti.UI.createWindow();
+        const tab1 = Ti.UI.createTab({
+        	window: win1,
+        	title: 'Tab 1',
+        	icon: '/images/appicon.png'
+        });
+        const tab2 = Ti.UI.createTab({
+        	window: win2,
+        	title: 'Tab 2',
+        	icon: '/images/appicon.png'
+        });
+
+        win1.add(Ti.UI.createLabel({text: "Tab 1 - click to set badge"}));
+        win2.add(Ti.UI.createLabel({text: "Tab 2"}));
+        win1.addEventListener("click", function() {
+        	tab1.badge = 20;
+        });
+
+        const bottomNav = Ti.UI.createTabGroup({
+        	tabs: [tab1, tab2],
+        	theme: "Theme.Titanium.Material3.DayNight",
+        	experimental: true,
+        	style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION
+        });
+
+        bottomNav.open();
         ```
 ---
 name: disableTabOptions

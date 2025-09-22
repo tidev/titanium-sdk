@@ -9,7 +9,7 @@ on:
 
 jobs:
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
@@ -25,12 +25,12 @@ jobs:
           java-version: '17'
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-15
     name: iOS
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.0.0.app/Contents/Developer
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -63,11 +63,11 @@ jobs:
       run: npm run lint:js
 
   package:
-    runs-on: macos-13
+    runs-on: macos-15
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.0.0.app/Contents/Developer
     needs: [android, ios, js]
     steps:
     - name: Checkout repository

@@ -413,7 +413,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 										logger.warn(__('Unable to find any devices, possibly due to missing dependencies.') + '\n');
 										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									} else {
-										logger.warn(__('Unable to find any emulators, possibily due to missing dependencies.') + '\n');
+										logger.warn(__('Unable to find any emulators, possibly due to missing dependencies.') + '\n');
 										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									}
 									_t.buildOnly = true;
@@ -1414,7 +1414,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.appIconManifestValue = null;
 	this.appRoundIconManifestValue = null;
 	if (this.customAndroidManifest) {
-		// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManfiest.xml".
+		// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManifest.xml".
 		this.appIconManifestValue = this.customAndroidManifest.getAppAttribute('android:icon');
 		this.appRoundIconManifestValue = this.customAndroidManifest.getAppAttribute('android:roundIcon');
 		if (this.appIconManifestValue) {
@@ -2156,6 +2156,7 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	//       This is needed because using both libraries will cause class name collisions, causing a build failure.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '35' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
 	gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
@@ -2527,7 +2528,7 @@ AndroidBuilder.prototype.processSplashesFiles = async function processSplashesFi
 };
 
 /**
- * Used to de4termine the destination path for special assets (_app_props_.json, bootstrap.json) based on encyption or not.
+ * Used to determine the destination path for special assets (_app_props_.json, bootstrap.json) based on encryption or not.
  * @returns {string} destination directory to place file
  */
 AndroidBuilder.prototype.buildAssetsPath = function buildAssetsPath() {

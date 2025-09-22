@@ -190,7 +190,6 @@ public class TableViewProxy extends RecyclerViewProxy
 					row.getProperties().getString(TiC.PROPERTY_FOOTER)));
 
 			// Add row to section.
-			row.setParent(section);
 			section.add(row);
 		}
 
@@ -284,8 +283,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TableViewRowProxy toItem = tableView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
 
-			if (parentProxy instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy toSection = (TableViewSectionProxy) parentProxy;
+			if (parentProxy instanceof TableViewSectionProxy toSection) {
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
 
 				// Prevent updating rows during move operation.
@@ -377,8 +375,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = row.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 
 					// Row is in section, modify section rows.
 					section.remove(row);
@@ -514,8 +511,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		shouldUpdate = false;
 
 		for (Object d : data) {
-			if (d instanceof TableViewRowProxy) {
-				final TableViewRowProxy row = (TableViewRowProxy) d;
+			if (d instanceof TableViewRowProxy row) {
 
 				// Handle TableViewRow.
 				appendRowInternal(row, null, true);
@@ -531,8 +527,7 @@ public class TableViewProxy extends RecyclerViewProxy
 				row.handleCreationDict(new KrollDict((HashMap) d));
 				appendRowInternal(row, null, true);
 
-			} else if (d instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy section = (TableViewSectionProxy) d;
+			} else if (d instanceof TableViewSectionProxy section) {
 
 				// Handle TableViewSection.
 				appendSection(section, null);
@@ -661,8 +656,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = existingRow.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 					final TableViewRowProxy row = processRow(rowObj);
 
 					if (row == null) {
@@ -695,8 +689,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = existingRow.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 					final TableViewRowProxy row = processRow(rowObj);
 
 					if (row == null) {
@@ -1046,8 +1039,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = existingRow.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 					final TableViewRowProxy row = processRow(rowObj);
 
 					if (row == null) {
