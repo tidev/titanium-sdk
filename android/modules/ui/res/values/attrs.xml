@@ -10,4 +10,7 @@
 	<attr name="ti_footerTitleColor" format="color" />
 	<attr name="ti_footerTitleBackground" format="reference" />
 	<attr name="ti_footerTitleBackgroundColor" format="color" />
+	<declare-styleable name="BlurView">
+		<attr name="blurOverlayColor" format="color"/>
+	</declare-styleable>
 </resources>

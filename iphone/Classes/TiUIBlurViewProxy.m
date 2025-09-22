@@ -5,18 +5,18 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-#ifdef USE_TI_UIIOSBLURVIEW
-#import "TiUIiOSBlurViewProxy.h"
-#import "TiUIiOSBlurView.h"
+#ifdef USE_TI_UIBLURVIEW
+#import "TiUIBlurViewProxy.h"
+#import "TiUIBlurView.h"
 #import <TitaniumKit/TiUtils.h>
 
-@implementation TiUIiOSBlurViewProxy
+@implementation TiUIBlurViewProxy
 
 #pragma mark Proxy lifecycle
 
 - (NSString *)apiName
 {
-  return @"Ti.UI.iOS.BlurView";
+  return @"Ti.UI.BlurView";
 }
 
 - (void)dealloc
@@ -26,9 +26,9 @@
 
 #pragma mark Public APIs
 
-- (TiUIiOSBlurView *)blurView
+- (TiUIBlurView *)blurView
 {
-  return (TiUIiOSBlurView *)self.view;
+  return (TiUIBlurView *)self.view;
 }
 
 @end

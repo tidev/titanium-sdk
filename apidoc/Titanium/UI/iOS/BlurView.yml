@@ -11,6 +11,11 @@ summary: |
 extends: Titanium.UI.View
 platforms: [iphone, ipad, macos]
 since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
+deprecated:
+    since: "13.0.0"
+    removed: "14.0.0"
+    notes: Use the <Titanium.UI.BlurView> API instead - it has the exact same API for iOS and also supports Android!
+
 properties:
   - name: effect
     summary: The blur effect to apply to the effect view.

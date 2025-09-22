@@ -76,8 +76,8 @@
 #import <PhotosUI/PhotosUI.h>
 #endif
 
-#ifdef USE_TI_UIIOSBLURVIEW
-#import "TiUIiOSBlurViewProxy.h"
+#ifdef USE_TI_UIBLURVIEW
+#import "TiUIBlurViewProxy.h"
 #endif
 
 #ifdef USE_TI_UIIOSSTEPPER
@@ -467,9 +467,9 @@ result = [NSNumber numberWithBool:[[UIApplication sharedApplication] application
 END_UI_THREAD_PROTECTED_VALUE(appSupportsShakeToEdit)
 
 #ifdef USE_TI_UIIOSBLURVIEW
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_EXTRA_LIGHT, UIBlurEffectStyleExtraLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_LIGHT, UIBlurEffectStyleLight);
-MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_DARK, UIBlurEffectStyleDark);
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUR_EFFECT_STYLE_EXTRA_LIGHT, UIBlurEffectStyleExtraLight, @"UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT", @"13.0.0", @"UI.BLUR_EFFECT_STYLE_EXTRA_LIGHT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUR_EFFECT_STYLE_LIGHT, UIBlurEffectStyleLight, @"UI.iOS.BLUR_EFFECT_STYLE_LIGHT", @"13.0.0", @"UI.BLUR_EFFECT_STYLE_LIGHT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(BLUR_EFFECT_STYLE_DARK, UIBlurEffectStyleDark, @"UI.iOS.BLUR_EFFECT_STYLE_DARK", @"13.0.0", @"UI.BLUR_EFFECT_STYLE_DARK");
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_REGULAR, UIBlurEffectStyleRegular);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_PROMINENT, UIBlurEffectStyleProminent);
 MAKE_SYSTEM_PROP(BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL, UIBlurEffectStyleSystemUltraThinMaterial);
@@ -578,10 +578,12 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 }
 #endif
 
-#ifdef USE_TI_UIIOSBLURVIEW
+#ifdef USE_TI_UIBLURVIEW
 - (id)createBlurView:(id)args
 {
-  return [[[TiUIiOSBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+  DEPRECATED_REPLACED(@"UI.iOS.BlurView", @"13.0.0", @"UI.BlurView (now cross platform!)");
+
+  return [[[TiUIBlurViewProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 #endif
 
