@@ -813,13 +813,6 @@ MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDispl
   return [[[TiUIiOSWebViewProcessPoolProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
-- (id)createButtonConfiguration:(id)args
-{
-  return [[[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_NONE, NSURLCredentialPersistenceNone);
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_FOR_SESSION, NSURLCredentialPersistenceForSession);
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_PERMANENT, NSURLCredentialPersistencePermanent);
@@ -843,6 +836,13 @@ MAKE_SYSTEM_PROP(ACTION_POLICY_ALLOW, WKNavigationActionPolicyAllow);
 
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocumentStart);
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
+#endif
+
+#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
+- (id)createButtonConfiguration:(id)args
+{
+  return [[[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 #endif
 
 - (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
