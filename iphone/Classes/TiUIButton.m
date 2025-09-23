@@ -18,9 +18,7 @@
 #import "TiUIAttributedStringProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 #import "TiUIiOSButtonConfigurationProxy.h"
-#endif
 
 @implementation TiUIButton
 
@@ -223,7 +221,6 @@
 #endif
 #pragma mark Public APIs
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 - (void)setConfiguration_:(id)params
 {
   TiUIiOSButtonConfigurationProxy *configuration = nil;
@@ -254,7 +251,6 @@
     };
   }
 }
-#endif
 
 - (void)setStyle_:(id)style_
 {
