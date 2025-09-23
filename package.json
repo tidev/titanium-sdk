@@ -168,5 +168,15 @@
   "vendorDependencies": {
     "node": ">=20.18.1"
   },
+  "nyc": {
+   "exclude": [
+     "**/cli/tests/test-*.js",
+     "build/**/test-*.js"
+   ],
+   "reporter": [
+     "cobertura",
+     "text"
+   ]
+  },
   "license": "Apache-2.0"
 }
