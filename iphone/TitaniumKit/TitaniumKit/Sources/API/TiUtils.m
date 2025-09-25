@@ -2321,4 +2321,28 @@ If the new path starts with / and the base url is app://..., we have to massage 
   return UIImageSymbolWeightRegular;
 }
 
++ (NSArray *)cornerArrayFromRadius:(id)radius
+{
+  NSArray<NSNumber *> *cornerRadiusArray = nil;
+
+  if ([radius isKindOfClass:[NSString class]]) {
+    NSArray<NSString *> *stringComponents = [(NSString *)radius componentsSeparatedByString:@" "];
+    NSMutableArray<NSNumber *> *numberArray = [NSMutableArray arrayWithCapacity:stringComponents.count];
+
+    // Properly convert string values to numbers
+    for (NSString *component in stringComponents) {
+      NSString *trimmedComponent = [component stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+      if (trimmedComponent.length > 0) {
+        [numberArray addObject:@([trimmedComponent doubleValue])];
+      }
+    }
+    cornerRadiusArray = [numberArray copy];
+  } else if ([radius isKindOfClass:[NSArray class]]) {
+    cornerRadiusArray = radius;
+  } else if ([radius isKindOfClass:[NSNumber class]]) {
+    cornerRadiusArray = [NSArray arrayWithObject:radius];
+  }
+  return cornerRadiusArray;
+}
+
 @end
