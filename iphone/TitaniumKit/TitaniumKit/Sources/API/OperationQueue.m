@@ -8,7 +8,8 @@
 #import "OperationQueue.h"
 #import "TiBase.h"
 
-OperationQueue *sharedQueue = nil;
+// Use dispatch_once to ensure thread-safe, one-time singleton init.
+static OperationQueue *sharedQueue = nil;
 
 @interface OperationQueueOp : NSOperation {
   SEL selector;
@@ -93,9 +94,10 @@ OperationQueue *sharedQueue = nil;
 
 + (OperationQueue *)sharedQueue
 {
-  if (sharedQueue == nil) {
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
     sharedQueue = [[OperationQueue alloc] init];
-  }
+  });
   return sharedQueue;
 }
 
