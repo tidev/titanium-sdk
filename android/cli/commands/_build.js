@@ -916,7 +916,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.minifyCSS = true;
 			this.allowDebugging = false;
 			this.allowProfiling = false;
-			this.proguard = false;
+			this.proguard = true;
 			break;
 
 		case 'test':
@@ -1017,12 +1017,9 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// check that the proguard config exists
-	const proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
-	if (this.proguard && !fs.existsSync(proguardConfigFile)) {
-		logger.error(__('Missing ProGuard configuration file'));
-		logger.error(__('ProGuard settings must go in the file "%s"', proguardConfigFile));
-		logger.error(__('For example configurations, visit %s', 'http://proguard.sourceforge.net/index.html#manual/examples.html') + '\n');
-		process.exit(1);
+	const localProguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
+	if (this.proguard && fs.existsSync(localProguardConfigFile)) {
+		this.proguardConfigFile = localProguardConfigFile;
 	}
 
 	// map sdk versions to sdk targets instead of by id
