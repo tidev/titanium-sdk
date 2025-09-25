@@ -914,6 +914,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 			this.minifyJS = true;
 			this.encryptJS = true;
 			this.minifyCSS = true;
+			this.removeLogs = true;
 			this.allowDebugging = false;
 			this.allowProfiling = false;
 			this.proguard = false;
@@ -2601,6 +2602,7 @@ AndroidBuilder.prototype.processJSFiles = async function processJSFiles(jsFilesM
 			transpile: this.transpile,
 			sourceMap: this.sourceMaps,
 			resourcesDir: this.buildAssetsDir,
+			removeLogs: this.removeLogs,
 			logger: this.logger,
 			targets: {
 				chrome: this.chromeVersion
