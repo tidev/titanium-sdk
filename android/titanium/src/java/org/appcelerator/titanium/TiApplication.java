@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
@@ -39,6 +40,7 @@ import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageCache;
+import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -417,6 +419,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				deleteTiTempFiles();
 			}
 		});
+
+		TiLocaleManager.init();
 	}
 
 	@Override
@@ -935,6 +939,30 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiApplication.launch();
 	}
 
+	public void relaunchApp()
+	{
+		Activity activity = getRootOrCurrentActivity();
+		if (activity == null) {
+			return;
+		}
+
+		Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+		if (intent == null) {
+			return;
+		}
+
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+		activity.startActivity(intent);
+
+		// To avoid seeing duplicate app snapshots in Task Manager, one with empty content often.
+		new Handler(Looper.getMainLooper()).postDelayed(() -> {
+			android.os.Process.killProcess(android.os.Process.myPid());
+		}, 300);
+	}
+
 	/**
 	 * @return true if the current thread is the main thread, false otherwise.
 	 */
@@ -984,12 +1012,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
-				final KrollModule locale = getModuleByName("Locale");
-				if (!locale.hasListeners(TiC.EVENT_CHANGE)) {
-					TiApplication.getInstance().softRestart();
-				} else {
-					locale.fireEvent(TiC.EVENT_CHANGE, null);
-				}
+				TiLocaleManager.handleSystemLocaleUpdates();
 			}
 		};
 
