@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2019-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -138,7 +138,7 @@ describe('string_decoder', () => {
 		);
 	});
 
-	// FIXMEL Requires native fix in iOS for Ti.Buffer, see https://github.com/appcelerator/titanium_mobile/pull/11095#issue-302964559
+	// FIXMEL Requires native fix in iOS for Ti.Buffer, see https://github.com/tidev/titanium-sdk/pull/11095#issue-302964559
 	it.allBroken('handles invalid utf-8 input', () => {
 		decodeTest('utf-8', Buffer.from('C9B5A941', 'hex'), '\u0275\ufffdA');
 		decodeTest('utf-8', Buffer.from('E2', 'hex'), '\ufffd');

@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,7 @@ describe('Titanium.UI.Matrix2D', function () {
 	it.iosBroken('apiName', function () {
 		var matrix = Ti.UI.createMatrix2D();
 		should(matrix).have.readOnlyProperty('apiName').which.is.a.String();
-		should(matrix.apiName).be.eql('Ti.UI.2DMatrix'); // ios still reports Ti.UI.2DMatrix
+		should(matrix.apiName).be.eql('Ti.UI.Matrix2D'); // ios still reports Ti.UI.2DMatrix
 	});
 
 	it('#invert()', function () {

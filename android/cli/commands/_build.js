@@ -410,10 +410,10 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 								// if there are no devices/emulators, error
 								if (!Object.keys(opts).length) {
 									if (cli.argv.target === 'device') {
-										logger.warn(__('Unable to find any devices, possibily due to missing dependencies.') + '\n');
+										logger.warn(__('Unable to find any devices, possibly due to missing dependencies.') + '\n');
 										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									} else {
-										logger.warn(__('Unable to find any emulators, possibily due to missing dependencies.') + '\n');
+										logger.warn(__('Unable to find any emulators, possibly due to missing dependencies.') + '\n');
 										logger.log(__('Continuing with build... (will attempt to install missing dependencies)') + '\n');
 									}
 									_t.buildOnly = true;
@@ -756,7 +756,7 @@ AndroidBuilder.prototype.config = function config(logger, config, cli) {
 											return callback(new Error(msg));
 										}
 
-										// empty the alias array. it is important that we don't destory the original
+										// empty the alias array. it is important that we don't destroy the original
 										// instance since it was passed by reference to the alias select list
 										while (_t.keystoreAliases.length) {
 											_t.keystoreAliases.pop();
@@ -879,7 +879,17 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	cli.tiapp.properties['ti.deploytype'] = { type: 'string', value: this.deployType };
 
 	// Fetch Java max heap size setting.
-	this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
+	this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
+
+	// TODO remove in the next SDK
+	if (cli.tiapp.properties['android.javac.maxmemory'] && cli.tiapp.properties['android.javac.maxmemory'].value) {
+		logger.error(__('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory') + '\n');
+		this.javacMaxMemory = cli.tiapp.properties['android.javac.maxmemory'].value;
+	}
+
+	if (cli.tiapp.properties['android.javac.maxMemory'] && cli.tiapp.properties['android.javac.maxMemory'].value) {
+		this.javacMaxMemory = cli.tiapp.properties['android.javac.maxMemory'].value;
+	}
 
 	// Transpilation details
 	this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
@@ -1091,7 +1101,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	}
 
 	// we need to translate the sdk to a real api level (i.e. L => 20, MNC => 22) so that
-	// we can valiate them
+	// we can validate them
 	function getRealAPILevel(ver) {
 		return (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
 	}
@@ -1401,7 +1411,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 	this.appIconManifestValue = null;
 	this.appRoundIconManifestValue = null;
 	if (this.customAndroidManifest) {
-		// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManfiest.xml".
+		// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManifest.xml".
 		this.appIconManifestValue = this.customAndroidManifest.getAppAttribute('android:icon');
 		this.appRoundIconManifestValue = this.customAndroidManifest.getAppAttribute('android:roundIcon');
 		if (this.appIconManifestValue) {
@@ -1452,7 +1462,7 @@ AndroidBuilder.prototype.validate = function validate(logger, config, cli) {
 					process.exit(1);
 				}
 
-				// For CommonJS modules, verfiy we can find the main script to be loaded by require() method.
+				// For CommonJS modules, verify we can find the main script to be loaded by require() method.
 				if (!module.native) {
 					// Look for legacy "<module.id>.js" script file first.
 					let jsFilePath = path.join(module.modulePath, module.id + '.js');
@@ -1531,9 +1541,6 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 		// Notify plugins that we're about to begin.
 		await new Promise(resolve => cli.emit('build.pre.construct', this, resolve));
 
-		// Post build anlytics.
-		await this.doAnalytics();
-
 		// Initialize build system. Checks if we need to do a clean or incremental build.
 		await this.initialize();
 		await this.loginfo();
@@ -1590,35 +1597,6 @@ AndroidBuilder.prototype.run = async function run(logger, config, cli, finished)
 	if (finished) {
 		finished();
 	}
-};
-
-AndroidBuilder.prototype.doAnalytics = async function doAnalytics() {
-	const cli = this.cli;
-	let eventName = 'android.' + cli.argv.target;
-
-	if (cli.argv.target === 'dist-playstore') {
-		eventName = 'android.distribute.playstore';
-	} else if (this.allowDebugging && this.debugPort) {
-		eventName += '.debug';
-	} else if (this.allowProfiling && this.profilerPort) {
-		eventName += '.profile';
-	} else {
-		eventName += '.run';
-	}
-
-	cli.addAnalyticsEvent(eventName, {
-		name: cli.tiapp.name,
-		publisher: cli.tiapp.publisher,
-		url: cli.tiapp.url,
-		image: cli.tiapp.icon,
-		appid: cli.tiapp.id,
-		description: cli.tiapp.description,
-		type: cli.argv.type,
-		guid: cli.tiapp.guid,
-		version: cli.tiapp.version,
-		copyright: cli.tiapp.copyright,
-		date: (new Date()).toDateString()
-	});
 };
 
 AndroidBuilder.prototype.initialize = async function initialize() {
@@ -1855,12 +1833,6 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 		return true;
 	}
 
-	if (!this.tiapp.analytics !== !manifest.analytics) {
-		this.logger.info(__('Forcing rebuild: tiapp.xml analytics flag changed since last build'));
-		this.logger.info('  ' + __('Was: %s', !!manifest.analytics));
-		this.logger.info('  ' + __('Now: %s', !!this.tiapp.analytics));
-		return true;
-	}
 	if (this.tiapp.publisher !== manifest.publisher) {
 		this.logger.info(__('Forcing rebuild: tiapp.xml publisher changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.publisher));
@@ -1946,7 +1918,7 @@ AndroidBuilder.prototype.checkIfShouldForceRebuild = function checkIfShouldForce
 	}
 
 	if (this.activitiesHash !== manifest.activitiesHash) {
-		this.logger.info(__('Forcing rebuild: Android activites in tiapp.xml changed since last build'));
+		this.logger.info(__('Forcing rebuild: Android activities in tiapp.xml changed since last build'));
 		this.logger.info('  ' + __('Was: %s', manifest.activitiesHash));
 		this.logger.info('  ' + __('Now: %s', this.activitiesHash));
 		return true;
@@ -2070,7 +2042,6 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 
 		// Load "AndroidManifest.xml", replace ${tiapp.properties['key']} variables, and save to above directories.
 		const manifest = await AndroidManifest.fromFilePath(sourceManifestFilePath);
-		manifest.setPackageName(moduleInfo.manifest.moduleid);
 		manifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
 		await manifest.writeToFilePath(path.join(debugDirPath, 'AndroidManifest.xml'));
 		await manifest.writeToFilePath(path.join(releaseDirPath, 'AndroidManifest.xml'));
@@ -2093,7 +2064,6 @@ AndroidBuilder.prototype.generateLibProjectForModule = async function generateLi
 		this.logger.error(`Unable to load Android <manifest/> content from: ${tiModuleXmlFilePath}`);
 		throw ex;
 	}
-	mainManifest.setPackageName(moduleInfo.manifest.moduleid);
 	await mainManifest.writeToFilePath(path.join(projectSrcMainDirPath, 'AndroidManifest.xml'));
 
 	// Generate a "build.gradle" file for this project from the SDK's "lib.build.gradle" EJS template.
@@ -2133,7 +2103,7 @@ AndroidBuilder.prototype.processLibraries = async function processLibraries() {
 		}
 
 		// Check if the module has a maven repository directory.
-		// If it does, then we can leverage gradle/maven's depency management system.
+		// If it does, then we can leverage gradle/maven's dependency management system.
 		let dependencyString = null;
 		const repositoryDirPath = path.join(nextModule.modulePath, 'm2repository');
 		if (await fs.exists(repositoryDirPath)) {
@@ -2183,11 +2153,14 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	//       This is needed because using both libraries will cause class name collisions, causing a build failure.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '35' });
 	gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
+	gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 	gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
+	gradleProperties.push({ key: 'org.gradle.configuration-cache', value: 'true' });
 	await gradlew.writeGradlePropertiesFile(gradleProperties);
 
-	// Copy optional "gradle.properties" file contents from Titainum project to the above generated file.
+	// Copy optional "gradle.properties" file contents from Titanium project to the above generated file.
 	// These properties must be copied to the end of the file so that they can override Titanium's default properties.
 	const customGradlePropertiesFilePath = path.join(this.projectDir, 'platform', 'android', 'gradle.properties');
 	if (await fs.exists(customGradlePropertiesFilePath)) {
@@ -2202,10 +2175,12 @@ AndroidBuilder.prototype.generateRootProjectFiles = async function generateRootP
 	// Create a "local.properties" file providing a path to the Android SDK directory.
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
-	// Copy our root "build.gradle" template script to the root build directory.
-	await fs.copyFile(
-		path.join(this.templatesDir, 'root.build.gradle'),
-		path.join(this.buildDir, 'build.gradle'));
+	// Generate root "build.gradle" template script to the root build directory.
+	let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'root.build.gradle'));
+	buildGradleContent = ejs.render(buildGradleContent.toString(), {
+		classpaths: [],
+	});
+	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
 	// Copy our Titanium template's gradle constants file.
 	// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
@@ -2550,7 +2525,7 @@ AndroidBuilder.prototype.processSplashesFiles = async function processSplashesFi
 };
 
 /**
- * Used to de4termine the destination path for special assets (_app_props_.json, bootstrap.json) based on encyption or not.
+ * Used to determine the destination path for special assets (_app_props_.json, bootstrap.json) based on encryption or not.
  * @returns {string} destination directory to place file
  */
 AndroidBuilder.prototype.buildAssetsPath = function buildAssetsPath() {
@@ -3195,7 +3170,8 @@ AndroidBuilder.prototype.generateI18N = async function generateI18N() {
 		root.appendChild(dom.createTextNode('\n'));
 
 		// Create the XML file under the Android "res/values-<locale>" folder.
-		const localeSuffixName = (locale === 'en' ? '' : '-' + resolveRegionName(locale));
+		const defaultLang = this.tiapp.defaultLang || 'en';
+		const localeSuffixName = (locale === defaultLang ? '' : '-' + resolveRegionName(locale));
 		const dirPath = path.join(this.buildAppMainResDir, `values${localeSuffixName}`);
 		const filePath = path.join(dirPath, 'ti_i18n_strings.xml');
 		this.logger.debug(__('Writing %s strings => %s', locale.cyan, filePath.cyan));
@@ -3707,9 +3683,6 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 
 	// Write secondary "AndroidManifest.xml" if not empty.
 	if (!secondaryManifest.isEmpty()) {
-		// Make sure package name is set in <manifest/> so that ".ClassName" references in XML can be resolved.
-		secondaryManifest.setPackageName(this.appid);
-
 		// Replace ${tiapp.properties['key']} placeholders in manifest.
 		secondaryManifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
 
@@ -3721,6 +3694,7 @@ AndroidBuilder.prototype.generateAndroidManifest = async function generateAndroi
 			'org.appcelerator.titanium.TiActivity',
 			'org.appcelerator.titanium.TiTranslucentActivity',
 			'org.appcelerator.titanium.TiCameraActivity',
+			'org.appcelerator.titanium.TiCameraXActivity',
 			'org.appcelerator.titanium.TiVideoActivity'
 		];
 		for (const activityName of tiActivityNames) {
@@ -3809,7 +3783,6 @@ AndroidBuilder.prototype.writeBuildManifest = async function writeBuildManifest(
 			outputDir: this.cli.argv['output-dir'],
 			name: this.tiapp.name,
 			id: this.tiapp.id,
-			analytics: this.tiapp.analytics,
 			publisher: this.tiapp.publisher,
 			url: this.tiapp.url,
 			version: this.tiapp.version,

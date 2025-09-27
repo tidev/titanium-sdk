@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
@@ -44,6 +45,7 @@ import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
 import ti.modules.titanium.TitaniumModule;
+import ti.modules.titanium.ui.TabGroupProxy;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -94,12 +96,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private String defaultUnit;
 	private BroadcastReceiver localeReceiver;
 	private AccessibilityManager accessibilityManager = null;
+	private UncaughtExceptionHandler nativeExceptionHandler = null;
 
 	protected TiDeployData deployData;
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<>();
@@ -340,11 +342,22 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public static void handleInternalException(Throwable throwable)
+	{
+		final UncaughtExceptionHandler currentExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+		if (currentExceptionHandler != null) {
+			currentExceptionHandler.uncaughtException(Thread.currentThread(), throwable);
+		}
+	}
+
 	@Override
 	public void onCreate()
 	{
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
+
+		// Reference to android run-time exception handler to delegate exceptions properly.
+		nativeExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
 
 		// handle uncaught java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
@@ -364,6 +377,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// throw exception as KrollException
 				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, null, javaStack);
+
+				if (nativeExceptionHandler != null) {
+					nativeExceptionHandler.uncaughtException(t, e);
+				}
 			}
 		});
 
@@ -671,6 +688,21 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		appEventProxies.remove(appEventProxy);
 	}
 
+	public boolean hasListener(String eventName)
+	{
+		for (WeakReference<KrollProxy> weakProxy : appEventProxies) {
+			KrollProxy appEventProxy = weakProxy.get();
+			if (appEventProxy == null) {
+				continue;
+			}
+			if (appEventProxy.hasListeners(eventName)) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+
 	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
 		boolean handled = false;
@@ -679,7 +711,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (appEventProxy == null) {
 				continue;
 			}
-
 			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
 			handled = handled || proxyHandled;
 		}
@@ -738,11 +769,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return proxy;
 	}
 
-	public boolean isAnalyticsEnabled()
-	{
-		return false;
-	}
-
 	/**
 	 * Determines if Titanium's JavaScript runtime should run on the main UI thread or not
 	 * based on the "tiapp.xml" property "run-on-main-thread".
@@ -753,26 +779,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean runOnMainThread()
 	{
 		return true;
-	}
-
-	public void setFilterAnalyticsEvents(String[] events)
-	{
-		filteredAnalyticsEvents = events;
-	}
-
-	public boolean isAnalyticsFiltered(String eventName)
-	{
-		if (filteredAnalyticsEvents == null) {
-			return false;
-		}
-
-		for (int i = 0; i < filteredAnalyticsEvents.length; ++i) {
-			String currentName = filteredAnalyticsEvents[i];
-			if (eventName.equals(currentName)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -987,7 +993,13 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			}
 		};
 
-		registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+			int receiverFlags = Context.RECEIVER_EXPORTED;
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED), receiverFlags);
+		} else {
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		}
 	}
 
 	private void stopLocaleMonitor()
@@ -1022,5 +1034,35 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{
+	}
+
+	public void popToRootWindow()
+	{
+		/**
+		 * emulates the iOS Tab.popToRootWindow() by closing all windows above a TabGroup.
+		 */
+		int tabGroupPosition = -1;
+		boolean isTabGroup = false;
+
+		for (int i = 0; i <= activityStack.size(); ++i) {
+			isTabGroup = (activityStack.get(i).get() instanceof TiActivity)
+				&& ((TiActivity) activityStack.get(i).get()).getWindowProxy() instanceof TabGroupProxy;
+			if (isTabGroup) {
+				tabGroupPosition = i;
+				break;
+			}
+		}
+
+		// no TabGroup - don't do anything
+		if (!isTabGroup || tabGroupPosition == -1) {
+			return;
+		}
+
+		// finish all activities above our TabGroup
+		for (int i = activityStack.size() - 1; i > tabGroupPosition; --i) {
+			if (activityStack.get(i).get() instanceof TiActivity currentActivity) {
+				currentActivity.finish();
+			}
+		}
 	}
 }

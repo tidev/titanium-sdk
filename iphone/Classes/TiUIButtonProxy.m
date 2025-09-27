@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -45,12 +45,12 @@
 - (UIBarButtonItem *)barButtonItem
 {
   /*
-	id backgroundImageValue = [self valueForKey:@"backgroundImage"];
-	if (!IS_NULL_OR_NIL(backgroundImageValue))
-	{
-		return [super barButtonItem];
-	}
-	*/
+        id backgroundImageValue = [self valueForKey:@"backgroundImage"];
+        if (!IS_NULL_OR_NIL(backgroundImageValue))
+        {
+                return [super barButtonItem];
+        }
+        */
 
   if (button == nil || !isUsingBarButtonItem) {
     isUsingBarButtonItem = YES;
@@ -112,11 +112,11 @@
   return toolbar != nil;
 }
 
-//TODO: Remove when deprecated
+// TODO: Remove when deprecated
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
 {
   if (![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES]) {
-    //Rogue event. We're supposed to be disabled!
+    // Rogue event. We're supposed to be disabled!
     return;
   }
   [super fireEvent:type withObject:obj withSource:source propagate:propagate reportSuccess:report errorCode:code message:message];
@@ -125,7 +125,7 @@
 - (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString *)message;
 {
   if (![TiUtils boolValue:[self valueForKey:@"enabled"] def:YES]) {
-    //Rogue event. We're supposed to be disabled!
+    // Rogue event. We're supposed to be disabled!
     return;
   }
   [super fireEvent:type withObject:obj propagate:propagate reportSuccess:report errorCode:code message:message];

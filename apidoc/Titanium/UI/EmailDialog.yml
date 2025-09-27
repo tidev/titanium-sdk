@@ -3,9 +3,9 @@ name: Titanium.UI.EmailDialog
 summary: |
     An email dialog is a modal window that allows users to compose and send an email.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./emaildialog_android.png) | ![iOS](./emaildialog_ios.png) | ![Windows](./emaildialog_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./emaildialog_android.png) | ![iOS](./emaildialog_ios.png) |
 
     The Email Dialog is created with the <Titanium.UI.createEmailDialog> method. The user needs to
     register an e-mail account on the device in order to open the dialog.  The dialog will not
@@ -165,7 +165,7 @@ examples:
         var emailDialog = Ti.UI.createEmailDialog()
         emailDialog.subject = "Hello from Titanium";
         emailDialog.toRecipients = ['foo@yahoo.com'];
-        emailDialog.messageBody = '<b>Appcelerator Titanium Rocks!</b>';
+        emailDialog.messageBody = '<b>Titanium SDK Rocks!</b>';
         var f = Ti.Filesystem.getFile('cricket.wav');
         emailDialog.addAttachment(f);
         emailDialog.open();

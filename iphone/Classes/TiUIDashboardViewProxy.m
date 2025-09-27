@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -49,7 +49,7 @@ NSArray *dashboardKeySequence;
   [self makeViewPerformSelector:@selector(stopEditing) withObject:nil createIfNeeded:YES waitUntilDone:NO];
 }
 
-//TODO: Remove when deprication is done.
+// TODO: Remove when deprication is done.
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
 {
   if ([type isEqual:@"click"]) {
@@ -78,7 +78,7 @@ NSArray *dashboardKeySequence;
 {
   for (TiViewProxy *proxy in data) {
     ENSURE_TYPE(proxy, TiUIDashboardItemProxy)
-        [self rememberProxy:proxy];
+    [self rememberProxy:proxy];
   }
 
   [self replaceValue:data forKey:@"data" notification:NO];

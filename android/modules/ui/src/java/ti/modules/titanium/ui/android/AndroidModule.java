@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -13,6 +13,7 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -31,6 +32,8 @@ import android.webkit.WebSettings;
 import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+
+import com.google.android.material.color.MaterialColors;
 
 @SuppressWarnings("deprecation")
 @Kroll.module(parentModule = UIModule.class)
@@ -82,7 +85,8 @@ public class AndroidModule extends KrollModule
 	public static final int SOFT_INPUT_ADJUST_RESIZE = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
 	@Kroll.constant
 	public static final int SOFT_INPUT_ADJUST_UNSPECIFIED = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED;
-
+	@Kroll.constant
+	public static final int SOFT_INPUT_ADJUST_NOTHING = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING;
 	@Kroll.constant
 	public static final int SOFT_INPUT_STATE_ALWAYS_HIDDEN = WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
 	@Kroll.constant
@@ -189,6 +193,11 @@ public class AndroidModule extends KrollModule
 	public static final int TABS_STYLE_BOTTOM_NAVIGATION = 1;
 
 	@Kroll.constant
+	public static final int TAB_MODE_FIXED = 1;
+	@Kroll.constant
+	public static final int TAB_MODE_SCROLLABLE = 0;
+
+	@Kroll.constant
 	public static final int TRANSITION_NONE = TiUIView.TRANSITION_NONE;
 	@Kroll.constant
 	public static final int TRANSITION_EXPLODE = TiUIView.TRANSITION_EXPLODE;
@@ -228,6 +237,30 @@ public class AndroidModule extends KrollModule
 	public static final int OVER_SCROLL_IF_CONTENT_SCROLLS = 1; //android.view.View.OVER_SCROLL_IF_CONTENT_SCROLLS;
 	@Kroll.constant
 	public static final int OVER_SCROLL_NEVER = 2; //android.view.View.OVER_SCROLL_NEVER;
+
+	@Kroll.constant
+	public static final int SCROLL_FLAG_ENTER_ALWAYS = 4;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_ENTER_ALWAYS_COLLAPSED = 8;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_EXIT_UNTIL_COLLAPSED = 2;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_NO_SCROLL = 0;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_SCROLL = 1;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_SNAP = 16;
+	@Kroll.constant
+	public static final int SCROLL_FLAG_SNAP_MARGINS = 32;
+
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_DEFAULT = 0;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_VERTICAL = 1;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL = 2;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_ALL = 3;
 
 	public AndroidModule()
 	{
@@ -295,6 +328,19 @@ public class AndroidModule extends KrollModule
 			// ignore
 		}
 		return null;
+	}
+
+	@Kroll.method
+	public String harmonizedColor(String value)
+	{
+		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
+		return String.format("#%06X",
+			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
+	}
+	@Kroll.method
+	public void moveToBackground()
+	{
+		TiApplication.getAppRootOrCurrentActivity().moveTaskToBack(true);
 	}
 
 	@Override

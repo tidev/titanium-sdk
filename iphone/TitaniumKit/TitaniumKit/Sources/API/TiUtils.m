@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -268,7 +268,7 @@ static NSDictionary *sizeMap = nil;
   [dateFormatter setLocale:USLocale];
   [USLocale release];
 
-  //Example UTC full format: 2009-06-15T21:46:28.685+0000
+  // Example UTC full format: 2009-06-15T21:46:28.685+0000
   [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'.'SSS+0000"];
   return [dateFormatter stringFromDate:data];
 }
@@ -684,7 +684,7 @@ static NSDictionary *sizeMap = nil;
   NSURL *urlAttempt = [self toURL:object proxy:proxy];
   UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withSize:imageSize];
   return image;
-  //Note: If url is a nonimmediate image, this returns nil.
+  // Note: If url is a nonimmediate image, this returns nil.
 }
 
 + (UIImage *)toImage:(id)object proxy:(TiProxy *)proxy
@@ -702,7 +702,7 @@ static NSDictionary *sizeMap = nil;
   NSURL *urlAttempt = [self toURL:object proxy:proxy];
   UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt];
   return image;
-  //Note: If url is a nonimmediate image, this returns nil.
+  // Note: If url is a nonimmediate image, this returns nil.
 }
 
 + (UIImage *)adjustRotation:(UIImage *)image
@@ -718,26 +718,26 @@ static NSDictionary *sizeMap = nil;
   UIImageOrientation orient = image.imageOrientation;
   switch (orient) {
 
-  case UIImageOrientationUp: //EXIF = 1
+  case UIImageOrientationUp: // EXIF = 1
     transform = CGAffineTransformIdentity;
     break;
 
-  case UIImageOrientationUpMirrored: //EXIF = 2
+  case UIImageOrientationUpMirrored: // EXIF = 2
     transform = CGAffineTransformMakeTranslation(imageSize.width, 0.0);
     transform = CGAffineTransformScale(transform, -1.0, 1.0);
     break;
 
-  case UIImageOrientationDown: //EXIF = 3
+  case UIImageOrientationDown: // EXIF = 3
     transform = CGAffineTransformMakeTranslation(imageSize.width, imageSize.height);
     transform = CGAffineTransformRotate(transform, M_PI);
     break;
 
-  case UIImageOrientationDownMirrored: //EXIF = 4
+  case UIImageOrientationDownMirrored: // EXIF = 4
     transform = CGAffineTransformMakeTranslation(0.0, imageSize.height);
     transform = CGAffineTransformScale(transform, 1.0, -1.0);
     break;
 
-  case UIImageOrientationLeftMirrored: //EXIF = 5
+  case UIImageOrientationLeftMirrored: // EXIF = 5
     boundHeight = bounds.size.height;
     bounds.size.height = bounds.size.width;
     bounds.size.width = boundHeight;
@@ -746,7 +746,7 @@ static NSDictionary *sizeMap = nil;
     transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
     break;
 
-  case UIImageOrientationLeft: //EXIF = 6
+  case UIImageOrientationLeft: // EXIF = 6
     boundHeight = bounds.size.height;
     bounds.size.height = bounds.size.width;
     bounds.size.width = boundHeight;
@@ -754,7 +754,7 @@ static NSDictionary *sizeMap = nil;
     transform = CGAffineTransformRotate(transform, 3.0 * M_PI / 2.0);
     break;
 
-  case UIImageOrientationRightMirrored: //EXIF = 7
+  case UIImageOrientationRightMirrored: // EXIF = 7
     boundHeight = bounds.size.height;
     bounds.size.height = bounds.size.width;
     bounds.size.width = boundHeight;
@@ -762,7 +762,7 @@ static NSDictionary *sizeMap = nil;
     transform = CGAffineTransformRotate(transform, M_PI / 2.0);
     break;
 
-  case UIImageOrientationRight: //EXIF = 8
+  case UIImageOrientationRight: // EXIF = 8
     boundHeight = bounds.size.height;
     bounds.size.height = bounds.size.width;
     bounds.size.width = boundHeight;
@@ -797,19 +797,7 @@ static NSDictionary *sizeMap = nil;
 
 + (UIImage *)imageWithTint:(UIImage *)image tintColor:(UIColor *)tintColor
 {
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
-  }
-  UIImage *imageNew = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-  UIImageView *imageView = [[UIImageView alloc] initWithImage:imageNew];
-  imageView.tintColor = tintColor;
-
-  UIGraphicsBeginImageContextWithOptions(imageView.bounds.size, NO, 0.0);
-  [imageView.layer renderInContext:UIGraphicsGetCurrentContext()];
-  UIImage *tintedImage = UIGraphicsGetImageFromCurrentImageContext();
-  UIGraphicsEndImageContext();
-
-  return [tintedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+  return [image imageWithTintColor:tintColor renderingMode:UIImageRenderingModeAlwaysOriginal];
 }
 
 + (NSURL *)checkFor2XImage:(NSURL *)url
@@ -820,13 +808,13 @@ static NSDictionary *sizeMap = nil;
     path = [url path];
   }
 
-  if ([[url scheme] isEqualToString:@"app"]) { //Technically, this will have an extra /, but iOS ignores this.
+  if ([[url scheme] isEqualToString:@"app"]) { // Technically, this will have an extra /, but iOS ignores this.
     path = [url resourceSpecifier];
   }
 
   NSString *ext = [path pathExtension];
 
-  if (![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"] && ![ext isEqualToString:@"jpeg"]) { //It's not an image.
+  if (![ext isEqualToString:@"png"] && ![ext isEqualToString:@"jpg"] && ![ext isEqualToString:@"jpeg"]) { // It's not an image.
     return url;
   }
 
@@ -1366,6 +1354,9 @@ If the new path starts with / and the base url is app://..., we have to massage 
     NSArray<NSString *> *nativeStack = [callStack componentsSeparatedByCharactersInSet:NSCharacterSet.newlineCharacterSet];
     [errorDict setObject:nativeStack forKey:@"nativeStack"];
   }
+  if ([error hasProperty:@"nativeLocation"]) {
+    [errorDict setObject:[error[@"nativeLocation"] toString] forKey:@"nativeLocation"];
+  }
 
   return [[[TiScriptError alloc] initWithDictionary:errorDict] autorelease];
 }
@@ -1456,7 +1447,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   return UIScreen.mainScreen.bounds;
 }
 
-//TODO: rework these to be more accurate and multi-device
+// TODO: rework these to be more accurate and multi-device
 
 + (CGRect)navBarRect
 {
@@ -1703,7 +1694,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (void)setVolume:(float)volume onObject:(id)theObject
 {
-  //Must be called on the main thread
+  // Must be called on the main thread
   if ([NSThread isMainThread]) {
     if ([theObject respondsToSelector:@selector(setVolume:)]) {
       [(id<VolumeSupport>)theObject setVolume:volume];
@@ -1715,7 +1706,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 
 + (float)volumeFromObject:(id)theObject default:(float)def
 {
-  //Must be called on the main thread
+  // Must be called on the main thread
   float returnValue = def;
   if ([NSThread isMainThread]) {
     if ([theObject respondsToSelector:@selector(volume)]) {
@@ -1752,7 +1743,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   CGRect mainScreen = UIScreen.mainScreen.bounds;
   CGRect rect = UIApplication.sharedApplication.keyWindow.frame;
   NSUInteger edges = [theController edgesForExtendedLayout];
-  //Check if I cover status bar
+  // Check if I cover status bar
   if (((edges & UIRectEdgeTop) != 0)) {
     return mainScreen;
   }
@@ -1770,7 +1761,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
   [navBar setTranslucent:isTranslucent];
   [navBar setBarTintColor:barColor];
 
-  //This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
+  // This should not be here but in setToolBar. But keeping in place. Clean in 3.2.0
   UIToolbar *toolBar = [navController toolbar];
   [toolBar setBarStyle:barStyle];
   [toolBar setTranslucent:isTranslucent];

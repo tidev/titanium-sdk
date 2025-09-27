@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -147,10 +147,10 @@ NSString *JavascriptNameForClass(Class c);
 
 #define ENSURE_TYPE(x, t) ENSURE_CLASS(x, [t class])
 
-//NOTE: these checks can be pulled out of production build type
+// NOTE: these checks can be pulled out of production build type
 
-//Question: Given that some of these silently massage the data during development but not production,
-//Should the data massage either be kept in production or removed in development? --Blain.
+// Question: Given that some of these silently massage the data during development but not production,
+// Should the data massage either be kept in production or removed in development? --Blain.
 
 #define ENSURE_STRING_OR_NIL(x)                        \
   if ([x respondsToSelector:@selector(stringValue)]) { \
@@ -248,7 +248,7 @@ NSString *JavascriptNameForClass(Class c);
     }                                                       \
   }
 
-//Because both NSString and NSNumber respond to intValue, etc, this is a wider net
+// Because both NSString and NSNumber respond to intValue, etc, this is a wider net
 #define ENSURE_METHOD(x, t)                                                                                                                                            \
   if (![x respondsToSelector:@selector(t)]) {                                                                                                                          \
     [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@", OBJTYPE2JS(x), @ #t] location:CODELOCATION]; \
@@ -320,6 +320,15 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
   -(NSNumber *)name                      \
   {                                      \
     return [NSNumber numberWithInt:map]; \
+  }
+
+#define MAKE_SYSTEM_PROP_MIN_IOS(name, map, iosVersion) \
+  -(NSNumber *)name                                     \
+  {                                                     \
+    if ([TiUtils isIOSVersionOrGreater:iosVersion]) {   \
+      return [NSNumber numberWithInt:map];              \
+    }                                                   \
+    return @(-1);                                       \
   }
 
 #define MAKE_SYSTEM_PROP_UINTEGER(name, map)         \
@@ -412,7 +421,7 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
 #define NUMUINTEGER(x) \
   [NSNumber numberWithUnsignedInteger:x]
 
-//MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
+// MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
 enum {
   UITitaniumNativeItemNone = -1,
   UITitaniumNativeItemSpinner = -2,
@@ -484,7 +493,7 @@ enum {
 // display a warning and set it to 0.0.0
 
 #ifndef TI_VERSION
-#define TI_VERSION 0.0.0
+#define TI_VERSION @"0.0.0"
 #endif
 
 #define _QUOTEME(x) #x
@@ -492,7 +501,7 @@ enum {
 
 #define TI_VERSION_STR STRING(TI_VERSION)
 
-//#define VERBOSE
+// #define VERBOSE
 
 #ifdef VERBOSE
 #define VerboseLog(...) \
@@ -526,6 +535,10 @@ enum {
 #endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
+
+#if (defined(__arm64__) || defined(__ARM_ARCH_8_32__))
+#define IS_APPLE_SILICON_DEVICE
+#endif
 
 NSString *hexString(NSData *thedata);
 

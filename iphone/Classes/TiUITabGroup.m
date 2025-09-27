@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -9,6 +9,7 @@
 #import "TiUITabGroup.h"
 #import "TiUITabGroupProxy.h"
 #import "TiUITabProxy.h"
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -42,14 +43,12 @@ DEFINE_EXCEPTIONS
     controller.delegate = self;
     controller.moreNavigationController.delegate = self;
     [TiUtils configureController:controller withObject:self.proxy];
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
       [appearance configureWithDefaultBackground];
       appearance.backgroundColor = UIColor.clearColor;
       controller.tabBar.scrollEdgeAppearance = appearance;
     }
-#endif
   }
   return controller;
 }
@@ -100,7 +99,7 @@ DEFINE_EXCEPTIONS
 {
   // Do nothing if no tabs are being focused or blurred (or the window is opening)
   if (focusedTabProxy == nil && newFocus == nil) {
-    //TIMOB-10796. Ensure activeTab is set to focused on early return
+    // TIMOB-10796. Ensure activeTab is set to focused on early return
     if (focusedTabProxy != nil) {
       [self.proxy replaceValue:focusedTabProxy forKey:@"activeTab" notification:NO];
     }
@@ -155,7 +154,7 @@ DEFINE_EXCEPTIONS
       [self.proxy fireEvent:@"focus" withObject:event];
     }
   }
-  //TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
+  // TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
   if ([(TiUITabGroupProxy *)[self proxy] canFocusTabs]) {
     [focusedTabProxy handleDidFocus:event];
   }
@@ -179,7 +178,7 @@ DEFINE_EXCEPTIONS
   if ([[moreController viewControllers] count] != 1) {
     return;
   }
-  //Update the actual nav bar here in case the windows changed the stuff.
+  // Update the actual nav bar here in case the windows changed the stuff.
   UINavigationBar *navBar = [moreController navigationBar];
   [navBar setBarStyle:navBarStyle];
   [navBar setTitleTextAttributes:theAttributes];
@@ -263,11 +262,11 @@ DEFINE_EXCEPTIONS
 {
   NSArray *moreViewControllerStack = [navigationController viewControllers];
   NSUInteger stackHeight = [moreViewControllerStack count];
-  if (stackHeight < 2) { //No more faux roots.
+  if (stackHeight < 2) { // No more faux roots.
     if (focusedTabProxy != nil) {
       [self handleDidShowTab:nil];
     }
-    //Ensure that the moreController has only top edge extended
+    // Ensure that the moreController has only top edge extended
     [TiUtils configureController:viewController withObject:[NSDictionary dictionaryWithObject:NUMINT(1) forKey:@"extendEdges"]];
     return;
   }
@@ -287,7 +286,7 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  if (stackHeight == 2) { //One for the picker, one for the faux root.
+  if (stackHeight == 2) { // One for the picker, one for the faux root.
     if (tabProxy != focusedTabProxy) {
       [self handleDidShowTab:tabProxy];
     }
@@ -367,13 +366,87 @@ DEFINE_EXCEPTIONS
   }
 }
 
+- (void)setTabBarVisible_:(id)value
+{
+  BOOL isiOS17OrLower = [TiUtils isIOSVersionLower:@"18.0"];
+  if (isiOS17OrLower) {
+    DEPRECATED_REPLACED_REMOVED(@"UI.TabGroup.tabBarVisible animation on iOS < 18 is",
+        @"12.7.0", @"13.0.0",
+        @"UI.TabGroup.showTabBar/hideTabBar methods.");
+  }
+
+  [self hideTabBar:![TiUtils boolValue:value def:YES] animated:isiOS17OrLower];
+}
+
+- (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated
+{
+  if (@available(iOS 18.0, *)) {
+    [self.tabController setTabBarHidden:hidden animated:animated];
+    return;
+  }
+
+  if (!animated) {
+    self.tabController.tabBar.hidden = hidden;
+    return;
+  }
+
+  if (isTabBarHidden == hidden) {
+    return;
+  }
+
+  CGRect frame = self.tabController.tabBar.frame;
+  CGFloat height = frame.size.height;
+
+  [UIView animateWithDuration:0.3
+      animations:^{
+        self.tabController.tabBar.frame = CGRectOffset(frame, 0, hidden ? height : -height);
+      }
+      completion:^(BOOL finished) {
+        if (finished) {
+          isTabBarHidden = hidden;
+
+          // Adjust the bottom padding for the current tab view.
+          CGRect viewFrame = self.tabController.view.frame;
+          CGFloat viewHeight = viewFrame.size.height + (hidden ? height : -height);
+          self.tabController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewHeight);
+        }
+      }];
+}
+
+#if IS_SDK_IOS_26
+- (void)setBottomAccessoryView_:(id)bottomAccessoryViewProxy
+{
+  if (bottomAccessoryView != nil) {
+    [self.proxy forgetProxy:bottomAccessoryView.proxy];
+    RELEASE_TO_NIL(bottomAccessoryView);
+  }
+
+  if (bottomAccessoryViewProxy == [NSNull null]) {
+    [[self tabController] setBottomAccessory:nil];
+    return;
+  }
+
+  [self.proxy rememberProxy:bottomAccessoryViewProxy];
+
+  bottomAccessoryView = [(TiViewProxy *)bottomAccessoryViewProxy view];
+  [bottomAccessoryView retain];
+
+  UITabAccessory *tabAccessory = [[UITabAccessory alloc] initWithContentView:bottomAccessoryView];
+  [[self tabController] setBottomAccessory:tabAccessory animated:NO];
+}
+
+- (void)setMinimizeBehavior_:(NSNumber *)minimizeBehavior
+{
+  [[self tabController] setTabBarMinimizeBehavior:minimizeBehavior.integerValue];
+}
+#endif
+
 - (void)setTabsBackgroundColor_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
   UITabBar *tabBar = [controller tabBar];
-  //A nil tintColor is fine, too.
+  // A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
-#if IS_SDK_IOS_15
   if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
     // Update main tab bar's appearance.
     tabBar.standardAppearance.backgroundColor = [color color];
@@ -387,7 +460,6 @@ DEFINE_EXCEPTIONS
       }
     }
   }
-#endif
 }
 
 - (void)setTabsTintColor_:(id)value
@@ -418,14 +490,14 @@ DEFINE_EXCEPTIONS
 
 - (void)setShadowImage_:(id)value
 {
-  //Because we still support XCode 4.3, we cannot use the shadowImage property
+  // Because we still support XCode 4.3, we cannot use the shadowImage property
   [controller.tabBar setShadowImage:[self loadImage:value]];
 }
 
 - (void)setActiveTabIconTint_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
-  //A nil tintColor is fine, too.
+  // A nil tintColor is fine, too.
   controller.tabBar.tintColor = color.color;
 }
 
@@ -594,8 +666,7 @@ DEFINE_EXCEPTIONS
       focusedTabProxy = [theActiveTab retain];
     }
 
-    [self tabController].viewControllers = nil;
-    [self tabController].viewControllers = controllers;
+    self.tabController.viewControllers = controllers;
 
     if (focusedTabProxy != nil && ![tabs containsObject:focusedTabProxy]) {
       if (theActiveTab != nil) {
@@ -618,16 +689,27 @@ DEFINE_EXCEPTIONS
 
 - (void)open:(id)args
 {
-  UIView *view = [self tabController].view;
-  [view setFrame:[self bounds]];
-  [self addSubview:view];
+  TiThreadPerformOnMainThread(
+      ^{
+        isTabBarHidden = NO;
+        UIViewController *parentController = TiApp.controller.topPresentedController;
+        [parentController addChildViewController:self.tabController];
+        [self addSubview:self.tabController.view];
+        self.tabController.view.frame = self.bounds;
+        [self.tabController didMoveToParentViewController:parentController];
+      },
+      NO);
 }
 
 - (void)close:(id)args
 {
   if (controller != nil) {
     controller.viewControllers = nil;
+    [controller willMoveToParentViewController:nil];
+    [controller.view removeFromSuperview];
+    [controller removeFromParentViewController];
   }
+
   RELEASE_TO_NIL(controller);
 }
 

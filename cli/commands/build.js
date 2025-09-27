@@ -121,7 +121,7 @@ exports.config = function config(logger, config, cli) {
 								if (fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
 									let tiapp;
 									try {
-										tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'));
+										tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'), cli.argv.platform);
 									} catch (ex) {
 										logger.error(ex);
 										logger.log();

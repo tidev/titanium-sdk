@@ -23,13 +23,46 @@ methods:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
 
+  - name: createButtonConfiguration
+    summary: |
+        Creates a button configuration object for customizing button appearance.
+    description: |
+        Creates a <Titanium.UI.iOS.ButtonConfiguration> object that can be used to configure
+        the appearance and behavior of buttons with modern styling options.
+    parameters:
+      - name: parameters
+        summary: Properties to set on the button configuration.
+        type: Dictionary<Titanium.UI.iOS.ButtonConfiguration>
+    returns:
+      type: Titanium.UI.iOS.ButtonConfiguration
+    since: "13.0.0"
+    osver: {ios: {min: "15.0"}}
+
   - name: systemImage
     summary: |
         Get image from SF Symbols provided by Apple.
     description: |
         More details on SF Symbols can be found [here](https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview).
         One can download SF Symbols app from [here](https://developer.apple.com/design/downloads/SF-Symbols.dmg) and
-        use it to lookup the built-in SF Symbol name.
+        use it to lookup the built-in SF Symbol name. Example:
+        ``` js
+        const win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+
+        const imageView = Ti.UI.createImageView({
+          image:  Ti.UI.iOS.systemImage('folder'), // folder icon
+          height: Ti.UI.FILL
+        });
+
+        // iOS 17+ symbol effect
+        imageView.addSymbolEffect({
+          symbolEffect: 'bounce',
+          animated: true,
+          options: { repeatCount: 4 }
+        });
+
+        win.add(imageView);
+        win.open();
+        ```
     parameters:
       - name: name
         summary: Name of SF Symbol.
@@ -56,7 +89,6 @@ properties:
         <Titanium.UI.Window.largeTitleEnabled> set to `true`.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LARGE_TITLE_DISPLAY_MODE_ALWAYS
@@ -64,7 +96,6 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LARGE_TITLE_DISPLAY_MODE_NEVER
@@ -72,7 +103,6 @@ properties:
     description: Use with <Titanium.UI.Window.largeTitleDisplayMode>.
     type: Number
     since: "6.3.0"
-    osver: {ios: {min: "11.0"}}
     permission: read-only
 
   - name: LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
@@ -99,369 +129,29 @@ properties:
     osver: {ios: {min: "9.1"}}
     permission: read-only
 
-  - name: BLEND_MODE_CLEAR
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_CLEAR](Titanium.UI.BLEND_MODE_CLEAR) instead.
+  - name: ALERT_SEVERITY_DEFAULT
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Indicates that the system should present the alert using the standard
+        alert style.
     description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
+        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        the alert dialog severity on macOS Catalyst.
     type: Number
+    since: "12.0.0"
+    osver: {ios: {min: "16.0"}}
     permission: read-only
-    exclude-platforms: [macos]
 
-  - name: BLEND_MODE_COLOR
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_COLOR](Titanium.UI.BLEND_MODE_COLOR) instead.
+  - name: ALERT_SEVERITY_CRITICAL
     summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
+        Indicates that the system should present the alert using the
+        critical, or caution, style.
     description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
+        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        the alert dialog severity on macOS Catalyst.
     type: Number
+    since: "12.0.0"
+    osver: {ios: {min: "16.0"}}
     permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_COLOR_BURN
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_COLOR_BURN](Titanium.UI.BLEND_MODE_COLOR_BURN) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_COLOR_DODGE
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_COLOR_DODGE](Titanium.UI.BLEND_MODE_COLOR_DODGE) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_COPY
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_COPY](Titanium.UI.BLEND_MODE_COPY) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_DARKEN
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_DARKEN](Titanium.UI.BLEND_MODE_DARKEN) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_DESTINATION_ATOP
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_ATOP](Titanium.UI.BLEND_MODE_DESTINATION_ATOP) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_DESTINATION_IN
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_IN](Titanium.UI.BLEND_MODE_DESTINATION_IN) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_DESTINATION_OUT
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_OUT](Titanium.UI.BLEND_MODE_DESTINATION_OUT) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_DESTINATION_OVER
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_DESTINATION_OVER](Titanium.UI.BLEND_MODE_DESTINATION_OVER) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_DIFFERENCE
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_DIFFERENCE](Titanium.UI.BLEND_MODE_DIFFERENCE) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_EXCLUSION
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_EXCLUSION](Titanium.UI.BLEND_MODE_EXCLUSION) instead.
-    summary: |
-        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_HARD_LIGHT
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_HARD_LIGHT](Titanium.UI.BLEND_MODE_HARD_LIGHT) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_HUE
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_HUE](Titanium.UI.BLEND_MODE_HUE) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_LIGHTEN
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_LIGHTEN](Titanium.UI.BLEND_MODE_LIGHTEN) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_LUMINOSITY
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_LUMINOSITY](Titanium.UI.BLEND_MODE_LUMINOSITY) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_MULTIPLY
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_MULTIPLY](Titanium.UI.BLEND_MODE_MULTIPLY) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_NORMAL
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_NORMAL](Titanium.UI.BLEND_MODE_NORMAL) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_OVERLAY
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_OVERLAY](Titanium.UI.BLEND_MODE_OVERLAY) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_PLUS_DARKER
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_PLUS_DARKER](Titanium.UI.BLEND_MODE_PLUS_DARKER) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_PLUS_LIGHTER
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_PLUS_LIGHTER](Titanium.UI.BLEND_MODE_PLUS_LIGHTER) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_SATURATION
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_SATURATION](Titanium.UI.BLEND_MODE_SATURATION) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_SCREEN
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_SCREEN](Titanium.UI.BLEND_MODE_SCREEN) instead.
-    summary: |
-        Image mode constant. Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_SOFT_LIGHT
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_SOFT_LIGHT](Titanium.UI.BLEND_MODE_SOFT_LIGHT) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_SOURCE_ATOP
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_ATOP](Titanium.UI.BLEND_MODE_SOURCE_ATOP) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_SOURCE_IN
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_IN](Titanium.UI.BLEND_MODE_SOURCE_IN) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_SOURCE_OUT
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_SOURCE_OUT](Titanium.UI.BLEND_MODE_SOURCE_OUT) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
-
-  - name: BLEND_MODE_XOR
-    deprecated:
-        since: "7.3.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.BLEND_MODE_XOR](Titanium.UI.BLEND_MODE_XOR) instead.
-    summary: |
-        Use with [MaskedImage.mode](Titanium.UI.MaskedImage.mode) to specify a blend mode.
-    description: |
-        See <Titanium.UI.MaskedImage> for more information on blend modes.
-    type: Number
-    permission: read-only
-    exclude-platforms: [macos]
 
   - name: BLUR_EFFECT_STYLE_EXTRA_LIGHT
     summary: |
@@ -471,7 +161,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_LIGHT
     summary: |
@@ -482,7 +171,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_DARK
     summary: |
@@ -492,7 +180,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.4.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: BLUR_EFFECT_STYLE_REGULAR
     summary: |
@@ -502,7 +189,6 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: BLUR_EFFECT_STYLE_PROMINENT
     summary: |
@@ -512,7 +198,6 @@ properties:
     type: Number
     permission: read-only
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: BLUR_EFFECT_STYLE_SYSTEM_ULTRA_THIN_MATERIAL
     summary: |
@@ -664,6 +349,28 @@ properties:
     since: "8.2.0"
     osver: {ios: {min: "13.0"}}
 
+  - name: GLASS_EFFECT_STYLE_REGULAR
+    summary: |
+        Use with [BlurView.glassEffect](Titanium.UI.iOS.BlurView.glassEffect) to specify a regular glass effect style.
+    description: |
+        Creates a standard glass effect with regular translucency and blur intensity. This is the default
+        style for glass effects and provides a balanced appearance suitable for most use cases.
+    type: Number
+    permission: read-only
+    since: "13.0.0"
+    osver: {ios: {min: "26.0"}}
+
+  - name: GLASS_EFFECT_STYLE_CLEAR
+    summary: |
+        Use with [BlurView.glassEffect](Titanium.UI.iOS.BlurView.glassEffect) to specify a clear glass effect style.
+    description: |
+        Creates a glass effect with higher translucency and lighter blur intensity compared to the regular style.
+        This style provides a more transparent appearance while still maintaining the glass effect characteristics.
+    type: Number
+    permission: read-only
+    since: "13.0.0"
+    osver: {ios: {min: "26.0"}}
+
   - name: CLIP_MODE_DEFAULT
     summary: |
         Use with <Titanium.UI.View.clipMode> to specify clipping behavior.
@@ -692,7 +399,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: COLLISION_MODE_BOUNDARY
     summary: |
@@ -701,7 +407,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: COLLISION_MODE_ITEM
     summary: |
@@ -709,7 +414,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: DATE_PICKER_STYLE_AUTOMATIC
     summary: |
@@ -764,49 +468,42 @@ properties:
         Returns `true` if the device supports 3D-Touch (iPhone 6S / iPhone 6S Plus and later) or `false` if not.
     type: Boolean
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_SELECTION
     summary: The feedback type to be used when specifying a selection in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_IMPACT
     summary: The feedback type to be used when specifying an impact in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_TYPE_NOTIFICATION
     summary: The feedback type to be used when specifying a received notification in <Titanium.UI.iOS.FeedbackGenerator>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_SUCCESS
     summary: The success notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_WARNING
     summary: The warning notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_NOTIFICATION_TYPE_ERROR
     summary: The error notification type used as the argument in <Titanium.UI.iOS.FeedbackGenerator.notificationOccurred>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_LIGHT
@@ -815,7 +512,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_MEDIUM
@@ -824,7 +520,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: FEEDBACK_GENERATOR_IMPACT_STYLE_HEAVY
@@ -833,7 +528,6 @@ properties:
         type <Titanium.UI.iOS.FEEDBACK_GENERATOR_TYPE_IMPACT>.
     type: Number
     since: "6.0.0"
-    osver: {ios: {min: "10.0"}}
     permission: read-only
 
   - name: LIVEPHOTO_PLAYBACK_STYLE_FULL
@@ -1065,7 +759,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: PUSH_MODE_INSTANTANEOUS
     summary: |
@@ -1073,7 +766,6 @@ properties:
     type: Number
     permission: read-only
     since: "3.2.0"
-    osver: {ios: {min: "7.0"}}
 
   - name: PREVIEW_ACTION_STYLE_DEFAULT
     summary: |
@@ -1084,7 +776,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
 
   - name: PREVIEW_ACTION_STYLE_SELECTED
     summary: The selected style for preview actions.
@@ -1094,7 +785,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
 
   - name: PREVIEW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for preview actions.
@@ -1104,7 +794,6 @@ properties:
     type: Number
     permission: read-only
     since: "5.1.0"
-    osver: {ios: {min: "9.0"}}
 
   - name: ROW_ACTION_STYLE_DEFAULT
     summary: The default style for <RowActionType>.
@@ -1113,7 +802,6 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: ROW_ACTION_STYLE_DESTRUCTIVE
     summary: The destructive style for <RowActionType>.
@@ -1122,7 +810,6 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: ROW_ACTION_STYLE_NORMAL
     summary: The normal style for <RowActionType>.
@@ -1131,7 +818,6 @@ properties:
     type: Number
     permission: read-only
     since: "4.1.0"
-    osver: {ios: {min: "8.0"}}
 
   - name: SCROLL_DECELERATION_RATE_FAST
     summary: |
@@ -1191,96 +877,6 @@ properties:
     permission: read-only
     since: "5.4.0"
 
-  - name: WEBVIEW_NAVIGATIONTYPE_LINK_CLICKED
-    summary: User tapped a link.
-    description: |
-        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
-
-        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeLinkClicked`.
-    type: Number
-    permission: read-only
-    since: "2.1.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "8.2.0"
-        removed: "8.2.0"
-        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
-
-  - name: WEBVIEW_NAVIGATIONTYPE_FORM_SUBMITTED
-    summary: User submitted a form.
-    description: |
-        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
-
-        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeFormSubmitted`.
-    type: Number
-    permission: read-only
-    since: "2.1.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "8.2.0"
-        removed: "8.2.0"
-        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
-
-  - name: WEBVIEW_NAVIGATIONTYPE_BACK_FORWARD
-    summary: User tapped the back or forward button.
-    description: |
-        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
-
-        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeBackForward`.
-    type: Number
-    permission: read-only
-    since: "2.1.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "8.2.0"
-        removed: "8.2.0"
-        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
-
-  - name: WEBVIEW_NAVIGATIONTYPE_RELOAD
-    summary: User tapped the reload button.
-    description: |
-        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
-
-        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeReload`.
-    type: Number
-    permission: read-only
-    since: "2.1.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "8.2.0"
-        removed: "8.2.0"
-        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
-
-  - name: WEBVIEW_NAVIGATIONTYPE_FORM_RESUBMITTED
-    summary: User resubmitted a form.
-    description: |
-        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
-
-        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeFormResubmitted`.
-    type: Number
-    permission: read-only
-    since: "2.1.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "8.2.0"
-        removed: "8.2.0"
-        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
-
-  - name: WEBVIEW_NAVIGATIONTYPE_OTHER
-    summary: Some other action occurred.
-    description: |
-        Used with the [WebView.beforeload](Titanium.UI.WebView.beforeload) event.
-
-        Corresponds to iOS `UIWebView` `UIWebViewNavigationTypeOther`.
-    type: Number
-    permission: read-only
-    since: "2.1.0"
-    exclude-platforms: [macos]
-    deprecated:
-        since: "8.2.0"
-        removed: "8.2.0"
-        notes: "Not used with Titanium SDK 8.0.0 and later by replacing UIWebView with WKWebView."
-
   - name: TABLEVIEW_INDEX_SEARCH
     summary: String that represents the magnifying glass on the table view index bar
     description: |
@@ -1296,7 +892,6 @@ properties:
         An icon for a quick action that lets a user compose new content.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PLAY
@@ -1305,7 +900,6 @@ properties:
         An icon for a quick action that plays media.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PAUSE
@@ -1314,7 +908,6 @@ properties:
         An icon for a quick action that pauses media playback.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_ADD
@@ -1323,7 +916,6 @@ properties:
         An icon for a quick action that adds an item.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_LOCATION
@@ -1333,7 +925,6 @@ properties:
         This should generally only be used as the first title in the index.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_SEARCH
@@ -1342,7 +933,6 @@ properties:
         An icon for a quick action that accesses the user's current location.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_SHARE
@@ -1351,7 +941,6 @@ properties:
         An icon for a quick action that offers content sharing.
     type: Number
     permission: read-only
-    osver: {ios: {min: "9.0"}}
     since: "5.1.0"
 
   - name: SHORTCUT_ICON_TYPE_PROHIBIT
@@ -1554,6 +1143,16 @@ properties:
 
   - name: appBadge
     summary: Value of the badge for the application's springboard icon.
+    description: |
+        In order to change the app icon badge number you will need to register for notifications.
+        Normally this is done by using local notifications or a push service like [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging) (FCM).
+        ``` js
+        Ti.App.iOS.registerUserNotificationSettings({
+          types: [
+                Ti.App.iOS.USER_NOTIFICATION_TYPE_BADGE
+            ]
+        });
+        ```
     type: Number
     since: "5.4.0"
 
@@ -1594,7 +1193,7 @@ properties:
 
   - name: CREDENTIAL_PERSISTENCE_SYNCHRONIZABLE
     summary: |
-        Credential should be stored permanently in the keychain, and in addition should be 
+        Credential should be stored permanently in the keychain, and in addition should be
         distributed to other devices based on the owning AppleID.
     description: |
         Used with the `persistence` argument of <Titanium.UI.WebView.setBasicAuthentication> to set the persistence level.
@@ -1636,11 +1235,11 @@ properties:
 
   - name: CACHE_POLICY_USE_PROTOCOL_CACHE_POLICY
     summary: |
-        Specifies that the caching logic defined in the protocol implementation, if any, 
+        Specifies that the caching logic defined in the protocol implementation, if any,
         is used for a particular URL load request.
     description: |
         Use with <Titanium.UI.WebView.cachePolicy>. This is the default policy for URL load requests.
-        If you are making HTTP or HTTPS byte-range requests, always use the 
+        If you are making HTTP or HTTPS byte-range requests, always use the
         <Titanium.UI.iOS.CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA> policy.
     type: Number
     since: "8.0.0"
@@ -1648,7 +1247,7 @@ properties:
 
   - name: CACHE_POLICY_RELOAD_IGNORING_LOCAL_CACHE_DATA
     summary: |
-        Specifies that the data for the URL load should be loaded from the originating source. 
+        Specifies that the data for the URL load should be loaded from the originating source.
         No existing cache data should be used to satisfy a URL load request.
     description: Use with <Titanium.UI.WebView.cachePolicy>.
     type: Number
@@ -1657,10 +1256,10 @@ properties:
 
   - name: CACHE_POLICY_RETURN_CACHE_DATA_ELSE_LOAD
     summary: |
-        Specifies that the existing cached data should be used to satisfy the request, 
+        Specifies that the existing cached data should be used to satisfy the request,
         regardless of its age or expiration date.
     description: |
-        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache 
+        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache
         corresponding the request, the data is loaded from the originating source.
     type: Number
     since: "8.0.0"
@@ -1668,11 +1267,11 @@ properties:
 
   - name: CACHE_POLICY_RETURN_CACHE_DATA_DONT_LOAD
     summary: |
-        Specifies that the existing cache data should be used to satisfy a request, 
+        Specifies that the existing cache data should be used to satisfy a request,
         regardless of its age or expiration date.
     description: |
-        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache corresponding 
-        to a URL load request, no attempt is made to load the data from the originating source, and the load 
+        Use with <Titanium.UI.WebView.cachePolicy>. If there is no existing data in the cache corresponding
+        to a URL load request, no attempt is made to load the data from the originating source, and the load
         is considered to have failed. This constant specifies a behavior that is similar to an offline mode.
     type: Number
     since: "8.0.0"
@@ -1726,6 +1325,46 @@ properties:
         Used to set the `injectionTime` argument of <Titanium.UI.WebView.addUserScript>.
     type: Number
     since: "8.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
+    summary: Automatically determine when the tab group minimizes.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to let the system choose the appropriate
+        minimize behavior based on context and platform conventions.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER
+    summary: Do not minimize the tab group.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to keep the tab group visible and prevent
+        it from minimizing in response to scrolling.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP
+    summary: Minimize the tab group when scrolling up.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to minimize the tab group as the user scrolls
+        upward.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN
+    summary: Minimize the tab group when scrolling down.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to minimize the tab group as the user scrolls
+        downward.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
     permission: read-only
 
 ---

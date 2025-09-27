@@ -1,13 +1,17 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_UISCROLLABLEVIEW
 
-#import "TiUIScrollableViewProxy.h"
+#if TARGET_OS_MACCATALYST
+#import <AppKit/AppKit.h>
+#endif
+
 #import "TiUIScrollableView.h"
+#import "TiUIScrollableViewProxy.h"
 
 @implementation TiUIScrollableViewProxy
 @synthesize viewProxies;
@@ -88,7 +92,7 @@
 #else
     TiThreadPerformOnMainThread(
         ^{
-          [[oldViewProxy view] removeFromSuperview];
+          [[oldViewProxy view] performSelector:@selector(removeFromSuperview)];
         },
         YES);
 #endif
@@ -156,7 +160,7 @@
 }
 
 - (void)removeView:(id)args
-{ //TODO: Refactor this properly.
+{ // TODO: Refactor this properly.
 #if defined(TI_USE_AUTOLAYOUT)
   ENSURE_UI_THREAD(removeView, args)
 #endif
@@ -249,7 +253,7 @@
 
 - (void)willChangeSize
 {
-  //Ensure the size change signal goes to children
+  // Ensure the size change signal goes to children
   NSArray *curViews = [self views];
   for (TiViewProxy *child in curViews) {
     [child parentSizeWillChange];
@@ -263,7 +267,7 @@
 
   if (!hasChild) {
     return;
-    //In the case of views added with addView, as they are not part of children, they should be ignored.
+    // In the case of views added with addView, as they are not part of children, they should be ignored.
   }
   [super childWillResize:child];
 }
@@ -291,18 +295,18 @@
 
   if (index != NSNotFound) {
     TiUIScrollableView *ourView = (TiUIScrollableView *)[self view];
-    NSArray *scrollWrappers = [[ourView scrollview] subviews];
+    NSArray *scrollWrappers = [ourView scrollableSubviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }
-    //Hideous hack is hideous. This should stave off the bugs until layout is streamlined
-    [ourView refreshScrollView:[[self view] bounds] readd:YES];
-    scrollWrappers = [[ourView scrollview] subviews];
+    // Hideous hack is hideous. This should stave off the bugs until layout is streamlined
+    [ourView refreshScrollView:[[self view] bounds] reAdd:YES];
+    scrollWrappers = [ourView scrollableSubviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }
   }
-  //Adding the view to a scrollable view is invalid.
+  // Adding the view to a scrollable view is invalid.
   return nil;
 }
 #endif
@@ -361,7 +365,6 @@
   [super willChangeLayout];
 }
 
-#if IS_SDK_IOS_14
 - (void)setIndicatorImageForPage:(id)args
 {
   if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
@@ -375,7 +378,7 @@
   NSInteger page = [args[1] integerValue];
   [(TiUIScrollableView *)self.view setIndicatorImage:image forPage:page];
 }
-#endif
+
 @end
 
 #endif

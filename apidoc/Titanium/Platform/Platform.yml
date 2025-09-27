@@ -271,6 +271,18 @@ properties:
     permission: read-only
     since: "7.0.0"
 
+  - name: isTranslatedBinaryOnAppleSilicon
+    summary: |
+        A Boolean value that indicates whether the current app is running as a translated
+        binary using Rosetta on an Apple Silicon device.
+    description: |
+        Use this utility property to guard API's that may not be available on a non-iOS
+        device, e.g. motion activity or some authorization components.
+    platforms: [iphone, ipad, macos]
+    type: Boolean
+    permission: read-only
+    since: "12.0.0"
+
   - name: locale
     summary: System's default language.
     description: |
@@ -380,6 +392,9 @@ properties:
 
   - name: uptime
     summary: System uptime since last boot in seconds.
+    description: |
+        **Important**: When developing for the Apple ecosystem, using this API requires the `NSPrivacyAccessedAPICategorySystemBootTime`
+        property set in the privacy manifest that was introduced in iOS 17. You can learn more about it [here](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api).
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]

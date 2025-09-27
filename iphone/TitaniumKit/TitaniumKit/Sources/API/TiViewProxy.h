@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -71,7 +71,7 @@
 
 #pragma mark dirtyflags used by TiViewProxy
 #define NEEDS_LAYOUT_CHILDREN 1
-//Set this flag to true to disable instant updates
+// Set this flag to true to disable instant updates
 static const BOOL ENFORCE_BATCH_UPDATE = NO;
 
 enum {
@@ -84,7 +84,7 @@ enum {
 };
 
 @class TiAction, TiBlob;
-//For TableRows, we need to have minimumParentHeightForWidth:
+// For TableRows, we need to have minimumParentHeightForWidth:
 
 /**
  The class represents a proxy that is attached to a view.
@@ -92,8 +92,8 @@ enum {
  */
 @interface TiViewProxy : TiProxy <LayoutAutosizing> {
   @protected
-  //TODO: Actually have a rhyme and reason on keeping things @protected vs @private.
-  //For now, for sake of proper value grouping, we're all under one roof.
+  // TODO: Actually have a rhyme and reason on keeping things @protected vs @private.
+  // For now, for sake of proper value grouping, we're all under one roof.
 
 #ifndef TI_USE_AUTOLAYOUT
 #pragma mark Layout properties
@@ -116,19 +116,19 @@ enum {
 #pragma mark Layout caches that can be recomputed
   CGFloat verticalLayoutBoundary;
   CGFloat horizontalLayoutBoundary;
-  CGFloat horizontalLayoutRowHeight; //Note, this has nothing to do with table views.
+  CGFloat horizontalLayoutRowHeight; // Note, this has nothing to do with table views.
   int lastChildArranged;
 
   CGRect sandboxBounds;
-  CGPoint positionCache; //Recomputed and stored when position changes.
-  CGRect sizeCache; //Recomputed and stored when size changes.
-  UIViewAutoresizing autoresizeCache; //Changed by repositioning or resizing.
+  CGPoint positionCache; // Recomputed and stored when position changes.
+  CGRect sizeCache; // Recomputed and stored when size changes.
+  UIViewAutoresizing autoresizeCache; // Changed by repositioning or resizing.
 
   BOOL parentVisible;
-  //In most cases, this is the same as [parent parentVisible] && ![parent hidden]
-  //However, in the case of windows attached to the root view, the parent is ALWAYS visible.
-  //That is, will be true if and only if all parents are visible or are the root controller.
-  //Use parentWillShow and parentWillHide to set this.
+  // In most cases, this is the same as [parent parentVisible] && ![parent hidden]
+  // However, in the case of windows attached to the root view, the parent is ALWAYS visible.
+  // That is, will be true if and only if all parents are visible or are the root controller.
+  // Use parentWillShow and parentWillHide to set this.
 
 #pragma mark Housecleaning that is set and used
   NSRecursiveLock *destroyLock;
@@ -136,11 +136,11 @@ enum {
   BOOL windowOpened;
   BOOL windowOpening;
 
-  int dirtyflags; //For atomic actions, best to be explicit about the 32 bitness.
+  int dirtyflags; // For atomic actions, best to be explicit about the 32 bitness.
   BOOL viewInitialized;
   BOOL repositioning;
   BOOL isUsingBarButtonItem;
-  //This flag is set to true on beginning of _initWithProperties() call and false near the end of the method
+  // This flag is set to true on beginning of _initWithProperties() call and false near the end of the method
   BOOL updateStarted;
   BOOL allowLayoutUpdate;
 
@@ -242,6 +242,7 @@ enum {
 - (id)animatedCenter;
 
 - (void)setBackgroundGradient:(id)arg;
+- (void)setRotation:(id)arg;
 - (TiBlob *)toImage:(id)args;
 - (TiPoint *)contentOffset;
 
@@ -254,7 +255,7 @@ enum {
  @see children
  */
 @property (nonatomic, assign) TiViewProxy *parent;
-//TODO: make this a proper readwrite property declaration.
+// TODO: make this a proper readwrite property declaration.
 
 #ifndef TI_USE_AUTOLAYOUT
 /**
@@ -267,22 +268,22 @@ enum {
  Provides access to sandbox bounds of the underlying view.
  */
 @property (nonatomic, readwrite, assign) CGRect sandboxBounds;
-//This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
+// This is unaffected by parentVisible. So if something is truely visible, it'd be [self visible] && parentVisible.
 - (void)setHidden:(BOOL)newHidden withArgs:(id)args;
 
 @property (nonatomic, retain) UIBarButtonItem *barButtonItem;
 - (TiUIView *)barButtonViewForSize:(CGSize)bounds;
 
-//NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
+// NOTE: DO NOT SET VIEW UNLESS IN A TABLE VIEW, AND EVEN THEN.
 @property (nonatomic, readwrite, retain) TiUIView *view;
 
 @property (nonatomic, readwrite, assign) id<TiViewEventOverrideDelegate> eventOverrideDelegate;
 
 /**
  Returns language conversion table.
- 
+
  Subclasses may override.
- @return The dictionary 
+ @return The dictionary
  */
 - (NSMutableDictionary *)langConversionTable;
 
@@ -298,7 +299,7 @@ enum {
 
 /**
  Whether or not the view proxy needs to suppress relayout.
- 
+
  Subclasses may override.
  @return _YES_ if relayout should be suppressed, _NO_ otherwise.
  */
@@ -306,7 +307,7 @@ enum {
 
 /**
  Whether or not the view proxy supports navigation bar positioning.
- 
+
  Subclasses may override.
  @return _YES_ if navigation bar positioning is supported, _NO_ otherwise.
  */
@@ -314,7 +315,7 @@ enum {
 
 /**
  Whether or not the view proxy can have a UIController object in its parent view.
- 
+
  Subclasses may override.
  @return _YES_ if the view proxy can have a UIController object in its parent view
  */
@@ -322,7 +323,7 @@ enum {
 
 /**
  Whether or not the view proxy should detach its view on unload.
- 
+
  Subclasses may override.
  @return _YES_ if the view should be detached, _NO_ otherwise.
  */
@@ -330,7 +331,7 @@ enum {
 
 /**
  Returns parent view for child proxy.
- 
+
  The method is used in cases when proxies hierarchy is different from views hierarchy.
  Subclasses may override.
  @param child The child view proxy for which return the parent view.
@@ -401,7 +402,7 @@ enum {
 - (void)viewDidDetach;
 
 #pragma mark Housecleaning state accessors
-//TODO: Sounds like the redundancy department of redundancy was here.
+// TODO: Sounds like the redundancy department of redundancy was here.
 /**
  Whether or not a view is attached to the view proxy.
  @return _YES_ if the view proxy has a view attached to it, _NO_ otherwise.
@@ -438,7 +439,7 @@ enum {
  */
 - (BOOL)isUsingBarButtonItem;
 
-- (CGRect)appFrame; //TODO: Why is this here? It doesn't have anything to do with a specific instance.
+- (CGRect)appFrame; // TODO: Why is this here? It doesn't have anything to do with a specific instance.
 
 #pragma mark Building up and tearing down
 - (void)firePropertyChanges;
@@ -534,6 +535,11 @@ enum {
  */
 - (void)parentWillHide;
 
+/**
+ Tells the view proxy that rendering via the layout queue finished.
+ */
+- (void)didFinishLayout;
+
 #pragma mark Layout actions
 
 - (void)refreshView:(TiUIView *)transferView;
@@ -553,8 +559,8 @@ enum {
  */
 - (void)willEnqueue;
 
-//Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
-//This is the effect of refreshing the Z index via careful view placement.
+// Unlike the other layout actions, this one is done by the parent of the one called by refreshView.
+// This is the effect of refreshing the Z index via careful view placement.
 - (void)insertSubview:(UIView *)childView forProxy:(TiViewProxy *)childProxy;
 
 #pragma mark Layout commands that need refactoring out
@@ -581,7 +587,7 @@ enum {
  */
 - (void)relayout;
 
-- (void)reposition; //Todo: Replace
+- (void)reposition; // Todo: Replace
 /**
  Tells if the view is enqueued in the LayoutQueue
  */
@@ -597,7 +603,7 @@ enum {
  Tells the view that its child view size will change.
  @param child The child view
  */
-- (void)childWillResize:(TiViewProxy *)child; //Todo: Replace
+- (void)childWillResize:(TiViewProxy *)child; // Todo: Replace
 
 - (void)unarchiveFromTemplate:(id)viewTemplate;
 + (TiViewProxy *)unarchiveFromTemplate:(id)viewTemplate inContext:(id<TiEvaluator>)context;

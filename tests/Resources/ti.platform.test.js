@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -308,8 +308,8 @@ describe('Titanium.Platform', () => {
 				should(Ti.Platform.canOpenURL).be.a.Function();
 			});
 
-			it('returns true for typical http URL', () => {
-				should(Ti.Platform.canOpenURL('http://www.google.com/')).be.true();
+			it('returns true for typical https URL', () => {
+				should(Ti.Platform.canOpenURL('https://www.google.com/')).be.true();
 			});
 
 			it('returns true for app-sepcific URI scheme', () => {

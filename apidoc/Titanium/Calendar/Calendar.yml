@@ -6,8 +6,16 @@ description: |
     This module supports retrieving information about existing events and creating new events.
     Modifying or deleting existing events and creating recurring events are only supported on iOS.
 
-    Currently, on Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
-    calendar. See "Common Requirements" in
+    #### Android
+    On Android, calendar permissions must be explicitly configured in `tiapp.xml` in order to access the
+    calendar and you have to use [requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions)
+    to request runtime permissions.
+
+    ``` xml
+    <uses-permission android:name="android.permission.READ_CALENDAR"/>
+    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
+    ```
+    See "Common Requirements" in
     [tiapp.xml and timodule.xml Reference](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_Guide/Appendices/tiapp.xml_and_timodule.xml_Reference.html).
 
 extends: Titanium.Module
@@ -71,22 +79,6 @@ methods:
       type: Promise<EventsAuthorizationResponse>
     platforms: [iphone, ipad, android, macos]
     since: "5.1.0"
-
-  - name: requestEventsAuthorization
-    deprecated:
-        since: "5.1.0"
-        removed: "8.1.0"
-        notes: Use [Titanium.Calendar.requestCalendarPermissions](Titanium.Calendar.requestCalendarPermissions) instead.
-    summary: If authorization is unknown, the system will bring up a dialog requesting permission.
-    description: |
-        Note that the callback may be synchronous or asynchronous. That is, it may be called
-        during requestEventsAuthorization or much later. See the "Request access to the events"
-        example on how to best use this method.
-    parameters:
-      - name: callback
-        summary: Callback function to execute when when authorization is no longer unknown.
-        type: Callback<EventsAuthorizationResponse>
-    platforms: [iphone, ipad]
 
 properties:
   - name: METHOD_ALERT
@@ -711,19 +703,6 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
     since: "6.1.0"
-
-  - name: eventsAuthorization
-    summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.
-    description: |
-         Always returns `AUTHORIZATION_AUTHORIZED` on iOS pre-6.0.
-    deprecated:
-        since: "5.2.0"
-        removed: "8.1.0"
-        notes: Use the [Titanium.Calendar.calendarAuthorization](Titanium.Calendar.calendarAuthorization) property instead.
-    type: Number
-    constants: Titanium.Calendar.AUTHORIZATION_*
-    permission: read-only
-    platforms: [iphone, ipad]
 
   - name: calendarAuthorization
     summary: Returns an authorization constant indicating if the application has access to the events in the EventKit.

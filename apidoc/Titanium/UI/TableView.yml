@@ -4,9 +4,9 @@ summary: |
     A table view is used to present information, organized in sections and rows, in a
     vertically-scrolling view.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./tableview_android.png) | ![iOS](./tableview_ios.png) | ![Windows](./tableview_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./tableview_android.png) | ![iOS](./tableview_ios.png) |
 
     A `TableView` object is a container for [TableViewSection](Titanium.UI.TableViewSection)
     objects that are, in turn, containers for [TableViewRow](Titanium.UI.TableViewRow) objects.
@@ -56,15 +56,6 @@ description: |
 
     To mitigate this, a `ScrollView` may be used instead of a table view, as demonstrated in the
     [ScrollView](Titanium.UI.ScrollView), "Scroll View as a Table View", example.
-
-    #### Known Issues
-
-    There are known issues with the `sections` property and associated methods added in
-    Release 3.0:
-
-    *   On iOS, the first two arguments to the `updateSection` method are reversed.
-        ([TIMOB-12625](https://jira-archive.titaniumsdk.com/TIMOB-12625)). This issue has been
-        addressed in Release 3.3.0 of the Titanium SDK
 
     #### Row Editing and Moving Modes
 
@@ -462,7 +453,7 @@ events:
     since: { android: "2.1.0", iphone: "2.1.0", ipad: "2.1.0" }
     properties:
       - name: direction
-        summary: Direction of the swipe, either `left` or `right`.
+        summary: Direction of the swipe, either `left`, `right` or `unknown`.
         type: String
 
       - name: index
@@ -703,6 +694,40 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
     since: '3.0.0'
+
+  - name: editaction
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.TableViewRow.editActions>.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `row` and `section`, or the `index` to determine the table row that generated
+        the event.
+
+        Note that the `index` property of this event correspond to the list view state
+        before the user action.
+    platforms: [iphone, ipad, macos]
+    since: 12.4.0
+    properties:
+      - name: action
+        summary: The [title](RowActionType.title) as defined in the row action object.
+        type: String
+
+      - name: identifier
+        summary: |
+            The [identifier](RowActionType. identifier) of the row action. Only included in the event
+            if previously defined.
+        type: String
+
+      - name: row
+        summary: The row that fired this event.
+        type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>]
+
+      - name: section
+        summary: The section that fired this event.
+        type: Titanium.UI.TableViewSection
+
+      - name: index
+        summary: The index of the row that fired this event.
+        type: Number
 
 methods:
   - name: appendRow
@@ -1082,6 +1107,12 @@ properties:
     type: [String, Titanium.UI.Color]
     default: transparent on non-iOS platforms, white on the iOS platform
 
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
+
   - name: data
     summary: Rows of the table view.
     type: [Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection>]
@@ -1425,6 +1456,14 @@ properties:
     platforms: [iphone, ipad, macos]
     availability: creation
 
+  - name: keyboardDismissMode
+    summary: The manner in which the keyboard is dismissed when a drag begins in the table view.
+    type: Number
+    constants: Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_*
+    platforms: [iphone, ipad, macos]
+    default: Undefined (behaves like <Titanium.UI.iOS.KEYBOARD_DISMISS_MODE_NONE>)
+    since: "12.2.0"
+
   - name: showSearchBarInNavBar
     summary: A Boolean indicating whether search bar will be in navigation bar.
     description: |
@@ -1435,7 +1474,6 @@ properties:
     default: false
     since: 8.1.0
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "11.0"}}
     availability: creation
 
   - name: searchAsChild
@@ -1508,7 +1546,6 @@ properties:
         ```
     type: HorizontalInsets
     since: 3.2.0
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: touchFeedback
@@ -1518,7 +1555,6 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    osver: {android: {min: "5.0"}}
     since: "10.0.0"
 
   - name: tableSeparatorInsets
@@ -1537,7 +1573,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: rowSeparatorInsets
@@ -1556,7 +1591,6 @@ properties:
         ```
     type: HorizontalInsets
     since: "5.2.0"
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: separatorStyle
@@ -1682,10 +1716,6 @@ examples:
         sectionFish.add(Ti.UI.createTableViewRow({ title: 'Cod' }));
         sectionFish.add(Ti.UI.createTableViewRow({ title: 'Haddock' }));
 
-        // Prior to Release 3.0, you can only add and remove sections by setting the data property
-        // table.data = [ sectionFish, sectionFruit, sectionVeg ];
-        // Due to a known issue, TIMOB-12616, the section access methods and sections
-        // property should not be used on iOS with Release 3.0.x.
         table.insertSectionBefore(0, sectionFish);
         ```
 
@@ -1776,7 +1806,7 @@ examples:
 
         ``` xml
         <Alloy>
-            <Window id="win" backgroundColor="white">
+            <Window id="win">
                 <TableView id="table">
                     <TableViewSection id="sectionFruit" headerTitle="Fruit">
                         <TableViewRow title="Apple"/>
@@ -1823,8 +1853,8 @@ properties:
   - name: position
     summary: Specifies what position to scroll the selected row to.
     type: Number
-    constants: Titanium.UI.iOS.TableViewScrollPosition.*
-    default: <Titanium.UI.iOS.TableViewScrollPosition.NONE>
+    constants: Titanium.UI.TableViewScrollPosition.*
+    default: <Titanium.UI.TableViewScrollPosition.NONE>
 
 ---
 name: TableViewIndexEntry

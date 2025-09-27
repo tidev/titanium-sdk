@@ -1,18 +1,21 @@
 <p align="center"><a href="https://titaniumsdk.com" target="_blank"><img width="120" src=".github/logo-titanium.png"></a></p>
 
-<h1 align="center">Titanium <a href="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium_mobile/actions/workflows/build.yml/badge.svg?branch=master" /></a></h1>
+<h1 align="center">Titanium SDK</h1>
 
-Welcome to the Titanium open source project. Titanium provides a mature platform for developers to build
+<p align="center"><a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=master" /></a></p>
+
+Welcome to the Titanium SDK open source project. Titanium SDK provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
 
 Currently supported native platforms are iOS and Android.
 
-Titanium is licensed under the OSI approved Apache Public License (version 2). Please
+Titanium SDK is licensed under the OSI approved Apache Public License (version 2). Please
 see the [LICENSE](LICENSE) file for specific details.
 
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
+  - [Sponsors](#sponsors)
   - [Features](#features)
   - [Hyperloop](#hyperloop)
     - [Features](#features-1)
@@ -42,9 +45,18 @@ see the [LICENSE](LICENSE) file for specific details.
     - [Upgrade gradle and gradle plugin](#upgrade-gradle-and-gradle-plugin)
   - [Legal Stuff](#legal-stuff)
 
+## Sponsors
+
+This project wouldn't be possible without the help of our world wide developer community. Become a sponsor
+today and benefit from 1:1 sessions with the core team, exclusive modules, merchandise and more!
+
+Learn more about sponsoring TiDev, the organization behind the Titanium SDK, [here](https://github.com/sponsors/tidev) 🚀.
+
+<!-- sponsors --><a href="https://github.com/phobeous"><img src="https:&#x2F;&#x2F;github.com&#x2F;phobeous.png" width="60px" alt="User avatar: Rodrigo Farfán" /></a><a href="https://github.com/dlewis23"><img src="https:&#x2F;&#x2F;github.com&#x2F;dlewis23.png" width="60px" alt="User avatar: dlewis23" /></a><a href="https://github.com/dethier1958"><img src="https:&#x2F;&#x2F;github.com&#x2F;dethier1958.png" width="60px" alt="User avatar: Daniel Ethier" /></a><a href="https://github.com/zenjoe"><img src="https:&#x2F;&#x2F;github.com&#x2F;zenjoe.png" width="60px" alt="User avatar: Joe Kniesek" /></a><a href="https://github.com/desarrollogotit"><img src="https:&#x2F;&#x2F;github.com&#x2F;desarrollogotit.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/Astrovic"><img src="https:&#x2F;&#x2F;github.com&#x2F;Astrovic.png" width="60px" alt="User avatar: Vittorio Sorbera" /></a><a href="https://github.com/Arood"><img src="https:&#x2F;&#x2F;github.com&#x2F;Arood.png" width="60px" alt="User avatar: Marcus Olovsson" /></a><a href="https://github.com/Rearmachine"><img src="https:&#x2F;&#x2F;github.com&#x2F;Rearmachine.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/alexlarocca"><img src="https:&#x2F;&#x2F;github.com&#x2F;alexlarocca.png" width="60px" alt="User avatar: Alessandro La Rocca" /></a><a href="https://github.com/reshopper"><img src="https:&#x2F;&#x2F;github.com&#x2F;reshopper.png" width="60px" alt="User avatar: Reshopper" /></a><a href="https://github.com/safadig"><img src="https:&#x2F;&#x2F;github.com&#x2F;safadig.png" width="60px" alt="User avatar: Gus" /></a><a href="https://github.com/designbymind"><img src="https:&#x2F;&#x2F;github.com&#x2F;designbymind.png" width="60px" alt="User avatar: Jason David Miller" /></a><a href="https://github.com/greatschism"><img src="https:&#x2F;&#x2F;github.com&#x2F;greatschism.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/enzoq"><img src="https:&#x2F;&#x2F;github.com&#x2F;enzoq.png" width="60px" alt="User avatar: Vincenzo Quacquarelli" /></a><a href="https://github.com/mighty-office"><img src="https:&#x2F;&#x2F;github.com&#x2F;mighty-office.png" width="60px" alt="User avatar: Mighty GmbH" /></a><a href="https://github.com/korelogic"><img src="https:&#x2F;&#x2F;github.com&#x2F;korelogic.png" width="60px" alt="User avatar: Korelogic Limited" /></a><a href="https://github.com/drunnells"><img src="https:&#x2F;&#x2F;github.com&#x2F;drunnells.png" width="60px" alt="User avatar: Dustin Runnells" /></a><a href="https://github.com/eddyinet"><img src="https:&#x2F;&#x2F;github.com&#x2F;eddyinet.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/gouldjw"><img src="https:&#x2F;&#x2F;github.com&#x2F;gouldjw.png" width="60px" alt="User avatar: John Gould" /></a><a href="https://github.com/mediabug51"><img src="https:&#x2F;&#x2F;github.com&#x2F;mediabug51.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/victorpl"><img src="https:&#x2F;&#x2F;github.com&#x2F;victorpl.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/PatrickMounteney"><img src="https:&#x2F;&#x2F;github.com&#x2F;PatrickMounteney.png" width="60px" alt="User avatar: Patrick Mounteney" /></a><a href="https://github.com/lambus-platform"><img src="https:&#x2F;&#x2F;github.com&#x2F;lambus-platform.png" width="60px" alt="User avatar: Lambus" /></a><a href="https://github.com/emptybox"><img src="https:&#x2F;&#x2F;github.com&#x2F;emptybox.png" width="60px" alt="User avatar: Vaughn Dabney" /></a><a href="https://github.com/Whatslively"><img src="https:&#x2F;&#x2F;github.com&#x2F;Whatslively.png" width="60px" alt="User avatar: Whatslively" /></a><a href="https://github.com/JeremyFlight"><img src="https:&#x2F;&#x2F;github.com&#x2F;JeremyFlight.png" width="60px" alt="User avatar: Jeremy Flight" /></a><a href="https://github.com/Alpine-Software"><img src="https:&#x2F;&#x2F;github.com&#x2F;Alpine-Software.png" width="60px" alt="User avatar: Alpine Software" /></a><a href="https://github.com/elusu"><img src="https:&#x2F;&#x2F;github.com&#x2F;elusu.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/wittawoot"><img src="https:&#x2F;&#x2F;github.com&#x2F;wittawoot.png" width="60px" alt="User avatar: Wittawoot Thongbor" /></a><a href="https://github.com/PayMon-app"><img src="https:&#x2F;&#x2F;github.com&#x2F;PayMon-app.png" width="60px" alt="User avatar: PayMon" /></a><a href="https://github.com/oshevans"><img src="https:&#x2F;&#x2F;github.com&#x2F;oshevans.png" width="60px" alt="User avatar: Osian Evans" /></a><a href="https://github.com/UniqueSchools"><img src="https:&#x2F;&#x2F;github.com&#x2F;UniqueSchools.png" width="60px" alt="User avatar: " /></a><!-- sponsors -->
+
 ## Features
 
-With Titanium, you use JavaScript to code your application. Titanium's compiler will compile
+With Titanium SDK, you use JavaScript to code your application. Titanium's compiler will compile
 your application code into an efficient native executable for each target mobile platform.
 
 - [x] Native apps built using JavaScript (no hybrid, no embedded WebView)
@@ -78,8 +90,8 @@ And much, much more (see our [Documentation](https://titaniumsdk.com/) for more 
 
 ## Hyperloop
 
-Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium apps by native API's using
-JavaScript. Prior to Hyperloop, you would use [native modules](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/Titanium_Module_Concepts.html) to extend the Titanium API. With
+Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium SDK apps by native API's using
+JavaScript. Prior to Hyperloop, you would use [native modules](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/Titanium_Module_Concepts.html) to extend the Titanium SDK API. With
 Hyperloop, you are now able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files)
 and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview).
 
@@ -128,7 +140,7 @@ Check out our [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples
 ## Alloy
 
 [Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
-on top of Titanium. It is optional. It rocks. Check it out if you're considering using Titanium.
+on top of Titanium SDK. It is optional. It rocks. Check it out if you're considering using Titanium SDK.
 It is also a separate [open source project](https://github.com/tidev/alloy) available under Apache Public License.
 
 ### Example
@@ -139,7 +151,7 @@ Manage your application scope by separating your code into different models, vie
 
 ```xml
 <Alloy>
-  <Window title="Titanium and Alloy">
+  <Window title="Titanium SDK and Alloy">
     <Button onClick="handleClick" id="myButton">Click me!</Button>
   </Window>
 </Alloy>
@@ -169,15 +181,15 @@ Window: {
 
 ## Getting Help
 
-There are a number of ways to get help with Titanium.
+There are a number of ways to get help with Titanium SDK.
 
 ### Official Documentation, Tutorials and Videos
 
-Please visit the official documentation site at [https://titaniumsdk.com/](https://titaniumsdk.com/) for the latest and historical documentation on Titanium, Alloy and the various products built by Appcelerator.
+Please visit the official documentation site at [https://titaniumsdk.com/](https://titaniumsdk.com/) for the latest and historical documentation on Titanium SDK, Alloy and other modules.
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium is available on Slack at [TiSlack](https://slack.tidev.io).
+Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium-sdk/discussions).
 
 ### Twitter
 
@@ -185,24 +197,19 @@ Please consider following [@Titanium SDK](http://www.twitter.com/titaniumsdk) an
 
 ### Commercial Support, Licensing
 
-We give our software away for FREE! In order to do that, we have programs for
-companies that require additional level of assistance through training or commercial support,
-need special licensing or want additional levels of capabilities. Please visit the
-[TiDev Website](https://tidev.io) for more information about TiDev or
-email [info@tidev.io](mailto:info@tidev.io).
+We give our software away for FREE! In order to do that, we have programs for companies that require additional level of assistance through training or commercial support, need special licensing or want additional levels of capabilities. Please visit the [TiDev Website](https://tidev.io) for more information about TiDev or email [info@tidev.io](mailto:info@tidev.io).
 
 ## Contributing
 
-Titanium is an open source project.  Titanium wouldn't be where it is now without contributions by the community. Please consider forking Titanium to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
+Titanium SDK is an open source project. Titanium SDK wouldn't be where it is now without contributions by the community. Please consider forking Titanium SDK to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
 
-To protect the interests of the Titanium contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
+To protect the interests of the Titanium SDK contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 
 [You can digitally sign the CLA](https://github.com/tidev/organization-docs/blob/main/AUTHORIZED_CONTRIBUTORS.md) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
 ## Building Locally
 
-Previously Titanium used scons and python scripts to build the SDK.
-If you'd like to build the SDK locally, we've replaced scons with some Node.JS scripts. Typical usage would be:
+If you'd like to build the SDK locally you can use the included npm scripts:
 
 ```bash
 npm ci
@@ -235,7 +242,7 @@ npm run test:ipad
 
 #### How it works
 
-The test suite generates a single Titanium project targeting the specified platform(s), builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
+The test suite generates a single Titanium SDK project targeting the specified platform(s), builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
 
 The tests spit out their results to the console log, and the test scripts listen to the logs to gather the results. We then generate an overview on the console as well as a junit report xml file (to be consume by CI build systems like Jenkins).
 
@@ -251,9 +258,11 @@ The gradle (tool, build system) and gradle plugin (plugin that adds several feat
 * `android/gradle/wrapper/gradle-wrapper.properties`
 * `android/templates/build/root.build.gradle`.
 
-You can run `./android/gradlew wrapper --gradle-version 7.4.2 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+In the `android/` folder you can run `./gradlew wrapper --gradle-version 8.10 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+
 To update the plugin to a newer version (check https://mvnrepository.com/artifact/com.android.tools.build/gradle?repo=google) you have to change the `build.gradle` and `root.build.gradle` from the links above.
-When you change the gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`.
+
+When you change the gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`. It will also tell you the minimum required version. E.g. `com.android.tools.build:gradle:8.5.x` (plugin) /android/gradle/wrapper/gradle-wrapper.properties to be 8.7 (tool).
 If needed make sure the other libraries e.g. the kotlin version in `build.gradle` are working with the current setup.
 
 After you've made the changes and compiled the SDK make sure to run the test suite, build the kitchensink and hyperloop example app. Create a and build a module (java and kotlin) and run those in a test app too.
@@ -261,6 +270,26 @@ After you've made the changes and compiled the SDK make sure to run the test sui
 ### Update packaged modules
 
 Some modules like ti.map or ti.facebook are included with the SDK. To update to the latest versions you have to edit the links in `support/module/packaged/modules.json` and run `node build/scons-modules-integrity.js`. This will download the files and update the integrity values.
+
+### Update Android libraries
+The `/android/titanium/build.gradle` file contains various Android libraries that are used in the SDK. If you want to update them check the corresponding release pages:
+* https://developer.android.com/jetpack/androidx/releases/recyclerview
+* https://developer.android.com/jetpack/androidx/releases/swiperefreshlayout
+* https://developer.android.com/jetpack/androidx/releases/camera
+* https://developer.android.com/jetpack/androidx/releases/transition
+* https://developer.android.com/jetpack/androidx/releases/vectordrawable
+* https://developer.android.com/jetpack/androidx/releases/viewpager
+* https://developer.android.com/jetpack/androidx/releases/cardview
+* https://developer.android.com/jetpack/androidx/releases/drawerlayout
+* https://developer.android.com/jetpack/androidx/releases/exifinterface
+* https://developer.android.com/jetpack/androidx/releases/media
+
+for a new version and change the number in the build.gradle file. Some version numbers are managed inside `/android/templates/build/ti.constants.gradle`. After that build the SDK and run `npm run test` to see if everything is still running. Building Kitchensink, Hyperloop-examples and a custom app is also helpful.
+
+### Documentation
+
+If you want to help updating and improving the documentation you can checkout the repository and edit the files in `/apidoc/`. Those files are shown in the API documentation at https://titaniumsdk.com/api/ and include all methods, properties, examples and so on. After you made changes run `npm run lint:docs` to see if your changes produce a valid documentation. The PR commit title you create should start with `docs: ` and a proper title like: `docs: updated textfield examples`.
+All other documentation files (e.g. the guides) are located in the https://github.com/tidev/titanium-docs repository. In case you want to update guides, tutorials or spelling mistakes you clone that repo and follow the README file inside the main folder.
 
 ## Contributing
 

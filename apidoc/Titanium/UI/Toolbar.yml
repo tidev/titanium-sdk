@@ -110,6 +110,12 @@ properties:
     type: [String, Titanium.Blob, Titanium.Filesystem.File]
     platforms: [android]
 
+  - name: navigationIconColor
+    summary: Tint color of the navigation icon (e.g. home arrow)
+    type: String
+    since: "12.1.0"
+    platforms: [android]
+
   - name: overflowIcon
     summary: Image to be used for the overflow menu.
     description: |
@@ -269,7 +275,7 @@ examples:
 
   - title: Toolbar (iOS) with extended background
     example: |
-        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar. 
+        The following code excerpt creates a simple toolbar, placed at the top of the window which extends its background under the status bar.
 
         ``` js
         var win = Ti.UI.createWindow({
@@ -278,7 +284,7 @@ examples:
 
         var send = Ti.UI.createButton({
             title: 'Send',
-            style: Ti.UI.iOS.SystemButtonStyle.DONE,
+            style: Ti.UI.BUTTON_STYLE_OPTION_POSITIVE,
         });
 
         var camera = Ti.UI.createButton({

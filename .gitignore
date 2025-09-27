@@ -16,7 +16,7 @@
 npm-debug.log
 /node_modules
 
-# Android editor stuff (eclipse/VSCode)
+# Android editor stuff (eclipse/VSCode/Android Studio)
 /android/.project
 /android/app/.classpath
 /android/app/.project
@@ -25,6 +25,11 @@ npm-debug.log
 /android/runtime/v8/src/native/V8Snapshots.h
 /android/titanium/.classpath
 /android/titanium/.project
+/android/titanium/.idea/
+/android/titanium/local.properties
+/android/titanium.bindings.json
+.idea/
+/android/.idea/
 
 # Build dirs
 /dist

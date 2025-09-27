@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -16,11 +16,11 @@
 #import <TitaniumKit/TiProxy.h>
 #import <TitaniumKit/TiUtils.h>
 
-//NOTE: this proxy is a little different than normal Proxy/View pattern
-//since it's not really backed by a view in the normal way.  It's given
-//a root level window proxy (and view) that are passed as the root controller
-//to the Nav Controller.  So, we do a few things that you'd normally not
-//have to do in a Proxy/View pattern.
+// NOTE: this proxy is a little different than normal Proxy/View pattern
+// since it's not really backed by a view in the normal way.  It's given
+// a root level window proxy (and view) that are passed as the root controller
+// to the Nav Controller.  So, we do a few things that you'd normally not
+// have to do in a Proxy/View pattern.
 
 @interface TiUITabProxy ()
 - (void)openOnUIThread:(NSArray *)args;
@@ -32,6 +32,11 @@
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
 
+  if (fullWidthBackGestureRecognizer != nil) {
+    [fullWidthBackGestureRecognizer setDelegate:nil];
+    [controller.view removeGestureRecognizer:fullWidthBackGestureRecognizer];
+  }
+
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
@@ -39,6 +44,8 @@
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
+
   [super _destroy];
 }
 
@@ -282,8 +289,6 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
 
-  [window processForSafeArea];
-
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
@@ -292,7 +297,7 @@
   [window setTab:self];
   [window setParentOrientationController:self];
 
-  //Send to open. Will come back after _handleOpen returns true.
+  // Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
     if (args != nil) {
@@ -354,7 +359,7 @@
 
 - (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated
 {
-  //NO OP NOW
+  // NO OP NOW
 }
 
 #pragma mark - UINavigationControllerDelegate
@@ -381,7 +386,7 @@
   if (!transitionWithGesture) {
     transitionIsAnimating = YES;
   }
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"] && [viewController isKindOfClass:[TiViewController class]]) {
+  if ([viewController isKindOfClass:[TiViewController class]]) {
     TiViewController *toViewController = (TiViewController *)viewController;
     if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
       TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
@@ -395,7 +400,7 @@
 {
   id activeTab = [tabGroup valueForKey:@"activeTab"];
   if (activeTab == nil || activeTab == [NSNull null]) {
-    //Make sure that the activeTab property is set
+    // Make sure that the activeTab property is set
     [self setActive:[NSNumber numberWithBool:YES]];
   }
   transitionIsAnimating = NO;
@@ -423,18 +428,16 @@
       }
     }
     if (winclosing) {
-      //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
-      //as first responders. This is ok since tab is not nil so no message will be sent to
-      //hosting controller.
+      // TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+      // as first responders. This is ok since tab is not nil so no message will be sent to
+      // hosting controller.
       [current windowWillClose];
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
-
   if (theWindow == rootWindow) {
-    //This is probably too late for the root view controller.
-    //Figure out how to call open before this callback
+    // This is probably too late for the root view controller.
+    // Figure out how to call open before this callback
     [theWindow open:nil];
   } else if ([theWindow opening]) {
     [theWindow windowWillOpen];
@@ -452,7 +455,7 @@
       [current setTab:nil];
       [current setParentOrientationController:nil];
       [current close:nil];
-      //TIMOB-15188. Tab can switch to rootView anytime by tapping the selected tab again.
+      // TIMOB-15188. Tab can switch to rootView anytime by tapping the selected tab again.
       if ((viewController == [self rootController]) && ([controllerStack count] > 1)) {
         [controllerStack removeObject:[self rootController]];
         for (TiViewController *theController in [controllerStack reverseObjectEnumerator]) {
@@ -647,7 +650,6 @@
     activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
   }
   if ((titleColor != nil) || (activeTitleColor != nil)) {
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = UITabBarAppearance.new;
       if (titleColor != nil) {
@@ -665,16 +667,13 @@
       ourItem.standardAppearance = appearance;
       ourItem.scrollEdgeAppearance = appearance;
     } else {
-#endif
       if (titleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
       }
       if (activeTitleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
       }
-#if IS_SDK_IOS_15
     }
-#endif
   }
 
   if (iconInsets != nil) {
@@ -786,7 +785,7 @@
 {
   [super willChangeSize];
 
-  //TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
+  // TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
   for (UIViewController *thisController in [controller viewControllers]) {
     if ([thisController isKindOfClass:[TiViewController class]]) {
       TiViewProxy *thisProxy = [(TiViewController *)thisController proxy];

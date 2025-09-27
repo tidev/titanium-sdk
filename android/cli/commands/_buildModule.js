@@ -58,6 +58,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 	const manifestModuleAPIVersion = this.manifest.apiversion;
 	const manifestTemplateFile = path.join(this.platformPath, 'templates', 'module', 'default', 'template', 'android', 'manifest.ejs');
 	let newVersion = semver.inc(this.manifest.version, 'major');
+	this.tiSdkVersion = this.cli.sdk.name;
 
 	// Determine if the "manifest" file's "apiversion" needs updating.
 	let isApiVersionUpdateRequired = false;
@@ -65,7 +66,7 @@ AndroidModuleBuilder.prototype.migrate = async function migrate() {
 		isApiVersionUpdateRequired = (this.manifest.apiversion !== cliModuleAPIVersion);
 	}
 
-	// Determin if the "manifest" file's "minsdk" needs updating.
+	// Determine if the "manifest" file's "minsdk" needs updating.
 	// As of Titanium 9.0.0, modules are built as AARs to an "m2repository". Not supported on older Titanium versions.
 	let isMinSdkUpdateRequired = false;
 	const minSupportedSdkVersionMajorNumber = 9;
@@ -196,6 +197,7 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 		this.buildOnly = cli.argv['build-only'];
 		this.target = cli.argv['target'];
 		this.deviceId = cli.argv['device-id'];
+		this.skipBuild = cli.argv['$_'].includes('--skip-build');
 
 		this.cli = cli;
 		this.logger = logger;
@@ -252,7 +254,17 @@ AndroidModuleBuilder.prototype.validate = function validate(logger, config, cli)
 			}
 
 			// get javac params
-			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value || config.get('android.javac.maxMemory', '3072M');
+			this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
+
+			// TODO remove in the next SDK
+			if (cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value) {
+				logger.error(__('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory') + '\n');
+				this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'].value;
+			}
+
+			if (cli.timodule.properties['android.javac.maxMemory'] && cli.timodule.properties['android.javac.maxMemory'].value) {
+				this.javacMaxMemory = cli.timodule.properties['android.javac.maxMemory'].value;
+			}
 
 			// detect java development kit
 			appc.jdk.detect(config, null, function (jdkInfo) {
@@ -290,28 +302,33 @@ AndroidModuleBuilder.prototype.run = async function run(logger, config, cli, fin
 
 		// Initialize build variables and directory.
 		await this.initialize();
-		await this.loginfo();
-		await this.cleanup();
 
-		// Notify plugins that we're prepping to compile.
-		await new Promise((resolve) => {
-			cli.emit('build.module.pre.compile', this, resolve);
-		});
+		const outputPath = path.join(this.buildModuleDir, 'build', 'outputs', 'm2repository');
+		if (this.skipBuild && fs.existsSync(outputPath)) {
+			// skip building module
+		} else {
+			await this.loginfo();
+			await this.cleanup();
 
-		// Update module files such as "manifest" if needed.
-		await this.updateModuleFiles();
+			// Notify plugins that we're prepping to compile.
+			await new Promise((resolve) => {
+				cli.emit('build.module.pre.compile', this, resolve);
+			});
 
-		// Generate all gradle project files.
-		await this.generateRootProjectFiles();
-		await this.generateModuleProject();
+			// Update module files such as "manifest" if needed.
+			await this.updateModuleFiles();
 
-		// Build the library and output it to "dist" directory.
-		await this.buildModuleProject();
-		// Notify plugins that the build is done.
-		await new Promise((resolve) => {
-			cli.emit('build.module.post.compile', this, resolve);
-		});
+			// Generate all gradle project files.
+			await this.generateRootProjectFiles();
+			await this.generateModuleProject();
 
+			// Build the library and output it to "dist" directory.
+			await this.buildModuleProject();
+			// Notify plugins that the build is done.
+			await new Promise((resolve) => {
+				cli.emit('build.module.post.compile', this, resolve);
+			});
+		}
 		await this.packageZip();
 
 		await new Promise((resolve) => {
@@ -380,7 +397,7 @@ AndroidModuleBuilder.prototype.initialize = async function initialize() {
 	this.resourcesDir = await getPathForProjectDirName('Resources');
 
 	// Fetch the "timodule.xml" file and load it.
-	// Provides Android specific info such as "AndroidManfiest.xml" elements and module dependencies.
+	// Provides Android specific info such as "AndroidManifest.xml" elements and module dependencies.
 	this.timoduleXmlFile = path.join(this.projectDir, 'timodule.xml');
 	if (await fs.exists(this.timoduleXmlFile)) {
 		this.timodule = new tiappxml(this.timoduleXmlFile);
@@ -413,6 +430,7 @@ AndroidModuleBuilder.prototype.loginfo = async function loginfo() {
 AndroidModuleBuilder.prototype.cleanup = async function cleanup() {
 	// Clean last packaged build in "dist" directory in case this build fails.
 	await fs.emptyDir(this.distDir);
+	await fs.emptyDir(this.buildDir);
 
 	// Delete entire "build" directory tree if we can't find a gradle "module" project directory under it.
 	// This assumes last built module was using older version of Titanium that did not support gradle.
@@ -484,6 +502,8 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "gradle.properties" file. Will add network proxy settings if needed.
 	const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 	gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+	gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '35' });
+	gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 	gradleProperties.push({
 		key: 'org.gradle.jvmargs',
 		value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
@@ -499,11 +519,13 @@ AndroidModuleBuilder.prototype.generateRootProjectFiles = async function generat
 	// Create a "local.properties" file providing a path to the Android SDK directory.
 	await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
-	// Copy our root "build.gradle" template script to the root build directory.
+	// Generate root "build.gradle" template script to the root build directory.
 	const templatesDir = path.join(this.platformPath, 'templates', 'build');
-	await fs.copyFile(
-		path.join(templatesDir, 'root.build.gradle'),
-		path.join(this.buildDir, 'build.gradle'));
+	let buildGradleContent = await fs.readFile(path.join(templatesDir, 'root.build.gradle'));
+	buildGradleContent = ejs.render(buildGradleContent.toString(), {
+		classpaths: (this.manifest.classpaths?.split(',') ?? []).filter(classpath => classpath !== ''),
+	});
+	await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
 	// Copy our Titanium template's gradle constants file.
 	// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
@@ -549,6 +571,7 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 	let buildGradleContent = await fs.readFile(path.join(this.moduleTemplateDir, 'build.gradle'));
 	buildGradleContent = ejs.render(buildGradleContent.toString(), {
 		compileSdkVersion: this.compileSdkVersion,
+		plugins: (this.manifest.plugins?.split(',') ?? []).filter(plugin => plugin !== ''),
 		krollAptJarPath: path.join(this.platformPath, 'kroll-apt.jar'),
 		minSdkVersion: this.minSupportedApiLevel,
 		moduleAuthor: this.manifest.author,
@@ -600,11 +623,7 @@ AndroidModuleBuilder.prototype.generateModuleProject = async function generateMo
 		this.logger.error('Unable to load Android <manifest/> content from "timodule.xml" file.');
 		throw err;
 	}
-	let packageName = moduleId;
-	if (packageName.indexOf('.') < 0) {
-		packageName = `ti.${packageName}`;
-	}
-	mainManifest.setPackageName(packageName);
+
 	await mainManifest.writeToFilePath(path.join(moduleMainDir, 'AndroidManifest.xml'));
 
 	// Generate Java file used to provide this module's JS source code to Titanium's JS runtime.
@@ -709,12 +728,14 @@ AndroidModuleBuilder.prototype.packageZip = async function () {
 	}
 
 	// Add the "example" app project files to the archive.
-	if (await fs.exists(this.exampleDir)) {
+	/*
+  if (await fs.exists(this.exampleDir)) {
 		await this.dirWalker(this.exampleDir, (filePath) => {
 			const zipEntryName = path.join(moduleFolder, 'example', path.relative(this.exampleDir, filePath));
 			dest.append(fs.createReadStream(filePath), { name: zipEntryName });
 		});
 	}
+  */
 
 	// Add the event hook plugin scripts to the archive.
 	const hookFiles = {};
@@ -846,7 +867,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 	await fs.mkdirs(tmpDir);
 
 	// Generate a new Titanium app in the temp directory which we'll later copy the "example" files to.
-	// Note: App must have a diffentent id/package-name. Avoids class name collision with module generating Java code.
+	// Note: App must have a different id/package-name. Avoids class name collision with module generating Java code.
 	this.logger.debug(__('Staging module project at %s', tmpDir.cyan));
 	await runTiCommand(
 		process.execPath,
@@ -859,6 +880,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 			'-u', 'localhost',
 			'-d', tmpDir,
 			'-p', 'android',
+			'--sdk', this.tiSdkVersion,
 			'--force'
 		],
 		this.logger
@@ -883,6 +905,18 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 		}
 	);
 
+	// Copy example/platform to tmp/platform to use a custom build.gradle
+	if (fs.existsSync(path.join(this.exampleDir, 'platform'))) {
+		appc.fs.copyDirSyncRecursive(
+			path.join(this.exampleDir, 'platform'),
+			path.join(tmpProjectDir, 'platform'),
+			{
+				preserve: true,
+				logger: this.logger.debug
+			}
+		);
+	}
+
 	// Unzip module into temp app's "modules" directory.
 	await util.promisify(appc.zip.unzip)(this.moduleZipPath, tmpProjectDir, null);
 
@@ -891,7 +925,7 @@ AndroidModuleBuilder.prototype.runModule = async function (cli) {
 
 	// Run the temp app.
 	this.logger.debug(__('Running example project...', tmpDir.cyan));
-	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir ];
+	let buildArgs = [ process.argv[1], 'build', '-p', 'android', '-d', tmpProjectDir, '--sdk', this.tiSdkVersion ];
 	if (this.target) {
 		buildArgs.push('-T');
 		buildArgs.push(this.target);

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -24,7 +24,9 @@ import android.app.Activity;
 		TiC.PROPERTY_ACTIVE_TINT_COLOR,
 		TiC.PROPERTY_ACTIVE_TITLE_COLOR,
 		TiC.PROPERTY_BADGE,
-		TiC.PROPERTY_BADGE_COLOR,
+		TiC.PROPERTY_BADGE_COLOR, // DEPRECATED: Superseded by PROPERTY_BADGE_BACKGROUND_COLOR.
+		TiC.PROPERTY_BADGE_BACKGROUND_COLOR,
+		TiC.PROPERTY_BADGE_TEXT_COLOR,
 		TiC.PROPERTY_ICON,
 		TiC.PROPERTY_TINT_COLOR,
 		TiC.PROPERTY_TITLE,
@@ -229,10 +231,9 @@ public class TabProxy extends TiViewProxy
 
 		// Fetch the TabGroup's view. If currently null, then we have to wait for TabGroup activity to be created.
 		TiUIView view = (this.tabGroupProxy != null) ? this.tabGroupProxy.peekView() : null;
-		if (!(view instanceof TiUIAbstractTabGroup)) {
+		if (!(view instanceof TiUIAbstractTabGroup tabGroupView)) {
 			return;
 		}
-		TiUIAbstractTabGroup tabGroupView = (TiUIAbstractTabGroup) view;
 
 		// Update tab.
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
@@ -245,9 +246,16 @@ public class TabProxy extends TiViewProxy
 			tabGroupView.updateTabIcon(this.tabGroupProxy.getTabIndex(this));
 		} else if (name.equals(TiC.PROPERTY_BADGE)) {
 			tabGroupView.updateBadge(this.tabGroupProxy.getTabIndex(this));
-		} else if (name.equals(TiC.PROPERTY_BADGE_COLOR)) {
+		} else if (name.equals(TiC.PROPERTY_BADGE_COLOR) || name.equals(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)
+			|| name.equals(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
 			tabGroupView.updateBadgeColor(this.tabGroupProxy.getTabIndex(this));
 		}
+	}
+
+	@Kroll.method
+	public void popToRootWindow()
+	{
+		TiApplication.getInstance().popToRootWindow();
 	}
 
 	@Override

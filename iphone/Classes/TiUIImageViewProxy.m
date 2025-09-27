@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -39,7 +39,7 @@ static NSArray *imageKeySequence;
 - (void)propagateLoadEvent:(NSString *)stateString
 {
 #ifndef TI_USE_AUTOLAYOUT
-  //Send out a content change message if we are auto sizing
+  // Send out a content change message if we are auto sizing
   if (TiDimensionIsAuto(layoutProperties.width) || TiDimensionIsAutoSize(layoutProperties.width) || TiDimensionIsUndefined(layoutProperties.width) || TiDimensionIsAuto(layoutProperties.height) || TiDimensionIsAutoSize(layoutProperties.height) || TiDimensionIsUndefined(layoutProperties.height)) {
     [self refreshSize];
     [self willChangeSize];
@@ -62,6 +62,14 @@ static NSArray *imageKeySequence;
   [self replaceValue:NUMFLOAT(DEFAULT_IMAGEVIEW_INTERVAL) forKey:@"duration" notification:NO];
 }
 
+- (void)addSymbolEffect:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSDictionary);
+
+  TiUIImageView *iv = (TiUIImageView *)[self view];
+  [iv addSymbolEffect:args];
+}
+
 - (void)start:(id)args
 {
   TiThreadPerformOnMainThread(
@@ -74,9 +82,9 @@ static NSArray *imageKeySequence;
 
 - (void)stop:(id)args
 {
-  //Don't put this in UIThread, because it doesn't need to go in UIThread.
-  //Furthermore, by the time this is run, if this stop was called by a destroy
-  //Bad things(tm) happen.
+  // Don't put this in UIThread, because it doesn't need to go in UIThread.
+  // Furthermore, by the time this is run, if this stop was called by a destroy
+  // Bad things(tm) happen.
 
   [destroyLock lock];
   if ([self viewAttached]) {
@@ -138,7 +146,7 @@ static NSArray *imageKeySequence;
   id imageValue = [self valueForKey:@"image"];
 
   if ([imageValue isKindOfClass:[TiBlob class]]) {
-    //We already have it right here already!
+    // We already have it right here already!
     return imageValue;
   }
 
@@ -183,7 +191,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 
 - (void)startImageLoad:(NSURL *)url;
 {
-  [self cancelPendingImageLoads]; //Just in case we have a crusty old urlRequest.
+  [self cancelPendingImageLoads]; // Just in case we have a crusty old urlRequest.
   NSDictionary *info = nil;
   NSNumber *hires = [self valueForKey:@"hires"];
   if (hires) {

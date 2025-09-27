@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -331,20 +331,17 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 				// Obtain background drawable.
 				Drawable backgroundDrawable = rowView.getBackground();
-				if (backgroundDrawable instanceof TiBackgroundDrawable) {
-					final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
+				if (backgroundDrawable instanceof TiBackgroundDrawable drawable) {
 
 					backgroundDrawable = drawable.getBackground();
 				}
 
 				// Parse background color to determine transparency.
 				int backgroundColor = -1;
-				if (backgroundDrawable instanceof PaintDrawable) {
-					final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+				if (backgroundDrawable instanceof PaintDrawable drawable) {
 
 					backgroundColor = drawable.getPaint().getColor();
-				} else if (backgroundDrawable instanceof ColorDrawable) {
-					final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+				} else if (backgroundDrawable instanceof ColorDrawable drawable) {
 
 					backgroundColor = drawable.getColor();
 				}

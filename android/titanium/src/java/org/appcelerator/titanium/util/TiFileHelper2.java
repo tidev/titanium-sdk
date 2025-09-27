@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -29,7 +29,7 @@ public class TiFileHelper2
 	/**
 	 * Joins many String path segments into one path
 	 * @param segments A vararg (or String array) of path segments
-	 * @return The passed-in segements normalized and joined by "/"
+	 * @return The passed-in segments normalized and joined by "/"
 	 */
 	public static String joinSegments(String... segments)
 	{

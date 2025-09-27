@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -70,7 +70,7 @@
   [super viewDidLayoutSubviews];
 }
 
-//IOS5 support. Begin Section. Drop in 3.2
+// IOS5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
   return YES;
@@ -80,9 +80,9 @@
 {
   return TI_ORIENTATION_ALLOWED(_supportedOrientations, toInterfaceOrientation) ? YES : NO;
 }
-//IOS5 support. End Section
+// IOS5 support. End Section
 
-//IOS6 new stuff.
+// IOS6 new stuff.
 - (BOOL)shouldAutomaticallyForwardRotationMethods
 {
   return YES;
@@ -101,7 +101,7 @@
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
   /*
-     If we are in a navigation controller, let us match so it doesn't get freaked 
+     If we are in a navigation controller, let us match so it doesn't get freaked
      out in when pushing/popping. We are going to force orientation anyways.
      */
   /*
@@ -110,7 +110,7 @@
   if ([self navigationController] != nil && [[self navigationController] topViewController] != self) {
     return [[[self navigationController] topViewController] supportedInterfaceOrientations];
   }
-  //This would be for modal.
+  // This would be for modal.
   return (UIInterfaceOrientationMask)_supportedOrientations;
 }
 
@@ -126,8 +126,8 @@
   }
   [self updateOrientations];
   [self setHidesBottomBarWhenPushed:[TiUtils boolValue:[_proxy valueForUndefinedKey:@"tabBarHidden"] def:NO]];
-  //Always wrap proxy view with a wrapperView.
-  //This way proxy always has correct sandbox when laying out
+  // Always wrap proxy view with a wrapperView.
+  // This way proxy always has correct sandbox when laying out
   [_proxy parentWillShow];
   UIView *wrapperView = [[UIView alloc] initWithFrame:UIApplication.sharedApplication.keyWindow.frame];
   wrapperView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -149,6 +149,15 @@
   }
   [super viewWillAppear:animated];
 }
+
+- (void)viewSafeAreaInsetsDidChange
+{
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    [(id<TiWindowProtocol>)_proxy viewSafeAreaInsetsDidChange];
+  }
+  [super viewSafeAreaInsetsDidChange];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
   if (_proxy != nil) {
@@ -159,6 +168,7 @@
   }
   [super viewWillDisappear:animated];
 }
+
 - (void)viewDidAppear:(BOOL)animated
 {
   if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -166,6 +176,7 @@
   }
   [super viewDidAppear:animated];
 }
+
 - (void)viewDidDisappear:(BOOL)animated
 {
   if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

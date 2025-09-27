@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -332,10 +332,9 @@ public class TiUITimePicker extends TiUIView implements TimePicker.OnTimeChanged
 
 			// Fetch selected time "value". Property will be null if user canceled out.
 			Object objectValue = args.get(TiC.PROPERTY_VALUE);
-			if (!(objectValue instanceof Date)) {
+			if (!(objectValue instanceof Date dateValue)) {
 				return;
 			}
-			Date dateValue = (Date) objectValue;
 
 			// Show selected time in text field.
 			this.picker.setValue(dateValue);

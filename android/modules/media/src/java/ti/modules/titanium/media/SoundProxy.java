@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -84,8 +84,7 @@ public class SoundProxy extends KrollProxy implements org.appcelerator.titanium.
 			path = ((FileProxy) url).getNativePath();
 		} else if (url instanceof String) {
 			path = resolveUrl(null, (String) url);
-		} else if (url instanceof TiBlob) {
-			TiBlob blob = (TiBlob) url;
+		} else if (url instanceof TiBlob blob) {
 			if (blob.getType() == TiBlob.TYPE_FILE) {
 				path = blob.getFile().getNativePath();
 			}

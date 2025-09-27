@@ -1,6 +1,6 @@
 /**
  * Ti.SwiftSupport
- * Copyright (c) 2018-present by Axway Appcelerator.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * All Rights Reserved.
  */
 

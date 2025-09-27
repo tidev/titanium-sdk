@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -59,8 +59,7 @@ public class DatabaseModule extends KrollModule
 		if (file instanceof TiFileProxy) {
 			// We were given a file proxy. Fetch its file object.
 			dbTiBaseFile = ((TiFileProxy) file).getBaseFile();
-		} else if (file instanceof String) {
-			String fileString = (String) file;
+		} else if (file instanceof String fileString) {
 			if (fileString.startsWith(File.separator)) {
 				// Assume we were given an absolute file system path.
 				dbTiBaseFile = TiFileFactory.createTitaniumFile(fileString, false);
@@ -73,7 +72,7 @@ public class DatabaseModule extends KrollModule
 					throw new IllegalArgumentException("Ti.Database.open() was given invalid URL: " + fileString);
 				}
 			} else {
-				// Assume we were given a databas file name only. (This is the most common case.)
+				// Assume we were given a database file name only. (This is the most common case.)
 				dbName = fileString;
 			}
 		} else if (file != null) {

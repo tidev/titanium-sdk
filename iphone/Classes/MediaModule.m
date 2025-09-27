@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -36,9 +36,7 @@
 #ifdef USE_TI_MEDIAVIDEOPLAYER
 #import "TiMediaVideoPlayerProxy.h"
 #endif
-#if IS_SDK_IOS_14
 #import <UniformTypeIdentifiers/UTCoreTypes.h>
-#endif
 
 // by default, we want to make the camera fullscreen and
 // these transform values will scale it when we have our own overlay
@@ -236,7 +234,7 @@ MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_USBAUDIO, AVAudioSessionPortUSBAudio)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_BLUETOOTHLE, AVAudioSessionPortBluetoothLE)
 MAKE_SYSTEM_STR(AUDIO_SESSION_PORT_CARAUDIO, AVAudioSessionPortCarAudio)
 
-//Constants for AudioSessions
+// Constants for AudioSessions
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_AMBIENT, AVAudioSessionCategoryAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_SOLO_AMBIENT, AVAudioSessionCategorySoloAmbient);
 MAKE_SYSTEM_STR(AUDIO_SESSION_CATEGORY_PLAYBACK, AVAudioSessionCategoryPlayback);
@@ -271,7 +269,7 @@ MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPING, TiAudioPlayerStateStopping);
 MAKE_SYSTEM_PROP(AUDIO_STATE_STOPPED, TiAudioPlayerStateStopped);
 MAKE_SYSTEM_PROP(AUDIO_STATE_PAUSED, TiAudioPlayerStatePaused);
 
-//Constants for Camera
+// Constants for Camera
 #if defined(USE_TI_MEDIACAMERA_FRONT) || defined(USE_TI_MEDIACAMERA_REAR) || defined(USE_TI_MEDIACAMERA_FLASH_OFF) || defined(USE_TI_MEDIACAMERA_FLASH_AUTO) || defined(USE_TI_MEDIACAMERA_FLASH_ON)
 MAKE_SYSTEM_PROP(CAMERA_FRONT, UIImagePickerControllerCameraDeviceFront);
 MAKE_SYSTEM_PROP(CAMERA_REAR, UIImagePickerControllerCameraDeviceRear);
@@ -281,7 +279,7 @@ MAKE_SYSTEM_PROP(CAMERA_FLASH_AUTO, UIImagePickerControllerCameraFlashModeAuto);
 MAKE_SYSTEM_PROP(CAMERA_FLASH_ON, UIImagePickerControllerCameraFlashModeOn);
 #endif
 
-//Constants for mediaTypes in openMusicLibrary
+// Constants for mediaTypes in openMusicLibrary
 #if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_MUSIC, MPMediaTypeMusic);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_PODCAST, MPMediaTypePodcast);
@@ -292,7 +290,7 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_TYPE_ANY_AUDIO, MPMediaTypeAnyAudio);
   return NUMUINTEGER(MPMediaTypeAny);
 }
 
-//Constants for grouping in queryMusicLibrary
+// Constants for grouping in queryMusicLibrary
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_TITLE, MPMediaGroupingTitle);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ALBUM, MPMediaGroupingAlbum);
 MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_ARTIST, MPMediaGroupingArtist);
@@ -304,7 +302,7 @@ MAKE_SYSTEM_PROP(MUSIC_MEDIA_GROUP_PODCAST_TITLE, MPMediaGroupingPodcastTitle);
 #endif
 
 #if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER)
-//Constants for MusicPlayer playback state
+// Constants for MusicPlayer playback state
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_STOPPED, MPMusicPlaybackStateStopped);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PLAYING, MPMusicPlaybackStatePlaying);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_PAUSED, MPMusicPlaybackStatePaused);
@@ -312,32 +310,32 @@ MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_INTERRUPTED, MPMusicPlaybackStateInterrupted
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_FORWARD, MPMusicPlaybackStateSeekingForward);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_STATE_SEEK_BACKWARD, MPMusicPlaybackStateSeekingBackward);
 
-//Constants for MusicPlayer repeatMode
+// Constants for MusicPlayer repeatMode
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_DEFAULT, MPMusicRepeatModeDefault);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_NONE, MPMusicRepeatModeNone);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_ONE, MPMusicRepeatModeOne);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_REPEAT_ALL, MPMusicRepeatModeAll);
 
-//Constants for MusicPlayer shuffleMode
+// Constants for MusicPlayer shuffleMode
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_DEFAULT, MPMusicShuffleModeDefault);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_NONE, MPMusicShuffleModeOff);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_SONGS, MPMusicShuffleModeSongs);
 MAKE_SYSTEM_PROP(MUSIC_PLAYER_SHUFFLE_ALBUMS, MPMusicShuffleModeAlbums);
 #endif
-//Error constants for MediaModule
+// Error constants for MediaModule
 MAKE_SYSTEM_PROP(UNKNOWN_ERROR, MediaModuleErrorUnknown);
 MAKE_SYSTEM_PROP(DEVICE_BUSY, MediaModuleErrorBusy);
 MAKE_SYSTEM_PROP(NO_CAMERA, MediaModuleErrorNoCamera);
 MAKE_SYSTEM_PROP(NO_VIDEO, MediaModuleErrorNoVideo);
 MAKE_SYSTEM_PROP(NO_MUSIC_PLAYER, MediaModuleErrorNoMusicPlayer);
 
-//Constants for mediaTypes in showCamera
+// Constants for mediaTypes in showCamera
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 MAKE_SYSTEM_STR(MEDIA_TYPE_VIDEO, kUTTypeMovie);
 MAKE_SYSTEM_STR(MEDIA_TYPE_PHOTO, kUTTypeImage);
 MAKE_SYSTEM_STR(MEDIA_TYPE_LIVEPHOTO, kUTTypeLivePhoto);
 
-//Constants for videoQuality for Video Editing
+// Constants for videoQuality for Video Editing
 MAKE_SYSTEM_PROP(QUALITY_HIGH, UIImagePickerControllerQualityTypeHigh);
 MAKE_SYSTEM_PROP(QUALITY_MEDIUM, UIImagePickerControllerQualityTypeMedium);
 MAKE_SYSTEM_PROP(QUALITY_LOW, UIImagePickerControllerQualityTypeLow);
@@ -452,11 +450,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)_listenerAdded:(NSString *)type count:(int)count
 {
   if (count == 1 && [type isEqualToString:@"routechange"]) {
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe
     [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioRouteChanged:) name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
   } else if (count == 1 && [type isEqualToString:@"volume"]) {
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     [[TiMediaAudioSession sharedSession] startAudioSession]; // Have to start a session to get a listener
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(audioVolumeChanged:) name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
   }
@@ -465,11 +463,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)_listenerRemoved:(NSString *)type count:(int)count
 {
   if (count == 0 && [type isEqualToString:@"routechange"]) {
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     [[TiMediaAudioSession sharedSession] stopAudioSession];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionRouteChange object:[TiMediaAudioSession sharedSession]];
   } else if (count == 0 && [type isEqualToString:@"volume"]) {
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
     [[TiMediaAudioSession sharedSession] stopAudioSession];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiMediaAudioSessionVolumeChange object:[TiMediaAudioSession sharedSession]];
   }
@@ -579,7 +577,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)vibrate:(id)args
 {
-  //No pattern support on iOS
+  // No pattern support on iOS
   [self beep:nil];
 }
 #endif
@@ -897,7 +895,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)hideCamera:(id)args
 {
   [self destroyPickerCallbacks];
-  //Hopefully, if we remove the callbacks before going to the main thread, we may reduce deadlock.
+  // Hopefully, if we remove the callbacks before going to the main thread, we may reduce deadlock.
   ENSURE_UI_THREAD(hideCamera, args);
   if (picker != nil) {
     if (cameraView != nil) {
@@ -975,7 +973,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-//Undocumented property
+// Undocumented property
 #ifdef USE_TI_MEDIASHOWCAMERA
 - (id)camera
 {
@@ -987,7 +985,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #endif
 
 #if defined(USE_TI_MEDIAREQUESTCAMERAPERMISSIONS)
-//request camera access. for >= IOS7
+// request camera access. for >= IOS7
 - (void)requestCameraPermissions:(id)arg
 {
   ENSURE_SINGLE_ARG(arg, KrollCallback);
@@ -1072,16 +1070,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   ENSURE_UI_THREAD(openPhotoGallery, args);
 
   NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
-#if IS_SDK_IOS_14
   if ([TiUtils isIOSVersionOrGreater:@"14.0"] && [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO]) {
     [self showPHPicker:args];
   } else {
-#endif
     [self showPicker:args
             isCamera:NO];
-#if IS_SDK_IOS_14
   }
-#endif
 }
 
 #endif
@@ -1282,7 +1276,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   ENSURE_TYPE_OR_NIL(pickerCancelCallback, KrollCallback);
   [editorCancelCallback retain];
 
-  //TODO: check canEditVideoAtPath
+  // TODO: check canEditVideoAtPath
 
   editor = [[UIVideoEditorController alloc] init];
   editor.delegate = self;
@@ -1348,13 +1342,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   RELEASE_TO_NIL(musicPicker);
 #endif
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    picker.presentationController.delegate = nil;
-  }
+  picker.presentationController.delegate = nil;
   RELEASE_TO_NIL(picker);
 #endif
 
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   _phPicker.presentationController.delegate = nil;
   RELEASE_TO_NIL(_phPicker);
 #endif
@@ -1381,7 +1373,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   [self _fireEventToListener:type withObject:object listener:listener thisObject:nil];
   [pool release];
 
-  //TIMOB-24389: Force the heap to be GC'd to avoid Ti.Blob references to be dumped.
+  // TIMOB-24389: Force the heap to be GC'd to avoid Ti.Blob references to be dumped.
   KrollContext *krollContext = [self.pageContext krollContext];
   [krollContext forceGarbageCollectNow];
 }
@@ -1455,9 +1447,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   TiApp *tiApp = [TiApp app];
   if (![TiUtils isIPad]) {
-    if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-      picker_.presentationController.delegate = self;
-    }
+    picker_.presentationController.delegate = self;
     [tiApp showModalController:picker_ animated:animatedPicker];
   } else {
     TiViewProxy *popoverViewProxy = [args objectForKey:@"popoverView"];
@@ -1480,10 +1470,12 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)updatePopoverNow:(UIViewController *)picker_
 {
   UIViewController *theController = picker_;
-  [theController setModalPresentationStyle:UIModalPresentationPopover];
-  UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
-  [thePresenter setPermittedArrowDirections:arrowDirection];
-  [thePresenter setDelegate:self];
+  if (self.popoverView != nil) {
+    [theController setModalPresentationStyle:UIModalPresentationPopover];
+    UIPopoverPresentationController *thePresenter = [theController popoverPresentationController];
+    [thePresenter setPermittedArrowDirections:arrowDirection];
+    [thePresenter setDelegate:self];
+  }
   [[TiApp app] showModalController:theController animated:animatedPicker];
   return;
 }
@@ -1647,7 +1639,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       ENSURE_TYPE(transform, Ti2DMatrix);
       [picker setCameraViewTransform:[transform matrix]];
     } else if (cameraView != nil && customPicker && ![TiUtils boolValue:@"showControls" properties:args def:YES]) {
-      //No transforms in popover
+      // No transforms in popover
       CGSize screenSize = [[UIScreen mainScreen] bounds].size;
       UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
       if (!UIInterfaceOrientationIsPortrait(orientation)) {
@@ -1742,12 +1734,11 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 }
 #endif
 
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 - (void)showPHPicker:(NSDictionary *)args
 {
   if (_phPicker != nil) {
-    [self sendPickerError:MediaModuleErrorBusy];
-    return;
+    [self destroyPicker];
   }
 
   animatedPicker = YES;
@@ -1942,7 +1933,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     }
   }
 
-  //Fell through.
+  // Fell through.
   UIViewController *presentingController = [popoverPresentationController presentingViewController];
   popoverPresentationController.sourceView = [presentingController view];
   CGRect viewrect = [[presentingController view] bounds];
@@ -1954,7 +1945,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
 - (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
 {
-  //This will never be called when using bar button item
+  // This will never be called when using bar button item
   UIView *theSourceView = *view;
   BOOL canUseSourceRect = (theSourceView == self.popoverView);
   rect->origin = CGPointMake(theSourceView.bounds.origin.x, theSourceView.bounds.origin.y);
@@ -1984,7 +1975,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 - (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
 {
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   [self closeModalPicker:picker ?: _phPicker];
 #else
   [self closeModalPicker:picker];

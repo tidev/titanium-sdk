@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -44,10 +44,6 @@
 #import "TiUIiOSStatusBarProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-#import "TiUIiOSSystemButtonStyleProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 #import "TiUIiOSSystemButtonProxy.h"
 #endif
@@ -55,6 +51,8 @@
 #ifdef USE_TI_UIIOSSYSTEMICON
 #import "TiUIiOSSystemIconProxy.h"
 #endif
+
+#import "TiUIiOSButtonConfigurationProxy.h"
 
 #endif
 @interface TiUIiOSProxy : TiProxy {
@@ -67,7 +65,7 @@
 @property (nonatomic, readonly) NSNumber *CLIP_MODE_ENABLED;
 @property (nonatomic, readonly) NSNumber *CLIP_MODE_DISABLED;
 
-#ifdef USE_TI_UILISTVIEW
+#if defined(USE_TI_UILISTVIEW) || defined(USE_TI_UITABLEVIEW)
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_DEFAULT;
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_DESTRUCTIVE;
 @property (nonatomic, readonly) NSNumber *ROW_ACTION_STYLE_NORMAL;
@@ -90,7 +88,7 @@
 @property (nonatomic, readonly) NSNumber *LIVEPHOTO_PLAYBACK_STYLE_HINT;
 @property (nonatomic, readonly) NSNumber *LIVEPHOTO_PLAYBACK_STYLE_FULL;
 
-//Modules
+// Modules
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 @property (nonatomic, readwrite, assign) TiUIiOSAnimationStyleProxy *animationStyleProxy;
 #endif
@@ -127,9 +125,6 @@
 #ifdef USE_TI_UIIOSSTATUSBAR
 @property (nonatomic, readwrite, assign) TiUIiOSStatusBarProxy *StatusBar;
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-@property (nonatomic, readwrite, assign) TiUIiOSSystemButtonStyleProxy *SystemButtonStyle;
-#endif
 
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 @property (nonatomic, readwrite, assign) TiUIiOSSystemButtonProxy *SystemButton;
@@ -142,7 +137,10 @@
 @property (nonatomic, readwrite, assign) NSNumber *appBadge;
 @property (nonatomic, readwrite, assign) NSNumber *appSupportsShakeToEdit;
 
-//Modal_Presentation&Transition
+- (NSNumber *)ALERT_SEVERITY_DEFAULT;
+- (NSNumber *)ALERT_SEVERITY_CRITICAL;
+
+// Modal Presentation & Transition
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FULLSCREEN;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_PAGESHEET;
 @property (nonatomic, readonly) NSNumber *MODAL_PRESENTATION_FORMSHEET;
@@ -166,8 +164,13 @@
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
 
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP;
+
 /**
-    Checks the force touch capibility of the current device.
+ * Checks the force touch capibility of the current device.
  */
 - (NSNumber *)forceTouchSupported;
 
@@ -228,4 +231,5 @@
 - (id)createWebViewConfiguration:(id)args;
 - (id)createWebViewProcessPool:(id)args;
 #endif
+- (id)createButtonConfiguration:(id)args;
 @end
