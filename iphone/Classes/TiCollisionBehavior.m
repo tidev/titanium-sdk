@@ -93,6 +93,11 @@
   return _collisionBehavior;
 }
 
+- (void)updateItems
+{
+  // Nothing to do here
+}
+
 - (void)updatePositioning
 {
   for (TiViewProxy *theItem in _items) {

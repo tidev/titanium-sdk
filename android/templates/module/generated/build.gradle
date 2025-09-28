@@ -20,7 +20,7 @@ def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.
 android {
 	compileSdkVersion <%- compileSdkVersion %>
 	namespace '<%- moduleId %>'
-	ndkVersion '26.2.11394342'
+	ndkVersion '28.1.13356709'
 	defaultConfig {
 		minSdkVersion 21
 		targetSdkVersion <%- compileSdkVersion %>
@@ -194,7 +194,7 @@ tasks.withType(JavaCompile).configureEach {
 			environment 'TI_MODULE_GENERATED_JS_DIR', "${projectDir}/build/ti-generated/js"
 			environment 'TI_MODULE_ID', '<%- moduleId %>'
 			environment 'TI_MODULE_NAMESPACE', '<%- moduleId.toLowerCase() %>'
-			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir.replace(/\\/g, ' \ \ \ \ ') %>'
+			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir.replace(/\\/g, '\\\\') %>'
 			executable = 'node'
 			workingDir = projectDir
 			args = ['generate-cpp-files.js']

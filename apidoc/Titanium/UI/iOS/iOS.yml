@@ -23,13 +23,46 @@ methods:
     since: "5.2.0"
     osver: {ios: {min: "9.1"}}
 
+  - name: createButtonConfiguration
+    summary: |
+        Creates a button configuration object for customizing button appearance.
+    description: |
+        Creates a <Titanium.UI.iOS.ButtonConfiguration> object that can be used to configure
+        the appearance and behavior of buttons with modern styling options.
+    parameters:
+      - name: parameters
+        summary: Properties to set on the button configuration.
+        type: Dictionary<Titanium.UI.iOS.ButtonConfiguration>
+    returns:
+      type: Titanium.UI.iOS.ButtonConfiguration
+    since: "13.0.0"
+    osver: {ios: {min: "15.0"}}
+
   - name: systemImage
     summary: |
         Get image from SF Symbols provided by Apple.
     description: |
         More details on SF Symbols can be found [here](https://developer.apple.com/design/human-interface-guidelines/sf-symbols/overview).
         One can download SF Symbols app from [here](https://developer.apple.com/design/downloads/SF-Symbols.dmg) and
-        use it to lookup the built-in SF Symbol name.
+        use it to lookup the built-in SF Symbol name. Example:
+        ``` js
+        const win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+
+        const imageView = Ti.UI.createImageView({
+          image:  Ti.UI.iOS.systemImage('folder'), // folder icon
+          height: Ti.UI.FILL
+        });
+
+        // iOS 17+ symbol effect
+        imageView.addSymbolEffect({
+          symbolEffect: 'bounce',
+          animated: true,
+          options: { repeatCount: 4 }
+        });
+
+        win.add(imageView);
+        win.open();
+        ```
     parameters:
       - name: name
         summary: Name of SF Symbol.
@@ -315,6 +348,28 @@ properties:
     permission: read-only
     since: "8.2.0"
     osver: {ios: {min: "13.0"}}
+
+  - name: GLASS_EFFECT_STYLE_REGULAR
+    summary: |
+        Use with [BlurView.glassEffect](Titanium.UI.iOS.BlurView.glassEffect) to specify a regular glass effect style.
+    description: |
+        Creates a standard glass effect with regular translucency and blur intensity. This is the default
+        style for glass effects and provides a balanced appearance suitable for most use cases.
+    type: Number
+    permission: read-only
+    since: "13.0.0"
+    osver: {ios: {min: "26.0"}}
+
+  - name: GLASS_EFFECT_STYLE_CLEAR
+    summary: |
+        Use with [BlurView.glassEffect](Titanium.UI.iOS.BlurView.glassEffect) to specify a clear glass effect style.
+    description: |
+        Creates a glass effect with higher translucency and lighter blur intensity compared to the regular style.
+        This style provides a more transparent appearance while still maintaining the glass effect characteristics.
+    type: Number
+    permission: read-only
+    since: "13.0.0"
+    osver: {ios: {min: "26.0"}}
 
   - name: CLIP_MODE_DEFAULT
     summary: |
@@ -1270,6 +1325,46 @@ properties:
         Used to set the `injectionTime` argument of <Titanium.UI.WebView.addUserScript>.
     type: Number
     since: "8.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
+    summary: Automatically determine when the tab group minimizes.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to let the system choose the appropriate
+        minimize behavior based on context and platform conventions.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER
+    summary: Do not minimize the tab group.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to keep the tab group visible and prevent
+        it from minimizing in response to scrolling.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP
+    summary: Minimize the tab group when scrolling up.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to minimize the tab group as the user scrolls
+        upward.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
+    permission: read-only
+
+  - name: TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN
+    summary: Minimize the tab group when scrolling down.
+    description: |
+        Use with <Titanium.UI.TabGroup.minimizeBehavior> to minimize the tab group as the user scrolls
+        downward.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.0.0"
     permission: read-only
 
 ---

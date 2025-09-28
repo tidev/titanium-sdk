@@ -181,6 +181,39 @@ describe('Titanium.UI.TextField', () => {
 			win.open();
 		});
 
+		it.android('backgroundColor', function (finish) {
+			this.timeout(5000);
+			const textField = Ti.UI.createTextField({
+				value: 'test',
+				width: 100,
+				height: 40,
+				backgroundColor: '#f00',
+				color: 'black'
+			});
+			const bgView = Ti.UI.createView({
+				width: 200,
+				height: 40,
+				backgroundColor: '#ff0'
+			});
+			win = Ti.UI.createWindow({
+				backgroundColor: '#fff'
+			});
+			bgView.add(textField);
+			win.add(bgView);
+
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(bgView).matchImage('snapshots/textfieldBackgroundColor.png');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			win.open();
+		});
+
 		describe('.hintText', () => {
 			let textField;
 			beforeEach(() => {

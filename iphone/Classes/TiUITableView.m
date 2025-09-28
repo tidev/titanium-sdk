@@ -1589,7 +1589,10 @@
 {
   // Finished editing, always dismiss search controller.
   // Only one search controller can be active at a time.
-  [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
+  //
+  // NOTE: removing this for now as it breaks the search button. Needed for multiple TableView searches in one Window
+  // https://github.com/tidev/titanium-sdk/issues/13246
+  // [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -1843,7 +1846,6 @@
   }
 }
 
-#if IS_SDK_IOS_15
 - (void)setSectionHeaderTopPadding_:(id)value
 {
   if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
@@ -1852,7 +1854,6 @@
 
   self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
 }
-#endif
 
 - (void)initSearhController
 {
