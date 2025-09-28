@@ -2,7 +2,6 @@ package org.appcelerator.titanium.util;
 
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -22,8 +21,6 @@ public final class APSAnalytics
 	private static final Set<String> BAD_IDENTIFIERS =
 		new HashSet(Arrays.asList("9774d56d682e549c", "1234567890ABCDEF"));
 	private final AtomicReference<String> sessionId = new AtomicReference();
-	private SharedPreferences preferences;
-	private String app;
 	private String machineId;
 
 	private APSAnalytics()
@@ -37,33 +34,22 @@ public final class APSAnalytics
 
 	public void initialize(@NonNull String app, @NonNull Context ctx)
 	{
-		synchronized (this)
-		{
-			try {
-				String packageName = ctx.getPackageName();
-				PackageManager packageManager = ctx.getPackageManager();
-				ApplicationInfo ai = packageManager.getApplicationInfo(packageName, 128);
-				PackageInfo pi = packageManager.getPackageInfo(packageName, 0);
+		try {
+			String packageName = ctx.getPackageName();
+			PackageManager packageManager = ctx.getPackageManager();
+			ApplicationInfo ai = packageManager.getApplicationInfo(packageName, 128);
+			PackageInfo pi = packageManager.getPackageInfo(packageName, 0);
 
-				if (pi != null && APSAnalyticsMeta.getAppVersion() == null) {
-					APSAnalyticsMeta.setAppVersion(pi.versionName);
-				}
-			} catch (PackageManager.NameNotFoundException _ex) {
-				return;
+			if (pi != null && APSAnalyticsMeta.getAppVersion() == null) {
+				APSAnalyticsMeta.setAppVersion(pi.versionName);
 			}
-
-			this.app = app;
-			this.preferences = ctx.getSharedPreferences("titanium", 0);
-			if (this.machineId == null) {
-				this.setMachineId(ctx);
-			}
-
+		} catch (PackageManager.NameNotFoundException _ex) {
+			return;
 		}
-	}
 
-	public boolean isInitialized()
-	{
-		return false;
+		if (this.machineId == null) {
+			this.setMachineId(ctx);
+		}
 	}
 
 	public String getCurrentSessionId()

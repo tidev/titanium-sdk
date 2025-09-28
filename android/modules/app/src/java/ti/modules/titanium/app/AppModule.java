@@ -138,12 +138,6 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return APSAnalytics.getInstance().getCurrentSessionId();
 	}
 
-	@Kroll.getProperty
-	public boolean getAnalytics()
-	{
-		return false;
-	}
-
 	@Kroll.method
 	public String appURLToPath(String url)
 	{
