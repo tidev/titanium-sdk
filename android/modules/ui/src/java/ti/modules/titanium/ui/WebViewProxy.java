@@ -15,6 +15,7 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
@@ -75,6 +76,25 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fpassword;
 	PrintManager printManager;
 	private Message postCreateMessage;
+
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A4 = 0;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A5 = 1;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A3 = 2;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A2 = 3;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A1 = 4;
+	@Kroll.constant
+	public static final int PDF_PAGE_AUTO = 5;
+	@Kroll.constant
+	public static final int LAYER_TYPE_NONE = View.LAYER_TYPE_NONE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_SOFTWARE = View.LAYER_TYPE_SOFTWARE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_HARDWARE = View.LAYER_TYPE_HARDWARE;
 
 	public WebViewProxy()
 	{
@@ -245,6 +265,25 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.setProperty
+	public void setLayerType(int value)
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			currWebView.setLayerType(value);
+		}
+	}
+
+	@Kroll.getProperty
+	public int getLayerType()
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			return currWebView.layerType;
+		}
+		return 0;
+	}
+
+	@Kroll.setProperty
 	public void setRequestHeaders(HashMap params)
 	{
 		if (params != null) {
@@ -315,15 +354,15 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 				PrintAttributes.MediaSize mediaSize;
 				if (krollObject.containsKeyAndNotNull("pageSize")) {
-					if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A5) {
+					if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A5) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A5;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A3) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A3) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A3;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A2) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A2) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A2;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A1) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A1) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A1;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_AUTO) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_AUTO) {
 						DisplayMetrics metrics = TiApplication.getAppCurrentActivity()
 							.getResources().getDisplayMetrics();
 						int pdfHeight = (int) ((webView.getContentHeight()) / 90.0 * 1000) + 1000;

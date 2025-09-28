@@ -414,9 +414,26 @@
 
 - (void)setText_:(id)text
 {
-  [[self label] setText:[TiUtils stringValue:text]];
+  originalText = [TiUtils stringValue:text];
+
+  [[self label] setText:originalText];
   [self padLabel];
   [(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+- (void)setTextTransform_:(id)value
+{
+  NSString *textTransform = [TiUtils stringValue:value];
+
+  if ([textTransform isEqualToString:@"uppercase"]) {
+    [[self label] setText:[originalText uppercaseString]];
+  } else if ([textTransform isEqualToString:@"lowercase"]) {
+    [[self label] setText:[originalText lowercaseString]];
+  } else {
+    [[self label] setText:originalText];
+  }
+
+  [self padLabel];
 }
 
 - (void)setColor_:(id)color
@@ -493,13 +510,25 @@
   ENSURE_SINGLE_ARG(html, NSString);
   [[self proxy] replaceValue:html forKey:@"html" notification:NO];
 
-  NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
-                                                                          options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
-                                                                            NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
-                                                               documentAttributes:nil
-                                                                            error:nil];
+  NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                                        options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                                          NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                                             documentAttributes:nil
+                                                                                          error:nil];
+
+  // For parity with Android: Trim trailing newline characters which UIKit often appends for block tags.
+  while (attributedString.length > 0) {
+    unichar c = [[attributedString string] characterAtIndex:attributedString.length - 1];
+    if (c == '\n' || c == '\r') {
+      [attributedString deleteCharactersInRange:NSMakeRange(attributedString.length - 1, 1)];
+    } else {
+      break;
+    }
+  }
 
   [[self label] setAttributedText:attributedString];
+  [attributedString release];
+
   [self padLabel];
   [(TiViewProxy *)[self proxy] contentsWillChange];
 }

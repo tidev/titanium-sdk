@@ -221,8 +221,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 							@Override
 							public boolean inSelectionHotspot(@NonNull MotionEvent e)
 							{
-								if (holder.getProxy() instanceof TableViewRowProxy) {
-									final TableViewRowProxy row = (TableViewRowProxy) holder.getProxy();
+								if (holder.getProxy() != null) {
+									final TableViewRowProxy row = holder.getProxy();
 
 									// Prevent selection of placeholders.
 									return !row.isPlaceholder();
@@ -342,7 +342,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		if (firstVisibleView != null) {
 			final TableViewHolder firstVisibleHolder =
 				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
-			final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
+			final TableViewRowProxy firstVisibleProxy = firstVisibleHolder.getProxy();
 			int firstVisibleIndex = -1;
 			if (firstVisibleProxy != null) {
 				firstVisibleIndex = firstVisibleProxy.getIndexInSection();
@@ -534,7 +534,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
 			// Obtain first visible table row proxy.
-			return (TableViewRowProxy) firstVisibleHolder.getProxy();
+			return firstVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -556,7 +556,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				(TableViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible table row proxy.
-			return (TableViewRowProxy) lastVisibleHolder.getProxy();
+			return lastVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -655,8 +655,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		for (final Object entry : this.proxy.getData()) {
 
 			int filteredIndex = 0;
-			if (entry instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
+			if (entry instanceof TableViewSectionProxy section) {
 				final TableViewRowProxy[] rows = section.getRows();
 
 				// Add placeholder item for TableViewSection header/footer.

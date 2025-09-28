@@ -130,19 +130,18 @@ methods:
       notes: Set the value of the [window](Titanium.UI.Tab.window) property directly.
 
   - name: popToRootWindow
-    # FIXME: I don't think this exists on Android!
     summary: Closes all windows that are currently opened inside the tab.
     description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
       - name: options
         summary: |
-            Options supporting a single `animated` boolean property to determine whether the windows
+            iOS only: Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-    since: "6.2.0"
-    platforms: [iphone, ipad, macos]
+    since: {android: "12.7.0", iphone: "6.2.0", ipad: "6.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: active
@@ -253,7 +252,26 @@ properties:
          (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
+
+         #### Android Tab Icons
+         Can be used in combination with `iconFamily` in a BottomNavigation setup with `experimental:true`.
     type: String
+
+  - name: iconFamily
+    summary: Specifies the font family or specific font to use.
+    description: |
+        When using a BottomNavigation setup with `experimental:true` you can use this property in combination
+        with an `icon` to use an icon-font for the tab icons:
+
+        ``` js
+        '#tab1': {
+          icon: "\ueac1",
+          iconFamily: "tabler-icons"
+        }
+        ```
+    since: "12.7.0"
+    type: String
+    platforms: [android]
 
   - name: iconInsets
     summary: The icon inset or outset for each edge.

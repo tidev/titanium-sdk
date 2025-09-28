@@ -556,7 +556,9 @@ public class TiBlob extends KrollProxy
 					if (!bitmap.isRecycled()) {
 						return bitmap;
 					} else {
-						mMemoryCache.remove(key);
+						try {
+							mMemoryCache.remove(key);
+						} catch (Exception _ex) {}
 					}
 				}
 			}
@@ -567,14 +569,18 @@ public class TiBlob extends KrollProxy
 					case TYPE_FILE:
 						bitmap = BitmapFactory.decodeStream(getInputStream(), null, opts);
 						if (key != null) {
-							mMemoryCache.put(key, bitmap);
+							try {
+								mMemoryCache.put(key, bitmap);
+							} catch (Exception _ex) {}
 						}
 						return bitmap;
 					case TYPE_DATA:
 						byte[] byteArray = (byte[]) data;
 						bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length, opts);
 						if (key != null) {
-							mMemoryCache.put(key, bitmap);
+							try {
+								mMemoryCache.put(key, bitmap);
+							} catch (Exception _ex) {}
 						}
 						return bitmap;
 				}
@@ -628,7 +634,9 @@ public class TiBlob extends KrollProxy
 				if (!bitmap.isRecycled()) {
 					return blobFromImage(bitmap);
 				} else {
-					mMemoryCache.remove(key);
+					try {
+						mMemoryCache.remove(key);
+					} catch (Exception _ex) {}
 				}
 			}
 		}
@@ -643,7 +651,9 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			if (key != null) {
-				mMemoryCache.put(key, imageCropped);
+				try {
+					mMemoryCache.put(key, imageCropped);
+				} catch (Exception _ex) {}
 			}
 			return blobFromImage(imageCropped);
 		} catch (OutOfMemoryError e) {
@@ -709,7 +719,9 @@ public class TiBlob extends KrollProxy
 				if (!bitmap.isRecycled()) {
 					return blobFromImage(bitmap);
 				} else {
-					mMemoryCache.remove(key);
+					try {
+						mMemoryCache.remove(key);
+					} catch (Exception _ex) {}
 				}
 			}
 		}
@@ -754,7 +766,9 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			if (key != null) {
-				mMemoryCache.put(key, imageResized);
+				try {
+					mMemoryCache.put(key, imageResized);
+				} catch (Exception _ex) {}
 			}
 			return blobFromImage(imageResized);
 		} catch (OutOfMemoryError e) {
@@ -865,7 +879,9 @@ public class TiBlob extends KrollProxy
 				if (!bitmap.isRecycled()) {
 					return blobFromImage(bitmap);
 				} else {
-					mMemoryCache.remove(key);
+					try {
+						mMemoryCache.remove(key);
+					} catch (Exception _ex) {}
 				}
 			}
 		}
@@ -901,7 +917,9 @@ public class TiBlob extends KrollProxy
 				imageFinal = TiImageHelper.rotateImage(imageFinal, rotation);
 			}
 			if (key != null) {
-				mMemoryCache.put(key, imageFinal);
+				try {
+					mMemoryCache.put(key, imageFinal);
+				} catch (Exception _ex) {}
 			}
 			return blobFromImage(imageFinal);
 
@@ -940,7 +958,9 @@ public class TiBlob extends KrollProxy
 				if (!bitmap.isRecycled()) {
 					return blobFromImage(bitmap);
 				} else {
-					mMemoryCache.remove(key);
+					try {
+						mMemoryCache.remove(key);
+					} catch (Exception _ex) {}
 				}
 			}
 		}
@@ -955,7 +975,9 @@ public class TiBlob extends KrollProxy
 				imageWithAlpha = TiImageHelper.rotateImage(imageWithAlpha, rotation);
 			}
 			if (key != null) {
-				mMemoryCache.put(key, imageWithAlpha);
+				try {
+					mMemoryCache.put(key, imageWithAlpha);
+				} catch (Exception _ex) {}
 			}
 			return blobFromImage(imageWithAlpha);
 		} catch (OutOfMemoryError e) {
@@ -999,7 +1021,9 @@ public class TiBlob extends KrollProxy
 				if (!bitmap.isRecycled()) {
 					return blobFromImage(bitmap);
 				} else {
-					mMemoryCache.remove(key);
+					try {
+						mMemoryCache.remove(key);
+					} catch (Exception _ex) {}
 				}
 			}
 		}
@@ -1014,7 +1038,9 @@ public class TiBlob extends KrollProxy
 				imageRoundedCorner = TiImageHelper.rotateImage(imageRoundedCorner, rotation);
 			}
 			if (key != null) {
-				mMemoryCache.put(key, imageRoundedCorner);
+				try {
+					mMemoryCache.put(key, imageRoundedCorner);
+				} catch (Exception _ex) {}
 			}
 			return blobFromImage(imageRoundedCorner);
 		} catch (OutOfMemoryError e) {
@@ -1054,7 +1080,9 @@ public class TiBlob extends KrollProxy
 				if (!bitmap.isRecycled()) {
 					return blobFromImage(bitmap);
 				} else {
-					mMemoryCache.remove(key);
+					try {
+						mMemoryCache.remove(key);
+					} catch (Exception _ex) {}
 				}
 			}
 		}
@@ -1069,7 +1097,9 @@ public class TiBlob extends KrollProxy
 				imageWithBorder = TiImageHelper.rotateImage(imageWithBorder, rotation);
 			}
 			if (key != null) {
-				mMemoryCache.put(key, imageWithBorder);
+				try {
+					mMemoryCache.put(key, imageWithBorder);
+				} catch (Exception _ex) {}
 			}
 			return blobFromImage(imageWithBorder);
 		} catch (OutOfMemoryError e) {
