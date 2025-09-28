@@ -5,7 +5,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,24 +28,9 @@ public final class APSAnalyticsMeta
 	}
 
 	@NonNull
-	public static URL getAnalyticsUrl()
-	{
-		return analyticsUrl;
-	}
-
-	public static void setAnalyticsUrl(URL newAnalyticsUrl)
-	{
-		analyticsUrl = newAnalyticsUrl;
-	}
-
-	@NonNull
 	public static String getArchitecture()
 	{
-		if (VERSION.SDK_INT < 21) {
-			return Build.CPU_ABI;
-		} else {
-			return Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "unknown";
-		}
+		return Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "unknown";
 	}
 
 	@Nullable
@@ -177,8 +161,7 @@ public final class APSAnalyticsMeta
 	@NonNull
 	public static String getOsType()
 	{
-		return (VERSION.SDK_INT >= 21 || !Build.CPU_ABI.contains("64"))
-			&& (VERSION.SDK_INT < 21 || Build.SUPPORTED_64_BIT_ABIS.length <= 0) ? "32bit" : "64bit";
+		return Build.SUPPORTED_64_BIT_ABIS.length <= 0 ? "32bit" : "64bit";
 	}
 
 	@NonNull
@@ -207,17 +190,6 @@ public final class APSAnalyticsMeta
 	public static void setSdkVersion(String newSdkVersion)
 	{
 		sdkVersion = newSdkVersion;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	@Deprecated
-	public static int getSessionTimeout()
-	{
-		Log.w("APSAnalyticsMeta",
-			"getSessionTimeout() is deprecated and ignored, please stop using getSessionTimeout()");
-		return 0;
 	}
 }
 
