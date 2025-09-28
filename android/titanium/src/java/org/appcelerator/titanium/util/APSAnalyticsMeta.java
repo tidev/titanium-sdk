@@ -9,8 +9,6 @@ import android.os.Build.VERSION;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.net.URL;
-
 public final class APSAnalyticsMeta
 {
 	private static final String TAG = "APSAnalyticsMeta";
@@ -19,9 +17,6 @@ public final class APSAnalyticsMeta
 	private static String appVersion;
 	private static String deployType;
 	private static String sdkVersion;
-	private static URL analyticsUrl;
-	private static int flushInterval;
-	private static int flushRequeue;
 
 	public APSAnalyticsMeta()
 	{
@@ -75,28 +70,6 @@ public final class APSAnalyticsMeta
 	public static void setDeployType(String newDeployType)
 	{
 		deployType = newDeployType;
-	}
-
-	@NonNull
-	public static int getFlushInterval()
-	{
-		return flushInterval;
-	}
-
-	public static void setFlushInterval(int interval)
-	{
-		flushInterval = interval;
-	}
-
-	@NonNull
-	public static int getFlushRequeue()
-	{
-		return flushRequeue;
-	}
-
-	public static void setFlushRequeue(int timeout)
-	{
-		flushRequeue = timeout;
 	}
 
 	@NonNull
