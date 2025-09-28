@@ -267,43 +267,12 @@
     [controllerStack addObject:[self rootController]];
     [controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
     [[controller interactivePopGestureRecognizer] setDelegate:self];
-
-    BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[tabGroup valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-    if (interactiveDismissModeEnabled) {
-      [self configureFullWidthSwipeToClose];
-    }
   }
   return controller;
 }
 
-- (void)configureFullWidthSwipeToClose
-{
-  fullWidthBackGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
-
-  if (controller.interactivePopGestureRecognizer == nil) {
-    return;
-  }
-
-  id targets = [controller.interactivePopGestureRecognizer valueForKey:@"targets"];
-  if (targets == nil) {
-    return;
-  }
-
-  [fullWidthBackGestureRecognizer setValue:targets forKey:@"targets"];
-  [fullWidthBackGestureRecognizer setDelegate:self];
-  [controller.view addGestureRecognizer:fullWidthBackGestureRecognizer];
-}
-
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-  BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-  if (interactiveDismissModeEnabled && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
-    BOOL isSystemSwipeToCloseEnabled = controller.interactivePopGestureRecognizer.isEnabled == YES;
-    BOOL areThereStackedViewControllers = controller.viewControllers.count > 1;
-
-    return isSystemSwipeToCloseEnabled || areThereStackedViewControllers;
-  }
-
   if (current != nil) {
     return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
   }

@@ -683,6 +683,10 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "12.5.0"
     availability: creation
+    deprecated:
+      since: "13.0.0"
+      removed: "13.0.0"
+      notes: This is handled by the operation system in newer versions of iOS.
 
   - name: experimental
     summary: |
