@@ -183,6 +183,11 @@
   return nil;
 }
 
+- (NSString *)getFieldName:(NSInteger)index
+{
+  return [self fieldName:index];
+}
+
 - (NSInteger)fieldCount
 {
   if (results != nil) {

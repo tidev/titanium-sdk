@@ -181,6 +181,12 @@ properties:
     permission: read-only
     since: "12.3.0"
 
+  - name: letterSpacing
+    summary: Letter spacing of the [text](Titanium.UI.Label.text) as a float value.
+    platforms: [android]
+    type: Number
+    since: "12.7.0"
+
   - name: lineSpacing
     summary: Line spacing of the [text](Titanium.UI.Label.text), as a dictionary with the properties `add` and `multiply`.
     platforms: [android]
@@ -242,6 +248,12 @@ properties:
 
         See the example in [label](Titanium.UI.Label) for a demonstration.
     type: String
+
+  - name: textTransform
+    summary: Property that specifies how to capitialize the text. Can be `lowercase`, `uppercase` or `none` (default)
+    type: String
+    default: "none"
+    since: "12.7.0"
 
   - name: textAlign
     summary: Text alignment.

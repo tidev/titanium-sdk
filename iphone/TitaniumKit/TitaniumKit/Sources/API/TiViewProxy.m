@@ -2083,6 +2083,13 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   }
 }
 
+- (void)didFinishLayout
+{
+  VerboseLog(@"[INFO] Did finish layout for %@", self);
+
+  // No-op, can be overridden by subclasses.
+}
+
 #pragma mark Layout actions
 
 // Need this so we can overload the sandbox bounds on split view detail/master
@@ -2286,9 +2293,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     if ([self respondsToSelector:@selector(processForSafeArea)]) {
       TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)self;
 
-      [windowProxy processForSafeArea];
-      layoutChanged = layoutChanged || windowProxy.safeAreaInsetsUpdated;
-      windowProxy.safeAreaInsetsUpdated = NO;
+      BOOL safeAreaInsetsChanged = [windowProxy processForSafeArea];
+      layoutChanged = layoutChanged || safeAreaInsetsChanged;
+      if (safeAreaInsetsChanged && windowProxy.pendingSafeAreaUpdate) {
+        // Reset the pending safe area update here because it was already updated in the current layout cycle
+        windowProxy.pendingSafeAreaUpdate = NO;
+      }
     }
 
     if (layoutChanged && [self _hasListeners:@"postlayout" checkParent:NO]) {
