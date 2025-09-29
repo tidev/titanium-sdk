@@ -4589,8 +4589,7 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	// write the project.xcconfig
 	let dest = this.xcodeProjectConfigFile,
 		contents = [
-			'TI_VERSION=' + this.titaniumSdkVersion,
-			'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
+			'TI_SDK_DIR=' + this.platformPath,
 			'TI_APPID=' + this.tiapp.id,
 			'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
 			'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)',
