@@ -18,9 +18,7 @@
 #import "TiUIAttributedStringProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 #import "TiUIiOSButtonConfigurationProxy.h"
-#endif
 
 @implementation TiUIButton
 
@@ -223,10 +221,20 @@
 #endif
 #pragma mark Public APIs
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
-- (void)setConfiguration_:(TiUIiOSButtonConfigurationProxy *)configuration
+- (void)setConfiguration_:(id)params
 {
+  TiUIiOSButtonConfigurationProxy *configuration = nil;
+
+  if ([params isKindOfClass:[TiUIiOSButtonConfigurationProxy class]]) {
+    configuration = (TiUIiOSButtonConfigurationProxy *)params;
+  } else if ([params isKindOfClass:[NSDictionary class]]) {
+    configuration = [[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:self.proxy.pageContext args:@[ params ]];
+  } else {
+    [self throwException:@"Invalid type passed" subreason:@"Either pass a ButtonConfiguration or Object" location:CODELOCATION];
+  }
+
   self.button.configuration = configuration.configuration;
+  [[self proxy] replaceValue:configuration forKey:@"configuration" notification:NO];
 
   // If provided: Handle swap of "backgroundColor" and "backgroundSelectedColor"
   if (configuration.baseBackgroundSelectedColor != nil && configuration.baseBackgroundColor != nil) {
@@ -243,7 +251,6 @@
     };
   }
 }
-#endif
 
 - (void)setStyle_:(id)style_
 {

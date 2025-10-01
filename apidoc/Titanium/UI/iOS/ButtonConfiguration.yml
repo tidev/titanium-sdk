@@ -83,6 +83,14 @@ properties:
         property to control where the image appears relative to the title.
     type: [String, Titanium.Blob, Titanium.Filesystem.File]
     
+  - name: loading
+    summary: Whether or not a loading indicator should be shown
+    description: |
+        A Boolean value that determines whether the button displays an activity indicator
+        instead of an image.
+    type: Boolean
+    since: "13.1.0"
+
   - name: padding
     summary: The padding around the button's content.
     description: |

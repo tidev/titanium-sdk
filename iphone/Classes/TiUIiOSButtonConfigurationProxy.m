@@ -4,7 +4,6 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 
 #import "TiUIiOSButtonConfigurationProxy.h"
 #import <TitaniumKit/TiBase.h>
@@ -73,6 +72,11 @@
 - (void)setSubtitle:(NSString *)subtitle
 {
   _configuration.subtitle = subtitle;
+}
+
+- (void)setLoading:(NSNumber *)loading
+{
+  _configuration.showsActivityIndicator = loading.boolValue;
 }
 
 - (void)setBackgroundColor:(id)backgroundColor
@@ -188,5 +192,3 @@
 }
 
 @end
-
-#endif
