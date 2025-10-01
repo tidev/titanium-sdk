@@ -1504,7 +1504,7 @@ properties:
             <NavigationWindow>
                 <Window>
                     <WindowToolbar>
-                        <Button id="send" title="Send" style="Ti.UI.iOS.SystemButtonStyle.DONE" />
+                        <Button id="send" title="Send" style="Ti.UI.BUTTON_STYLE_OPTION_POSITIVE" />
                         <FlexSpace/>
                         <Button id="camera" systemButton="Ti.UI.iOS.SystemButton.CAMERA" />
                         <FlexSpace/>

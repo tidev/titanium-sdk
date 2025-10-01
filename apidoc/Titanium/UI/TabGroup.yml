@@ -243,18 +243,18 @@ methods:
         notes: Use the <Titanium.UI.TabGroup.tabs> property instead.
   
   - name: showTabBar
-    summary: Shows the tab bar with animation.
+    summary: Shows the tab group with animation.
     description: |
         This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
-        To show tab bar without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `false`.
+        To show tab group without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `false`.
     platforms: [android, iphone, ipad, macos]
     since: "12.7.0"
 
   - name: hideTabBar
-    summary: Hides the tab bar with animation.
+    summary: Hides the tab group with animation.
     description: |
         This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
-        To hide tab bar without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `true`.
+        To hide tab group without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `true`.
     platforms: [android, iphone, ipad, macos]
     since: "12.7.0"
 
@@ -306,6 +306,25 @@ properties:
         A value of `transparent` results in a semi-opaque black bar style.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
+
+  - name: bottomAccessoryView
+    summary: View shown as a bottom accessory attached to the tab group.
+    description: |
+        Adds a custom view as a bottom accessory of the tab group. Available on iOS 26+ only (uses the new iOS tab group accessories).
+
+        Note: Label subviews require explicit width and height set to render properly. Be sure to set `width` and `height` on any `Ti.UI.Label` added to this view.
+    type: Titanium.UI.View
+    osver: {ios: {min: "26.0"}}
+    platforms: [iphone, ipad, macos]
+    since: "13.0.0"
+
+  - name: minimizeBehavior
+    summary: Defines the minimize behavior for the tab group, if it is supported.
+    type: Number
+    constants: Titanium.UI.iOS.TAB_GROUP_MINIMIZE_BEHAVIOR_*
+    osver: {ios: {min: "26.0"}}
+    platforms: [iphone, ipad, macos]
+    since: "13.0.0"
 
   - name: enabled
     summary: |
@@ -534,16 +553,16 @@ properties:
         notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: tabsTranslucent
-    summary: A Boolean value that indicates whether the tab bar is translucent.
+    summary: A Boolean value that indicates whether the tab group is translucent.
     description: |
         When the value of this property is `true`, the tab group adds a translucent effect to its background
-        image or tint color. When translucency is enabled, part of the tab bar's underlying content is able
-        to show through, although the amount that shows through depends on the rest of the tab bar configuration.
+        image or tint color. When translucency is enabled, part of the tab group's underlying content is able
+        to show through, although the amount that shows through depends on the rest of the tab group configuration.
         For example, a background image can wholly or partially obscure the background content. Setting this
-        property to NO causes the tab bar to render its bar tint color or background image on top of an opaque backdrop.
+        property to NO causes the tab group to render its bar tint color or background image on top of an opaque backdrop.
 
-        The default value of this property is dependent on the configuration of the tab bar:
-          * The default value is `true` when the tab bar does not have a custom background image.
+        The default value of this property is dependent on the configuration of the tab group:
+          * The default value is `true` when the tab group does not have a custom background image.
           * The default value is `true` when a custom background image contains any transparency - that is,
             at least one pixel has an alpha value of less than 1.0.
           * The default value is `false` when the custom background image is completely opaque - that is,
@@ -606,7 +625,7 @@ properties:
         notes: Deprecated in favor of [Titanium.UI.TabGroup.tintColor](Titanium.UI.TabGroup.tintColor) or alternatively [Titanium.UI.Tab.tintColor](Titanium.UI.Tab.tintColor).
 
   - name: shadowImage
-    summary: Image of the shadow placed between the tab bar and the content area.
+    summary: Image of the shadow placed between the tab group and the content area.
     description: |
         The <Titanium.UI.TabGroup.tabsBackgroundImage> property must also be set
         in order for this to take effect.
@@ -646,7 +665,7 @@ properties:
     since: { iphone: "3.1.0", ipad: "3.1.0" }
 
   - name: tabBarVisible
-    summary: Programmatically shows / hides the bottom tab bar of the tab group.
+    summary: Programmatically shows / hides the bottom tab group of the tab group.
     description: |
         This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
         Notes: Animation effect is applied on iOS <= 17, but will be removed in SDK 13.0.0. 
@@ -664,6 +683,10 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "12.5.0"
     availability: creation
+    deprecated:
+      since: "13.0.0"
+      removed: "13.0.0"
+      notes: This is handled by the operation system in newer versions of iOS.
 
   - name: experimental
     summary: |

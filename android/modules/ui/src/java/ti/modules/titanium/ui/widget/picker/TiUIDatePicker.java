@@ -348,10 +348,9 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 
 			// Fetch selected date "value". Property won't be defined if user canceled out.
 			Object objectValue = args.get(TiC.PROPERTY_VALUE);
-			if (!(objectValue instanceof Date)) {
+			if (!(objectValue instanceof Date dateValue)) {
 				return;
 			}
-			Date dateValue = (Date) objectValue;
 
 			// Make sure selected date does not exceed min/max bounds. (Should never happen.)
 			if ((this.picker.minDate != null) && dateValue.before(this.picker.minDate)) {

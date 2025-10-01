@@ -26,9 +26,6 @@
 		"android ndk": ">=r21 <=r22b",
 		"java": ">=11.x"
 	},
-	"engines": {
-		"node": ">=16.0.0"
-	},
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/tidev/titanium_mobile.git"
