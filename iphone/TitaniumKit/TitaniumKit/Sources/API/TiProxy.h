@@ -306,6 +306,8 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source;
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)yn;
 
+- (void)applyProperties:(id)args;
+
 /**
  Returns a dictionary of all properties set on the proxy object.
  @return The dictionary containing all properties.
