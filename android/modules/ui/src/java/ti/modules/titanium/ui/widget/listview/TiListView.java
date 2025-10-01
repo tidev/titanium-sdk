@@ -261,8 +261,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 							@Override
 							public boolean inSelectionHotspot(@NonNull MotionEvent e)
 							{
-								if (holder.getProxy() instanceof ListItemProxy) {
-									final ListItemProxy item = (ListItemProxy) holder.getProxy();
+								if (holder.getProxy() != null) {
+									final ListItemProxy item = holder.getProxy();
 
 									// Prevent selection of placeholders.
 									return !item.isPlaceholder();
@@ -320,9 +320,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 									continue;
 								}
 
-								if (item.getParent() instanceof ListSectionProxy) {
+								if (item.getParent() instanceof ListSectionProxy section) {
 									final KrollDict selectedItem = new KrollDict();
-									final ListSectionProxy section = (ListSectionProxy) item.getParent();
 
 									selectedItem.put(TiC.PROPERTY_ITEM_INDEX, item.getIndexInSection());
 									selectedItem.put(TiC.PROPERTY_SECTION, section);
@@ -390,8 +389,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 			// Obtain first visible section proxy.
 			final TiViewProxy firstVisibleParentProxy = firstVisibleProxy.getParent();
-			if (firstVisibleParentProxy instanceof ListSectionProxy) {
-				final ListSectionProxy firstVisibleSection = (ListSectionProxy) firstVisibleParentProxy;
+			if (firstVisibleParentProxy instanceof ListSectionProxy firstVisibleSection) {
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, firstVisibleSection);
 
 				// Obtain first visible section index.
@@ -567,7 +565,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
 			// Obtain first visible list item proxy.
-			return (ListItemProxy) firstVisibleHolder.getProxy();
+			return firstVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -601,7 +599,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible list item proxy.
-			return (ListItemProxy) lastVisibleHolder.getProxy();
+			return lastVisibleHolder.getProxy();
 		}
 
 		return null;

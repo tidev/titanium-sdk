@@ -267,43 +267,12 @@
     [controllerStack addObject:[self rootController]];
     [controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
     [[controller interactivePopGestureRecognizer] setDelegate:self];
-
-    BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[tabGroup valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-    if (interactiveDismissModeEnabled) {
-      [self configureFullWidthSwipeToClose];
-    }
   }
   return controller;
 }
 
-- (void)configureFullWidthSwipeToClose
-{
-  fullWidthBackGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
-
-  if (controller.interactivePopGestureRecognizer == nil) {
-    return;
-  }
-
-  id targets = [controller.interactivePopGestureRecognizer valueForKey:@"targets"];
-  if (targets == nil) {
-    return;
-  }
-
-  [fullWidthBackGestureRecognizer setValue:targets forKey:@"targets"];
-  [fullWidthBackGestureRecognizer setDelegate:self];
-  [controller.view addGestureRecognizer:fullWidthBackGestureRecognizer];
-}
-
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-  BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-  if (interactiveDismissModeEnabled && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
-    BOOL isSystemSwipeToCloseEnabled = controller.interactivePopGestureRecognizer.isEnabled == YES;
-    BOOL areThereStackedViewControllers = controller.viewControllers.count > 1;
-
-    return isSystemSwipeToCloseEnabled || areThereStackedViewControllers;
-  }
-
   if (current != nil) {
     return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
   }
@@ -319,8 +288,6 @@
 {
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
-
-  [window processForSafeArea];
 
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
@@ -468,8 +435,6 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
-
   if (theWindow == rootWindow) {
     // This is probably too late for the root view controller.
     // Figure out how to call open before this callback
@@ -685,16 +650,17 @@
     activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
   }
   if ((titleColor != nil) || (activeTitleColor != nil)) {
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = UITabBarAppearance.new;
       if (titleColor != nil) {
-        UITabBarItemStateAppearance *normalAppearance = appearance.stackedLayoutAppearance.normal;
-        normalAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.inlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.compactInlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
       }
       if (activeTitleColor != nil) {
-        UITabBarItemStateAppearance *selectedAppearance = appearance.stackedLayoutAppearance.selected;
-        selectedAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.inlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.compactInlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
       }
       TiColor *backgroundColor = [TiUtils colorValue:[tabGroup valueForKey:@"tabsBackgroundColor"]];
       if (backgroundColor != nil) {
@@ -703,16 +669,13 @@
       ourItem.standardAppearance = appearance;
       ourItem.scrollEdgeAppearance = appearance;
     } else {
-#endif
       if (titleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
       }
       if (activeTitleColor != nil) {
         [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
       }
-#if IS_SDK_IOS_15
     }
-#endif
   }
 
   if (iconInsets != nil) {

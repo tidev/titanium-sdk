@@ -754,6 +754,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		});
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestAudioRecorderPermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
