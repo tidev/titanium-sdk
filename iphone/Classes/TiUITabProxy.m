@@ -653,12 +653,14 @@
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = UITabBarAppearance.new;
       if (titleColor != nil) {
-        UITabBarItemStateAppearance *normalAppearance = appearance.stackedLayoutAppearance.normal;
-        normalAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.inlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.compactInlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
       }
       if (activeTitleColor != nil) {
-        UITabBarItemStateAppearance *selectedAppearance = appearance.stackedLayoutAppearance.selected;
-        selectedAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.inlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.compactInlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
       }
       TiColor *backgroundColor = [TiUtils colorValue:[tabGroup valueForKey:@"tabsBackgroundColor"]];
       if (backgroundColor != nil) {
