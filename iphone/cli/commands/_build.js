@@ -125,6 +125,11 @@ function iOSBuilder() {
 	// cache of provisioning profiles
 	this.provisioningProfileLookup = {};
 
+	// whether or not the ARM64 architecture should be excluded from the build
+	// this applies if third party modules are not built for ARM64 but the target
+	// is ARM64 (like modern Simulators or Apple Silicon)
+	this.excludeARM64 = false;
+
 	// list of all extensions (including watch apps)
 	this.extensions = [];
 
@@ -2274,6 +2279,15 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 						cli.scanHooks(path.join(module.modulePath, 'hooks'));
 					}, this);
 
+					// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+					if (this.legacyModules.size > 0 && appc.version.gte(this.xcodeEnv.version, '12.0.0')) {
+						if (process.arch === 'arm64') {
+							return next(new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`));
+						}
+						this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
+						this.excludeARM64 = true;
+					}
+
 					this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 
 					next();
@@ -3247,6 +3261,10 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 			FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"Frameworks"' ]
 		},
 		legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
+
+	if (this.excludeARM64 && this.deployType !== 'production') {
+		buildSettings['EXCLUDED_ARCHS'] = 'arm64';
+	}
 
 	this.gccDefs.set('DEPLOYTYPE', this.deployType);
 	// set additional build settings
@@ -4846,6 +4864,16 @@ iOSBuilder.prototype.copyTitaniumiOSFiles = function copyTitaniumiOSFiles() {
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 		path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 	);
+
+	// For non-production builds, be able to open the generated Xcode project
+	if (this.deployType !== 'production') {
+		copyAndReplaceFile.call(
+			this,
+			path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'WorkspaceSettings.xcsettings'),
+			path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'xcuserdata', `${require('os').userInfo().username}.xcuserdatad`, 'WorkspaceSettings.xcsettings')
+		);
+	}
+
 	copyAndReplaceFile.call(
 		this,
 		path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),
