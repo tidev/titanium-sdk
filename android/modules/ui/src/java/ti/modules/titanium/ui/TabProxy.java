@@ -231,10 +231,9 @@ public class TabProxy extends TiViewProxy
 
 		// Fetch the TabGroup's view. If currently null, then we have to wait for TabGroup activity to be created.
 		TiUIView view = (this.tabGroupProxy != null) ? this.tabGroupProxy.peekView() : null;
-		if (!(view instanceof TiUIAbstractTabGroup)) {
+		if (!(view instanceof TiUIAbstractTabGroup tabGroupView)) {
 			return;
 		}
-		TiUIAbstractTabGroup tabGroupView = (TiUIAbstractTabGroup) view;
 
 		// Update tab.
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
@@ -251,6 +250,12 @@ public class TabProxy extends TiViewProxy
 			|| name.equals(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
 			tabGroupView.updateBadgeColor(this.tabGroupProxy.getTabIndex(this));
 		}
+	}
+
+	@Kroll.method
+	public void popToRootWindow()
+	{
+		TiApplication.getInstance().popToRootWindow();
 	}
 
 	@Override

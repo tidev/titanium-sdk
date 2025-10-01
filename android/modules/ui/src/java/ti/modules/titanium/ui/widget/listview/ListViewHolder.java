@@ -203,20 +203,17 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 							&& properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 						backgroundDrawable = nativeView.getBackground();
 					}
-					if (backgroundDrawable instanceof TiBackgroundDrawable) {
-						final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
+					if (backgroundDrawable instanceof TiBackgroundDrawable drawable) {
 
 						backgroundDrawable = drawable.getBackground();
 					}
 
 					// Parse background color to determine transparency.
 					int backgroundColor = -1;
-					if (backgroundDrawable instanceof PaintDrawable) {
-						final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+					if (backgroundDrawable instanceof PaintDrawable drawable) {
 
 						backgroundColor = drawable.getPaint().getColor();
-					} else if (backgroundDrawable instanceof ColorDrawable) {
-						final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+					} else if (backgroundDrawable instanceof ColorDrawable drawable) {
 
 						backgroundColor = drawable.getColor();
 					}

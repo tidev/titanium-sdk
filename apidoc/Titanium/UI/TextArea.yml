@@ -353,6 +353,15 @@ properties:
     platforms: [iphone,ipad, macos]
     since: 3.2.0
 
+  - name: html
+    summary: Pass a HTML-based string and it will be formatted accordingly.
+    description: |
+        Note that complex html structures like images are not supported.
+        Use a <Titanium.UI.WebView> for those cases.
+    platforms: [android, iphone, ipad, macos]
+    since: "12.7.0"
+    type: String
+
   - name: keyboardToolbar
     summary: |
         Array of toolbar button objects or a [toolbar](Titanium.UI.Toolbar) to be used when the
@@ -594,7 +603,7 @@ examples:
 
         ``` js
         var send = Ti.UI.createButton({
-            style : Ti.UI.iOS.SystemButtonStyle.DONE,
+            style : Ti.UI.BUTTON_STYLE_OPTION_POSITIVE,
             title : 'Send'
         });
 
