@@ -149,6 +149,15 @@
   }
   [super viewWillAppear:animated];
 }
+
+- (void)viewSafeAreaInsetsDidChange
+{
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    [(id<TiWindowProtocol>)_proxy viewSafeAreaInsetsDidChange];
+  }
+  [super viewSafeAreaInsetsDidChange];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
   if (_proxy != nil) {
@@ -159,6 +168,7 @@
   }
   [super viewWillDisappear:animated];
 }
+
 - (void)viewDidAppear:(BOOL)animated
 {
   if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -166,6 +176,7 @@
   }
   [super viewDidAppear:animated];
 }
+
 - (void)viewDidDisappear:(BOOL)animated
 {
   if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

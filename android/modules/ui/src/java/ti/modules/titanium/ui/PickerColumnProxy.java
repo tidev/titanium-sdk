@@ -131,11 +131,10 @@ public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnCh
 	public void removeRow(Object value)
 	{
 		// Validate argument.
-		if (!(value instanceof PickerRowProxy)) {
+		if (!(value instanceof PickerRowProxy rowProxy)) {
 			Log.w(TAG, "Unable to remove given row. Must be of type: Ti.UI.PickerRow");
 			return;
 		}
-		PickerRowProxy rowProxy = (PickerRowProxy) value;
 
 		// Fetch index of given row by reference.
 		int index = this.rowList.indexOf(rowProxy);
