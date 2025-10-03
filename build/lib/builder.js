@@ -54,18 +54,17 @@ function determineBabelOptions(babelOptions) {
 }
 
 /**
- * Returns the exact core-js version from package-lock file, this is required to ensure that the
+ * Returns the exact core-js version from package.json file, this is required to ensure that the
  * correct polyfills are loaded for the environment
  *
  * @returns {String}
  */
 function getCorejsVersion() {
-	const packageLock = fs.readJsonSync(path.join(__dirname, '../../package-lock.json'));
-	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
-		const { version } = packageLock.dependencies['core-js'];
-		return version;
+	const packageJson = fs.readJsonSync(path.join(__dirname, '../../package.json'));
+	if (packageJson.devDependencies && packageJson.devDependencies['core-js']) {
+		return packageJson.devDependencies['core-js'];
 	}
-	throw new Error('Could not lookup core-js version in package-lock file.');
+	throw new Error('Could not lookup core-js version in package.json file.');
 }
 
 export class Builder {
