@@ -1,6 +1,6 @@
 import path from 'node:path';
 import os from 'node:os';
-import { exec, execFileSync } from 'node:child_process';
+import { exec } from 'node:child_process';
 import fs from 'fs-extra';
 import {
 	cachedDownloadPath,
@@ -35,12 +35,10 @@ const TITANIUM_PREP_LOCATIONS = [
  */
 async function zip(cwd, filename) {
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/zip') : 'zip';
-	const params = os.platform() === 'win32' ? [ '-9', '-q', '-r' ] : [ '-9', '-q', '-r', '-y' ];
-	params.push(path.join('..', path.basename(filename)));
-	params.push('*');
+	const params = os.platform() === 'win32' ? '-9 -q -r' : '-9 -q -r -y';
 
-	console.log(`exec: ${command} ${params.join(' ')}`);
-	execFileSync(command, params, { cwd, stdio: 'inherit' });
+	console.log(`exec: ${command} ${params} "${path.join('..', path.basename(filename))}" *`);
+	await exec(`${command} ${params} "${path.join('..', path.basename(filename))}" *`, { cwd });
 
 	const outputFolder = path.resolve(cwd, '..');
 	const outputFile = path.join(outputFolder, path.basename(filename));
