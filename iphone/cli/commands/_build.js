@@ -5492,7 +5492,7 @@ class iOSBuilder extends Builder {
 			this.generateSemanticColors(), // really just needs the Assets.xcassets folder to be created first
 			this.createAssetImageSets(imageAssets, resourcesToCopy), // needs same folder, modifies the resources to copy
 			this.createLaunchImageSet(launchImages, resourcesToCopy), // needs same folder, modifies the resources to copy
-			this.createAppIconSetAndiTunesArtwork(appIcons, launchLogos, resourcesToCopy), // needs same folder, modifies the resources to copy
+			this.createAppIconSet(appIcons, launchLogos, resourcesToCopy), // needs same folder, modifies the resources to copy
 		]);
 	}
 
@@ -5836,7 +5836,7 @@ class iOSBuilder extends Builder {
 	 * @param {Map.<String,FileInfo>} launchLogos launch logos to process
 	 * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
 	 */
-	async createAppIconSetAndiTunesArtwork(appIcons, launchLogos, resourcesToCopy) {
+	async createAppIconSet(appIcons, launchLogos, resourcesToCopy) {
 		this.logger.info('Creating app icon set');
 
 		// check for default icon
@@ -6029,9 +6029,6 @@ class iOSBuilder extends Builder {
 		});
 
 		let missingIcons = [];
-		if (this.target === 'dist-adhoc') {
-			missingIcons = missingIcons.concat(await this.copyiTunesArtwork());
-		}
 		missingIcons = missingIcons.concat(await this.writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged));
 		// we may punt and generate launch logos from the default icon if there's no logo to resize...
 		missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
@@ -6364,61 +6361,6 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
-	 * @returns {Promise<object[]>} missing icons
-	 */
-	async copyiTunesArtwork() {
-		this.logger.info('Copying iTunes artwork');
-
-		const missingIcons = [];
-
-		const artworkFiles = [
-			{ filename: 'iTunesArtwork', size: 512 },
-			{ filename: 'iTunesArtwork@2x', size: 1024 }
-		];
-
-		await Promise.all(artworkFiles.map(async artwork => {
-			const dest = path.join(this.xcodeAppDir, artwork.filename);
-
-			this.unmarkBuildDirFile(dest);
-
-			try {
-				const src = path.join(this.projectDir, artwork.filename);
-				if (!(await fs.exists(src))) { // TODO: just try and read it, it should throw if it doesn't exist
-					throw new Error();
-				}
-
-				const contents = await fs.readFile(src);
-				const pngInfo = appc.image.pngInfo(contents);
-
-				if (pngInfo.width !== artwork.size || pngInfo.height !== artwork.size) {
-					this.logger.warn(`Skipping ${
-						artwork.filename
-					} because dimensions (${pngInfo.width}x${pngInfo.height}) are wrong; should be ${artwork.size}x${artwork.size}`);
-					throw new Error();
-				}
-
-				if (pngInfo.alpha) {
-					this.logger.warn(`Skipping ${artwork.filename} because iTunesArtwork must not have an alpha channel`);
-					throw new Error();
-				}
-
-				if (!this.copyFileSync(src, dest, { contents: contents })) {
-					this.logger.trace(`No change, skipping ${dest.cyan}`);
-				}
-			} catch (ex) {
-				missingIcons.push({
-					description: `${artwork.filename} - Used for Ad Hoc dist`,
-					file: dest,
-					width: artwork.size,
-					height: artwork.size,
-					required: false
-				});
-			}
-		}));
-		return missingIcons;
-	}
-
-	/**
 	 * write the app icon set, and gather up missing icons we should try to generate
 	 * @param {object} lookup icons we don't have
 	 * @param {string} appIconSetDir filepath to dir we're writing our app icon set
@@ -6429,11 +6371,7 @@ class iOSBuilder extends Builder {
 	async writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged) {
 		if (Object.keys(lookup).length === 0) {
 			// wow, we had all of the icons! amazing!
-			if (this.target === 'dist-adhoc') {
-				this.logger.debug('All app icons and iTunes artwork are present and are correct');
-			} else {
-				this.logger.debug('All app icons are present and are correct');
-			}
+			this.logger.debug('All app icons are present and are correct');
 			await this.writeAssetContentsFile(path.join(appIconSetDir, 'Contents.json'), appIconSet);
 			return [];
 		}
