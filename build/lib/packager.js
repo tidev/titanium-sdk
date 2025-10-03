@@ -1,6 +1,6 @@
 import path from 'node:path';
 import os from 'node:os';
-import { exec } from 'child_process';
+import { exec, execFileSync } from 'node:child_process';
 import fs from 'fs-extra';
 import {
 	cachedDownloadPath,
@@ -35,25 +35,21 @@ const TITANIUM_PREP_LOCATIONS = [
  */
 async function zip(cwd, filename) {
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/zip') : 'zip';
-	const params = os.platform() === 'win32' ? '-9 -q -r' : '-9 -q -r -y';
+	const params = os.platform() === 'win32' ? [ '-9', '-q', '-r' ] : [ '-9', '-q', '-r', '-y' ];
+	params.push(path.join('..', path.basename(filename)));
+	params.push('*');
 
-	console.log(`exec: ${command} ${params} "${path.join('..', path.basename(filename))}" *`);
-	console.log(`cwd: ${cwd}`);
-	await exec(`${command} ${params} "${path.join('..', path.basename(filename))}" *`, { cwd });
+	console.log(`exec: ${command} ${params.join(' ')}`);
+	execFileSync(command, params, { cwd, stdio: 'inherit' });
 
 	const outputFolder = path.resolve(cwd, '..');
 	const outputFile = path.join(outputFolder, path.basename(filename));
-
-	console.log(`outputFolder: ${outputFolder}`);
-	console.log(`outputFile: ${outputFile}`);
-	console.log(`filename: ${filename}`);
 
 	if (outputFile === filename) {
 		return;
 	}
 
 	const destFolder = path.dirname(filename);
-	console.log(`destFolder: ${destFolder}`);
 	return copyFile(outputFolder, destFolder, path.basename(filename));
 }
 
