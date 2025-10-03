@@ -169,7 +169,11 @@ export class AndroidBuilder {
 
 async function gradlew(args) {
 	await new Promise((resolve, reject) => {
-		const childProcess = spawn(GRADLEW_FILE_PATH, args, { cwd: TITANIUM_ANDROID_PATH, stdio: 'inherit' });
+		const childProcess = spawn(GRADLEW_FILE_PATH, args, {
+			cwd: TITANIUM_ANDROID_PATH,
+			shell: process.platform === 'win32',
+			stdio: 'inherit'
+		});
 		childProcess.on('error', reject);
 		childProcess.on('exit', (exitCode) => {
 			if (exitCode === 0) {

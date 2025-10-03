@@ -7,7 +7,6 @@ const { version } = fs.readJsonSync('package.json');
 
 program
 	.version(version)
-	.command('check-lockfile', 'Ensures there\'s no mismatch between version string and assumed version from url in our package-lock.json')
 	.command('clean [platforms]', 'clean up build directories for one or more platforms')
 	.command('clean-modules', 'clean up global modules folder (mainly used for CI)')
 	.command('clean-sdks', 'clean up sdk installs (mainly used for CI, defaults to non-GA versions)')

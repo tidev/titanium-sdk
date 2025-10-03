@@ -196,7 +196,7 @@ export class AndroidManifest {
 	/**
 	 * Sets the <manifest/> element's "package" attribute to the given Java package name.
 	 * @param {String} name
-	 * The Java package name to be assigned such as "com.appceleration.kitchensink". Cannot be null or undefined.
+	 * The Java package name to be assigned such as "com.tidev.kitchensink". Cannot be null or undefined.
 	 */
 	setPackageName(name) {
 		// Validate argument.
@@ -410,7 +410,7 @@ export class AndroidManifest {
 	 *
 	 * Note that a gradle build failure will occur if the app's "AndroidManifest.xml" defines an activity attribute
 	 * which conflicts with a library's same activity attribute. Google expects the developer to resolve it by
-	 * defining a "tools:replace" attribute which explicitly defines each attribute that should be replaced/overriden.
+	 * defining a "tools:replace" attribute which explicitly defines each attribute that should be replaced/overridden.
 	 * Since "most" Titanium app developers override existing <application/> and <activity/> attributes, we'll
 	 * do this for them to avoid the massive tech-support issues.
 	 */

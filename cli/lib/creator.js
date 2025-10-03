@@ -417,41 +417,6 @@ export class Creator {
 	}
 
 	/**
-	 * Defines the --url option.
-	 *
-	 * @param {Integer} order - The order to apply to this option.
-	 *
-	 * @returns {Object}
-	 */
-	configOptionUrl(order) {
-		const cli = this.cli,
-			config = this.config,
-			logger = this.logger;
-
-		return {
-			abbr: 'u',
-			default: !cli.argv.prompt && config.get('app.url') || undefined,
-			desc: 'your company/personal URL',
-			order: order,
-			prompt: function (callback) {
-				callback(fields.text({
-					default: config.get('app.url'),
-					promptLabel: 'Your company/personal URL'
-				}));
-			},
-			required: !!cli.argv.prompt,
-			validate: function (value, callback) {
-				if (!value) {
-					logger.error(`The url value is "${value}"\n`);
-					return callback(true);
-				}
-
-				Array.isArray(value) ? callback(null, value[value.length - 1]) : callback(null, value);
-			}
-		};
-	}
-
-	/**
 	 * Defines the --workspace-dir option.
 	 *
 	 * @param {Integer} order - The order to apply to this option.

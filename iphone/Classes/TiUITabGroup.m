@@ -43,14 +43,12 @@ DEFINE_EXCEPTIONS
     controller.delegate = self;
     controller.moreNavigationController.delegate = self;
     [TiUtils configureController:controller withObject:self.proxy];
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
       [appearance configureWithDefaultBackground];
       appearance.backgroundColor = UIColor.clearColor;
       controller.tabBar.scrollEdgeAppearance = appearance;
     }
-#endif
   }
   return controller;
 }
@@ -370,9 +368,29 @@ DEFINE_EXCEPTIONS
 
 - (void)setTabBarVisible_:(id)value
 {
-  BOOL visible = [TiUtils boolValue:value];
+  BOOL isiOS17OrLower = [TiUtils isIOSVersionLower:@"18.0"];
+  if (isiOS17OrLower) {
+    DEPRECATED_REPLACED_REMOVED(@"UI.TabGroup.tabBarVisible animation on iOS < 18 is",
+        @"12.7.0", @"13.0.0",
+        @"UI.TabGroup.showTabBar/hideTabBar methods.");
+  }
 
-  if ([self tabBarIsVisible] == visible) {
+  [self hideTabBar:![TiUtils boolValue:value def:YES] animated:isiOS17OrLower];
+}
+
+- (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated
+{
+  if (@available(iOS 18.0, *)) {
+    [self.tabController setTabBarHidden:hidden animated:animated];
+    return;
+  }
+
+  if (!animated) {
+    self.tabController.tabBar.hidden = hidden;
+    return;
+  }
+
+  if (isTabBarHidden == hidden) {
     return;
   }
 
@@ -380,16 +398,48 @@ DEFINE_EXCEPTIONS
   CGFloat height = frame.size.height;
 
   [UIView animateWithDuration:0.3
-                   animations:^{
-                     self.tabController.tabBar.frame = CGRectOffset(frame, 0, visible ? -height : height);
-                   }
-                   completion:nil];
+      animations:^{
+        self.tabController.tabBar.frame = CGRectOffset(frame, 0, hidden ? height : -height);
+      }
+      completion:^(BOOL finished) {
+        if (finished) {
+          isTabBarHidden = hidden;
+
+          // Adjust the bottom padding for the current tab view.
+          CGRect viewFrame = self.tabController.view.frame;
+          CGFloat viewHeight = viewFrame.size.height + (hidden ? height : -height);
+          self.tabController.view.frame = CGRectMake(0, 0, viewFrame.size.width, viewHeight);
+        }
+      }];
 }
 
-- (BOOL)tabBarIsVisible
+#if IS_SDK_IOS_26
+- (void)setBottomAccessoryView_:(id)bottomAccessoryViewProxy
 {
-  return self.tabController.tabBar.frame.origin.y < CGRectGetMaxY(self.tabController.view.frame);
+  if (bottomAccessoryView != nil) {
+    [self.proxy forgetProxy:bottomAccessoryView.proxy];
+    RELEASE_TO_NIL(bottomAccessoryView);
+  }
+
+  if (bottomAccessoryViewProxy == [NSNull null]) {
+    [[self tabController] setBottomAccessory:nil];
+    return;
+  }
+
+  [self.proxy rememberProxy:bottomAccessoryViewProxy];
+
+  bottomAccessoryView = [(TiViewProxy *)bottomAccessoryViewProxy view];
+  [bottomAccessoryView retain];
+
+  UITabAccessory *tabAccessory = [[UITabAccessory alloc] initWithContentView:bottomAccessoryView];
+  [[self tabController] setBottomAccessory:tabAccessory animated:NO];
 }
+
+- (void)setMinimizeBehavior_:(NSNumber *)minimizeBehavior
+{
+  [[self tabController] setTabBarMinimizeBehavior:minimizeBehavior.integerValue];
+}
+#endif
 
 - (void)setTabsBackgroundColor_:(id)value
 {
@@ -397,7 +447,6 @@ DEFINE_EXCEPTIONS
   UITabBar *tabBar = [controller tabBar];
   // A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
-#if IS_SDK_IOS_15
   if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
     // Update main tab bar's appearance.
     tabBar.standardAppearance.backgroundColor = [color color];
@@ -411,7 +460,6 @@ DEFINE_EXCEPTIONS
       }
     }
   }
-#endif
 }
 
 - (void)setTabsTintColor_:(id)value
@@ -618,8 +666,7 @@ DEFINE_EXCEPTIONS
       focusedTabProxy = [theActiveTab retain];
     }
 
-    [self tabController].viewControllers = nil;
-    [self tabController].viewControllers = controllers;
+    self.tabController.viewControllers = controllers;
 
     if (focusedTabProxy != nil && ![tabs containsObject:focusedTabProxy]) {
       if (theActiveTab != nil) {
@@ -644,12 +691,12 @@ DEFINE_EXCEPTIONS
 {
   TiThreadPerformOnMainThread(
       ^{
-        [self.tabController willMoveToParentViewController:TiApp.controller.topPresentedController];
-
-        self.tabController.view.frame = self.bounds;
+        isTabBarHidden = NO;
+        UIViewController *parentController = TiApp.controller.topPresentedController;
+        [parentController addChildViewController:self.tabController];
         [self addSubview:self.tabController.view];
-
-        [TiApp.controller.topPresentedController addChildViewController:self.tabController];
+        self.tabController.view.frame = self.bounds;
+        [self.tabController didMoveToParentViewController:parentController];
       },
       NO);
 }

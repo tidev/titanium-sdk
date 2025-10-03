@@ -71,7 +71,6 @@ export class AppCreator extends Creator {
 				name:          this.configOptionName(140),
 				platforms:     this.configOptionPlatforms(120),
 				template:      this.configOptionTemplate(110),
-				url:           this.configOptionUrl(160),
 				'workspace-dir': this.configOptionWorkspaceDir(170)
 			}
 		};

@@ -568,7 +568,7 @@ class AndroidBuilder extends Builder {
 									}
 
 									// Failed to find devices, fallback to buildOnly.
-									logger.warn('Unable to find any emulators or devices, possibily due to missing dependencies.');
+									logger.warn('Unable to find any emulators or devices, possibly due to missing dependencies.');
 									logger.warn('Continuing with build... (will attempt to install missing dependencies)');
 									_t.buildOnly = true;
 									return callback();
@@ -1458,7 +1458,7 @@ class AndroidBuilder extends Builder {
 		this.appIconManifestValue = null;
 		this.appRoundIconManifestValue = null;
 		if (this.customAndroidManifest) {
-			// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManfiest.xml".
+			// Fetch the app "icon" and "roundIcon" attributes as-is from the "AndroidManifest.xml".
 			this.appIconManifestValue = this.customAndroidManifest.getAppAttribute('android:icon');
 			this.appRoundIconManifestValue = this.customAndroidManifest.getAppAttribute('android:roundIcon');
 			if (this.appIconManifestValue) {
@@ -2107,7 +2107,6 @@ class AndroidBuilder extends Builder {
 
 			// Load "AndroidManifest.xml", replace ${tiapp.properties['key']} variables, and save to above directories.
 			const manifest = await AndroidManifest.fromFilePath(sourceManifestFilePath);
-			manifest.setPackageName(moduleInfo.manifest.moduleid);
 			manifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
 			await manifest.writeToFilePath(path.join(debugDirPath, 'AndroidManifest.xml'));
 			await manifest.writeToFilePath(path.join(releaseDirPath, 'AndroidManifest.xml'));
@@ -2130,7 +2129,6 @@ class AndroidBuilder extends Builder {
 			this.logger.error(`Unable to load Android <manifest/> content from: ${tiModuleXmlFilePath}`);
 			throw ex;
 		}
-		mainManifest.setPackageName(moduleInfo.manifest.moduleid);
 		await mainManifest.writeToFilePath(path.join(projectSrcMainDirPath, 'AndroidManifest.xml'));
 
 		// Generate a "build.gradle" file for this project from the SDK's "lib.build.gradle" EJS template.
@@ -2220,9 +2218,11 @@ class AndroidBuilder extends Builder {
 		//       This is needed because using both libraries will cause class name collisions, causing a build failure.
 		const gradleProperties = await gradlew.fetchDefaultGradleProperties();
 		gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
+		gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '35' });
 		gradleProperties.push({ key: 'android.enableJetifier', value: 'true' });
-		gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '33' });
+		gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 		gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
+		gradleProperties.push({ key: 'org.gradle.configuration-cache', value: 'true' });
 		await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 		// Copy optional "gradle.properties" file contents from Titanium project to the above generated file.
@@ -2240,10 +2240,12 @@ class AndroidBuilder extends Builder {
 		// Create a "local.properties" file providing a path to the Android SDK directory.
 		await gradlew.writeLocalPropertiesFile(this.androidInfo.sdk.path);
 
-		// Copy our root "build.gradle" template script to the root build directory.
-		await fs.copyFile(
-			path.join(this.templatesDir, 'root.build.gradle'),
-			path.join(this.buildDir, 'build.gradle'));
+		// Generate root "build.gradle" template script to the root build directory.
+		let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'root.build.gradle'));
+		buildGradleContent = ejs.render(buildGradleContent.toString(), {
+			classpaths: [],
+		});
+		await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
 		// Copy our Titanium template's gradle constants file.
 		// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
@@ -2588,7 +2590,7 @@ class AndroidBuilder extends Builder {
 	}
 
 	/**
-	 * Used to de4termine the destination path for special assets (_app_props_.json, bootstrap.json) based on encyption or not.
+	 * Used to determine  the destination path for special assets (_app_props_.json, bootstrap.json) based on encryption or not.
 	 * @returns {string} destination directory to place file
 	 */
 	buildAssetsPath() {
@@ -3749,9 +3751,6 @@ class AndroidBuilder extends Builder {
 
 		// Write secondary "AndroidManifest.xml" if not empty.
 		if (!secondaryManifest.isEmpty()) {
-			// Make sure package name is set in <manifest/> so that ".ClassName" references in XML can be resolved.
-			secondaryManifest.setPackageName(this.appid);
-
 			// Replace ${tiapp.properties['key']} placeholders in manifest.
 			secondaryManifest.replaceTiPlaceholdersUsing(this.tiapp, this.appid);
 

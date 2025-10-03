@@ -51,6 +51,7 @@ import android.view.ViewParent;
 	TiC.PROPERTY_ON_BACK,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_TITLE_ATTRIBUTES,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
 public abstract class TiWindowProxy extends TiViewProxy
@@ -567,6 +568,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// We're opening child activity from Titanium root activity. Have it exit out of app by default.
 			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+
+			// Set default value on first window proxy also if not already set above.
+			setProperty(TiC.PROPERTY_EXIT_ON_CLOSE, true);
 		}
 
 		// Set the theme property

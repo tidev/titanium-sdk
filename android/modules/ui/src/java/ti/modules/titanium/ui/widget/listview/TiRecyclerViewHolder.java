@@ -64,8 +64,9 @@ public abstract class TiRecyclerViewHolder<V extends TiViewProxy> extends Recycl
 	{
 		super(viewGroup);
 
-		COLOR_NORMAL = MaterialColors.getColor(context, R.attr.colorButtonNormal, Color.DKGRAY);
-		COLOR_PRIMARY = MaterialColors.getColor(context, R.attr.colorPrimary, Color.DKGRAY);
+		COLOR_NORMAL = MaterialColors.getColor(context, com.google.android.material
+			.R.attr.colorButtonNormal, Color.DKGRAY);
+		COLOR_PRIMARY = MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, Color.DKGRAY);
 		COLOR_SELECTED = ColorUtils.setAlphaComponent(COLOR_PRIMARY, 20);
 
 		if (resources == null) {
@@ -217,8 +218,7 @@ public abstract class TiRecyclerViewHolder<V extends TiViewProxy> extends Recycl
 			if (currentDrawable instanceof RippleDrawable) {
 				currentDrawable = ((RippleDrawable) currentDrawable).getDrawable(0);
 			}
-			if (currentDrawable instanceof ShapeDrawable) {
-				final ShapeDrawable shapeDrawable = (ShapeDrawable) currentDrawable;
+			if (currentDrawable instanceof ShapeDrawable shapeDrawable) {
 
 				if (shapeDrawable.getShape() == null) {
 					shapeDrawable.setShape(new Shape()

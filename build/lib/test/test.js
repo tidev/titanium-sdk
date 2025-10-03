@@ -227,7 +227,7 @@ async function addTiAppProperties() {
 	const tiapp_xml_string = await fs.readFile(tiapp_xml, 'utf8');
 	const content = [];
 	const insertManifest = () => {
-		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark">');
+		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark"  android:icon="@mipmap/ic_launcher">');
 		content.push('\t\t\t\t<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCN_aC6RMaynan8YzsO1HNHbhsr9ZADDlY"/>');
 		content.push('\t\t\t\t<uses-library android:name="org.apache.http.legacy" android:required="false" />');
 		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity" android:exported="true">`);
@@ -297,7 +297,7 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t\t\t<key>UIApplicationShortcutItemType</key>');
 		content.push('\t\t\t\t\t\t<string>static_shortcut1</string>');
 		content.push('\t\t\t\t\t</dict>');
-		content.push('\t\t\t\t</array');
+		content.push('\t\t\t\t</array>');
 	};
 
 	// Not so smart but this should work...
@@ -305,6 +305,9 @@ async function addTiAppProperties() {
 		// replace generated guid with appc analytics app guid
 		if (line.indexOf('\t<guid>') >= 0) {
 			line = '\t<guid>1c4b748c-7c16-4df1-bd5c-4ffe6240286e</guid>';
+		}
+		if (line.indexOf('<application android:icon="@mipmap/ic_launcher"/>') > 0) {
+			line = '';
 		}
 
 		content.push(line);
@@ -321,7 +324,7 @@ async function addTiAppProperties() {
 		} else if (line.indexOf('<use-app-thinning>') >= 0) {
 			content.pop();
 			content.push('\t\t<use-app-thinning>false</use-app-thinning>');
-		// Grab contents of modules/modules.xml to inject as moduel listing for tiapp.xml
+		// Grab contents of modules/modules.xml to inject as module listing for tiapp.xml
 		// This allows PR to override
 		} else if (line.indexOf('<modules>') >= 0) {
 			// remove open tag

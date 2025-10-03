@@ -1322,7 +1322,6 @@ class iOSBuilder extends Builder {
 						break;
 
 					case 'dist-macappstore':
-
 						_t.conf.options['deploy-type'].values = [ 'production' ];
 						_t.conf.options['device-id'].required = false;
 						_t.conf.options['distribution-name'].required = true;
@@ -4699,8 +4698,7 @@ class iOSBuilder extends Builder {
 		// write the project.xcconfig
 		let dest = this.xcodeProjectConfigFile,
 			contents = [
-				'TI_VERSION=' + this.titaniumSdkVersion,
-				'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
+				'TI_SDK_DIR=' + this.platformPath,
 				'TI_APPID=' + this.tiapp.id,
 				'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
 				'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)',
@@ -5925,6 +5923,8 @@ class iOSBuilder extends Builder {
 			'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 			'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
 			'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
+			'-Dark':        { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
+			'-Tinted':      { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
 			'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
 		};
 		// Add macOS icons if target is macOS
@@ -6017,16 +6017,30 @@ class iOSBuilder extends Builder {
 			let flatten = false;
 			if (pngInfo.alpha) {
 				if (defaultIcon && !defaultIconHasAlpha) {
-					this.logger.warn(`Skipping ${
-						info.src.replace(this.projectDir + '/', '')
-					} because it has an alpha channel and generating one from ${
-						defaultIcon.replace(this.projectDir + '/', '')
-					}`);
-					return;
+					if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
+						// Do nothing
+					} else {
+						this.logger.warn(`Skipping ${
+							info.src.replace(this.projectDir + '/', '')
+						} because it has an alpha channel and generating one from ${
+							defaultIcon.replace(this.projectDir + '/', '')
+						}`);
+						return;
+					}
 				}
 
-				this.logger.warn(`${info.src.replace(this.projectDir + '/', '')} contains an alpha channel and will be flattened against a white background`);
-				flatten = true;
+				if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
+					this.logger.warn(`${
+						info.src.replace(this.projectDir + '/', '')
+					} contains an alpha channel and will NOT BE flattened against a white background`);
+					flatten = false;
+				} else {
+					this.logger.warn(`${
+						info.src.replace(this.projectDir + '/', '')
+					} contains an alpha channel and will be flattened against a white background`);
+					flatten = true;
+				}
+
 				flattenIcons.push(info);
 			}
 

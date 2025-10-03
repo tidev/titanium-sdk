@@ -72,7 +72,11 @@ export function init(logger, config, cli) {
 				}
 
 				// ignore logs from cli ignoreLog
-				if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
+				if (typeof ignoreLog === 'string') {
+					if (line.includes(ignoreLog)) {
+						return;
+					}
+				} else if (ignoreLog.some(ignoreItem => line.includes(ignoreItem))) {
 					return;
 				}
 

@@ -429,7 +429,7 @@ function patchLogger(logger, cli) {
 				'  ' + rpad('Version')         + ' = ' + styleValue(osInfo.osver),
 				'  ' + rpad('Architecture')    + ' = ' + styleValue(osInfo.ostype),
 				'  ' + rpad('# CPUs')          + ' = ' + styleValue(osInfo.oscpu),
-				'  ' + rpad('Memory')          + ' = ' + styleValue(osInfo.memory),
+				'  ' + rpad('Memory')          + ' = ' + styleValue((osInfo.memory / 1024 / 1024 / 1024).toFixed(1) + 'GB'),
 				'',
 				styleHeading('Node.js'),
 				'  ' + rpad('Node.js Version') + ' = ' + styleValue(osInfo.node),

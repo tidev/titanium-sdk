@@ -31,7 +31,7 @@ jobs:
       vtag: ${{ steps.vtag.outputs.vtag }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
@@ -43,7 +43,7 @@ jobs:
           echo "vtag=${VTAG}" >> $GITHUB_ENV
           echo "vtag=${VTAG}" >> $GITHUB_OUTPUT
       - name: Validate version
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           vtag: ${{ env.vtag }}
         with:
@@ -63,61 +63,61 @@ jobs:
             console.log(`${process.env.vtag} does not exist so continuing`)
 
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '16.x'
-          java-version: '11'
+          node-version: '20.x'
+          java-version: '17'
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-15
     name: iOS
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.0.0.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '16.x'
+          node-version: '20.x'
 
   package:
-    runs-on: macos-12
+    runs-on: macos-15
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.0.0.app/Contents/Developer
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '16.x'
-        java-version: '11'
+        node-version: '20.x'
+        java-version: '17'
         vtag: ${{ env.vtag }}
 
   release:
@@ -129,21 +129,21 @@ jobs:
       vtag: ${{ needs.validate.outputs.vtag }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
     - run: echo ${{ env.vtag }}
     - name: Download Linux artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: mobilesdk-${{ env.vtag }}-linux
     - name: Download MacOS artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: mobilesdk-${{ env.vtag }}-osx
     - name: Download Windows artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: mobilesdk-${{ env.vtag }}-win32
     - name: Create and push tag
@@ -155,14 +155,14 @@ jobs:
         git push origin "${TAG_VERSION}"
         echo "clean-tag=${TAG_VERSION}" >> $GITHUB_ENV
     - name: Upload SDK zips (GA)
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: ${{ github.event.inputs.release-type == 'GA' }}
       with:
         files: mobilesdk-${{ env.vtag }}-*
         tag_name: ${{ env.clean-tag }}
         name: ${{ env.vtag }}
     - name: Upload SDK zips (non-GA)
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: ${{ github.event.inputs.release-type != 'GA' }}
       with:
         files: mobilesdk-${{ env.vtag }}-*
@@ -178,7 +178,7 @@ jobs:
         git commit -m "chore(release): bump version"
         git push
     - name: Regen Builds
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         event-type: regen-builds
         repository: tidev/downloads-www

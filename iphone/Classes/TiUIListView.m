@@ -24,6 +24,7 @@
 @property (nonatomic, readonly) TiUIListViewProxy *listViewProxy;
 @property (nonatomic, copy, readwrite) NSString *searchString;
 @property (nonatomic, copy, readwrite) NSString *searchedString;
+@property (nonatomic, assign) CGFloat lastContentOffset;
 @end
 
 static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint point);
@@ -79,8 +80,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL isSearched;
   UIView *dimmingView;
   BOOL isSearchBarInNavigation;
-  int lastVisibleItem;
-  int lastVisibleSection;
+  NSInteger lastVisibleItem;
+  NSInteger lastVisibleSection;
   BOOL forceUpdates;
 }
 
@@ -890,7 +891,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   [[self tableView] setBounces:![TiUtils boolValue:value def:NO]];
 }
 
-#if IS_SDK_IOS_15
 - (void)setSectionHeaderTopPadding_:(id)value
 {
   if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
@@ -899,7 +899,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
 }
-#endif
 
 - (void)setAllowsMultipleSelectionDuringEditing_:(id)value
 {
@@ -1146,23 +1145,49 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   return [session canLoadObjectsOfClass:[NSString class]];
 }
 
-- (NSArray *)editActionsFromValue:(id)value
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  ENSURE_ARRAY(value);
-  NSArray *propArray = (NSArray *)value;
-  NSMutableArray *returnArray = nil;
+  return [self swipeConfigurationForState:@"leading" withIndexPath:indexPath isDefault:NO];
+}
 
-  for (id prop in propArray) {
-    ENSURE_DICT(prop);
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  return [self swipeConfigurationForState:@"trailing" withIndexPath:indexPath isDefault:YES];
+}
+
+- (UISwipeActionsConfiguration *)swipeConfigurationForState:(NSString *)state withIndexPath:(NSIndexPath *)indexPath isDefault:(BOOL)isDefault
+{
+  NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
+
+  if (![self canEditRowAtIndexPath:realIndexPath]) {
+    return nil;
+  }
+
+  id editActionProxies = [self valueWithKey:@"editActions" atIndexPath:realIndexPath];
+
+  if (IS_NULL_OR_NIL(editActionProxies)) {
+    return nil;
+  }
+
+  NSPredicate *predicate = [NSPredicate predicateWithFormat:isDefault ? @"state == nil OR state == %@" : @"state == %@", state];
+  NSArray<NSDictionary *> *editActions = [editActionProxies filteredArrayUsingPredicate:predicate];
+  NSMutableArray<UIContextualAction *> *nativeEditActions = [NSMutableArray arrayWithCapacity:editActions.count];
+
+  if (IS_NULL_OR_NIL(editActions) || editActions.count == 0) {
+    return nil;
+  }
+
+  for (id prop in editActions) {
     NSString *title = [TiUtils stringValue:@"title" properties:prop];
     NSString *identifier = [TiUtils stringValue:@"identifier" properties:prop];
-    int actionStyle = [TiUtils intValue:@"style" properties:prop def:UITableViewRowActionStyleDefault];
+    UIContextualActionStyle style = [TiUtils intValue:@"style" properties:prop def:UIContextualActionStyleNormal];
     TiColor *color = [TiUtils colorValue:@"color" properties:prop];
     id image = [prop objectForKey:@"image"];
 
-    UITableViewRowAction *theAction = [UITableViewRowAction rowActionWithStyle:actionStyle
+    UIContextualAction *action = [UIContextualAction contextualActionWithStyle:style
                                                                          title:title
-                                                                       handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+                                                                       handler:^(UIContextualAction *_Nonnull action, __kindof UIView *_Nonnull sourceView, void (^_Nonnull completionHandler)(BOOL)) {
+                                                                         completionHandler(YES);
                                                                          NSString *eventName = @"editaction";
 
                                                                          NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
@@ -1192,27 +1217,22 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
                                                                          }
 
                                                                          // Hide editActions after selection
-                                                                         [[self tableView] setEditing:NO];
+                                                                         // [[self tableView] setEditing:NO];
                                                                        }];
-    if (color) {
-      theAction.backgroundColor = [color color];
+
+    if (color != nil) {
+      action.backgroundColor = color.color;
     }
-    if (image) {
+
+    if (image != nil) {
       NSURL *url = [TiUtils toURL:image proxy:(TiProxy *)self.proxy];
-      UIImage *nativeImage = [[ImageLoader sharedLoader] loadImmediateImage:url];
-      if (color) {
-        nativeImage = [self generateImage:nativeImage withBackgroundColor:[color color]];
-      }
-      theAction.backgroundColor = [UIColor colorWithPatternImage:nativeImage];
+      action.image = [[ImageLoader sharedLoader] loadImmediateImage:url];
     }
-    if (!returnArray) {
-      returnArray = [NSMutableArray arrayWithObject:theAction];
-    } else {
-      [returnArray addObject:theAction];
-    }
+
+    [nativeEditActions addObject:action];
   }
 
-  return returnArray;
+  return [UISwipeActionsConfiguration configurationWithActions:nativeEditActions];
 }
 
 - (UIImage *)generateImage:(UIImage *)image withBackgroundColor:(UIColor *)bgColor
@@ -1386,23 +1406,6 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   return UITableViewCellEditingStyleNone;
-}
-
-- (NSArray *)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-  NSIndexPath *realIndexPath = [self pathForSearchPath:indexPath];
-
-  if (![self canEditRowAtIndexPath:realIndexPath]) {
-    return nil;
-  }
-
-  id editValue = [self valueWithKey:@"editActions" atIndexPath:realIndexPath];
-
-  if (IS_NULL_OR_NIL(editValue)) {
-    return nil;
-  }
-
-  return [self editActionsFromValue:editValue];
 }
 
 - (BOOL)tableView:(UITableView *)tableView shouldIndentWhileEditingRowAtIndexPath:(NSIndexPath *)indexPath
@@ -2007,6 +2010,15 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
         TiUIListSectionProxy *section;
         CGFloat topSpacing = scrollView.contentOffset.y + scrollView.adjustedContentInset.top;
 
+        NSString *direction = @"unknown";
+
+        if (self.lastContentOffset > scrollView.contentOffset.y) {
+          direction = @"down";
+        } else if (self.lastContentOffset < scrollView.contentOffset.y) {
+          direction = @"up";
+        }
+        self.lastContentOffset = scrollView.contentOffset.y;
+
         if ([indexPaths count] > 0) {
           NSIndexPath *indexPath = [self pathForSearchPath:[indexPaths objectAtIndex:0]];
           NSUInteger visibleItemCount = [indexPaths count];
@@ -2018,6 +2030,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:[section itemAtIndex:[indexPath row]] forKey:@"firstVisibleItem"];
           [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
+          [eventArgs setValue:direction forKey:@"direction"];
 
           if (lastVisibleItem != [indexPath row] || lastVisibleSection != [indexPath section] || forceUpdates) {
             // only log if the item changes or forced
@@ -2034,6 +2047,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [eventArgs setValue:section forKey:@"firstVisibleSection"];
           [eventArgs setValue:NUMINTEGER(-1) forKey:@"firstVisibleItem"];
           [eventArgs setValue:NUMINTEGER(topSpacing) forKey:@"top"];
+          [eventArgs setValue:direction forKey:@"direction"];
         }
       });
     }
@@ -2106,7 +2120,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
   if ([[self proxy] _hasListeners:@"scrolling"]) {
-    NSString *direction = nil;
+    NSString *direction = @"unknown";
 
     if (velocity.y > 0) {
       direction = @"up";

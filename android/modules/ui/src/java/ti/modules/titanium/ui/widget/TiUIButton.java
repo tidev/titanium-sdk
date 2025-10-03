@@ -20,11 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.R;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -191,9 +191,8 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
 			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
-			if (value instanceof HashMap) {
+			if (value instanceof HashMap dict) {
 				needShadow = true;
-				HashMap dict = (HashMap) value;
 				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
 				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
 			}
@@ -262,8 +261,7 @@ public class TiUIButton extends TiUIView
 				((MaterialButton) btn).setRippleColor(colorStateList);
 			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
-			if (newValue instanceof HashMap) {
-				HashMap dict = (HashMap) newValue;
+			if (newValue instanceof HashMap dict) {
 				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
 				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
 				btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
@@ -333,8 +331,7 @@ public class TiUIButton extends TiUIView
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				colorValue = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR), proxy.getActivity());
 			}
-			if (button instanceof MaterialButton) {
-				MaterialButton materialButton = (MaterialButton) button;
+			if (button instanceof MaterialButton materialButton) {
 				materialButton.setIcon(drawable);
 				materialButton.setIconTintMode(imageIsMask ? Mode.SRC_IN : Mode.DST);
 				materialButton.setIconTint(ColorStateList.valueOf(colorValue));

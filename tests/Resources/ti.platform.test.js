@@ -308,8 +308,8 @@ describe('Titanium.Platform', () => {
 				should(Ti.Platform.canOpenURL).be.a.Function();
 			});
 
-			it('returns true for typical http URL', () => {
-				should(Ti.Platform.canOpenURL('http://www.google.com/')).be.true();
+			it('returns true for typical https URL', () => {
+				should(Ti.Platform.canOpenURL('https://www.google.com/')).be.true();
 			});
 
 			it('returns true for app-sepcific URI scheme', () => {

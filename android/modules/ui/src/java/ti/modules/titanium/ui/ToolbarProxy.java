@@ -1,13 +1,16 @@
 package ti.modules.titanium.ui;
 
 import android.app.Activity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.View;
+
+import androidx.appcompat.widget.Toolbar;
+
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
+
 import ti.modules.titanium.ui.widget.TiToolbar;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
@@ -26,7 +29,7 @@ import ti.modules.titanium.ui.widget.TiToolbar;
 		TiC.PROPERTY_SUBTITLE_TEXT_COLOR,
 		TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS,
 		TiC.PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION
-})
+	})
 public class ToolbarProxy extends TiToolbarProxy
 {
 	private static final java.lang.String TAG = "Toolbar";
@@ -53,6 +56,7 @@ public class ToolbarProxy extends TiToolbarProxy
 
 	/**
 	 * Sets the activity this proxy's view should be attached to.
+	 *
 	 * @param activity The activity this proxy's view should be attached to.
 	 */
 	@Override

@@ -16,9 +16,16 @@
 
 - (void)_destroy
 {
+  if (fullWidthBackGestureRecognizer != nil) {
+    [fullWidthBackGestureRecognizer setDelegate:nil];
+    [navController.view removeGestureRecognizer:fullWidthBackGestureRecognizer];
+  }
+
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(navController);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
+
   [super _destroy];
 }
 
@@ -227,7 +234,6 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
@@ -393,14 +399,14 @@
     UIViewController *parentController = [self windowHoldingController];
     [parentController addChildViewController:navController];
     [navController didMoveToParentViewController:parentController];
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewWillDisappear:animated];
   }
   [super viewWillDisappear:animated];
 }
@@ -408,14 +414,14 @@
 - (void)viewDidAppear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewDidAppear:animated];
   }
   [super viewDidAppear:animated];
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewDidDisappear:animated];
   }
   [super viewDidDisappear:animated];
 }
