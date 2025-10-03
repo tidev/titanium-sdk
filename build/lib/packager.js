@@ -36,16 +36,24 @@ const TITANIUM_PREP_LOCATIONS = [
 async function zip(cwd, filename) {
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/zip') : 'zip';
 	const params = os.platform() === 'win32' ? '-9 -q -r' : '-9 -q -r -y';
+
+	console.log(`exec: ${command} ${params} "${path.join('..', path.basename(filename))}" *`);
+	console.log(`cwd: ${cwd}`);
 	await exec(`${command} ${params} "${path.join('..', path.basename(filename))}" *`, { cwd });
 
 	const outputFolder = path.resolve(cwd, '..');
 	const outputFile = path.join(outputFolder, path.basename(filename));
+
+	console.log(`outputFolder: ${outputFolder}`);
+	console.log(`outputFile: ${outputFile}`);
+	console.log(`filename: ${filename}`);
 
 	if (outputFile === filename) {
 		return;
 	}
 
 	const destFolder = path.dirname(filename);
+	console.log(`destFolder: ${destFolder}`);
 	return copyFile(outputFolder, destFolder, path.basename(filename));
 }
 
@@ -337,10 +345,6 @@ export class Packager {
 			return;
 		}
 
-		const distDir = path.dirname(this.zipFile);
-		console.log(`Dist dir: ${distDir}`);
-		console.log(`Exists? ${await fs.pathExists(distDir)}`);
-		console.log(`Files: ${await fs.readdir(distDir)}`);
 		console.log(`Zipping up packaged SDK to ${this.zipFile}`);
 		await zip(this.zipDir, this.zipFile);
 
