@@ -420,41 +420,6 @@ Creator.prototype.configOptionTemplate = function configOptionTemplate(order, de
 };
 
 /**
- * Defines the --url option.
- *
- * @param {Integer} order - The order to apply to this option.
- *
- * @returns {Object}
- */
-Creator.prototype.configOptionUrl = function configOptionUrl(order) {
-	const cli = this.cli,
-		config = this.config,
-		logger = this.logger;
-
-	return {
-		abbr: 'u',
-		default: !cli.argv.prompt && config.get('app.url') || undefined,
-		desc: __('your company/personal URL'),
-		order: order,
-		prompt: function (callback) {
-			callback(fields.text({
-				default: config.get('app.url'),
-				promptLabel: __('Your company/personal URL')
-			}));
-		},
-		required: !!cli.argv.prompt,
-		validate: function (value, callback) {
-			if (!value) {
-				logger.error(__('The url value is "%s"', value) + '\n');
-				return callback(true);
-			}
-
-			Array.isArray(value) ? callback(null, value[value.length - 1]) : callback(null, value);
-		}
-	};
-};
-
-/**
  * Defines the --workspace-dir option.
  *
  * @param {Integer} order - The order to apply to this option.
