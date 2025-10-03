@@ -65,7 +65,7 @@ methods:
     description: |
         This property holds a value such as `en` or `fr`. See the 
         [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) section of wikipedia for reference.
-        
+
         On Android you can also specify combination of a ISO 2-letter language and country codes. For example, 
         `en-US` or `en-GB`. See the [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
@@ -73,8 +73,13 @@ methods:
 
         When changing to a language with a different layout direction, such as English to Arabic or vice-versa,
         you will need to close and re-open the window in order to apply the new right-to-left setting.
+
+        This will restart the app internally to properly apply the new language setting. If you want to avoid
+        this behavior, you can listen for the `change` event and handle the language change manually.
+
+        When a custom language is set using this method, the SDK will persist this setting across app restarts.
     platforms: [iphone, ipad, android, macos]
-    parameters: 
+    parameters:
       - name: language
         summary: The specified ISO 639-1 code.
         type: String
@@ -209,7 +214,7 @@ events:
 
 properties:
   - name: currentCountry
-    summary: Country of the current system locale, as an ISO 2-letter code.
+    summary: Country of the app's current locale, as an ISO 2-letter code.
     description: |
         This property holds a value such as `US` or `GB`. See the 
         [ISO 3166-1 alpha-2](http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements) 
@@ -219,7 +224,7 @@ properties:
     permission: read-only
     
   - name: currentLanguage
-    summary: Language of the current system locale, as an ISO 2-letter code.
+    summary: Language of the app's current locale, as an ISO 2-letter code.
     description: |
         This property holds a value such as `en` or `fr`. See the 
         [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) section of wikipedia for reference.
@@ -227,7 +232,7 @@ properties:
     permission: read-only
     
   - name: currentLocale
-    summary: Current system locale, as a combination of ISO 2-letter language and country codes.
+    summary: Current app locale, as a combination of ISO 2-letter language and country codes.
     description: |
         This property holds a value such as `en-US` or `en-GB`.
         See the [ISO 639-1](http://en.wikipedia.org/wiki/ISO_639-1) and 

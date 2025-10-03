@@ -36,7 +36,6 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -659,7 +658,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void attachBaseContext(Context newBase)
 	{
 		baseContext = newBase;
-		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
+		super.attachBaseContext(newBase);
 	}
 
 	@Override
