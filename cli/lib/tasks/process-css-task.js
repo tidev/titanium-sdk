@@ -1,8 +1,8 @@
-const { IncrementalFileTask } = require('appc-tasks');
-const fs = require('fs-extra');
-const path = require('path');
-const pLimit = require('p-limit');
-const CleanCSS = require('clean-css');
+import { IncrementalFileTask } from 'appc-tasks';
+import fs from 'fs-extra';
+import path from 'node:path';
+import pLimit from 'p-limit';
+import CleanCSS from 'clean-css';
 
 const MAX_SIMULTANEOUS_FILES = 256;
 const limit = pLimit(MAX_SIMULTANEOUS_FILES);
@@ -10,7 +10,7 @@ const limit = pLimit(MAX_SIMULTANEOUS_FILES);
 /**
  * Task that takes input CSS files and optionally minifes them before copying to destination.
  */
-class ProcessCSSTask extends IncrementalFileTask {
+export class ProcessCSSTask extends IncrementalFileTask {
 
 	/**
 	 * Constructs a new processing task.
@@ -213,7 +213,7 @@ class ProcessCSSTask extends IncrementalFileTask {
 		this.builder.unmarkBuildDirFile(info.dest);
 
 		if (this.minifyCSS) {
-			// this.logger.debug(__('Copying and minifying %s => %s', info.src.cyan, info.dest.cyan));
+			// this.logger.debug(`Copying and minifying ${info.src.cyan} => ${info.dest.cyan}`);
 			const css = new CleanCSS({ processImport: false, returnPromise: true });
 			const source = await fs.readFile(info.src, 'utf8');
 			const output = await css.minify(source);
@@ -255,5 +255,3 @@ class ProcessCSSTask extends IncrementalFileTask {
 		};
 	}
 }
-
-module.exports = ProcessCSSTask;

@@ -1,6 +1,7 @@
 {
   "name": "titanium-mobile",
   "description": "Titanium SDK",
+  "type": "module",
   "version": "13.1.0",
   "moduleApiVersion": {
     "iphone": "2",
@@ -54,7 +55,6 @@
     "lint:objc": "clang-format-lint $npm_package_config_format_objc",
     "lint:swift": "swiftlint",
     "lint:js": "eslint .",
-    "lint:lockfile": "node ./build/scons check-lockfile && lockfile-lint --path package-lock.json --type npm --allowed-hosts npm yarn --validate-https",
     "package": "node ./build/scons package",
     "package:android": "npm run package -- android",
     "package:ios": "npm run package -- ios",

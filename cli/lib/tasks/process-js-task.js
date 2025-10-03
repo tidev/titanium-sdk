@@ -1,15 +1,12 @@
-const appc = require('node-appc');
-const { IncrementalFileTask } = require('appc-tasks');
-const crypto = require('crypto');
-const fs = require('fs-extra');
-const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
-const nodeify = require('nodeify');
-const path = require('path');
-const pLimit = require('p-limit');
-const { promisify } = require('util');
+import { IncrementalFileTask } from 'appc-tasks';
+import crypto from 'node:crypto';
+import fs from 'fs-extra';
+import jsanalyze from 'node-titanium-sdk/lib/jsanalyze.js';
+import nodeify from 'nodeify';
+import path from 'node:path';
+import pLimit from 'p-limit';
+import { promisify } from 'node:util';
 
-const i18n = appc.i18n(__dirname);
-const __ = i18n.__;
 const MAX_SIMULTANEOUS_FILES = 256;
 const limit = pLimit(MAX_SIMULTANEOUS_FILES);
 
@@ -17,7 +14,7 @@ const limit = pLimit(MAX_SIMULTANEOUS_FILES);
  * Task that processes JS files by applying several transforms and copying them to their
  * destination inside the build directory.
  */
-class ProcessJsTask extends IncrementalFileTask {
+export class ProcessJsTask extends IncrementalFileTask {
 	/**
 	 * Constructs a new processing task.
 	 *
@@ -302,14 +299,14 @@ class ProcessJsTask extends IncrementalFileTask {
 		if (this.builder.useWebpack && !isFileFromCommonFolder) {
 			// Webpack already did all the work, just copy the file's content
 			newContents = source;
-			this.logger.debug(__('Copying %s => %s', from.cyan, to.cyan));
+			this.logger.debug(`Copying ${from.cyan} => ${to.cyan}`);
 		} else {
 			// legacy JS processing
 			const modified = jsanalyze.analyzeJs(source, analyzeOptions);
 			newContents = modified.contents;
 			// we want to sort by the "to" filename so that we correctly handle file overwriting
 			this.data.tiSymbols[to] = modified.symbols;
-			this.logger.debug(__(`Copying${this.builder.minifyJS ? ' and minifying' : ''} %s => %s`, from.cyan, to.cyan));
+			this.logger.debug(`Copying${this.builder.minifyJS ? ' and minifying' : ''} ${from.cyan} => ${to.cyan}`);
 		}
 
 		const dir = path.dirname(to);
@@ -454,5 +451,3 @@ class ProcessJsTask extends IncrementalFileTask {
 		};
 	}
 }
-
-module.exports = ProcessJsTask;

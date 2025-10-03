@@ -1,16 +1,12 @@
-const path = require('path');
-const CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task');
-
-const appc = require('node-appc');
-const i18n = appc.i18n(__dirname);
-const __ = i18n.__;
+import path from 'node:path';
+import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js';
 
 const drawableDpiRegExp = /^(high|medium|low)$/;
 
 /**
  * Task that copies Android drawables into the app.
  */
-class ProcessDrawablesTask extends CopyResourcesTask {
+export class ProcessDrawablesTask extends CopyResourcesTask {
 
 	/**
 	 * Constructs a new processing task.
@@ -39,7 +35,7 @@ class ProcessDrawablesTask extends CopyResourcesTask {
 			// We have a drawable image file. (Rename it if it contains invalid characters.)
 			const warningMessages = [];
 			if (parts.length > 3) {
-				warningMessages.push(__('- Files cannot be put into subdirectories.'));
+				warningMessages.push('- Files cannot be put into subdirectories.');
 				// retain subdirs under the res-<dpi> folder to be mangled into the destination filename
 				// i.e. take images/res-mdpi/logos/app.png and store logos/app, which below will become logos_app.png
 				base = parts.slice(2, parts.length - 1).join(path.sep) + path.sep + base;
@@ -48,24 +44,22 @@ class ProcessDrawablesTask extends CopyResourcesTask {
 			// basename may have .9 suffix, if so, we do not want to convert that .9 to _9
 			let destFilteredFilename = `${base.toLowerCase().replace(/(?!\.9$)[^a-z0-9_]/g, '_')}.${info.ext}`;
 			if (destFilteredFilename !== destFilename) {
-				warningMessages.push(__('- Names must contain only lowercase a-z, 0-9, or underscore.'));
+				warningMessages.push('- Names must contain only lowercase a-z, 0-9, or underscore.');
 			}
 			if (/^\d/.test(destFilteredFilename)) {
-				warningMessages.push(__('- Names cannot start with a number.'));
+				warningMessages.push('- Names cannot start with a number.');
 				destFilteredFilename = `_${destFilteredFilename}`;
 			}
 			if (warningMessages.length > 0) {
 				// relPath here is relative the the folder we searched, NOT the project dir, so make full path relative to project dir for log
-				logger.warn(__(`Invalid "res" file: ${path.relative(builder.projectDir, info.src)}`));
+				logger.warn(`Invalid "res" file: ${path.relative(builder.projectDir, info.src)}`);
 				for (const nextMessage of warningMessages) {
 					logger.warn(nextMessage);
 				}
-				logger.warn(__(`- Titanium will rename to: ${destFilteredFilename}`));
+				logger.warn(`- Titanium will rename to: ${destFilteredFilename}`);
 			}
 			info.dest = path.join(appMainResDir, foldername, destFilteredFilename);
 		});
 		super(options);
 	}
 }
-
-module.exports = ProcessDrawablesTask;

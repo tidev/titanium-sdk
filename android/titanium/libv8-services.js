@@ -4,21 +4,21 @@
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
-/* eslint no-unused-expressions: "off" */
-/* eslint security/detect-child-process: "off" */
-'use strict';
 
-const AndroidBuilder = require('../../build/lib/android');
-const Builder = require('../../build/lib/builder');
-const BuildUtils = require('../../build/lib/utils');
-const util = require('util');
-const ejs = require('ejs');
-const child_process = require('child_process');
+import { AndroidBuilder } from '../../build/lib/android.js';
+import { Builder } from '../../build/lib/builder.js';
+import * as BuildUtils from '../../build/lib/utils.js';
+import util from 'node:util';
+import ejs from 'ejs';
+import child_process from 'node:child_process';
+import fs from 'fs-extra';
+import path from 'node:path';
+import request from 'request-promise-native';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const exec = util.promisify(child_process.exec);
 const execFile = util.promisify(child_process.execFile);
-const fs = require('fs-extra');
-const path = require('path');
-const request = require('request-promise-native');
 
 // Determine if we're running on a Windows machine.
 const isWindows = process.platform === 'win32';
@@ -150,7 +150,7 @@ async function createSnapshot() {
 	const mainBuilder = new Builder(options, [ 'android' ]);
 	await mainBuilder.ensureGitHash();
 	const androidBuilder = new AndroidBuilder({
-		sdkVersion: require('../../package.json').version,
+		sdkVersion: fs.readJsonSync(path.join(__dirname, '../../package.json')).version,
 		gitHash: options.gitHash,
 		timestamp: options.timestamp
 	});
@@ -265,42 +265,28 @@ async function updateLibrary() {
 	return fs.copy(tmpExtractDir, installedLibV8DirPath);
 }
 
-/**
- * Does a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" JS files.
- * Will then generate a C++ header file providing a V8 snapshot of the rolled-up JS for fast startup times.
- *
- * Will exit the process when the async operation ends. Intended to be called from the command line.
- */
-function createSnapshotThenExit() {
-	exitWhenDone(createSnapshot());
-}
-
-/**
- * Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
- * If not, then this function will automatically download/install it. Function will do nothing if already installed.
- *
- * Will exit the process when the async operation ends. Intended to be called from the command line.
- */
-function updateLibraryThenExit() {
-	exitWhenDone(updateLibrary());
-}
-
-/**
- * Exits the process when the given promise's operation ends.
- * @param {Promise} promise The promise to be monitored. Cannot be null/undefined.
- */
-function exitWhenDone(promise) {
-	promise
-		.then(() => process.exit(0))
-		.catch((err) => {
+if (import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(import.meta.url)) {
+	if (process.argv[2] === 'create-snapshot') {
+		/**
+		 * Does a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" JS files.
+		 * Will then generate a C++ header file providing a V8 snapshot of the rolled-up JS for fast startup times.
+		 *
+		 * Will exit the process when the async operation ends. Intended to be called from the command line.
+		 */
+		createSnapshot().catch(err => {
 			console.error(err);
 			process.exit(1);
 		});
+	} else if (process.argv[2] === 'updateLibrary') {
+		/**
+		* Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
+		* If not, then this function will automatically download/install it. Function will do nothing if alredy installed.
+		*
+		* Will exit the process when the async operation ends. Intended to be called from the command line.
+		*/
+		updateLibrary().catch(err => {
+			console.error(err);
+			process.exit(1);
+		});
+	}
 }
-
-module.exports = {
-	createSnapshot,
-	createSnapshotThenExit,
-	updateLibrary,
-	updateLibraryThenExit
-};

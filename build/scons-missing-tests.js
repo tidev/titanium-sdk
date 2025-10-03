@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-'use strict';
 
-const path = require('path');
-const fs = require('fs-extra');
-const yaml = require('js-yaml');
+import { program } from 'commander';
+import path from 'node:path';
+import fs from 'fs-extra';
+import yaml from 'js-yaml';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
 
 /**
  *
@@ -73,8 +77,6 @@ async function getTypeName(ymlPath) {
 	return typeNames;
 }
 
-const program = require('commander');
-const version = require('../package.json').version;
 program.version(version).parse(process.argv);
 main(program)
 	.then(() => process.exit(0))

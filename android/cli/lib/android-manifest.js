@@ -17,18 +17,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
-const DOMParser = require('xmldom').DOMParser;
-const fs = require('fs-extra');
-const os = require('os');
+import { DOMParser } from 'xmldom';
+import fs from 'fs-extra';
+import os from 'node:os';
 
 /**
  * Class used to load, merge, edit, and save "AndroidManifest.xml" files.
  *
  * You are expected to load XML files via the static fromFilePath() or fromXmlString() methods.
  */
-class AndroidManifest {
+export class AndroidManifest {
 	/**
 	 * Creates a new AndroidManifest instance wrapping the given "xmldom.Document" object.
 	 * @param {Object} xmlDomDocument
@@ -820,5 +818,3 @@ function applyToolsReplaceToElement(element) {
 		element.removeAttribute('tools:replace');
 	}
 }
-
-module.exports = AndroidManifest;

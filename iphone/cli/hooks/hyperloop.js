@@ -4,16 +4,16 @@
  * @author Jeff Haynie
  * @date 02/06/2014
  */
-'use strict';
 
-const fs = require('fs'),
-	path = require('path'),
-	os = require('os'),
-	exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { exec } from 'node:child_process';
+import crypto from 'node:crypto';
 
-exports.cliVersion = '>=3.2.1';
+export const cliVersion = '>=3.2.1';
 
-exports.init = function (logger, config, cli) {
+export function init(logger, config, cli) {
 	let cmds,
 		libfile;
 
@@ -31,7 +31,7 @@ exports.init = function (logger, config, cli) {
 
 			const hlmodules = [],
 				nhlmodules = [],
-				hash = require('crypto').createHash('sha1');
+				hash = crypto.createHash('sha1');
 
 			cmds = [];
 
@@ -124,5 +124,4 @@ exports.init = function (logger, config, cli) {
 			next();
 		}
 	});
-
-};
+}

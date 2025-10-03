@@ -2,7 +2,6 @@
  * This script is used at runtime for Ti.UI.fetchSemanticColor - as well as at build time by both iOS/Android.
  * It provides a common interface for handling colors and converting to necessary string forms.
  */
-'use strict';
 
 const HEX_3_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])$/i; // i.e. #0F3
 const HEX_4_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])$/i; // i.e. #0F38
@@ -21,7 +20,7 @@ function paddedHex(integer) {
 	return str;
 }
 
-class Color {
+export class Color {
 	/**
 	 * @param {number} r red value in range 0-255
 	 * @param {number} g green value in range 0-255
@@ -179,4 +178,4 @@ class Color {
 	}
 }
 
-module.exports = Color;
+export default Color;
