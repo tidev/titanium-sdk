@@ -1,6 +1,6 @@
 import fs from 'fs-extra';
 import path from 'node:path';
-import jsanalyze from 'node-titanium-sdk/lib/jsanalyze';
+import jsanalyze from 'node-titanium-sdk/lib/jsanalyze.js';
 
 // RegExps used to match against files
 const FILENAME_REGEXP = /^(.*)\.(\w+)$/;

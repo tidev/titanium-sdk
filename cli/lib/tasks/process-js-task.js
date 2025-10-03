@@ -1,7 +1,7 @@
 import { IncrementalFileTask } from 'appc-tasks';
 import crypto from 'node:crypto';
 import fs from 'fs-extra';
-import jsanalyze from 'node-titanium-sdk/lib/jsanalyze';
+import jsanalyze from 'node-titanium-sdk/lib/jsanalyze.js';
 import nodeify from 'nodeify';
 import path from 'node:path';
 import pLimit from 'p-limit';

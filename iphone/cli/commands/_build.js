@@ -37,6 +37,7 @@ import xcodeParser from 'xcode/lib/parser/pbxproj.js';
 import plist from 'simple-plist';
 import merge from 'lodash.merge';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 const { parallel, series } = appc.async;
 const { version } = appc;
@@ -45,8 +46,10 @@ const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$');
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 
 class iOSBuilder extends Builder {
-	constructor(buildModule) {
-		super(buildModule);
+	constructor() {
+		super({
+			filename: fileURLToPath(import.meta.url)
+		});
 
 		// the minimum supported iOS SDK required when building
 		this.minSupportedIosSdk = parseInt(version.parseMin(this.packageJson.vendorDependencies['ios sdk']));
@@ -2445,14 +2448,7 @@ class iOSBuilder extends Builder {
 			cli.argv.platform = 'ios';
 
 			// Notify plugins that we're about to begin.
-			await new Promise((resolve, reject) => {
-				cli.emit('build.pre.construct', this, e => {
-					if (e) {
-						return reject(e);
-					}
-					resolve();
-				});
-			});
+			await cli.emit('build.pre.construct', this);
 
 			// Initialize build system. Checks if we need to do a clean or incremental build.
 			await this.initialize(); // sets a lot of fields/properties
@@ -2463,14 +2459,7 @@ class iOSBuilder extends Builder {
 			await this.initBuildDir(); // wipe or re-create build dir
 
 			// Notify plugins that we're prepping to compile.
-			await new Promise((resolve, reject) => {
-				cli.emit('build.pre.compile', this, e => {
-					if (e) {
-						return reject(e);
-					}
-					resolve();
-				});
-			});
+			await cli.emit('build.pre.compile', this);
 
 			// Make sure we have an "app.js" script. Will exit with a build failure if not found.
 			// Note: This used to be validated by the validate() method, but Alloy plugin
@@ -2553,14 +2542,7 @@ class iOSBuilder extends Builder {
 
 			// Build the app.
 			// provide a hook event before xcodebuild
-			await new Promise((resolve, reject) => {
-				cli.emit('build.pre.build', this, e => {
-					if (e) {
-						return reject(e);
-					}
-					resolve();
-				});
-			});
+			await cli.emit('build.pre.build', this);
 			await this.generateRequireIndex(); // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
 			// build baby, build
 			await new Promise((resolve, reject) => {
@@ -2572,14 +2554,7 @@ class iOSBuilder extends Builder {
 				});
 			});
 			// provide a hook event after xcodebuild
-			await new Promise((resolve, reject) => {
-				cli.emit('build.post.build', this, e => {
-					if (e) {
-						return reject(e);
-					}
-					resolve();
-				});
-			});
+			await cli.emit('build.post.build', this);
 
 			// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
 			await new Promise((resolve, reject) => {
@@ -2598,22 +2573,8 @@ class iOSBuilder extends Builder {
 			}
 
 			// Notify plugins that the build is done.
-			await new Promise((resolve, reject) => {
-				cli.emit('build.post.compile', this, e => {
-					if (e) {
-						return reject(e);
-					}
-					resolve();
-				});
-			});
-			await new Promise((resolve, reject) => {
-				cli.emit('build.finalize', this, e => {
-					if (e) {
-						return reject(e);
-					}
-					resolve();
-				});
-			});
+			await cli.emit('build.post.compile', this);
+			await cli.emit('build.finalize', this);
 		} catch (err) {
 			// TODO: call finished callback with error?
 			// Failed to build app. Print the error message and stack trace (if possible), then exit out.
@@ -7301,7 +7262,7 @@ async function processArchitecture() {
 }
 
 // create the builder instance and expose the public api
-const builder = new iOSBuilder(module);
+const builder = new iOSBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);
 export const run = builder.run.bind(builder);

@@ -37,6 +37,7 @@ import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import util from 'node:util';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 const afs = appc.fs;
@@ -45,8 +46,10 @@ const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 
 class AndroidBuilder extends Builder {
-	constructor(buildModule) {
-		super(buildModule);
+	constructor() {
+		super({
+			filename: fileURLToPath(import.meta.url)
+		});
 
 		this.devices = null; // set by findTargetDevices() during 'config' phase
 		this.devicesToAutoSelectFrom = [];
@@ -96,7 +99,7 @@ class AndroidBuilder extends Builder {
 		// prompting occurs. because detection is expensive we also do it here instead
 		// of during config() because there's no sense detecting if config() is being
 		// called because of the help command.
-		cli.on('cli:pre-validate', function (obj, callback) {
+		cli.on('cli:pre-validate', function (_obj, callback) {
 			if (cli.argv.platform && cli.argv.platform !== 'android') {
 				return callback();
 			}
@@ -1598,7 +1601,7 @@ class AndroidBuilder extends Builder {
 			super.run(logger, config, cli, finished);
 
 			// Notify plugins that we're about to begin.
-			await new Promise(resolve => cli.emit('build.pre.construct', this, resolve));
+			await cli.emit('build.pre.construct', this);
 
 			// Initialize build system. Checks if we need to do a clean or incremental build.
 			await this.initialize();
@@ -1608,9 +1611,7 @@ class AndroidBuilder extends Builder {
 			await this.checkIfNeedToRecompile();
 
 			// Notify plugins that we're prepping to compile.
-			await new Promise((resolve, reject) => {
-				cli.emit('build.pre.compile', this, e => (e ? reject(e) : resolve()));
-			});
+			await cli.emit('build.pre.compile', this);
 
 			// Make sure we have an "app.js" script. Will exit with a build failure if not found.
 			// Note: This used to be validated by the validate() method, but Alloy plugin
@@ -1623,9 +1624,9 @@ class AndroidBuilder extends Builder {
 			await this.generateAppProject();
 
 			// Build the app.
-			await new Promise(resolve => cli.emit('build.pre.build', this, resolve));
+			await cli.emit('build.pre.build', this);
 			await this.buildAppProject();
-			await new Promise(resolve => cli.emit('build.post.build', this, resolve));
+			await cli.emit('build.post.build', this);
 
 			// Write Titanium build settings to file. Used to determine if next build can be incremental or not.
 			await this.writeBuildManifest();
@@ -1637,8 +1638,8 @@ class AndroidBuilder extends Builder {
 			}
 
 			// Notify plugins that the build is done.
-			await new Promise(resolve => cli.emit('build.post.compile', this, resolve));
-			await new Promise(resolve => cli.emit('build.finalize', this, resolve));
+			await cli.emit('build.post.compile', this);
+			await cli.emit('build.finalize', this);
 		} catch (err) {
 			// Failed to build app. Print the error message and stack trace (if possible), then exit out.
 			// Note: "err" can be whatever type (including undefined) that was passed into Promise.reject().
@@ -3878,7 +3879,7 @@ class AndroidBuilder extends Builder {
 }
 
 // create the builder instance and expose the public api
-const builder = new AndroidBuilder(module);
+const builder = new AndroidBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);
 export const run = builder.run.bind(builder);

@@ -12,7 +12,7 @@ import path from 'node:path';
 import sprintf from 'sprintf';
 import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -243,7 +243,6 @@ export function config(logger, config, cli) {
 }
 
 export function validate(logger, config, cli) {
-
 	// Determine if the project is an app or a module, run appropriate build command
 	if (cli.argv.type === 'module') {
 
@@ -293,9 +292,9 @@ export function validate(logger, config, cli) {
 }
 
 export async function run(logger, config, cli, finished) {
-	const buildFile = cli.argv.type === 'module' ? '_buildModule.js' : '_build.js',
-		platform = ti.resolvePlatform(cli.argv.platform),
-		buildModule = path.join(__dirname, '..', '..', platform, 'cli', 'commands', buildFile);
+	const buildFile = cli.argv.type === 'module' ? '_buildModule.js' : '_build.js';
+	const platform = ti.resolvePlatform(cli.argv.platform);
+	const buildModule = pathToFileURL(path.join(__dirname, '..', '..', platform, 'cli', 'commands', buildFile));
 
 	if (!fs.existsSync(buildModule)) {
 		logger.error('Unable to find platform specific build command\n');
