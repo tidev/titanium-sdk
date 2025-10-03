@@ -4,8 +4,11 @@ import { promisify } from 'node:util';
 import glob from 'glob';
 import { spawn } from 'node:child_process';  // eslint-disable-line security/detect-child-process
 import { copyFiles, copyAndModifyFile } from './utils.js';
+import { fileURLToPath } from 'node:url';
 
 const globPromise = promisify(glob);
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const IOS_ROOT = path.join(ROOT_DIR, 'iphone');
