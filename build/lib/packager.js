@@ -337,6 +337,10 @@ export class Packager {
 			return;
 		}
 
+		const distDir = path.dirname(this.zipFile);
+		console.log(`Dist dir: ${distDir}`);
+		console.log(`Exists? ${await fs.pathExists(distDir)}`);
+		console.log(`Files: ${await fs.readdir(distDir)}`);
 		console.log(`Zipping up packaged SDK to ${this.zipFile}`);
 		await zip(this.zipDir, this.zipFile);
 
