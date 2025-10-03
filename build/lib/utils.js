@@ -2,7 +2,7 @@ import util from 'node:util';
 import path from 'node:path';
 import fs from 'fs-extra';
 import os from 'node:os';
-import child_process from 'node:child_process';
+import childProcess from 'node:child_process';
 import glob from 'glob';
 import appc from 'node-appc';
 import request from 'request';
@@ -13,7 +13,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const titanium = require.resolve('titanium');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const exec = util.promisify(child_process.exec);
+const exec = util.promisify(childProcess.exec);
 const globPromise = util.promisify(glob);
 
 const tempDir = os.tmpdir();

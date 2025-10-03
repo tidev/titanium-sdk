@@ -1,6 +1,6 @@
 import path from 'node:path';
 import os from 'node:os';
-import { exec } from 'node:child_process';
+import childProcess from 'node:child_process';
 import fs from 'fs-extra';
 import {
 	cachedDownloadPath,
@@ -11,7 +11,9 @@ import {
 	unzip
 } from './utils.js';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
+const exec = promisify(childProcess.exec);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '../..');
 const packageJSON = fs.readJsonSync(path.join(ROOT_DIR, 'package.json'));
