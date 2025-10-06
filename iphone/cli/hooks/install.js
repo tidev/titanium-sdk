@@ -34,43 +34,10 @@ exports.init = function (logger, config, cli) {
 				const devices = {};
 				if (!err) {
 					results.devices.forEach(function (device) {
-						if (device.udid !== 'itunes' && device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
+						if (device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
 							devices[device.udid] = device;
 						}
 					});
-				}
-
-				// if we don't have a deviceId, or it's "itunes", or it's "all", but not devices are connected,
-				// then install to iTunes
-				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId && !Object.keys(devices).length)) {
-					logger.info(__('Installing application into iTunes'));
-
-					let ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
-					fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
-					run('open', [ '-b', 'com.apple.itunes', ipa ], function (code) {
-						if (code) {
-							return finished(new appc.exception(__('Failed to launch iTunes')));
-						}
-
-						logger.info(__('Initiating iTunes sync'));
-						run('osascript', path.join(builder.platformPath, 'itunes_sync.scpt'), function (code, out, err) {
-							if (code) {
-								if (err.indexOf('(-1708)') !== -1) {
-									// err == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
-									//
-									// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
-									//       then wait for them to accept it and then try again
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
-								} else {
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
-								}
-							} else {
-								finished();
-							}
-						});
-					});
-
-					return;
 				}
 
 				const udids = Object.keys(devices),

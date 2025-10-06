@@ -406,14 +406,8 @@ iOSBuilder.prototype.config = function config(logger, config, cli) {
 
 			this.iosInfo = iosInfo;
 
-			// add itunes sync
-			iosInfo.devices.push({
-				udid: 'itunes',
-				name: 'iTunes Sync'
-			});
-
-			// we have more than 1 device plus itunes, so we should show 'all'
-			if (iosInfo.devices.length > 2) {
+			// we have more than 1 device, so we should show 'all'
+			if (iosInfo.devices.length > 1) {
 				iosInfo.devices.push({
 					udid: 'all',
 					name: 'All Devices'
@@ -536,8 +530,7 @@ iOSBuilder.prototype.configOptionDeployType = function configOptionDeployType(or
 iOSBuilder.prototype.configOptionDeviceID = function configOptionDeviceID(order) {
 	return {
 		abbr: 'C',
-		desc: __('the udid of the iOS simulator or iOS device to install the application to; for %s builds %s',
-			'device'.cyan, ('[' + 'itunes'.bold + ', <udid>, all]').grey),
+		desc: __('the udid of the iOS simulator or iOS device to install the application to; for %s builds %s', 'device'.cyan, '[<udid>, all]'.grey),
 		hint: __('udid'),
 		order: order,
 		helpNoPrompt: function (logger, msg) {
@@ -2029,8 +2022,8 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				// no --device-id or doing a build-only sim build, so pick a device
 
 				if (cli.argv.target === 'device') {
-					if (!cli.argv['build-only'] && !cli.argv['device-id']) {
-						cli.argv['device-id'] = this.iosInfo.devices.length ? this.iosInfo.devices[0].udid : 'itunes';
+					if (!cli.argv['build-only'] && !cli.argv['device-id'] && this.iosInfo.devices.length) {
+						cli.argv['device-id'] = this.iosInfo.devices[0].udid;
 					}
 					return next();
 				}
@@ -2156,7 +2149,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 				// check the min-ios-ver for the device we're installing to
 				if (this.target === 'device') {
 					this.getDeviceInfo().devices.forEach(function (device) {
-						if (device.udid !== 'all' && device.udid !== 'itunes' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
+						if (device.udid !== 'all' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
 							logger.error(__('This app does not support the device "%s"', device.name) + '\n');
 							logger.log(__('The device is running iOS %s, however the app\'s the minimum iOS version is set to %s', device.productVersion.cyan, version.format(this.minIosVer, 2, 3).cyan));
 							logger.log(__('In order to install this app on this device, lower the %s to %s in the tiapp.xml:', '<min-ios-ver>'.cyan, version.format(device.productVersion, 2, 2).cyan));
@@ -4452,15 +4445,6 @@ iOSBuilder.prototype.writeInfoPlist = function writeInfoPlist() {
 		};
 	} else if (plist.NSAppTransportSecurity.NSAllowsArbitraryLoads) {
 		this.logger.info(__('ATS explicitly disabled'));
-	}
-
-	if (this.target === 'device' && this.deviceId === 'itunes') {
-		// device builds require an additional token to ensure uniqueness so that iTunes will detect an updated app to sync.
-		// we drop the milliseconds from the current time so that we still have a unique identifier, but is less than 10
-		// characters so iTunes 11.2 doesn't get upset.
-		plist.CFBundleVersion = String(+new Date());
-		this.logger.debug(__('Building for iTunes sync which requires us to set the CFBundleVersion to a unique number to trigger iTunes to update your app'));
-		this.logger.debug(__('Setting Info.plist CFBundleVersion to current epoch time %s', plist.CFBundleVersion.cyan));
 	}
 
 	// scan for ttf and otf font files

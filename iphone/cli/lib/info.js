@@ -43,11 +43,6 @@ exports.detect = function (types, config, next) {
 			return next(err);
 		}
 
-		results.devices.unshift({
-			udid: 'itunes',
-			name: 'iTunes Sync'
-		});
-
 		results.tisdk = path.basename((function scan(dir) {
 			var file = path.join(dir, 'manifest.json');
 			if (fs.existsSync(file)) {
@@ -276,9 +271,7 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 	}
 
 	logger.log(styleHeading(__('Connected iOS Devices')));
-	const devices = data.devices.filter(function (device) {
-		return device.udid !== 'itunes';
-	});
+	const devices = data.devices;
 	if (devices.length) {
 		logger.log(devices.map(function (device) {
 			return '  ' + device.name.cyan + '\n' + [
