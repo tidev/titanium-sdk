@@ -27,12 +27,15 @@ import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import util from 'node:util';
 import semver from 'semver';
 import spawn from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const version = appc.version;
 
 export class AndroidModuleBuilder extends Builder {
-	constructor(buildModule) {
-		super(buildModule);
+	constructor() {
+		super({
+			filename: fileURLToPath(import.meta.url)
+		});
 
 		this.requiredArchitectures = this.packageJson.architectures;
 		this.compileSdkVersion = this.packageJson.compileSDKVersion; // this should always be >= maxSupportedApiLevel
@@ -955,7 +958,7 @@ export class AndroidModuleBuilder extends Builder {
 }
 
 // create the builder instance and expose the public api
-const moduleBuilder = new AndroidModuleBuilder(module);
+const moduleBuilder = new AndroidModuleBuilder();
 export const config = moduleBuilder.config.bind(moduleBuilder);
 export const validate = moduleBuilder.validate.bind(moduleBuilder);
 export const run = moduleBuilder.run.bind(moduleBuilder);
