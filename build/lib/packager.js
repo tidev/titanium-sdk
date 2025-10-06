@@ -38,8 +38,6 @@ const TITANIUM_PREP_LOCATIONS = [
 async function zip(cwd, filename) {
 	const command = os.platform() === 'win32' ? path.join(ROOT_DIR, 'build/win32/zip') : 'zip';
 	const params = os.platform() === 'win32' ? '-9 -q -r' : '-9 -q -r -y';
-
-	console.log(`exec: ${command} ${params} "${path.join('..', path.basename(filename))}" *`);
 	await exec(`${command} ${params} "${path.join('..', path.basename(filename))}" *`, { cwd });
 
 	const outputFolder = path.resolve(cwd, '..');
