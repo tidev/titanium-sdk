@@ -20,7 +20,7 @@ import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
-import markdown from 'markdown';
+import { markdown } from 'markdown';
 import path from 'node:path';
 import temp from 'temp';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
@@ -742,7 +742,7 @@ export class AndroidModuleBuilder extends Builder {
 				}
 			}
 		};
-		if (await fs.exists(this.documentationDir)) {
+		if (fs.existsSync(this.documentationDir)) {
 			await archiveDocFilesInDirectory(this.documentationDir, path.join(moduleFolder, 'documentation'));
 		}
 
