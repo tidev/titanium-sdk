@@ -87,7 +87,7 @@ public class TiLocaleManager
 			return;
 		}
 
-		// This will trigger & receive updates via the `onSystemLocaleChanged` route.
+		// This will trigger & receive updates via the `TiApplication's onConfigurationChanged`.
 		didUserChangeLanguage = true;
 		LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(locale.toLanguageTag());
 		AppCompatDelegate.setApplicationLocales(appLocales);
@@ -124,6 +124,11 @@ public class TiLocaleManager
 				}
 			});
 		}
+	}
+
+	public static boolean didSystemOrAppLocaleChange()
+	{
+		return didUserChangeLanguage || !systemLocale.equals(getSystemLocale());
 	}
 
 	public static void handleSystemLocaleUpdates()
