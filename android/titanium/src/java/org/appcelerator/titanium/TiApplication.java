@@ -304,7 +304,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		super.onConfigurationChanged(newConfig);
 
 		// Handle locale changes separately.
-		if (TiLocaleManager.didSystemOrAppLocaleChange()) {
+		if (TiLocaleManager.didLocaleChange()) {
 			TiLocaleManager.handleSystemLocaleUpdates();
 			return;
 		}
