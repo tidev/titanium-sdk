@@ -201,3 +201,5 @@ export class AppCreator extends Creator {
 		}.bind(this));
 	}
 }
+
+export default AppCreator;

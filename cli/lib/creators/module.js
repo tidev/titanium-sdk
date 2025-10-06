@@ -291,3 +291,5 @@ export class ModuleCreator extends Creator {
 		}.bind(this));
 	}
 }
+
+export default ModuleCreator;

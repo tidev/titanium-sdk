@@ -66,7 +66,7 @@ export class IOS {
 			const buildScript = path.join(ROOT_DIR, 'support/iphone/build_titaniumkit.sh');
 			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ], { stdio: 'inherit' });
 			child.on('error', reject);
-			child.on('exit', code => {
+			child.on('close', code => {
 				if (code) {
 					const err = new Error(`TitaniumKit build exited with code ${code}`);
 					console.error(err);

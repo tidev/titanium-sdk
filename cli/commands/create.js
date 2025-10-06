@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import ti from 'node-titanium-sdk';
 import { execSync } from 'child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,99 +49,92 @@ export class CreateCommand {
 	 * @param {Object} cli - The CLI instance
 	 * @return {Function}
 	 */
-	config(logger, config, cli) {
+	async config(logger, config, cli) {
 		this.logger = logger;
 		this.config = config;
 		this.cli = cli;
 
 		fields.setup({ colors: cli.argv.colors });
 
-		return function (finished) {
-			// find and load the creators
-			const creatorDir = path.join(__dirname, '..', 'lib', 'creators'),
-				jsRegExp = /\.js$/,
-				typeConf = {};
+		// find and load the creators
+		const creatorDir = path.join(__dirname, '..', 'lib', 'creators');
+		const jsRegExp = /\.js$/;
+		const typeConf = {};
 
-			async.eachSeries(fs.readdirSync(creatorDir), function (filename, next) {
-				if (!jsRegExp.test(filename)) {
-					return next();
+		for (const filename of fs.readdirSync(creatorDir)) {
+			if (!jsRegExp.test(filename)) {
+				continue;
+			}
+
+			const { default: CreatorConstructor } = await import(pathToFileURL(path.join(creatorDir, filename)));
+			const creator = new CreatorConstructor(logger, config, cli);
+			this.creators[creator.type] = creator;
+
+			try {
+				if (typeof creator.init === 'function') {
+					if (creator.init.length > 1) {
+						await new Promise(resolve => {
+							typeConf[creator.type] = creator.init(conf => {
+								typeConf[creator.type] = conf;
+								resolve();
+							});
+						});
+					} else {
+						typeConf[creator.type] = await creator.init();
+					}
 				}
+			} catch (ex) {
+				// squeltch
+				delete this.creators[creator.type];
+			}
+		}
 
-				import(path.join(creatorDir, filename))
-					.then(({ default: CreatorConstructor }) => {
-						const creator = new CreatorConstructor(logger, config, cli);
-						this.creators[creator.type] = creator;
-
-						try {
-							if (typeof creator.init === 'function') {
-								if (creator.init.length > 1) {
-									typeConf[creator.type] = creator.init(function (conf) {
-										typeConf[creator.type] = conf;
-										next();
-									});
-									return;
-								}
-								typeConf[creator.type] = creator.init();
-							}
-						} catch (ex) {
-							// squeltch
-							delete this.creators[creator.type];
-						} finally {
-							next();
-						}
-					})
-					.catch(err => next(err));
-			}.bind(this), function () {
-				cli.createHook('create.config', this, function (callback) {
-					var conf = {
-						flags: {
-							force: {
-								abbr: 'f',
-								desc: 'force project creation even if path already exists'
-							}
+		return new Promise(resolve => cli.createHook('create.config', this, (callback) => {
+			const conf = {
+				flags: {
+					force: {
+						abbr: 'f',
+						desc: 'force project creation even if path already exists'
+					}
+				},
+				options: Object.assign({
+					type: {
+						abbr: 't',
+						default: cli.argv.prompt ? undefined : 'app',
+						desc: 'the type of project to create',
+						order: 100,
+						prompt: (callback) => {
+							callback(fields.select({
+								title: 'What type of project would you like to create?',
+								promptLabel: 'Select a type by number or name',
+								default: 'app',
+								margin: '',
+								numbered: true,
+								relistOnError: true,
+								complete: true,
+								suggest: false,
+								options: Object.keys(this.creators)
+									.map((type) => {
+										return {
+											label: this.creators[type].title || type,
+											value: type,
+											order: this.creators[type].titleOrder
+										};
+									}, this)
+									.sort((a, b) => {
+										return a.order < b.order ? -1 : a.order > b.order ? 1 : 0;
+									})
+							}));
 						},
-						options: appc.util.mix({
-							type: {
-								abbr: 't',
-								default: cli.argv.prompt ? undefined : 'app',
-								desc: 'the type of project to create',
-								order: 100,
-								prompt: function (callback) {
-									callback(fields.select({
-										title: 'What type of project would you like to create?',
-										promptLabel: 'Select a type by number or name',
-										default: 'app',
-										margin: '',
-										numbered: true,
-										relistOnError: true,
-										complete: true,
-										suggest: false,
-										options: Object.keys(this.creators)
-											.map(function (type) {
-												return {
-													label: this.creators[type].title || type,
-													value: type,
-													order: this.creators[type].titleOrder
-												};
-											}, this)
-											.sort(function (a, b) {
-												return a.order < b.order ? -1 : a.order > b.order ? 1 : 0;
-											})
-									}));
-								}.bind(this),
-								required: true,
-								values: Object.keys(this.creators)
-							}
-						}, ti.commonOptions(logger, config)),
-						type: typeConf
-					};
+						required: true,
+						values: Object.keys(this.creators)
+					}
+				}, ti.commonOptions(logger, config)),
+				type: typeConf
+			};
 
-					callback(null, conf);
-				})(function (err, result) {
-					finished(result);
-				});
-			}.bind(this));
-		}.bind(this);
+			callback(null, conf);
+		})((err, result) => resolve(result)));
 	}
 
 	/**

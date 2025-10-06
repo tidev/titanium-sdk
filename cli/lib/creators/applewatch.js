@@ -349,3 +349,5 @@ export class AppleWatchCreator extends Creator {
 		}.bind(this));
 	}
 }
+
+export default AppleWatchCreator;
