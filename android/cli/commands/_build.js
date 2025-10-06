@@ -2859,7 +2859,14 @@ class AndroidBuilder extends Builder {
 			return;
 		}
 
-		const { default: Cloak } = await import('ti.cloak');
+		// ti.cloak's default export is jacked... there's nested default exports
+		let { default: Cloak } = await import('ti.cloak');
+		while (Cloak && typeof Cloak === 'object') {
+			Cloak = Cloak.default;
+		}
+		if (typeof Cloak !== 'function') {
+			throw new Error('Could not load encryption library!');
+		}
 		const cloak = this.encryptJS ? new Cloak() : null;
 		if (!cloak) {
 			throw new Error('Could not load encryption library!');

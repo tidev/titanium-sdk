@@ -15,7 +15,7 @@ import { Creator } from '../creator.js';
 import fs from 'fs-extra';
 import path from 'node:path';
 import ti from 'node-titanium-sdk';
-import uuid from 'node-uuid';
+import { randomUUID } from 'node:crypto';
 import fields from 'fields';
 
 /**
@@ -190,7 +190,7 @@ export class ModuleCreator extends Creator {
 			const variables = {
 					author: this.config.get('user.name', 'Your Name'),
 					publisher: this.config.get('app.publisher', 'Your Company'),
-					guid: uuid.v4(),
+					guid: randomUUID(),
 					tisdkVersion: this.sdk.name,
 					tisdkPath: this.sdk.path,
 					year: (new Date()).getFullYear(),

@@ -15,7 +15,7 @@ import { Creator } from '../creator.js';
 import fs from 'fs-extra';
 import path from 'node:path';
 import ti from 'node-titanium-sdk';
-import uuid from 'node-uuid';
+import { randomUUID } from 'node:crypto';
 
 /**
  * Creates application projects.
@@ -115,7 +115,7 @@ export class AppCreator extends Creator {
 							name: argv.name,
 							url: argv.url || '',
 							version: '1.0',
-							guid: uuid.v4(),
+							guid: randomUUID(),
 							'deployment-targets': {},
 							'sdk-version': this.sdk.name
 						},

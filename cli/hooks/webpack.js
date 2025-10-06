@@ -133,7 +133,7 @@ async function getWebpackProjectType(projectDir) {
 		'@titanium-sdk/webpack-plugin-angular'
 	];
 	// eslint-disable-next-line security/detect-non-literal-require
-	const pkg = await import(pkgPath).default;
+	const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 	const allDeps = Object.keys(pkg.devDependencies || {})
 		.concat(Object.keys(pkg.dependencies || {}));
 	const pluginId = tiPlugins.find(id => allDeps.includes(id));
