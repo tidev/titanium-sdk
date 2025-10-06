@@ -26,7 +26,7 @@ import temp from 'temp';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import util from 'node:util';
 import semver from 'semver';
-import spawn from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const version = appc.version;
