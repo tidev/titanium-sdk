@@ -15,7 +15,6 @@ import appc from 'node-appc';
 import { exec } from 'node:child_process';
 import fs from 'fs-extra';
 import path from 'node:path';
-import url from 'node:url';
 
 /**
  * Determines if we're running on a Windows machine.
