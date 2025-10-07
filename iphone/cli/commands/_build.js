@@ -24,7 +24,7 @@ import fs from 'fs-extra';
 import ioslib from 'ioslib';
 import moment from 'moment';
 import path from 'path';
-import PNG from 'pngjs';
+import { PNG } from 'pngjs';
 import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js';
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { Color } from '../../../common/lib/color.js';
@@ -5228,7 +5228,7 @@ class iOSBuilder extends Builder {
 	}
 
 	async gatherResources() {
-		const { gather } = await import('../../../cli/lib/gather.js');
+		const gather = await import('../../../cli/lib/gather.js');
 		const walker = new gather.Walker({
 			ignoreDirs: this.ignoreDirs,
 			ignoreFiles: this.ignoreFiles,
