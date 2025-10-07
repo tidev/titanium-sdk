@@ -33,6 +33,7 @@ class ProcessJsTask extends IncrementalFileTask {
 	 * @param {Object} options.defaultAnalyzeOptions Default configuration options for jsanalyze.
 	 * @param {Boolean} options.defaultAnalyzeOptions.minify Whether to minify the JS files or not.
 	 * @param {Boolean} options.defaultAnalyzeOptions.transpile Whether to transpile the JS files or not.
+	 * @param {Boolean} options.defaultAnalyzeOptions.removeLogs Whether to remove the logs in the JS files or not.
 	 * @param {Boolean} options.defaultAnalyzeOptions.sourceMaps Whether to generate source maps or not.
 	 * @param {String} options.defaultAnalyzeOptions.resourcesDir Path to the directory where JS files will be copied to.
 	 * @param {Object} options.defaultAnalyzeOptions.logger Appc logger instance.
@@ -292,10 +293,12 @@ class ProcessJsTask extends IncrementalFileTask {
 		const isFileFromCommonFolder = from.startsWith(this.sdkCommonFolder);
 		const transpile = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.transpile;
 		const minify = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.minify;
+		const removeLogs = isFileFromCommonFolder ? false : this.defaultAnalyzeOptions.removeLogs;
 		const analyzeOptions = Object.assign({}, this.defaultAnalyzeOptions, {
 			filename: from,
 			minify,
 			transpile,
+			removeLogs
 		});
 
 		let newContents;
