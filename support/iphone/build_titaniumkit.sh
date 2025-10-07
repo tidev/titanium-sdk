@@ -47,7 +47,13 @@ sed -i '' 's@__GITHASH__@'"$GIT_HASH"'@g' TitaniumKit/Sources/API/TopTiModule.m
 
 REVEAL_ARCHIVE_IN_FINDER=false
 
-# XCODE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :DTXcode" "$(xcode-select -p)/../Info.plist")
+echo "-----------------------------------------"
+ls -la /Applications
+echo "-----------------------------------------"
+xcode-select -p
+echo "-----------------------------------------"
+
+XCODE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :DTXcode" "$(xcode-select -p)/../Info.plist")
 
 FRAMEWORK_NAME="TitaniumKit"
 
