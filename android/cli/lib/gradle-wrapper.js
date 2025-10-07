@@ -296,7 +296,7 @@ export class GradleWrapper {
 			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], runOptions, (exitCode, out) => {
 				try {
 					if (!exitCode && out && (out.length > 0)) {
-						proxyUrl = url.parse(out.trim());
+						proxyUrl = new URL(out.trim());
 					}
 				} catch (ex) {
 					if (this._logger) {
