@@ -28,8 +28,10 @@ import xcodeParser from 'xcode/lib/parser/pbxproj.js';
 import xcode from 'xcode';
 import plist from 'simple-plist';
 import { fileURLToPath } from 'node:url';
+import { loadPackageJson } from '../../../cli/lib/pkginfo.js';
 
-const iosPackageJson = appc.pkginfo.package(module);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const iosPackageJson = loadPackageJson(__dirname);
 const { series } = appc.async;
 const parsePlist = util.promisify(plist.readFile);
 

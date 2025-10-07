@@ -38,7 +38,9 @@ import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import util from 'node:util';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { loadPackageJson } from '../../../cli/lib/pkginfo.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const afs = appc.fs;
 const version = appc.version;
@@ -299,7 +301,7 @@ class AndroidBuilder extends Builder {
 									callback(null, value);
 								} else {
 									// attempt to find android sdk
-									android.findSDK(value, config, appc.pkginfo.package(module), function () {
+									android.findSDK(value, config, loadPackageJson(__dirname), function () {
 
 										// NOTE: ignore errors when finding sdk, let gradle validate the sdk
 

@@ -17,10 +17,11 @@ import ioslib from 'ioslib';
 import moment from 'moment';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadManifestJson, loadPackageJson } from '../../../cli/lib/pkginfo.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const iosPackageJson = appc.pkginfo.package(module);
-const manifestJson = appc.pkginfo.manifest(module);
+const iosPackageJson = loadPackageJson(__dirname);
+const manifestJson = loadManifestJson(__dirname);
 
 export const name = 'ios';
 
