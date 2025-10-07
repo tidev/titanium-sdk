@@ -52,6 +52,7 @@ ls -la /Applications
 echo "-----------------------------------------"
 xcode-select -p
 echo "-----------------------------------------"
+sleep 2
 
 XCODE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :DTXcode" "$(xcode-select -p)/../Info.plist")
 

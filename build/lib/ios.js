@@ -59,7 +59,7 @@ export class IOS {
 		return fs.remove(path.join(IOS_ROOT, 'TitaniumKit/build'));
 	}
 
-	async build() {
+	build() {
 		console.log('Building TitaniumKit ...');
 
 		return new Promise((resolve, reject) => {
@@ -74,7 +74,7 @@ export class IOS {
 				}
 
 				console.log('TitaniumKit built successfully!');
-				return resolve();
+				resolve();
 			});
 		});
 	}
