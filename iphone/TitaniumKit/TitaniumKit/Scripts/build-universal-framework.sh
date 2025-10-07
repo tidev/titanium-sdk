@@ -1,7 +1,6 @@
 # Based on https://medium.com/@syshen/create-an-ios-universal-framework-148eb130a46c, thank you!
 
 # XCODE_VERSION=$(/usr/libexec/PlistBuddy -c "Print :DTXcode" "$(xcode-select -p)/../Info.plist")
-XCODE_VERSION=$(defaults read "$(xcode-select -p)/../Info" "DTXcode")
 
 FRAMEWORK_NAME="${PROJECT_NAME}" \
 SCHEME="${PROJECT_NAME}" \
