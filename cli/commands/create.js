@@ -12,7 +12,6 @@
  */
 
 import appc from 'node-appc';
-import async from 'async';
 import fields from 'fields';
 import fs from 'node:fs';
 import path from 'node:path';
