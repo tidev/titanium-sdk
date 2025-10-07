@@ -27,12 +27,19 @@ import util from 'node:util';
 import xcodeParser from 'xcode/lib/parser/pbxproj.js';
 import xcode from 'xcode';
 import plist from 'simple-plist';
+import { fileURLToPath } from 'node:url';
 
 const iosPackageJson = appc.pkginfo.package(module);
 const { series } = appc.async;
 const parsePlist = util.promisify(plist.readFile);
 
 export class iOSModuleBuilder extends Builder {
+	constructor() {
+		super({
+			filename: fileURLToPath(import.meta.url)
+		});
+	}
+
 	validate(logger, config, cli) {
 		super.config(logger, config, cli);
 		super.validate(logger, config, cli);
@@ -1081,6 +1088,6 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 	}
 }
 
-const moduleBuilder = new iOSModuleBuilder(module);
+const moduleBuilder = new iOSModuleBuilder();
 export const validate = moduleBuilder.validate.bind(moduleBuilder);
 export const run = moduleBuilder.run.bind(moduleBuilder);
