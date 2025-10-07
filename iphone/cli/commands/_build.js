@@ -16,7 +16,7 @@ import async from 'async';
 import bufferEqual from 'buffer-equal';
 import Builder from 'node-titanium-sdk/lib/builder.js';
 import crypto from 'node:crypto';
-import { cyan } from 'colors';
+import colors from 'colors';
 import { DOMParser } from 'xmldom';
 import ejs from 'ejs';
 import fields from 'fields';
@@ -39,6 +39,7 @@ import merge from 'lodash.merge';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
+const { cyan } = colors;
 const { parallel, series } = appc.async;
 const { version } = appc;
 const require = createRequire(import.meta.url);
