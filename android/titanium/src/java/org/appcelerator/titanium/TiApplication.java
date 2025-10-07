@@ -12,7 +12,9 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -302,13 +304,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public void onConfigurationChanged(@NonNull Configuration newConfig)
 	{
 		super.onConfigurationChanged(newConfig);
-
-		// Handle locale changes separately.
-		if (TiLocaleManager.didLocaleChange()) {
-			TiLocaleManager.handleSystemLocaleUpdates();
-			return;
-		}
-
 		TiApplication.notifyConfigurationChangedListeners(newConfig);
 	}
 
@@ -502,6 +497,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
+
+		startLocaleMonitor();
 
 		// Register our custom HTTP response cache handler.
 		TiResponseCache.setDefault(new TiResponseCache(
@@ -1006,6 +1003,32 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean isDebuggerEnabled()
 	{
 		return getDeployData().isDebuggerEnabled();
+	}
+
+	private void startLocaleMonitor()
+	{
+		localeReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				TiMessenger.postOnMain(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						TiLocaleManager.handleSystemLocaleUpdates();
+					}
+				});
+			}
+		};
+
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+			int receiverFlags = Context.RECEIVER_EXPORTED;
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED), receiverFlags);
+		} else {
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		}
 	}
 
 	private void stopLocaleMonitor()

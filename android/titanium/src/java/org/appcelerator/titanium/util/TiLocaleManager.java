@@ -27,7 +27,6 @@ public class TiLocaleManager
 	private static final String KEY_LOCALE = "currentLocale";
 	private static final boolean isPerAppLanguageSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU;
 	private static Locale systemLocale = getSystemLocale(); // Always keeps the system locale updated.
-	private static Locale currentLocale = Locale.getDefault(); // App's current active locale.
 
 	/**
 	 * Returns the application's configured locale if set.
@@ -92,13 +91,11 @@ public class TiLocaleManager
 		didUserChangeLanguage = true;
 		LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(locale.toLanguageTag());
 		AppCompatDelegate.setApplicationLocales(appLocales);
-		currentLocale = Locale.getDefault();
 	}
 
 	private static void setLocaleForPreApi33(Locale locale, boolean shouldRestartApp)
 	{
 		Locale.setDefault(locale);
-		currentLocale = Locale.getDefault();
 
 		Resources resources = TiApplication.getInstance().getBaseContext().getResources();
 		Configuration configuration = resources.getConfiguration();
@@ -129,30 +126,9 @@ public class TiLocaleManager
 		}
 	}
 
-	public static boolean didLocaleChange()
-	{
-		// User changed the locale from the app itself.
-		if (didUserChangeLanguage) {
-			return true;
-		}
-
-		// System locale changed.
-		if (!systemLocale.equals(getSystemLocale())) {
-			return true;
-		}
-
-		// App locale changed outside the app, e.g. via the Per-App language settings introduced in Android ≥ 13.
-		if (!currentLocale.equals(Locale.getDefault())) {
-			return true;
-		}
-
-		return false;
-	}
-
 	public static void handleSystemLocaleUpdates()
 	{
 		systemLocale = getSystemLocale();
-		currentLocale = Locale.getDefault();
 
 		// Handle user initiated language changes.
 		if (didUserChangeLanguage) {
