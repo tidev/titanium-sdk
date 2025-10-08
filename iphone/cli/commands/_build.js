@@ -4589,8 +4589,7 @@ iOSBuilder.prototype.writeXcodeConfigFiles = function writeXcodeConfigFiles() {
 	// write the project.xcconfig
 	let dest = this.xcodeProjectConfigFile,
 		contents = [
-			'TI_VERSION=' + this.titaniumSdkVersion,
-			'TI_SDK_DIR=' + this.platformPath.replace(this.titaniumSdkVersion, '$(TI_VERSION)'),
+			'TI_SDK_DIR=' + this.platformPath,
 			'TI_APPID=' + this.tiapp.id,
 			'JSCORE_LD_FLAGS=-weak_framework JavaScriptCore',
 			'OTHER_LDFLAGS[sdk=iphoneos*]=$(inherited) $(JSCORE_LD_FLAGS)',
@@ -5411,7 +5410,7 @@ iOSBuilder.prototype.processAssets = async function processAssets(imageAssets, l
 		this.generateSemanticColors(), // really just needs the Assets.xcassets folder to be created first
 		this.createAssetImageSets(imageAssets, resourcesToCopy), // needs same folder, modifies the resources to copy
 		this.createLaunchImageSet(launchImages, resourcesToCopy), // needs same folder, modifies the resources to copy
-		this.createAppIconSetAndiTunesArtwork(appIcons, launchLogos, resourcesToCopy), // needs same folder, modifies the resources to copy
+		this.createAppIconSet(appIcons, launchLogos, resourcesToCopy), // needs same folder, modifies the resources to copy
 	]);
 };
 
@@ -5761,7 +5760,7 @@ iOSBuilder.prototype.createLaunchImageSet = async function createLaunchImageSet(
  * @param {Map.<String,FileInfo>} launchLogos launch logos to process
  * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
  */
-iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createAppIconSetAndiTunesArtwork(appIcons, launchLogos, resourcesToCopy) {
+iOSBuilder.prototype.createAppIconSet = async function createAppIconSet(appIcons, launchLogos, resourcesToCopy) {
 	this.logger.info(__('Creating app icon set'));
 
 	// check for default icon
@@ -5940,9 +5939,6 @@ iOSBuilder.prototype.createAppIconSetAndiTunesArtwork = async function createApp
 	});
 
 	let missingIcons = [];
-	if (this.target === 'dist-adhoc') {
-		missingIcons = missingIcons.concat(await this.copyiTunesArtwork());
-	}
 	missingIcons = missingIcons.concat(await this.writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged));
 	// we may punt and generate launch logos from the default icon if there's no logo to resize...
 	missingIcons = missingIcons.concat(await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged));
@@ -6275,59 +6271,6 @@ iOSBuilder.prototype.copyDefaultLaunchLogos = async function copyDefaultLaunchLo
 };
 
 /**
- * @returns {Promise<object[]>} missing icons
- */
-iOSBuilder.prototype.copyiTunesArtwork = async function copyiTunesArtwork() {
-	this.logger.info(__('Copying iTunes artwork'));
-
-	const missingIcons = [];
-
-	const artworkFiles = [
-		{ filename: 'iTunesArtwork', size: 512 },
-		{ filename: 'iTunesArtwork@2x', size: 1024 }
-	];
-
-	await Promise.all(artworkFiles.map(async artwork => {
-		const dest = path.join(this.xcodeAppDir, artwork.filename);
-
-		this.unmarkBuildDirFile(dest);
-
-		try {
-			const src = path.join(this.projectDir, artwork.filename);
-			if (!(await fs.exists(src))) { // TODO: just try and read it, it should throw if it doesn't exist
-				throw new Error();
-			}
-
-			const contents = await fs.readFile(src);
-			const pngInfo = appc.image.pngInfo(contents);
-
-			if (pngInfo.width !== artwork.size || pngInfo.height !== artwork.size) {
-				this.logger.warn(__('Skipping %s because dimensions (%sx%s) are wrong; should be %sx%s', artwork.filename, pngInfo.width, pngInfo.height, artwork.size, artwork.size));
-				throw new Error();
-			}
-
-			if (pngInfo.alpha) {
-				this.logger.warn(__('Skipping %s because iTunesArtwork must not have an alpha channel', artwork.filename));
-				throw new Error();
-			}
-
-			if (!this.copyFileSync(src, dest, { contents: contents })) {
-				this.logger.trace(__('No change, skipping %s', dest.cyan));
-			}
-		} catch (ex) {
-			missingIcons.push({
-				description: __('%s - Used for Ad Hoc dist', artwork.filename),
-				file: dest,
-				width: artwork.size,
-				height: artwork.size,
-				required: false
-			});
-		}
-	}));
-	return missingIcons;
-};
-
-/**
  * write the app icon set, and gather up missing icons we should try to generate
  * @param {object} lookup icons we don't have
  * @param {string} appIconSetDir filepath to dir we're writing our app icon set
@@ -6338,11 +6281,7 @@ iOSBuilder.prototype.copyiTunesArtwork = async function copyiTunesArtwork() {
 iOSBuilder.prototype.writeAppIconSet = async function writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged) {
 	if (Object.keys(lookup).length === 0) {
 		// wow, we had all of the icons! amazing!
-		if (this.target === 'dist-adhoc') {
-			this.logger.debug(__('All app icons and iTunes artwork are present and are correct'));
-		} else {
-			this.logger.debug(__('All app icons are present and are correct'));
-		}
+		this.logger.debug(__('All app icons are present and are correct'));
 		await this.writeAssetContentsFile(path.join(appIconSetDir, 'Contents.json'), appIconSet);
 		return [];
 	}
