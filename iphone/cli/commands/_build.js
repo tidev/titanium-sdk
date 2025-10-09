@@ -23,7 +23,7 @@ import fields from 'fields';
 import fs from 'fs-extra';
 import ioslib from 'ioslib';
 import moment from 'moment';
-import path from 'path';
+import path from 'node:path';
 import { PNG } from 'pngjs';
 import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js';
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';

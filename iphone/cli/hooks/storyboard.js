@@ -7,7 +7,7 @@
 
 import fs from 'fs-extra';
 import { IncrementalFileTask } from 'appc-tasks';
-import path from 'path';
+import path from 'node:path';
 
 export const cliVersion = '>=3.2.1';
 

@@ -17,7 +17,7 @@ import async from 'async';
 import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';
-import http from 'http';
+import http from 'node:http';
 import path from 'node:path';
 import request from 'request';
 import temp from 'temp';

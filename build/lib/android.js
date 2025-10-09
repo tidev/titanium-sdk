@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 import { copyFile, copyFiles, copyAndModifyFile, globCopy } from './utils.js';
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 // Determine if we're running on a Windows machine.

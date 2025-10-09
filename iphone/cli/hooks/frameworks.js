@@ -3,12 +3,12 @@
  * project folder and then configures them in the Xcode project
  */
 
-import { exec } from 'child_process';
+import { exec } from 'node:child_process';
 import fs from 'fs-extra';
 import { IncrementalFileTask } from 'appc-tasks';
 import path from 'node:path';
 import plist from 'simple-plist';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 
 const parsePlist = promisify(plist.readFile);
 
