@@ -293,6 +293,7 @@ dependencies {
 	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
 	implementation 'androidx.viewpager:viewpager:1.0.0'
 	implementation 'androidx.annotation:annotation:1.7.1'
+	implementation 'androidx.window:window-java:1.3.0'
 
 	// Google's "Material Components" themed UI library.
 	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
