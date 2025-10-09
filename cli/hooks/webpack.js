@@ -175,5 +175,5 @@ async function resolveAppcdClient(appcdPackagePath) {
 		]
 	});
 	// eslint-disable-next-line security/detect-non-literal-require
-	return import(appcdClientPath).default;
+	return (await import(appcdClientPath)).default;
 }
