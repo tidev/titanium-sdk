@@ -51,8 +51,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
@@ -1725,33 +1723,22 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.getProperty
 	public boolean getIsCameraSupported()
 	{
-		return Camera.getNumberOfCameras() > 0;
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
 	}
 
 	@Kroll.getProperty
 	public int[] getAvailableCameras()
 	{
-		int cameraCount = Camera.getNumberOfCameras();
-		int[] result = new int[cameraCount];
+		int[] result = new int[]{-1, -1};
 
-		if (cameraCount == 0) {
-			return result;
-		}
+		if (TiApplication.getInstance() != null) {
+			PackageManager pm = TiApplication.getInstance().getPackageManager();
+			if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
+				result[0] = CAMERA_FRONT;
+			}
 
-		CameraInfo cameraInfo = new CameraInfo();
-		for (int i = 0; i < cameraCount; i++) {
-			Camera.getCameraInfo(i, cameraInfo);
-			switch (cameraInfo.facing) {
-				case CameraInfo.CAMERA_FACING_FRONT:
-					result[i] = CAMERA_FRONT;
-					break;
-				case CameraInfo.CAMERA_FACING_BACK:
-					result[i] = CAMERA_REAR;
-					break;
-				default:
-					// This would be odd. As of API level 17,
-					// there are just the two options.
-					result[i] = -1;
+			if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+				result[1] = CAMERA_REAR;
 			}
 		}
 
@@ -1761,7 +1748,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.getProperty
 	public boolean getCanRecord()
 	{
-		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
 	}
 
 	@Override
