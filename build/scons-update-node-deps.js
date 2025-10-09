@@ -31,7 +31,7 @@ function rm(dir, ignore) {
 	});
 }
 
-exec('npm -v', async function (err, stdout) {
+exec('npm -v', function (err, stdout) {
 	if (err) {
 		console.error(err);
 		process.exit(1);
