@@ -1,6 +1,4 @@
-'use strict';
-
-const { ESLint } = require('eslint');
+import { ESLint } from 'eslint';
 
 const eslint = new ESLint();
 
@@ -11,15 +9,12 @@ const asyncFilter = async (arr, predicate) => {
 	}, []);
 };
 
-module.exports = {
+const config = {
 	'android/**/*.java': filenames => {
 		return `node ./build/scons gradlew checkJavaStyle --args --console plain -PchangedFiles='${filenames.join(',')}'`;
 	},
 	'iphone/**/*.{m,h}': [
 		'npx clang-format -style=file -i'
-	],
-	'iphone/Classes/**/*.swift': [
-		'swiftlint --fix'
 	],
 	'iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m': [
 		'npm run ios-sanity-check --'
@@ -33,6 +28,13 @@ module.exports = {
 			}
 		});
 		return `eslint ${filtered.join(' ')}`;
-	},
-	'package-lock.json': 'npm run lint:lockfile'
+	}
 };
+
+if (process.platform === 'darwin') {
+	config['iphone/Classes/**/*.swift'] = [
+		'swiftlint --fix'
+	];
+}
+
+export default config;

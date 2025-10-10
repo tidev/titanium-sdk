@@ -232,7 +232,7 @@ npm run cleanbuild -- [platform1] [platform2] --android-sdk /opt/android-sdk /Us
 
 We have a [unit test suite](tests/) intended to run across all supported platforms.
 
-We have npm scripts set up to run a full clean, build, package, symlinked install, `ti sdk select` the built sdk, and then run the unit test suite:
+We have npm scripts set up to run a full clean, build, package, symlinked install, and then run the unit test suite:
 
 ```bash
 npm run test:android
