@@ -15,11 +15,9 @@ import stripAnsi from 'strip-ansi';
 import glob from 'glob';
 import { unzip } from '../utils.js';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
-const titanium = require.resolve('titanium');
+const titanium = path.resolve(__dirname, '..', '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
 
 const exec = promisify(child_process.exec);
 const globPromise = promisify(glob);
@@ -63,17 +61,18 @@ let showFailedOnly = false;
  * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @param {string} [failedOnly] Show only failed tests
+ * @param {string} [sdkVersion] The SDK version to use
  * @returns {Promise<object>}
  */
-export async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly) {
+export async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly, sdkVersion) {
 	showFailedOnly = failedOnly;
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-	console.log(platforms);
+
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
 
 	console.log('Generating project');
-	await generateProject(platforms);
+	await generateProject(platforms, sdkVersion);
 
 	await copyMochaAssets();
 	await addTiAppProperties();
@@ -82,7 +81,7 @@ export async function test(platforms, target, deviceId, deployType, deviceFamily
 	try {
 		const results = {};
 		for (const platform of platforms) {
-			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion);
 			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
@@ -116,8 +115,9 @@ export async function test(platforms, target, deviceId, deployType, deviceFamily
 /**
  * Runs `titanium create` to generate a project for the specific platforms.
  * @param  {string[]} platforms array of platform ids to create a project targeted for
+ * @param {string} sdkVersion The SDK version to use
  */
-async function generateProject(platforms) {
+async function generateProject(platforms, sdkVersion) {
 	return new Promise((resolve, reject) => {
 		// NOTE: Cannot use fork, because the titanium CLI does not call process.exit()!
 		const prc = spawn(process.execPath, [ titanium, 'create', '--force',
@@ -127,6 +127,7 @@ async function generateProject(platforms) {
 			'--id', APP_ID,
 			'--url', 'https://titaniumsdk.com',
 			'--workspace-dir', path.dirname(PROJECT_DIR),
+			'--sdk', sdkVersion,
 			'--no-banner',
 			'--no-prompt' ], { stdio: 'inherit' });
 		prc.on('error', reject);
@@ -379,9 +380,10 @@ async function addTiAppProperties() {
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
  * @param {string} snapshotDir directory to place generated images
  * @param {Promise[]} snapshotPromises array to hold promises for grabbing generated images
+ * @param {string} [sdkVersion] The SDK version to use
  * @returns {Promise<object>}
  */
-async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises) {
+async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion) {
 
 	if (target === undefined) {
 		switch (platform) {
@@ -399,6 +401,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 		'--project-dir', PROJECT_DIR,
 		'--platform', platform,
 		'--target', target,
+		'--sdk', sdkVersion,
 		'--log-level', 'info'
 	];
 
@@ -432,7 +435,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 	args.push('--no-prompt');
 	args.push('--color');
 	const prc = spawn('node', args, { cwd: PROJECT_DIR });
-	return handleBuild(prc, target, snapshotDir, snapshotPromises);
+	return handleBuild(prc, target, snapshotDir, snapshotPromises, sdkVersion);
 }
 
 async function killiOSSimulator() {

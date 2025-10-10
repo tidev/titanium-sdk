@@ -8,11 +8,9 @@ import appc from 'node-appc';
 import request from 'request';
 import ssri from 'ssri';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'node:module';
 
-const require = createRequire(import.meta.url);
-const titanium = require.resolve('titanium');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const titanium = path.resolve(__dirname, '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
 const exec = util.promisify(childProcess.exec);
 const globPromise = util.promisify(glob);
 
@@ -381,7 +379,7 @@ export async function installSDK(versionTag, symlinkIfPossible = false) {
  * @param {boolean} [select=false] select the sdk in ti cli after install?
  * @returns {Promise<void>}
  */
-export async function installSDKFromZipFile(zipfile, select = false) {
+export async function installSDKFromZipFile(zipfile) {
 	const regexp = /mobilesdk-([^-]+)-(osx|win32|linux)\.zip$/;
 	const matches = zipfile.match(regexp);
 	const osName = matches[2];
@@ -392,9 +390,6 @@ export async function installSDKFromZipFile(zipfile, select = false) {
 	await wipeInstalledSDK(dest, osName, versionTag);
 
 	await unzip(zipfile, dest);
-	if (select) {
-		return exec(`node "${titanium}" sdk select ${versionTag}`);
-	}
 }
 
 /**
@@ -441,12 +436,6 @@ export async function cleanNonGaSDKs() {
 		console.log(`Removing ${thisSDKPath}`);
 		return fs.remove(thisSDKPath);
 	}));
-	if (sdkToSelect) {
-		console.log(`Setting ${sdkToSelect} as the selected SDK`);
-		await exec(`node "${titanium}" sdk select ${sdkToSelect}`);
-	} else {
-		console.log('No GA SDK installed, you might find that your next ti command execution will error');
-	}
 }
 
 /**

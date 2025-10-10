@@ -26,7 +26,7 @@ export async function runTests(platforms, program) {
 		fs.emptyDir(path.join(snapshotDir, '..', 'generated')),
 		fs.emptyDir(path.join(snapshotDir, '..', 'diffs'))
 	]);
-	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir, program.onlyFailedTests);
+	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir, program.onlyFailedTests, program.sdkVersion);
 }
 
 /**
