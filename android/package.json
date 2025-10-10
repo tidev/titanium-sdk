@@ -2,6 +2,7 @@
 	"name": "titanium-mobile-android",
 	"title": "Android",
 	"description": "Titanium SDK Android",
+	"type": "module",
 	"keywords": [
 		"tidev",
 		"titanium",

@@ -1,20 +1,20 @@
-'use strict';
+import util from 'node:util';
+import path from 'node:path';
+import fs from 'fs-extra';
+import os from 'node:os';
+import childProcess from 'node:child_process';
+import glob from 'glob';
+import appc from 'node-appc';
+import request from 'request';
+import ssri from 'ssri';
+import { fileURLToPath } from 'node:url';
 
-const util = require('util');
-const promisify = util.promisify;
-const path = require('path');
-const fs = require('fs-extra');
-const os = require('os');
-const titanium = require.resolve('titanium');
-const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-
-const glob = promisify(require('glob'));
-const appc = require('node-appc');
-const request = require('request');
-const ssri = require('ssri');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const titanium = path.resolve(__dirname, '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
+const exec = util.promisify(childProcess.exec);
+const globPromise = util.promisify(glob);
 
 const tempDir = os.tmpdir();
-const Utils = {};
 
 function leftpad(str, len, ch) {
 	str = String(str);
@@ -29,23 +29,23 @@ function leftpad(str, len, ch) {
 	return str;
 }
 
-Utils.timestamp = function () {
+export function timestamp() {
 	const date = new Date();
 	return '' + (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + (date.getUTCFullYear()) + ' ' + leftpad(date.getUTCHours(), 2, '0') + ':' + leftpad(date.getUTCMinutes(), 2, '0');
-};
+}
 
-Utils.copyFile = async function (srcFolder, destFolder, filename) {
+export async function copyFile(srcFolder, destFolder, filename) {
 	return fs.copy(path.join(srcFolder, filename), path.join(destFolder, filename));
-};
+}
 
-Utils.copyFiles = async function (srcFolder, destFolder, files) {
-	return Promise.all(files.map(f => Utils.copyFile(srcFolder, destFolder, f)));
-};
+export async function copyFiles(srcFolder, destFolder, files) {
+	return Promise.all(files.map(f => copyFile(srcFolder, destFolder, f)));
+}
 
-Utils.globCopy = async function (pattern, srcFolder, destFolder) {
-	const files = await glob(pattern, { cwd: srcFolder });
-	return Utils.copyFiles(srcFolder, destFolder, files);
-};
+export async function globCopy(pattern, srcFolder, destFolder) {
+	const files = await globPromise(pattern, { cwd: srcFolder });
+	return copyFiles(srcFolder, destFolder, files);
+}
 
 /**
  * @param {string} srcFolder source directory to copy from
@@ -54,7 +54,7 @@ Utils.globCopy = async function (pattern, srcFolder, destFolder) {
  * @param {object} substitutions a mapping of substitutions to make in the contents while copying
  * @returns {Promise<void>}
  */
-Utils.copyAndModifyFile = async function (srcFolder, destFolder, filename, substitutions) {
+export async function copyAndModifyFile(srcFolder, destFolder, filename, substitutions) {
 	// FIXME If this is a directory, we need to recurse into directory!
 
 	// read in src file, modify contents, write to dest folder
@@ -67,7 +67,7 @@ Utils.copyAndModifyFile = async function (srcFolder, destFolder, filename, subst
 		}
 	}
 	return fs.writeFile(path.join(destFolder, filename), str);
-};
+}
 
 /**
  * @param {string} srcFolder source directory to copy from
@@ -76,9 +76,9 @@ Utils.copyAndModifyFile = async function (srcFolder, destFolder, filename, subst
  * @param {object} substitutions a mapping of substitutions to make in the contents while copying
  * @returns {Promise<void>}
  */
-Utils.copyAndModifyFiles = async function (srcFolder, destFolder, files, substitutions) {
-	return Promise.all(files.map(f => Utils.copyAndModifyFile(srcFolder, destFolder, f, substitutions)));
-};
+export async function copyAndModifyFiles(srcFolder, destFolder, files, substitutions) {
+	return Promise.all(files.map(f => copyAndModifyFile(srcFolder, destFolder, f, substitutions)));
+}
 
 /**
  * @param {string} url the URL of a file to download
@@ -174,7 +174,7 @@ async function downloadWithIntegrity(url, downloadPath, integrity, options) {
  * @param {string} url url of file we're caching
  * @returns {string} cache filepath (basicaly dir under tmp with the url file's basename appended)
  */
-function cachedDownloadPath(url) {
+export function cachedDownloadPath(url) {
 	// Use some consistent name so we can cache files!
 	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || tempDir, 'timob-build');
 	fs.ensureDirSync(cacheDir);
@@ -183,9 +183,8 @@ function cachedDownloadPath(url) {
 	// Place to download file
 	return path.join(cacheDir, filename);
 }
-Utils.cachedDownloadPath = cachedDownloadPath;
 
-Utils.generateSSRIHashFromURL = async function (url) {
+export async function generateSSRIHashFromURL(url) {
 	if (url.startsWith('file://')) {
 		// Generate integrity hash!
 		return ssri.fromStream(fs.createReadStream(url.slice(7)));
@@ -195,7 +194,7 @@ Utils.generateSSRIHashFromURL = async function (url) {
 	await fs.remove(downloadPath);
 	const file = await download(url, downloadPath);
 	return ssri.fromStream(fs.createReadStream(file));
-};
+}
 
 /**
  * @param {string} url URL to module zipfile
@@ -204,7 +203,7 @@ Utils.generateSSRIHashFromURL = async function (url) {
  * @param {boolean} [options.progress=true] show progress bar/spinner for download
  * @returns {Promise<string>} path to file
  */
-Utils.downloadURL = async function downloadURL(url, integrity, options) {
+export async function downloadURL(url, integrity, options) {
 	if (!integrity) {
 		throw new Error('No "integrity" value given for %s, may need to run "node scons.js modules-integrity" to generate new module listing with updated integrity hashes.', url);
 	}
@@ -237,16 +236,16 @@ Utils.downloadURL = async function downloadURL(url, integrity, options) {
 
 	// download and verify integrity
 	return downloadWithIntegrity(url, downloadPath, integrity, options);
-};
+}
 
 /**
  * @param {string} zipFile the downloaded file to extract
  * @param {string} integrity SSRI generated integrity hash for the zip
  * @param {string} outDir filepath of directory to extract zip to
  */
-Utils.cacheUnzip = async function (zipFile, integrity, outDir) {
-	return Utils.cacheExtract(zipFile, integrity, outDir, Utils.unzip);
-};
+export async function cacheUnzip(zipFile, integrity, outDir) {
+	return cacheExtract(zipFile, integrity, outDir, unzip);
+}
 
 /**
  * @callback AsyncExtractFunction
@@ -261,8 +260,8 @@ Utils.cacheUnzip = async function (zipFile, integrity, outDir) {
  * @param {string} outDir filepath of directory to extract the input file to
  * @param {AsyncExtractFunction} extractFunc function to call to extract/manipulate the input file
  */
-Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
-	const { hashElement } = require('folder-hash');
+export async function cacheExtract(inFile, integrity, outDir, extractFunc) {
+	const { hashElement } = await import('folder-hash');
 	const exists = await fs.pathExists(outDir);
 	// The integrity hash may contain characters like '/' which we need to convert
 	// see https://en.wikipedia.org/wiki/Base64#Filenames
@@ -290,21 +289,21 @@ Utils.cacheExtract = async function (inFile, integrity, outDir, extractFunc) {
 	await extractFunc(inFile, outDir);
 	const hash = await hashElement(outDir);
 	return fs.writeJson(cacheFile, hash);
-};
+}
 
 /**
 * @param {string} zipfile zip file to unzip
 * @param {string} dest destination folder to unzip to
 * @returns {Promise<void>}
 */
-Utils.unzip = function unzip(zipfile, dest) {
+export function unzip(zipfile, dest) {
 	return util.promisify(appc.zip.unzip)(zipfile, dest, null);
-};
+}
 
 /**
  * @returns {string} absolute path to SDK install root
  */
-Utils.sdkInstallDir = function () {
+export function sdkInstallDir() {
 	// TODO: try ti cli first as below?
 	// TODO: Cache value
 	switch (os.platform()) {
@@ -318,7 +317,7 @@ Utils.sdkInstallDir = function () {
 		default:
 			return path.join(process.env.HOME, '.titanium');
 	}
-};
+}
 
 // /**
 //  * @return {Promise<string>} path to Titanium SDK root dir
@@ -344,8 +343,8 @@ Utils.sdkInstallDir = function () {
  * @param  {boolean}   [symlinkIfPossible=false] [description]
  * @returns {Promise<void>}
  */
-Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
-	const dest = Utils.sdkInstallDir();
+export async function installSDK(versionTag, symlinkIfPossible = false) {
+	const dest = sdkInstallDir();
 
 	let osName = os.platform();
 	if (osName === 'darwin') {
@@ -372,29 +371,26 @@ Utils.installSDK = async function (versionTag, symlinkIfPossible = false) {
 
 	// try the zip
 	const zipfile = path.join(distDir, `mobilesdk-${versionTag}-${osName}.zip`);
-	return Utils.unzip(zipfile, dest);
-};
+	return unzip(zipfile, dest);
+}
 
 /**
  * @param {string} zipfile path to zipfile to install
  * @param {boolean} [select=false] select the sdk in ti cli after install?
  * @returns {Promise<void>}
  */
-Utils.installSDKFromZipFile = async function (zipfile, select = false) {
+export async function installSDKFromZipFile(zipfile) {
 	const regexp = /mobilesdk-([^-]+)-(osx|win32|linux)\.zip$/;
 	const matches = zipfile.match(regexp);
 	const osName = matches[2];
 	const versionTag = matches[1];
 
 	// wipe existing
-	const dest = Utils.sdkInstallDir();
+	const dest = sdkInstallDir();
 	await wipeInstalledSDK(dest, osName, versionTag);
 
-	await Utils.unzip(zipfile, dest);
-	if (select) {
-		return exec(`node "${titanium}" sdk select ${versionTag}`);
-	}
-};
+	await unzip(zipfile, dest);
+}
 
 /**
  * @param {string} dest base dir of SDK installs
@@ -423,7 +419,7 @@ async function wipeInstalledSDK(dest, osName, versionTag) {
  * Remove all CI SDKs installed. Skip GA releases.
  * @returns {Promise<void>}
  */
-Utils.cleanNonGaSDKs = async function cleanNonGaSDKs() {
+export async function cleanNonGaSDKs() {
 	const { stdout } = await exec(`node "${titanium}" sdk list -o json`);
 	const out = JSON.parse(stdout);
 	const installedSDKs = out.installed;
@@ -440,24 +436,16 @@ Utils.cleanNonGaSDKs = async function cleanNonGaSDKs() {
 		console.log(`Removing ${thisSDKPath}`);
 		return fs.remove(thisSDKPath);
 	}));
-	if (sdkToSelect) {
-		console.log(`Setting ${sdkToSelect} as the selected SDK`);
-		await exec(`node "${titanium}" sdk select ${sdkToSelect}`);
-	} else {
-		console.log('No GA SDK installed, you might find that your next ti command execution will error');
-	}
-};
+}
 
 /**
  * Removes the global modules and plugins dirs
  * @param {string} sdkDir filepath to sdk root install directory
  * @returns {Promise<void>}
  */
-Utils.cleanupModules = async function cleanupModules(sdkDir) {
+export async function cleanupModules(sdkDir) {
 	const moduleDir = path.join(sdkDir, 'modules');
 	const pluginDir = path.join(sdkDir, 'plugins');
 
 	return Promise.all([ moduleDir, pluginDir ].map(dir => fs.remove(dir)));
-};
-
-module.exports = Utils;
+}

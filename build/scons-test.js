@@ -1,8 +1,11 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
-const version = require('../package.json').version;
+import { program } from 'commander';
+import fs from 'fs-extra';
+import { Builder } from './lib/builder.js';
+
+const { version } = fs.readJsonSync('package.json');
+
 program
 	.option('-C, --device-id [id]', 'Titanium device id to run the unit tests on. Only valid when there is a target provided')
 	.option('-T, --target [target]', 'Titanium platform target to run the unit tests on. Only valid when there is a single platform provided')
@@ -14,7 +17,6 @@ program
 	.parse(process.argv);
 
 async function main(program) {
-	const Builder = require('./lib/builder');
 	return new Builder(program.opts(), program.args).test();
 }
 

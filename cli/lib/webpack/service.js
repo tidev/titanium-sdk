@@ -1,11 +1,10 @@
-const boxen = require('boxen');
-const crypto = require('crypto');
-const EventEmitter = require('events');
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
-
-const { ProgressBarReporter, SimpleReporter } = require('./reporter');
+import boxen from 'boxen';
+import crypto from 'node:crypto';
+import EventEmitter from 'node:events';
+import fs from 'node:fs';
+import path from 'node:path';
+import util from 'node:util';
+import { ProgressBarReporter, SimpleReporter } from './reporter.js';
 
 const STATE_READY = 'ready';
 const STATE_BUILDING = 'building';
@@ -25,7 +24,7 @@ const STATE_ERROR = 'error';
  * Service communicating with @appcd/plugin-webpack to start/stop Webpack
  * builds, query current build status and stream progress/status changes.
  */
-class WebpackService extends EventEmitter {
+export class WebpackService extends EventEmitter {
 	/**
 	 * Constructs a new Webpack service instance.
 	 *
@@ -227,7 +226,7 @@ class WebpackService extends EventEmitter {
 		return new Promise((resolve, reject) => {
 			const showTimeoutInfo = () => {
 				const buildUrl = `${this.webUiUrl}/build/${this.jobIdentifier}`.cyan;
-				const logcatCommand = `${process.env.APPC_ENV ? 'appc ' : ''}appcd logcat "*webpack*"`;
+				const logcatCommand = 'appcd logcat "*webpack*"';
 				this.logger.info('Did not receive any Webpack status updates in the last 30 seconds while waiting');
 				this.logger.info('for the build to complete.');
 				this.logger.info('');
@@ -352,5 +351,3 @@ class WebpackService extends EventEmitter {
 		);
 	}
 }
-
-module.exports = WebpackService;
