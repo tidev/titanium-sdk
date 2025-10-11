@@ -33,8 +33,8 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
-import org.appcelerator.titanium.util.APSAnalytics;
-import org.appcelerator.titanium.util.APSAnalyticsMeta;
+import org.appcelerator.titanium.util.TiSession;
+import org.appcelerator.titanium.util.TiSessionMeta;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageCache;
@@ -468,12 +468,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 		String buildType = this.appInfo.getBuildType();
-		APSAnalyticsMeta.setAppId(this.appInfo.getId());
-		APSAnalyticsMeta.setAppName(this.appInfo.getName());
-		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
-		APSAnalyticsMeta.setDeployType(deployType);
-		APSAnalyticsMeta.setSdkVersion(getTiBuildVersion());
-		APSAnalytics.getInstance().setMachineId(this);
+		TiSessionMeta.setAppId(this.appInfo.getId());
+		TiSessionMeta.setAppName(this.appInfo.getName());
+		TiSessionMeta.setAppVersion(this.appInfo.getVersion());
+		TiSessionMeta.setDeployType(deployType);
+		TiSessionMeta.setSdkVersion(getTiBuildVersion());
+		TiSession.getInstance().setMachineId(this);
 	}
 
 	public void postOnCreate()
