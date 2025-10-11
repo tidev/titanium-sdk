@@ -22,9 +22,6 @@ import android.view.accessibility.AccessibilityManager;
 
 import androidx.annotation.NonNull;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
-
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
@@ -36,6 +33,8 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.titanium.util.APSAnalytics;
+import org.appcelerator.titanium.util.APSAnalyticsMeta;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageCache;
@@ -469,10 +468,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 		String buildType = this.appInfo.getBuildType();
-		if (buildType != null && !buildType.equals("")) {
-			APSAnalyticsMeta.setBuildType(buildType);
-		}
-
 		APSAnalyticsMeta.setAppId(this.appInfo.getId());
 		APSAnalyticsMeta.setAppName(this.appInfo.getName());
 		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
