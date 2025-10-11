@@ -28,7 +28,7 @@ import androidx.core.view.accessibility.AccessibilityManagerCompat.Accessibility
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
-import org.appcelerator.titanium.util.APSAnalytics;
+import org.appcelerator.titanium.util.TiSession;
 
 @Kroll.module
 public class AppModule extends KrollModule implements SensorEventListener
@@ -135,7 +135,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	@Kroll.getProperty
 	public String getSessionId()
 	{
-		return APSAnalytics.getInstance().getCurrentSessionId();
+		return TiSession.getInstance().getCurrentSessionId();
 	}
 
 	@Kroll.method

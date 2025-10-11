@@ -15,19 +15,19 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-public final class APSAnalytics
+public final class TiSession
 {
-	private static final APSAnalytics INSTANCE = new APSAnalytics();
+	private static final TiSession INSTANCE = new TiSession();
 	private static final Set<String> BAD_IDENTIFIERS =
 		new HashSet(Arrays.asList("9774d56d682e549c", "1234567890ABCDEF"));
 	private final AtomicReference<String> sessionId = new AtomicReference();
 	private String machineId;
 
-	private APSAnalytics()
+	private TiSession()
 	{
 	}
 
-	public static APSAnalytics getInstance()
+	public static TiSession getInstance()
 	{
 		return INSTANCE;
 	}
@@ -40,8 +40,8 @@ public final class APSAnalytics
 			ApplicationInfo ai = packageManager.getApplicationInfo(packageName, 128);
 			PackageInfo pi = packageManager.getPackageInfo(packageName, 0);
 
-			if (pi != null && APSAnalyticsMeta.getAppVersion() == null) {
-				APSAnalyticsMeta.setAppVersion(pi.versionName);
+			if (pi != null && TiSessionMeta.getAppVersion() == null) {
+				TiSessionMeta.setAppVersion(pi.versionName);
 			}
 		} catch (PackageManager.NameNotFoundException _ex) {
 			return;

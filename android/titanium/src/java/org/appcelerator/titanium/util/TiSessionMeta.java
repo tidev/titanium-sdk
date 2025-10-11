@@ -9,16 +9,16 @@ import android.os.Build.VERSION;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public final class APSAnalyticsMeta
+public final class TiSessionMeta
 {
-	private static final String TAG = "APSAnalyticsMeta";
+	private static final String TAG = "TiSessionMeta";
 	private static String appId;
 	private static String appName;
 	private static String appVersion;
 	private static String deployType;
 	private static String sdkVersion;
 
-	public APSAnalyticsMeta()
+	public TiSessionMeta()
 	{
 	}
 
