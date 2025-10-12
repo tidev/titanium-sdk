@@ -1,4 +1,4 @@
-import boxen from 'boxen';
+import { boxen } from 'boxen';
 import crypto from 'node:crypto';
 import EventEmitter from 'node:events';
 import fs from 'node:fs';
