@@ -1383,11 +1383,12 @@ events:
 
   - name: screenshotcaptured
     summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.
-    descition: |
-        Android is only available on devices with Android 14+ and you'll have to add the following permission
-        to your tiapp.xml: `<uses-permission android:name="android.permission.DETECT_SCREEN_CAPTURE"/>`
-    platforms: [android, iphone, ipad, macos]
-    since: {android: "13.1.0", iphone: "9.1.0", ipad: "9.1.0", macos: "9.2.0"}
+    platforms: [iphone, ipad, macos]
+    since: "9.1.0"
+    deprecated:
+        since: "13.1.0"
+        notes: Use [Titanium.App.screenshotcaptured](Titanium.App.screenshotcaptured) instead.
+
 
 ---
 name: NotificationParams
