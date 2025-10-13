@@ -151,7 +151,6 @@
 		2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
 		2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
 		2BCD59C51429561D00DEC2E8 /* TiUIToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIToolbar.m */; };
-		3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 3186097E192BDB4E00093482 /* AnalyticsModule.m */; };
 		3A0858422915C3C5002D5E3A /* TiAppiOSActivityAttributesProxy+startActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A08583F2915C3C5002D5E3A /* TiAppiOSActivityAttributesProxy+startActivity.swift */; };
 		3A0858432915C3C5002D5E3A /* TiActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0858412915C3C5002D5E3A /* TiActivityAttributes.swift */; };
 		3A0B56791C0CD81C00709DA4 /* TiUIiOSLivePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A0B56741C0CD81C00709DA4 /* TiUIiOSLivePhoto.m */; };
@@ -592,8 +591,6 @@
 		2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowViewProxy.m; sourceTree = "<group>"; };
 		2BCD59C11429561D00DEC2E8 /* TiUIToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbar.h; sourceTree = "<group>"; };
 		2BCD59C21429561D00DEC2E8 /* TiUIToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbar.m; sourceTree = "<group>"; };
-		3186097D192BDB4E00093482 /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
-		3186097E192BDB4E00093482 /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titanium_Prefix.pch; sourceTree = "<group>"; };
 		3A08583F2915C3C5002D5E3A /* TiAppiOSActivityAttributesProxy+startActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TiAppiOSActivityAttributesProxy+startActivity.swift"; sourceTree = "<group>"; };
 		3A0858412915C3C5002D5E3A /* TiActivityAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TiActivityAttributes.swift; sourceTree = "<group>"; };
@@ -1010,7 +1007,6 @@
 				24DEDAC21123719700398D86 /* XML */,
 				24CA8C58111165180084E2DE /* Accelerometer */,
 				24CA8C0F111163B50084E2DE /* App */,
-				24CA8C57111165070084E2DE /* Analytics */,
 				24CA8C1C1111645B0084E2DE /* Contacts */,
 				24CA8C19111164490084E2DE /* Database */,
 				24CA8C1B111164530084E2DE /* Filesystem */,
@@ -1193,15 +1189,6 @@
 				DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */,
 			);
 			name = Contacts;
-			sourceTree = "<group>";
-		};
-		24CA8C57111165070084E2DE /* Analytics */ = {
-			isa = PBXGroup;
-			children = (
-				3186097D192BDB4E00093482 /* AnalyticsModule.h */,
-				3186097E192BDB4E00093482 /* AnalyticsModule.m */,
-			);
-			name = Analytics;
 			sourceTree = "<group>";
 		};
 		24CA8C58111165180084E2DE /* Accelerometer */ = {
@@ -2334,7 +2321,6 @@
 				1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
 				0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */,
 				1D19459B13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
-				3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */,
 				DB4E9B7320B2E9780064ADF9 /* TiUINavigationWindowProxy.m in Sources */,
 				EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */,
 				2BCD59C51429561D00DEC2E8 /* TiUIToolbar.m in Sources */,

@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollBridge.h"
-#import "APSAnalytics.h"
 #import "AssetsModule.h"
 #import "JSValue+Addons.h"
 #import "KrollCallback.h"
@@ -376,11 +375,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   JSValue *titanium = global[@"Ti"]; // This may be nil/undefined it we couldn't load ti.kernel.js or the bootstrapping failed
-  if (TiSharedConfig.defaultConfig.isAnalyticsEnabled) {
-    // TODO: Remove this unused statement once we can fully remove APSAnalytics
-    // Right now, the build would fail is we fully remove it
-    APSAnalytics *sharedAnalytics = APSAnalytics.sharedInstance;
-  }
 
   NSURL *startURL = nil;
   // if we have a preload dictionary, register those static key/values into our namespace
