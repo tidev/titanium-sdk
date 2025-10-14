@@ -217,6 +217,7 @@
 
 - (void)didTakeScreenshot:(NSNotification *)info
 {
+  DEPRECATED_REPLACED(@"App.iOS.screenshotcaptured", @"9.1.0", @"App.screenshotcaptured");
   [self fireEvent:@"screenshotcaptured"];
 }
 
