@@ -116,6 +116,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			public void onScreenCaptured()
 			{
 				getTiApp().fireAppEvent("screenshotcaptured", new KrollDict());
+				getWindowProxy().fireEvent("screenshotcaptured", new KrollDict());
 			}
 		};
 
