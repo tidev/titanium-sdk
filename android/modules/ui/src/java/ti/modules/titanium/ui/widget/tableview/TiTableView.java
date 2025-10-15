@@ -629,7 +629,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		int filterResultsCount = 0;
 		int index = 0;
 
-		String query = this.filterQuery;
+		String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
+		filterQuery = query;
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
 		}
