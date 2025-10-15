@@ -630,6 +630,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		int index = 0;
 
 		String query = properties.optString(TiC.PROPERTY_SEARCH_TEXT, filterQuery);
+		String filterText = properties.optString(TiC.PROPERTY_FILTER_TEXT, "");
 		filterQuery = query;
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
@@ -688,6 +689,12 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 								|| (!filterAnchored && attribute.contains(query)))) {
 								continue;
 							}
+						}
+					}
+					if (!filterText.isEmpty()) {
+						String attribute = row.getProperties().optString(filterAttribute, null);
+						if (attribute != null && attribute.contains(filterText)) {
+							continue;
 						}
 					}
 

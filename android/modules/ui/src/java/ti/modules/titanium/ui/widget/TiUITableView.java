@@ -252,6 +252,7 @@ public class TiUITableView extends TiUIView
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
 			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)
 			|| name.equals(TiC.PROPERTY_SEARCH_TEXT)
+			|| name.equals(TiC.PROPERTY_FILTER_TEXT)
 			|| name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			this.tableView.update(true);
 		}
