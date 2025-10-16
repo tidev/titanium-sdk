@@ -1269,13 +1269,13 @@ properties:
     since: 13.1.0
 
   - name: filterText
-    summary: The string to use as the filter parameter.
+    summary: String or Array of Strings to use as the filter parameter.
     description: |
         Provides a generic filter API for the TableView. It will filter out all TableViewRows with
         the filterText in the title. This property can not be used when the
         [searchView](Titanium.UI.TableView.searchView) property is set. Used in conjunction with
         the [title](Titanium.UI.TableViewRow.title) property of the TableViewRow.
-    type: String
+    type: [String, Array<String>]
     platforms: [android]
     since: 13.1.0
 
