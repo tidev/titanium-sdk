@@ -4623,7 +4623,6 @@ class iOSBuilder extends Builder {
 			__DEPLOYTYPE__:       this.deployType,
 			__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
 			__APP_ID__:           this.tiapp.id,
-			__APP_ANALYTICS__:    'false',
 			__APP_PUBLISHER__:    this.tiapp.publisher,
 			__APP_URL__:          this.tiapp.url,
 			__APP_NAME__:         this.tiapp.name,
@@ -6662,7 +6661,6 @@ class iOSBuilder extends Builder {
 		this.logger.info('Processing Titanium symbols');
 
 		const namespaces = {
-				analytics: 1,
 				api: 1,
 				network: 1,
 				platform: 1,

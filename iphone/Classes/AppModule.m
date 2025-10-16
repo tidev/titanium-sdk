@@ -578,11 +578,6 @@ extern NSString *const TI_APPLICATION_GUID;
   return [[TiApp app] sessionId];
 }
 
-- (id)analytics
-{
-  return @(NO);
-}
-
 - (NSNumber *)keyboardVisible
 {
   return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
