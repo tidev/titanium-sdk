@@ -9,6 +9,8 @@
 #import "TiBindingTiValue.h"
 #import "TiExceptionHandler.h"
 #import "TiUtils.h"
+#import <dispatch/dispatch.h>
+#import <os/lock.h>
 
 @interface KrollTimerManager ()
 
@@ -31,19 +33,9 @@
   return self;
 }
 
-- (void)dealloc
-{
-  [_callback release];
-  _callback = nil;
-  if (_arguments != nil) {
-    [_arguments release];
-    _arguments = nil;
-  }
+// ARC handles memory management - dealloc removed
 
-  [super dealloc];
-}
-
-- (void)timerFired:(NSTimer *_Nonnull)timer
+- (void)timerFired:(NSTimer *)timer
 {
   [self.callback callWithArguments:self.arguments];
   // handle an uncaught exception
@@ -51,6 +43,26 @@
   JSValue *exception = context.exception;
   if (exception != nil) {
     [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
+  }
+}
+
+@end
+
+@interface KrollDispatchTimer : NSObject
+
+@property (nonatomic, assign) dispatch_source_t source;
+@property (nonatomic, strong) KrollTimerTarget *target;
+@property (nonatomic, assign) BOOL repeats;
+
+@end
+
+@implementation KrollDispatchTimer
+
+- (void)dealloc
+{
+  if (_source) {
+    dispatch_source_cancel(_source);
+    _source = nil;
   }
 }
 
@@ -66,7 +78,8 @@
   }
 
   self.nextTimerIdentifier = 1;
-  self.timers = [NSMapTable strongToWeakObjectsMapTable];
+  // Use strong-to-strong so GCD timers are retained until cleared/invalidated.
+  self.timers = [NSMapTable strongToStrongObjectsMapTable];
 
   NSUInteger (^setInterval)(JSValue *, double) = ^(JSValue *callback, double interval) {
     return [self setInterval:interval withCallback:callback shouldRepeat:YES];
@@ -92,11 +105,8 @@
   if (self.timers != nil) {
     [self invalidateAllTimers];
     [self.timers removeAllObjects];
-    [self.timers release];
     self.timers = nil;
   }
-
-  [super dealloc];
 }
 
 - (void)invalidateAllTimers
@@ -123,21 +133,59 @@
     callbackArgs = [args subarrayWithRange:NSMakeRange(2, argCount - 2)];
   }
   NSNumber *timerIdentifier = @(self.nextTimerIdentifier++);
-  KrollTimerTarget *timerTarget = [[[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs] autorelease];
-  NSTimer *timer = [NSTimer timerWithTimeInterval:interval target:timerTarget selector:@selector(timerFired:) userInfo:timerTarget repeats:shouldRepeat];
-  [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+  KrollTimerTarget *timerTarget = [[KrollTimerTarget alloc] initWithCallback:callback arguments:callbackArgs];
 
-  [self.timers setObject:timer forKey:timerIdentifier];
+  // Create GCD timer on the main queue to execute within the JS context's thread.
+  dispatch_queue_t queue = dispatch_get_main_queue();
+  dispatch_source_t source = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+
+  // Configure timer with desired start and repeat interval, allow small leeway for coalescing.
+  uint64_t intervalNsec = (uint64_t)(interval * NSEC_PER_SEC);
+  uint64_t leewayNsec = (uint64_t)(0.001 * NSEC_PER_SEC); // 1ms leeway
+  dispatch_time_t startTime = dispatch_time(DISPATCH_TIME_NOW, intervalNsec);
+  dispatch_source_set_timer(source, startTime, shouldRepeat ? intervalNsec : intervalNsec, leewayNsec);
+
+  KrollDispatchTimer *container = [[KrollDispatchTimer alloc] init];
+  container.source = source;
+  container.target = timerTarget;
+  container.repeats = shouldRepeat;
+
+  __weak KrollTimerManager *weakSelf = self;
+
+  dispatch_source_set_event_handler(source, ^{
+    __strong KrollTimerManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+
+    [container.target timerFired:nil];
+    if (!container.repeats) {
+      // one-shot: cancel and clear
+      dispatch_source_cancel(container.source);
+      // Remove from map after cancel to break retain cycles
+      [strongSelf.timers removeObjectForKey:timerIdentifier];
+    }
+  });
+
+  // No need for cancel handler with ARC - memory is managed automatically
+
+  dispatch_resume(source);
+
+  [self.timers setObject:container forKey:timerIdentifier];
   return [timerIdentifier unsignedIntegerValue];
 }
 
 - (void)clearIntervalWithIdentifier:(NSUInteger)identifier
 {
   NSNumber *timerIdentifier = @(identifier);
-  NSTimer *timer = [self.timers objectForKey:timerIdentifier];
-  if (timer != nil) {
-    if ([timer isValid]) {
-      [timer invalidate];
+  id entry = [self.timers objectForKey:timerIdentifier];
+  if (entry != nil) {
+    if ([entry isKindOfClass:[KrollDispatchTimer class]]) {
+      KrollDispatchTimer *container = (KrollDispatchTimer *)entry;
+      if (container.source) {
+        dispatch_source_cancel(container.source);
+        container.source = nil;
+      }
     }
     [self.timers removeObjectForKey:timerIdentifier];
   }
