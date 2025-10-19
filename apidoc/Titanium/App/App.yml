@@ -268,6 +268,7 @@ events:
         to your tiapp.xml: `<uses-permission android:name="android.permission.DETECT_SCREEN_CAPTURE"/>`
     platforms: [android, iphone, ipad, macos]
     since: 13.1.0
+    osver: {android: {min: "14.0"}}
 
   - name: uncaughtException
     summary: Fired when an uncaught JavaScript exception occurs.
