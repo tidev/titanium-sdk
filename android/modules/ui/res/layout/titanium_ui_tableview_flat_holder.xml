@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/titanium_ui_tableview_holder"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:clipToPadding="false"
+	android:outlineProvider="bounds">
+
+
+	<org.appcelerator.titanium.view.TiCompositeLayout
+		android:id="@+id/titanium_ui_tableview_holder_content"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:addStatesFromChildren="true" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
