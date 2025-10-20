@@ -61,15 +61,22 @@
     "postinstall": "husky install",
     "test": "npm run ios-sanity-check && npm run lint",
     "test:android": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && npm run test:integration -- android --sdk-version $npm_package_version",
-    "test:android:onlyFailed": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && npm run test:integration:onlyFailed -- android --sdk-version $npm_package_version",
+    "test:android:onlyFailed": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && npm run test:integration -- android --sdk-version $npm_package_version --only-failed",
+    "test:android:trace": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && npm run test:integration -- android --sdk-version $npm_package_version --log-level trace",
     "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js build/**/test-*.js",
     "test:ios": "npm run test:iphone",
+    "test:ios:onlyFailed": "npm run test:iphone:onlyFailed",
+    "test:ios:trace": "npm run test:iphone:trace",
     "test:iphone": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -F iphone --sdk-version $npm_package_version",
-    "test:iphone:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration:onlyFailed -- ios -F iphone --sdk-version $npm_package_version",
+    "test:iphone:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -F iphone --sdk-version $npm_package_version --only-failed",
+    "test:iphone:trace": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration: -- ios -F iphone --sdk-version $npm_package_version --log-level trace",
     "test:ipad": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -F ipad --sdk-version $npm_package_version",
+    "test:ipad:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -F ipad --sdk-version $npm_package_version --only-failed",
+    "test:ipad:trace": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -F ipad --sdk-version $npm_package_version --log-level trace",
     "test:mac": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version",
-    "test:integration": "node ./build/scons test",
-    "test:integration:onlyFailed": "node ./build/scons test --only-failed"
+    "test:mac:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version --only-failed",
+    "test:mac:trace": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version --log-level trace",
+    "test:integration": "node ./build/scons test"
   },
   "commitlint": {
     "extends": [

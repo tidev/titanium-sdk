@@ -61,9 +61,10 @@ let showFailedOnly = false;
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @param {string} [failedOnly] Show only failed tests
  * @param {string} [sdkVersion] The SDK version to use
+ * @param {string} [logLevel] The log level
  * @returns {Promise<object>}
  */
-export async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly, sdkVersion) {
+export async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly, sdkVersion, logLevel) {
 	showFailedOnly = failedOnly;
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
 
@@ -80,7 +81,7 @@ export async function test(platforms, target, deviceId, deployType, deviceFamily
 	try {
 		const results = {};
 		for (const platform of platforms) {
-			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion);
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion, logLevel);
 			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
@@ -380,9 +381,10 @@ async function addTiAppProperties() {
  * @param {string} snapshotDir directory to place generated images
  * @param {Promise[]} snapshotPromises array to hold promises for grabbing generated images
  * @param {string} [sdkVersion] The SDK version to use
+ * @param {string} [logLevel] The log level
  * @returns {Promise<object>}
  */
-async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion) {
+async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion, logLevel) {
 
 	if (target === undefined) {
 		switch (platform) {
@@ -401,7 +403,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 		'--platform', platform,
 		'--target', target,
 		'--sdk', sdkVersion,
-		'--log-level', 'info'
+		'--log-level', logLevel
 	];
 
 	if (deployType) {
