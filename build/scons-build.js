@@ -10,6 +10,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
 
 program
+	.allowExcessArguments()
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-s, --android-sdk [path]', 'Explicitly set the path to the Android SDK used for building')
 	.option('-a, --all', 'Build a ti.main.js file for every target OS')
