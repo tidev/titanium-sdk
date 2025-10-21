@@ -1,4 +1,3 @@
-import boxen from 'boxen';
 import crypto from 'node:crypto';
 import EventEmitter from 'node:events';
 import fs from 'node:fs';
@@ -139,15 +138,8 @@ export class WebpackService extends EventEmitter {
 		if (update.available && !update.fromCache) {
 			const { current, latest } = update;
 			const updateCommand = 'npm i -g @appcd/plugin-webpack';
-			const message = `Update available ${current.dim} → ${latest.green}\nRun ${updateCommand.cyan} to update`;
-			const output = boxen(message, {
-				padding: 1,
-				margin: 1,
-				align: 'center',
-				borderColor: 'yellow',
-				borderStyle: 'round'
-			});
-			output.split('\n').forEach(l => this.logger.info(l));
+			const message = `\n Update available ${current.dim} → ${latest.green}\n Run ${updateCommand.cyan} to update\n`;
+			message.split('\n').forEach(l => this.logger.info(l));
 		}
 	}
 

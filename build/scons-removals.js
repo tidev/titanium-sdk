@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
-import glob from 'glob';
+import { glob } from 'glob';
 import yaml from 'js-yaml';
 import fs from 'fs-extra';
-import { promisify } from 'node:util';
 import semver from 'semver';
 import chalk from 'chalk';
 import { fileURLToPath } from 'node:url';
@@ -136,7 +135,7 @@ function compareRemoved(a, b) {
 async function main(version) {
 	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	const apidocs = path.join(__dirname, '../apidoc');
-	const files = await promisify(glob)(`${apidocs}/**/*.yml`);
+	const files = await glob(`${apidocs}/**/*.yml`);
 	const arr = await Promise.all(files.map(f => checkFile(f)));
 	const flattened = [].concat(...arr).filter(f => compareVersions(pickFirstVersion(f.deprecated.removed), version) < 0);
 	// Sort by deprecated.since oldest to newest

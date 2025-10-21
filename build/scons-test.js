@@ -7,6 +7,7 @@ import { Builder } from './lib/builder.js';
 const { version } = fs.readJsonSync('package.json');
 
 program
+	.allowExcessArguments()
 	.option('-C, --device-id [id]', 'Titanium device id to run the unit tests on. Only valid when there is a target provided')
 	.option('-T, --target [target]', 'Titanium platform target to run the unit tests on. Only valid when there is a single platform provided')
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)

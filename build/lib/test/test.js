@@ -12,7 +12,7 @@ import StreamSplitter from 'stream-splitter';
 import child_process, { spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 import stripAnsi from 'strip-ansi';
-import glob from 'glob';
+import { glob } from 'glob';
 import { unzip } from '../utils.js';
 import { fileURLToPath } from 'node:url';
 
@@ -20,7 +20,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const titanium = path.resolve(__dirname, '..', '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
 
 const exec = promisify(child_process.exec);
-const globPromise = promisify(glob);
 
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
@@ -165,7 +164,7 @@ async function copyMochaAssets() {
 		(async () => {
 			await fs.copy(path.join(SOURCE_DIR, 'modules'), path.join(PROJECT_DIR, 'modules'));
 			const modulesSourceDir = path.join(SOURCE_DIR, 'modules-source');
-			const zipPaths = await globPromise('*/*/dist/*.zip', { cwd: modulesSourceDir });
+			const zipPaths = await glob('*/*/dist/*.zip', { cwd: modulesSourceDir });
 			for (const nextZipPath of zipPaths) {
 				await unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
 			}
