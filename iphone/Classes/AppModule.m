@@ -306,6 +306,13 @@ extern NSString *const TI_APPLICATION_GUID;
   [self fireEvent:@"keyboardframechanged" withObject:event];
 }
 
+- (void)didTakeScreenshot:(NSNotification *)info
+{
+  if ([self _hasListeners:@"screenshotcaptured"]) {
+    [self fireEvent:@"screenshotcaptured" withObject:nil];
+  }
+}
+
 - (void)timeChanged:(NSNotification *)notiication
 {
   if ([self _hasListeners:@"significanttimechange"]) {
@@ -378,7 +385,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
-
+  [nc addObserver:self selector:@selector(didTakeScreenshot:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
 #ifdef __IPHONE_16_4
   // Ensure that the JSContext is debuggable during development
   if (@available(iOS 16.4, *)) {
