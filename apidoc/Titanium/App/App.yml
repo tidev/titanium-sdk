@@ -269,6 +269,11 @@ events:
     platforms: [android, iphone, ipad, macos]
     since: 13.1.0
     osver: {android: {min: "14.0"}}
+    properties:
+      - name: source
+        summary: The current window the screenshot was taken from.
+        platforms: [android]
+        type: String
 
   - name: uncaughtException
     summary: Fired when an uncaught JavaScript exception occurs.
