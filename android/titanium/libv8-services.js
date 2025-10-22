@@ -277,7 +277,7 @@ if (import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(imp
 			console.error(err);
 			process.exit(1);
 		});
-	} else if (process.argv[2] === 'updateLibrary') {
+	} else if (process.argv[2] === 'update-library') {
 		/**
 		* Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
 		* If not, then this function will automatically download/install it. Function will do nothing if alredy installed.
