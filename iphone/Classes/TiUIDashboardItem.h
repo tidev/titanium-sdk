@@ -9,8 +9,6 @@
 #import <TitaniumKit/TiUIView.h>
 
 @interface TiUIDashboardItem : TiUIView {
-
-  @private
 }
 
 @end
