@@ -148,7 +148,7 @@ tasks.register('updateV8Library') {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['libv8-services.js', 'update-library']
+			args = ['libv8-services.js', 'updateLibrary']
 		}
 	}
 }
@@ -189,7 +189,7 @@ tasks.register('snapshotTiCommonFiles') {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['libv8-services.js', 'create-snapshot']
+			args = ['libv8-services.js', 'createSnapshot']
 		}
 	}
 }
