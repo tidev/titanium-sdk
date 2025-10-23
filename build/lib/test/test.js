@@ -3,20 +3,23 @@
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
-'use strict';
 
-const path = require('path');
-const fs = require('fs-extra');
-const colors = require('colors'); // eslint-disable-line no-unused-vars
-const ejs = require('ejs');
-const StreamSplitter = require('stream-splitter');
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
-const titanium = require.resolve('titanium');
-const { promisify } = require('util');
-const stripAnsi = require('strip-ansi');
-const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const glob = promisify(require('glob'));
-const utils = require('../utils');
+import path from 'node:path';
+import fs from 'fs-extra';
+import 'colors';
+import ejs from 'ejs';
+import StreamSplitter from 'stream-splitter';
+import child_process, { spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+import stripAnsi from 'strip-ansi';
+import { glob } from 'glob';
+import { unzip } from '../utils.js';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const titanium = path.resolve(__dirname, '..', '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
+
+const exec = promisify(child_process.exec);
 
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
@@ -57,17 +60,19 @@ let showFailedOnly = false;
  * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
  * @param {string} [failedOnly] Show only failed tests
+ * @param {string} [sdkVersion] The SDK version to use
+ * @param {string} [logLevel] The log level
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly) {
+export async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly, sdkVersion, logLevel) {
 	showFailedOnly = failedOnly;
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-	console.log(platforms);
+
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
 
 	console.log('Generating project');
-	await generateProject(platforms);
+	await generateProject(platforms, sdkVersion);
 
 	await copyMochaAssets();
 	await addTiAppProperties();
@@ -76,7 +81,7 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, junit
 	try {
 		const results = {};
 		for (const platform of platforms) {
-			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion, logLevel);
 			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
@@ -110,8 +115,9 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, junit
 /**
  * Runs `titanium create` to generate a project for the specific platforms.
  * @param  {string[]} platforms array of platform ids to create a project targeted for
+ * @param {string} sdkVersion The SDK version to use
  */
-async function generateProject(platforms) {
+async function generateProject(platforms, sdkVersion) {
 	return new Promise((resolve, reject) => {
 		// NOTE: Cannot use fork, because the titanium CLI does not call process.exit()!
 		const prc = spawn(process.execPath, [ titanium, 'create', '--force',
@@ -121,6 +127,7 @@ async function generateProject(platforms) {
 			'--id', APP_ID,
 			'--url', 'https://titaniumsdk.com',
 			'--workspace-dir', path.dirname(PROJECT_DIR),
+			'--sdk', sdkVersion,
 			'--no-banner',
 			'--no-prompt' ], { stdio: 'inherit' });
 		prc.on('error', reject);
@@ -159,7 +166,7 @@ async function copyMochaAssets() {
 			const modulesSourceDir = path.join(SOURCE_DIR, 'modules-source');
 			const zipPaths = await glob('*/*/dist/*.zip', { cwd: modulesSourceDir });
 			for (const nextZipPath of zipPaths) {
-				await utils.unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
+				await unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
 			}
 		})(),
 		// platform
@@ -373,9 +380,11 @@ async function addTiAppProperties() {
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
  * @param {string} snapshotDir directory to place generated images
  * @param {Promise[]} snapshotPromises array to hold promises for grabbing generated images
+ * @param {string} [sdkVersion] The SDK version to use
+ * @param {string} [logLevel] The log level
  * @returns {Promise<object>}
  */
-async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises) {
+async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion, logLevel) {
 
 	if (target === undefined) {
 		switch (platform) {
@@ -393,7 +402,8 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 		'--project-dir', PROJECT_DIR,
 		'--platform', platform,
 		'--target', target,
-		'--log-level', 'info'
+		'--sdk', sdkVersion,
+		'--log-level', logLevel
 	];
 
 	if (deployType) {
@@ -426,7 +436,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 	args.push('--no-prompt');
 	args.push('--color');
 	const prc = spawn('node', args, { cwd: PROJECT_DIR });
-	return handleBuild(prc, target, snapshotDir, snapshotPromises);
+	return handleBuild(prc, target, snapshotDir, snapshotPromises, sdkVersion);
 }
 
 async function killiOSSimulator() {
@@ -773,7 +783,7 @@ class DeviceTestDetails {
  * @param {Promise[]} snapshotPromises array to hold promises for grabbign generated images
  * @returns {Promise<object>}
  */
-async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
+export async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	return new Promise((resolve, reject) => {
 		const deviceMap = new Map();
 		let started = false;
@@ -966,7 +976,7 @@ async function outputJUnitXML(jsonResults, prefix) {
 /**
  * @param {object[]} results test results
  */
-async function outputResults(results) {
+export async function outputResults(results) {
 	const suites = {};
 
 	// start
@@ -1024,8 +1034,3 @@ async function outputResults(results) {
 	const total = skipped + failures + passes;
 	console.log('%d Total Tests: %d passed, %d failed, %d skipped.', total, passes, failures, skipped);
 }
-
-// public API
-exports.test = test;
-exports.outputResults = outputResults;
-exports.handleBuild = handleBuild;

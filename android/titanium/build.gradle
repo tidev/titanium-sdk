@@ -95,7 +95,6 @@ android {
 			java.srcDirs = [
 					'src/java',
 					"${projectDir}/../modules/accelerometer/src/java",
-					"${projectDir}/../modules/analytics/src/java",
 					"${projectDir}/../modules/android/src/java",
 					"${projectDir}/../modules/app/src/java",
 					"${projectDir}/../modules/calendar/src/java",
@@ -149,7 +148,7 @@ tasks.register('updateV8Library') {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
+			args = ['libv8-services.js', 'update-library']
 		}
 	}
 }
@@ -184,13 +183,13 @@ tasks.register('checkstyleChanged', Checkstyle) {
 tasks.register('snapshotTiCommonFiles') {
 	inputs.dir "${projectDir}/../../common/Resources"
 	inputs.file "${projectDir}/../../build/lib/builder.js"
-	inputs.file "${projectDir}/../../build/lib/android/index.js"
+	inputs.file "${projectDir}/../../build/lib/android.js"
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
 	doFirst {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').createSnapshotThenExit()"]
+			args = ['libv8-services.js', 'create-snapshot']
 		}
 	}
 }
