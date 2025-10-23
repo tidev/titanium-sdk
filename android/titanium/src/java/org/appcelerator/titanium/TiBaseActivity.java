@@ -45,6 +45,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
+import android.Manifest;
 import android.app.Activity;
 
 import androidx.appcompat.app.ActionBar;
@@ -68,6 +69,7 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -106,6 +108,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
 	public boolean keyboardVisible = false;
+	final Activity.ScreenCaptureCallback screenCaptureCallback =
+		new Activity.ScreenCaptureCallback()
+		{
+			@Override
+			public void onScreenCaptured()
+			{
+				KrollDict kd = new KrollDict();
+				kd.put("source", getWindowProxy());
+				getTiApp().fireAppEvent("screenshotcaptured", kd);
+			}
+		};
+
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -1559,6 +1573,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		applyNightMode();
+
+		if (Build.VERSION.SDK_INT >= 34 && TiApplication.getInstance().checkCallingOrSelfPermission(
+			Manifest.permission.DETECT_SCREEN_CAPTURE) == PackageManager.PERMISSION_GRANTED) {
+			registerScreenCaptureCallback(ContextCompat.getMainExecutor(this), screenCaptureCallback);
+		}
 	}
 
 	@Override
@@ -1585,6 +1604,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		unregisterScreenCaptureCallback(screenCaptureCallback);
 	}
 
 	@Override

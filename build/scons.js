@@ -6,6 +6,7 @@ import fs from 'fs-extra';
 const { version } = fs.readJsonSync('package.json');
 
 program
+	.allowExcessArguments()
 	.version(version)
 	.command('clean [platforms]', 'clean up build directories for one or more platforms')
 	.command('clean-modules', 'clean up global modules folder (mainly used for CI)')

@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import os from 'node:os';
 import childProcess from 'node:child_process';
-import glob from 'glob';
+import { glob } from 'glob';
 import appc from 'node-appc';
 import request from 'request';
 import ssri from 'ssri';
@@ -12,7 +12,6 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const titanium = path.resolve(__dirname, '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
 const exec = util.promisify(childProcess.exec);
-const globPromise = util.promisify(glob);
 
 const tempDir = os.tmpdir();
 
@@ -43,7 +42,7 @@ export async function copyFiles(srcFolder, destFolder, files) {
 }
 
 export async function globCopy(pattern, srcFolder, destFolder) {
-	const files = await globPromise(pattern, { cwd: srcFolder });
+	const files = await glob(pattern, { cwd: srcFolder });
 	return copyFiles(srcFolder, destFolder, files);
 }
 
