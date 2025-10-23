@@ -13,8 +13,6 @@
 #endif
 
 @interface TiUIiPadProxy : TiProxy {
-
-  @private
 }
 
 #ifdef USE_TI_UIIPADPOPOVER
