@@ -546,7 +546,7 @@ methods:
         since: "12.7.0"
         removed: "13.0.0"
         notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
-     
+
   - name: open
     summary: Opens the window.
     parameters:
@@ -606,7 +606,7 @@ methods:
         since: "12.7.0"
         removed: "13.0.0"
         notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
-        
+
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
