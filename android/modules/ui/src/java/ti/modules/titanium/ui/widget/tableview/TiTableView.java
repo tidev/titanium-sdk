@@ -152,7 +152,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.addItemDecoration(decoration);
 
 		this.adapter = new TableViewAdapter(getContext(), this.rows,
-			TiConvert.toBoolean(proxy.getProperty("simpleLayout"), false));
+			TiConvert.toBoolean(proxy.getProperty("flatLayout"), false));
 		this.recyclerView.setAdapter(this.adapter);
 
 		// Create ItemTouchHelper for swipe-to-delete and move gestures.

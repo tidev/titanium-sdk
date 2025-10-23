@@ -65,14 +65,14 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	// Bottom
 	private TiCompositeLayout footer;
 	private TextView footerTitle;
-	private boolean simpleLayout = false;
+	private boolean flatLayout = false;
 
-	public TableViewHolder(final Context context, final ViewGroup viewGroup, boolean simpleLayout)
+	public TableViewHolder(final Context context, final ViewGroup viewGroup, boolean flatLayout)
 	{
 		super(context, viewGroup);
-		this.simpleLayout = simpleLayout;
+		this.flatLayout = flatLayout;
 		// Obtain views from identifiers.
-		if (!simpleLayout) {
+		if (!flatLayout) {
 			this.header = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header);
 			this.headerTitle = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header_title);
 
@@ -85,7 +85,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 		this.container = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_outer_content_container);
 		this.content = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content);
 
-		if (!simpleLayout) {
+		if (!flatLayout) {
 			this.title = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content_title);
 			this.defaultTextColors = this.title.getTextColors();
 
@@ -106,7 +106,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	 */
 	public View getNativeView()
 	{
-		if (!simpleLayout) {
+		if (!flatLayout) {
 			return this.border;
 		} else {
 			return this.content;
@@ -119,7 +119,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	private void reset()
 	{
 		this.content.removeAllViews();
-		if (!simpleLayout) {
+		if (!flatLayout) {
 			this.header.removeAllViews();
 			this.footer.removeAllViews();
 
@@ -200,13 +200,13 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT,
 				tableViewProperties.getString(TiC.PROPERTY_MIN_ROW_HEIGHT));
 			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
-			if (!simpleLayout) {
+			if (!flatLayout) {
 				this.container.setMinimumHeight(minHeight);
 			} else {
 				this.content.setMinimumHeight(minHeight);
 			}
 
-			if (!simpleLayout) {
+			if (!flatLayout) {
 				// Set font and text color for title.
 				TiUIHelper.styleText(this.title, properties.getKrollDict(TiC.PROPERTY_FONT));
 			}
@@ -239,7 +239,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 				}
 			}
 
-			if (!simpleLayout) {
+			if (!flatLayout) {
 				if (titleColor != Color.TRANSPARENT) {
 
 					// Set specified `title` color.
@@ -380,7 +380,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 					backgroundDrawable = generateRippleDrawable(backgroundDrawable, touchFeedbackColor);
 				}
 
-				if (!simpleLayout) {
+				if (!flatLayout) {
 					// Set container background.
 					this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
 					this.container.setActivated(selected);
@@ -402,7 +402,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 				this.content.addView(nativeRowView, rowView.getLayoutParams());
 				this.content.setVisibility(View.VISIBLE);
 			}
-			if (!simpleLayout) {
+			if (!flatLayout) {
 				if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
 					&& proxy.getChildren().length == 0) {
 
@@ -436,7 +436,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			}
 		}
 
-		if (!simpleLayout) {
+		if (!flatLayout) {
 			// Handle `header` and `footer` for rows.
 			setHeaderFooter(tableViewProxy, properties, true, true);
 
@@ -476,7 +476,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	 */
 	private void setTitleAttributes(final String prefix, final Context context, final TextView title)
 	{
-		if (simpleLayout) return;
+		if (flatLayout) return;
 		final Resources.Theme theme = context.getTheme();
 
 		TypedValue sizeValue = new TypedValue();
@@ -573,7 +573,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 								 boolean updateHeader,
 								 boolean updateFooter)
 	{
-		if (simpleLayout) return;
+		if (flatLayout) return;
 		if (tableViewProxy == null) {
 			return;
 		}

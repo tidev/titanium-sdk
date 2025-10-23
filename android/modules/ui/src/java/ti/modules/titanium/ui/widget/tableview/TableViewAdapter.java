@@ -25,17 +25,17 @@ import ti.modules.titanium.ui.widget.listview.TiRecyclerViewAdapter;
 public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder, TableViewRowProxy>
 {
 	private static final String TAG = "TableViewAdapter";
-	private boolean simpleLayout = false;
+	private boolean flatLayout = false;
 
-	public TableViewAdapter(@NonNull Context context, @NonNull List<TableViewRowProxy> models, boolean simpleLayout)
+	public TableViewAdapter(@NonNull Context context, @NonNull List<TableViewRowProxy> models, boolean flatLayout)
 	{
 		super(context, models);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
 			if (this.id_holder == 0) {
-				this.simpleLayout = simpleLayout;
-				if (simpleLayout) {
+				this.flatLayout = flatLayout;
+				if (flatLayout) {
 					this.id_holder = TiRHelper.getResource("layout.titanium_ui_tableview_flat_holder");
 				} else {
 					this.id_holder = TiRHelper.getResource("layout.titanium_ui_tableview_holder");
@@ -79,12 +79,12 @@ public class TableViewAdapter extends TiRecyclerViewAdapter<TableViewHolder, Tab
 	public TableViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
 	{
 		// Create new TableViewHolder instance.
-		if (simpleLayout) {
+		if (flatLayout) {
 			ConstraintLayout layout = (ConstraintLayout) inflater.inflate(id_holder, null);
-			return new TableViewHolder(parent.getContext(), layout, simpleLayout);
+			return new TableViewHolder(parent.getContext(), layout, flatLayout);
 		} else {
 			RelativeLayout layout = (RelativeLayout) inflater.inflate(id_holder, null);
-			return new TableViewHolder(parent.getContext(), layout, simpleLayout);
+			return new TableViewHolder(parent.getContext(), layout, flatLayout);
 		}
 	}
 
