@@ -320,15 +320,16 @@
   TiThreadPerformOnMainThread(
       ^{
         if (controller != nil) {
-          if (newColor == nil) {
+          TiColor *newTintColor = newColor;
+          if (newTintColor == nil) {
             // Get from TabGroup
-            newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+            newTintColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
           }
           UINavigationBar *navBar = [[controller navigationController] navigationBar];
-          [navBar setTintColor:[newColor color]];
+          [navBar setTintColor:[newTintColor color]];
           [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-          [newColor release];
         }
+        [newColor release];
       },
       NO);
 }
