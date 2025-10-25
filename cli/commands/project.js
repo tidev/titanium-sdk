@@ -4,67 +4,63 @@
  * Copyright TiDev, Inc. 04/07/2022-Present  All Rights Reserved.
  * See the LICENSE file for more information.
  */
-'use strict';
 
-const path = require('path'),
-	ti = require('node-titanium-sdk'),
-	appc = require('node-appc'),
-	__ = appc.i18n(__dirname).__,
-	mix = appc.util.mix;
+import path from 'node:path';
+import ti from 'node-titanium-sdk';
+import appc from 'node-appc';
 
-exports.cliVersion = '>=3.2.1';
-exports.desc = __('get and set tiapp.xml settings');
-exports.extendedDesc = [
-	__('Get and set tiapp.xml settings.'),
-	__('Run %s to see all available entries that can be changed.', 'titanium project --project-dir /path/to/project'.cyan),
-	[	__('When setting the %s entry, it will non-destructively copy each specified ', 'deployment-targets'.cyan),
-		__('platform\'s default resources into your project\'s Resources folder. For '),
-		__('example, if your app currently supports %s and you wish to add Android ', 'iphone'.cyan),
-		__('support, you must specify %s, otherwise only specifying %s will remove ', 'iphone,android'.cyan),
-		__('support for iPhone.', 'android'.cyan)
-	].join('')
-].join('\n\n');
+export const cliVersion = '>=3.2.1';
+export const desc = 'get and set tiapp.xml settings';
+export const extendedDesc = `Get and set tiapp.xml settings.
 
-exports.config = function (logger, config) {
+Run ${'titanium project --project-dir /path/to/project'.cyan} to see all available entries that can be changed.
+
+When setting the ${'deployment-targets'.cyan} entry, it will non-destructively copy each specified
+platform's default resources into your project's Resources folder. For
+example, if your app currently supports ${'iphone'.cyan} and you wish to add Android
+support, you must specify ${'iphone,android'.cyan}, otherwise only specifying ${'android'.cyan} will remove
+support for iPhone.`;
+
+export function config(logger, config) {
 	return {
 		skipBanner: true,
-		options: mix({
+		options: Object.assign({
 			output: {
 				abbr: 'o',
 				default: 'report',
-				desc: __('output format'),
+				desc: 'output format',
 				values: [ 'report', 'json', 'text' ]
 			},
 			'project-dir': {
-				desc: __('the directory of the project to analyze'),
+				desc: 'the directory of the project to analyze',
 				default: '.'
 			},
 			template: {
-				desc: __('the name of the project template to use'),
+				desc: 'the name of the project template to use',
 				default: 'default'
 			}
 		}, ti.commonOptions(logger, config)),
 		args: [
 			{
 				name: 'key',
-				desc: __('the key to get or set')
+				desc: 'the key to get or set'
 			},
 			{
 				name: 'value',
-				desc: __('the value to set the specified key')
+				desc: 'the value to set the specified key'
 			}
 		]
 	};
-};
+}
 
-exports.validate = function (logger, config, cli) {
+export function validate(logger, config, cli) {
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
 		const key = cli.argv._[0];
 		if (!/^([A-Za-z_]{1}[A-Za-z0-9-_]*(\.[A-Za-z-_]{1}[A-Za-z0-9-_]*)*)$/.test(key)) {
-			logger.error(__('Invalid key "%s"', key) + '\n');
+			logger.error(`Invalid key "${key}"\n`);
 			process.exit(1);
 		}
 	}
@@ -72,9 +68,9 @@ exports.validate = function (logger, config, cli) {
 	return function (finished) {
 		ti.loadPlugins(null, config, cli, cli.argv['project-dir'], finished, cli.argv.output !== 'report' || cli.argv._.length, false);
 	};
-};
+}
 
-exports.run = function (logger, config, cli, finished) {
+export function run(logger, config, cli, finished) {
 	var projectDir = cli.argv['project-dir'],
 		tiappPath = path.join(projectDir, 'tiapp.xml'),
 		tiapp = new ti.tiappxml(tiappPath),
@@ -88,7 +84,7 @@ exports.run = function (logger, config, cli, finished) {
 		maxlen,
 		sdkPath = cli.sdk.path,
 		templateDir,
-		propsList = [ 'sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'analytics', 'guid' ],
+		propsList = [ 'sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'guid' ],
 		deploymentTargets = tiapp['deployment-targets'];
 
 	args.length === 0 && output === 'report' && logger.banner();
@@ -113,22 +109,22 @@ exports.run = function (logger, config, cli, finished) {
 			} else {
 
 				// Print the deployment targets
-				logger.log(__('Deployment Targets:'));
+				logger.log('Deployment Targets:');
 				maxlen = Object.keys(deploymentTargets).reduce(function (a, b) {
 					return Math.max(a, b.length);
 				}, 0);
 				for (p in tiapp['deployment-targets']) {
-					logger.log('  %s = %s', appc.string.rpad(p, maxlen), (deploymentTargets[p] + '').cyan);
+					logger.log(`  ${appc.string.rpad(p, maxlen)} = ${(deploymentTargets[p] + '').cyan}`);
 				}
 				logger.log();
 
 				// Print the other properties
-				logger.log(__('Project Properties:'));
+				logger.log('Project Properties:');
 				maxlen = propsList.reduce(function (a, b) {
 					return Math.max(a, b.length);
 				}, 0);
 				propsList.forEach(function (key) {
-					logger.log('  %s = %s', appc.string.rpad(key, maxlen), String(tiapp[key] || __('not specified')).cyan);
+					logger.log(`  ${appc.string.rpad(key, maxlen)} = ${String(tiapp[key] || 'not specified').cyan}`);
 				});
 				logger.log();
 			}
@@ -153,12 +149,12 @@ exports.run = function (logger, config, cli, finished) {
 					logger.log(result.join(','));
 				} else {
 					// Print the deployment targets
-					logger.log(__('Deployment Targets:'));
+					logger.log('Deployment Targets:');
 					maxlen = Object.keys(deploymentTargets).reduce(function (a, b) {
 						return Math.max(a, b.length);
 					}, 0);
 					for (p in tiapp['deployment-targets']) {
-						logger.log('  %s = %s', appc.string.rpad(p, maxlen), (deploymentTargets[p] + '').cyan);
+						logger.log(`  ${appc.string.rpad(p, maxlen)} = ${(deploymentTargets[p] + '').cyan}`);
 					}
 					logger.log();
 				}
@@ -172,7 +168,7 @@ exports.run = function (logger, config, cli, finished) {
 				if (output === 'json') {
 					logger.log('null');
 				} else {
-					logger.error(__('%s is not a valid entry name', key) + '\n');
+					logger.error(`${key} is not a valid entry name\n`);
 				}
 				process.exit(1);
 			}
@@ -195,8 +191,8 @@ exports.run = function (logger, config, cli, finished) {
 					value = args[1].split(',');
 					value.forEach(function (p) {
 						if (!Object.prototype.hasOwnProperty.call(result, p)) {
-							logger.error(__('Unsupported deployment target "%s"', p) + '\n');
-							logger.log(__('Available deployment targets are:'));
+							logger.error(`Unsupported deployment target "${p}"\n`);
+							logger.log('Available deployment targets are:');
 							Object.keys(result).sort().forEach(function (p) {
 								logger.log('    ' + p.cyan);
 							});
@@ -215,7 +211,7 @@ exports.run = function (logger, config, cli, finished) {
 					// Non-destructively copy over files from <sdk>/templates/app/<template>/template
 					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template, 'template');
 					if (!appc.fs.exists(templateDir)) {
-						logger.error(__('Unknown project template %s', cli.argv.template) + '\n');
+						logger.error(`Unknown project template ${cli.argv.template}\n`);
 						process.exit(1);
 					}
 
@@ -245,7 +241,7 @@ exports.run = function (logger, config, cli, finished) {
 						value = Object.keys(cli.env.sdks).sort().reverse()[0];
 					}
 					if (!(value in cli.env.sdks)) {
-						logger.error(__('Unknown SDK %s', value) + '\n');
+						logger.error(`Unknown SDK ${value}\n`);
 						process.exit(1);
 					}
 					tiapp['sdk-version'] = value;
@@ -253,7 +249,7 @@ exports.run = function (logger, config, cli, finished) {
 				case 'id':
 					value = args[1];
 					if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(value)) {
-						logger.error(__('Invalid project ID %s', value) + '\n');
+						logger.error(`Invalid project ID ${value}\n`);
 						process.exit(1);
 					}
 					tiapp['id'] = value;
@@ -268,22 +264,15 @@ exports.run = function (logger, config, cli, finished) {
 				case 'guid':
 					tiapp[key] = value = args[1] || '';
 					break;
-				case 'analytics':
-					if (!~[ 'true', 'false' ].indexOf(args[1])) {
-						logger.error(__('Invalid value for analytics %s', args[1]) + '\n');
-						process.exit(1);
-					}
-					tiapp['analytics'] = value = args[1];
-					break;
 				default:
 					logger.error('Invalid tiapp.xml key "' + key + '"');
 					break;
 			}
 			logger.log('tiapp.xml saving is currently not supported');
-			// logger.log(__('%s was successfully set to %s', (key + '').cyan, (value + '').cyan) + '\n');
+			// logger.log(`${(key + '').cyan} was successfully set to ${(value + '').cyan}\n`);
 			// tiapp.save(tiappPath);
 			break;
 	}
 
 	finished();
-};
+}
