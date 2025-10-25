@@ -67,7 +67,7 @@ properties:
 methods:
   - name: clearUserCache
     summary: Clears app data and cache. This will close the app.
-    since: 12.8.0
+    since: 13.1.0
 
 events:
   - name: shortcutitemclick
