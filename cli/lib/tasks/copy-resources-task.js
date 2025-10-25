@@ -1,10 +1,7 @@
-const appc = require('node-appc');
-const { IncrementalFileTask } = require('appc-tasks');
-const fs = require('fs-extra');
-const path = require('path');
-const pLimit = require('p-limit');
-const i18n = appc.i18n(__dirname);
-const __ = i18n.__;
+import { IncrementalFileTask } from 'appc-tasks';
+import fs from 'fs-extra';
+import path from 'node:path';
+import pLimit from 'p-limit';
 
 const MAX_SIMULTANEOUS_FILES = 256;
 const limit = pLimit(MAX_SIMULTANEOUS_FILES);
@@ -12,7 +9,7 @@ const limit = pLimit(MAX_SIMULTANEOUS_FILES);
 /**
  * Task that copies "plain" input files to a destination.
  */
-class CopyResourcesTask extends IncrementalFileTask {
+export class CopyResourcesTask extends IncrementalFileTask {
 
 	/**
 	 * Constructs a new processing task.
@@ -201,7 +198,7 @@ class CopyResourcesTask extends IncrementalFileTask {
 
 		// iOS specific logic here!
 		if (this.platform === 'ios' && this.builder.useAppThinning && info.isImage && !this.builder.forceRebuild) {
-			this.logger.info(__('Forcing rebuild: image was updated, recompiling asset catalog'));
+			this.logger.info('Forcing rebuild: image was updated, recompiling asset catalog');
 			this.builder.forceRebuild = true;
 		}
 
@@ -214,10 +211,10 @@ class CopyResourcesTask extends IncrementalFileTask {
 		// copy files
 		if (!this.symlinkFiles) {
 			if (exists) {
-				this.logger.debug(__('Overwriting %s => %s', src.cyan, dest.cyan));
+				this.logger.debug(`Overwriting ${src.cyan} => ${dest.cyan}`);
 				await fs.unlink(dest);
 			} else {
-				this.logger.debug(__('Copying %s => %s', src.cyan, dest.cyan));
+				this.logger.debug(`Copying ${src.cyan} => ${dest.cyan}`);
 			}
 			return fs.copyFile(src, dest);
 		}
@@ -225,7 +222,7 @@ class CopyResourcesTask extends IncrementalFileTask {
 		// Try to symlink files!
 		// destination doesn't exist or symbolic link isn't pointing at src
 		if (!exists) {
-			this.logger.debug(__('Symlinking %s => %s', src.cyan, dest.cyan));
+			this.logger.debug(`Symlinking ${src.cyan} => ${dest.cyan}`);
 			return fs.symlink(src, dest);
 		}
 
@@ -234,10 +231,8 @@ class CopyResourcesTask extends IncrementalFileTask {
 		// const symlinkOutdated = (fs.lstatSync(dest).isSymbolicLink() && fs.realpathSync(dest) !== src);
 		if (symlinkOutdated) {
 			await fs.unlink(dest);
-			this.logger.debug(__('Symlinking %s => %s', src.cyan, dest.cyan));
+			this.logger.debug(`Symlinking ${src.cyan} => ${dest.cyan}`);
 			return fs.symlink(src, dest);
 		}
 	}
 }
-
-module.exports = CopyResourcesTask;

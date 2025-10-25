@@ -2,7 +2,9 @@
 
 <h1 align="center">Titanium SDK</h1>
 
-<p align="center"><a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=master" /></a></p>
+<p align="center">  <a href="https://bsky.app/profile/titaniumsdk.com">
+    <img src="https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff" alt="Follow @titaniumsdk.com on Bluesky" />
+  </a><a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=master" /></a></p>
 
 Welcome to the Titanium SDK open source project. Titanium SDK provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
@@ -232,7 +234,7 @@ npm run cleanbuild -- [platform1] [platform2] --android-sdk /opt/android-sdk /Us
 
 We have a [unit test suite](tests/) intended to run across all supported platforms.
 
-We have npm scripts set up to run a full clean, build, package, symlinked install, `ti sdk select` the built sdk, and then run the unit test suite:
+We have npm scripts set up to run a full clean, build, package, symlinked install, and then run the unit test suite:
 
 ```bash
 npm run test:android
