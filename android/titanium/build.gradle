@@ -129,7 +129,7 @@ android {
 tasks.register('updateLibraryThenExit', Exec) {
 	executable = 'node'
 	workingDir = projectDir
-	args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
+	args = ['libv8-services.js', 'update-library']
 }
 
 // Downloads/extracts V8 library and creates a cmake file for it. To be executed before C/C++ "build" or "clean".
@@ -151,13 +151,6 @@ tasks.register('updateV8Library') {
 				"set(LIBV8_VERSION \"${packageJson.v8.version}\")",
 				"set(LIBV8_MODE \"${packageJson.v8.mode}\")"
 		].join('\n') + '\n'
-
-		// Download/install the V8 library referenced in our "package.json", if not already done.
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['libv8-services.js', 'update-library']
-		}
 	}
 }
 
@@ -192,7 +185,7 @@ tasks.register('checkstyleChanged', Checkstyle) {
 tasks.register('createV8Snapshot', Exec) {
 	executable = 'node'
 	workingDir = projectDir
-	args = ['-e', "require('./libv8-services').createSnapshotThenExit()"]
+	args = ['libv8-services.js', 'create-snapshot']
 }
 
 tasks.register('snapshotTiCommonFiles') {
@@ -201,26 +194,19 @@ tasks.register('snapshotTiCommonFiles') {
 	inputs.file "${projectDir}/../../build/lib/builder.js"
 	inputs.file "${projectDir}/../../build/lib/android.js"
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
-	doFirst {
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['libv8-services.js', 'create-snapshot']
-		}
-	}
 }
 
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // Generates C/C++ files providing our Android-only JS files via byte arrays.
 tasks.register('runPrebuild', Exec) {
-    executable = 'node'
-    workingDir = projectDir
-    args = ['prebuild.js']
+	executable = 'node'
+	workingDir = projectDir
+	args = ['prebuild.js']
 }
 
 tasks.withType(JavaCompile).configureEach {
-    dependsOn(checkJavaStyle, snapshotTiCommonFiles)
-    finalizedBy(tasks.runPrebuild)
+	dependsOn(checkJavaStyle, snapshotTiCommonFiles)
+	finalizedBy(tasks.runPrebuild)
 }
 
 // Set up project to compile Java side before compiling the C/C++ side.
@@ -280,17 +266,17 @@ def getChangedFiles() {
 
 def generatedDir = file("${projectDir}/../runtime/v8/generated")
 def distFiles = fileTree(
-  dir: file("${projectDir}/../../dist/android"),
-  include: '**/*',
-  exclude: 'libv8/**/*'
+	dir: file("${projectDir}/../../dist/android"),
+	include: '**/*',
+	exclude: 'libv8/**/*'
 )
 
 clean.doLast {
-  // Delete generated C/C++ files.
-  delete generatedDir
+	// Delete generated C/C++ files.
+	delete generatedDir
 
-  // Delete the files copied to our distribution directory.
-  delete distFiles
+	// Delete the files copied to our distribution directory.
+	delete distFiles
 }
 
 dependencies {
