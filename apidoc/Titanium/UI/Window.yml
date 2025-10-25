@@ -1378,7 +1378,7 @@ properties:
     summary: The color of the navigation bar (bottom bar) for this window.
     type: [Number]
     platforms: [android]
-    since: {android: "12.8.0"}
+    since: {android: "13.1.0"}
 
   - name: sustainedPerformanceMode
     summary: Maintain a sustainable level of performance.
