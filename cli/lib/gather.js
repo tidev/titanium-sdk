@@ -1,8 +1,6 @@
-'use strict';
-
-const fs = require('fs-extra');
-const path = require('path');
-const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
+import fs from 'fs-extra';
+import path from 'node:path';
+import jsanalyze from 'node-titanium-sdk/lib/jsanalyze.js';
 
 // RegExps used to match against files
 const FILENAME_REGEXP = /^(.*)\.(\w+)$/;
@@ -19,7 +17,7 @@ const ANDROID_SPLASH_REGEXP = /^(images[/|\\](high|medium|low|res-[^/]+)[/|\\])?
  * @param {Array<Map>} maps maps to merge
  * @returns {Map}
  */
-function mergeMaps(maps) {
+export function mergeMaps(maps) {
 	const merged = new Map();
 	if (maps.length !== 0) {
 		return maps.reduce((combined, list) => {
@@ -45,7 +43,7 @@ class FileInfo {
 	}
 }
 
-class Result {
+export class Result {
 	constructor() {
 		this.appIcons = new Map(); // ios specific
 		this.cssFiles = new Map(); // css files to be processed (minified optionally)
@@ -93,7 +91,7 @@ class Result {
 	}
 }
 
-class Walker {
+export class Walker {
 	/**
 	 *
 	 * @param {object} [options] options
@@ -204,7 +202,7 @@ class Walker {
 	}
 }
 
-class Categorizer {
+export class Categorizer {
 	/**
 	 * @param {object} options options
 	 * @param {string} options.tiappIcon tiapp icon filename
@@ -273,7 +271,7 @@ class Categorizer {
 					}
 					if (this.excludeAssestsDir !== null) {
 						let testPath = this.excludeAssestsDir;
-						const checkRegEx = new RegExp(`${testPath}`);
+						const checkRegEx = new RegExp(`${testPath}`); // eslint-disable-line security/detect-non-literal-regexp
 						if (!relPath.match(checkRegEx)) {
 							results.imageAssets.set(relPath, info);
 							return;
@@ -312,7 +310,7 @@ class Categorizer {
 					if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
 						if (this.excludeAssestsDir !== null) {
 							let testPath = this.excludeAssestsDir;
-							const checkRegEx = new RegExp(`${testPath}`);
+							const checkRegEx = new RegExp(`${testPath}`); // eslint-disable-line security/detect-non-literal-regexp
 							if (!relPath.match(checkRegEx)) {
 								results.imageAssets.set(relPath, info);
 								return;
@@ -339,10 +337,3 @@ class Categorizer {
 		}
 	}
 }
-
-module.exports = {
-	Walker,
-	Result,
-	Categorizer,
-	mergeMaps,
-};
