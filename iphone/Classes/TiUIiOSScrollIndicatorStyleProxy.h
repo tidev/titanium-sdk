@@ -9,8 +9,6 @@
 #import <TitaniumKit/TiProxy.h>
 
 @interface TiUIiOSScrollIndicatorStyleProxy : TiProxy {
-
-  @private
 }
 
 @property (nonatomic, readonly) NSNumber *DEFAULT;
