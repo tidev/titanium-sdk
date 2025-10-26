@@ -1,12 +1,11 @@
 #!/usr/bin/env node
-'use strict';
 
-const fs = require('fs-extra');
-const path = require('path');
-const promisify = require('util').promisify;
-// eslint-disable-next-line security/detect-child-process
-const execFile = promisify(require('child_process').execFile);
+import fs from 'fs-extra';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEST_SUITE_DIR = path.join(__dirname, '..', 'tests');
 const JS_DIR = path.join(TEST_SUITE_DIR, 'Resources');
 const DEST = path.join(__dirname, '..', 'iphone', 'Resources');
@@ -32,7 +31,7 @@ async function main() {
 	}
 
 	// TODO: We need to run npm install --production in DEST
-	await execFile('npm', [ 'ci', '--production' ], { cwd: DEST });
+	execFileSync('npm', [ 'ci', '--production' ], { cwd: DEST });
 }
 
 main()

@@ -40,8 +40,8 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
+import org.appcelerator.titanium.util.TiSession;
+import org.appcelerator.titanium.util.TiSessionMeta;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -105,13 +105,13 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getName()
 	{
-		return APSAnalyticsMeta.getPlatform();
+		return TiSessionMeta.getPlatform();
 	}
 
 	@Kroll.getProperty
 	public String getOsname()
 	{
-		return APSAnalyticsMeta.getPlatform();
+		return TiSessionMeta.getPlatform();
 	}
 
 	@Kroll.getProperty
@@ -145,7 +145,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getVersion()
 	{
-		return APSAnalyticsMeta.getOsVersion();
+		return TiSessionMeta.getOsVersion();
 	}
 
 	@Kroll.getProperty
@@ -193,13 +193,13 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getOstype()
 	{
-		return APSAnalyticsMeta.getOsType();
+		return TiSessionMeta.getOsType();
 	}
 
 	@Kroll.getProperty
 	public String getArchitecture()
 	{
-		return APSAnalyticsMeta.getArchitecture();
+		return TiSessionMeta.getArchitecture();
 	}
 
 	@Kroll.getProperty
@@ -376,7 +376,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getId()
 	{
-		return APSAnalytics.getInstance().getMachineId();
+		return TiSession.getInstance().getMachineId();
 	}
 
 	@Kroll.setProperty
