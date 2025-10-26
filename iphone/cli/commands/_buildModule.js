@@ -35,6 +35,7 @@ const appc = require('node-appc'),
 
 const plist = require('simple-plist');
 const parsePlist = util.promisify(plist.readFile);
+const SPM_METADATA_VERSION = 1;
 
 function iOSModuleBuilder() {
 	Builder.apply(this, arguments);
@@ -204,6 +205,9 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.tiSymbols = {};
 	this.metaData = [];
 	this.metaDataFile = path.join(this.projectDir, 'metadata.json');
+	this.spmConfigFile = path.join(this.projectDir, 'spm.json');
+	this.spmConfig = this.loadSpmConfig();
+	this.spmMetadata = null;
 	this.manifestFile = path.join(this.projectDir, 'manifest');
 	this.distDir = path.join(this.projectDir, 'dist');
 	this.templatesDir = path.join(this.platformPath, 'templates');
@@ -231,6 +235,113 @@ iOSModuleBuilder.prototype.initialize = function initialize() {
 	this.tiXcconfigFile = path.join(this.projectDir, 'titanium.xcconfig');
 
 	this.moduleXcconfigFile = path.join(this.projectDir, 'module.xcconfig');
+};
+
+iOSModuleBuilder.prototype.loadSpmConfig = function loadSpmConfig() {
+	if (!fs.existsSync(this.spmConfigFile)) {
+		return null;
+	}
+
+	try {
+		const contents = fs.readFileSync(this.spmConfigFile, 'utf8');
+		const parsed = JSON.parse(contents);
+
+		if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.dependencies) || !parsed.dependencies.length) {
+			return null;
+		}
+
+		return parsed;
+	} catch (err) {
+		this.logger.warn(__('Failed to parse %s: %s', path.relative(this.projectDir, this.spmConfigFile), err.message));
+		return null;
+	}
+};
+
+iOSModuleBuilder.prototype.getSpmMetadata = function getSpmMetadata() {
+	if (!this.spmConfig || !Array.isArray(this.spmConfig.dependencies)) {
+		return null;
+	}
+
+	const dependencies = this.spmConfig.dependencies
+		.map(dep => this.normalizeSpmDependency(dep))
+		.filter(Boolean);
+
+	if (!dependencies.length) {
+		return null;
+	}
+
+	return {
+		version: SPM_METADATA_VERSION,
+		dependencies
+	};
+};
+
+iOSModuleBuilder.prototype.normalizeSpmDependency = function normalizeSpmDependency(dep) {
+	if (!dep || typeof dep !== 'object') {
+		return null;
+	}
+
+	const repositoryURL = dep.repositoryURL || dep.repositoryUrl;
+	if (!repositoryURL) {
+		this.logger.warn(__('Skipping Swift package dependency without repositoryURL in %s', path.relative(this.projectDir, this.spmConfigFile)));
+		return null;
+	}
+
+	const requirement = dep.requirement || {};
+	const requirementKind = dep.requirementKind || requirement.kind || 'upToNextMajorVersion';
+	const requirementMinimumVersion = dep.requirementMinimumVersion || requirement.minimumVersion || '1.0.0';
+	const dependencyLinkage = this.normalizeSpmLinkage(dep.linkage);
+
+	const products = Array.isArray(dep.products)
+		? dep.products.map(product => this.normalizeSpmProduct(product, dependencyLinkage)).filter(Boolean)
+		: [];
+
+	if (!products.length) {
+		this.logger.warn(__('Skipping Swift package "%s" because it declares no valid products', repositoryURL));
+		return null;
+	}
+
+	return {
+		remotePackageReference: dep.remotePackageReference || dep.reference || this.deriveSpmReference(repositoryURL),
+		repositoryURL,
+		requirementKind,
+		requirementMinimumVersion,
+		linkage: dependencyLinkage,
+		products
+	};
+};
+
+iOSModuleBuilder.prototype.normalizeSpmProduct = function normalizeSpmProduct(product, dependencyLinkage) {
+	if (!product || typeof product !== 'object') {
+		return null;
+	}
+
+	const productName = product.productName || product.name;
+	if (!productName) {
+		return null;
+	}
+
+	return {
+		productName,
+		frameworkName: product.frameworkName || productName,
+		linkage: this.normalizeSpmLinkage(product.linkage || dependencyLinkage)
+	};
+};
+
+iOSModuleBuilder.prototype.normalizeSpmLinkage = function normalizeSpmLinkage(linkage) {
+	return linkage && typeof linkage === 'string' && linkage.toLowerCase() === 'host' ? 'host' : 'embedded';
+};
+
+iOSModuleBuilder.prototype.deriveSpmReference = function deriveSpmReference(repositoryURL) {
+	if (!repositoryURL || typeof repositoryURL !== 'string') {
+		return 'TiSPMPackage';
+	}
+
+	const withoutGit = repositoryURL.replace(/\.git$/, '');
+	const segments = withoutGit.split('/');
+	const candidate = segments[segments.length - 1] || withoutGit;
+	const sanitized = candidate.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+	return sanitized || 'TiSPMPackage';
 };
 
 iOSModuleBuilder.prototype.loginfo = function loginfo() {
@@ -500,7 +611,12 @@ iOSModuleBuilder.prototype.compileJS = function compileJS(next) {
 			}.bind(this));
 
 			fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-			fs.writeFileSync(this.metaDataFile, JSON.stringify({ exports: this.metaData }));
+			const metadata = { exports: this.metaData };
+			this.spmMetadata = this.getSpmMetadata();
+			if (this.spmMetadata) {
+				metadata.spm = this.spmMetadata;
+			}
+			fs.writeFileSync(this.metaDataFile, JSON.stringify(metadata));
 
 			cb();
 		}
@@ -924,9 +1040,14 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 
 		// 4. hooks folder
 		const hookFiles = {};
+		const suppressSpmHook = !!this.spmMetadata;
 		if (fs.existsSync(this.hooksDir)) {
 			this.dirWalker(this.hooksDir, function (file) {
 				const relFile = path.relative(this.hooksDir, file);
+				if (suppressSpmHook && relFile === 'ti.spm.js') {
+					this.logger.debug(__('Skipping legacy ti.spm hook because Swift package metadata is embedded in metadata.json'));
+					return;
+				}
 				hookFiles[relFile] = 1;
 				dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
 			}.bind(this));
@@ -934,6 +1055,9 @@ iOSModuleBuilder.prototype.packageModule = function packageModule(next) {
 		if (fs.existsSync(this.sharedHooksDir)) {
 			this.dirWalker(this.sharedHooksDir, function (file) {
 				var relFile = path.relative(this.sharedHooksDir, file);
+				if (suppressSpmHook && relFile === 'ti.spm.js') {
+					return;
+				}
 				if (!hookFiles[relFile]) {
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
 				}

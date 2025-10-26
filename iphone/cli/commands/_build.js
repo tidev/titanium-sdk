@@ -43,9 +43,11 @@ const appc = require('node-appc'),
 	series = appc.async.series,
 	plist = require('simple-plist'),
 	version = appc.version,
-	merge = require('lodash.merge');
+	merge = require('lodash.merge'),
+	iosSpm = require('../lib/ios/spm');
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
+const SPM_LOG_PREFIX = '[SPM]';
 
 function iOSBuilder() {
 	Builder.apply(this, arguments);
@@ -109,6 +111,8 @@ function iOSBuilder() {
 
 	// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 	this.tiSymbols = {};
+	this.moduleSpmDependencies = [];
+	this.hostSpmPackages = [];
 
 	// when true, uses the new build system (Xcode 9+)
 	this.useNewBuildSystem = true;
@@ -2275,6 +2279,7 @@ iOSBuilder.prototype.validate = function validate(logger, config, cli) {
 					}, this);
 
 					this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+					this.collectModuleSpmDependencies();
 
 					next();
 				}.bind(this));
@@ -2293,6 +2298,220 @@ iOSBuilder.prototype.scrubbedModuleId = function (moduleId) {
 	return moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
 		return s.substring(0, 1).toUpperCase() + s.substring(1);
 	}).join('');
+};
+
+iOSBuilder.prototype.collectModuleSpmDependencies = function collectModuleSpmDependencies() {
+	this.moduleSpmDependencies = [];
+	this.hostSpmPackages = [];
+
+	const packagesByKey = new Map();
+	const repoTracker = new Map();
+
+	(this.modules || []).forEach(module => {
+		const metadataPath = path.join(module.modulePath, 'metadata.json');
+		let metadata = null;
+
+		if (fs.existsSync(metadataPath)) {
+			try {
+				metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+			} catch (err) {
+				this.logger.warn(`${SPM_LOG_PREFIX} ${__('Unable to parse %s for module %s: %s', path.relative(this.projectDir, metadataPath), module.id, err.message)}`);
+				return;
+			}
+		}
+
+		const spmInfo = metadata && metadata.spm;
+		if (!spmInfo || !Array.isArray(spmInfo.dependencies) || !spmInfo.dependencies.length) {
+			if (this.moduleHasLegacySpmHook(module)) {
+				this.logger.warn(`${SPM_LOG_PREFIX} ${__('Module %s ships the legacy ti.spm hook. Add an spm.json file and rebuild the module to avoid duplicate Swift packages.', module.id)}`);
+			} else {
+				this.logger.debug(`${SPM_LOG_PREFIX} ${__('Module %s has no Swift package metadata', module.id)}`);
+			}
+			return;
+		}
+
+		const normalizedDeps = spmInfo.dependencies
+			.map(dep => this.normalizeModuleSpmDependency(module, dep))
+			.filter(Boolean);
+
+		if (!normalizedDeps.length) {
+			this.logger.debug(`${SPM_LOG_PREFIX} ${__('Module %s declared Swift packages, but none were valid after normalization', module.id)}`);
+			return;
+		}
+
+		this.logger.debug(`${SPM_LOG_PREFIX} ${__('Module %s contributes %d Swift package(s)', module.id, normalizedDeps.length)}`);
+
+		this.moduleSpmDependencies.push({ module, dependencies: normalizedDeps });
+
+		normalizedDeps.forEach(dep => {
+			const hostProducts = dep.products.filter(product => product.linkage === 'host');
+			if (!hostProducts.length) {
+				this.logger.debug(`${SPM_LOG_PREFIX} ${__('Module %s embeds Swift package %s directly; nothing to add to the app', module.id, dep.repositoryURL)}`);
+				return;
+			}
+
+			const packageKey = [
+				dep.repositoryURL,
+				dep.requirementKind,
+				dep.requirementMinimumVersion
+			].join('#');
+
+			let pkg = packagesByKey.get(packageKey);
+			if (!pkg) {
+				pkg = {
+					remotePackageReference: dep.remotePackageReference,
+					repositoryURL: dep.repositoryURL,
+					requirementKind: dep.requirementKind,
+					requirementMinimumVersion: dep.requirementMinimumVersion,
+					products: new Map()
+				};
+				packagesByKey.set(packageKey, pkg);
+			}
+
+			hostProducts.forEach(product => {
+				if (!pkg.products.has(product.productName)) {
+					pkg.products.set(product.productName, {
+						productName: product.productName,
+						frameworkName: product.frameworkName
+					});
+				}
+			});
+
+			this.logger.debug(`${SPM_LOG_PREFIX} ${__('Module %s requests host-level product(s) %s from %s', module.id, hostProducts.map(p => p.productName).join(', '), dep.repositoryURL)}`);
+
+			this.trackSpmVersionRequirement(dep, module, repoTracker);
+		});
+	});
+
+	this.hostSpmPackages = Array.from(packagesByKey.values()).map(pkg => ({
+		remotePackageReference: pkg.remotePackageReference,
+		repositoryURL: pkg.repositoryURL,
+		requirementKind: pkg.requirementKind,
+		requirementMinimumVersion: pkg.requirementMinimumVersion,
+		products: Array.from(pkg.products.values())
+	}));
+
+	if (this.hostSpmPackages.length) {
+		this.logger.info(`${SPM_LOG_PREFIX} ${__('Will add %d Swift package(s) to the app project', this.hostSpmPackages.length)}`);
+		this.hostSpmPackages.forEach(pkg => {
+			this.logger.debug(`${SPM_LOG_PREFIX} ${__('Package %s (%s %s) products: %s', pkg.repositoryURL, pkg.requirementKind, pkg.requirementMinimumVersion, pkg.products.map(p => p.productName).join(', '))}`);
+		});
+	} else {
+		this.logger.debug(`${SPM_LOG_PREFIX} ${__('No host-level Swift packages needed for this build')}`);
+	}
+};
+
+iOSBuilder.prototype.trackSpmVersionRequirement = function trackSpmVersionRequirement(dep, module, tracker) {
+	const repositoryURL = dep.repositoryURL;
+	const existing = tracker.get(repositoryURL);
+
+	if (!existing) {
+		tracker.set(repositoryURL, {
+			requirementKind: dep.requirementKind,
+			requirementMinimumVersion: dep.requirementMinimumVersion,
+			modules: new Set([ module.id ])
+		});
+		return;
+	}
+
+	const matches = existing.requirementKind === dep.requirementKind
+		&& existing.requirementMinimumVersion === dep.requirementMinimumVersion;
+
+	existing.modules.add(module.id);
+
+	if (!matches) {
+		this.logger.warn(`${SPM_LOG_PREFIX} ${__('Swift package %s is requested with conflicting versions by modules: %s. Using %s %s.', repositoryURL, Array.from(existing.modules).join(', '), existing.requirementKind, existing.requirementMinimumVersion)}`);
+	}
+};
+
+iOSBuilder.prototype.normalizeModuleSpmDependency = function normalizeModuleSpmDependency(module, dep) {
+	if (!dep || typeof dep !== 'object') {
+		return null;
+	}
+
+	const repositoryURL = dep.repositoryURL || dep.repositoryUrl;
+	if (!repositoryURL) {
+		this.logger.warn(`${SPM_LOG_PREFIX} ${__('Module %s declares a Swift package without repositoryURL. Skip.', module.id)}`);
+		return null;
+	}
+
+	const requirementKind = dep.requirementKind || (dep.requirement && dep.requirement.kind) || 'upToNextMajorVersion';
+	const requirementMinimumVersion = dep.requirementMinimumVersion || (dep.requirement && (dep.requirement.minimumVersion || dep.requirement.minVersion)) || '1.0.0';
+	const dependencyLinkage = this.normalizeModuleSpmLinkage(dep.linkage);
+
+	const products = Array.isArray(dep.products)
+		? dep.products.map(product => this.normalizeModuleSpmProduct(product, dependencyLinkage)).filter(Boolean)
+		: [];
+
+	if (!products.length) {
+		this.logger.warn(`${SPM_LOG_PREFIX} ${__('Module %s declares Swift package %s but no valid products. Skip.', module.id, repositoryURL)}`);
+		return null;
+	}
+
+	return {
+		remotePackageReference: dep.remotePackageReference || dep.reference || this.generateSpmReferenceFromRepo(repositoryURL),
+		repositoryURL,
+		requirementKind,
+		requirementMinimumVersion,
+		linkage: dependencyLinkage,
+		products
+	};
+};
+
+iOSBuilder.prototype.normalizeModuleSpmProduct = function normalizeModuleSpmProduct(product, dependencyLinkage) {
+	if (!product || typeof product !== 'object') {
+		return null;
+	}
+
+	const productName = product.productName || product.name;
+	if (!productName) {
+		return null;
+	}
+
+	return {
+		productName,
+		frameworkName: product.frameworkName || productName,
+		linkage: this.normalizeModuleSpmLinkage(product.linkage || dependencyLinkage)
+	};
+};
+
+iOSBuilder.prototype.normalizeModuleSpmLinkage = function normalizeModuleSpmLinkage(linkage) {
+	return linkage && typeof linkage === 'string' && linkage.toLowerCase() === 'host' ? 'host' : 'embedded';
+};
+
+iOSBuilder.prototype.generateSpmReferenceFromRepo = function generateSpmReferenceFromRepo(repositoryURL) {
+	if (!repositoryURL || typeof repositoryURL !== 'string') {
+		return 'TiSPMPackage';
+	}
+
+	const withoutGit = repositoryURL.replace(/\.git$/, '');
+	const segments = withoutGit.split('/');
+	const candidate = segments[segments.length - 1] || withoutGit;
+	const sanitized = candidate.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+	return sanitized || 'TiSPMPackage';
+};
+
+iOSBuilder.prototype.moduleHasLegacySpmHook = function moduleHasLegacySpmHook(module) {
+	const hookPath = path.join(module.modulePath, 'hooks', 'ti.spm.js');
+	return fs.existsSync(hookPath);
+};
+
+iOSBuilder.prototype.applySwiftPackageDependencies = function applySwiftPackageDependencies(xcodeProject) {
+	if (!this.hostSpmPackages || !this.hostSpmPackages.length) {
+		this.logger.debug(`${SPM_LOG_PREFIX} ${__('No Swift packages to inject into the Xcode project')}`);
+		return;
+	}
+
+	this.logger.debug(__('Injecting %s Swift package(s) declared by modules', this.hostSpmPackages.length));
+
+	const xobjs = xcodeProject.hash.project.objects;
+
+	this.hostSpmPackages.forEach(pkg => {
+		this.logger.debug(`${SPM_LOG_PREFIX} ${__('Injecting %s (%s %s) with products %s', pkg.repositoryURL, pkg.requirementKind, pkg.requirementMinimumVersion, pkg.products.map(p => p.productName).join(', '))}`);
+		iosSpm.injectSPMPackage(xobjs, pkg, {
+			generateUUID: () => this.generateXcodeUuid(xcodeProject)
+		});
+	});
 };
 
 /**
@@ -4056,6 +4275,8 @@ iOSBuilder.prototype.createXcodeProject = function createXcodeProject(next) {
 		value: tiverifyFrameworkFileRefUuid,
 		comment: 'tiverify.xcframework'
 	});
+
+	this.applySwiftPackageDependencies(xcodeProject);
 
 	// run the xcode project hook
 	const hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
