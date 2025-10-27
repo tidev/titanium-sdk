@@ -31,9 +31,11 @@ description: |
 
     Scripts downloaded from remote web servers cannot access the Titanium namespace.
 
-    To interact with remote content, wait until the content is loaded, then use the
+    To read data from the remote web page, wait until the content is loaded, then use the
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
+
+    To trigger a message from the remote web page, refer <Titanium.UI.WebView.addScriptMessageHandler> usages.
 
     You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
     evalJS.
@@ -50,8 +52,6 @@ description: |
     );
     ```
     The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium-sdk/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
-
-    For iOS check the example in <Titanium.UI.WebView.addScriptMessageHandler>.
 
     #### Local JavaScript Files
 
@@ -419,28 +419,37 @@ methods:
   - name: addScriptMessageHandler
     summary: Adds a script message handler.
     description: |
-        Adding a script message handler with name 'name' causes the JavaScript function
-        window.webkit.messageHandlers.name.postMessage(messageBody) to be defined in all
-        frames in the web view. You use the same 'name' in your webview's html.
-        Example JS code for the webview page:
+        Adding a script message handler with name 'name' causes the JavaScript function postMessage(param)
+        to be defined in all frames in the web view. You use the same 'name' in your webview's html.
+        There are platform specific differences on native WebView.
+        JS code usages on your web page script:
         ```
         <script type="text/javascript">
+            // For iOS, the script-message handler is added to the `window.webkit.messageHandlers` object.
             window.webkit.messageHandlers.yourHandlerName.postMessage({
                 message: 'This is an example string.'
             });
+
+            // For Android, it's added directly to the `window` object, and only accepts the string type argument.
+            window.yourHandlerName.postMessage(JSON.stringify({
+              name: 'yourHandlerName', // Must to be passed so the app can differentiate multiple script message handlers.
+              body: {
+                message: 'This is an example string.'
+              },
+            }));
         </script>
         ```
-        Connection to the webview:
+        Titanium app code usages:
         ```js
         webView.addScriptMessageHandler('yourHandlerName');
-        webView.addEventListener('message', ({ name }) => {
-            if (name === 'yourHandlerName') {
+        webView.addEventListener('message', (e) => {
+            if (e.name === 'yourHandlerName') {
                 console.log(e.body.message);
             }
         });
         ```
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
       - name: handlerName
         summary: |
@@ -450,8 +459,8 @@ methods:
 
   - name: removeScriptMessageHandler
     summary: Removes a script message handler.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
       - name: name
         summary: The name of the message handler.
@@ -652,8 +661,8 @@ events:
     description: |
         This event get fired when you have added a message handler using <Titanium.UI.WebView.addScriptMessageHandler>
         and the webpage sends a message to it.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     properties:
       - name: url
         summary: URL of the web document being loaded.

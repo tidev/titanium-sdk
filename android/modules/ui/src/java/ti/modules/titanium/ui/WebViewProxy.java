@@ -16,6 +16,7 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
@@ -34,12 +35,17 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
@@ -76,6 +82,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fpassword;
 	PrintManager printManager;
 	private Message postCreateMessage;
+	private JSInterface jsInterface;
 
 	@Kroll.constant
 	public static final int PDF_PAGE_DIN_A4 = 0;
@@ -155,6 +162,24 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 		// TODO deprecate the sync variant?
 		return view.getJSValue(code);
+	}
+
+	@Kroll.method
+	public void addScriptMessageHandler(String name)
+	{
+		if (jsInterface == null) {
+			jsInterface = new JSInterface(this);
+		}
+
+		jsInterface.addScriptMessageHandler(name);
+	}
+
+	@Kroll.method
+	public void removeScriptMessageHandler(String name)
+	{
+		if (jsInterface != null) {
+			jsInterface.removeScriptMessageHandler(name);
+		}
 	}
 
 	@Kroll.getProperty
@@ -634,6 +659,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	@Override
 	public void onDestroy(Activity activity)
 	{
+		if (jsInterface != null) {
+			jsInterface.destroy();
+			jsInterface = null;
+		}
+
 		TiUIWebView webView = (TiUIWebView) peekView();
 		if (webView == null) {
 			return;
@@ -691,6 +721,91 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 					callback.callAsync(krollObject, new Object[] { value });
 				}
 			});
+		}
+	}
+
+	private class JSInterface
+	{
+		private Set<String> scriptMessageHandlers = new HashSet<>();
+		private final HashMap<String, Integer> appListeners = new HashMap<>();
+		private WeakReference<WebViewProxy> proxy;
+
+		public JSInterface(WebViewProxy proxy)
+		{
+			this.proxy = new WeakReference<>(proxy);
+		}
+
+		public void addScriptMessageHandler(String name)
+		{
+			if (view == null) {
+				return;
+			}
+
+			scriptMessageHandlers.add(name);
+			((TiUIWebView) view).getWebView().addJavascriptInterface(this, name);
+		}
+
+		public void removeScriptMessageHandler(String name)
+		{
+			if (view == null) {
+				return;
+			}
+
+			scriptMessageHandlers.remove(name);
+			((TiUIWebView) view).getWebView().removeJavascriptInterface(name);
+		}
+
+		@JavascriptInterface
+		public void postMessage(String json)
+		{
+			if (this.proxy == null || this.proxy.get() == null) {
+				return;
+			}
+
+			KrollDict dict = null;
+			try {
+				if (json != null && !json.equals("undefined")) {
+					dict = new KrollDict(new JSONObject(json));
+				}
+			} catch (JSONException e) {
+				Log.e(TAG, "Error parsing scriptMessageHandler's JSON message", e);
+			}
+
+			if (dict == null) {
+				return;
+			}
+
+			// This is just to keep parity with the iOS structure, no other use.
+			String name = dict.getString("name");
+			if (name == null) {
+				Log.e(TAG, "scriptMessageHandler 'name' missing");
+				return;
+			}
+
+			if (!scriptMessageHandlers.contains(name)) {
+				Log.e(TAG, "scriptMessageHandler missing for name: " + name);
+				return;
+			}
+
+			this.proxy.get().fireEvent("message", dict);
+		}
+
+		// Clear local proxy, all script message handlers and their interfaces.
+		public void destroy()
+		{
+			if (this.proxy != null) {
+				this.proxy.clear();
+				this.proxy = null;
+			}
+
+			if (view != null) {
+				WebView webView = ((TiUIWebView) view).getWebView();
+				for (String name : scriptMessageHandlers) {
+					webView.removeJavascriptInterface(name);
+				}
+			}
+
+			scriptMessageHandlers.clear();
 		}
 	}
 }
