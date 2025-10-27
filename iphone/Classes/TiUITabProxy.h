@@ -19,7 +19,6 @@
   TiWindowProxy *current;
   // This is an assign only property. TabGroup retains instances of tab.
   TiUITabGroupProxy *tabGroup;
-  UITabBarItem *tabBarItem;
 
   NSMutableArray *controllerStack;
 
