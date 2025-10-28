@@ -149,6 +149,21 @@ public class TiWebViewBinding
 		return code;
 	}
 
+	public void injectEventBindings()
+	{
+		StringBuilder code = new StringBuilder();
+		StringBuilder tiCode = TiWebViewBinding.readResourceFile("binding.min.js");
+		String outCode = tiCode.toString().replaceAll("\"", "\\\\\"")
+			.replace("\n", "").replace("\r", "");
+		code.append("(function addBinding(){");
+		code.append("var s=document.createElement(\"script\");");
+		code.append("s.setAttribute(\"type\",\"text/javascript\");");
+		code.append("s.innerHTML=\"" + outCode + "\";");
+		code.append("document.getElementsByTagName(\"body\")[0].appendChild(s);");
+		code.append("})()");
+		getJSValue(code.toString());
+	}
+
 	private final Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
