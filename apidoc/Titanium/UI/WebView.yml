@@ -421,7 +421,7 @@ methods:
     description: |
         Adding a script message handler with name 'name' causes the JavaScript function postMessage(param)
         to be defined in all frames in the web view. You use the same 'name' in your webview's html.
-        There are platform specific differences on native WebView.
+        Important: Call this method before setting the URL, or reload the URL if added later.
         JS code usages on your web page script:
         ```
         <script type="text/javascript">
@@ -447,6 +447,7 @@ methods:
                 console.log(e.body.message);
             }
         });
+        webView.url = 'some-remote-url';
         ```
     platforms: [android, iphone, ipad, macos]
     since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}

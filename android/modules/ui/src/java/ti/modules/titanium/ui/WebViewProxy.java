@@ -134,6 +134,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			postCreateMessage = null;
 		}
 
+		// Add script message handlers if attempted before the web-view could be created.
+		if (jsInterface != null) {
+			jsInterface.addPendingScriptMessageHandlers(webView);
+		}
+
 		return webView;
 	}
 
@@ -726,6 +731,8 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 	private class JSInterface
 	{
+		// Store references to add later the web-view is created.
+		private Set<String> pendingScriptMessageHandlers = new HashSet<>();
 		private Set<String> scriptMessageHandlers = new HashSet<>();
 		private final HashMap<String, Integer> appListeners = new HashMap<>();
 		private WeakReference<WebViewProxy> proxy;
@@ -735,9 +742,22 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			this.proxy = new WeakReference<>(proxy);
 		}
 
+		// To be called only when the web-view is created and before setting any URL.
+		public void addPendingScriptMessageHandlers(TiUIWebView tiUIWebView)
+		{
+			WebView webView = tiUIWebView.getWebView();
+			for (String name : pendingScriptMessageHandlers) {
+				scriptMessageHandlers.add(name);
+				webView.addJavascriptInterface(this, name);
+			}
+
+			pendingScriptMessageHandlers.clear();
+		}
+
 		public void addScriptMessageHandler(String name)
 		{
 			if (view == null) {
+				pendingScriptMessageHandlers.add(name);
 				return;
 			}
 
@@ -793,6 +813,8 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		// Clear local proxy, all script message handlers and their interfaces.
 		public void destroy()
 		{
+			pendingScriptMessageHandlers.clear();
+
 			if (this.proxy != null) {
 				this.proxy.clear();
 				this.proxy = null;
