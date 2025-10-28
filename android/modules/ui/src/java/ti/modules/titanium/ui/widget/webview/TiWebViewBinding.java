@@ -161,7 +161,6 @@ public class TiWebViewBinding
 		code.append("s.innerHTML=\"" + outCode + "\";");
 		code.append("document.getElementsByTagName(\"body\")[0].appendChild(s);");
 		code.append("})()");
-		Log.i("---", code.toString());
 		getJSValue(code.toString());
 	}
 
