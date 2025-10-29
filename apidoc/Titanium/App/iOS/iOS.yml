@@ -744,7 +744,7 @@ properties:
 
   - name: UTTYPE_APPLE_PROTECTED_MPEG4_AUDIO
     summary: |
-        Uniform type identifier for protected MPEG-4 audio (iTunes music store format).
+        Uniform type identifier for Apple-protected MPEG-4 audio.
     type: String
     permission: read-only
     since: 5.0.0
