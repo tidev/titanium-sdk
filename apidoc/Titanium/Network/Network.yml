@@ -109,7 +109,7 @@ description: |
 
     **Test IPV6 DNS64/NAT64**
 
-    If you submit your application to the iTunes Store, you should setup an IPv6 DNS64/NAT64
+    If you submit your application to the App Store, you should setup an IPv6 DNS64/NAT64
     network to test your application to verify it is compatible with IPv6.
 
     If you are running macOS 10.11 or greater, you can use your computer to setup a local IPv6 Wi-Fi
