@@ -44,10 +44,6 @@
 #import "TiUIiOSStatusBarProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-#import "TiUIiOSSystemButtonStyleProxy.h"
-#endif
-
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 #import "TiUIiOSSystemButtonProxy.h"
 #endif
@@ -56,9 +52,10 @@
 #import "TiUIiOSSystemIconProxy.h"
 #endif
 
+#import "TiUIiOSButtonConfigurationProxy.h"
+
 #endif
 @interface TiUIiOSProxy : TiProxy {
-  @private
 }
 
 @property (nonatomic, readonly) NSNumber *SCROLL_DECELERATION_RATE_NORMAL;
@@ -127,9 +124,6 @@
 #ifdef USE_TI_UIIOSSTATUSBAR
 @property (nonatomic, readwrite, assign) TiUIiOSStatusBarProxy *StatusBar;
 #endif
-#ifdef USE_TI_UIIOSSYSTEMBUTTONSTYLE
-@property (nonatomic, readwrite, assign) TiUIiOSSystemButtonStyleProxy *SystemButtonStyle;
-#endif
 
 #ifdef USE_TI_UIIOSSYSTEMBUTTON
 @property (nonatomic, readwrite, assign) TiUIiOSSystemButtonProxy *SystemButton;
@@ -168,6 +162,11 @@
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_AUTOMATIC;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_ALWAYS;
 @property (nonatomic, readonly) NSNumber *LARGE_TITLE_DISPLAY_MODE_NEVER;
+
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_NEVER;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN;
+@property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP;
 
 /**
  * Checks the force touch capibility of the current device.
@@ -231,4 +230,5 @@
 - (id)createWebViewConfiguration:(id)args;
 - (id)createWebViewProcessPool:(id)args;
 #endif
+- (id)createButtonConfiguration:(id)args;
 @end

@@ -15,15 +15,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
 import androidx.annotation.NonNull;
-
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollModule;
@@ -36,9 +34,12 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.titanium.util.TiSession;
+import org.appcelerator.titanium.util.TiSessionMeta;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageCache;
+import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -417,6 +418,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				deleteTiTempFiles();
 			}
 		});
+
+		TiLocaleManager.init();
 	}
 
 	@Override
@@ -469,16 +472,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 		String buildType = this.appInfo.getBuildType();
-		if (buildType != null && !buildType.equals("")) {
-			APSAnalyticsMeta.setBuildType(buildType);
-		}
-
-		APSAnalyticsMeta.setAppId(this.appInfo.getId());
-		APSAnalyticsMeta.setAppName(this.appInfo.getName());
-		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
-		APSAnalyticsMeta.setDeployType(deployType);
-		APSAnalyticsMeta.setSdkVersion(getTiBuildVersion());
-		APSAnalytics.getInstance().setMachineId(this);
+		TiSessionMeta.setAppId(this.appInfo.getId());
+		TiSessionMeta.setAppName(this.appInfo.getName());
+		TiSessionMeta.setAppVersion(this.appInfo.getVersion());
+		TiSessionMeta.setDeployType(deployType);
+		TiSessionMeta.setSdkVersion(getTiBuildVersion());
+		TiSession.getInstance().setMachineId(this);
 	}
 
 	public void postOnCreate()
@@ -494,7 +493,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
-		// Start listening for system locale changes.
 		startLocaleMonitor();
 
 		// Register our custom HTTP response cache handler.
@@ -935,6 +933,30 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiApplication.launch();
 	}
 
+	public void relaunchApp()
+	{
+		Activity activity = getRootOrCurrentActivity();
+		if (activity == null) {
+			return;
+		}
+
+		Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+		if (intent == null) {
+			return;
+		}
+
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+		activity.startActivity(intent);
+
+		// To avoid seeing duplicate app snapshots in Task Manager, one with empty content often.
+		new Handler(Looper.getMainLooper()).postDelayed(() -> {
+			android.os.Process.killProcess(android.os.Process.myPid());
+		}, 300);
+	}
+
 	/**
 	 * @return true if the current thread is the main thread, false otherwise.
 	 */
@@ -984,12 +1006,14 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
-				final KrollModule locale = getModuleByName("Locale");
-				if (!locale.hasListeners(TiC.EVENT_CHANGE)) {
-					TiApplication.getInstance().softRestart();
-				} else {
-					locale.fireEvent(TiC.EVENT_CHANGE, null);
-				}
+				TiMessenger.postOnMain(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						TiLocaleManager.handleSystemLocaleUpdates();
+					}
+				});
 			}
 		};
 
@@ -1060,8 +1084,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 		// finish all activities above our TabGroup
 		for (int i = activityStack.size() - 1; i > tabGroupPosition; --i) {
-			if (activityStack.get(i).get() instanceof TiActivity) {
-				TiActivity currentActivity = (TiActivity) activityStack.get(i).get();
+			if (activityStack.get(i).get() instanceof TiActivity currentActivity) {
 				currentActivity.finish();
 			}
 		}

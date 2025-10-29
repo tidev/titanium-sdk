@@ -21,7 +21,7 @@ describe('util', () => {
 		util.should.be.an.Object();
 	});
 
-	// For copious tests, see https://github.com/nodejs/node/blob/master/test/parallel/test-util-format.js
+	// For copious tests, see https://github.com/nodejs/node/blob/main/test/parallel/test-util-format.js
 	describe('#format()', () => {
 		it('is a function', () => {
 			util.format.should.be.a.Function();

@@ -1,11 +1,13 @@
 /**
  * Generate unit test suite for a type from apidoc yml
  */
-const path = require('path');
-const fs = require('fs-extra');
-const yaml = require('js-yaml');
-const ejs = require('ejs');
+import path from 'node:path';
+import fs from 'fs-extra';
+import yaml from 'js-yaml';
+import ejs from 'ejs';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '../../..');
 const APIDOC_DIR = path.join(ROOT_DIR, 'apidoc');
 const TEST_TEMPLATE = path.join(__dirname, 'test.js.ejs');
@@ -96,7 +98,7 @@ async function expandWildcard(constants) {
  * Generate a unit test given an input apidoc yml file
  * @param {string[]} args program args
  */
-async function main(args) {
+export async function main(args) {
 	const fileName = args.shift();
 
 	const filePath = path.resolve(process.cwd(), fileName);
@@ -114,5 +116,3 @@ async function main(args) {
 	}
 	console.log(`Created tests at: ${created}`);
 }
-
-module.exports = main;
