@@ -293,7 +293,7 @@ public class TiUIWebView extends TiUIView
 		}
 		webView.setVerticalScrollbarOverlay(true);
 
-		boolean multipleWindows = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MULTIPLE_WINDOWS), true);
+		boolean multipleWindows = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MULTIPLE_WINDOWS), false);
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);

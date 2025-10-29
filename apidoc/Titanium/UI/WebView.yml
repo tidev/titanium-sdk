@@ -1051,11 +1051,11 @@ properties:
     availability: creation
 
   - name: multipleWindows
-    summary: Set it to `false` to prevent the WebView to open new windows.
+    summary: If set to `false` it will prevent the WebView from opening new windows/tabs.
     type: Boolean
     platforms: [android]
-    since: "12.4.0"
-    default: true
+    since: "13.1.0"
+    default: false
     availability: creation
 
   - name: scalesPageToFit
