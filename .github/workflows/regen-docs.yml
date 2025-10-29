@@ -3,8 +3,10 @@ on:
   workflow_dispatch:
   pull_request:
     types: [ closed ]
-    branches: [ master ]
     paths: [ 'apidoc/**' ]
+    branches:
+    - master
+    - main
 
 jobs:
   regen:
