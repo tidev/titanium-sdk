@@ -6,7 +6,7 @@ on:
       branch:
         description: The branch to release from
         required: true
-        default: master
+        default: main
       release-type:
         description: The type of release to perform
         required: true
