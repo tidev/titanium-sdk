@@ -241,6 +241,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 					getWebView().stopLoading();
 					return true;
 				case MSG_RELEASE:
+					destroyJSInterface();
 					TiUIWebView webView = (TiUIWebView) peekView();
 					if (webView != null) {
 						webView.destroyWebViewBinding();
@@ -664,10 +665,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	@Override
 	public void onDestroy(Activity activity)
 	{
-		if (jsInterface != null) {
-			jsInterface.destroy();
-			jsInterface = null;
-		}
+		destroyJSInterface();
 
 		TiUIWebView webView = (TiUIWebView) peekView();
 		if (webView == null) {
@@ -692,6 +690,14 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	public String getApiName()
 	{
 		return "Ti.UI.WebView";
+	}
+
+	private void destroyJSInterface()
+	{
+		if (jsInterface != null) {
+			jsInterface.destroy();
+			jsInterface = null;
+		}
 	}
 
 	private static class EvalJSRunnable implements Runnable
