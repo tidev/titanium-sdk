@@ -384,12 +384,25 @@ static NSArray *webViewKeySequence;
   [controller removeAllUserScripts];
 }
 
-- (void)addScriptMessageHandler:(id)value
+- (void)addScriptMessageHandler:(id)args
 {
-  ENSURE_SINGLE_ARG(value, NSString);
+  NSString *handlerName = nil;
+  ENSURE_ARG_AT_INDEX(handlerName, args, 0, NSString);
+
+  BOOL enableParity = NO;
+  if ([args count] > 1) {
+    enableParity = [TiUtils boolValue:[args objectAtIndex:1] def:NO];
+  }
 
   WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
-  [controller addScriptMessageHandler:[self webView] name:value];
+
+  // Enable web pages to use unified API for both Android and iOS as:
+  // window.tiBridge.emit('handlerName', JSON.strinigify(body));
+  if (enableParity) {
+    [controller addUserScript:[[self webView] userScriptForMessageHandlerParity:handlerName]];
+  }
+
+  [controller addScriptMessageHandler:[self webView] name:handlerName];
 }
 
 - (void)removeScriptMessageHandler:(id)value

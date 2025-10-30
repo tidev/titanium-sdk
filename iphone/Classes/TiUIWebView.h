@@ -40,7 +40,7 @@
 - (void)viewDidClose;
 - (void)reload;
 - (WKWebView *)webView;
-
+- (WKUserScript *)userScriptForMessageHandlerParity:(NSString *)handlerName;
 - (void)fireEvent:(id)listener withObject:(id)obj remove:(BOOL)yn thisObject:(id)thisObject_;
 
 @end

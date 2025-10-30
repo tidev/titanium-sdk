@@ -534,6 +534,21 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                               forMainFrameOnly:YES] autorelease];
 }
 
+- (WKUserScript *)userScriptForMessageHandlerParity:(NSString *)handlerName
+{
+  NSString *script = @"(function(name){ \
+    window.tiBridge={ \
+      emit:function(name, payload){ \
+        window.webkit.messageHandlers[name].postMessage(JSON.parse(payload)); \
+      } \
+     }; \
+    })('%@'); \
+    ";
+
+  NSString *sourceString = [NSString stringWithFormat:script, handlerName];
+  return [[[WKUserScript alloc] initWithSource:sourceString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
+}
+
 - (WKUserScript *)userScriptTitaniumJSEvaluationFromString:(NSString *)string
 {
   return [[[WKUserScript alloc] initWithSource:string
