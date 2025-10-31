@@ -1050,6 +1050,14 @@ properties:
     default: false
     availability: creation
 
+  - name: multipleWindows
+    summary: If set to `false` it will prevent the WebView from opening new windows/tabs.
+    type: Boolean
+    platforms: [android]
+    since: "13.1.0"
+    default: false
+    availability: creation
+
   - name: scalesPageToFit
     summary: If `true`, scale contents to fit the web view.
     description: |
