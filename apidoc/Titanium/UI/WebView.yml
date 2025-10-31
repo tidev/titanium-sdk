@@ -31,7 +31,7 @@ description: |
 
     Scripts downloaded from remote web servers cannot access the Titanium namespace.
 
-    To read data from the remote web page, wait until the content is loaded, then use the
+    To interact with remote content, wait until the content is loaded, then use the
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
@@ -419,24 +419,23 @@ methods:
   - name: addScriptMessageHandler
     summary: Adds a script message handler.
     description: |
-        Adding a script message handler with name 'name' causes the JavaScript function postMessage(param)
-        to be defined in all frames in the web view. You use the same 'name' in your webview's html.
+        Adds a script message handler in all frames of the web-view.
+        On iOS, if the second argument is false or not passed, the JS function on the web-page should be executed as: 
+        `window.webkit.messageHandlers.yourHandlerName.postMessage(body)`
+        On Android, the second argument is always omitted and the JS function has to executed as: 
+        `window.tiBridge.emit('yourHandlerName', JSON.stringify(body));`
+        This is done to keep backward compatibility for iOS apps, and to enable Android apps to always use the unified `tiBridge` based pattern.
         Important: Call this method before setting the URL, or reload the URL if added later.
         JS code usages on your web page script:
         ```
         <script type="text/javascript">
-            // For iOS, the script-message handler is added to the `window.webkit.messageHandlers` object.
-            window.webkit.messageHandlers.yourHandlerName.postMessage({
-                message: 'This is an example string.'
-            });
-
-            // For Android, it's added directly to the `window` object, and only accepts the string type argument.
-            window.yourHandlerName.postMessage(JSON.stringify({
-              name: 'yourHandlerName', // Must to be passed so the app can differentiate multiple script message handlers.
-              body: {
-                message: 'This is an example string.'
-              },
-            }));
+            // For iOS with second argument as `false`:
+            const body = { message: 'Hello Titanium!'};
+            window.webkit.messageHandlers.yourHandlerName.postMessage(body);
+            
+            // For Android, or for iOS with second argument as true:
+            const body = { message: 'Hello Titanium!'};
+            window.tiBridge.emit('yourHandlerName', JSON.stringify(body));
         </script>
         ```
         Titanium app code usages:
@@ -444,7 +443,7 @@ methods:
         webView.addScriptMessageHandler('yourHandlerName');
         webView.addEventListener('message', (e) => {
             if (e.name === 'yourHandlerName') {
-                console.log(e.body.message);
+                console.log(e.body);
             }
         });
         webView.url = 'some-remote-url';
@@ -454,9 +453,14 @@ methods:
     parameters:
       - name: handlerName
         summary: |
-            The name of the message handler and should not be '_Ti_',
-            as titanium is using it for internal usage.
+            The name of the message handler, other than the reserved '_Ti_', or '_Ti_Cookie_'.
         type: String
+      - name: enableParity
+        summary: |
+            Injects script to enable web pages to call a unified expression `window.tiBridge.emit('handlerName', JSON.stringify(body));` for both Android and iOS.
+        type: Boolean
+        optional: true
+        default: false
 
   - name: removeScriptMessageHandler
     summary: Removes a script message handler.
