@@ -136,7 +136,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 		// Add script message handlers if attempted before the web-view could be created.
 		if (jsInterface != null) {
-			jsInterface.addPendingScriptMessageHandlers(webView);
+			jsInterface.initializeJSInterface(webView);
 		}
 
 		return webView;
@@ -170,7 +170,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.method
-	public void addScriptMessageHandler(String name)
+	public void addScriptMessageHandler(String name, @Kroll.argument(optional = true) boolean unusedParam)
 	{
 		if (jsInterface == null) {
 			jsInterface = new JSInterface(this);
@@ -738,102 +738,91 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private class JSInterface
 	{
 		// Store references to add later the web-view is created.
-		private Set<String> pendingScriptMessageHandlers = new HashSet<>();
-		private Set<String> scriptMessageHandlers = new HashSet<>();
-		private final HashMap<String, Integer> appListeners = new HashMap<>();
+		private boolean isInterfaceAdded = false;
 		private WeakReference<WebViewProxy> proxy;
+		private final String TI_BRIDGE_INTERFACE = "tiBridge";
+		private final Set<String> scriptMessageHandlers = new HashSet<>();
 
 		public JSInterface(WebViewProxy proxy)
 		{
 			this.proxy = new WeakReference<>(proxy);
 		}
 
-		// To be called only when the web-view is created and before setting any URL.
-		public void addPendingScriptMessageHandlers(TiUIWebView tiUIWebView)
+		// Handle the interface creation if apps request the script message handler earlier before the web-view creation.
+		public void initializeJSInterface(TiUIWebView tiUIWebView)
 		{
-			WebView webView = tiUIWebView.getWebView();
-			for (String name : pendingScriptMessageHandlers) {
-				scriptMessageHandlers.add(name);
-				webView.addJavascriptInterface(this, name);
-			}
-
-			pendingScriptMessageHandlers.clear();
-		}
-
-		public void addScriptMessageHandler(String name)
-		{
-			if (view == null) {
-				pendingScriptMessageHandlers.add(name);
+			if (isInterfaceAdded) {
 				return;
 			}
 
+			WebView webView = tiUIWebView.getWebView();
+			webView.addJavascriptInterface(this, TI_BRIDGE_INTERFACE);
+			isInterfaceAdded = true;
+		}
+
+		// Apps can call this method even before native webview is created, so we use init method to initialize again.
+		public void addScriptMessageHandler(String name)
+		{
 			scriptMessageHandlers.add(name);
-			((TiUIWebView) view).getWebView().addJavascriptInterface(this, name);
+
+			if (view != null) {
+				initializeJSInterface((TiUIWebView) view);
+			}
 		}
 
 		public void removeScriptMessageHandler(String name)
 		{
+			scriptMessageHandlers.remove(name);
+
 			if (view == null) {
 				return;
 			}
 
-			scriptMessageHandlers.remove(name);
-			((TiUIWebView) view).getWebView().removeJavascriptInterface(name);
+			// Remove interface if no handlers available.
+			if (scriptMessageHandlers.isEmpty() && isInterfaceAdded) {
+				((TiUIWebView) view).getWebView().removeJavascriptInterface(TI_BRIDGE_INTERFACE);
+				isInterfaceAdded = false;
+			}
 		}
 
 		@JavascriptInterface
-		public void postMessage(String json)
+		public void emit(String name, String json)
 		{
 			if (this.proxy == null || this.proxy.get() == null) {
 				return;
 			}
 
-			KrollDict dict = null;
+			// This is just to keep parity with the iOS structure, no other use.
+			if (name == null || !scriptMessageHandlers.contains(name)) {
+				Log.e(TAG, "scriptMessageHandler not available for name: " + name);
+				return;
+			}
+
+			KrollDict event = new KrollDict();
+			event.put("name", name);
+
 			try {
-				if (json != null && !json.equals("undefined")) {
-					dict = new KrollDict(new JSONObject(json));
-				}
+				event.put("body", new KrollDict(new JSONObject(json)));
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing scriptMessageHandler's JSON message", e);
 			}
 
-			if (dict == null) {
-				return;
-			}
-
-			// This is just to keep parity with the iOS structure, no other use.
-			String name = dict.getString("name");
-			if (name == null) {
-				Log.e(TAG, "scriptMessageHandler 'name' missing");
-				return;
-			}
-
-			if (!scriptMessageHandlers.contains(name)) {
-				Log.e(TAG, "scriptMessageHandler missing for name: " + name);
-				return;
-			}
-
-			this.proxy.get().fireEvent("message", dict);
+			this.proxy.get().fireEvent("message", event);
 		}
 
-		// Clear local proxy, all script message handlers and their interfaces.
 		public void destroy()
 		{
-			pendingScriptMessageHandlers.clear();
+			scriptMessageHandlers.clear();
+
+			if (view != null && isInterfaceAdded) {
+				WebView webView = ((TiUIWebView) view).getWebView();
+				webView.removeJavascriptInterface(TI_BRIDGE_INTERFACE);
+			}
 
 			if (this.proxy != null) {
 				this.proxy.clear();
 				this.proxy = null;
 			}
-
-			if (view != null) {
-				WebView webView = ((TiUIWebView) view).getWebView();
-				for (String name : scriptMessageHandlers) {
-					webView.removeJavascriptInterface(name);
-				}
-			}
-
-			scriptMessageHandlers.clear();
 		}
 	}
 }
