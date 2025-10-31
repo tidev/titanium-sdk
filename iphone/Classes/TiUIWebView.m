@@ -537,7 +537,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 - (WKUserScript *)userScriptForMessageHandlerParity:(NSString *)handlerName
 {
   NSString *script = @"(function(name){ \
-    window.tiBridge={ \
+    window.tisdk={ \
       emit:function(name, payload){ \
         window.webkit.messageHandlers[name].postMessage(JSON.parse(payload)); \
       } \

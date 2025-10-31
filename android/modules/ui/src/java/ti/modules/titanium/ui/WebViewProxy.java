@@ -740,7 +740,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		// Store references to add later the web-view is created.
 		private boolean isInterfaceAdded = false;
 		private WeakReference<WebViewProxy> proxy;
-		private final String TI_BRIDGE_INTERFACE = "tiBridge";
+		private final String JS_INTERFACE_NAME = "tisdk";
 		private final Set<String> scriptMessageHandlers = new HashSet<>();
 
 		public JSInterface(WebViewProxy proxy)
@@ -756,7 +756,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			}
 
 			WebView webView = tiUIWebView.getWebView();
-			webView.addJavascriptInterface(this, TI_BRIDGE_INTERFACE);
+			webView.addJavascriptInterface(this, JS_INTERFACE_NAME);
 			isInterfaceAdded = true;
 		}
 
@@ -780,7 +780,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 			// Remove interface if no handlers available.
 			if (scriptMessageHandlers.isEmpty() && isInterfaceAdded) {
-				((TiUIWebView) view).getWebView().removeJavascriptInterface(TI_BRIDGE_INTERFACE);
+				((TiUIWebView) view).getWebView().removeJavascriptInterface(JS_INTERFACE_NAME);
 				isInterfaceAdded = false;
 			}
 		}
@@ -816,7 +816,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 			if (view != null && isInterfaceAdded) {
 				WebView webView = ((TiUIWebView) view).getWebView();
-				webView.removeJavascriptInterface(TI_BRIDGE_INTERFACE);
+				webView.removeJavascriptInterface(JS_INTERFACE_NAME);
 			}
 
 			if (this.proxy != null) {
