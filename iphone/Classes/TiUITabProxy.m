@@ -76,6 +76,7 @@
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
   [self updateTabBarItem];
+  [self forceTabBarRelayout];
 }
 
 - (NSString *)apiName
@@ -710,6 +711,21 @@
   [tabBarItem setBadgeValue:badgeValue];
 
   systemTab = NO;
+}
+
+- (void)forceTabBarRelayout
+{
+  if (rootWindow == nil) {
+    return;
+  }
+  ENSURE_UI_THREAD_0_ARGS;
+
+  UIViewController *rootController = [rootWindow hostingController];
+  UITabBar *tabBar = rootController.tabBarController.tabBar;
+  if (tabBar != nil) {
+    [tabBar setNeedsLayout];
+    [tabBar layoutIfNeeded];
+  }
 }
 
 - (UIEdgeInsets)calculateIconInsets:(id)value
