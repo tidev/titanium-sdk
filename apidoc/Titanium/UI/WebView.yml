@@ -431,7 +431,7 @@ methods:
         <script type="text/javascript">
             // For iOS with second argument as `false`:
             const body = { message: 'Hello Titanium!'};
-            window.webkit.messageHandlers.yourHandlerName.postMessage(body);
+            window.webkit?.messageHandlers.yourHandlerName.postMessage(body);
             
             // For Android, or for iOS with second argument as true:
             const body = { message: 'Hello Titanium!'};
