@@ -744,7 +744,7 @@ properties:
 
   - name: UTTYPE_APPLE_PROTECTED_MPEG4_AUDIO
     summary: |
-        Uniform type identifier for protected MPEG-4 audio (iTunes music store format).
+        Uniform type identifier for Apple-protected MPEG-4 audio.
     type: String
     permission: read-only
     since: 5.0.0
@@ -1385,6 +1385,10 @@ events:
     summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.
     platforms: [iphone, ipad, macos]
     since: "9.1.0"
+    deprecated:
+        since: "13.1.0"
+        notes: Use [Titanium.App.screenshotcaptured](Titanium.App.screenshotcaptured) instead.
+
 
 ---
 name: NotificationParams

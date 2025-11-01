@@ -191,7 +191,7 @@ class Utf8StringDecoder extends MultiByteStringDecoderImpl {
 		// iOS apparently just returns undefined in that special case and
 		// Android differs here because we don't work backwards from the last char
 		// Can we cheat here and...
-		// see https://github.com/nodejs/string_decoder/blob/master/lib/string_decoder.js#L173-L198
+		// see https://github.com/nodejs/string_decoder/blob/main/lib/string_decoder.js#L173-L198
 		// - if we see a multi-byte character start, validate the next characters are continuation chars
 		// - if they're not replace the sequence with '\ufffd', treat like that multi-byte character was "completed"
 

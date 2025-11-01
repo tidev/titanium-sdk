@@ -1,12 +1,9 @@
 import path from 'node:path';
 import fs from 'fs-extra';
-import { promisify } from 'node:util';
-import glob from 'glob';
+import { glob } from 'glob';
 import { spawn } from 'node:child_process';  // eslint-disable-line security/detect-child-process
 import { copyFiles, copyAndModifyFile } from './utils.js';
 import { fileURLToPath } from 'node:url';
-
-const globPromise = promisify(glob);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -115,7 +112,7 @@ export class IOS {
 
 		// Create redirecting headers in iphone/include/ pointing to iphone/Classes/ headers
 		// TODO: Use map and Promise.all to run these in parallel
-		const classesHeaders = await globPromise('**/*.h', { cwd: path.join(IOS_ROOT, 'Classes') });
+		const classesHeaders = await glob('**/*.h', { cwd: path.join(IOS_ROOT, 'Classes') });
 		for (const classHeader of classesHeaders) {
 			let depth = 1;
 			if (classHeader.includes(path.sep)) { // there's a sub-directory
