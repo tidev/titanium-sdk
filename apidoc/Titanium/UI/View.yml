@@ -1865,14 +1865,12 @@ properties:
         color for the duration of the touch.
     type: Boolean
     default: false
-    platforms: [android, iphone, ipad]
     since: {android: "6.1.0", iphone: "13.1.0", ipad: "13.1.0", macos: "13.1.0"}
 
   - name: touchFeedbackColor
     summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true.
     description: Defaults to the native highlight color on each platform.
     type: String
-    platforms: [android, iphone, ipad]
     since: {android: "6.1.0", iphone: "13.1.0", ipad: "13.1.0", macos: "13.1.0"}
 
   - name: transform
