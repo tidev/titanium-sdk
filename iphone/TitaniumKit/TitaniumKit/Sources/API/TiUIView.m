@@ -187,6 +187,8 @@ DEFINE_EXCEPTIONS
   [upSwipeRecognizer release];
   [downSwipeRecognizer release];
   [longPressRecognizer release];
+  RELEASE_TO_NIL(touchFeedbackColor);
+  RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
   proxy = nil;
   touchDelegate = nil;
   [super dealloc];
@@ -220,6 +222,9 @@ DEFINE_EXCEPTIONS
 {
   self = [super init];
   if (self != nil) {
+    touchFeedback = NO;
+    touchFeedbackHasStoredBackground = NO;
+    touchFeedbackTouchCount = 0;
   }
   return self;
 }
@@ -280,6 +285,84 @@ DEFINE_EXCEPTIONS
   // not it handles events, and if not, set it to the interaction default.
   if (!changedInteraction) {
     self.userInteractionEnabled = handlesTouches || [self interactionDefault];
+  }
+}
+
+#pragma mark Touch Feedback
+
+- (UIColor *)resolvedTouchFeedbackColor
+{
+  if (touchFeedbackColor != nil) {
+    return [touchFeedbackColor _color];
+  }
+
+  return [[UIColor labelColor] colorWithAlphaComponent:0.12f];
+}
+
+- (void)refreshTouchFeedbackHighlight
+{
+  UIColor *color = [self resolvedTouchFeedbackColor];
+  if (color == nil) {
+    return;
+  }
+
+  [super setBackgroundColor:color];
+}
+
+- (void)applyTouchFeedbackHighlightWithAdditionalTouches:(NSUInteger)touchCount
+{
+  if (touchCount == 0 && !touchFeedbackHasStoredBackground) {
+    return;
+  }
+
+  if (!touchFeedbackHasStoredBackground) {
+    touchFeedbackHasStoredBackground = YES;
+    RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
+
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      touchFeedbackPreviousBackgroundColor = [currentColor retain];
+    }
+  }
+
+  [self refreshTouchFeedbackHighlight];
+
+  if (touchCount > 0) {
+    touchFeedbackTouchCount += touchCount;
+  }
+}
+
+- (void)restoreTouchFeedbackHighlight
+{
+  if (!touchFeedbackHasStoredBackground) {
+    return;
+  }
+
+  if (touchFeedbackPreviousBackgroundColor != nil) {
+    [super setBackgroundColor:touchFeedbackPreviousBackgroundColor];
+  } else {
+    [super setBackgroundColor:nil];
+  }
+
+  RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
+  touchFeedbackHasStoredBackground = NO;
+  touchFeedbackTouchCount = 0;
+}
+
+- (void)decrementTouchFeedbackTouches:(NSUInteger)touchCount
+{
+  if (touchCount == 0) {
+    return;
+  }
+
+  if (touchFeedbackTouchCount <= touchCount) {
+    touchFeedbackTouchCount = 0;
+  } else {
+    touchFeedbackTouchCount -= touchCount;
+  }
+
+  if (touchFeedbackTouchCount == 0) {
+    [self restoreTouchFeedbackHighlight];
   }
 }
 
@@ -370,6 +453,10 @@ DEFINE_EXCEPTIONS
       [backgroundGradient setColors:colors];
       [self setBackgroundGradient_:backgroundGradient];
     }
+  }
+
+  if (touchFeedbackHasStoredBackground) {
+    [self refreshTouchFeedbackHighlight];
   }
 }
 
@@ -602,6 +689,15 @@ DEFINE_EXCEPTIONS
   } else {
     TiColor *ticolor = [TiUtils colorValue:color];
     super.backgroundColor = [ticolor _color];
+  }
+
+  if (touchFeedbackHasStoredBackground) {
+    RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      touchFeedbackPreviousBackgroundColor = [currentColor retain];
+    }
+    [self refreshTouchFeedbackHighlight];
   }
 }
 
@@ -925,6 +1021,55 @@ DEFINE_EXCEPTIONS
 {
   self.userInteractionEnabled = [TiUtils boolValue:arg def:[self interactionDefault]];
   changedInteraction = YES;
+}
+
+- (void)setTouchFeedback_:(id)value
+{
+  BOOL newValue = [TiUtils boolValue:value def:NO];
+
+  if (touchFeedback == newValue) {
+    return;
+  }
+
+  touchFeedback = newValue;
+
+  if (!touchFeedback) {
+    touchFeedbackTouchCount = 0;
+    [self restoreTouchFeedbackHighlight];
+  }
+}
+
+- (void)setTouchFeedbackColor_:(id)value
+{
+  if (value == nil || value == [NSNull null]) {
+    if (touchFeedbackColor != nil) {
+      RELEASE_TO_NIL(touchFeedbackColor);
+      if (touchFeedbackHasStoredBackground) {
+        [self refreshTouchFeedbackHighlight];
+      }
+    }
+    return;
+  }
+
+  TiColor *color = [TiUtils colorValue:value];
+  if (color == nil) {
+    return;
+  }
+
+  if (touchFeedbackColor != nil) {
+    UIColor *existingColor = [touchFeedbackColor _color];
+    UIColor *newColor = [color _color];
+    if (existingColor != nil && newColor != nil && CGColorEqualToColor(existingColor.CGColor, newColor.CGColor)) {
+      return;
+    }
+  }
+
+  RELEASE_TO_NIL(touchFeedbackColor);
+  touchFeedbackColor = [color retain];
+
+  if (touchFeedbackHasStoredBackground) {
+    [self refreshTouchFeedbackHighlight];
+  }
 }
 
 - (BOOL)touchEnabled
@@ -1574,6 +1719,10 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (touchFeedback) {
+    [self applyTouchFeedbackHighlightWithAdditionalTouches:[touches count]];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesBegan:touches withEvent:event];
   }
@@ -1613,6 +1762,10 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (touchFeedback) {
+    [self decrementTouchFeedbackTouches:[touches count]];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesEnded:touches withEvent:event];
   }
@@ -1647,6 +1800,11 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (touchFeedback) {
+    touchFeedbackTouchCount = 0;
+    [self restoreTouchFeedbackHighlight];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesCancelled:touches withEvent:event];
   }

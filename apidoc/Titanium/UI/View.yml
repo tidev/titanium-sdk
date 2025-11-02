@@ -1861,19 +1861,19 @@ properties:
         Touch feedback is only applied to a view's background. It is never applied to the view's foreground content
         such as a <Titanium.UI.ImageView>'s image.
 
-        For Titanium versions older than 9.1.0, touch feedback only works if you set the
-        <Titanium.UI.View.backgroundColor> property to a non-transparent color.
+        On Android this maps to the native ripple effect. On iOS the view background briefly switches to the feedback
+        color for the duration of the touch.
     type: Boolean
     default: false
-    platforms: [android]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.1.0", iphone: "13.1.0", ipad: "13.1.0", macos: "13.1.0"}
 
   - name: touchFeedbackColor
     summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true.
-    description: Defaults to provided theme color.
+    description: Defaults to the native highlight color on each platform.
     type: String
-    platforms: [android]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad]
+    since: {android: "6.1.0", iphone: "13.1.0", ipad: "13.1.0", macos: "13.1.0"}
 
   - name: transform
     summary: Transformation matrix to apply to the view.
