@@ -397,7 +397,7 @@ static NSArray *webViewKeySequence;
   WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
 
   // Enable web pages to use unified API for both Android and iOS as:
-  // window.tiBridge.emit('handlerName', JSON.strinigify(body));
+  // window.tisdk.emit('handlerName', JSON.stringify(body));
   if (enableParity) {
     [controller addUserScript:[[self webView] userScriptForMessageHandlerParity:handlerName]];
   }
