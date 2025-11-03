@@ -52,13 +52,10 @@
 #import "TiUIiOSSystemIconProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 #import "TiUIiOSButtonConfigurationProxy.h"
-#endif
 
 #endif
 @interface TiUIiOSProxy : TiProxy {
-  @private
 }
 
 @property (nonatomic, readonly) NSNumber *SCROLL_DECELERATION_RATE_NORMAL;
@@ -233,7 +230,5 @@
 - (id)createWebViewConfiguration:(id)args;
 - (id)createWebViewProcessPool:(id)args;
 #endif
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 - (id)createButtonConfiguration:(id)args;
-#endif
 @end

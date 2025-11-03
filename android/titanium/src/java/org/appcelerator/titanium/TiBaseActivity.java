@@ -36,7 +36,6 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -46,6 +45,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
+import android.Manifest;
 import android.app.Activity;
 
 import androidx.appcompat.app.ActionBar;
@@ -69,6 +69,7 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -107,6 +108,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
 	public boolean keyboardVisible = false;
+
+	Activity.ScreenCaptureCallback screenCaptureCallback = null;
+
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -659,7 +663,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void attachBaseContext(Context newBase)
 	{
 		baseContext = newBase;
-		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
+		super.attachBaseContext(newBase);
 	}
 
 	@Override
@@ -676,6 +680,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
+
+		if (Build.VERSION.SDK_INT >= 34) {
+			screenCaptureCallback = new Activity.ScreenCaptureCallback()
+			{
+				@Override
+				public void onScreenCaptured()
+				{
+					KrollDict kd = new KrollDict();
+					kd.put("source", getWindowProxy());
+					getTiApp().fireAppEvent("screenshotcaptured", kd);
+				}
+			};
+		}
 
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this, tiApp);
 
@@ -1560,6 +1577,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		applyNightMode();
+
+		if (Build.VERSION.SDK_INT >= 34 && TiApplication.getInstance().checkCallingOrSelfPermission(
+			Manifest.permission.DETECT_SCREEN_CAPTURE) == PackageManager.PERMISSION_GRANTED
+			&& screenCaptureCallback != null) {
+			registerScreenCaptureCallback(ContextCompat.getMainExecutor(this), screenCaptureCallback);
+		}
 	}
 
 	@Override
@@ -1585,6 +1608,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
+		}
+		if (Build.VERSION.SDK_INT >= 34 && screenCaptureCallback != null) {
+			unregisterScreenCaptureCallback(screenCaptureCallback);
 		}
 	}
 

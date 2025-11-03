@@ -226,11 +226,15 @@ properties:
     description: |
         A <Titanium.UI.iOS.ButtonConfiguration> object that defines the appearance and behavior 
         of the button. This provides a modern way to configure buttons with support for titles, 
-        subtitles, images, and various styling options.
+        subtitles, images, and various styling options. Right now, the configuration is immutable, so you
+        cannot change individual properties. Instead, update the whole configuration.
         
         When using a button configuration, it takes precedence over individual styling properties
         like `title`, `color`, and `backgroundColor`.
-    type: Titanium.UI.iOS.ButtonConfiguration
+
+        Note: Since Titanium SDK 13.1.0, you can also pass an key-value Object directly, which is internally
+        converted to a button configuration.
+    type: [Titanium.UI.iOS.ButtonConfiguration, Object]
     since: "13.0.0"
     platforms: [iphone, ipad, macos]
     osver: {ios: {min: "15.0"}}

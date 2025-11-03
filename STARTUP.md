@@ -10,7 +10,6 @@ At SDK build time, `./android/titanium/prebuild.js` script is run which takes JS
 `App.java`
 - create app info, set up encryption asset helper stuff
 - create asset cache
-- load Ti.App data into analytics class
 - create V8Runtime
 - register external modules (id -> class)
 - then call...
@@ -44,7 +43,7 @@ back to `V8Runtime#bootstrap()`
 back to java `V8Runtime#initRuntime()`
 - start debugger
 - load external native modules
-  
+
 ... then?
 - The root splash screen activity `TiLaunchActivity` calls `TiApplication.launch()` to start the JS runtime.
 - which eventually calls from Java -> JNI -> C to `global.Module.runModule()` (or if we have a snapshot, it does `global._startSnapshot(global)`)

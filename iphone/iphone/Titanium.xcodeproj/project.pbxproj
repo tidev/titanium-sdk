@@ -2119,7 +2119,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$PROJECT_DIR/../../build/scons.js\" xcode-project-build \"$PROJECT_DIR\" \"$TARGET_BUILD_DIR\" \"$PRODUCT_NAME\"\n";
+			shellScript = "\"$PROJECT_DIR/../../build/run-node.sh\" \"$PROJECT_DIR/../../build/scons.js\" xcode-project-build \"$PROJECT_DIR\" \"$TARGET_BUILD_DIR\" \"$PRODUCT_NAME\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2399,7 +2399,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(TI_SYMBOL_MACROS)",
 					"$(GCC_DEFINITIONS)",
 				);
@@ -2461,7 +2460,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(TI_SYMBOL_MACROS)",
 					"$(GCC_DEFINITIONS)",
 				);
@@ -2535,7 +2533,6 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(GCC_DEFINITIONS)",
 					"$(TI_SYMBOL_MACROS)",
 				);
@@ -2562,7 +2559,7 @@
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS) TI_VERSION=$(TI_VERSION)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2600,7 +2597,6 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(GCC_DEFINITIONS)",
 					"$(TI_SYMBOL_MACROS)",
 				);
@@ -2625,7 +2621,7 @@
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS) TI_VERSION=$(TI_VERSION)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

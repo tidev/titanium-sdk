@@ -838,12 +838,10 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocum
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 - (id)createButtonConfiguration:(id)args
 {
   return [[[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
-#endif
 
 - (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
 {

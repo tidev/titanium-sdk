@@ -49,7 +49,7 @@ description: |
       '})()'
     );
     ```
-    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium-sdk/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium-sdk/tree/main/android/modules/ui/assets/Resources/ti.internal/webview).
 
     For iOS check the example in <Titanium.UI.WebView.addScriptMessageHandler>.
 
@@ -1047,6 +1047,14 @@ properties:
     type: Boolean
     platforms: [android]
     since: "7.5.0"
+    default: false
+    availability: creation
+
+  - name: multipleWindows
+    summary: If set to `false` it will prevent the WebView from opening new windows/tabs.
+    type: Boolean
+    platforms: [android]
+    since: "13.1.0"
     default: false
     availability: creation
 

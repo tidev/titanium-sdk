@@ -37,6 +37,8 @@ then
       GIT_HASH=`git rev-parse --short=10 --no-color HEAD`
 fi
 
+export TI_VERSION="$SDK_VERSION"
+
 # Inject the values into the source
 cp TitaniumKit/Sources/API/TopTiModule.m TitaniumKit/Sources/API/TopTiModule.bak
 sed -i '' 's@__VERSION__@'"$SDK_VERSION"'@g' TitaniumKit/Sources/API/TopTiModule.m

@@ -11,13 +11,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
-const appc = require('node-appc');
-const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
-const fs = require('fs-extra');
-const path = require('path');
-const url = require('url');
+import appc from 'node-appc';
+import { exec } from 'node:child_process';
+import fs from 'fs-extra';
+import path from 'node:path';
 
 /**
  * Determines if we're running on a Windows machine.
@@ -39,7 +36,7 @@ const isWindows = (process.platform === 'win32');
  */
 
 /** Class used to install, configure, and run gradle in a root project directory. */
-class GradleWrapper {
+export class GradleWrapper {
 	/**
 	 * Creates an object used to install/configure/run the "gradlew" script at the given root project directory.
 	 * @param {String} directoryPath
@@ -207,6 +204,7 @@ class GradleWrapper {
 
 		// Run the gradlew command line async.
 		await new Promise((resolve, reject) => {
+			// eslint-disable-next-line security/detect-child-process
 			const childProcess = exec(commandLineString, { cwd: this._gradlewDirPath });
 			if (this._logger) {
 				childProcess.stdout.on('data', createReadableDataHandlerUsing(this._logger, 'info'));
@@ -297,7 +295,7 @@ class GradleWrapper {
 			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], runOptions, (exitCode, out) => {
 				try {
 					if (!exitCode && out && (out.length > 0)) {
-						proxyUrl = url.parse(out.trim());
+						proxyUrl = new URL(out.trim());
 					}
 				} catch (ex) {
 					if (this._logger) {
@@ -474,5 +472,3 @@ async function writeJavaPropertiesFile(filePath, properties) {
 	// Create the properties files with the text lines generated above.
 	await fs.writeFile(filePath, fileLines.join('\n') + '\n');
 }
-
-module.exports = GradleWrapper;
