@@ -29,7 +29,7 @@ import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { Color } from '../../../common/lib/color.js';
 import { ProcessCSSTask } from '../../../cli/lib/tasks/process-css-task.js';
-import iosSpm from '../lib/ios/spm.js';
+import { injectSPMPackage } from '../lib/ios/spm.js';
 import { exec, spawn } from 'node:child_process';
 import ti from 'node-titanium-sdk';
 import util from 'node:util';
@@ -2640,7 +2640,7 @@ class iOSBuilder extends Builder {
 
 		this.hostSpmPackages.forEach(pkg => {
 			this.logger.debug(`${SPM_LOG_PREFIX} Injecting ${pkg.repositoryURL} (${pkg.requirementKind} ${pkg.requirementMinimumVersion}) with products ${pkg.products.map(p => p.productName).join(', ')}`);
-			iosSpm.injectSPMPackage(xobjs, pkg, {
+			injectSPMPackage(xobjs, pkg, {
 				generateUUID: () => this.generateXcodeUuid(xcodeProject)
 			});
 		});

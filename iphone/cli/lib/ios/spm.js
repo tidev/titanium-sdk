@@ -1,9 +1,3 @@
-'use strict';
-
-module.exports = {
-	injectSPMPackage
-};
-
 /**
  * Adds a Swift Package dependency configuration to the supplied PBX object graph.
  *
@@ -12,7 +6,7 @@ module.exports = {
  * @param {object} [options] Additional options.
  * @param {Function} [options.generateUUID] Function returning a unique 24 char uppercase UUID.
  */
-function injectSPMPackage(xobjs, config, options = {}) {
+export function injectSPMPackage(xobjs, config, options = {}) {
 	if (!xobjs || typeof xobjs !== 'object') {
 		return;
 	}
