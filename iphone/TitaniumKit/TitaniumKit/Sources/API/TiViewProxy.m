@@ -1396,7 +1396,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
               defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"visible" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"touchEnabled" defaultValue:NUMBOOL(YES)];
-  [self initializeProperty:@"touchFeedbsck" defaultValue:NUMBOOL(FALSE)];
+  [self initializeProperty:@"focusable" defaultValue:NUMBOOL(FALSE)];
 
   if (properties != nil) {
     NSString *objectId = [properties objectForKey:@"id"];
