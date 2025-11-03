@@ -586,23 +586,23 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 			// 4. generate exports
 			function (cb) {
-			this.jsFilesToEncrypt.forEach(function (file) {
-				const r = jsanalyze.analyzeJsFile(file, { minify: true });
-				this.tiSymbols[file] = r.symbols;
-				this.metaData.push.apply(this.metaData, r.symbols);
-			}.bind(this));
+				this.jsFilesToEncrypt.forEach(function (file) {
+					const r = jsanalyze.analyzeJsFile(file, { minify: true });
+					this.tiSymbols[file] = r.symbols;
+					this.metaData.push.apply(this.metaData, r.symbols);
+				}.bind(this));
 
-			fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-			const metadata = { exports: this.metaData };
-			this.spmMetadata = this.getSpmMetadata();
-			if (this.spmMetadata) {
-				metadata.spm = this.spmMetadata;
+				fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
+				const metadata = { exports: this.metaData };
+				this.spmMetadata = this.getSpmMetadata();
+				if (this.spmMetadata) {
+					metadata.spm = this.spmMetadata;
+				}
+				fs.writeFileSync(this.metaDataFile, JSON.stringify(metadata));
+
+				cb();
 			}
-			fs.writeFileSync(this.metaDataFile, JSON.stringify(metadata));
-
-			cb();
-		}
-	];
+		];
 
 		appc.async.series(this, tasks, next);
 	}
