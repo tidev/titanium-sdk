@@ -2106,7 +2106,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$PROJECT_DIR/../../build/scons.js\" xcode-project-build \"$PROJECT_DIR\" \"$TARGET_BUILD_DIR\" \"$PRODUCT_NAME\"\n";
+			shellScript = "\"$PROJECT_DIR/../../build/run-node.sh\" \"$PROJECT_DIR/../../build/scons.js\" xcode-project-build \"$PROJECT_DIR\" \"$TARGET_BUILD_DIR\" \"$PRODUCT_NAME\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
