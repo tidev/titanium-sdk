@@ -420,21 +420,26 @@ methods:
     summary: Adds a script message handler.
     description: |
         Adds a script message handler in all frames of the web-view.
-        On iOS, if the second argument is false or not passed, the JS function on the web-page should be executed as: 
-        `window.webkit.messageHandlers.yourHandlerName.postMessage(body)`
-        On Android, the second argument is always omitted and the JS function has to executed as: 
+        The JS function on the web app has to executed as for any platform: 
         `window.tisdk.emit('yourHandlerName', JSON.stringify(body));`
-        This is done to keep backward compatibility for iOS apps, and to enable Android apps to always use the unified `tisdk` based pattern.
+        Additionally, for iOS, the previous syntax can still be used:
+        `window.webkit.messageHandlers.yourHandlerName.postMessage(body)`
         Important: Call this method before setting the URL, or reload the URL if added later.
         JS code usages on your web page script:
         ```
         <script type="text/javascript">
-            // For iOS with second argument as `false`:
             const body = { message: 'Hello Titanium!'};
-            window.webkit?.messageHandlers.yourHandlerName.postMessage(body);
+
+            // For both Android/iOS.
+            if (window.tisdk) {
+              window.tisdk.emit('yourHandlerName', JSON.stringify(body));
+              return;
+            }
             
-            // For Android, or for iOS with second argument as true:
-            window.tisdk.emit('yourHandlerName', JSON.stringify(body));
+            // iOS only: to keep the backward compatibility with the old syntax.
+            if (window.webkit?.messageHandlers?.yourHandlerName) {
+              window.webkit.messageHandlers.yourHandlerName.postMessage(body);
+            }
         </script>
         ```
         Titanium app code usages:
@@ -442,7 +447,7 @@ methods:
         webView.addScriptMessageHandler('yourHandlerName');
         webView.addEventListener('message', (e) => {
             if (e.name === 'yourHandlerName') {
-                console.log(e.body);
+                console.log(e.body.message);
             }
         });
         webView.url = 'some-remote-url';
@@ -454,12 +459,6 @@ methods:
         summary: |
             The name of the message handler, other than the reserved '_Ti_', or '_Ti_Cookie_'.
         type: String
-      - name: enableParity
-        summary: |
-            Injects script to enable web pages to call a unified expression `window.tisdk.emit('handlerName', JSON.stringify(body));` for both Android and iOS.
-        type: Boolean
-        optional: true
-        default: false
 
   - name: removeScriptMessageHandler
     summary: Removes a script message handler.

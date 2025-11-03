@@ -170,7 +170,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.method
-	public void addScriptMessageHandler(String name, @Kroll.argument(optional = true) boolean unusedParam)
+	public void addScriptMessageHandler(String name)
 	{
 		if (jsInterface == null) {
 			jsInterface = new JSInterface(this);
