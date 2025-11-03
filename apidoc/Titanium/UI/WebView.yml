@@ -35,7 +35,7 @@ description: |
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
-    To trigger a message from the remote web page, refer <Titanium.UI.WebView.addScriptMessageHandler> usages.
+    To trigger a message from the remote web page, refer to <Titanium.UI.WebView.addScriptMessageHandler>.
 
     You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
     evalJS.
@@ -419,29 +419,32 @@ methods:
   - name: addScriptMessageHandler
     summary: Adds a script message handler.
     description: |
-        Adds a script message handler in all frames of the web-view.
-        The JS function on the web app has to executed as for any platform: 
-        `window.tisdk.emit('yourHandlerName', JSON.stringify(body));`
-        Additionally, for iOS, the previous syntax can still be used:
+        Adds a script message handler that enables communication between the web content and your Titanium application in all frames of the web view.
+
+        **New, cross-platform API:**
+        Use `window.tisdk.emit('yourHandlerName', JSON.stringify(body));` to send messages from web content. This API is available on all platforms and should be preferred for new development.
+
+        **Legacy iOS-only API:**
+        For backwards compatibility or when targeting SDK 13.0.0 or older, you can also use the legacy iOS-specific API:
         `window.webkit.messageHandlers.yourHandlerName.postMessage(body)`
-        Important: Call this method before setting the URL, or reload the URL if added later.
-        JS code usages on your web page script:
+        This method works only on iOS and will not be available on other platforms.
+
+        **Important:**
+        Always call `addScriptMessageHandler` before loading the page (setting the URL), or reload the URL after adding the handler to ensure your web content can communicate as expected.
+
+        JS code usage examples for your webpage:
         ```
         <script type="text/javascript">
             const body = { message: 'Hello Titanium!'};
 
-            // For both Android/iOS.
-            if (window.tisdk) {
-              window.tisdk.emit('yourHandlerName', JSON.stringify(body));
-              return;
-            }
-            
-            // iOS only: to keep the backward compatibility with the old syntax.
-            if (window.webkit?.messageHandlers?.yourHandlerName) {
-              window.webkit.messageHandlers.yourHandlerName.postMessage(body);
-            }
+            // Preferred API for all platforms in SDK 13.1.0 and later.
+            window.tisdk.emit('yourHandlerName', JSON.stringify(body));
+
+            // Legacy iOS-only API for SDK 13.0.0 and older.
+            window.webkit.messageHandlers.yourHandlerName.postMessage(body);
         </script>
         ```
+
         Titanium app code usages:
         ```js
         webView.addScriptMessageHandler('yourHandlerName');
@@ -450,7 +453,7 @@ methods:
                 console.log(e.body.message);
             }
         });
-        webView.url = 'some-remote-url';
+        webView.url = 'https://some-remote-url.org';
         ```
     platforms: [android, iphone, ipad, macos]
     since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
