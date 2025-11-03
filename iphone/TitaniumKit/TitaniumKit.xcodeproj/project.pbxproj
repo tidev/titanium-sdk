@@ -1054,6 +1054,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = (
+					"-ObjC",
 					"$(inherited)",
 					"-lsqlite3",
 					"-lz",
@@ -1109,6 +1110,7 @@
 				);
 				OTHER_CFLAGS = "-DTARGET_OS_IPHONE";
 				OTHER_LDFLAGS = (
+					"-ObjC",
 					"$(inherited)",
 					"-lsqlite3",
 					"-lz",
