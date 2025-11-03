@@ -440,7 +440,7 @@ properties:
         versions 5.0.1 and later, but is safe to set on earlier versions.
 
         Note that setting this property to `false` will also prevent the
-        file identified by this object from being backed up to iTunes.
+        file identified by this object from being backed up to iCloud.
     default: true
     type: Boolean
     platforms: [iphone,ipad, macos]

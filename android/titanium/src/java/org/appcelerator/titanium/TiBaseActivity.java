@@ -108,17 +108,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
 	public boolean keyboardVisible = false;
-	final Activity.ScreenCaptureCallback screenCaptureCallback =
-		new Activity.ScreenCaptureCallback()
-		{
-			@Override
-			public void onScreenCaptured()
-			{
-				KrollDict kd = new KrollDict();
-				kd.put("source", getWindowProxy());
-				getTiApp().fireAppEvent("screenshotcaptured", kd);
-			}
-		};
+
+	Activity.ScreenCaptureCallback screenCaptureCallback = null;
 
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
@@ -689,6 +680,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
+
+		if (Build.VERSION.SDK_INT >= 34) {
+			screenCaptureCallback = new Activity.ScreenCaptureCallback()
+			{
+				@Override
+				public void onScreenCaptured()
+				{
+					KrollDict kd = new KrollDict();
+					kd.put("source", getWindowProxy());
+					getTiApp().fireAppEvent("screenshotcaptured", kd);
+				}
+			};
+		}
 
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this, tiApp);
 
@@ -1575,7 +1579,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		applyNightMode();
 
 		if (Build.VERSION.SDK_INT >= 34 && TiApplication.getInstance().checkCallingOrSelfPermission(
-			Manifest.permission.DETECT_SCREEN_CAPTURE) == PackageManager.PERMISSION_GRANTED) {
+			Manifest.permission.DETECT_SCREEN_CAPTURE) == PackageManager.PERMISSION_GRANTED
+			&& screenCaptureCallback != null) {
 			registerScreenCaptureCallback(ContextCompat.getMainExecutor(this), screenCaptureCallback);
 		}
 	}
@@ -1604,8 +1609,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
-
-		unregisterScreenCaptureCallback(screenCaptureCallback);
+		if (Build.VERSION.SDK_INT >= 34 && screenCaptureCallback != null) {
+			unregisterScreenCaptureCallback(screenCaptureCallback);
+		}
 	}
 
 	@Override

@@ -196,7 +196,7 @@ template<WrappedScript::EvalInputFlags input_flag, WrappedScript::EvalContextFla
 	WrappedScript::EvalOutputFlags output_flag>
 void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 {
-	// TODO: This needs a major overhaul/update. We're way behind node's impl here: https://github.com/nodejs/node/blob/master/src/node_contextify.cc
+	// TODO: This needs a major overhaul/update. We're way behind node's impl here: https://github.com/nodejs/node/blob/main/src/node_contextify.cc
 	// Additionally, we don't actually use anything other than "this" context, as far as I know.
 	Isolate* isolate = args.GetIsolate();
 	Local<Context> currentContext = isolate->GetCurrentContext();
