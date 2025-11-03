@@ -1360,12 +1360,10 @@ properties:
     summary: Selected background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-
-        `focusable` must be true for normal views.
-
-        Defaults to background color of this view.
+        Defaults to transparent, so the background color of this view will be used.
     type: [String, Titanium.UI.Color]
-    platforms: [android]
+    since: {android: "0.9", iphone: "13.1.0", ipad: "13.1.0", "macos": "13.1.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
