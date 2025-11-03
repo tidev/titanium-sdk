@@ -187,8 +187,8 @@ DEFINE_EXCEPTIONS
   [upSwipeRecognizer release];
   [downSwipeRecognizer release];
   [longPressRecognizer release];
-  RELEASE_TO_NIL(touchFeedbackColor);
-  RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  RELEASE_TO_NIL(focusablePreviousBackgroundColor);
   proxy = nil;
   touchDelegate = nil;
   [super dealloc];
@@ -222,9 +222,9 @@ DEFINE_EXCEPTIONS
 {
   self = [super init];
   if (self != nil) {
-    touchFeedback = NO;
-    touchFeedbackHasStoredBackground = NO;
-    touchFeedbackTouchCount = 0;
+    focusable = NO;
+    focusableHasStoredBackground = NO;
+    focusableTouchCount = 0;
   }
   return self;
 }
@@ -288,20 +288,20 @@ DEFINE_EXCEPTIONS
   }
 }
 
-#pragma mark Touch Feedback
+#pragma mark Focusable Highlight
 
-- (UIColor *)resolvedTouchFeedbackColor
+- (UIColor *)resolvedBackgroundSelectedColor
 {
-  if (touchFeedbackColor != nil) {
-    return [touchFeedbackColor _color];
+  if (backgroundSelectedColor != nil) {
+    return [backgroundSelectedColor _color];
   }
 
   return [[UIColor labelColor] colorWithAlphaComponent:0.12f];
 }
 
-- (void)refreshTouchFeedbackHighlight
+- (void)refreshBackgroundSelectedHighlight
 {
-  UIColor *color = [self resolvedTouchFeedbackColor];
+  UIColor *color = [self resolvedBackgroundSelectedColor];
   if (color == nil) {
     return;
   }
@@ -309,60 +309,60 @@ DEFINE_EXCEPTIONS
   [super setBackgroundColor:color];
 }
 
-- (void)applyTouchFeedbackHighlightWithAdditionalTouches:(NSUInteger)touchCount
+- (void)applyBackgroundSelectedHighlightWithAdditionalTouches:(NSUInteger)touchCount
 {
-  if (touchCount == 0 && !touchFeedbackHasStoredBackground) {
+  if (touchCount == 0 && !focusableHasStoredBackground) {
     return;
   }
 
-  if (!touchFeedbackHasStoredBackground) {
-    touchFeedbackHasStoredBackground = YES;
-    RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
+  if (!focusableHasStoredBackground) {
+    focusableHasStoredBackground = YES;
+    RELEASE_TO_NIL(focusablePreviousBackgroundColor);
 
     UIColor *currentColor = self.backgroundColor;
     if (currentColor != nil) {
-      touchFeedbackPreviousBackgroundColor = [currentColor retain];
+      focusablePreviousBackgroundColor = [currentColor retain];
     }
   }
 
-  [self refreshTouchFeedbackHighlight];
+  [self refreshBackgroundSelectedHighlight];
 
   if (touchCount > 0) {
-    touchFeedbackTouchCount += touchCount;
+    focusableTouchCount += touchCount;
   }
 }
 
-- (void)restoreTouchFeedbackHighlight
+- (void)restoreBackgroundSelectedHighlight
 {
-  if (!touchFeedbackHasStoredBackground) {
+  if (!focusableHasStoredBackground) {
     return;
   }
 
-  if (touchFeedbackPreviousBackgroundColor != nil) {
-    [super setBackgroundColor:touchFeedbackPreviousBackgroundColor];
+  if (focusablePreviousBackgroundColor != nil) {
+    [super setBackgroundColor:focusablePreviousBackgroundColor];
   } else {
     [super setBackgroundColor:nil];
   }
 
-  RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
-  touchFeedbackHasStoredBackground = NO;
-  touchFeedbackTouchCount = 0;
+  RELEASE_TO_NIL(focusablePreviousBackgroundColor);
+  focusableHasStoredBackground = NO;
+  focusableTouchCount = 0;
 }
 
-- (void)decrementTouchFeedbackTouches:(NSUInteger)touchCount
+- (void)decrementBackgroundSelectedTouches:(NSUInteger)touchCount
 {
   if (touchCount == 0) {
     return;
   }
 
-  if (touchFeedbackTouchCount <= touchCount) {
-    touchFeedbackTouchCount = 0;
+  if (focusableTouchCount <= touchCount) {
+    focusableTouchCount = 0;
   } else {
-    touchFeedbackTouchCount -= touchCount;
+    focusableTouchCount -= touchCount;
   }
 
-  if (touchFeedbackTouchCount == 0) {
-    [self restoreTouchFeedbackHighlight];
+  if (focusableTouchCount == 0) {
+    [self restoreBackgroundSelectedHighlight];
   }
 }
 
@@ -455,8 +455,8 @@ DEFINE_EXCEPTIONS
     }
   }
 
-  if (touchFeedbackHasStoredBackground) {
-    [self refreshTouchFeedbackHighlight];
+  if (focusableHasStoredBackground) {
+    [self refreshBackgroundSelectedHighlight];
   }
 }
 
@@ -691,13 +691,13 @@ DEFINE_EXCEPTIONS
     super.backgroundColor = [ticolor _color];
   }
 
-  if (touchFeedbackHasStoredBackground) {
-    RELEASE_TO_NIL(touchFeedbackPreviousBackgroundColor);
+  if (focusableHasStoredBackground) {
+    RELEASE_TO_NIL(focusablePreviousBackgroundColor);
     UIColor *currentColor = self.backgroundColor;
     if (currentColor != nil) {
-      touchFeedbackPreviousBackgroundColor = [currentColor retain];
+      focusablePreviousBackgroundColor = [currentColor retain];
     }
-    [self refreshTouchFeedbackHighlight];
+    [self refreshBackgroundSelectedHighlight];
   }
 }
 
@@ -1023,29 +1023,29 @@ DEFINE_EXCEPTIONS
   changedInteraction = YES;
 }
 
-- (void)setTouchFeedback_:(id)value
+- (void)setFocusable_:(id)value
 {
   BOOL newValue = [TiUtils boolValue:value def:NO];
 
-  if (touchFeedback == newValue) {
+  if (focusable == newValue) {
     return;
   }
 
-  touchFeedback = newValue;
+  focusable = newValue;
 
-  if (!touchFeedback) {
-    touchFeedbackTouchCount = 0;
-    [self restoreTouchFeedbackHighlight];
+  if (!focusable) {
+    focusableTouchCount = 0;
+    [self restoreBackgroundSelectedHighlight];
   }
 }
 
-- (void)setTouchFeedbackColor_:(id)value
+- (void)setBackgroundSelectedColor_:(id)value
 {
   if (value == nil || value == [NSNull null]) {
-    if (touchFeedbackColor != nil) {
-      RELEASE_TO_NIL(touchFeedbackColor);
-      if (touchFeedbackHasStoredBackground) {
-        [self refreshTouchFeedbackHighlight];
+    if (backgroundSelectedColor != nil) {
+      RELEASE_TO_NIL(backgroundSelectedColor);
+      if (focusableHasStoredBackground) {
+        [self refreshBackgroundSelectedHighlight];
       }
     }
     return;
@@ -1056,19 +1056,19 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  if (touchFeedbackColor != nil) {
-    UIColor *existingColor = [touchFeedbackColor _color];
+  if (backgroundSelectedColor != nil) {
+    UIColor *existingColor = [backgroundSelectedColor _color];
     UIColor *newColor = [color _color];
     if (existingColor != nil && newColor != nil && CGColorEqualToColor(existingColor.CGColor, newColor.CGColor)) {
       return;
     }
   }
 
-  RELEASE_TO_NIL(touchFeedbackColor);
-  touchFeedbackColor = [color retain];
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  backgroundSelectedColor = [color retain];
 
-  if (touchFeedbackHasStoredBackground) {
-    [self refreshTouchFeedbackHighlight];
+  if (focusableHasStoredBackground) {
+    [self refreshBackgroundSelectedHighlight];
   }
 }
 
@@ -1719,8 +1719,8 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  if (touchFeedback) {
-    [self applyTouchFeedbackHighlightWithAdditionalTouches:[touches count]];
+  if (focusable) {
+    [self applyBackgroundSelectedHighlightWithAdditionalTouches:[touches count]];
   }
 
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
@@ -1762,8 +1762,8 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  if (touchFeedback) {
-    [self decrementTouchFeedbackTouches:[touches count]];
+  if (focusable) {
+    [self decrementBackgroundSelectedTouches:[touches count]];
   }
 
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
@@ -1800,9 +1800,9 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  if (touchFeedback) {
-    touchFeedbackTouchCount = 0;
-    [self restoreTouchFeedbackHighlight];
+  if (focusable) {
+    focusableTouchCount = 0;
+    [self restoreBackgroundSelectedHighlight];
   }
 
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {

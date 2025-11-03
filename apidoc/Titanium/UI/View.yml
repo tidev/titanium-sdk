@@ -1365,7 +1365,8 @@ properties:
 
         Defaults to background color of this view.
     type: [String, Titanium.UI.Color]
-    platforms: [android]
+    since: {android: "0.9", iphone: "13.1.0", ipad: "13.1.0", "macos": "13.1.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: backgroundSelectedImage
     summary: Selected background image url for the view, specified as a local file path or URL.
@@ -1483,10 +1484,14 @@ properties:
     since: "9.3.0"
 
   - name: focusable
-    summary: Whether view should be focusable while navigating with the trackball.
+    summary: Enables the view to receive focus and selected background feedback when interacted with.
+    description: |
+        On Android this controls whether the view participates in focus navigation such as with a D-Pad or trackball.
+        On all platform, this property is required to use the `backgroundSelectedColor` property.
     type: Boolean
     default: false
-    platforms: [android]
+    since: {android: "0.9", iphone: "13.1.0", ipad: "13.1.0", "macos": "13.1.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: height
     summary: View height, in platform-specific units.
@@ -1861,17 +1866,19 @@ properties:
         Touch feedback is only applied to a view's background. It is never applied to the view's foreground content
         such as a <Titanium.UI.ImageView>'s image.
 
-        On Android this maps to the native ripple effect. On iOS the view background briefly switches to the feedback
-        color for the duration of the touch.
+        For Titanium versions older than 9.1.0, touch feedback only works if you set the
+        <Titanium.UI.View.backgroundColor> property to a non-transparent color.
     type: Boolean
     default: false
-    since: {android: "6.1.0", iphone: "13.1.0", ipad: "13.1.0", macos: "13.1.0"}
+    platforms: [android]
+    since: "6.1.0"
 
   - name: touchFeedbackColor
     summary: Optional touch feedback ripple color. This has no effect unless `touchFeedback` is true.
-    description: Defaults to the native highlight color on each platform.
+    description: Defaults to provided theme color.
     type: String
-    since: {android: "6.1.0", iphone: "13.1.0", ipad: "13.1.0", macos: "13.1.0"}
+    platforms: [android]
+    since: "6.1.0"
 
   - name: transform
     summary: Transformation matrix to apply to the view.
