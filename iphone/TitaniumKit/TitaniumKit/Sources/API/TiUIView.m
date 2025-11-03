@@ -188,7 +188,7 @@ DEFINE_EXCEPTIONS
   [downSwipeRecognizer release];
   [longPressRecognizer release];
   RELEASE_TO_NIL(backgroundSelectedColor);
-  RELEASE_TO_NIL(focusablePreviousBackgroundColor);
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
   proxy = nil;
   touchDelegate = nil;
   [super dealloc];
@@ -222,9 +222,8 @@ DEFINE_EXCEPTIONS
 {
   self = [super init];
   if (self != nil) {
-    focusable = NO;
-    focusableHasStoredBackground = NO;
-    focusableTouchCount = 0;
+    hasStoredBackgroundForSelectionHighlight = NO;
+    backgroundSelectedHighlightTouchCount = 0;
   }
   return self;
 }
@@ -288,7 +287,7 @@ DEFINE_EXCEPTIONS
   }
 }
 
-#pragma mark Focusable Highlight
+#pragma mark Background Selected Highlight
 
 - (UIColor *)resolvedBackgroundSelectedColor
 {
@@ -296,7 +295,12 @@ DEFINE_EXCEPTIONS
     return [backgroundSelectedColor _color];
   }
 
-  return [[UIColor labelColor] colorWithAlphaComponent:0.12f];
+  return nil;
+}
+
+- (BOOL)shouldApplyBackgroundSelectedHighlight
+{
+  return backgroundSelectedColor != nil;
 }
 
 - (void)refreshBackgroundSelectedHighlight
@@ -311,42 +315,46 @@ DEFINE_EXCEPTIONS
 
 - (void)applyBackgroundSelectedHighlightWithAdditionalTouches:(NSUInteger)touchCount
 {
-  if (touchCount == 0 && !focusableHasStoredBackground) {
+  if (![self shouldApplyBackgroundSelectedHighlight]) {
     return;
   }
 
-  if (!focusableHasStoredBackground) {
-    focusableHasStoredBackground = YES;
-    RELEASE_TO_NIL(focusablePreviousBackgroundColor);
+  if (touchCount == 0 && !hasStoredBackgroundForSelectionHighlight) {
+    return;
+  }
+
+  if (!hasStoredBackgroundForSelectionHighlight) {
+    hasStoredBackgroundForSelectionHighlight = YES;
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
 
     UIColor *currentColor = self.backgroundColor;
     if (currentColor != nil) {
-      focusablePreviousBackgroundColor = [currentColor retain];
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
     }
   }
 
   [self refreshBackgroundSelectedHighlight];
 
   if (touchCount > 0) {
-    focusableTouchCount += touchCount;
+    backgroundSelectedHighlightTouchCount += touchCount;
   }
 }
 
 - (void)restoreBackgroundSelectedHighlight
 {
-  if (!focusableHasStoredBackground) {
+  if (!hasStoredBackgroundForSelectionHighlight) {
     return;
   }
 
-  if (focusablePreviousBackgroundColor != nil) {
-    [super setBackgroundColor:focusablePreviousBackgroundColor];
+  if (backgroundSelectedPreviousBackgroundColor != nil) {
+    [super setBackgroundColor:backgroundSelectedPreviousBackgroundColor];
   } else {
     [super setBackgroundColor:nil];
   }
 
-  RELEASE_TO_NIL(focusablePreviousBackgroundColor);
-  focusableHasStoredBackground = NO;
-  focusableTouchCount = 0;
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+  hasStoredBackgroundForSelectionHighlight = NO;
+  backgroundSelectedHighlightTouchCount = 0;
 }
 
 - (void)decrementBackgroundSelectedTouches:(NSUInteger)touchCount
@@ -355,13 +363,13 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  if (focusableTouchCount <= touchCount) {
-    focusableTouchCount = 0;
+  if (backgroundSelectedHighlightTouchCount <= touchCount) {
+    backgroundSelectedHighlightTouchCount = 0;
   } else {
-    focusableTouchCount -= touchCount;
+    backgroundSelectedHighlightTouchCount -= touchCount;
   }
 
-  if (focusableTouchCount == 0) {
+  if (backgroundSelectedHighlightTouchCount == 0) {
     [self restoreBackgroundSelectedHighlight];
   }
 }
@@ -455,7 +463,7 @@ DEFINE_EXCEPTIONS
     }
   }
 
-  if (focusableHasStoredBackground) {
+  if (hasStoredBackgroundForSelectionHighlight) {
     [self refreshBackgroundSelectedHighlight];
   }
 }
@@ -691,11 +699,11 @@ DEFINE_EXCEPTIONS
     super.backgroundColor = [ticolor _color];
   }
 
-  if (focusableHasStoredBackground) {
-    RELEASE_TO_NIL(focusablePreviousBackgroundColor);
+  if (hasStoredBackgroundForSelectionHighlight) {
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
     UIColor *currentColor = self.backgroundColor;
     if (currentColor != nil) {
-      focusablePreviousBackgroundColor = [currentColor retain];
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
     }
     [self refreshBackgroundSelectedHighlight];
   }
@@ -1023,29 +1031,13 @@ DEFINE_EXCEPTIONS
   changedInteraction = YES;
 }
 
-- (void)setFocusable_:(id)value
-{
-  BOOL newValue = [TiUtils boolValue:value def:NO];
-
-  if (focusable == newValue) {
-    return;
-  }
-
-  focusable = newValue;
-
-  if (!focusable) {
-    focusableTouchCount = 0;
-    [self restoreBackgroundSelectedHighlight];
-  }
-}
-
 - (void)setBackgroundSelectedColor_:(id)value
 {
   if (value == nil || value == [NSNull null]) {
     if (backgroundSelectedColor != nil) {
       RELEASE_TO_NIL(backgroundSelectedColor);
-      if (focusableHasStoredBackground) {
-        [self refreshBackgroundSelectedHighlight];
+      if (hasStoredBackgroundForSelectionHighlight) {
+        [self restoreBackgroundSelectedHighlight];
       }
     }
     return;
@@ -1067,7 +1059,7 @@ DEFINE_EXCEPTIONS
   RELEASE_TO_NIL(backgroundSelectedColor);
   backgroundSelectedColor = [color retain];
 
-  if (focusableHasStoredBackground) {
+  if (hasStoredBackgroundForSelectionHighlight) {
     [self refreshBackgroundSelectedHighlight];
   }
 }
@@ -1719,9 +1711,7 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  if (focusable) {
-    [self applyBackgroundSelectedHighlightWithAdditionalTouches:[touches count]];
-  }
+  [self applyBackgroundSelectedHighlightWithAdditionalTouches:[touches count]];
 
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesBegan:touches withEvent:event];
@@ -1762,7 +1752,7 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  if (focusable) {
+  if (hasStoredBackgroundForSelectionHighlight) {
     [self decrementBackgroundSelectedTouches:[touches count]];
   }
 
@@ -1800,8 +1790,8 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  if (focusable) {
-    focusableTouchCount = 0;
+  if (hasStoredBackgroundForSelectionHighlight) {
+    backgroundSelectedHighlightTouchCount = 0;
     [self restoreBackgroundSelectedHighlight];
   }
 

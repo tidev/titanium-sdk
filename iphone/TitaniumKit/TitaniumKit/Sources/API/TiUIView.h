@@ -69,11 +69,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   id transformMatrix;
   BOOL childrenInitialized;
   BOOL touchEnabled;
-  BOOL focusable;
-  BOOL focusableHasStoredBackground;
-  NSUInteger focusableTouchCount;
+  BOOL hasStoredBackgroundForSelectionHighlight;
+  NSUInteger backgroundSelectedHighlightTouchCount;
   TiColor *backgroundSelectedColor;
-  UIColor *focusablePreviousBackgroundColor;
+  UIColor *backgroundSelectedPreviousBackgroundColor;
 
   unsigned int animationDelayGuard;
   unsigned int animationDelayGuardForLayout;

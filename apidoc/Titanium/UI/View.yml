@@ -1360,10 +1360,7 @@ properties:
     summary: Selected background color of the view, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
-
-        `focusable` must be true for normal views.
-
-        Defaults to background color of this view.
+        Defaults to transparent, so the background color of this view will be used.
     type: [String, Titanium.UI.Color]
     since: {android: "0.9", iphone: "13.1.0", ipad: "13.1.0", "macos": "13.1.0"}
     platforms: [android, iphone, ipad, macos]
@@ -1484,14 +1481,10 @@ properties:
     since: "9.3.0"
 
   - name: focusable
-    summary: Enables the view to receive focus and selected background feedback when interacted with.
-    description: |
-        On Android this controls whether the view participates in focus navigation such as with a D-Pad or trackball.
-        On all platform, this property is required to use the `backgroundSelectedColor` property.
+    summary: Whether view should be focusable while navigating with the trackball.
     type: Boolean
     default: false
-    since: {android: "0.9", iphone: "13.1.0", ipad: "13.1.0", "macos": "13.1.0"}
-    platforms: [android, iphone, ipad, macos]
+    platforms: [android]
 
   - name: height
     summary: View height, in platform-specific units.
