@@ -415,6 +415,19 @@ properties:
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
 
+  - name: optOutTopTabBar
+    summary: Opt-out floating tab bar.
+    description: |
+        A new floating tab bar was introduced in iPadOS 18.
+        It is displayed without tab icons and at the top of the screen.
+        This property forces the tab bar to be displayed in the old style with icons and at the bottom of the screen (as on iPhone).
+    type: Boolean
+    default: false
+    availability: creation
+    osver: {ios: {min: "18.0"}}
+    platforms: [ipad]
+    since: 13.1.0
+
   - name: swipeable
     summary: |
         Boolean value indicating if tab navigation can be done by swipes, in addition to tab clicks.

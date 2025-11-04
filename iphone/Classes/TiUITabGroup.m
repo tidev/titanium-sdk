@@ -49,6 +49,14 @@ DEFINE_EXCEPTIONS
       appearance.backgroundColor = UIColor.clearColor;
       controller.tabBar.scrollEdgeAppearance = appearance;
     }
+
+    // opt-out new iPadOS 18+ floating tab bar
+    if ([TiUtils isIOSVersionOrGreater:@"18.0"] && [TiUtils isIPad]) {
+      BOOL optOutTopTabBar = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"optOutTopTabBar"] def:NO];
+      if (optOutTopTabBar) {
+        controller.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+      }
+    }
   }
   return controller;
 }
