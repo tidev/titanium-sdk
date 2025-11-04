@@ -16,6 +16,7 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
@@ -34,12 +35,17 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
@@ -76,6 +82,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	private static String fpassword;
 	PrintManager printManager;
 	private Message postCreateMessage;
+	private JSInterface jsInterface;
 
 	@Kroll.constant
 	public static final int PDF_PAGE_DIN_A4 = 0;
@@ -127,6 +134,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			postCreateMessage = null;
 		}
 
+		// Add script message handlers if attempted before the web-view could be created.
+		if (jsInterface != null) {
+			jsInterface.initializeJSInterface(webView);
+		}
+
 		return webView;
 	}
 
@@ -155,6 +167,24 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 		// TODO deprecate the sync variant?
 		return view.getJSValue(code);
+	}
+
+	@Kroll.method
+	public void addScriptMessageHandler(String name)
+	{
+		if (jsInterface == null) {
+			jsInterface = new JSInterface(this);
+		}
+
+		jsInterface.addScriptMessageHandler(name);
+	}
+
+	@Kroll.method
+	public void removeScriptMessageHandler(String name)
+	{
+		if (jsInterface != null) {
+			jsInterface.removeScriptMessageHandler(name);
+		}
 	}
 
 	@Kroll.getProperty
@@ -211,6 +241,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 					getWebView().stopLoading();
 					return true;
 				case MSG_RELEASE:
+					destroyJSInterface();
 					TiUIWebView webView = (TiUIWebView) peekView();
 					if (webView != null) {
 						webView.destroyWebViewBinding();
@@ -634,6 +665,8 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	@Override
 	public void onDestroy(Activity activity)
 	{
+		destroyJSInterface();
+
 		TiUIWebView webView = (TiUIWebView) peekView();
 		if (webView == null) {
 			return;
@@ -657,6 +690,14 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	public String getApiName()
 	{
 		return "Ti.UI.WebView";
+	}
+
+	private void destroyJSInterface()
+	{
+		if (jsInterface != null) {
+			jsInterface.destroy();
+			jsInterface = null;
+		}
 	}
 
 	private static class EvalJSRunnable implements Runnable
@@ -691,6 +732,97 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 					callback.callAsync(krollObject, new Object[] { value });
 				}
 			});
+		}
+	}
+
+	private class JSInterface
+	{
+		// Store references to add later the web-view is created.
+		private boolean isInterfaceAdded = false;
+		private WeakReference<WebViewProxy> proxy;
+		private final String JS_INTERFACE_NAME = "tisdk";
+		private final Set<String> scriptMessageHandlers = new HashSet<>();
+
+		public JSInterface(WebViewProxy proxy)
+		{
+			this.proxy = new WeakReference<>(proxy);
+		}
+
+		// Handle the interface creation if apps request the script message handler earlier before the web-view creation.
+		public void initializeJSInterface(TiUIWebView tiUIWebView)
+		{
+			if (isInterfaceAdded) {
+				return;
+			}
+
+			WebView webView = tiUIWebView.getWebView();
+			webView.addJavascriptInterface(this, JS_INTERFACE_NAME);
+			isInterfaceAdded = true;
+		}
+
+		// Apps can call this method even before native webview is created, so we use init method to initialize again.
+		public void addScriptMessageHandler(String name)
+		{
+			scriptMessageHandlers.add(name);
+
+			if (view != null) {
+				initializeJSInterface((TiUIWebView) view);
+			}
+		}
+
+		public void removeScriptMessageHandler(String name)
+		{
+			scriptMessageHandlers.remove(name);
+
+			if (view == null) {
+				return;
+			}
+
+			// Remove interface if no handlers available.
+			if (scriptMessageHandlers.isEmpty() && isInterfaceAdded) {
+				((TiUIWebView) view).getWebView().removeJavascriptInterface(JS_INTERFACE_NAME);
+				isInterfaceAdded = false;
+			}
+		}
+
+		@JavascriptInterface
+		public void emit(String name, String json)
+		{
+			if (this.proxy == null || this.proxy.get() == null) {
+				return;
+			}
+
+			// This is just to keep parity with the iOS structure, no other use.
+			if (name == null || !scriptMessageHandlers.contains(name)) {
+				Log.e(TAG, "scriptMessageHandler not available for name: " + name);
+				return;
+			}
+
+			KrollDict event = new KrollDict();
+			event.put("name", name);
+
+			try {
+				event.put("body", new KrollDict(new JSONObject(json)));
+			} catch (JSONException e) {
+				Log.e(TAG, "Error parsing scriptMessageHandler's JSON message", e);
+			}
+
+			this.proxy.get().fireEvent("message", event);
+		}
+
+		public void destroy()
+		{
+			scriptMessageHandlers.clear();
+
+			if (view != null && isInterfaceAdded) {
+				WebView webView = ((TiUIWebView) view).getWebView();
+				webView.removeJavascriptInterface(JS_INTERFACE_NAME);
+			}
+
+			if (this.proxy != null) {
+				this.proxy.clear();
+				this.proxy = null;
+			}
 		}
 	}
 }
