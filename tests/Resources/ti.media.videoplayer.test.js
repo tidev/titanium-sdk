@@ -208,7 +208,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 				this.timeout(10000);
 
 				player = Ti.Media.createVideoPlayer({
-					url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
+					url: 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/remote/mov_bbb.mp4',
 					autoplay: true,
 					showsControls: false,
 					height: 200
@@ -396,7 +396,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 			});
 
 			player = Ti.Media.createVideoPlayer({
-				url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
+				url: 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/remote/mov_bbb.mp4',
 				autoplay: true,
 				backgroundColor: 'blue',
 				height: 300,
@@ -427,7 +427,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 		this.timeout(10000);
 		const videoWindow = Ti.UI.createWindow();
 		player = Ti.Media.createVideoPlayer({
-			url: 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/mov_bbb.mp4',
+			url: 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/remote/mov_bbb.mp4',
 			top: 2,
 			autoplay: true,
 			backgroundColor: 'blue',

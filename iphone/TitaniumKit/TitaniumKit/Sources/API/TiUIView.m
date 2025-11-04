@@ -187,6 +187,8 @@ DEFINE_EXCEPTIONS
   [upSwipeRecognizer release];
   [downSwipeRecognizer release];
   [longPressRecognizer release];
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
   proxy = nil;
   touchDelegate = nil;
   [super dealloc];
@@ -220,6 +222,8 @@ DEFINE_EXCEPTIONS
 {
   self = [super init];
   if (self != nil) {
+    hasStoredBackgroundForSelectionHighlight = NO;
+    backgroundSelectedHighlightTouchCount = 0;
   }
   return self;
 }
@@ -280,6 +284,93 @@ DEFINE_EXCEPTIONS
   // not it handles events, and if not, set it to the interaction default.
   if (!changedInteraction) {
     self.userInteractionEnabled = handlesTouches || [self interactionDefault];
+  }
+}
+
+#pragma mark Background Selected Highlight
+
+- (UIColor *)resolvedBackgroundSelectedColor
+{
+  if (backgroundSelectedColor != nil) {
+    return [backgroundSelectedColor _color];
+  }
+
+  return nil;
+}
+
+- (BOOL)shouldApplyBackgroundSelectedHighlight
+{
+  return backgroundSelectedColor != nil;
+}
+
+- (void)refreshBackgroundSelectedHighlight
+{
+  UIColor *color = [self resolvedBackgroundSelectedColor];
+  if (color == nil) {
+    return;
+  }
+
+  [super setBackgroundColor:color];
+}
+
+- (void)applyBackgroundSelectedHighlightWithAdditionalTouches:(NSUInteger)touchCount
+{
+  if (![self shouldApplyBackgroundSelectedHighlight]) {
+    return;
+  }
+
+  if (touchCount == 0 && !hasStoredBackgroundForSelectionHighlight) {
+    return;
+  }
+
+  if (!hasStoredBackgroundForSelectionHighlight) {
+    hasStoredBackgroundForSelectionHighlight = YES;
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
+    }
+  }
+
+  [self refreshBackgroundSelectedHighlight];
+
+  if (touchCount > 0) {
+    backgroundSelectedHighlightTouchCount += touchCount;
+  }
+}
+
+- (void)restoreBackgroundSelectedHighlight
+{
+  if (!hasStoredBackgroundForSelectionHighlight) {
+    return;
+  }
+
+  if (backgroundSelectedPreviousBackgroundColor != nil) {
+    [super setBackgroundColor:backgroundSelectedPreviousBackgroundColor];
+  } else {
+    [super setBackgroundColor:nil];
+  }
+
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+  hasStoredBackgroundForSelectionHighlight = NO;
+  backgroundSelectedHighlightTouchCount = 0;
+}
+
+- (void)decrementBackgroundSelectedTouches:(NSUInteger)touchCount
+{
+  if (touchCount == 0) {
+    return;
+  }
+
+  if (backgroundSelectedHighlightTouchCount <= touchCount) {
+    backgroundSelectedHighlightTouchCount = 0;
+  } else {
+    backgroundSelectedHighlightTouchCount -= touchCount;
+  }
+
+  if (backgroundSelectedHighlightTouchCount == 0) {
+    [self restoreBackgroundSelectedHighlight];
   }
 }
 
@@ -370,6 +461,10 @@ DEFINE_EXCEPTIONS
       [backgroundGradient setColors:colors];
       [self setBackgroundGradient_:backgroundGradient];
     }
+  }
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self refreshBackgroundSelectedHighlight];
   }
 }
 
@@ -602,6 +697,15 @@ DEFINE_EXCEPTIONS
   } else {
     TiColor *ticolor = [TiUtils colorValue:color];
     super.backgroundColor = [ticolor _color];
+  }
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
+    }
+    [self refreshBackgroundSelectedHighlight];
   }
 }
 
@@ -925,6 +1029,39 @@ DEFINE_EXCEPTIONS
 {
   self.userInteractionEnabled = [TiUtils boolValue:arg def:[self interactionDefault]];
   changedInteraction = YES;
+}
+
+- (void)setBackgroundSelectedColor_:(id)value
+{
+  if (value == nil || value == [NSNull null]) {
+    if (backgroundSelectedColor != nil) {
+      RELEASE_TO_NIL(backgroundSelectedColor);
+      if (hasStoredBackgroundForSelectionHighlight) {
+        [self restoreBackgroundSelectedHighlight];
+      }
+    }
+    return;
+  }
+
+  TiColor *color = [TiUtils colorValue:value];
+  if (color == nil) {
+    return;
+  }
+
+  if (backgroundSelectedColor != nil) {
+    UIColor *existingColor = [backgroundSelectedColor _color];
+    UIColor *newColor = [color _color];
+    if (existingColor != nil && newColor != nil && CGColorEqualToColor(existingColor.CGColor, newColor.CGColor)) {
+      return;
+    }
+  }
+
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  backgroundSelectedColor = [color retain];
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self refreshBackgroundSelectedHighlight];
+  }
 }
 
 - (BOOL)touchEnabled
@@ -1574,6 +1711,8 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  [self applyBackgroundSelectedHighlightWithAdditionalTouches:[touches count]];
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesBegan:touches withEvent:event];
   }
@@ -1613,6 +1752,10 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self decrementBackgroundSelectedTouches:[touches count]];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesEnded:touches withEvent:event];
   }
@@ -1647,6 +1790,11 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (hasStoredBackgroundForSelectionHighlight) {
+    backgroundSelectedHighlightTouchCount = 0;
+    [self restoreBackgroundSelectedHighlight];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesCancelled:touches withEvent:event];
   }

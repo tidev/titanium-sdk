@@ -2,9 +2,13 @@
 
 <h1 align="center">Titanium SDK</h1>
 
-<p align="center">  <a href="https://bsky.app/profile/titaniumsdk.com">
-    <img src="https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff" alt="Follow @titaniumsdk.com on Bluesky" />
-  </a><a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amaster" target="_blank"><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=master" /></a></p>
+<p align="center">
+  <a href="https://bsky.app/profile/titaniumsdk.com" target="_blank"><img
+    src="https://img.shields.io/badge/Bluesky-0285FF?logo=bluesky&logoColor=fff" alt="Follow @titaniumsdk.com on Bluesky"
+  /></a>
+  <a href="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml?query=branch%3Amain" target="_blank"
+    ><img src="https://github.com/tidev/titanium-sdk/actions/workflows/build.yml/badge.svg?branch=main"
+  /></a></p>
 
 Welcome to the Titanium SDK open source project. Titanium SDK provides a mature platform for developers to build
 completely native cross-platform mobile applications using JavaScript.
