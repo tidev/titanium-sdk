@@ -14,6 +14,10 @@
 #import "TiNetworkCookieProxy.h"
 #import "TiUIWebView.h"
 
+@interface TiUIWebViewProxy ()
+@property (nonatomic, assign) BOOL hasAddedTisdkScript;
+@end
+
 @implementation TiUIWebViewProxy
 
 static NSArray *webViewKeySequence;
