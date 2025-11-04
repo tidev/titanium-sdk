@@ -18,6 +18,8 @@
 
 - (void)refreshHTMLContent;
 - (void)setPageToken:(NSString *)pageToken;
+
+@property (nonatomic, assign) BOOL hasAddedTisdkScript;
 @end
 
 #endif
