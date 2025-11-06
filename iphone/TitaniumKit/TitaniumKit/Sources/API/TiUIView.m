@@ -1784,6 +1784,9 @@ DEFINE_EXCEPTIONS
     } else if ([touch tapCount] == 2 && [proxy _hasListeners:@"dblclick"]) {
       [proxy fireEvent:@"dblclick" withObject:evt propagate:YES];
       return;
+    } else if ([touch tapCount] > 2 && [proxy _hasListeners:@"click"]) {
+      [proxy fireEvent:@"click" withObject:evt propagate:YES];
+      return;
     }
   }
 }
