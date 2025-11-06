@@ -50,10 +50,10 @@ DEFINE_EXCEPTIONS
       controller.tabBar.scrollEdgeAppearance = appearance;
     }
 
-    // opt-out new iPadOS 18+ floating tab bar
+    // force tab bar to bottom position (as before iPadOS 18 and on iPhone)
     if ([TiUtils isIOSVersionOrGreater:@"18.0"] && [TiUtils isIPad]) {
-      BOOL optOutTopTabBar = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"optOutTopTabBar"] def:NO];
-      if (optOutTopTabBar) {
+      BOOL forceBottomPosition = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"forceBottomPosition"] def:NO];
+      if (forceBottomPosition) {
         controller.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
       }
     }
