@@ -35,6 +35,8 @@ description: |
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
+    To trigger a message from the remote web page, refer to <Titanium.UI.WebView.addScriptMessageHandler>.
+
     You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
     evalJS.
 
@@ -50,8 +52,6 @@ description: |
     );
     ```
     The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium-sdk/tree/main/android/modules/ui/assets/Resources/ti.internal/webview).
-
-    For iOS check the example in <Titanium.UI.WebView.addScriptMessageHandler>.
 
     #### Local JavaScript Files
 
@@ -419,39 +419,54 @@ methods:
   - name: addScriptMessageHandler
     summary: Adds a script message handler.
     description: |
-        Adding a script message handler with name 'name' causes the JavaScript function
-        window.webkit.messageHandlers.name.postMessage(messageBody) to be defined in all
-        frames in the web view. You use the same 'name' in your webview's html.
-        Example JS code for the webview page:
+        Adds a script message handler that enables communication between the web content and your Titanium application in all frames of the web view.
+
+        **New, cross-platform API:**
+        Use `window.tisdk.emit('yourHandlerName', JSON.stringify(body));` to send messages from web content. This API is available on all platforms and should be preferred for new development.
+
+        **Legacy iOS-only API:**
+        For backwards compatibility or when targeting SDK 13.0.0 or older, you can also use the legacy iOS-specific API:
+        `window.webkit.messageHandlers.yourHandlerName.postMessage(body)`
+        This method works only on iOS and will not be available on other platforms.
+
+        **Important:**
+        Always call `addScriptMessageHandler` before loading the page (setting the URL), or reload the URL after adding the handler to ensure your web content can communicate as expected.
+
+        JS code usage examples for your webpage:
         ```
         <script type="text/javascript">
-            window.webkit.messageHandlers.yourHandlerName.postMessage({
-                message: 'This is an example string.'
-            });
+            const body = { message: 'Hello Titanium!'};
+
+            // Preferred API for all platforms in SDK 13.1.0 and later.
+            window.tisdk.emit('yourHandlerName', JSON.stringify(body));
+
+            // Legacy iOS-only API for SDK 13.0.0 and older.
+            window.webkit.messageHandlers.yourHandlerName.postMessage(body);
         </script>
         ```
-        Connection to the webview:
+
+        Titanium app code usages:
         ```js
         webView.addScriptMessageHandler('yourHandlerName');
-        webView.addEventListener('message', ({ name }) => {
-            if (name === 'yourHandlerName') {
+        webView.addEventListener('message', (e) => {
+            if (e.name === 'yourHandlerName') {
                 console.log(e.body.message);
             }
         });
+        webView.url = 'https://some-remote-url.org';
         ```
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
       - name: handlerName
         summary: |
-            The name of the message handler and should not be '_Ti_',
-            as titanium is using it for internal usage.
+            The name of the message handler, other than the reserved '_Ti_', or '_Ti_Cookie_'.
         type: String
 
   - name: removeScriptMessageHandler
     summary: Removes a script message handler.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
       - name: name
         summary: The name of the message handler.
@@ -652,8 +667,8 @@ events:
     description: |
         This event get fired when you have added a message handler using <Titanium.UI.WebView.addScriptMessageHandler>
         and the webpage sends a message to it.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     properties:
       - name: url
         summary: URL of the web document being loaded.

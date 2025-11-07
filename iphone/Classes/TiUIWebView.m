@@ -534,6 +534,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                               forMainFrameOnly:YES] autorelease];
 }
 
+- (WKUserScript *)userScriptForMessageHandlerParity
+{
+  NSString *tisdkScript = @"window.tisdk={ \
+      emit:function(handlerName, payload){ \
+        window.webkit.messageHandlers[handlerName].postMessage(JSON.parse(payload)); \
+      } \
+     }; \
+    ";
+
+  return [[[WKUserScript alloc] initWithSource:tisdkScript injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
+}
+
 - (WKUserScript *)userScriptTitaniumJSEvaluationFromString:(NSString *)string
 {
   return [[[WKUserScript alloc] initWithSource:string

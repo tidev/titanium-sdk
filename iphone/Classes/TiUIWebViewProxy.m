@@ -14,6 +14,10 @@
 #import "TiNetworkCookieProxy.h"
 #import "TiUIWebView.h"
 
+@interface TiUIWebViewProxy ()
+@property (nonatomic, assign) BOOL hasAddedTisdkScript;
+@end
+
 @implementation TiUIWebViewProxy
 
 static NSArray *webViewKeySequence;
@@ -31,6 +35,7 @@ static NSArray *webViewKeySequence;
 - (id)_initWithPageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
+    self.hasAddedTisdkScript = NO;
   }
 
   return self;
@@ -382,6 +387,7 @@ static NSArray *webViewKeySequence;
 {
   WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
   [controller removeAllUserScripts];
+  self.hasAddedTisdkScript = NO;
 }
 
 - (void)addScriptMessageHandler:(id)value
@@ -389,6 +395,14 @@ static NSArray *webViewKeySequence;
   ENSURE_SINGLE_ARG(value, NSString);
 
   WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
+
+  // Enable web pages to use unified API for both Android and iOS as:
+  // window.tisdk.emit('handlerName', JSON.stringify(body));
+  if (!self.hasAddedTisdkScript) {
+    [controller addUserScript:[[self webView] userScriptForMessageHandlerParity]];
+    self.hasAddedTisdkScript = YES;
+  }
+
   [controller addScriptMessageHandler:[self webView] name:value];
 }
 

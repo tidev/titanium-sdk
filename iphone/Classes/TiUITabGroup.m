@@ -49,6 +49,14 @@ DEFINE_EXCEPTIONS
       appearance.backgroundColor = UIColor.clearColor;
       controller.tabBar.scrollEdgeAppearance = appearance;
     }
+
+    // force tab bar to bottom position (as before iPadOS 18 and on iPhone)
+    if ([TiUtils isIOSVersionOrGreater:@"18.0"] && [TiUtils isIPad]) {
+      BOOL forceBottomPosition = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"forceBottomPosition"] def:NO];
+      if (forceBottomPosition) {
+        controller.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+      }
+    }
   }
   return controller;
 }
