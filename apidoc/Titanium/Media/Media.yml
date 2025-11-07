@@ -1751,17 +1751,17 @@ properties:
     summary: |
         Returns the max zoom level of the camera.
     type: Number
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     permission: read-only
-    since: "12.2.0"
+    since: { android: "12.2.0", iphone: "13.2.0", ipad: "13.2.0" }
 
   - name: minZoomLevel
     summary: |
         Returns the min zoom level of the camera.
     type: Number
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     permission: read-only
-    since: "12.2.0"
+    since: { android: "12.2.0", iphone: "13.2.0", ipad: "13.2.0" }
 
   - name: peakMicrophonePower
     summary: Current microphone level peak power in dB or -1 if microphone monitoring is disabled.
@@ -1798,8 +1798,8 @@ properties:
     summary: |
         Sets the zoom level of the camera.
     type: Number
-    platforms: [android]
-    since: "12.2.0"
+    platforms: [android, iphone, ipad]
+    since: { android: "12.2.0", iphone: "13.2.0", ipad: "13.2.0" }
 # Pseudo-type for showMusicLibrary argument
 
 ---
@@ -2113,9 +2113,9 @@ properties:
     default: no overlay view
 
   - name: transform
-    summary: Transformation matrix to apply to the camera or photogallery view.
+    summary: Transformation matrix to apply to the camera or photo gallery view.
     description: |
-        Can be used to size and position the camera or photogallery view behind an overlay view.
+        Can be used to size and position the camera or photo gallery view behind an overlay view.
         iOS 10 note: There was a [known iOS 10 issue](http://openradar.appspot.com/28232651) caused by Apple
         that breaks the native camera transformation. Apple fixed this issue in the iOS 10.2 release.
     type: Titanium.UI.Matrix2D
