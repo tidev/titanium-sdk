@@ -132,12 +132,6 @@
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_DENIED;
 @property (nonatomic, readonly) NSNumber *CAMERA_AUTHORIZATION_RESTRICTED;
 
-#if defined(USE_TI_MEDIASHOWCAMERA)
-@property (nonatomic, readonly) CGFloat maxZoomLevel;
-@property (nonatomic, readonly) CGFloat minZoomLevel;
-@property (nonatomic, readwrite) CGFloat zoomLevel;
-#endif
-
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_VIDEO;
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_PHOTO;
 @property (nonatomic, readonly) NSString *MEDIA_TYPE_LIVEPHOTO;

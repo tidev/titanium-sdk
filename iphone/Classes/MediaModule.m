@@ -103,7 +103,6 @@ static NSDictionary *TI_filterableItemProperties;
 
 @implementation MediaModule
 @synthesize popoverView;
-@synthesize zoomLevel;
 
 - (void)dealloc
 {
@@ -1497,96 +1496,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     RELEASE_TO_NIL(cameraView);
   }
 }
-
-#if defined(USE_TI_MEDIASHOWCAMERA)
-- (id)currentCaptureDevice
-{
-  // main back or front camera
-  AVCaptureDevicePosition position = ([self camera] == UIImagePickerControllerCameraDeviceRear ? AVCaptureDevicePositionBack : AVCaptureDevicePositionFront);
-  AVCaptureDeviceDiscoverySession *discoverySession =
-      [AVCaptureDeviceDiscoverySession discoverySessionWithDeviceTypes:@[ AVCaptureDeviceTypeBuiltInWideAngleCamera ]
-                                                             mediaType:AVMediaTypeVideo
-                                                              position:position];
-
-  if (position == AVCaptureDevicePositionBack)
-    NSLog(@"rear camere");
-  else if (position == AVCaptureDevicePositionFront)
-    NSLog(@"front camera");
-  else
-    NSLog(@"unknown camera position");
-
-  for (AVCaptureDevice *device in discoverySession.devices) {
-    if (device.position == position) {
-      return device;
-    }
-  }
-  return nil;
-}
-
-- (CGFloat)maxZoomLevel
-{
-  AVCaptureDevice *device = [self currentCaptureDevice];
-  if (device == nil)
-    return 0;
-
-  return [device maxAvailableVideoZoomFactor];
-}
-
-- (CGFloat)minZoomLevel
-{
-  AVCaptureDevice *device = [self currentCaptureDevice];
-  if (device == nil)
-    return 0;
-
-  return [device minAvailableVideoZoomFactor];
-}
-
-- (CGFloat)zoomLevel
-{
-  AVCaptureDevice *device = [self currentCaptureDevice];
-  if (device == nil)
-    return 0;
-
-  return [device videoZoomFactor];
-}
-
-- (void)setZoomLevel:(id)zoomLevel
-{
-  ENSURE_TYPE(zoomLevel, NSNumber);
-
-  AVCaptureDevice *device = [self currentCaptureDevice];
-
-  if (device == nil) {
-    NSLog(@"[ERROR] Could not set zoom level.");
-    return;
-  }
-
-  NSError *error = nil;
-
-  if ([device lockForConfiguration:&error]) {
-    CGFloat maxZoom = [device maxAvailableVideoZoomFactor];
-    CGFloat minZoom = [device minAvailableVideoZoomFactor];
-    CGFloat zoom = [TiUtils floatValue:zoomLevel];
-
-    if (zoom < minZoom) {
-      NSLog(@"[WARN] Requested zoom %f is below device minimum (%f). Clamping to %f.", zoom, minZoom, minZoom);
-      zoom = minZoom;
-    } else if (zoom > maxZoom) {
-      NSLog(@"[WARN] Requested zoom %f exceeds device maximum (%f). Clamping to %f.", zoom, maxZoom, maxZoom);
-      zoom = maxZoom;
-    }
-
-    [device setVideoZoomFactor:zoom];
-    [device unlockForConfiguration];
-
-    // TODO: remove log
-    NSLog(@"Zoom auf %.2fx gesetzt", zoom);
-
-  } else {
-    NSLog(@"[ERROR] Failed to lock camera for configuration: %@", error.localizedDescription);
-  }
-}
-#endif
 
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 - (void)showPicker:(NSDictionary *)args isCamera:(BOOL)isCamera
