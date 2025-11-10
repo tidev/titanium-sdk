@@ -81,7 +81,7 @@
 #endif
   {
     if ([thisView respondsToSelector:@selector(setHighlighted:)]) {
-      [(id)thisView setHighlighted:isHiglighted];
+      [(id)thisView setHighlighted:isHighlighted];
     }
   }
 }
