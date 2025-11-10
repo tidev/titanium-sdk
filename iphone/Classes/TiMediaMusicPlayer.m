@@ -129,7 +129,7 @@
   [player beginSeekingForward];
 }
 
-- (void)seekBackward:(id)unusued
+- (void)seekBackward:(id)unused
 {
   [player beginSeekingBackward];
 }
