@@ -120,7 +120,7 @@
 
 #pragma mark Utilities
 
-// Workaround for an issue occuring on iOS 11.2+ that causes
+// Workaround for an issue occurring on iOS 11.2+ that causes
 // files from the resources-directory (app-bundle) to not be
 // recognized properly. This method works around this by creating
 // a temporary file.

@@ -72,7 +72,7 @@
   return YES;
 }
 
-- (void)setHighlighting:(BOOL)isHiglighted
+- (void)setHighlighting:(BOOL)isHighlighted
 {
 #ifndef TI_USE_AUTOLAYOUT
   for (TiUIView *thisView in [viewGroupWrapper subviews])
@@ -81,7 +81,7 @@
 #endif
   {
     if ([thisView respondsToSelector:@selector(setHighlighted:)]) {
-      [(id)thisView setHighlighted:isHiglighted];
+      [(id)thisView setHighlighted:isHighlighted];
     }
   }
 }

@@ -559,17 +559,17 @@
   }
   [self setBackgroundSelectedGradient_:selectedBackgroundGradientValue];
 
-  id selectedbackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
-  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
+  id selectedBackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
+  if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+    selectedBackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
   }
-  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
+  if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+    selectedBackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
 
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
+    if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+      selectedBackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
     }
-    if (!IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+    if (!IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
       DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
     }
   }
@@ -581,15 +581,15 @@
   if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
     selectedBackgroundImageValue = [properties valueForKey:@"selectedBackgroundImage"];
 
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
+    if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+      selectedBackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
     }
     if (!IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
       DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
     }
   }
 
-  [self applyBackgroundWithSelectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
+  [self applyBackgroundWithSelectedColor:selectedBackgroundColorValue selectedImage:selectedBackgroundImageValue];
   [_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
     id value = [_initialValues objectForKey:keyPath];
     [self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];
