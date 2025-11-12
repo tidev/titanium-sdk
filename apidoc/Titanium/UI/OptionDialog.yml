@@ -205,8 +205,8 @@ properties:
     summary: Boolean value indicating if the option dialog should have an opaque background.
     description: |
         This property is useful to ensure that the option dialog will display contents properly
-        on the iPAD idiom without ghosting when scrolling. This property is only respected on the
-        iPAD idiom on iOS 7 and above.
+        on the iPad idiom without ghosting when scrolling. This property is only respected on the
+        iPad idiom on iOS 7 and above.
     type: Boolean
     default: false
     since: "3.2.0"

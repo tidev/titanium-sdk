@@ -821,7 +821,7 @@
 
  @param userInfo User info dictionary to assign to the notification content
  @param content Notification content, can either be UNMutableNotificationContent or UILocalNotification
- @param notificationIdentifier The unique Identifier for a notification.
+ @param notificationIdentifier The unique identifier for a notification.
  */
 - (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString *)notificationIdentifier
 {

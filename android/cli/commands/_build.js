@@ -2545,7 +2545,7 @@ class AndroidBuilder extends Builder {
 	}
 
 	/**
-	 * Optionally mifies the input css files and copies them to the app
+	 * Optionally minifies the input CSS files and copies them to the app
 	 * @param {Map<string,object>} files map from filename to file info
 	 * @returns {Promise<void>}
 	 */
