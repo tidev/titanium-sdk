@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_ANDROID,OS_IOS, OS_VERSION_MAJOR, OS_VERSION_MINOR */
+/* globals OS_ANDROID, OS_IOS, OS_VERSION_MAJOR, OS_VERSION_MINOR */
 import Color from '../../../../../lib/color';
 const isIOS13Plus = OS_IOS && (OS_VERSION_MAJOR >= 13);
 const isMacOS = Ti.Platform.name === 'Mac OS X';
@@ -28,7 +28,7 @@ Object.defineProperty(UI, 'SEMANTIC_COLOR_TYPE_DARK', {
 });
 Object.defineProperty(UI, 'semanticColorType', {
 	get: () => {
-		// TODO: Guard against ios < 13 and Android api < 29?
+		// TODO: Guard against iOS < 13 and Android API < 29?
 		// Assume "light" mode unless we explicitly know it's dark
 		if (Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_DARK) {
 			return UI.SEMANTIC_COLOR_TYPE_DARK;

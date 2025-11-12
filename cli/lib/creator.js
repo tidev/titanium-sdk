@@ -153,7 +153,7 @@ export class Creator {
 				logger.error('The App ID must consist of letters, numbers, dashes, and underscores.');
 				logger.error('Note: Android does not allow dashes and iOS does not allow underscores.');
 				logger.error('The first character must be a letter or underscore.');
-				logger.error('Usually the App ID is your company\'s reversed Internet domain name. (i.e. com.example.myapp)\n');
+				logger.error('Usually the App ID is your company\'s reversed Internet domain name. (e.g. com.example.myapp)\n');
 				return callback(true);
 			}
 

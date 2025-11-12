@@ -17,7 +17,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* globals OS_ANDROID,OS_IOS */
+/* globals OS_ANDROID, OS_IOS */
 // We must wrap and export a bootstrap function to be able to delay access to kroll/global
 // We're basically baking in the require wrapper function stuff in the code explicitly
 import ModuleBootstrap from './ti.internal/kernel/module';
@@ -83,10 +83,10 @@ function bootstrap(global, kroll) {
 		if (OS_ANDROID) {
 			kroll.ScopeVars = ScopeVars;
 			// external module bootstrap.js expects to call kroll.NativeModule.require directly to load in their own source
-			// and to refer to the baked in "bootstrap.js" for the SDK and "invoker.js" to hang lazy APIs/wrap api calls to pass in scope vars
+			// and to refer to the baked in "bootstrap.js" for the SDK and "invoker.js" to hang lazy APIs/wrap API calls to pass in scope vars
 			kroll.NativeModule = NativeModuleBootstrap(global, kroll);
 			// Android uses it's own EventEmitter impl, and it's baked right into the proxy class chain
-			// It assumes it can call back into java proxies to alert when listeners are added/removed
+			// It assumes it can call back into Java proxies to alert when listeners are added/removed
 			// FIXME: Get it to use the events.js impl in the node extension, and get iOS to bake that into it's proxies as well!
 			EventEmitterBootstrap(global, kroll);
 		} else if (OS_IOS) {

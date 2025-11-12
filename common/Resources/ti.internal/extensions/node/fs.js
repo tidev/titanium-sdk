@@ -828,7 +828,7 @@ fs.readFile = (path, options, callback) => {
 
 	const wasFileDescriptor = (typeof path === 'number');
 
-	let fileDescriptor = path; // may be overriden later
+	let fileDescriptor = path; // may be overridden later
 	/**
 	 * @param {Error} err possible Error
 	 * @param {Ti.Buffer} buffer Ti.Buffer instance
@@ -1240,7 +1240,7 @@ fs.writeFile = (file, data, options, callback) => {
 	// Turn into file descriptor
 	const wasFileDescriptor = typeof file === 'number';
 
-	let fileDescriptor = file; // may be overriden later
+	let fileDescriptor = file; // may be overridden later
 	const finish = (err) => {
 		if (err) {
 			callback(err);
