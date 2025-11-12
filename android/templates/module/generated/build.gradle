@@ -117,7 +117,7 @@ android {
 			res.srcDirs = [
 				"${projectDir}/../../platform/android/res"
 			]
-			// These files are added as JAR resources. Can be accessed in java via Class.getResourceAsStream() method.
+			// These files are added as JAR resources. Can be accessed in Java via Class.getResourceAsStream() method.
 			resources {
 				srcDirs = [
 					"${projectDir}/../../assets",

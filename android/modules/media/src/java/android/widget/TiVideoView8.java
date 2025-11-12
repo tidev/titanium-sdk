@@ -21,7 +21,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * This is the api level 8 VideoView.java with Titanium-specific modifications.
+ * This is the API level 8 VideoView.java with Titanium-specific modifications.
  */
 
 package android.widget;

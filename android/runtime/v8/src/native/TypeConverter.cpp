@@ -782,7 +782,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, jo
 	return jsArray;
 }
 
-// converts js value to java object and recursively converts sub objects if this
+// converts JS value to Java object and recursively converts sub objects if this
 // object is a container type
 jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, Local<Value> jsValue, bool *isNew)
 {
@@ -835,7 +835,7 @@ jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, JNIEnv *env, Local<
 		} else {
 
 			Local<Context> context = isolate->GetCurrentContext();
-			// Unwrap hyperloop JS wrappers to get native java proxy
+			// Unwrap hyperloop JS wrappers to get native Java proxy
 			Local<String> nativeString = STRING_NEW(isolate, "$native");
 			if (jsObject->HasOwnProperty(context, nativeString).FromMaybe(false)) {
 
@@ -897,7 +897,7 @@ jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, JNIEnv *env, Local<
 	return NULL;
 }
 
-// converts js object to kroll dict and recursively converts sub objects if this
+// converts JS object to kroll dict and recursively converts sub objects if this
 // object is a container type
 jobject TypeConverter::jsObjectToJavaKrollDict(Isolate* isolate, Local<Value> jsValue, bool *isNew)
 {
@@ -951,7 +951,7 @@ jobject TypeConverter::jsObjectToJavaKrollDict(Isolate* isolate, JNIEnv *env, Lo
 }
 
 
-// converts js value to java error
+// converts JS value to Java error
 jobject TypeConverter::jsValueToJavaError(Isolate* isolate, Local<Value> jsValue, bool* isNew)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -966,7 +966,7 @@ jobject TypeConverter::jsValueToJavaError(Isolate* isolate, JNIEnv *env, Local<V
 	if (jsValue->IsObject()) {
 		Local<Object> jsObject = jsValue.As<Object>();
 
-		// If it's a java object, we just return null for now.
+		// If it's a Java object, we just return null for now.
 		if (!JavaObject::isJavaObject(jsObject)) {
 
 			Local<Context> context = isolate->GetCurrentContext();
@@ -996,7 +996,7 @@ jobject TypeConverter::jsValueToJavaError(Isolate* isolate, JNIEnv *env, Local<V
 	return NULL;
 }
 
-// converts java hashmap to js value and recursively converts sub objects if this
+// converts Java hashmap to JS value and recursively converts sub objects if this
 // object is a container type. If javaObject is NULL, an empty object is created.
 Local<Object> TypeConverter::javaHashMapToJsValue(Isolate* isolate, JNIEnv *env, jobject javaObject)
 {
@@ -1034,7 +1034,7 @@ Local<Object> TypeConverter::javaHashMapToJsValue(Isolate* isolate, JNIEnv *env,
 	return jsObject;
 }
 
-// converts java object to js value and recursively converts sub objects if this
+// converts Java object to JS value and recursively converts sub objects if this
 // object is a container type
 Local<Value> TypeConverter::javaObjectToJsValue(Isolate* isolate, jobject javaObject)
 {
@@ -1173,8 +1173,8 @@ jobjectArray TypeConverter::jsObjectIndexPropsToJavaArray(Isolate* isolate, JNIE
 
 /****************************** private methods ******************************/
 
-// used mainly by the array conversion methods when converting java numeric types
-// arrays to to the generic js number type
+// used mainly by the array conversion methods when converting Java numeric types
+// arrays to to the generic JS number type
 Local<Array> TypeConverter::javaDoubleArrayToJsNumberArray(Isolate* isolate, jdoubleArray javaDoubleArray)
 {
 	JNIEnv *env = JNIScope::getEnv();
@@ -1294,7 +1294,7 @@ Local<Object> TypeConverter::javaThrowableToJSError(v8::Isolate* isolate, JNIEnv
 	// We use .As<Object> on Error because an Error is an Object.
 	Local<Object> error = Exception::Error(message.As<String>()).As<Object>();
 
-	// Now loop through the java stack and generate a JS String from the result and assign to Local<String> stack
+	// Now loop through the Java stack and generate a JS String from the result and assign to Local<String> stack
 	std::stringstream stackStream;
 	jobjectArray frames = (jobjectArray) env->CallObjectMethod(javaException, JNIUtil::throwableGetStackTraceMethod);
 	jsize frames_length = env->GetArrayLength(frames);

@@ -179,7 +179,7 @@ public class TiResponseCache extends ResponseCache
 
 	/**
 	 * Check whether the content from uri has been cached. This method is optimized for
-	 * TiResponseCache. For other kinds of ResponseCache, eg. HttpResponseCache, it only
+	 * TiResponseCache. For other kinds of ResponseCache, e.g. HttpResponseCache, it only
 	 * checks whether the system's default response cache is set.
 	 * @param uri The uri to check if cached content exists for.
 	 * @return true if the content from uri is cached; false otherwise.
@@ -566,7 +566,7 @@ public class TiResponseCache extends ResponseCache
 			return null;
 		}
 
-		// Work around an android bug which gives us the wrong URI
+		// Work around an Android bug which gives us the wrong URI
 		try {
 			uri = conn.getURL().toURI();
 		} catch (URISyntaxException e) {

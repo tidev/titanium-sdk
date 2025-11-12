@@ -985,7 +985,7 @@ public class TiHTTPClient
 	{
 		try {
 			// TiResourceFile cannot use the FileBody approach directly, because it requires
-			// a java File object, which you can't get from packaged resources. So
+			// a Java File object, which you can't get from packaged resources. So
 			// TiResourceFile uses the approach we use for blobs, which is write out the
 			// contents to a temp file, then use that for the FileBody.
 			if (value instanceof TiBaseFile && !(value instanceof TiResourceFile)) {

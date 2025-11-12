@@ -37,14 +37,14 @@ public abstract class CommonContactsApi
 			useNew = true;
 
 		} catch (ClassNotFoundException e) {
-			Log.e(TAG, "Unable to load contacts api: " + e.getMessage(), e);
+			Log.e(TAG, "Unable to load Contacts API: " + e.getMessage(), e);
 			useNew = false;
 		}
 
 		if (useNew) {
 			ContactsApiLevel5 c = new ContactsApiLevel5();
 			if (!c.loadedOk) {
-				Log.e(TAG, "ContactsApiLevel5 did not load successfully.");
+				Log.e(TAG, "Contacts API Level 5 did not load successfully.");
 				return null;
 
 			} else {
@@ -102,7 +102,7 @@ public abstract class CommonContactsApi
 		return proxies;
 	}
 
-	// Happily, these codes are common across api level
+	// Happily, these codes are common across API level
 	protected static String getEmailTextType(int type)
 	{
 		String key = "other";

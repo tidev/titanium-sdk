@@ -134,7 +134,7 @@ public class TiFileHelper
 			if (isTitaniumResource(path)) {
 				String[] parts = path.split(":");
 				if (parts.length != 3) {
-					Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + path);
+					Log.w(TAG, "Malformed Titanium resource url, resource not loaded: " + path);
 					return null;
 				}
 				@SuppressWarnings("unused")
@@ -336,7 +336,7 @@ public class TiFileHelper
 
 			String[] parts = s.split(":");
 			if (parts.length != 2) {
-				Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + s);
+				Log.w(TAG, "Malformed Titanium resource url, resource not loaded: " + s);
 				return null;
 			}
 			String section = parts[0];
@@ -372,7 +372,7 @@ public class TiFileHelper
 			}
 
 		} else {
-			Log.w(TAG, "Ignoring non titanium resource string id: " + s);
+			Log.w(TAG, "Ignoring non Titanium resource string id: " + s);
 		}
 
 		return d;

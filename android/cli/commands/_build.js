@@ -97,7 +97,7 @@ class AndroidBuilder extends Builder {
 		// we hook into the pre-validate event so that we can stop the build before
 		// prompting if we know the build is going to fail.
 		//
-		// this is also where we can detect android and jdk environments before
+		// this is also where we can detect Android and JDK environments before
 		// prompting occurs. because detection is expensive we also do it here instead
 		// of during config() because there's no sense detecting if config() is being
 		// called because of the help command.
@@ -110,13 +110,13 @@ class AndroidBuilder extends Builder {
 
 			async.series([
 				function (next) {
-					// detect android environment
+					// detect Android environment
 					androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
 						_t.androidInfo = androidInfo;
 						assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 						assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
 
-						// if --android-sdk was not specified, then we simply try to set a default android sdk
+						// if --android-sdk was not specified, then we simply try to set a default Android SDK
 						if (!cli.argv['android-sdk']) {
 							let androidSdkPath = config.android && config.android.sdkPath;
 							if (!androidSdkPath && androidInfo.sdk) {
@@ -130,7 +130,7 @@ class AndroidBuilder extends Builder {
 				},
 
 				function (next) {
-					// detect java development kit
+					// detect JDK
 					appc.jdk.detect(config, null, function (jdkInfo) {
 						assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED');
 						assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS');
@@ -252,7 +252,7 @@ class AndroidBuilder extends Builder {
 								}));
 							},
 							validate: function (value, callback) {
-								// if there's a value, then they entered something, otherwise let the cli prompt
+								// if there's a value, then they entered something, otherwise let the CLI prompt
 								if (value) {
 									const selectedAlias = value.toLowerCase(),
 										alias = _t.keystoreAlias = _t.keystoreAliases.filter(function (a) { return a.name && a.name.toLowerCase() === selectedAlias; }).shift();
@@ -300,19 +300,19 @@ class AndroidBuilder extends Builder {
 								} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path === afs.resolvePath(value)) {
 									callback(null, value);
 								} else {
-									// attempt to find android sdk
+									// attempt to find Android SDK
 									android.findSDK(value, config, loadPackageJson(__dirname), function () {
 
-										// NOTE: ignore errors when finding sdk, let gradle validate the sdk
+										// NOTE: ignore errors when finding SDK, let gradle validate the SDK
 
 										function next() {
-											// set the android sdk in the config just in case a plugin or something needs it
+											// set the Android SDK in the config just in case a plugin or something needs it
 											config.set('android.sdkPath', value);
 
 											// path looks good, do a full scan again
 											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
 
-												// assume sdk is valid, let gradle validate the sdk
+												// assume SDK is valid, let gradle validate the SDK
 												if (!androidInfo.sdk) {
 													androidInfo.sdk = { path: value };
 												}
@@ -322,8 +322,8 @@ class AndroidBuilder extends Builder {
 											});
 										}
 
-										// new android sdk path looks good
-										// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
+										// new Android SDK path looks good
+										// if we found an Android SDK in the pre-validate hook, then we need to kill the other SDK's adb server
 										if (_t.androidInfo.sdk) {
 											new ADB(config).stopServer(next);
 										} else {
@@ -335,7 +335,7 @@ class AndroidBuilder extends Builder {
 						},
 						'avd-abi': {
 							abbr: 'B',
-							desc: 'the abi for the Android emulator; deprecated, use --device-id',
+							desc: 'the ABI for the Android emulator; deprecated, use --device-id',
 							hint: 'abi'
 						},
 						'avd-id': {
@@ -499,7 +499,7 @@ class AndroidBuilder extends Builder {
 														cli.argv['device-id'] = avds[0];
 														return callback();
 													} else if (!cli.argv['avd-abi']) {
-														// we have more than one matching avd, but no abi to filter by so we have to error
+														// we have more than one matching avd, but no ABI to filter by so we have to error
 														logger.error(`Found ${
 															avds.length
 														} avd${avds.length === 1 ? '' : 's'} with id "${
@@ -523,7 +523,7 @@ class AndroidBuilder extends Builder {
 															});
 														}
 														if (avds.length === 0) {
-															logger.error(`No emulators found with id "${cli.argv['avd-id']}", skin "${cli.argv['avd-skin']}", and abi "${cli.argv['avd-abi']}"\n`);
+															logger.error(`No emulators found with id "${cli.argv['avd-id']}", skin "${cli.argv['avd-skin']}", and ABI "${cli.argv['avd-abi']}"\n`);
 														} else {
 															// there is one or more avds, but we'll just return the first one
 															cli.argv['device-id'] = avds[0];
@@ -980,7 +980,7 @@ class AndroidBuilder extends Builder {
 				logger.error('The app id must consist only of letters, numbers, dashes, and underscores.');
 				logger.error('Note: Android does not allow dashes.');
 				logger.error('The first character must be a letter or underscore.');
-				logger.error('Usually the app id is your company\'s reversed Internet domain name. (i.e. com.example.myapp)\n');
+				logger.error('Usually the app id is your company\'s reversed Internet domain name. (e.g. com.example.myapp)\n');
 				process.exit(1);
 			}
 
@@ -989,7 +989,7 @@ class AndroidBuilder extends Builder {
 				logger.error('The app id must consist of letters, numbers, and underscores.');
 				logger.error('The first character must be a letter or underscore.');
 				logger.error('The first character after a period must not be a number.');
-				logger.error('Usually the app id is your company\'s reversed Internet domain name. (i.e. com.example.myapp)\n');
+				logger.error('Usually the app id is your company\'s reversed Internet domain name. (e.g. com.example.myapp)\n');
 				process.exit(1);
 			}
 
@@ -1033,7 +1033,7 @@ class AndroidBuilder extends Builder {
 			process.exit(1);
 		}
 
-		// map sdk versions to sdk targets instead of by id
+		// map SDK versions to SDK targets instead of by id
 		const targetSDKMap = {
 			// placeholder for gradle to use
 			[this.compileSdkVersion]: {
@@ -1080,7 +1080,7 @@ class AndroidBuilder extends Builder {
 			process.exit(1);
 		}
 
-		// validate the sdk levels
+		// validate the SDK levels
 		const usesSDK = this.customAndroidManifest ? this.customAndroidManifest.getUsesSdk() : null;
 
 		this.minSDK = this.minSupportedApiLevel;
@@ -1111,7 +1111,7 @@ class AndroidBuilder extends Builder {
 			usesSDK.maxSdkVersion    && (this.maxSDK    = usesSDK.maxSdkVersion);
 		}
 
-		// we need to translate the sdk to a real api level (i.e. L => 20, MNC => 22) so that
+		// we need to translate the SDK to a real API level (e.g. L => 20, MNC => 22) so that
 		// we can validate them
 		function getRealAPILevel(ver) {
 			return (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
@@ -1120,7 +1120,7 @@ class AndroidBuilder extends Builder {
 		this.realTargetSDK = getRealAPILevel(this.targetSDK);
 		this.realMaxSDK    = getRealAPILevel(this.maxSDK);
 
-		// min sdk is too old
+		// min SDK is too old
 		if (this.minSDK && this.realMinSDK < this.minSupportedApiLevel) {
 			logger.error(`The minimum supported SDK API version must be ${
 				this.minSupportedApiLevel
@@ -1156,7 +1156,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		if (this.targetSDK) {
-			// target sdk is too old
+			// target SDK is too old
 			if (this.realTargetSDK < this.minTargetApiLevel) {
 				logger.error(`The target SDK API ${
 					this.targetSDK
@@ -1192,7 +1192,7 @@ class AndroidBuilder extends Builder {
 				process.exit(1);
 			}
 
-			// target sdk < min sdk
+			// target SDK < min SDK
 			if (this.realTargetSDK < this.realMinSDK) {
 				logger.error(`The target SDK API must be greater than or equal to the minimum SDK ${
 					this.minSDK
@@ -1211,7 +1211,7 @@ class AndroidBuilder extends Builder {
 			this.realTargetSDK = this.targetSDK;
 		}
 
-		// check that we have this target sdk installed
+		// check that we have this target SDK installed
 		this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
 		if (!this.androidTargetSDK) {
@@ -1784,7 +1784,7 @@ class AndroidBuilder extends Builder {
 			this.logger.info('Profiler disabled');
 		}
 
-		this.logger.info(`Transpile javascript: ${(this.transpile ? 'true' : 'false').cyan}`);
+		this.logger.info(`Transpile JavaScript: ${(this.transpile ? 'true' : 'false').cyan}`);
 		this.logger.info(`Generate source maps: ${(this.sourceMaps ? 'true' : 'false').cyan}`);
 	}
 
@@ -1854,7 +1854,7 @@ class AndroidBuilder extends Builder {
 			return true;
 		}
 
-		// if encryptJS changed, then we need to recompile the java files
+		// if encryptJS changed, then we need to recompile the Java files
 		if (this.encryptJS !== manifest.encryptJS) {
 			this.logger.info('Forcing rebuild: JavaScript encryption flag changed');
 			this.logger.info(`  Was: ${manifest.encryptJS}`);
@@ -1862,7 +1862,7 @@ class AndroidBuilder extends Builder {
 			return true;
 		}
 
-		// check if the titanium sdk paths are different
+		// check if the Titanium SDK paths are different
 		if (this.platformPath !== manifest.platformPath) {
 			this.logger.info('Forcing rebuild: Titanium SDK path changed since last build');
 			this.logger.info(`  Was: ${manifest.platformPath}`);
@@ -2535,7 +2535,7 @@ class AndroidBuilder extends Builder {
 		combined = gather.mergeMaps(allModulesResults);
 
 		// Ok, so we have a Map<string, FileInfo> for the full set of unique relative paths
-		// now categorize (i.e. lump into buckets of js/css/html/assets/generic resources)
+		// now categorize (e.g. lump into buckets of js/css/html/assets/generic resources)
 		const categorizer = new gather.Categorizer({
 			tiappIcon: this.tiapp.icon,
 			jsFilesNotToProcess: Object.keys(this.htmlJsFiles),
@@ -2677,7 +2677,7 @@ class AndroidBuilder extends Builder {
 		});
 		await task.run();
 		if (this.useWebpack) {
-			// Merge Ti symbols from Webpack with the ones from legacy js processing
+			// Merge Ti symbols from Webpack with the ones from legacy JS processing
 			Object.keys(task.data.tiSymbols).forEach(file => {
 				const existingSymbols = this.tiSymbols[file] || [];
 				const additionalSymbols = task.data.tiSymbols[file];
@@ -2714,7 +2714,7 @@ class AndroidBuilder extends Builder {
 	}
 
 	/**
-	 * @param {string[]} jsBootstrapFiles list of bootstrap js files to add to listing we generate
+	 * @param {string[]} jsBootstrapFiles list of bootstrap JS files to add to listing we generate
 	 * @returns {Promise<void>}
 	 */
 	async writeBootstrapJson(jsBootstrapFiles) {
@@ -2874,7 +2874,7 @@ class AndroidBuilder extends Builder {
 			throw new Error('Could not load encryption library!');
 		}
 
-		this.logger.info('Encrypting javascript assets...');
+		this.logger.info('Encrypting JavaScript assets...');
 
 		// NOTE: maintain 'build.android.titaniumprep' hook for remote encryption policy.
 		const hook = this.cli.createHook('build.android.titaniumprep', this, async function (exe, args, opts, next) {
