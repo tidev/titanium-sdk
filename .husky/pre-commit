@@ -1,4 +1,1 @@
-export ANDROID_SDK_ROOT="$HOME/Library/android_sdk"
-export PATH="$PATH:$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/tools"
-
 npx --no-install lint-staged
