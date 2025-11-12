@@ -1366,7 +1366,7 @@ properties:
     platforms: [android, iphone, ipad, macos]
 
   - name: backgroundSelectedImage
-    summary: Selected background image url for the view, specified as a local file path or URL.
+    summary: Selected background image URL for the view, specified as a local file path or URL.
     description: |
       For normal views, the selected background is only used if `focusable` is `true`.
 

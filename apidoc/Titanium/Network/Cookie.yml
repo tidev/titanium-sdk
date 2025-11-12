@@ -492,7 +492,7 @@ properties:
     availability: creation
 
   - name: originalUrl
-    summary: The origual url attribute of the cookie.
+    summary: The original URL attribute of the cookie.
     type: String
     platforms: [iphone, ipad, macos]
     since: "3.3.0"

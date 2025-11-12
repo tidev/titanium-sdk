@@ -2702,7 +2702,7 @@ properties:
     permission: read-only
 
   - name: URL_ERROR_BAD_URL
-    summary: Bad url error code reported via <Titanium.UI.WebView.error>.
+    summary: Bad URL error code reported via <Titanium.UI.WebView.error>.
     type: Number
     since: "3.0.0"
     permission: read-only
@@ -2757,7 +2757,7 @@ properties:
     permission: read-only
 
   - name: URL_ERROR_UNSUPPORTED_SCHEME
-    summary: Error code reported via <Titanium.UI.WebView.error> when a url contains an unsupported scheme.
+    summary: Error code reported via <Titanium.UI.WebView.error> when a URL contains an unsupported scheme.
     type: Number
     since: "3.0.0"
     permission: read-only

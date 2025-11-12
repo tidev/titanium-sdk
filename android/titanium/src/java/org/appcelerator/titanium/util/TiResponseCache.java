@@ -178,11 +178,11 @@ public class TiResponseCache extends ResponseCache
 	}
 
 	/**
-	 * Check whether the content from uri has been cached. This method is optimized for
+	 * Check whether the content from URI has been cached. This method is optimized for
 	 * TiResponseCache. For other kinds of ResponseCache, e.g. HttpResponseCache, it only
 	 * checks whether the system's default response cache is set.
-	 * @param uri The uri to check if cached content exists for.
-	 * @return true if the content from uri is cached; false otherwise.
+	 * @param uri The URI to check if cached content exists for.
+	 * @return true if the content from URI is cached; false otherwise.
 	 */
 	public static boolean peek(URI uri)
 	{

@@ -617,12 +617,12 @@ events:
   - name: onLoadResource
     summary: Fired when loading resource.
     description: |
-        Android only. Notify the host application that the WebView will load the resource specified by the given url.
+        Android only. Notify the host application that the WebView will load the resource specified by the given URL.
     platforms: [android]
     since: "3.6.0"
     properties:
       - name: url
-        summary: The url of the resource that will load.
+        summary: The URL of the resource that will load.
         type: String
 
   - name: sslerror
@@ -755,9 +755,9 @@ properties:
 
   - name: blacklistedURLs
     summary: |
-        An array of url strings to blacklist.
+        An array of URL strings to blacklist.
     description: |
-        An array of url strings to blacklist. This will stop the webview from going to urls listed in
+        An array of URL strings to blacklist. This will stop the webview from going to URLs listed in
         the blacklist. Note, this only applies in the links clicked inside the webview. The first website
         that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
@@ -770,9 +770,9 @@ properties:
 
   - name: blockedURLs
     summary: |
-        An array of url strings to be blocked.
+        An array of URL strings to be blocked.
     description: |
-        An array of url strings to be blocked from loading. This will stop the webview from going to urls
+        An array of URL strings to be blocked from loading. This will stop the webview from going to URLs
         listed in this array. Note that this only applies to the links tapped on by the end-user.
         The first website that is loaded will not be stopped, even if it is listed in the blocklist.
     type: Array<String>
@@ -1326,7 +1326,7 @@ examples:
         ```
   - title: Usage of allowedURLSchemes and handleurl in iOS
     example: |
-        Create a web view and listen 'handleurl' event to open url from Titanium platform.
+        Create a web view and listen 'handleurl' event to open URL from Titanium platform.
 
         ``` js
         var webview = Ti.UI.createWebView({
@@ -1479,7 +1479,7 @@ summary: An object returned when the <Titanium.UI.WebView.onlink> callback is fi
 platforms: [iphone, ipad, android, macos]
 properties:
   - name: url
-    summary: The url of the link that should be navigated to.
+    summary: The URL of the link that should be navigated to.
     type: String
 
 ---

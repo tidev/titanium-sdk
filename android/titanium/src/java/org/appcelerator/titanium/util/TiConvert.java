@@ -683,10 +683,10 @@ public class TiConvert
 	}
 
 	/**
-	 * Returns a url string by appending the
+	 * Returns a URL string by appending the
 	 * String representation of 'uri' to file:///android_asset/Resources/
-	 * @param uri the uri, cannot be null.
-	 * @return url string.
+	 * @param uri the URI, cannot be null.
+	 * @return URL string.
 	 */
 	public static String toURL(Uri uri)
 	{

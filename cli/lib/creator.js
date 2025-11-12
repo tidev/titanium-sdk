@@ -409,7 +409,7 @@ export class Creator {
 	 */
 	configOptionTemplate(order, defaultValue) {
 		return {
-			desc: 'the name of the project template, path to template dir, path to zip file, or url to zip file',
+			desc: 'the name of the project template, path to template dir, path to zip file, or URL to zip file',
 			default: defaultValue || 'default',
 			order: order,
 			required: true

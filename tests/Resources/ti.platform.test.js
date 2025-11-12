@@ -460,7 +460,7 @@ describe('Titanium.Platform', () => {
 				}
 			});
 
-			// FIXME: macOS pops dialogs about no application set to open this url scheme
+			// FIXME: macOS pops dialogs about no application set to open this URL scheme
 			it.ios('(url, callback) with unhandled scheme passes Error to callback', finish => {
 				Ti.Platform.openURL('randomapp://', _e => finish());
 			});

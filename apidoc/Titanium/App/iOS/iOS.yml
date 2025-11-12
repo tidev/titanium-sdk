@@ -1239,7 +1239,7 @@ events:
         is automatically relaunched in the background, and the app fires the [backgroundtransfer](Titanium.App.iOS.backgroundtransfer) event.
         This event should contain the identifier of the session that caused your app to be launched.
         Your app should then store that `handlerID` before creating a background session configuration object
-        with the same identifier, and creating a url session object with that configuration.
+        with the same identifier, and creating a URL session object with that configuration.
         The newly created session is automatically reassociated with ongoing background activity.
 
         When your app later receives a `sessioneventscompleted` event, this indicates that
@@ -1546,7 +1546,7 @@ properties:
     summary: The application or service that triggered the handled URL.
     type: String
   - name: url
-    summary: The url that was triggered by the application or service.
+    summary: The URL that was triggered by the application or service.
     type: String
 
 ---
@@ -1568,5 +1568,5 @@ properties:
     constants: Titanium.App.iOS.USER_NOTIFICATION_TYPE_*
 
   - name: categories
-    summary: Set of categories of user notification actions required by the applicaiton to use.
+    summary: Set of categories of user notification actions required by the application to use.
     type: Array<Titanium.App.iOS.UserNotificationCategory>

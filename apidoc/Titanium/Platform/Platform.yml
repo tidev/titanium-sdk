@@ -64,7 +64,7 @@ methods:
     since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
-        summary: The url to check.
+        summary: The URL to check.
         type: String
 
   - name: cpus
@@ -117,7 +117,7 @@ methods:
         type: Boolean
     parameters:
       - name: url
-        summary: The url to open.
+        summary: The URL to open.
         type: String
       - name: options
         summary: |

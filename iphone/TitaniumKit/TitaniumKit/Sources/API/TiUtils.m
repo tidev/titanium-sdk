@@ -684,7 +684,7 @@ static NSDictionary *sizeMap = nil;
   NSURL *urlAttempt = [self toURL:object proxy:proxy];
   UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withSize:imageSize];
   return image;
-  // Note: If url is a nonimmediate image, this returns nil.
+  // Note: If URL is a nonimmediate image, this returns nil.
 }
 
 + (UIImage *)toImage:(id)object proxy:(TiProxy *)proxy
@@ -702,7 +702,7 @@ static NSDictionary *sizeMap = nil;
   NSURL *urlAttempt = [self toURL:object proxy:proxy];
   UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt];
   return image;
-  // Note: If url is a nonimmediate image, this returns nil.
+  // Note: If URL is a nonimmediate image, this returns nil.
 }
 
 + (UIImage *)adjustRotation:(UIImage *)image
@@ -899,7 +899,7 @@ sms:, tel:, mailto: are all done
 
 If the new path is HTTP:// etc, then punt and massage the code.
 
-If the new path starts with / and the base url is app://..., we have to massage the url.
+If the new path starts with / and the base URL is app://..., we have to massage the URL.
 
 
 */

@@ -724,7 +724,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			// TITANIUM
 			if (mPlaybackListener != null) {
 				mPlaybackListener.onStartPlayback();
-				// Fired after a stop or play is called after a after url change.
+				// Fired after a stop or play is called after a after URL change.
 				if (oldState == STATE_PREPARED || oldState == STATE_PREPARING) {
 					mPlaybackListener.onPlayingPlayback();
 				}

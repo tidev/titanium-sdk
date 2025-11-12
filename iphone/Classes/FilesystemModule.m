@@ -37,7 +37,7 @@
   NSString *first = [[args objectAtIndex:0] toString];
   if ([first hasPrefix:@"file://"]) {
     NSURL *fileUrl = [NSURL URLWithString:first];
-    // Why not just crop? Because the url may have some things escaped that need to be unescaped.
+    // Why not just crop? Because the URL may have some things escaped that need to be unescaped.
     newpath = [fileUrl path];
   } else if ([first characterAtIndex:0] != '/') {
     NSURL *url = [NSURL URLWithString:[self resourcesDirectory]];

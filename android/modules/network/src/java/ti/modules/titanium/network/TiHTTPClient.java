@@ -196,7 +196,7 @@ public class TiHTTPClient
 				}
 			}
 
-			// Check for new url that is redirected
+			// Check for new URL that is redirected
 			URL currentLocation = connection.getURL();
 			if (autoRedirect && !mURL.sameFile(currentLocation)) {
 				redirectedLocation = currentLocation.toString();
@@ -872,9 +872,9 @@ public class TiHTTPClient
 			throw new IllegalArgumentException("URL cannot be null");
 		}
 
-		// if the url is not prepended with either http or
+		// if the URL is not prepended with either http or
 		// https, then default to http and prepend the protocol
-		// to the url
+		// to the URL
 		String lowerCaseUrl = url.toLowerCase();
 		if (!lowerCaseUrl.startsWith("http://") && !lowerCaseUrl.startsWith("https://")) {
 			url = "http://" + url;
@@ -887,7 +887,7 @@ public class TiHTTPClient
 			this.uri = Uri.parse(url);
 		}
 
-		// If the original url does not contain any
+		// If the original URL does not contain any
 		// escaped query string (i.e., does not look
 		// pre-encoded), go ahead and reset it to the
 		// clean uri. Else keep it as is so the user's
@@ -925,7 +925,7 @@ public class TiHTTPClient
 				port = javaUrl.getPort();
 
 			} catch (MalformedURLException e) {
-				Log.e(TAG, "Error attempting to derive Java url from uri: " + e.getMessage(), e);
+				Log.e(TAG, "Error attempting to derive Java URL from uri: " + e.getMessage(), e);
 			}
 
 		} else {

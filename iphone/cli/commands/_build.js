@@ -483,7 +483,7 @@ class iOSBuilder extends Builder {
 							keychain:                   this.configOptionKeychain(),
 							'launch-bundle-id':           this.configOptionLaunchBundleId(),
 							'launch-url': {
-								// url for the application to launch in mobile Safari, as soon as the app boots up
+								// URL for the application to launch in mobile Safari, as soon as the app boots up
 								hidden: true
 							},
 							'output-dir':                 this.configOptionOutputDir(200),

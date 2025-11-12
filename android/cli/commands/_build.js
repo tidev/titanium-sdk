@@ -462,7 +462,7 @@ class AndroidBuilder extends Builder {
 											name = 'titanium_' + cli.argv['avd-id'] + '_';
 
 										if (avds.length) {
-											// try finding the first avd that starts with the avd id
+											// try finding the first AVD that starts with the AVD id
 											avds = avds.filter(function (avd) {
 												return avd.indexOf(name) === 0;
 											});
@@ -470,7 +470,7 @@ class AndroidBuilder extends Builder {
 												cli.argv['device-id'] = avds[0];
 												return callback();
 											} else if (avds.length > 1) {
-												// next try using the avd skin
+												// next try using the AVD skin
 												if (!cli.argv['avd-skin']) {
 													// we have more than one match
 													logger.error(`Found ${avds.length} avd${avds.length === 1 ? '' : 's'} with id "${cli.argv['avd-id']}"`);
@@ -499,7 +499,7 @@ class AndroidBuilder extends Builder {
 														cli.argv['device-id'] = avds[0];
 														return callback();
 													} else if (!cli.argv['avd-abi']) {
-														// we have more than one matching avd, but no ABI to filter by so we have to error
+														// we have more than one matching AVD, but no ABI to filter by so we have to error
 														logger.error(`Found ${
 															avds.length
 														} avd${avds.length === 1 ? '' : 's'} with id "${
@@ -525,7 +525,7 @@ class AndroidBuilder extends Builder {
 														if (avds.length === 0) {
 															logger.error(`No emulators found with id "${cli.argv['avd-id']}", skin "${cli.argv['avd-skin']}", and ABI "${cli.argv['avd-abi']}"\n`);
 														} else {
-															// there is one or more avds, but we'll just return the first one
+															// there is one or more AVDs, but we'll just return the first one
 															cli.argv['device-id'] = avds[0];
 															return callback();
 														}
@@ -536,7 +536,7 @@ class AndroidBuilder extends Builder {
 
 											logger.warn(`${'--avd-*'.cyan} options have been ${'deprecated'.red}, please use ${'--device-id'.cyan}\n`);
 
-											// print list of available avds
+											// print list of available AVDs
 											if (results.length && !cli.argv.prompt) {
 												logger.log('Available Emulators:');
 												results.forEach(function (emu) {

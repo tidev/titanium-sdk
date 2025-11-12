@@ -758,7 +758,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
     }
     if (html != nil) {
-      // Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
+      // Because local HTML may rely on JS that's stored in the app: schema, we must kee the URL in the app: format.
       [[self webView] loadHTMLString:html baseURL:baseURL];
     } else {
       NSLog(@"[WARN] couldn't load URL: %@", url);
@@ -1092,7 +1092,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
-      // Event to return url to Titanium in order to handle OAuth and more
+      // Event to return URL to Titanium in order to handle OAuth and more
       if ([[self proxy] _hasListeners:@"handleurl"]) {
         TiThreadPerformOnMainThread(
             ^{
