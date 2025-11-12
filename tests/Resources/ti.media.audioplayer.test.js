@@ -122,7 +122,7 @@ describe('Titanium.Media.AudioPlayer', () => {
 
 			// FIXME: This hangs on Android 5 and macOS! It's unclear why...
 			it.windowsMissing('gives around 45 seconds for test input', function (finish) {
-				// skip on older android since it intermittently hangs forever on android 5 emulator
+				// skip on older Android since it intermittently hangs forever on Android 5 emulator
 				if (OS_ANDROID && OS_VERSION_MAJOR < 6) {
 					return finish();
 				}
@@ -263,7 +263,7 @@ describe('Titanium.Media.AudioPlayer', () => {
 			});
 
 			it('called delayed after #start()', function (finish) {
-				// skip on older android since it intermittently hangs forever on android 5 emulator
+				// skip on older Android since it intermittently hangs forever on Android 5 emulator
 				if (OS_ANDROID && OS_VERSION_MAJOR < 6) {
 					return finish();
 				}
