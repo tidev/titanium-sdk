@@ -568,7 +568,7 @@ static NSArray *webViewKeySequence;
 
   if (code == nil) {
     [self throwException:@"Missing JavaScript code"
-               subreason:@"The required first argument is missinf and should contain a valid JavaScript string."
+               subreason:@"The required first argument is missing and should contain a valid JavaScript string."
                 location:CODELOCATION];
     return nil;
   }
@@ -667,7 +667,7 @@ static NSArray *webViewKeySequence;
 // 3. We are using following to implement cookies-
 //  https://stackoverflow.com/questions/26573137
 //  https://github.com/haifengkao/YWebView
-// TO DO: If we can make parity using WKHTTPCookieStore, we should start using WKHTTPCookieStore APIs
+// TODO: If we can make parity using WKHTTPCookieStore, we should start using WKHTTPCookieStore APIs
 
 - (id<TiEvaluator>)evaluationContext
 {

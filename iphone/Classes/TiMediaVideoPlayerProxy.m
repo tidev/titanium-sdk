@@ -83,7 +83,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For durationavailable event
@@ -366,7 +366,7 @@ NSArray *moviePlayerKeys = nil;
     AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
     [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
     [self removeNotificationObserver]; // Remove old observers
-    [self addNotificationObserver]; // Add new oberservers
+    [self addNotificationObserver]; // Add new observers
   } else {
     [self ensurePlayer];
   }

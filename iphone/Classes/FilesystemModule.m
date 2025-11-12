@@ -112,7 +112,7 @@
 
 - (bool)isExternalStoragePresent
 {
-  // IOS treats the camera connection kit as just that, and does not allow
+  // iOS treats the camera connection kit as just that, and does not allow
   // R/W access to it, which is just as well as it'd mess up cameras.
   return NO;
 }
@@ -143,7 +143,7 @@ GETTER_IMPL(NSString *, applicationSupportDirectory, ApplicationSupportDirectory
   NSString *home = NSHomeDirectory();
   return [NSString stringWithFormat:@"%@/Documents/", fileURLify(home)];
 #else
-  // TODO: Unify these. Appending /Documents to the home directory appears to give the same path as below code for ios sim (probably also device)
+  // TODO: Unify these. Appending /Documents to the home directory appears to give the same path as below code for iOS sim (probably also device)
   return [NSString stringWithFormat:@"%@/", fileURLify([NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0])];
 #endif
 }

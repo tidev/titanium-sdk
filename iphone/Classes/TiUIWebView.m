@@ -912,7 +912,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [self _cleanupLoadingIndicator];
   [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
-  // TO DO: Once TIMOB-26915 done, remove this
+  // TODO: Once TIMOB-26915 done, remove this
   __block BOOL finishedEvaluation = NO;
   [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
     for (NSHTTPCookie *cookie in cookies) {
@@ -1120,7 +1120,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     BOOL valid = !ignoreNextRequest;
     if ([scheme hasPrefix:@"http"]) {
       // UIWebViewNavigationTypeOther means we are either in a META redirect
-      // or it is a js request from within the page
+      // or it is a JS request from within the page
       valid = valid && (navigationAction.navigationType != WKNavigationTypeOther);
     }
     if (valid) {

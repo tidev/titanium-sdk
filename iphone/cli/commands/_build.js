@@ -161,15 +161,15 @@ class iOSBuilder extends Builder {
 		// when true, calls xcodebuild
 		this.forceRebuild = false;
 
-		// a list of relative paths to js files that need to be encrypted
+		// a list of relative paths to JS files that need to be encrypted
 		// note: the filename will have all periods replaced with underscores
 		// FIXME: Use a Map from original names -> encrypted names
 		this.jsFilesToEncrypt = [];
-		// a list of relative paths to js files that have been encrypted
+		// a list of relative paths to JS files that have been encrypted
 		// note: this is the original filename used by our require _index_.json and referenced within the app
 		this.jsFilesEncrypted = [];
 
-		// set to true if any js files changed so that we can trigger encryption to run
+		// set to true if any JS files changed so that we can trigger encryption to run
 		this.jsFilesChanged = false;
 
 		// an array of products (Xcode targets) being built
@@ -930,7 +930,7 @@ class iOSBuilder extends Builder {
 						process.exit(1);
 					}
 				} catch (e) {
-					// squelch and let the cli detect the bad version
+					// squelch and let the CLI detect the bad version
 				}
 			},
 			desc: 'iOS SDK version to build with',
@@ -1518,7 +1518,7 @@ class iOSBuilder extends Builder {
 			process.exit(1);
 		}
 
-		// process min ios version
+		// process min iOS version
 		this.minIosVersion = tiapp.ios['min-ios-ver'] && appc.version.gt(tiapp.ios['min-ios-ver'], this.packageJson.minIosVersion) ? tiapp.ios['min-ios-ver'] : this.packageJson.minIosVersion;
 
 		// process device family
@@ -1899,7 +1899,7 @@ class iOSBuilder extends Builder {
 				this.provisioningProfile = this.findProvisioningProfile(this.target, this.provisioningProfileUUID);
 			}
 
-			// add the ios specific default icon to the list of icons
+			// add the iOS specific default icon to the list of icons
 			this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
 
 			// manually inject the build profile settings
@@ -1950,7 +1950,7 @@ class iOSBuilder extends Builder {
 
 			// Transpilation details
 			this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-			// this.minSupportedIosSdk holds the target ios version to transpile down to
+			// this.minSupportedIosSdk holds the target iOS version to transpile down to
 			// If they're passing flag to do source-mapping, that overrides everything, so turn it on
 			if (cli.argv['source-maps']) {
 				this.sourceMaps = true;
@@ -2347,7 +2347,7 @@ class iOSBuilder extends Builder {
 									module.isFramework = false;
 
 									// For Obj-C static libraries, use the .a library or hashing
-									this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
+									this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
 									nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 									// Try to load native module as framework (Swift)
 								} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
@@ -2356,7 +2356,7 @@ class iOSBuilder extends Builder {
 									module.isFramework = true;
 
 									// For Swift frameworks, use the binary inside the .framework for hashing
-									this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
+									this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
 									nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
 								} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
 									module.libName = xcFrameworkOfLib;
@@ -2500,7 +2500,7 @@ class iOSBuilder extends Builder {
 				});
 			});
 
-			// titanium related tasks
+			// Titanium related tasks
 			this.writeDebugProfilePlists();
 			await this.copyResources();
 			await new Promise((resolve, reject) => {
@@ -2879,7 +2879,7 @@ class iOSBuilder extends Builder {
 				return true;
 			}
 
-			// check if the titanium sdk version changed
+			// check if the Titanium SDK version changed
 			if (fs.existsSync(this.xcodeProjectConfigFile)) {
 				// we have a previous build, see if the Titanium SDK changed
 				const conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
@@ -2946,7 +2946,7 @@ class iOSBuilder extends Builder {
 				}
 			}
 
-			// check if the titanium sdk paths are different
+			// check if the Titanium SDK paths are different
 			if (manifest.iosSdkPath !== this.platformPath) {
 				this.logger.info('Forcing rebuild: Titanium SDK path changed since last build');
 				this.logger.info(`  Was: ${cyan(manifest.iosSdkPath)}`);
@@ -3417,7 +3417,7 @@ class iOSBuilder extends Builder {
 			});
 		}
 
-		// set the min ios version for the whole project
+		// set the min iOS version for the whole project
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 			const buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 			buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(this.minIosVer, 2);
@@ -3913,7 +3913,7 @@ class iOSBuilder extends Builder {
 					}
 
 					if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer || targetInfo.isAppClip) {
-						// add this target as a dependency of the titanium app's project
+						// add this target as a dependency of the Titanium app's project
 						const proxyUuid = this.generateXcodeUuid(xcodeProject);
 						xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
 						xobjs.PBXContainerItemProxy[proxyUuid] = {
@@ -5358,7 +5358,7 @@ class iOSBuilder extends Builder {
 		});
 		await task.run();
 		if (this.useWebpack) {
-			// Merge Ti symbols from Webpack with the ones from legacy js processing
+			// Merge Ti symbols from Webpack with the ones from legacy JS processing
 			Object.keys(task.data.tiSymbols).forEach(file => {
 				const existingSymbols = this.tiSymbols[file] || [];
 				const additionalSymbols = task.data.tiSymbols[file];
@@ -5373,7 +5373,7 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
-	 * @param {string[]} jsBootstrapFiles list of bootstrap js files to add to listing we generate
+	 * @param {string[]} jsBootstrapFiles list of bootstrap JS files to add to listing we generate
 	 * @returns {Promise<void>}
 	 */
 	async writeBootstrapJson(jsBootstrapFiles) {
@@ -5484,7 +5484,7 @@ class iOSBuilder extends Builder {
 
 	/**
 	 * @param {string} dest destination filepath
-	 * @param {object} json json to write to file
+	 * @param {object} json JSON to write to file
 	 */
 	async writeAssetContentsFile(dest, json) {
 		const contents = JSON.stringify(json, null, '  ');
@@ -6047,7 +6047,7 @@ class iOSBuilder extends Builder {
 			return;
 		}
 
-		// Turn callback api to promise...
+		// Turn callback API to promise...
 		const boundGenerateAppIcons = util.promisify(this.generateAppIcons).bind(this);
 		if (!defaultIcon) {
 			// we're going to fail, but we let generateAppIcons() do the dirty work
@@ -6737,7 +6737,7 @@ class iOSBuilder extends Builder {
 		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
 			hasFetch = true;
 		}
-		// if we're doing a simulator build or we're including all titanium modules, get it from source xcconfig file
+		// if we're doing a simulator build or we're including all Titanium modules, get it from source xcconfig file
 		if (this.target === 'simulator' || this.target === 'macos' || this.includeAllTiModules) {
 			const sourceConfigPath = path.join(this.platformPath, 'iphone', 'project.xcconfig');
 			const conf = fs.readFileSync(sourceConfigPath).toString();
@@ -7185,7 +7185,7 @@ async function processArchitecture() {
 	});
 }
 
-// create the builder instance and expose the public api
+// create the builder instance and expose the public API
 const builder = new iOSBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);

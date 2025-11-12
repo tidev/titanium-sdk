@@ -92,7 +92,7 @@
   RELEASE_TO_NIL(modalWindows);
   RELEASE_TO_NIL(hostView);
 
-  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc removeObserver:self];
   [super dealloc];
@@ -1014,7 +1014,7 @@
     CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
     CGRect viewBounds = [[self view] bounds];
 
-    // Need to do this to force navigation bar to draw correctly on iOS7
+    // Need to do this to force navigation bar to draw correctly on iOS 7
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
     if (statusBarFrame.size.height > 20) {
       if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {

@@ -2012,7 +2012,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 }
 
 // In pre-iOS 5, it looks like response headers were case-mangled.
-// (i.e. WWW-Authenticate became Www-Authenticate). So we have to take this
+// (e.g. WWW-Authenticate became Www-Authenticate). So we have to take this
 // mangling into mind; headers such as FooBar-XYZ may also have been mangled
 // to be case-correct. We can't be certain.
 //

@@ -33,7 +33,7 @@
 @property (nonatomic, assign) int contentHeight;
 
 /**
-    Connectes the collected preview data to the iOS delegates.
+    Connects the collected preview data to the iOS delegates.
  */
 - (void)connectToDelegate;
 

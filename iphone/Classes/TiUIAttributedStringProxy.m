@@ -283,8 +283,8 @@
 
   for (NSString *key in _urls) {
     NSRange range = NSRangeFromString(key);
-    CGFloat tempLenght = range.location + range.length;
-    if (range.location <= tempIndx && tempLenght >= tempIndx) {
+    CGFloat tempLength = range.location + range.length;
+    if (range.location <= tempIndx && tempLength >= tempIndx) {
       return [_urls valueForKey:key];
     }
   }

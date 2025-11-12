@@ -597,7 +597,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   }
   RELEASE_TO_NIL(rowContainerView);
 
-  // ... But that's not enough. We need to detatch the views
+  // ... But that's not enough. We need to detach the views
   // for all children of the row, to clean up memory.
   for (TiViewProxy *child in [self children]) {
     [child detachView];
