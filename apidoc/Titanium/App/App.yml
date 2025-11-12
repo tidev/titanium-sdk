@@ -319,7 +319,7 @@ events:
           notes: Use `column` property for cross-platform parity.
         platforms: [android]
       - name: javascriptStack
-        summary: The javascript stack trace of the exception. (Deprecated since 9.0.0. Use `stack` instead.)
+        summary: The JavaScript stack trace of the exception. (Deprecated since 9.0.0. Use `stack` instead.)
         type: String
         since: "8.0.0"
         deprecated:
@@ -327,7 +327,7 @@ events:
           notes: Use `stack` property for cross-platform parity.
         platforms: [android]
       - name: javaStack
-        summary: The java stack trace of the exception. (Deprecated since 9.0.0. Use `nativeStack` instead.)
+        summary: The Java stack trace of the exception. (Deprecated since 9.0.0. Use `nativeStack` instead.)
         type: String
         since: "8.0.0"
         deprecated:
@@ -335,7 +335,7 @@ events:
           notes: Use `nativeStack` property for cross-platform parity.
         platforms: [android]
       - name: stack
-        summary: The javascript stack trace of the exception.
+        summary: The JavaScript stack trace of the exception.
         type: String
         since: "9.0.0"
       - name: nativeStack

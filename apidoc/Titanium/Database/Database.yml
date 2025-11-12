@@ -30,7 +30,7 @@ methods:
       rather than copying the file from the path provided in the first
       argument.
 
-      Files stored in the `Private Documents` directory on iOS5 will be
+      Files stored in the `Private Documents` directory on iOS 5 will be
       automatically backed up to iCloud and removed from the device in low
       storage situations. See
       [How do I prevent files from being backed up to iCloud?](https://developer.apple.com/library/ios/qa/qa1719/_index.html)

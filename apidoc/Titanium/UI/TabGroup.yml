@@ -363,7 +363,7 @@ properties:
   - name: translucent
     summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
     platforms: [iphone, ipad, macos]
-    default: true on iOS7 and above, false otherwise.
+    default: true on iOS 7 and above, false otherwise.
     type: Boolean
     since: "3.3.0"
 

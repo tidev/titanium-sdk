@@ -656,7 +656,7 @@ properties:
 
   - name: UTTYPE_APPLE_ICNS
     summary: |
-        Uniform type identifier for Mac OS icon images.
+        Uniform type identifier for macOS icon images.
     type: String
     permission: read-only
     value: "com.apple.icns"

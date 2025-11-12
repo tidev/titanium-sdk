@@ -91,7 +91,7 @@ properties:
         }
         ```
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE>, the `value` must be ParagraphAttribute. 
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE>, the `value` must be ParagraphAttribute. 
         E.g:
         ``` js
         {

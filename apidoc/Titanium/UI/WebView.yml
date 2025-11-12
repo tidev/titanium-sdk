@@ -508,20 +508,20 @@ methods:
         summary: The height in mils (thousandths of an inch) of the PDF (Android only)
         type: Number
       - name: pageSize
-        summary: Predfined size. (Android only)
+        summary: Predefined size. (Android only)
         type: Number
         constants: Titanium.UI.WebView.PDF_PAGE_*
       - name: showMenu
-        summary:  Will show Androids printing menu. No sucess callback afterwards. (Android only)
+        summary:  Will show Androids printing menu. No success callback afterwards. (Android only)
         type: Boolean
       - name: firstPageOnly
         summary: Only print first page (Android only)
         type: Boolean
       - name: success
-        summary: Function to call upon pdf creation. (Android only)
+        summary: Function to call upon PDF creation. (Android only)
         type: Callback<DataCreationResultAndroid>
       - name: callback
-        summary: Function to call upon pdf creation. (iOS only)
+        summary: Function to call upon PDF creation. (iOS only)
         type: Callback<DataCreationResult>
 
   - name: createWebArchive
@@ -808,7 +808,7 @@ properties:
     since: {android: "6.1.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
 
   - name: enableJavascriptInterface
-    summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
+    summary: Enable adding JavaScript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
     description: |
         This property is introduced to prevent a security issue with older devices (< JELLY_BEAN_MR1)
     type: Boolean
@@ -833,7 +833,7 @@ properties:
         since: "8.0.0"
         notes: |
             This property in no more supported in Titanium SDK 8.0.0+. Use property <Titanium.UI.WebView.allowedURLSchemes>
-            in conjuction with <Titanium.UI.WebView.handleurl>. See the example section
+            in conjunction with <Titanium.UI.WebView.handleurl>. See the example section
             "Usage of allowedURLSchemes and handleurl in iOS".
 
   - name: configuration
@@ -1039,7 +1039,7 @@ properties:
     summary: A value indicating the render mode of the WebView
     description: |
         Set to Ti.UI.WebView.LAYER_TYPE_SOFTWARE (software rendering) if you use `Ti.Media.takeScreenshot()` or `toImage()` and the WebView contains local HTML files.
-        Otherwise the WebView might be empty in the screenshot/image. If you change the setting you will have to assing the HTML content again.
+        Otherwise the WebView might be empty in the screenshot/image. If you change the setting you will have to assign the HTML content again.
     type: Number
     constants: Titanium.UI.WebView.LAYER_TYPE_*
     default: <Titanium.UI.WebView.LAYER_TYPE_NONE>

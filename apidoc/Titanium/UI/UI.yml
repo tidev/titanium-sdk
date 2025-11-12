@@ -213,7 +213,7 @@ methods:
     parameters:
       - name: convertFromValue
         summary: |
-            Measurement and optional unit to convert from, i.e. 160, "120dip".  Percentages are
+            Measurement and optional unit to convert from, e.g. 160, "120dip".  Percentages are
             not accepted.
         type: String
 
@@ -1607,7 +1607,7 @@ properties:
     since: "6.0.0"
 
   - name: TEXT_ELLIPSIZE_TRUNCATE_CHAR_WRAP
-    summary: Add ellipses before the first character that doesnt fit.
+    summary: Add ellipses before the first character that doesn't fit.
     description: |
         One of the group of constants for the <Titanium.UI.Label.ellipsize> property.
     type: Number

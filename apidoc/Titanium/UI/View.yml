@@ -80,7 +80,7 @@ description: |
     *    Pixels on Android.
     *    DIPs on iOS.
 
-    On Android and iOS, the default unit can be overriden on a per-application level by setting the
+    On Android and iOS, the default unit can be overridden on a per-application level by setting the
     `ti.ui.defaultunit` property in `tiapp.xml`. For example, to use DIPs as the
     default on all platforms, set `defaultunit` to `dip`:
 
@@ -91,7 +91,7 @@ description: |
     The value for `ti.ui.defaultunit` can be any of the unit specifiers defined above, or
     `system` to specify that the platform's default unit should be used.
 
-    On IOS if you set the `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
+    On iOS if you set the `ti.ui.defaultunit` property to anything other than `system` or `dip`, your
     application should detect and handle Retina displays manually.
 
     Font sizes on iOS are treated differently than other sizes: font sizes are always
@@ -1721,7 +1721,7 @@ properties:
         Preview context to present the "Peek and Pop" of a view. Use an configured instance
         of <Titanium.UI.iOS.PreviewContext> here.
 
-        Note: This property can only be used on devices running iOS9 or later and supporting 3D-Touch.
+        Note: This property can only be used on devices running iOS 9 or later and supporting 3D-Touch.
         It is ignored on older devices and can manually be checked using <Titanium.UI.iOS.forceTouchSupported>.
     platforms: [iphone]
     since: "5.1.0"

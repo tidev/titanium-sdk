@@ -69,7 +69,7 @@ methods:
 
   - name: cpus
     summary: |
-        Returns an array of basic cpu information for all logical processors
+        Returns an array of basic CPU information for all logical processors
     description: |
         This is intended to provide an implementation similar to Node's `os.cpus()`.
     returns:
@@ -471,7 +471,7 @@ properties:
 
 ---
 name: CPUTimes
-summary: Simple object holding the data for a logical cpu execution times.
+summary: Simple object holding the data for a logical CPU execution times.
 properties:
 
   - name: user

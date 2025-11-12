@@ -107,7 +107,7 @@ events:
         type: Number
         platforms: [iphone, ipad, macos]
 
-# FIXME: I think Android does support AnimatedOptions for show/hide (separately, versus how ios only really takes show and uses the animated value for hide), defaulting to false
+# FIXME: I think Android does support AnimatedOptions for show/hide (separately, versus how iOS only really takes show and uses the animated value for hide), defaulting to false
 methods:
   - name: show
     summary: Shows this dialog.
@@ -206,7 +206,7 @@ properties:
     description: |
         This property is useful to ensure that the option dialog will display contents properly
         on the iPAD idiom without ghosting when scrolling. This property is only respected on the
-        iPAD idiom on iOS7 and above.
+        iPAD idiom on iOS 7 and above.
     type: Boolean
     default: false
     since: "3.2.0"
