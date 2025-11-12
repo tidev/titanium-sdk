@@ -150,7 +150,7 @@ properties:
         The underlying attributed string drawn by the label. If set, avoid setting common attributes
         in the label, such as `color` and `font`, as unexpected behaviors may result.
 
-        iOS Note: This property can also be used to supress the underline style when accessibility
+        iOS note: This property can also be used to suppress the underline style when accessibility
         is enabled. To do so, set the `type` to <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> and the
         `value` to <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>.
     type: Titanium.UI.AttributedString
@@ -257,7 +257,7 @@ properties:
         [tintColor](Titanium.UI.Button.tintColor) property. If set `false`, the image is displayed as-is.
 
         On Android, you can set this to a numeric resource drawable ID via `Ti.App.Android.R.drawable.*`
-        which lets you use native vector drawbles that are commonly used as icons.
+        which lets you use native vector drawables that are commonly used as icons.
     type: [String, Number, Titanium.Blob]
 
   - name: imageIsMask

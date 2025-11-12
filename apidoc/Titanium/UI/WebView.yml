@@ -1174,7 +1174,7 @@ properties:
 
   - name: allowsBackForwardNavigationGestures
     summary: |
-        A Boolean value indicating whether horizontal swipe gestures will trigger back-forward list navigations.
+        A Boolean value indicating whether horizontal swipe gestures will trigger back-forward list navigation.
     type: Boolean
     default: false
     platforms: [iphone, ipad, macos]

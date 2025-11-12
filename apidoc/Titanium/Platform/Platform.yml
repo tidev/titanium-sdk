@@ -359,7 +359,7 @@ properties:
 
   - name: osname
     summary: |
-        Short name of the system's Operating System. Returns `android` for the Android platfrom,
+        Short name of the system's Operating System. Returns `android` for the Android platform,
         `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `windowsphone` for Windows Phone, and `windowsstore` for Windows Store
         platform.
     type: String

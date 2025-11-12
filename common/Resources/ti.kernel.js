@@ -1,7 +1,7 @@
 // This is the file each platform loads on boot *before* we launch ti.main.js to insert all our shims/extensions
 // and eventually load app.js
 // This is where any common setup cross-platform should take place
-// This is analagous to android's runtime/common/src/js directory before
+// This is analogous to Android's runtime/common/src/js directory before
 // On Android, this will get baked into the binary as raw char* to be loaded
 // On iOS, we'll simply evaluate/execute this before launching ti.main.js
 

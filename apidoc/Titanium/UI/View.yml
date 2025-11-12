@@ -177,7 +177,7 @@ description: |
     #### iOS: backgroundLeftCap and backgroundTopCap properties
 
     The [backgroundLeftCap](Titanium.UI.View.backgroundLeftCap) and [backgroundTopCap](Titanium.UI.View.backgroundTopCap) properties are
-    used to specify the portions of the [backgroundImage](Titanium.UI.View.backgroundImage) that must not be resized when the image is streched or shrunk.
+    used to specify the portions of the [backgroundImage](Titanium.UI.View.backgroundImage) that must not be resized when the image is stretched or shrunk.
 
     Given an image of width `w` and height `h`, the stretchable portion on the image is defined as a rectangle with the `top-left` point set to
     `(backgroundLeftCap , backgroundTopCap)` and the `bottom-right` point set to `(w - backgroundLeftCap , h - backgroundTopCap)`. The portions not covered by
@@ -876,7 +876,7 @@ methods:
         work as expected.
 
         For maximum portability, these views should be treated as if they do not support children.
-        Instead of adding children to these views, applications can positon other views as
+        Instead of adding children to these views, applications can position other views as
         siblings. For example, instead of adding a button as a child of a `WebView`, you can add
         the button to the web view's parent such that it appears on top of the web view.
 
@@ -897,7 +897,7 @@ methods:
         *   [TableView](Titanium.UI.TableView) is a specialized container for
             `TableViewSection` and `TableViewRow` objects. These objects must be
             added using the properties and methods that `TableView` provides
-            for adding and removing sectons and rows.
+            for adding and removing sections and rows.
 
             On some platforms, it is possible to add arbitrary child views to a table view
             using the `add` method. However, this is not guaranteed to work on all platforms,
@@ -1034,7 +1034,7 @@ methods:
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-        # FIXME: Support platfroms/osver/since on parameters!
+        # FIXME: Support platforms/osver/since on parameters!
 
   - name: stopAnimation
     summary: Stops a running animation.
@@ -1144,7 +1144,7 @@ properties:
     default: null
 
   - name: accessibilityLabel
-    summary: A succint label identifying the view for the device's accessibility service.
+    summary: A succinct label identifying the view for the device's accessibility service.
     description: |
         On iOS this is a direct analog of the `accessibilityLabel` property defined in the
         [UIAccessibility Protocol](https://developer.apple.com/documentation/uikit/accessibility/uiaccessibility).
@@ -1819,7 +1819,7 @@ properties:
   - name: tintColor
     summary: The view's tintColor
     description: |
-        This property is a direct correspondant of the tintColor property of UIView on iOS. If no value is specified,
+        This property is a direct correspondent of the tintColor property of UIView on iOS. If no value is specified,
         the tintColor of the View is inherited from its superview.
     type: [String, Titanium.UI.Color]
     since: "3.1.3"
@@ -2138,7 +2138,7 @@ summary: |
 
       * `view` (Titanium.UI.View): View to insert
       * `position` (Number): Position in the [children](Titanium.UI.View.children) array of
-        the view elment to replace.
+        the view element to replace.
 properties:
   - name: view
     type: Titanium.UI.View

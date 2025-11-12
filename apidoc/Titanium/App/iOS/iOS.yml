@@ -53,7 +53,7 @@ description: |
 
     ### Handoff User Activities
 
-    Handoff allows you to create and transfer user activies from one device to another. For example, you can start editing
+    Handoff allows you to create and transfer user activities from one device to another. For example, you can start editing
     a document on your phone, then transfer the activity to your iPad to continue editing the document.
 
     To make an activity shareable, use the <Titanium.App.iOS.UserActivity> API to create the activity.
@@ -164,7 +164,7 @@ methods:
       - name: handlerID
         summary: |
             Unique string identifier for the event (`backgroundfetch`, `silentpush` or `backgroundtransfer`)
-            that initiated the background opertation mode.
+            that initiated the background operation mode.
         type: String
     since: "3.2.0"
 
@@ -175,7 +175,7 @@ methods:
             Use [Titanium.WatchSession](Titanium.WatchSession) instead, which is supported on iOS 9 and later.
     summary: Marks the end of an `openParentApplication:reply` execution by a WatchKit extension.
     description: |
-        This method must be called after your Titaium application has finished processing the `watchkitextensionrequest` event. Optional
+        This method must be called after your Titanium application has finished processing the `watchkitextensionrequest` event. Optional
         information can be provided in the userInfo argument will be provided back to the WatchKit extension as part of the reply method.
         If no userInfo is provide nil will be sent to the WatchKit extension to during the reply callback.
 
@@ -1211,13 +1211,13 @@ events:
       - name: message
         summary: |
             A string containing the localized description of the error.
-            This property does not exhist if errorCode is 0, which means there is no error.
+            This property does not exist if errorCode is 0, which means there is no error.
         type: String
 
       - name: responseText
         summary: |
             The response text for [task](Modules.URLSession.task) and [uploadTask](Modules.URLSession.uploadTask).
-            This property does not exhist for download task. For download task response,
+            This property does not exist for download task. For download task response,
             use [downloadcompleted](Titanium.App.iOS.downloadcompleted) event.
         type: String
         since: "7.2.0"
@@ -1325,7 +1325,7 @@ events:
         type: String
       - name: searchableItemActivityIdentifier
         summary: |
-            With field will contain the searchable Unique Identifier if the continueactivity is fired from a Core Spotlight searh result.
+            With field will contain the searchable Unique Identifier if the continueactivity is fired from a Core Spotlight search result.
         type: String
       - name: title
         summary: |

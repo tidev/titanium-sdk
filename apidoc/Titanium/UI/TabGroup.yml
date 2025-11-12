@@ -394,7 +394,7 @@ properties:
   - name: navTintColor
     summary: The tintColor to apply to the navigation bar (typically for the **More** tab).
     description: |
-        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+        This property is a direct correspondent of the tintColor property of NavigationBar on iOS.
     type: [String, Titanium.UI.Color]
     since: "3.3.0"
     default: null
@@ -554,7 +554,7 @@ properties:
   - name: tabsTintColor
     summary: The tintColor to apply to the tabs.
     description: |
-        This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
+        This property is a direct correspondent of the tintColor property of UITabBar on iOS. This effects the
         title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
         blue.
     type: [String, Titanium.UI.Color]

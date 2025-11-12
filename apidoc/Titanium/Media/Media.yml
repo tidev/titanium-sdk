@@ -1741,7 +1741,7 @@ properties:
         Returns an object of possible `targetImageWidth` and `targetImageHeight` values. The output
         contains a `cameraType` (front or back) and object of width/height values. You have to set
         `targetImageWidth` and `targetImageHeight` if you want to change the camera image output size.
-        Note: depeneding on your phone and camera the values won't be used or can be different.
+        Note: depending on your phone and camera the values won't be used or can be different.
     type: Object
     platforms: [android]
     permission: read-only

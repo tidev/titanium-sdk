@@ -300,7 +300,7 @@ examples:
             if (e.button === false && e.index === 0) {
               alert('Confirm option selected! e.index = ' + e.index);
             }
-            if (e.button === false && eventeindex === 1) {
+            if (e.button === false && e.index === 1) {
               alert('Cancel option selected! e.index = ' + e.index);
             }
             if (e.button === true && e.index === 0) {
