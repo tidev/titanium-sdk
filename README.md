@@ -250,7 +250,7 @@ npm run test:ipad
 
 The test suite generates a single Titanium SDK project targeting the specified platform(s), builds the project for emulator, launches the app on the emulator and then runs a series of tests defined via ti-mocha and should.js.
 
-The tests spit out their results to the console log, and the test scripts listen to the logs to gather the results. We then generate an overview on the console as well as a junit report xml file (to be consume by CI build systems like Jenkins).
+The tests spit out their results to the console log, and the test scripts listen to the logs to gather the results. We then generate an overview on the console as well as a junit report XML file (to be consume by CI build systems like Jenkins).
 
 #### How to modify the tests locally and in your PRs
 
