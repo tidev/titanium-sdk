@@ -262,7 +262,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 	}
 
 	// Explicitly set up var to track context we should use for compile/run of script.
-	// When "thisContext", use the current context from the isolate. Otherwise use the context we set in the persistent above
+	// When "thisContext", use the current context from the isolate. Otherwise use the context we set in the `Persistent` above
 	Local<Context> contextToUse = (context_flag == thisContext) ? currentContext : context.Get(isolate);
 
 	// New and user context share code. DRY it up.

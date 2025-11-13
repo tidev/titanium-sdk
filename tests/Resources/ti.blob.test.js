@@ -55,7 +55,7 @@ describe('Titanium.Blob', function () {
 				try {
 					should(blob).be.an.Object();
 					// should(blob).be.an.instanceof(Ti.Blob); // FIXME Crashes Windows, throws uncaught error on iOS & Android
-					// should(blob.getText()).equal(null); // FIXME 'blob.getText is not a function on iOS
+					// should(blob.getText()).equal(null); // FIXME 'blob.getText is not a function' on iOS
 					// should(blob.text).equal(null); // FIXME this is undefined on iOS, docs say it should be null
 					should.not.exist(blob.text);
 

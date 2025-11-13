@@ -1423,6 +1423,10 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 
 + (BOOL)isOrientationPortait
 {
+  return [self isOrientationPortrait];
+}
++ (BOOL)isOrientationPortrait
+{
   return UIInterfaceOrientationIsPortrait([self orientation]);
 }
 

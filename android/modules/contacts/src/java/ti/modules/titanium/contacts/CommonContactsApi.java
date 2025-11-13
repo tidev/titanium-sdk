@@ -44,7 +44,7 @@ public abstract class CommonContactsApi
 		if (useNew) {
 			ContactsApiLevel5 c = new ContactsApiLevel5();
 			if (!c.loadedOk) {
-				Log.e(TAG, "Contacts API Level 5 did not load successfully.");
+				Log.e(TAG, "ContactsApiLevel5 did not load successfully.");
 				return null;
 
 			} else {
