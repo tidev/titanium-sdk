@@ -1602,6 +1602,18 @@
   [self makeRootViewFirstResponder];
 }
 
+- (void)setSearchText_:(id)args
+{
+  id searchView = [self.proxy valueForKey:@"searchView"];
+  if (!IS_NULL_OR_NIL(searchView)) {
+    DebugLog(@"Can not use searchText with searchView. Ignoring call.");
+    return;
+  }
+  self.searchString = [TiUtils stringValue:args];
+  [self updateSearchResultIndexes];
+  [tableview reloadData];
+}
+
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
   self.searchedString = (searchText == nil) ? @"" : searchText;

@@ -30,6 +30,7 @@ npm-debug.log
 /android/titanium.bindings.json
 .idea/
 /android/.idea/
+/android/.idea/**
 
 # Build dirs
 /build/lib/test/out.txt
