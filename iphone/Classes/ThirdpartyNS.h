@@ -63,7 +63,7 @@
 #define AsyncUdpSocketDelegate __TI_NS_SYMBOL(AsyncUdpSocketDelegate)
 #endif
 
-// Reachalility
+// Reachability
 #ifndef kInternetConnection
 #define kInternetConnection __TI_NS_SYMBOL(kInternetConnection)
 #endif

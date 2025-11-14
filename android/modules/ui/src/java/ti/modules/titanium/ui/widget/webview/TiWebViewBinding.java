@@ -154,7 +154,7 @@ public class TiWebViewBinding
 
 	synchronized public String getJSValue(String expression)
 	{
-		// Don't try to evaluate js code again if the binding has already been destroyed
+		// Don't try to evaluate JS code again if the binding has already been destroyed
 		if (!destroyed && interfacesAdded) {
 			String code = "_TiReturn.setValue((function(){try{return " + expression
 						  + "+\"\";}catch(ti_eval_err){return '';}})());";

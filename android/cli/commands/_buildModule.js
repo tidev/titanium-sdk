@@ -211,7 +211,7 @@ export class AndroidModuleBuilder extends Builder {
 
 			this.manifest = this.cli.manifest;
 
-			// detect android environment
+			// detect Android environment
 			androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
 				this.androidInfo = androidInfo;
 
@@ -232,7 +232,7 @@ export class AndroidModuleBuilder extends Builder {
 				// check the Android SDK we require to build exists
 				this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
 
-				// if no target sdk, then default to most recent supported/installed
+				// if no target SDK, then default to most recent supported/installed
 				if (!this.targetSDK) {
 					this.targetSDK = this.maxSupportedApiLevel;
 				}
@@ -280,7 +280,7 @@ export class AndroidModuleBuilder extends Builder {
 					this.javacMaxMemory = cli.timodule.properties['android.javac.maxMemory'].value;
 				}
 
-				// detect java development kit
+				// detect JDK
 				appc.jdk.detect(config, null, function (jdkInfo) {
 					if (!jdkInfo.version) {
 						logger.error('Unable to locate the Java Development Kit\n');
@@ -957,7 +957,7 @@ export class AndroidModuleBuilder extends Builder {
 	}
 }
 
-// create the builder instance and expose the public api
+// create the builder instance and expose the public API
 const moduleBuilder = new AndroidModuleBuilder();
 export const config = moduleBuilder.config.bind(moduleBuilder);
 export const validate = moduleBuilder.validate.bind(moduleBuilder);

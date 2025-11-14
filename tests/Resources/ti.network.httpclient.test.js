@@ -675,7 +675,7 @@ describe('Titanium.Network.HTTPClient', function () {
 					}
 					return finish();
 				}
-				finish(new Error('invalid json response!\n\n' + JSON.stringify(response, null, 1)));
+				finish(new Error('invalid JSON response!\n\n' + JSON.stringify(response, null, 1)));
 			} catch (err) {
 				finish(err);
 			}

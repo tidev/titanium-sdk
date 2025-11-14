@@ -15,7 +15,7 @@
 
 /*
  *	Since JSStringRefs are not tied to any particular context, and are
- *	immutable, they are threadsafe and more importantly, ones that are in
+ *	immutable, they are thread-safe and more importantly, ones that are in
  *	constant use never need to garbage collected, but can be reused.
  */
 

@@ -758,7 +758,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
     }
     if (html != nil) {
-      // Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
+      // Because local HTML may rely on JS that's stored in the app: schema, we must kee the URL in the app: format.
       [[self webView] loadHTMLString:html baseURL:baseURL];
     } else {
       NSLog(@"[WARN] couldn't load URL: %@", url);
@@ -912,7 +912,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [self _cleanupLoadingIndicator];
   [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
-  // TO DO: Once TIMOB-26915 done, remove this
+  // TODO: Once TIMOB-26915 done, remove this
   __block BOOL finishedEvaluation = NO;
   [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
     for (NSHTTPCookie *cookie in cookies) {
@@ -1092,7 +1092,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
-      // Event to return url to Titanium in order to handle OAuth and more
+      // Event to return URL to Titanium in order to handle OAuth and more
       if ([[self proxy] _hasListeners:@"handleurl"]) {
         TiThreadPerformOnMainThread(
             ^{
@@ -1120,7 +1120,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     BOOL valid = !ignoreNextRequest;
     if ([scheme hasPrefix:@"http"]) {
       // UIWebViewNavigationTypeOther means we are either in a META redirect
-      // or it is a js request from within the page
+      // or it is a JS request from within the page
       valid = valid && (navigationAction.navigationType != WKNavigationTypeOther);
     }
     if (valid) {

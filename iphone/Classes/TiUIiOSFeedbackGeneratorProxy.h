@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, TiUIiOSFeedbackGeneratorType) {
 
 /**
  * Provide support for the iOS 10 haptic engine on supported devices (currently iPhone 7
- * and iPhone 7 Plus). The developer can specify a feedback generator type to distungish
+ * and iPhone 7 Plus). The developer can specify a feedback generator type to distinguish
  * between a selection-, impact-, and notification-generator to receive different kind of
  * haptic feedbacks.
  */

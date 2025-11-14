@@ -15,7 +15,7 @@ At SDK build time, `./android/titanium/prebuild.js` script is run which takes JS
 - then call...
 
 `V8Runtime#nativeInit()`
- - from java down to JNI
+ - from Java down to JNI
  - sets up platform, isolate, debugger, then calls...
 `V8Runtime#bootstrap()`
 - sets up `EventEmitter` in C code
@@ -40,7 +40,7 @@ back to `V8Runtime#bootstrap()`
 - set up `global.global`
 - set default `global.__dirname` and `__filename`
 
-back to java `V8Runtime#initRuntime()`
+back to Java `V8Runtime#initRuntime()`
 - start debugger
 - load external native modules
 

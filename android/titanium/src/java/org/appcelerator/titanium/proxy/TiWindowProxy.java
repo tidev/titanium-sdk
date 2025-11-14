@@ -480,7 +480,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			paddingBottom = bottomDimension.getAsDefault(contentView);
 		}
 
-		// Return the result via a titanium "ViewPadding" dictionary.
+		// Return the result via a Titanium "ViewPadding" dictionary.
 		KrollDict dictionary = new KrollDict();
 		dictionary.put(TiC.PROPERTY_LEFT, paddingLeft);
 		dictionary.put(TiC.PROPERTY_TOP, paddingTop);

@@ -1,4 +1,4 @@
-/* globals OS_ANDROID,OS_IOS */
+/* globals OS_ANDROID, OS_IOS */
 import invoker from './android/invoker';
 import ProxyBootstrap from './android/proxy';
 

@@ -551,7 +551,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	{
 		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
 
-		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
+		// If the web view has not been created yet, don't set HTML here. It will be set in processProperties() when the
 		// view is created.
 		TiUIView v = peekView();
 		if (v != null) {

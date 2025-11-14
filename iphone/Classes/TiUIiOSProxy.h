@@ -169,7 +169,7 @@
 @property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP;
 
 /**
- * Checks the force touch capibility of the current device.
+ * Checks the force touch capability of the current device.
  */
 - (NSNumber *)forceTouchSupported;
 

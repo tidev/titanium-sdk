@@ -102,8 +102,8 @@
   } else {
     // If the bounds are smaller than the image size render it in an imageView and get the image of the view.
     // Should be pretty inexpensive since it happens rarely. TIMOB-9166
-    CGSize unstrechedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
-    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstrechedSize, bounds.size)) {
+    CGSize unstretchedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
+    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstretchedSize, bounds.size)) {
       UIImageView *theView = [[UIImageView alloc] initWithFrame:bounds];
       [theView setImage:backgroundImageCache];
       UIGraphicsBeginImageContextWithOptions(bounds.size, [theView.layer isOpaque], 0.0);

@@ -97,7 +97,7 @@
 
 #ifdef USE_TI_UIACTIVITYINDICATOR
   // TIMOB-17572: Attempt to resume activity indicator animation to reuse cell
-  // Use this workaroud until iOS is smart enough to retain the animation state itself
+  // Use this workaround until iOS is smart enough to retain the animation state itself
   if (self.subviews.firstObject != nil) {
     UIView *container = self.subviews.firstObject;
     [[container subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
@@ -141,7 +141,7 @@
   }
 }
 
-// TIMOB-17373. Workaround for separators disappearing on iOS7 and above
+// TIMOB-17373. Workaround for separators disappearing on iOS 7 and above
 - (void)ensureVisibleSelectorWithTableView:(UITableView *)tableView
 {
   if ([self selectedOrHighlighted]) {
