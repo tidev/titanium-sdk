@@ -876,4 +876,6 @@ typedef enum {
  */
 + (UIImageSymbolWeight)symbolWeightFromString:(NSString *)string NS_AVAILABLE_IOS(13_0);
 
++ (NSArray *)cornerArrayFromRadius:(id)radius;
+
 @end

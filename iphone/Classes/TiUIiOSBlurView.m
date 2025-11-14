@@ -73,12 +73,30 @@
 }
 #endif
 
-- (void)setBorderRadius_:(NSNumber *)borderRadius
+- (void)setBorderRadius_:(id)borderRadius
 {
+
 #if IS_SDK_IOS_26
   // The UICornerConfiguration is necessary to use the iOS 26+ glass effect API
   if (@available(iOS 26.0, *)) {
-    blurView.cornerConfiguration = [UICornerConfiguration configurationWithRadius:[UICornerRadius fixedRadius:borderRadius.floatValue]];
+    NSArray<NSNumber *> *cornerArray = [TiUtils cornerArrayFromRadius:borderRadius];
+
+    if (cornerArray.count == 1) {
+      CGFloat fixedBorderRadius = [cornerArray.firstObject floatValue];
+      blurView.cornerConfiguration = [UICornerConfiguration configurationWithRadius:[UICornerRadius fixedRadius:fixedBorderRadius]];
+      return;
+    }
+
+    UICornerRadius *topLeft = [[UICornerRadius fixedRadius:cornerArray[0].floatValue] retain];
+    UICornerRadius *topRight = [[UICornerRadius fixedRadius:cornerArray[1].floatValue] retain];
+    UICornerRadius *bottomLeft = [[UICornerRadius fixedRadius:cornerArray[2].floatValue] retain];
+    UICornerRadius *bottomRight = [[UICornerRadius fixedRadius:cornerArray[3].floatValue] retain];
+
+    blurView.cornerConfiguration = [UICornerConfiguration configurationWithTopLeftRadius:topLeft
+                                                                          topRightRadius:topRight
+                                                                        bottomLeftRadius:bottomLeft
+                                                                       bottomRightRadius:bottomRight];
+
     return;
   }
 #endif

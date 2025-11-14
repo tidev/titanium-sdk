@@ -626,7 +626,7 @@ DEFINE_EXCEPTIONS
 - (CAShapeLayer *)borderLayer
 {
   // If borderRadius has multiple values, create a custom borderlayer and add as sublayer on self.layer. Otherwise use self.layer.
-  NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+  NSArray *array = [TiUtils cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
   if ((!array || array.count <= 1) && _borderLayer != self.layer) {
     self.layer.mask = nil;
     self.layer.borderColor = _borderLayer.strokeColor;
@@ -808,7 +808,7 @@ DEFINE_EXCEPTIONS
     bgdImageLayer = [[CALayer alloc] init];
     [bgdImageLayer setFrame:[self bounds]];
     bgdImageLayer.masksToBounds = YES;
-    NSArray *cornerRadiusArray = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+    NSArray *cornerRadiusArray = [TiUtils cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
     if (cornerRadiusArray && cornerRadiusArray.count > 0) {
       [self addCornerRadius:cornerRadiusArray toLayer:bgdImageLayer];
     } else {
@@ -927,22 +927,9 @@ DEFINE_EXCEPTIONS
   [self updateViewShadowPath];
 }
 
-- (NSArray *)cornerArrayFromRadius:(id)radius
-{
-  NSArray *cornerRadiusArray = nil;
-  if ([radius isKindOfClass:[NSString class]]) {
-    cornerRadiusArray = [(NSString *)radius componentsSeparatedByString:@" "];
-  } else if ([radius isKindOfClass:[NSArray class]]) {
-    cornerRadiusArray = radius;
-  } else if ([radius isKindOfClass:[NSNumber class]]) {
-    cornerRadiusArray = [NSArray arrayWithObject:radius];
-  }
-  return cornerRadiusArray;
-}
-
 - (void)updateBorderRadius:(id)radius
 {
-  NSArray *cornerRadiusArray = [self cornerArrayFromRadius:radius];
+  NSArray *cornerRadiusArray = [TiUtils cornerArrayFromRadius:radius];
 
   if (!cornerRadiusArray) {
     NSLog(@"[WARN] No value specified for borderRadius.");
@@ -1085,7 +1072,7 @@ DEFINE_EXCEPTIONS
     [gradientLayer setNeedsDisplayOnBoundsChange:YES];
     [gradientLayer setFrame:[self bounds]];
     [gradientLayer setNeedsDisplay];
-    NSArray *cornerRadiusArray = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+    NSArray *cornerRadiusArray = [TiUtils cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
     if (cornerRadiusArray && cornerRadiusArray.count > 0) {
       [self addCornerRadius:cornerRadiusArray toLayer:gradientLayer];
     } else {
@@ -1144,7 +1131,7 @@ DEFINE_EXCEPTIONS
   // If there is single cborderRadius, use self.layer as shadwoLayer.
   // Shadow animation does not work if shadowLayer is added on self.layer.superlayer
   // But in this case, shadwoLayer is self.layer. So animation will work on shadow as well.
-  NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+  NSArray *array = [TiUtils cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
   if ((!array || array.count <= 1) && _shadowLayer != self.layer) {
     self.layer.mask = nil;
     [self assignShadowPropertyFromLayer:_shadowLayer toLayer:self.layer];
@@ -1165,7 +1152,7 @@ DEFINE_EXCEPTIONS
 - (UIBezierPath *)bezierPathOfView
 {
   if ([proxy valueForUndefinedKey:@"borderRadius"]) {
-    NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
+    NSArray *array = [TiUtils cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
     if (array.count > 1) {
       return [self bezierPathOfSize:self.bounds.size forRadiusArray:array];
     }
