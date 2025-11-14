@@ -10,20 +10,24 @@
 
 const NSString *svgMimeType = @"image/svg+xml";
 
-static NSDictionary *mimeTypeFromExtensionDict = nil;
+static NSDictionary *MimeTypesDict(void)
+{
+  static NSDictionary *dict = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    // This dictionary contains info on mimetypes currently missing on iOS platform.
+    dict = [[NSDictionary alloc] initWithObjectsAndKeys:
+                                     @"text/css", @"css",
+                                 @"video/x-m4v", @"m4v",
+                                 nil];
+  });
+  return dict;
+}
 
 @implementation Mimetypes
 
 + (void)initialize
 {
-  // This dictionary contains info on mimetypes surrently missing on IOS platform.
-  // This should be updated on a case by case basis.
-  if (mimeTypeFromExtensionDict == nil) {
-    mimeTypeFromExtensionDict = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                                          @"text/css", @"css",
-                                                      @"video/x-m4v", @"m4v",
-                                                      nil];
-  }
 }
 
 + (NSString *)extensionForMimeType:(NSString *)mimetype
@@ -40,9 +44,9 @@ static NSDictionary *mimeTypeFromExtensionDict = nil;
 
   if (extension == NULL) {
     // Missing info is retrieved from dictionary
-    [Mimetypes initialize];
-    for (NSString *key in mimeTypeFromExtensionDict) {
-      NSString *value = [mimeTypeFromExtensionDict objectForKey:key];
+    NSDictionary *extra = MimeTypesDict();
+    for (NSString *key in extra) {
+      NSString *value = [extra objectForKey:key];
       if ([value isEqualToString:mimetype]) {
         return key;
       }
@@ -67,8 +71,7 @@ static NSDictionary *mimeTypeFromExtensionDict = nil;
 
   if (mimetype == NULL) {
     // Missing info is retrieved from dictionary
-    [Mimetypes initialize];
-    NSString *result = [mimeTypeFromExtensionDict objectForKey:[ext pathExtension]];
+    NSString *result = [MimeTypesDict() objectForKey:[ext pathExtension]];
 
     if (result == nil)
       result = @"application/octet-stream";
