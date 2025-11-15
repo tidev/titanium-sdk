@@ -47,7 +47,7 @@ android {
 	namespace 'org.appcelerator.titanium'
 	defaultConfig {
 		compileSdk 35
-		minSdkVersion 21
+		minSdkVersion 23
 		targetSdkVersion 35
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
