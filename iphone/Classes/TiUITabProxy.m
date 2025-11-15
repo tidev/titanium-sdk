@@ -76,6 +76,7 @@
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
   [self updateTabBarItem];
+  [self forceTabBarRelayout];
 }
 
 - (NSString *)apiName
@@ -554,28 +555,29 @@
   ENSURE_UI_THREAD_0_ARGS;
 
   UIViewController *rootController = [rootWindow hostingController];
+  UITabBarItem *tabBarItem = [rootController tabBarItem];
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
   id badgeColor = [self valueForKey:@"badgeColor"];
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
-  // System-icons
+  // System-icon
   if ([icon isKindOfClass:[NSNumber class]]) {
     int value = [TiUtils intValue:icon];
-    UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
-    [newItem setBadgeValue:badgeValue];
+    tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
+    [rootController setTabBarItem:tabBarItem];
 
+    // badge
     if (badgeColor != nil) {
-      [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
+      [tabBarItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
+    [tabBarItem setBadgeValue:badgeValue];
 
-    [rootController setTabBarItem:newItem];
-    [newItem release];
     systemTab = YES;
     return;
   }
 
-  NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
+  // custom icon
 
   UIImage *image;
   UIImage *activeImage = nil;
@@ -635,12 +637,29 @@
       }
     }
   }
+
+  // empty placeholder icon for lazy image loading
+  // to prevent error "Inconsistency in UITabBar items and view controllers detected."
+  if (image == nil) {
+    UIGraphicsBeginImageContextWithOptions(CGSizeMake(1, 1), NO, 0);
+    image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+  }
+
+  // tab bar item (re-)init
+  NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
+  if (tabBarItem == nil || systemTab == YES) {
+    tabBarItem = [[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage];
+    [rootController setTabBarItem:tabBarItem];
+  } else {
+    [tabBarItem setTitle:title];
+    [tabBarItem setImage:image];
+    [tabBarItem setSelectedImage:activeImage];
+  }
   [rootController setTitle:title];
-  UITabBarItem *ourItem = nil;
 
-  systemTab = NO;
-  ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
-
+  // title appearance
   TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
   if (titleColor == nil) {
     titleColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
@@ -666,30 +685,47 @@
       if (backgroundColor != nil) {
         appearance.backgroundColor = [backgroundColor color];
       }
-      ourItem.standardAppearance = appearance;
-      ourItem.scrollEdgeAppearance = appearance;
+      tabBarItem.standardAppearance = appearance;
+      tabBarItem.scrollEdgeAppearance = appearance;
     } else {
       if (titleColor != nil) {
-        [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
+        [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
       }
       if (activeTitleColor != nil) {
-        [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+        [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
       }
     }
   }
 
+  // icon insets
   if (iconInsets != nil) {
-    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets])) {
-      [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
+    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [tabBarItem imageInsets])) {
+      [tabBarItem setImageInsets:[self calculateIconInsets:iconInsets]];
     }
   }
 
+  // badge
   if (badgeColor != nil) {
-    [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
+    [tabBarItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
+  [tabBarItem setBadgeValue:badgeValue];
 
-  [ourItem setBadgeValue:badgeValue];
-  [rootController setTabBarItem:ourItem];
+  systemTab = NO;
+}
+
+- (void)forceTabBarRelayout
+{
+  if (rootWindow == nil) {
+    return;
+  }
+  ENSURE_UI_THREAD_0_ARGS;
+
+  UIViewController *rootController = [rootWindow hostingController];
+  UITabBar *tabBar = rootController.tabBarController.tabBar;
+  if (tabBar != nil) {
+    [tabBar setNeedsLayout];
+    [tabBar layoutIfNeeded];
+  }
 }
 
 - (UIEdgeInsets)calculateIconInsets:(id)value

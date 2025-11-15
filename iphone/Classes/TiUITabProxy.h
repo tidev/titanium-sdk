@@ -54,6 +54,7 @@
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (void)updateTabBarItem;
+- (void)forceTabBarRelayout;
 
 @end
 
