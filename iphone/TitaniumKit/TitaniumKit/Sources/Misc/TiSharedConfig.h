@@ -87,13 +87,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, nullable) NSString *sdkVersion;
 
 /**
- Indicates whether or not APSAnalytics is currently enabled.
- Defaults to `true` for new application, can be disabled via `<analytics>false</analytics>`
- in the tiapp.xml.
- */
-@property (nonatomic, assign, getter=isAnalyticsEnabled) BOOL analyticsEnabled;
-
-/**
  Indicates whether or not the error screen should be shown if an
  error occurs. Defaults to `false` for `production` and `true` for `development` and `test`
  deploy types. Can be overridden by the `hide-error-controller`

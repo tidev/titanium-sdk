@@ -303,10 +303,6 @@ async function addTiAppProperties() {
 
 	// Not so smart but this should work...
 	tiapp_xml_string.split(/\r?\n/).forEach(line => {
-		// replace generated guid with appc analytics app guid
-		if (line.indexOf('\t<guid>') >= 0) {
-			line = '\t<guid>1c4b748c-7c16-4df1-bd5c-4ffe6240286e</guid>';
-		}
 		if (line.indexOf('<application android:icon="@mipmap/ic_launcher"/>') > 0) {
 			line = '';
 		}
