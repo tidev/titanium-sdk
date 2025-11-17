@@ -128,9 +128,9 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
     // No private object, so this may be:
     // - a standard JS object (Array, Date, Function, Object)
     // - A JS object wrapping a new-style obj-c proxy (JSExport)
-    // - A JS object wrapper for hyperloop holding a $native property that is the native proxy
+    // - A JS object wrapper for Hyperloop holding a $native property that is the native proxy
     if (privateObject == nil) {
-      // First, check for special hyperloop $native property
+      // First, check for special Hyperloop $native property
       JSStringRef jsString = JSStringCreateWithUTF8CString("$native");
       JSValueRef jsValue = JSObjectGetProperty(jsContext, obj, jsString, NULL);
       JSStringRelease(jsString);

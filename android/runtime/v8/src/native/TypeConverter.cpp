@@ -835,7 +835,7 @@ jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, JNIEnv *env, Local<
 		} else {
 
 			Local<Context> context = isolate->GetCurrentContext();
-			// Unwrap hyperloop JS wrappers to get native Java proxy
+			// Unwrap Hyperloop JS wrappers to get native Java proxy
 			Local<String> nativeString = STRING_NEW(isolate, "$native");
 			if (jsObject->HasOwnProperty(context, nativeString).FromMaybe(false)) {
 

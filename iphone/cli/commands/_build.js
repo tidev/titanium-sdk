@@ -2538,7 +2538,7 @@ class iOSBuilder extends Builder {
 			// Build the app.
 			// provide a hook event before xcodebuild
 			await cli.emit('build.pre.build', this);
-			await this.generateRequireIndex(); // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
+			await this.generateRequireIndex(); // has to be run just before build (and after hook) so it gathers Hyperloop generated JS files
 			// build baby, build
 			await new Promise((resolve, reject) => {
 				this.invokeXcodeBuild(e => {

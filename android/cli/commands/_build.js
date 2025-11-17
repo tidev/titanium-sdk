@@ -303,7 +303,7 @@ class AndroidBuilder extends Builder {
 									// attempt to find Android SDK
 									android.findSDK(value, config, loadPackageJson(__dirname), function () {
 
-										// NOTE: ignore errors when finding SDK, let gradle validate the SDK
+										// NOTE: ignore errors when finding SDK, let Gradle validate the SDK
 
 										function next() {
 											// set the Android SDK in the config just in case a plugin or something needs it
@@ -312,7 +312,7 @@ class AndroidBuilder extends Builder {
 											// path looks good, do a full scan again
 											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
 
-												// assume SDK is valid, let gradle validate the SDK
+												// assume SDK is valid, let Gradle validate the SDK
 												if (!androidInfo.sdk) {
 													androidInfo.sdk = { path: value };
 												}
@@ -1035,7 +1035,7 @@ class AndroidBuilder extends Builder {
 
 		// map SDK versions to SDK targets instead of by id
 		const targetSDKMap = {
-			// placeholder for gradle to use
+			// placeholder for Gradle to use
 			[this.compileSdkVersion]: {
 				sdk: this.compileSdkVersion
 			}
@@ -1620,7 +1620,7 @@ class AndroidBuilder extends Builder {
 			//       generates the "app.js" script via the "build.pre.compile" hook event above.
 			ti.validateAppJsExists(this.projectDir, logger, 'android');
 
-			// Generate all gradle files, gradle app project, and gradle library projects (if needed).
+			// Generate all Gradle files, Gradle app project, and Gradle library projects (if needed).
 			await this.processLibraries();
 			await this.generateRootProjectFiles();
 			await this.generateAppProject();
@@ -1702,7 +1702,7 @@ class AndroidBuilder extends Builder {
 		const loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
 		this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
-		// Array of gradle/maven compatible library reference names the app project depends on.
+		// Array of Gradle/Maven compatible library reference names the app project depends on.
 		// Formatted as: "<group.id>:<artifact-id>:<version>"
 		// Example: "com.google.android.gms:play-services-base:11.0.4"
 		this.libDependencyStrings = [];
@@ -1710,10 +1710,10 @@ class AndroidBuilder extends Builder {
 		// Array of JAR/AAR library file paths the app project depends on.
 		this.libFilePaths = [];
 
-		// Array of gradle library project names the app depends on.
+		// Array of Gradle library project names the app depends on.
 		this.libProjectNames = [];
 
-		// Array of maven repository URLs the app project will need to search for dependencies.
+		// Array of Maven repository URLs the app project will need to search for dependencies.
 		// Typically set to local "file://" URLs referencing installed Titanium module.
 		this.mavenRepositoryUrls = [];
 
@@ -2006,7 +2006,7 @@ class AndroidBuilder extends Builder {
 		// Determine if we should do a "clean" build.
 		this.forceRebuild = this.checkIfShouldForceRebuild();
 		if (this.forceRebuild) {
-			// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+			// On Windows, stop Gradle daemon to make it release its file locks so that they can be deleted.
 			if (process.platform === 'win32') {
 				try {
 					const gradlew = new GradleWrapper(this.buildDir);
@@ -2015,7 +2015,7 @@ class AndroidBuilder extends Builder {
 						await gradlew.stopDaemon();
 					}
 				} catch (err) {
-					this.logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
+					this.logger.error(`Failed to stop Gradle daemon. Reason:\n${err}`);
 				}
 			}
 
@@ -2041,7 +2041,7 @@ class AndroidBuilder extends Builder {
 		// Create the library project subdirectory, if it doesn't already exist.
 		const projectDirName = 'lib.' + moduleInfo.manifest.moduleid;
 		const projectDirPath = path.join(this.buildDir, projectDirName);
-		this.logger.info(`Generating gradle project: ${projectDirName.cyan}`);
+		this.logger.info(`Generating Gradle project: ${projectDirName.cyan}`);
 		await fs.ensureDir(projectDirPath);
 
 		// Add the library project's name to our array.
@@ -2135,7 +2135,7 @@ class AndroidBuilder extends Builder {
 		await mainManifest.writeToFilePath(path.join(projectSrcMainDirPath, 'AndroidManifest.xml'));
 
 		// Generate a "build.gradle" file for this project from the SDK's "lib.build.gradle" EJS template.
-		// Note: Google does not support setting "maxSdkVersion" via gradle script.
+		// Note: Google does not support setting "maxSdkVersion" via Gradle script.
 		let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'lib.build.gradle'));
 		buildGradleContent = ejs.render(buildGradleContent.toString(), {
 			compileSdkVersion: this.compileSdkVersion,
@@ -2170,8 +2170,8 @@ class AndroidBuilder extends Builder {
 				continue;
 			}
 
-			// Check if the module has a maven repository directory.
-			// If it does, then we can leverage gradle/maven's dependency management system.
+			// Check if the module has a Maven repository directory.
+			// If it does, then we can leverage Gradle/Maven's dependency management system.
 			let dependencyString = null;
 			const repositoryDirPath = path.join(nextModule.modulePath, 'm2repository');
 			if (await fs.exists(repositoryDirPath)) {
@@ -2192,16 +2192,16 @@ class AndroidBuilder extends Builder {
 				}
 			}
 
-			// Determine how to reference the module in gradle.
+			// Determine how to reference the module in Gradle.
 			if (repositoryDirPath && dependencyString) {
-				// Referenced module has a maven repository.
+				// Referenced module has a Maven repository.
 				// This supports dependency management to avoid library version conflicts.
 				const url = 'file://' + repositoryDirPath.replace(/\\/g, '/');
 				this.mavenRepositoryUrls.push(encodeURI(url));
 				this.libDependencyStrings.push(dependencyString);
 			} else {
 				// Module directory only contains JARs/AARs. (This is our legacy module distribution.)
-				// We must create a gradle library project and copy the module's files to it.
+				// We must create a Gradle library project and copy the module's files to it.
 				await this.generateLibProjectForModule(nextModule);
 			}
 		}
@@ -2210,7 +2210,7 @@ class AndroidBuilder extends Builder {
 	async generateRootProjectFiles() {
 		this.logger.info('Generating root project files');
 
-		// Copy our SDK's gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
+		// Copy our SDK's Gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
 		// The below install method will also generate a "gradle.properties" file.
 		const gradlew = new GradleWrapper(this.buildDir);
 		gradlew.logger = this.logger;
@@ -2250,14 +2250,14 @@ class AndroidBuilder extends Builder {
 		});
 		await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
-		// Copy our Titanium template's gradle constants file.
+		// Copy our Titanium template's Gradle constants file.
 		// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
 		const tiConstantsGradleFileName = 'ti.constants.gradle';
 		await fs.copyFile(
 			path.join(this.templatesDir, tiConstantsGradleFileName),
 			path.join(this.buildDir, tiConstantsGradleFileName));
 
-		// Create a "settings.gradle" file providing all of the gradle projects configured.
+		// Create a "settings.gradle" file providing all of the Gradle projects configured.
 		// By default, these project names must match the subdirectory names.
 		const fileLines = [
 			`rootProject.name = '${this.tiapp.name.replace(/'/g, "\\'")}'`, // eslint-disable-line quotes
@@ -2272,7 +2272,7 @@ class AndroidBuilder extends Builder {
 	}
 
 	async generateAppProject() {
-		this.logger.info(`Generating gradle project: ${'app'.cyan}`);
+		this.logger.info(`Generating Gradle project: ${'app'.cyan}`);
 
 		// Create the "app" project directory and its "./src/main" subdirectory tree.
 		// Delete all files under its "./src/main" subdirectory if it already exists.
@@ -2406,7 +2406,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// Generate a "build.gradle" file for this project from the SDK's "app.build.gradle" EJS template.
-		// Note: Google does not support setting "maxSdkVersion" via gradle script.
+		// Note: Google does not support setting "maxSdkVersion" via Gradle script.
 		let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
 		buildGradleContent = ejs.render(buildGradleContent.toString(), {
 			applicationId: this.appid,
@@ -2463,9 +2463,9 @@ class AndroidBuilder extends Builder {
 		secondWave.unshift(combined);
 		combined = gather.mergeMaps(secondWave);
 
-		// Fire an event requesting additional "Resources" paths from plugins. (used by hyperloop)
+		// Fire an event requesting additional "Resources" paths from plugins. (used by Hyperloop)
 		this.logger.info('Analyzing plugin-contributed files');
-		this.htmlJsFiles = {}; // for hyperloop to mark files it doesn't want processed
+		this.htmlJsFiles = {}; // for Hyperloop to mark files it doesn't want processed
 		const hook = this.cli.createHook('build.android.requestResourcesDirPaths', this, async (paths, done) => {
 			try {
 				const newTasks = [];
@@ -2732,7 +2732,7 @@ class AndroidBuilder extends Builder {
 	/**
 	 * Copy "./platform/android" directory tree from all modules and main project to "app" project's "./src/main".
 	 * Android build tools auto-grabs folders named "assets", "res", "aidl", etc. from this folder.
-	 * Note 1: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by hyperloop.)
+	 * Note 1: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by Hyperloop.)
 	 * Note 2: Main Titanium project's folder must be copied last, allowing it to replace asset or res files.
 	 * @returns {Promise<void>}
 	 */
@@ -3718,7 +3718,7 @@ class AndroidBuilder extends Builder {
 
 		// Copy all CommonJS module "AndroidManifest.xml" settings to secondary manifest object first.
 		for (const module of this.modules) {
-			// Skip native modules. Their manifest files will be handled by gradle build system.
+			// Skip native modules. Their manifest files will be handled by Gradle build system.
 			if (module.native) {
 				continue;
 			}
@@ -3781,7 +3781,7 @@ class AndroidBuilder extends Builder {
 
 			// Apply "tools:replace" attributes to <manifest/>, <application/>, and <activity/> attributes set by app.
 			// Avoids Google build errors if app's attributes conflict with attributes set by libraries.
-			// Note: Old Titanium build system (before gradle) didn't error out. So, this is for backward compatibility.
+			// Note: Old Titanium build system (before Gradle) didn't error out. So, this is for backward compatibility.
 			secondaryManifest.applyToolsReplace();
 
 			// Create the "debug" and "release" subdirectories.
@@ -3882,12 +3882,12 @@ class AndroidBuilder extends Builder {
 	}
 
 	createGradleWrapper(directoryPath) {
-		// Creates a gradle handling object for plugins such as hyperloop.
+		// Creates a Gradle handling object for plugins such as Hyperloop.
 		return new GradleWrapper(directoryPath);
 	}
 }
 
-// create the builder instance and expose the public api
+// create the builder instance and expose the public API
 const builder = new AndroidBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);
