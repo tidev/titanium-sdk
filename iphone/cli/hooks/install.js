@@ -7,11 +7,7 @@
 
 import appc from 'node-appc';
 import async from 'async';
-import fs from 'node:fs';
 import ioslib from 'ioslib';
-import path from 'node:path';
-
-const { run } = appc.subprocess;
 
 export const cliVersion = '>=3.2';
 
