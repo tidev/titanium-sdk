@@ -1570,10 +1570,10 @@ function encodeBuffer(encoding, tiBuffer) {
  */
 function getTiFileFromPathLikeValue(path) {
 	// This is a hack that is likely to work in most cases?
-	// Basically assumes Buffer is holding a utf-8 string filename/path
+	// Basically assumes Buffer is holding a UTF-8 string filename/path
 	// Node just copies the bytes from the buffer as-is on the native side and adds a null terminator
 	if (Buffer.isBuffer(path)) {
-		path = path.toString(); // assumes utf-8 string
+		path = path.toString(); // assumes UTF-8 string
 	}
 	// FIXME: Handle URLs! We don't have an URL shim yet, so no way to handle those yet
 	assertArgumentType(path, 'path', 'string');

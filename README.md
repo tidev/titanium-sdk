@@ -20,36 +20,40 @@ see the [LICENSE](LICENSE) file for specific details.
 
 # Table of Contents
 
-- [Table of Contents](#table-of-contents)
-  - [Sponsors](#sponsors)
-  - [Features](#features)
-  - [Hyperloop](#hyperloop)
-    - [Features](#features-1)
-      - [Cross-Platform Reuse](#cross-platform-reuse)
-      - [Direct API Access](#direct-api-access)
-      - [JavaScript Everywhere](#javascript-everywhere)
-      - [3rd-Party Libraries](#3rd-party-libraries)
-      - [Custom Animations](#custom-animations)
-      - [Run Native](#run-native)
-    - [Example](#example)
-    - [Getting Started](#getting-started)
-  - [Alloy](#alloy)
-    - [Example](#example-1)
-  - [Getting Help](#getting-help)
-    - [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
-    - [Developer Community](#developer-community)
-    - [Video Tutorials](#video-tutorials)
-    - [Slack](#slack)
-    - [Twitter](#twitter)
-    - [Blog](#blog)
-    - [Commercial Support, Licensing](#commercial-support-licensing)
-  - [Contributing](#contributing)
-  - [Building Locally](#building-locally)
-    - [Unit tests](#unit-tests)
-      - [How it works](#how-it-works)
-      - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
-    - [Upgrade gradle and gradle plugin](#upgrade-gradle-and-gradle-plugin)
-  - [Legal Stuff](#legal-stuff)
+- [Sponsors](#sponsors)
+- [Features](#features)
+- [Hyperloop](#hyperloop)
+  - [Features](#features-1)
+    - [Cross-Platform Reuse](#cross-platform-reuse)
+    - [Direct API Access](#direct-api-access)
+    - [JavaScript Everywhere](#javascript-everywhere)
+    - [3rd-Party Libraries](#3rd-party-libraries)
+    - [Custom Animations](#custom-animations)
+    - [Run Native](#run-native)
+  - [Example](#example)
+  - [Getting Started](#getting-started)
+- [Alloy](#alloy)
+  - [Example](#example-1)
+- [Getting Help](#getting-help)
+  - [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
+  - [Slack / Developer Community](#slack--developer-community)
+  - [Social](#social)
+  - [Blog](#blog)
+  - [Commercial Support, Licensing](#commercial-support-licensing)
+- [Building Locally](#building-locally)
+  - [Unit tests](#unit-tests)
+    - [How it works](#how-it-works)
+    - [How to modify the tests locally and in your PRs](#how-to-modify-the-tests-locally-and-in-your-prs)
+  - [Upgrade Gradle and Android Gradle plugin](#upgrade-gradle-and-android-gradle-plugin)
+  - [Update packaged modules](#update-packaged-modules)
+  - [Update Android libraries](#update-android-libraries)
+  - [Documentation](#Documentation)
+- [Contributing](#contributing)
+  - [New Features, Improvements, Bug Fixes and Documentation](#new-features-improvements-bug-fixes-and-documentation)
+  - [Donations](#donations)
+  - [Code of Conduct](#code-of-conduct)
+- [Security](#security)
+- [Legal](#legal)
 
 ## Sponsors
 
@@ -67,7 +71,7 @@ your application code into an efficient native executable for each target mobile
 
 - [x] Native apps built using JavaScript (no hybrid, no embedded WebView)
 - [x] Apps are compiled and run locally with full offline support
-- [x] Support for native platform UI controls (TabGroup (iOS), ActionBar (Android), AppBar (Windows), ...)
+- [x] Support for native platform UI controls (TabGroup (iOS), ActionBar (Android), ...)
 - [x] Support for watchOS targets
 - [x] Support for in-application SQL database
 - [x] Support for Geolocation (compass, geolocation, forward/reverse lookup)
@@ -76,12 +80,12 @@ your application code into an efficient native executable for each target mobile
 - [x] Support for 3D-Touch (Peek and Pop, Application Shortcuts, ...)
 - [x] Support for Photo Album (reading and writing)
 - [x] Support for Contacts Database / Address Book
-- [x] Support for Streaming Audio and Recording Audio, Audio Input Levels, Mic etc
+- [x] Support for Streaming Audio and Recording Audio, Audio Input Levels, Mic, etc.
 - [x] Support for Vibration
-- [x] Support for Social APIs such as Facebook, Twitter, etc.
+- [x] Support for Social APIs such as Facebook, X (formerly Twitter), etc.
 - [x] Support for Yahoo YQL
 - [x] Support for Web Services via REST, SOAP
-- [x] Support for native Maps
+- [x] Support for native Maps (Apple Maps, Google Maps)
 - [x] Support for Push Notifications
 - [x] Support for In-Application Email
 - [x] Support for In-Application SMS, Telephone
@@ -89,17 +93,17 @@ your application code into an efficient native executable for each target mobile
 - [x] Support for Gestures (such as Shake and Pinch)
 - [x] Support for Platform and Device capabilities
 - [x] Support for complex native views such as Coverflow, Image Views, Table Views, Grouped Views, Composites, etc.
-- [x] Support for Web Views incorporating HTML5, CSS etc.
+- [x] Support for Web Views incorporating HTML5, CSS, etc.
 - [x] Completely extensible via Module API and Hyperloop for building your own controls or extending capabilities
 
-And much, much more (see our [Documentation](https://titaniumsdk.com/) for more infos).
+And much, much more (see our [Documentation site](https://titaniumsdk.com) for more infos).
 
 ## Hyperloop
 
-Use Hyperloop, our latest addition to the Appcelerator Platform, to extend your Titanium SDK apps by native API's using
+Use Hyperloop to extend your Titanium SDK apps by native API's using
 JavaScript. Prior to Hyperloop, you would use [native modules](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/Titanium_Module_Concepts.html) to extend the Titanium SDK API. With
-Hyperloop, you are now able to implement native classes, 3rd-Party libraries (Cocoapods, local frameworks, .aar files)
-and more directly into your apps. Hyperloop is available for iOS, Android and Windows Phone (Tech Preview).
+Hyperloop, you are now able to implement native classes, 3rd-Party libraries (CocoaPods, local frameworks, .aar files)
+and more directly into your apps. Hyperloop is available for iOS and Android.
 
 ### Features
 
@@ -145,7 +149,7 @@ Check out our [Hyperloop Sample App](https://github.com/tidev/hyperloop-examples
 
 ## Alloy
 
-[Alloy](https://titaniumsdk.com/guide/Alloy_Framework/Alloy_Getting_Started.html) is the MVC application framework built
+[Alloy](https://titaniumsdk.com/guide/Alloy_Framework/) is the MVC application framework built
 on top of Titanium SDK. It is optional. It rocks. Check it out if you're considering using Titanium SDK.
 It is also a separate [open source project](https://github.com/tidev/alloy) available under Apache Public License.
 
@@ -191,27 +195,23 @@ There are a number of ways to get help with Titanium SDK.
 
 ### Official Documentation, Tutorials and Videos
 
-Please visit the official documentation site at [https://titaniumsdk.com/](https://titaniumsdk.com/) for the latest and historical documentation on Titanium SDK, Alloy and other modules.
+Please visit the official documentation site at [https://titaniumsdk.com](https://titaniumsdk.com) for the latest and historical documentation on Titanium SDK, Alloy and other modules.
 
 ### Slack / Developer Community
 
 Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium-sdk/discussions).
 
-### Twitter
+### Social
 
-Please consider following [@Titanium SDK](http://www.twitter.com/titaniumsdk) and [@TiDev](https://twitter.com/tidevio) on Twitter for updates.
+For the latest information, please follow us on [Bluesky](https://bsky.app/profile/titaniumsdk.com) or X: [@Titanium SDK](https://x.com/titaniumsdk) and [@TiDev](https://x.com/tidevio).
+
+### Blog
+
+The Titanium blog is located at https://tidev.io/blog.
 
 ### Commercial Support, Licensing
 
 We give our software away for FREE! In order to do that, we have programs for companies that require additional level of assistance through training or commercial support, need special licensing or want additional levels of capabilities. Please visit the [TiDev Website](https://tidev.io) for more information about TiDev or email [info@tidev.io](mailto:info@tidev.io).
-
-## Contributing
-
-Titanium SDK is an open source project. Titanium SDK wouldn't be where it is now without contributions by the community. Please consider forking Titanium SDK to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
-
-To protect the interests of the Titanium SDK contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
-
-[You can digitally sign the CLA](https://github.com/tidev/organization-docs/blob/main/AUTHORIZED_CONTRIBUTORS.md) online. Please indicate your email address in your first pull request so that we can make sure that will locate your CLA.  Once you've submitted it, you no longer need to send one for subsequent submissions.
 
 ## Building Locally
 
@@ -222,12 +222,12 @@ npm ci
 npm run cleanbuild
 ```
 
-The build and package commands will default to all target platforms on your host OS unless explicitly specified. (i.e. Android, iOS on macOS; Windows and Android on Windows). It will compile, package and install the locally-built SDK for you
+The build and package commands will default to all target platforms on your host OS unless explicitly specified (i.e. Android & iOS on macOS; Android on Windows). It will compile, package and install the locally-built SDK for you
 as well, so you can test it in your own applications without any further procedures.
 
-The build command will look for the Android SDK directory path via the $ANDROID_SDK env variables if not explicitly passed using command line arguments.
+The build command will look for the Android SDK directory path via the `$ANDROID_SDK` env variables if not explicitly passed using command line arguments.
 
-You can use the `-h` flag to display the full list of comands and options.
+You can use the `-h` flag to display the full list of commands and options.
 
 ```bash
 npm ci
@@ -257,21 +257,21 @@ The tests spit out their results to the console log, and the test scripts listen
 The `tests` folder contains the test suite. Any files living within that directory are copied on top of the test app's structure.
 
 
-### Upgrade gradle and gradle plugin
+### Upgrade Gradle and Android Gradle plugin
 
-The gradle (tool, build system) and gradle plugin (plugin that adds several features that are specific to building Android apps) version numbers are located in:
+The Gradle (tool, build system) and Android Gradle plugin (plugin that adds several features that are specific to building Android apps) version numbers are located in:
 * `android/build.gradle`
 * `android/gradle/wrapper/gradle-wrapper.properties`
 * `android/templates/build/root.build.gradle`.
 
-In the `android/` folder you can run `./gradlew wrapper --gradle-version 8.10 --distribution-type all` to update the gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
+In the `android/` folder you can run `./gradlew wrapper --gradle-version 8.10 --distribution-type all` to update the Gradle tool. It will download the version, change the `gradle-wrapper.properties` link, update the gradlew file and the gradle-wrapper.jar.
 
 To update the plugin to a newer version (check https://mvnrepository.com/artifact/com.android.tools.build/gradle?repo=google) you have to change the `build.gradle` and `root.build.gradle` from the links above.
 
-When you change the gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`. It will also tell you the minimum required version. E.g. `com.android.tools.build:gradle:8.5.x` (plugin) /android/gradle/wrapper/gradle-wrapper.properties to be 8.7 (tool).
+When you change the Android Gradle plugin make sure to look at the `Compatibility` section at https://developer.android.com/studio/releases/gradle-plugin#compatibility-7-1-0 and adjust the `android build tools` section in `android/package.json`. It will also tell you the minimum required version. E.g. `com.android.tools.build:gradle:8.5.x` (plugin) /android/gradle/wrapper/gradle-wrapper.properties to be 8.7 (tool).
 If needed make sure the other libraries e.g. the kotlin version in `build.gradle` are working with the current setup.
 
-After you've made the changes and compiled the SDK make sure to run the test suite, build the kitchensink and hyperloop example app. Create a and build a module (java and kotlin) and run those in a test app too.
+After you've made the changes and compiled the SDK make sure to run the test suite, build the Kitchensink and Hyperloop example app. Create a and build a module (java and kotlin) and run those in a test app too.
 
 ### Update packaged modules
 
@@ -290,7 +290,7 @@ The `/android/titanium/build.gradle` file contains various Android libraries tha
 * https://developer.android.com/jetpack/androidx/releases/exifinterface
 * https://developer.android.com/jetpack/androidx/releases/media
 
-for a new version and change the number in the build.gradle file. Some version numbers are managed inside `/android/templates/build/ti.constants.gradle`. After that build the SDK and run `npm run test` to see if everything is still running. Building Kitchensink, Hyperloop-examples and a custom app is also helpful.
+for a new version and change the number in the `build.gradle` file. Some version numbers are managed inside `/android/templates/build/ti.constants.gradle`. After that build the SDK and run `npm run test` to see if everything is still running. Building Kitchensink, Hyperloop-examples and a custom app is also helpful.
 
 ### Documentation
 
@@ -299,15 +299,20 @@ All other documentation files (e.g. the guides) are located in the https://githu
 
 ## Contributing
 
-Interested in contributing? There are several ways you can help contribute to this project.
+Titanium SDK is an open source project. Titanium SDK wouldn't be where it is now without contributions by the community. Please consider forking Titanium SDK to improve, enhance or fix issues. If you feel like the community will benefit from your fork, please open a pull request.
 
-### New Features, Improvements, Bug Fixes, & Documentation
+### New Features, Improvements, Bug Fixes and Documentation
 
-Source code contributions are always welcome! Before we can accept your pull request, you must sign a Contributor License Agreement (CLA). Please visit https://tidev.io/contribute for more information.
+Source code contributions are always welcome!
+
+To protect the interests of the Titanium SDK contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
+
+Please visit https://tidev.io/contribute for more information.
+You can digitally sign the CLA there.
 
 ### Donations
 
-Please consider supporting this project by making a charitable [donation](https://tidev.io/donate). The money you donate goes to compensate the skilled engineeers and maintainers that keep this project going.
+Please consider supporting this project by making a charitable [donation](https://tidev.io/donate). The money you donate goes to compensate the skilled engineers and maintainers that keep this project going.
 
 ### Code of Conduct
 
@@ -316,12 +321,6 @@ TiDev wants to provide a safe and welcoming community for everyone to participat
 ## Security
 
 If you find a security related issue, please send an email to [security@tidev.io](mailto:security@tidev.io) instead of publicly creating a ticket.
-
-## Stay Connected
-
-For the latest information, please find us on Twitter: [Titanium SDK](https://twitter.com/titaniumsdk) and [TiDev](https://twitter.com/tidevio).
-
-Join our growing Slack community by visiting https://slack.tidev.io
 
 ## Legal
 

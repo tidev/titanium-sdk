@@ -637,7 +637,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	// Record if user has set a content view manually from hyperloop code during require of app.js!
+	// Record if user has set a content view manually from Hyperloop code during require of app.js!
 	@Override
 	public void setContentView(View view)
 	{

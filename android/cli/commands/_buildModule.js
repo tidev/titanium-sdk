@@ -217,7 +217,7 @@ export class AndroidModuleBuilder extends Builder {
 
 				const targetSDKMap = {
 
-					// placeholder for gradle to use
+					// placeholder for Gradle to use
 					[this.compileSdkVersion]: {
 						sdk: this.compileSdkVersion
 					}
@@ -336,7 +336,7 @@ export class AndroidModuleBuilder extends Builder {
 				// Update module files such as "manifest" if needed.
 				await this.updateModuleFiles();
 
-				// Generate all gradle project files.
+				// Generate all Gradle project files.
 				await this.generateRootProjectFiles();
 				await this.generateModuleProject();
 
@@ -451,9 +451,9 @@ export class AndroidModuleBuilder extends Builder {
 		await fs.emptyDir(this.distDir);
 		await fs.emptyDir(this.buildDir);
 
-		// Delete entire "build" directory tree if we can't find a gradle "module" project directory under it.
-		// This assumes last built module was using older version of Titanium that did not support gradle.
-		// Otherwise, keep gradle project files so that we can do an incremental build.
+		// Delete entire "build" directory tree if we can't find a Gradle "module" project directory under it.
+		// This assumes last built module was using older version of Titanium that did not support Gradle.
+		// Otherwise, keep Gradle project files so that we can do an incremental build.
 		const hasGradleModuleDir = await fs.exists(path.join(this.buildDir, 'module'));
 		if (!hasGradleModuleDir) {
 			await fs.emptyDir(this.buildDir);
@@ -513,7 +513,7 @@ export class AndroidModuleBuilder extends Builder {
 	async generateRootProjectFiles() {
 		this.logger.info('Generating root project files');
 
-		// Copy our SDK's gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
+		// Copy our SDK's Gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
 		const gradlew = new GradleWrapper(this.buildDir);
 		gradlew.logger = this.logger;
 		await gradlew.installTemplate(path.join(this.platformPath, 'templates', 'gradle'));
@@ -546,14 +546,14 @@ export class AndroidModuleBuilder extends Builder {
 		});
 		await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
-		// Copy our Titanium template's gradle constants file.
+		// Copy our Titanium template's Gradle constants file.
 		// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
 		const tiConstantsGradleFileName = 'ti.constants.gradle';
 		await fs.copyFile(
 			path.join(templatesDir, tiConstantsGradleFileName),
 			path.join(this.buildDir, tiConstantsGradleFileName));
 
-		// Create a "settings.gradle" file providing a reference to the module's gradle subproject.
+		// Create a "settings.gradle" file providing a reference to the module's Gradle subproject.
 		// By default, a subproject's name must match its subdirectory name.
 		const fileLines = [
 			`rootProject.name = '${this.manifest.moduleid}'`,
@@ -563,7 +563,7 @@ export class AndroidModuleBuilder extends Builder {
 	}
 
 	async generateModuleProject() {
-		this.logger.info(`Generating gradle project: ${'module'.cyan}`);
+		this.logger.info(`Generating Gradle project: ${'module'.cyan}`);
 
 		// Create the "module" project directory tree.
 		// Delete all files under its "./src/main" subdirectory if it already exists.
@@ -575,8 +575,8 @@ export class AndroidModuleBuilder extends Builder {
 		await fs.ensureDir(moduleJavaPackageDir);
 		await fs.ensureDir(moduleJniDir);
 
-		// Create a maven "<GroupId>:<ArtifactId>" from "moduleid".
-		// For example, "ti.map" becomes maven repository name "ti:map".
+		// Create a Maven "<GroupId>:<ArtifactId>" from "moduleid".
+		// For example, "ti.map" becomes Maven repository name "ti:map".
 		const moduleId = this.manifest.moduleid;
 		let mavenGroupId = moduleId;
 		let mavenArtifactId = moduleId;
@@ -611,14 +611,14 @@ export class AndroidModuleBuilder extends Builder {
 		});
 		await fs.writeFile(path.join(this.buildModuleDir, 'build.gradle'), buildGradleContent);
 
-		// Copy module template's C++ code generation script to gradle project.
+		// Copy module template's C++ code generation script to Gradle project.
 		// Project's "build.gradle" will invoke this script after "kroll-apt" Java annotation processor has finished.
 		await fs.copyFile(
 			path.join(this.moduleTemplateDir, 'generate-cpp-files.js'),
 			path.join(this.buildModuleDir, 'generate-cpp-files.js'));
 
 		// If module has "AndroidManifest.xml" file under its "./platform/android" directory,
-		// then copy it to this gradle project's "debug" and "release" subdirectories.
+		// then copy it to this Gradle project's "debug" and "release" subdirectories.
 		// This makes them extend main "AndroidManifest.xml" under "./src/main" which is taken from "timodule.xml".
 		const externalManifestFilePath = path.join(this.projectDir, 'platform', 'android', 'AndroidManifest.xml');
 		if (await fs.exists(externalManifestFilePath)) {
@@ -630,7 +630,7 @@ export class AndroidModuleBuilder extends Builder {
 			await fs.copyFile(externalManifestFilePath, path.join(releaseDirPath, 'AndroidManifest.xml'));
 		}
 
-		// Create main "AndroidManifest.xml" file under gradle project's "./src/main".
+		// Create main "AndroidManifest.xml" file under Gradle project's "./src/main".
 		// If manifest settings exist in "timodule.xml", then merge it into main manifest.
 		const mainManifest = AndroidManifest.fromXmlString('<manifest/>');
 		try {
@@ -681,7 +681,7 @@ export class AndroidModuleBuilder extends Builder {
 		gradlew.logger = this.logger;
 		await gradlew.assembleRelease('module');
 
-		// Create a local maven repository directory tree containing above AAR and "*.pom" file listing its dependencies.
+		// Create a local Maven repository directory tree containing above AAR and "*.pom" file listing its dependencies.
 		// This is what the Titanium app will reference in its "build.gradle" file under its "dependencies" section.
 		await gradlew.publish('module');
 	}
@@ -708,7 +708,7 @@ export class AndroidModuleBuilder extends Builder {
 		dest.pipe(fs.createWriteStream(moduleZipPath));
 		this.logger.info('Creating module zip');
 
-		// Add the module's built AAR maven repository directory tree to the archive.
+		// Add the module's built AAR Maven repository directory tree to the archive.
 		// This is the library dependency an app project's "build.gradle" will reference.
 		const mavenDirPath = path.join(this.buildModuleDir, 'build', 'outputs', 'm2repository');
 		await this.dirWalker(mavenDirPath, (filePath) => {
@@ -785,7 +785,7 @@ export class AndroidModuleBuilder extends Builder {
 		}
 
 		// Add "assets" directory files to the archive.
-		// TODO: We already include "assets" files as JAR resources (via gradle), which is what we officially document.
+		// TODO: We already include "assets" files as JAR resources (via Gradle), which is what we officially document.
 		//       We should not add these files to APK "assets" as well. This doubles storage space taken.
 		if (await fs.exists(this.assetsDir)) {
 			await this.dirWalker(this.assetsDir, (filePath, fileName) => {

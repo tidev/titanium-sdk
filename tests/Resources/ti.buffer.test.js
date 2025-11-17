@@ -566,7 +566,7 @@ describe('Titanium.Buffer', function () {
 	it('#toString() and #toBlob()', function () {
 		var buffer,
 			blob;
-		// just a simple ascii string
+		// just a simple ASCII string
 		buffer = Ti.createBuffer({
 			length: 12
 		});

@@ -937,7 +937,7 @@ static const char KrollObjectBase64Table[] = {
 
 TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
 {
-  // Generate a unique property name for given native pointer by doing a base64 on its memory address.
+  // Generate a unique property name for given native pointer by doing a Base64 on its memory address.
   // Note: This function is called extremely often. So, encode it manually for best performance.
   // TODO: Use a JS Symbol instead to guarantee property uniqueness, but this requires iOS 13.
 #ifdef __LP64__
