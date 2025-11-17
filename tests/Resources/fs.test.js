@@ -577,7 +577,7 @@ describe('fs', function () {
 			});
 		});
 
-		it('returns String when utf-8 encoding set via second argument', finished => {
+		it('returns String when UTF-8 encoding set via second argument', finished => {
 			fs.readFile(thisFilePath, 'utf-8', (err, result) => {
 				should.not.exist(err);
 				should(result).be.a.String();
@@ -585,7 +585,7 @@ describe('fs', function () {
 			});
 		});
 
-		it('returns String when utf-8 encoding set via options object argument', finished => {
+		it('returns String when UTF-8 encoding set via options object argument', finished => {
 			fs.readFile(thisFilePath, { encoding: 'utf-8' }, (err, result) => {
 				should.not.exist(err);
 				should(result).be.a.String();
@@ -604,12 +604,12 @@ describe('fs', function () {
 			should(result).not.be.a.String();
 		});
 
-		it('returns String when utf-8 encoding set via second argument', () => {
+		it('returns String when UTF-8 encoding set via second argument', () => {
 			const result = fs.readFileSync(thisFilePath, 'utf-8');
 			should(result).be.a.String();
 		});
 
-		it('returns String when utf-8 encoding set via options object argument', () => {
+		it('returns String when UTF-8 encoding set via options object argument', () => {
 			const result = fs.readFileSync(thisFilePath, { encoding: 'utf-8' });
 			should(result).be.a.String();
 		});

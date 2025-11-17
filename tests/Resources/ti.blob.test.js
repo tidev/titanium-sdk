@@ -503,7 +503,7 @@ describe('Titanium.Blob', function () {
 			should(blob.toString()).eql('');
 		});
 
-		it('returns ascii text content for buffer with ascii text content', () => {
+		it('returns ASCII text content for buffer with ASCII text content', () => {
 			const blob = Ti.createBuffer({ value: 'test toString()' }).toBlob();
 			should(blob.toString()).eql('test toString()');
 		});
@@ -622,10 +622,10 @@ describe('Titanium.Blob', function () {
 			const arrayBuffer = blob.toArrayBuffer();
 			const array = new Uint8Array(arrayBuffer);
 			should(array.length).eql(16); // single byte characters in ASCII
-			should(array[0]).eql(84); // ascii decimal code for 'T'
-			should(array[4]).eql(32); // ascii decimal code for ' '
-			should(array[5]).eql(105); // ascii decimal code for 'i'
-			should(array[6]).eql(115); // ascii decimal code for 's'
+			should(array[0]).eql(84); // ASCII decimal code for 'T'
+			should(array[4]).eql(32); // ASCII decimal code for ' '
+			should(array[5]).eql(105); // ASCII decimal code for 'i'
+			should(array[6]).eql(115); // ASCII decimal code for 's'
 		});
 	});
 
@@ -645,10 +645,10 @@ describe('Titanium.Blob', function () {
 				try {
 					const array = new Uint8Array(arrayBuffer);
 					should(array.length).eql(16); // single byte characters in ASCII
-					should(array[0]).eql(84); // ascii decimal code for 'T'
-					should(array[4]).eql(32); // ascii decimal code for ' '
-					should(array[5]).eql(105); // ascii decimal code for 'i'
-					should(array[6]).eql(115); // ascii decimal code for 's'
+					should(array[0]).eql(84); // ASCII decimal code for 'T'
+					should(array[4]).eql(32); // ASCII decimal code for ' '
+					should(array[5]).eql(105); // ASCII decimal code for 'i'
+					should(array[6]).eql(115); // ASCII decimal code for 's'
 				} catch (err) {
 					return finish(err);
 				}

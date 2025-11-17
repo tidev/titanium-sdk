@@ -56,7 +56,7 @@ describe('Buffer', () => {
 	});
 
 	it('is FastBuffer treated as Buffer', () => {
-		const fast = Buffer.from([ 0x62, 0x75, 0x66, 0x66, 0x65, 0x72 ]); // 'buffer' ascii codes as hex
+		const fast = Buffer.from([ 0x62, 0x75, 0x66, 0x66, 0x65, 0x72 ]); // 'buffer' ASCII codes as hex
 		should(fast instanceof Buffer).be.true();
 	});
 
@@ -67,10 +67,10 @@ describe('Buffer', () => {
 
 	it('is eql between FastBuffer and SlowBuffer', () => {
 		const slow = Buffer.from(Ti.createBuffer({ value: 'buffer', type: Ti.Codec.ASCII }));
-		const fast = Buffer.from([ 0x62, 0x75, 0x66, 0x66, 0x65, 0x72 ]); // 'buffer' ascii codes as hex
+		const fast = Buffer.from([ 0x62, 0x75, 0x66, 0x66, 0x65, 0x72 ]); // 'buffer' ASCII codes as hex
 		should(slow.equals(fast)).be.true();
 		should(fast.equals(slow)).be.true();
-		// should(slow).eql(fast); // FIME: fails
+		// should(slow).eql(fast); // FIXME: fails
 		// should(fast).eql(slow); // FIXME: fails
 	});
 
@@ -173,7 +173,7 @@ describe('Buffer', () => {
 		it('with length and fill', () => {
 			const buf = Buffer.alloc(4, 'a');
 			should(buf.length).eql(4);
-			should(buf).eql(Buffer.from([ 0x61, 0x61, 0x61, 0x61 ])); // 0x61 == 97, which is the code for 'a' in ascii
+			should(buf).eql(Buffer.from([ 0x61, 0x61, 0x61, 0x61 ])); // 0x61 == 97, which is the code for 'a' in ASCII
 		});
 
 		// TODO: also try with fill and encoding
@@ -206,7 +206,7 @@ describe('Buffer', () => {
 			should(Buffer.byteLength).be.a.Function();
 		});
 
-		it('returns byte length, not string length for utf-8 strings', () => {
+		it('returns byte length, not string length for UTF-8 strings', () => {
 			const str = '\u00bd + \u00bc = \u00be';
 
 			should(Buffer.byteLength(str, 'utf8')).eql(12);
@@ -216,7 +216,7 @@ describe('Buffer', () => {
 			should(Buffer.byteLength('abcdef1234', 'hex')).eql(5);
 		});
 
-		it('returns correct lengths for base64, dropping padding', () => {
+		it('returns correct lengths for Base64, dropping padding', () => {
 			should(Buffer.byteLength('aGVsbG8gd29ybGQ=', 'base64')).eql(11); // hello world
 			should(Buffer.byteLength('aGVsbG8gd29ybGQh', 'base64')).eql(12); // hello world!
 			should(Buffer.byteLength('aGVsbG8gd29ybA==', 'base64')).eql(10); // hello worl
@@ -307,7 +307,7 @@ describe('Buffer', () => {
 			should(Buffer.isEncoding).be.a.Function();
 		});
 
-		// utf8, ucs2, ascii, latin1, utf16le
+		// UTF-8, UCS-2, ASCII, latin1, UTF-16LE
 		encodings
 			.reduce((es, e) => es.concat(e, e.toUpperCase()), [])
 			.forEach(encoding => {
@@ -364,7 +364,7 @@ describe('Buffer', () => {
 	});
 
 	describe('utf8', () => {
-		it('handles 4-byte utf-8 characters', () => {
+		it('handles 4-byte UTF-8 characters', () => {
 			// What do we want to do here? confirm that it can take in emoji chars in a string as utf8 encoding and...
 			should(Buffer.from('😀').toString()).eql('😀'); // retains emoji through the conversion
 			should(Buffer.from('😀')).eql(Buffer.from([ 0xF0, 0x9F, 0x98, 0x80 ])); // ends up storing these bytes
@@ -374,22 +374,22 @@ describe('Buffer', () => {
 	});
 
 	describe('utf-16le', () => {
-		it('handles 2-byte utf-16 characters', () => {
-			// What do we want to do here? confirm that it can take in emoji chars in a string as utf8 encoding and...
+		it('handles 2-byte UTF-16 characters', () => {
+			// What do we want to do here? confirm that it can take in emoji chars in a string as UTF-8 encoding and...
 			should(Buffer.from('€', 'utf16le').toString('utf16le')).eql('€'); // retains euro symbol through the conversion
 			should(Buffer.from('€', 'utf16le')).eql(Buffer.from([ 0xAC, 0x20 ])); // ends up storing these bytes
 			should(Buffer.from('€', 'utf16le').toString('hex')).eql('ac20'); // can convert to hex
 			should(Buffer.from('ac20', 'hex').toString('utf16le')).eql('€'); // can convert the raw hex bytes into the euro character
 		});
 
-		it('handles 4-byte utf-16 characters', () => {
+		it('handles 4-byte UTF-16 characters', () => {
 			should(Buffer.from('𐐷', 'utf16le').toString('utf16le')).eql('𐐷'); // retains euro symbol through the conversion
 			should(Buffer.from('𐐷', 'utf16le')).eql(Buffer.from([ 0x01, 0xD8, 0x37, 0xDC ])); // ends up storing these bytes
 			should(Buffer.from('𐐷', 'utf16le').toString('hex')).eql('01d837dc'); // can convert to hex
 			const result = Buffer.from('01d837dc', 'hex').toString('utf16le');
 			should(result).eql('𐐷'); // can convert the raw hex bytes into the original character
 			should(result).eql('\ud801\udc37'); // check against the "hex code units" equivalent string
-			should(result.length).eql(2); // we get an expected length of 2 (whereas converting to utf-8 we'd get a length of 4)
+			should(result.length).eql(2); // we get an expected length of 2 (whereas converting to UTF-8 we'd get a length of 4)
 			// despite being 1 visible character, it's 2 "code points"
 			should(result.codePointAt(0)).eql(66615);
 			should(result.codePointAt(1)).eql(56375);
@@ -409,7 +409,7 @@ describe('Buffer', () => {
 			});
 		});
 
-		it('handles #toString() output from an input utf-8 buffer', () => {
+		it('handles #toString() output from an input UTF-8 buffer', () => {
 			const buf = Buffer.from('tést');
 			should(buf.toString('hex')).eql('74c3a97374');
 		});
@@ -608,7 +608,7 @@ describe('Buffer', () => {
 
 		it('returns true for equivalent Buffer', () => {
 			const buf1 = Buffer.from('ABC');
-			const buf2 = Buffer.from([ 0x41, 0x42, 0x43 ]); // ascii for ABC
+			const buf2 = Buffer.from([ 0x41, 0x42, 0x43 ]); // ASCII for ABC
 			should(buf1.equals(buf2)).be.true();
 		});
 
@@ -632,12 +632,12 @@ describe('Buffer', () => {
 			should(buf.fill).be.a.Function();
 		});
 
-		it('handles simple ascii character fill', () => {
+		it('handles simple ASCII character fill', () => {
 			const b = Buffer.allocUnsafe(50).fill('h');
 			should(b.toString()).eql('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh');
 		});
 
-		it('handles 2-byte utf-8 character fill', () => {
+		it('handles 2-byte UTF-8 character fill', () => {
 			const b = Buffer.allocUnsafe(3).fill('\u0222');
 			should(b[0]).eql(0xc8);
 			should(b[1]).eql(0xa2);
@@ -680,7 +680,7 @@ describe('Buffer', () => {
 
 		it('finds a Number with no specified encoding', () => {
 			const buf = Buffer.from('this is a buffer');
-			should(buf.indexOf(97)).eql(8); // 97 is ascii for 'a'
+			should(buf.indexOf(97)).eql(8); // 97 is ASCII for 'a'
 		});
 
 		it('returns -1 for Buffer not found', () => {
@@ -693,12 +693,12 @@ describe('Buffer', () => {
 			should(buf.indexOf(Buffer.from('a buffer example').slice(0, 8))).eql(8);
 		});
 
-		it('finds a string with utf16le encoding', () => {
+		it('finds a string with UTF-16LE encoding', () => {
 			const utf16Buffer = Buffer.from('\u039a\u0391\u03a3\u03a3\u0395', 'utf16le');
 			should(utf16Buffer.indexOf('\u03a3', 0, 'utf16le')).eql(4);
 		});
 
-		it('finds a string with utf16le encoding from a negative offset', () => {
+		it('finds a string with UTF-16LE encoding from a negative offset', () => {
 			const utf16Buffer = Buffer.from('\u039a\u0391\u03a3\u03a3\u0395', 'utf16le');
 			should(utf16Buffer.indexOf('\u03a3', -4, 'utf16le')).eql(6);
 		});
@@ -1230,7 +1230,7 @@ describe('Buffer', () => {
 			const buf = Buffer.from('buffer');
 			should(buf.toJSON()).eql({
 				type: 'Buffer',
-				data: [ 98, 117, 102, 102, 101, 114 ] // ascii codes for 'buffer'
+				data: [ 98, 117, 102, 102, 101, 114 ] // ASCII codes for 'buffer'
 			});
 		});
 	});
