@@ -85,37 +85,37 @@ describe('Buffer', () => {
 
 		it('should allocate a new Buffer using an array of octets', () => {
 			const arr = [ 0x54, 0x69, 0x74, 0x61, 0x6e, 0x69, 0x75, 0x6d ];
-			const buf = new Buffer(arr);
+			const buf = Buffer.from(arr);
 			for (let i = 0; i < arr.length; i++) {
 				should(buf[i]).eql(arr[i]);
 			}
 		});
 
 		it('should copy the passed buffer onto a new buffer instance', () => {
-			const buf1 = new Buffer('buffer');
-			const buf2 = new Buffer(buf1);
-			buf1[0] = 0x61;
+			const buf1 = Buffer.from('buffer');
+			const buf2 = Buffer.from(buf1);
+			buf1[0] = 0x61; // 0x61 == 97, which is the code for 'a' in ASCII
 			should(buf1.toString()).eql('auffer');
 			should(buf2.toString()).eql('buffer');
 
 			const buf3 = new Uint8Array(2);
 			buf3[0] = 0x54;
 			buf3[1] = 0x69;
-			const buf4 = new Buffer(buf3);
+			const buf4 = Buffer.from(buf3);
 			buf3[0] = 0x74;
 			should(buf3[0]).eql(0x74);
 			should(buf4[0]).eql(0x54);
 		});
 
 		it('should allocate a new buffer with given size', () => {
-			const buf = new Buffer(10);
+			const buf = Buffer.alloc(10);
 			should(buf.length).eql(10);
 		});
 
 		it('should create a new Buffer containing the passed string', () => {
 			const text = 'this is a tést';
-			const buf1 = new Buffer(text);
-			const buf2 = new Buffer('7468697320697320612074c3a97374', 'hex');
+			const buf1 = Buffer.from(text);
+			const buf2 = Buffer.from('7468697320697320612074c3a97374', 'hex');
 			should(buf1.toString()).eql(text);
 			should(buf2.toString()).eql(text);
 		});
@@ -137,7 +137,7 @@ describe('Buffer', () => {
 		it('should copy the passed buffer onto a new buffer instance', () => {
 			const buf1 = Buffer.from('buffer');
 			const buf2 = Buffer.from(buf1);
-			buf1[0] = 0x61;
+			buf1[0] = 0x61; // 0x61 == 97, which is the code for 'a' in ASCII
 			should(buf1.toString()).eql('auffer');
 			should(buf2.toString()).eql('buffer');
 
