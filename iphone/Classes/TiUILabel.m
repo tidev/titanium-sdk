@@ -97,7 +97,7 @@
   CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
   UIControlContentVerticalAlignment alignment = verticalAlign;
   if (alignment == UIControlContentVerticalAlignmentFill) {
-    // IOS7 layout issue fix with attributed string.
+    // iOS 7 layout issue fix with attributed string.
     if (actualLabelSize.height < initialLabelFrame.size.height) {
       alignment = UIControlContentVerticalAlignmentCenter;
     } else {
