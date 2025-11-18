@@ -887,6 +887,21 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
   return @(-1);
 }
 
+- (NSNumber *)SCROLL_VIEW_EDGE_EFFECT_STYLE_AUTOMATIC
+{
+  return @(0);
+}
+
+- (NSNumber *)SCROLL_VIEW_EDGE_EFFECT_STYLE_HARD
+{
+  return @(1);
+}
+
+- (NSNumber *)SCROLL_VIEW_EDGE_EFFECT_STYLE_SOFT
+{
+  return @(2);
+}
+
 - (TiColor *)fetchSemanticColor:(id)color
 {
   ENSURE_SINGLE_ARG(color, NSString);
