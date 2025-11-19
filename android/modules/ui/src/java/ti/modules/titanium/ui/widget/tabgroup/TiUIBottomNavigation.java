@@ -530,7 +530,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 		currentlySelectedIndex = tabIndex;
 
-		bottomNavigation.getMenu().getItem(tabIndex).setChecked(true);
+		if (bottomNavigation != null && bottomNavigation.getMenu() != null) {
+			bottomNavigation.getMenu().getItem(tabIndex).setChecked(true);
+		}
 
 		TabProxy tp = ((TabProxy) tabsArray.get(tabIndex));
 		if (tp != null) {
