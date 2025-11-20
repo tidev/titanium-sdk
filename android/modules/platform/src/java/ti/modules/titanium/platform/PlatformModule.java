@@ -606,7 +606,7 @@ public class PlatformModule extends KrollModule
 	}
 
 	/**
-	 * Creates an ACTION_VIEW (or similar) intent for the give url to be used to start an activity.
+	 * Creates an ACTION_VIEW (or similar) intent for the give URL to be used to start an activity.
 	 * This method is intended to be used by this class' canOpenURL() and openURL() methods.
 	 * @param url
 	 * The URL to create an intent for such as "http:", "mailto:", "geo:", "file:", etc.

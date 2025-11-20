@@ -28,7 +28,7 @@
     // Generate unique key with timestamp.
     NSString *key = [NSString stringWithFormat:@"Fetch-%f", [[NSDate date] timeIntervalSince1970]];
 
-    // Store the completionhandler till we can come back and send appropriate message.
+    // Store the completion handler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
       pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
@@ -73,7 +73,7 @@
     // Generate unique key with timestamp.
     NSString *key = [NSString stringWithFormat:@"SilentPush-%f", [[NSDate date] timeIntervalSince1970]];
 
-    // Store the completionhandler till we can come back and send appropriate message.
+    // Store the completion handler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
       pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
     }

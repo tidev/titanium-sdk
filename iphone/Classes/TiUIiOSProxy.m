@@ -764,7 +764,7 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO, UIApplicationShortcutIconTypeAudio);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE, UIApplicationShortcutIconTypeUpdate);
 #endif
 
-// Modal Transition and Presentatiom
+// Modal Transition and Presentation
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL, UIModalTransitionStyleCoverVertical);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL, UIModalTransitionStyleFlipHorizontal);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_CROSS_DISSOLVE, UIModalTransitionStyleCrossDissolve);

@@ -72,7 +72,7 @@ properties:
     type: Number
 
   - name: lockscreenVisibility
-    summary: Whether or not notifications posted to this channel are shown on the lockscreen in full or redacted form.
+    summary: Whether or not notifications posted to this channel are shown on the lock screen in full or redacted form.
     type: Number
     constants: [Titanium.Android.VISIBILITY_*]
 

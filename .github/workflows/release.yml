@@ -6,7 +6,7 @@ on:
       branch:
         description: The branch to release from
         required: true
-        default: master
+        default: main
       release-type:
         description: The type of release to perform
         required: true
@@ -138,7 +138,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: mobilesdk-${{ env.vtag }}-linux
-    - name: Download MacOS artifact
+    - name: Download macOS artifact
       uses: actions/download-artifact@v4
       with:
         name: mobilesdk-${{ env.vtag }}-osx

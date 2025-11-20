@@ -201,7 +201,7 @@ extern NSString *const TI_APPLICATION_GUID;
       }
       [eventObject setValue:type forKey:@"type"];
       // since this is cross context, we need to force into a JSON so the data can serialize
-      // we first force to string json, then we convert the string JSON back to a dictionary to
+      // we first force to string JSON, then we convert the string JSON back to a dictionary to
       // eliminate any native things like functions, native objects, etc.
       NSString *json_ = [TiUtils jsonStringify:eventObject];
       id jsonObject = [TiUtils jsonParse:json_ error:nil];
@@ -253,7 +253,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   BOOL yn = [TiUtils boolValue:value];
   [UIDevice currentDevice].proximityMonitoringEnabled = yn;
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   if (yn) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(proximityDetectionChanged:)
@@ -377,7 +377,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (void)startup
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
@@ -404,7 +404,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   // make sure we force any changes made on shutdown
   [[NSUserDefaults standardUserDefaults] synchronize];
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super shutdown:sender];
 }
@@ -583,11 +583,6 @@ extern NSString *const TI_APPLICATION_GUID;
 - (id)sessionId
 {
   return [[TiApp app] sessionId];
-}
-
-- (id)analytics
-{
-  return @(NO);
 }
 
 - (NSNumber *)keyboardVisible

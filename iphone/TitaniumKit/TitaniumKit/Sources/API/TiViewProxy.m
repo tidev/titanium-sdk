@@ -1438,7 +1438,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         // from the lang property conversion key
         id langKey = [properties objectForKey:key];
         if (langKey != nil) {
-          // eg. titleid -> title
+          // e.g. titleid -> title
           id convertKey = [table objectForKey:key];
           // check and make sure we don't already have that key
           // since you can't override it if already present
