@@ -56,7 +56,6 @@
 
 #endif
 @interface TiUIiOSProxy : TiProxy {
-  @private
 }
 
 @property (nonatomic, readonly) NSNumber *SCROLL_DECELERATION_RATE_NORMAL;

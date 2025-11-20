@@ -16,7 +16,10 @@ const LOCAL_TESTS = path.join(ROOT_DIR, 'tests');
  * @param {string} [program.deviceId] Titanium device id target to run the tests on
  * @param {string} [program.deployType] 'development' || 'test'
  * @param {string} [program.deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [program.junitPrefix] A prefix for the junit filename
  * @param {string} [program.onlyFailedTests] boolean
+ * @param {string} [program.sdkVersion] The SDK version to use
+ * @param {string} [program.logLevel] The log level
  * @returns {Promise<object>} returns an object whose keys are platform names
  */
 export async function runTests(platforms, program) {
@@ -26,7 +29,7 @@ export async function runTests(platforms, program) {
 		fs.emptyDir(path.join(snapshotDir, '..', 'generated')),
 		fs.emptyDir(path.join(snapshotDir, '..', 'diffs'))
 	]);
-	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir, program.onlyFailedTests, program.sdkVersion);
+	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir, program.onlyFailedTests, program.sdkVersion, program.logLevel);
 }
 
 /**

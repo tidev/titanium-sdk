@@ -1385,6 +1385,10 @@ events:
     summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.
     platforms: [iphone, ipad, macos]
     since: "9.1.0"
+    deprecated:
+        since: "13.1.0"
+        notes: Use [Titanium.App.screenshotcaptured](Titanium.App.screenshotcaptured) instead.
+
 
 ---
 name: NotificationParams
