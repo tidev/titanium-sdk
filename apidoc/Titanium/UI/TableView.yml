@@ -1265,7 +1265,7 @@ properties:
         [searchView](Titanium.UI.TableView.searchView) property is set. Used in conjunction with
         the [title](Titanium.UI.TableViewRow.title) property of the TableViewRow.
     type: String
-    platforms: [android]
+    platforms: [android, iphone, ipad]
     since: 13.1.0
 
   - name: filterText
