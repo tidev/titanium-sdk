@@ -2118,7 +2118,7 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-  if ([self isSearchStarted]) {
+  if ([self isSearchStarted] || self.searchString.length > 0) {
     int rowCount = 0;
     for (NSIndexSet *thisSet in searchResultIndexes) {
       rowCount += [thisSet count];
@@ -2136,7 +2136,7 @@
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted]) {
+  if ([self isSearchStarted] || self.searchString.length > 0) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2708,7 +2708,7 @@
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted]) {
+  if ([self isSearchStarted] || self.searchString.length > 0) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
