@@ -985,7 +985,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #endif
 
 #if defined(USE_TI_MEDIAREQUESTCAMERAPERMISSIONS)
-// request camera access. for >= iOS 7
+// request camera access
 - (void)requestCameraPermissions:(id)arg
 {
   ENSURE_SINGLE_ARG(arg, KrollCallback);

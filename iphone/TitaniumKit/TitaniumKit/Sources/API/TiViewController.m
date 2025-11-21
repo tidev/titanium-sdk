@@ -70,7 +70,6 @@
   [super viewDidLayoutSubviews];
 }
 
-// iOS 5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
   return YES;
@@ -80,9 +79,7 @@
 {
   return TI_ORIENTATION_ALLOWED(_supportedOrientations, toInterfaceOrientation) ? YES : NO;
 }
-// iOS 5 support. End Section
 
-// iOS 6 new stuff.
 - (BOOL)shouldAutomaticallyForwardRotationMethods
 {
   return YES;

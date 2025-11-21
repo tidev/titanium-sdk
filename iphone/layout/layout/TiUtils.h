@@ -70,9 +70,6 @@ typedef enum {
 + (BOOL)isIPad;
 + (BOOL)isRetinaDisplay;
 + (BOOL)isRetinaHDDisplay;
-/**
- * @deprecated
- */
 + (BOOL)isIOS8OrGreater __attribute__((deprecated));
 + (CGFloat)floatValue:(id)value;
 + (CGFloat)floatValue:(id)value def:(CGFloat)def;
