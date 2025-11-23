@@ -1604,7 +1604,7 @@
 
 - (void)setSearchText_:(id)args
 {
-  id searchView = [self.proxy valueForKey:@"searchView"];
+  TiViewProxy *searchView = [self.proxy valueForKey:@"searchView"];
   if (!IS_NULL_OR_NIL(searchView)) {
     DebugLog(@"Can not use searchText with searchView. Ignoring call.");
     return;
