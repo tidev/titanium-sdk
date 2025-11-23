@@ -161,15 +161,15 @@ class iOSBuilder extends Builder {
 		// when true, calls xcodebuild
 		this.forceRebuild = false;
 
-		// a list of relative paths to js files that need to be encrypted
+		// a list of relative paths to JS files that need to be encrypted
 		// note: the filename will have all periods replaced with underscores
 		// FIXME: Use a Map from original names -> encrypted names
 		this.jsFilesToEncrypt = [];
-		// a list of relative paths to js files that have been encrypted
+		// a list of relative paths to JS files that have been encrypted
 		// note: this is the original filename used by our require _index_.json and referenced within the app
 		this.jsFilesEncrypted = [];
 
-		// set to true if any js files changed so that we can trigger encryption to run
+		// set to true if any JS files changed so that we can trigger encryption to run
 		this.jsFilesChanged = false;
 
 		// an array of products (Xcode targets) being built
@@ -406,14 +406,8 @@ class iOSBuilder extends Builder {
 
 				this.iosInfo = iosInfo;
 
-				// add itunes sync
-				iosInfo.devices.push({
-					udid: 'itunes',
-					name: 'iTunes Sync'
-				});
-
-				// we have more than 1 device plus itunes, so we should show 'all'
-				if (iosInfo.devices.length > 2) {
+				// we have more than 1 device, so we should show 'all'
+				if (iosInfo.devices.length > 1) {
 					iosInfo.devices.push({
 						udid: 'all',
 						name: 'All Devices'
@@ -489,7 +483,7 @@ class iOSBuilder extends Builder {
 							keychain:                   this.configOptionKeychain(),
 							'launch-bundle-id':           this.configOptionLaunchBundleId(),
 							'launch-url': {
-								// url for the application to launch in mobile Safari, as soon as the app boots up
+								// URL for the application to launch in mobile Safari, as soon as the app boots up
 								hidden: true
 							},
 							'output-dir':                 this.configOptionOutputDir(200),
@@ -539,7 +533,7 @@ class iOSBuilder extends Builder {
 			desc: `the udid of the iOS simulator or iOS device to install the application to; for ${
 				'device'.cyan
 			} builds ${
-				('[' + 'itunes'.bold + ', <udid>, all]').grey
+				('[<udid>, all]').grey
 			}`,
 			hint: 'udid',
 			order: order,
@@ -936,7 +930,7 @@ class iOSBuilder extends Builder {
 						process.exit(1);
 					}
 				} catch (e) {
-					// squelch and let the cli detect the bad version
+					// squelch and let the CLI detect the bad version
 				}
 			},
 			desc: 'iOS SDK version to build with',
@@ -1524,7 +1518,7 @@ class iOSBuilder extends Builder {
 			process.exit(1);
 		}
 
-		// process min ios version
+		// process min iOS version
 		this.minIosVersion = tiapp.ios['min-ios-ver'] && appc.version.gt(tiapp.ios['min-ios-ver'], this.packageJson.minIosVersion) ? tiapp.ios['min-ios-ver'] : this.packageJson.minIosVersion;
 
 		// process device family
@@ -1905,7 +1899,7 @@ class iOSBuilder extends Builder {
 				this.provisioningProfile = this.findProvisioningProfile(this.target, this.provisioningProfileUUID);
 			}
 
-			// add the ios specific default icon to the list of icons
+			// add the iOS specific default icon to the list of icons
 			this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
 
 			// manually inject the build profile settings
@@ -1956,7 +1950,7 @@ class iOSBuilder extends Builder {
 
 			// Transpilation details
 			this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-			// this.minSupportedIosSdk holds the target ios version to transpile down to
+			// this.minSupportedIosSdk holds the target iOS version to transpile down to
 			// If they're passing flag to do source-mapping, that overrides everything, so turn it on
 			if (cli.argv['source-maps']) {
 				this.sourceMaps = true;
@@ -2135,8 +2129,8 @@ class iOSBuilder extends Builder {
 					// no --device-id or doing a build-only sim build, so pick a device
 
 					if (cli.argv.target === 'device') {
-						if (!cli.argv['build-only'] && !cli.argv['device-id']) {
-							cli.argv['device-id'] = this.iosInfo.devices.length ? this.iosInfo.devices[0].udid : 'itunes';
+						if (!cli.argv['build-only'] && !cli.argv['device-id'] && this.iosInfo.devices.length) {
+							cli.argv['device-id'] = this.iosInfo.devices[0].udid;
 						}
 						return next();
 					}
@@ -2276,7 +2270,7 @@ class iOSBuilder extends Builder {
 					// check the min-ios-ver for the device we're installing to
 					if (this.target === 'device') {
 						this.getDeviceInfo().devices.forEach(function (device) {
-							if (device.udid !== 'all' && device.udid !== 'itunes' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
+							if (device.udid !== 'all' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
 								logger.error(`This app does not support the device "${device.name}"\n`);
 								logger.log(`The device is running iOS ${
 									device.productVersion.cyan
@@ -2353,7 +2347,7 @@ class iOSBuilder extends Builder {
 									module.isFramework = false;
 
 									// For Obj-C static libraries, use the .a library or hashing
-									this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
+									this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
 									nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
 									// Try to load native module as framework (Swift)
 								} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
@@ -2362,7 +2356,7 @@ class iOSBuilder extends Builder {
 									module.isFramework = true;
 
 									// For Swift frameworks, use the binary inside the .framework for hashing
-									this.legacyModules.add(module.id); // Record that this won't support macos or arm64 sim!
+									this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
 									nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
 								} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
 									module.libName = xcFrameworkOfLib;
@@ -2506,7 +2500,7 @@ class iOSBuilder extends Builder {
 				});
 			});
 
-			// titanium related tasks
+			// Titanium related tasks
 			this.writeDebugProfilePlists();
 			await this.copyResources();
 			await new Promise((resolve, reject) => {
@@ -2544,7 +2538,7 @@ class iOSBuilder extends Builder {
 			// Build the app.
 			// provide a hook event before xcodebuild
 			await cli.emit('build.pre.build', this);
-			await this.generateRequireIndex(); // has to be run just before build (and after hook) so it gathers hyperloop generated JS files
+			await this.generateRequireIndex(); // has to be run just before build (and after hook) so it gathers Hyperloop generated JS files
 			// build baby, build
 			await new Promise((resolve, reject) => {
 				this.invokeXcodeBuild(e => {
@@ -2885,7 +2879,7 @@ class iOSBuilder extends Builder {
 				return true;
 			}
 
-			// check if the titanium sdk version changed
+			// check if the Titanium SDK version changed
 			if (fs.existsSync(this.xcodeProjectConfigFile)) {
 				// we have a previous build, see if the Titanium SDK changed
 				const conf = fs.readFileSync(this.xcodeProjectConfigFile).toString(),
@@ -2952,7 +2946,7 @@ class iOSBuilder extends Builder {
 				}
 			}
 
-			// check if the titanium sdk paths are different
+			// check if the Titanium SDK paths are different
 			if (manifest.iosSdkPath !== this.platformPath) {
 				this.logger.info('Forcing rebuild: Titanium SDK path changed since last build');
 				this.logger.info(`  Was: ${cyan(manifest.iosSdkPath)}`);
@@ -3423,7 +3417,7 @@ class iOSBuilder extends Builder {
 			});
 		}
 
-		// set the min ios version for the whole project
+		// set the min iOS version for the whole project
 		xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 			const buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 			buildSettings.IPHONEOS_DEPLOYMENT_TARGET = appc.version.format(this.minIosVer, 2);
@@ -3919,7 +3913,7 @@ class iOSBuilder extends Builder {
 					}
 
 					if (targetInfo.isExtension || targetInfo.isWatchAppV2orNewer || targetInfo.isAppClip) {
-						// add this target as a dependency of the titanium app's project
+						// add this target as a dependency of the Titanium app's project
 						const proxyUuid = this.generateXcodeUuid(xcodeProject);
 						xobjs.PBXContainerItemProxy || (xobjs.PBXContainerItemProxy = {});
 						xobjs.PBXContainerItemProxy[proxyUuid] = {
@@ -4525,15 +4519,6 @@ class iOSBuilder extends Builder {
 			this.logger.info('ATS explicitly disabled');
 		}
 
-		if (this.target === 'device' && this.deviceId === 'itunes') {
-			// device builds require an additional token to ensure uniqueness so that iTunes will detect an updated app to sync.
-			// we drop the milliseconds from the current time so that we still have a unique identifier, but is less than 10
-			// characters so iTunes 11.2 doesn't get upset.
-			plist.CFBundleVersion = String(+new Date());
-			this.logger.debug('Building for iTunes sync which requires us to set the CFBundleVersion to a unique number to trigger iTunes to update your app');
-			this.logger.debug(`Setting Info.plist CFBundleVersion to current epoch time ${plist.CFBundleVersion.cyan}`);
-		}
-
 		// scan for ttf and otf font files
 		const fontMap = {};
 		(function scanFonts(dir, isRoot) {
@@ -4623,7 +4608,6 @@ class iOSBuilder extends Builder {
 			__DEPLOYTYPE__:       this.deployType,
 			__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
 			__APP_ID__:           this.tiapp.id,
-			__APP_ANALYTICS__:    'false',
 			__APP_PUBLISHER__:    this.tiapp.publisher,
 			__APP_URL__:          this.tiapp.url,
 			__APP_NAME__:         this.tiapp.name,
@@ -5373,7 +5357,7 @@ class iOSBuilder extends Builder {
 		});
 		await task.run();
 		if (this.useWebpack) {
-			// Merge Ti symbols from Webpack with the ones from legacy js processing
+			// Merge Ti symbols from Webpack with the ones from legacy JS processing
 			Object.keys(task.data.tiSymbols).forEach(file => {
 				const existingSymbols = this.tiSymbols[file] || [];
 				const additionalSymbols = task.data.tiSymbols[file];
@@ -5388,7 +5372,7 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
-	 * @param {string[]} jsBootstrapFiles list of bootstrap js files to add to listing we generate
+	 * @param {string[]} jsBootstrapFiles list of bootstrap JS files to add to listing we generate
 	 * @returns {Promise<void>}
 	 */
 	async writeBootstrapJson(jsBootstrapFiles) {
@@ -5499,7 +5483,7 @@ class iOSBuilder extends Builder {
 
 	/**
 	 * @param {string} dest destination filepath
-	 * @param {object} json json to write to file
+	 * @param {object} json JSON to write to file
 	 */
 	async writeAssetContentsFile(dest, json) {
 		const contents = JSON.stringify(json, null, '  ');
@@ -6062,7 +6046,7 @@ class iOSBuilder extends Builder {
 			return;
 		}
 
-		// Turn callback api to promise...
+		// Turn callback API to promise...
 		const boundGenerateAppIcons = util.promisify(this.generateAppIcons).bind(this);
 		if (!defaultIcon) {
 			// we're going to fail, but we let generateAppIcons() do the dirty work
@@ -6662,7 +6646,6 @@ class iOSBuilder extends Builder {
 		this.logger.info('Processing Titanium symbols');
 
 		const namespaces = {
-				analytics: 1,
 				api: 1,
 				network: 1,
 				platform: 1,
@@ -6752,7 +6735,7 @@ class iOSBuilder extends Builder {
 		if (Array.isArray(infoPlist.UIBackgroundModes) && infoPlist.UIBackgroundModes.indexOf('fetch') !== -1) {
 			hasFetch = true;
 		}
-		// if we're doing a simulator build or we're including all titanium modules, get it from source xcconfig file
+		// if we're doing a simulator build or we're including all Titanium modules, get it from source xcconfig file
 		if (this.target === 'simulator' || this.target === 'macos' || this.includeAllTiModules) {
 			const sourceConfigPath = path.join(this.platformPath, 'iphone', 'project.xcconfig');
 			const conf = fs.readFileSync(sourceConfigPath).toString();
@@ -7200,7 +7183,7 @@ async function processArchitecture() {
 	});
 }
 
-// create the builder instance and expose the public api
+// create the builder instance and expose the public API
 const builder = new iOSBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);

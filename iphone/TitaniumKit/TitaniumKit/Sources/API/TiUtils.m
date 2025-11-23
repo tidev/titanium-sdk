@@ -684,7 +684,7 @@ static NSDictionary *sizeMap = nil;
   NSURL *urlAttempt = [self toURL:object proxy:proxy];
   UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt withSize:imageSize];
   return image;
-  // Note: If url is a nonimmediate image, this returns nil.
+  // Note: If URL is a nonimmediate image, this returns nil.
 }
 
 + (UIImage *)toImage:(id)object proxy:(TiProxy *)proxy
@@ -702,7 +702,7 @@ static NSDictionary *sizeMap = nil;
   NSURL *urlAttempt = [self toURL:object proxy:proxy];
   UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:urlAttempt];
   return image;
-  // Note: If url is a nonimmediate image, this returns nil.
+  // Note: If URL is a nonimmediate image, this returns nil.
 }
 
 + (UIImage *)adjustRotation:(UIImage *)image
@@ -899,7 +899,7 @@ sms:, tel:, mailto: are all done
 
 If the new path is HTTP:// etc, then punt and massage the code.
 
-If the new path starts with / and the base url is app://..., we have to massage the url.
+If the new path starts with / and the base URL is app://..., we have to massage the URL.
 
 
 */
@@ -1422,6 +1422,10 @@ If the new path starts with / and the base url is app://..., we have to massage 
 }
 
 + (BOOL)isOrientationPortait
+{
+  return [self isOrientationPortrait];
+}
++ (BOOL)isOrientationPortrait
 {
   return UIInterfaceOrientationIsPortrait([self orientation]);
 }
@@ -2012,7 +2016,7 @@ If the new path starts with / and the base url is app://..., we have to massage 
 }
 
 // In pre-iOS 5, it looks like response headers were case-mangled.
-// (i.e. WWW-Authenticate became Www-Authenticate). So we have to take this
+// (e.g. WWW-Authenticate became Www-Authenticate). So we have to take this
 // mangling into mind; headers such as FooBar-XYZ may also have been mangled
 // to be case-correct. We can't be certain.
 //

@@ -363,7 +363,7 @@ properties:
   - name: translucent
     summary: Boolean value indicating if the nav bar (typically for the **More** tab), is translucent.
     platforms: [iphone, ipad, macos]
-    default: true on iOS7 and above, false otherwise.
+    default: true on iOS 7 and above, false otherwise.
     type: Boolean
     since: "3.3.0"
 
@@ -394,7 +394,7 @@ properties:
   - name: navTintColor
     summary: The tintColor to apply to the navigation bar (typically for the **More** tab).
     description: |
-        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+        This property is a direct correspondent of the tintColor property of NavigationBar on iOS.
     type: [String, Titanium.UI.Color]
     since: "3.3.0"
     default: null
@@ -414,6 +414,19 @@ properties:
     platforms: [android]
     default: True if tab group is opened on top of the root activity. False otherwise.
     type: Boolean
+
+  - name: forceBottomPosition
+    summary: Force tab bar to bottom position.
+    description: |
+        A new floating tab bar was introduced in iPadOS 18.
+        It is displayed without tab icons and at the top of the screen.
+        This property forces the tab bar to be displayed in the old style with icons and at the bottom of the screen (as on iPhone).
+    type: Boolean
+    default: false
+    availability: creation
+    osver: {ios: {min: "18.0"}}
+    platforms: [ipad]
+    since: 13.1.0
 
   - name: swipeable
     summary: |
@@ -541,7 +554,7 @@ properties:
   - name: tabsTintColor
     summary: The tintColor to apply to the tabs.
     description: |
-        This property is a direct correspondant of the tintColor property of UITabBar on iOS. This effects the
+        This property is a direct correspondent of the tintColor property of UITabBar on iOS. This effects the
         title and icons rendered in the active tab. When not specified the active icons are tinted with a bright
         blue.
     type: [String, Titanium.UI.Color]

@@ -366,7 +366,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		activity.getActivityProxy().getDecorView().add(this);
 
-		// Need to handle the cached activity proxy properties and url window in the JS side.
+		// Need to handle the cached activity proxy properties and URL window in the JS side.
 		callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
 	}
 

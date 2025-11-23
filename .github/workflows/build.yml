@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - main
     - "[0-9]+_[0-9]+_X"
     - actions_tests
   pull_request:

@@ -76,7 +76,7 @@ jobject JavaObject::getJavaObject()
 		jobject ref = ReferenceTable::getReference(refTableKey_);
 		if (ref == NULL) {
 			// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
-			LOGW(TAG, "Could not obtain reference, java object has already been collected! (Key: %d)", refTableKey_);
+			LOGW(TAG, "Could not obtain reference, Java object has already been collected! (Key: %d)", refTableKey_);
 			refTableKey_ = 0;
 			javaObject_ = NULL;
 		}
@@ -162,7 +162,7 @@ void JavaObject::MakeJavaStrong()
 		jobject stored = ReferenceTable::clearReference(refTableKey_);
 		if (stored == NULL) {
 			// Sanity check. Did we get into a state where it was weak on Java, got GC'd but the C++ proxy didn't get deleted yet?
-			LOGW(TAG, "Could not move weak reference to strong, java object has already been collected! (Key: %d)", refTableKey_);
+			LOGW(TAG, "Could not move weak reference to strong, Java object has already been collected! (Key: %d)", refTableKey_);
 			refTableKey_ = 0;
 			javaObject_ = NULL;
 		} else {
@@ -173,7 +173,7 @@ void JavaObject::MakeJavaStrong()
 		ASSERT(javaObject_ != NULL);
 		ASSERT(refTableKey_ == 0); // make sure we haven't already stored something
 		refTableKey_ = ReferenceTable::createReference(javaObject_); // make strong ref on Java side
-		javaObject_ = NULL; // toss out the java object copy here, it's in ReferenceTable's HashMap
+		javaObject_ = NULL; // toss out the Java object copy here, it's in ReferenceTable's HashMap
 	}
 	// When we're done we should always have a reference key, but no object
 	ASSERT(refTableKey_ != 0);

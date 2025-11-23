@@ -97,7 +97,7 @@ class AndroidBuilder extends Builder {
 		// we hook into the pre-validate event so that we can stop the build before
 		// prompting if we know the build is going to fail.
 		//
-		// this is also where we can detect android and jdk environments before
+		// this is also where we can detect Android and JDK environments before
 		// prompting occurs. because detection is expensive we also do it here instead
 		// of during config() because there's no sense detecting if config() is being
 		// called because of the help command.
@@ -110,13 +110,13 @@ class AndroidBuilder extends Builder {
 
 			async.series([
 				function (next) {
-					// detect android environment
+					// detect Android environment
 					androidDetect(config, { packageJson: _t.packageJson }, function (androidInfo) {
 						_t.androidInfo = androidInfo;
 						assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_NOT_FOUND');
 						assertIssue(logger, androidInfo.issues, 'ANDROID_JDK_PATH_CONTAINS_AMPERSANDS');
 
-						// if --android-sdk was not specified, then we simply try to set a default android sdk
+						// if --android-sdk was not specified, then we simply try to set a default Android SDK
 						if (!cli.argv['android-sdk']) {
 							let androidSdkPath = config.android && config.android.sdkPath;
 							if (!androidSdkPath && androidInfo.sdk) {
@@ -130,7 +130,7 @@ class AndroidBuilder extends Builder {
 				},
 
 				function (next) {
-					// detect java development kit
+					// detect JDK
 					appc.jdk.detect(config, null, function (jdkInfo) {
 						assertIssue(logger, jdkInfo.issues, 'JDK_NOT_INSTALLED');
 						assertIssue(logger, jdkInfo.issues, 'JDK_MISSING_PROGRAMS');
@@ -252,7 +252,7 @@ class AndroidBuilder extends Builder {
 								}));
 							},
 							validate: function (value, callback) {
-								// if there's a value, then they entered something, otherwise let the cli prompt
+								// if there's a value, then they entered something, otherwise let the CLI prompt
 								if (value) {
 									const selectedAlias = value.toLowerCase(),
 										alias = _t.keystoreAlias = _t.keystoreAliases.filter(function (a) { return a.name && a.name.toLowerCase() === selectedAlias; }).shift();
@@ -300,19 +300,19 @@ class AndroidBuilder extends Builder {
 								} else if (_t.androidInfo.sdk && _t.androidInfo.sdk.path === afs.resolvePath(value)) {
 									callback(null, value);
 								} else {
-									// attempt to find android sdk
+									// attempt to find Android SDK
 									android.findSDK(value, config, loadPackageJson(__dirname), function () {
 
-										// NOTE: ignore errors when finding sdk, let gradle validate the sdk
+										// NOTE: ignore errors when finding SDK, let Gradle validate the SDK
 
 										function next() {
-											// set the android sdk in the config just in case a plugin or something needs it
+											// set the Android SDK in the config just in case a plugin or something needs it
 											config.set('android.sdkPath', value);
 
 											// path looks good, do a full scan again
 											androidDetect(config, { packageJson: _t.packageJson, bypassCache: true }, function (androidInfo) {
 
-												// assume sdk is valid, let gradle validate the sdk
+												// assume SDK is valid, let Gradle validate the SDK
 												if (!androidInfo.sdk) {
 													androidInfo.sdk = { path: value };
 												}
@@ -322,8 +322,8 @@ class AndroidBuilder extends Builder {
 											});
 										}
 
-										// new android sdk path looks good
-										// if we found an android sdk in the pre-validate hook, then we need to kill the other sdk's adb server
+										// new Android SDK path looks good
+										// if we found an Android SDK in the pre-validate hook, then we need to kill the other SDK's adb server
 										if (_t.androidInfo.sdk) {
 											new ADB(config).stopServer(next);
 										} else {
@@ -335,7 +335,7 @@ class AndroidBuilder extends Builder {
 						},
 						'avd-abi': {
 							abbr: 'B',
-							desc: 'the abi for the Android emulator; deprecated, use --device-id',
+							desc: 'the ABI for the Android emulator; deprecated, use --device-id',
 							hint: 'abi'
 						},
 						'avd-id': {
@@ -462,7 +462,7 @@ class AndroidBuilder extends Builder {
 											name = 'titanium_' + cli.argv['avd-id'] + '_';
 
 										if (avds.length) {
-											// try finding the first avd that starts with the avd id
+											// try finding the first AVD that starts with the AVD id
 											avds = avds.filter(function (avd) {
 												return avd.indexOf(name) === 0;
 											});
@@ -470,7 +470,7 @@ class AndroidBuilder extends Builder {
 												cli.argv['device-id'] = avds[0];
 												return callback();
 											} else if (avds.length > 1) {
-												// next try using the avd skin
+												// next try using the AVD skin
 												if (!cli.argv['avd-skin']) {
 													// we have more than one match
 													logger.error(`Found ${avds.length} avd${avds.length === 1 ? '' : 's'} with id "${cli.argv['avd-id']}"`);
@@ -499,7 +499,7 @@ class AndroidBuilder extends Builder {
 														cli.argv['device-id'] = avds[0];
 														return callback();
 													} else if (!cli.argv['avd-abi']) {
-														// we have more than one matching avd, but no abi to filter by so we have to error
+														// we have more than one matching AVD, but no ABI to filter by so we have to error
 														logger.error(`Found ${
 															avds.length
 														} avd${avds.length === 1 ? '' : 's'} with id "${
@@ -523,9 +523,9 @@ class AndroidBuilder extends Builder {
 															});
 														}
 														if (avds.length === 0) {
-															logger.error(`No emulators found with id "${cli.argv['avd-id']}", skin "${cli.argv['avd-skin']}", and abi "${cli.argv['avd-abi']}"\n`);
+															logger.error(`No emulators found with id "${cli.argv['avd-id']}", skin "${cli.argv['avd-skin']}", and ABI "${cli.argv['avd-abi']}"\n`);
 														} else {
-															// there is one or more avds, but we'll just return the first one
+															// there is one or more AVDs, but we'll just return the first one
 															cli.argv['device-id'] = avds[0];
 															return callback();
 														}
@@ -536,7 +536,7 @@ class AndroidBuilder extends Builder {
 
 											logger.warn(`${'--avd-*'.cyan} options have been ${'deprecated'.red}, please use ${'--device-id'.cyan}\n`);
 
-											// print list of available avds
+											// print list of available AVDs
 											if (results.length && !cli.argv.prompt) {
 												logger.log('Available Emulators:');
 												results.forEach(function (emu) {
@@ -980,7 +980,7 @@ class AndroidBuilder extends Builder {
 				logger.error('The app id must consist only of letters, numbers, dashes, and underscores.');
 				logger.error('Note: Android does not allow dashes.');
 				logger.error('The first character must be a letter or underscore.');
-				logger.error('Usually the app id is your company\'s reversed Internet domain name. (i.e. com.example.myapp)\n');
+				logger.error('Usually the app id is your company\'s reversed Internet domain name. (e.g. com.example.myapp)\n');
 				process.exit(1);
 			}
 
@@ -989,7 +989,7 @@ class AndroidBuilder extends Builder {
 				logger.error('The app id must consist of letters, numbers, and underscores.');
 				logger.error('The first character must be a letter or underscore.');
 				logger.error('The first character after a period must not be a number.');
-				logger.error('Usually the app id is your company\'s reversed Internet domain name. (i.e. com.example.myapp)\n');
+				logger.error('Usually the app id is your company\'s reversed Internet domain name. (e.g. com.example.myapp)\n');
 				process.exit(1);
 			}
 
@@ -1033,9 +1033,9 @@ class AndroidBuilder extends Builder {
 			process.exit(1);
 		}
 
-		// map sdk versions to sdk targets instead of by id
+		// map SDK versions to SDK targets instead of by id
 		const targetSDKMap = {
-			// placeholder for gradle to use
+			// placeholder for Gradle to use
 			[this.compileSdkVersion]: {
 				sdk: this.compileSdkVersion
 			}
@@ -1080,7 +1080,7 @@ class AndroidBuilder extends Builder {
 			process.exit(1);
 		}
 
-		// validate the sdk levels
+		// validate the SDK levels
 		const usesSDK = this.customAndroidManifest ? this.customAndroidManifest.getUsesSdk() : null;
 
 		this.minSDK = this.minSupportedApiLevel;
@@ -1111,7 +1111,7 @@ class AndroidBuilder extends Builder {
 			usesSDK.maxSdkVersion    && (this.maxSDK    = usesSDK.maxSdkVersion);
 		}
 
-		// we need to translate the sdk to a real api level (i.e. L => 20, MNC => 22) so that
+		// we need to translate the SDK to a real API level (e.g. L => 20, MNC => 22) so that
 		// we can validate them
 		function getRealAPILevel(ver) {
 			return (ver && targetSDKMap[ver] && targetSDKMap[ver].sdk) || ver;
@@ -1120,7 +1120,7 @@ class AndroidBuilder extends Builder {
 		this.realTargetSDK = getRealAPILevel(this.targetSDK);
 		this.realMaxSDK    = getRealAPILevel(this.maxSDK);
 
-		// min sdk is too old
+		// min SDK is too old
 		if (this.minSDK && this.realMinSDK < this.minSupportedApiLevel) {
 			logger.error(`The minimum supported SDK API version must be ${
 				this.minSupportedApiLevel
@@ -1156,7 +1156,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		if (this.targetSDK) {
-			// target sdk is too old
+			// target SDK is too old
 			if (this.realTargetSDK < this.minTargetApiLevel) {
 				logger.error(`The target SDK API ${
 					this.targetSDK
@@ -1192,7 +1192,7 @@ class AndroidBuilder extends Builder {
 				process.exit(1);
 			}
 
-			// target sdk < min sdk
+			// target SDK < min SDK
 			if (this.realTargetSDK < this.realMinSDK) {
 				logger.error(`The target SDK API must be greater than or equal to the minimum SDK ${
 					this.minSDK
@@ -1211,7 +1211,7 @@ class AndroidBuilder extends Builder {
 			this.realTargetSDK = this.targetSDK;
 		}
 
-		// check that we have this target sdk installed
+		// check that we have this target SDK installed
 		this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
 		if (!this.androidTargetSDK) {
@@ -1620,7 +1620,7 @@ class AndroidBuilder extends Builder {
 			//       generates the "app.js" script via the "build.pre.compile" hook event above.
 			ti.validateAppJsExists(this.projectDir, logger, 'android');
 
-			// Generate all gradle files, gradle app project, and gradle library projects (if needed).
+			// Generate all Gradle files, Gradle app project, and Gradle library projects (if needed).
 			await this.processLibraries();
 			await this.generateRootProjectFiles();
 			await this.generateAppProject();
@@ -1702,7 +1702,7 @@ class AndroidBuilder extends Builder {
 		const loadFromSDCardProp = this.tiapp.properties['ti.android.loadfromsdcard'];
 		this.loadFromSDCard = loadFromSDCardProp && loadFromSDCardProp.value === true;
 
-		// Array of gradle/maven compatible library reference names the app project depends on.
+		// Array of Gradle/Maven compatible library reference names the app project depends on.
 		// Formatted as: "<group.id>:<artifact-id>:<version>"
 		// Example: "com.google.android.gms:play-services-base:11.0.4"
 		this.libDependencyStrings = [];
@@ -1710,10 +1710,10 @@ class AndroidBuilder extends Builder {
 		// Array of JAR/AAR library file paths the app project depends on.
 		this.libFilePaths = [];
 
-		// Array of gradle library project names the app depends on.
+		// Array of Gradle library project names the app depends on.
 		this.libProjectNames = [];
 
-		// Array of maven repository URLs the app project will need to search for dependencies.
+		// Array of Maven repository URLs the app project will need to search for dependencies.
 		// Typically set to local "file://" URLs referencing installed Titanium module.
 		this.mavenRepositoryUrls = [];
 
@@ -1784,7 +1784,7 @@ class AndroidBuilder extends Builder {
 			this.logger.info('Profiler disabled');
 		}
 
-		this.logger.info(`Transpile javascript: ${(this.transpile ? 'true' : 'false').cyan}`);
+		this.logger.info(`Transpile JavaScript: ${(this.transpile ? 'true' : 'false').cyan}`);
 		this.logger.info(`Generate source maps: ${(this.sourceMaps ? 'true' : 'false').cyan}`);
 	}
 
@@ -1854,7 +1854,7 @@ class AndroidBuilder extends Builder {
 			return true;
 		}
 
-		// if encryptJS changed, then we need to recompile the java files
+		// if encryptJS changed, then we need to recompile the Java files
 		if (this.encryptJS !== manifest.encryptJS) {
 			this.logger.info('Forcing rebuild: JavaScript encryption flag changed');
 			this.logger.info(`  Was: ${manifest.encryptJS}`);
@@ -1862,7 +1862,7 @@ class AndroidBuilder extends Builder {
 			return true;
 		}
 
-		// check if the titanium sdk paths are different
+		// check if the Titanium SDK paths are different
 		if (this.platformPath !== manifest.platformPath) {
 			this.logger.info('Forcing rebuild: Titanium SDK path changed since last build');
 			this.logger.info(`  Was: ${manifest.platformPath}`);
@@ -2006,7 +2006,7 @@ class AndroidBuilder extends Builder {
 		// Determine if we should do a "clean" build.
 		this.forceRebuild = this.checkIfShouldForceRebuild();
 		if (this.forceRebuild) {
-			// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+			// On Windows, stop Gradle daemon to make it release its file locks so that they can be deleted.
 			if (process.platform === 'win32') {
 				try {
 					const gradlew = new GradleWrapper(this.buildDir);
@@ -2015,7 +2015,7 @@ class AndroidBuilder extends Builder {
 						await gradlew.stopDaemon();
 					}
 				} catch (err) {
-					this.logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
+					this.logger.error(`Failed to stop Gradle daemon. Reason:\n${err}`);
 				}
 			}
 
@@ -2041,7 +2041,7 @@ class AndroidBuilder extends Builder {
 		// Create the library project subdirectory, if it doesn't already exist.
 		const projectDirName = 'lib.' + moduleInfo.manifest.moduleid;
 		const projectDirPath = path.join(this.buildDir, projectDirName);
-		this.logger.info(`Generating gradle project: ${projectDirName.cyan}`);
+		this.logger.info(`Generating Gradle project: ${projectDirName.cyan}`);
 		await fs.ensureDir(projectDirPath);
 
 		// Add the library project's name to our array.
@@ -2135,7 +2135,7 @@ class AndroidBuilder extends Builder {
 		await mainManifest.writeToFilePath(path.join(projectSrcMainDirPath, 'AndroidManifest.xml'));
 
 		// Generate a "build.gradle" file for this project from the SDK's "lib.build.gradle" EJS template.
-		// Note: Google does not support setting "maxSdkVersion" via gradle script.
+		// Note: Google does not support setting "maxSdkVersion" via Gradle script.
 		let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'lib.build.gradle'));
 		buildGradleContent = ejs.render(buildGradleContent.toString(), {
 			compileSdkVersion: this.compileSdkVersion,
@@ -2170,8 +2170,8 @@ class AndroidBuilder extends Builder {
 				continue;
 			}
 
-			// Check if the module has a maven repository directory.
-			// If it does, then we can leverage gradle/maven's dependency management system.
+			// Check if the module has a Maven repository directory.
+			// If it does, then we can leverage Gradle/Maven's dependency management system.
 			let dependencyString = null;
 			const repositoryDirPath = path.join(nextModule.modulePath, 'm2repository');
 			if (await fs.exists(repositoryDirPath)) {
@@ -2192,16 +2192,16 @@ class AndroidBuilder extends Builder {
 				}
 			}
 
-			// Determine how to reference the module in gradle.
+			// Determine how to reference the module in Gradle.
 			if (repositoryDirPath && dependencyString) {
-				// Referenced module has a maven repository.
+				// Referenced module has a Maven repository.
 				// This supports dependency management to avoid library version conflicts.
 				const url = 'file://' + repositoryDirPath.replace(/\\/g, '/');
 				this.mavenRepositoryUrls.push(encodeURI(url));
 				this.libDependencyStrings.push(dependencyString);
 			} else {
 				// Module directory only contains JARs/AARs. (This is our legacy module distribution.)
-				// We must create a gradle library project and copy the module's files to it.
+				// We must create a Gradle library project and copy the module's files to it.
 				await this.generateLibProjectForModule(nextModule);
 			}
 		}
@@ -2210,7 +2210,7 @@ class AndroidBuilder extends Builder {
 	async generateRootProjectFiles() {
 		this.logger.info('Generating root project files');
 
-		// Copy our SDK's gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
+		// Copy our SDK's Gradle files to the build directory. (Includes "gradlew" scripts and "gradle" directory tree.)
 		// The below install method will also generate a "gradle.properties" file.
 		const gradlew = new GradleWrapper(this.buildDir);
 		gradlew.logger = this.logger;
@@ -2250,14 +2250,14 @@ class AndroidBuilder extends Builder {
 		});
 		await fs.writeFile(path.join(this.buildDir, 'build.gradle'), buildGradleContent);
 
-		// Copy our Titanium template's gradle constants file.
+		// Copy our Titanium template's Gradle constants file.
 		// This provides the Google library versions we use and defines our custom "AndroidManifest.xml" placeholders.
 		const tiConstantsGradleFileName = 'ti.constants.gradle';
 		await fs.copyFile(
 			path.join(this.templatesDir, tiConstantsGradleFileName),
 			path.join(this.buildDir, tiConstantsGradleFileName));
 
-		// Create a "settings.gradle" file providing all of the gradle projects configured.
+		// Create a "settings.gradle" file providing all of the Gradle projects configured.
 		// By default, these project names must match the subdirectory names.
 		const fileLines = [
 			`rootProject.name = '${this.tiapp.name.replace(/'/g, "\\'")}'`, // eslint-disable-line quotes
@@ -2272,7 +2272,7 @@ class AndroidBuilder extends Builder {
 	}
 
 	async generateAppProject() {
-		this.logger.info(`Generating gradle project: ${'app'.cyan}`);
+		this.logger.info(`Generating Gradle project: ${'app'.cyan}`);
 
 		// Create the "app" project directory and its "./src/main" subdirectory tree.
 		// Delete all files under its "./src/main" subdirectory if it already exists.
@@ -2406,7 +2406,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// Generate a "build.gradle" file for this project from the SDK's "app.build.gradle" EJS template.
-		// Note: Google does not support setting "maxSdkVersion" via gradle script.
+		// Note: Google does not support setting "maxSdkVersion" via Gradle script.
 		let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
 		buildGradleContent = ejs.render(buildGradleContent.toString(), {
 			applicationId: this.appid,
@@ -2463,9 +2463,9 @@ class AndroidBuilder extends Builder {
 		secondWave.unshift(combined);
 		combined = gather.mergeMaps(secondWave);
 
-		// Fire an event requesting additional "Resources" paths from plugins. (used by hyperloop)
+		// Fire an event requesting additional "Resources" paths from plugins. (used by Hyperloop)
 		this.logger.info('Analyzing plugin-contributed files');
-		this.htmlJsFiles = {}; // for hyperloop to mark files it doesn't want processed
+		this.htmlJsFiles = {}; // for Hyperloop to mark files it doesn't want processed
 		const hook = this.cli.createHook('build.android.requestResourcesDirPaths', this, async (paths, done) => {
 			try {
 				const newTasks = [];
@@ -2535,7 +2535,7 @@ class AndroidBuilder extends Builder {
 		combined = gather.mergeMaps(allModulesResults);
 
 		// Ok, so we have a Map<string, FileInfo> for the full set of unique relative paths
-		// now categorize (i.e. lump into buckets of js/css/html/assets/generic resources)
+		// now categorize (e.g. lump into buckets of js/css/html/assets/generic resources)
 		const categorizer = new gather.Categorizer({
 			tiappIcon: this.tiapp.icon,
 			jsFilesNotToProcess: Object.keys(this.htmlJsFiles),
@@ -2545,7 +2545,7 @@ class AndroidBuilder extends Builder {
 	}
 
 	/**
-	 * Optionally mifies the input css files and copies them to the app
+	 * Optionally minifies the input CSS files and copies them to the app
 	 * @param {Map<string,object>} files map from filename to file info
 	 * @returns {Promise<void>}
 	 */
@@ -2677,7 +2677,7 @@ class AndroidBuilder extends Builder {
 		});
 		await task.run();
 		if (this.useWebpack) {
-			// Merge Ti symbols from Webpack with the ones from legacy js processing
+			// Merge Ti symbols from Webpack with the ones from legacy JS processing
 			Object.keys(task.data.tiSymbols).forEach(file => {
 				const existingSymbols = this.tiSymbols[file] || [];
 				const additionalSymbols = task.data.tiSymbols[file];
@@ -2714,7 +2714,7 @@ class AndroidBuilder extends Builder {
 	}
 
 	/**
-	 * @param {string[]} jsBootstrapFiles list of bootstrap js files to add to listing we generate
+	 * @param {string[]} jsBootstrapFiles list of bootstrap JS files to add to listing we generate
 	 * @returns {Promise<void>}
 	 */
 	async writeBootstrapJson(jsBootstrapFiles) {
@@ -2732,7 +2732,7 @@ class AndroidBuilder extends Builder {
 	/**
 	 * Copy "./platform/android" directory tree from all modules and main project to "app" project's "./src/main".
 	 * Android build tools auto-grabs folders named "assets", "res", "aidl", etc. from this folder.
-	 * Note 1: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by hyperloop.)
+	 * Note 1: Our "build.gradle" is configured to look for JAR/AAR files here too. (Needed by Hyperloop.)
 	 * Note 2: Main Titanium project's folder must be copied last, allowing it to replace asset or res files.
 	 * @returns {Promise<void>}
 	 */
@@ -2874,7 +2874,7 @@ class AndroidBuilder extends Builder {
 			throw new Error('Could not load encryption library!');
 		}
 
-		this.logger.info('Encrypting javascript assets...');
+		this.logger.info('Encrypting JavaScript assets...');
 
 		// NOTE: maintain 'build.android.titaniumprep' hook for remote encryption policy.
 		const hook = this.cli.createHook('build.android.titaniumprep', this, async function (exe, args, opts, next) {
@@ -3718,7 +3718,7 @@ class AndroidBuilder extends Builder {
 
 		// Copy all CommonJS module "AndroidManifest.xml" settings to secondary manifest object first.
 		for (const module of this.modules) {
-			// Skip native modules. Their manifest files will be handled by gradle build system.
+			// Skip native modules. Their manifest files will be handled by Gradle build system.
 			if (module.native) {
 				continue;
 			}
@@ -3781,7 +3781,7 @@ class AndroidBuilder extends Builder {
 
 			// Apply "tools:replace" attributes to <manifest/>, <application/>, and <activity/> attributes set by app.
 			// Avoids Google build errors if app's attributes conflict with attributes set by libraries.
-			// Note: Old Titanium build system (before gradle) didn't error out. So, this is for backward compatibility.
+			// Note: Old Titanium build system (before Gradle) didn't error out. So, this is for backward compatibility.
 			secondaryManifest.applyToolsReplace();
 
 			// Create the "debug" and "release" subdirectories.
@@ -3882,12 +3882,12 @@ class AndroidBuilder extends Builder {
 	}
 
 	createGradleWrapper(directoryPath) {
-		// Creates a gradle handling object for plugins such as hyperloop.
+		// Creates a Gradle handling object for plugins such as Hyperloop.
 		return new GradleWrapper(directoryPath);
 	}
 }
 
-// create the builder instance and expose the public api
+// create the builder instance and expose the public API
 const builder = new AndroidBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);

@@ -549,8 +549,16 @@ typedef enum {
  Whether or not the current device orientation is portrait.
 
  @return _YES_ is the current device orientation is portrait, _NO_ otherwise.
+ @deprecated Use `isOrientationPortrait` instead.
  */
-+ (BOOL)isOrientationPortait;
++ (BOOL)isOrientationPortait __attribute__((deprecated));
+
+/**
+ Whether or not the current device orientation is portrait.
+
+ @return _YES_ is the current device orientation is portrait, _NO_ otherwise.
+ */
++ (BOOL)isOrientationPortrait;
 
 /**
  Whether or not the current device orientation is landscape.

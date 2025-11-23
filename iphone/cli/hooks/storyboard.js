@@ -3,7 +3,7 @@
  * and then configures them in the Xcode project
  */
 
-// TO DO: Can we merge storyboard.js and framework.js
+// TODO: Can we merge storyboard.js and framework.js
 
 import fs from 'fs-extra';
 import { IncrementalFileTask } from 'appc-tasks';
