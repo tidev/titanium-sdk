@@ -190,6 +190,10 @@ public class AttributedStringProxy extends KrollProxy
 					for (AttributeProxy attr : attributes) {
 						if (attr.hasProperty(TiC.PROPERTY_TYPE)) {
 							Object type = attr.getProperty(TiC.PROPERTY_TYPE);
+							if (type == null) {
+								Log.e(TAG, "AttributedString type not found");
+								continue;
+							}
 							int[] range = null;
 							Object inRange = attr.getProperty(TiC.PROPERTY_ATTRIBUTE_RANGE);
 							if (inRange instanceof Object[]) {
@@ -249,6 +253,55 @@ public class AttributedStringProxy extends KrollProxy
 										spannableText.setSpan(
 											new BackgroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										break;
+									case UIModule.ATTRIBUTE_ROUNDED_BACKGROUND_COLOR:
+										if (attrValue instanceof HashMap) {
+											KrollDict borderValues = new KrollDict((HashMap<String, Object>) attrValue);
+											int fontSize = 14;
+
+											if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_FONT)) {
+												KrollDict borderFontProp = new KrollDict((HashMap<String, Object>)
+													borderValues.get(TiC.PROPERTY_FONT));
+
+												String[] fontProperties =
+													TiUIHelper.getFontProperties((KrollDict) borderFontProp);
+												if (fontProperties[TiUIHelper.FONT_SIZE_POSITION] != null) {
+													fontSize = TiConvert.toInt(
+														fontProperties[TiUIHelper.FONT_SIZE_POSITION]);
+												}
+											}
+
+											KrollDict paddingDict = null;
+											if (borderValues.containsKeyAndNotNull(TiC.PROPERTY_PADDING)) {
+												paddingDict = new KrollDict((HashMap<String, Object>)
+													borderValues.get(TiC.PROPERTY_PADDING));
+											}
+
+											int offset = 0;
+											if (borderValues.containsKeyAndNotNull("offset")) {
+												offset = TiConvert.toInt(borderValues.get("offset"));
+											}
+											int topMargin = 0;
+											if (borderValues.containsKeyAndNotNull("topMargin")) {
+												topMargin = TiConvert.toInt(borderValues.get("topMargin"));
+											}
+
+											spannableText.setSpan(
+												new AttributedStringRoundBackground(
+													TiConvert.toColor(TiConvert.toString(
+														borderValues.get(TiC.PROPERTY_BACKGROUND_COLOR), "#fff"),
+														activity
+													),
+													TiConvert.toColor(TiConvert.toString(
+														borderValues.get(TiC.PROPERTY_COLOR), "#000"), activity),
+													TiConvert.toInt(borderValues.get(TiC.PROPERTY_BORDER_RADIUS), 4),
+													fontSize,
+													paddingDict,
+													offset,
+													topMargin
+												),
+												range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+										}
 										break;
 									case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
 										spannableText.setSpan(
