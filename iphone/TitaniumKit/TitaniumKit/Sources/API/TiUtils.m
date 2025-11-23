@@ -1251,14 +1251,11 @@ If the new path starts with / and the base URL is app://..., we have to massage 
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                          [NSNumber numberWithFloat:point.x], @"x",
                                                      [NSNumber numberWithFloat:point.y], @"y",
+                                                     [NSNumber numberWithFloat:touch.altitudeAngle], @"altitudeAngle",
                                                      [NSNumber numberWithFloat:touch.force], @"force",
                                                      [NSNumber numberWithFloat:touch.maximumPossibleForce], @"maximumPossibleForce",
                                                      [NSNumber numberWithDouble:touch.timestamp], @"timestamp",
                                                      nil];
-
-    if ([self isIOSVersionOrGreater:@"9.1"]) {
-      [dict setValue:[NSNumber numberWithFloat:touch.altitudeAngle] forKey:@"altitudeAngle"];
-    }
 
     if ([self validatePencilWithTouch:touch]) {
       [dict setValue:[NSNumber numberWithFloat:[touch azimuthUnitVectorInView:view].dx] forKey:@"azimuthUnitVectorInViewX"];
@@ -2182,7 +2179,7 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 
 + (BOOL)livePhotoSupported
 {
-  return [self isIOSVersionOrGreater:@"9.1"];
+  return YES;
 }
 
 + (NSString *)currentArchitecture
@@ -2204,11 +2201,7 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 
 + (BOOL)validatePencilWithTouch:(UITouch *)touch
 {
-  if ([self isIOSVersionOrGreater:@"9.1"]) {
-    return [touch type] == UITouchTypeStylus;
-  } else {
-    return NO;
-  }
+  return [touch type] == UITouchTypeStylus;
 }
 
 // Credits: http://stackoverflow.com/a/14525049/5537752

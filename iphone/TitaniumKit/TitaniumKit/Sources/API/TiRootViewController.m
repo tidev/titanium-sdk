@@ -1066,7 +1066,6 @@
   [self adjustFrameForUpSideDownOrientation:nil];
 }
 
-// IOS5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
   return YES;
@@ -1076,9 +1075,6 @@
 {
   return [self shouldRotateToInterfaceOrientation:toInterfaceOrientation checkModal:YES];
 }
-// IOS5 support. End Section
-
-// IOS6 new stuff.
 
 - (BOOL)shouldAutomaticallyForwardRotationMethods
 {
@@ -1135,11 +1131,11 @@
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-  // IOS6. If forcing status bar orientation, this must return 0.
+  // If forcing status bar orientation, this must return 0.
   if (forcingStatusBarOrientation) {
     return 0;
   }
-  // IOS6. If we are presenting a modal view controller, get the supported
+  // If we are presenting a modal view controller, get the supported
   // orientations from the modal view controller
   UIViewController *topmostController = [self topPresentedControllerCheckingPopover:YES];
   if (topmostController != self) {
