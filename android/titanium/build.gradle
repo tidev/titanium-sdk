@@ -243,7 +243,7 @@ tasks.withType(Checkstyle).configureEach {
 	source android.sourceSets.main.java.srcDirs
 }
 
-// Used to strip the src dir prefixes from the changed java files
+// Used to strip the src dir prefixes from the changed Java files
 def getChangedFiles() {
 	if (!project.hasProperty('changedFiles')) {
 		return new ArrayList<>()
@@ -321,12 +321,12 @@ dependencies {
 }
 
 // This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.
-// It generates a maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
+// It generates a Maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
 // The below will only work if you do a release build via "gradlew :titanium:assembleRelease" first.
 publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
-			// Set up maven repo info.
+			// Set up Maven repo info.
 			groupId 'org.appcelerator'
 			artifactId 'titanium'
 			version tiBuildVersionString
@@ -354,7 +354,7 @@ publishing {
 	}
 	repositories {
 		maven {
-			// The maven directory tree produced above will be outputted to the following local directory.
+			// The Maven directory tree produced above will be outputted to the following local directory.
 			url "${buildDir}/outputs/m2repository"
 		}
 	}

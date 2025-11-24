@@ -55,7 +55,7 @@ StringDecoder.prototype.write = function write(buffer) {
 };
 
 /**
- * This is the base class. We override parts of it for certain encodings. For ascii/hex/binary/latin1 the impl is super-easy
+ * This is the base class. We override parts of it for certain encodings. For ASCII/hex/binary/latin1 the impl is super-easy
  */
 class StringDecoderImpl {
 	constructor(encoding = 'utf8') {
@@ -241,7 +241,7 @@ class Utf8StringDecoder extends MultiByteStringDecoderImpl {
 	}
 
 	_incompleteEnd() {
-		return '\ufffd'; // we replace the missing character with a special utf8 char
+		return '\ufffd'; // we replace the missing character with a special UTF-8 char
 	}
 }
 
@@ -295,7 +295,7 @@ class Base64StringDecoder extends MultiByteStringDecoderImpl {
 	_checkIncompleteBytes(buffer) {
 		const length = buffer.length;
 		const modulo = length % 3;
-		// base64 needs 3 bytes always, so if we have that many (or a multiple), we have a complete buffer
+		// Base64 needs 3 bytes always, so if we have that many (or a multiple), we have a complete buffer
 		if (modulo === 0) {
 			return {
 				bytesNeeded: 0,

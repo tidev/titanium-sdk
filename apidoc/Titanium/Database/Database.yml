@@ -30,7 +30,7 @@ methods:
       rather than copying the file from the path provided in the first
       argument.
 
-      Files stored in the `Private Documents` directory on iOS5 will be
+      Files stored in the `Private Documents` directory on iOS 5 will be
       automatically backed up to iCloud and removed from the device in low
       storage situations. See
       [How do I prevent files from being backed up to iCloud?](https://developer.apple.com/library/ios/qa/qa1719/_index.html)
@@ -136,7 +136,7 @@ methods:
     examples:
     - title: Open a Database from Internal Storage (iOS)
       example: |
-        A database, with a persistant name of `mydb1Installed` and located in the
+        A database, with a persistent name of `mydb1Installed` and located in the
         default database location on internal storage, is opened.
 
         ``` js
@@ -157,7 +157,7 @@ methods:
         * `/Applications/<apple app id>/Library/Application Support/database/mydb1Installed.sql` (earlier versions)
     - title: Open a Database on Internal Storage (Android)
       example: |
-        A database, with a persistant name of `mydb1Installed` and located in the
+        A database, with a persistent name of `mydb1Installed` and located in the
         default database location on internal storage, is opened.
 
         ``` js

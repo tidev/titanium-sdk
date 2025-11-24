@@ -142,7 +142,7 @@
   [self _addView:args atIndex:viewProxies ? [viewProxies count] : 0];
 }
 
-// Private, used to have only one method repsonsible for adding views
+// Private, used to have only one method responsible for adding views
 - (void)_addView:(TiViewProxy *)proxy atIndex:(NSUInteger)index
 {
   [self lockViewsForWriting];

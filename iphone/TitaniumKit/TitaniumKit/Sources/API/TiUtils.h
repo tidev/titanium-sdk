@@ -549,8 +549,16 @@ typedef enum {
  Whether or not the current device orientation is portrait.
 
  @return _YES_ is the current device orientation is portrait, _NO_ otherwise.
+ @deprecated Use `isOrientationPortrait` instead.
  */
-+ (BOOL)isOrientationPortait;
++ (BOOL)isOrientationPortait __attribute__((deprecated));
+
+/**
+ Whether or not the current device orientation is portrait.
+
+ @return _YES_ is the current device orientation is portrait, _NO_ otherwise.
+ */
++ (BOOL)isOrientationPortrait;
 
 /**
  Whether or not the current device orientation is landscape.
@@ -610,55 +618,55 @@ typedef enum {
 
  @return _YES_ if the current OS version is equal to or greater than 7.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS7OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS7OrGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than 8.0.
 
  @return _YES_ if the current OS version is equal to or greater than 8.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS8OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS8OrGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than 8.2.
 
- @return _YES_ if the current OS version is equal to or greater thann 8.2, _NO_ otherwise.
+ @return _YES_ if the current OS version is equal to or greater than 8.2, _NO_ otherwise.
  */
-+ (BOOL)isIOS82rGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS82rGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than 9.0.
  @return _YES_ if the current OS version is equal to or greater than 9.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS9OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS9OrGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than 9.1.
 
  @return _YES_ if the current OS version is equal to or greater than 9.1, _NO_ otherwise.
  */
-+ (BOOL)isIOS9_1OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS9_1OrGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than 9.3.
 
  @return _YES_ if the current OS version is equal to or greater than 9.3, _NO_ otherwise.
  */
-+ (BOOL)isIOS9_3OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS9_3OrGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than 10.0.
 
  @return _YES_ if the current OS version is equal to or greater than 10.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS10OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS10OrGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than 11.0.
 
  @return _YES_ if the current OS version is equal to or greater than 11.0, _NO_ otherwise.
  */
-+ (BOOL)isIOS11OrGreater __deprecated_msg("Use isIOSVersionOrGreater insted");
++ (BOOL)isIOS11OrGreater __deprecated_msg("Use isIOSVersionOrGreater instead");
 
 /**
  Whether or not the current OS version is equal to or greater than the specified version.

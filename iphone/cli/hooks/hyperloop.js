@@ -1,5 +1,5 @@
 /**
- * hyperloop symbol de-duplication build script
+ * Hyperloop symbol de-duplication build script
  *
  * @author Jeff Haynie
  * @date 02/06/2014
@@ -53,7 +53,7 @@ export function init(logger, config, cli) {
 				}
 			}
 			if (hlmodules.length > 1) {
-				// we have hyperloop modules (more than 1), we need to de-dup
+				// we have Hyperloop modules (more than 1), we need to de-dup
 				const libid = hash.digest('hex'),
 					libname = 'lib' + libid + '.a';
 
@@ -77,7 +77,7 @@ export function init(logger, config, cli) {
 		pre: function (data, next) {
 			if (libfile) {
 
-				// set a pre-processor flag for hyperloop
+				// set a pre-processor flag for Hyperloop
 				const xcode_args = data.args[1];
 				xcode_args.forEach(function (arg, index) {
 					if (/^GCC_PREPROCESSOR_DEFINITIONS/.test(arg)) {

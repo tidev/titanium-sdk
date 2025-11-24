@@ -191,7 +191,7 @@ export class WebpackService extends EventEmitter {
 	}
 
 	/**
-	 * Prints the url to the web ui.
+	 * Prints the URL to the web UI.
 	 */
 	printWebUiUrl() {
 		const { host, port } = this.client;

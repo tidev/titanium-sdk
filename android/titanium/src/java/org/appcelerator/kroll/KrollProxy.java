@@ -932,7 +932,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					} else {
 						String warningMessage
 							= "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true"
-							+ " if and only if code is nonzero. For java modules, consider the putCodeAndMessage()"
+							+ " if and only if code is nonzero. For Java modules, consider the putCodeAndMessage()"
 							+ " method to do this for you. The capability to use other types will be removed in a"
 							+ " future version.";
 						Log.w(TAG, warningMessage, Log.DEBUG_MODE);
@@ -940,13 +940,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				} else if (successValue) {
 					String warningMessage
 						= "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property"
-						+ " that is 0. For java modules, consider the putCodeAndMessage() method to do this for you."
+						+ " that is 0. For Java modules, consider the putCodeAndMessage() method to do this for you."
 						+ " The capability to use other types will be removed in a future version.";
 					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				} else {
 					String warningMessage
 						= "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property"
-						+ " that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for"
+						+ " that is nonzero. For Java modules, consider the putCodeAndMessage() method to do this for"
 						+ " you. The capability to use other types will be removed in a future version.";
 					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				}
@@ -963,7 +963,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
 			} else if (hashValue != null) {
 				String warningMessage
-					= "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules,"
+					= "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For Java modules,"
 					+ " consider the putCodeAndMessage() method to do this for you. The capability to use other types"
 					+ " will be removed in a future version.";
 				Log.w(TAG, warningMessage, Log.DEBUG_MODE);
@@ -1359,7 +1359,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					eventListeners.remove(eventName);
 				}
 				if (eventListeners.isEmpty()) {
-					// If we don't have any java listeners, we set the property to false
+					// If we don't have any Java listeners, we set the property to false
 					setProperty(PROPERTY_HAS_JAVA_LISTENER, false);
 				}
 			}

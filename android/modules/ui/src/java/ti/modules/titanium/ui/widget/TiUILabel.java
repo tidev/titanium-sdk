@@ -169,7 +169,7 @@ public class TiUILabel extends TiUIView
 				MaterialTextView textView = (MaterialTextView) this;
 				Object text = textView.getText();
 
-				//For html texts, we will manually detect url clicks.
+				// For HTML texts, we will manually detect url clicks.
 				if (text instanceof SpannedString) {
 					SpannedString spanned = (SpannedString) text;
 					Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));

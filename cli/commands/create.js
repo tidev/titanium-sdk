@@ -190,7 +190,7 @@ export class CreateCommand {
 	}
 }
 
-// create the builder instance and expose the public api
+// create the builder instance and expose the public API
 const createCommand = new CreateCommand();
 export const config = createCommand.config.bind(createCommand);
 export const run = createCommand.run.bind(createCommand);

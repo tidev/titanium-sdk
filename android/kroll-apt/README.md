@@ -27,7 +27,7 @@ There are two ways to use this annotation processor:
 1. via javac
     - Example of building a simple proxy: ($TI_MOBILE represents the titanium_mobile repository)
     <code><pre>javac org/test/Test.java -classpath $TI_MOBILE/android/kroll-apt/bin:$TI_MOBILE/android/titanium/bin:$TI_MOBILE/android/kroll-apt/lib/freemarker.jar:$TI_MOBILE/android/kroll-apt/lib/json_simple-1.1.jar -processor org.appcelerator.kroll.annotations.generator.KrollBindingGenerator -Akroll.jsonFile=test.json -s .apt_generated</pre></code>
-    - This process is a little tricky when building titanium itself, because there are circular class dependencies between the @Kroll annotation and certain classes that are annotated in the "titanium" project. See the top level build.xml to see how this is worked around with a two-stage compile.
+    - This process is a little tricky when building Titanium itself, because there are circular class dependencies between the @Kroll annotation and certain classes that are annotated in the "titanium" project. See the top level build.xml to see how this is worked around with a two-stage compile.
 2. via Eclipse's built in Annotation processing support, using the processor as an Eclipse plugin (see details below)
 
 Using the annotation processor in Eclipse
@@ -42,7 +42,7 @@ You will need to make sure you have the Eclipse PDE plugins installed. If you ha
 - Copy this jar into your Eclipse installation's "plugins" folder
 - Restart Eclipse
 - Perform a "clean" build on your entire workspace
-- At this point, if you disable the ".* resources" filter in the Package Explorer view, you should see .apt_generated folders under each titanium project with Generated bindings for each proxy / module. If you are getting compile errors, jump down to Common Problems
+- At this point, if you disable the ".* resources" filter in the Package Explorer view, you should see .apt_generated folders under each Titanium project with Generated bindings for each proxy / module. If you are getting compile errors, jump down to Common Problems
 
 __Developing and debugging the annotation processor in Eclipse__
 
