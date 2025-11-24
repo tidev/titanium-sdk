@@ -553,43 +553,47 @@
   }
   ENSURE_UI_THREAD_0_ARGS;
 
-  UITabBarItem *tabBarItem = [controller tabBarItem];
+  UIViewController *rootController = [rootWindow hostingController];
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
   id badgeColor = [self valueForKey:@"badgeColor"];
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
   NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
-  UIViewController *rootController = [rootWindow hostingController];
   [rootController setTitle:title];
 
-  // System-icon:
+  // tab bar item with system-icon:
   if ([icon isKindOfClass:[NSNumber class]]) {
     int value = [TiUtils intValue:icon];
-    tabBarItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
-    [controller setTabBarItem:tabBarItem];
+    UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
 
     // badge
     if (badgeColor != nil) {
-      [tabBarItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
+      [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
-    [tabBarItem setBadgeValue:badgeValue];
+    [newItem setBadgeValue:badgeValue];
+
+    [controller setTabBarItem:newItem];
+    [newItem release];
 
     systemTab = YES;
     return;
   }
 
-  // custom icon:
+  // tab bar item with custom icon:
   UIImage *image;
   UIImage *activeImage = nil;
   if (icon == nil) {
     image = nil;
   } else {
+    // icon
     if ([icon isKindOfClass:[TiBlob class]]) {
       image = [(TiBlob *)icon image];
     } else {
       image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:self]];
     }
+
+    // active icon
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
       activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:self]];
@@ -597,6 +601,7 @@
       activeImage = [(TiBlob *)activeIcon image];
     }
 
+    // image rendering modes
     if (image != nil) {
       NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
       image = [image imageWithRenderingMode:theMode];
@@ -606,6 +611,7 @@
       activeImage = [activeImage imageWithRenderingMode:theMode];
     }
 
+    // tinted icon
     TiColor *tintColor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
     if (tintColor == nil) {
       tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
@@ -620,6 +626,7 @@
       image = [TiUtils imageWithTint:image tintColor:[tintColor color]];
     }
 
+    // tinted active icon
     TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
     if (activeTintColor == nil) {
       activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTintColor"]];
@@ -639,11 +646,15 @@
     }
   }
 
-  // tab bar item (re-)init
+  UITabBarItem *tabBarItem = [controller tabBarItem];
   if (tabBarItem == nil || systemTab == YES) {
-    tabBarItem = [[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage];
-    [controller setTabBarItem:tabBarItem];
+    // init tab bar item
+    UITabBarItem *newItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+    [controller setTabBarItem:newItem];
+
+    tabBarItem = [controller tabBarItem];
   } else {
+    // reuse tab bar item
     [tabBarItem setTitle:title];
     [tabBarItem setImage:image];
     [tabBarItem setSelectedImage:activeImage];
@@ -677,6 +688,7 @@
       }
       tabBarItem.standardAppearance = appearance;
       tabBarItem.scrollEdgeAppearance = appearance;
+      [appearance release];
     } else {
       if (titleColor != nil) {
         [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
