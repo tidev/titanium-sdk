@@ -600,29 +600,18 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_FULL
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
-  }
-  return nil;
+  return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
 }
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_HINT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
-  }
-
-  return nil;
+  return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
 }
 #endif
 
 #ifdef USE_TI_UIIOSLIVEPHOTOBADGE
 - (TiBlob *)createLivePhotoBadge:(id)value
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return nil;
-  }
-
   ENSURE_ARG_COUNT(value, 1);
   ENSURE_ARRAY(value);
   id option = [value objectAtIndex:0];
@@ -643,20 +632,14 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
-  }
-  return NUMINT(0);
+  return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
 }
 #endif
 
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
-  }
-  return NUMINT(0);
+  return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
 }
 #endif
 

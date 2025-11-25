@@ -171,10 +171,7 @@ static BOOL _isTesting = NO;
 
 + (BOOL)isRetinaHDDisplay
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return ([UIScreen mainScreen].scale == 3.0);
-  }
-  return NO;
+  return ([UIScreen mainScreen].scale == 3.0);
 }
 
 + (BOOL)isIOS8OrGreater
