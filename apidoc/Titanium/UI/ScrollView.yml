@@ -274,6 +274,17 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "3.2.3"
 
+  - name: edgeEffect
+    summary: Configures the edge effects displayed when the scroll view hits its bounds.
+    description: |
+        Provide a dictionary with `top`, `right`, `bottom`, and `left` keys set to the
+        `Titanium.UI.iOS.SCROLL_VIEW_EDGE_EFFECT_STYLE_*` constants to control each edge
+        individually. Requires a <Titanium.UI.NavigationWindow> to apply the effect style.
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    osver: { ios: { min: "26.0" } }
+    since: "13.1.0"
+
   - name: disableBounce
     summary: Determines whether scroll bounce of the scrollable region is enabled.
     description: |
