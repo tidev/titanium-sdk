@@ -147,14 +147,14 @@ export function render(logger, config, rpad, styleHeading, styleValue, styleBad)
 		logger.log('No Xcode installations found.'.grey + '\n');
 	}
 
-	// ios keychains
+	// iOS keychains
 	logger.log(
 		styleHeading('iOS Keychains') + '\n'
 		+ Object.keys(data.certs.keychains).sort().reverse().map(function (keychain) {
 			return '  ' + rpad(path.basename(keychain)) + ' = ' + styleValue(keychain);
 		}).join('\n') + '\n');
 
-	// ios certs
+	// iOS certs
 	logger.log(styleHeading('iOS Development Certificates'));
 	let counter = 0;
 	if (Object.keys(data.certs.keychains).length) {

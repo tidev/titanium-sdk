@@ -22,7 +22,6 @@ NSString *const TI_APPLICATION_VERSION = @"__APP_VERSION__";
 NSString *const TI_APPLICATION_DESCRIPTION = @"__APP_DESCRIPTION__";
 NSString *const TI_APPLICATION_COPYRIGHT = @"__APP_COPYRIGHT__";
 NSString *const TI_APPLICATION_GUID = @"__APP_GUID__";
-BOOL const TI_APPLICATION_ANALYTICS = __APP_ANALYTICS__;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = __SHOW_ERROR_CONTROLLER__;
 NSString *const TI_APPLICATION_BUILD_TYPE = @"__APP_DEPLOY_TYPE__";
 
@@ -41,7 +40,6 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setApplicationDescription:TI_APPLICATION_DESCRIPTION];
   [[TiSharedConfig defaultConfig] setApplicationCopyright:TI_APPLICATION_COPYRIGHT];
   [[TiSharedConfig defaultConfig] setApplicationGUID:TI_APPLICATION_GUID];
-  [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];

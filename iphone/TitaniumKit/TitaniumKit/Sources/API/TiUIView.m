@@ -1141,9 +1141,9 @@ DEFINE_EXCEPTIONS
 
 - (CAShapeLayer *)shadowLayer
 {
-  // If there is single cborderRadius, use self.layer as shadwoLayer.
+  // If there is single borderRadius, use self.layer as shadowLayer.
   // Shadow animation does not work if shadowLayer is added on self.layer.superlayer
-  // But in this case, shadwoLayer is self.layer. So animation will work on shadow as well.
+  // But in this case, shadowLayer is self.layer. So animation will work on shadow as well.
   NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
   if ((!array || array.count <= 1) && _shadowLayer != self.layer) {
     self.layer.mask = nil;

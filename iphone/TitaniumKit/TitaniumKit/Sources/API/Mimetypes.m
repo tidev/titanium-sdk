@@ -16,7 +16,7 @@ static NSDictionary *mimeTypeFromExtensionDict = nil;
 
 + (void)initialize
 {
-  // This dictionary contains info on mimetypes surrently missing on IOS platform.
+  // This dictionary contains info on mimetypes currently missing on iOS platform.
   // This should be updated on a case by case basis.
   if (mimeTypeFromExtensionDict == nil) {
     mimeTypeFromExtensionDict = [[NSDictionary alloc] initWithObjectsAndKeys:

@@ -137,7 +137,7 @@ methods:
         optional: true
         default: 'Failed'
 
-# TODO: Support the deprected fail invocation format?
+# TODO: Support the deprecated fail invocation format?
 # assert.fail(actual, expected[, message[, operator[, stackStartFn]]])
 
   - name: ifError
@@ -159,7 +159,7 @@ methods:
   #   parameters:
   #     - name: string
   #       type: String
-  #       summary: The strign to match
+  #       summary: The string to match
   #     - name: regexp
   #       type: RegExp
   #       summary: The regular expression to match against

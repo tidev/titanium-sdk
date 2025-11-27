@@ -997,8 +997,8 @@ public class TiUIHelper
 	}
 
 	/**
-	 * Creates and returns a bitmap from its url.
-	 * @param url the bitmap url.
+	 * Creates and returns a bitmap from its URL.
+	 * @param url the bitmap URL.
 	 * @return a new bitmap instance
 	 */
 	public static Bitmap getResourceBitmap(String url)

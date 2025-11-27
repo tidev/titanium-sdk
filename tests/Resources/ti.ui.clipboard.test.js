@@ -30,7 +30,7 @@ describe('Titanium.UI.Clipboard', () => {
 	// we take in 'color' -> they report 'com.apple.uikit.color'
 	// we take in 'text/plain' -> they report 'public.plain-text'
 	// we take in 'url' -> they report 'public.url'
-	// setting an url can also give us 'public.utf8-plain-text'
+	// setting an URL can also give us 'public.utf8-plain-text'
 	// setting an image can give us multiple types: 'com.apple.uikit.image', 'public.png', 'public.jpeg'
 
 	describe('properties', () => {

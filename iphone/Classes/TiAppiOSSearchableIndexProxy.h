@@ -10,5 +10,9 @@
 
 @interface TiAppiOSSearchableIndexProxy : TiProxy {
 }
+/**
+ * @deprecated Use `deleteAllSearchableItemByDomainIdentifiers:` instead.
+ */
+- (void)deleteAllSearchableItemByDomainIdenifiers:(id)args __attribute__((deprecated));
 @end
 #endif

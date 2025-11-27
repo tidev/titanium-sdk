@@ -617,7 +617,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void finish()
 	{
 		// For API 10 and above, the whole activity gets destroyed during an orientation change. We only want to set
-		// overlayProxy to null when we call finish, i.e. when we hide the camera or take a picture. By doing this, the
+		// overlayProxy to null when we call finish, e.g. when we hide the camera or take a picture. By doing this, the
 		// overlay proxy will be available during the recreation of the activity during an orientation change.
 		overlayProxy = null;
 		super.finish();

@@ -61,7 +61,7 @@ typedef NS_ENUM(NSInteger, FileStatus) {
 + (NSData *)loadURL:(NSURL *)url
 {
   FileStatus status = FileStatusUnknown;
-  // This assumes it's a js or json file already!
+  // This assumes it's a JS or JSON file already!
   if (url.isFileURL) { // if it's a resource, check index.json listing for status
     status = [AssetsModule fileStatus:[TiHost resourceRelativePath:url]];
   }
@@ -92,13 +92,13 @@ typedef NS_ENUM(NSInteger, FileStatus) {
   // Calling [relativePath stringByStandardizingPath]; does not resolve '..' segments because the path isn't absolute!
   // so we hack around it here by making an URL that does point to absolute location...
   NSURL *url_ = [NSURL URLWithString:path relativeToURL:baseURL];
-  // "standardizing" it (i.e. removing '.' and '..' segments properly...
+  // "standardizing" it (e.g. removing '.' and '..' segments properly...
   return [AssetsModule loadURL:[url_ standardizedURL]];
 }
 
 + (FileStatus)fileStatus:(NSString *)path
 {
-  // if it's not a js or json file, status is unknown!
+  // if it's not a JS or JSON file, status is unknown!
   NSString *extension = path.pathExtension;
   if (![extension isEqual:@"js"] && ![extension isEqual:@"json"]) {
     return FileStatusUnknown;
@@ -111,7 +111,7 @@ typedef NS_ENUM(NSInteger, FileStatus) {
   if ([path isEqualToString:@"/_index_.json"]) { // we know it exists! we loaded it
     return FileStatusUnknown; // treat as "unknown" since we didn't record if we loaded in normal or encrypted...
   }
-  // Initial path is assuemd to be of form: "/ti.main.js", "/app.js" or "/ti.kernel.js"
+  // Initial path is assumed to be of form: "/ti.main.js", "/app.js" or "/ti.kernel.js"
   // Basically a path that looks absolute but is relative to Resources dir (app root)
   path = [@"Resources" stringByAppendingString:path];
   NSNumber *type = files[path];
@@ -167,7 +167,7 @@ typedef NS_ENUM(NSInteger, FileStatus) {
     }
     if (errorString != nil) {
       DebugLog(@"[ERROR] Could not load _index_.json require index, error was %@", errorString);
-      // Create an empty dictioary to avoid running this code over and over again.
+      // Create an empty dictionary to avoid running this code over and over again.
       props = [[NSDictionary dictionary] retain];
     }
   }
