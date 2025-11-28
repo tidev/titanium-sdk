@@ -12,7 +12,9 @@ import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
@@ -24,10 +26,12 @@ import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Point;
 import android.os.Parcelable;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -584,6 +588,26 @@ public class TiUIScrollableView extends TiUIView
 				throw new IllegalArgumentException();
 			}
 			mViewProxies = viewProxies;
+		}
+
+		@Override
+		public float getPageWidth(int position)
+		{
+			// get window width
+			Display display = TiApplication.getAppRootOrCurrentActivity().getWindowManager().getDefaultDisplay();
+			Point size = new Point();
+			display.getSize(size);
+
+			// get view/page width
+			TiDimension width = TiConvert.toTiDimension(mViewProxies.get(position).getWidth(), TiDimension.TYPE_WIDTH);
+			if (width != null) {
+				// custom width on view
+				float customWidth = width.getAsPixels(mViewProxies.get(position).getOrCreateView().getOuterView())
+					/ (float) size.x;
+				return Float.min(customWidth, 1.0f);
+			} else {
+				return super.getPageWidth(position);
+			}
 		}
 
 		@Override

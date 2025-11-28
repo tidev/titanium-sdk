@@ -380,6 +380,23 @@ properties:
 
   - name: views
     summary: Sets the pages within this Scrollable View.
+    description: |
+        Android:
+        Since 12.6.0 the width of each child view can be set between 0 and screen width.
+        ```
+        const win = Ti.UI.createWindow();
+        const view1 = Ti.UI.createView({ backgroundColor:'#123', width: 200 });
+        const view2 = Ti.UI.createView({ backgroundColor:'#246' });
+        const lbl = Ti.UI.createLabel({ text: "scroll left"});
+        const scrollableView = Ti.UI.createScrollableView({
+          views:[view1, view2],
+          currentPage: 1
+        });
+
+        view2.add(lbl);
+        win.add(scrollableView);
+        win.open();
+        ```
     type: Array<Titanium.UI.View>
 
   - name: clipViews
