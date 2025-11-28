@@ -4654,13 +4654,13 @@ class iOSBuilder extends Builder {
 		if (typeof value === 'number') {
 			return value;
 		} else if (typeof value === 'string') {
-			// space or special characters : / ?
 			if (/\s|[:/?]/.test(value)) {
+				// contains space characters or special characters : / ?
 				return '"' + value + '"';
 			} else {
 				return value;
 			}
-		} else { // other
+		} else { // boolean or other
 			return String(value);
 		}
 	}
@@ -4678,9 +4678,9 @@ class iOSBuilder extends Builder {
 				'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)',
 				'OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 				'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
-				'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(function ([ key, value ]) { return key + '=' + value; }).join(' '),
+				'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(([ key, value ]) => { return key + '=' + value; }).join(' '),
 				'SWIFT_CONDITIONS=' + this.swiftConds.join(' '),
-				'SWIFT_FLAGS=' + Array.from(this.swiftFlags.entries()).map(function ([ key, value ]) { return '-D' + key + '=' + this.formatSwiftFlag(value); }.bind(this)).join(' '),
+				'SWIFT_FLAGS=' + Array.from(this.swiftFlags.entries()).map(([ key, value ]) => { return '-D' + key + '=' + this.formatSwiftFlag(value); }).join(' '),
 				'TI_SYMBOL_MACROS=' + this.tiSymbolMacros,
 				'#include "module"'
 			].join('\n') + '\n';
