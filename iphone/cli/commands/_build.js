@@ -5072,6 +5072,14 @@ class iOSBuilder extends Builder {
 			lastErr = null,
 			done = false;
 
+		if (this.simHandle && this.target !== 'macos' && this.target !== 'dist-macappstore') {
+			args.push('-destination', 'generic/platform=iOS Simulator');
+		} else if (this.target === 'device' || this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+			args.push('-destination', 'generic/platform=iOS');
+		} else if (this.target === 'macos' || this.target === 'dist-macappstore') {
+			args.push('-destination', 'generic/platform=macOS');
+		}
+
 		this.logger.info('Cleaning Xcode derived data');
 		this.logger.debug(`Invoking: ${('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.join(' ')).cyan}`);
 
