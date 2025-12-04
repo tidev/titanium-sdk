@@ -295,7 +295,7 @@ export class Categorizer {
 				} else if (this.platform === 'ios') {
 					// if the image is the LaunchLogo.png, then let that pass so we can use it
 					// in the LaunchScreen.storyboard
-					const m = info.name.match(LAUNCH_LOGO_REGEXP);
+					const m = relPath.match(LAUNCH_LOGO_REGEXP);
 					if (m) {
 						info.scale = m[1];
 						info.device = m[2];
