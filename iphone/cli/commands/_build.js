@@ -6177,7 +6177,7 @@ class iOSBuilder extends Builder {
 					// size?
 					idiom: img.device || 'universal',
 					filename: img.name + '.' + img.ext,
-					scale: (img.scale || 1) + 'x'
+					scale: img.scale || '1x'
 				});
 
 				const dest = path.join(assetCatalogDir, img.name + '.' + img.ext);
