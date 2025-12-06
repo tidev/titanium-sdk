@@ -297,7 +297,7 @@ export class Categorizer {
 					// in the LaunchScreen.storyboard
 					const m = relPath.match(LAUNCH_LOGO_REGEXP);
 					if (m) {
-						info.scale = m[1]?.replace('@', '');
+						info.scale = m[1]?.replace(/@|x/g, '');
 						info.device = m[2]?.replace('~', '');
 						results.launchLogos.set(relPath, info);
 						return;
