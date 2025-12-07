@@ -13,6 +13,7 @@
 #endif
 // By declaring a scrollView protocol, TiUITextWidget can access
 @class TiUIView;
+@class TiColor;
 
 /**
  The protocol for scrolling.
@@ -68,6 +69,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   id transformMatrix;
   BOOL childrenInitialized;
   BOOL touchEnabled;
+  BOOL hasStoredBackgroundForSelectionHighlight;
+  NSUInteger backgroundSelectedHighlightTouchCount;
+  TiColor *backgroundSelectedColor;
+  UIColor *backgroundSelectedPreviousBackgroundColor;
 
   unsigned int animationDelayGuard;
   unsigned int animationDelayGuardForLayout;

@@ -16,7 +16,7 @@ buildscript {
 }
 
 // Load the module developer's optional "root.build.gradle" file from "<module>/android" directory.
-// This gradle file is expected to provide the module's "dependencies".
+// This Gradle file is expected to provide the module's "dependencies".
 def moduleRootBuildGradlePath = "${projectDir}/../root.build.gradle"
 if (file(moduleRootBuildGradlePath).exists()) {
 	apply from: moduleRootBuildGradlePath

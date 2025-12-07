@@ -113,7 +113,7 @@ dependencies {
 }
 
 // Load optional "build.gradle" file copied from Titanium project's "platform/android" directory.
-// Allows app developer to add additional dependencies, such as those needed by hyperloop.
+// Allows app developer to add additional dependencies, such as those needed by Hyperloop.
 def customBuildGradlePath = "${projectDir}/src/main/build.gradle"
 if (file(customBuildGradlePath).exists()) {
 	apply from: customBuildGradlePath

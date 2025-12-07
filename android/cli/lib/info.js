@@ -19,7 +19,7 @@ export function detect(types, config, next) {
 	}(__dirname)));
 
 	import('./detect.js').then(({ default: mod }) => {
-		// detect android environment
+		// detect Android environment
 		mod.detect(config, null, function (result) {
 			// detect devices
 			mod.detectDevices(config, function (err, devices) {

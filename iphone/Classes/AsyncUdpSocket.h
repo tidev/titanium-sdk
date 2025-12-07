@@ -325,7 +325,7 @@ typedef enum AsyncUdpSocketError AsyncUdpSocketError;
 
 /**
  * Called if an error occurs while trying to send a datagram.
- * This could be due to a timeout, or something more serious such as the data being too large to fit in a sigle packet.
+ * This could be due to a timeout, or something more serious such as the data being too large to fit in a single packet.
  **/
 - (void)onUdpSocket:(AsyncUdpSocket *)sock didNotSendDataWithTag:(long)tag dueToError:(NSError *)error;
 

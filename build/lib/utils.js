@@ -365,7 +365,7 @@ export async function installSDK(versionTag, symlinkIfPossible = false) {
 			return fs.ensureSymlink(path.join(zipDir, 'mobilesdk', osName, versionTag), destDir);
 		}
 		await fs.copy(path.join(zipDir, 'mobilesdk'), path.join(dest, 'mobilesdk'), { dereference: true });
-		return fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'));
+		return fs.copy(path.join(zipDir, 'modules'), path.join(dest, 'modules'), { dereference: true, overwrite: true });
 	}
 
 	// try the zip

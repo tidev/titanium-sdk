@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - main
     - "[0-9]+_[0-9]+_X"
     - actions_tests
   pull_request:
@@ -15,7 +16,7 @@ jobs:
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Android build
@@ -33,7 +34,7 @@ jobs:
       DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: iOS build
@@ -46,7 +47,7 @@ jobs:
     name: JavaScript
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
@@ -71,7 +72,7 @@ jobs:
     needs: [android, ios, js]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Create version tag

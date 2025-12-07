@@ -22,7 +22,7 @@
 - (UISearchBar *)searchBar;
 
 //	showsCancelButton is related to the JS property ShowCancel,
-//	but is internal ONLY, and should NOT be used by javascript.
+//	but is internal ONLY, and should NOT be used by JavaScript.
 @property (nonatomic, readwrite, assign) BOOL showsCancelButton;
 
 #pragma mark - Titanium Internal Use

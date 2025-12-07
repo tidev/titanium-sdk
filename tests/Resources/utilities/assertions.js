@@ -1,5 +1,5 @@
 'use strict';
-/* globals OS_ANDROID,OS_IOS */
+/* globals OS_ANDROID, OS_IOS */
 const should = require('should');
 const utilities = require('./utilities');
 const isIOSDevice = OS_IOS && !Ti.Platform.model.includes('(Simulator)');
@@ -322,7 +322,7 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	}
 }, false);
 
-// TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), i.e. Ti.UI.FILL vs SIZE vs UNKNOWN
+// TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), e.g. Ti.UI.FILL vs SIZE vs UNKNOWN
 // TODO Use more custom assertions for things like color properties?
 module.exports = should;
 

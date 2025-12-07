@@ -1,6 +1,6 @@
 /**
  * This implementation of Buffer uses a Ti.Buffer internally to back it.
- * This is likley an order of magnitude slower than using a variant that extends Uint8Array!
+ * This is likely an order of magnitude slower than using a variant that extends Uint8Array!
  * I think if we're not already wrapping a Ti.Buffer, it may be better to have two implementations
  * and, like browserify, just extend Uint8Array for any Buffers we need to read/write a lot
  * and then add a simple conversion method to turn it into a Ti.Buffer when needed.
@@ -445,7 +445,7 @@ Buffer.prototype.indexOf = function (value, byteOffset, encoding) {
 		byteOffset = 0;
 	}
 
-	// if we don't have an encoding yet, use utf8
+	// if we don't have an encoding yet, use UTF-8
 	if (typeof encoding !== 'string') {
 		encoding = 'utf8';
 	}
@@ -941,7 +941,7 @@ Buffer.prototype.toString = function (encoding, start, end) {
 	}
 
 	if (encoding === 'utf8' || encoding === 'utf-8') {
-		return this.toTiBuffer().toString(); // we return utf-8 by default natively
+		return this.toTiBuffer().toString(); // we return UTF-8 by default natively
 	}
 
 	if (encoding === 'base64') {
@@ -964,7 +964,7 @@ Buffer.prototype.toString = function (encoding, start, end) {
 	if (encoding === 'ascii') {
 		let ascii = '';
 		for (let i = 0; i < length; i++) {
-			// we store bytes (8-bit), but ascii is 7-bit. Node "masks" the last bit off, so let's do the same
+			// we store bytes (8-bit), but ASCII is 7-bit. Node "masks" the last bit off, so let's do the same
 			ascii += String.fromCharCode(this.getAdjustedIndex(i) & 0x7F);
 		}
 		return ascii;
@@ -997,7 +997,7 @@ Buffer.prototype.ucs2Slice = function (start, end) {
 	let out = '';
 	let i = start;
 	while (i < end) {
-		// utf-16/ucs-2 is 2-bytes per character
+		// UTF-16/UCS-2 is 2-bytes per character
 		const byte1 = this.getAdjustedIndex(i++);
 		const byte2 = this.getAdjustedIndex(i++);
 		const code_unit = (byte2 << 8) + byte1; // we mash together the two bytes
@@ -1653,7 +1653,7 @@ function unsignedToSigned(unsignedValue, byteLength) {
 }
 
 /**
- * @param {string} string utf-8 string
+ * @param {string} string UTF-8 string
  * @returns {integer}
  */
 function utf8ByteLength(string) {

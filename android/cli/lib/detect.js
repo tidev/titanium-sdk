@@ -28,7 +28,7 @@ export { detect };
  * Detects connected Android emulators.
  * @param {Object} config - The CLI config object
  * @param {Object} [opts] - Detection options
- * @param {String} [opts.type] - The type of emulator to load (avd, genymotion); defaults to all
+ * @param {String} [opts.type] - The type of emulator to load (AVD, genymotion); defaults to all
  * @param {Function} finished - Callback when detection is finished
  */
 export function detectEmulators(config, opts, finished) {

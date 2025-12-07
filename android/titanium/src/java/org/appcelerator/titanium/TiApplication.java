@@ -357,16 +357,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
-		// Reference to android run-time exception handler to delegate exceptions properly.
+		// Reference to Android run-time exception handler to delegate exceptions properly.
 		nativeExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
 
-		// handle uncaught java exceptions
+		// handle uncaught Java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e)
 			{
 
-				// obtain java stack trace
+				// obtain Java stack trace
 				String javaStack = null;
 				StackTraceElement[] frames = e.getCause() != null ? e.getCause().getStackTrace() : e.getStackTrace();
 				if (frames != null && frames.length > 0) {

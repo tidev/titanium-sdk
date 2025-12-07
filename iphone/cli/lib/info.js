@@ -44,11 +44,6 @@ export function detect(types, config, next) {
 			return next(err);
 		}
 
-		results.devices.unshift({
-			udid: 'itunes',
-			name: 'iTunes Sync'
-		});
-
 		results.tisdk = path.basename((function scan(dir) {
 			var file = path.join(dir, 'manifest.json');
 			if (fs.existsSync(file)) {
@@ -152,14 +147,14 @@ export function render(logger, config, rpad, styleHeading, styleValue, styleBad)
 		logger.log('No Xcode installations found.'.grey + '\n');
 	}
 
-	// ios keychains
+	// iOS keychains
 	logger.log(
 		styleHeading('iOS Keychains') + '\n'
 		+ Object.keys(data.certs.keychains).sort().reverse().map(function (keychain) {
 			return '  ' + rpad(path.basename(keychain)) + ' = ' + styleValue(keychain);
 		}).join('\n') + '\n');
 
-	// ios certs
+	// iOS certs
 	logger.log(styleHeading('iOS Development Certificates'));
 	let counter = 0;
 	if (Object.keys(data.certs.keychains).length) {
@@ -277,9 +272,7 @@ export function render(logger, config, rpad, styleHeading, styleValue, styleBad)
 	}
 
 	logger.log(styleHeading('Connected iOS Devices'));
-	const devices = data.devices.filter(function (device) {
-		return device.udid !== 'itunes';
-	});
+	const devices = data.devices;
 	if (devices.length) {
 		logger.log(devices.map(function (device) {
 			return '  ' + device.name.cyan + '\n' + [

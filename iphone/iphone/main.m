@@ -27,7 +27,6 @@ NSString *const TI_APPLICATION_VERSION = @"1.0.0";
 NSString *const TI_APPLICATION_DESCRIPTION = @"Kitchen Sink from XCode";
 NSString *const TI_APPLICATION_COPYRIGHT = @"TiDev, Inc";
 NSString *const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
-BOOL const TI_APPLICATION_ANALYTICS = YES;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = YES;
 #if TARGET_OS_MACCATALYST
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"/Contents/Resources";
@@ -52,7 +51,6 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setApplicationDescription:TI_APPLICATION_DESCRIPTION];
   [[TiSharedConfig defaultConfig] setApplicationCopyright:TI_APPLICATION_COPYRIGHT];
   [[TiSharedConfig defaultConfig] setApplicationGUID:TI_APPLICATION_GUID];
-  [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];

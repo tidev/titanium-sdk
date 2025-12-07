@@ -246,7 +246,7 @@ export class iOSModuleBuilder extends Builder {
 		const appName = this.moduleIdAsIdentifier;
 
 		if (this.isFramework && !contents.includes('TitaniumKit.xcframework')) {
-			this.logger.warn(`Module created with sdk < 9.2.0, need to add TitaniumKit.xcframework. The ${this.moduleName}.xcodeproj has been updated.`);
+			this.logger.warn(`Module created with SDK < 9.2.0, need to add TitaniumKit.xcframework. The ${this.moduleName}.xcodeproj has been updated.`);
 
 			xcodeProject.hash = xcodeParser.parse(contents);
 			const xobjs = xcodeProject.hash.project.objects,
@@ -429,7 +429,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				);
 			},
 
-			// 2. compile all other js files in assets dir
+			// 2. compile all other JS files in assets dir
 			function (cb) {
 				try {
 					if (!fs.existsSync(this.assetsDir)) {
@@ -789,7 +789,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 		}
 		iosSim.SupportedArchitectures.forEach(arch => buildArchs.add(arch));
 
-		// MacOS Catalyst support is optional
+		// macOS Catalyst support is optional
 		const macos = xcFrameworkInfo.AvailableLibraries.find(l => l.SupportedPlatformVariant === 'maccatalyst');
 		if (!macos) {
 			this.logger.warn('The module is missing macOS support.');
@@ -931,7 +931,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				}.bind(this));
 			}
 
-			// 6. assets folder, not including js files
+			// 6. assets folder, not including JS files
 			if (fs.existsSync(this.assetsDir)) {
 				this.dirWalker(this.assetsDir, function (file) {
 					if (path.extname(file) !== '.js') {
