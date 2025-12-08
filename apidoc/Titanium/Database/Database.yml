@@ -11,14 +11,14 @@ methods:
     summary: Installs an SQLite database to device's internal storage.
     description: |
       Copies an SQLite database file to the device's internal storage (only) and
-      creates a persistent name that is available for the lifetime of the app. 
+      creates a persistent name that is available for the lifetime of the app.
       On Android, if the source file does not exist, an empty database is created.
 
       Returns a reference to the opened database. If the destination file already
       exists, behaves as <Titanium.Database.open>.
 
       This method is primarily used for iOS.
-      
+
       With Android, as there is often minimal internal storage available, `install`
       may only be appropriate for small databases or for prototyping. When database
       files are to be stored on external storage (for example, SD Card), a combination of
@@ -34,8 +34,8 @@ methods:
       automatically backed up to iCloud and removed from the device in low
       storage situations. See
       [How do I prevent files from being backed up to iCloud?](https://developer.apple.com/library/ios/qa/qa1719/_index.html)
-      for details. To prevent this for database files, use the <Titanium.Database.DB.file> 
-      object with the <Titanium.Filesystem.File.remoteBackup> property. 
+      for details. To prevent this for database files, use the <Titanium.Database.DB.file>
+      object with the <Titanium.Filesystem.File.remoteBackup> property.
 
       Always [close](Titanium.Database.DB.close) the database after use.
     returns:
@@ -45,7 +45,7 @@ methods:
         summary: |
           Path and filename of the database file to copy to internal storage.
           File location is relative to the script's context unless an absolute
-          path, such as one constructed with a <Titanium.Filesystem> 
+          path, such as one constructed with a <Titanium.Filesystem>
           constant, is used.
         type: String
       - name: dbName
@@ -129,10 +129,17 @@ methods:
     parameters:
       - name: dbName
         summary: |
-          The dbname previously passed to <Titanium.Database.install>. An absolute path 
-          to the file, including one that is constructed with a <Titanium.Filesystem> 
+          The dbname previously passed to <Titanium.Database.install>. An absolute path
+          to the file, including one that is constructed with a <Titanium.Filesystem>
           constant or <Titanium.Filesystem.directoryForSuite> method, may be used.
         type: String
+      - name: flags
+        summary: |
+          Optional flag on Android to pass open flags. If not specified it will use
+          CREATE_IF_NECESSARY | NO_LOCALIZED_COLLATORS.
+        type: int
+        platforms: [android]
+        since: { android: "13.1.0" }
     examples:
     - title: Open a Database from Internal Storage (iOS)
       example: |
@@ -145,7 +152,7 @@ methods:
 
         A file extension of `sql` is added, and the file is opened from the
         following location.
-        
+
         On simulator
 
         * `/Users/<user name>/Library/Application Support/iPhone Simulator/<iOS version>/Applications/<apple app id>/Library/Private Documents/mydb1Installed.sql` (Titanium 1.8.0.1)
@@ -215,5 +222,30 @@ properties:
 
   - name: FIELD_TYPE_STRING
     summary: Constant for requesting a column's value returned in string form.
+    type: Number
+    permission: read-only
+
+  - name: CREATE_IF_NECESSARY
+    summary: Constant for database flag.
+    type: Number
+    permission: read-only
+
+  - name: NO_LOCALIZED_COLLATORS
+    summary: Constant for database flag.
+    type: Number
+    permission: read-only
+
+  - name: ENABLE_WRITE_AHEAD_LOGGING
+    summary: Constant for database flag.
+    type: Number
+    permission: read-only
+
+  - name: OPEN_READWRITE
+    summary: Constant for database flag.
+    type: Number
+    permission: read-only
+
+  - name: OPEN_READONLY
+    summary: Constant for database flag.
     type: Number
     permission: read-only
