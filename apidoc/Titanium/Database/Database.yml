@@ -135,11 +135,9 @@ methods:
         type: String
       - name: flags
         summary: |
-          Optional flag on Android to pass open flags. If not specified it will use
+          Optional flag on Android since 13.1.0 to pass open flags. If not specified it will use
           CREATE_IF_NECESSARY | NO_LOCALIZED_COLLATORS.
-        type: int
-        platforms: [android]
-        since: { android: "13.1.0" }
+        type: Number
     examples:
     - title: Open a Database from Internal Storage (iOS)
       example: |
