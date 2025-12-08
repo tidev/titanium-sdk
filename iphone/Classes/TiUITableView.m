@@ -1602,6 +1602,18 @@
   [self makeRootViewFirstResponder];
 }
 
+- (void)setSearchText_:(id)args
+{
+  TiViewProxy *searchView = [self.proxy valueForKey:@"searchView"];
+  if (!IS_NULL_OR_NIL(searchView)) {
+    DebugLog(@"Can not use searchText with searchView. Ignoring call.");
+    return;
+  }
+  self.searchString = [TiUtils stringValue:args];
+  [self updateSearchResultIndexes];
+  [tableview reloadData];
+}
+
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
 {
   self.searchedString = (searchText == nil) ? @"" : searchText;
@@ -2106,7 +2118,7 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-  if ([self isSearchStarted]) {
+  if ([self isSearchStarted] || self.searchString.length > 0) {
     int rowCount = 0;
     for (NSIndexSet *thisSet in searchResultIndexes) {
       rowCount += [thisSet count];
@@ -2124,7 +2136,7 @@
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted]) {
+  if ([self isSearchStarted] || self.searchString.length > 0) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2696,7 +2708,7 @@
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted]) {
+  if ([self isSearchStarted] || self.searchString.length > 0) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
