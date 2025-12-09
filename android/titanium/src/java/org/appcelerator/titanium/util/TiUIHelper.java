@@ -41,8 +41,12 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.graphics.Outline;
+import android.graphics.Path;
+import android.graphics.RectF;
 import android.graphics.drawable.PaintDrawable;
 import androidx.appcompat.app.AlertDialog;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -81,6 +85,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.MeasureSpec;
+import android.view.ViewOutlineProvider;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -858,6 +863,18 @@ public class TiUIHelper
 
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				ViewOutlineProvider viewOutlineProvider = view.getOutlineProvider();
+				Outline outline = new Outline();
+				viewOutlineProvider.getOutline(view, outline);
+				if (outline.getRadius() > 0) {
+					Path clipPath = new Path();
+					clipPath.addRoundRect(new RectF(canvas.getClipBounds()), outline.getRadius(),
+						outline.getRadius(), Path.Direction.CW);
+					canvas.clipPath(clipPath);
+				}
+			}
 			view.draw(canvas);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();
