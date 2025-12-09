@@ -69,6 +69,7 @@ xcodebuild archive \
 -scheme $FRAMEWORK_NAME \
 -archivePath $MAC_ARCHIVE_PATH \
 -sdk macosx \
+-destination generic/platform=macOS \
 SKIP_INSTALL=NO \
 BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
 SUPPORTS_MACCATALYST=YES \
@@ -78,6 +79,7 @@ xcodebuild archive \
 -scheme $FRAMEWORK_NAME \
 -archivePath $SIMULATOR_ARCHIVE_PATH \
 -sdk iphonesimulator \
+-destination "generic/platform=iOS Simulator" \
 SKIP_INSTALL=NO \
 BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
 SUPPORTS_MACCATALYST=NO
@@ -87,6 +89,7 @@ xcodebuild archive \
 -scheme $FRAMEWORK_NAME \
 -archivePath $DEVICE_ARCHIVE_PATH \
 -sdk iphoneos \
+-destination generic/platform=iOS \
 SKIP_INSTALL=NO \
 BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
 SUPPORTS_MACCATALYST=NO
