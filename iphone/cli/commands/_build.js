@@ -187,7 +187,6 @@ class iOSBuilder extends Builder {
 		// macros used as preprocessor in project.xcconfig file
 		this.gccDefs = new Map();
 		this.swiftConds = [];
-		this.swiftFlags = new Map();
 		this.tiSymbolMacros = null;
 	}
 
@@ -3308,12 +3307,10 @@ class iOSBuilder extends Builder {
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
 		this.gccDefs.set('DEPLOYTYPE', this.deployType);
-		this.swiftFlags.set('DEPLOYTYPE', this.deployType);
 
 		// set additional build settings
 		if (this.target === 'simulator' || this.target === 'macos') {
 			this.gccDefs.set('__LOG__ID__', this.tiapp.guid);
-			this.swiftFlags.set('__LOG__ID__', this.tiapp.guid);
 			this.gccDefs.set('DEBUG', 1);
 			this.swiftConds.push('DEBUG');
 		}
@@ -3325,11 +3322,8 @@ class iOSBuilder extends Builder {
 
 		if (this.defaultBackgroundColor) {
 			this.gccDefs.set('DEFAULT_BGCOLOR_RED', this.defaultBackgroundColor.red);
-			this.swiftFlags.set('DEFAULT_BGCOLOR_RED', this.defaultBackgroundColor.red);
 			this.gccDefs.set('DEFAULT_BGCOLOR_GREEN', this.defaultBackgroundColor.green);
-			this.swiftFlags.set('DEFAULT_BGCOLOR_GREEN', this.defaultBackgroundColor.green);
 			this.gccDefs.set('DEFAULT_BGCOLOR_BLUE', this.defaultBackgroundColor.blue);
-			this.swiftFlags.set('DEFAULT_BGCOLOR_BLUE', this.defaultBackgroundColor.blue);
 		}
 
 		if (this.tiLogServerPort === 0) {
@@ -3337,7 +3331,6 @@ class iOSBuilder extends Builder {
 			this.swiftConds.push('DISABLE_TI_LOG_SERVER');
 		} else {
 			this.gccDefs.set('TI_LOG_SERVER_PORT', this.tiLogServerPort);
-			this.swiftFlags.set('TI_LOG_SERVER_PORT', this.tiLogServerPort);
 		}
 
 		if (/device|dist-appstore|dist-adhoc/.test(this.target)) {
@@ -4650,21 +4643,6 @@ class iOSBuilder extends Builder {
 		this.unmarkBuildDirFile(dest);
 	}
 
-	formatSwiftFlag(value) {
-		if (typeof value === 'number') {
-			return value;
-		} else if (typeof value === 'string') {
-			if (/\s|[:/?]/.test(value)) {
-				// contains space characters or special characters : / ?
-				return '"' + value + '"';
-			} else {
-				return value;
-			}
-		} else { // boolean or other
-			return String(value);
-		}
-	}
-
 	writeXcodeConfigFiles() {
 		this.logger.info('Creating Xcode config files');
 
@@ -4680,7 +4658,6 @@ class iOSBuilder extends Builder {
 				'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 				'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(([ key, value ]) => { return key + '=' + value; }).join(' '),
 				'SWIFT_CONDITIONS=' + this.swiftConds.join(' '),
-				'SWIFT_FLAGS=' + Array.from(this.swiftFlags.entries()).map(([ key, value ]) => { return '-D' + key + '=' + this.formatSwiftFlag(value); }).join(' '),
 				'TI_SYMBOL_MACROS=' + this.tiSymbolMacros,
 				'#include "module"'
 			].join('\n') + '\n';
