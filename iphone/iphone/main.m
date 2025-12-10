@@ -10,15 +10,11 @@
 #import <TitaniumKit/TiSharedConfig.h>
 #import <UIKit/UIKit.h>
 
-#ifndef TI_LOG_SERVER_PORT
-#define TI_LOG_SERVER_PORT 10571
-#endif
-
 // NOTE: this main is only used inside Xcode. In the real SDK, it's
 // automatically replaced and built on the fly - when running in
 // Xcode give some reasonable values
 
-NSString *const TI_APPLICATION_DEPLOYTYPE = @"development";
+NSString *const TI_APPLICATION_DEPLOY_TYPE = @"development";
 NSString *const TI_APPLICATION_ID = @"com.tidev.kitchensink.xcode";
 NSString *const TI_APPLICATION_PUBLISHER = @"TiDev, Inc";
 NSString *const TI_APPLICATION_URL = @"https://titaniumsdk.com";
@@ -34,6 +30,10 @@ NSString *const TI_APPLICATION_RESOURCE_DIR = @"/Contents/Resources";
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"";
 #endif
 NSString *const TI_APPLICATION_BUILD_TYPE = @"";
+int const TI_LOG_SERVER_PORT = 10571;
+float const TI_APPLICATION_DEFAULT_BGCOLOR_RED = 1.0f;
+float const TI_APPLICATION_DEFAULT_BGCOLOR_GREEN = 1.0f;
+float const TI_APPLICATION_DEFAULT_BGCOLOR_BLUE = 1.0f;
 
 // Currently unused
 NSString *const TI_APPLICATION_SDK_VERSION = @"8.0.0";
@@ -42,7 +42,7 @@ NSString *const TI_APPLICATION_BUILD_DATE = @"3/14/2018 20:46";
 
 int main(int argc, char *argv[])
 {
-  [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOYTYPE];
+  [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOY_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
   [[TiSharedConfig defaultConfig] setApplicationPublisher:TI_APPLICATION_PUBLISHER];
   [[TiSharedConfig defaultConfig] setApplicationURL:[NSURL URLWithString:TI_APPLICATION_URL]];
@@ -61,13 +61,10 @@ int main(int argc, char *argv[])
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
 #endif
 
-  UIColor *defaultBgColor = UIColor.blackColor;
-#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
-  defaultBgColor = [UIColor colorWithRed:DEFAULT_BGCOLOR_RED
-                                   green:DEFAULT_BGCOLOR_GREEN
-                                    blue:DEFAULT_BGCOLOR_BLUE
-                                   alpha:1.0f];
-#endif
+  UIColor *defaultBgColor = [UIColor colorWithRed:TI_APPLICATION_DEFAULT_BGCOLOR_RED
+                                            green:TI_APPLICATION_DEFAULT_BGCOLOR_GREEN
+                                             blue:TI_APPLICATION_DEFAULT_BGCOLOR_BLUE
+                                            alpha:1.0f];
   [[TiSharedConfig defaultConfig] setDefaultBackgroundColor:defaultBgColor];
 #if defined(DEBUG) || defined(DEVELOPER)
   [[TiSharedConfig defaultConfig] setDebugEnabled:YES];

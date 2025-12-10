@@ -6,14 +6,8 @@
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiLogServer.h>
 #import <TitaniumKit/TiSharedConfig.h>
-#define _QUOTEME(x) #x
-#define STRING(x) _QUOTEME(x)
 
-#ifndef TI_LOG_SERVER_PORT
-#define TI_LOG_SERVER_PORT 10571
-#endif
-
-NSString *const TI_APPLICATION_DEPLOYTYPE = @"__DEPLOYTYPE__";
+NSString *const TI_APPLICATION_DEPLOY_TYPE = @"__DEPLOY_TYPE__";
 NSString *const TI_APPLICATION_ID = @"__APP_ID__";
 NSString *const TI_APPLICATION_PUBLISHER = @"__APP_PUBLISHER__";
 NSString *const TI_APPLICATION_URL = @"__APP_URL__";
@@ -23,15 +17,18 @@ NSString *const TI_APPLICATION_DESCRIPTION = @"__APP_DESCRIPTION__";
 NSString *const TI_APPLICATION_COPYRIGHT = @"__APP_COPYRIGHT__";
 NSString *const TI_APPLICATION_GUID = @"__APP_GUID__";
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = __SHOW_ERROR_CONTROLLER__;
-NSString *const TI_APPLICATION_BUILD_TYPE = @"__APP_DEPLOY_TYPE__";
-
+NSString *const TI_APPLICATION_BUILD_TYPE = @"__BUILD_TYPE__";
 #ifdef TARGET_OS_SIMULATOR
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
 #endif
+int const TI_LOG_SERVER_PORT = __TI_LOG_SERVER_PORT__ ? __TI_LOG_SERVER_PORT__ : 10571;
+float const TI_APPLICATION_DEFAULT_BGCOLOR_RED = __APP_DEFAULT_BGCOLOR_RED__;
+float const TI_APPLICATION_DEFAULT_BGCOLOR_GREEN = __APP_DEFAULT_BGCOLOR_GREEN__;
+float const TI_APPLICATION_DEFAULT_BGCOLOR_BLUE = __APP_DEFAULT_BGCOLOR_BLUE__;
 
 int main(int argc, char *argv[])
 {
-  [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOYTYPE];
+  [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOY_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
   [[TiSharedConfig defaultConfig] setApplicationPublisher:TI_APPLICATION_PUBLISHER];
   [[TiSharedConfig defaultConfig] setApplicationURL:[NSURL URLWithString:TI_APPLICATION_URL]];
@@ -50,23 +47,20 @@ int main(int argc, char *argv[])
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
 #endif
 
-  UIColor *defaultBgColor = UIColor.blackColor;
-#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
-  defaultBgColor = [UIColor colorWithRed:DEFAULT_BGCOLOR_RED
-                                green:DEFAULT_BGCOLOR_GREEN
-                                 blue:DEFAULT_BGCOLOR_BLUE
-                                alpha:1.0f];
-#endif
+  UIColor *defaultBgColor = [UIColor colorWithRed:TI_APPLICATION_DEFAULT_BGCOLOR_RED
+                                            green:TI_APPLICATION_DEFAULT_BGCOLOR_GREEN
+                                             blue:TI_APPLICATION_DEFAULT_BGCOLOR_BLUE
+                                            alpha:1.0f];
   [[TiSharedConfig defaultConfig] setDefaultBackgroundColor:defaultBgColor];
 
 #if defined(DEBUG) || defined(DEVELOPER)
   [[TiSharedConfig defaultConfig] setDebugEnabled:YES];
 #endif
 
-#ifdef __LOG__ID__
+#ifdef LOGTOFILE
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%s.log", STRING(__LOG__ID__)]];
+  NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.log", TI_APPLICATION_GUID]];
   freopen([logPath cStringUsingEncoding:NSUTF8StringEncoding], "w+", stderr);
   fprintf(stderr, "[INFO] Application started\n");
 #endif
