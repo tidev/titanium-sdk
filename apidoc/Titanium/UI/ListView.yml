@@ -165,7 +165,7 @@ description: |
         - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted
           from the ListView through a user initiated action. The item can only be deleted when the ListView is
           in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
-          property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
+          property to true, or by swiping across an item whose `canEdit` property is set to true. When the user
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
@@ -193,7 +193,7 @@ description: |
           be deleted or reordered.
 
         - [requiresEditingToMove](Titanium.UI.ListView.requiresEditingToMove) - Determines if the ListView
-          should be able to drag-and-drop without explicitely enabling editing support (like drag bars).
+          should be able to drag-and-drop without explicitly enabling editing support (like drag bars).
 
         - [pruneSectionsOnEdit](Titanium.UI.ListView.pruneSectionsOnEdit) - When this property is set to true and the
           user action results in a section having no other items, the section is deleted from the List View. Please note
@@ -639,7 +639,7 @@ events:
         This event will fire while the list view is scrolling and the user releases the finger.
         On iOS no event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
         `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi).
-        When `direction` is `down`, `velocity` is negative and viceversa. On Android `velocity` and `targetContentOffset` is 0.
+        When `direction` is `down`, `velocity` is negative and vice versa. On Android `velocity` and `targetContentOffset` is 0.
 
     platforms: [android, iphone, ipad, macos]
     since:
@@ -1851,7 +1851,7 @@ summary: |
 description: |
     Not all properties apply to all methods.
     `animationStyle` does not apply to the `scrollToItem` method.
-    `positon` only applies to the `scrollToItem` method.
+    `position` only applies to the `scrollToItem` method.
     Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
 platforms: [iphone, ipad, android, macos]
 since: {android: "10.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}

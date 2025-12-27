@@ -282,7 +282,7 @@ properties:
         detailed information.
 
         On iOS, this is specifically used when clicking on the row navigates to the next table view
-        in a heirarchy of table views.
+        in a hierarchy of table views.
     type: Boolean
     default: false
 
@@ -415,7 +415,7 @@ properties:
     type: String
 
   - name: accessibilityLabel
-    summary: A succint label associated with the table row for the device's accessibility service.
+    summary: A succinct label associated with the table row for the device's accessibility service.
     description: |
         See <Titanium.UI.View.accessibilityLabel> description.
     since: "3.0.0"

@@ -1,7 +1,8 @@
 {
 	"name": "titanium-mobile-ios",
 	"title": "iOS",
-	"description": "Titanium iOS SDK",
+	"description": "Titanium SDK iOS",
+	"type": "module",
 	"keywords": [
 		"tidev",
 		"titanium",

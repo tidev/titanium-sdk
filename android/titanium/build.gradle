@@ -95,7 +95,6 @@ android {
 			java.srcDirs = [
 					'src/java',
 					"${projectDir}/../modules/accelerometer/src/java",
-					"${projectDir}/../modules/analytics/src/java",
 					"${projectDir}/../modules/android/src/java",
 					"${projectDir}/../modules/app/src/java",
 					"${projectDir}/../modules/calendar/src/java",
@@ -149,7 +148,7 @@ tasks.register('updateV8Library') {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
+			args = ['libv8-services.js', 'update-library']
 		}
 	}
 }
@@ -184,13 +183,13 @@ tasks.register('checkstyleChanged', Checkstyle) {
 tasks.register('snapshotTiCommonFiles') {
 	inputs.dir "${projectDir}/../../common/Resources"
 	inputs.file "${projectDir}/../../build/lib/builder.js"
-	inputs.file "${projectDir}/../../build/lib/android/index.js"
+	inputs.file "${projectDir}/../../build/lib/android.js"
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
 	doFirst {
 		exec {
 			executable = 'node'
 			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').createSnapshotThenExit()"]
+			args = ['libv8-services.js', 'create-snapshot']
 		}
 	}
 }
@@ -244,7 +243,7 @@ tasks.withType(Checkstyle).configureEach {
 	source android.sourceSets.main.java.srcDirs
 }
 
-// Used to strip the src dir prefixes from the changed java files
+// Used to strip the src dir prefixes from the changed Java files
 def getChangedFiles() {
 	if (!project.hasProperty('changedFiles')) {
 		return new ArrayList<>()
@@ -282,16 +281,16 @@ dependencies {
 	implementation 'androidx.cardview:cardview:1.0.0'
 	implementation "androidx.core:core:${project.ext.tiAndroidXCoreLibVersion}"
 	implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
-	implementation 'androidx.exifinterface:exifinterface:1.3.7'
+	implementation 'androidx.exifinterface:exifinterface:1.4.0'
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
 	implementation 'androidx.media:media:1.7.0'
 	implementation 'androidx.recyclerview:recyclerview:1.3.2'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 	implementation 'androidx.transition:transition:1.5.1'
-	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
-	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
-	implementation 'androidx.viewpager:viewpager:1.0.0'
+	implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
+	implementation 'androidx.vectordrawable:vectordrawable-animated:1.2.0'
+	implementation 'androidx.viewpager:viewpager:1.1.0'
 	implementation 'androidx.annotation:annotation:1.7.1'
 
 	// Google's "Material Components" themed UI library.
@@ -322,12 +321,12 @@ dependencies {
 }
 
 // This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.
-// It generates a maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
+// It generates a Maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
 // The below will only work if you do a release build via "gradlew :titanium:assembleRelease" first.
 publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
-			// Set up maven repo info.
+			// Set up Maven repo info.
 			groupId 'org.appcelerator'
 			artifactId 'titanium'
 			version tiBuildVersionString
@@ -355,7 +354,7 @@ publishing {
 	}
 	repositories {
 		maven {
-			// The maven directory tree produced above will be outputted to the following local directory.
+			// The Maven directory tree produced above will be outputted to the following local directory.
 			url "${buildDir}/outputs/m2repository"
 		}
 	}

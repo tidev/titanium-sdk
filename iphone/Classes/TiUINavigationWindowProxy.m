@@ -337,7 +337,7 @@
       [promise resolve:@[]];
     }
   } else {
-    // FIXME: forward/chain the underying promise from [window close:] done internally here rather than assume success
+    // FIXME: forward/chain the underlying promise from [window close:] done internally here rather than assume success
     [self closeWindow:window animated:NO];
     if (promise != nil) {
       [promise resolve:@[]];
