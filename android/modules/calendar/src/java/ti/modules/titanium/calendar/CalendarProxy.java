@@ -27,7 +27,6 @@ import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.CalendarContract;
 import android.text.format.DateUtils;
 import android.content.ContentProviderOperation;
@@ -94,9 +93,6 @@ public class CalendarProxy extends KrollProxy
 
 	public static boolean hasCalendarPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		Activity currentActivity = TiApplication.getAppCurrentActivity();
 		if (currentActivity != null
 			&& currentActivity.checkSelfPermission("android.permission.READ_CALENDAR")

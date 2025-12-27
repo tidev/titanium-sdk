@@ -22,7 +22,7 @@ android {
 	namespace '<%- moduleId %>'
 	ndkVersion '28.1.13356709'
 	defaultConfig {
-		minSdkVersion 21
+		minSdkVersion 24
 		targetSdkVersion <%- compileSdkVersion %>
 		versionName '<%- moduleVersion %>'
 

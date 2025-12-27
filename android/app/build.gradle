@@ -13,7 +13,7 @@ android {
 	ndkVersion project.ext.tiNdkVersion
 	defaultConfig {
 		applicationId 'com.titanium.test'
-		minSdkVersion 21
+		minSdkVersion 24
 		targetSdkVersion 35
 		versionCode 1
 		versionName '1.0'
