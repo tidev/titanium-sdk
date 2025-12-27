@@ -88,7 +88,7 @@ enum {
 
 /**
  The class represents a proxy that is attached to a view.
- The class is not intended to be overriden.
+ The class is not intended to be overridden.
  */
 @interface TiViewProxy : TiProxy <LayoutAutosizing> {
   @protected

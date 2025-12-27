@@ -1,19 +1,19 @@
 /**
- * hyperloop symbol de-duplication build script
+ * Hyperloop symbol de-duplication build script
  *
  * @author Jeff Haynie
  * @date 02/06/2014
  */
-'use strict';
 
-const fs = require('fs'),
-	path = require('path'),
-	os = require('os'),
-	exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { exec } from 'node:child_process';
+import crypto from 'node:crypto';
 
-exports.cliVersion = '>=3.2.1';
+export const cliVersion = '>=3.2.1';
 
-exports.init = function (logger, config, cli) {
+export function init(logger, config, cli) {
 	let cmds,
 		libfile;
 
@@ -31,7 +31,7 @@ exports.init = function (logger, config, cli) {
 
 			const hlmodules = [],
 				nhlmodules = [],
-				hash = require('crypto').createHash('sha1');
+				hash = crypto.createHash('sha1');
 
 			cmds = [];
 
@@ -53,7 +53,7 @@ exports.init = function (logger, config, cli) {
 				}
 			}
 			if (hlmodules.length > 1) {
-				// we have hyperloop modules (more than 1), we need to de-dup
+				// we have Hyperloop modules (more than 1), we need to de-dup
 				const libid = hash.digest('hex'),
 					libname = 'lib' + libid + '.a';
 
@@ -77,7 +77,7 @@ exports.init = function (logger, config, cli) {
 		pre: function (data, next) {
 			if (libfile) {
 
-				// set a pre-processor flag for hyperloop
+				// set a pre-processor flag for Hyperloop
 				const xcode_args = data.args[1];
 				xcode_args.forEach(function (arg, index) {
 					if (/^GCC_PREPROCESSOR_DEFINITIONS/.test(arg)) {
@@ -124,5 +124,4 @@ exports.init = function (logger, config, cli) {
 			next();
 		}
 	});
-
-};
+}

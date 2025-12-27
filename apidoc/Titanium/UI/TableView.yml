@@ -22,7 +22,7 @@ description: |
     The simplest approach is to pass dictionaries of `TableViewRow` properties, such as
     [backgroundColor](Titanium.UI.TableViewRow.backgroundColor),
     [color](Titanium.UI.TableViewRow.color), and [title](Titanium.UI.TableViewRow.title), to the
-    [createTableView](Titanium.UI.createTableView) method, which causes the rows to be implictly
+    [createTableView](Titanium.UI.createTableView) method, which causes the rows to be implicitly
     created, added to a single [TableViewSection](Titanium.UI.TableViewSection), and then added to
     the `TableView`. Refer to the "Simple Table View with Basic Rows" example.
 
@@ -1400,7 +1400,7 @@ properties:
     type: Number
 
   - name: scrollable
-    summary: If `true`, the tableview can be scrolled.
+    summary: If `true`, the table view can be scrolled.
     type: Boolean
     default: true
     since: { android: 7.3.0, iphone: 0.8, ipad: 0.8 }

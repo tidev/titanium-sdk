@@ -445,7 +445,7 @@ methods:
     summary: Returns true if the cookie is valid.
     description: |
         This method checks if the cookie is valid. For a cookie to be valid the minimum
-        properties requiered are `name`, `value`, `path` and either `domain` or `originalUrl` (iOS only)
+        properties required are `name`, `value`, `path` and either `domain` or `originalUrl` (iOS only)
     platforms: [android, iphone, ipad, macos]
     since: {android: "6.2.0", iphone: "3.3.0", ipad: "3.3.0"}
     returns:
@@ -492,7 +492,7 @@ properties:
     availability: creation
 
   - name: originalUrl
-    summary: The origual url attribute of the cookie.
+    summary: The original URL attribute of the cookie.
     type: String
     platforms: [iphone, ipad, macos]
     since: "3.3.0"

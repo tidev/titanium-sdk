@@ -346,11 +346,11 @@ module.exports = {
 			const eosDate = new Date();
 			if (context.isMajor) {
 				eosDate.setMonth(eosDate.getMonth() + 12);
-				// if isMajor, subtract one from major, add '.x', i.e. 8.0.0 -> '7.x'
+				// if isMajor, subtract one from major, add '.x', e.g. 8.0.0 -> '7.x'
 				context.eosBranch = `${semver.major(context.version) - 1}.x`;
 			} else {
 				if (!context.isPatch) { // should be minor!
-					// if isMinor, subtract one from minor, add .x, i.e. 8.1.0 -> 8.0.x
+					// if isMinor, subtract one from minor, add .x, e.g. 8.1.0 -> 8.0.x
 					context.eosBranch = `${semver.major(context.version)}.${semver.minor(context.version) - 1}.x`;
 					context.patchBranch = `${semver.major(context.version)}.${semver.minor(context.version)}.x`;
 					context.majorBranch = `${semver.major(context.version)}.x`;

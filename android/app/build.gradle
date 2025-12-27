@@ -55,7 +55,7 @@ tasks.register('checkstyleChanged', Checkstyle) {
 	include getChangedFiles()
 }
 
-// Used to strip the src dir prefixes from the changed java files
+// Used to strip the src dir prefixes from the changed Java files
 def getChangedFiles() {
 	if (!project.hasProperty('changedFiles')) {
 		return new ArrayList<>()

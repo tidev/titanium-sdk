@@ -262,7 +262,7 @@
 
 - (void)viewWillAppear:(BOOL)animated; // Called when the view is about to made visible. Default does nothing
 {
-  // TO DO: Refactor navigation bar customisation iOS 13
+  // TODO: Refactor navigation bar customisation iOS 13
   if ([self shouldUseNavBarApperance]) {
     TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
     if (newColor == nil) {
@@ -1011,7 +1011,7 @@
     return;
   }
 
-  // Need to clear title for titleAttributes to apply correctly on iOS6.
+  // Need to clear title for titleAttributes to apply correctly on iOS 6.
   [[controller navigationItem] setTitle:nil];
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"title", setTitle);

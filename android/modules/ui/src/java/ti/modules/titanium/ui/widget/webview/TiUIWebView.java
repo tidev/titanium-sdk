@@ -293,10 +293,11 @@ public class TiUIWebView extends TiUIView
 		}
 		webView.setVerticalScrollbarOverlay(true);
 
+		boolean multipleWindows = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MULTIPLE_WINDOWS), false);
 		WebSettings settings = webView.getSettings();
 		settings.setUseWideViewPort(true);
 		settings.setJavaScriptEnabled(true);
-		settings.setSupportMultipleWindows(true);
+		settings.setSupportMultipleWindows(multipleWindows);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
 		settings.setLoadsImagesAutomatically(true);
 		settings.setDomStorageEnabled(true); // Required by some sites such as Twitter. This is in our iOS WebView too.
@@ -402,7 +403,7 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
-		// set user-agent befoe loading url to avoid immediate reload
+		// set user-agent before loading URL to avoid immediate reload
 		if (d.containsKey(TiC.PROPERTY_USER_AGENT)) {
 			((WebViewProxy) getProxy()).setUserAgent(d.getString(TiC.PROPERTY_USER_AGENT));
 		}
@@ -582,7 +583,7 @@ public class TiUIWebView extends TiUIView
 		// The scheme is processed by `resolveUrl()`.
 		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
 
-		// Reconstruct URL, ommiting any query parameters.
+		// Reconstruct URL, omitting any query parameters.
 		final String finalUrl = finalUri.toString().replace(query, "");
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
@@ -641,7 +642,7 @@ public class TiUIWebView extends TiUIView
 		}
 
 		Log.d(TAG, "WebView will load " + url + " directly without code injection.", Log.DEBUG_MODE);
-		// iOS parity: for whatever reason, when a remote url is used, the iOS implementation
+		// iOS parity: for whatever reason, when a remote URL is used, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to YES if the
 		// Ti scalesPageToFit property has _not_ been set.
 		if (!proxy.hasProperty(TiC.PROPERTY_SCALES_PAGE_TO_FIT)) {
@@ -789,7 +790,7 @@ public class TiUIWebView extends TiUIView
 			return;
 		}
 
-		// iOS parity: for whatever reason, when html is set directly, the iOS implementation
+		// iOS parity: for whatever reason, when HTML is set directly, the iOS implementation
 		// explicitly sets the native webview's setScalesPageToFit to NO if the
 		// Ti scalesPageToFit property has _not_ been set.
 		if (this.proxy != null) {
@@ -806,7 +807,7 @@ public class TiUIWebView extends TiUIView
 			}
 		}
 
-		// Set flag to indicate that it's local html (used to determine whether we want to inject binding code)
+		// Set flag to indicate that it's local HTML (used to determine whether we want to inject binding code)
 		isLocalHTML = true;
 
 		if (html.contains(TiWebViewBinding.SCRIPT_INJECTION_ID)) {
@@ -1006,7 +1007,7 @@ public class TiUIWebView extends TiUIView
 					setHtml(TiConvert.toString(getProxy().getProperty(TiC.PROPERTY_HTML)),
 							(HashMap<String, Object>) reloadData);
 				} else {
-					Log.d(TAG, "reloadMethod points to html but reloadData is of wrong type. Calling default",
+					Log.d(TAG, "reloadMethod points to HTML but reloadData is of wrong type. Calling default",
 						  Log.DEBUG_MODE);
 					getWebView().reload();
 				}
@@ -1016,7 +1017,7 @@ public class TiUIWebView extends TiUIView
 				if (reloadData != null && reloadData instanceof String) {
 					setUrl((String) reloadData);
 				} else {
-					Log.d(TAG, "reloadMethod points to url but reloadData is null or of wrong type. Calling default",
+					Log.d(TAG, "reloadMethod points to URL but reloadData is null or of wrong type. Calling default",
 						  Log.DEBUG_MODE);
 					getWebView().reload();
 				}
