@@ -80,8 +80,6 @@ import android.widget.AdapterView;
 @SuppressWarnings("deprecation")
 public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListener
 {
-	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
-
 	private static final String TAG = "TiUIView";
 
 	// When distinguishing twofingertap and pinch events, minimum motion (in pixels)
@@ -1527,9 +1525,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					if (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
-						disableHWAcceleration();
-					}
 					borderView.setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
 				}
 
@@ -1576,9 +1571,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				borderView.setBorderWidth(1);
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
-			if (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
-				disableHWAcceleration();
-			}
 			borderView.setRadius(value);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;

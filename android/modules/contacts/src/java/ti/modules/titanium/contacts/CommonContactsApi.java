@@ -22,7 +22,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.ContactsContract;
 
 public abstract class CommonContactsApi
@@ -57,9 +56,6 @@ public abstract class CommonContactsApi
 
 	public boolean hasContactsPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		Context context = TiApplication.getInstance().getApplicationContext();
 		// If READ_CONTACTS is granted, WRITE_CONTACTS is also granted if the permission is included in manifest.
 		if (context != null
