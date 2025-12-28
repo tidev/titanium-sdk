@@ -21,6 +21,7 @@ NSString *const TI_APPLICATION_BUILD_TYPE = @"__BUILD_TYPE__";
 #ifdef TARGET_OS_SIMULATOR
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"__APP_RESOURCE_DIR__";
 #endif
+NSString *const TI_LOG_ID = @"__LOG_ID__";
 NSUInteger const TI_LOG_SERVER_PORT = __TI_LOG_SERVER_PORT__ ? __TI_LOG_SERVER_PORT__ : 10571;
 CGFloat const TI_APPLICATION_DEFAULT_BGCOLOR_RED = __APP_DEFAULT_BGCOLOR_RED__;
 CGFloat const TI_APPLICATION_DEFAULT_BGCOLOR_GREEN = __APP_DEFAULT_BGCOLOR_GREEN__;
@@ -60,7 +61,7 @@ int main(int argc, char *argv[])
 #ifdef LOGTOFILE
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
   NSString *documentsDirectory = [paths objectAtIndex:0];
-  NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.log", TI_APPLICATION_GUID]];
+  NSString *logPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.log", TI_LOG_ID]];
   freopen([logPath cStringUsingEncoding:NSUTF8StringEncoding], "w+", stderr);
   fprintf(stderr, "[INFO] Application started\n");
 #endif

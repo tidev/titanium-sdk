@@ -4613,6 +4613,7 @@ class iOSBuilder extends Builder {
 			__APP_GUID__:              this.tiapp.guid,
 			__APP_RESOURCE_DIR__:      '',
 			__BUILD_TYPE__:            this.buildType,
+			__LOG_ID__:                this.tiapp.guid,
 			__TI_LOG_SERVER_PORT__:	   this.tiLogServerPort
 		};
 		if (this.defaultBackgroundColor) {
