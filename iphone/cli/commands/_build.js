@@ -29,6 +29,7 @@ import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { Color } from '../../../common/lib/color.js';
 import { ProcessCSSTask } from '../../../cli/lib/tasks/process-css-task.js';
+import { injectSPMPackage } from '../lib/ios/spm.js';
 import { exec, spawn } from 'node:child_process';
 import ti from 'node-titanium-sdk';
 import util from 'node:util';
@@ -45,6 +46,7 @@ const { version } = appc;
 const require = createRequire(import.meta.url);
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
+const SPM_LOG_PREFIX = '[SPM]';
 
 class iOSBuilder extends Builder {
 	constructor() {
@@ -111,6 +113,8 @@ class iOSBuilder extends Builder {
 
 		// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 		this.tiSymbols = {};
+		this.moduleSpmDependencies = [];
+		this.hostSpmPackages = [];
 
 		// when true, uses the new build system (Xcode 9+)
 		this.useNewBuildSystem = true;
@@ -2407,6 +2411,7 @@ class iOSBuilder extends Builder {
 						}, this);
 
 						this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+						this.collectModuleSpmDependencies();
 
 						next();
 					}.bind(this));
@@ -2425,6 +2430,220 @@ class iOSBuilder extends Builder {
 		return moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
 			return s.substring(0, 1).toUpperCase() + s.substring(1);
 		}).join('');
+	}
+
+	collectModuleSpmDependencies() {
+		this.moduleSpmDependencies = [];
+		this.hostSpmPackages = [];
+
+		const packagesByKey = new Map();
+		const repoTracker = new Map();
+
+		(this.modules || []).forEach(module => {
+			const metadataPath = path.join(module.modulePath, 'metadata.json');
+			let metadata = null;
+
+			if (fs.existsSync(metadataPath)) {
+				try {
+					metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+				} catch (err) {
+					this.logger.warn(`${SPM_LOG_PREFIX} Unable to parse ${path.relative(this.projectDir, metadataPath)} for module ${module.id}: ${err.message}`);
+					return;
+				}
+			}
+
+			const spmInfo = metadata && metadata.spm;
+			if (!spmInfo || !Array.isArray(spmInfo.dependencies) || !spmInfo.dependencies.length) {
+				if (this.moduleHasLegacySpmHook(module)) {
+					this.logger.warn(`${SPM_LOG_PREFIX} Module ${module.id} ships the legacy ti.spm hook. Add an spm.json file and rebuild the module to avoid duplicate Swift packages.`);
+				} else {
+					this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} has no Swift package metadata`);
+				}
+				return;
+			}
+
+			const normalizedDeps = spmInfo.dependencies
+				.map(dep => this.normalizeModuleSpmDependency(module, dep))
+				.filter(Boolean);
+
+			if (!normalizedDeps.length) {
+				this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} declared Swift packages, but none were valid after normalization`);
+				return;
+			}
+
+			this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} contributes ${normalizedDeps.length} Swift package(s)`);
+
+			this.moduleSpmDependencies.push({ module, dependencies: normalizedDeps });
+
+			normalizedDeps.forEach(dep => {
+				const hostProducts = dep.products.filter(product => product.linkage === 'host');
+				if (!hostProducts.length) {
+					this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} embeds Swift package ${dep.repositoryURL} directly; nothing to add to the app`);
+					return;
+				}
+
+				const packageKey = [
+					dep.repositoryURL,
+					dep.requirementKind,
+					dep.requirementMinimumVersion
+				].join('#');
+
+				let pkg = packagesByKey.get(packageKey);
+				if (!pkg) {
+					pkg = {
+						remotePackageReference: dep.remotePackageReference,
+						repositoryURL: dep.repositoryURL,
+						requirementKind: dep.requirementKind,
+						requirementMinimumVersion: dep.requirementMinimumVersion,
+						products: new Map()
+					};
+					packagesByKey.set(packageKey, pkg);
+				}
+
+				hostProducts.forEach(product => {
+					if (!pkg.products.has(product.productName)) {
+						pkg.products.set(product.productName, {
+							productName: product.productName,
+							frameworkName: product.frameworkName
+						});
+					}
+				});
+
+				this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} requests host-level product(s) ${hostProducts.map(p => p.productName).join(', ')} from ${dep.repositoryURL}`);
+
+				this.trackSpmVersionRequirement(dep, module, repoTracker);
+			});
+		});
+
+		this.hostSpmPackages = Array.from(packagesByKey.values()).map(pkg => ({
+			remotePackageReference: pkg.remotePackageReference,
+			repositoryURL: pkg.repositoryURL,
+			requirementKind: pkg.requirementKind,
+			requirementMinimumVersion: pkg.requirementMinimumVersion,
+			products: Array.from(pkg.products.values())
+		}));
+
+		if (this.hostSpmPackages.length) {
+			this.logger.info(`${SPM_LOG_PREFIX} Will add ${this.hostSpmPackages.length} Swift package(s) to the app project`);
+			this.hostSpmPackages.forEach(pkg => {
+				this.logger.debug(`${SPM_LOG_PREFIX} Package ${pkg.repositoryURL} (${pkg.requirementKind} ${pkg.requirementMinimumVersion}) products: ${pkg.products.map(p => p.productName).join(', ')}`);
+			});
+		} else {
+			this.logger.debug(`${SPM_LOG_PREFIX} No host-level Swift packages needed for this build`);
+		}
+	}
+
+	trackSpmVersionRequirement(dep, module, tracker) {
+		const repositoryURL = dep.repositoryURL;
+		const existing = tracker.get(repositoryURL);
+
+		if (!existing) {
+			tracker.set(repositoryURL, {
+				requirementKind: dep.requirementKind,
+				requirementMinimumVersion: dep.requirementMinimumVersion,
+				modules: new Set([ module.id ])
+			});
+			return;
+		}
+
+		const matches = existing.requirementKind === dep.requirementKind
+			&& existing.requirementMinimumVersion === dep.requirementMinimumVersion;
+
+		existing.modules.add(module.id);
+
+		if (!matches) {
+			this.logger.warn(`${SPM_LOG_PREFIX} Swift package ${repositoryURL} is requested with conflicting versions by modules: ${Array.from(existing.modules).join(', ')}. Using ${existing.requirementKind} ${existing.requirementMinimumVersion}.`);
+		}
+	}
+
+	normalizeModuleSpmDependency(module, dep) {
+		if (!dep || typeof dep !== 'object') {
+			return null;
+		}
+
+		const repositoryURL = dep.repositoryURL || dep.repositoryUrl;
+		if (!repositoryURL) {
+			this.logger.warn(`${SPM_LOG_PREFIX} Module ${module.id} declares a Swift package without repositoryURL. Skip.`);
+			return null;
+		}
+
+		const requirementKind = dep.requirementKind || (dep.requirement && dep.requirement.kind) || 'upToNextMajorVersion';
+		const requirementMinimumVersion = dep.requirementMinimumVersion || (dep.requirement && (dep.requirement.minimumVersion || dep.requirement.minVersion)) || '1.0.0';
+		const dependencyLinkage = this.normalizeModuleSpmLinkage(dep.linkage);
+
+		const products = Array.isArray(dep.products)
+			? dep.products.map(product => this.normalizeModuleSpmProduct(product, dependencyLinkage)).filter(Boolean)
+			: [];
+
+		if (!products.length) {
+			this.logger.warn(`${SPM_LOG_PREFIX} Module ${module.id} declares Swift package ${repositoryURL} but no valid products. Skip.`);
+			return null;
+		}
+
+		return {
+			remotePackageReference: dep.remotePackageReference || dep.reference || this.generateSpmReferenceFromRepo(repositoryURL),
+			repositoryURL,
+			requirementKind,
+			requirementMinimumVersion,
+			linkage: dependencyLinkage,
+			products
+		};
+	}
+
+	normalizeModuleSpmProduct(product, dependencyLinkage) {
+		if (!product || typeof product !== 'object') {
+			return null;
+		}
+
+		const productName = product.productName || product.name;
+		if (!productName) {
+			return null;
+		}
+
+		return {
+			productName,
+			frameworkName: product.frameworkName || productName,
+			linkage: this.normalizeModuleSpmLinkage(product.linkage || dependencyLinkage)
+		};
+	}
+
+	normalizeModuleSpmLinkage(linkage) {
+		return linkage && typeof linkage === 'string' && linkage.toLowerCase() === 'host' ? 'host' : 'embedded';
+	}
+
+	generateSpmReferenceFromRepo(repositoryURL) {
+		if (!repositoryURL || typeof repositoryURL !== 'string') {
+			return 'TiSPMPackage';
+		}
+
+		const withoutGit = repositoryURL.replace(/\.git$/, '');
+		const segments = withoutGit.split('/');
+		const candidate = segments[segments.length - 1] || withoutGit;
+		const sanitized = candidate.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+		return sanitized || 'TiSPMPackage';
+	}
+
+	moduleHasLegacySpmHook(module) {
+		const hookPath = path.join(module.modulePath, 'hooks', 'ti.spm.js');
+		return fs.existsSync(hookPath);
+	}
+
+	applySwiftPackageDependencies(xcodeProject) {
+		if (!this.hostSpmPackages || !this.hostSpmPackages.length) {
+			this.logger.debug(`${SPM_LOG_PREFIX} No Swift packages to inject into the Xcode project`);
+			return;
+		}
+
+		this.logger.debug(`${SPM_LOG_PREFIX} Injecting ${this.hostSpmPackages.length} Swift package(s) declared by modules`);
+
+		const xobjs = xcodeProject.hash.project.objects;
+
+		this.hostSpmPackages.forEach(pkg => {
+			this.logger.debug(`${SPM_LOG_PREFIX} Injecting ${pkg.repositoryURL} (${pkg.requirementKind} ${pkg.requirementMinimumVersion}) with products ${pkg.products.map(p => p.productName).join(', ')}`);
+			injectSPMPackage(xobjs, pkg, {
+				generateUUID: () => this.generateXcodeUuid(xcodeProject)
+			});
+		});
 	}
 
 	/**
@@ -4122,6 +4341,8 @@ class iOSBuilder extends Builder {
 			comment: 'tiverify.xcframework'
 		});
 
+		this.applySwiftPackageDependencies(xcodeProject);
+
 		// run the xcode project hook
 		const hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
 			const contents = xcodeProject.writeSync(),
@@ -5071,6 +5292,14 @@ class iOSBuilder extends Builder {
 		let tries = 0,
 			lastErr = null,
 			done = false;
+
+		if (this.simHandle && this.target !== 'macos' && this.target !== 'dist-macappstore') {
+			args.push('-destination', 'generic/platform=iOS Simulator');
+		} else if (this.target === 'device' || this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+			args.push('-destination', 'generic/platform=iOS');
+		} else if (this.target === 'macos' || this.target === 'dist-macappstore') {
+			args.push('-destination', 'generic/platform=macOS');
+		}
 
 		this.logger.info('Cleaning Xcode derived data');
 		this.logger.debug(`Invoking: ${('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.join(' ')).cyan}`);

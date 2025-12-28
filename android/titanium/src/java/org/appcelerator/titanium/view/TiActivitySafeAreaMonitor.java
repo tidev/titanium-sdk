@@ -402,17 +402,7 @@ public class TiActivitySafeAreaMonitor
 		// Fetch the currently applied insets and update safe-area.
 		// Note: Google's internal code comments states that getWindowVisibleDisplayFrame() is "broken".
 		//       It's proven to work for us, but let's avoid this API in case of any unknown edge cases.
-		if (Build.VERSION.SDK_INT >= 23) {
-			updateUsing(rootView.getRootWindowInsets());
-		} else {
-			Rect rect = new Rect(rootView.getLeft(), rootView.getTop(), rootView.getRight(), rootView.getBottom());
-			rootView.getWindowVisibleDisplayFrame(rect);
-			this.insetLeft = Math.max(rect.left - rootView.getLeft(), 0);
-			this.insetTop = Math.max(rect.top - rootView.getTop(), 0);
-			this.insetRight = Math.max(rootView.getRight() - rect.right, 0);
-			this.insetBottom = Math.max(rootView.getBottom() - rect.bottom, 0);
-			updateUsingCachedInsets();
-		}
+		updateUsing(rootView.getRootWindowInsets());
 	}
 
 	/**
