@@ -18,7 +18,7 @@
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
 
-extern NSString *const TI_APPLICATION_DEPLOYTYPE;
+extern NSString *const TI_APPLICATION_DEPLOY_TYPE;
 extern NSString *const TI_APPLICATION_ID;
 extern NSString *const TI_APPLICATION_PUBLISHER;
 extern NSString *const TI_APPLICATION_URL;
@@ -577,7 +577,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)deployType
 {
-  return TI_APPLICATION_DEPLOYTYPE;
+  return TI_APPLICATION_DEPLOY_TYPE;
 }
 
 - (id)sessionId
