@@ -190,6 +190,7 @@ class iOSBuilder extends Builder {
 
 		// macros used as preprocessor in project.xcconfig file
 		this.gccDefs = new Map();
+		this.swiftConds = [];
 		this.tiSymbolMacros = null;
 	}
 
@@ -3524,27 +3525,22 @@ class iOSBuilder extends Builder {
 			},
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
-		this.gccDefs.set('DEPLOYTYPE', this.deployType);
 		// set additional build settings
 		if (this.target === 'simulator' || this.target === 'macos') {
-			this.gccDefs.set('__LOG__ID__', this.tiapp.guid);
+			this.gccDefs.set('LOGTOFILE', 1);
+			this.swiftConds.push('LOGTOFILE');
 			this.gccDefs.set('DEBUG', 1);
+			this.swiftConds.push('DEBUG');
 		}
 
 		if (this.enableLaunchScreenStoryboard) {
 			this.gccDefs.set('LAUNCHSCREEN_STORYBOARD', 1);
-		}
-
-		if (this.defaultBackgroundColor) {
-			this.gccDefs.set('DEFAULT_BGCOLOR_RED', this.defaultBackgroundColor.red);
-			this.gccDefs.set('DEFAULT_BGCOLOR_GREEN', this.defaultBackgroundColor.green);
-			this.gccDefs.set('DEFAULT_BGCOLOR_BLUE', this.defaultBackgroundColor.blue);
+			this.swiftConds.push('LAUNCHSCREEN_STORYBOARD');
 		}
 
 		if (this.tiLogServerPort === 0) {
 			this.gccDefs.set('DISABLE_TI_LOG_SERVER', 1);
-		} else {
-			this.gccDefs.set('TI_LOG_SERVER_PORT', this.tiLogServerPort);
+			this.swiftConds.push('DISABLE_TI_LOG_SERVER');
 		}
 
 		if (/device|dist-appstore|dist-adhoc/.test(this.target)) {
@@ -4823,22 +4819,37 @@ class iOSBuilder extends Builder {
 		const origSrc = await fs.readFile(srcFile, 'utf8');
 
 		// replace templated values
-		const consts = {
-			__PROJECT_NAME__:     this.tiapp.name,
-			__PROJECT_ID__:       this.tiapp.id,
-			__DEPLOYTYPE__:       this.deployType,
-			__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
-			__APP_ID__:           this.tiapp.id,
-			__APP_PUBLISHER__:    this.tiapp.publisher,
-			__APP_URL__:          this.tiapp.url,
-			__APP_NAME__:         this.tiapp.name,
-			__APP_VERSION__:      this.tiapp.version,
-			__APP_DESCRIPTION__:  this.tiapp.description,
-			__APP_COPYRIGHT__:    this.tiapp.copyright,
-			__APP_GUID__:         this.tiapp.guid,
-			__APP_RESOURCE_DIR__: '',
-			__APP_DEPLOY_TYPE__:  this.buildType
+		let consts = {
+			__PROJECT_NAME__:          this.tiapp.name,
+			__PROJECT_ID__:            this.tiapp.id,
+			__DEPLOY_TYPE__:           this.deployType,
+			__SHOW_ERROR_CONTROLLER__: this.showErrorController,
+			__APP_ID__:                this.tiapp.id,
+			__APP_PUBLISHER__:         this.tiapp.publisher,
+			__APP_URL__:               this.tiapp.url,
+			__APP_NAME__:              this.tiapp.name,
+			__APP_VERSION__:           this.tiapp.version,
+			__APP_DESCRIPTION__:       this.tiapp.description,
+			__APP_COPYRIGHT__:         this.tiapp.copyright,
+			__APP_GUID__:              this.tiapp.guid,
+			__APP_RESOURCE_DIR__:      '',
+			__BUILD_TYPE__:            this.buildType,
+			__LOG_ID__:                this.tiapp.guid,
+			__TI_LOG_SERVER_PORT__:	   this.tiLogServerPort
 		};
+		if (this.defaultBackgroundColor) {
+			Object.assign(consts, {
+				__APP_DEFAULT_BGCOLOR_RED__:   this.defaultBackgroundColor.red,
+				__APP_DEFAULT_BGCOLOR_GREEN__: this.defaultBackgroundColor.green,
+				__APP_DEFAULT_BGCOLOR_BLUE__:  this.defaultBackgroundColor.blue
+			});
+		} else {
+			Object.assign(consts, {
+				__APP_DEFAULT_BGCOLOR_RED__:   0.0,
+				__APP_DEFAULT_BGCOLOR_GREEN__: 0.0,
+				__APP_DEFAULT_BGCOLOR_BLUE__:  0.0
+			});
+		}
 		const contents = origSrc.replace(/(__.+?__)/g, function (match, key) {
 			const s = Object.prototype.hasOwnProperty.call(consts, key) ? consts[key] : key;
 			return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
@@ -4872,7 +4883,8 @@ class iOSBuilder extends Builder {
 				'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)',
 				'OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 				'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
-				'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(function ([ key, value ]) { return key + '=' + value; }).join(' '),
+				'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(([ key, value ]) => { return key + '=' + value; }).join(' '),
+				'SWIFT_CONDITIONS=' + this.swiftConds.join(' '),
 				'TI_SYMBOL_MACROS=' + this.tiSymbolMacros,
 				'#include "module"'
 			].join('\n') + '\n';
