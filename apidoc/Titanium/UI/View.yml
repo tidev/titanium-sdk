@@ -1555,6 +1555,15 @@ properties:
         Defaults to `undefined`.
     type: [Number,String]
 
+  - name: keepHardwareMode
+    summary: A value indicating the render mode of the View
+    description: |
+        Set to true to keep hardware mode when using a border and transparent backgrounds.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "13.1.0"}
+
   - name: layout
     type: String
     summary: |
