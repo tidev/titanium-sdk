@@ -306,7 +306,7 @@ properties:
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "5.4.0", ipad: "5.4.0", android: "4.1.0"}
     description: |
-        Sets the color of the <Titanium.UI.TextField.hintText>. Please not that this can be overriden
+        Sets the color of the <Titanium.UI.TextField.hintText>. Please not that this can be overridden
         by the <Titanium.UI.TextField.attributedHintText> which provides an advanced configuration to
         style hint texts.
 
@@ -543,7 +543,7 @@ properties:
         can only be used when the text field has focus. Accessing this property when text field does not have
         focus will return an undefined value.
 
-        This method will return null on android and undefined on iOS if the view has not yet been attached
+        This method will return null on Android and undefined on iOS if the view has not yet been attached
         to the window.
     type: textFieldSelectedParams
     permission: read-only
@@ -551,7 +551,7 @@ properties:
     since: "3.3.0"
 
   - name: showUndoRedoActions
-    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
+    summary: Determines if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS 9 and above.
     type: Boolean
     default: true
     platforms: [ipad, macos]
@@ -665,7 +665,7 @@ examples:
 
         var send = Ti.UI.createButton({
             title: 'Send',
-            style: Ti.UI.iOS.SystemButtonStyle.DONE,
+            style: Ti.UI.BUTTON_STYLE_OPTION_POSITIVE,
         });
 
         var camera = Ti.UI.createButton({

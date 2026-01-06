@@ -1,7 +1,8 @@
 {
 	"name": "titanium-mobile-ios",
 	"title": "iOS",
-	"description": "Titanium iOS SDK",
+	"description": "Titanium SDK iOS",
+	"type": "module",
 	"keywords": [
 		"tidev",
 		"titanium",
@@ -12,14 +13,11 @@
 	],
 	"version": "__VERSION__",
 	"author": "TiDev, Inc. <npm@tidev.io>",
-	"minIosVersion": "13.0",
-	"minWatchosVersion": "6.0",
+	"minIosVersion": "15.0",
+	"minWatchosVersion": "8.0",
 	"vendorDependencies": {
-		"xcode": ">=12.0 <=16.x",
-		"ios sdk": ">=13.0 <=18.x"
-	},
-	"engines": {
-		"node": ">=16.0.0"
+		"xcode": ">=15.0 <=26.x",
+		"ios sdk": ">=17.0 <=26.x"
 	},
 	"repository": {
 		"type": "git",

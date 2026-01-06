@@ -1,19 +1,17 @@
-'use strict';
+import path from 'node:path';
+import fs from 'fs-extra';
+import { glob } from 'glob';
+import { spawn } from 'node:child_process';  // eslint-disable-line security/detect-child-process
+import { copyFiles, copyAndModifyFile } from './utils.js';
+import { fileURLToPath } from 'node:url';
 
-const path = require('path');
-const fs = require('fs-extra');
-const utils = require('./utils');
-const promisify = require('util').promisify;
-const glob = promisify(require('glob'));
-const spawn = require('child_process').spawn;  // eslint-disable-line security/detect-child-process
-const copyFiles = utils.copyFiles;
-const copyAndModifyFile = utils.copyAndModifyFile;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ROOT_DIR = path.join(__dirname, '../..');
 const IOS_ROOT = path.join(ROOT_DIR, 'iphone');
 const IOS_LIB = path.join(IOS_ROOT, 'lib');
 
-class IOS {
+export class IOS {
 	/**
 	 * @param {Object} options options object
 	 * @param {String} options.sdkVersion version of Titanium SDK
@@ -29,7 +27,7 @@ class IOS {
 
 	babelOptions() {
 		// eslint-disable-next-line security/detect-non-literal-require
-		const { minIosVersion } = require(path.join(ROOT_DIR, 'iphone/package.json'));
+		const { minIosVersion } = fs.readJsonSync(path.join(ROOT_DIR, 'iphone/package.json'));
 
 		return {
 			targets: {
@@ -58,14 +56,14 @@ class IOS {
 		return fs.remove(path.join(IOS_ROOT, 'TitaniumKit/build'));
 	}
 
-	async build() {
+	build() {
 		console.log('Building TitaniumKit ...');
 
 		return new Promise((resolve, reject) => {
 			const buildScript = path.join(ROOT_DIR, 'support/iphone/build_titaniumkit.sh');
 			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ], { stdio: 'inherit' });
 			child.on('error', reject);
-			child.on('exit', code => {
+			child.on('close', code => {
 				if (code) {
 					const err = new Error(`TitaniumKit build exited with code ${code}`);
 					console.error(err);
@@ -73,7 +71,7 @@ class IOS {
 				}
 
 				console.log('TitaniumKit built successfully!');
-				return resolve();
+				resolve();
 			});
 		});
 	}
@@ -106,7 +104,7 @@ class IOS {
 			await fs.ensureDir(path.join(DEST_IOS, 'include', libDir));
 			const libFiles = await fs.readdir(fullLibDir);
 			for (const libFile of libFiles) {
-				if (libFile.endsWith('.h') && libFile !== 'APSUtility.h') { // for whatever reason APSUtility.h seems not to get copied as part of framework?
+				if (libFile.endsWith('.h')) {
 					await fs.move(path.join(DEST_IOS, 'include', libFile), path.join(DEST_IOS, 'include', libDir, libFile));
 				}
 			}
@@ -173,4 +171,4 @@ class IOS {
 	}
 }
 
-module.exports = IOS;
+export default IOS;

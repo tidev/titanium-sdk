@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 SCRIPT_PATH=$(cd "$(dirname "$0")"; pwd)
 cd $SCRIPT_PATH
@@ -36,6 +37,8 @@ then
       GIT_HASH=`git rev-parse --short=10 --no-color HEAD`
 fi
 
+export TI_VERSION="$SDK_VERSION"
+
 # Inject the values into the source
 cp TitaniumKit/Sources/API/TopTiModule.m TitaniumKit/Sources/API/TopTiModule.bak
 sed -i '' 's@__VERSION__@'"$SDK_VERSION"'@g' TitaniumKit/Sources/API/TopTiModule.m
@@ -56,13 +59,17 @@ UNIVERSAL_LIBRARY_DIR="$(pwd)/build"
 
 FRAMEWORK="${UNIVERSAL_LIBRARY_DIR}/${FRAMEWORK_NAME}.xcframework"
 
-mkdir "${UNIVERSAL_LIBRARY_DIR}"
+mkdir -p "${UNIVERSAL_LIBRARY_DIR}"
+
+# Clean previous archives/output if they exist
+rm -rf "$MAC_ARCHIVE_PATH" "$DEVICE_ARCHIVE_PATH" "$SIMULATOR_ARCHIVE_PATH" "$FRAMEWORK"
 
 #----- Make macCatalyst archive
 xcodebuild archive \
 -scheme $FRAMEWORK_NAME \
 -archivePath $MAC_ARCHIVE_PATH \
 -sdk macosx \
+-destination generic/platform=macOS \
 SKIP_INSTALL=NO \
 BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
 SUPPORTS_MACCATALYST=YES \
@@ -72,20 +79,28 @@ xcodebuild archive \
 -scheme $FRAMEWORK_NAME \
 -archivePath $SIMULATOR_ARCHIVE_PATH \
 -sdk iphonesimulator \
-SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+-destination "generic/platform=iOS Simulator" \
+SKIP_INSTALL=NO \
+BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
+SUPPORTS_MACCATALYST=NO
 
 #----- Make iOS device archive
 xcodebuild archive \
 -scheme $FRAMEWORK_NAME \
 -archivePath $DEVICE_ARCHIVE_PATH \
 -sdk iphoneos \
-SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
+-destination generic/platform=iOS \
+SKIP_INSTALL=NO \
+BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
+SUPPORTS_MACCATALYST=NO
 
 # restore TopTiModule.m
 rm TitaniumKit/Sources/API/TopTiModule.m
 mv TitaniumKit/Sources/API/TopTiModule.bak TitaniumKit/Sources/API/TopTiModule.m
 
 #----- Make XCFramework
+# Ensure we remove any pre-existing output to avoid duplicate variant errors
+rm -rf "$FRAMEWORK"
 xcodebuild -create-xcframework \
 -framework $SIMULATOR_ARCHIVE_PATH/Products/Library/Frameworks/$FRAMEWORK_NAME.framework \
 -framework $DEVICE_ARCHIVE_PATH/Products/Library/Frameworks/$FRAMEWORK_NAME.framework \

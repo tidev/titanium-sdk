@@ -405,7 +405,7 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 }
 
 /*
- * Called by V8Runtime.java, this passes a KrollSourceCodeProvider java class instance
+ * Called by V8Runtime.java, this passes a KrollSourceCodeProvider Java class instance
  * to KrollBindings, where it's stored and later used to retrieve an external CommonJS module's
  * Javascript code when require(moduleName) occurs in Javascript.
  * "External" CommonJS modules are CommonJS modules stored in external modules.

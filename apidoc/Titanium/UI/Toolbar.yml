@@ -149,7 +149,7 @@ methods:
     platforms: [android]
 
   - name: dismissPopupMenus
-    summary: Collapses expandend ActionViews and hides overflow menu
+    summary: Collapses expanded ActionViews and hides overflow menu
     platforms: [android]
 
   - name: getContentInsetEnd
@@ -284,7 +284,7 @@ examples:
 
         var send = Ti.UI.createButton({
             title: 'Send',
-            style: Ti.UI.iOS.SystemButtonStyle.DONE,
+            style: Ti.UI.BUTTON_STYLE_OPTION_POSITIVE,
         });
 
         var camera = Ti.UI.createButton({

@@ -269,7 +269,7 @@
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
   [super dealloc];
 }
@@ -289,7 +289,7 @@
     [(TiTextField *)textWidgetView setTouchHandler:self];
     [self addSubview:textWidgetView];
     self.clipsToBounds = YES;
-    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
     NSNotificationCenter *theNC = [NSNotificationCenter defaultCenter];
     [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
   }

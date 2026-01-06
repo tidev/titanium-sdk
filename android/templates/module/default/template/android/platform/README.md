@@ -1,5 +1,5 @@
 
-The `./build/android` directory is treated like a gradle project's `./src/main` directory.
+The `./build/android` directory is treated like a Gradle project's `./src/main` directory.
 These files will be bundled into the module's built AAR library and copied into the built app's APK.
 
 Adding files to the below folder will add them to APK's root "assets" folder.

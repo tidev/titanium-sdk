@@ -12,12 +12,12 @@
 #import <Foundation/Foundation.h>
 
 // This is meant to be a largely "virtual" class which defines the following behaviors:
-// 1. Interprets read()/write() calls to the appropriate interal function
+// 1. Interprets read()/write() calls to the appropriate internal function
 // 2. Provide protocol defining necessary internal functions; read/write, asynch read/write, readAll,
 @protocol TiStreamInternal <NSObject>
 @required
 // DEFINED BEHAVIOR: callback != nil indicates an asynch operation.  length==0 indicates to read all available data into
-// the buffer (and grow it if necessary).  These methods MAY be called by classes other than the TiStreamProxy ducktype (i.e. Ti.Stream module methods)
+// the buffer (and grow it if necessary).  These methods MAY be called by classes other than the TiStreamProxy ducktype (e.g. Ti.Stream module methods)
 - (NSInteger)readToBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback;
 - (NSInteger)writeFromBuffer:(TiBuffer *)buffer offset:(NSInteger)offset length:(NSInteger)length callback:(KrollCallback *)callback;
 

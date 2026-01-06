@@ -835,7 +835,7 @@ public class TiUIScrollView extends TiUIView
 			}
 		}
 
-		// android only property
+		// Android only property
 		if (d.containsKey(TiC.PROPERTY_SCROLL_TYPE)) {
 			Object scrollType = d.get(TiC.PROPERTY_SCROLL_TYPE);
 			if (scrollType.equals(TiC.LAYOUT_VERTICAL)) {

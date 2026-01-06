@@ -6,7 +6,7 @@
  */
 
 buildscript {
-	ext.kotlin_version = '1.9.23'
+	ext.kotlin_version = '2.3.0'
 
 	repositories {
 		google()
@@ -35,7 +35,7 @@ allprojects {
 		showViolations true
 	}
 
-	// Include Titanium's gradle constants in all gradle sub-projects.
+	// Include Titanium's Gradle constants in all Gradle sub-projects.
 	project.apply from: "${rootDir}/templates/build/ti.constants.gradle"
 }
 

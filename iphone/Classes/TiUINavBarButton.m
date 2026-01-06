@@ -39,7 +39,7 @@ DEFINE_EXCEPTIONS
 - (void)dealloc
 {
 #if NAVBAR_MEMORY_DEBUG == 1
-  NSLog(@"[DEBUG] Deallocing %X (%d)", self, [self retainCount]);
+  NSLog(@"[DEBUG] Deallocating %X (%d)", self, [self retainCount]);
 #endif
   RELEASE_TO_NIL(activityDelegate);
   [super dealloc];

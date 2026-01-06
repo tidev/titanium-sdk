@@ -597,7 +597,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   }
   RELEASE_TO_NIL(rowContainerView);
 
-  // ... But that's not enough. We need to detatch the views
+  // ... But that's not enough. We need to detach the views
   // for all children of the row, to clean up memory.
   for (TiViewProxy *child in [self children]) {
     [child detachView];
@@ -866,7 +866,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   return dict;
 }
 
-// TODO: Remove when deprication is done.
+// TODO: Remove when deprecation is done.
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
 {
   // merge in any row level properties for the event
