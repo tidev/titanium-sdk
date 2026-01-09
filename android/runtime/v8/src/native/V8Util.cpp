@@ -163,9 +163,8 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 	v8::Local<v8::Promise> promise = data.GetPromise();
 	v8::Isolate* isolate = promise->GetIsolate();
 	v8::Local<v8::Value> value = data.GetValue();
-	v8::PromiseRejectEvent event = data.GetEvent();
-	Local<Context> context = isolate->GetCurrentContext(); // V8Runtime::v8_isolate ?
-
+	Local<Context> context = isolate->GetCurrentContext();
+	
 	// Extract Error message	
 	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
 	v8::String::Utf8Value utf8Message(isolate, message->Get());
