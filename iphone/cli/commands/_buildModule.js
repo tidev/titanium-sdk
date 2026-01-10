@@ -753,12 +753,11 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 	}
 
 	createUniversalBinary(next) {
-		this.logger.info('Creating universal library');
+		this.logger.info('Creating universal framework/library');
 
 		const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId;
 		const findLib = function (dest) {
 			let libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
-
 			const lib = path.join(this.projectDir, 'build', dest + libPath);
 			this.logger.info(`Looking for ${lib}`);
 
@@ -777,6 +776,18 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			}
 			return lib;
 		}.bind(this);
+		const findDSym = function (dest) {
+			// find dSYM for framework
+			const dSymPath = '.xcarchive/dSYMs/' + moduleId + '.framework.dSYM';
+			const dSym = path.join(this.projectDir, 'build', dest + dSymPath);
+			this.logger.info(`Looking for dSYM ${dSym}`);
+
+			if (!fs.existsSync(dSym)) {
+				this.logger.warn(`Unable to find the Release-${dest} dSYM. Crash reports regarding ${moduleId}.framework may be unsymbolicated.`);
+				return false;
+			}
+			return dSym;
+		}.bind(this);
 
 		// Create xcframework
 		const args = [];
@@ -791,14 +802,19 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 		if (lib instanceof Error) {
 			return next(lib);
 		}
-
 		args.push('-create-xcframework');
 		args.push(buildType);
 		args.push(lib);
-
 		if (!this.isFramework) {
 			args.push('-headers');
 			args.push(headerPath);
+		} else {
+			const dSym = findDSym('iphoneos');
+			if (dSym !== false) {
+				// include dSYM files in xcframework for symbolicated crash reports
+				args.push('-debug-symbols');
+				args.push(dSym);
+			}
 		}
 
 		lib = findLib('iphonesimulator');
@@ -810,7 +826,15 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 		if (!this.isFramework) {
 			args.push('-headers');
 			args.push(headerPath);
+		} else {
+			const dSym = findDSym('iphonesimulator');
+			if (dSym !== false) {
+				// include dSYM files in xcframework for symbolicated crash reports
+				args.push('-debug-symbols');
+				args.push(dSym);
+			}
 		}
+
 		if (this.isMacOSEnabled) {
 			lib = findLib('macosx');
 			if (lib instanceof Error) {
@@ -821,6 +845,13 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				if (!this.isFramework) {
 					args.push('-headers');
 					args.push(headerPath);
+				} else {
+					const dSym = findDSym('macosx');
+					if (dSym !== false) {
+						// include dSYM files in xcframework for symbolicated crash reports
+						args.push('-debug-symbols');
+						args.push(dSym);
+					}
 				}
 			}
 		}
@@ -857,7 +888,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 	}
 
 	async verifyBuildArch() {
-		this.logger.info('Verifying universal library');
+		this.logger.info('Verifying universal framework/library');
 
 		const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId;
 		const frameworkPath = path.join(this.projectDir, 'build', moduleId + '.xcframework');
@@ -874,7 +905,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				libraryPath = path.join(libraryPath, frameworkName);
 			}
 			if (!(await fs.pathExists(libraryPath))) {
-				throw new Error(`Unable to find the built library ${libraryPath}`);
+				throw new Error(`Unable to find the built framework/library ${libraryPath}`);
 			}
 		};
 
@@ -954,7 +985,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			binarylibName = this.isFramework ? this.moduleIdAsIdentifier + '.xcframework' : moduleId + '.xcframework',
 			binarylibFile = path.join(this.projectDir, 'build', binarylibName);
 
-		this.logger.info(`binarylibFile is ${binarylibFile}`);
+		this.logger.info(`Binary framework/library file: ${binarylibFile}`);
 
 		this.moduleZipPath = moduleZipFullPath;
 
