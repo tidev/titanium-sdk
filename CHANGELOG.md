@@ -1,33 +1,3 @@
-## [13.1.0](https://github.com/tidev/titanium_mobile/compare/13.0.1...13.1.0) (2026-01-10)
-
-## About this release
-
-Titanium SDK 13.1.0 fixes critical Mac Catalyst build issues that prevented developers from compiling and distributing Mac apps via the App Store.
-
-## Community Credits
-
-* César Estrada (macCesar)
-  * fix Mac Catalyst build failures and App Store distribution ([3e403c6](https://github.com/tidev/titanium_mobile/commit/3e403c6717))
-
-## Bug Fixes
-
-### iOS platform
-
-* **Mac Catalyst:** Fix FRAMEWORK_SEARCH_PATHS to use absolute path for framework location ([3e403c6](https://github.com/tidev/titanium_mobile/commit/3e403c6717))
-  - Changed from relative path `"Frameworks"` to absolute `"$(PROJECT_DIR)/Frameworks"`
-  - Resolves framework linking errors during Mac Catalyst builds
-  - Does not affect standard iOS or Android builds
-
-* **Mac Catalyst:** Automatically create required TitaniumKit.framework symlinks for macOS compatibility ([3e403c6](https://github.com/tidev/titanium_mobile/commit/3e403c6717))
-  - Mac Catalyst requires macOS framework structure with proper symlink hierarchy
-  - Creates `Versions/Current -> A` and root-level symlinks (`TitaniumKit`, `Resources`, `Headers`, `Modules`)
-  - Symlinks created at build-time (before xcodebuild) and in final app bundle (after xcodebuild)
-  - Fixes "Unable to find module dependency: 'TitaniumKit'" compilation errors
-  - Fixes App Store rejection: "The bundle does not exist" for TitaniumKit.framework
-  - Only executes for Mac Catalyst targets (`macos` and `dist-macappstore`), no impact on iOS builds
-
----
-
 ## [13.0.1](https://github.com/tidev/titanium_mobile/compare/13_0_0_GA...13.0.1) (2025-10-31)
 
 ## About this release
