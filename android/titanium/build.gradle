@@ -43,8 +43,8 @@ for (nextString in tiBuildVersionString.split('\\.')) {
 }
 
 android {
-	ndkVersion project.ext.tiNdkVersion
-	namespace 'org.appcelerator.titanium'
+	ndkVersion = project.ext.tiNdkVersion
+	namespace = 'org.appcelerator.titanium'
 	defaultConfig {
 		compileSdk 35
 		minSdkVersion 24
@@ -77,11 +77,11 @@ android {
 		}
 	}
 	buildFeatures {
-		buildConfig true
+		buildConfig = true
 	}
 	externalNativeBuild {
 		cmake {
-			version '3.22.1'
+			version = '3.22.1'
 			path "${projectDir}/../runtime/v8/src/native/CMakeLists.txt"
 		}
 	}
@@ -125,8 +125,16 @@ android {
 	}
 }
 
+// Download/install the V8 library referenced in our "package.json", if not already done.
+tasks.register('updateLibraryThenExit', Exec) {
+	executable = 'node'
+	workingDir = projectDir
+	args = ['libv8-services.js', 'update-library']
+}
+
 // Downloads/extracts V8 library and creates a cmake file for it. To be executed before C/C++ "build" or "clean".
 tasks.register('updateV8Library') {
+	dependsOn tasks.named('updateLibraryThenExit')
 	def packageJson = new JsonSlurper().parse(file("${projectDir}/../package.json"))
 	def v8MakeFilePath = "${projectDir}/../runtime/v8/src/ndk-modules/libv8/V8Settings.cmake"
 	inputs.property 'v8.version', packageJson.v8.version
@@ -143,13 +151,6 @@ tasks.register('updateV8Library') {
 				"set(LIBV8_VERSION \"${packageJson.v8.version}\")",
 				"set(LIBV8_MODE \"${packageJson.v8.mode}\")"
 		].join('\n') + '\n'
-
-		// Download/install the V8 library referenced in our "package.json", if not already done.
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['libv8-services.js', 'update-library']
-		}
 	}
 }
 
@@ -180,32 +181,32 @@ tasks.register('checkstyleChanged', Checkstyle) {
 // Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
 // takes a V8 snapshot of rolled-up files, and then generates a C++ header file of that snapshot to be compiled-in.
 // Note: This supports incremental builds. Only executes when JS files change or snapshot output file is missing.
+
+tasks.register('createV8Snapshot', Exec) {
+	executable = 'node'
+	workingDir = projectDir
+	args = ['libv8-services.js', 'create-snapshot']
+}
+
 tasks.register('snapshotTiCommonFiles') {
+	dependsOn tasks.named('createV8Snapshot')
 	inputs.dir "${projectDir}/../../common/Resources"
 	inputs.file "${projectDir}/../../build/lib/builder.js"
 	inputs.file "${projectDir}/../../build/lib/android.js"
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
-	doFirst {
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['libv8-services.js', 'create-snapshot']
-		}
-	}
 }
 
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // Generates C/C++ files providing our Android-only JS files via byte arrays.
+tasks.register('runPrebuild', Exec) {
+	executable = 'node'
+	workingDir = projectDir
+	args = ['prebuild.js']
+}
+
 tasks.withType(JavaCompile).configureEach {
-	dependsOn checkJavaStyle
-	dependsOn snapshotTiCommonFiles
-	doLast {
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['prebuild.js']
-		}
-	}
+	dependsOn(checkJavaStyle, snapshotTiCommonFiles)
+	finalizedBy(tasks.runPrebuild)
 }
 
 // Set up project to compile Java side before compiling the C/C++ side.
@@ -263,12 +264,19 @@ def getChangedFiles() {
 	files
 }
 
+def generatedDir = file("${projectDir}/../runtime/v8/generated")
+def distFiles = fileTree(
+	dir: file("${projectDir}/../../dist/android"),
+	include: '**/*',
+	exclude: 'libv8/**/*'
+)
+
 clean.doLast {
 	// Delete generated C/C++ files.
-	project.delete file("${projectDir}/../runtime/v8/generated")
+	delete generatedDir
 
-	// Delete the files copied to our distribution directory. This is what gets packaged/installed.
-	project.delete fileTree(dir: file("${projectDir}/../../dist/android"), include: '**/*', exclude: 'libv8/**/*')
+	// Delete the files copied to our distribution directory.
+	delete distFiles
 }
 
 dependencies {
@@ -327,9 +335,9 @@ publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
 			// Set up Maven repo info.
-			groupId 'org.appcelerator'
-			artifactId 'titanium'
-			version tiBuildVersionString
+			groupId = 'org.appcelerator'
+			artifactId = 'titanium'
+			version = tiBuildVersionString
 			artifact file("${buildDir}/outputs/aar/titanium-release.aar")
 
 			// Generates the "*.pom" XML file containing all of Titanium's above dependencies,
@@ -355,7 +363,7 @@ publishing {
 	repositories {
 		maven {
 			// The Maven directory tree produced above will be outputted to the following local directory.
-			url "${buildDir}/outputs/m2repository"
+			url = "${buildDir}/outputs/m2repository"
 		}
 	}
 }
@@ -363,12 +371,12 @@ publishing {
 publish.doLast {
 	// After above publishing step, extract C/C++ "*.so" libraries from AAR to "./build/outputs/jniLibs" directory.
 	def jniLibsOutputDir = "${buildDir}/outputs/jniLibs"
-	project.delete jniLibsOutputDir
+	delete jniLibsOutputDir
 	copy {
 		from zipTree("${buildDir}/outputs/aar/titanium-release.aar")
 		into jniLibsOutputDir
 		include 'jni/**/*'
-		includeEmptyDirs false
+		includeEmptyDirs = false
 		eachFile {
 			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1))
 		}
