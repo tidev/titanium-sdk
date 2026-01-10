@@ -3521,7 +3521,7 @@ class iOSBuilder extends Builder {
 				DEAD_CODE_STRIPPING: 'YES',
 				SDKROOT: 'iphoneos',
 				CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"',
-				FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"Frameworks"' ]
+				FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"$(PROJECT_DIR)/Frameworks"' ]
 			},
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
@@ -7098,10 +7098,10 @@ class iOSBuilder extends Builder {
 						next();
 					});
 				}.bind(this), function () {
-					done();
-				});
+					this.createTitaniumKitSymlinks(); done();
+				}.bind(this));
 			} else {
-				done();
+				this.createTitaniumKitSymlinks(); done();
 			}
 		});
 
@@ -7109,6 +7109,101 @@ class iOSBuilder extends Builder {
 			this.logger.debug('Removing empty directories');
 			appc.subprocess.run('find', [ '.', '-type', 'd', '-empty', '-delete' ], { cwd: this.xcodeAppDir }, next);
 		}.bind(this));
+	}
+
+	createTitaniumKitSymlinks() {
+		// Fix for Mac Catalyst: Create required symlinks in TitaniumKit.framework
+		// Mac Catalyst requires macOS framework structure with symlinks
+		// Bug #3: Build-time symlinks in build/Frameworks directory
+		// Bug #4: Distribution symlinks in final app bundle
+
+		if (this.target !== 'macos' && this.target !== 'dist-macappstore') {
+			// Only needed for Mac Catalyst builds
+			return;
+		}
+
+		const frameworkLocations = [];
+
+		// Location 1: Build directory (Bug #3)
+		const buildFrameworkPath = path.join(
+			this.buildDir,
+			'Frameworks',
+			'TitaniumKit.xcframework',
+			'ios-arm64_x86_64-maccatalyst',
+			'TitaniumKit.framework'
+		);
+		if (fs.existsSync(buildFrameworkPath)) {
+			frameworkLocations.push({
+				path: buildFrameworkPath,
+				description: 'build directory'
+			});
+		}
+
+		// Location 2: Final app bundle (Bug #4)
+		// For macos target, the app is in: build/iphone/build/Products/Debug-maccatalyst/AppName.app
+		// For dist-macappstore: build/iphone/build/Products/Release-maccatalyst/AppName.app
+		const productConfig = this.target === 'dist-macappstore' ? 'Release-maccatalyst' : 'Debug-maccatalyst';
+		const appBundleFrameworkPath = path.join(
+			this.buildDir,
+			'build',
+			'Products',
+			productConfig,
+			this.tiapp.name + '.app',
+			'Contents',
+			'Frameworks',
+			'TitaniumKit.framework'
+		);
+		if (fs.existsSync(appBundleFrameworkPath)) {
+			frameworkLocations.push({
+				path: appBundleFrameworkPath,
+				description: 'app bundle'
+			});
+		}
+
+		// Create symlinks in all found locations
+		frameworkLocations.forEach(location => {
+			const frameworkPath = location.path;
+			const versionsPath = path.join(frameworkPath, 'Versions');
+
+			if (!fs.existsSync(versionsPath)) {
+				this.logger.warn(`Versions directory not found in ${location.description}: ${versionsPath}`);
+				return;
+			}
+
+			try {
+				// Create Versions/Current -> A symlink
+				const currentLink = path.join(versionsPath, 'Current');
+				if (!fs.existsSync(currentLink)) {
+					fs.symlinkSync('A', currentLink);
+					this.logger.debug(`Created symlink: Versions/Current -> A in ${location.description}`);
+				}
+
+				// Create root-level symlinks
+				const symlinks = [
+					{ link: 'TitaniumKit', target: 'Versions/Current/TitaniumKit' },
+					{ link: 'Resources', target: 'Versions/Current/Resources' },
+					{ link: 'Headers', target: 'Versions/Current/Headers' },
+					{ link: 'Modules', target: 'Versions/Current/Modules' }
+				];
+
+				let createdCount = 0;
+				symlinks.forEach(item => {
+					const linkPath = path.join(frameworkPath, item.link);
+					if (!fs.existsSync(linkPath)) {
+						fs.symlinkSync(item.target, linkPath);
+						createdCount++;
+					}
+				});
+
+				if (createdCount > 0) {
+					this.logger.info(`✓ Created ${createdCount} Mac Catalyst framework symlinks in ${location.description}`);
+				} else {
+					this.logger.debug(`Mac Catalyst symlinks already exist in ${location.description}`);
+				}
+			} catch (err) {
+				this.logger.warn(`Failed to create symlinks in ${location.description}: ${err.message}`);
+			}
+		});
 	}
 
 	optimizeFiles(next) {
@@ -7334,6 +7429,9 @@ class iOSBuilder extends Builder {
 				}
 
 				// end of the line
+			// Fix Bug #4: Create symlinks in final app bundle after xcodebuild
+			this.createTitaniumKitSymlinks();
+
 				done(code);
 			}.bind(this));
 		});
