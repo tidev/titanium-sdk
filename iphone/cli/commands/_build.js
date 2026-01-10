@@ -7098,10 +7098,12 @@ class iOSBuilder extends Builder {
 						next();
 					});
 				}.bind(this), function () {
-					this.createTitaniumKitSymlinks(); done();
+					this.createTitaniumKitSymlinks();
+					done();
 				}.bind(this));
 			} else {
-				this.createTitaniumKitSymlinks(); done();
+				this.createTitaniumKitSymlinks();
+				done();
 			}
 		});
 
@@ -7429,8 +7431,8 @@ class iOSBuilder extends Builder {
 				}
 
 				// end of the line
-			// Fix Bug #4: Create symlinks in final app bundle after xcodebuild
-			this.createTitaniumKitSymlinks();
+				// Fix Bug #4: Create symlinks in final app bundle after xcodebuild
+				this.createTitaniumKitSymlinks();
 
 				done(code);
 			}.bind(this));
