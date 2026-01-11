@@ -7162,6 +7162,39 @@ class iOSBuilder extends Builder {
 			});
 		}
 
+		// Helper function to ensure a symlink exists with the correct target
+		const ensureSymlink = (linkPath, target, logger) => {
+			if (fs.existsSync(linkPath)) {
+				// Something exists at this path - check what it is
+				const stats = fs.lstatSync(linkPath); // lstat doesn't follow symlinks
+
+				if (stats.isSymbolicLink()) {
+					// It's a symlink - check if it points to the correct target
+					const currentTarget = fs.readlinkSync(linkPath);
+					if (currentTarget === target) {
+						// Symlink is correct, nothing to do
+						return false;
+					} else {
+						// Symlink points to wrong target, remove and recreate
+						logger.debug(`Removing incorrect symlink: ${linkPath} -> ${currentTarget}, should be -> ${target}`);
+						fs.unlinkSync(linkPath);
+					}
+				} else if (stats.isDirectory()) {
+					// It's a directory (from old builds), remove it
+					logger.debug(`Removing directory at symlink location: ${linkPath}`);
+					fs.rmSync(linkPath, { recursive: true, force: true });
+				} else {
+					// It's a file, remove it
+					logger.debug(`Removing file at symlink location: ${linkPath}`);
+					fs.unlinkSync(linkPath);
+				}
+			}
+
+			// Create the symlink
+			fs.symlinkSync(target, linkPath);
+			return true;
+		};
+
 		// Create symlinks in all found locations
 		frameworkLocations.forEach(location => {
 			const frameworkPath = location.path;
@@ -7173,11 +7206,13 @@ class iOSBuilder extends Builder {
 			}
 
 			try {
+				let createdCount = 0;
+
 				// Create Versions/Current -> A symlink
 				const currentLink = path.join(versionsPath, 'Current');
-				if (!fs.existsSync(currentLink)) {
-					fs.symlinkSync('A', currentLink);
+				if (ensureSymlink(currentLink, 'A', this.logger)) {
 					this.logger.debug(`Created symlink: Versions/Current -> A in ${location.description}`);
+					createdCount++;
 				}
 
 				// Create root-level symlinks
@@ -7188,11 +7223,9 @@ class iOSBuilder extends Builder {
 					{ link: 'Modules', target: 'Versions/Current/Modules' }
 				];
 
-				let createdCount = 0;
 				symlinks.forEach(item => {
 					const linkPath = path.join(frameworkPath, item.link);
-					if (!fs.existsSync(linkPath)) {
-						fs.symlinkSync(item.target, linkPath);
+					if (ensureSymlink(linkPath, item.target, this.logger)) {
 						createdCount++;
 					}
 				});
@@ -7200,7 +7233,7 @@ class iOSBuilder extends Builder {
 				if (createdCount > 0) {
 					this.logger.info(`✓ Created ${createdCount} Mac Catalyst framework symlinks in ${location.description}`);
 				} else {
-					this.logger.debug(`Mac Catalyst symlinks already exist in ${location.description}`);
+					this.logger.debug(`Mac Catalyst symlinks already correct in ${location.description}`);
 				}
 			} catch (err) {
 				this.logger.warn(`Failed to create symlinks in ${location.description}: ${err.message}`);
