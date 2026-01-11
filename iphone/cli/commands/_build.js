@@ -7164,16 +7164,24 @@ class iOSBuilder extends Builder {
 
 		// Helper function to ensure a symlink exists with the correct target
 		const ensureSymlink = (linkPath, target, logger) => {
-			if (fs.existsSync(linkPath)) {
-				// Something exists at this path - check what it is
-				const stats = fs.lstatSync(linkPath); // lstat doesn't follow symlinks
+			// Use lstatSync to check if something exists at this path without following symlinks
+			// This catches broken symlinks that existsSync would miss
+			try {
+				const stats = fs.lstatSync(linkPath);
 
 				if (stats.isSymbolicLink()) {
 					// It's a symlink - check if it points to the correct target
 					const currentTarget = fs.readlinkSync(linkPath);
 					if (currentTarget === target) {
-						// Symlink is correct, nothing to do
-						return false;
+						// Symlink points to correct target - verify it's not broken
+						if (fs.existsSync(linkPath)) {
+							// Symlink is valid and points to correct target
+							return false;
+						} else {
+							// Symlink is broken (target doesn't exist), recreate it
+							logger.debug(`Removing broken symlink: ${linkPath} -> ${currentTarget}`);
+							fs.unlinkSync(linkPath);
+						}
 					} else {
 						// Symlink points to wrong target, remove and recreate
 						logger.debug(`Removing incorrect symlink: ${linkPath} -> ${currentTarget}, should be -> ${target}`);
@@ -7187,6 +7195,11 @@ class iOSBuilder extends Builder {
 					// It's a file, remove it
 					logger.debug(`Removing file at symlink location: ${linkPath}`);
 					fs.unlinkSync(linkPath);
+				}
+			} catch (err) {
+				// lstatSync throws if path doesn't exist - this is fine, we'll create it
+				if (err.code !== 'ENOENT') {
+					throw err;
 				}
 			}
 
