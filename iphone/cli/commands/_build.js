@@ -3521,7 +3521,7 @@ class iOSBuilder extends Builder {
 				DEAD_CODE_STRIPPING: 'YES',
 				SDKROOT: 'iphoneos',
 				CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"',
-				FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"Frameworks"' ]
+				FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"$(PROJECT_DIR)/Frameworks"' ]
 			},
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
@@ -7098,9 +7098,11 @@ class iOSBuilder extends Builder {
 						next();
 					});
 				}.bind(this), function () {
+					this.createTitaniumKitSymlinks();
 					done();
-				});
+				}.bind(this));
 			} else {
+				this.createTitaniumKitSymlinks();
 				done();
 			}
 		});
@@ -7109,6 +7111,147 @@ class iOSBuilder extends Builder {
 			this.logger.debug('Removing empty directories');
 			appc.subprocess.run('find', [ '.', '-type', 'd', '-empty', '-delete' ], { cwd: this.xcodeAppDir }, next);
 		}.bind(this));
+	}
+
+	createTitaniumKitSymlinks() {
+		// Fix for Mac Catalyst: Create required symlinks in TitaniumKit.framework
+		// Mac Catalyst requires macOS framework structure with symlinks
+		// Bug #3: Build-time symlinks in build/Frameworks directory
+		// Bug #4: Distribution symlinks in final app bundle
+
+		if (this.target !== 'macos' && this.target !== 'dist-macappstore') {
+			// Only needed for Mac Catalyst builds
+			return;
+		}
+
+		const frameworkLocations = [];
+
+		// Location 1: Build directory (Bug #3)
+		const buildFrameworkPath = path.join(
+			this.buildDir,
+			'Frameworks',
+			'TitaniumKit.xcframework',
+			'ios-arm64_x86_64-maccatalyst',
+			'TitaniumKit.framework'
+		);
+		if (fs.existsSync(buildFrameworkPath)) {
+			frameworkLocations.push({
+				path: buildFrameworkPath,
+				description: 'build directory'
+			});
+		}
+
+		// Location 2: Final app bundle (Bug #4)
+		// For macos target, the app is in: build/iphone/build/Products/Debug-maccatalyst/AppName.app
+		// For dist-macappstore: build/iphone/build/Products/Release-maccatalyst/AppName.app
+		const productConfig = this.target === 'dist-macappstore' ? 'Release-maccatalyst' : 'Debug-maccatalyst';
+		const appBundleFrameworkPath = path.join(
+			this.buildDir,
+			'build',
+			'Products',
+			productConfig,
+			this.tiapp.name + '.app',
+			'Contents',
+			'Frameworks',
+			'TitaniumKit.framework'
+		);
+		if (fs.existsSync(appBundleFrameworkPath)) {
+			frameworkLocations.push({
+				path: appBundleFrameworkPath,
+				description: 'app bundle'
+			});
+		}
+
+		// Helper function to ensure a symlink exists with the correct target
+		const ensureSymlink = (linkPath, target, logger) => {
+			// Use lstatSync to check if something exists at this path without following symlinks
+			// This catches broken symlinks that existsSync would miss
+			try {
+				const stats = fs.lstatSync(linkPath);
+
+				if (stats.isSymbolicLink()) {
+					// It's a symlink - check if it points to the correct target
+					const currentTarget = fs.readlinkSync(linkPath);
+					if (currentTarget === target) {
+						// Symlink points to correct target - verify it's not broken
+						if (fs.existsSync(linkPath)) {
+							// Symlink is valid and points to correct target
+							return false;
+						} else {
+							// Symlink is broken (target doesn't exist), recreate it
+							logger.debug(`Removing broken symlink: ${linkPath} -> ${currentTarget}`);
+							fs.unlinkSync(linkPath);
+						}
+					} else {
+						// Symlink points to wrong target, remove and recreate
+						logger.debug(`Removing incorrect symlink: ${linkPath} -> ${currentTarget}, should be -> ${target}`);
+						fs.unlinkSync(linkPath);
+					}
+				} else if (stats.isDirectory()) {
+					// It's a directory (from old builds), remove it
+					logger.debug(`Removing directory at symlink location: ${linkPath}`);
+					fs.rmSync(linkPath, { recursive: true, force: true });
+				} else {
+					// It's a file, remove it
+					logger.debug(`Removing file at symlink location: ${linkPath}`);
+					fs.unlinkSync(linkPath);
+				}
+			} catch (err) {
+				// lstatSync throws if path doesn't exist - this is fine, we'll create it
+				if (err.code !== 'ENOENT') {
+					throw err;
+				}
+			}
+
+			// Create the symlink
+			fs.symlinkSync(target, linkPath);
+			return true;
+		};
+
+		// Create symlinks in all found locations
+		frameworkLocations.forEach(location => {
+			const frameworkPath = location.path;
+			const versionsPath = path.join(frameworkPath, 'Versions');
+
+			if (!fs.existsSync(versionsPath)) {
+				this.logger.warn(`Versions directory not found in ${location.description}: ${versionsPath}`);
+				return;
+			}
+
+			try {
+				let createdCount = 0;
+
+				// Create Versions/Current -> A symlink
+				const currentLink = path.join(versionsPath, 'Current');
+				if (ensureSymlink(currentLink, 'A', this.logger)) {
+					this.logger.debug(`Created symlink: Versions/Current -> A in ${location.description}`);
+					createdCount++;
+				}
+
+				// Create root-level symlinks
+				const symlinks = [
+					{ link: 'TitaniumKit', target: 'Versions/Current/TitaniumKit' },
+					{ link: 'Resources', target: 'Versions/Current/Resources' },
+					{ link: 'Headers', target: 'Versions/Current/Headers' },
+					{ link: 'Modules', target: 'Versions/Current/Modules' }
+				];
+
+				symlinks.forEach(item => {
+					const linkPath = path.join(frameworkPath, item.link);
+					if (ensureSymlink(linkPath, item.target, this.logger)) {
+						createdCount++;
+					}
+				});
+
+				if (createdCount > 0) {
+					this.logger.info(`✓ Created ${createdCount} Mac Catalyst framework symlinks in ${location.description}`);
+				} else {
+					this.logger.debug(`Mac Catalyst symlinks already correct in ${location.description}`);
+				}
+			} catch (err) {
+				this.logger.warn(`Failed to create symlinks in ${location.description}: ${err.message}`);
+			}
+		});
 	}
 
 	optimizeFiles(next) {
@@ -7334,6 +7477,9 @@ class iOSBuilder extends Builder {
 				}
 
 				// end of the line
+				// Fix Bug #4: Create symlinks in final app bundle after xcodebuild
+				this.createTitaniumKitSymlinks();
+
 				done(code);
 			}.bind(this));
 		});
