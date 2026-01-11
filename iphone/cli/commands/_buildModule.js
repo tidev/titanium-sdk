@@ -757,16 +757,16 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 		const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId;
 		const findLib = function (dest) {
-			let libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
+			let libPath = this.isFramework ? `.xcarchive/Products/Library/Frameworks/${moduleId}.framework` : `.xcarchive/Products/usr/local/lib/lib${moduleId}.a`;
 			const lib = path.join(this.projectDir, 'build', dest + libPath);
 			this.logger.info(`Looking for ${lib}`);
 
 			if (!fs.existsSync(lib)) {
 				// unfortunately the initial module project template incorrectly
 				// used the camel-cased module id
-				libPath = '.xcarchive/Products/usr/local/lib/lib' + this.moduleIdAsIdentifier + '.a';
+				libPath = `.xcarchive/Products/usr/local/lib/lib${this.moduleIdAsIdentifier}.a`;
 				const newLib = path.join(this.projectDir, 'build', dest + libPath);
-				this.logger.debug('Searching library: ' + newLib);
+				this.logger.debug(`Searching library: ${newLib}`);
 				if (!fs.existsSync(newLib)) {
 					return new Error(`Unable to find the built Release-${dest} library`);
 				} else {
@@ -803,11 +803,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			return next(lib);
 		}
 		args.push('-create-xcframework');
-		args.push(buildType);
-		args.push(lib);
+		args.push(buildType, lib);
 		if (!this.isFramework) {
-			args.push('-headers');
-			args.push(headerPath);
+			args.push('-headers', headerPath);
 		} else {
 			// Include dSYM files in xcframework for symbolicated crash reports
 			const dSym = findDSYM('iphoneos');
@@ -818,11 +816,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 		if (lib instanceof Error) {
 			return next(lib);
 		}
-		args.push(buildType);
-		args.push(lib);
+		args.push(buildType, lib);
 		if (!this.isFramework) {
-			args.push('-headers');
-			args.push(headerPath);
+			args.push('-headers', headerPath);
 		} else {
 			// Include dSYM files in xcframework for symbolicated crash reports
 			const dSym = findDSYM('iphonesimulator');
@@ -834,11 +830,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			if (lib instanceof Error) {
 				this.logger.warn('The module is missing macOS support. Ignoring mac target for this module...');
 			} else {
-				args.push(buildType);
-				args.push(lib);
+				args.push(buildType, lib);
 				if (!this.isFramework) {
-					args.push('-headers');
-					args.push(headerPath);
+					args.push('-headers', headerPath);
 				} else {
 					// Include dSYM files in xcframework for symbolicated crash reports
 					const dSym = findDSYM('macosx');
