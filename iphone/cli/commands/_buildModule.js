@@ -776,15 +776,15 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			}
 			return lib;
 		}.bind(this);
-		const findDSym = function (dest) {
-			// find dSYM for framework
-			const dSymPath = '.xcarchive/dSYMs/' + moduleId + '.framework.dSYM';
+		// Find the debug symbols (dSYM) for the generated framework
+		const findDSYM = function (dest) {
+			const dSymPath = `.xcarchive/dSYMs/${moduleId}.framework.dSYM`;
 			const dSym = path.join(this.projectDir, 'build', dest + dSymPath);
-			this.logger.info(`Looking for dSYM ${dSym}`);
+			this.logger.debug(`Looking for dSYM ${dSym}`);
 
 			if (!fs.existsSync(dSym)) {
-				this.logger.warn(`Unable to find the Release-${dest} dSYM. Crash reports regarding ${moduleId}.framework may be unsymbolicated.`);
-				return false;
+				this.logger.warn(`Unable to find the Release-${dest} dSYM. Crash reports for ${moduleId} may be unsymbolicated.`);
+				return null;
 			}
 			return dSym;
 		}.bind(this);
@@ -809,12 +809,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			args.push('-headers');
 			args.push(headerPath);
 		} else {
-			const dSym = findDSym('iphoneos');
-			if (dSym !== false) {
-				// include dSYM files in xcframework for symbolicated crash reports
-				args.push('-debug-symbols');
-				args.push(dSym);
-			}
+			// Include dSYM files in xcframework for symbolicated crash reports
+			const dSym = findDSYM('iphoneos');
+			dSym && args.push('-debug-symbols', dSym);
 		}
 
 		lib = findLib('iphonesimulator');
@@ -827,12 +824,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			args.push('-headers');
 			args.push(headerPath);
 		} else {
-			const dSym = findDSym('iphonesimulator');
-			if (dSym !== false) {
-				// include dSYM files in xcframework for symbolicated crash reports
-				args.push('-debug-symbols');
-				args.push(dSym);
-			}
+			// Include dSYM files in xcframework for symbolicated crash reports
+			const dSym = findDSYM('iphonesimulator');
+			dSym && args.push('-debug-symbols', dSym);
 		}
 
 		if (this.isMacOSEnabled) {
@@ -846,12 +840,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 					args.push('-headers');
 					args.push(headerPath);
 				} else {
-					const dSym = findDSym('macosx');
-					if (dSym !== false) {
-						// include dSYM files in xcframework for symbolicated crash reports
-						args.push('-debug-symbols');
-						args.push(dSym);
-					}
+					// Include dSYM files in xcframework for symbolicated crash reports
+					const dSym = findDSYM('macosx');
+					dSym && args.push('-debug-symbols', dSym);
 				}
 			}
 		}
