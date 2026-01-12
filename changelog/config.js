@@ -279,17 +279,21 @@ export default {
 			});
 
 			// HACK the breaking change commits into one heading with sub-headings by platform
-			const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
-			const scopeGroups = [];
-			grouped.forEach((val, key) => {
-				scopeGroups.push({ title: key, commits: val });
-			});
-			context.noteGroups = [
-				{
-					title: 'BREAKING CHANGES',
-					scopeGroups
-				}
-			];
+			if (breakingChanges.length > 0) {
+				const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
+				const scopeGroups = [];
+				grouped.forEach((val, key) => {
+					scopeGroups.push({ title: key, commits: val });
+				});
+				context.noteGroups = [
+					{
+						title: 'BREAKING CHANGES',
+						scopeGroups
+					}
+				];
+			} else {
+				context.noteGroups = null;
+			}
 
 			// convert communityContributions from map to array of objects!
 			context.communityContributions = [];
