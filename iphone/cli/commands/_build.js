@@ -7210,33 +7210,74 @@ class iOSBuilder extends Builder {
 				out = [],
 				err = [],
 				clangCompileMFileRegExp = / -c ((?:.+)\.m) /,
-				// here's a list of tasks that Xcode can perform... we use this so we can inject some whitespace and make the xcodebuild output pretty
+				// Here's a list of tasks that Xcode can perform (some task names stand alone in a line with no space following).
+				// We use this so we can inject some whitespace and make the xcodebuild output pretty.
 				/* eslint-disable security/detect-non-literal-regexp */
 				taskRegExp = new RegExp('^(' + [
-					'CodeSign',
-					'CompileAssetCatalog',
-					'CompileC',
-					'CompileStoryboard',
-					'CopySwiftLibs',
-					'CpHeader',
-					'CreateUniversalBinary',
-					'Ditto',
-					'GenerateDSYMFile',
-					'Ld',
-					'Libtool',
-					'LinkStoryboards',
-					'PBXCp',
-					'PhaseScriptExecution',
-					'ProcessInfoPlistFile',
-					'ProcessPCH',
-					'ProcessPCH\\+\\+',
-					'ProcessProductPackaging',
-					'Strip',
-					'Stripping',
-					'Touch',
-					'Validate',
-					'ValidateEmbeddedBinary'
-				].join('|') + ') ');
+					'AppIntentsSSUTraining ',
+					'ClangStatCache ',
+					'CodeSign ',
+					'CompileAssetCatalog ',
+					'CompileAssetCatalogVariant ',
+					'CompileC ',
+					'CompileStoryboard ',
+					'ComputePackagePrebuildTargetDependencyGraph',
+					'ComputeTargetDependencyGraph',
+					'Copy ',
+					'CopySwiftLibs ',
+					'CpHeader ',
+					'CreateBuildDescription',
+					'CreateBuildDirectory ',
+					'CreateBuildOperation',
+					'CreateBuildRequest',
+					'CreateUniversalBinary ',
+					'Ditto ',
+					'EmitSwiftModule ',
+					'ExecuteExternalTool ',
+					'ExtractAppIntentsMetadata ',
+					'GatherProvisioningInputs',
+					'GenerateAssetSymbols ',
+					'GenerateDSYMFile ',
+					'GenerateTAPI ',
+					'Ld ',
+					'Libtool ',
+					'LinkAssetCatalog ',
+					'LinkStoryboards ',
+					'MkDir ',
+					'PBXCp ',
+					'PhaseScriptExecution ',
+					'PrecompileModule ',
+					'Prepare packages',
+					'ProcessInfoPlistFile ',
+					'ProcessPCH ',
+					'ProcessPCH\\+\\+ ',
+					'ProcessProductPackaging ',
+					'ProcessProductPackagingDER ',
+					'ProcessXCFramework ',
+					'RegisterExecutionPolicyException ',
+					'ScanDependencies ',
+					'SendProjectDescription',
+					'SetMode ',
+					'SetOwnerAndGroup ',
+					'SignatureCollection ',
+					'Strip ',
+					'Stripping ',
+					'SwiftCompile ',
+					'SwiftDriver ',
+					'SwiftDriver\\\\ Compilation ',
+					'SwiftDriver\\\\ Compilation\\\\ Requirements ',
+					'SwiftDriverJobDiscovery ',
+					'SwiftEmitModule ',
+					'SwiftExplicitDependencyGeneratePcm ',
+					'SwiftExplicitDependencyCompileModuleFromInterface ',
+					'SwiftGeneratePch ',
+					'SwiftMergeGeneratedHeaders ',
+					'SymLink ',
+					'Touch ',
+					'Validate ',
+					'ValidateEmbeddedBinary ',
+					'WriteAuxiliaryFile '
+				].join('|') + ')');
 			/* eslint-enable security/detect-non-literal-regexp */
 			let buffer = '',
 				stopOutputting = false;
@@ -7249,7 +7290,7 @@ class iOSBuilder extends Builder {
 					}
 					if (!stopOutputting) {
 						if (taskRegExp.test(line)) {
-							// add a blank line between tasks to make things easier to read
+							// add a blank line between tasks (as in the original xcodebuild log) to make things easier to read
 							this.logger.trace();
 							this.logger.trace(line.cyan);
 						} else if (line.indexOf('=== BUILD TARGET ') !== -1) {
