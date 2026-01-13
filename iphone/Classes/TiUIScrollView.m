@@ -427,6 +427,52 @@
   [[self scrollView] setContentOffset:newOffset animated:animated];
 }
 
+#if IS_SDK_IOS_26
+- (void)setEdgeEffect_:(id)value
+{
+  ENSURE_SINGLE_ARG(value, NSDictionary);
+
+  NSNumber *topEdgeEffect = value[@"top"];
+  NSNumber *rightEdgeEffect = value[@"right"];
+  NSNumber *bottomEdgeEffect = value[@"bottom"];
+  NSNumber *leftEdgeEffect = value[@"left"];
+
+  if (![TiUtils isIOSVersionOrGreater:@"26.0"]) {
+    NSLog(@"[ERROR] The \"edgeEffect\" API is only available on iOS 26+");
+    return;
+  }
+
+  if (topEdgeEffect != nil) {
+    self.scrollView.topEdgeEffect.style = [self formatEdgeEffectStyle:topEdgeEffect];
+  }
+
+  if (rightEdgeEffect != nil) {
+    self.scrollView.rightEdgeEffect.style = [self formatEdgeEffectStyle:rightEdgeEffect];
+  }
+
+  if (bottomEdgeEffect != nil) {
+    self.scrollView.bottomEdgeEffect.style = [self formatEdgeEffectStyle:bottomEdgeEffect];
+  }
+
+  if (leftEdgeEffect != nil) {
+    self.scrollView.leftEdgeEffect.style = [self formatEdgeEffectStyle:leftEdgeEffect];
+  }
+}
+
+- (UIScrollEdgeEffectStyle *)formatEdgeEffectStyle:(NSNumber *)proxyEffectStyle
+{
+  switch (proxyEffectStyle.intValue) {
+  case 0:
+  default:
+    return UIScrollEdgeEffectStyle.automaticStyle;
+  case 1:
+    return UIScrollEdgeEffectStyle.hardStyle;
+  case 2:
+    return UIScrollEdgeEffectStyle.softStyle;
+  }
+}
+#endif
+
 - (void)setZoomScale_:(id)value withObject:(id)property
 {
   CGFloat scale = [TiUtils floatValue:value def:1.0];

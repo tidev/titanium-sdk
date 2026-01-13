@@ -10,7 +10,7 @@ apply plugin: '<%= plugins[i] %>'
 repositories {
 	maven {
 		// Path to the Titanium SDK's "m2repository" containing the "titanium.aar" library.
-		url '<%- tiMavenUrl %>'
+		url = uri('<%- tiMavenUrl %>')
 	}
 }
 
@@ -19,10 +19,10 @@ def tiModuleBindingsJsonPath = "${buildDir}/ti-generated/json/<%- moduleName %>.
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>
-	namespace '<%- moduleId %>'
-	ndkVersion '28.1.13356709'
+	namespace = '<%- moduleId %>'
+	ndkVersion = '28.1.13356709'
 	defaultConfig {
-		minSdkVersion 21
+		minSdkVersion 24
 		targetSdkVersion <%- compileSdkVersion %>
 		versionName '<%- moduleVersion %>'
 
@@ -44,7 +44,7 @@ android {
 		aaptOptions {
 			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
 			// So, we must redefine ignore string with underscore pattern removed to support this too.
-			ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+			ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
 		}
 		javaCompileOptions {
 			annotationProcessorOptions {
@@ -74,7 +74,7 @@ android {
 		}
 	}
 	buildFeatures {
-		buildConfig true
+		buildConfig = true
 	}
 	externalNativeBuild {
 		ndkBuild {
@@ -148,7 +148,7 @@ android {
 // Trigger a build failure if an AAR library was found under the "lib" directory.
 // While it will compile with the library, Google's build system won't merge the AAR into this module's AAR.
 preBuild.doFirst {
-	def libDirectory = new File("${projectDir}/../../lib")
+	def libDirectory = file("${projectDir}/../../lib")
 	if (libDirectory.exists()) {
 		libDirectory.eachFile {
 			if (it.name.toLowerCase().endsWith('.aar')) {
@@ -179,27 +179,26 @@ project.afterEvaluate {
 	}
 }
 
+tasks.register('generateCppFiles', Exec) {
+    environment 'TI_MODULE_BINDINGS_JSON_FILE', tiModuleBindingsJsonPath
+    environment 'TI_MODULE_GENERATED_JNI_DIR', "${projectDir}/build/ti-generated/jni"
+    environment 'TI_MODULE_GENERATED_JS_DIR', "${projectDir}/build/ti-generated/js"
+    environment 'TI_MODULE_ID', '<%- moduleId %>'
+    environment 'TI_MODULE_NAMESPACE', '<%- moduleId.toLowerCase() %>'
+    environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir.replace(/\\/g, '\\\\') %>'
+    executable = 'node'
+    workingDir = projectDir
+    args = ['generate-cpp-files.js']
+}
+
 // Hook into Java compile task.
 tasks.withType(JavaCompile).configureEach {
-	// Log all Java linting errors/warnings.
-	options.compilerArgs << "-Xlint:all"
+    options.compilerArgs << "-Xlint:all"
 
-	// Execute our "generate-cpp-files.js" script after Java compile to finish generating C++ files.
-	// Depends on the JSON file produced by our "kroll-apt" Java annotation processor.
-	// TODO: Our annotation processor should do ALL of the proxy code generation. Don't piece-meal it.
-	doLast {
-		exec {
-			environment 'TI_MODULE_BINDINGS_JSON_FILE', tiModuleBindingsJsonPath
-			environment 'TI_MODULE_GENERATED_JNI_DIR', "${projectDir}/build/ti-generated/jni"
-			environment 'TI_MODULE_GENERATED_JS_DIR', "${projectDir}/build/ti-generated/js"
-			environment 'TI_MODULE_ID', '<%- moduleId %>'
-			environment 'TI_MODULE_NAMESPACE', '<%- moduleId.toLowerCase() %>'
-			environment 'TI_MODULE_TEMPLATE_DIR', '<%- tiSdkModuleTemplateDir.replace(/\\/g, '\\\\') %>'
-			executable = 'node'
-			workingDir = projectDir
-			args = ['generate-cpp-files.js']
-		}
-	}
+		// Execute our "generate-cpp-files.js" script after Java compile to finish generating C++ files.
+		// Depends on the JSON file produced by our "kroll-apt" Java annotation processor.
+		// TODO: Our annotation processor should do ALL of the proxy code generation. Don't piece-meal it.
+    finalizedBy(tasks.generateCppFiles)
 }
 
 // Titanium does not support incremental @Kroll annotation processing. Disable it in kotlin to avoid build warnings.
@@ -208,18 +207,18 @@ project.ext['kapt.incremental.apt'] = false
 dependencies {
 	// This reads the code's @Kroll annotations and generates code which interops between V8 and proxy classes.
 	def krollAptJarPath = '<%- krollAptJarPath.replace(/\\/g, '\\\\') %>'
-	annotationProcessor files(krollAptJarPath)
-	compileOnly files(krollAptJarPath)
-	kapt files(krollAptJarPath)
+	annotationProcessor(files(krollAptJarPath))
+	compileOnly(files(krollAptJarPath))
+	kapt(files(krollAptJarPath))
 
 	// Reference this module's local JAR file dependencies.
-	implementation fileTree(dir: "${projectDir}/../../lib", include: ['*.jar'])
+	implementation(project.fileTree(dir: "${projectDir}/../../lib", include: ['*.jar']))
 
 	// Reference the main Titanium library.
-	implementation 'org.appcelerator:titanium:<%- tiSdkVersion %>'
+	implementation("org.appcelerator:titanium:<%- tiSdkVersion %>")
 
 	// Reference the core kotlin library.
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version")
 }
 
 // This block is used when we run "gradlew :module:publish" at the command line.
@@ -228,9 +227,9 @@ publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
 			// Set up Maven repo info.
-			groupId '<%- moduleMavenGroupId %>'
-			artifactId '<%- moduleMavenArtifactId %>'
-			version '<%- moduleVersion %>'
+			groupId = '<%- moduleMavenGroupId %>'
+			artifactId = '<%- moduleMavenArtifactId %>'
+			version = '<%- moduleVersion %>'
 			artifact file("${buildDir}/outputs/aar/${project.name}-release.aar")
 
 			// Generates the "*.pom" XML file containing all of Titanium's above dependencies.
@@ -259,7 +258,7 @@ publishing {
 	repositories {
 		maven {
 			// The Maven directory tree produced above will be outputted to the following local directory.
-			url "${buildDir}/outputs/m2repository"
+			url = uri("${buildDir}/outputs/m2repository")
 		}
 	}
 }

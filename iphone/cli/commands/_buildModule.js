@@ -34,6 +34,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const iosPackageJson = loadPackageJson(__dirname);
 const { series } = appc.async;
 const parsePlist = util.promisify(plist.readFile);
+const SPM_METADATA_VERSION = 1;
 
 export class iOSModuleBuilder extends Builder {
 	constructor() {
@@ -186,6 +187,9 @@ export class iOSModuleBuilder extends Builder {
 		this.tiSymbols = {};
 		this.metaData = [];
 		this.metaDataFile = path.join(this.projectDir, 'metadata.json');
+		this.spmConfigFile = path.join(this.projectDir, 'spm.json');
+		this.spmConfig = this.loadSpmConfig();
+		this.spmMetadata = null;
 		this.manifestFile = path.join(this.projectDir, 'manifest');
 		this.distDir = path.join(this.projectDir, 'dist');
 		this.templatesDir = path.join(this.platformPath, 'templates');
@@ -213,6 +217,113 @@ export class iOSModuleBuilder extends Builder {
 		this.tiXcconfigFile = path.join(this.projectDir, 'titanium.xcconfig');
 
 		this.moduleXcconfigFile = path.join(this.projectDir, 'module.xcconfig');
+	}
+
+	loadSpmConfig() {
+		if (!fs.existsSync(this.spmConfigFile)) {
+			return null;
+		}
+
+		try {
+			const contents = fs.readFileSync(this.spmConfigFile, 'utf8');
+			const parsed = JSON.parse(contents);
+
+			if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.dependencies) || !parsed.dependencies.length) {
+				return null;
+			}
+
+			return parsed;
+		} catch (err) {
+			this.logger.warn(`Failed to parse ${path.relative(this.projectDir, this.spmConfigFile)}: ${err.message}`);
+			return null;
+		}
+	}
+
+	getSpmMetadata() {
+		if (!this.spmConfig || !Array.isArray(this.spmConfig.dependencies)) {
+			return null;
+		}
+
+		const dependencies = this.spmConfig.dependencies
+			.map(dep => this.normalizeSpmDependency(dep))
+			.filter(Boolean);
+
+		if (!dependencies.length) {
+			return null;
+		}
+
+		return {
+			version: SPM_METADATA_VERSION,
+			dependencies
+		};
+	}
+
+	normalizeSpmDependency(dep) {
+		if (!dep || typeof dep !== 'object') {
+			return null;
+		}
+
+		const repositoryURL = dep.repositoryURL || dep.repositoryUrl;
+		if (!repositoryURL) {
+			this.logger.warn(`Skipping Swift package dependency without repositoryURL in ${path.relative(this.projectDir, this.spmConfigFile)}`);
+			return null;
+		}
+
+		const requirement = dep.requirement || {};
+		const requirementKind = dep.requirementKind || requirement.kind || 'upToNextMajorVersion';
+		const requirementMinimumVersion = dep.requirementMinimumVersion || requirement.minimumVersion || '1.0.0';
+		const dependencyLinkage = this.normalizeSpmLinkage(dep.linkage);
+
+		const products = Array.isArray(dep.products)
+			? dep.products.map(product => this.normalizeSpmProduct(product, dependencyLinkage)).filter(Boolean)
+			: [];
+
+		if (!products.length) {
+			this.logger.warn(`Skipping Swift package "${repositoryURL}" because it declares no valid products`);
+			return null;
+		}
+
+		return {
+			remotePackageReference: dep.remotePackageReference || dep.reference || this.deriveSpmReference(repositoryURL),
+			repositoryURL,
+			requirementKind,
+			requirementMinimumVersion,
+			linkage: dependencyLinkage,
+			products
+		};
+	}
+
+	normalizeSpmProduct(product, dependencyLinkage) {
+		if (!product || typeof product !== 'object') {
+			return null;
+		}
+
+		const productName = product.productName || product.name;
+		if (!productName) {
+			return null;
+		}
+
+		return {
+			productName,
+			frameworkName: product.frameworkName || productName,
+			linkage: this.normalizeSpmLinkage(product.linkage || dependencyLinkage)
+		};
+	}
+
+	normalizeSpmLinkage(linkage) {
+		return linkage && typeof linkage === 'string' && linkage.toLowerCase() === 'host' ? 'host' : 'embedded';
+	}
+
+	deriveSpmReference(repositoryURL) {
+		if (!repositoryURL || typeof repositoryURL !== 'string') {
+			return 'TiSPMPackage';
+		}
+
+		const withoutGit = repositoryURL.replace(/\.git$/, '');
+		const segments = withoutGit.split('/');
+		const candidate = segments[segments.length - 1] || withoutGit;
+		const sanitized = candidate.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+		return sanitized || 'TiSPMPackage';
 	}
 
 	loginfo() {
@@ -482,7 +593,12 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				}.bind(this));
 
 				fs.existsSync(this.metaDataFile) && fs.unlinkSync(this.metaDataFile);
-				fs.writeFileSync(this.metaDataFile, JSON.stringify({ exports: this.metaData }));
+				const metadata = { exports: this.metaData };
+				this.spmMetadata = this.getSpmMetadata();
+				if (this.spmMetadata) {
+					metadata.spm = this.spmMetadata;
+				}
+				fs.writeFileSync(this.metaDataFile, JSON.stringify(metadata));
 
 				cb();
 			}
@@ -637,21 +753,20 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 	}
 
 	createUniversalBinary(next) {
-		this.logger.info('Creating universal library');
+		this.logger.info('Creating universal framework/library');
 
 		const moduleId = this.isFramework ? this.moduleIdAsIdentifier : this.moduleId;
 		const findLib = function (dest) {
-			let libPath = this.isFramework ? '.xcarchive/Products/Library/Frameworks/' + moduleId + '.framework' : '.xcarchive/Products/usr/local/lib/lib' + this.moduleId + '.a';
-
+			let libPath = this.isFramework ? `.xcarchive/Products/Library/Frameworks/${moduleId}.framework` : `.xcarchive/Products/usr/local/lib/lib${moduleId}.a`;
 			const lib = path.join(this.projectDir, 'build', dest + libPath);
 			this.logger.info(`Looking for ${lib}`);
 
 			if (!fs.existsSync(lib)) {
 				// unfortunately the initial module project template incorrectly
 				// used the camel-cased module id
-				libPath = '.xcarchive/Products/usr/local/lib/lib' + this.moduleIdAsIdentifier + '.a';
+				libPath = `.xcarchive/Products/usr/local/lib/lib${this.moduleIdAsIdentifier}.a`;
 				const newLib = path.join(this.projectDir, 'build', dest + libPath);
-				this.logger.debug('Searching library: ' + newLib);
+				this.logger.debug(`Searching library: ${newLib}`);
 				if (!fs.existsSync(newLib)) {
 					return new Error(`Unable to find the built Release-${dest} library`);
 				} else {
@@ -660,6 +775,18 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				}
 			}
 			return lib;
+		}.bind(this);
+		// Find the debug symbols (dSYM) for the generated framework
+		const findDSYM = function (dest) {
+			const dSymPath = `.xcarchive/dSYMs/${moduleId}.framework.dSYM`;
+			const dSym = path.join(this.projectDir, 'build', dest + dSymPath);
+			this.logger.debug(`Looking for dSYM ${dSym}`);
+
+			if (!fs.existsSync(dSym)) {
+				this.logger.warn(`Unable to find the Release-${dest} dSYM. Crash reports for ${moduleId} may be unsymbolicated.`);
+				return null;
+			}
+			return dSym;
 		}.bind(this);
 
 		// Create xcframework
@@ -675,36 +802,41 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 		if (lib instanceof Error) {
 			return next(lib);
 		}
-
 		args.push('-create-xcframework');
-		args.push(buildType);
-		args.push(lib);
-
+		args.push(buildType, lib);
 		if (!this.isFramework) {
-			args.push('-headers');
-			args.push(headerPath);
+			args.push('-headers', headerPath);
+		} else {
+			// Include dSYM files in xcframework for symbolicated crash reports
+			const dSym = findDSYM('iphoneos');
+			dSym && args.push('-debug-symbols', dSym);
 		}
 
 		lib = findLib('iphonesimulator');
 		if (lib instanceof Error) {
 			return next(lib);
 		}
-		args.push(buildType);
-		args.push(lib);
+		args.push(buildType, lib);
 		if (!this.isFramework) {
-			args.push('-headers');
-			args.push(headerPath);
+			args.push('-headers', headerPath);
+		} else {
+			// Include dSYM files in xcframework for symbolicated crash reports
+			const dSym = findDSYM('iphonesimulator');
+			dSym && args.push('-debug-symbols', dSym);
 		}
+
 		if (this.isMacOSEnabled) {
 			lib = findLib('macosx');
 			if (lib instanceof Error) {
 				this.logger.warn('The module is missing macOS support. Ignoring mac target for this module...');
 			} else {
-				args.push(buildType);
-				args.push(lib);
+				args.push(buildType, lib);
 				if (!this.isFramework) {
-					args.push('-headers');
-					args.push(headerPath);
+					args.push('-headers', headerPath);
+				} else {
+					// Include dSYM files in xcframework for symbolicated crash reports
+					const dSym = findDSYM('macosx');
+					dSym && args.push('-debug-symbols', dSym);
 				}
 			}
 		}
@@ -741,7 +873,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 	}
 
 	async verifyBuildArch() {
-		this.logger.info('Verifying universal library');
+		this.logger.info('Verifying universal framework/library');
 
 		const moduleId = this.isFramework ? this.moduleIdAsIdentifier  : this.moduleId;
 		const frameworkPath = path.join(this.projectDir, 'build', moduleId + '.xcframework');
@@ -758,7 +890,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				libraryPath = path.join(libraryPath, frameworkName);
 			}
 			if (!(await fs.pathExists(libraryPath))) {
-				throw new Error(`Unable to find the built library ${libraryPath}`);
+				throw new Error(`Unable to find the built framework/library ${libraryPath}`);
 			}
 		};
 
@@ -838,7 +970,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 			binarylibName = this.isFramework ? this.moduleIdAsIdentifier + '.xcframework' : moduleId + '.xcframework',
 			binarylibFile = path.join(this.projectDir, 'build', binarylibName);
 
-		this.logger.info(`binarylibFile is ${binarylibFile}`);
+		this.logger.info(`Binary framework/library file: ${binarylibFile}`);
 
 		this.moduleZipPath = moduleZipFullPath;
 
@@ -906,16 +1038,24 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 			// 4. hooks folder
 			const hookFiles = {};
+			const suppressSpmHook = !!this.spmMetadata;
 			if (fs.existsSync(this.hooksDir)) {
 				this.dirWalker(this.hooksDir, function (file) {
 					const relFile = path.relative(this.hooksDir, file);
+					if (suppressSpmHook && relFile === 'ti.spm.js') {
+						this.logger.debug('Skipping legacy ti.spm hook because Swift package metadata is embedded in metadata.json');
+						return;
+					}
 					hookFiles[relFile] = 1;
 					dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
 				}.bind(this));
 			}
 			if (fs.existsSync(this.sharedHooksDir)) {
 				this.dirWalker(this.sharedHooksDir, function (file) {
-					var relFile = path.relative(this.sharedHooksDir, file);
+					const relFile = path.relative(this.sharedHooksDir, file);
+					if (suppressSpmHook && relFile === 'ti.spm.js') {
+						return;
+					}
 					if (!hookFiles[relFile]) {
 						dest.append(fs.createReadStream(file), { name: path.join(moduleFolders, 'hooks', relFile) });
 					}

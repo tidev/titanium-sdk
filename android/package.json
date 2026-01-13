@@ -17,7 +17,7 @@
 		"mode": "release",
 		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
-	"minSDKVersion": "21",
+	"minSDKVersion": "24",
 	"compileSDKVersion": "35",
 	"vendorDependencies": {
 		"android sdk": ">=23.x <=35.x",

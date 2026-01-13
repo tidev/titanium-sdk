@@ -2,7 +2,7 @@
   "name": "titanium-mobile",
   "description": "Titanium SDK",
   "type": "module",
-  "version": "13.1.0",
+  "version": "13.2.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
