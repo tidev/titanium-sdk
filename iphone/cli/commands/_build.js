@@ -7275,7 +7275,7 @@ class iOSBuilder extends Builder {
 					'Touch',
 					'Validate',
 					'ValidateEmbeddedBinary',
-					'WriteAuxiliaryFile '
+					'WriteAuxiliaryFile'
 				].join('|') + ') ?');
 			/* eslint-enable security/detect-non-literal-regexp */
 			let buffer = '',
