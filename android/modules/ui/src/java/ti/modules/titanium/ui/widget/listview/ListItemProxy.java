@@ -58,6 +58,7 @@ public class ListItemProxy extends TiViewProxy
 	private boolean placeholder = false;
 	private boolean hasAddedItemEvents = false;
 	private boolean selected = false;
+	private boolean preventRecycling = false;
 
 	public ListItemProxy()
 	{
@@ -540,6 +541,9 @@ public class ListItemProxy extends TiViewProxy
 	public void setHolder(ListViewHolder holder)
 	{
 		this.holder = holder;
+		if (preventRecycling) {
+			preventRecycling();
+		}
 	}
 
 	/**
@@ -833,6 +837,10 @@ public class ListItemProxy extends TiViewProxy
 		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
 			invalidate();
 		}
+
+		if (name.equals("preventRecycling")) {
+			preventRecycling = TiConvert.toBoolean(value, false);
+		}
 	}
 
 	private void loadTemplate()
@@ -901,6 +909,18 @@ public class ListItemProxy extends TiViewProxy
 		{
 			// Prevent TiUIView from overriding `touchFeedback` effect.
 			return false;
+		}
+	}
+
+	/**
+	 * Set isRecyclable for item.
+	 *
+	 * @param value Boolean value
+	 */
+	private void preventRecycling()
+	{
+		if (this.holder != null) {
+			this.holder.setIsRecyclable(false);
 		}
 	}
 }
