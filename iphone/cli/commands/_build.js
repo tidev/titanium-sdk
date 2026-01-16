@@ -7114,10 +7114,10 @@ class iOSBuilder extends Builder {
 	}
 
 	createTitaniumKitSymlinks() {
-		// Fix for Mac Catalyst: Create required symlinks in TitaniumKit.framework
-		// Mac Catalyst requires macOS framework structure with symlinks
-		// Bug #3: Build-time symlinks in build/Frameworks directory
-		// Bug #4: Distribution symlinks in final app bundle
+		// Mac Catalyst requires proper macOS framework bundle structure with symlinks.
+		// This creates symlinks in two locations:
+		// 1. Build directory - for successful compilation
+		// 2. Final app bundle - for App Store validation
 
 		if (this.target !== 'macos' && this.target !== 'dist-macappstore') {
 			// Only needed for Mac Catalyst builds
@@ -7126,7 +7126,7 @@ class iOSBuilder extends Builder {
 
 		const frameworkLocations = [];
 
-		// Location 1: Build directory (Bug #3)
+		// Location 1: Build directory (ensures successful compilation)
 		const buildFrameworkPath = path.join(
 			this.buildDir,
 			'Frameworks',
@@ -7141,7 +7141,7 @@ class iOSBuilder extends Builder {
 			});
 		}
 
-		// Location 2: Final app bundle (Bug #4)
+		// Location 2: Final app bundle (ensures App Store validation)
 		// For macos target, the app is in: build/iphone/build/Products/Debug-maccatalyst/AppName.app
 		// For dist-macappstore: build/iphone/build/Products/Release-maccatalyst/AppName.app
 		const productConfig = this.target === 'dist-macappstore' ? 'Release-maccatalyst' : 'Debug-maccatalyst';
@@ -7163,47 +7163,26 @@ class iOSBuilder extends Builder {
 		}
 
 		// Helper function to ensure a symlink exists with the correct target
-		const ensureSymlink = (linkPath, target, logger) => {
-			// Use lstatSync to check if something exists at this path without following symlinks
-			// This catches broken symlinks that existsSync would miss
+		const ensureSymlink = (linkPath, target) => {
 			try {
 				const stats = fs.lstatSync(linkPath);
 
-				if (stats.isSymbolicLink()) {
-					// It's a symlink - check if it points to the correct target
-					const currentTarget = fs.readlinkSync(linkPath);
-					if (currentTarget === target) {
-						// Symlink points to correct target - verify it's not broken
-						if (fs.existsSync(linkPath)) {
-							// Symlink is valid and points to correct target
-							return false;
-						} else {
-							// Symlink is broken (target doesn't exist), recreate it
-							logger.debug(`Removing broken symlink: ${linkPath} -> ${currentTarget}`);
-							fs.unlinkSync(linkPath);
-						}
-					} else {
-						// Symlink points to wrong target, remove and recreate
-						logger.debug(`Removing incorrect symlink: ${linkPath} -> ${currentTarget}, should be -> ${target}`);
-						fs.unlinkSync(linkPath);
-					}
-				} else if (stats.isDirectory()) {
-					// It's a directory (from old builds), remove it
-					logger.debug(`Removing directory at symlink location: ${linkPath}`);
+				if (stats.isSymbolicLink() && fs.readlinkSync(linkPath) === target) {
+					return false; // Symlink already correct
+				}
+
+				// Remove whatever exists (symlink, directory, or file)
+				if (stats.isDirectory()) {
 					fs.rmSync(linkPath, { recursive: true, force: true });
 				} else {
-					// It's a file, remove it
-					logger.debug(`Removing file at symlink location: ${linkPath}`);
 					fs.unlinkSync(linkPath);
 				}
 			} catch (err) {
-				// lstatSync throws if path doesn't exist - this is fine, we'll create it
 				if (err.code !== 'ENOENT') {
 					throw err;
 				}
 			}
 
-			// Create the symlink
 			fs.symlinkSync(target, linkPath);
 			return true;
 		};
@@ -7223,7 +7202,7 @@ class iOSBuilder extends Builder {
 
 				// Create Versions/Current -> A symlink
 				const currentLink = path.join(versionsPath, 'Current');
-				if (ensureSymlink(currentLink, 'A', this.logger)) {
+				if (ensureSymlink(currentLink, 'A')) {
 					this.logger.debug(`Created symlink: Versions/Current -> A in ${location.description}`);
 					createdCount++;
 				}
@@ -7238,7 +7217,7 @@ class iOSBuilder extends Builder {
 
 				symlinks.forEach(item => {
 					const linkPath = path.join(frameworkPath, item.link);
-					if (ensureSymlink(linkPath, item.target, this.logger)) {
+					if (ensureSymlink(linkPath, item.target)) {
 						createdCount++;
 					}
 				});
@@ -7477,7 +7456,7 @@ class iOSBuilder extends Builder {
 				}
 
 				// end of the line
-				// Fix Bug #4: Create symlinks in final app bundle after xcodebuild
+				// Create Mac Catalyst symlinks in final app bundle
 				this.createTitaniumKitSymlinks();
 
 				done(code);
