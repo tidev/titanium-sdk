@@ -352,7 +352,7 @@ public class ListItemProxy extends TiViewProxy
 		proxy.loadTemplate();
 		proxy.copyChildPropertiesTo(childProxies, proxy.template);
 		proxy.add(childProxies);
-
+		proxy.addTemplateEventListeners(proxy, this.template);
 		// Now that this proxy has no children, release this proxy's 1 native view container.
 		// We do this to reduce memory footprint of all offscreen list items.
 		releaseViews();
