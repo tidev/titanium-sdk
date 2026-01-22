@@ -639,6 +639,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 		if (activity.getSupportActionBar() != null) {
 			activity.getSupportActionBar().setHomeButtonEnabled(true);
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 
 		try {
@@ -655,6 +656,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			public void onDrawerClosed(View drawerView)
 			{
 				super.onDrawerClosed(drawerView);
+				// Ensure the home button stays enabled and visible
+				if (activity.getSupportActionBar() != null) {
+					activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+					activity.getSupportActionBar().setHomeButtonEnabled(true);
+				}
 				drawerClosedEvent(drawerView);
 			}
 
@@ -662,6 +668,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			public void onDrawerOpened(View drawerView)
 			{
 				super.onDrawerOpened(drawerView);
+				// Ensure the home button stays enabled and visible
+				if (activity.getSupportActionBar() != null) {
+					activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+					activity.getSupportActionBar().setHomeButtonEnabled(true);
+				}
 				drawerOpenedEvent(drawerView);
 			}
 
@@ -685,6 +696,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			public void run()
 			{
 				drawerToggle.syncState();
+				// Ensure initial state is correct
+				if (activity.getSupportActionBar() != null) {
+					activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+					activity.getSupportActionBar().setHomeButtonEnabled(true);
+				}
 			}
 		});
 	}
