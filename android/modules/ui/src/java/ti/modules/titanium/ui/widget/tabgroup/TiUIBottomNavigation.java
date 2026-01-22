@@ -25,6 +25,7 @@ import android.widget.RelativeLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -50,6 +51,7 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -643,10 +645,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		if (activity == null) {
 			return;
 		}
-		if (activity.getSupportActionBar() != null) {
-			activity.getSupportActionBar().setHomeButtonEnabled(true);
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		}
 
 		try {
 			if (id_drawer_open_string == 0) {
@@ -657,16 +655,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 		} catch (Exception ex) {}
 
+		// Create the ActionBarDrawerToggle without passing toolbar, since it's already set up in TabGroupProxy
 		drawerToggle = new ActionBarDrawerToggle(activity, layout, id_drawer_open_string, id_drawer_close_string) {
 			@Override
 			public void onDrawerClosed(View drawerView)
 			{
 				super.onDrawerClosed(drawerView);
-				// Ensure the home button stays enabled and visible
-				if (activity.getSupportActionBar() != null) {
-					activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-					activity.getSupportActionBar().setHomeButtonEnabled(true);
-				}
 				drawerClosedEvent(drawerView);
 			}
 
@@ -674,11 +668,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			public void onDrawerOpened(View drawerView)
 			{
 				super.onDrawerOpened(drawerView);
-				// Ensure the home button stays enabled and visible
-				if (activity.getSupportActionBar() != null) {
-					activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-					activity.getSupportActionBar().setHomeButtonEnabled(true);
-				}
 				drawerOpenedEvent(drawerView);
 			}
 
@@ -697,16 +686,54 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 		};
 		layout.addDrawerListener(drawerToggle);
+
+		// Manually set up the navigation click handling
+		if (activity.getSupportActionBar() != null) {
+			// Enable the drawer indicator
+			drawerToggle.setDrawerIndicatorEnabled(true);
+
+			// Ensure the navigation button is visible
+			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			activity.getSupportActionBar().setHomeButtonEnabled(true);
+
+			// Get the toolbar and manually set the navigation click listener
+			try {
+				// Use reflection to get the toolbar from the ActionBar
+				Field toolbarField = activity.getSupportActionBar().getClass().getDeclaredField("mDecorToolbar");
+				toolbarField.setAccessible(true);
+				Object decorToolbar = toolbarField.get(activity.getSupportActionBar());
+				if (decorToolbar != null) {
+					Field toolbarField2 = decorToolbar.getClass().getDeclaredField("mToolbar");
+					toolbarField2.setAccessible(true);
+					Toolbar toolbar = (androidx.appcompat.widget.Toolbar) toolbarField2.get(decorToolbar);
+					if (toolbar != null) {
+						// Set our custom click listener that will toggle the drawer
+						toolbar.setNavigationOnClickListener(new View.OnClickListener()
+						{
+							@Override
+							public void onClick(View v)
+							{
+								// Toggle the left drawer
+								if (layout.isDrawerOpen(GravityCompat.START)) {
+									layout.closeDrawer(GravityCompat.START);
+								} else {
+									layout.openDrawer(GravityCompat.START);
+								}
+							}
+						});
+					}
+				}
+			} catch (Exception e) {
+				// If reflection fails, fallback to default behavior
+				Log.e(TAG, "Could not set navigation click listener: " + e.getMessage());
+			}
+		}
+
 		layout.post(new Runnable() {
 			@Override
 			public void run()
 			{
 				drawerToggle.syncState();
-				// Ensure initial state is correct
-				if (activity.getSupportActionBar() != null) {
-					activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-					activity.getSupportActionBar().setHomeButtonEnabled(true);
-				}
 			}
 		});
 	}
