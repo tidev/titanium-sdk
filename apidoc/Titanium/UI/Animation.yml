@@ -204,7 +204,7 @@ properties:
     type: Number
 
   - name: transform
-    summary: Animate the view from its current tranform to the specified transform.
+    summary: Animate the view from its current transform to the specified transform.
     description: |
         Over the course of the animation, the view interpolates from its current transform to the
         specified transform.
@@ -217,7 +217,7 @@ properties:
     description: |
         The new view being transitioned to **should NOT** be a child of another view or
         of the animating view. The animation replaces the current view from the
-        view heirarchy and adds the new view to it.
+        view hierarchy and adds the new view to it.
     type: Number
     constants: Titanium.UI.iOS.AnimationStyle.*
     platforms: [iphone, ipad, macos]
@@ -230,7 +230,7 @@ properties:
 
         The new view being transitioned to **should NOT** be a child of another view or
         of the animating view. The animation replaces the current view from the
-        view heirarchy and adds the new view to it.
+        view hierarchy and adds the new view to it.
     type: Titanium.UI.View
     platforms: [iphone, ipad, macos]
 

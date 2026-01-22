@@ -19,7 +19,7 @@
 		159C59981C358538009A8860 /* TiUIiOSAnimationStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 159C59971C358538009A8860 /* TiUIiOSAnimationStyleProxy.m */; };
 		159C599B1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 159C599A1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m */; };
 		15CB440E1C4EBE4000D81480 /* TiUIiOSStatusBarProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB440D1C4EBE4000D81480 /* TiUIiOSStatusBarProxy.m */; };
-		15CB44131C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44121C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m */; };
+		15CB44131C4ED51B00D81480 /* TiUIiOSButtonConfigurationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44121C4ED51B00D81480 /* TiUIiOSButtonConfigurationProxy.m */; };
 		15CB44151C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44141C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m */; };
 		15CB44191C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 15CB44181C4EEFF500D81480 /* TiUIiOSSystemIconProxy.m */; };
 		1923696220E48C2A00567508 /* TiUIiOSWebViewConfigurationProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1923695E20E48C2900567508 /* TiUIiOSWebViewConfigurationProxy.m */; };
@@ -151,7 +151,6 @@
 		2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603313F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m */; };
 		2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */; };
 		2BCD59C51429561D00DEC2E8 /* TiUIToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BCD59C21429561D00DEC2E8 /* TiUIToolbar.m */; };
-		3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 3186097E192BDB4E00093482 /* AnalyticsModule.m */; };
 		3A0858422915C3C5002D5E3A /* TiAppiOSActivityAttributesProxy+startActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A08583F2915C3C5002D5E3A /* TiAppiOSActivityAttributesProxy+startActivity.swift */; };
 		3A0858432915C3C5002D5E3A /* TiActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0858412915C3C5002D5E3A /* TiActivityAttributes.swift */; };
 		3A0B56791C0CD81C00709DA4 /* TiUIiOSLivePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A0B56741C0CD81C00709DA4 /* TiUIiOSLivePhoto.m */; };
@@ -326,8 +325,8 @@
 		159C599A1C383645009A8860 /* TiUIiOSTableViewCellSelectionStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSTableViewCellSelectionStyleProxy.m; sourceTree = "<group>"; };
 		15CB440C1C4EBE2500D81480 /* TiUIiOSStatusBarProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSStatusBarProxy.h; sourceTree = "<group>"; };
 		15CB440D1C4EBE4000D81480 /* TiUIiOSStatusBarProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSStatusBarProxy.m; sourceTree = "<group>"; };
-		15CB440F1C4ED4BD00D81480 /* TiUIiOSSystemButtonStyleProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSystemButtonStyleProxy.h; sourceTree = "<group>"; };
-		15CB44121C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSystemButtonStyleProxy.m; sourceTree = "<group>"; };
+		15CB440F1C4ED4BD00D81480 /* TiUIiOSButtonConfigurationProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSButtonConfigurationProxy.h; sourceTree = "<group>"; };
+		15CB44121C4ED51B00D81480 /* TiUIiOSButtonConfigurationProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSButtonConfigurationProxy.m; sourceTree = "<group>"; };
 		15CB44141C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSystemButtonProxy.m; sourceTree = "<group>"; };
 		15CB44161C4ED55B00D81480 /* TiUIiOSSystemButtonProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSystemButtonProxy.h; sourceTree = "<group>"; };
 		15CB44171C4EEFDD00D81480 /* TiUIiOSSystemIconProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSystemIconProxy.h; sourceTree = "<group>"; };
@@ -592,8 +591,6 @@
 		2B94603513F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSCoverFlowViewProxy.m; sourceTree = "<group>"; };
 		2BCD59C11429561D00DEC2E8 /* TiUIToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIToolbar.h; sourceTree = "<group>"; };
 		2BCD59C21429561D00DEC2E8 /* TiUIToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIToolbar.m; sourceTree = "<group>"; };
-		3186097D192BDB4E00093482 /* AnalyticsModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnalyticsModule.h; sourceTree = "<group>"; };
-		3186097E192BDB4E00093482 /* AnalyticsModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnalyticsModule.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* Titanium_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Titanium_Prefix.pch; sourceTree = "<group>"; };
 		3A08583F2915C3C5002D5E3A /* TiAppiOSActivityAttributesProxy+startActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TiAppiOSActivityAttributesProxy+startActivity.swift"; sourceTree = "<group>"; };
 		3A0858412915C3C5002D5E3A /* TiActivityAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TiActivityAttributes.swift; sourceTree = "<group>"; };
@@ -1010,7 +1007,6 @@
 				24DEDAC21123719700398D86 /* XML */,
 				24CA8C58111165180084E2DE /* Accelerometer */,
 				24CA8C0F111163B50084E2DE /* App */,
-				24CA8C57111165070084E2DE /* Analytics */,
 				24CA8C1C1111645B0084E2DE /* Contacts */,
 				24CA8C19111164490084E2DE /* Database */,
 				24CA8C1B111164530084E2DE /* Filesystem */,
@@ -1193,15 +1189,6 @@
 				DA4E12D611C0A55F00A55BAB /* TiContactsGroup.m */,
 			);
 			name = Contacts;
-			sourceTree = "<group>";
-		};
-		24CA8C57111165070084E2DE /* Analytics */ = {
-			isa = PBXGroup;
-			children = (
-				3186097D192BDB4E00093482 /* AnalyticsModule.h */,
-				3186097E192BDB4E00093482 /* AnalyticsModule.m */,
-			);
-			name = Analytics;
 			sourceTree = "<group>";
 		};
 		24CA8C58111165180084E2DE /* Accelerometer */ = {
@@ -1491,8 +1478,8 @@
 				1592CC3C1C4D800B00C3DB83 /* TiUIiOSScrollIndicatorStyleProxy.m */,
 				15CB440C1C4EBE2500D81480 /* TiUIiOSStatusBarProxy.h */,
 				15CB440D1C4EBE4000D81480 /* TiUIiOSStatusBarProxy.m */,
-				15CB440F1C4ED4BD00D81480 /* TiUIiOSSystemButtonStyleProxy.h */,
-				15CB44121C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m */,
+				15CB440F1C4ED4BD00D81480 /* TiUIiOSButtonConfigurationProxy.h */,
+				15CB44121C4ED51B00D81480 /* TiUIiOSButtonConfigurationProxy.m */,
 				15CB44141C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m */,
 				15CB44161C4ED55B00D81480 /* TiUIiOSSystemButtonProxy.h */,
 				15CB44171C4EEFDD00D81480 /* TiUIiOSSystemIconProxy.h */,
@@ -2119,7 +2106,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$PROJECT_DIR/../../build/scons.js\" xcode-project-build \"$PROJECT_DIR\" \"$TARGET_BUILD_DIR\" \"$PRODUCT_NAME\"\n";
+			shellScript = "\"$PROJECT_DIR/../../build/run-node.sh\" \"$PROJECT_DIR/../../build/scons.js\" xcode-project-build \"$PROJECT_DIR\" \"$TARGET_BUILD_DIR\" \"$PRODUCT_NAME\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2321,7 +2308,7 @@
 				DA2B35C2134514FE00056705 /* TiNetworkSocketTCPProxy.m in Sources */,
 				DABF3ED7134D2CA100836137 /* StreamModule.m in Sources */,
 				3AA4EC282320352B00703A20 /* TiUIListSectionProxy.m in Sources */,
-				15CB44131C4ED51B00D81480 /* TiUIiOSSystemButtonStyleProxy.m in Sources */,
+				15CB44131C4ED51B00D81480 /* TiUIiOSButtonConfigurationProxy.m in Sources */,
 				3A0B567A1C0CD81C00709DA4 /* TiUIiOSLivePhotoView.m in Sources */,
 				DAA4B2B4134E75AC00AB6011 /* CodecModule.m in Sources */,
 				DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
@@ -2334,7 +2321,6 @@
 				1D19459613FF3BC400E2B4D0 /* TIDOMDOMImplementationProxy.m in Sources */,
 				0BF9338A1CA0948D0091C7EC /* TiUIiOSStepper.m in Sources */,
 				1D19459B13FF3BE500E2B4D0 /* TIDOMDocumentTypeProxy.m in Sources */,
-				3186097F192BDB4E00093482 /* AnalyticsModule.m in Sources */,
 				DB4E9B7320B2E9780064ADF9 /* TiUINavigationWindowProxy.m in Sources */,
 				EF0ADD1A143FA0CD00977386 /* GeolocationModule.m in Sources */,
 				2BCD59C51429561D00DEC2E8 /* TiUIToolbar.m in Sources */,
@@ -2388,8 +2374,10 @@
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
+				ENABLE_DEBUG_DYLIB = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
@@ -2397,7 +2385,6 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(TI_SYMBOL_MACROS)",
 					"$(GCC_DEFINITIONS)",
 				);
@@ -2450,14 +2437,15 @@
 				CODE_SIGN_ENTITLEMENTS = Titanium.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
+				ENABLE_DEBUG_DYLIB = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = Titanium_Prefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(TI_SYMBOL_MACROS)",
 					"$(GCC_DEFINITIONS)",
 				);
@@ -2531,7 +2519,6 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(GCC_DEFINITIONS)",
 					"$(TI_SYMBOL_MACROS)",
 				);
@@ -2558,7 +2545,7 @@
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS) TI_VERSION=$(TI_VERSION)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(SWIFT_CONDITIONS) $(TI_SYMBOL_MACROS)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2596,7 +2583,6 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"TI_VERSION=$(TI_VERSION)",
 					"$(GCC_DEFINITIONS)",
 					"$(TI_SYMBOL_MACROS)",
 				);
@@ -2621,7 +2607,7 @@
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(GCC_DEFINITIONS) $(TI_SYMBOL_MACROS) TI_VERSION=$(TI_VERSION)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(SWIFT_CONDITIONS) $(TI_SYMBOL_MACROS)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

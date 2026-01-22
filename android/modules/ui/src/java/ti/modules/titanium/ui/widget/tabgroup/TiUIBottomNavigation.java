@@ -57,7 +57,7 @@ import ti.modules.titanium.ui.TabProxy;
 import ti.modules.titanium.ui.WindowProxy;
 
 /**
- * TabGroup implementation using BottomNavigationView as a controller.
+ * TabGroup implementation using BottomNavigationView XML as a controller.
  */
 public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements BottomNavigationView.OnItemSelectedListener
 {
@@ -547,6 +547,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 		}
 		currentlySelectedIndex = tabIndex;
+
+		if (bottomNavigation != null && bottomNavigation.getMenu() != null) {
+			if (tabIndex < bottomNavigation.getMenu().size()) {
+				bottomNavigation.getMenu().getItem(tabIndex).setChecked(true);
+			}
+		}
 
 		TabProxy tp = ((TabProxy) tabsArray.get(tabIndex));
 		if (tp != null) {

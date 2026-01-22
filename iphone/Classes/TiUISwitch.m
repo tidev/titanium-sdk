@@ -101,7 +101,7 @@
 - (void)setValue_:(id)value
 {
   // need to check if we're in a reproxy when this is set
-  // so we don't artifically trigger a change event or
+  // so we don't artificially trigger a change event or
   // animate the change -- this happens on the tableview
   // reproxy as we scroll
   BOOL reproxying = [self.proxy inReproxy];

@@ -5,10 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
-const AndroidManifest = require('../lib/android-manifest');
-const expect = require('chai').expect;
+import { AndroidManifest } from '../lib/android-manifest.js';
+import { expect } from 'chai';
 
 describe('AndroidManifest', () => {
 	it('isEmpty()', () => {

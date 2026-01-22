@@ -1,13 +1,14 @@
-// eslint-disable-next-line security/detect-child-process
-const { execSync } = require('child_process');
-const fs = require('fs-extra');
-const path = require('path');
-const semver = require('semver');
-const util = require('util');
-require('colors');
+import { execSync } from 'node:child_process';
+import fs from 'fs-extra';
+import path from 'node:path';
+import semver from 'semver';
+import util from 'node:util';
+import 'colors';
+import { appcd } from '../lib/webpack/appcd.js';
+import { WebpackService } from '../lib/webpack/service.js';
+import { createRequire } from 'node:module';
 
-const appcd = require('../lib/webpack/appcd');
-const WebpackService = require('../lib/webpack/service');
+const require = createRequire(import.meta.url);
 
 const MIN_APPCD_VERSION = '3.2.0';
 
@@ -23,9 +24,9 @@ const createWebpackLogger = (logger) => {
 	return webpackLogger;
 };
 
-exports.id = 'ti.webpack';
-exports.init = (logger, config, cli) => {
-	const isAppcCli = typeof process.env.APPC_ENV !== 'undefined';
+export const id = 'ti.webpack';
+
+export function init(logger, config, cli) {
 	let commandName;
 	let isWebpackEnabled = false;
 	let projectType;
@@ -40,8 +41,8 @@ exports.init = (logger, config, cli) => {
 		}
 	});
 
-	cli.on('cli:post-validate', () => {
-		projectType = getWebpackProjectType(cli.argv['project-dir']);
+	cli.on('cli:post-validate', async () => {
+		projectType = await getWebpackProjectType(cli.argv['project-dir']);
 		if (projectType === null) {
 			return;
 		}
@@ -52,37 +53,24 @@ exports.init = (logger, config, cli) => {
 			return;
 		}
 
-		if (isAppcCli) {
-			// we were invoked by appc-cli, load bundled daemon client.
-			appcdRootPath = resolveModuleRoot('appcd');
-			if (!fs.existsSync(appcdRootPath)) {
-				throw new Error('Unable to find Appcelerator Daemon inside the appc-cli. Please make sure to use a recent appc-cli version. You can install/select it with  "appc use latest".');
-			}
-		} else {
-			// plain ti-cli, load daemon from global modules
-			const globalModulesPath = execSync('npm root -g').toString().replace(/\s+$/, '');
-			appcdRootPath = resolveModuleRoot('appcd', [ globalModulesPath ]);
-			if (!fs.existsSync(appcdRootPath)) {
-				throw new Error('Unable to find global Appcelerator Daemon install. You can install it with "npm i appcd -g".');
-			}
+		// plain ti-cli, load daemon from global modules
+		const globalModulesPath = execSync('npm root -g').toString().replace(/\s+$/, '');
+		appcdRootPath = resolveModuleRoot('appcd', [ globalModulesPath ]);
+		if (!fs.existsSync(appcdRootPath)) {
+			throw new Error('Unable to find global Appcelerator Daemon install. You can install it with "npm i appcd -g".');
 		}
-		ensureAppcdVersion(appcdRootPath, MIN_APPCD_VERSION, isAppcCli);
-		const AppcdClient = resolveAppcdClient(appcdRootPath);
+
+		ensureAppcdVersion(appcdRootPath, MIN_APPCD_VERSION);
+		const AppcdClient = await resolveAppcdClient(appcdRootPath);
 		const baseClient = new AppcdClient();
-		if (isAppcCli) {
-			baseClient.appcd = path.resolve(appcdRootPath, '..', '.bin', 'appcd');
-			if (process.platform === 'win32') {
-				baseClient.appcd += '.cmd';
-			}
-		}
 		client = appcd(baseClient);
 	});
 
 	cli.on('build.pre.compile', {
 		priority: 800,
-		post(builder, callback) {
+		async post(builder) {
 			if (!isWebpackEnabled) {
-				return callback();
+				return;
 			}
 
 			builder.useWebpack = true;
@@ -95,16 +83,16 @@ exports.init = (logger, config, cli) => {
 				builder,
 				projectType
 			});
-			Promise.resolve().then(async () => {
+
+			try {
 				await webpackService.build();
-				return callback(); // eslint-disable-line promise/no-callback-in-promise
-			}).catch(e => {
+			} catch (e) {
 				if (e.status === 404) {
 					badgedLogger.info('Daemon was unable to find the Webpack plugin. To continue you need to:');
 					badgedLogger.info('');
 
-					const appcdVersion = getAppcdVersion(appcdRootPath);
-					const appcdCommand = isAppcCli ? 'appc appcd' : 'appcd';
+					const appcdVersion = await getAppcdVersion(appcdRootPath);
+					const appcdCommand = 'appcd';
 					const pluginName = '@appcd/plugin-webpack';
 
 					if (semver.gte(appcdVersion, '4.0.0')) {
@@ -123,13 +111,13 @@ exports.init = (logger, config, cli) => {
 					logger.error(e.stack);
 				}
 
-				callback(e); // eslint-disable-line promise/no-callback-in-promise
-			});
+				throw e;
+			}
 		}
 	});
-};
+}
 
-function getWebpackProjectType(projectDir) {
+async function getWebpackProjectType(projectDir) {
 	if (typeof projectDir !== 'string') {
 		return null;
 	}
@@ -145,7 +133,7 @@ function getWebpackProjectType(projectDir) {
 		'@titanium-sdk/webpack-plugin-angular'
 	];
 	// eslint-disable-next-line security/detect-non-literal-require
-	const pkg = require(pkgPath);
+	const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 	const allDeps = Object.keys(pkg.devDependencies || {})
 		.concat(Object.keys(pkg.dependencies || {}));
 	const pluginId = tiPlugins.find(id => allDeps.includes(id));
@@ -169,25 +157,23 @@ function resolveModuleRoot(name, paths) {
 	}
 }
 
-function ensureAppcdVersion(appcdRootPath, version, isAppcCli = false) {
+function ensureAppcdVersion(appcdRootPath, version) {
 	const appcdVersion = getAppcdVersion(appcdRootPath);
 	if (!semver.gte(appcdVersion, version)) {
-		throw new Error(`The Webpack build system requires Appcelerator Daemon v${MIN_APPCD_VERSION}+ (installed: ${appcdVersion}). Please update your ${isAppcCli ? 'appc-cli with "appc use latest"' : 'global daemon install with "npm i appcd -g"'}.`);
+		throw new Error(`The Webpack build system requires Appcelerator Daemon v${MIN_APPCD_VERSION}+ (installed: ${appcdVersion}). Please update your global daemon install with "npm i appcd -g"'.`);
 	}
 }
 
-function getAppcdVersion(appcdRootPath) {
-	// eslint-disable-next-line security/detect-non-literal-require
-	const pkg = require(path.join(appcdRootPath, 'package.json'));
-	return pkg.version;
+async function getAppcdVersion(appcdRootPath) {
+	return fs.readJson(path.join(appcdRootPath, 'package.json')).version;
 }
 
-function resolveAppcdClient(appcdPackagePath) {
+async function resolveAppcdClient(appcdPackagePath) {
 	const appcdClientPath = require.resolve('appcd-client', {
 		paths: [
 			path.join(appcdPackagePath, 'node_modules')
 		]
 	});
 	// eslint-disable-next-line security/detect-non-literal-require
-	return require(appcdClientPath).default;
+	return (await import(appcdClientPath)).default;
 }

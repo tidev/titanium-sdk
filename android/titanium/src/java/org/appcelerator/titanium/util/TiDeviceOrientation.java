@@ -345,8 +345,7 @@ public enum TiDeviceOrientation {
 		TiApplication application = TiApplication.getInstance();
 		if (application != null) {
 			Object object = application.getSystemService(Context.WINDOW_SERVICE);
-			if (object instanceof WindowManager) {
-				WindowManager windowManager = (WindowManager) object;
+			if (object instanceof WindowManager windowManager) {
 				return windowManager.getDefaultDisplay();
 			}
 		}

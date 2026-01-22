@@ -1395,8 +1395,7 @@ public class TiUIMaskedImage extends TiUIView
 			TiApplication application = TiApplication.getInstance();
 			if (application != null) {
 				Object object = application.getSystemService(Context.WINDOW_SERVICE);
-				if (object instanceof WindowManager) {
-					WindowManager windowManager = (WindowManager) object;
+				if (object instanceof WindowManager windowManager) {
 					Display display = windowManager.getDefaultDisplay();
 					if (display != null) {
 						DisplayMetrics metrics = new DisplayMetrics();

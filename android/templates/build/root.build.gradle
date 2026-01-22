@@ -1,12 +1,12 @@
 buildscript {
-	ext.kotlin_version = '1.9.23'
+	ext.kotlin_version = '2.3.0'
 
 	repositories {
 		google()
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.8.2'
+		classpath 'com.android.tools.build:gradle:8.11.1'
 		classpath 'com.google.gms:google-services:4.4.1'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 		<% for (let i = 0; i < classpaths.length; i++) {%>
@@ -16,7 +16,7 @@ buildscript {
 }
 
 // Load the module developer's optional "root.build.gradle" file from "<module>/android" directory.
-// This gradle file is expected to provide the module's "dependencies".
+// This Gradle file is expected to provide the module's "dependencies".
 def moduleRootBuildGradlePath = "${projectDir}/../root.build.gradle"
 if (file(moduleRootBuildGradlePath).exists()) {
 	apply from: moduleRootBuildGradlePath

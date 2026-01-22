@@ -480,7 +480,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			paddingBottom = bottomDimension.getAsDefault(contentView);
 		}
 
-		// Return the result via a titanium "ViewPadding" dictionary.
+		// Return the result via a Titanium "ViewPadding" dictionary.
 		KrollDict dictionary = new KrollDict();
 		dictionary.put(TiC.PROPERTY_LEFT, paddingLeft);
 		dictionary.put(TiC.PROPERTY_TOP, paddingTop);
@@ -525,6 +525,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	protected void fillIntent(Activity activity, Intent intent)
 	{
+		boolean accessibilityHidden = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN), false);
+		intent.putExtra(TiC.PROPERTY_ACCESSIBILITY_HIDDEN, accessibilityHidden);
+
 		int windowFlags = 0;
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
 			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);

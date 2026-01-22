@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - main
     - "[0-9]+_[0-9]+_X"
     - actions_tests
   pull_request:
@@ -15,7 +16,7 @@ jobs:
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Android build
@@ -25,15 +26,15 @@ jobs:
           java-version: '17'
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-15
     name: iOS
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: iOS build
@@ -46,7 +47,7 @@ jobs:
     name: JavaScript
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
@@ -63,15 +64,15 @@ jobs:
       run: npm run lint:js
 
   package:
-    runs-on: macos-13
+    runs-on: macos-15
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
     needs: [android, ios, js]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Create version tag

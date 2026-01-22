@@ -32,9 +32,9 @@ Studio implements process termination and process suspension by calling those me
 
 ## Java
 
-On the java side, we begin in V8Runtime again and set up a JSDebugger instance if debugging is enabled. We pass that instance down to C++ V8Runtime to use as part of JSDebugger::Init.
+On the Java side, we begin in V8Runtime again and set up a JSDebugger instance if debugging is enabled. We pass that instance down to C++ V8Runtime to use as part of JSDebugger::Init.
 
-Once the runtime is initialized, we then ask the java JSDebugger to "start()". This implementations spins up a new Thread to listen for debugger connections on the specified port via a ServerSocket.
+Once the runtime is initialized, we then ask the Java JSDebugger to "start()". This implementations spins up a new Thread to listen for debugger connections on the specified port via a ServerSocket.
 
 Once we receive a connection we spin up two additional threads to handle the incoming and outgoing messages between V8 and the debugger.
 

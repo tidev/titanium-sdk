@@ -142,7 +142,7 @@
   [self _addView:args atIndex:viewProxies ? [viewProxies count] : 0];
 }
 
-// Private, used to have only one method repsonsible for adding views
+// Private, used to have only one method responsible for adding views
 - (void)_addView:(TiViewProxy *)proxy atIndex:(NSUInteger)index
 {
   [self lockViewsForWriting];
@@ -295,13 +295,13 @@
 
   if (index != NSNotFound) {
     TiUIScrollableView *ourView = (TiUIScrollableView *)[self view];
-    NSArray *scrollWrappers = [[ourView scrollview] subviews];
+    NSArray *scrollWrappers = [ourView scrollableSubviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }
     // Hideous hack is hideous. This should stave off the bugs until layout is streamlined
-    [ourView refreshScrollView:[[self view] bounds] readd:YES];
-    scrollWrappers = [[ourView scrollview] subviews];
+    [ourView refreshScrollView:[[self view] bounds] reAdd:YES];
+    scrollWrappers = [ourView scrollableSubviews];
     if (index < [scrollWrappers count]) {
       return [scrollWrappers objectAtIndex:index];
     }

@@ -1011,7 +1011,7 @@ static void MyCFSocketCallback(CFSocketRef, CFSocketCallBackType, CFDataRef, con
 /**
  * Join multicast group
  *
- * Group should be a multicast IP address (eg. @"239.255.250.250" for IPv4).
+ * Group should be a multicast IP address (e.g. @"239.255.250.250" for IPv4).
  * Address is local interface for IPv4, but currently defaults under IPv6.
  **/
 - (BOOL)joinMulticastGroup:(NSString *)group error:(NSError **)errPtr

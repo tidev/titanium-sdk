@@ -59,6 +59,31 @@ in the main application project.
 
 For more information about this file, please see the [Apple documentation](https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Build_Settings.html).
 
+## Swift Package dependencies
+
+Declare Swift Package Manager dependencies in the `spm.json` file that sits next to your module `manifest`. Each entry can control whether the package is baked into the module binary (`"linkage": "embedded"`, the default) or added to the consuming app (`"linkage": "host"`). Embedded dependencies keep your module self-contained, while host dependencies let multiple modules share the same package once at the app level.
+
+Example:
+
+```json
+{
+  "dependencies": [
+    {
+      "remotePackageReference": "Parse-SDK-iOS-OSX",
+      "repositoryURL": "https://github.com/parse-community/Parse-SDK-iOS-OSX",
+      "requirementKind": "upToNextMajorVersion",
+      "requirementMinimumVersion": "5.1.1",
+      "products": [
+        { "productName": "ParseLiveQuery", "frameworkName": "ParseLiveQuery", "linkage": "embedded" },
+        { "productName": "ParseObjC", "frameworkName": "ParseObjC", "linkage": "host" }
+      ]
+    }
+  ]
+}
+```
+
+Rebuild the module after editing `spm.json` so the metadata ends up inside the packaged zip.
+
 # Documentation
 
 You should provide at least minimal documentation for your module in `documentation` folder using the 

@@ -342,7 +342,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			}
 
 			// Wrap the given callback used to override context menu handling.
-			if ((Build.VERSION.SDK_INT >= 23) && (callback instanceof ActionMode.Callback2)) {
+			if (callback instanceof ActionMode.Callback2) {
 				callback = new ActionModeCallback2Wrapper((ActionMode.Callback2) callback, excludeMenuIdSet);
 			} else {
 				callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
