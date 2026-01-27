@@ -905,7 +905,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
 
-		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)
+			&& !key.equals(TiC.PROPERTY_ACCESSIBILITY_IMPORTANT)) {
 			applyContentDescription();
 
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
@@ -1080,7 +1081,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_IMPORTANT)) {
-			applyAccessibilityImportant(d);
+			applyAccessibilityImportant(d.get(TiC.PROPERTY_ACCESSIBILITY_IMPORTANT));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
