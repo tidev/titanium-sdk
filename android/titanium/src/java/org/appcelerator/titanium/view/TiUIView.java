@@ -103,12 +103,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	public static final int TRANSITION_CHANGE_TRANSFORM = 10;
 	public static final int TRANSITION_CHANGE_IMAGE_TRANSFORM = 11;
 
-	public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES;
-	public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
-	public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
-		= ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS;
-	public static final int IMPORTANT_FOR_ACCESSIBILITY_AUTO = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
-
 	protected View nativeView; // Native View object
 
 	protected TiViewProxy proxy;

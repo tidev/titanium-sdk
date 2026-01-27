@@ -32,6 +32,7 @@ import android.webkit.WebSettings;
 import androidx.annotation.ColorInt;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 
 import com.google.android.material.color.MaterialColors;
 
@@ -262,6 +263,15 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int WEBVIEW_SCROLLBARS_HIDE_ALL = 3;
 
+	@Kroll.constant
+	public static final int IMPORTANT_FOR_ACCESSIBILITY_YES = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES;
+	@Kroll.constant
+	public static final int IMPORTANT_FOR_ACCESSIBILITY_NO = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
+	@Kroll.constant
+	public static final int IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+		= ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS;
+	@Kroll.constant
+	public static final int IMPORTANT_FOR_ACCESSIBILITY_AUTO = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
 	public AndroidModule()
 	{
 		super();

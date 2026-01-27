@@ -148,6 +148,7 @@ description: |
     * <Titanium.UI.View.accessibilityValue>
     * <Titanium.UI.View.accessibilityHint>
     * <Titanium.UI.View.accessibilityHidden>
+    * <Titanium.UI.View.accessibilityImportant>
 
     The first three, `accessibilityLabel`, `accessibilityValue` and `accessibilityHint`, are for setting text
     that will be relayed to the user by the assistive service (such as TalkBack on Android or VoiceOver
@@ -1134,7 +1135,8 @@ properties:
     since: "13.2.0"
     platforms: [android]
     type: Number
-    default: false
+    constants: Titanium.UI.Android.IMPORTANT_*
+    default: null
 
   - name: accessibilityHint
     summary: Briefly describes what performing an action (such as a click) on the view will do.
