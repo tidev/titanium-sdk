@@ -1133,7 +1133,7 @@ properties:
     summary: Sets the accessibility important mode.
     since: "13.2.0"
     platforms: [android]
-    type: int
+    type: Number
     default: false
 
   - name: accessibilityHint
