@@ -1129,6 +1129,13 @@ properties:
     type: Boolean
     default: false
 
+  - name: accessibilityImportant
+    summary: Sets the accessibility important mode.
+    since: "13.2.0"
+    platforms: [android]
+    type: int
+    default: false
+
   - name: accessibilityHint
     summary: Briefly describes what performing an action (such as a click) on the view will do.
     description: |
