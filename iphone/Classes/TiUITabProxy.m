@@ -59,13 +59,17 @@
   // since we're special proxy type instead of normal, we force in values
   [self replaceValue:nil forKey:@"title" notification:NO];
   [self replaceValue:nil forKey:@"icon" notification:NO];
-  [self replaceValue:nil forKey:@"badge" notification:NO];
+  [self replaceValue:nil forKey:@"iconInsets" notification:NO];
+  [self replaceValue:nil forKey:@"activeIcon" notification:NO];
   [self replaceValue:NUMBOOL(YES) forKey:@"iconIsMask" notification:NO];
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
   [self replaceValue:nil forKey:@"tintColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTintColor" notification:NO];
+  [self replaceValue:nil forKey:@"badge" notification:NO];
+  [self replaceValue:nil forKey:@"badgeColor" notification:NO];
+
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didChangeTraitCollection:)
                                                name:kTiTraitCollectionChanged
@@ -646,19 +650,9 @@
     }
   }
 
-  UITabBarItem *tabBarItem = [controller tabBarItem];
-  if (tabBarItem == nil || systemTab == YES) {
-    // init tab bar item
-    UITabBarItem *newItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
-    [controller setTabBarItem:newItem];
-
-    tabBarItem = [controller tabBarItem];
-  } else {
-    // reuse tab bar item
-    [tabBarItem setTitle:title];
-    [tabBarItem setImage:image];
-    [tabBarItem setSelectedImage:activeImage];
-  }
+  // (re-)init tab bar item
+  UITabBarItem *tabBarItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+  [controller setTabBarItem:tabBarItem];
 
   // title appearance
   TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
