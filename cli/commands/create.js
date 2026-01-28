@@ -61,7 +61,7 @@ export class CreateCommand {
 		const typeConf = {};
 
 		for (const filename of fs.readdirSync(creatorDir)) {
-			if (!jsRegExp.test(filename) || filename == 'base_app.js') {
+			if (!jsRegExp.test(filename) || filename === 'base_app.js') {
 				continue;
 			}
 
