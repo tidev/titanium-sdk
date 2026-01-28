@@ -148,6 +148,12 @@ export class CreateCommand {
 		var type = cli.argv.type,
 			creator = this.creators[type];
 
+		let useAlloy = false;
+		if (creator.type === 'app_alloy') {
+			useAlloy = true;
+			creator.type = 'app';
+		}
+
 		// load the project type lib
 		logger.info(`Creating ${type.cyan} project`);
 
@@ -179,8 +185,7 @@ export class CreateCommand {
 				} else {
 					logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 				}
-
-				if (cli.argv.alloy !== undefined) {
+				if (cli.argv.alloy !== undefined || useAlloy) {
 					execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { stdio: 'inherit' });
 				}
 

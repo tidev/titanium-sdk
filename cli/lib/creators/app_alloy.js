@@ -35,9 +35,9 @@ export class AppCreator extends Creator {
 	constructor(logger, config, cli) { // eslint-disable-line no-unused-vars
 		super(logger, config, cli);
 
-		this.title = 'Titanium App (Classic)';
-		this.titleOrder = 1;
-		this.type = 'app';
+		this.title = 'Titanium App (Alloy)';
+		this.titleOrder = 2;
+		this.type = 'app_alloy';
 
 		// build list of all valid platforms
 		const availablePlatforms = {},
