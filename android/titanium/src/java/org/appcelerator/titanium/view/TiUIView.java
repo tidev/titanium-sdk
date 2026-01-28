@@ -905,12 +905,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				nativeView.setKeepScreenOn(TiConvert.toBoolean(newValue));
 			}
 
-		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
+		} else if (key.indexOf("accessibility") == 0 && !key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)
+			&& !key.equals(TiC.PROPERTY_ACCESSIBILITY_IMPORTANT)) {
 			applyContentDescription();
 
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
 
+		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_IMPORTANT)) {
+			applyAccessibilityImportant(newValue);
 		} else if (key.equals(TiC.PROPERTY_ELEVATION)) {
 			if (getOuterView() != null) {
 				ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(newValue));
@@ -1075,6 +1078,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HINT) || d.containsKey(TiC.PROPERTY_ACCESSIBILITY_LABEL)
 			|| d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VALUE)) {
 			applyContentDescription(d);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_IMPORTANT)) {
+			applyAccessibilityImportant(d.get(TiC.PROPERTY_ACCESSIBILITY_IMPORTANT));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
@@ -2325,6 +2332,16 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			importanceMode = ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO;
 		}
 
+		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
+	}
+
+	private void applyAccessibilityImportant(Object hiddenPropertyValue)
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		int importanceMode = TiConvert.toInt(hiddenPropertyValue, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
 		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
 	}
 
