@@ -29,9 +29,9 @@ export class AppCreator extends BaseAppCreator {
 	 */
 	constructor(logger, config, cli) { // eslint-disable-line no-unused-vars
 		super(logger, config, cli, {
-			title: 'Titanium App (Classic)',
-			titleOrder: 1,
-			type: 'app'
+			title: 'Titanium App (Alloy)',
+			titleOrder: 2,
+			type: 'app_alloy'
 		});
 	}
 }
