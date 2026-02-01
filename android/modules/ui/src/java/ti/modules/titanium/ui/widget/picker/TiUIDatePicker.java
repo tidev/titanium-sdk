@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.picker;
 
 import android.os.Build;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
@@ -100,6 +101,15 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 				};
 				textInputLayout.getEditText().setOnClickListener(clickListener);
 				textInputLayout.setEndIconOnClickListener(clickListener);
+
+				if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TEXT_ALIGN)) {
+					String textAlign = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_TEXT_ALIGN));
+					if (textAlign.equals("center")) {
+						textInputLayout.getEditText().setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER);
+					} else if (textAlign.equals("right")) {
+						textInputLayout.getEditText().setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
+					}
+				}
 				view = textInputLayout;
 			}
 		}
@@ -338,10 +348,9 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 
 			// Fetch selected date "value". Property won't be defined if user canceled out.
 			Object objectValue = args.get(TiC.PROPERTY_VALUE);
-			if (!(objectValue instanceof Date)) {
+			if (!(objectValue instanceof Date dateValue)) {
 				return;
 			}
-			Date dateValue = (Date) objectValue;
 
 			// Make sure selected date does not exceed min/max bounds. (Should never happen.)
 			if ((this.picker.minDate != null) && dateValue.before(this.picker.minDate)) {

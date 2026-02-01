@@ -4,6 +4,10 @@ summary: |
     A view that encapsulates a horizontally-scrolling set of child views, known as pages, navigable
     using its built-in horizontal swipe gestures.
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./scrollableview_android.png) |  |
+
     Use the <Titanium.UI.createScrollableView> method or **`<ScrollableView>`** Alloy element to create
     a scrollable view.
 
@@ -255,7 +259,7 @@ properties:
     summary: Number of pages to cache (pre-render).
     description: |
         Pages are rendered in the range (currentPage +/- (cacheSize - 1)/2), *rounded down* for even
-        values (i.e. cacheSize=4 renders 3 pages into the cache.) Keep in mind that improved
+        values (e.g. cacheSize=4 renders 3 pages into the cache.) Keep in mind that improved
         performance (larger cache) will lead to faster performance, but greater memory usage.
     type: Number
     platforms: [android, iphone, ipad, macos]
@@ -385,7 +389,10 @@ properties:
     description: |
         Set to `false` to allow the previous or next pages to be seen. Note that
         ScrollableView's [width](Titanium.UI.ScrollableView.width) must be smaller than its parent
-        view in order to make this property effective.
+        view in order to make this property effective on iOS.
+        For Android you have to set the [padding](Titanium.UI.ScrollableView.padding) property.
+
+        Check the `Scrollable View with multiple visible views` example for both platforms.
     type: Boolean
     availability: creation
     default: true
@@ -438,6 +445,7 @@ examples:
         scrollable view.
 
         ``` js
+        var win = Ti.UI.createWindow();
         var img1 = Ti.UI.createImageView({
             image:'http://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/' +
             'Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/' +

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -117,7 +117,7 @@ typedef enum {
 /**
  The ImageLoader class provides a centralized point for loading images in Titanium.
  Using ImageLoader is the preferred way for getting images from remote sources.
- 
+
  The class is singleton and not supposed to be subclassed.
  The instance should not be instantiated directly, but lazily created with <sharedLoader>.
  */

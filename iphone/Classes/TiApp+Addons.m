@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -21,14 +21,14 @@
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, [completionHandler copy], nil]];
 
-  //Only for simulator builds
+  // Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"fetch"]) {
 
     // Generate unique key with timestamp.
     NSString *key = [NSString stringWithFormat:@"Fetch-%f", [[NSDate date] timeIntervalSince1970]];
 
-    // Store the completionhandler till we can come back and send appropriate message.
+    // Store the completion handler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
       pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
@@ -65,7 +65,7 @@
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, [completionHandler copy], nil]];
 
-  //This only here for Simulator builds.
+  // This only here for Simulator builds.
 
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"remote-notification"]) {
@@ -73,7 +73,7 @@
     // Generate unique key with timestamp.
     NSString *key = [NSString stringWithFormat:@"SilentPush-%f", [[NSDate date] timeIntervalSince1970]];
 
-    // Store the completionhandler till we can come back and send appropriate message.
+    // Store the completion handler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
       pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
@@ -100,7 +100,7 @@
 {
   NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
 
-  if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+  if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
     if ([userActivity userInfo] != nil) {
       [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
     }

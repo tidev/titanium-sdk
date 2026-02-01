@@ -182,6 +182,13 @@ properties:
     description: |
         Can only be modified when this socket is in the [INITIALIZED](Titanium.Network.Socket.INITIALIZED) state.
 
+  - name: secure
+    type: Boolean
+    summary: Creates a secure socket.
+    since: "12.1.0"
+    default: false
+    platforms: [android]
+
   - name: listenQueueSize
     type: Number
     summary: Max number of pending incoming connections to be allowed when the socket is
@@ -228,7 +235,7 @@ methods:
         or [LISTENING](Titanium.Network.Socket.LISTENING) state.
         Throws an exception if a valid host and port has not been set on this socket.
 
-        Nonblocking; connection attempts are asynchronous.
+        Non-blocking; connection attempts are asynchronous.
 
   - name: listen
     summary: Attempts to start listening on the socket's host/port.
@@ -236,7 +243,7 @@ methods:
         The `listen` call will attempt to listen on the specified host and/or port
         property for the socket if they are set.
 
-        Nonblocking; may return before the socket is fully open and listening.
+        Non-blocking; may return before the socket is fully open and listening.
 
         If the socket is already in a [LISTENING](Titanium.Network.Socket.LISTENING) or
         [CONNECTED](Titanium.Network.Socket.CONNECTED) state, `listen` throws an exception
@@ -249,7 +256,7 @@ methods:
   - name: accept
     summary: Tells a [LISTENING](Titanium.Network.Socket.LISTENING) socket to accept a connection request at the top of a listener's request queue when one becomes available.
     description: |
-        Nonblocking; if there are no connections in the queue, sets a flag so that
+        Non-blocking; if there are no connections in the queue, sets a flag so that
         the socket accepts the next incoming connection immediately.
 
         Takes an argument, an <AcceptDict> object which assigns options to the new
@@ -302,15 +309,6 @@ properties:
   - name: socket
     summary: Socket that experienced the error.
     type: Titanium.Network.Socket.TCP
-
-  - name: errorCode
-    summary: The error code of the error (potentially system-dependent).
-    type: Number
-    exclude-platforms: [macos]
-    deprecated:
-        since: "3.1.0"
-        removed: "9.0.0"
-        notes: Use the `code` property for a numeric error code.
 
   - name: success
     summary: Indicates if the operation succeeded. Returns `false`.

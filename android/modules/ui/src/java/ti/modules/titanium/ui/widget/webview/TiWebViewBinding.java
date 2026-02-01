@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -22,6 +22,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,12 +89,14 @@ public class TiWebViewBinding
 	private AppBinding appBinding;
 	private TiReturn tiReturn;
 	private WebView webView;
+	private TiViewProxy proxy;
 	private boolean interfacesAdded = false;
 
-	public TiWebViewBinding(WebView webView)
+	public TiWebViewBinding(WebView webView, TiViewProxy proxy)
 	{
 		codeSnippets = new Stack<String>();
 		this.webView = webView;
+		this.proxy = proxy;
 		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
 		tiReturn = new TiReturn();
@@ -151,7 +154,7 @@ public class TiWebViewBinding
 
 	synchronized public String getJSValue(String expression)
 	{
-		// Don't try to evaluate js code again if the binding has already been destroyed
+		// Don't try to evaluate JS code again if the binding has already been destroyed
 		if (!destroyed && interfacesAdded) {
 			String code = "_TiReturn.setValue((function(){try{return " + expression
 						  + "+\"\";}catch(ti_eval_err){return '';}})());";
@@ -238,6 +241,7 @@ public class TiWebViewBinding
 				if (json != null && !json.equals("undefined")) {
 					dict = new KrollDict(new JSONObject(json));
 				}
+				dict.put("source", proxy);
 				module.fireEvent(event, dict);
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing event JSON", e);

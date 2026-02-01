@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -40,8 +40,8 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
+import org.appcelerator.titanium.util.TiSession;
+import org.appcelerator.titanium.util.TiSessionMeta;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -105,13 +105,13 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getName()
 	{
-		return APSAnalyticsMeta.getPlatform();
+		return TiSessionMeta.getPlatform();
 	}
 
 	@Kroll.getProperty
 	public String getOsname()
 	{
-		return APSAnalyticsMeta.getPlatform();
+		return TiSessionMeta.getPlatform();
 	}
 
 	@Kroll.getProperty
@@ -145,7 +145,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getVersion()
 	{
-		return APSAnalyticsMeta.getOsVersion();
+		return TiSessionMeta.getOsVersion();
 	}
 
 	@Kroll.getProperty
@@ -193,13 +193,13 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getOstype()
 	{
-		return APSAnalyticsMeta.getOsType();
+		return TiSessionMeta.getOsType();
 	}
 
 	@Kroll.getProperty
 	public String getArchitecture()
 	{
-		return APSAnalyticsMeta.getArchitecture();
+		return TiSessionMeta.getArchitecture();
 	}
 
 	@Kroll.getProperty
@@ -259,7 +259,7 @@ public class PlatformModule extends KrollModule
 						   @Kroll.argument(optional = true) Object arg2, @Kroll.argument(optional = true) Object arg3)
 	{
 		// If given an optional callback, then call this method recursively without the callback.
-		// Note: We might also receieve an optional KrollDict argument. This is iOS only and should be ignored.
+		// Note: We might also receive an optional KrollDict argument. This is iOS only and should be ignored.
 		KrollFunction callback = null;
 		if (arg2 instanceof KrollFunction) {
 			callback = (KrollFunction) arg2;
@@ -376,7 +376,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getId()
 	{
-		return APSAnalytics.getInstance().getMachineId();
+		return TiSession.getInstance().getMachineId();
 	}
 
 	@Kroll.setProperty
@@ -471,7 +471,7 @@ public class PlatformModule extends KrollModule
 			// TODO Sort processors by index, fill in model name by preceding if unknown
 
 		} catch (IOException ex) {
-			// somethign went wrong, create "default" set of processors?
+			// something went wrong, create "default" set of processors?
 			this.processors = new ArrayList<>(processorCount);
 			for (int i = 0; i < processorCount; i++) {
 				this.processors.add(Processor.unknown(i));
@@ -574,7 +574,7 @@ public class PlatformModule extends KrollModule
 	{
 		super.onResume(activity);
 		if (batteryStateReceiver != null) {
-			Log.i(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
+			Log.d(TAG, "Reregistering battery changed receiver", Log.DEBUG_MODE);
 			registerBatteryReceiver(batteryStateReceiver);
 		}
 	}
@@ -606,7 +606,7 @@ public class PlatformModule extends KrollModule
 	}
 
 	/**
-	 * Creates an ACTION_VIEW (or similar) intent for the give url to be used to start an activity.
+	 * Creates an ACTION_VIEW (or similar) intent for the give URL to be used to start an activity.
 	 * This method is intended to be used by this class' canOpenURL() and openURL() methods.
 	 * @param url
 	 * The URL to create an intent for such as "http:", "mailto:", "geo:", "file:", etc.

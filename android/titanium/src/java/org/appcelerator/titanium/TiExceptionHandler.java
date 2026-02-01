@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -117,7 +117,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		if (javaStack != null) {
 			output += javaStack;
 
-			// no java stack, attempt to obtain last ten stack entries
+			// no Java stack, attempt to obtain last ten stack entries
 			// omitting our error handling entries
 		} else {
 			StackTraceElement[] trace = new Error().getStackTrace();

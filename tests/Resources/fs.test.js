@@ -1,14 +1,12 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* global OS_IOS */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-deprecated-api: "off" */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions');
 const utilities = require('./utilities/utilities');
@@ -92,7 +90,7 @@ describe('fs', function () {
 		});
 
 		it('checks that this file is NOT writable properly', function (finished) {
-			// ios sim does report this as writable!
+			// iOS sim does report this as writable!
 			if (isIOSSim || isMacOS) {
 				// this.skip(); // FIXME: Call this.skip() once we upgrade to npm mocha
 				return finished();
@@ -324,7 +322,7 @@ describe('fs', function () {
 			fs.mkdir(subdirPath, err => {
 				try {
 					should.exist(err);
-					err.name.should.eql('Error'); // windows desktop fails here (because error is null)
+					err.name.should.eql('Error'); // Windows desktop fails here (because error is null)
 					err.message.should.eql(`ENOENT: no such file or directory, mkdir '${subdirPath}'`);
 					err.code.should.eql('ENOENT');
 					err.errno.should.eql(-2);
@@ -579,7 +577,7 @@ describe('fs', function () {
 			});
 		});
 
-		it('returns String when utf-8 encoding set via second argument', finished => {
+		it('returns String when UTF-8 encoding set via second argument', finished => {
 			fs.readFile(thisFilePath, 'utf-8', (err, result) => {
 				should.not.exist(err);
 				should(result).be.a.String();
@@ -587,7 +585,7 @@ describe('fs', function () {
 			});
 		});
 
-		it('returns String when utf-8 encoding set via options object argument', finished => {
+		it('returns String when UTF-8 encoding set via options object argument', finished => {
 			fs.readFile(thisFilePath, { encoding: 'utf-8' }, (err, result) => {
 				should.not.exist(err);
 				should(result).be.a.String();
@@ -606,12 +604,12 @@ describe('fs', function () {
 			should(result).not.be.a.String();
 		});
 
-		it('returns String when utf-8 encoding set via second argument', () => {
+		it('returns String when UTF-8 encoding set via second argument', () => {
 			const result = fs.readFileSync(thisFilePath, 'utf-8');
 			should(result).be.a.String();
 		});
 
-		it('returns String when utf-8 encoding set via options object argument', () => {
+		it('returns String when UTF-8 encoding set via options object argument', () => {
 			const result = fs.readFileSync(thisFilePath, { encoding: 'utf-8' });
 			should(result).be.a.String();
 		});
@@ -875,7 +873,7 @@ describe('fs', function () {
 			fs.rmdir(dirName, error => {
 				try {
 					should.exist(error);
-					error.name.should.eql('Error'); // windows desktop fails here
+					error.name.should.eql('Error'); // Windows desktop fails here
 					error.message.should.eql(`ENOTEMPTY: directory not empty, rmdir '${dirName}'`);
 					error.errno.should.eql(-66);
 					error.syscall.should.eql('rmdir');
@@ -1048,7 +1046,7 @@ describe('fs', function () {
 			fs.truncate(dest, err => {
 				try {
 					should.not.exist(err);
-					fs.readFileSync(dest, 'utf8').should.eql(''); // windows desktop fails here
+					fs.readFileSync(dest, 'utf8').should.eql(''); // Windows desktop fails here
 				} catch (e) {
 					return finished(e);
 				}
@@ -1063,7 +1061,7 @@ describe('fs', function () {
 				try {
 					should.not.exist(err);
 					const buffer = fs.readFileSync(dest);
-					buffer.length.should.eql(16384); // windows desktop gives 213231
+					buffer.length.should.eql(16384); // Windows desktop gives 213231
 					// TODO: Compare contents somehow?
 				} catch (e) {
 					return finished(e);
@@ -1082,7 +1080,7 @@ describe('fs', function () {
 			const dest = Ti.Filesystem.tempDirectory + `truncateSync_${Date.now()}.js`;
 			fs.copyFileSync(thisFilePath, dest);
 			fs.truncateSync(dest);
-			fs.readFileSync(dest, 'utf8').should.eql(''); // windows desktop fails here
+			fs.readFileSync(dest, 'utf8').should.eql(''); // Windows desktop fails here
 		});
 
 		it.windowsDesktopBroken('truncates to specified number of bytes', () => {
@@ -1090,7 +1088,7 @@ describe('fs', function () {
 			fs.copyFileSync(thisFilePath, dest);
 			fs.truncateSync(dest, 16384);
 			const buffer = fs.readFileSync(dest);
-			buffer.length.should.eql(16384); // windows desktop gives 213231
+			buffer.length.should.eql(16384); // Windows desktop gives 213231
 			// TODO: Compare contents somehow?
 		});
 	});
@@ -1126,7 +1124,7 @@ describe('fs', function () {
 			fs.unlink(dir, error => {
 				try {
 					should.exist(error);
-					error.name.should.eql('Error'); // windows fails here
+					error.name.should.eql('Error'); // Windows fails here
 					error.message.should.eql(`EISDIR: illegal operation on a directory, unlink '${dir}'`);
 					error.code.should.eql('EISDIR');
 					error.errno.should.eql(-21);
@@ -1172,7 +1170,7 @@ describe('fs', function () {
 
 		it.windowsDesktopBroken('deletes a file', () => {
 			const filename = path.join(Ti.Filesystem.tempDirectory, `unlinkSync${Date.now()}.txt`);
-			fs.writeFileSync(filename, 'Hello World!'); // windows desktop fails here
+			fs.writeFileSync(filename, 'Hello World!'); // Windows desktop fails here
 			// file should now exist
 			should(fs.existsSync(filename)).be.true();
 			// delete it
@@ -1184,7 +1182,7 @@ describe('fs', function () {
 		it.windowsDesktopBroken('throws trying to delete a directory', () => {
 			const dir = Ti.Filesystem.tempDirectory;
 			// dir should exist
-			should(fs.existsSync(dir)).be.true(); // windows desktop fails here
+			should(fs.existsSync(dir)).be.true(); // Windows desktop fails here
 			// try to delete it
 			try {
 				fs.unlinkSync(dir);
@@ -1232,7 +1230,7 @@ describe('fs', function () {
 		it.windowsDesktopBroken('writes a string to a file descriptor', finish => {
 			const filename = path.join(Ti.Filesystem.tempDirectory, `writeString${Date.now()}.txt`);
 			// ensure parent dir exists
-			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // windows desktop fails here
+			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // Windows desktop fails here
 			const fd = fs.openSync(filename, 'w');
 			const contents = 'Hello write with a string!';
 			fs.write(fd, contents, (err, bytes, string) => {
@@ -1255,7 +1253,7 @@ describe('fs', function () {
 		it.windowsDesktopBroken('writes a Buffer to a file descriptor', finish => {
 			const filename = path.join(Ti.Filesystem.tempDirectory, `writeBuffer${Date.now()}.txt`);
 			// ensure parent dir exists
-			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // windows desktop fails here
+			should(fs.existsSync(Ti.Filesystem.tempDirectory)).be.true(); // Windows desktop fails here
 			const fd = fs.openSync(filename, 'w');
 			const buffer = Buffer.from('Hello write with a Buffer!');
 			fs.write(fd, buffer, (err, bytes, bufferFromCallback) => {

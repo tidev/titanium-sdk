@@ -1,17 +1,17 @@
-'use strict';
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'fs-extra';
+import { rollup } from 'rollup';
+import { babel } from '@rollup/plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import { getHash } from './git.js';
+import { installSDK, installSDKFromZipFile, timestamp } from './utils.js';
+import { Packager } from './packager.js';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
-const os = require('os');
-const path = require('path');
-const fs = require('fs-extra');
-const rollup = require('rollup').rollup;
-const { babel } = require('@rollup/plugin-babel');
-const { nodeResolve } = require('@rollup/plugin-node-resolve');
-const commonjs = require('@rollup/plugin-commonjs');
-
-const git = require('./git');
-const utils = require('./utils');
-const Packager = require('./packager');
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const TMP_DIR = path.join(DIST_DIR, 'tmp');
@@ -43,6 +43,8 @@ function determineBabelOptions(babelOptions) {
 	const transform = options.transform || {};
 	delete options.transform;
 
+	const require = createRequire(import.meta.url);
+
 	return {
 		presets: [ [ '@babel/env', options ] ],
 		plugins: [ [ require.resolve('babel-plugin-transform-titanium'), transform ] ],
@@ -52,21 +54,20 @@ function determineBabelOptions(babelOptions) {
 }
 
 /**
- * Returns the exact core-js version from package-lock file, this is required to ensure that the
+ * Returns the exact core-js version from package.json file, this is required to ensure that the
  * correct polyfills are loaded for the environment
  *
  * @returns {String}
  */
 function getCorejsVersion() {
-	const packageLock = require('../../package-lock');
-	if (packageLock.dependencies && packageLock.dependencies['core-js']) {
-		const { version } = packageLock.dependencies['core-js'];
-		return version;
+	const packageJson = fs.readJsonSync(path.join(__dirname, '../../package.json'));
+	if (packageJson.devDependencies && packageJson.devDependencies['core-js']) {
+		return packageJson.devDependencies['core-js'];
 	}
-	throw new Error('Could not lookup core-js version in package-lock file.');
+	throw new Error('Could not lookup core-js version in package.json file.');
 }
 
-class Builder {
+export class Builder {
 
 	/**
 	 * @param {object} options command line options
@@ -78,6 +79,7 @@ class Builder {
 	 * @param {boolean} [options.select=false] select the built SDK in Ti CLI after install?
 	 * @param {boolean} [options.skipZip] Optionally skip zipping up the result
 	 * @param {boolean} [options.docs] Generate docs?
+	 * @param {boolean} [options.onlyFailedTests] only show failed tests
 	 * @param {string[]} [platforms] command line arguments (platform listing)
 	 */
 	constructor(options, platforms) {
@@ -96,14 +98,15 @@ class Builder {
 		}
 
 		this.options = options;
-		this.options.timestamp = utils.timestamp();
+		this.options.timestamp = timestamp();
+		this.options.onlyFailedTests = options.onlyFailed || false;
 		this.options.versionTag = options.versionTag || options.sdkVersion;
 	}
 
 	async clean() {
 		// TODO: Clean platforms in parallel
 		for (const p of this.platforms) {
-			const Platform = require(`./${p}`); // eslint-disable-line security/detect-non-literal-require
+			const { default: Platform } = await import(`./${p}.js`);
 			const platform = new Platform(this.options);
 			await platform.clean();
 		}
@@ -112,7 +115,7 @@ class Builder {
 	}
 
 	async test() {
-		const { runTests, outputMultipleResults } = require('./test');
+		const { runTests, outputMultipleResults } = await import('./test/index.js');
 		const results = await runTests(this.platforms, this.options);
 		return outputMultipleResults(results);
 	}
@@ -121,7 +124,7 @@ class Builder {
 		if (this.options.gitHash) {
 			return;
 		}
-		const hash = await git.getHash(ROOT_DIR);
+		const hash = await getHash(ROOT_DIR);
 		this.options.gitHash = hash || 'n/a';
 	}
 
@@ -169,7 +172,7 @@ class Builder {
 				commonjs(),
 				babel(determineBabelOptions(babelOptions))
 			],
-			external: [ './app', 'com.appcelerator.aca' ]
+			external: [ './app' ]
 		});
 
 		const tiMainJs = path.join(outDir,  'ti.main.js');
@@ -200,7 +203,7 @@ class Builder {
 
 		// TODO: build platforms in parallel
 		for (const item of this.platforms) {
-			const Platform = require(`./${item}`); // eslint-disable-line security/detect-non-literal-require
+			const { default: Platform } = await import(`./${item}.js`);
 			const platform = new Platform(this.options);
 			await this.transpile(item, platform.babelOptions());
 			await platform.build();
@@ -238,7 +241,7 @@ class Builder {
 			return;
 		}
 
-		const Documentation = require('./docs');
+		const { Documentation } = await import('./docs.js');
 		const docs = new Documentation(DIST_DIR);
 		return docs.generate();
 	}
@@ -247,11 +250,9 @@ class Builder {
 		if (zipfile) {
 			// Assume we have explicitly said to install this zipfile (from CLI command)
 			zipfile = path.resolve(process.cwd(), zipfile);
-			return utils.installSDKFromZipFile(zipfile, this.options.select);
+			return installSDKFromZipFile(zipfile, this.options.select);
 		}
 		// Otherwise use fuzzier logic that tries to install local dev built version
-		return utils.installSDK(this.options.versionTag, this.options.symlink);
+		return installSDK(this.options.versionTag, this.options.symlink);
 	}
 }
-
-module.exports = Builder;

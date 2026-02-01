@@ -2,15 +2,15 @@
 name: Titanium.UI.TextField
 summary: A single line text field.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./textfield_android.png) | ![iOS](./textfield_ios.png) | ![Windows](./textfield_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./textfield_android.png) | ![iOS](./textfield_ios.png) |
 
     Use the <Titanium.UI.createTextField> method or **`<TextField>`** Alloy element to create a text field.
 
     #### `click` event in iOS
 
-    In iOS 11+, `click` event in text field is not fired due to changes from apple. 
+    In iOS 11+, `click` event in text field is not fired due to changes from apple.
     Use `touchstart` event instead of `click` event.
 extends: Titanium.UI.View
 since: "0.8"
@@ -35,7 +35,6 @@ methods:
     summary: Selects the text in range (start, end).
     platforms: [android, iphone, ipad, macos]
     since: "3.0.0"
-    osver: {ios: {min: "5.0"}}
     parameters:
       - name: start
         summary: Start index for selection. Value ranges from 0 to the text's length.
@@ -51,16 +50,6 @@ methods:
          On iOS, soft keyboard would show when text is selected.
 
 properties:
-  - name: appearance
-    summary: Determines the appearance of the keyboard displayed when this field is focused.
-    type: Number
-    constants: Titanium.UI.KEYBOARD_APPEARANCE_*
-    default: <Titanium.UI.KEYBOARD_APPEARANCE_DEFAULT>
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextField.keyboardAppearance](Titanium.UI.TextField.keyboardAppearance) instead.
 
   - name: keyboardAppearance
     summary: Determines the appearance of the keyboard displayed when this field is focused.
@@ -192,7 +181,7 @@ properties:
     constants: Titanium.UI.AUTOFILL_TYPE_*
     default: undefined
     since: "6.3.0"
-    osver: {ios: {min: "10.0"}, android: {min: "8.0"}}
+    osver: { android: { min: "8.0" } }
     platforms: [iphone, ipad, android, macos]
 
   - name: autoLink
@@ -317,7 +306,7 @@ properties:
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "5.4.0", ipad: "5.4.0", android: "4.1.0"}
     description: |
-        Sets the color of the <Titanium.UI.TextField.hintText>. Please not that this can be overriden
+        Sets the color of the <Titanium.UI.TextField.hintText>. Please not that this can be overridden
         by the <Titanium.UI.TextField.attributedHintText> which provides an advanced configuration to
         style hint texts.
 
@@ -474,24 +463,6 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: "6.0.0"
 
-  - name: paddingLeft
-    summary: Left padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.1.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
-
-  - name: paddingRight
-    summary: Right padding of this text field.
-    type: Number
-    platforms: [iphone, ipad]
-    deprecated:
-        since: "6.1.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.TextField.padding](Titanium.UI.TextField.padding) for parity instead.
-
   - name: passwordMask
     summary: Obscure the input text from the user.
     description: |
@@ -511,7 +482,6 @@ properties:
       on the [Password Rules documentation guide](https://developer.apple.com/documentation/security/password_autofill/customizing_password_autofill_rules).
     type: String
     since: "7.5.0"
-    osver: { ios: { min: "12.0" } }
     platforms: [iphone, ipad, macos]
 
   - name: returnKeyType
@@ -573,7 +543,7 @@ properties:
         can only be used when the text field has focus. Accessing this property when text field does not have
         focus will return an undefined value.
 
-        This method will return null on android and undefined on iOS if the view has not yet been attached
+        This method will return null on Android and undefined on iOS if the view has not yet been attached
         to the window.
     type: textFieldSelectedParams
     permission: read-only
@@ -581,11 +551,10 @@ properties:
     since: "3.3.0"
 
   - name: showUndoRedoActions
-    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above.
+    summary: Determines if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS 9 and above.
     type: Boolean
     default: true
     platforms: [ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: "5.0.0"
 
   - name: textAlign
@@ -641,6 +610,15 @@ events:
         summary: New value of the field.
         type: String
 
+  - name: empty
+    summary: Fired when the field is empty and you press backspace key again.
+    since: {android: "12.4.0"}
+    platforms: [android]
+    properties:
+      - name: keyCode
+        summary: Key code of the key.
+        type: Number
+
   - name: focus
     summary: Fired when the field gains focus.
     properties:
@@ -661,9 +639,7 @@ examples:
         Create a simple text field with green text color.
 
         ``` js
-        var win = Ti.UI.createWindow({
-          backgroundColor: 'white'
-        });
+        var win = Ti.UI.createWindow();
 
         var textField = Ti.UI.createTextField({
           backgroundColor: '#fafafa',
@@ -685,13 +661,11 @@ examples:
         This code excerpt creates a text field with a toolbar:
 
         ``` js
-        var win = Ti.UI.createWindow({
-            backgroundColor: 'white'
-        });
+        var win = Ti.UI.createWindow();
 
         var send = Ti.UI.createButton({
             title: 'Send',
-            style: Ti.UI.iOS.SystemButtonStyle.DONE,
+            style: Ti.UI.BUTTON_STYLE_OPTION_POSITIVE,
         });
 
         var camera = Ti.UI.createButton({

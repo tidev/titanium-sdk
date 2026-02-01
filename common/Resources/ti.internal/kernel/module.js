@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -75,7 +75,7 @@ function bootstrap (global, kroll) {
 		 * each invocation API in an external (3rd party) module
 		 * See invoker.js for more info
 		 * @param  {object} externalModule native module proxy
-		 * @param  {string} sourceUrl      the current js file url
+		 * @param  {string} sourceUrl      the current JS file url
 		 * @return {object}                wrapper around the externalModule
 		 */
 		createModuleWrapper (externalModule, sourceUrl) {
@@ -597,7 +597,7 @@ function bootstrap (global, kroll) {
 		// FIXME: I don't know why instanceof for Titanium.Service works here!
 		// On Android, it's an apiname of Ti.Android.Service
 		// On iOS, we don't yet pass in the value, but we do set Ti.App.currentService property beforehand!
-		// Can we remove the preload stuff in KrollBridge.m to pass along the service instance into this like we do on Andorid?
+		// Can we remove the preload stuff in KrollBridge.m to pass along the service instance into this like we do on Android?
 		module.isService = OS_ANDROID ? (activityOrService instanceof Titanium.Service) : Ti.App.currentService !== null;
 		if (OS_ANDROID) {
 			if (module.isService) {

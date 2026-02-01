@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -435,7 +435,7 @@ public class TiUIHelper
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
-				if (f.toLowerCase().equals(fontFamily.toLowerCase())
+				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					synchronized (mCustomTypeFaces)
@@ -713,7 +713,7 @@ public class TiUIHelper
 			/**
 			 * Loads the given image and returns it's decode bitmap wrapped in a drawable.
 			 * @param filePath Path or URL to the image file to be loaded. Can be null.
-			 * @return Returns a drawble object used to draw the give image file.
+			 * @return Returns a drawable object used to draw the give image file.
 			 *         <p>
 			 *         Returns null if failed to load the image or if given a null argument.
 			 */
@@ -852,7 +852,7 @@ public class TiUIHelper
 			}
 
 			if (view.getParent() == null) {
-				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+				Log.d(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
 				view.layout(0, 0, width, height);
 			}
 
@@ -997,8 +997,8 @@ public class TiUIHelper
 	}
 
 	/**
-	 * Creates and returns a bitmap from its url.
-	 * @param url the bitmap url.
+	 * Creates and returns a bitmap from its URL.
+	 * @param url the bitmap URL.
 	 * @return a new bitmap instance
 	 */
 	public static Bitmap getResourceBitmap(String url)
@@ -1256,8 +1256,12 @@ public class TiUIHelper
 				// Get the backgroundDrawable background as a StateListDrawable.
 				StateListDrawable stateListDrawable = (StateListDrawable) simpleDrawable;
 				// Get the reflection methods.
+				String methodName = "getStateDrawableIndex";
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+					methodName = "findStateDrawableIndex";
+				}
 				Method getStateDrawableIndexMethod =
-					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
+					StateListDrawable.class.getMethod(methodName, int[].class);
 				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
 				// Get the disabled state's (as defined in TiUIHelper) index.
 				int index = (int) getStateDrawableIndexMethod.invoke(stateListDrawable, state);

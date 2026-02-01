@@ -4,9 +4,9 @@ summary: |
     An alert dialog is a modal view that includes an optional title, a message and buttons,
     positioned in the middle of the display.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./alertdialog_android.png) | ![iOS](./alertdialog_ios.png) | ![Windows](./alertdialog_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./alertdialog_android.png) | ![iOS](./alertdialog_ios.png) |
 
     An alert dialog is created using <Titanium.UI.createAlertDialog> or **`<AlertDialog>`** Alloy element.
 
@@ -222,7 +222,6 @@ properties:
     type: Number
     default: -1
     since: 3.5.0
-    osver: {ios: {min: "8.0"}}
 
   - name: hintText
     summary: Hint text of the text field inside the dialog.
@@ -444,7 +443,6 @@ properties:
     type: Number
     default: -1
     since: 6.0.0
-    osver: {ios: {min: "9.0"}}
 
   - name: returnKeyType
     summary: Specifies the text to display on the keyboard `Return` key when this field is focused.
@@ -472,15 +470,34 @@ properties:
     since: 3.0.0
     platforms: [iphone, ipad, macos]
 
+  - name: severity
+    summary: Indicates the severity of the alert in apps built with Mac Catalyst.
+    description: |
+        This property defines the severity options used by the severity property
+        of UIAlertController. In apps built with Mac Catalyst, the severity
+        determines the style of the presented alert. A <Titanium.UI.iOS.ALERT_SEVERITY_CRITICAL>
+        alert appears with a caution icon, and an alert with a <Titanium.UI.iOS.ALERT_SEVERITY_DEFAULT>
+        severity doesn’t. UIKit ignores the alert severity on iOS.
+
+        You should only use the <Titanium.UI.iOS.ALERT_SEVERITY_CRITICAL> severity if an alert truly requires
+        special attention from the user.
+
+        For more information, see the [Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/macos/windows-and-views/alerts/) on alerts.
+    type: Number
+    constants: Titanium.UI.iOS.ALERT_SEVERITY_*
+    default: <Titanium.UI.iOS.ALERT_SEVERITY_DEFAULT>
+    since: 12.0.0
+    osver: {ios: {min: "16.0"}}
+    platforms: [iphone, ipad, macos]
+
   - name: tintColor
     summary: The tint-color of the dialog.
     description: |
-        This property is a direct correspondant of the `tintColor` property of
+        This property is a direct correspondent of the `tintColor` property of
         UIView on iOS. For a dialog, it will tint the color of it's buttons.
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [ String, Titanium.UI.Color ]
     since: "6.2.0"
-    osver: {ios: {min: "8.0"}}
     platforms: [iphone, ipad, macos]
 
   - name: title

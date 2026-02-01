@@ -16,7 +16,7 @@ description: |
     const fs = require('fs');
     ```
     
-    All file system operations have synchronous and asynchronouse callback forms.
+    All file system operations have synchronous and asynchronous callback forms.
 
     **NOTE:** The Titanium shim for this module does not support the new Promises API yet, nor does it support some of the newer (and a subset of older) APIs.
 
@@ -1262,7 +1262,7 @@ properties:
   - name: O_NONBLOCK
     type: Number
     value: 4
-    summary: Flag indicating to open the file in nonblocking mode when possible.
+    summary: Flag indicating to open the file in non-blocking mode when possible.
 
   - name: S_IRWXU
     type: Number

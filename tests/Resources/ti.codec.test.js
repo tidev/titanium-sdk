@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -525,7 +525,7 @@ describe('Titanium.Codec', () => {
 			// +1 for the umlaut char set byte
 			const umlautLoc = PHRASE.indexOf('ä');
 			should(buffer[umlautLoc]).eql(195);
-			// C3 char set in utf-8
+			// C3 char set in UTF-8
 			should(buffer[umlautLoc + 1]).eql(164);
 			// umlaut-a itself
 			buffer.clear();

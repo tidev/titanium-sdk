@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,7 @@ describe('Titanium.Media', () => {
 });
 
 describe('Titanium.Media.Sound', function () {
-	it.windowsPhoneBroken('apiName', function () { // this crashes windows phone
+	it.windowsPhoneBroken('apiName', function () { // this crashes Windows Phone
 		const sound = Ti.Media.createSound();
 		should(sound).have.a.readOnlyProperty('apiName').which.is.a.String();
 		should(sound.apiName).be.eql('Ti.Media.Sound');

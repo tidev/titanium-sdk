@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -82,7 +82,7 @@ public final class TiDeviceOrientationMonitor
 		if (value instanceof SensorManager) {
 			this.sensorManager = (SensorManager) value;
 		} else {
-			Log.i(TAG, "Unable to aquire SensorManager.");
+			Log.w(TAG, "Unable to acquire SensorManager.");
 		}
 
 		// Create an event handler for the Android "OrientationEventListener".
@@ -370,7 +370,7 @@ public final class TiDeviceOrientationMonitor
 					break;
 			}
 
-			// Do not continue if the device rotation matrix has not been udpated above.
+			// Do not continue if the device rotation matrix has not been updated above.
 			if (!wasRotationMatrixUpdated) {
 				return;
 			}

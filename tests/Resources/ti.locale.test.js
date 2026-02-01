@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -135,15 +135,15 @@ describe('Titanium.Locale', () => {
 				should(L('this_should_not_be_found', 123)).eql('this_should_not_be_found');
 			});
 
-			// https://jira.appcelerator.org/browse/TIMOB-26651
-			it('handles locale/country specific languages (i.e. en-GB vs en-US)', () => {
+			// https://jira-archive.titaniumsdk.com/TIMOB-26651
+			it('handles locale/country specific languages (e.g. en-GB vs en-US)', () => {
 				Ti.Locale.language = 'en-GB';
 				should(Ti.Locale.getString('this_is_my_key')).eql('this is my en-GB value'); // This fails on Windows, gives 'this is my value'
 				should(L('this_is_my_key')).eql('this is my en-GB value'); // This fails on Windows, gives 'this is my value'
 			});
 
 			// and then this one fails because it's using en-GB strings after we tell it to be ja...
-			it('handles single segment language (i.e. ja)', () => {
+			it('handles single segment language (e.g. ja)', () => {
 				Ti.Locale.language = 'ja';
 				should(Ti.Locale.getString('this_is_my_key')).eql('これは私の値です');
 				should(L('this_is_my_key')).eql('これは私の値です');

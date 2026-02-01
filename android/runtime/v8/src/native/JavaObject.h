@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -15,7 +15,7 @@ namespace titanium {
 
 // Provides an interface between a JavaScript object
 // and a Java object instance. This class is also responsible
-// for mangaging the lifetime of the Java object reference
+// for managing the lifetime of the Java object reference
 // so that it is properly collected once becoming unreachable
 // from the JavaScript code.
 class JavaObject : public EventEmitter
@@ -50,7 +50,7 @@ public:
 
 	/**
 	 * Determines if we are 'detached'. In real terms this means we either:
-	 * - Are wrapping no java object (so javaObject_ == NULL && refTableKey_ == 0)
+	 * - Are wrapping no Java object (so javaObject_ == NULL && refTableKey_ == 0)
 	 * - OR we've been informed by V8 that the JS object is GC-able and we've made the Java reference a weak one
 	 *
 	 * This is useful to know if we're being asked to release the proxy, then we can truly kill it if this is true. Otherwise we should wait until V8 and the JVM want it dead.
@@ -82,7 +82,7 @@ private:
 	jobject javaObject_;
 
 	/**
-	 * If we're not using global references, this will hold the key to look up the java object in our ReferenceTable. Otherwise it is 0.
+	 * If we're not using global references, this will hold the key to look up the Java object in our ReferenceTable. Otherwise it is 0.
 	 */
 	jlong refTableKey_;
 

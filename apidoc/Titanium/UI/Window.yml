@@ -155,7 +155,7 @@ description: |
     and "Form sheet" style windows:
 
     * **Page sheet** style windows have a fixed width, equal to the width of the screen
-      in portait mode, and a height equal to the *current* height of the screen. This means
+      in portrait mode, and a height equal to the *current* height of the screen. This means
       that in portrait mode, the window covers the entire screen. In landscape mode,
       the window is centered on the screen horizontally.
 
@@ -269,7 +269,7 @@ description: |
     show the window, then set the newly created TransitionAnimation object to the window's
     <Titanium.UI.Window.transitionAnimation> property.
 
-    In the example below, the windows are closed by rotating them upside down while simulatenously
+    In the example below, the windows are closed by rotating them upside down while simultaneously
     making them transparent:
 
     `app/views/index.xml`:
@@ -394,29 +394,65 @@ description: |
     since the system needs the source element and connects the destination element from the shared transition name once window B is created
     and shown.
 
-    For example to transition a title label in window A to a title label in window B.
+    For example to transition a preview ImageView in window A to a full-width ImageView in window B.
 
     ``` js
-    // Create label in window A with a unique transitionName.
-    var titleInWinA = new Ti.UI.createLabel({
-        text:'Top 10 pics from Mars!',
-        left:70, top: 6,
-        width:200, height: 30,
-        transitionName: 'title'
-    });
-    windowA.add(titleInWinA);
-
-    // Creating label in window B, note that the same transitionName is used.
-    var titleInWinB = new Ti.UI.createLabel({
-        text:'Top 10 pics from Mars!',
-        left:50, top: 10,
-        width:200, height: 30,
-        transitionName: 'title'
+    const windowA = Ti.UI.createWindow({
+      title: "overview"
     });
 
-    // Before opening window B specify the common UI elements.
-    windowB.addSharedElement(titleInWinA, "title");
-    windowB.open();
+    // Create an item in window A with a unique transitionName.
+    const viewA = Ti.UI.createImageView({
+      top: 10,
+      left: 10,
+      scalingMode: Titanium.Media.IMAGE_SCALING_ASPECT_FILL,
+      image: "https://api.lorem.space/image/shoes?w=500&h=500",
+      height: 100,
+      width: 100,
+      transitionName: 'title'
+    });
+
+    const btn = Ti.UI.createButton({
+      bottom: 10,
+      title: "open new window"
+    })
+
+    btn.addEventListener("click", function() {
+      // Before opening window B specify the common UI elements.
+      windowB.addSharedElement(viewA, "title");
+      windowB.open();
+
+      windowB.activity.onCreate = () => {
+        const actionBar = windowB.activity.actionBar;
+        if (actionBar) {
+          actionBar.displayHomeAsUp = true;
+          actionBar.title = "New Title";
+          actionBar.onHomeIconItemSelected = () => {
+            windowB.close();
+          };
+        }
+      };
+    })
+    windowA.add([viewA, btn]);
+    windowA.open();
+
+    // Creating an item in window B, note that the same transitionName is used.
+    const windowB = Ti.UI.createWindow({});
+    const viewB = Ti.UI.createImageView({
+      scalingMode: Titanium.Media.IMAGE_SCALING_ASPECT_FILL,
+      top: 0,
+      left: 0,
+      image: "https://api.lorem.space/image/shoes?w=500&h=500",
+      height: 200,
+      width: Ti.UI.FILL,
+      transitionName: 'title'
+    });
+    const labelB = Ti.UI.createLabel({
+      top: 210,
+      left: 10,
+      text: "Detail window"
+    })
+    windowB.add([viewB, labelB]);
     ```
 
     Further you can use `activityEnterTransition`, `activityExitTransition`, `activityReenterTransition`
@@ -426,7 +462,7 @@ description: |
     to use these transition animations, while in older version of Titanium that was required.
 
     See the official Android [Activity Transitions](https://developer.android.com/training/material/animations.html#Transitions)
-    documentation for more information and supported transitons.
+    documentation for more information and supported transitions.
 
     #### Android "root" Windows
 
@@ -504,9 +540,12 @@ methods:
     description: |
         To hide the tab bar when opening a window as a child of a tab, call
         `hideTabBar` or set `tabBarHidden` to `true` **before** opening the window.
-
         If the window is not a child of a tab, this method has no effect.
     platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
 
   - name: open
     summary: Opens the window.
@@ -556,6 +595,18 @@ methods:
         default: "{ animated: true }"
     platforms: [iphone, ipad, macos]
 
+  - name: showTabBar
+    summary: Shows the tab bar. Must be called before opening the window.
+    description: |
+        To show the tab bar when opening a window as a child of a tab, call
+        `showTabBar` or set `tabBarHidden` to `false` **before** opening the window.
+        If the window is not a child of a tab, this method has no effect.
+    platforms: [iphone, ipad, macos]
+    deprecated:
+        since: "12.7.0"
+        removed: "13.0.0"
+        notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
+
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
@@ -591,77 +642,6 @@ methods:
     since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 
 events:
-  - name: android:back
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidback](Titanium.UI.Window.androidback) event instead.
-    platforms: [android]
-    summary: Fired when the Back button is released.
-    description: |
-        Setting a listener disables the default key handling for the Back button.
-        To restore default behavior, remove the listener. It is recommended that you only
-        have one handler per window.
-
-  - name: android:camera
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidcamera](Titanium.UI.Window.androidcamera) event instead.
-    summary: Fired when the Camera button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
-
-  - name: android:focus
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidfocus](Titanium.UI.Window.androidfocus) event instead.
-    summary: Fired when the Camera button is half-pressed then released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
-
-  - name: android:search
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidsearch](Titanium.UI.Window.androidsearch) event instead.
-    summary: Fired when the Search button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have
-        one handler per window.
-    platforms: [android]
-
-  - name: android:voldown
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidvoldown](Titanium.UI.Window.androidvoldown) event instead.
-    summary: Fired when the volume down button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
-
-  - name: android:volup
-    deprecated:
-        since: "3.0.0"
-        removed: "9.0.0"
-        notes: Use the [Titanium.UI.Window.androidvolup](Titanium.UI.Window.androidvolup) event instead.
-    summary: Fired when the volume up button is released.
-    description: |
-        Setting a listener disables the default key handling for this button. To restore
-        default behavior, remove the listener. It is recommended that you only have one
-        handler per window.
-    platforms: [android]
 
   - name: androidback
     platforms: [android]
@@ -680,19 +660,6 @@ events:
         user dismisses the keyboard with the back button or when the
         user closes a full-screen video which is embedded in a web view
         with the back button.
-
-        As of 5.0.0, you can create an event that can prevent accidental closure of the
-        app due to hitting the back button to many times.
-
-        ``` js
-        var win = Ti.UI.createWindow(
-            { // some code... }
-        );
-        // more code
-        win.addEventListener("windows:back", function()
-            { alert("Back pressed"); }
-        );
-        ```
     since: '3.0.0'
 
   - name: androidcamera
@@ -825,7 +792,7 @@ properties:
     description: |
         The behavior of this API on iOS has changed from version 3.2.0. Previous versions
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
-        The titanium sdk now uses the native call to set the background image of the navigation bar.
+        The Titanium SDK now uses the native call to set the background image of the navigation bar.
         You can set it to a 1px transparent png to use a combination of `barColor` and `hideShadow:true`.
     platforms: [iphone, ipad, macos]
     type: String
@@ -872,7 +839,6 @@ properties:
     constants: Titanium.UI.EXTEND_EDGE_*
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: flagSecure
     summary: |
@@ -903,7 +869,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: autoAdjustScrollViewInsets
     summary: |
@@ -916,7 +881,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: extendSafeArea
     summary: |
@@ -938,7 +902,6 @@ properties:
     default: '`false` on Android, `true` on iOS.'
     since: {android: "7.5.0", iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
     availability: creation
-    osver: {android: {min: "4.4"}}
 
   - name: fullscreen
     summary: Boolean value indicating if the window is fullscreen.
@@ -964,7 +927,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "7.3.0", ipad: "7.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: hideShadow
     summary: Set this to true to hide the shadow image of the navigation bar.
@@ -985,7 +947,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
-    osver: {ios: {min: "8.0"}}
     availability: creation
 
   - name: hidesBarsOnTap
@@ -998,7 +959,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
-    osver: {ios: {min: "8.0"}}
     availability: creation
 
   - name: hidesBarsWhenKeyboardAppears
@@ -1010,7 +970,6 @@ properties:
     default: false
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
-    osver: {ios: {min: "8.0"}}
     availability: creation
 
   - name: hidesBackButton
@@ -1032,7 +991,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: hidesSearchBarWhenScrolling
     summary: A Boolean value indicating whether the integrated search bar is hidden when scrolling any underlying content.
@@ -1047,7 +1005,6 @@ properties:
     type: Boolean
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.1.0", ipad: "8.1.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: largeTitleDisplayMode
     summary: The mode to use when displaying the title of the navigation bar.
@@ -1063,7 +1020,6 @@ properties:
     default: Titanium.UI.iOS.LARGE_TITLE_DISPLAY_MODE_AUTOMATIC
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.3.0", ipad: "6.3.0", macos: "9.2.0"}
-    osver: {ios: {min: "11.0"}}
 
   - name: left
     summary: Window's left position, in platform-specific units.
@@ -1145,10 +1101,9 @@ properties:
   - name: navTintColor
     summary: The tintColor to apply to the navigation bar.
     description: |
-        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+        This property is a direct correspondent of the tintColor property of NavigationBar on iOS.
     type: [String, Titanium.UI.Color]
     default: null
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
 
@@ -1227,7 +1182,7 @@ properties:
         #### Android Orientation Modes
 
         On Android, orientation behavior is dependent on the Android SDK level
-        of the device itself. Devices running Android 2.3 and above support "sensor portait
+        of the device itself. Devices running Android 2.3 and above support "sensor portrait
         mode" and "sensor landscape mode," in these modes, the device is locked into
         either a portrait or landscape orientation, but can switch between the normal and reverse
         orientations (for example, between PORTRAIT and UPSIDE_PORTRAIT).
@@ -1360,7 +1315,7 @@ properties:
             windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION | Ti.UI.Android.FLAG_TRANSLUCENT_STATUS
         });
 
-        // Set up a safe-area view to be layed out between the system insets.
+        // Set up a safe-area view to be laid out between the system insets.
         // You should use this as a container for child views.
         var safeAreaView = Ti.UI.createView({
             backgroundColor: 'green'
@@ -1397,7 +1352,7 @@ properties:
     availability: creation
     deprecated:
         since: "6.2.0"
-        notes: Deprecated in AppCompat theme. The same behaviour can be achived by using Toolbar.
+        notes: Deprecated in AppCompat theme. The same behaviour can be achieved by using Toolbar.
 
   - name: statusBarStyle
     summary: The status bar style associated with this window.
@@ -1412,6 +1367,18 @@ properties:
                  Titanium.UI.iOS.StatusBar.GREY, Titanium.UI.iOS.StatusBar.LIGHT_CONTENT]
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", macos: "9.2.0"}
+
+  - name: statusBarColor
+    summary: The color of the status bar (top bar) for this window.
+    type: [Number]
+    platforms: [android]
+    since: {android: "12.5.0"}
+
+  - name: navBarColor
+    summary: The color of the navigation bar (bottom bar) for this window.
+    type: [Number]
+    platforms: [android]
+    since: {android: "13.1.0"}
 
   - name: sustainedPerformanceMode
     summary: Maintain a sustainable level of performance.
@@ -1469,8 +1436,8 @@ properties:
     summary: Title text attributes of the window.
     description: |
         Use this property to specify the color, font and shadow attributes of the title.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
     type: titleAttributesParams
 
   - name: titleControl
@@ -1537,7 +1504,7 @@ properties:
             <NavigationWindow>
                 <Window>
                     <WindowToolbar>
-                        <Button id="send" title="Send" style="Ti.UI.iOS.SystemButtonStyle.DONE" />
+                        <Button id="send" title="Send" style="Ti.UI.BUTTON_STYLE_OPTION_POSITIVE" />
                         <FlexSpace/>
                         <Button id="camera" systemButton="Ti.UI.iOS.SystemButton.CAMERA" />
                         <FlexSpace/>
@@ -1567,12 +1534,11 @@ properties:
     type: Titanium.Proxy
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
-    osver: {ios: {min: "7.0"}}
 
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
     platforms: [iphone, ipad, macos]
-    default: true on iOS7 and above, false otherwise.
+    default: true on iOS 7 and above, false otherwise.
     type: Boolean
 
   - name: windowFlags
@@ -1587,15 +1553,27 @@ properties:
 
         Setting <Titanium.UI.Window.fullscreen> to `true` automatically sets the [WindowManager.LayoutParams.FLAG_FULLSCREEN](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_FULLSCREEN)
         flag. Setting <Titanium.UI.Window.flagSecure> to true automatically sets the [WindowManager.LayoutParams.FLAG_SECURE](https://developer.android.com/reference/android/view/WindowManager.LayoutParams.html#FLAG_SECURE) flag.
+
+        Use <Titanium.UI.Android.STATUS_BAR_LIGHT> to set the status bar text color to light mode.
     platforms: [android]
     type: Number
     since: "3.3.0"
     availability: creation
 
+  - name: uiFlags
+    summary: Additional UI flags to set on the Activity Window.
+    description: |
+        See [WindowManager.LayoutParams](https://developer.android.com/reference/android/view/View#setSystemUiVisibility\(int\)) for a
+        list of additional flags that can be assigned to this property. For example, you can use `8192` (SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) to set
+        the status bar text color to a dark color.
+    platforms: [android]
+    type: Number
+    since: "12.7.0"
+
   - name: windowSoftInputMode
     summary: |
         Determines whether a window's soft input area (ie software keyboard) is visible
-        as it receives focus and how the window behaves in order to accomodate it while keeping its
+        as it receives focus and how the window behaves in order to accommodate it while keeping its
         contents in view.
     description: |
         In order for this property to take effect on an emulator, its Android Virtual Device (AVD)
@@ -1603,7 +1581,7 @@ properties:
         recommended to test an application on a physical device to understand its true behavior.
 
         This property is capable of representing two settings from the soft input *visibility*
-        constatns and soft input *adjustment* constants
+        constants and soft input *adjustment* constants
         using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation.
 
         Note that in JavaScript, bitwise OR is achieved using the single pipe operand. See the
@@ -1747,7 +1725,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]
@@ -1763,7 +1741,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]
@@ -1779,7 +1757,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]
@@ -1795,7 +1773,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]
@@ -2054,8 +2032,8 @@ properties:
 ---
 name: titleAttributesParams
 summary: Dictionary of options for the <Titanium.UI.Window.titleAttributes> property.
-platforms: [iphone, ipad, macos]
-since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
+platforms: [android, iphone, ipad, macos]
+since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 examples:
   - title: Simple Example
     example: |
@@ -2078,14 +2056,18 @@ properties:
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
   - name: font
     summary: Font to use for the window title.
     type: Font
+    platforms: [iphone, ipad, macos]
 
   - name: shadow
     summary: Shadow color and offset for the window title.
     type: shadowDict
+    platforms: [iphone, ipad, macos]
 
 ---
 name: shadowDict

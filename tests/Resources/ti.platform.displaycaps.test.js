@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -29,8 +29,8 @@ describe('Titanium.Platform.DisplayCaps', () => {
 
 			it('is one of known values', () => {
 				should([
-					'xxxhigh', // Android 4x 560+ dpi (note that android's constant is for 640 == xxxhdpi)
-					'xxhigh', // Android 3x 400+ dpi (note that android's constant is for 480 == xxhdpi)
+					'xxxhigh', // Android 4x 560+ dpi (note that Android's constant is for 640 == xxxhdpi)
+					'xxhigh', // Android 3x 400+ dpi (note that Android's constant is for 480 == xxhdpi)
 					'xhigh', // iOS 3x, Android 280+ dpi (note their constant is for 320dpi == xhdpi!)
 					'high', // 2x on iOS, Android 240 dpi (hdpi)
 					'tvdpi', // Android 213 dpi (720p TV screen)

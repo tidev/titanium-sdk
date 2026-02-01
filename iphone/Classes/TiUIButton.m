@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -17,6 +17,8 @@
 #ifdef USE_TI_UIATTRIBUTEDSTRING
 #import "TiUIAttributedStringProxy.h"
 #endif
+
+#import "TiUIiOSButtonConfigurationProxy.h"
 
 @implementation TiUIButton
 
@@ -70,7 +72,7 @@
   return YES;
 }
 
-- (void)setHighlighting:(BOOL)isHiglighted
+- (void)setHighlighting:(BOOL)isHighlighted
 {
 #ifndef TI_USE_AUTOLAYOUT
   for (TiUIView *thisView in [viewGroupWrapper subviews])
@@ -79,7 +81,7 @@
 #endif
   {
     if ([thisView respondsToSelector:@selector(setHighlighted:)]) {
-      [(id)thisView setHighlighted:isHiglighted];
+      [(id)thisView setHighlighted:isHighlighted];
     }
   }
 }
@@ -98,10 +100,10 @@
   if ((bounds.size.width >= imageSize.width) && (bounds.size.height >= imageSize.height)) {
     [button setBackgroundImage:backgroundImageCache forState:UIControlStateNormal];
   } else {
-    //If the bounds are smaller than the image size render it in an imageView and get the image of the view.
-    //Should be pretty inexpensive since it happens rarely. TIMOB-9166
-    CGSize unstrechedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
-    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstrechedSize, bounds.size)) {
+    // If the bounds are smaller than the image size render it in an imageView and get the image of the view.
+    // Should be pretty inexpensive since it happens rarely. TIMOB-9166
+    CGSize unstretchedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
+    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstretchedSize, bounds.size)) {
       UIImageView *theView = [[UIImageView alloc] initWithFrame:bounds];
       [theView setImage:backgroundImageCache];
       UIGraphicsBeginImageContextWithOptions(bounds.size, [theView.layer isOpaque], 0.0);
@@ -219,6 +221,37 @@
 #endif
 #pragma mark Public APIs
 
+- (void)setConfiguration_:(id)params
+{
+  TiUIiOSButtonConfigurationProxy *configuration = nil;
+
+  if ([params isKindOfClass:[TiUIiOSButtonConfigurationProxy class]]) {
+    configuration = (TiUIiOSButtonConfigurationProxy *)params;
+  } else if ([params isKindOfClass:[NSDictionary class]]) {
+    configuration = [[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:self.proxy.pageContext args:@[ params ]];
+  } else {
+    [self throwException:@"Invalid type passed" subreason:@"Either pass a ButtonConfiguration or Object" location:CODELOCATION];
+  }
+
+  self.button.configuration = configuration.configuration;
+  [[self proxy] replaceValue:configuration forKey:@"configuration" notification:NO];
+
+  // If provided: Handle swap of "backgroundColor" and "backgroundSelectedColor"
+  if (configuration.baseBackgroundSelectedColor != nil && configuration.baseBackgroundColor != nil) {
+    self.button.configurationUpdateHandler = ^(UIButton *button) {
+      UIButtonConfiguration *newConfiguration = button.configuration;
+
+      if (button.highlighted && configuration.baseBackgroundSelectedColor != nil) {
+        newConfiguration.baseBackgroundColor = configuration.baseBackgroundSelectedColor;
+      } else if (configuration.baseBackgroundColor != nil) {
+        newConfiguration.baseBackgroundColor = configuration.baseBackgroundColor;
+      }
+
+      button.configuration = newConfiguration;
+    };
+  }
+}
+
 - (void)setStyle_:(id)style_
 {
   int s = [TiUtils intValue:style_ def:UIButtonTypeCustom];
@@ -273,6 +306,11 @@
   [[self button] setEnabled:[TiUtils boolValue:value]];
 }
 
+- (void)setTooltip_:(id)value
+{
+  [[self button] setToolTip:[TiUtils stringValue:value]];
+}
+
 - (void)setTitle_:(id)value
 {
   [[self button] setTitle:[TiUtils stringValue:value] forState:UIControlStateNormal];
@@ -281,6 +319,10 @@
 - (void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
+  if (self.button.configuration != nil) {
+    // Ignored: handled via ButtonConfiguration.attributedString
+    return;
+  }
   ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
   [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
   [[self button] setAttributedTitle:[arg attributedString] forState:UIControlStateNormal];
@@ -327,6 +369,10 @@
 
 - (void)setFont_:(id)font
 {
+  if (self.button.configuration != nil) {
+    // Ignored: handled via ButtonConfiguration.font
+    return;
+  }
   if (font != nil) {
     WebFont *f = [TiUtils fontValue:font def:nil];
     [[[self button] titleLabel] setFont:[f font]];
@@ -427,6 +473,10 @@
 
 - (void)setTextAlign_:(id)align
 {
+  if (self.button.configuration != nil) {
+    // Ignored: handled via ButtonConfiguration.textAlign
+    return;
+  }
   button = [self button];
   NSTextAlignment alignment = [TiUtils textAlignmentValue:align];
   UIControlContentHorizontalAlignment horizontalAlignment = UIControlContentHorizontalAlignmentCenter;

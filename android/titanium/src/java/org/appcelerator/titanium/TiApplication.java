@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -14,15 +14,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityManager;
 
 import androidx.annotation.NonNull;
-
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
 
 import org.appcelerator.kroll.KrollApplication;
 import org.appcelerator.kroll.KrollModule;
@@ -35,15 +34,19 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.TiDeployData;
 import org.appcelerator.kroll.common.TiMessenger;
 import org.appcelerator.kroll.util.KrollAssetHelper;
+import org.appcelerator.titanium.util.TiSession;
+import org.appcelerator.titanium.util.TiSessionMeta;
 import org.appcelerator.titanium.util.TiBlobLruCache;
 import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiImageCache;
+import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiResponseCache;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
 import org.json.JSONException;
 import org.json.JSONObject;
 import ti.modules.titanium.TitaniumModule;
+import ti.modules.titanium.ui.TabGroupProxy;
 
 import java.io.File;
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -94,12 +97,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	private String defaultUnit;
 	private BroadcastReceiver localeReceiver;
 	private AccessibilityManager accessibilityManager = null;
+	private UncaughtExceptionHandler nativeExceptionHandler = null;
 
 	protected TiDeployData deployData;
 	protected ITiAppInfo appInfo;
 	protected TiStylesheet stylesheet;
 	protected HashMap<String, WeakReference<KrollModule>> modules;
-	protected String[] filteredAnalyticsEvents;
 
 	public static AtomicBoolean isActivityTransition = new AtomicBoolean(false);
 	protected static ArrayList<ActivityTransitionListener> activityTransitionListeners = new ArrayList<>();
@@ -340,19 +343,30 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	public static void handleInternalException(Throwable throwable)
+	{
+		final UncaughtExceptionHandler currentExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+		if (currentExceptionHandler != null) {
+			currentExceptionHandler.uncaughtException(Thread.currentThread(), throwable);
+		}
+	}
+
 	@Override
 	public void onCreate()
 	{
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
-		// handle uncaught java exceptions
+		// Reference to Android run-time exception handler to delegate exceptions properly.
+		nativeExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
+
+		// handle uncaught Java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e)
 			{
 
-				// obtain java stack trace
+				// obtain Java stack trace
 				String javaStack = null;
 				StackTraceElement[] frames = e.getCause() != null ? e.getCause().getStackTrace() : e.getStackTrace();
 				if (frames != null && frames.length > 0) {
@@ -364,6 +378,10 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 				// throw exception as KrollException
 				KrollRuntime.dispatchException("Runtime Error", e.getMessage(), null, 0, null, 0, null, javaStack);
+
+				if (nativeExceptionHandler != null) {
+					nativeExceptionHandler.uncaughtException(t, e);
+				}
 			}
 		});
 
@@ -400,6 +418,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 				deleteTiTempFiles();
 			}
 		});
+
+		TiLocaleManager.init();
 	}
 
 	@Override
@@ -452,16 +472,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 
 		String buildType = this.appInfo.getBuildType();
-		if (buildType != null && !buildType.equals("")) {
-			APSAnalyticsMeta.setBuildType(buildType);
-		}
-
-		APSAnalyticsMeta.setAppId(this.appInfo.getId());
-		APSAnalyticsMeta.setAppName(this.appInfo.getName());
-		APSAnalyticsMeta.setAppVersion(this.appInfo.getVersion());
-		APSAnalyticsMeta.setDeployType(deployType);
-		APSAnalyticsMeta.setSdkVersion(getTiBuildVersion());
-		APSAnalytics.getInstance().setMachineId(this);
+		TiSessionMeta.setAppId(this.appInfo.getId());
+		TiSessionMeta.setAppName(this.appInfo.getName());
+		TiSessionMeta.setAppVersion(this.appInfo.getVersion());
+		TiSessionMeta.setDeployType(deployType);
+		TiSessionMeta.setSdkVersion(getTiBuildVersion());
+		TiSession.getInstance().setMachineId(this);
 	}
 
 	public void postOnCreate()
@@ -477,7 +493,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiConfig.DEBUG = TiConfig.LOGD = appProperties.getBool("ti.android.debug", false);
 		USE_LEGACY_WINDOW = appProperties.getBool(PROPERTY_USE_LEGACY_WINDOW, false);
 
-		// Start listening for system locale changes.
 		startLocaleMonitor();
 
 		// Register our custom HTTP response cache handler.
@@ -671,6 +686,21 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		appEventProxies.remove(appEventProxy);
 	}
 
+	public boolean hasListener(String eventName)
+	{
+		for (WeakReference<KrollProxy> weakProxy : appEventProxies) {
+			KrollProxy appEventProxy = weakProxy.get();
+			if (appEventProxy == null) {
+				continue;
+			}
+			if (appEventProxy.hasListeners(eventName)) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+
 	public boolean fireAppEvent(String eventName, KrollDict data)
 	{
 		boolean handled = false;
@@ -679,7 +709,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			if (appEventProxy == null) {
 				continue;
 			}
-
 			boolean proxyHandled = appEventProxy.fireEvent(eventName, data);
 			handled = handled || proxyHandled;
 		}
@@ -738,11 +767,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return proxy;
 	}
 
-	public boolean isAnalyticsEnabled()
-	{
-		return false;
-	}
-
 	/**
 	 * Determines if Titanium's JavaScript runtime should run on the main UI thread or not
 	 * based on the "tiapp.xml" property "run-on-main-thread".
@@ -753,26 +777,6 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public boolean runOnMainThread()
 	{
 		return true;
-	}
-
-	public void setFilterAnalyticsEvents(String[] events)
-	{
-		filteredAnalyticsEvents = events;
-	}
-
-	public boolean isAnalyticsFiltered(String eventName)
-	{
-		if (filteredAnalyticsEvents == null) {
-			return false;
-		}
-
-		for (int i = 0; i < filteredAnalyticsEvents.length; ++i) {
-			String currentName = filteredAnalyticsEvents[i];
-			if (eventName.equals(currentName)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -929,6 +933,30 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiApplication.launch();
 	}
 
+	public void relaunchApp()
+	{
+		Activity activity = getRootOrCurrentActivity();
+		if (activity == null) {
+			return;
+		}
+
+		Intent intent = activity.getPackageManager().getLaunchIntentForPackage(activity.getPackageName());
+		if (intent == null) {
+			return;
+		}
+
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+		activity.startActivity(intent);
+
+		// To avoid seeing duplicate app snapshots in Task Manager, one with empty content often.
+		new Handler(Looper.getMainLooper()).postDelayed(() -> {
+			android.os.Process.killProcess(android.os.Process.myPid());
+		}, 300);
+	}
+
 	/**
 	 * @return true if the current thread is the main thread, false otherwise.
 	 */
@@ -978,16 +1006,24 @@ public abstract class TiApplication extends Application implements KrollApplicat
 			@Override
 			public void onReceive(Context context, Intent intent)
 			{
-				final KrollModule locale = getModuleByName("Locale");
-				if (!locale.hasListeners(TiC.EVENT_CHANGE)) {
-					TiApplication.getInstance().softRestart();
-				} else {
-					locale.fireEvent(TiC.EVENT_CHANGE, null);
-				}
+				TiMessenger.postOnMain(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						TiLocaleManager.handleSystemLocaleUpdates();
+					}
+				});
 			}
 		};
 
-		registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+			&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+			int receiverFlags = Context.RECEIVER_EXPORTED;
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED), receiverFlags);
+		} else {
+			registerReceiver(localeReceiver, new IntentFilter(Intent.ACTION_LOCALE_CHANGED));
+		}
 	}
 
 	private void stopLocaleMonitor()
@@ -1022,5 +1058,35 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	 */
 	public void verifyCustomModules(TiRootActivity rootActivity)
 	{
+	}
+
+	public void popToRootWindow()
+	{
+		/**
+		 * emulates the iOS Tab.popToRootWindow() by closing all windows above a TabGroup.
+		 */
+		int tabGroupPosition = -1;
+		boolean isTabGroup = false;
+
+		for (int i = 0; i <= activityStack.size(); ++i) {
+			isTabGroup = (activityStack.get(i).get() instanceof TiActivity)
+				&& ((TiActivity) activityStack.get(i).get()).getWindowProxy() instanceof TabGroupProxy;
+			if (isTabGroup) {
+				tabGroupPosition = i;
+				break;
+			}
+		}
+
+		// no TabGroup - don't do anything
+		if (!isTabGroup || tabGroupPosition == -1) {
+			return;
+		}
+
+		// finish all activities above our TabGroup
+		for (int i = activityStack.size() - 1; i > tabGroupPosition; --i) {
+			if (activityStack.get(i).get() instanceof TiActivity currentActivity) {
+				currentActivity.finish();
+			}
+		}
 	}
 }

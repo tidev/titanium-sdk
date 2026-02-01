@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -10,10 +10,10 @@ import java.io.File;
 import java.io.IOException;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
@@ -102,10 +102,6 @@ public class FilesystemModule extends KrollModule
 	@Kroll.method
 	private boolean hasStoragePermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
 		Context context = TiApplication.getInstance().getApplicationContext();
 
 		return ((context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -114,6 +110,7 @@ public class FilesystemModule extends KrollModule
 					== PackageManager.PERMISSION_GRANTED));
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestStoragePermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)

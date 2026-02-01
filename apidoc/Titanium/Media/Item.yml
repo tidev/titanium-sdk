@@ -67,8 +67,7 @@ properties:
 
   - name: beatsPerMinute
     summary: |
-        The number of musical beats per minute for the media item, corresponding 
-        to the "BPM" field in the Info tab in the "Get Info" dialog in iTunes.
+        The number of musical beats per minute for the media item.
     type: Number
     permission: read-only
     since: "6.1.0"
@@ -81,8 +80,7 @@ properties:
 
   - name: comments
     summary: |
-        Textual information about the media item, corresponding to the "Comments" 
-        field in in the Info tab in the Get Info dialog in iTunes.
+        Textual information about the media item.
     type: String
     permission: read-only
     since: "6.1.0"
@@ -97,7 +95,6 @@ properties:
     type: Date
     permission: read-only
     since: "6.1.0"
-    osver: {ios: {min: "10.0"}}
 
   - name: discCount
     summary: Total number of discs for the album containing this item.
@@ -223,8 +220,7 @@ properties:
 
   - name: userGrouping
     summary: |
-        Corresponds to the "Grouping" field in the Info tab in the "Get Info" 
-        dialog in iTunes.
+        Grouping information for the media item.
     type: String
     permission: read-only
     since: "6.1.0"

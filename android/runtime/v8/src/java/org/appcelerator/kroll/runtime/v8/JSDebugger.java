@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -26,7 +26,7 @@ public final class JSDebugger
 	// The port to listen to for debugger connections
 	private final int port;
 
-	// The sdk version we report in embedding host header for handshake message to debugger.
+	// The SDK version we report in embedding host header for handshake message to debugger.
 	private final String sdkVersion;
 
 	// The lock used to wait for debugger to connect
@@ -205,7 +205,7 @@ public final class JSDebugger
 		{
 			inspectorMessages.offer(message); // put message into queue
 
-			// if we haven't initialied yet, sniff the incoming messages
+			// if we haven't initialized yet, sniff the incoming messages
 			if (!JSDebugger.this.ready.get()) {
 				// copy any waiting messages into our initial queue
 				String nextMessage = inspectorMessages.poll();

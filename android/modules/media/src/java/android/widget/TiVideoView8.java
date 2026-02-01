@@ -16,12 +16,12 @@
 
 /**
  * Modifications copyright:
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * This is the api level 8 VideoView.java with Titanium-specific modifications.
+ * This is the API level 8 VideoView.java with Titanium-specific modifications.
  */
 
 package android.widget;
@@ -107,6 +107,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 								   // preparing
 	@SuppressWarnings("unused")
 	private int mStateWhenSuspended; // state before calling suspend()
+	private boolean autoHide = false;
 
 	// TITANIUM
 	private TiPlaybackListener mPlaybackListener;
@@ -239,7 +240,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			}
 			constantDeprecationWarning(mScalingMode);
 		}
-		Log.i(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
+		Log.d(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
 		setMeasuredDimension(width, height);
 	}
 
@@ -492,6 +493,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					// so
 					// start the video here instead of in the callback.
 					if (mTargetState == STATE_PLAYING) {
+						if (autoHide) {
+							setAlpha(1);
+						}
 						start();
 						if (mMediaController != null) {
 							mMediaController.show();
@@ -636,6 +640,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			if (mCurrentState != STATE_SUSPEND) {
 				release(true);
 			}
+			if (autoHide) {
+				setAlpha(0);
+			}
 		}
 	};
 
@@ -717,7 +724,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			// TITANIUM
 			if (mPlaybackListener != null) {
 				mPlaybackListener.onStartPlayback();
-				// Fired after a stop or play is called after a after url change.
+				// Fired after a stop or play is called after a after URL change.
 				if (oldState == STATE_PREPARED || oldState == STATE_PREPARING) {
 					mPlaybackListener.onPlayingPlayback();
 				}
@@ -883,5 +890,13 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public void setAutoHide(boolean value)
+	{
+		if (value) {
+			setAlpha(0);
+		}
+		autoHide = value;
 	}
 }

@@ -32,9 +32,9 @@ Studio implements process termination and process suspension by calling those me
 
 ## Java
 
-On the java side, we begin in V8Runtime again and set up a JSDebugger instance if debugging is enabled. We pass that instance down to C++ V8Runtime to use as part of JSDebugger::Init.
+On the Java side, we begin in V8Runtime again and set up a JSDebugger instance if debugging is enabled. We pass that instance down to C++ V8Runtime to use as part of JSDebugger::Init.
 
-Once the runtime is initialized, we then ask the java JSDebugger to "start()". This implementations spins up a new Thread to listen for debugger connections on the specified port via a ServerSocket.
+Once the runtime is initialized, we then ask the Java JSDebugger to "start()". This implementations spins up a new Thread to listen for debugger connections on the specified port via a ServerSocket.
 
 Once we receive a connection we spin up two additional threads to handle the incoming and outgoing messages between V8 and the debugger.
 
@@ -52,7 +52,7 @@ That simply places the message in a queue. One of the two threads spun up after 
 
 ### Handling messages coming from the Debugger
 
-The second thread spun up after a connection is made simply reads lines from the debugger's stream and does very basic parsing of the message. Once the headers are stripped, we grab the JSON body and call down into C++ to do a V8::Debug::SendCommand to give the command to V8.
+The second thread spun up after a connection is made simply reads lines from the debuggers stream and does very basic parsing of the message. Once the headers are stripped, we grab the JSON body and call down into C++ to do a V8::Debug::SendCommand to give the command to V8.
 
 The next step is to call V8::Debug::ProcessDebugMessages(). We do so indirectly by using a Handler.post(Runnable) to ensure this gets called on the main thread.
 

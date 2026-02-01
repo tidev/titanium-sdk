@@ -1,0 +1,38 @@
+---
+name: Titanium.App.iOS.ActivityAttributes
+summary: |
+    Use this module to communicate with the native iOS 16+ Dynamic Island APIs.
+description: |
+    To properly use these APIs, you need to have your Widget Extension ready.
+    You can follow this [sample repository](https://github.com/hansemannn/titanium-widget-kit-sample-app) for an extended example.
+since: "12.0.0"
+platforms: [iphone, ipad]
+
+methods:
+  - name: startActivity
+    summary: Starts a new activity (aka the Dynamic Island) with the provided parameters
+    parameters:
+      - name: value
+        summary: |
+            The values to pass to your extension. For maximum flexibility, this parameter should be passed
+            as a String-based Object, e.g.
+            ```
+            {
+              "param1": "Hello",
+              "param2": "World"
+            }
+            If you need to pass other types, please serialize them to a valid JSON object and pass it's
+            stringified representation to this method.
+        type: Object
+
+examples:
+  - title: Start a new activity
+    example: |
+        ``` js
+        const attributes = Ti.App.iOS.createActivityAttributes();
+        attributes.startActivity({
+          param1: "Hello",
+          param2: "World",
+          data: JSON.stringify({ intKey: 1, boolKey: true })
+        });
+        ```

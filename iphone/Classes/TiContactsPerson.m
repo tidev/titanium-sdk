@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -70,7 +70,7 @@ static NSDictionary *iOS9propertyKeys;
     return nil;
   }
 
-  // iOS9 contacts framework by default returns partial contact.
+  // iOS 9 contacts framework by default returns partial contact.
   // For ex: Email is returned nil when phone is selected and vice-versa.
   // So check and add.
   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
@@ -136,7 +136,7 @@ static NSDictionary *iOS9propertyKeys;
                               @"main", CNLabelPhoneNumberMain,
                               @"iPhone", CNLabelPhoneNumberiPhone,
                               @"homeFax", CNLabelPhoneNumberHomeFax,
-                              @"facebookProfile", [CNSocialProfileServiceFacebook lowercaseString], // Social Profile Labels, curiously the string constants in the system is in lower case, so small hack here until iOS9 Beta makes changes here.
+                              @"facebookProfile", [CNSocialProfileServiceFacebook lowercaseString], // Social Profile Labels, curiously the string constants in the system is in lower case, so small hack here until iOS 9 Beta makes changes here.
                               @"flickrProfile", [CNSocialProfileServiceFlickr lowercaseString],
                               @"gameCenterProfile", [CNSocialProfileServiceGameCenter lowercaseString],
                               @"linkedInProfile", [CNSocialProfileServiceLinkedIn lowercaseString],
@@ -198,7 +198,7 @@ static NSDictionary *iOS9propertyKeys;
         // For case where address is added via contact card import. This should be nonnull as according to apple docs but quick fix for now til apple fixes it.
         key = @"address";
       } else {
-        //must be a custom label
+        // must be a custom label
         key = [NSString stringWithString:genericProperty.label];
       }
     }
@@ -364,7 +364,7 @@ static NSDictionary *iOS9propertyKeys;
   }
   id property = nil;
 
-  // Birthday property managed seperately
+  // Birthday property managed separately
   if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey] && person.birthday != nil) {
     NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
     return [TiUtils UTCDateForDate:date];
@@ -586,18 +586,18 @@ static NSDictionary *iOS9propertyKeys;
     RELEASE_TO_NIL(newObjects)
   }
   // Why we do this ?
-  // In >= iOS9 contacts are immutable as well. So when a change happens we should create an associated CNSaveRequest.
+  // In >= iOS 9 contacts are immutable as well. So when a change happens we should create an associated CNSaveRequest.
   // By observing on this object the observer can update its CNSaveRequest accordingly.
   [self checkAndNotifyObserver];
 }
 
-// For iOS9 deleting contact
+// For iOS 9 deleting contact
 #ifndef __clang_analyzer__
 - (CNSaveRequest *)getSaveRequestForDeletion
 {
   CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
   [saveRequest deleteContact:person];
-  // Do not be tempted to autorelease here. https://github.com/tidev/titanium_mobile/pull/7464/files
+  // Do not be tempted to autorelease here. https://github.com/tidev/titanium-sdk/pull/7464/files
   // It will be released in ContactsModule.m line 315 in (void)save
   return saveRequest;
 }
@@ -606,7 +606,7 @@ static NSDictionary *iOS9propertyKeys;
 {
   CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
   [saveRequest addContact:person toContainerWithIdentifier:containerIdentifier];
-  // Do not be tempted to autorelease here. https://github.com/tidev/titanium_mobile/pull/7464/files
+  // Do not be tempted to autorelease here. https://github.com/tidev/titanium-sdk/pull/7464/files
   // It will be released in ContactsModule.m line 315 in (void)save
   return saveRequest;
 }
@@ -615,7 +615,7 @@ static NSDictionary *iOS9propertyKeys;
 {
   CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
   [saveRequest addMember:person toGroup:group];
-  // Do not be tempted to autorelease here. https://github.com/tidev/titanium_mobile/pull/7464/files
+  // Do not be tempted to autorelease here. https://github.com/tidev/titanium-sdk/pull/7464/files
   // It will be released in ContactsGroup.m line 288 in (void)add
   return saveRequest;
 }
@@ -624,7 +624,7 @@ static NSDictionary *iOS9propertyKeys;
 {
   CNSaveRequest *saveRequest = [[CNSaveRequest alloc] init];
   [saveRequest removeMember:person fromGroup:group];
-  // Do not be tempted to autorelease here. https://github.com/tidev/titanium_mobile/pull/7464/files
+  // Do not be tempted to autorelease here. https://github.com/tidev/titanium-sdk/pull/7464/files
   // It will be released in ContactsGroup.m line 330 in (void)remove
   return saveRequest;
 }

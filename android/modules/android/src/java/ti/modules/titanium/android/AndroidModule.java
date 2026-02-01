@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -364,6 +364,9 @@ public class AndroidModule extends KrollModule
 	public static final int FLAG_UPDATE_CURRENT = PendingIntent.FLAG_UPDATE_CURRENT;
 
 	@Kroll.constant
+	public static final int STATUS_BAR_LIGHT = 8192;
+
+	@Kroll.constant
 	public static final int RESULT_OK = Activity.RESULT_OK;
 	@Kroll.constant
 	public static final int RESULT_CANCELED = Activity.RESULT_CANCELED;
@@ -561,7 +564,7 @@ public class AndroidModule extends KrollModule
 				// Remove this listener from the runtime's static collection.
 				KrollRuntime.removeOnDisposingListener(this);
 
-				// Unregister all currently registerd broadcast receviers.
+				// Unregister all currently registered broadcast receivers.
 				// They can no longer be handled by the terminating JavaScript runtime.
 				while (registeredBroadcastReceiverProxyList.isEmpty() == false) {
 					unregisterBroadcastReceiver(registeredBroadcastReceiverProxyList.pollFirst());
@@ -658,22 +661,20 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public boolean hasPermission(Object permissionObject)
 	{
-		if (Build.VERSION.SDK_INT >= 23) {
-			ArrayList<String> permissions = new ArrayList<>();
-			if (permissionObject instanceof String) {
-				permissions.add((String) permissionObject);
-			} else if (permissionObject instanceof Object[]) {
-				for (Object permission : (Object[]) permissionObject) {
-					if (permission instanceof String) {
-						permissions.add((String) permission);
-					}
+		ArrayList<String> permissions = new ArrayList<>();
+		if (permissionObject instanceof String) {
+			permissions.add((String) permissionObject);
+		} else if (permissionObject instanceof Object[]) {
+			for (Object permission : (Object[]) permissionObject) {
+				if (permission instanceof String) {
+					permissions.add((String) permission);
 				}
 			}
-			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-			for (String permission : permissions) {
-				if (currentActivity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-					return false;
-				}
+		}
+		Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+		for (String permission : permissions) {
+			if (currentActivity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+				return false;
 			}
 		}
 		return true;
@@ -687,31 +688,29 @@ public class AndroidModule extends KrollModule
 		// to fire the callback when we resolve/reject?
 		final KrollObject callbackThisObject = getKrollObject();
 		return KrollPromise.create((promise) -> {
-			if (Build.VERSION.SDK_INT >= 23) {
-				List<String> permissions = new ArrayList<String>();
-				if (permissionObject instanceof String) {
-					permissions.add((String) permissionObject);
-				} else if (permissionObject instanceof Object[]) {
-					for (Object permission : (Object[]) permissionObject) {
-						if (permission instanceof String) {
-							permissions.add((String) permission);
-						}
+			List<String> permissions = new ArrayList<String>();
+			if (permissionObject instanceof String) {
+				permissions.add((String) permissionObject);
+			} else if (permissionObject instanceof Object[]) {
+				for (Object permission : (Object[]) permissionObject) {
+					if (permission instanceof String) {
+						permissions.add((String) permission);
 					}
 				}
-				Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
-				List<String> filteredPermissions = new ArrayList<String>();
-				for (String permission : permissions) {
-					if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
-						continue;
-					}
-					filteredPermissions.add(permission);
+			}
+			Activity currentActivity = TiApplication.getInstance().getCurrentActivity();
+			List<String> filteredPermissions = new ArrayList<String>();
+			for (String permission : permissions) {
+				if (currentActivity.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) {
+					continue;
 				}
-				if (filteredPermissions.size() > 0) {
-					TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback,
-						callbackThisObject, promise);
-					currentActivity.requestPermissions(filteredPermissions.toArray(new String[0]), REQUEST_CODE);
-					return;
-				}
+				filteredPermissions.add(permission);
+			}
+			if (filteredPermissions.size() > 0) {
+				TiBaseActivity.registerPermissionRequestCallback(REQUEST_CODE, permissionCallback,
+					callbackThisObject, promise);
+				currentActivity.requestPermissions(filteredPermissions.toArray(new String[0]), REQUEST_CODE);
+				return;
 			}
 			// FIXME: If we're not on API level 23+, shouldn't we reject/error?
 			KrollDict response = new KrollDict();
@@ -756,7 +755,14 @@ public class AndroidModule extends KrollModule
 				filter.addAction(TiConvert.toString(action));
 			}
 
-			TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+				&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+				int receiverFlags = Context.RECEIVER_EXPORTED;
+				TiApplication.getInstance().registerReceiver(
+					receiverProxy.getBroadcastReceiver(), filter, receiverFlags);
+			} else {
+				TiApplication.getInstance().registerReceiver(receiverProxy.getBroadcastReceiver(), filter);
+			}
 			if (this.registeredBroadcastReceiverProxyList.contains(receiverProxy) == false) {
 				this.registeredBroadcastReceiverProxyList.add(receiverProxy);
 			}

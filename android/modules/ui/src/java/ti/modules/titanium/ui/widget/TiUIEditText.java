@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -342,7 +342,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			}
 
 			// Wrap the given callback used to override context menu handling.
-			if ((Build.VERSION.SDK_INT >= 23) && (callback instanceof ActionMode.Callback2)) {
+			if (callback instanceof ActionMode.Callback2) {
 				callback = new ActionModeCallback2Wrapper((ActionMode.Callback2) callback, excludeMenuIdSet);
 			} else {
 				callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
@@ -443,7 +443,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 						// Request the parent to scroll if one of the following is true:
 						// - EditText is not scrollable. (ie: All text fits within the box.)
-						// - EditText is scrollabe, but cannot scroll any further in given direction.
+						// - EditText is scrollable, but cannot scroll any further in given direction.
 						if (!isScrollEnabled || !canScrollFurther) {
 							wasHandled = dispatchNestedPreScroll(deltaX, deltaY, null, null);
 							wasHandled |= dispatchNestedScroll(0, 0, deltaX, deltaY, null);

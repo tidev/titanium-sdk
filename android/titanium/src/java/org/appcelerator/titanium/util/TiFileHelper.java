@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -134,7 +134,7 @@ public class TiFileHelper
 			if (isTitaniumResource(path)) {
 				String[] parts = path.split(":");
 				if (parts.length != 3) {
-					Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + path);
+					Log.w(TAG, "Malformed Titanium resource url, resource not loaded: " + path);
 					return null;
 				}
 				@SuppressWarnings("unused")
@@ -230,7 +230,7 @@ public class TiFileHelper
 	/**
 	 * This is a wrapper method.
 	 * Refer to {@link #loadDrawable(String, boolean, boolean)} for more details.
-	 * @param path  url of the Drawable
+	 * @param path  URL of the Drawable
 	 * @param report  this is not being used.
 	 * @return a Drawable instance.
 	 */
@@ -336,7 +336,7 @@ public class TiFileHelper
 
 			String[] parts = s.split(":");
 			if (parts.length != 2) {
-				Log.w(TAG, "Malformed titanium resource url, resource not loaded: " + s);
+				Log.w(TAG, "Malformed Titanium resource url, resource not loaded: " + s);
 				return null;
 			}
 			String section = parts[0];
@@ -372,7 +372,7 @@ public class TiFileHelper
 			}
 
 		} else {
-			Log.w(TAG, "Ignoring non titanium resource string id: " + s);
+			Log.w(TAG, "Ignoring non Titanium resource string id: " + s);
 		}
 
 		return d;

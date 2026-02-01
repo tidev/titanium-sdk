@@ -226,6 +226,22 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
 
+  - name: editActions
+    summary: Specifies custom action items to be shown when when a list item is edited.
+    description: |
+        For more information see the "Editing Support" section of <Titanium.UI.TableView>.
+    type: Array<RowActionType>
+    since: 12.4.0
+    platforms: [iphone, ipad, macos]
+
+  - name: filterAlwaysInclude
+    summary: |
+      This row will always be visible when you filter your content.
+    type: Boolean
+    default: false
+    platforms: [android, iphone, ipad, macos]
+    since: "12.2.0"
+
   - name: font
     summary: Font to use for the row title.
     type: Font
@@ -266,7 +282,7 @@ properties:
         detailed information.
 
         On iOS, this is specifically used when clicking on the row navigates to the next table view
-        in a heirarchy of table views.
+        in a hierarchy of table views.
     type: Boolean
     default: false
 
@@ -389,6 +405,7 @@ properties:
     description: |
         Specify one of the constants from <Titanium.UI.SELECTION_STYLE_*>.
     type: Number
+    constants: Titanium.UI.SELECTION_STYLE_*
     platforms: [android, iphone, ipad, macos]
     since: {android: "10.1.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 
@@ -398,7 +415,7 @@ properties:
     type: String
 
   - name: accessibilityLabel
-    summary: A succint label associated with the table row for the device's accessibility service.
+    summary: A succinct label associated with the table row for the device's accessibility service.
     description: |
         See <Titanium.UI.View.accessibilityLabel> description.
     since: "3.0.0"

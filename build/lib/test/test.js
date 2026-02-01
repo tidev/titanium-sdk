@@ -1,22 +1,25 @@
 /**
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
-'use strict';
 
-const path = require('path');
-const fs = require('fs-extra');
-const colors = require('colors'); // eslint-disable-line no-unused-vars
-const ejs = require('ejs');
-const StreamSplitter = require('stream-splitter');
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
-const titanium = require.resolve('titanium');
-const { promisify } = require('util');
-const stripAnsi = require('strip-ansi');
-const exec = promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const glob = promisify(require('glob'));
-const utils = require('../utils');
+import path from 'node:path';
+import fs from 'fs-extra';
+import 'colors';
+import ejs from 'ejs';
+import StreamSplitter from 'stream-splitter';
+import child_process, { spawn } from 'node:child_process';
+import { promisify } from 'node:util';
+import stripAnsi from 'strip-ansi';
+import { glob } from 'glob';
+import { unzip } from '../utils.js';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const titanium = path.resolve(__dirname, '..', '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
+
+const exec = promisify(child_process.exec);
 
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
@@ -42,6 +45,8 @@ const OS_VERSION_PREFIX = 'OS_VERSION: ';
 // Sniff if we're on Travis/Jenkins
 const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
 
+let showFailedOnly = false;
+
 /**
  * Generates a test app, then runs the app for each platform with our
  * test suite. Outputs the results in a JUnit test report,
@@ -54,16 +59,20 @@ const isCI = !!(process.env.BUILD_NUMBER || process.env.CI || false);
  * @param {string} [deviceFamily] 'ipad' || 'iphone'
  * @param {string} [junitPrefix] A prefix for the junit filename
  * @param {string} [snapshotDir='../../../tests/Resources'] directory to place generated snapshot images
+ * @param {string} [failedOnly] Show only failed tests
+ * @param {string} [sdkVersion] The SDK version to use
+ * @param {string} [logLevel] The log level
  * @returns {Promise<object>}
  */
-async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources')) {
+export async function test(platforms, target, deviceId, deployType, deviceFamily, junitPrefix, snapshotDir = path.join(__dirname, '../../../tests/Resources'), failedOnly, sdkVersion, logLevel) {
+	showFailedOnly = failedOnly;
 	const snapshotPromises = []; // place to stick commands we've fired off to pull snapshot images
-	console.log(platforms);
+
 	// delete old test app (if does not exist, this will no-op)
 	await fs.remove(PROJECT_DIR);
 
 	console.log('Generating project');
-	await generateProject(platforms);
+	await generateProject(platforms, sdkVersion);
 
 	await copyMochaAssets();
 	await addTiAppProperties();
@@ -72,7 +81,7 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, junit
 	try {
 		const results = {};
 		for (const platform of platforms) {
-			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises);
+			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion, logLevel);
 			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
@@ -106,8 +115,9 @@ async function test(platforms, target, deviceId, deployType, deviceFamily, junit
 /**
  * Runs `titanium create` to generate a project for the specific platforms.
  * @param  {string[]} platforms array of platform ids to create a project targeted for
+ * @param {string} sdkVersion The SDK version to use
  */
-async function generateProject(platforms) {
+async function generateProject(platforms, sdkVersion) {
 	return new Promise((resolve, reject) => {
 		// NOTE: Cannot use fork, because the titanium CLI does not call process.exit()!
 		const prc = spawn(process.execPath, [ titanium, 'create', '--force',
@@ -115,8 +125,9 @@ async function generateProject(platforms) {
 			'--platforms', platforms.join(','),
 			'--name', PROJECT_NAME,
 			'--id', APP_ID,
-			'--url', 'http://www.appcelerator.com',
+			'--url', 'https://titaniumsdk.com',
 			'--workspace-dir', path.dirname(PROJECT_DIR),
+			'--sdk', sdkVersion,
 			'--no-banner',
 			'--no-prompt' ], { stdio: 'inherit' });
 		prc.on('error', reject);
@@ -155,7 +166,7 @@ async function copyMochaAssets() {
 			const modulesSourceDir = path.join(SOURCE_DIR, 'modules-source');
 			const zipPaths = await glob('*/*/dist/*.zip', { cwd: modulesSourceDir });
 			for (const nextZipPath of zipPaths) {
-				await utils.unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
+				await unzip(path.join(modulesSourceDir, nextZipPath), PROJECT_DIR);
 			}
 		})(),
 		// platform
@@ -217,7 +228,7 @@ async function addTiAppProperties() {
 	const tiapp_xml_string = await fs.readFile(tiapp_xml, 'utf8');
 	const content = [];
 	const insertManifest = () => {
-		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark">');
+		content.push('\t\t\t<application android:theme="@style/Theme.Titanium.Dark"  android:icon="@mipmap/ic_launcher">');
 		content.push('\t\t\t\t<meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyCN_aC6RMaynan8YzsO1HNHbhsr9ZADDlY"/>');
 		content.push('\t\t\t\t<uses-library android:name="org.apache.http.legacy" android:required="false" />');
 		content.push(`\t\t\t\t<activity android:name=".${PROJECT_NAME.charAt(0).toUpperCase() + PROJECT_NAME.slice(1).toLowerCase()}Activity" android:exported="true">`);
@@ -287,22 +298,19 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t\t\t<key>UIApplicationShortcutItemType</key>');
 		content.push('\t\t\t\t\t\t<string>static_shortcut1</string>');
 		content.push('\t\t\t\t\t</dict>');
-		content.push('\t\t\t\t</array');
+		content.push('\t\t\t\t</array>');
 	};
 
 	// Not so smart but this should work...
 	tiapp_xml_string.split(/\r?\n/).forEach(line => {
-		// replace generated guid with appc analytics app guid
-		if (line.indexOf('\t<guid>') >= 0) {
-			line = '\t<guid>1c4b748c-7c16-4df1-bd5c-4ffe6240286e</guid>';
+		if (line.indexOf('<application android:icon="@mipmap/ic_launcher"/>') > 0) {
+			line = '';
 		}
 
 		content.push(line);
 		if (line.indexOf('<ios>') >= 0) {
-			// Force using the JScore on the emulator, not TiCore!
-			content.push('\t\t<use-jscore-framework>true</use-jscore-framework>');
-			// force minimum ios sdk version of 12.0
-			content.push('\t\t<min-ios-ver>12.0</min-ios-ver>');
+			// force minimum ios sdk version of 13.0
+			content.push('\t\t<min-ios-ver>13.0</min-ios-ver>');
 		} else if (line.indexOf('<dict>') >= 0) {
 			// Insert iOS plist settings after the first <dict> element.
 			if (insertPlistSettings) {
@@ -313,7 +321,7 @@ async function addTiAppProperties() {
 		} else if (line.indexOf('<use-app-thinning>') >= 0) {
 			content.pop();
 			content.push('\t\t<use-app-thinning>false</use-app-thinning>');
-		// Grab contents of modules/modules.xml to inject as moduel listing for tiapp.xml
+		// Grab contents of modules/modules.xml to inject as module listing for tiapp.xml
 		// This allows PR to override
 		} else if (line.indexOf('<modules>') >= 0) {
 			// remove open tag
@@ -368,9 +376,11 @@ async function addTiAppProperties() {
  * @param {string} [deviceFamily=undefined] 'ipad' || 'iphone' || undefined
  * @param {string} snapshotDir directory to place generated images
  * @param {Promise[]} snapshotPromises array to hold promises for grabbing generated images
+ * @param {string} [sdkVersion] The SDK version to use
+ * @param {string} [logLevel] The log level
  * @returns {Promise<object>}
  */
-async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises) {
+async function runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion, logLevel) {
 
 	if (target === undefined) {
 		switch (platform) {
@@ -388,7 +398,8 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 		'--project-dir', PROJECT_DIR,
 		'--platform', platform,
 		'--target', target,
-		'--log-level', 'info'
+		'--sdk', sdkVersion,
+		'--log-level', logLevel
 	];
 
 	if (deployType) {
@@ -421,7 +432,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 	args.push('--no-prompt');
 	args.push('--color');
 	const prc = spawn('node', args, { cwd: PROJECT_DIR });
-	return handleBuild(prc, target, snapshotDir, snapshotPromises);
+	return handleBuild(prc, target, snapshotDir, snapshotPromises, sdkVersion);
 }
 
 async function killiOSSimulator() {
@@ -768,7 +779,7 @@ class DeviceTestDetails {
  * @param {Promise[]} snapshotPromises array to hold promises for grabbign generated images
  * @returns {Promise<object>}
  */
-async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
+export async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	return new Promise((resolve, reject) => {
 		const deviceMap = new Map();
 		let started = false;
@@ -961,7 +972,7 @@ async function outputJUnitXML(jsonResults, prefix) {
 /**
  * @param {object[]} results test results
  */
-async function outputResults(results) {
+export async function outputResults(results) {
 	const suites = {};
 
 	// start
@@ -1004,7 +1015,9 @@ async function outputResults(results) {
 				--indents;
 			} else {
 				passes++;
-				console.log(indent() + '  ✓'.green + ' %s '.gray, test.title);
+				if (!showFailedOnly) {
+					console.log(indent() + '  ✓'.green + ' %s '.gray, test.title);
+				}
 			}
 		});
 		--indents;
@@ -1017,8 +1030,3 @@ async function outputResults(results) {
 	const total = skipped + failures + passes;
 	console.log('%d Total Tests: %d passed, %d failed, %d skipped.', total, passes, failures, skipped);
 }
-
-// public API
-exports.test = test;
-exports.outputResults = outputResults;
-exports.handleBuild = handleBuild;

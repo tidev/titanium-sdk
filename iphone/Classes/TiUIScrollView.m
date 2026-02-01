@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -15,14 +15,14 @@
 
 - (void)setTouchHandler:(TiUIView *)handler
 {
-  //Assign only. No retain
+  // Assign only. No retain
   touchHandler = handler;
 }
 
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
 {
-  //If the content view is of type TiUIView touch events will automatically propagate
-  //If it is not of type TiUIView we will fire touch events with ourself as source
+  // If the content view is of type TiUIView touch events will automatically propagate
+  // If it is not of type TiUIView we will fire touch events with ourself as source
   if ([view isKindOfClass:[TiUIView class]]) {
     touchedContentView = view;
   } else {
@@ -33,8 +33,8 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  //When userInteractionEnabled is false we do nothing since touch events are automatically
-  //propagated. If it is dragging,tracking or zooming do not do anything.
+  // When userInteractionEnabled is false we do nothing since touch events are automatically
+  // propagated. If it is dragging,tracking or zooming do not do anything.
   if (!self.dragging && !self.zooming && !self.tracking
       && self.userInteractionEnabled && (touchedContentView == nil)) {
     [touchHandler processTouchesBegan:touches withEvent:event];
@@ -305,7 +305,7 @@
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
-  //Treat this as a size change
+  // Treat this as a size change
   [(TiViewProxy *)[self proxy] willChangeSize];
   [super frameSizeChanged:frame bounds:visibleBounds];
 }
@@ -313,9 +313,9 @@
 - (void)scrollToBottom
 {
   /*
-     * Calculate the bottom height & width and, sets the offset from the
-     * content view’s origin that corresponds to the receiver’s origin.
-     */
+   * Calculate the bottom height & width and, sets the offset from the
+   * content view’s origin that corresponds to the receiver’s origin.
+   */
   UIScrollView *currScrollView = [self scrollView];
 
   CGSize svContentSize = currScrollView.contentSize;
@@ -427,12 +427,58 @@
   [[self scrollView] setContentOffset:newOffset animated:animated];
 }
 
+#if IS_SDK_IOS_26
+- (void)setEdgeEffect_:(id)value
+{
+  ENSURE_SINGLE_ARG(value, NSDictionary);
+
+  NSNumber *topEdgeEffect = value[@"top"];
+  NSNumber *rightEdgeEffect = value[@"right"];
+  NSNumber *bottomEdgeEffect = value[@"bottom"];
+  NSNumber *leftEdgeEffect = value[@"left"];
+
+  if (![TiUtils isIOSVersionOrGreater:@"26.0"]) {
+    NSLog(@"[ERROR] The \"edgeEffect\" API is only available on iOS 26+");
+    return;
+  }
+
+  if (topEdgeEffect != nil) {
+    self.scrollView.topEdgeEffect.style = [self formatEdgeEffectStyle:topEdgeEffect];
+  }
+
+  if (rightEdgeEffect != nil) {
+    self.scrollView.rightEdgeEffect.style = [self formatEdgeEffectStyle:rightEdgeEffect];
+  }
+
+  if (bottomEdgeEffect != nil) {
+    self.scrollView.bottomEdgeEffect.style = [self formatEdgeEffectStyle:bottomEdgeEffect];
+  }
+
+  if (leftEdgeEffect != nil) {
+    self.scrollView.leftEdgeEffect.style = [self formatEdgeEffectStyle:leftEdgeEffect];
+  }
+}
+
+- (UIScrollEdgeEffectStyle *)formatEdgeEffectStyle:(NSNumber *)proxyEffectStyle
+{
+  switch (proxyEffectStyle.intValue) {
+  case 0:
+  default:
+    return UIScrollEdgeEffectStyle.automaticStyle;
+  case 1:
+    return UIScrollEdgeEffectStyle.hardStyle;
+  case 2:
+    return UIScrollEdgeEffectStyle.softStyle;
+  }
+}
+#endif
+
 - (void)setZoomScale_:(id)value withObject:(id)property
 {
   CGFloat scale = [TiUtils floatValue:value def:1.0];
   BOOL animated = [TiUtils boolValue:@"animated" properties:property def:NO];
   [[self scrollView] setZoomScale:scale animated:animated];
-  scale = [[self scrollView] zoomScale]; //Why are we doing this? Because of minZoomScale or maxZoomScale.
+  scale = [[self scrollView] zoomScale]; // Why are we doing this? Because of minZoomScale or maxZoomScale.
   [[self proxy] replaceValue:NUMFLOAT(scale) forKey:@"zoomScale" notification:NO];
   if ([self.proxy _hasListeners:@"scale"]) {
     [self.proxy fireEvent:@"scale"
@@ -523,7 +569,7 @@
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView_ willDecelerate:(BOOL)decelerate
 {
-  //Tells the delegate when dragging ended in the scroll view.
+  // Tells the delegate when dragging ended in the scroll view.
   [(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndDragging:scrollView_ willDecelerate:decelerate];
 }
 

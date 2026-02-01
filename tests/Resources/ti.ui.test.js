@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -419,7 +419,7 @@ describe('Titanium.UI', function () {
 			const suffix = OS_IOS ? `_${Ti.UI.semanticColorType}` : '';
 			const view = Ti.UI.createView({
 				backgroundColor,
-				// NOTE: use a number divisble by 1, 2, 3 or 4 because ios scale may be one of those numbers!
+				// NOTE: use a number divisible by 1, 2, 3 or 4 because iOS scale may be one of those numbers!
 				// And bug in TiBlob on iOS reports width/height in pts, not px
 				width: '12px',
 				height: '12px'

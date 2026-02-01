@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -112,7 +112,7 @@
 {
   // The view hierarchy of the movie player controller's view is subject to change,
   // and traversing it is dangerous. If we received a touch which isn't on a TiUIView,
-  // assume it falls into the movie player view hiearchy; this matches previous
+  // assume it falls into the movie player view hierarchy; this matches previous
   // behavior as well.
 
   UITouch *touch = [[event allTouches] anyObject];

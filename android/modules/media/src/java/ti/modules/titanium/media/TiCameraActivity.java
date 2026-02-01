@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -20,6 +20,7 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiContentFile;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.view.TiUIView;
 
 import android.Manifest;
 import android.app.Activity;
@@ -246,14 +247,23 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		cameraActivity = this;
 		previewLayout.addView(preview,
 							  new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-		View overlayView = localOverlayProxy.getOrCreateView().getNativeView();
-		ViewGroup parent = (ViewGroup) overlayView.getParent();
-		// Detach from the parent if applicable
-		if (parent != null) {
-			parent.removeView(overlayView);
+		if (localOverlayProxy != null) {
+			TiUIView localView = localOverlayProxy.getOrCreateView();
+			if (localView != null) {
+				View overlayView = localView.getNativeView();
+				ViewGroup parent = (ViewGroup) overlayView.getParent();
+				// Detach from the parent if applicable
+				if (parent != null) {
+					parent.removeView(overlayView);
+				}
+				cameraLayout.addView(overlayView,
+					new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+			} else {
+				Log.e(TAG, "Overlay view is null");
+			}
+		} else {
+			Log.e(TAG, "Overlay is null");
 		}
-		cameraLayout.addView(overlayView,
-							 new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 	}
 
 	public static void setFlashMode(int cameraFlashMode)
@@ -281,16 +291,27 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		super.onPause();
 
-		// Stop video capture if recording.
-		stopVideoCapture();
-
-		// Stop the camera preview so that other apps can use the camera.
-		stopPreview();
-		previewLayout.removeView(preview);
-		cameraLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
 		try {
-			camera.release();
-			camera = null;
+			// Stop video capture if recording.
+			stopVideoCapture();
+
+			// Stop the camera preview so that other apps can use the camera.
+			stopPreview();
+			previewLayout.removeView(preview);
+
+			if (localOverlayProxy != null) {
+				TiUIView overlayView = localOverlayProxy.peekView();
+				if (overlayView != null) {
+					View overlayNativeView = overlayView.getNativeView();
+					if (overlayNativeView != null) {
+						cameraLayout.removeView(overlayNativeView);
+					}
+				}
+			}
+			if (camera != null) {
+				camera.release();
+				camera = null;
+			}
 		} catch (Throwable t) {
 			Log.d(TAG, "Camera is not open, unable to release", Log.DEBUG_MODE);
 		}
@@ -607,7 +628,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public void finish()
 	{
 		// For API 10 and above, the whole activity gets destroyed during an orientation change. We only want to set
-		// overlayProxy to null when we call finish, i.e. when we hide the camera or take a picture. By doing this, the
+		// overlayProxy to null when we call finish, e.g. when we hide the camera or take a picture. By doing this, the
 		// overlay proxy will be available during the recreation of the activity during an orientation change.
 		overlayProxy = null;
 		super.finish();
@@ -729,6 +750,18 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 									}
 								} else {
 									Log.w(TAG, "Unable to focus.");
+									if (errorCallback != null) {
+										KrollDict response = new KrollDict();
+										response.putCodeAndMessage(MediaModule.NO_FOCUS, "Couldn't focus");
+										errorCallback.callAsync(callbackContext, response);
+									}
+									try {
+										camera.cancelAutoFocus();
+										camera.autoFocus(null);
+									} catch (Exception e) {
+										Log.w(TAG, "Failed to cancel auto focus: " + e.toString());
+									}
+									takingPicture = false;
 								}
 							}
 						}

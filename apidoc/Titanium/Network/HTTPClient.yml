@@ -118,7 +118,7 @@ description: |
       </dict>
     </dict>
     ```
-    Titanium will not fallback with a lower TLS version if the `tlsVersion` property in android or `NSExceptionMinimumTLSVersion` in iOS, is set.
+    Titanium will not fallback with a lower TLS version if the `tlsVersion` property in Android or `NSExceptionMinimumTLSVersion` in iOS, is set.
     Setting the TLS version saves time from re-attempting connections with lower TLS versions and
     provides added security by denying attempts to use lower TLS versions.
 
@@ -285,7 +285,7 @@ properties:
   - name: DONE
     summary: Ready state constant indicating that the request is complete.
     description: |
-        In this ready state, either the data has been transferred, or an error has occured.
+        In this ready state, either the data has been transferred, or an error has occurred.
 
         See also [readyState](Titanium.Network.HTTPClient.readyState).
     type: Number
@@ -412,9 +412,7 @@ properties:
     summary: Function to be called upon a error response.
     description: |
         Must be set before calling `open`.
-
-        The callback's argument is an object with a single property, `error`, containing the error
-        string.
+        The `code` property of the callback's argument is -1001 for timed-out requests.
     type: Callback<FailureResponse>
 
   - name: onload
@@ -493,6 +491,13 @@ properties:
     type: String
     permission: read-only
 
+  - name: responseDictionary
+    summary: Response as JSON object.
+    description: Set to `null` if the content type returned by the server was not a JSON or if the content could
+        not be parsed.
+    type: String
+    permission: read-only
+
   - name: responseXML
     summary: Response object as an XML DOM Document object.
     description:
@@ -554,7 +559,6 @@ properties:
     default: false
     type: Boolean
     platforms: [iphone, ipad]
-    osver: {ios: {min: "11.0"}}
     since: '9.2.0'
 
   - name: username
@@ -603,7 +607,7 @@ properties:
 
         If `cache` is `false`, any request on this HTTP client will result in a new HTTP request.
 
-        This propery must be set before `open` is called.
+        This property must be set before `open` is called.
     type: Boolean
     since: "2.0.0"
     default: false

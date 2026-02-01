@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,6 +23,7 @@ import java.util.zip.ZipFile;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.util.Log;
 
 public class KrollAssetHelper
@@ -223,7 +224,11 @@ public class KrollAssetHelper
 	{
 		try {
 			FileInputStream in = new FileInputStream(path);
-			return readInputStream(in).toString(StandardCharsets.UTF_8.name());
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+				return readInputStream(in).toString(StandardCharsets.UTF_8);
+			} else {
+				return null;
+			}
 		} catch (IOException e) {
 			Log.e(TAG, "Could not read: '" + path + "'", e);
 		}

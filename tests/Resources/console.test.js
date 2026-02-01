@@ -1,12 +1,11 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 let Console;
@@ -18,14 +17,12 @@ describe('console', function () {
 	});
 
 	it('can be required, exposes global console', () => {
-		// eslint-disable-next-line node/prefer-global/console
 		const requiredConsole = require('console');
 		should(requiredConsole).be.an.Object();
 		should(requiredConsole).eql(global.console);
 	});
 
 	it('exposes constructor as property off global console', () => {
-		// eslint-disable-next-line node/prefer-global/console
 		const requiredConsole = require('console');
 		should(global.console.Console).be.a.Function();
 		should(requiredConsole.Console).be.a.Function();
@@ -164,7 +161,7 @@ describe('console', function () {
 		it('increases indent by 2 spaces', () => {
 			// FIXME: We can't just hijack console.log, because that's where we handle the indents!
 			// Maybe we need to add the constructor stuff so we can create a console hooked to our own "stream"?
-			// Note that we don't have a great mapping to stdout/stderr, because android has actual log priorities that map to the Ti.API/console methods
+			// Note that we don't have a great mapping to stdout/stderr, because Android has actual log priorities that map to the Ti.API/console methods
 			// Whereas Node assumes a "dumb" stdout without specific priorities
 			// instead it treats log/debug/info/dirxml as -> stdout, warn/error as -> stderr
 			const logs = [];
@@ -337,7 +334,7 @@ describe('console', function () {
 
 		// TODO: How do we test if a stream throws an async error?
 
-		it('doesnt handle sync errors on stdout write if ignoreErrors is false', () => {
+		it('doesn\'t handle sync errors on stdout write if ignoreErrors is false', () => {
 			const events = require('events');
 			const stdout = new events.EventEmitter();
 			stdout.write = function () {

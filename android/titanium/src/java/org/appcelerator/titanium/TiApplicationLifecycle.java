@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -9,8 +9,7 @@ package org.appcelerator.titanium;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
-
-import com.appcelerator.aps.APSAnalytics;
+import android.view.View;
 
 import org.appcelerator.kroll.KrollModule;
 
@@ -26,6 +25,25 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 	@Override
 	public void onActivityCreated(Activity activity, Bundle savedInstanceState)
 	{
+		// Apply accessibility on the root view of this activity.
+		View view = activity.getWindow() != null ? activity.getWindow().getDecorView() : null;
+		if (view != null) {
+			boolean accessibilityHidden = false;
+
+			if (activity.getIntent() != null) {
+				accessibilityHidden = activity.getIntent().getBooleanExtra(TiC.PROPERTY_ACCESSIBILITY_HIDDEN, false);
+			} else if (savedInstanceState != null) {
+				// If activity is re-created by OS in any circumstances.
+				accessibilityHidden = savedInstanceState.getBoolean(TiC.PROPERTY_ACCESSIBILITY_HIDDEN, false);
+			}
+
+			if (accessibilityHidden) {
+				view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+			} else {
+				view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+			}
+		}
+
 		// Reset "wasPaused" state when creating the 1st activity in a UI task.
 		// Needed to detect if the app is resuming after being paused.
 		if (this.existingActivityCount <= 0) {
@@ -50,11 +68,6 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 				}
 				appModule.fireEvent(TiC.EVENT_RESUMED, null);
 			}
-
-			// Post analytics for this event, if enabled.
-			if (this.tiApp.isAnalyticsEnabled()) {
-				APSAnalytics.getInstance().sendAppForegroundEvent();
-			}
 		}
 
 		// Increment number of "started" activities. These are activities that are currently in the foreground.
@@ -75,11 +88,6 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 			if (appModule != null) {
 				appModule.fireEvent(TiC.EVENT_PAUSE, null);
 				appModule.fireEvent(TiC.EVENT_PAUSED, null);
-			}
-
-			// Post analytics for this event, if enabled.
-			if (this.tiApp.isAnalyticsEnabled()) {
-				APSAnalytics.getInstance().sendAppBackgroundEvent();
 			}
 		}
 

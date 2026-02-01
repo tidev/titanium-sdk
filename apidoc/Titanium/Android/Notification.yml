@@ -71,7 +71,7 @@ examples:
             action: Ti.Android.ACTION_MAIN,
             // Substitute the correct class name for your application
             className: 'com.appcelerator.notificationsample.NotificationsampleActivity',
-            // Substitue the correct package name for your application
+            // Substitute the correct package name for your application
             packageName: 'com.appcelerator.notificationsample'
         });
         intent.flags |= Ti.Android.FLAG_ACTIVITY_NEW_TASK;
@@ -153,7 +153,7 @@ methods:
         type: Number
 
       - name: progress
-        summary: Defines the progress value, between 0 and max. 
+        summary: Defines the progress value, between 0 and max.
         type: Number
 
       - name: indeterminate
@@ -171,7 +171,7 @@ methods:
         type: [Number, String]
 
       - name: title
-        summary: Title of the action button 
+        summary: Title of the action button
         type: String
 
       - name: intent
@@ -197,7 +197,6 @@ properties:
          to make ranking and filtering decisions. This property only works for devices running Android 5.0 (API 21)
          and greater.
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: channelId
     summary: The channel id specified for the notification.
@@ -335,18 +334,17 @@ properties:
         Android resources by ID.
     type: [Number, String]
     since: "4.2.0"
- 
+
   - name: color
     summary: Accent color used behind icon.
     description: |
-        Accent color of the circle used behind icon. The Icon will be stenciled in white on top of a 
-        cicle of the color set. For information about color values, see the "Colors" section of <Titanium.UI>.
-        
+        Accent color of the circle used behind icon. The Icon will be stenciled in white on top of a
+        circle of the color set. For information about color values, see the "Colors" section of <Titanium.UI>.
+
         See Android Reference for the [color](https://developer.android.com/reference/android/app/Notification.html#color) property.
     type: String
     since: "7.0.0"
-    osver: {android: {min: "5.0"}}
-    
+
   - name: ledARGB
     summary: The color for the LED to blink.
     type: Number
@@ -371,7 +369,6 @@ properties:
     constants: Titanium.Android.PRIORITY_*
     default: undefined but behaves as Titanium.Android.PRIORITY_DEFAULT
     since: "3.6.0"
-    osver: {android: {min: "4.1"}}
 
   - name: sound
     summary: A URL to the sound to play.
@@ -462,21 +459,20 @@ properties:
     type: String
 
   - name: visibility
-    summary: Allows user to conceal private information of the notification on the lockscreen.
+    summary: Allows user to conceal private information of the notification on the lock screen.
     description: |
          This property only works on devices running Android 5.0 (API 21) and greater.
     type: Number
     constants: Titanium.Android.VISIBILITY_*
     default: undefined but behaves as Titanium.Android.VISIBILITY_PUBLIC
     since: "3.6.0"
-    osver: {android: {min: "5.0"}}
 
   - name: wakeLock
     summary: |
         Will wake up the device for the given time (in milliseconds) when the notification is shown.
         The application needs to also set the `android.permission.WAKE_LOCK` permission
         in the Android manifest section of the `tiapp.xml` file.
-        
+
         ``` xml
         <ti:app>
             <android>
@@ -489,7 +485,7 @@ properties:
     type: wakeLockOptions
     default: 0
     since: "6.2.0"
-    
+
   - name: when
     summary: The timestamp for the notification (defaults to the current time).
     description: |

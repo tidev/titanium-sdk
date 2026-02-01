@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -51,8 +51,7 @@ public class KrollDict extends HashMap<String, Object>
 			if (value instanceof JSONObject) {
 				return new KrollDict((JSONObject) value);
 
-			} else if (value instanceof JSONArray) {
-				JSONArray array = (JSONArray) value;
+			} else if (value instanceof JSONArray array) {
 				Object[] values = new Object[array.length()];
 				for (int i = 0; i < array.length(); i++) {
 					values[i] = fromJSON(array.get(i));

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -15,7 +15,7 @@
 
 /*
  *	Since JSStringRefs are not tied to any particular context, and are
- *	immutable, they are threadsafe and more importantly, ones that are in
+ *	immutable, they are thread-safe and more importantly, ones that are in
  *	constant use never need to garbage collected, but can be reused.
  */
 
@@ -128,9 +128,9 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
     // No private object, so this may be:
     // - a standard JS object (Array, Date, Function, Object)
     // - A JS object wrapping a new-style obj-c proxy (JSExport)
-    // - A JS object wrapper for hyperloop holding a $native property that is the native proxy
+    // - A JS object wrapper for Hyperloop holding a $native property that is the native proxy
     if (privateObject == nil) {
-      // First, check for special hyperloop $native property
+      // First, check for special Hyperloop $native property
       JSStringRef jsString = JSStringCreateWithUTF8CString("$native");
       JSValueRef jsValue = JSObjectGetProperty(jsContext, obj, jsString, NULL);
       JSStringRelease(jsString);
@@ -158,7 +158,7 @@ NSObject *TiBindingTiValueToNSObject(JSContextRef jsContext, JSValueRef objRef)
       for (uint c = 0; c < len; ++c) {
         JSValueRef valueRef = JSObjectGetPropertyAtIndex(jsContext, obj, c, NULL);
         id value = TiBindingTiValueToNSObject(jsContext, valueRef);
-        //TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
+        // TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
         if (value == nil) {
           [resultArray addObject:[NSNull null]];
         } else {
@@ -295,7 +295,8 @@ JSValueRef TiBindingTiValueFromNSObject(JSContextRef jsContext, NSObject *obj)
 
     // Add "nativeStack" key
     NSArray<NSString *> *nativeStack = [(NSException *)obj callStackSymbols];
-    NSInteger startIndex = 0;
+    NSInteger startIndex = 0; // Starting at index = 4 to not include the script-error API's
+
     if (nativeStack == nil) { // the exception was created, but never thrown, so grab the current stack frames
       nativeStack = [NSThread callStackSymbols]; // this happens when we construct an exception manually in our ENSURE macros for obj-c proxies
       startIndex = 2; // drop ObjcProxy.throwException and this method from frames

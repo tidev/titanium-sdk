@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -19,7 +19,9 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.media.PlaybackParams;
 import android.net.Uri;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -135,6 +137,9 @@ public class TiUIVideoView
 		if (d.containsKey(TiC.PROPERTY_REPEAT_MODE)) {
 			videoView.setRepeatMode(TiConvert.toInt(d, TiC.PROPERTY_REPEAT_MODE));
 		}
+		if (d.containsKey("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(d, "autoHide"));
+		}
 	}
 
 	@Override
@@ -161,6 +166,8 @@ public class TiUIVideoView
 			videoView.setRepeatMode(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_SHOWS_CONTROLS)) {
 			setMediaControlStyle(getPlayerProxy().getMediaControlStyle());
+		} else if (key.equals("autoHide")) {
+			videoView.setAutoHide(TiConvert.toBoolean(newValue));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -258,7 +265,7 @@ public class TiUIVideoView
 			// Url not loaded yet. Do that first.
 			Object urlObj = proxy.getProperty(TiC.PROPERTY_URL);
 			if (urlObj == null) {
-				Log.w(TAG, "play() ignored, no url set.");
+				Log.w(TAG, "play() ignored, no URL set.");
 				return;
 			}
 			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
@@ -325,6 +332,13 @@ public class TiUIVideoView
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
+
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SPEED) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			PlaybackParams myPlayBackParams = new PlaybackParams();
+			myPlayBackParams.setSpeed(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_SPEED)));
+			mp.setPlaybackParams(myPlayBackParams);
+		}
+
 		getPlayerProxy().onPlaybackReady(mp.getDuration());
 	}
 

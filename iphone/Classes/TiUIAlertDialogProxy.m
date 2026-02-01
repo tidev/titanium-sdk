@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -115,6 +115,11 @@ static BOOL alertShowing = NO;
     [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
   }
 
+  if ([TiUtils isIOSVersionOrGreater:@"16.0"]) {
+    UIAlertControllerSeverity severity = [TiUtils intValue:[self valueForKey:@"severity"] def:UIAlertControllerSeverityDefault];
+    alertController.severity = severity;
+  }
+
   // Configure the Buttons
   for (id btn in buttonNames) {
     NSString *btnName = [TiUtils stringValue:btn];
@@ -144,7 +149,7 @@ static BOOL alertShowing = NO;
     [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
   }
 
-  //Configure the TextFields
+  // Configure the TextFields
   if ((style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput)) {
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
       textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);

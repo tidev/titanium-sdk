@@ -1,16 +1,17 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
+import { handleBuild } from './test.js';
+import { expect } from 'chai';
+import fs from 'fs-extra';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const { handleBuild } = require('./test');
-const expect = require('chai').expect;
-const fs = require('fs-extra');
-const path = require('path');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('test.handleBuild', function () {
 	this.slow(750);

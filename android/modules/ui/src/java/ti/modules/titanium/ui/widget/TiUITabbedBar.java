@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -8,10 +8,13 @@ package ti.modules.titanium.ui.widget;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
 import androidx.annotation.ColorInt;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.tabs.TabLayout;
@@ -21,6 +24,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
@@ -102,7 +106,39 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		// Note: By default it uses a gray ripple for unselected tabs which doesn't match Google's own apps.
 		int colorPrimary = getTabRippleColorFrom(this.tabLayout.getContext());
 		this.tabLayout.setTabRippleColor(TiUIAbstractTabGroup.createRippleColorStateListFrom(colorPrimary));
+		if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_TEXT_COLOR)
+			|| getProxy().hasPropertyAndNotNull(TiC.PROPERTY_TEXT_COLOR)) {
+			// get default colors
+			int selectedTextColor = activity.getResources().getColor(R.color.ti_light_primary);
+			int textColor = tabLayout.getTabTextColors().getDefaultColor();
+			Configuration config;
 
+			// if night mode get dark default color
+			if (activity != null) {
+				config = activity.getResources().getConfiguration();
+			} else {
+				config = TiApplication.getInstance().getResources().getConfiguration();
+			}
+			if ((config.uiMode & Configuration.UI_MODE_NIGHT_YES) != 0) {
+				selectedTextColor = activity.getResources().getColor(R.color.ti_dark_primary);
+			}
+
+			// assign new colors
+			if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_TEXT_COLOR)) {
+				textColor = TiConvert.toColor(getProxy().getProperties().getString(TiC.PROPERTY_TEXT_COLOR), activity);
+			}
+			if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_TEXT_COLOR)) {
+				selectedTextColor =
+					TiConvert.toColor(getProxy().getProperties().getString(TiC.PROPERTY_SELECTED_TEXT_COLOR), activity);
+			} else if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_TEXT_COLOR)) {
+				// no selected color specified but a text color -> use that
+				selectedTextColor = textColor;
+			}
+			this.tabLayout.setTabTextColors(textColor, selectedTextColor);
+		}
+		if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+			setTintColor(this.tabLayout.getTabAt(0), TiC.PROPERTY_ACTIVE_TINT_COLOR);
+		}
 		setNativeView(this.tabLayout);
 	}
 
@@ -228,6 +264,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 					if (value instanceof Drawable) {
 						tab.setIcon(((Drawable) value));
 						TiUITabLayoutTabGroup.scaleIconToFit(tab);
+
+						if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+							setTintColor(tab, TiC.PROPERTY_TINT_COLOR);
+						}
 					} else {
 						tab.setText(value.toString());
 					}
@@ -246,6 +286,14 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 					}
 				}
 				break;
+		}
+	}
+
+	private void setTintColor(TabLayout.Tab tab, String color)
+	{
+		if (tab != null && tab.getIcon() != null) {
+			tab.getIcon().setColorFilter(TiConvert.toColor(proxy.getProperty(color),
+				TiApplication.getAppCurrentActivity()), PorterDuff.Mode.SRC_IN);
 		}
 	}
 
@@ -361,6 +409,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			// First, update the proxy's "index" property.
 			proxy.setProperty(TiC.PROPERTY_INDEX, index);
 
+			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACTIVE_TINT_COLOR)) {
+				setTintColor(this.tabLayout.getTabAt(index), TiC.PROPERTY_ACTIVE_TINT_COLOR);
+			}
+
 			// Last, fire a "click" event.
 			if (!skipClickEvent) {
 				KrollDict data = new KrollDict();
@@ -373,7 +425,10 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	@Override
 	public void onTabUnselected(TabLayout.Tab tab)
 	{
-		// No override
+		// set old tint color again
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+			setTintColor(tab, TiC.PROPERTY_TINT_COLOR);
+		}
 	}
 
 	@Override
@@ -396,6 +451,6 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	@ColorInt
 	private static int getTabRippleColorFrom(Context context)
 	{
-		return MaterialColors.getColor(context, R.attr.colorPrimary, Color.DKGRAY);
+		return MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, Color.DKGRAY);
 	}
 }

@@ -150,7 +150,7 @@ typedef NSUInteger GDataXMLNodeKind;
 // This implementation of nodesForXPath registers namespaces only from the
 // document's root node.  _def_ns may be used as a prefix for the default
 // namespace, though there's no guarantee that the default namespace will
-// be consistenly the same namespace in server responses.
+// be consistently the same namespace in server responses.
 - (NSArray *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
 
 // access to the underlying libxml node; be sure to release the cached values
@@ -160,7 +160,7 @@ typedef NSUInteger GDataXMLNodeKind;
 
 + (id)nodeBorrowingXMLNode:(xmlNodePtr)theXMLNode;
 + (id)nodeConsumingXMLNode:(xmlNodePtr)theXMLNode;
-//ADDITIONS FOR DOM MODULE
+// ADDITIONS FOR DOM MODULE
 - (void)setShouldFreeXMLNode:(BOOL)flag;
 
 + (id)createNewDocFragment;
@@ -190,7 +190,7 @@ typedef NSUInteger GDataXMLNodeKind;
 - (void)addAttribute:(GDataXMLNode *)attribute;
 
 - (NSString *)resolvePrefixForNamespaceURI:(NSString *)namespaceURI;
-//Need to make this visible. Used in appendChild of ElementProxy
+// Need to make this visible. Used in appendChild of ElementProxy
 + (void)fixUpNamespacesForNode:(xmlNodePtr)nodeToFix graftingToTreeNode:(xmlNodePtr)graftPointNode;
 
 @end
@@ -219,12 +219,12 @@ typedef NSUInteger GDataXMLNodeKind;
 // This implementation of nodesForXPath registers namespaces only from the
 // document's root node.  _def_ns may be used as a prefix for the default
 // namespace, though there's no guarantee that the default namespace will
-// be consistenly the same namespace in server responses.
+// be consistently the same namespace in server responses.
 - (NSArray *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
 
 - (NSString *)description;
 
-//ADDITIONS FOR DOM MODULE
+// ADDITIONS FOR DOM MODULE
 - (id)importNode:(GDataXMLNode *)theNode recursive:(BOOL)deep;
 - (id)entityRefForName:(NSString *)theName;
 - (xmlDtdPtr)intDTD;

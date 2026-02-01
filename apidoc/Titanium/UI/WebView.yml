@@ -35,6 +35,8 @@ description: |
     [evalJS](Titanium.UI.WebView.evalJS) method to execute a JavaScript expression
     inside the web view and retrieve the value of an expression.
 
+    To trigger a message from the remote web page, refer to <Titanium.UI.WebView.addScriptMessageHandler>.
+
     You can inject the local `Ti.App.fireEvent` bindings yourself by adding a script element using
     evalJS.
 
@@ -43,13 +45,13 @@ description: |
       'javascript=(function addBinding(){' +
         'var s=document.createElement("script");' +
         's.setAttribute("type","text/javascript");' +
-        's.innerHTML="' + require('/binding.js') + '";'
+        's.innerHTML="' + /* insert content of binding.min.js */ + '";'
         +
         'document.getElementsByTagName("body")[0].appendChild(s);' +
       '})()'
     );
     ```
-    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium_mobile/tree/master/android/modules/ui/assets/Resources/ti.internal/webview).
+    The `binding.min.js` is available in the [repository](https://github.com/tidev/titanium-sdk/tree/main/android/modules/ui/assets/Resources/ti.internal/webview).
 
     #### Local JavaScript Files
 
@@ -181,9 +183,7 @@ description: |
     of webview and set the height to webview. See following example.
 
     ``` js
-    var win = Ti.UI.createWindow({
-      backgroundColor: 'white'
-    });
+    var win = Ti.UI.createWindow();
 
     var verticalView = Ti.UI.createView({layout: 'vertical', width: "100%", height: "100%"});
 
@@ -419,22 +419,54 @@ methods:
   - name: addScriptMessageHandler
     summary: Adds a script message handler.
     description: |
-        Adding a script message handler with name 'name' causes the JavaScript function
-        window.webkit.messageHandlers.name.postMessage(messageBody) to be defined in all
-        frames in the web view.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+        Adds a script message handler that enables communication between the web content and your Titanium application in all frames of the web view.
+
+        **New, cross-platform API:**
+        Use `window.tisdk.emit('yourHandlerName', JSON.stringify(body));` to send messages from web content. This API is available on all platforms and should be preferred for new development.
+
+        **Legacy iOS-only API:**
+        For backwards compatibility or when targeting SDK 13.0.0 or older, you can also use the legacy iOS-specific API:
+        `window.webkit.messageHandlers.yourHandlerName.postMessage(body)`
+        This method works only on iOS and will not be available on other platforms.
+
+        **Important:**
+        Always call `addScriptMessageHandler` before loading the page (setting the URL), or reload the URL after adding the handler to ensure your web content can communicate as expected.
+
+        JS code usage examples for your webpage:
+        ```
+        <script type="text/javascript">
+            const body = { message: 'Hello Titanium!'};
+
+            // Preferred API for all platforms in SDK 13.1.0 and later.
+            window.tisdk.emit('yourHandlerName', JSON.stringify(body));
+
+            // Legacy iOS-only API for SDK 13.0.0 and older.
+            window.webkit.messageHandlers.yourHandlerName.postMessage(body);
+        </script>
+        ```
+
+        Titanium app code usages:
+        ```js
+        webView.addScriptMessageHandler('yourHandlerName');
+        webView.addEventListener('message', (e) => {
+            if (e.name === 'yourHandlerName') {
+                console.log(e.body.message);
+            }
+        });
+        webView.url = 'https://some-remote-url.org';
+        ```
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
       - name: handlerName
         summary: |
-            The name of the message handler and should not be '_Ti_',
-            as titanium is using it for internal usage.
+            The name of the message handler, other than the reserved '_Ti_', or '_Ti_Cookie_'.
         type: String
 
   - name: removeScriptMessageHandler
     summary: Removes a script message handler.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     parameters:
       - name: name
         summary: The name of the message handler.
@@ -453,12 +485,43 @@ methods:
         Create a PDF document representation from the web page currently displayed in the WebView.
     description: |
         If the data is written to a file the resulting file is a valid PDF document.
-    platforms: [iphone, ipad]
-    since: "9.2.0"
+
+        The Android version uses an object as a parameter instead of a callback function:
+        ```js
+        $.webview.createPDF({
+          pageWidth: 5000,
+          pageHeight: 72000,
+          success: function(e) {
+            // e.data <- the PDF data
+          }
+        });
+        ```
+        You can use either `pageWidth`/`pageHeight` or a `pageSize` constant like PDF_PAGE_DIN_A4.
+    platforms: [android, iphone, ipad]
+    since: {android: "12.1.0", iphone: "9.2.0", ipad: "9.2.0"}
     osver: {ios: {min: "14.0"}}
     parameters:
+      - name: pageWidth
+        summary: The width in mils (thousandths of an inch) of the PDF (Android only)
+        type: Number
+      - name: pageHeight
+        summary: The height in mils (thousandths of an inch) of the PDF (Android only)
+        type: Number
+      - name: pageSize
+        summary: Predefined size. (Android only)
+        type: Number
+        constants: Titanium.UI.WebView.PDF_PAGE_*
+      - name: showMenu
+        summary:  Will show Androids printing menu. No success callback afterwards. (Android only)
+        type: Boolean
+      - name: firstPageOnly
+        summary: Only print first page (Android only)
+        type: Boolean
+      - name: success
+        summary: Function to call upon PDF creation. (Android only)
+        type: Callback<DataCreationResultAndroid>
       - name: callback
-        summary: Function to call upon pdf creation.
+        summary: Function to call upon PDF creation. (iOS only)
         type: Callback<DataCreationResult>
 
   - name: createWebArchive
@@ -507,7 +570,6 @@ events:
       - name: navigationType
         summary: Constant indicating the user's action.
         type: Number
-        constants: Titanium.UI.iOS.WEBVIEW_NAVIGATIONTYPE_*
         platforms: [ipad, iphone, macos]
 
       - name: isMainFrame
@@ -544,23 +606,6 @@ events:
         summary: URL of the web document.
         type: String
         platforms: [iphone, ipad, android, macos]
-      - name: message
-        summary: Error message. Use error instead.
-        type: String
-        platforms: [iphone, ipad, android]
-        deprecated:
-            since: "3.1.0"
-            removed: "9.0.0"
-            notes: Use the `error` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0.
-      - name: errorCode
-        summary: A constant or underlying platform specific error code. Use code instead.
-        type: Number
-        constants: Titanium.UI.URL_ERROR_*
-        platforms: [iphone, ipad, android]
-        deprecated:
-            since: "3.1.0"
-            removed: "9.0.0"
-            notes: Use the `code` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0.
 
   - name: load
     summary: Fired when the web view content is loaded.
@@ -572,12 +617,12 @@ events:
   - name: onLoadResource
     summary: Fired when loading resource.
     description: |
-        Android only. Notify the host application that the WebView will load the resource specified by the given url.
+        Android only. Notify the host application that the WebView will load the resource specified by the given URL.
     platforms: [android]
     since: "3.6.0"
     properties:
       - name: url
-        summary: The url of the resource that will load.
+        summary: The URL of the resource that will load.
         type: String
 
   - name: sslerror
@@ -592,19 +637,6 @@ events:
         summary: SSL error code.
         type: Number
         platforms: [android]
-
-  - name: onStopBlacklistedUrl
-    summary: Fired when a blacklisted URL is stopped.
-    platforms: [android]
-    since: 5.4.0
-    properties:
-      - name: url
-        summary: The URL of the web document that is stopped.
-        type: String
-    deprecated:
-        since: "6.1.0"
-        removed: "9.0.0"
-        notes: Use the  cross-platform `blacklisturl` event instead.
 
   - name: blacklisturl
     summary: Fired when a blacklisted URL is stopped.
@@ -635,8 +667,8 @@ events:
     description: |
         This event get fired when you have added a message handler using <Titanium.UI.WebView.addScriptMessageHandler>
         and the webpage sends a message to it.
-    platforms: [iphone, ipad, macos]
-    since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "13.1.0", iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     properties:
       - name: url
         summary: URL of the web document being loaded.
@@ -694,6 +726,16 @@ events:
         type: String
 
 properties:
+
+  - name: allowFileAccess
+    summary: A Boolean value indicating file access within WebView.
+    description: |
+        Set to `true` to enable access to local files for examples images stored in <Titanium.Filesystem.applicationDataDirectory>. If false resources are still accessible using `file:///android_asset` and `file:///android_res`. Do not enable this if your app accepts arbitrary URLs from external sources.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "12.1.0"}
+
   - name: allowsLinkPreview
     summary: |
         A Boolean value that determines whether pressing on a link displays a preview of the
@@ -708,15 +750,14 @@ properties:
         Safari, it is opt-in, by way of this property, rather default behavior for this class.
     type: Boolean
     default: false
-    osver: {ios: {min: "9.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 
   - name: blacklistedURLs
     summary: |
-        An array of url strings to blacklist.
+        An array of URL strings to blacklist.
     description: |
-        An array of url strings to blacklist. This will stop the webview from going to urls listed in
+        An array of URL strings to blacklist. This will stop the webview from going to URLs listed in
         the blacklist. Note, this only applies in the links clicked inside the webview. The first website
         that is loaded will not be stopped even if it matches the blacklist.
     type: Array<String>
@@ -729,9 +770,9 @@ properties:
 
   - name: blockedURLs
     summary: |
-        An array of url strings to be blocked.
+        An array of URL strings to be blocked.
     description: |
-        An array of url strings to be blocked from loading. This will stop the webview from going to urls
+        An array of URL strings to be blocked from loading. This will stop the webview from going to URLs
         listed in this array. Note that this only applies to the links tapped on by the end-user.
         The first website that is loaded will not be stopped, even if it is listed in the blocklist.
     type: Array<String>
@@ -767,7 +808,7 @@ properties:
     since: {android: "6.1.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
 
   - name: enableJavascriptInterface
-    summary: Enable adding javascript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
+    summary: Enable adding JavaScript interfaces internally to webview prior to JELLY_BEAN_MR1 (Android 4.2)
     description: |
         This property is introduced to prevent a security issue with older devices (< JELLY_BEAN_MR1)
     type: Boolean
@@ -792,7 +833,7 @@ properties:
         since: "8.0.0"
         notes: |
             This property in no more supported in Titanium SDK 8.0.0+. Use property <Titanium.UI.WebView.allowedURLSchemes>
-            in conjuction with <Titanium.UI.WebView.handleurl>. See the example section
+            in conjunction with <Titanium.UI.WebView.handleurl>. See the example section
             "Usage of allowedURLSchemes and handleurl in iOS".
 
   - name: configuration
@@ -841,6 +882,15 @@ properties:
 
         The web view's content can also be set using the [data](Titanium.UI.WebView.data) or
         [url](Titanium.UI.WebView.url) properties.
+
+        If you want to get the HTML content of a remote URL you can grab it with this `evalJS` call:
+        ``` js
+        webview.addEventListener('load', function() {
+          webview.evalJS('document.documentElement.outerHTML.toString()', function(data) {
+            console.log(data);
+          });
+        });
+        ```
 
         See also: [data](Titanium.UI.WebView.data) and [url](Titanium.UI.WebView.url).
     type: String
@@ -970,7 +1020,6 @@ properties:
     constants: Titanium.UI.Android.WEBVIEW_PLUGINS_*
     platforms: [android]
     since: "1.8.0"
-    osver: {android: {min: "2.2"}}
     default: <Titanium.UI.Android.WEBVIEW_PLUGINS_OFF>
 
   - name: scrollsToTop
@@ -985,6 +1034,17 @@ properties:
     default: true
     platforms: [iphone, ipad, macos]
     since: {iphone: "2.0.0", ipad: "2.0.0", macos: "9.2.0"}
+
+  - name: layerType
+    summary: A value indicating the render mode of the WebView
+    description: |
+        Set to Ti.UI.WebView.LAYER_TYPE_SOFTWARE (software rendering) if you use `Ti.Media.takeScreenshot()` or `toImage()` and the WebView contains local HTML files.
+        Otherwise the WebView might be empty in the screenshot/image. If you change the setting you will have to assign the HTML content again.
+    type: Number
+    constants: Titanium.UI.WebView.LAYER_TYPE_*
+    default: <Titanium.UI.WebView.LAYER_TYPE_NONE>
+    platforms: [android]
+    since: {android: "12.7.0"}
 
   - name: enableZoomControls
     summary: If `true`, zoom controls are enabled.
@@ -1002,6 +1062,14 @@ properties:
     type: Boolean
     platforms: [android]
     since: "7.5.0"
+    default: false
+    availability: creation
+
+  - name: multipleWindows
+    summary: If set to `false` it will prevent the WebView from opening new windows/tabs.
+    type: Boolean
+    platforms: [android]
+    since: "13.1.0"
     default: false
     availability: creation
 
@@ -1096,9 +1164,17 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: {android: "7.3.0", iphone: "7.3.0", ipad: "7.3.0", macos: "9.2.0"}
 
+  - name: scrollbars
+    summary: Enable or disable horizontal/vertical scrollbars in a WebView.
+    type: Number
+    constants: Titanium.UI.Android.WEBVIEW_SCROLLBARS_*
+    platforms: [android]
+    since: "12.3.0"
+    default: <Titanium.UI.Android.WEBVIEW_SCROLLBARS_DEFAULT>
+
   - name: allowsBackForwardNavigationGestures
     summary: |
-        A Boolean value indicating whether horizontal swipe gestures will trigger back-forward list navigations.
+        A Boolean value indicating whether horizontal swipe gestures will trigger back-forward list navigation.
     type: Boolean
     default: false
     platforms: [iphone, ipad, macos]
@@ -1154,6 +1230,120 @@ properties:
     since: {iphone: "8.0.0", ipad: "8.0.0", macos: "9.2.0"}
     permission: read-only
 
+  - name: LAYER_TYPE_NONE
+    summary: Default rendering mode
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.7.0"
+
+  - name: LAYER_TYPE_SOFTWARE
+    summary: Software rendering mode
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.7.0"
+
+  - name: LAYER_TYPE_HARDWARE
+    summary: Hardware rendering mode
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.7.0"
+
+  - name: PDF_PAGE_DIN_A5
+    summary: PDF paper size
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.1.0"
+
+  - name: PDF_PAGE_DIN_A4
+    summary: PDF paper size
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.1.0"
+
+  - name: PDF_PAGE_DIN_A3
+    summary: PDF paper size
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.1.0"
+
+  - name: PDF_PAGE_DIN_A2
+    summary: PDF paper size
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.1.0"
+
+  - name: PDF_PAGE_DIN_A1
+    summary: PDF paper size
+    type: Number
+    platforms: [android]
+    permission: read-only
+    since: "12.1.0"
+
+examples:
+  - title: Basic Web View to External URL
+    example: |
+        Create a web view to a remote URL and open the window as modal.
+
+        ``` js
+        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
+        var window = Titanium.UI.createWindow();
+        window.add(webview);
+        window.open({modal:true});
+        ```
+  - title: Alloy XML Markup
+    example: |
+        Previous example as an Alloy view.
+
+        ``` xml
+        <Alloy>
+            <Window id="win" modal="true">
+                <WebView id="webview" url="http://www.titaniumsdk.com" />
+            </Window>
+        </Alloy>
+        ```
+  - title: Listening to Web View properties in iOS
+    example: |
+        Create a web view and listen 'title' property of web view.
+
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url:'http://www.titaniumsdk.com'
+        });
+        webview.startListeningToProperties([ 'title' ]);
+        webview.addEventListener('title', function(e) {
+            alert('Title is : -' +e.value);
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
+  - title: Usage of allowedURLSchemes and handleurl in iOS
+    example: |
+        Create a web view and listen 'handleurl' event to open URL from Titanium platform.
+
+        ``` js
+        var webview = Ti.UI.createWebView({
+            url: 'https://www.google.com',
+            allowedURLSchemes: [ 'https', 'http' ]
+        });
+
+        webview.addEventListener('handleurl', function(e) {
+            var handler = e.handler;
+            Ti.Platform.openURL(e.url);
+            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL);
+        });
+        var window = Ti.UI.createWindow();
+        window.add(webview);
+        window.open();
+        ```
+
 ---
 name: SnapshotResult
 summary: The parameter passed to the <Titanium.UI.WebView.takeSnapshot> callback.
@@ -1189,6 +1379,16 @@ properties:
     summary: Error message, if any returned.
     description: May be undefined.
     type: String
+
+---
+name: DataCreationResultAndroid
+summary: Success callback in <Titanium.UI.WebView.createPDF>.
+platforms: [android]
+since: "12.1.0"
+properties:
+  - name: data
+    summary: The created data.
+    type: Titanium.Blob
 
 ---
 name: SearchResult
@@ -1273,71 +1473,13 @@ properties:
     summary: The title of the webpage represented by this item.
     type: String
 
-examples:
-  - title: Basic Web View to External URL
-    example: |
-        Create a web view to a remote URL and open the window as modal.
-
-        ``` js
-        var webview = Titanium.UI.createWebView({url:'http://www.titaniumsdk.com'});
-        var window = Titanium.UI.createWindow();
-        window.add(webview);
-        window.open({modal:true});
-        ```
-  - title: Alloy XML Markup
-    example: |
-        Previous example as an Alloy view.
-
-        ``` xml
-        <Alloy>
-            <Window id="win" modal="true">
-                <WebView id="webview" url="http://www.titaniumsdk.com" />
-            </Window>
-        </Alloy>
-        ```
-  - title: Listening to Web View properties in iOS
-    example: |
-        Create a web view and listen 'title' property of web view.
-
-        ``` js
-        var webview = Ti.UI.createWebView({
-            url:'http://www.titaniumsdk.com'
-        });
-        webview.startListeningToProperties([ 'title' ]);
-        webview.addEventListener('title', function(e) {
-            alert('Title is : -' +e.value);
-        });
-        var window = Ti.UI.createWindow();
-        window.add(webview);
-        window.open();
-        ```
-  - title: Usage of allowedURLSchemes and handleurl in iOS
-    example: |
-        Create a web view and listen 'handleurl' event to open url from Titanium platform.
-
-        ``` js
-        var webview = Ti.UI.createWebView({
-            url: 'https://www.google.com',
-            allowedURLSchemes: [ 'https', 'http' ]
-        });
-
-        webview.addEventListener('handleurl', function(e) {
-            var handler = e.handler;
-            Ti.Platform.openURL(e.url);
-            handler.invoke(Ti.UI.iOS.ACTION_POLICY_CANCEL);
-        });
-        var window = Ti.UI.createWindow();
-        window.add(webview);
-        window.open();
-        ```
-
 ---
 name: OnLinkURLResponse
 summary: An object returned when the <Titanium.UI.WebView.onlink> callback is fired.
 platforms: [iphone, ipad, android, macos]
 properties:
   - name: url
-    summary: The url of the link that should be navigated to.
+    summary: The URL of the link that should be navigated to.
     type: String
 
 ---
