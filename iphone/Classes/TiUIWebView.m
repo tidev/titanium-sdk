@@ -10,6 +10,7 @@
 #import "TiUIWebViewProxy.h"
 #import "TiUIiOSWebViewConfigurationProxy.h"
 #import "TiUIiOSWebViewDecisionHandlerProxy.h"
+#import "TiWebView.h"
 
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/SBJSON.h>
@@ -82,7 +83,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
-    _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
+    _webView = [[TiWebView alloc] initWithFrame:[self bounds] configuration:config];
 #if TARGET_OS_SIMULATOR && __IPHONE_OS_VERSION_MAX_ALLOWED >= 160400
     if (@available(iOS 16.4, *)) {
       _webView.inspectable = YES;
@@ -387,6 +388,27 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 {
   [self _setKeyboardDisplayRequiresUserAction:[TiUtils boolValue:value]];
   [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
+}
+
+- (void)setHideKeyboardAccessoryView_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  [[self proxy] replaceValue:value forKey:@"hideKeyboardAccessoryView" notification:NO];
+  [[self webView] setHideInputAccessoryView:[TiUtils boolValue:value def:NO]];
+}
+
+- (void)setAutoAdjustScrollViewInsets_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  [[self proxy] replaceValue:value forKey:@"autoAdjustScrollViewInsets" notification:NO];
+
+  if ([TiUtils boolValue:value def:NO]) {
+    [[[self webView] scrollView] setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
+  } else {
+    [[[self webView] scrollView] setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+  }
 }
 
 - (void)reload
