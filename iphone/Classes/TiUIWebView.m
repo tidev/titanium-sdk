@@ -398,6 +398,19 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[self webView] setHideInputAccessoryView:[TiUtils boolValue:value def:NO]];
 }
 
+- (void)setAutoAdjustScrollViewInsets_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  [[self proxy] replaceValue:value forKey:@"autoAdjustScrollViewInsets" notification:NO];
+
+  if ([TiUtils boolValue:value def:NO]) {
+    [[[self webView] scrollView] setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
+  } else {
+    [[[self webView] scrollView] setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+  }
+}
+
 - (void)reload
 {
   if (_webView == nil) {

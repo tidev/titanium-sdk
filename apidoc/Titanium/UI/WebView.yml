@@ -921,6 +921,22 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "13.2.0", ipad: "13.2.0", macos: "13.2.0"}
 
+  - name: autoAdjustScrollViewInsets
+    summary: |
+        Specifies whether or not the web view should automatically adjust its scroll view insets.
+    description: |
+        When the value is `true`, it allows the web view to adjust its scroll view insets in response
+        to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar (safe areas).
+
+        This is useful when displaying a web view that extends under navigation bars or into
+        safe area regions, ensuring content is not obscured.
+
+        The default behavior assumes that this is `false`.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "13.2.0", ipad: "13.2.0", macos: "13.2.0"}
+
   - name: ignoreSslError
     summary: Controls whether to ignore invalid SSL certificates or not.
     description: |
