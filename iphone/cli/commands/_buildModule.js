@@ -122,6 +122,59 @@ export class iOSModuleBuilder extends Builder {
 		return isMacOSEnabled;
 	}
 
+	ensureMacCatalystBuildSettings() {
+		// Keep existing behavior untouched unless module author explicitly enables mac builds.
+		if (this.manifest.mac !== 'true') {
+			return;
+		}
+
+		const pbxFilePath = path.join(this.projectDir, `${this.moduleName}.xcodeproj`, 'project.pbxproj');
+		if (!fs.existsSync(pbxFilePath)) {
+			this.logger.warn(`Unable to auto-fix Mac Catalyst build settings. File not found: ${pbxFilePath}`);
+			return;
+		}
+
+		const xcodeProject = xcode.project(pbxFilePath).parseSync();
+		const configurations = xcodeProject.hash.project.objects.XCBuildConfiguration;
+		const desiredSupportedPlatforms = '"iphoneos iphonesimulator"';
+		const touchedConfigurations = [];
+		let shouldWrite = false;
+
+		for (const key of Object.keys(configurations)) {
+			const configuration = configurations[key];
+			if (typeof configuration !== 'object' || !configuration.buildSettings) {
+				continue;
+			}
+
+			const buildSettings = configuration.buildSettings;
+			if (buildSettings.SDKROOT !== 'iphoneos') {
+				continue;
+			}
+
+			let didChangeConfiguration = false;
+
+			if (buildSettings.SUPPORTED_PLATFORMS !== desiredSupportedPlatforms) {
+				buildSettings.SUPPORTED_PLATFORMS = desiredSupportedPlatforms;
+				didChangeConfiguration = true;
+			}
+
+			if (buildSettings.SUPPORTS_MACCATALYST !== 'YES') {
+				buildSettings.SUPPORTS_MACCATALYST = 'YES';
+				didChangeConfiguration = true;
+			}
+
+			if (didChangeConfiguration) {
+				shouldWrite = true;
+				touchedConfigurations.push(configuration.name);
+			}
+		}
+
+		if (shouldWrite) {
+			fs.writeFileSync(pbxFilePath, xcodeProject.writeSync());
+			this.logger.info(`Auto-fixed Mac Catalyst build settings in ${path.basename(pbxFilePath)} (${Array.from(new Set(touchedConfigurations)).join(', ')}) because manifest has "mac: true".`);
+		}
+	}
+
 	generateXcodeUuid(xcodeProject) {
 		// normally we would want truly unique ids, but we want predictability so that we
 		// can detect when the project has changed and if we need to rebuild the app
@@ -404,6 +457,8 @@ export class iOSModuleBuilder extends Builder {
 
 			fs.writeFileSync(srcFile, updatedContent);
 		}
+
+		this.ensureMacCatalystBuildSettings();
 
 		const re = /^(\S+)\s*=\s*(.*)$/,
 			bindingReg = /\$\(([^$]+)\)/g;
@@ -1139,7 +1194,8 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 			child.on('close', function (code) {
 				if (code) {
-					logger.error(`Failed to run ti ${args[0]}`);
+					logger.error(`Failed to run ti ${args[0]} (exit code ${code})`);
+					logger.error(`Command: titanium ${args.join(' ')}`);
 					logger.log();
 					process.exit(1);
 				}
@@ -1154,22 +1210,25 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 				// 2. create temp proj
 				this.logger.debug(`Staging module project at ${tmpDir.cyan}`);
-				runTiCommand(
-					[
-						'create',
-						'--id', this.moduleId,
-						'-n', this.moduleName,
-						'-t', 'app',
-						'-u', 'localhost',
-						'-d', tmpDir,
-						'-p', 'ios',
-						'--force',
-						'--no-prompt',
-						'--no-progress-bars',
-						'--no-colors'
-					],
-					cb
-				);
+				const createArgs = [
+					'create',
+					'--id', this.moduleId,
+					'-n', this.moduleName,
+					'-t', 'app',
+					'-u', 'localhost',
+					'-d', tmpDir,
+					'-p', 'ios',
+					'--force',
+					'--no-prompt',
+					'--no-progress-bars',
+					'--no-colors'
+				];
+
+				if (this.titaniumSdkVersion) {
+					createArgs.push('--sdk', this.titaniumSdkVersion);
+				}
+
+				runTiCommand(createArgs, cb);
 			},
 
 			function (cb) {
@@ -1216,6 +1275,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				}
 				if (this.deviceId) {
 					buildArgs.push('-C', this.deviceId);
+				}
+				if (this.titaniumSdkVersion) {
+					buildArgs.push('--sdk', this.titaniumSdkVersion);
 				}
 
 				runTiCommand(buildArgs, cb);
