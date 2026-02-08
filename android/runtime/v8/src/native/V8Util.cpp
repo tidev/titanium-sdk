@@ -159,12 +159,30 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 
 void V8Util::reportRejection(v8::PromiseRejectMessage data)
 {
+	// Rejection consistency check
+	v8::PromiseRejectEvent event=data.GetEvent();
+	if (event != v8::kPromiseRejectWithNoHandler) {
+		// Avoid invalid 2° dispatch for async ReferenceError (Handler Added After Reject)
+		LOGE(TAG, "Invalid PromiseRejectEvent Discarded (Invalid Event)");
+		if (event == v8::kPromiseHandlerAddedAfterReject)
+			LOGE(TAG, "PromiseRejectEvent Handler Added After Reject");
+		else
+			LOGE(TAG, "PromiseRejectEvent Unexpected Event (%d)",event);
+		return;
+	}
+
 	// Extract main Objects	
-	v8::Local<v8::Promise> promise = data.GetPromise();
-	v8::Isolate* isolate = promise->GetIsolate();
-	v8::Local<v8::Value> value = data.GetValue();
+	v8::Isolate* isolate = v8::Isolate::GetCurrent();
+	v8::HandleScope handle_scope(isolate);
 	Local<Context> context = isolate->GetCurrentContext();
-	
+	v8::Local<v8::Value> value = data.GetValue();
+
+	// Value consistency check
+	if (value.IsEmpty()) {
+		LOGE(TAG, "Invalid PromiseRejectEvent Discarded (Empty Value)");
+		return;
+	}
+
 	// Extract Error message	
 	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
 	v8::String::Utf8Value utf8Message(isolate, message->Get());
@@ -180,8 +198,8 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 
 	// Obtain javascript and java stack traces
 
-	Local<Value> jsStack;
-	Local<Value> javaStack;
+	Local<Value> jsStack=Undefined(isolate);
+	Local<Value> javaStack=Undefined(isolate);
 
 	if (value->IsObject()) {
 		Local<Object> error = value.As<Object>();
