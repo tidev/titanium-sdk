@@ -6,6 +6,7 @@
  */
 #include <cstring>
 #include <sstream>
+#include <unordered_set>
 
 #include "V8Util.h"
 #include "JNIUtil.h"
@@ -157,31 +158,52 @@ void V8Util::reportException(Isolate* isolate, TryCatch &tryCatch, bool showLine
 	LOGE(EXC_TAG, *error);
 }
 
+static thread_local std::unordered_set<v8::Global<v8::Value>*> seenErrors;
+static void errorWeakCallback(const v8::WeakCallbackInfo<v8::Global<v8::Value>>& info) {
+    v8::Global<v8::Value>* g = info.GetParameter();
+    seenErrors.erase(g);
+    g->Reset();
+    delete g;
+}
 void V8Util::reportRejection(v8::PromiseRejectMessage data)
 {
-	// Rejection consistency check
-	v8::PromiseRejectEvent event=data.GetEvent();
-	if (event != v8::kPromiseRejectWithNoHandler) {
-		// Avoid invalid 2° dispatch for async ReferenceError (Handler Added After Reject)
-		LOGE(TAG, "Invalid PromiseRejectEvent Discarded (Invalid Event)");
-		if (event == v8::kPromiseHandlerAddedAfterReject)
-			LOGE(TAG, "PromiseRejectEvent Handler Added After Reject");
-		else
-			LOGE(TAG, "PromiseRejectEvent Unexpected Event (%d)",event);
-		return;
-	}
-
 	// Extract main Objects	
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-	v8::HandleScope handle_scope(isolate);
-	Local<Context> context = isolate->GetCurrentContext();
-	v8::Local<v8::Value> value = data.GetValue();
-
+        v8::HandleScope handle_scope(isolate);
+        v8::Local<v8::Context> context = isolate->GetCurrentContext();
+	v8::Local<v8::Value> value=data.GetValue();
+	        
+	// Deduplication Process and Rejection consistency check
+	v8::Local<v8::Promise> promise = data.GetPromise();
+	int id = promise->GetIdentityHash();
+	v8::PromiseRejectEvent event = data.GetEvent();
+	if (event == v8::kPromiseRejectWithNoHandler) {
+	
+		// Deduplicate on same value (Error)
+		for (v8::Global<v8::Value>* g : seenErrors) {
+        		if (g->Get(isolate)->StrictEquals(value)) {
+				LOGE(TAG, "PromiseRejectEvent duplicated discarded"); // LOGD
+				return;
+        		}
+		}
+	} else if (event == v8::kPromiseHandlerAddedAfterReject) {
+		LOGE(TAG, "PromiseRejectEvent handler added after reject discarded"); // LOGD
+		return;
+	} else {
+  		LOGE(TAG, "PromiseRejectEvent with unexpected event (%d) Lost", event);
+  		return;
+	}
+	      
 	// Value consistency check
 	if (value.IsEmpty()) {
-		LOGE(TAG, "Invalid PromiseRejectEvent Discarded (Empty Value)");
+		LOGE(TAG, "PromiseRejectEvent with Empty Value Lost");
 		return;
 	}
+
+	// Track the Error with Global + weak
+	v8::Global<v8::Value>* g = new v8::Global<v8::Value>(isolate, value);
+	g->SetWeak(g, errorWeakCallback, v8::WeakCallbackType::kParameter);
+	seenErrors.insert(g);
 
 	// Extract Error message	
 	v8::Local<v8::Message> message = v8::Exception::CreateMessage(isolate, value);
@@ -189,6 +211,7 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 	v8::String::Utf8Value utf8ScriptName(isolate, message->GetScriptResourceName());
 	v8::Local<v8::String> logSourceLine = message->GetSourceLine(context).ToLocalChecked();
 	v8::String::Utf8Value utf8SourceLine(isolate, logSourceLine);
+
 	// Log Error message to Console
 	LOGE(TAG, "%s", *utf8Message);
 	LOGE(TAG, "%s @ %d >>> %s",
@@ -197,10 +220,8 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 		*utf8SourceLine);
 
 	// Obtain javascript and java stack traces
-
 	Local<Value> jsStack=Undefined(isolate);
 	Local<Value> javaStack=Undefined(isolate);
-
 	if (value->IsObject()) {
 		Local<Object> error = value.As<Object>();
 		jsStack = error->Get(context, STRING_NEW(isolate, "stack")).FromMaybe(Undefined(isolate).As<Value>());
@@ -222,7 +243,6 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 	}
 
 	// Report Exception to JS via krollRuntimeDispatchExceptionMethod
-
 	JNIEnv* env = titanium::JNIUtil::getJNIEnv();
 	jstring title = env->NewStringUTF("Rejected Promise");
 	jstring errorMessage = titanium::TypeConverter::jsValueToJavaString(isolate, env, message->Get());
@@ -240,7 +260,7 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 		sourceLine,
 		message->GetEndColumn(context).FromMaybe(-1),
 		jsStackString,
-		javaStackString);
+		javaStackString);	
 	env->DeleteLocalRef(title);
 	env->DeleteLocalRef(errorMessage);
 	env->DeleteLocalRef(resourceName);
