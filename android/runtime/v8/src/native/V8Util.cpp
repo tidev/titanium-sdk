@@ -169,34 +169,32 @@ void V8Util::reportRejection(v8::PromiseRejectMessage data)
 {
 	// Extract main Objects	
 	v8::Isolate* isolate = v8::Isolate::GetCurrent();
-        v8::HandleScope handle_scope(isolate);
-        v8::Local<v8::Context> context = isolate->GetCurrentContext();
+	v8::HandleScope handle_scope(isolate);
+	v8::Local<v8::Context> context = isolate->GetCurrentContext();
 	v8::Local<v8::Value> value=data.GetValue();
 	        
 	// Deduplication Process and Rejection consistency check
-	v8::Local<v8::Promise> promise = data.GetPromise();
-	int id = promise->GetIdentityHash();
 	v8::PromiseRejectEvent event = data.GetEvent();
 	if (event == v8::kPromiseRejectWithNoHandler) {
-	
+		
 		// Deduplicate on same value (Error)
 		for (v8::Global<v8::Value>* g : seenErrors) {
         		if (g->Get(isolate)->StrictEquals(value)) {
-				LOGE(TAG, "PromiseRejectEvent duplicated discarded"); // LOGD
-				return;
+					LOGD(EXC_TAG, "PromiseRejectEvent duplicated discarded");
+					return;
         		}
 		}
 	} else if (event == v8::kPromiseHandlerAddedAfterReject) {
-		LOGE(TAG, "PromiseRejectEvent handler added after reject discarded"); // LOGD
+		LOGD(EXC_TAG, "PromiseRejectEvent handler added after reject discarded");
 		return;
 	} else {
-  		LOGE(TAG, "PromiseRejectEvent with unexpected event (%d) Lost", event);
+  		LOGE(EXC_TAG, "PromiseRejectEvent with unexpected event (%d) Lost", event);
   		return;
 	}
-	      
+
 	// Value consistency check
 	if (value.IsEmpty()) {
-		LOGE(TAG, "PromiseRejectEvent with Empty Value Lost");
+		LOGE(EXC_TAG, "PromiseRejectEvent with Empty Value Lost");
 		return;
 	}
 
