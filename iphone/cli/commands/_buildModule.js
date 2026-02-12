@@ -175,6 +175,58 @@ export class iOSModuleBuilder extends Builder {
 		}
 	}
 
+	ensureTitaniumKitCatalystSymlinks() {
+		if (!this.isMacOSEnabled) {
+			return;
+		}
+
+		const frameworkPath = path.join(
+			this.platformPath,
+			'Frameworks',
+			'TitaniumKit.xcframework',
+			'ios-arm64_x86_64-maccatalyst',
+			'TitaniumKit.framework'
+		);
+
+		const versionsPath = path.join(frameworkPath, 'Versions');
+		if (!fs.existsSync(path.join(versionsPath, 'A'))) {
+			return;
+		}
+
+		const symlinks = [
+			{ link: path.join(versionsPath, 'Current'), target: 'A' },
+			{ link: path.join(frameworkPath, 'TitaniumKit'), target: 'Versions/Current/TitaniumKit' },
+			{ link: path.join(frameworkPath, 'Resources'), target: 'Versions/Current/Resources' },
+			{ link: path.join(frameworkPath, 'Headers'), target: 'Versions/Current/Headers' },
+			{ link: path.join(frameworkPath, 'Modules'), target: 'Versions/Current/Modules' }
+		];
+
+		let createdCount = 0;
+		for (const { link, target } of symlinks) {
+			try {
+				const stats = fs.lstatSync(link);
+				if (stats.isSymbolicLink() && fs.readlinkSync(link) === target) {
+					continue;
+				}
+				if (stats.isDirectory()) {
+					fs.rmSync(link, { recursive: true, force: true });
+				} else {
+					fs.unlinkSync(link);
+				}
+			} catch (err) {
+				if (err.code !== 'ENOENT') {
+					throw err;
+				}
+			}
+			fs.symlinkSync(target, link);
+			createdCount++;
+		}
+
+		if (createdCount > 0) {
+			this.logger.info(`Created ${createdCount} Mac Catalyst framework symlinks for TitaniumKit`);
+		}
+	}
+
 	generateXcodeUuid(xcodeProject) {
 		// normally we would want truly unique ids, but we want predictability so that we
 		// can detect when the project has changed and if we need to rebuild the app
@@ -793,6 +845,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 					if (osVersionParts[0] > 10 || (osVersionParts[0] === 10 && osVersionParts[1] >= 15)) {
 						// 3. Create a build for the mac-catalyst if enabled
 						if (this.isMacOSEnabled) {
+							this.ensureTitaniumKitCatalystSymlinks();
 							xcodebuildHook(xcBuild, xcodeBuildArgumentsForTarget('macosx'), opts, 'xcode-macos', next);
 						} else {
 							this.logger.info('macOS support disabled in Xcode project. Skipping …');
@@ -1194,8 +1247,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 			child.on('close', function (code) {
 				if (code) {
-					logger.error(`Failed to run ti ${args[0]} (exit code ${code})`);
-					logger.error(`Command: titanium ${args.join(' ')}`);
+					logger.error(`Failed to run ti ${args[0]}`);
 					logger.log();
 					process.exit(1);
 				}
@@ -1209,6 +1261,8 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				fs.ensureDirSync(tmpDir);
 
 				// 2. create temp proj
+				// Forward --sdk so the test app uses the same SDK the module was built with,
+				// otherwise the CLI defaults to the latest GA which may be a different version.
 				this.logger.debug(`Staging module project at ${tmpDir.cyan}`);
 				const createArgs = [
 					'create',
@@ -1223,11 +1277,9 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 					'--no-progress-bars',
 					'--no-colors'
 				];
-
 				if (this.titaniumSdkVersion) {
 					createArgs.push('--sdk', this.titaniumSdkVersion);
 				}
-
 				runTiCommand(createArgs, cb);
 			},
 
@@ -1279,7 +1331,6 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 				if (this.titaniumSdkVersion) {
 					buildArgs.push('--sdk', this.titaniumSdkVersion);
 				}
-
 				runTiCommand(buildArgs, cb);
 			}
 		], next);
