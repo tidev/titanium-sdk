@@ -6,7 +6,7 @@ on:
       branch:
         description: The branch to release from
         required: true
-        default: master
+        default: main
       release-type:
         description: The type of release to perform
         required: true
@@ -31,7 +31,7 @@ jobs:
       vtag: ${{ steps.vtag.outputs.vtag }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
@@ -70,7 +70,7 @@ jobs:
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
@@ -87,10 +87,10 @@ jobs:
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_26.0.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
@@ -104,12 +104,12 @@ jobs:
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_26.0.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
@@ -129,7 +129,7 @@ jobs:
       vtag: ${{ needs.validate.outputs.vtag }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
@@ -138,7 +138,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: mobilesdk-${{ env.vtag }}-linux
-    - name: Download MacOS artifact
+    - name: Download macOS artifact
       uses: actions/download-artifact@v4
       with:
         name: mobilesdk-${{ env.vtag }}-osx

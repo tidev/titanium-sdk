@@ -49,6 +49,14 @@ DEFINE_EXCEPTIONS
       appearance.backgroundColor = UIColor.clearColor;
       controller.tabBar.scrollEdgeAppearance = appearance;
     }
+
+    // force tab bar to bottom position (as before iPadOS 18 and on iPhone)
+    if ([TiUtils isIOSVersionOrGreater:@"18.0"] && [TiUtils isIPad]) {
+      BOOL forceBottomPosition = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"forceBottomPosition"] def:NO];
+      if (forceBottomPosition) {
+        controller.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+      }
+    }
   }
   return controller;
 }
@@ -154,7 +162,7 @@ DEFINE_EXCEPTIONS
       [self.proxy fireEvent:@"focus" withObject:event];
     }
   }
-  // TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
+  // TIMOB-15187. Don't fire focus of tabs if proxy does not have focus
   if ([(TiUITabGroupProxy *)[self proxy] canFocusTabs]) {
     [focusedTabProxy handleDidFocus:event];
   }
@@ -251,7 +259,7 @@ DEFINE_EXCEPTIONS
     if (allowConfiguration) {
       [self setEditButton:navigationController];
     }
-    // However, under iOS4, we have to manage the appearance/disappearance of the edit button ourselves.
+    // However, under iOS 4, we have to manage the appearance/disappearance of the edit button ourselves.
     else {
       [self removeEditButton:navigationController];
     }

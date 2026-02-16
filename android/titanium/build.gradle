@@ -43,11 +43,11 @@ for (nextString in tiBuildVersionString.split('\\.')) {
 }
 
 android {
-	ndkVersion project.ext.tiNdkVersion
-	namespace 'org.appcelerator.titanium'
+	ndkVersion = project.ext.tiNdkVersion
+	namespace = 'org.appcelerator.titanium'
 	defaultConfig {
-		compileSdk 35
-		minSdkVersion 21
+		compileSdkVersion 35
+		minSdkVersion 24
 		targetSdkVersion 35
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
@@ -77,11 +77,11 @@ android {
 		}
 	}
 	buildFeatures {
-		buildConfig true
+		buildConfig = true
 	}
 	externalNativeBuild {
 		cmake {
-			version '3.22.1'
+			version = '3.22.1'
 			path "${projectDir}/../runtime/v8/src/native/CMakeLists.txt"
 		}
 	}
@@ -95,7 +95,6 @@ android {
 			java.srcDirs = [
 					'src/java',
 					"${projectDir}/../modules/accelerometer/src/java",
-					"${projectDir}/../modules/analytics/src/java",
 					"${projectDir}/../modules/android/src/java",
 					"${projectDir}/../modules/app/src/java",
 					"${projectDir}/../modules/calendar/src/java",
@@ -126,8 +125,16 @@ android {
 	}
 }
 
+// Download/install the V8 library referenced in our "package.json", if not already done.
+tasks.register('updateLibraryThenExit', Exec) {
+	executable = 'node'
+	workingDir = projectDir
+	args = ['libv8-services.js', 'update-library']
+}
+
 // Downloads/extracts V8 library and creates a cmake file for it. To be executed before C/C++ "build" or "clean".
 tasks.register('updateV8Library') {
+	dependsOn tasks.named('updateLibraryThenExit')
 	def packageJson = new JsonSlurper().parse(file("${projectDir}/../package.json"))
 	def v8MakeFilePath = "${projectDir}/../runtime/v8/src/ndk-modules/libv8/V8Settings.cmake"
 	inputs.property 'v8.version', packageJson.v8.version
@@ -144,13 +151,6 @@ tasks.register('updateV8Library') {
 				"set(LIBV8_VERSION \"${packageJson.v8.version}\")",
 				"set(LIBV8_MODE \"${packageJson.v8.mode}\")"
 		].join('\n') + '\n'
-
-		// Download/install the V8 library referenced in our "package.json", if not already done.
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').updateLibraryThenExit()"]
-		}
 	}
 }
 
@@ -181,32 +181,32 @@ tasks.register('checkstyleChanged', Checkstyle) {
 // Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
 // takes a V8 snapshot of rolled-up files, and then generates a C++ header file of that snapshot to be compiled-in.
 // Note: This supports incremental builds. Only executes when JS files change or snapshot output file is missing.
+
+tasks.register('createV8Snapshot', Exec) {
+	executable = 'node'
+	workingDir = projectDir
+	args = ['libv8-services.js', 'create-snapshot']
+}
+
 tasks.register('snapshotTiCommonFiles') {
+	dependsOn tasks.named('createV8Snapshot')
 	inputs.dir "${projectDir}/../../common/Resources"
 	inputs.file "${projectDir}/../../build/lib/builder.js"
-	inputs.file "${projectDir}/../../build/lib/android/index.js"
+	inputs.file "${projectDir}/../../build/lib/android.js"
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
-	doFirst {
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['-e', "require('./libv8-services').createSnapshotThenExit()"]
-		}
-	}
 }
 
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)
 // Generates C/C++ files providing our Android-only JS files via byte arrays.
+tasks.register('runPrebuild', Exec) {
+	executable = 'node'
+	workingDir = projectDir
+	args = ['prebuild.js']
+}
+
 tasks.withType(JavaCompile).configureEach {
-	dependsOn checkJavaStyle
-	dependsOn snapshotTiCommonFiles
-	doLast {
-		exec {
-			executable = 'node'
-			workingDir = projectDir
-			args = ['prebuild.js']
-		}
-	}
+	dependsOn(checkJavaStyle, snapshotTiCommonFiles)
+	finalizedBy(tasks.runPrebuild)
 }
 
 // Set up project to compile Java side before compiling the C/C++ side.
@@ -244,7 +244,7 @@ tasks.withType(Checkstyle).configureEach {
 	source android.sourceSets.main.java.srcDirs
 }
 
-// Used to strip the src dir prefixes from the changed java files
+// Used to strip the src dir prefixes from the changed Java files
 def getChangedFiles() {
 	if (!project.hasProperty('changedFiles')) {
 		return new ArrayList<>()
@@ -264,12 +264,19 @@ def getChangedFiles() {
 	files
 }
 
+def generatedDir = file("${projectDir}/../runtime/v8/generated")
+def distFiles = fileTree(
+	dir: file("${projectDir}/../../dist/android"),
+	include: '**/*',
+	exclude: 'libv8/**/*'
+)
+
 clean.doLast {
 	// Delete generated C/C++ files.
-	project.delete file("${projectDir}/../runtime/v8/generated")
+	delete generatedDir
 
-	// Delete the files copied to our distribution directory. This is what gets packaged/installed.
-	project.delete fileTree(dir: file("${projectDir}/../../dist/android"), include: '**/*', exclude: 'libv8/**/*')
+	// Delete the files copied to our distribution directory.
+	delete distFiles
 }
 
 dependencies {
@@ -282,16 +289,16 @@ dependencies {
 	implementation 'androidx.cardview:cardview:1.0.0'
 	implementation "androidx.core:core:${project.ext.tiAndroidXCoreLibVersion}"
 	implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
-	implementation 'androidx.exifinterface:exifinterface:1.3.7'
+	implementation 'androidx.exifinterface:exifinterface:1.4.0'
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
 	implementation 'androidx.media:media:1.7.0'
 	implementation 'androidx.recyclerview:recyclerview:1.3.2'
 	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 	implementation 'androidx.transition:transition:1.5.1'
-	implementation 'androidx.vectordrawable:vectordrawable:1.1.0'
-	implementation 'androidx.vectordrawable:vectordrawable-animated:1.1.0'
-	implementation 'androidx.viewpager:viewpager:1.0.0'
+	implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
+	implementation 'androidx.vectordrawable:vectordrawable-animated:1.2.0'
+	implementation 'androidx.viewpager:viewpager:1.1.0'
 	implementation 'androidx.annotation:annotation:1.7.1'
 
 	// Google's "Material Components" themed UI library.
@@ -322,15 +329,15 @@ dependencies {
 }
 
 // This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.
-// It generates a maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
+// It generates a Maven "m2repository" directory tree containing our Titanium AAR and several XML versioning files.
 // The below will only work if you do a release build via "gradlew :titanium:assembleRelease" first.
 publishing {
 	publications {
 		titaniumPublication(MavenPublication) {
-			// Set up maven repo info.
-			groupId 'org.appcelerator'
-			artifactId 'titanium'
-			version tiBuildVersionString
+			// Set up Maven repo info.
+			groupId = 'org.appcelerator'
+			artifactId = 'titanium'
+			version = tiBuildVersionString
 			artifact file("${buildDir}/outputs/aar/titanium-release.aar")
 
 			// Generates the "*.pom" XML file containing all of Titanium's above dependencies,
@@ -355,8 +362,8 @@ publishing {
 	}
 	repositories {
 		maven {
-			// The maven directory tree produced above will be outputted to the following local directory.
-			url "${buildDir}/outputs/m2repository"
+			// The Maven directory tree produced above will be outputted to the following local directory.
+			url = "${buildDir}/outputs/m2repository"
 		}
 	}
 }
@@ -364,12 +371,12 @@ publishing {
 publish.doLast {
 	// After above publishing step, extract C/C++ "*.so" libraries from AAR to "./build/outputs/jniLibs" directory.
 	def jniLibsOutputDir = "${buildDir}/outputs/jniLibs"
-	project.delete jniLibsOutputDir
+	delete jniLibsOutputDir
 	copy {
 		from zipTree("${buildDir}/outputs/aar/titanium-release.aar")
 		into jniLibsOutputDir
 		include 'jni/**/*'
-		includeEmptyDirs false
+		includeEmptyDirs = false
 		eachFile {
 			it.relativePath = new RelativePath(true, it.relativePath.segments.drop(1))
 		}

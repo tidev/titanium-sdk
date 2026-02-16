@@ -21,7 +21,7 @@ describe('util', () => {
 		util.should.be.an.Object();
 	});
 
-	// For copious tests, see https://github.com/nodejs/node/blob/master/test/parallel/test-util-format.js
+	// For copious tests, see https://github.com/nodejs/node/blob/main/test/parallel/test-util-format.js
 	describe('#format()', () => {
 		it('is a function', () => {
 			util.format.should.be.a.Function();
@@ -1176,11 +1176,11 @@ describe('util', () => {
 			function original(...args) {
 				return args;
 			}
-			const deprecated = util.deprecate(original, 'dont call me Al');
+			const deprecated = util.deprecate(original, 'don\'t call me Al');
 			// this should get called synchronously, so I don't think we need to do any setTimeout/async finished stuff
 			process.once('warning', warning => {
 				warning.name.should.eql('DeprecationWarning');
-				warning.message.should.eql('dont call me Al');
+				warning.message.should.eql('don\'t call me Al');
 			});
 			const result = deprecated(null, 123);
 			should(result).eql([ null, 123 ]);

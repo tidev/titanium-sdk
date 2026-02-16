@@ -92,7 +92,7 @@
   RELEASE_TO_NIL(modalWindows);
   RELEASE_TO_NIL(hostView);
 
-  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc removeObserver:self];
   [super dealloc];
@@ -1014,7 +1014,7 @@
     CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
     CGRect viewBounds = [[self view] bounds];
 
-    // Need to do this to force navigation bar to draw correctly on iOS7
+    // Need to do this to force navigation bar to draw correctly on iOS 7
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
     if (statusBarFrame.size.height > 20) {
       if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
@@ -1066,7 +1066,6 @@
   [self adjustFrameForUpSideDownOrientation:nil];
 }
 
-// IOS5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
   return YES;
@@ -1076,9 +1075,6 @@
 {
   return [self shouldRotateToInterfaceOrientation:toInterfaceOrientation checkModal:YES];
 }
-// IOS5 support. End Section
-
-// IOS6 new stuff.
 
 - (BOOL)shouldAutomaticallyForwardRotationMethods
 {
@@ -1135,11 +1131,11 @@
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-  // IOS6. If forcing status bar orientation, this must return 0.
+  // If forcing status bar orientation, this must return 0.
   if (forcingStatusBarOrientation) {
     return 0;
   }
-  // IOS6. If we are presenting a modal view controller, get the supported
+  // If we are presenting a modal view controller, get the supported
   // orientations from the modal view controller
   UIViewController *topmostController = [self topPresentedControllerCheckingPopover:YES];
   if (topmostController != self) {

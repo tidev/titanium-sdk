@@ -356,7 +356,7 @@ properties:
   - name: html
     summary: Pass a HTML-based string and it will be formatted accordingly.
     description: |
-        Note that complex html structures like images are not supported.
+        Note that complex HTML structures like images are not supported.
         Use a <Titanium.UI.WebView> for those cases.
     platforms: [android, iphone, ipad, macos]
     since: "12.7.0"
@@ -450,7 +450,7 @@ properties:
     since: 2.1.2
 
   - name: showUndoRedoActions
-    summary: Determinates if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS9 and above. This property can only be set upon creation.
+    summary: Determines if the undo and redo buttons on the left side of the keyboard should be displayed or not. Only valid on iOS 9 and above. This property can only be set upon creation.
     type: Boolean
     default: true
     platforms: [ipad, macos]
@@ -493,7 +493,7 @@ properties:
         This property is useful to track the current cursor position of the text area. On iOS this property
         can be used in lieu of the [selected](Titanium.UI.TextArea.selected) event.
 
-        This method will return null on android and undefined on iOS if the view has not yet been attached
+        This method will return null on Android and undefined on iOS if the view has not yet been attached
         to the window.
     type: textAreaSelectedParams
     permission: read-only
@@ -538,7 +538,7 @@ events:
     summary: Fired when user interacts with a URL in the text area. See [handleLinks](Titanium.UI.TextArea.handleLinks).
     description: |
         The URL is set using the [ATTRIBUTE_LINK](Titanium.UI.ATTRIBUTE_LINK) property on the [attributedString](Titanium.UI.TextArea.attributedString).
-        This event is fired even in handleLinks is set to false. Only valid on iOS7 and above.
+        This event is fired even in handleLinks is set to false. Only valid on iOS 7 and above.
     properties:
       - name: url
         summary: The URL that is associated with this event.

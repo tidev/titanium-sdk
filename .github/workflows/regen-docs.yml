@@ -3,8 +3,10 @@ on:
   workflow_dispatch:
   pull_request:
     types: [ closed ]
-    branches: [ master ]
     paths: [ 'apidoc/**' ]
+    branches:
+    - master
+    - main
 
 jobs:
   regen:
@@ -14,7 +16,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 

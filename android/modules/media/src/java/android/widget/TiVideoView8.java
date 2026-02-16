@@ -21,7 +21,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * This is the api level 8 VideoView.java with Titanium-specific modifications.
+ * This is the API level 8 VideoView.java with Titanium-specific modifications.
  */
 
 package android.widget;
@@ -724,7 +724,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			// TITANIUM
 			if (mPlaybackListener != null) {
 				mPlaybackListener.onStartPlayback();
-				// Fired after a stop or play is called after a after url change.
+				// Fired after a stop or play is called after a after URL change.
 				if (oldState == STATE_PREPARED || oldState == STATE_PREPARING) {
 					mPlaybackListener.onPlayingPlayback();
 				}

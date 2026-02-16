@@ -376,7 +376,7 @@ typedef enum AsyncSocketError AsyncSocketError;
 // When a write is complete the onSocket:didWriteDataWithTag: delegate method is called.
 //
 // You may optionally set a timeout for any read/write operation. (To not timeout, use a negative time interval.)
-// If a read/write opertion times out, the corresponding "onSocket:shouldTimeout..." delegate method
+// If a read/write operation times out, the corresponding "onSocket:shouldTimeout..." delegate method
 // is called to optionally allow you to extend the timeout.
 // Upon a timeout, the "onSocket:willDisconnectWithError:" method is called, followed by "onSocketDidDisconnect".
 //

@@ -19,7 +19,7 @@ describe('Titanium.Platform', () => {
 
 	describe('properties', () => {
 		describe('.address', () => {
-			// may be undefined on ios sim!
+			// may be undefined on iOS sim!
 			before(function () {
 				if (IOS_SIM || OS_MACOS) {
 					this.skip();
@@ -32,7 +32,7 @@ describe('Titanium.Platform', () => {
 
 			it('matches IP address format if defined', () => {
 				should(Ti.Platform.address).match(/\d+\.\d+\.\d+\.\d+/);
-				// TODO Verify the format of the String. Should be an IP address, so like: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+				// TODO Verify the format of the string. Should be an IP address, so like: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 			});
 		});
 
@@ -172,7 +172,7 @@ describe('Titanium.Platform', () => {
 		});
 
 		describe('.netmask', () => {
-			// may be undefined on ios sim!
+			// may be undefined on iOS sim!
 			before(function () {
 				if (IOS_SIM || OS_MACOS) {
 					this.skip();
@@ -460,7 +460,7 @@ describe('Titanium.Platform', () => {
 				}
 			});
 
-			// FIXME: macOS pops dialogs about no application set to open this url scheme
+			// FIXME: macOS pops dialogs about no application set to open this URL scheme
 			it.ios('(url, callback) with unhandled scheme passes Error to callback', finish => {
 				Ti.Platform.openURL('randomapp://', _e => finish());
 			});
