@@ -187,7 +187,8 @@ export class CreateCommand {
 				}
 				if (cli.argv.alloy !== undefined || useAlloy) {
 					try {
-						execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { stdio: 'ignore' });
+						const output = execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { encoding: 'utf8' });
+						(output?.trim() || '').split('\n').forEach(line => logger.info(line));
 					} catch (_alloyError) {
 						logger.error('Alloy is not installed. Run "npm i -g alloy" to install it, then run "alloy new" inside the project folder.');
 					}
