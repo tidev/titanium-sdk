@@ -189,7 +189,7 @@ export class CreateCommand {
 					try {
 						execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { stdio: 'ignore' });
 					} catch (_alloyError) {
-						logger.error('Alloy is not installed. Please install it and run "alloy new" inside the project folder.');
+						logger.error('Alloy is not installed. Run "npm i -g alloy" to install it, then run "alloy new" inside the project folder.');
 					}
 				}
 
