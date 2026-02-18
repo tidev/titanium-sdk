@@ -186,7 +186,11 @@ export class CreateCommand {
 					logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 				}
 				if (cli.argv.alloy !== undefined || useAlloy) {
-					execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { stdio: 'inherit' });
+					try {
+						execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { stdio: 'ignore' });
+					} catch (_alloyError) {
+						logger.error('Alloy is not installed. Please install it and run "alloy new" inside the project folder.');
+					}
 				}
 
 				finished(err);
