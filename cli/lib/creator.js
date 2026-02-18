@@ -63,7 +63,7 @@ export class Creator {
 	 * @param {Function} callback - A function to call after the function finishes
 	 */
 	run() {
-		if (this.cli.argv.type === 'app_alloy') {
+		if (this.cli.argv.type === 'alloy') {
 			// alloy app - reset type to normal app
 			this.cli.argv.type = 'app';
 		}

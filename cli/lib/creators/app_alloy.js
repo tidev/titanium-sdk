@@ -11,6 +11,7 @@
  */
 
 import { BaseAppCreator } from './base_app.js';
+import { execSync } from 'node:child_process';
 
 /**
  * Creates application projects.
@@ -31,8 +32,18 @@ export class AppCreator extends BaseAppCreator {
 		super(logger, config, cli, {
 			title: 'Titanium App (Alloy)',
 			titleOrder: 2,
-			type: 'app_alloy'
+			type: 'alloy'
 		});
+	}
+
+	init() {
+		// check if alloy is installed
+		try {
+			execSync('alloy --version');
+		} catch (err) {
+			throw new Error('Alloy is not installed');
+		}
+		return super.init();
 	}
 }
 

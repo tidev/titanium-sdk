@@ -99,14 +99,14 @@ export class CreateCommand {
 				options: Object.assign({
 					type: {
 						abbr: 't',
-						default: cli.argv.prompt ? undefined : 'app',
+						default: cli.argv.prompt ? undefined : '1',
 						desc: 'the type of project to create',
 						order: 100,
 						prompt: (callback) => {
 							callback(fields.select({
 								title: 'What type of project would you like to create?',
 								promptLabel: 'Select a type by number or name',
-								default: 'app',
+								default: '1',
 								margin: '',
 								numbered: true,
 								relistOnError: true,
@@ -149,7 +149,7 @@ export class CreateCommand {
 			creator = this.creators[type];
 
 		let useAlloy = false;
-		if (creator.type === 'app_alloy') {
+		if (creator.type === 'alloy') {
 			useAlloy = true;
 			creator.type = 'app';
 		}
