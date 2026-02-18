@@ -184,13 +184,13 @@ export class CreateCommand {
 					logger.error(`Failed to create project after ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 				} else {
 					logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
-				}
-				if (cli.argv.alloy !== undefined || useAlloy) {
-					try {
-						const output = execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { encoding: 'utf8' });
-						(output?.trim() || '').split('\n').forEach(line => logger.info(line));
-					} catch (_alloyError) {
-						logger.error('Alloy is not installed. Run "npm i -g alloy" to install it, then run "alloy new" inside the project folder.');
+					if (cli.argv.alloy !== undefined || useAlloy) {
+						try {
+							const output = execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { encoding: 'utf8' });
+							(output?.trim() || '').split('\n').forEach(line => logger.info(line));
+						} catch (_alloyError) {
+							logger.error('Alloy is not installed. Run "npm i -g alloy" to install it, then run "alloy new" inside the project folder.');
+						}
 					}
 				}
 
