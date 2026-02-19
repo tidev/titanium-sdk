@@ -187,11 +187,13 @@ export class CreateCommand {
 						try {
 							const output = execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { encoding: 'utf8' });
 							(output?.trim() || '').split('\n').forEach(line => logger.info(line));
+							logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 						} catch (_alloyError) {
 							logger.error('Alloy is not installed. Run "npm i -g alloy" to install it, then run "alloy new" inside the project folder.');
 						}
+					} else {
+						logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 					}
-					logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 				}
 
 				finished(err);
