@@ -192,6 +192,7 @@ export class CreateCommand {
 						}
 						logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 					}
+					logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 				}
 
 				finished(err);
