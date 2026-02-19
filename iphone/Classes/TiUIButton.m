@@ -18,9 +18,7 @@
 #import "TiUIAttributedStringProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 #import "TiUIiOSButtonConfigurationProxy.h"
-#endif
 
 @implementation TiUIButton
 
@@ -74,7 +72,7 @@
   return YES;
 }
 
-- (void)setHighlighting:(BOOL)isHiglighted
+- (void)setHighlighting:(BOOL)isHighlighted
 {
 #ifndef TI_USE_AUTOLAYOUT
   for (TiUIView *thisView in [viewGroupWrapper subviews])
@@ -83,7 +81,7 @@
 #endif
   {
     if ([thisView respondsToSelector:@selector(setHighlighted:)]) {
-      [(id)thisView setHighlighted:isHiglighted];
+      [(id)thisView setHighlighted:isHighlighted];
     }
   }
 }
@@ -104,8 +102,8 @@
   } else {
     // If the bounds are smaller than the image size render it in an imageView and get the image of the view.
     // Should be pretty inexpensive since it happens rarely. TIMOB-9166
-    CGSize unstrechedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
-    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstrechedSize, bounds.size)) {
+    CGSize unstretchedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
+    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstretchedSize, bounds.size)) {
       UIImageView *theView = [[UIImageView alloc] initWithFrame:bounds];
       [theView setImage:backgroundImageCache];
       UIGraphicsBeginImageContextWithOptions(bounds.size, [theView.layer isOpaque], 0.0);
@@ -223,10 +221,20 @@
 #endif
 #pragma mark Public APIs
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
-- (void)setConfiguration_:(TiUIiOSButtonConfigurationProxy *)configuration
+- (void)setConfiguration_:(id)params
 {
+  TiUIiOSButtonConfigurationProxy *configuration = nil;
+
+  if ([params isKindOfClass:[TiUIiOSButtonConfigurationProxy class]]) {
+    configuration = (TiUIiOSButtonConfigurationProxy *)params;
+  } else if ([params isKindOfClass:[NSDictionary class]]) {
+    configuration = [[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:self.proxy.pageContext args:@[ params ]];
+  } else {
+    [self throwException:@"Invalid type passed" subreason:@"Either pass a ButtonConfiguration or Object" location:CODELOCATION];
+  }
+
   self.button.configuration = configuration.configuration;
+  [[self proxy] replaceValue:configuration forKey:@"configuration" notification:NO];
 
   // If provided: Handle swap of "backgroundColor" and "backgroundSelectedColor"
   if (configuration.baseBackgroundSelectedColor != nil && configuration.baseBackgroundColor != nil) {
@@ -243,7 +251,6 @@
     };
   }
 }
-#endif
 
 - (void)setStyle_:(id)style_
 {

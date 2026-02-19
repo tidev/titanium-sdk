@@ -5,18 +5,16 @@
  * See the LICENSE file for more information.
  */
 
-'use strict';
+import appc from 'node-appc';
+import fs from 'fs-extra';
+import path from 'node:path';
+import { exec } from 'node:child_process';
 
-const appc = require('node-appc'),
-	__ = appc.i18n(__dirname).__,
-	afs = appc.fs,
-	fs = require('fs-extra'),
-	path = require('path'),
-	exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
+const afs = appc.fs;
 
-exports.cliVersion = '>=3.2';
+export const cliVersion = '>=3.2';
 
-exports.init = function (logger, config, cli) {
+export function init(logger, config, cli) {
 	cli.on('build.ios.xcodebuild', {
 		pre: function (data, finished) {
 			if (this.target !== 'dist-appstore' && this.target !== 'dist-adhoc' && this.target !== 'dist-macappstore') {
@@ -51,7 +49,7 @@ exports.init = function (logger, config, cli) {
 			const name = builder.tiapp.name;
 			const stagingArchiveDir = path.join(builder.buildDir, name + '.xcarchive');
 			if (!fs.existsSync(stagingArchiveDir)) {
-				return finished(new Error(__('Staging archive directory does not exist')));
+				return finished(new Error('Staging archive directory does not exist'));
 			}
 
 			const now = new Date();
@@ -82,11 +80,11 @@ exports.init = function (logger, config, cli) {
 			switch (target) {
 				case 'dist-appstore':
 				case 'dist-macappstore':
-					logger.info(__('Preparing xcarchive'));
+					logger.info('Preparing xcarchive');
 
 					const productsDir = path.join(builder.buildDir, 'build', 'Products');
 					if (!fs.existsSync(productsDir)) {
-						return finished(new Error(__('Products directory does not exist')));
+						return finished(new Error('Products directory does not exist'));
 					}
 
 					// copy symbols
@@ -102,11 +100,11 @@ exports.init = function (logger, config, cli) {
 							fs.readdirSync(subdir).forEach(function (name) {
 								var file = path.join(subdir, name);
 								if (dsymRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isDirectory()) {
-									logger.info(__('Archiving debug symbols: %s', file.cyan));
+									logger.info(`Archiving debug symbols: ${file.cyan}`);
 									fs.copySync(file, path.join(archiveDsymDir, name), { overwrite: false });
 								} else if (bcSymbolMapsRegExp.test(name) && fs.existsSync(file) && fs.statSync(file).isFile()) {
 									const dest = path.join(bcSymbolMapsDir, name);
-									logger.info(__('Archiving Bitcode Symbol Map: %s', file.cyan));
+									logger.info(`Archiving Bitcode Symbol Map: ${file.cyan}`);
 									fs.writeFileSync(dest, fs.readFileSync(file));
 								}
 							});
@@ -135,26 +133,26 @@ exports.init = function (logger, config, cli) {
 					try  {
 						fs.move(stagingArchiveDir, dest);
 					} catch (error) {
-						logger.error(__('Failed to to move archive to correct location'));
+						logger.error('Failed to to move archive to correct location');
 					}
 					// if not build-only open xcode + organizer after packaging, otherwise finish
 					if (!cli.argv['build-only']) {
-						logger.info(__('Launching Xcode: %s', builder.xcodeEnv.xcodeapp.cyan));
+						logger.info(`Launching Xcode: ${builder.xcodeEnv.xcodeapp.cyan}`);
 						exec('open -a "' + builder.xcodeEnv.xcodeapp + '"', function () {
 							process.env.TI_ENV_NAME = process.env.STUDIO_NAME || 'Terminal.app';
 							exec('osascript "' + path.join(builder.platformPath, 'xcode_organizer.scpt') + '"', { env: process.env }, function () {
-								logger.info(__('Packaging complete'));
+								logger.info('Packaging complete');
 								finished();
 							});
 						});
 					} else {
-						logger.info(__('Packaging complete'));
+						logger.info('Packaging complete');
 						finished();
 					}
 					return;
 
 				case 'dist-adhoc':
-					logger.info(__('Packaging for Ad Hoc distribution'));
+					logger.info('Packaging for Ad Hoc distribution');
 					exportIPA(builder, target, stagingArchiveDir, cli.argv['output-dir'], finished);
 					return;
 			}
@@ -173,11 +171,11 @@ exports.init = function (logger, config, cli) {
 	 * @return {undefined}
 	 */
 	function exportIPA(builder, target, stagingArchiveDir, outputDirArg, callback) {
-		logger.debug(__('Packaging IPA for target %s', target.cyan));
+		logger.debug(`Packaging IPA for target ${target.cyan}`);
 
 		const outputDir = outputDirArg && afs.resolvePath(outputDirArg);
 		if (!outputDir) {
-			logger.warn(__('Invalid output directory %s, skipping packaging', '--output-dir'.cyan));
+			logger.warn(`Invalid output directory ${'--output-dir'.cyan}, skipping packaging`);
 			return callback();
 		}
 
@@ -186,7 +184,7 @@ exports.init = function (logger, config, cli) {
 
 		const ipaFile = path.join(outputDir, builder.tiapp.name + '.ipa');
 		if (fs.existsSync(ipaFile)) {
-			logger.debug(__('Deleting old .ipa file'));
+			logger.debug('Deleting old .ipa file');
 			fs.unlinkSync(ipaFile);
 		}
 
@@ -261,32 +259,32 @@ exports.init = function (logger, config, cli) {
 		];
 
 		// execute!
-		logger.debug(__('Running: %s %s', builder.xcodeEnv.executables.xcodebuild.cyan, args.join(' ').cyan));
+		logger.debug(`Running: ${builder.xcodeEnv.executables.xcodebuild.cyan} ${args.join(' ').cyan}`);
 		appc.subprocess.run(builder.xcodeEnv.executables.xcodebuild, args, function (err, stdout, stderr) {
 			if (err) {
 				const output = stderr.trim();
 				output.split('\n').forEach(logger.trace);
-				logger.error(__('Failed to export archive to ipa'));
+				logger.error('Failed to export archive to ipa');
 
 				const targetName = target === 'dist-appstore' ? 'Distribution' : 'Ad Hoc';
 
 				if (pp) {
 					if (pp.type === 'distribution' && target === 'dist-adhoc') {
-						logger.error(__('The selected provisioning profile "%s (%s)" appears to be a Distribution provisioning profile and not an Ad Hoc provisioning profile.', pp.name, pp.uuid));
+						logger.error(`The selected provisioning profile "${pp.name} (${pp.uuid})" appears to be a Distribution provisioning profile and not an Ad Hoc provisioning profile.`);
 					} else if (pp.type === 'adhoc' && target === 'dist-appstore') {
-						logger.error(__('The selected provisioning profile "%s (%s)" appears to be an Ad Hoc provisioning profile and not a Distribution provisioning profile.', pp.name, pp.uuid));
+						logger.error(`The selected provisioning profile "${pp.name} (${pp.uuid})" appears to be an Ad Hoc provisioning profile and not a Distribution provisioning profile.`);
 					} else {
-						logger.error(__('The selected provisioning profile "%s (%s)" is most likely not a valid %s provisioning profile.', pp.name, pp.uuid, targetName));
+						logger.error(`The selected provisioning profile "${pp.name} (${pp.uuid})" is most likely not a valid ${targetName} provisioning profile.`);
 					}
 				} else {
-					logger.error(__('The selected provisioning profile doesn\'t appear to be a %s provisioning profile or match the signing identity.', targetName));
+					logger.error(`The selected provisioning profile doesn't appear to be a ${targetName} provisioning profile or match the signing identity.`);
 				}
-				logger.error(__('Please ensure you are using a valid %s provisioning that is linked to the signing identity, then try again.', targetName));
+				logger.error(`Please ensure you are using a valid ${targetName} provisioning that is linked to the signing identity, then try again.`);
 			} else {
-				logger.info(__('Packaging complete'));
-				logger.info(__('Package location: %s', ipaFile.cyan));
+				logger.info('Packaging complete');
+				logger.info(`Package location: ${ipaFile.cyan}`);
 			}
 			callback();
 		});
 	}
-};
+}

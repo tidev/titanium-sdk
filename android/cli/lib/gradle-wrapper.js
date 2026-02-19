@@ -1,5 +1,5 @@
 /**
- * Installs, configures, and runs gradle in a root project directory.
+ * Installs, configures, and runs Gradle in a root project directory.
  *
  * @module lib/gradle-wrapper
  *
@@ -11,13 +11,10 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
-const appc = require('node-appc');
-const exec = require('child_process').exec; // eslint-disable-line security/detect-child-process
-const fs = require('fs-extra');
-const path = require('path');
-const url = require('url');
+import appc from 'node-appc';
+import { exec } from 'node:child_process';
+import fs from 'fs-extra';
+import path from 'node:path';
 
 /**
  * Determines if we're running on a Windows machine.
@@ -38,8 +35,8 @@ const isWindows = (process.platform === 'win32');
  * @typedef {[{ comment: {String}, key: {String}, value: {String} }]} GradlePropertiesFileEntries
  */
 
-/** Class used to install, configure, and run gradle in a root project directory. */
-class GradleWrapper {
+/** Class used to install, configure, and run Gradle in a root project directory. */
+export class GradleWrapper {
 	/**
 	 * Creates an object used to install/configure/run the "gradlew" script at the given root project directory.
 	 * @param {String} directoryPath
@@ -60,8 +57,8 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Gets the path to the directory the gradle wrapper batch/shell script files are located in.
-	 * This would be the root directory of a gradle based project.
+	 * Gets the path to the directory the Gradle wrapper batch/shell script files are located in.
+	 * This would be the root directory of a Gradle-based project.
 	 * @type {String}
 	 */
 	get directoryPath() {
@@ -69,7 +66,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Gets a path to the "gradlew" script file that will be executed to run gradle tasks.
+	 * Gets a path to the "gradlew" script file that will be executed to run Gradle tasks.
 	 * @type {String}
 	 */
 	get gradlewFilePath() {
@@ -77,7 +74,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Gets/Sets the "appc-logger" object that gradle will output to. Can be null/undefined.
+	 * Gets/Sets the "appc-logger" object that Gradle will output to. Can be null/undefined.
 	 * @type {Object}
 	 */
 	get logger() {
@@ -88,9 +85,9 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Runs the gradle "clean" command on the project, deleting all intermediate files and build artifacts.
+	 * Runs the Gradle "clean" command on the project, deleting all intermediate files and build artifacts.
 	 * @param {String} [subprojectName]
-	 * Optional name of the gradle subproject to clean, such as 'app'. This will not clean its dependency projects.
+	 * Optional name of the Gradle subproject to clean, such as 'app'. This will not clean its dependency projects.
 	 * Can be null/undefined, in which case all subprojects will be cleaned.
 	 */
 	async clean(subprojectName) {
@@ -101,7 +98,7 @@ class GradleWrapper {
 	/**
 	 * Builds a debug version of the project.
 	 * @param {String} [subprojectName]
-	 * Optional name of the gradle subproject to build, such as 'app'. Will build all of its dependency projects too.
+	 * Optional name of the Gradle subproject to build, such as 'app'. Will build all of its dependency projects too.
 	 * Can be null/undefined, in which case all subprojects will be built.
 	 */
 	async assembleDebug(subprojectName) {
@@ -112,7 +109,7 @@ class GradleWrapper {
 	/**
 	 * Builds a release version of the project.
 	 * @param {String} [subprojectName]
-	 * Optional name of the gradle subproject to build, such as 'app'. Will build all of its dependency projects too.
+	 * Optional name of the Gradle subproject to build, such as 'app'. Will build all of its dependency projects too.
 	 * Can be null/undefined, in which case all subprojects will be built.
 	 */
 	async assembleRelease(subprojectName) {
@@ -125,7 +122,7 @@ class GradleWrapper {
 	 * This is a Google Play publishing format, when uploaded, Google's servers will then generate multiple
 	 * APK files splits by CPU architecture and image densities. (App-bundle files cannot be ran on a device.)
 	 * @param {String} [subprojectName]
-	 * Optional name of the gradle subproject to generate an AAB app-bundle for, such as 'app'.
+	 * Optional name of the Gradle subproject to generate an AAB app-bundle for, such as 'app'.
 	 * Will build the app and all of its dependency projects if not done already.
 	 *
 	 * Can be null/undefined, in which case all application projects will be built as app-bundles.
@@ -136,14 +133,14 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Executes the gradle script's "publishing" task for the project.
+	 * Executes the Gradle script's "publishing" task for the project.
 	 *
-	 * Typically used to create a maven repository directory tree for the last built library project
+	 * Typically used to create a Maven repository directory tree for the last built library project
 	 * containing its AAR library and a "*.pom" XML file defining that library's dependencies.
 	 *
 	 * This method is expected to be called after calling assembleRelease().
 	 * @param {String} [subprojectName]
-	 * Optional name of the gradle subproject to publish.
+	 * Optional name of the Gradle subproject to publish.
 	 *
 	 * Can be null/undefined, in which case all subprojects will be published if they have a "publishing"
 	 * block in their "build.gradle" file.
@@ -153,7 +150,7 @@ class GradleWrapper {
 		await this.run(`${subprojectName}publish --console plain`);
 	}
 
-	/** Stops all gradle daemon processes on the system using the same gradle version this wrapper references. */
+	/** Stops all Gradle daemon processes on the system using the same Gradle version this wrapper references. */
 	async stopDaemon() {
 		await this.run('--stop --console plain');
 	}
@@ -164,7 +161,7 @@ class GradleWrapper {
 	 * Optional string to be passed as arguments to the "gradlew" command line tool.
 	 *
 	 * For example, set this to "assembleRelease --console plain" to do a release build and
-	 * output gradle's stdout/stderr as plain text to this GradleWrapper object's assigned "logger".
+	 * output Gradle's stdout/stderr as plain text to this GradleWrapper object's assigned "logger".
 	 */
 	async run(argsString) {
 		// Set up the "gradlew" command line string.
@@ -207,6 +204,7 @@ class GradleWrapper {
 
 		// Run the gradlew command line async.
 		await new Promise((resolve, reject) => {
+			// eslint-disable-next-line security/detect-child-process
 			const childProcess = exec(commandLineString, { cwd: this._gradlewDirPath });
 			if (this._logger) {
 				childProcess.stdout.on('data', createReadableDataHandlerUsing(this._logger, 'info'));
@@ -224,7 +222,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Determines if a "locale.properties" file exists at the gradle project's root location.
+	 * Determines if a "locale.properties" file exists at the Gradle project's root location.
 	 * @returns {Promise<Boolean>} Returns true if the file exists. Returns false if not.
 	 */
 	async hasLocalPropertiesFile() {
@@ -232,7 +230,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Determines if a "settings.gradle" file exists at the gradle project's root location.
+	 * Determines if a "settings.gradle" file exists at the Gradle project's root location.
 	 * @returns {Promise<Boolean>} Returns true if the file exists. Returns false if not.
 	 */
 	async hasSettingsGradleFile() {
@@ -240,7 +238,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Determines if the gradlew wrapper files exist in the gradle project's root location.
+	 * Determines if the gradlew wrapper files exist in the Gradle project's root location.
 	 * @returns {Promise<Boolean>} Returns true if the wrapper files exist. Returns false if not.
 	 */
 	async hasWrapperFiles() {
@@ -274,7 +272,7 @@ class GradleWrapper {
 			throw new Error('Argument "templateDirPath" must be set to a string.');
 		}
 
-		// Copy the gradle template directory tree to the directory this object references.
+		// Copy the Gradle template directory tree to the directory this object references.
 		// Note: The copy function does not copy file permissions. So, we must re-add execute permissions.
 		//       0o755 = User Read/Write/Exec, Group Read/Execute, Others Read/Execute
 		const destinationDirPath = this._gradlewDirPath;
@@ -297,7 +295,7 @@ class GradleWrapper {
 			appc.subprocess.run('appc', [ '-q', 'config', 'get', 'proxyServer' ], runOptions, (exitCode, out) => {
 				try {
 					if (!exitCode && out && (out.length > 0)) {
-						proxyUrl = url.parse(out.trim());
+						proxyUrl = new URL(out.trim());
 					}
 				} catch (ex) {
 					if (this._logger) {
@@ -334,7 +332,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Creates a "gradle.properties" file at the gradle project's root location,
+	 * Creates a "gradle.properties" file at the Gradle project's root location,
 	 * configuring it with default properties such as network proxy settings.
 	 */
 	async writeDefaultGradlePropertiesFile() {
@@ -343,7 +341,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Creates a "gradle.properties" file at the gradle project's root location,
+	 * Creates a "gradle.properties" file at the Gradle project's root location,
 	 * writing the given properties key/value entries to it.
 	 * @param {GradlePropertiesFileEntries} [properties]
 	 * Array of properties to be written to file. Can be null/undefined, in which case an empty file will be created.
@@ -354,7 +352,7 @@ class GradleWrapper {
 	}
 
 	/**
-	 * Creates a "local.properties" file at the gradle project's root location,
+	 * Creates a "local.properties" file at the Gradle project's root location,
 	 * providing the given Android SDK directory path needed to do an Android build.
 	 * @param {String} androidSdkDirPath Path to the Android SDK directory. Cannot be null/undefined.
 	 */
@@ -474,5 +472,3 @@ async function writeJavaPropertiesFile(filePath, properties) {
 	// Create the properties files with the text lines generated above.
 	await fs.writeFile(filePath, fileLines.join('\n') + '\n');
 }
-
-module.exports = GradleWrapper;

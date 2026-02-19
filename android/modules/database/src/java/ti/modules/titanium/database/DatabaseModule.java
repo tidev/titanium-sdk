@@ -143,7 +143,7 @@ public class DatabaseModule extends KrollModule
 
 		// Fetch a path to the source database file. This is the file to be copied/installed.
 		// Throw an exception if the source database was not found.
-		Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
+		Log.d(TAG, "database URL is = " + url, Log.DEBUG_MODE);
 		String resolveUrl = url;
 		if (invocation != null) {
 			TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
@@ -177,7 +177,7 @@ public class DatabaseModule extends KrollModule
 
 		// Set up the destination path that the source database file will be copied to.
 		File dbPath = ctx.getDatabasePath(name);
-		Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
+		Log.d(TAG, "database path is = " + dbPath, Log.DEBUG_MODE);
 
 		// Create the destination directory tree if it doesn't exist.
 		dbPath.getParentFile().mkdirs();

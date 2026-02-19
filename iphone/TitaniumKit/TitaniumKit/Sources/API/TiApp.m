@@ -348,7 +348,7 @@ extern void UIColorFlushCache(void);
   if (userActivity != nil && [userActivity isKindOfClass:[NSUserActivity class]]) {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
 
-    if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+    if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
       if ([userActivity userInfo] != nil) {
         [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
       }
@@ -381,12 +381,6 @@ extern void UIColorFlushCache(void);
   if (_localNotification != nil) {
     localNotification = [[[self class] dictionaryWithLocalNotification:_localNotification] retain];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-
-    // Queue the "localnotificationaction" event for iOS 9 and lower.
-    // For iOS 10+, the "userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler" delegate handles it
-    if ([TiUtils isIOSVersionLower:@"9.0"]) {
-      [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:nil];
-    }
   }
 
   // Map launched URL
@@ -1106,7 +1100,7 @@ extern void UIColorFlushCache(void);
   [sessionId release];
   sessionId = [[TiUtils createUUID] retain];
 
-  // TIMOB-3432. Ensure url is cleared when resume event is fired.
+  // TIMOB-3432. Ensure URL is cleared when resume event is fired.
   [launchOptions removeObjectForKey:@"url"];
   [launchOptions removeObjectForKey:@"source"];
 

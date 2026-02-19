@@ -22,7 +22,7 @@
 {
   self = [super init];
   if (self) {
-    _coreModules = [[NSSet setWithArray:@[ @"Accelerometer", @"Analytics", @"App", @"API", @"Calendar", @"Codec", @"Contacts", @"Database", @"Filesystem", @"Geolocation", @"Gesture", @"Locale", @"Media", @"Network", @"Platform", @"Stream", @"Utils", @"UI",
+    _coreModules = [[NSSet setWithArray:@[ @"Accelerometer", @"App", @"API", @"Calendar", @"Codec", @"Contacts", @"Database", @"Filesystem", @"Geolocation", @"Gesture", @"Locale", @"Media", @"Network", @"Platform", @"Stream", @"Utils", @"UI",
       @"WatchSession",
       @"XML" ]] retain];
   }

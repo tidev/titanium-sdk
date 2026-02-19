@@ -83,7 +83,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For durationavailable event
@@ -126,7 +126,7 @@ NSArray *moviePlayerKeys = nil;
 
   // we need this code below since the player can be realized before loading
   // properties in certain cases and when we go to create it again after setting
-  // url we will need to set the new controller to the already created view
+  // URL we will need to set the new controller to the already created view
   if ([self viewAttached]) {
     TiMediaVideoPlayer *vp = (TiMediaVideoPlayer *)[self view];
     [vp setMovie:movie];
@@ -140,7 +140,7 @@ NSArray *moviePlayerKeys = nil;
     if (url == nil) {
       [playerLock unlock];
       // this is OK - we just need to delay creation of the
-      // player until after the url is set
+      // player until after the URL is set
       return nil;
     }
     movie = [[AVPlayerViewController alloc] init];
@@ -366,7 +366,7 @@ NSArray *moviePlayerKeys = nil;
     AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
     [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
     [self removeNotificationObserver]; // Remove old observers
-    [self addNotificationObserver]; // Add new oberservers
+    [self addNotificationObserver]; // Add new observers
   } else {
     [self ensurePlayer];
   }
@@ -741,7 +741,7 @@ NSArray *moviePlayerKeys = nil;
 
   if (url == nil) {
     [self throwException:TiExceptionInvalidType
-               subreason:@"Tried to play movie player without a valid url or media property"
+               subreason:@"Tried to play movie player without a valid URL or media property"
                 location:CODELOCATION];
   }
 

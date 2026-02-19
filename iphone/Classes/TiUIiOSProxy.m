@@ -600,29 +600,18 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_FULL
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
-  }
-  return nil;
+  return NUMINTEGER(PHLivePhotoViewPlaybackStyleFull);
 }
 
 - (NSNumber *)LIVEPHOTO_PLAYBACK_STYLE_HINT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
-  }
-
-  return nil;
+  return NUMINTEGER(PHLivePhotoViewPlaybackStyleHint);
 }
 #endif
 
 #ifdef USE_TI_UIIOSLIVEPHOTOBADGE
 - (TiBlob *)createLivePhotoBadge:(id)value
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return nil;
-  }
-
   ENSURE_ARG_COUNT(value, 1);
   ENSURE_ARRAY(value);
   id option = [value objectAtIndex:0];
@@ -643,20 +632,14 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
-  }
-  return NUMINT(0);
+  return NUMINTEGER(PHLivePhotoBadgeOptionsOverContent);
 }
 #endif
 
 #ifdef USE_TI_UIIOSLIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 - (NSNumber *)LIVEPHOTO_BADGE_OPTIONS_LIVE_OFF
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.1"]) {
-    return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
-  }
-  return NUMINT(0);
+  return NUMINTEGER(PHLivePhotoBadgeOptionsLiveOff);
 }
 #endif
 
@@ -764,7 +747,7 @@ MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_AUDIO, UIApplicationShortcutIconTypeAudio);
 MAKE_SYSTEM_PROP(SHORTCUT_ICON_TYPE_UPDATE, UIApplicationShortcutIconTypeUpdate);
 #endif
 
-// Modal Transition and Presentatiom
+// Modal Transition and Presentation
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_COVER_VERTICAL, UIModalTransitionStyleCoverVertical);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL, UIModalTransitionStyleFlipHorizontal);
 MAKE_SYSTEM_PROP(MODAL_TRANSITION_STYLE_CROSS_DISSOLVE, UIModalTransitionStyleCrossDissolve);
@@ -813,13 +796,6 @@ MAKE_SYSTEM_PROP(LARGE_TITLE_DISPLAY_MODE_NEVER, UINavigationItemLargeTitleDispl
   return [[[TiUIiOSWebViewProcessPoolProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
-- (id)createButtonConfiguration:(id)args
-{
-  return [[[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
-}
-#endif
-
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_NONE, NSURLCredentialPersistenceNone);
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_FOR_SESSION, NSURLCredentialPersistenceForSession);
 MAKE_SYSTEM_PROP(CREDENTIAL_PERSISTENCE_PERMANENT, NSURLCredentialPersistencePermanent);
@@ -844,6 +820,11 @@ MAKE_SYSTEM_PROP(ACTION_POLICY_ALLOW, WKNavigationActionPolicyAllow);
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_START, WKUserScriptInjectionTimeAtDocumentStart);
 MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumentEnd);
 #endif
+
+- (id)createButtonConfiguration:(id)args
+{
+  return [[[TiUIiOSButtonConfigurationProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
 
 - (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
 {
@@ -887,6 +868,21 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
 #endif
 
   return @(-1);
+}
+
+- (NSNumber *)SCROLL_VIEW_EDGE_EFFECT_STYLE_AUTOMATIC
+{
+  return @(0);
+}
+
+- (NSNumber *)SCROLL_VIEW_EDGE_EFFECT_STYLE_HARD
+{
+  return @(1);
+}
+
+- (NSNumber *)SCROLL_VIEW_EDGE_EFFECT_STYLE_SOFT
+{
+  return @(2);
 }
 
 - (TiColor *)fetchSemanticColor:(id)color

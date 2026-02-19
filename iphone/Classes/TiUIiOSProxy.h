@@ -52,13 +52,10 @@
 #import "TiUIiOSSystemIconProxy.h"
 #endif
 
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 #import "TiUIiOSButtonConfigurationProxy.h"
-#endif
 
 #endif
 @interface TiUIiOSProxy : TiProxy {
-  @private
 }
 
 @property (nonatomic, readonly) NSNumber *SCROLL_DECELERATION_RATE_NORMAL;
@@ -171,8 +168,12 @@
 @property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN;
 @property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP;
 
+@property (nonatomic, readonly) NSNumber *SCROLL_VIEW_EDGE_EFFECT_STYLE_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *SCROLL_VIEW_EDGE_EFFECT_STYLE_HARD;
+@property (nonatomic, readonly) NSNumber *SCROLL_VIEW_EDGE_EFFECT_STYLE_SOFT;
+
 /**
- * Checks the force touch capibility of the current device.
+ * Checks the force touch capability of the current device.
  */
 - (NSNumber *)forceTouchSupported;
 
@@ -233,7 +234,5 @@
 - (id)createWebViewConfiguration:(id)args;
 - (id)createWebViewProcessPool:(id)args;
 #endif
-#ifdef USE_TI_UIIOSBUTTONCONFIGURATION
 - (id)createButtonConfiguration:(id)args;
-#endif
 @end

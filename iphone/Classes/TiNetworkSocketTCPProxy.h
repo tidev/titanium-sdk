@@ -7,7 +7,7 @@
 
 // TODO: Migrate to GCD sockets (GCDAsyncSocket). This will resolve a number of really ugly issues:
 // * Lower thread counts
-// * Explicit synchronization (no more conditions, flags, or race conditons!)
+// * Explicit synchronization (no more conditions, flags, or race conditions!)
 // * Maybe even synchronize with the context itself (when TIMOB-6990 complete)
 
 #if defined(USE_TI_NETWORKSOCKET) || (defined(USE_TI_NETWORK))

@@ -30,7 +30,7 @@ description: |
     The Material style introduced in Titanium SDK 10.0.0 will change the default look of the buttons.
     You can change button styles with a custom theme as follows:
     ``` xml
-    <!-- Assign this custom theme to "tiapp.xml" file's android manifest application element. -->
+    <!-- Assign this custom theme to "tiapp.xml" file's Android manifest application element. -->
     <style name="Theme.MyTheme" parent="Theme.Titanium.Light">
         <item name="textAppearanceButton">@style/TextAppearance.MyButton</item>
         <item name="android:buttonStyle">@style/Widget.MyButton</item>
@@ -150,7 +150,7 @@ properties:
         The underlying attributed string drawn by the label. If set, avoid setting common attributes
         in the label, such as `color` and `font`, as unexpected behaviors may result.
 
-        iOS Note: This property can also be used to supress the underline style when accessibility
+        iOS note: This property can also be used to suppress the underline style when accessibility
         is enabled. To do so, set the `type` to <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> and the
         `value` to <Titanium.UI.ATTRIBUTE_UNDERLINE_STYLE_NONE>.
     type: Titanium.UI.AttributedString
@@ -226,11 +226,15 @@ properties:
     description: |
         A <Titanium.UI.iOS.ButtonConfiguration> object that defines the appearance and behavior 
         of the button. This provides a modern way to configure buttons with support for titles, 
-        subtitles, images, and various styling options.
+        subtitles, images, and various styling options. Right now, the configuration is immutable, so you
+        cannot change individual properties. Instead, update the whole configuration.
         
         When using a button configuration, it takes precedence over individual styling properties
         like `title`, `color`, and `backgroundColor`.
-    type: Titanium.UI.iOS.ButtonConfiguration
+
+        Note: Since Titanium SDK 13.1.0, you can also pass an key-value Object directly, which is internally
+        converted to a button configuration.
+    type: [Titanium.UI.iOS.ButtonConfiguration, Object]
     since: "13.0.0"
     platforms: [iphone, ipad, macos]
     osver: {ios: {min: "15.0"}}
@@ -253,7 +257,7 @@ properties:
         [tintColor](Titanium.UI.Button.tintColor) property. If set `false`, the image is displayed as-is.
 
         On Android, you can set this to a numeric resource drawable ID via `Ti.App.Android.R.drawable.*`
-        which lets you use native vector drawbles that are commonly used as icons.
+        which lets you use native vector drawables that are commonly used as icons.
     type: [String, Number, Titanium.Blob]
 
   - name: imageIsMask

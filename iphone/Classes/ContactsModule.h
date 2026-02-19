@@ -28,7 +28,7 @@
 - (CNContactStore *)contactStore;
 + (NSArray *)contactKeysWithImage;
 + (NSArray *)contactKeysWithoutImage;
-- (void)save:(id)unusued;
+- (void)save:(id)unused;
 - (void)revert:(id)unused;
 - (void)showContacts:(id)args;
 - (NSArray *)getPeopleWithName:(id)arg;

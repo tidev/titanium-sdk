@@ -309,7 +309,7 @@
         section.sectionIndex = insertIndex;
         [indexSet addIndex:insertIndex];
       } else {
-        DebugLog(@"[WARN] ListView: Attempt to append exising section");
+        DebugLog(@"[WARN] ListView: Attempt to append existing section");
       }
     }];
     if ([indexSet count] > 0) {
@@ -373,7 +373,7 @@
         [indexSet addIndex:index];
         ++index;
       } else {
-        DebugLog(@"[WARN] ListView: Attempt to insert exising section");
+        DebugLog(@"[WARN] ListView: Attempt to insert existing section");
       }
     }];
     [_sections enumerateObjectsUsingBlock:^(TiUIListSectionProxy *section, NSUInteger idx, BOOL *stop) {
@@ -395,7 +395,7 @@
   [self rememberProxy:section];
   [self dispatchUpdateAction:^(UITableView *tableView) {
     if ([_sections containsObject:section]) {
-      DebugLog(@"[WARN] ListView: Attempt to insert exising section");
+      DebugLog(@"[WARN] ListView: Attempt to insert existing section");
       return;
     }
     if ([_sections count] <= replaceIndex) {
