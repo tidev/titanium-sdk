@@ -415,7 +415,7 @@ properties:
   - name: padding
     summary: The padding applied to the scrollable view.
     platforms: [android]
-    type: Padding
+    type: ScrollablePadding
     since: "7.5.0"
 
 examples:
@@ -554,3 +554,16 @@ examples:
 
       win.open();
       ```
+
+---
+name: ScrollablePadding
+extends: Padding
+summary: Dictionary object of parameters for the padding/insets applied to all kinds of views.
+properties:
+  - name: leftAdjust
+    summary: |
+      If set it will move the first item according to the `leftAdjust` value while still keeping left padding for
+      the next items.
+    type: Number
+    since: { android: 12.3.0 }
+    platforms: [android]
