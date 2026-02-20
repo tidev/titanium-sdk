@@ -6,6 +6,7 @@
  */
 package ti.modules.titanium.media;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.KrollRuntime;
@@ -38,23 +39,25 @@ public class AudioRecorderProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setCompression(int value)
 	{
+		tiAudioRecorder.compression = value;
 	}
 
 	@Kroll.setProperty
 	public void setFormat(int value)
 	{
+		tiAudioRecorder.format = value;
 	}
 
 	@Kroll.getProperty
 	public int getFormat()
 	{
-		return 0;
+		return tiAudioRecorder.format;
 	}
 
 	@Kroll.getProperty
 	public int getCompression()
 	{
-		return 0;
+		return tiAudioRecorder.compression;
 	}
 
 	@Kroll.getProperty
@@ -113,6 +116,15 @@ public class AudioRecorderProxy extends KrollProxy
 	{
 		stop();
 		super.release();
+	}
+
+	@Override
+	public void handleCreationDict(KrollDict dict)
+	{
+		super.handleCreationDict(dict);
+		if (dict.containsKeyAndNotNull("format")) {
+			setFormat(dict.getInt("format"));
+		}
 	}
 
 	@Override
