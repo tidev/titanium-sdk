@@ -310,7 +310,7 @@
   [super frameSizeChanged:frame bounds:visibleBounds];
 }
 
-- (void)scrollToBottom
+- (void)scrollToBottom:(BOOL)animated
 {
   /*
    * Calculate the bottom height & width and, sets the offset from the
@@ -327,12 +327,12 @@
 
   CGPoint newOffset = CGPointMake(bottomWidth, bottomHeight);
 
-  [currScrollView setContentOffset:newOffset animated:YES];
+  [currScrollView setContentOffset:newOffset animated:animated];
 }
 
-- (void)scrollToTop
+- (void)scrollToTop:(BOOL)animated
 {
-  [[self scrollView] setContentOffset:CGPointMake(0, -[[self scrollView] contentInset].top) animated:YES];
+  [[self scrollView] setContentOffset:CGPointMake(0, -[[self scrollView] contentInset].top) animated:animated];
 }
 
 - (void)setDecelerationRate_:(id)value

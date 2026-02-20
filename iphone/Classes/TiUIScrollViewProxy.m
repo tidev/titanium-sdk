@@ -331,20 +331,26 @@ static NSArray *scrollViewKeySequence;
   [offset release];
 }
 
-- (void)scrollToBottom:(id)unused
+- (void)scrollToBottom:(id)args
 {
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+  BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+
   TiThreadPerformOnMainThread(
       ^{
-        [(TiUIScrollView *)[self view] scrollToBottom];
+        [(TiUIScrollView *)[self view] scrollToBottom:animated];
       },
       YES);
 }
 
-- (void)scrollToTop:(id)unused
+- (void)scrollToTop:(id)args
 {
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+  BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
+
   TiThreadPerformOnMainThread(
       ^{
-        [(TiUIScrollView *)[self view] scrollToTop];
+        [(TiUIScrollView *)[self view] scrollToTop:animated];
       },
       YES);
 }
