@@ -740,6 +740,7 @@ public class TiC
 	public static final String PROPERTY_SHOW_SELECTION_CHECK = "showSelectionCheck";
 	public static final String PROPERTY_SISTER = "sister";
 	public static final String PROPERTY_SIZE = "size";
+	public static final String PROPERTY_SNAPPING = "snapping";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
