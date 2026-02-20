@@ -619,17 +619,14 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// If capturing a photo/video, create a file for it in the gallery and get a "content://" URI to it.
-		switch (actionName) {
-			case MediaStore.ACTION_IMAGE_CAPTURE:
-				mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
-				break;
-			case MediaStore.ACTION_VIDEO_CAPTURE:
-				mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
-				break;
-			default:
-				mCaptureFileUri = null;
-				break;
+		if (hasImageMimeType) {
+			mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
+		} else if (hasVideoMimeType) {
+			mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
+		} else {
+			mCaptureFileUri = null;
 		}
+		
 		if (mCaptureFileUri != null) {
 			intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			intent.setClipData(ClipData.newRawUri("", mCaptureFileUri));
@@ -642,10 +639,17 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// If multiple apps can handle the intent, then let the end-user choose which one to use.
-		intent = Intent.createChooser(intent, chooserParams.getTitle());
+
+		Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+		chooser.putExtra(Intent.EXTRA_INTENT, intent);
+		chooser.putExtra(Intent.EXTRA_TITLE, chooserParams.getTitle());
+
+		Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+		Intent[] intentArray = { cameraIntent };
+		chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
 
 		// Return the final intent for file selection or image/video capturing.
-		return intent;
+		return chooser;
 	}
 
 	/**
