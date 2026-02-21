@@ -15,9 +15,9 @@ import appc from 'node-appc';
 import fields from 'fields';
 import fs from 'node:fs';
 import path from 'node:path';
-import ti from 'node-titanium-sdk';
 import { execSync } from 'node:child_process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { commonOptions } from '../lib/common-options.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -128,7 +128,7 @@ export class CreateCommand {
 						required: true,
 						values: Object.keys(this.creators)
 					}
-				}, ti.commonOptions(logger, config)),
+				}, commonOptions(logger, config)),
 				type: typeConf
 			};
 

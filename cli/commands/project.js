@@ -7,6 +7,7 @@
 
 import path from 'node:path';
 import ti from 'node-titanium-sdk';
+import { commonOptions } from '../lib/common-options.js';
 import appc from 'node-appc';
 
 export const cliVersion = '>=3.2.1';
@@ -39,7 +40,7 @@ export function config(logger, config) {
 				desc: 'the name of the project template to use',
 				default: 'default'
 			}
-		}, ti.commonOptions(logger, config)),
+		}, commonOptions(logger, config)),
 		args: [
 			{
 				name: 'key',
