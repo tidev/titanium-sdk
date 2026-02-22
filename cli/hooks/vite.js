@@ -29,7 +29,7 @@ export function init(logger, config, cli) {
 	});
 
 	cli.on('cli:post-validate', () => {
-		if (commandName !== 'build') {
+		if (commandName !== 'build' && commandName !== 'serve') {
 			return;
 		}
 
@@ -57,6 +57,12 @@ export function init(logger, config, cli) {
 			}
 
 			builder.useBundler = true;
+
+			// `ti serve` already started the Vite dev server before invoking the build pipeline.
+			// Only mark the builder as bundler-backed and skip one-off Vite build work here.
+			if (commandName === 'serve') {
+				return;
+			}
 
 			const bridge = createTiViteBridge({
 				platform: builder.platform,
