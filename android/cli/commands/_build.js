@@ -2676,8 +2676,8 @@ class AndroidBuilder extends Builder {
 			}
 		});
 		await task.run();
-		if (this.useWebpack) {
-			// Merge Ti symbols from Webpack with the ones from legacy JS processing
+		if (this.useBundler) {
+			// Merge Ti symbols from bundlers with the ones from legacy JS processing.
 			Object.keys(task.data.tiSymbols).forEach(file => {
 				const existingSymbols = this.tiSymbols[file] || [];
 				const additionalSymbols = task.data.tiSymbols[file];
