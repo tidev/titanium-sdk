@@ -2396,7 +2396,7 @@
 				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2457,7 +2457,7 @@
 				);
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = Titanium.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_DEPENDENCY_INFO_FILE = "$(OBJECT_FILE_DIR_$(CURRENT_VARIANT))/$(CURRENT_ARCH)/$(PRODUCT_NAME)_dependency_info.dat";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2544,7 +2544,7 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DDEBUG";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2608,7 +2608,7 @@
 					"${\"SDKROOT\"}/usr/include/libxml2",
 					../headers,
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
