@@ -1,7 +1,7 @@
 # Kroll Locking Modernization Design
 
 **Date:** 2026-02-22
-**Target:** iOS 16+ (all modern GCD APIs available)
+**Target:** iOS 15+ (all modern GCD APIs available)
 **Approach:** Replace all legacy locking primitives with GCD dispatch queues
 
 ## Problem
