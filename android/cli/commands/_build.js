@@ -3888,7 +3888,7 @@ class AndroidBuilder extends Builder {
 }
 
 // create the builder instance and expose the public API
-const builder = new AndroidBuilder();
+export const builder = new AndroidBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);
 export const run = builder.run.bind(builder);

@@ -11,16 +11,18 @@ import fs from 'fs-extra';
 import merge from 'lodash.merge';
 import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
+import { pathToFileURL } from 'node:url';
 
 import * as buildCommand from './build.js';
 import { startServer } from '../lib/serve/start-server.js';
 import { resolveHost } from '../lib/serve/resolve-host.js';
+import { determineProjectType } from '../lib/serve/project-type.js';
 import { createServeHash, readServeMetadata, writeServeMetadata } from '../lib/serve/metadata.js';
 
 export const cliVersion = '>=3.2.1';
 export const title = 'Serve';
 export const desc = 'serves an app through the Titanium Vite runtime';
-export const extendedDesc = 'Starts a Vite dev server, builds the app, and launches it.';
+export const extendedDesc = 'Starts a Vite dev server and launches a build artifact.';
 
 export function config(logger, config, cli) {
 	const platform = cli.argv._[1];
@@ -110,9 +112,9 @@ export async function run(logger, config, cli, finished) {
 	const port = cli.argv.port || 8323;
 	let force = cli.argv.force;
 
-	const legacyPlatformName = cli.argv.platform === 'android' ? 'android' : 'iphone';
-	const platform = cli.argv.platform.replace(/^(iphone|ipad)$/i, 'ios');
-	const metadataPath = path.join(projectDir, 'build', legacyPlatformName, '.serve', 'metadata.json');
+	const platform = ti.resolvePlatform(cli.argv.platform);
+	const platformName = platform === 'iphone' ? 'ios' : platform;
+	const metadataPath = path.join(projectDir, 'build', platform, '.serve', 'metadata.json');
 
 	try {
 		const buildHash = createServeHash({
@@ -140,7 +142,8 @@ export async function run(logger, config, cli, finished) {
 			logger,
 			project: {
 				dir: projectDir,
-				platform,
+				type: determineProjectType(projectDir),
+				platform: platformName,
 				target: cli.argv.target,
 				tiapp: cli.tiapp
 			},
@@ -149,21 +152,141 @@ export async function run(logger, config, cli, finished) {
 				port
 			}
 		});
+
+		const builder = await getPlatformBuilder(cli, platform);
+		const runBuild = promisify(buildCommand.run);
+
 		if (force) {
 			logger.info('[Serve] Forcing app rebuild ...');
+			cli.argv['build-only'] = true;
+			cli.argv.serve = true;
+			try {
+				await runBuild(logger, config, cli);
+			} finally {
+				cli.argv['build-only'] = false;
+			}
+			await writeServeMetadata(metadataPath, metadata);
 		} else {
-			logger.info('[Serve] Running incremental build ...');
+			logger.info('[Serve] Reusing previous build artifacts ...');
+			cli.argv['build-only'] = false;
 		}
 
 		cli.argv.serve = true;
 		cli.argv.force = !!force;
+		if (builder && Object.prototype.hasOwnProperty.call(builder, 'buildOnly')) {
+			builder.buildOnly = false;
+		}
 
-		const runBuild = promisify(buildCommand.run);
-		await runBuild(logger, config, cli);
-		await writeServeMetadata(metadataPath, metadata);
+		await ensureBuilderReadyForLaunch(builder, platform, cli);
+		assertLaunchArtifactsExist(builder, platform, cli);
+		await launchWithPlatformLauncher({ logger, config, cli, builder, platform });
 	} catch (err) {
 		return finished(err);
 	}
 
 	finished();
+}
+
+async function getPlatformBuilder(cli, platform) {
+	const buildCommandPath = path.join(cli.sdk.path, platform, 'cli', 'commands', '_build.js');
+	const buildModule = await import(pathToFileURL(buildCommandPath).href);
+	if (!buildModule || !buildModule.builder) {
+		throw new Error(`Serve launch is not supported for platform "${platform}" in this SDK.`);
+	}
+	return buildModule.builder;
+}
+
+async function ensureBuilderReadyForLaunch(builder, platform, cli) {
+	if (!builder) {
+		throw new Error('Unable to prepare builder state for serve launch.');
+	}
+
+	if (platform === 'android') {
+		if (!builder.appid || !builder.classname || !builder.apkFile) {
+			await builder.initialize();
+		}
+		return;
+	}
+
+	if (platform === 'iphone') {
+		if (!builder.xcodeAppDir || !builder.iosBuildDir) {
+			await builder.initialize();
+		}
+		if (cli.argv.target === 'device') {
+			builder.determineLogServerPort();
+		}
+		return;
+	}
+
+	throw new Error(`Serve launch does not support platform "${platform}".`);
+}
+
+function assertLaunchArtifactsExist(builder, platform, cli) {
+	if (platform === 'android') {
+		if (!builder.apkFile || !fs.existsSync(builder.apkFile)) {
+			throw new Error('No previous Android build artifact found. Re-run with --force.');
+		}
+		return;
+	}
+
+	if (platform === 'iphone') {
+		if (cli.argv.target === 'device' || cli.argv.target === 'simulator' || cli.argv.target === 'macos') {
+			if (!builder.xcodeAppDir || !fs.existsSync(builder.xcodeAppDir)) {
+				throw new Error('No previous iOS build artifact found. Re-run with --force.');
+			}
+		}
+		return;
+	}
+}
+
+async function launchWithPlatformLauncher({ logger, config, cli, builder, platform }) {
+	if (platform === 'android') {
+		const { createAndroidLauncher } = await import('../../android/cli/lib/launcher.js');
+		const launcher = createAndroidLauncher({ logger, config, cli });
+		await invokeLauncherStep(done => launcher.preCompile(builder, done));
+		await invokeLauncherStep(done => launcher.postCompile(builder, done));
+		return;
+	}
+
+	if (platform === 'iphone') {
+		if (cli.argv.target === 'device') {
+			const { installOnDevice } = await import('../../iphone/cli/lib/device-installer.js');
+			await invokeLauncherStep(done => installOnDevice({ logger, cli, builder, finished: done }));
+			return;
+		}
+
+		if (cli.argv.target === 'simulator' || cli.argv.target === 'macos') {
+			const { launchOnSimulatorOrMac } = await import('../../iphone/cli/lib/simulator-launcher.js');
+			await invokeLauncherStep(done => {
+				launchOnSimulatorOrMac({ logger, config, cli, builder, finished: done }).catch(done);
+			});
+			return;
+		}
+
+		throw new Error(`Serve launch for iOS target "${cli.argv.target}" is not supported.`);
+	}
+
+	throw new Error(`Serve launch does not support platform "${platform}".`);
+}
+
+function invokeLauncherStep(step) {
+	return new Promise((resolve, reject) => {
+		let settled = false;
+		const done = (err) => {
+			if (settled) {
+				return;
+			}
+			settled = true;
+			if (err && err instanceof Error) {
+				return reject(err);
+			}
+			resolve();
+		};
+
+		try {
+			step(done);
+		} catch (err) {
+			done(err);
+		}
+	});
 }

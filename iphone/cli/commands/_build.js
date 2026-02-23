@@ -7590,7 +7590,7 @@ async function processArchitecture() {
 }
 
 // create the builder instance and expose the public API
-const builder = new iOSBuilder();
+export const builder = new iOSBuilder();
 export const config = builder.config.bind(builder);
 export const validate = builder.validate.bind(builder);
 export const run = builder.run.bind(builder);
