@@ -1506,10 +1506,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)dealloc
 {
   //	RELEASE_TO_NIL(pendingAdds);
-  dispatch_release(destroyQueue);
-  dispatch_release(childrenQueue);
-
-  // Dealing with children is in _destroy, which is called by super dealloc.
+  // Note: destroyQueue and childrenQueue are released in _destroy,
+  // which is called by [super dealloc] via TiProxy. Releasing them
+  // here would cause use-after-free since _destroy still needs them.
   RELEASE_TO_NIL(barButtonItem);
   [super dealloc];
 }
@@ -1549,6 +1548,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)detachView
 {
+  if (!destroyQueue) {
+    return;
+  }
   DestroyQueuePerform(destroyQueue, ^{
     if (view != nil) {
       [self viewWillDetach];
@@ -1568,6 +1570,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (void)_destroy
 {
+  if (!destroyQueue) {
+    // Queue not initialized or already released by a prior _destroy call.
+    [super _destroy];
+    return;
+  }
+
   DestroyQueuePerform(destroyQueue, ^{
     if ([self destroyed]) {
       return;
@@ -1603,6 +1611,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
   });
+
+  // Safe to release after dispatch_sync returns — the queues are no longer needed.
+  dispatch_release(childrenQueue);
+  childrenQueue = nil;
+  dispatch_release(destroyQueue);
+  destroyQueue = nil;
 }
 
 - (void)destroy
