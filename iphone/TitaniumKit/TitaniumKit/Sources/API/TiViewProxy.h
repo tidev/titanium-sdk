@@ -8,7 +8,6 @@
 #import "TiRect.h"
 #import "TiUIView.h"
 #import "TiViewTemplate.h"
-#import <pthread.h>
 
 /**
  Protocol for views that can receive keyboard focus.
@@ -105,7 +104,7 @@ enum {
 
 #pragma mark Parent/Children relationships
   TiViewProxy *parent;
-  pthread_rwlock_t childrenLock;
+  dispatch_queue_t childrenQueue;
   NSMutableArray *children;
   //	NSMutableArray *pendingAdds;
 
@@ -131,7 +130,7 @@ enum {
   // Use parentWillShow and parentWillHide to set this.
 
 #pragma mark Housecleaning that is set and used
-  NSRecursiveLock *destroyLock;
+  dispatch_queue_t destroyQueue;
 
   BOOL windowOpened;
   BOOL windowOpening;

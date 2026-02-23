@@ -324,7 +324,7 @@ DEFINE_EXCEPTIONS
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
                                                object:nil];
-    lock = [[NSRecursiveLock alloc] init];
+    lockQueue = dispatch_queue_create("ti.imageloader", DISPATCH_QUEUE_SERIAL);
   }
   return self;
 }
@@ -338,7 +338,8 @@ DEFINE_EXCEPTIONS
   RELEASE_TO_NIL(cache);
   RELEASE_TO_NIL(queue);
   RELEASE_TO_NIL(timeout);
-  RELEASE_TO_NIL(lock);
+  dispatch_release(lockQueue);
+  lockQueue = nil;
   [super dealloc];
 }
 
@@ -624,12 +625,12 @@ DEFINE_EXCEPTIONS
   // if have a queue and it's suspend, just throw our request
   // in the timeout queue until we're resumed
   if (queue != nil && [queue isSuspended]) {
-    [lock lock];
-    if (timeout == nil) {
-      timeout = [[NSMutableArray alloc] initWithCapacity:4];
-    }
-    [timeout addObject:request];
-    [lock unlock];
+    dispatch_sync(lockQueue, ^{
+      if (timeout == nil) {
+        timeout = [[NSMutableArray alloc] initWithCapacity:4];
+      }
+      [timeout addObject:request];
+    });
     return request;
   }
 
@@ -640,45 +641,44 @@ DEFINE_EXCEPTIONS
 
 - (void)suspend
 {
-  [lock lock];
-  if (queue != nil) {
-    [queue setSuspended:YES];
-  }
-  [lock unlock];
+  dispatch_sync(lockQueue, ^{
+    if (queue != nil) {
+      [queue setSuspended:YES];
+    }
+  });
 }
 
 - (void)cancel
 {
   // NOTE: this should only be called on suspend
   // to cause the queue to be stopped
-  [lock lock];
-  if (queue != nil) {
-    [queue cancelAllOperations];
-  }
-  [lock unlock];
+  dispatch_sync(lockQueue, ^{
+    if (queue != nil) {
+      [queue cancelAllOperations];
+    }
+  });
 }
 
 - (void)resume
 {
-  [lock lock];
-
-  if (queue != nil) {
-    [queue setSuspended:NO];
-  }
-
-  if (timeout != nil) {
-    for (ImageLoaderRequest *request in timeout) {
-      if ([request cancelled]) {
-        if ([[request delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
-          [[request delegate] performSelector:@selector(imageLoadCancelled:) withObject:request];
-        }
-      } else {
-        [self doImageLoader:request];
-      }
+  dispatch_sync(lockQueue, ^{
+    if (queue != nil) {
+      [queue setSuspended:NO];
     }
-    [timeout removeAllObjects];
-  }
-  [lock unlock];
+
+    if (timeout != nil) {
+      for (ImageLoaderRequest *request in timeout) {
+        if ([request cancelled]) {
+          if ([[request delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
+            [[request delegate] performSelector:@selector(imageLoadCancelled:) withObject:request];
+          }
+        } else {
+          [self doImageLoader:request];
+        }
+      }
+      [timeout removeAllObjects];
+    }
+  });
 }
 
 #pragma mark Delegates
