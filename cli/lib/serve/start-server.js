@@ -26,8 +26,7 @@ export async function startServer({ logger, project, server }) {
 	const bridge = createTiViteBridge({
 		command: 'serve',
 		platform: project.platform,
-		target: project.target,
-		type: project.type
+		target: project.target
 	});
 
 	const viteServer = await createServer({

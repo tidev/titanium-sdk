@@ -15,7 +15,6 @@ import { pathToFileURL } from 'node:url';
 import * as buildCommand from './build.js';
 import { startServer } from '../lib/serve/start-server.js';
 import { resolveHost } from '../lib/serve/resolve-host.js';
-import { determineProjectType } from '../lib/serve/project-type.js';
 import { createServeHash, readServeMetadata, writeServeMetadata } from '../lib/serve/metadata.js';
 
 const DEFAULT_PORT = 8323;
@@ -141,7 +140,6 @@ export async function run(logger, config, cli, finished) {
 			logger,
 			project: {
 				dir: projectDir,
-				type: determineProjectType(projectDir),
 				platform: platformName,
 				target: cli.argv.target,
 				tiapp: cli.tiapp
