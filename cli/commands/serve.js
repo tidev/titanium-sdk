@@ -6,7 +6,6 @@
  */
 
 import path from 'node:path';
-import { promisify } from 'node:util';
 import fs from 'fs-extra';
 import merge from 'lodash.merge';
 import ti from 'node-titanium-sdk';
@@ -18,6 +17,8 @@ import { startServer } from '../lib/serve/start-server.js';
 import { resolveHost } from '../lib/serve/resolve-host.js';
 import { determineProjectType } from '../lib/serve/project-type.js';
 import { createServeHash, readServeMetadata, writeServeMetadata } from '../lib/serve/metadata.js';
+
+const DEFAULT_PORT = 8323;
 
 export const cliVersion = '>=3.2.1';
 export const title = 'Serve';
@@ -44,14 +45,11 @@ export function config(logger, config, cli) {
 						desc: 'serve host ip'
 					},
 					port: {
-						default: 8323,
+						default: DEFAULT_PORT,
 						desc: 'serve server port',
 						callback: function (port) {
-							if (port === undefined || port === null || port === '') {
-								return 8323;
-							}
 							const value = parseInt(port, 10);
-							return Number.isNaN(value) ? 8323 : value;
+							return Number.isNaN(value) ? DEFAULT_PORT : value;
 						}
 					},
 					'project-dir': {
@@ -109,13 +107,14 @@ export function validate(logger, config, cli) {
 export async function run(logger, config, cli, finished) {
 	const projectDir = cli.argv['project-dir'];
 	const host = cli.argv.host || resolveHost();
-	const port = cli.argv.port || 8323;
+	const port = cli.argv.port || DEFAULT_PORT;
 	let force = cli.argv.force;
 
 	const platform = ti.resolvePlatform(cli.argv.platform);
 	const platformName = platform === 'iphone' ? 'ios' : platform;
 	const metadataPath = path.join(projectDir, 'build', platform, '.serve', 'metadata.json');
 
+	let viteServer;
 	try {
 		const buildHash = createServeHash({
 			tiapp: cli.tiapp && typeof cli.tiapp.toString === 'function' ? cli.tiapp.toString() : cli.tiapp,
@@ -138,7 +137,7 @@ export async function run(logger, config, cli, finished) {
 		}
 
 		logger.info('[Serve] Starting Vite dev server ...');
-		await startServer({
+		const serverResult = await startServer({
 			logger,
 			project: {
 				dir: projectDir,
@@ -152,20 +151,25 @@ export async function run(logger, config, cli, finished) {
 				port
 			}
 		});
+		viteServer = serverResult.viteServer;
 
 		const builder = await getPlatformBuilder(cli, platform);
-		const runBuild = promisify(buildCommand.run);
 
 		if (force) {
 			logger.info('[Serve] Forcing app rebuild ...');
 			cli.argv['build-only'] = true;
 			cli.argv.serve = true;
 			try {
-				await runBuild(logger, config, cli);
+				await runBuildAsync(logger, config, cli);
 			} finally {
 				cli.argv['build-only'] = false;
 			}
-			await writeServeMetadata(metadataPath, metadata);
+			try {
+				await writeServeMetadata(metadataPath, metadata);
+			} catch (metaErr) {
+				logger.warn(`[Serve] Failed to write serve metadata: ${metaErr.message}`);
+				logger.warn('[Serve] Next serve run will trigger a full rebuild.');
+			}
 		} else {
 			logger.info('[Serve] Reusing previous build artifacts ...');
 			cli.argv['build-only'] = false;
@@ -181,10 +185,26 @@ export async function run(logger, config, cli, finished) {
 		assertLaunchArtifactsExist(builder, platform, cli);
 		await launchWithPlatformLauncher({ logger, config, cli, builder, platform });
 	} catch (err) {
+		if (viteServer) {
+			await viteServer.close().catch(() => {});
+		}
+		logger.error(`[Serve] Failed: ${err.message}`);
+		logger.debug(err.stack);
 		return finished(err);
 	}
 
 	finished();
+}
+
+function runBuildAsync(logger, config, cli) {
+	return new Promise((resolve, reject) => {
+		buildCommand.run(logger, config, cli, (err) => {
+			if (err && err instanceof Error) {
+				return reject(err);
+			}
+			resolve();
+		});
+	});
 }
 
 async function getPlatformBuilder(cli, platform) {
@@ -237,6 +257,8 @@ function assertLaunchArtifactsExist(builder, platform, cli) {
 		}
 		return;
 	}
+
+	throw new Error(`Serve launch does not support platform "${platform}".`);
 }
 
 async function launchWithPlatformLauncher({ logger, config, cli, builder, platform }) {
@@ -277,8 +299,11 @@ function invokeLauncherStep(step) {
 				return;
 			}
 			settled = true;
-			if (err && err instanceof Error) {
+			if (err instanceof Error) {
 				return reject(err);
+			}
+			if (err && err !== true) {
+				return reject(new Error(typeof err === 'string' ? err : JSON.stringify(err)));
 			}
 			resolve();
 		};

@@ -5,21 +5,14 @@
  * See the LICENSE file for more information.
  */
 
-import fs from 'fs-extra';
-import path from 'node:path';
-import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
-const require = createRequire(import.meta.url);
-
-const VITE_CONFIG_FILENAMES = [
-	'vite.config.js',
-	'vite.config.mjs',
-	'vite.config.cjs',
-	'vite.config.ts',
-	'vite.config.mts',
-	'vite.config.cts'
-];
+import {
+	resolveVitePath,
+	findViteConfigFile,
+	tiBridgePlugin,
+	createTiViteBridge
+} from '../vite-utils.js';
 
 export async function startServer({ logger, project, server }) {
 	const projectDir = project && project.dir;
@@ -31,6 +24,7 @@ export async function startServer({ logger, project, server }) {
 	const { createServer } = await import(pathToFileURL(vitePath).href);
 	const configFile = findViteConfigFile(projectDir);
 	const bridge = createTiViteBridge({
+		command: 'serve',
 		platform: project.platform,
 		target: project.target,
 		type: project.type
@@ -58,7 +52,15 @@ export async function startServer({ logger, project, server }) {
 		}
 	});
 
-	await viteServer.listen();
+	try {
+		await viteServer.listen();
+	} catch (err) {
+		if (err.message && err.message.includes('already in use')) {
+			throw new Error(`Port ${server.port} is already in use. Use --port to specify a different port.`);
+		}
+		throw err;
+	}
+
 	const urls = collectUrls(viteServer.resolvedUrls);
 	if (logger && urls.length) {
 		logger.info(`[Serve] Vite dev server running at ${urls[0]}`);
@@ -68,56 +70,6 @@ export async function startServer({ logger, project, server }) {
 		viteServer,
 		bridge,
 		urls
-	};
-}
-
-function resolveVitePath(projectDir) {
-	try {
-		return require.resolve('vite', { paths: [ projectDir ] });
-	} catch {
-		throw new Error('Unable to resolve "vite" from the project. Install it in your app project first.');
-	}
-}
-
-function findViteConfigFile(projectDir) {
-	for (const filename of VITE_CONFIG_FILENAMES) {
-		const file = path.join(projectDir, filename);
-		if (fs.existsSync(file)) {
-			return file;
-		}
-	}
-	return undefined;
-}
-
-function createTiViteBridge({ platform, target, type }) {
-	const context = {
-		command: 'serve',
-		platform,
-		target,
-		type
-	};
-	const result = { tiSymbols: [] };
-
-	const reportTiApiUsage = (tiSymbols) => {
-		result.tiSymbols = tiSymbols;
-	};
-
-	return {
-		context,
-		reportTiApiUsage,
-		getResult() {
-			return result;
-		}
-	};
-}
-
-function tiBridgePlugin({ context, reportTiApiUsage }) {
-	return {
-		name: 'ti-vite-bridge',
-		api: {
-			context,
-			reportTiApiUsage
-		}
 	};
 }
 

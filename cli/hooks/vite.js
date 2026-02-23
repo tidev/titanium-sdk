@@ -1,18 +1,13 @@
 import fs from 'fs-extra';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
-const require = createRequire(import.meta.url);
-
-const VITE_CONFIG_FILENAMES = [
-	'vite.config.js',
-	'vite.config.mjs',
-	'vite.config.cjs',
-	'vite.config.ts',
-	'vite.config.mts',
-	'vite.config.cts'
-];
+import {
+	resolveVitePath,
+	findViteConfigFile,
+	tiBridgePlugin,
+	createTiViteBridge
+} from '../lib/vite-utils.js';
 
 export const id = 'ti.vite';
 
@@ -22,10 +17,7 @@ export function init(logger, config, cli) {
 
 	cli.on('cli:command-loaded', hookData => {
 		const command = hookData.command;
-		commandName = command.name;
-		if (typeof command.name === 'function') {
-			commandName = command.name();
-		}
+		commandName = typeof command.name === 'function' ? command.name() : command.name;
 	});
 
 	cli.on('cli:post-validate', () => {
@@ -43,7 +35,14 @@ export function init(logger, config, cli) {
 			return;
 		}
 
-		const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+		let pkg;
+		try {
+			pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+		} catch (err) {
+			logger.warn(`[vite] Failed to parse ${pkgPath}: ${err.message}`);
+			return;
+		}
+
 		const allDeps = Object.keys(pkg.devDependencies || {})
 			.concat(Object.keys(pkg.dependencies || {}));
 		isViteInstalled = allDeps.includes('vite');
@@ -64,6 +63,7 @@ export function init(logger, config, cli) {
 				return;
 			}
 
+			const projectDir = cli.argv['project-dir'];
 			const bridge = createTiViteBridge({
 				platform: builder.platform,
 				deployType: builder.deployType,
@@ -74,8 +74,7 @@ export function init(logger, config, cli) {
 				reportTiApiUsage: bridge.reportTiApiUsage
 			});
 
-			const projectDir = cli.argv['project-dir'];
-			const vitePath = require.resolve('vite', { paths: [ projectDir ] });
+			const vitePath = resolveVitePath(projectDir);
 			const { createBuilder } = await import(pathToFileURL(vitePath).href);
 			const configFile = findViteConfigFile(projectDir);
 
@@ -95,46 +94,4 @@ export function init(logger, config, cli) {
 			builder.tiSymbols = result.tiSymbols;
 		}
 	});
-}
-
-function tiBridgePlugin({ context, reportTiApiUsage }) {
-	return {
-		name: 'ti-vite-bridge',
-		// Expose explicit bridge API for Titanium-aware plugins.
-		api: {
-			context,
-			reportTiApiUsage
-		}
-	};
-}
-
-function createTiViteBridge({ platform, deployType, target }) {
-	const context = {
-		platform,
-		deployType,
-		target
-	};
-	const result = { tiSymbols: [] };
-
-	const reportTiApiUsage = (tiSymbols) => {
-		result.tiSymbols = tiSymbols;
-	};
-
-	return {
-		context,
-		reportTiApiUsage,
-		getResult() {
-			return result;
-		}
-	};
-}
-
-function findViteConfigFile(projectDir) {
-	for (const filename of VITE_CONFIG_FILENAMES) {
-		const file = path.join(projectDir, filename);
-		if (fs.existsSync(file)) {
-			return file;
-		}
-	}
-	return undefined;
 }

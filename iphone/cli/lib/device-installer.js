@@ -20,14 +20,18 @@ export function installOnDevice({ logger, cli, builder, finished }) {
 	}
 
 	ioslib.device.detect({ bypassCache: true }, function (err, results) {
-		const devices = {};
-		if (!err) {
-			results.devices.forEach(function (device) {
-				if (device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
-					devices[device.udid] = device;
-				}
-			});
+		if (err) {
+			logger.error('Failed to detect connected devices');
+			logger.error(err.message || err);
+			return finished(err);
 		}
+
+		const devices = {};
+		results.devices.forEach(function (device) {
+			if (device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
+				devices[device.udid] = device;
+			}
+		});
 
 		const udids = Object.keys(devices),
 			levels = logger.getLevels(),

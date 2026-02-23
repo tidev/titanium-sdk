@@ -8,7 +8,7 @@
 
 import path from 'node:path';
 import fs from 'fs-extra';
-import { exec, spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { homedir } from 'node:os';
 
 export async function launchOnSimulatorOrMac({ logger, config, cli, builder, finished }) {
@@ -92,7 +92,7 @@ export async function launchOnSimulatorOrMac({ logger, config, cli, builder, fin
 		const logFile = path.join(HOME, `Library/Containers/${builder.tiapp.id}/Data/Documents/${builder.tiapp.guid}.log`);
 
 		// TODO: It does force quit. Find another way to quit.
-		exec(`pkill -QUIT -x ${builder.tiapp.name}`, async () => {
+		execFile('pkill', [ '-QUIT', '-x', builder.tiapp.name ], async () => {
 			// If there's already a log file from previous run, wipe it
 			if (fs.pathExistsSync(logFile)) {
 				try {

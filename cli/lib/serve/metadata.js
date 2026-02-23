@@ -16,7 +16,10 @@ export function createServeHash(input) {
 export function readServeMetadata(metadataPath) {
 	try {
 		return fs.readJsonSync(metadataPath);
-	} catch {
+	} catch (err) {
+		if (err.code !== 'ENOENT') {
+			console.warn(`[Serve] Warning: failed to read metadata at ${metadataPath}: ${err.message}`);
+		}
 		return null;
 	}
 }
