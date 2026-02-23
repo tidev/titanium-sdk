@@ -224,6 +224,7 @@ async function createLocalPropertiesFile(sdkPath) {
 
 			// Android Studio's default install location on Linux.
 			sdkTestPaths.push(path.join(process.env.HOME, 'Android', 'sdk'));
+			sdkTestPaths.push(path.join(process.env.HOME, 'Android', 'Sdk'));
 		}
 		sdkTestPaths.push(
 			'/opt/android',

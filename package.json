@@ -92,14 +92,19 @@
     }
   },
   "dependencies": {
-    "@babel/core": "7.28.4",
-    "@babel/types": "7.28.4",
+    "@babel/core": "7.29.0",
+    "@babel/parser": "7.29.0",
+    "@babel/plugin-transform-property-literals": "7.27.1",
+    "@babel/preset-env": "7.29.0",
+    "@babel/types": "7.29.0",
     "@npmcli/arborist": "9.1.6",
+    "@xmldom/xmldom": "0.8.11",
     "always-tail": "0.2.0",
     "ansi-escapes": "7.1.1",
     "appc-tasks": "1.0.3",
     "archiver": "7.0.1",
     "async": "3.2.6",
+    "babel-preset-minify": "0.5.2",
     "buffer-equal": "1.0.1",
     "clean-css": "5.3.3",
     "colors": "1.4.0",
@@ -123,7 +128,6 @@
     "temp": "0.9.4",
     "wrap-ansi": "9.0.2",
     "xcode": "3.0.1",
-    "xmldom": "0.6.0",
     "yauzl": "3.2.0"
   },
   "devDependencies": {
@@ -136,7 +140,7 @@
     "@seadub/danger-plugin-dependencies": "1.0.0",
     "@seadub/danger-plugin-eslint": "3.0.2",
     "@seadub/danger-plugin-junit": "0.3.0",
-    "babel-plugin-transform-titanium": "0.1.1",
+    "babel-plugin-transform-titanium": "^0.1.1",
     "chai": "6.2.0",
     "clang-format": "1.8.0",
     "commander": "14.0.1",

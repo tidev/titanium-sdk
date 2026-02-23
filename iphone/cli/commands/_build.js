@@ -39,6 +39,7 @@ import plist from 'simple-plist';
 import merge from 'lodash.merge';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { suggest } from '../../../cli/lib/suggest.js';
 
 const { cyan } = colors;
 const { parallel, series } = appc.async;
@@ -2027,7 +2028,7 @@ class iOSBuilder extends Builder {
 						logger.log('    ' + kc.cyan);
 					});
 					logger.log();
-					appc.string.suggest(keychain, Object.keys(this.iosInfo.certs.keychains), logger.log);
+					suggest(keychain, Object.keys(this.iosInfo.certs.keychains), logger.log);
 					process.exit(1);
 				}
 			}

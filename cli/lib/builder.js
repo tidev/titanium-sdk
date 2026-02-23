@@ -7,7 +7,8 @@ import {
 	unlinkSync,
 	writeFileSync,
 	readFileSync,
-	realpathSync
+	realpathSync,
+	statSync
 } from 'node:fs';
 import { basename, dirname, extname, join, parse, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -15,6 +16,10 @@ import { fileURLToPath } from 'node:url';
 import { find as findTiModules } from './timodule.js';
 import { expand, pngInfo } from 'node-titanium-sdk/util';
 import { rename } from 'node:fs/promises';
+
+function resizeImage() {
+	// TEMP
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -50,11 +55,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * ```
  */
 export class Builder {
-	// conf = {};
-	// buildDirFiles = {};
-	// titaniumSdkName = undefined;
-	// titaniumSdkVersion = undefined;
-
 	/**
 	 * Constructs the build state. This needs to be explicitly called from the
 	 * derived builder's constructor.
@@ -69,9 +69,9 @@ export class Builder {
 		this.titaniumSdkName = basename(this.titaniumSdkPath);
 
 		const manifest = readFileSync(join(this.titaniumSdkPath, 'manifest.json'), 'utf8');
-		const manifestJson = JSON.parse(manifest);
+		this.manifest = JSON.parse(manifest);
 
-		this.titaniumSdkVersion = manifestJson.version;
+		this.titaniumSdkVersion = this.manifest.version;
 
 		this.platformPath = this.locatePlatformPath(buildModule);
 		this.platformName = basename(this.platformPath);
@@ -342,7 +342,7 @@ export class Builder {
 			}
 		}
 
-		const modules = await findTiModules(this.cli.tiapp.modules, platformName, deployType, ti.manifest, moduleSearchPaths, this.logger);
+		const modules = await findTiModules(this.cli.tiapp.modules, platformName, deployType, this.manifest, moduleSearchPaths, this.logger);
 
 		if (modules.missing.length) {
 			this.logger.error('Could not find all required Titanium Modules:');
@@ -394,17 +394,17 @@ export class Builder {
 		const requiredMissing = icons.filter(icon => icon.required).length;
 		let size = null;
 
-		const fail = () => {
-			this.logger.error('Unable to create missing icons:');
-			printMissing(this.logger.error);
-		};
-
 		const printMissing = (logger, all) => {
 			for (const icon of icons) {
 				if (all || size === null || icon.width > size.width) {
 					logger(`  ${icon.description} - size: ${icon.width}x${icon.height}`);
 				}
 			}
+		};
+
+		const fail = () => {
+			this.logger.error('Unable to create missing icons:');
+			printMissing(this.logger.error);
 		};
 
 		let iconLabels;
