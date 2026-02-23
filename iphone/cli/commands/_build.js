@@ -4221,13 +4221,13 @@ class iOSBuilder extends Builder {
 		if (this.hasWatchAppV2orNewer) {
 			// TODO: Make sure the version of Xcode can support this version of watch app
 
-			let _once = 0;
+			let once = 0;
 			const iosDeploymentTarget = this.hasWatchAppV2orNewer ? '9.0' : '8.2';
 
 			xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
 				const buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 				if (buildSettings.IPHONEOS_DEPLOYMENT_TARGET && appc.version.lt(buildSettings.IPHONEOS_DEPLOYMENT_TARGET, iosDeploymentTarget)) {
-					_once++ === 0 && this.logger.warn(`WatchKit App detected, changing minimum iOS deployment target from ${
+					once++ === 0 && this.logger.warn(`WatchKit App detected, changing minimum iOS deployment target from ${
 						buildSettings.IPHONEOS_DEPLOYMENT_TARGET
 					} to ${
 						iosDeploymentTarget
