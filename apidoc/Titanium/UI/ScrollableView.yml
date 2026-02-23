@@ -329,6 +329,17 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "5.4.0"
 
+  - name: scrollType
+    summary: Direction of the ScrollableView (`horizontal` or `vertical`).
+    description: |
+        The default ScrollableView will add multiple views horizontally. Setting it to `vertical`
+        will create a vertical list of views. Make sure to set `showPagingControl` to false to hide
+        the left/right arrows.
+    type: String
+    default: 'horizontal'
+    platforms: [android]
+    since: "12.2.0"
+
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
     description: Set to `true` to show paging control.

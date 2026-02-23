@@ -28,7 +28,8 @@ import ti.modules.titanium.ui.widget.TiUIScrollableView;
 		TiC.PROPERTY_CLIP_VIEWS,
 		TiC.PROPERTY_PADDING,
 		TiC.PROPERTY_SHOW_PAGING_CONTROL,
-		TiC.PROPERTY_OVER_SCROLL_MODE
+		TiC.PROPERTY_OVER_SCROLL_MODE,
+		TiC.PROPERTY_SCROLL_TYPE
 	})
 public class ScrollableViewProxy extends TiViewProxy
 {

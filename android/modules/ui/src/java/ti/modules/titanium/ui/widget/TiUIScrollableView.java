@@ -52,6 +52,9 @@ public class TiUIScrollableView extends TiUIView
 
 	private int mCurIndex = 0;
 	private boolean mEnabled = true;
+	public static final int TYPE_VERTICAL = 0;
+	public static final int TYPE_HORIZONTAL = 1;
+	private int type = TYPE_HORIZONTAL;
 
 	public TiUIScrollableView(ScrollableViewProxy proxy)
 	{
@@ -78,6 +81,9 @@ public class TiUIScrollableView extends TiUIView
 		mContainer.addView(mPagingControl,
 						   new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
+		if (type == TYPE_VERTICAL) {
+			mPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+		}
 		setNativeView(mContainer);
 	}
 
@@ -330,6 +336,15 @@ public class TiUIScrollableView extends TiUIView
 			setPadding((HashMap) d.get(TiC.PROPERTY_PADDING));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_SCROLL_TYPE)) {
+			Object scrollType = d.get(TiC.PROPERTY_SCROLL_TYPE);
+			if (scrollType.equals(TiC.LAYOUT_VERTICAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+			}
+		}
+
 		super.processProperties(d);
 	}
 
@@ -353,6 +368,13 @@ public class TiUIScrollableView extends TiUIView
 			mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 		} else if (TiC.PROPERTY_CACHE_SIZE.equals(key)) {
 			setPageCacheSize(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_SCROLL_TYPE.equals(key)) {
+			Object scrollType = TiConvert.toString(newValue);
+			if (scrollType.equals(TiC.LAYOUT_VERTICAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
