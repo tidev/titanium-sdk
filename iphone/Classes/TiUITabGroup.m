@@ -701,10 +701,12 @@ DEFINE_EXCEPTIONS
       ^{
         isTabBarHidden = NO;
         UIViewController *parentController = TiApp.controller.topPresentedController;
-        [parentController addChildViewController:self.tabController];
+        if (self.tabController.parentViewController != parentController) {
+          [parentController addChildViewController:self.tabController];
+          [self.tabController didMoveToParentViewController:parentController];
+        }
         [self addSubview:self.tabController.view];
         self.tabController.view.frame = self.bounds;
-        [self.tabController didMoveToParentViewController:parentController];
       },
       NO);
 }
