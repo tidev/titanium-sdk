@@ -58,13 +58,16 @@ static inline void KrollEntryLockPerform(dispatch_block_t block)
 
 @implementation KrollInvocation
 
-- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(NSCondition *)condition_
+- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(dispatch_semaphore_t)condition_
 {
   if (self = [super init]) {
     target = [target_ retain];
     method = method_;
     obj = [obj_ retain];
-    condition = [condition_ retain];
+    if (condition_) {
+      condition = condition_;
+      dispatch_retain(condition);
+    }
   }
   return self;
 }
@@ -85,7 +88,9 @@ static inline void KrollEntryLockPerform(dispatch_block_t block)
 {
   [target release];
   [obj release];
-  [condition release];
+  if (condition) {
+    dispatch_release(condition);
+  }
   [notify release];
   [super dealloc];
 }
@@ -96,10 +101,8 @@ static inline void KrollEntryLockPerform(dispatch_block_t block)
     if (target != nil) {
       [target performSelector:method withObject:obj withObject:context];
     }
-    if (condition != nil) {
-      [condition lock];
-      [condition signal];
-      [condition unlock];
+    if (condition != NULL) {
+      dispatch_semaphore_signal(condition);
     }
     if (notify != nil) {
       [notify performSelector:notifySelector];
@@ -730,7 +733,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   return [eval invokeWithResult:self];
 }
 
-- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_
+- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(dispatch_semaphore_t)condition_
 {
   KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj condition:condition_] autorelease];
   [self invoke:invocation];
