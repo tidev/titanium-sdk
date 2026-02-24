@@ -1528,6 +1528,18 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					borderView.setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
 				}
 
+				if (d.containsKeyAndNotNull(TiC.PROPERTY_DASHED)) {
+					try {
+						Object[] inArray = (Object[]) d.get(TiC.PROPERTY_DASHED);
+						float[] outArray = new float[inArray.length];
+						for (int i = 0; i < inArray.length; i++) {
+							outArray[i] = ((Number) inArray[i]).intValue();
+						}
+						borderView.setDashed(outArray);
+					} catch (Exception ex) {
+						Log.e(TAG, "dashed needs to be an array of float values with 2 or more values");
+					}
+				}
 				if (bgColor != null) {
 					borderView.setBgColor(bgColor);
 					borderView.setColor(bgColor);
