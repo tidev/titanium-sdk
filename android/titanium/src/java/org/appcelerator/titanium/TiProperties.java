@@ -65,7 +65,7 @@ public class TiProperties
 	public Object getPreference(String key)
 	{
 		Object value = null;
-		if (systemProperties != null) {
+		if (systemProperties != null && systemProperties.has(key)) {
 			try {
 				value = systemProperties.get(key);
 			} catch (JSONException e) {
@@ -119,7 +119,7 @@ public class TiProperties
 		}
 		try {
 			int value = def;
-			if (systemProperties != null) {
+			if (systemProperties != null && systemProperties.has(key)) {
 				try {
 					value = systemProperties.getInt(key);
 				} catch (JSONException e) {
@@ -224,7 +224,7 @@ public class TiProperties
 		}
 		try {
 			boolean value = def;
-			if (systemProperties != null) {
+			if (systemProperties != null && systemProperties.has(key)) {
 				try {
 					value = systemProperties.getBoolean(key);
 				} catch (JSONException e) {
