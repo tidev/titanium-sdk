@@ -6,19 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.tableview;
 
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.titanium.R;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiRHelper;
-import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiBackgroundDrawable;
-import org.appcelerator.titanium.view.TiBorderWrapperView;
-import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiUIView;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -36,6 +23,19 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.titanium.R;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiBackgroundDrawable;
+import org.appcelerator.titanium.view.TiBorderWrapperView;
+import org.appcelerator.titanium.view.TiCompositeLayout;
+import org.appcelerator.titanium.view.TiUIView;
+
 import java.lang.ref.WeakReference;
 
 import ti.modules.titanium.ui.TableViewProxy;
@@ -51,60 +51,66 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	private ColorStateList defaultTextColors = null;
 
 	// Top
-	private final TiCompositeLayout header;
-	private final TextView headerTitle;
+	private TiCompositeLayout header;
+	private TextView headerTitle;
 
 	// Middle
-	private final TiBorderWrapperView border;
+	private TiBorderWrapperView border;
 	private final ViewGroup container;
-	private final ImageView leftImage;
+	private ImageView leftImage;
 	private final TiCompositeLayout content;
-	private final TextView title;
-	private final ImageView rightImage;
+	private TextView title;
+	private ImageView rightImage;
 
 	// Bottom
-	private final TiCompositeLayout footer;
-	private final TextView footerTitle;
+	private TiCompositeLayout footer;
+	private TextView footerTitle;
+	private boolean flatLayout = false;
 
-	public TableViewHolder(final Context context, final ViewGroup viewGroup)
+	public TableViewHolder(final Context context, final ViewGroup viewGroup, boolean flatLayout)
 	{
 		super(context, viewGroup);
-
+		this.flatLayout = flatLayout;
 		// Obtain views from identifiers.
-		this.header = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header);
+		if (!flatLayout) {
+			this.header = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header);
+			this.headerTitle = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header_title);
 
-		this.headerTitle = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_header_title);
+			// Header attributes.
+			setTitleAttributes("header", context, this.headerTitle);
 
-		// Header attributes.
-		setTitleAttributes("header", context, this.headerTitle);
-
-		this.border = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content_border);
+			this.border = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content_border);
+			this.leftImage = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_left_image);
+		}
 		this.container = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_outer_content_container);
-
-		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_left_image);
-
 		this.content = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content);
 
-		this.title = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content_title);
-		this.defaultTextColors = this.title.getTextColors();
+		if (!flatLayout) {
+			this.title = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_content_title);
+			this.defaultTextColors = this.title.getTextColors();
 
-		this.rightImage = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_right_image);
+			this.rightImage = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_right_image);
 
-		this.footer = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_footer);
+			this.footer = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_footer);
+			this.footerTitle = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_footer_title);
 
-		this.footerTitle = viewGroup.findViewById(R.id.titanium_ui_tableview_holder_footer_title);
-
-		// Footer attributes.
-		setTitleAttributes("footer", context, this.footerTitle);
+			// Footer attributes.
+			setTitleAttributes("footer", context, this.footerTitle);
+		}
 	}
 
 	/**
 	 * Get holders view.
+	 *
 	 * @return View including border.
 	 */
 	public View getNativeView()
 	{
-		return this.border;
+		if (!flatLayout) {
+			return this.border;
+		} else {
+			return this.content;
+		}
 	}
 
 	/**
@@ -112,25 +118,28 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	 */
 	private void reset()
 	{
-		this.header.removeAllViews();
 		this.content.removeAllViews();
-		this.footer.removeAllViews();
+		if (!flatLayout) {
+			this.header.removeAllViews();
+			this.footer.removeAllViews();
 
-		this.header.setVisibility(View.GONE);
-		this.headerTitle.setVisibility(View.GONE);
-		this.footer.setVisibility(View.GONE);
-		this.footerTitle.setVisibility(View.GONE);
-		this.leftImage.setVisibility(View.GONE);
-		this.title.setVisibility(View.GONE);
-		this.rightImage.setVisibility(View.GONE);
-		this.rightImage.setOnTouchListener(null);
+			this.header.setVisibility(View.GONE);
+			this.headerTitle.setVisibility(View.GONE);
+			this.footer.setVisibility(View.GONE);
+			this.footerTitle.setVisibility(View.GONE);
+			this.leftImage.setVisibility(View.GONE);
+			this.title.setVisibility(View.GONE);
+			this.rightImage.setVisibility(View.GONE);
+			this.rightImage.setOnTouchListener(null);
 
-		this.border.reset();
+			this.border.reset();
+		}
 	}
 
 	/**
 	 * Bind proxy to holder.
-	 * @param proxy TableViewRowProxy to bind.
+	 *
+	 * @param proxy    TableViewRowProxy to bind.
 	 * @param selected Is row selected.
 	 */
 	@SuppressLint("ClickableViewAccessibility")
@@ -191,10 +200,16 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT,
 				tableViewProperties.getString(TiC.PROPERTY_MIN_ROW_HEIGHT));
 			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
-			this.container.setMinimumHeight(minHeight);
+			if (!flatLayout) {
+				this.container.setMinimumHeight(minHeight);
+			} else {
+				this.content.setMinimumHeight(minHeight);
+			}
 
-			// Set font and text color for title.
-			TiUIHelper.styleText(this.title, properties.getKrollDict(TiC.PROPERTY_FONT));
+			if (!flatLayout) {
+				// Set font and text color for title.
+				TiUIHelper.styleText(this.title, properties.getKrollDict(TiC.PROPERTY_FONT));
+			}
 
 			// Set title color.
 			int titleColor = 0;
@@ -223,94 +238,97 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 					titleColor = defaultTitleColor;
 				}
 			}
-			if (titleColor != Color.TRANSPARENT) {
 
-				// Set specified `title` color.
-				this.title.setTextColor(titleColor);
-			} else {
+			if (!flatLayout) {
+				if (titleColor != Color.TRANSPARENT) {
 
-				// Set default `title` color from current theme.
-				this.title.setTextColor(this.defaultTextColors);
-			}
+					// Set specified `title` color.
+					this.title.setTextColor(titleColor);
+				} else {
 
-			// Handle row left and right images.
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
-				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
-				if (drawable != null) {
-					this.leftImage.setImageDrawable(drawable);
+					// Set default `title` color from current theme.
+					this.title.setTextColor(this.defaultTextColors);
+				}
+
+				// Handle row left and right images.
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
+					final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
+					final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+					if (drawable != null) {
+						this.leftImage.setImageDrawable(drawable);
+						this.leftImage.setVisibility(View.VISIBLE);
+					}
+				}
+
+				// Handle selection, override row left image.
+				if (tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+					&& tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
+					&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+					&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+					&& !proxy.isPlaceholder()) {
+
+					if (selected) {
+						this.leftImage.setImageDrawable(checkcircleDrawable);
+					} else {
+						this.leftImage.setImageDrawable(circleDrawable);
+					}
 					this.leftImage.setVisibility(View.VISIBLE);
 				}
-			}
 
-			// Handle selection, override row left image.
-			if (tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
-				&& tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
-				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
-				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
-				&& !proxy.isPlaceholder()) {
-
-				if (selected) {
-					this.leftImage.setImageDrawable(checkcircleDrawable);
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
+					final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
+					final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+					if (drawable != null) {
+						this.rightImage.setImageDrawable(drawable);
+						this.rightImage.setVisibility(View.VISIBLE);
+					}
 				} else {
-					this.leftImage.setImageDrawable(circleDrawable);
-				}
-				this.leftImage.setVisibility(View.VISIBLE);
-			}
+					final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
+					final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
+					final boolean hasDetail = properties.optBoolean(TiC.PROPERTY_HAS_DETAIL, false);
 
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
-				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
-				if (drawable != null) {
-					this.rightImage.setImageDrawable(drawable);
-					this.rightImage.setVisibility(View.VISIBLE);
-				}
-			} else {
-				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
-				final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);
-				final boolean hasDetail = properties.optBoolean(TiC.PROPERTY_HAS_DETAIL, false);
-
-				// Handle integrated right-side icons.
-				if (hasCheck) {
-					this.rightImage.setImageDrawable(checkDrawable);
-					this.rightImage.setVisibility(View.VISIBLE);
-				} else if (hasChild) {
-					this.rightImage.setImageDrawable(moreDrawable);
-					this.rightImage.setVisibility(View.VISIBLE);
-				} else if (hasDetail) {
-					this.rightImage.setImageDrawable(disclosureDrawable);
-					this.rightImage.setVisibility(View.VISIBLE);
-					this.rightImage.setOnTouchListener(new View.OnTouchListener()
-					{
-						@Override
-						public boolean onTouch(View v, MotionEvent e)
+					// Handle integrated right-side icons.
+					if (hasCheck) {
+						this.rightImage.setImageDrawable(checkDrawable);
+						this.rightImage.setVisibility(View.VISIBLE);
+					} else if (hasChild) {
+						this.rightImage.setImageDrawable(moreDrawable);
+						this.rightImage.setVisibility(View.VISIBLE);
+					} else if (hasDetail) {
+						this.rightImage.setImageDrawable(disclosureDrawable);
+						this.rightImage.setVisibility(View.VISIBLE);
+						this.rightImage.setOnTouchListener(new View.OnTouchListener()
 						{
-							if (e.getAction() == MotionEvent.ACTION_UP) {
-								final TiUIView view = proxy.peekView();
+							@Override
+							public boolean onTouch(View v, MotionEvent e)
+							{
+								if (e.getAction() == MotionEvent.ACTION_UP) {
+									final TiUIView view = proxy.peekView();
 
-								if (view != null) {
-									final KrollDict data = view.getLastUpEvent();
+									if (view != null) {
+										final KrollDict data = view.getLastUpEvent();
 
-									data.put(TiC.EVENT_PROPERTY_DETAIL, true);
-									proxy.fireEvent(TiC.EVENT_CLICK, data);
+										data.put(TiC.EVENT_PROPERTY_DETAIL, true);
+										proxy.fireEvent(TiC.EVENT_CLICK, data);
+									}
 								}
+								return true;
 							}
-							return true;
-						}
-					});
+						});
+					}
 				}
-			}
 
-			// Display drag drawable when row is movable.
-			final boolean isEditing = tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
-			final boolean isMoving = tableViewProperties.optBoolean(TiC.PROPERTY_MOVING, false);
-			final boolean isMoveable = properties.optBoolean(TiC.PROPERTY_MOVEABLE,
-				tableViewProperties.optBoolean(TiC.PROPERTY_MOVEABLE, false));
-			final boolean isMovable = properties.optBoolean(TiC.PROPERTY_MOVABLE,
-				tableViewProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
-			if ((isEditing || isMoving) && (isMoveable || isMovable)) {
-				this.rightImage.setImageDrawable(dragDrawable);
-				this.rightImage.setVisibility(View.VISIBLE);
+				// Display drag drawable when row is movable.
+				final boolean isEditing = tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
+				final boolean isMoving = tableViewProperties.optBoolean(TiC.PROPERTY_MOVING, false);
+				final boolean isMoveable = properties.optBoolean(TiC.PROPERTY_MOVEABLE,
+					tableViewProperties.optBoolean(TiC.PROPERTY_MOVEABLE, false));
+				final boolean isMovable = properties.optBoolean(TiC.PROPERTY_MOVABLE,
+					tableViewProperties.optBoolean(TiC.PROPERTY_MOVABLE, false));
+				if ((isEditing || isMoving) && (isMoveable || isMovable)) {
+					this.rightImage.setImageDrawable(dragDrawable);
+					this.rightImage.setVisibility(View.VISIBLE);
+				}
 			}
 
 			// Include row content.
@@ -362,9 +380,14 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 					backgroundDrawable = generateRippleDrawable(backgroundDrawable, touchFeedbackColor);
 				}
 
-				// Set container background.
-				this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
-				this.container.setActivated(selected);
+				if (!flatLayout) {
+					// Set container background.
+					this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
+					this.container.setActivated(selected);
+				} else {
+					this.content.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
+					this.content.setActivated(selected);
+				}
 
 				// Remove original background as it has been set on `container`.
 				nativeRowView.setBackground(null);
@@ -379,60 +402,64 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 				this.content.addView(nativeRowView, rowView.getLayoutParams());
 				this.content.setVisibility(View.VISIBLE);
 			}
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
-				&& proxy.getChildren().length == 0) {
+			if (!flatLayout) {
+				if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
+					&& proxy.getChildren().length == 0) {
 
-				int left = this.title.getPaddingLeft();
-				if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT)) {
-					left = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT)
-						.getAsPixels(this.itemView);
-				}
-				int right = this.title.getPaddingRight();
-				if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT)) {
-					right = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_RIGHT), TiDimension.TYPE_RIGHT)
-						.getAsPixels(this.itemView);
-				}
-				int top = this.title.getPaddingTop();
-				if (properties.containsKeyAndNotNull(TiC.PROPERTY_TOP)) {
-					top = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_TOP), TiDimension.TYPE_TOP)
-						.getAsPixels(this.itemView);
-				}
-				int bottom = this.title.getPaddingBottom();
-				if (properties.containsKeyAndNotNull(TiC.PROPERTY_BOTTOM)) {
-					bottom = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_BOTTOM), TiDimension.TYPE_BOTTOM)
-						.getAsPixels(this.itemView);
-				}
-				this.title.setPadding(left, top, right, bottom);
+					int left = this.title.getPaddingLeft();
+					if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT)) {
+						left = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT)
+							.getAsPixels(this.itemView);
+					}
+					int right = this.title.getPaddingRight();
+					if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT)) {
+						right = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_RIGHT), TiDimension.TYPE_RIGHT)
+							.getAsPixels(this.itemView);
+					}
+					int top = this.title.getPaddingTop();
+					if (properties.containsKeyAndNotNull(TiC.PROPERTY_TOP)) {
+						top = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_TOP), TiDimension.TYPE_TOP)
+							.getAsPixels(this.itemView);
+					}
+					int bottom = this.title.getPaddingBottom();
+					if (properties.containsKeyAndNotNull(TiC.PROPERTY_BOTTOM)) {
+						bottom = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_BOTTOM), TiDimension.TYPE_BOTTOM)
+							.getAsPixels(this.itemView);
+					}
+					this.title.setPadding(left, top, right, bottom);
 
-				// No child views.
-				// Only title specified, display row title.
-				this.title.setText(properties.optString(TiC.PROPERTY_TITLE, ""));
-				this.title.setVisibility(View.VISIBLE);
+					// No child views.
+					// Only title specified, display row title.
+					this.title.setText(properties.optString(TiC.PROPERTY_TITLE, ""));
+					this.title.setVisibility(View.VISIBLE);
+				}
 			}
 		}
 
-		// Handle `header` and `footer` for rows.
-		setHeaderFooter(tableViewProxy, properties, true, true);
+		if (!flatLayout) {
+			// Handle `header` and `footer` for rows.
+			setHeaderFooter(tableViewProxy, properties, true, true);
 
-		if (section != null) {
+			if (section != null) {
 
-			// Handle `header` and `footer` for  rows with a parent section.
-			// Obtain parent section properties.
-			final KrollDict sectionProperties = section.getProperties();
-			final int indexInSection = proxy.getIndexInSection();
-			final int filteredIndex = proxy.getFilteredIndex();
+				// Handle `header` and `footer` for  rows with a parent section.
+				// Obtain parent section properties.
+				final KrollDict sectionProperties = section.getProperties();
+				final int indexInSection = proxy.getIndexInSection();
+				final int filteredIndex = proxy.getFilteredIndex();
 
-			if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
+				if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
 
-				// Only set header on first row in section.
-				setHeaderFooter(tableViewProxy, sectionProperties, true, false);
-			}
-			if ((indexInSection >= section.getRowCount() - 1)
-				|| (filteredIndex >= section.getFilteredRowCount() - 1)
-				|| proxy.isPlaceholder()) {
+					// Only set header on first row in section.
+					setHeaderFooter(tableViewProxy, sectionProperties, true, false);
+				}
+				if ((indexInSection >= section.getRowCount() - 1)
+					|| (filteredIndex >= section.getFilteredRowCount() - 1)
+					|| proxy.isPlaceholder()) {
 
-				// Only set footer on last row in section.
-				setHeaderFooter(tableViewProxy, sectionProperties, false, true);
+					// Only set footer on last row in section.
+					setHeaderFooter(tableViewProxy, sectionProperties, false, true);
+				}
 			}
 		}
 
@@ -443,12 +470,13 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	/**
 	 * Set header or footer title attribute values.
 	 *
-	 * @param prefix Attribute prefix (e.g: 'header' or 'footer')
+	 * @param prefix  Attribute prefix (e.g: 'header' or 'footer')
 	 * @param context Application context.
-	 * @param title Header or Footer TextView.
+	 * @param title   Header or Footer TextView.
 	 */
 	private void setTitleAttributes(final String prefix, final Context context, final TextView title)
 	{
+		if (flatLayout) return;
 		final Resources.Theme theme = context.getTheme();
 
 		TypedValue sizeValue = new TypedValue();
@@ -536,15 +564,16 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	 * Set header and footer views/title for row.
 	 *
 	 * @param tableViewProxy TableView proxy.
-	 * @param properties Row proxy holding header/footer.
-	 * @param updateHeader Boolean determine if header should be updated.
-	 * @param updateFooter Boolean determine if footer should be updated.
+	 * @param properties     Row proxy holding header/footer.
+	 * @param updateHeader   Boolean determine if header should be updated.
+	 * @param updateFooter   Boolean determine if footer should be updated.
 	 */
 	private void setHeaderFooter(TiViewProxy tableViewProxy,
 								 KrollDict properties,
 								 boolean updateHeader,
 								 boolean updateFooter)
 	{
+		if (flatLayout) return;
 		if (tableViewProxy == null) {
 			return;
 		}
