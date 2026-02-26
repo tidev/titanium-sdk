@@ -338,7 +338,7 @@ properties:
     type: String
     default: 'horizontal'
     platforms: [android]
-    since: "12.2.0"
+    since: "13.2.0"
 
   - name: showPagingControl
     summary: Determines whether the paging control is visible.
