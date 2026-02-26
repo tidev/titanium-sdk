@@ -24,9 +24,8 @@ import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Parcelable;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -46,13 +45,16 @@ public class TiUIScrollableView extends TiUIView
 	private static final int PAGE_LEFT_ID = View.generateViewId();
 	private static final int PAGE_RIGHT_ID = View.generateViewId();
 
-	private final ViewPager mPager;
-	private final ViewPagerAdapter mAdapter;
+	private final ViewPager2 mPager;
+	private final ViewPager2Adapter mAdapter;
 	private final TiViewPagerLayout mContainer;
 	private final FrameLayout mPagingControl;
 
 	private int mCurIndex = 0;
 	private boolean mEnabled = true;
+	public static final int TYPE_VERTICAL = 0;
+	public static final int TYPE_HORIZONTAL = 1;
+	private int type = TYPE_HORIZONTAL;
 
 	public TiUIScrollableView(ScrollableViewProxy proxy)
 	{
@@ -67,10 +69,10 @@ public class TiUIScrollableView extends TiUIView
 		mContainer = new TiViewPagerLayout(activity);
 
 		// Add ViewPager to container.
-		mAdapter = new ViewPagerAdapter(activity, proxy.getViewsList());
+		mAdapter = new ViewPager2Adapter(activity, proxy.getViewsList());
 		mPager = buildViewPager(activity, mAdapter);
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_CLIP_VIEWS)) {
-			mPager.setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
+			setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
 		}
 		mContainer.addView(mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -79,96 +81,19 @@ public class TiUIScrollableView extends TiUIView
 		mContainer.addView(mPagingControl,
 						   new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
+		if (type == TYPE_VERTICAL) {
+			mPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+		}
 		setNativeView(mContainer);
 	}
 
-	private ViewPager buildViewPager(Context context, ViewPagerAdapter adapter)
+	private ViewPager2 buildViewPager(Context context, ViewPager2Adapter adapter)
 	{
-		ViewPager pager = (new ViewPager(context) {
-			@Override
-			public boolean onTouchEvent(MotionEvent event)
-			{
-				if (mEnabled) {
-					return super.onTouchEvent(event);
-				}
-				return false;
-			}
-
-			@Override
-			public boolean onInterceptTouchEvent(MotionEvent event)
-			{
-				if (mEnabled) {
-					return super.onInterceptTouchEvent(event);
-				}
-				return false;
-			}
-
-			@Override
-			protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-			{
-				// If size mode not set to "exactly", then change width/height to match largest child view.
-				// Note: We need to do this since Google's "ViewPager" class ignores the
-				//       WRAP_CONTENT setting and will fill the parent view instead.
-				int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-				int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-				if ((widthMode != MeasureSpec.EXACTLY) || (heightMode != MeasureSpec.EXACTLY)) {
-					// Determine how large this view wants to be based on its child views.
-					int maxWidth = 0;
-					int maxHeight = 0;
-					for (int index = getChildCount() - 1; index >= 0; index--) {
-						// Fetch the next child.
-						View child = getChildAt(index);
-						if (child == null) {
-							continue;
-						}
-
-						// Skip child views that are flagged as excluded from the layout.
-						if (child.getVisibility() == View.GONE) {
-							continue;
-						}
-
-						// Determine the size of the child.
-						child.measure(widthMeasureSpec, heightMeasureSpec);
-						int childWidth = child.getMeasuredWidth();
-						childWidth += child.getPaddingLeft() + child.getPaddingRight();
-						int childHeight = child.getMeasuredHeight();
-						childHeight += child.getPaddingTop() + child.getPaddingBottom();
-
-						// Store the child's width/height if it's the largest so far.
-						maxWidth = Math.max(maxWidth, childWidth);
-						maxHeight = Math.max(maxHeight, childHeight);
-					}
-
-					// Make sure we don't go below suggested min width/height assigned to this view.
-					maxWidth = Math.max(maxWidth, getSuggestedMinimumWidth());
-					maxHeight = Math.max(maxHeight, getSuggestedMinimumHeight());
-
-					// Update this view's given width/height spec to match the size of child view, but only if:
-					// - Mode is AT_MOST and child size is less than given size. (Makes WRAP_CONTENT work.)
-					// - Mode is UNSPECIFIED. (View can be any size it wants. Can occur in ScrollViews.)
-					if (widthMode != MeasureSpec.EXACTLY) {
-						int containerWidth = MeasureSpec.getSize(widthMeasureSpec);
-						if ((widthMode == MeasureSpec.UNSPECIFIED) || (maxWidth < containerWidth)) {
-							widthMode = MeasureSpec.AT_MOST;
-							widthMeasureSpec = MeasureSpec.makeMeasureSpec(maxWidth, widthMode);
-						}
-					}
-					if (heightMode != MeasureSpec.EXACTLY) {
-						int containerHeight = MeasureSpec.getSize(heightMeasureSpec);
-						if ((heightMode == MeasureSpec.UNSPECIFIED) || (maxHeight < containerHeight)) {
-							heightMode = MeasureSpec.AT_MOST;
-							heightMeasureSpec = MeasureSpec.makeMeasureSpec(maxHeight, heightMode);
-						}
-					}
-				}
-
-				// Update this view's measurements.
-				super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			}
-		});
+		ViewPager2 pager = new ViewPager2(context);
+		pager.setLayoutParams(new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
 		pager.setAdapter(adapter);
-		pager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+		pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
 			private int lastSelectedPageIndex;
 			private boolean isScrolling;
 			private boolean isDragging;
@@ -177,7 +102,7 @@ public class TiUIScrollableView extends TiUIView
 			public void onPageScrollStateChanged(int scrollState)
 			{
 				switch (scrollState) {
-					case ViewPager.SCROLL_STATE_DRAGGING: {
+					case ViewPager2.SCROLL_STATE_DRAGGING: {
 						if (!this.isDragging && !getViews().isEmpty()) {
 							// This is the start of a touch/drag event by the end-user. Fire a "dragstart" event.
 							this.isDragging = true;
@@ -192,7 +117,7 @@ public class TiUIScrollableView extends TiUIView
 						}
 						break;
 					}
-					case ViewPager.SCROLL_STATE_IDLE: {
+					case ViewPager2.SCROLL_STATE_IDLE: {
 						// Handle the end of a scroll/drag event.
 						if (this.isScrolling || this.isDragging) {
 							// Store the index to the currently selected page.
@@ -364,7 +289,7 @@ public class TiUIScrollableView extends TiUIView
 		return layout;
 	}
 
-	public ViewPagerAdapter getAdapter()
+	public ViewPager2Adapter getAdapter()
 	{
 		return mAdapter;
 	}
@@ -397,6 +322,7 @@ public class TiUIScrollableView extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
+			mPager.setUserInputEnabled(mEnabled);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
@@ -409,6 +335,19 @@ public class TiUIScrollableView extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_PADDING)) {
 			setPadding((HashMap) d.get(TiC.PROPERTY_PADDING));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_SCROLL_TYPE)) {
+			Object scrollType = d.get(TiC.PROPERTY_SCROLL_TYPE);
+			if (scrollType.equals(TiC.LAYOUT_VERTICAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_CLIP_VIEWS)) {
+			setClipToPadding(TiConvert.toBoolean(d.get(TiC.PROPERTY_CLIP_VIEWS), true));
 		}
 
 		super.processProperties(d);
@@ -434,8 +373,29 @@ public class TiUIScrollableView extends TiUIView
 			mPager.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
 		} else if (TiC.PROPERTY_CACHE_SIZE.equals(key)) {
 			setPageCacheSize(TiConvert.toInt(newValue));
+		} else if (TiC.PROPERTY_SCROLL_TYPE.equals(key)) {
+			Object scrollType = TiConvert.toString(newValue);
+			if (scrollType.equals(TiC.LAYOUT_VERTICAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_VERTICAL);
+			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
+				mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+			}
+		} else if (TiC.PROPERTY_CLIP_VIEWS.equals(key)) {
+			setClipToPadding(TiConvert.toBoolean(newValue, true));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
+
+	private void setClipToPadding(boolean clipToPadding)
+	{
+		mPager.setClipToPadding(clipToPadding);
+		mPager.setClipChildren(clipToPadding);
+
+		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
+		if (recyclerView != null) {
+			recyclerView.setClipToPadding(clipToPadding);
+			recyclerView.setClipChildren(clipToPadding);
 		}
 	}
 
@@ -459,8 +419,13 @@ public class TiUIScrollableView extends TiUIView
 		//   In this case, cache size of 3 must use offscreen page limit of 2 (ie: current page + 2 pages on right).
 		value--;
 
-		// Update the view's offscreen page caching limit.
+		// Update the view's offscreen page caching limit via RecyclerView.
 		mPager.setOffscreenPageLimit(value);
+		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
+		if (recyclerView != null) {
+			recyclerView.setItemViewCacheSize(value);
+		}
+
 	}
 
 	public void showPager()
@@ -533,6 +498,7 @@ public class TiUIScrollableView extends TiUIView
 	public void setEnabled(Object value)
 	{
 		mEnabled = TiConvert.toBoolean(value);
+		mPager.setUserInputEnabled(mEnabled);
 	}
 
 	public boolean getEnabled()
@@ -563,7 +529,10 @@ public class TiUIScrollableView extends TiUIView
 			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
 		}
 
-		mPager.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
+		if (recyclerView != null) {
+			recyclerView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		}
 	}
 
 	@Override
@@ -575,10 +544,11 @@ public class TiUIScrollableView extends TiUIView
 		super.release();
 	}
 
-	public static class ViewPagerAdapter extends PagerAdapter
+	public static class ViewPager2Adapter extends RecyclerView.Adapter<ViewPager2Adapter.ViewHolder>
 	{
 		private final ArrayList<TiViewProxy> mViewProxies;
-		public ViewPagerAdapter(Activity activity, ArrayList<TiViewProxy> viewProxies)
+
+		public ViewPager2Adapter(Activity activity, ArrayList<TiViewProxy> viewProxies)
 		{
 			if (viewProxies == null) {
 				throw new IllegalArgumentException();
@@ -587,134 +557,78 @@ public class TiUIScrollableView extends TiUIView
 		}
 
 		@Override
-		public void destroyItem(View container, int position, Object object)
+		public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
 		{
-			// Validate.
-			if ((container instanceof ViewPager) == false) {
+			FrameLayout frameLayout = new FrameLayout(parent.getContext());
+			ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+			frameLayout.setLayoutParams(layoutParams);
+			return new ViewHolder(frameLayout);
+		}
+
+		@Override
+		public void onBindViewHolder(ViewHolder holder, int position)
+		{
+			ViewGroup container = holder.container;
+			container.removeAllViews();
+
+			if ((position < 0) || (position >= mViewProxies.size())) {
 				return;
 			}
 
-			// Remove the item's view from the ViewPager.
-			// Note: The Titanium view's is wrapped by a "TiCompositeLayout" parent view.
-			if (object instanceof View) {
-				ViewParent parentView = ((View) object).getParent();
-				if (parentView instanceof ViewGroup) {
-					if ((parentView instanceof ViewPager) == false) {
-						((ViewPager) container).removeView((View) parentView);
-					}
-					((ViewGroup) parentView).removeView((View) object);
-				}
+			TiViewProxy proxy = mViewProxies.get(position);
+			if (proxy == null) {
+				return;
 			}
 
-			// Release/Destroy the page's native views.
-			if ((position >= 0) && (position < mViewProxies.size())) {
-				TiViewProxy proxy = mViewProxies.get(position);
-				if (proxy != null) {
-					proxy.releaseViews();
-				}
+			TiUIView uiView = proxy.getOrCreateView();
+			if (uiView == null) {
+				return;
 			}
+
+			View pageView = uiView.getOuterView();
+			if (pageView == null) {
+				return;
+			}
+
+			ViewParent parentView = pageView.getParent();
+			if (parentView instanceof ViewGroup) {
+				((ViewGroup) parentView).removeView(pageView);
+			}
+
+			ViewGroup.LayoutParams layoutParams = uiView.getLayoutParams();
+			TiCompositeLayout pageLayout = new TiCompositeLayout(container.getContext());
+			pageLayout.addView(pageView, layoutParams);
+			container.addView(pageLayout);
 		}
 
 		@Override
-		public void finishUpdate(View container)
-		{
-		}
-
-		@Override
-		public int getCount()
+		public int getItemCount()
 		{
 			return mViewProxies.size();
 		}
 
 		@Override
-		public Object instantiateItem(View container, int position)
+		public long getItemId(int position)
 		{
-			// Validate arguments.
-			if ((container instanceof ViewPager) == false) {
-				return null;
-			}
-			if ((position < 0) || (position >= mViewProxies.size())) {
-				return null;
-			}
+			return position;
+		}
 
-			// Acquire the requested page view.
-			View pageView = null;
-			ViewGroup.LayoutParams layoutParams = null;
-			TiViewProxy proxy = mViewProxies.get(position);
-			if (proxy != null) {
-				TiUIView uiView = proxy.getOrCreateView();
-				if (uiView != null) {
-					pageView = uiView.getOuterView();
-					layoutParams = uiView.getLayoutParams();
-				}
-			}
-			if (pageView == null) {
-				return null;
-			}
+		@Override
+		public int getItemViewType(int position)
+		{
+			return position;
+		}
 
-			// Wrap the page view in a Titanium composite layout.
-			// Note: Needed to support Titanium's custom width/height/top/bottom/left/right properties.
-			TiCompositeLayout pageLayout = new TiCompositeLayout(container.getContext());
-			ViewPager pager = (ViewPager) container;
+		public static class ViewHolder extends RecyclerView.ViewHolder
+		{
+			public final ViewGroup container;
+
+			public ViewHolder(View itemView)
 			{
-				// Remove page view's previous layout wrapper.
-				ViewParent parentView = pageView.getParent();
-				if (parentView instanceof ViewGroup) {
-					pager.removeView((View) parentView);
-					((ViewGroup) parentView).removeView(pageView);
-				}
-
-				// Add page view to composite layout wrapper.
-				pageLayout.addView(pageView, layoutParams);
+				super(itemView);
+				this.container = (ViewGroup) itemView;
 			}
-
-			// Add the view to the ViewPager.
-			layoutParams = new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-			if (position < pager.getChildCount()) {
-				pager.addView(pageLayout, position, layoutParams);
-			} else {
-				pager.addView(pageLayout, layoutParams);
-			}
-
-			// Return the indexed page view.
-			return pageView;
-		}
-
-		@Override
-		public boolean isViewFromObject(View view, Object obj)
-		{
-			if (view == null) {
-				return (obj == null);
-			}
-			if (obj == null) {
-				return false;
-			}
-			if ((view instanceof ViewGroup) && (((ViewGroup) view).getChildCount() > 0)) {
-				return (obj == ((ViewGroup) view).getChildAt(0));
-			}
-			return false;
-		}
-
-		@Override
-		public void restoreState(Parcelable state, ClassLoader loader)
-		{
-		}
-
-		@Override
-		public Parcelable saveState()
-		{
-			return null;
-		}
-
-		@Override
-		public void startUpdate(View container)
-		{
-		}
-
-		@Override
-		public int getItemPosition(Object object)
-		{
-			return mViewProxies.contains(object) ? POSITION_UNCHANGED : POSITION_NONE;
 		}
 	}
 
