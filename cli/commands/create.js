@@ -61,7 +61,7 @@ export class CreateCommand {
 		const typeConf = {};
 
 		for (const filename of fs.readdirSync(creatorDir)) {
-			if (!jsRegExp.test(filename)) {
+			if (!jsRegExp.test(filename) || filename === 'base_app.js') {
 				continue;
 			}
 
@@ -99,14 +99,14 @@ export class CreateCommand {
 				options: Object.assign({
 					type: {
 						abbr: 't',
-						default: cli.argv.prompt ? undefined : 'app',
+						default: cli.argv.prompt ? undefined : '1',
 						desc: 'the type of project to create',
 						order: 100,
 						prompt: (callback) => {
 							callback(fields.select({
 								title: 'What type of project would you like to create?',
 								promptLabel: 'Select a type by number or name',
-								default: 'app',
+								default: '1',
 								margin: '',
 								numbered: true,
 								relistOnError: true,
@@ -148,6 +148,12 @@ export class CreateCommand {
 		var type = cli.argv.type,
 			creator = this.creators[type];
 
+		let useAlloy = false;
+		if (creator.type === 'alloy') {
+			useAlloy = true;
+			creator.type = 'app';
+		}
+
 		// load the project type lib
 		logger.info(`Creating ${type.cyan} project`);
 
@@ -176,12 +182,16 @@ export class CreateCommand {
 			cli.emit('create.finalize', creator, function () {
 				if (err) {
 					logger.error(`Failed to create project after ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
+				} else if (cli.argv.alloy !== undefined || useAlloy) {
+					try {
+						const output = execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { encoding: 'utf8' });
+						(output?.trim() || '').split('\n').forEach(line => logger.info(line));
+						logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
+					} catch (_alloyError) {
+						logger.error('Alloy is not installed. Run "npm i -g alloy" to install it, then run "alloy new" inside the project folder.');
+					}
 				} else {
 					logger.info(`Project created successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
-				}
-
-				if (cli.argv.alloy !== undefined) {
-					execSync(`alloy new "${path.join(cli.argv['workspace-dir'], cli.argv.name)}"`, { stdio: 'inherit' });
 				}
 
 				finished(err);
