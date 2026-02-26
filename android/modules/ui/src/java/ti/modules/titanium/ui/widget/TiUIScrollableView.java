@@ -529,7 +529,10 @@ public class TiUIScrollableView extends TiUIView
 			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
 		}
 
-		mPager.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
+		if (recyclerView != null) {
+			recyclerView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		}
 	}
 
 	@Override
