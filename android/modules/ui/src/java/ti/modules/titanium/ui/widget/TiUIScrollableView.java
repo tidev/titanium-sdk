@@ -73,6 +73,7 @@ public class TiUIScrollableView extends TiUIView
 		mPager = buildViewPager(activity, mAdapter);
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_CLIP_VIEWS)) {
 			mPager.setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
+			mPager.setClipChildren(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
 		}
 		mContainer.addView(mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -322,6 +323,7 @@ public class TiUIScrollableView extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			mEnabled = TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLING_ENABLED);
+			mPager.setUserInputEnabled(mEnabled);
 		}
 
 		if (d.containsKey(TiC.PROPERTY_OVER_SCROLL_MODE)) {
@@ -485,6 +487,7 @@ public class TiUIScrollableView extends TiUIView
 	public void setEnabled(Object value)
 	{
 		mEnabled = TiConvert.toBoolean(value);
+		mPager.setUserInputEnabled(mEnabled);
 	}
 
 	public boolean getEnabled()
