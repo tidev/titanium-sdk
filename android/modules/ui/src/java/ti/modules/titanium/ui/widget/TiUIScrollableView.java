@@ -72,8 +72,7 @@ public class TiUIScrollableView extends TiUIView
 		mAdapter = new ViewPager2Adapter(activity, proxy.getViewsList());
 		mPager = buildViewPager(activity, mAdapter);
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_CLIP_VIEWS)) {
-			mPager.setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
-			mPager.setClipChildren(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
+			setClipToPadding(TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_CLIP_VIEWS), true));
 		}
 		mContainer.addView(mPager, new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -347,6 +346,10 @@ public class TiUIScrollableView extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_CLIP_VIEWS)) {
+			setClipToPadding(TiConvert.toBoolean(d.get(TiC.PROPERTY_CLIP_VIEWS), true));
+		}
+
 		super.processProperties(d);
 	}
 
@@ -377,8 +380,22 @@ public class TiUIScrollableView extends TiUIView
 			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
 				mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 			}
+		} else if (TiC.PROPERTY_CLIP_VIEWS.equals(key)) {
+			setClipToPadding(TiConvert.toBoolean(newValue, true));
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
+		}
+	}
+
+	private void setClipToPadding(boolean clipToPadding)
+	{
+		mPager.setClipToPadding(clipToPadding);
+		mPager.setClipChildren(clipToPadding);
+
+		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
+		if (recyclerView != null) {
+			recyclerView.setClipToPadding(clipToPadding);
+			recyclerView.setClipChildren(clipToPadding);
 		}
 	}
 
@@ -403,18 +420,12 @@ public class TiUIScrollableView extends TiUIView
 		value--;
 
 		// Update the view's offscreen page caching limit via RecyclerView.
+		mPager.setOffscreenPageLimit(value);
 		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
 		if (recyclerView != null) {
-			recyclerView.setItemAnimator(null);
-			try {
-				java.lang.reflect.Field field = RecyclerView.class.getDeclaredField("mLayoutFrozen");
-				field.setAccessible(true);
-				field.setBoolean(recyclerView, false);
-			} catch (Exception e) {
-				// Ignore
-			}
 			recyclerView.setItemViewCacheSize(value);
 		}
+
 	}
 
 	public void showPager()
