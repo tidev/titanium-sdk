@@ -130,15 +130,14 @@ export class iOSModuleBuilder extends Builder {
 
 		const pbxFilePath = path.join(this.projectDir, `${this.moduleName}.xcodeproj`, 'project.pbxproj');
 		if (!fs.existsSync(pbxFilePath)) {
-			this.logger.warn(`Unable to auto-fix Mac Catalyst build settings. File not found: ${pbxFilePath}`);
+			this.logger.warn(`Unable to verify Mac Catalyst build settings. File not found: ${pbxFilePath}`);
 			return;
 		}
 
 		const xcodeProject = xcode.project(pbxFilePath).parseSync();
 		const configurations = xcodeProject.hash.project.objects.XCBuildConfiguration;
 		const desiredSupportedPlatforms = '"iphoneos iphonesimulator"';
-		const touchedConfigurations = [];
-		let shouldWrite = false;
+		const misconfigured = [];
 
 		for (const key of Object.keys(configurations)) {
 			const configuration = configurations[key];
@@ -151,27 +150,20 @@ export class iOSModuleBuilder extends Builder {
 				continue;
 			}
 
-			let didChangeConfiguration = false;
-
-			if (buildSettings.SUPPORTED_PLATFORMS !== desiredSupportedPlatforms) {
-				buildSettings.SUPPORTED_PLATFORMS = desiredSupportedPlatforms;
-				didChangeConfiguration = true;
-			}
-
-			if (buildSettings.SUPPORTS_MACCATALYST !== 'YES') {
-				buildSettings.SUPPORTS_MACCATALYST = 'YES';
-				didChangeConfiguration = true;
-			}
-
-			if (didChangeConfiguration) {
-				shouldWrite = true;
-				touchedConfigurations.push(configuration.name);
+			if (buildSettings.SUPPORTED_PLATFORMS !== desiredSupportedPlatforms
+				|| buildSettings.SUPPORTS_MACCATALYST !== 'YES') {
+				misconfigured.push(configuration.name);
 			}
 		}
 
-		if (shouldWrite) {
-			fs.writeFileSync(pbxFilePath, xcodeProject.writeSync());
-			this.logger.info(`Auto-fixed Mac Catalyst build settings in ${path.basename(pbxFilePath)} (${Array.from(new Set(touchedConfigurations)).join(', ')}) because manifest has "mac: true".`);
+		if (misconfigured.length > 0) {
+			const configs = Array.from(new Set(misconfigured)).join(', ');
+			this.logger.error(`Mac Catalyst build settings are not configured correctly in ${path.basename(pbxFilePath)} (${configs}).`);
+			this.logger.error('Open your Xcode project and for each affected configuration set:');
+			this.logger.error('  • SUPPORTS_MACCATALYST = YES');
+			this.logger.error('  • SUPPORTED_PLATFORMS = iphoneos iphonesimulator');
+			this.logger.error('Then run the build again.\n');
+			process.exit(1);
 		}
 	}
 
