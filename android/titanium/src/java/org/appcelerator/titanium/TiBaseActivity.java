@@ -44,6 +44,7 @@ import org.appcelerator.titanium.view.TiActivitySafeAreaMonitor;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
+import org.appcelerator.titanium.util.TiEdgeToEdgeHelper;
 
 import android.Manifest;
 import android.app.Activity;
@@ -841,6 +842,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		} catch (Throwable t) {
 			TiApplication.handleInternalException(t);
 		}
+
+		TiEdgeToEdgeHelper.enable(this);
 
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
