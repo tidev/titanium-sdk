@@ -832,7 +832,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 						previewRect.put(TiC.PROPERTY_HEIGHT, 0);
 					}
 					response.put("previewRect", previewRect);
-
+					response.put("exif", blob.getExif());
 					successCallback.callAsync(callbackContext, response);
 				}
 			} catch (Throwable t) {
