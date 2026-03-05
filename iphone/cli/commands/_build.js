@@ -4225,17 +4225,19 @@ class iOSBuilder extends Builder {
 			let once = 0;
 			const iosDeploymentTarget = this.hasWatchAppV2orNewer ? '9.0' : '8.2';
 
-			xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
+			for (const buildConf of xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations) {
 				const buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
 				if (buildSettings.IPHONEOS_DEPLOYMENT_TARGET && appc.version.lt(buildSettings.IPHONEOS_DEPLOYMENT_TARGET, iosDeploymentTarget)) {
-					once++ === 0 && this.logger.warn(`WatchKit App detected, changing minimum iOS deployment target from ${
-						buildSettings.IPHONEOS_DEPLOYMENT_TARGET
-					} to ${
-						iosDeploymentTarget
-					}`);
+					if (once++ === 0) {
+						this.logger.warn(`WatchKit App detected, changing minimum iOS deployment target from ${
+							buildSettings.IPHONEOS_DEPLOYMENT_TARGET
+						} to ${
+							iosDeploymentTarget
+						}`);
+					}
 					buildSettings.IPHONEOS_DEPLOYMENT_TARGET = iosDeploymentTarget;
 				}
-			}, this);
+			}
 
 			this.hasWatchApp = true;
 		}
