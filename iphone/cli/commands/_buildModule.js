@@ -16,7 +16,7 @@ import appc from 'node-appc';
 import fs from 'fs-extra';
 import archiver from 'archiver';
 import async from 'async';
-import Builder from 'node-titanium-sdk/lib/builder.js';
+import { Builder } from '../../../cli/lib/builder.js';
 import ioslib from 'ioslib';
 import jsanalyze from 'node-titanium-sdk/lib/jsanalyze.js';
 import ejs from 'ejs';

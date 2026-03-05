@@ -22,6 +22,8 @@ function resizeImage() {
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const titaniumSdkPath = resolve(__dirname, '..', '..');
+const titaniumSdkName = basename(titaniumSdkPath);
 
 /**
  * The base class for platform specific build commands. This ensures some
@@ -55,6 +57,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * ```
  */
 export class Builder {
+	conf = {};
+	buildDirFiles = {};
+
 	/**
 	 * Constructs the build state. This needs to be explicitly called from the
 	 * derived builder's constructor.
@@ -62,11 +67,8 @@ export class Builder {
 	 * @param {Module} buildModule The "module" variable from the build command file
 	 */
 	constructor(buildModule) {
-		this.conf = {};
-		this.buildDirFiles = {};
-
-		this.titaniumSdkPath = resolve(__dirname, '..', '..');
-		this.titaniumSdkName = basename(this.titaniumSdkPath);
+		this.titaniumSdkPath = titaniumSdkPath;
+		this.titaniumSdkName = titaniumSdkName;
 
 		const manifest = readFileSync(join(this.titaniumSdkPath, 'manifest.json'), 'utf8');
 		this.manifest = JSON.parse(manifest);

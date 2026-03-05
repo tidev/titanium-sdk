@@ -15,7 +15,7 @@ import { detect as androidDetect } from '../lib/detect.js';
 import { AndroidManifest } from '../lib/android-manifest.js';
 import appc from 'node-appc';
 import archiver from 'archiver';
-import Builder from 'node-titanium-sdk/lib/builder.js';
+import { Builder } from '../../../cli/lib/builder.js';
 import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';

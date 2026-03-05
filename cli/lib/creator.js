@@ -21,7 +21,7 @@ import http from 'node:http';
 import path from 'node:path';
 import request from 'request';
 import temp from 'temp';
-import ti from 'node-titanium-sdk';
+import { validAppId } from 'node-titanium-sdk/titaium';
 
 /**
  * The base class for project creators (i.e. apps, modules).
@@ -174,7 +174,7 @@ export class Creator {
 					return callback(true);
 				}
 
-				if (!ti.validAppId(value)) {
+				if (!validAppId(value)) {
 					logger.error(`Invalid App ID "${value}"`);
 					logger.error(`The app must not contain Java reserved words when targeting ${'Android'.cyan}.\n`);
 					return callback(true);
@@ -195,7 +195,7 @@ export class Creator {
 					counter++;
 				}
 
-				if (!ti.validAppId(value)) {
+				if (!validAppId(value)) {
 					counter || logger.warn('The specified App ID is not compatible with the Android platform.');
 					logger.warn('Android does not allow Java reserved words in the App ID.');
 					counter++;

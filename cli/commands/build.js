@@ -13,6 +13,7 @@ import sprintf from 'sprintf';
 import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { commonOptions } from '../lib/common-options';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -231,7 +232,7 @@ export function config(logger, config, cli) {
 								callback(null, dir);
 							}
 						}
-					}, ti.commonOptions(logger, config)),
+					}, commonOptions(logger, config)),
 					platforms: platformConf
 				};
 				callback(null, conf);

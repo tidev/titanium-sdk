@@ -14,7 +14,7 @@
 import appc from 'node-appc';
 import async from 'async';
 import bufferEqual from 'buffer-equal';
-import Builder from 'node-titanium-sdk/lib/builder.js';
+import { Builder } from '../../../cli/lib/builder.js';
 import crypto from 'node:crypto';
 import colors from 'colors';
 import { DOMParser } from 'xmldom';

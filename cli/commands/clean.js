@@ -14,6 +14,7 @@ import async from 'async';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import fields from 'fields';
 import { fileURLToPath } from 'node:url';
+import { commonOptions } from '../lib/common-options';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -164,7 +165,7 @@ export function config(logger, config, cli) {
 							callback(null, dir);
 						}
 					}
-				}, ti.commonOptions(logger, config))
+				}, commonOptions(logger, config))
 			};
 			callback(null, conf);
 		})(function (err, result) {
