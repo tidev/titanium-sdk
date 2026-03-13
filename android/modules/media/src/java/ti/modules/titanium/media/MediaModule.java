@@ -239,6 +239,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
 	private boolean useCameraX = false;
+	private static String imageFolder = "";
 	private static boolean pathOnly = false;
 
 	public MediaModule()
@@ -689,6 +690,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			useCameraX = cameraOptions.getBoolean("useCameraX");
 		}
 
+		if (cameraOptions.containsKeyAndNotNull("galleryFolder")) {
+			imageFolder = cameraOptions.getString("galleryFolder");
+		}
+
 		if ((overlay != null) && (overlay instanceof TiViewProxy)) {
 			if (useCameraX) {
 				Log.d(TAG, "Use CameraX");
@@ -1002,6 +1007,10 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
+				if (!imageFolder.equals("")) {
+					contentValues.put(MediaStore.Images.Media.RELATIVE_PATH,
+						Environment.DIRECTORY_PICTURES + "/" + imageFolder);
+				}
 				contentUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
 			}
 		} else if (isVideo) {
