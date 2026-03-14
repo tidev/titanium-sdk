@@ -14,9 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,8 +99,8 @@ public class TiUIHelper
 	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
-	private static final Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<>());
-	private static final Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, String> resourceImageKeys = new ConcurrentHashMap<>();
+	private static final Map<String, Typeface> mCustomTypeFaces = new ConcurrentHashMap<>();
 
 	public static OnClickListener createDoNothingListener()
 	{
