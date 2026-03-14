@@ -425,11 +425,12 @@ public class TiUIHelper
 
 	private static Typeface loadTypeface(Context context, String fontFamily)
 	{
-		if (context == null) {
+		if (context == null || fontFamily == null) {
 			return null;
 		}
-		if (mCustomTypeFaces.containsKey(fontFamily)) {
-			return mCustomTypeFaces.get(fontFamily);
+		Typeface cached = mCustomTypeFaces.get(fontFamily);
+		if (cached != null || mCustomTypeFaces.containsKey(fontFamily)) {
+			return cached;
 		}
 		AssetManager mgr = context.getAssets();
 		try {
@@ -438,10 +439,7 @@ public class TiUIHelper
 				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					synchronized (mCustomTypeFaces)
-					{
-						mCustomTypeFaces.put(fontFamily, tf);
-					}
+					mCustomTypeFaces.put(fontFamily, tf);
 					return tf;
 				}
 			}
@@ -449,7 +447,6 @@ public class TiUIHelper
 			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 		}
 
-		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
 
