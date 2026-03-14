@@ -323,10 +323,12 @@
     // Ignored: handled via ButtonConfiguration.attributedString
     return;
   }
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-  [[self button] setAttributedTitle:[arg attributedString] forState:UIControlStateNormal];
-  [(TiViewProxy *)[self proxy] contentsWillChange];
+  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:arg];
+  if (as) {
+    [[self proxy] replaceValue:as forKey:@"attributedString" notification:NO];
+    [[self button] setAttributedTitle:[as attributedString] forState:UIControlStateNormal];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+  }
 #endif
 }
 
