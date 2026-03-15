@@ -86,12 +86,12 @@ static NSArray *imageKeySequence;
   // Furthermore, by the time this is run, if this stop was called by a destroy
   // Bad things(tm) happen.
 
-  [destroyLock lock];
-  if ([self viewAttached]) {
-    TiUIImageView *iv = (TiUIImageView *)[self view];
-    [iv stop];
-  }
-  [destroyLock unlock];
+  dispatch_sync(destroyQueue, ^{
+    if ([self viewAttached]) {
+      TiUIImageView *iv = (TiUIImageView *)[self view];
+      [iv stop];
+    }
+  });
 }
 
 - (void)pause:(id)args
