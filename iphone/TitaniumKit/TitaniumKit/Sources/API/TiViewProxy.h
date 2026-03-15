@@ -454,6 +454,12 @@ enum {
  */
 - (void)detachView;
 
+/**
+ Performs a block on the destroy queue, or inline if already executing on it.
+ Subclasses should use this instead of raw dispatch_sync(destroyQueue, ...) to avoid deadlocks.
+ */
+- (void)performOnDestroyQueue:(dispatch_block_t)block;
+
 - (void)destroy;
 
 /**

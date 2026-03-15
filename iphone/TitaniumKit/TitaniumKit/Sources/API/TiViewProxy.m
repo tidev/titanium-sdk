@@ -1546,6 +1546,14 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return [[TiUIView alloc] initWithFrame:[self appFrame]];
 }
 
+- (void)performOnDestroyQueue:(dispatch_block_t)block
+{
+  if (!destroyQueue) {
+    return;
+  }
+  DestroyQueuePerform(destroyQueue, block);
+}
+
 - (void)detachView
 {
   if (!destroyQueue) {
