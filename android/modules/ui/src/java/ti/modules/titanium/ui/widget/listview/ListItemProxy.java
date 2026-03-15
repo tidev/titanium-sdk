@@ -58,6 +58,7 @@ public class ListItemProxy extends TiViewProxy
 	private boolean placeholder = false;
 	private boolean hasAddedItemEvents = false;
 	private boolean selected = false;
+	private String cachedSearchableTextLower = null;
 
 	public ListItemProxy()
 	{
@@ -830,6 +831,10 @@ public class ListItemProxy extends TiViewProxy
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, selectionColor);
 		}
 
+		if (name.equals(TiC.PROPERTY_SEARCHABLE_TEXT) && value instanceof String) {
+			this.cachedSearchableTextLower = ((String) value).toLowerCase();
+		}
+
 		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
 			invalidate();
 		}
@@ -881,6 +886,17 @@ public class ListItemProxy extends TiViewProxy
 		super.setProperty(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Get cached lowercase searchable text for filtering.
+	 * Returns pre-computed lowercase version to avoid repeated toLowerCase() calls.
+	 *
+	 * @return Lowercase searchable text or null if not set.
+	 */
+	public String getSearchableTextLower()
+	{
+		return this.cachedSearchableTextLower;
 	}
 
 	/**
