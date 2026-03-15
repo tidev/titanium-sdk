@@ -831,6 +831,10 @@ public class ListItemProxy extends TiViewProxy
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, selectionColor);
 		}
 
+		if (name.equals(TiC.PROPERTY_SEARCHABLE_TEXT) && value instanceof String) {
+			this.cachedSearchableTextLower = ((String) value).toLowerCase();
+		}
+
 		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
 			invalidate();
 		}
@@ -882,10 +886,6 @@ public class ListItemProxy extends TiViewProxy
 		super.setProperty(name, value);
 
 		processProperty(name, value);
-
-		if (TiC.PROPERTY_SEARCHABLE_TEXT.equals(name) && value instanceof String) {
-			this.cachedSearchableTextLower = ((String) value).toLowerCase();
-		}
 	}
 
 	/**
