@@ -323,7 +323,7 @@
     // Ignored: handled via ButtonConfiguration.attributedString
     return;
   }
-  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:arg];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
   if (as) {
     [[self proxy] replaceValue:as forKey:@"attributedString" notification:NO];
     [[self button] setAttributedTitle:[as attributedString] forState:UIControlStateNormal];
