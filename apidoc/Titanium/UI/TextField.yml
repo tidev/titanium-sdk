@@ -100,8 +100,8 @@ properties:
 
         Since 13.2.0 you can also use the AttributedString object without `Titanium.UI.createAttributedString()`:
         ``` js
-        var text =  'Bacon ipsum dolor Titanium SDK rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
-        var label = Titanium.UI.createLabel({
+        const text =  'Bacon ipsum dolor Titanium SDK rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+        const label = Titanium.UI.createLabel({
             attributedString: {
                 text: text,
                 attributes: [

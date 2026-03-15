@@ -324,9 +324,9 @@
     return;
   }
   TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
-  if (as) {
-    [[self proxy] replaceValue:as forKey:@"attributedString" notification:NO];
-    [[self button] setAttributedTitle:[as attributedString] forState:UIControlStateNormal];
+  if (attributedStringProxy) {
+    [[self proxy] replaceValue:attributedStringProxy forKey:@"attributedString" notification:NO];
+    [[self button] setAttributedTitle:[attributedStringProxy attributedString] forState:UIControlStateNormal];
     [(TiViewProxy *)[self proxy] contentsWillChange];
   }
 #endif

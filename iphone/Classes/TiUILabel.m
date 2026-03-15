@@ -497,10 +497,10 @@
 - (void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:arg];
-  if (as) {
-    [[self proxy] replaceValue:as forKey:@"attributedString" notification:NO];
-    [[self label] setAttributedText:[as attributedString]];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
+  if (attributedStringProxy) {
+    [[self proxy] replaceValue:attributedStringProxy forKey:@"attributedString" notification:NO];
+    [[self label] setAttributedText:[attributedStringProxy attributedString]];
     [self padLabel];
     [(TiViewProxy *)[self proxy] contentsWillChange];
   }

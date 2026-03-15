@@ -161,8 +161,8 @@
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
   TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
-  if (as) {
-    _configuration.attributedTitle = [as attributedString];
+  if (attributedStringProxy) {
+    _configuration.attributedTitle = [attributedStringProxy attributedString];
   }
 #endif
 }
