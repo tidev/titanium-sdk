@@ -73,6 +73,7 @@ class AndroidBuilder extends Builder {
 		};
 
 		this.targets = [ 'emulator', 'device', 'dist-playstore' ];
+		this.appName = null;
 	}
 
 	config(logger, config, cli) {
@@ -1666,6 +1667,7 @@ class AndroidBuilder extends Builder {
 
 		this.appid = this.tiapp.id;
 		this.appid.indexOf('.') === -1 && (this.appid = 'com.' + this.appid);
+		this.appName = this.tiapp.name;
 
 		this.classname = this.tiapp.name.split(/[^A-Za-z0-9_]/).map(function (word) {
 			return appc.string.capitalize(word.toLowerCase());
@@ -3230,6 +3232,7 @@ class AndroidBuilder extends Builder {
 				}
 				localeData.strings.app_name = appName;
 			}
+			this.appName = appName;
 
 			// Create the XML content for all localized strings.
 			const dom = new DOMParser().parseFromString('<resources/>', 'text/xml');
@@ -3693,7 +3696,7 @@ class AndroidBuilder extends Builder {
 		mainManifestContent = ejs.render(mainManifestContent.toString(), {
 			appChildXmlLines: appChildXmlLines,
 			appIcon: this.appIconManifestValue,
-			appLabel: this.tiapp.name,
+			appLabel: this.appName,
 			classname: this.classname,
 			storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
 			packageName: this.appid,
