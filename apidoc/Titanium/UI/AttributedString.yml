@@ -67,7 +67,7 @@ examples:
                 {
                     type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
                     value: "red",
-                    range: [text.indexOf('Appcelerator'), ('Appcelerator').length]
+                    range: [text.indexOf('Titanium'), ('Titanium').length]
                 },
                 {
                     type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
