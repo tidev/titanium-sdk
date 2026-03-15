@@ -160,7 +160,7 @@
 - (void)setAttributedString:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:arg];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
   if (as) {
     _configuration.attributedTitle = [as attributedString];
   }
