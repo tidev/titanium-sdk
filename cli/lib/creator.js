@@ -18,10 +18,13 @@ import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';
 import http from 'node:http';
-import path from 'node:path';
+import path, { join } from 'node:path';
 import request from 'request';
 import temp from 'temp';
 import { validAppId } from 'node-titanium-sdk/titaium';
+import { existsSync, expand } from 'node-titanium-sdk/util';
+import { createWriteStream, mkdirSync, unlinkSync } from 'node:fs';
+import { unlink } from 'node:fs/promises';
 
 /**
  * The base class for project creators (i.e. apps, modules).
@@ -108,7 +111,7 @@ export class Creator {
 			});
 			let dest = path.join(destDir, destName);
 
-			if (fs.statSync(src).isDirectory() && !ignoreDirs.test(filename)) {
+			if (isDir(src) && !ignoreDirs.test(filename)) {
 				_t.copyDir(src, dest, next, variables);
 
 			} else if (!ignoreFiles.test(filename)) {
@@ -495,55 +498,53 @@ export class Creator {
 	}
 
 	/**
-	 * Defines the --workspace-dir option.
-	 *
-	 * @param {Function} next - Callback function
+	 * ?
 	 *
 	 * @returns {Object}
 	 */
-	processTemplate(next) {
+	async processTemplate() {
 		// try to resolve the template dir
 		const template = this.cli.argv.template = this.cli.argv.template || 'default';
 		const additionalPaths = this.config.get('paths.templates');
-		const builtinTemplateDir = appc.fs.resolvePath(this.sdk.path, 'templates', this.cli.argv.type, template);
+		const builtinTemplateDir = expand(this.sdk.path, 'templates', this.cli.argv.type, template);
 		const searchPaths = [];
 
 		// first check if the specified template is a built-in template name
-		if (fs.existsSync(builtinTemplateDir)) {
-			this.cli.scanHooks(path.join(builtinTemplateDir, 'hooks'));
-			return next(null, builtinTemplateDir);
+		if (existsSync(builtinTemplateDir)) {
+			this.cli.scanHooks(join(builtinTemplateDir, 'hooks'));
+			return builtinTemplateDir;
 		}
 
 		if (/^https?:\/\/.+/.test(template)) {
-			return this.downloadFile(template, next);
+			return this.downloadFile(template);
 		}
 
-		if (/\.zip$/.test(template) && fs.existsSync(template)) {
+		if (/\.zip$/.test(template) && existsSync(template)) {
 			return this.unzipFile(template, next);
 		}
 
 		// could be the name of a template in one of the template paths
 		this.cli.env.os.sdkPaths.forEach(function (dir) {
-			if (fs.existsSync(dir = appc.fs.resolvePath(dir, 'templates')) && searchPaths.indexOf(dir) === -1) {
+			if (existsSync(dir = expand(dir, 'templates')) && searchPaths.indexOf(dir) === -1) {
 				searchPaths.push(dir);
 			}
 		});
 
 		(Array.isArray(additionalPaths) ? additionalPaths : [ additionalPaths ]).forEach(function (p) {
-			if (p && fs.existsSync(p = appc.fs.resolvePath(p)) && searchPaths.indexOf(p) === -1) {
+			if (p && existsSync(p = expand(p)) && searchPaths.indexOf(p) === -1) {
 				searchPaths.push(p);
 			}
 		});
 
 		let dir;
 		while (dir = searchPaths.shift()) {
-			if (fs.existsSync(dir = path.join(dir, template))) {
+			if (existsSync(dir = join(dir, template))) {
 				return next(null, dir);
 			}
 		}
 
 		// last possibility is it's a local directory
-		if (fs.existsSync(template) && fs.statSync(template).isDirectory()) {
+		if (isDir(template)) {
 			return next(template);
 		}
 
@@ -554,71 +555,65 @@ export class Creator {
 	 * Downloads the specified file and unzips it.
 	 *
 	 * @param {String} url - The URL of a zip file to download
-	 * @param {Function} callback - The function to call after the file has been downloaded and unzipped
 	 */
-	downloadFile(url, callback) {
-		const tempName = temp.path({ suffix: '.zip' }),
-			tempDir = path.dirname(tempName);
+	async downloadFile(url) {
+		const tempName = temp.path({ suffix: '.zip' });
+		const tempDir = path.dirname(tempName);
 
-		fs.ensureDirSync(tempDir);
-
+		await mkdir(tempDir, { recursive: true });
 		this.logger.info(`Downloading ${url.cyan}`);
 
-		const tempStream = fs.createWriteStream(tempName),
-			req = request({
-				url: url,
-				proxy: this.config.get('cli.httpProxyServer'),
-				rejectUnauthorized: this.config.get('cli.rejectUnauthorized', true)
-			});
+		const tempStream = createWriteStream(tempName);
+		return request(url)
+			.then(res => {
+				res.pipe(tempStream);
 
-		req.pipe(tempStream);
-
-		req.on('error', function () {
-			fs.existsSync(tempName) && fs.unlinkSync(tempName);
-			this.logger.log();
-			this.logger.error(`Failed to download template: ${url}\n`);
-			callback(true);
-		}.bind(this));
-
-		req.on('response', function (req) {
-			if (req.statusCode >= 400) {
-				// something went wrong, abort
-				this.logger.error(`Request failed with HTTP status code ${req.statusCode} ${http.STATUS_CODES[req.statusCode] || ''}`);
-				callback(true);
-				return;
-			}
-
-			tempStream.on('close', function () {
-				this.unzipFile(tempName, function (err, dir) {
-					fs.unlinkSync(tempName);
-					callback(err, dir);
+				res.on('error', () => {
+					rmSync(tempName, { recursive: true });
+					this.logger.log();
+					this.logger.error(`Failed to download template: ${url}\n`);
+					reject(new Error(`Failed to download template: ${url}`));
 				});
-			}.bind(this));
-		}.bind(this));
+
+				res.on('response', (req) => {
+					if (req.statusCode >= 400) {
+						// something went wrong, abort
+						this.logger.error(`Request failed with HTTP status code ${req.statusCode} ${http.STATUS_CODES[req.statusCode] || ''}`);
+						reject(new Error(`Request failed with HTTP status code ${req.statusCode} ${http.STATUS_CODES[req.statusCode] || ''}`));
+						return;
+					}
+
+					tempStream.on('close', async () => {
+						this.unzipFile(tempName)
+							.then(resolve)
+							.catch(reject)
+							.finally(() => unlink(tempName));
+					});
+				});
+			});
 	}
 
 	/**
 	* Unzips the specified file.
 	*
 	* @param {String} zipFile - A local path to a zip file to unzip
-	* @param {Function} callback - The function to call after the file has been unzipped
 	*/
-	unzipFile(zipFile, callback) {
+	async unzipFile(zipFile) {
 		const dir = temp.mkdirSync({ prefix: 'titanium-' });
-		fs.ensureDirSync(dir);
+		mkdirSync(dir, { recursive: true });
 		this.logger.info(`Extracting ${zipFile.cyan}`);
 		const logger = this.logger;
 
-		this.cli.on('create.finalize', function () {
+		this.cli.on('create.finalize', () => {
 			// clean up the temp dir
-			if (fs.existsSync(dir)) {
+			if (existsSync(dir)) {
 				logger.debug(`Removing temp unzip dir: ${dir.cyan}`);
-				fs.rmdirSync(dir);
+				rmSync(dir, { recursive: true });
 			}
 		});
 
-		appc.zip.unzip(zipFile, dir, null, function () {
-			callback(null, dir);
-		});
+		await extractZip(zipFile, dir);
+
+		return dir;
 	}
 }
