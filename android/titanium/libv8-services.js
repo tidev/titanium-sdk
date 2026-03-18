@@ -259,7 +259,6 @@ async function updateLibrary() {
 			+ ' -Pcompression=bzip2'
 			+ ' -Psrc=' + quotePath(inFile)
 			+ ' -Pdest=' + quotePath(outDir);
-			// + ' -I ' + quotePath(path.join(__dirname, '..', 'untar.gradle'));
 		return exec(untarCommandLine);
 	});
 	// Now copy from tmp dir to ultimate destination
