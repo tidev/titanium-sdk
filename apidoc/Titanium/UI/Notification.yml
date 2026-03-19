@@ -81,7 +81,7 @@ properties:
     type: Number
     default: 0
   - name: verticalMargin
-    summary: Vertical placement of the notifcation, *as a fraction of the screen height*.
+    summary: Vertical placement of the notification, *as a fraction of the screen height*.
     description: Useful values range from -0.5 (top) to 0.5 (bottom). A value
         of zero indicates default placement.
     type: Number

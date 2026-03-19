@@ -127,11 +127,7 @@ public class TiUITimePicker extends TiUIView implements TimePicker.OnTimeChanged
 					View amView = timePicker.findViewById(id_am);
 					View pmView = timePicker.findViewById(id_pm);
 					View.OnClickListener listener = (View v) -> {
-						if (Build.VERSION.SDK_INT >= 23) {
-							timePicker.setHour((timePicker.getHour() + 12) % 24);
-						} else {
-							timePicker.setCurrentHour((timePicker.getCurrentHour() + 12) % 24);
-						}
+						timePicker.setHour((timePicker.getHour() + 12) % 24);
 					};
 					if (amView != null) {
 						amView.setOnClickListener(listener);
@@ -332,10 +328,9 @@ public class TiUITimePicker extends TiUIView implements TimePicker.OnTimeChanged
 
 			// Fetch selected time "value". Property will be null if user canceled out.
 			Object objectValue = args.get(TiC.PROPERTY_VALUE);
-			if (!(objectValue instanceof Date)) {
+			if (!(objectValue instanceof Date dateValue)) {
 				return;
 			}
-			Date dateValue = (Date) objectValue;
 
 			// Show selected time in text field.
 			this.picker.setValue(dateValue);

@@ -11,29 +11,25 @@
 * Please see the LICENSE included with this distribution for details.
 */
 
-'use strict';
+import fs from 'fs-extra';
+import { GradleWrapper } from '../lib/gradle-wrapper.js';
+import path from 'node:path';
 
-const appc = require('node-appc');
-const fs = require('fs-extra');
-const GradleWrapper = require('../lib/gradle-wrapper');
-const path = require('path');
-const __ = appc.i18n(__dirname).__;
-
-exports.run = async function run(logger, config, cli, finished) {
+export async function run(logger, config, cli, finished) {
 	try {
 		const projectDir = cli.argv['project-dir'];
 
-		// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+		// On Windows, stop Gradle daemon to make it release its file locks so that they can be deleted.
 		if (process.platform === 'win32') {
 			try {
 				const gradlew = new GradleWrapper(path.join(projectDir, 'build'));
 				gradlew.logger = logger;
 				if (await gradlew.hasWrapperFiles()) {
-					logger.debug('Stopping gradle daemon.');
+					logger.debug('Stopping Gradle daemon.');
 					await gradlew.stopDaemon();
 				}
 			} catch (err) {
-				logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
+				logger.error(`Failed to stop Gradle daemon. Reason:\n${err}`);
 			}
 		}
 
@@ -43,7 +39,7 @@ exports.run = async function run(logger, config, cli, finished) {
 				continue;
 			}
 			const filePath = path.join(buildDir, file);
-			logger.debug(__('Deleting %s', filePath.cyan));
+			logger.debug(`Deleting ${filePath.cyan}`);
 			await fs.remove(filePath);
 		}
 
@@ -52,7 +48,7 @@ exports.run = async function run(logger, config, cli, finished) {
 		for (const nextFileName of fileNames) {
 			const nextFilePath = path.join(projectDir, nextFileName);
 			if (await fs.exists(nextFilePath)) {
-				logger.debug(__('Deleting %s', nextFilePath.cyan));
+				logger.debug(`Deleting ${nextFilePath.cyan}`);
 				await fs.remove(nextFilePath);
 			}
 		}
@@ -66,7 +62,7 @@ exports.run = async function run(logger, config, cli, finished) {
 			for (const architectureFolderName of await fs.readdir(libsDirPath)) {
 				const libFilePath = path.join(libsDirPath, architectureFolderName, libFileName);
 				if (await fs.exists(libFilePath)) {
-					logger.debug(__('Deleting %s', libFilePath.cyan));
+					logger.debug(`Deleting ${libFilePath.cyan}`);
 					await fs.remove(libFilePath);
 				}
 			}
@@ -76,4 +72,4 @@ exports.run = async function run(logger, config, cli, finished) {
 	}
 
 	finished();
-};
+}

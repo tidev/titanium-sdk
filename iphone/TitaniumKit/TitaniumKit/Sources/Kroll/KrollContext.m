@@ -434,7 +434,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
     [formatter setLocale:locale];
     [formatter setNumberStyle:NSNumberFormatterDecimalStyle];
 
-    // Format handling to match the extremely vague android specs
+    // Format handling to match the extremely vague Android specs
     if (argCount == 3) {
       formatString = [KrollObject toID:ctx value:args[2]];
     }
@@ -618,7 +618,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
     stopped = YES;
     KrollContextCount++;
 
-    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   }
   return self;
 }
@@ -647,7 +647,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)unregisterForNotifications
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

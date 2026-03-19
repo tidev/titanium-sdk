@@ -21,7 +21,7 @@
 }
 
 /**
- * @param moduleID is assumed to be the module name (classname with the "Module" suffix stripped off) - i.e. "UI", "App", "Media"
+ * @param moduleID is assumed to be the module name (classname with the "Module" suffix stripped off) - e.g. "UI", "App", "Media"
  * We will generate the full class name from the moduleID: "UI" => "UIModule", "com.appcelerator.urlSession" => "ComAppceleratorUrlSessionModule"
  * @return TiModule* or ObjcProxy* based on whether the module is an older style proxy module or a new Obj-C JSC API style (currently only 1st party in-SDK code)
  */

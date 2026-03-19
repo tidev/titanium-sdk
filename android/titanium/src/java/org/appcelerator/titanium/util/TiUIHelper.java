@@ -14,9 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,8 +99,8 @@ public class TiUIHelper
 	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
-	private static final Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<>());
-	private static final Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, String> resourceImageKeys = new ConcurrentHashMap<>();
+	private static final Map<String, Typeface> mCustomTypeFaces = new ConcurrentHashMap<>();
 
 	public static OnClickListener createDoNothingListener()
 	{
@@ -425,11 +425,12 @@ public class TiUIHelper
 
 	private static Typeface loadTypeface(Context context, String fontFamily)
 	{
-		if (context == null) {
+		if (context == null || fontFamily == null) {
 			return null;
 		}
-		if (mCustomTypeFaces.containsKey(fontFamily)) {
-			return mCustomTypeFaces.get(fontFamily);
+		Typeface cached = mCustomTypeFaces.get(fontFamily);
+		if (cached != null || mCustomTypeFaces.containsKey(fontFamily)) {
+			return cached;
 		}
 		AssetManager mgr = context.getAssets();
 		try {
@@ -438,10 +439,7 @@ public class TiUIHelper
 				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					synchronized (mCustomTypeFaces)
-					{
-						mCustomTypeFaces.put(fontFamily, tf);
-					}
+					mCustomTypeFaces.put(fontFamily, tf);
 					return tf;
 				}
 			}
@@ -449,7 +447,6 @@ public class TiUIHelper
 			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 		}
 
-		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
 
@@ -997,8 +994,8 @@ public class TiUIHelper
 	}
 
 	/**
-	 * Creates and returns a bitmap from its url.
-	 * @param url the bitmap url.
+	 * Creates and returns a bitmap from its URL.
+	 * @param url the bitmap URL.
 	 * @return a new bitmap instance
 	 */
 	public static Bitmap getResourceBitmap(String url)

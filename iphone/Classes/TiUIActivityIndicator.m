@@ -254,7 +254,7 @@
     // Make the backgroundView as small as the biggest of the two
     [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[messageLabel]-(>=0)-|", views)];
     [backgroundView addConstraints:TI_CONSTR(@"V:|-(>=0)-[indicatorView]-(>=0)-|", views)];
-    // Center both verically
+    // Center both vertically
     [backgroundView addConstraint:[NSLayoutConstraint constraintWithItem:messageLabel
                                                                attribute:NSLayoutAttributeCenterY
                                                                relatedBy:NSLayoutRelationEqual

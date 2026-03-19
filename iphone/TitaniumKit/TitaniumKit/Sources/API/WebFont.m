@@ -36,7 +36,7 @@
 
 - (UIFont *)font
 {
-  // TO DO: Refactor this function
+  // TODO: Refactor this function
   if (font == nil) {
     if (textStyle != nil && [textStyle isKindOfClass:[NSString class]] && family != nil) {
       UIFont *tempFont = [UIFont fontWithName:family size:self.size];

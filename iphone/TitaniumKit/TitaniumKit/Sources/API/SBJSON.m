@@ -184,7 +184,7 @@ static char ctrl[0x24];
  If nil is returned and @p error is not NULL, @p *error can be interrogated to find the cause of the error.
 
  @param value any instance that can be represented as a JSON fragment
- @param allowScalar wether to return json fragments for scalar objects
+ @param allowScalar wether to return JSON fragments for scalar objects
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
 - (NSString *)stringWithObject:(id)value allowScalar:(BOOL)allowScalar error:(NSError **)error
@@ -415,7 +415,7 @@ static char ctrl[0x24];
  Returns the object represented by the passed-in string or nil on error. The returned object can be
  a string, number, boolean, null, array or dictionary.
 
- @param repr the json string to parse
+ @param repr the JSON string to parse
  @param allowScalar whether to return objects for JSON fragments
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
@@ -461,7 +461,7 @@ static char ctrl[0x24];
  Returns the object represented by the passed-in string or nil on error. The returned object can be
  a string, number, boolean, null, array or dictionary.
 
- @param repr the json string to parse
+ @param repr the JSON string to parse
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
 - (id)fragmentWithString:(NSString *)repr error:(NSError **)error
@@ -473,7 +473,7 @@ static char ctrl[0x24];
  Returns the object represented by the passed-in string or nil on error. The returned object
  will be either a dictionary or an array.
 
- @param repr the json string to parse
+ @param repr the JSON string to parse
  @param error used to return an error by reference (pass NULL if this is not desired)
  */
 - (id)objectWithString:(NSString *)repr error:(NSError **)error

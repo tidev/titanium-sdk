@@ -27,7 +27,7 @@ extern NSString *const TiExceptionOSError;
 // This is when a normally allowed command is not allowed (Say, adding a row to a table when it already is added elsewhere)
 extern NSString *const TiExceptionInternalInconsistency;
 
-// Rare exceptions to indicate a bug in the titanium code (Eg, function that a subclass should have implemented)
+// Rare exceptions to indicate a bug in the Titanium code (e.g., function that a subclass should have implemented)
 extern NSString *const TiExceptionUnimplementedFunction;
 
 // Rare exception in the case of malloc failure

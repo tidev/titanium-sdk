@@ -88,7 +88,7 @@ enum {
 
 /**
  The class represents a proxy that is attached to a view.
- The class is not intended to be overriden.
+ The class is not intended to be overridden.
  */
 @interface TiViewProxy : TiProxy <LayoutAutosizing> {
   @protected
@@ -534,6 +534,11 @@ enum {
  Tells the view proxy that the attached view's parent will hide.
  */
 - (void)parentWillHide;
+
+/**
+ Tells the view proxy that rendering via the layout queue finished.
+ */
+- (void)didFinishLayout;
 
 #pragma mark Layout actions
 

@@ -23,7 +23,7 @@
 - (void)stop:(id)unused;
 
 - (void)seekForward:(id)unused;
-- (void)seekBackward:(id)unusued;
+- (void)seekBackward:(id)unused;
 - (void)stopSeeking:(id)unused;
 
 - (void)skipToNext:(id)unused;

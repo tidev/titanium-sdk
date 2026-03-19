@@ -13,7 +13,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	var testSource = {},
 		invalidSource = {};
 
-	// some common initialization specific to the xml suite
+	// some common initialization specific to the XML suite
 	function countNodes(node, type) {
 		var nodeCount = 0,
 			i,

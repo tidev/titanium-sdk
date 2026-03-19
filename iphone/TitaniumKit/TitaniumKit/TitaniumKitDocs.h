@@ -13,7 +13,6 @@ FOUNDATION_EXPORT double TitaniumKitVersionNumber;
 //! Project version string for TitaniumKit.
 FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 
-#import <TitaniumKit/Libraries/APSAnalytics/APSAnalytics.h>
 #import <TitaniumKit/Libraries/APSHTTPClient/APSHTTPClient.h>
 #import <TitaniumKit/Sources/API/APIModule.h>
 #import <TitaniumKit/Sources/API/ImageLoader.h>

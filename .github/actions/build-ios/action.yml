@@ -19,12 +19,16 @@ runs:
       run: npm ci
       shell: bash
 
+    - name: Install SwiftLint
+      run: brew install swiftlint
+      shell: bash
+
     - name: Lint
       run: npm run lint:ios
       shell: bash
 
-    - name: Build
-      run: npm run build:ios
+    - name: Build (clean)
+      run: npm run cleanbuild:ios
       shell: bash
 
     - name: Package build output

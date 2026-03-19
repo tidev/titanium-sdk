@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-'use strict';
 
-const path = require('path');
-const glob = require('glob');
-const yaml = require('js-yaml');
-const fs = require('fs-extra');
-const promisify = require('util').promisify;
-const semver = require('semver');
-const chalk = require('chalk');
+import path from 'node:path';
+import { glob } from 'glob';
+import yaml from 'js-yaml';
+import fs from 'fs-extra';
+import semver from 'semver';
+import chalk from 'chalk';
+import { fileURLToPath } from 'node:url';
 
 /**
  * @param {object} thing type, property or method from docs
@@ -134,8 +133,9 @@ function compareRemoved(a, b) {
  * @returns {object[]}
  */
 async function main(version) {
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	const apidocs = path.join(__dirname, '../apidoc');
-	const files = await promisify(glob)(`${apidocs}/**/*.yml`);
+	const files = await glob(`${apidocs}/**/*.yml`);
 	const arr = await Promise.all(files.map(f => checkFile(f)));
 	const flattened = [].concat(...arr).filter(f => compareVersions(pickFirstVersion(f.deprecated.removed), version) < 0);
 	// Sort by deprecated.since oldest to newest

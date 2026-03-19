@@ -30,7 +30,7 @@
 - (void)setItems:(id)args;
 
 /*
- Determines if the menu is currenty visible.
+ Determines if the menu is currently visible.
  */
 - (NSNumber *)isVisible:(id)unused;
 

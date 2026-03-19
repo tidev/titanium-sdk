@@ -8,7 +8,7 @@
 // Extracts a "*.tar" file using the same parameters as the ant <untar/> task.
 // Used by our prebuild step to extract our "libv8-*.tar.bz2" file.
 tasks.register('untar') {
-	// Throw an error if required gradle property has not been set.
+	// Throw an error if required Gradle property has not been set.
 	if (!project.hasProperty('src')) {
 		throw new InvalidUserDataException('You must set a "src" property.')
 	}

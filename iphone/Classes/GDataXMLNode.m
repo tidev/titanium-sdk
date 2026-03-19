@@ -1268,7 +1268,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
         xmlChar *childDesiredLocalName = expectedLocalName;
 
         if (currChildPtr->nsDef != NULL) {
-          // this child has its own namespace definitons; do a fresh resolve
+          // this child has its own namespace definitions; do a fresh resolve
           // of the namespace starting from the child, and see if it differs
           // from the resolve done starting from the parent.  If the resolve
           // finds a different namespace, then override the desired local
@@ -1499,7 +1499,7 @@ static xmlChar *SplitQNameReverse(const xmlChar *qname, xmlChar **prefix)
                fromXMLNode:(xmlNodePtr)node
 {
 
-  // utilty routine to remove a namespace pointer from an element's
+  // utility routine to remove a namespace pointer from an element's
   // namespace definition list.  This is just removing the nsPtr
   // from the singly-linked list, the node's namespace definitions.
   xmlNsPtr currNS = node->nsDef;

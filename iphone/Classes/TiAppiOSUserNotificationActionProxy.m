@@ -45,7 +45,7 @@
       options |= UNNotificationActionOptionAuthenticationRequired;
     }
 
-    // Important: The UNNoticationAction class is creation-only, so the manual setters are only
+    // Important: The UNNotificationAction class is creation-only, so the manual setters are only
     // for the iOS < 10 UIUserNotificationAction
     if (behavior && [TiUtils intValue:behavior def:UIUserNotificationActionBehaviorDefault] == UIUserNotificationActionBehaviorTextInput) {
       _notificationAction = [[UNTextInputNotificationAction actionWithIdentifier:identifier

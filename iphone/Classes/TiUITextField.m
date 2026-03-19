@@ -269,7 +269,7 @@
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UITextFieldTextDidChangeNotification object:nil];
   [super dealloc];
 }
@@ -289,7 +289,7 @@
     [(TiTextField *)textWidgetView setTouchHandler:self];
     [self addSubview:textWidgetView];
     self.clipsToBounds = YES;
-    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
     NSNotificationCenter *theNC = [NSNotificationCenter defaultCenter];
     [theNC addObserver:self selector:@selector(textFieldDidChange:) name:UITextFieldTextDidChangeNotification object:textWidgetView];
   }
@@ -404,9 +404,11 @@
 - (void)setAttributedHintText_:(id)value
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  ENSURE_SINGLE_ARG(value, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:value forKey:@"attributedHintText" notification:NO];
-  [(TiTextField *)[self textWidgetView] setAttributedPlaceholder:[value attributedString]];
+  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:value];
+  if (as) {
+    [[self proxy] replaceValue:as forKey:@"attributedHintText" notification:NO];
+    [(TiTextField *)[self textWidgetView] setAttributedPlaceholder:[as attributedString]];
+  }
 #endif
 }
 

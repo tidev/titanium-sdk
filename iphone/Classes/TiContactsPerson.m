@@ -70,7 +70,7 @@ static NSDictionary *iOS9propertyKeys;
     return nil;
   }
 
-  // iOS9 contacts framework by default returns partial contact.
+  // iOS 9 contacts framework by default returns partial contact.
   // For ex: Email is returned nil when phone is selected and vice-versa.
   // So check and add.
   NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
@@ -136,7 +136,7 @@ static NSDictionary *iOS9propertyKeys;
                               @"main", CNLabelPhoneNumberMain,
                               @"iPhone", CNLabelPhoneNumberiPhone,
                               @"homeFax", CNLabelPhoneNumberHomeFax,
-                              @"facebookProfile", [CNSocialProfileServiceFacebook lowercaseString], // Social Profile Labels, curiously the string constants in the system is in lower case, so small hack here until iOS9 Beta makes changes here.
+                              @"facebookProfile", [CNSocialProfileServiceFacebook lowercaseString], // Social Profile Labels, curiously the string constants in the system is in lower case, so small hack here until iOS 9 Beta makes changes here.
                               @"flickrProfile", [CNSocialProfileServiceFlickr lowercaseString],
                               @"gameCenterProfile", [CNSocialProfileServiceGameCenter lowercaseString],
                               @"linkedInProfile", [CNSocialProfileServiceLinkedIn lowercaseString],
@@ -364,7 +364,7 @@ static NSDictionary *iOS9propertyKeys;
   }
   id property = nil;
 
-  // Birthday property managed seperately
+  // Birthday property managed separately
   if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey] && person.birthday != nil) {
     NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
     return [TiUtils UTCDateForDate:date];
@@ -586,12 +586,12 @@ static NSDictionary *iOS9propertyKeys;
     RELEASE_TO_NIL(newObjects)
   }
   // Why we do this ?
-  // In >= iOS9 contacts are immutable as well. So when a change happens we should create an associated CNSaveRequest.
+  // In >= iOS 9 contacts are immutable as well. So when a change happens we should create an associated CNSaveRequest.
   // By observing on this object the observer can update its CNSaveRequest accordingly.
   [self checkAndNotifyObserver];
 }
 
-// For iOS9 deleting contact
+// For iOS 9 deleting contact
 #ifndef __clang_analyzer__
 - (CNSaveRequest *)getSaveRequestForDeletion
 {

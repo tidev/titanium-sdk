@@ -18,7 +18,7 @@ export default function NativeModuleBootstrap(global, kroll) {
 	}
 
 	/**
-	 * This should be an object with string keys (baked in module ids) -> string values (source of the baked in js code)
+	 * This should be an object with string keys (baked in module ids) -> string values (source of the baked in JS code)
 	 */
 	NativeModule._source = kroll.binding('natives');
 	NativeModule._cache = {};

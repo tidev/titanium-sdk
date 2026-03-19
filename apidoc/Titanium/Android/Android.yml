@@ -267,7 +267,7 @@ methods:
         type: Titanium.Android.BroadcastReceiver
       - name: actions
         summary: |
-            The actions that the broadcast reciever will handle
+            The actions that the broadcast receiver will handle
         type: Array<String>
     since: "3.1.0"
 
@@ -372,7 +372,7 @@ properties:
     permission: read-only
 
   - name: ACTION_BATTERY_OKAY
-    summary: Inidicates the battery is now okay after being low.
+    summary: Indicates the battery is now okay after being low.
     description: |
         Pass to the <Titanium.Android.registerBroadcastReceiver> method to listen to the system broadcast.
 
@@ -1850,7 +1850,7 @@ properties:
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
         To use this constant, you must also set your `<service/>` element to the
-        `foregroundServieType` attribute value as shown below.
+        `foregroundServiceType` attribute value as shown below.
 
         ``` xml
         <ti:app>
@@ -1875,7 +1875,7 @@ properties:
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
         To use this constant, you must also set your `<service/>` element to the
-        `foregroundServieType` attribute value as shown below.
+        `foregroundServiceType` attribute value as shown below.
 
         ``` xml
         <ti:app>
@@ -1900,7 +1900,7 @@ properties:
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
         To use this constant, you must also set your `<service/>` element to the
-        `foregroundServieType` attribute value as shown below.
+        `foregroundServiceType` attribute value as shown below.
 
         ``` xml
         <ti:app>
@@ -1925,7 +1925,7 @@ properties:
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
         To use this constant, you must also set your `<service/>` element to the
-        `foregroundServieType` attribute value as shown below.
+        `foregroundServiceType` attribute value as shown below.
 
         ``` xml
         <ti:app>
@@ -1951,7 +1951,7 @@ properties:
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
         To use this constant, you must also set your `<service/>` element to the
-        `foregroundServieType` attribute value as shown below.
+        `foregroundServiceType` attribute value as shown below.
 
         ``` xml
         <ti:app>
@@ -1975,7 +1975,7 @@ properties:
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
         To use this constant, you must also set your `<service/>` element to the
-        `foregroundServieType` attribute value as shown below.
+        `foregroundServiceType` attribute value as shown below.
 
         ``` xml
         <ti:app>
@@ -1999,7 +1999,7 @@ properties:
         This constant is passed to the <Titanium.Android.Service.foregroundNotify> method.
 
         To use this constant, you must also set your `<service/>` element to the
-        `foregroundServieType` attribute value as shown below.
+        `foregroundServiceType` attribute value as shown below.
 
         ``` xml
         <ti:app>
@@ -2141,7 +2141,7 @@ properties:
     since: "3.6.0"
 
   - name: VISIBILITY_PUBLIC
-    summary: Shows the notification's full content on the lockscreen. This is the system default if visibility is left unspecified.
+    summary: Shows the notification's full content on the lock screen. This is the system default if visibility is left unspecified.
     description: |
         Use with the <Titanium.Android.Notification.visibility> property.
 
@@ -2151,7 +2151,7 @@ properties:
     since: "3.6.0"
 
   - name: VISIBILITY_SECRET
-    summary: Shows the most minimal information of the notification on the lockscreen.
+    summary: Shows the most minimal information of the notification on the lock screen.
     description: |
         Use with the <Titanium.Android.Notification.visibility> property.
 
@@ -2161,9 +2161,9 @@ properties:
     since: "3.6.0"
 
   - name: TILE_STATE_UNAVAILABLE
-    summary: QuickSettings tile is unavailble.
+    summary: QuickSettings tile is unavailable.
     description: |
-        For some reason the Tile is not avaialable to the user and will have no click action.
+        For some reason the Tile is not available to the user and will have no click action.
     type: Number
     permission: read-only
     since: "7.0.0"

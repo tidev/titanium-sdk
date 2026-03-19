@@ -47,7 +47,7 @@
 // Unprotects a JSObject from being GC'd
 - (void)unprotectJsobject;
 
-// Replaces a value for a given key in it's underlaying JSContext
+// Replaces a value for a given key in it's underlying JSContext
 - (void)replaceValue:(id)value forKey:(NSString *)key notification:(BOOL)notify;
 
 // Executes an async JavaScript function and returns the resulting JSCore value if any

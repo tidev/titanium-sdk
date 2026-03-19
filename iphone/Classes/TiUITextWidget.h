@@ -27,7 +27,6 @@
   NSInteger maxLength;
 
   TiUIView<TiScrolling> *parentScrollView;
-  @private
 }
 
 @property (readonly, getter=isFocused) BOOL focused;

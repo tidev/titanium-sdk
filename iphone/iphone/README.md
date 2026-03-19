@@ -1,4 +1,4 @@
-# Building and Debugging the Tiatnium iOS Source
+# Building and Debugging the Titanium iOS Source
 > ###### Tested with Titanium SDK 6.x 
 
 ## Titanium Core
@@ -28,4 +28,4 @@ and click *+* to add the `FacebookIOS` target dependency. This will ensure that 
 Titanium source, the Facebook Module source is built as well.
 <img src="https://abload.de/img/bildschirmfoto2017-05q0kr7.png" height="400" />
 4. That's it! You can now set breakpoints in your native module, `require` the module in the `app.js`
-and change the module source without recompiling it everytime you change it.
+and change the module source without recompiling it every time you change it.

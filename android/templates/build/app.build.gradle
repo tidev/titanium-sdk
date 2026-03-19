@@ -8,13 +8,13 @@ if (file("${projectDir}/google-services.json").exists()) {
 
 repositories {
 <% if (mavenRepositoryUrls) { for (let nextUrl of mavenRepositoryUrls) { %>
-	maven { url '<%- nextUrl %>' }
+	maven { url = '<%- nextUrl %>' }
 <% } } %>
 }
 
 android {
 	compileSdkVersion <%- compileSdkVersion %>
-	namespace '<%- applicationId %>'
+	namespace = '<%- applicationId %>'
 	defaultConfig {
 		applicationId '<%- applicationId %>'
 		minSdkVersion <%- minSdkVersion %>
@@ -23,11 +23,11 @@ android {
 		versionName '<%- versionName %>'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
-		multiDexEnabled true
+		multiDexEnabled = true
 		aaptOptions {
 			// Android build tools ignores asset directories with leading underscores, but iOS supports it.
 			// So, we must redefine ignore string with underscore pattern removed to support this too.
-			ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+			ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
 		}
 <% if (ndkAbiArray && (ndkAbiArray.length > 0)) { %>
 		ndk {
@@ -40,7 +40,7 @@ android {
 		targetCompatibility JavaVersion.VERSION_17
 	}
 	buildFeatures {
-		buildConfig true
+		buildConfig = true
 	}
 	signingConfigs {
 		def tiKeystoreFilePath = <%- "'" + tiSdkAndroidDir.replace(/\\/g, '\\\\') + "/dev_keystore'" %>
@@ -66,15 +66,15 @@ android {
 			storePassword tiKeystorePassword
 			keyAlias tiKeystoreAliasName
 			keyPassword tiKeystoreAliasPassword
-			enableV3Signing true
+			enableV3Signing = true
 		}
 	}
 	buildTypes {
 		debug {
-			signingConfig signingConfigs.config
+			signingConfig = signingConfigs.config
 		}
 		release {
-			signingConfig signingConfigs.config
+			signingConfig = signingConfigs.config
 <% if (proguardFilePaths && (proguardFilePaths.length > 0)) { %>
 			minifyEnabled true
 			proguardFiles(
@@ -84,7 +84,7 @@ android {
 		}
 	}
 	lintOptions {
-		checkReleaseBuilds false
+		checkReleaseBuilds = false
 	}
 	packagingOptions {
 		pickFirst '/lib/arm64-v8a/libc++_shared.so'
@@ -113,7 +113,7 @@ dependencies {
 }
 
 // Load optional "build.gradle" file copied from Titanium project's "platform/android" directory.
-// Allows app developer to add additional dependencies, such as those needed by hyperloop.
+// Allows app developer to add additional dependencies, such as those needed by Hyperloop.
 def customBuildGradlePath = "${projectDir}/src/main/build.gradle"
 if (file(customBuildGradlePath).exists()) {
 	apply from: customBuildGradlePath

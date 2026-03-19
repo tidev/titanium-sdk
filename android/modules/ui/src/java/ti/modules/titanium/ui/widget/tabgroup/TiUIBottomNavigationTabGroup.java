@@ -299,8 +299,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// Update tab bar's background color.
 		Drawable drawable = mBottomNavigationView.getBackground();
-		if (drawable instanceof MaterialShapeDrawable) {
-			MaterialShapeDrawable shapeDrawable = (MaterialShapeDrawable) drawable;
+		if (drawable instanceof MaterialShapeDrawable shapeDrawable) {
 			shapeDrawable.setFillColor(ColorStateList.valueOf(colorInt));
 			shapeDrawable.setElevation(0); // Drawable will tint the fill color if elevation is non-zero.
 		} else {

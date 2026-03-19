@@ -97,7 +97,7 @@
 
 #ifdef USE_TI_UIACTIVITYINDICATOR
   // TIMOB-17572: Attempt to resume activity indicator animation to reuse cell
-  // Use this workaroud until iOS is smart enough to retain the animation state itself
+  // Use this workaround until iOS is smart enough to retain the animation state itself
   if (self.subviews.firstObject != nil) {
     UIView *container = self.subviews.firstObject;
     [[container subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
@@ -141,7 +141,7 @@
   }
 }
 
-// TIMOB-17373. Workaround for separators disappearing on iOS7 and above
+// TIMOB-17373. Workaround for separators disappearing on iOS 7 and above
 - (void)ensureVisibleSelectorWithTableView:(UITableView *)tableView
 {
   if ([self selectedOrHighlighted]) {
@@ -559,17 +559,17 @@
   }
   [self setBackgroundSelectedGradient_:selectedBackgroundGradientValue];
 
-  id selectedbackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
-  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
+  id selectedBackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
+  if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+    selectedBackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
   }
-  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
+  if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+    selectedBackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
 
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
+    if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+      selectedBackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
     }
-    if (!IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+    if (!IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
       DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
     }
   }
@@ -581,15 +581,15 @@
   if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
     selectedBackgroundImageValue = [properties valueForKey:@"selectedBackgroundImage"];
 
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
+    if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+      selectedBackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
     }
     if (!IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
       DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
     }
   }
 
-  [self applyBackgroundWithSelectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
+  [self applyBackgroundWithSelectedColor:selectedBackgroundColorValue selectedImage:selectedBackgroundImageValue];
   [_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
     id value = [_initialValues objectForKey:keyPath];
     [self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];

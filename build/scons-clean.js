@@ -1,16 +1,22 @@
 #!/usr/bin/env node
-'use strict';
 
-const version = require('../package.json').version;
-const program = require('commander');
+import { program } from 'commander';
+import fs from 'fs-extra';
+import { Builder } from './lib/builder.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-program.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
+
+program
+	.allowExcessArguments()
+	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
 	.option('-s, --android-sdk [path]', 'Explicitly set the path to the Android SDK used for building')
 	.option('-a, --all', 'Clean every OS/platform')
 	.parse(process.argv);
 
-const Builder = require('./lib/builder');
 new Builder(program.opts(), program.args).clean()
 	.then(() => process.exit(0))
 	.catch(err => {

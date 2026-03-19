@@ -18,6 +18,7 @@
 
 - (void)refreshHTMLContent;
 - (void)setPageToken:(NSString *)pageToken;
+
 @end
 
 #endif

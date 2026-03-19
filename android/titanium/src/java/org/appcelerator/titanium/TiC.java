@@ -596,8 +596,10 @@ public class TiC
 	public static final String PROPERTY_MOVEABLE = "moveable";
 	public static final String PROPERTY_MOVING = "moving";
 	public static final String PROPERTY_MULTIPLY = "multiply";
+	public static final String PROPERTY_MULTIPLE_WINDOWS = "multipleWindows";
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
+	public static final String PROPERTY_NAV_BAR_COLOR = "navBarColor";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
 	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";

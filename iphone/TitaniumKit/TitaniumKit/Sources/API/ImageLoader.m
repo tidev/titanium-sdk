@@ -319,7 +319,7 @@ DEFINE_EXCEPTIONS
 - (id)init
 {
   if (self = [super init]) {
-    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
@@ -331,7 +331,7 @@ DEFINE_EXCEPTIONS
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidReceiveMemoryWarningNotification
                                                 object:nil];

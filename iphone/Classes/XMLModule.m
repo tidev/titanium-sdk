@@ -46,7 +46,7 @@
 }
 
 /**
- IOS does not have a proper transformer like java. (javax.xml.transform.Transformer)
+ iOS does not have a proper transformer like java. (javax.xml.transform.Transformer)
  It is perfectly valid to have an element with a namespace and an attribute whose values match the namespace
  Eg:
  var doc = Ti.XML.parseString('<a/>');

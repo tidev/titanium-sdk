@@ -10,7 +10,6 @@
 #import <TitaniumKit/TiProxy.h>
 
 @interface TiDOMTextNodeProxy : TiDOMCharacterDataProxy {
-  @private
 }
 
 - (TiDOMTextNodeProxy *)splitText:(id)args;

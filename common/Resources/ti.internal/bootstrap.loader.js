@@ -10,8 +10,7 @@
  * display UI to the end-user before the "app.js" gets loaded. This feature is the CommonJS
  * equivalent to Titanium's Android module onAppCreate() or iOS module load() features.
  *
- * Use-Cases:
- * - Automatically kick-off analytics functionality on app startup.
+ * Use-Case:
  * - Ensure "Google Play Services" is installed/updated on app startup on Android.
  */
 

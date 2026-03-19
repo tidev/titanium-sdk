@@ -30,7 +30,7 @@ NSString *const TiExceptionOSError = @"The iOS reported an error";
 // Should be rare, but also useful if arguments are used improperly.
 NSString *const TiExceptionInternalInconsistency = @"Value was not the value expected";
 
-// Rare exceptions to indicate a bug in the titanium code (Eg, method that a subclass should have implemented)
+// Rare exceptions to indicate a bug in the Titanium code (e.g., method that a subclass should have implemented)
 NSString *const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
 NSString *const TiExceptionMemoryFailure = @"Memory allocation failed";
@@ -577,7 +577,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   }
 
   if (![bridge usesProxy:self]) {
-    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
+    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its JavaScript representation.", self);
   }
 
   return [bridge krollObjectForProxy:self];
@@ -596,7 +596,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   KrollBridge *ourBridge = (KrollBridge *)[context delegate];
 
   if (![ourBridge usesProxy:self]) {
-    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
+    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its JavaScript representation.", self);
   }
 
   return [ourBridge krollObjectForProxy:self];
@@ -639,7 +639,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
   if (bridgeCount < 1) {
-    DeveloperLog(@"[DEBUG] Proxy %@ is missing its javascript representation needed to remember %@.", self, rememberedProxy);
+    DeveloperLog(@"[DEBUG] Proxy %@ is missing its JavaScript representation needed to remember %@.", self, rememberedProxy);
     return;
   }
 
@@ -1153,7 +1153,7 @@ DEFINE_EXCEPTIONS
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
   // FOR NOW, we're not dropping anything but we'll want to do before release
-  // subclasses need to call super if overriden
+  // subclasses need to call super if overridden
 }
 
 #pragma mark Dispatching Helper

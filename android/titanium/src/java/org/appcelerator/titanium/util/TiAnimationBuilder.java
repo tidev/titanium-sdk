@@ -961,7 +961,7 @@ public class TiAnimationBuilder
 			}
 
 			if (applyOpacity && (autoreverse == null || !autoreverse.booleanValue())) {
-				// There is an android bug where animations still occur after
+				// There is an Android bug where animations still occur after
 				// this method. We clear it from the view to
 				// correct this.
 				view.clearAnimation();

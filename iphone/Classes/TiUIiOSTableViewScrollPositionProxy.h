@@ -9,8 +9,6 @@
 #import <TitaniumKit/TiProxy.h>
 
 @interface TiUIiOSTableViewScrollPositionProxy : TiProxy {
-
-  @private
 }
 
 @property (nonatomic, readonly) NSNumber *NONE;

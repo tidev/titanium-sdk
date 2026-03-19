@@ -53,7 +53,7 @@ public class TiMenuSupport
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
 		// menuProxy could be null in the case
-		// where developer has targeted sdk 11 or higher,
+		// where developer has targeted SDK 11 or higher,
 		// not specified any menu/action bar, has a
 		// heavyweight window and the user clicks the
 		// auto-generated ActionBar.

@@ -8,7 +8,7 @@
 /**
  * This supports the NamedNodeMap for the property "attributes"
  * defined by Interface Node.
- * The support for NamedNodeMap for the properties "entites" and "notations"
+ * The support for NamedNodeMap for the properties "entities" and "notations"
  * defined by Interface DocumentType is not yet implemented.
  */
 #if defined(USE_TI_XML) || defined(USE_TI_NETWORK)

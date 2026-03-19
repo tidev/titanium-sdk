@@ -16,7 +16,7 @@ methods:
   - name: close
     summary: close the socket
   - name: connect
-    summary: connect the scocket to a TCP server
+    summary: connect the socket to a TCP server
   - name: listen
     summary: set up the socket to receive connections
   - name: write
@@ -39,7 +39,7 @@ events:
         summary: a blob representing the data read, can be interpreted via toString
         type: Titanium.Blob
   - name: readError
-    summary: an error occured when reading
+    summary: an error occurred when reading
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `false`.
@@ -56,7 +56,7 @@ events:
             is used. Otherwise, this value will be -1.
         type: Number
   - name: writeError
-    summary: an error occured when writing
+    summary: an error occurred when writing
     properties:
       - name: success
         summary: Indicates a successful operation. Returns `false`.

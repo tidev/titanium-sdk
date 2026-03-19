@@ -1,7 +1,7 @@
 /**
  * Loads, merges, edits, and saves "AndroidManifest.xml" files.
  *
- * You would normally want gradle to merge "AndroidManifest.xml" files between the app and its native libraries,
+ * You would normally want Gradle to merge "AndroidManifest.xml" files between the app and its native libraries,
  * but Titanium needs the ability to merge together manifest information from the following sources as well:
  * - App's "tiapp.xml"
  * - App's "platform/android/AndroidManifest.xml"
@@ -17,18 +17,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
-const DOMParser = require('xmldom').DOMParser;
-const fs = require('fs-extra');
-const os = require('os');
+import { DOMParser } from 'xmldom';
+import fs from 'fs-extra';
+import os from 'node:os';
 
 /**
  * Class used to load, merge, edit, and save "AndroidManifest.xml" files.
  *
  * You are expected to load XML files via the static fromFilePath() or fromXmlString() methods.
  */
-class AndroidManifest {
+export class AndroidManifest {
 	/**
 	 * Creates a new AndroidManifest instance wrapping the given "xmldom.Document" object.
 	 * @param {Object} xmlDomDocument
@@ -132,7 +130,7 @@ class AndroidManifest {
 			if (permissionElement) {
 				permissionElement.setAttribute('android:name', name);
 				if (nodeToInsertAt) {
-					// The <application/> element exists. Insert above it to avoid gradle linting warnings.
+					// The <application/> element exists. Insert above it to avoid Gradle linting warnings.
 					// If we've acquired its indentation TextNode, then duplicate it so everything will line-up.
 					if (isTextNode(nodeToInsertAt)) {
 						manifestElement.insertBefore(nodeToInsertAt.cloneNode(false), nodeToInsertAt);
@@ -408,9 +406,9 @@ class AndroidManifest {
 
 	/**
 	 * Applies a 'tools:replace="attributeName"' attribute to all <manifest/>, <application/>, and <activity/> elements.
-	 * Will flag every attribute in these elements to be replaced by the gradle manifest merging tool.
+	 * Will flag every attribute in these elements to be replaced by the Gradle manifest merging tool.
 	 *
-	 * Note that a gradle build failure will occur if the app's "AndroidManifest.xml" defines an activity attribute
+	 * Note that a Gradle build failure will occur if the app's "AndroidManifest.xml" defines an activity attribute
 	 * which conflicts with a library's same activity attribute. Google expects the developer to resolve it by
 	 * defining a "tools:replace" attribute which explicitly defines each attribute that should be replaced/overridden.
 	 * Since "most" Titanium app developers override existing <application/> and <activity/> attributes, we'll
@@ -820,5 +818,3 @@ function applyToolsReplaceToElement(element) {
 		element.removeAttribute('tools:replace');
 	}
 }
-
-module.exports = AndroidManifest;

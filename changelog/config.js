@@ -1,34 +1,12 @@
-'use strict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
+import fs from 'fs-extra';
+import semver from 'semver';
 
-const path = require('path');
-const semver = require('semver');
-const fs = require('fs-extra');
-// eslint-disable-next-line security/detect-child-process
-const execSync = require('child_process').execSync;
-const packageJSON = require('../package.json');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageJSON = fs.readJSONSync(path.join(__dirname, '../package.json'));
 const previousBranch = guessPreviousBranch(packageJSON.version);
-
-// some of us use our personal email addresses to commit...
-const KNOWN_EMPLOYEE_EMAILS = [
-	'chris@cb1inc.com',
-	'ewanharris93@gmail.com',
-	'chris.a.williams@gmail.com',
-	'jan.vennemann@gmx.net',
-	'contact@garymathews.com',
-	'yordan.banev@gmail.com',
-	'iw@whitfin.io',
-	'mukherjee2@users.noreply.github.com',
-	'14187093+Sajoha@users.noreply.github.com',
-	'Topener@users.noreply.github.com',
-	'brenton.house@gmail.com',
-	'build@users.noreply.github.com'
-];
-
-// others use our company email addresses
-const KNOWN_EMPLOYEE_EMAIL_DOMAINS = [
-	'axway.com',
-	'appcelerator.com'
-];
 
 function groupBy(list, keyGetter) {
 	const map = new Map();
@@ -95,7 +73,7 @@ function guessPreviousBranch(version) {
 }
 
 function urlToVersion(url) {
-	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1]; // eslint-disable-line security/detect-child-process
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
 }
 
 function gatherModules() {
@@ -148,7 +126,7 @@ function getFilteredShaListing(from) {
 
 const filteredCommitSHAs = getFilteredShaListing(previousBranch);
 
-module.exports = {
+export default {
 	gitRawCommitsOpts: {
 		// 'right-only': true, // --right-only
 		// 'cherry-pick': true, // --cherry-pick
@@ -161,13 +139,19 @@ module.exports = {
 	},
 	writerOpts: {
 		transform: function (commit) {
+			// conventional-changelog now freezes commit objects; clone before mutating
+			commit = {
+				...commit,
+				notes: (commit.notes || []).map(note => ({ ...note })),
+				references: [ ...(commit.references || []) ],
+			};
 			// skip commits that may have cherry-picks on both sides
 			if (!filteredCommitSHAs.has(commit.hash)) {
 				return;
 			}
 
 			let discard = true;
-			let community = false;
+			let community = true;
 			let breaking = false;
 
 			// Special handling of breaking changes. We gather them in a separate array
@@ -177,25 +161,6 @@ module.exports = {
 				discard = true;
 				breaking = true;
 			});
-
-			// check authorName/authorEmail against known axway employee list or some whitelist or something to determine community credits?
-			if (commit.authorEmail) {
-				const emailParts = commit.authorEmail.split('@');
-				const domain = emailParts[1];
-				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
-					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
-					&& !commit.authorEmail.includes('greenkeeper[bot]')
-					&& !commit.authorEmail.includes('dependabot')) {
-					// If this is a noreply github email address, strip it to username so we can link to them
-					// if (domain === 'users.noreply.github.com') {
-					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
-					// 	const username = usernameParts[usernameParts.length - 1];
-					// 	// TODO: Record username so we can provide link in changelog?
-					// }
-					// This is a community contribution! Add name to a community credits section
-					community = true;
-				}
-			}
 
 			// ensure scope is lowercase
 			if (typeof commit.scope === 'string') {
@@ -314,17 +279,21 @@ module.exports = {
 			});
 
 			// HACK the breaking change commits into one heading with sub-headings by platform
-			const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
-			const scopeGroups = [];
-			grouped.forEach((val, key) => {
-				scopeGroups.push({ title: key, commits: val });
-			});
-			context.noteGroups = [
-				{
-					title: 'BREAKING CHANGES',
-					scopeGroups
-				}
-			];
+			if (breakingChanges.length > 0) {
+				const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
+				const scopeGroups = [];
+				grouped.forEach((val, key) => {
+					scopeGroups.push({ title: key, commits: val });
+				});
+				context.noteGroups = [
+					{
+						title: 'BREAKING CHANGES',
+						scopeGroups
+					}
+				];
+			} else {
+				context.noteGroups = null;
+			}
 
 			// convert communityContributions from map to array of objects!
 			context.communityContributions = [];
@@ -346,11 +315,11 @@ module.exports = {
 			const eosDate = new Date();
 			if (context.isMajor) {
 				eosDate.setMonth(eosDate.getMonth() + 12);
-				// if isMajor, subtract one from major, add '.x', i.e. 8.0.0 -> '7.x'
+				// if isMajor, subtract one from major, add '.x', e.g. 8.0.0 -> '7.x'
 				context.eosBranch = `${semver.major(context.version) - 1}.x`;
 			} else {
 				if (!context.isPatch) { // should be minor!
-					// if isMinor, subtract one from minor, add .x, i.e. 8.1.0 -> 8.0.x
+					// if isMinor, subtract one from minor, add .x, e.g. 8.1.0 -> 8.0.x
 					context.eosBranch = `${semver.major(context.version)}.${semver.minor(context.version) - 1}.x`;
 					context.patchBranch = `${semver.major(context.version)}.${semver.minor(context.version)}.x`;
 					context.majorBranch = `${semver.major(context.version)}.x`;

@@ -330,7 +330,7 @@ describe('Titanium.Geolocation', () => {
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
-					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
 				Ti.Geolocation.requestLocationPermissions(permission, function (e) {
@@ -355,7 +355,7 @@ describe('Titanium.Geolocation', () => {
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
-					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
 				const result = Ti.Geolocation.requestLocationPermissions(permission);
@@ -375,7 +375,7 @@ describe('Titanium.Geolocation', () => {
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
-					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
 				function testCurrentHeading() {
@@ -417,7 +417,7 @@ describe('Titanium.Geolocation', () => {
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
-					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
 				function testCurrentHeading() {
@@ -466,7 +466,7 @@ describe('Titanium.Geolocation', () => {
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
-					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
 				Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;
@@ -514,7 +514,7 @@ describe('Titanium.Geolocation', () => {
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
-					return finish(); // FIXME: How can we limit to ios only, and skip on macos?
+					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
 				Ti.Geolocation.accuracy = Ti.Geolocation.ACCURACY_HIGH;

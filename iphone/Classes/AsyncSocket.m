@@ -2238,7 +2238,7 @@ Failed:
 }
 
 /**
- * Diconnects after all pending reads have completed.
+ * Disconnects after all pending reads have completed.
  **/
 - (void)disconnectAfterReading
 {

@@ -229,7 +229,7 @@ public class NotificationProxy extends KrollProxy
 	public void setTickerText(String tickerText)
 	{
 		notificationBuilder.setTicker(tickerText);
-		//set the javascript object
+		//set the JavaScript object
 		setProperty(TiC.PROPERTY_TICKER_TEXT, tickerText);
 	}
 

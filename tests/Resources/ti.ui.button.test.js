@@ -108,7 +108,7 @@ describe('Titanium.UI.Button', function () {
 		win.addEventListener('focus', function () {
 			try {
 				view.image = Ti.Filesystem.getFile('Logo.png').read();
-				should(view.image).be.an.Object(); // ios gives null
+				should(view.image).be.an.Object(); // iOS gives null
 			} catch (err) {
 				return finish(err);
 			}

@@ -117,7 +117,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		if (javaStack != null) {
 			output += javaStack;
 
-			// no java stack, attempt to obtain last ten stack entries
+			// no Java stack, attempt to obtain last ten stack entries
 			// omitting our error handling entries
 		} else {
 			StackTraceElement[] trace = new Error().getStackTrace();

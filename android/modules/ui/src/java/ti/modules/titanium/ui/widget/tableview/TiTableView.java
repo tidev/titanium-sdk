@@ -655,8 +655,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		for (final Object entry : this.proxy.getData()) {
 
 			int filteredIndex = 0;
-			if (entry instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
+			if (entry instanceof TableViewSectionProxy section) {
 				final TableViewRowProxy[] rows = section.getRows();
 
 				// Add placeholder item for TableViewSection header/footer.

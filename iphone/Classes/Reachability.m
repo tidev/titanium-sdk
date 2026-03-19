@@ -3,7 +3,7 @@
  See LICENSE.txt for this sample’s licensing information
 
  Abstract:
- Basic demonstration of how to use the SystemConfiguration Reachablity APIs.
+ Basic demonstration of how to use the SystemConfiguration Reachability APIs.
  */
 // clang-format off
 

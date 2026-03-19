@@ -58,6 +58,7 @@ public class ListItemProxy extends TiViewProxy
 	private boolean placeholder = false;
 	private boolean hasAddedItemEvents = false;
 	private boolean selected = false;
+	private String cachedSearchableTextLower = null;
 
 	public ListItemProxy()
 	{
@@ -130,8 +131,7 @@ public class ListItemProxy extends TiViewProxy
 			final TiViewProxy source = sourceObject instanceof TiViewProxy ? (TiViewProxy) sourceObject : this;
 
 			final Object parent = getParent();
-			if (parent instanceof ListSectionProxy) {
-				final ListSectionProxy section = (ListSectionProxy) parent;
+			if (parent instanceof ListSectionProxy section) {
 
 				// Include section specific properties.
 				payload.putIfAbsent(TiC.PROPERTY_SECTION, section);
@@ -221,8 +221,7 @@ public class ListItemProxy extends TiViewProxy
 				if (this.childProperties.containsKey(bindId)) {
 					final Object childPropertiesObj = this.childProperties.get(bindId);
 
-					if (childPropertiesObj instanceof KrollDict) {
-						final KrollDict childProperties = (KrollDict) childPropertiesObj;
+					if (childPropertiesObj instanceof KrollDict childProperties) {
 
 						// Include child properties for specified `bindId`.
 						properties.putAll(childProperties);
@@ -287,11 +286,10 @@ public class ListItemProxy extends TiViewProxy
 
 		// Add event listeners to given proxy.
 		for (KrollDict.Entry<String, Object> entry : eventDictionary.entrySet()) {
-			if (!(entry.getValue() instanceof KrollFunction)) {
+			if (!(entry.getValue() instanceof KrollFunction callback)) {
 				continue;
 			}
 			final String eventName = entry.getKey();
-			final KrollFunction callback = (KrollFunction) entry.getValue();
 			final KrollObject krollObject = proxy.getKrollObject();
 			proxy.addEventListener(eventName, new KrollEventCallback() {
 				@Override
@@ -554,8 +552,7 @@ public class ListItemProxy extends TiViewProxy
 	{
 		final TiViewProxy parent = getParent();
 
-		if (parent instanceof ListSectionProxy) {
-			final ListSectionProxy section = (ListSectionProxy) parent;
+		if (parent instanceof ListSectionProxy section) {
 
 			return section.getListItemIndex(this);
 		}
@@ -764,8 +761,7 @@ public class ListItemProxy extends TiViewProxy
 				if (this.childProperties.containsKey(TiC.PROPERTY_TITLE)) {
 					final Object existingTitleObject = this.childProperties.get(TiC.PROPERTY_TITLE);
 
-					if (existingTitleObject instanceof KrollDict) {
-						final KrollDict existingTitleProperties = (KrollDict) existingTitleObject;
+					if (existingTitleObject instanceof KrollDict existingTitleProperties) {
 
 						// Child template already exists.
 						// Merge new properties with existing properties.
@@ -787,8 +783,7 @@ public class ListItemProxy extends TiViewProxy
 			if (this.childProperties.containsKey(TiC.PROPERTY_IMAGE)) {
 				final Object existingImageObject = this.childProperties.get(TiC.PROPERTY_IMAGE);
 
-				if (existingImageObject instanceof KrollDict) {
-					final KrollDict existingImageProperties = (KrollDict) existingImageObject;
+				if (existingImageObject instanceof KrollDict existingImageProperties) {
 
 					// Child template already exists.
 					// Merge new properties with existing properties.
@@ -801,14 +796,12 @@ public class ListItemProxy extends TiViewProxy
 			}
 		}
 
-		if (name.equals(TiC.PROPERTY_HEADER_VIEW) && value instanceof TiViewProxy) {
-			final TiViewProxy headerProxy = (TiViewProxy) value;
+		if (name.equals(TiC.PROPERTY_HEADER_VIEW) && value instanceof TiViewProxy headerProxy) {
 
 			// Set header view parent, so it can be released correctly.
 			headerProxy.setParent(this);
 		}
-		if (name.equals(TiC.PROPERTY_FOOTER_VIEW) && value instanceof TiViewProxy) {
-			final TiViewProxy footerProxy = (TiViewProxy) value;
+		if (name.equals(TiC.PROPERTY_FOOTER_VIEW) && value instanceof TiViewProxy footerProxy) {
 
 			// Set footer view parent, so it can be released correctly.
 			footerProxy.setParent(this);
@@ -836,6 +829,10 @@ public class ListItemProxy extends TiViewProxy
 			}
 
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, selectionColor);
+		}
+
+		if (name.equals(TiC.PROPERTY_SEARCHABLE_TEXT) && value instanceof String) {
+			this.cachedSearchableTextLower = ((String) value).toLowerCase();
 		}
 
 		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
@@ -889,6 +886,17 @@ public class ListItemProxy extends TiViewProxy
 		super.setProperty(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Get cached lowercase searchable text for filtering.
+	 * Returns pre-computed lowercase version to avoid repeated toLowerCase() calls.
+	 *
+	 * @return Lowercase searchable text or null if not set.
+	 */
+	public String getSearchableTextLower()
+	{
+		return this.cachedSearchableTextLower;
 	}
 
 	/**

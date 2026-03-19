@@ -17,7 +17,7 @@ enum {
   TiCanvasStrokeRect,
   TiCanvasStrokeStyle,
   TiCanvasLineWidth,
-  TiCanvasFillElipse,
+  TiCanvasFillEllipse,
   TiCanvasLineJoin,
   TiCanvasLineCap,
   TiCanvasLineTo,
@@ -174,7 +174,7 @@ enum {
     CGContextSetLineWidth(context, [TiUtils floatValue:[args objectAtIndex:0]]);
     break;
   }
-  case TiCanvasFillElipse: {
+  case TiCanvasFillEllipse: {
     CGContextFillEllipseInRect(context, [self rectFromArray:args]);
     break;
   }

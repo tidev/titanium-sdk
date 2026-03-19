@@ -301,7 +301,7 @@ properties:
     summary: |
         Determines whether the Time pickers display in 24-hour or 12-hour clock format.
     description: |
-        Only applcable to pickers of type <Titanium.UI.PICKER_TYPE_TIME>.
+        Only applicable to pickers of type <Titanium.UI.PICKER_TYPE_TIME>.
 
         When this property is set `true`, a time picker is displayed with hours 0 through 23.
         When set `false`, hours will be 1 through 12 with am/pm controls.
@@ -447,7 +447,7 @@ properties:
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
 
   - name: useSpinner
-    summary: Determines if a multicolumn spinner or single column drop-down picker should be used.
+    summary: Determines if a multi-column spinner or single column drop-down picker should be used.
     description: |
         This property is intended to be used by plain picker types. When set on date/time pickers,
         this property will override the [datePickerStyle](Titanium.UI.Picker.datePickerStyle) property.
@@ -466,7 +466,7 @@ properties:
     platforms: [android]
 
   - name: nativeSpinner
-    summary: Determines if a multicolumn spinner or single column drop-down picker should be used.
+    summary: Determines if a multi-column spinner or single column drop-down picker should be used.
     description: |
         This property is intended to be used by time picker types.
 

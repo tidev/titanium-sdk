@@ -39,11 +39,11 @@
  * @param {object} wrapperAPI e.g. TitaniumWrapper
  * @param {object} realAPI e.g. Titanium
  * @param {string} apiName e.g. 'Titanium'
- * @param {object} invocationAPI details on the api we're wrapping
+ * @param {object} invocationAPI details on the API we're wrapping
  * @param {string} invocationAPI.namespace the namespace of the proxy where method hangs (w/o 'Ti.' prefix) e.g. 'Filesystem' or 'UI.Android'
  * @param {string} invocationAPI.api the method name e.g. 'openFile' or 'createSearchView'
  * @param {object} scopeVars holder for context specific values (basically just wraps sourceUrl)
- * @param {string} scopeVars.sourceUrl source URL of js file entry point
+ * @param {string} scopeVars.sourceUrl source URL of JS file entry point
  * @param {Module} [scopeVars.module] module
  */
 function genInvoker(wrapperAPI, realAPI, apiName, invocationAPI, scopeVars) {

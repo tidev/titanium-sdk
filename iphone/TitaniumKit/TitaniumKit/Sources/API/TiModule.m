@@ -99,7 +99,7 @@
 
 - (void)registerForNotifications
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
@@ -223,7 +223,7 @@
 {
   NSString *moduleId = [self moduleId];
   if (moduleId != nil) {
-    // if we have module js than we're a JS native module
+    // if we have module JS than we're a JS native module
     return [self moduleJS] != nil;
   }
   return NO;

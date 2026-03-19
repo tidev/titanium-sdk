@@ -84,48 +84,46 @@ public class TiWebChromeClient extends WebChromeClient
 		// Prompt end-user for FINE location permission on Android 6.0 and higher if needed.
 		// Note: As of Android 12, we must also request the COARSE permission (will fail without it),
 		//       but ignore COARSE permission since WebView location access requires FINE.
-		if (Build.VERSION.SDK_INT >= 23) {
-			int permissionResult = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
-			if (permissionResult != PackageManager.PERMISSION_GRANTED) {
-				if (activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
-					// System won't prompt for permission since user already denied it. So, immediately fail it.
-					callback.invoke(origin, false, false);
-				} else {
-					// Prompt end-user for permission.
-					TiBaseActivity.OnRequestPermissionsResultCallback activityCallback;
-					activityCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
-						@Override
-						public void onRequestPermissionsResult(
-							@NonNull TiBaseActivity activity, int requestCode,
-							@NonNull String[] permissions, @NonNull int[] grantResults)
-						{
-							// Unregister this callback.
-							TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION);
+		int permissionResult = activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+		if (permissionResult != PackageManager.PERMISSION_GRANTED) {
+			if (activity.shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+				// System won't prompt for permission since user already denied it. So, immediately fail it.
+				callback.invoke(origin, false, false);
+			} else {
+				// Prompt end-user for permission.
+				TiBaseActivity.OnRequestPermissionsResultCallback activityCallback;
+				activityCallback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+					@Override
+					public void onRequestPermissionsResult(
+						@NonNull TiBaseActivity activity, int requestCode,
+						@NonNull String[] permissions, @NonNull int[] grantResults)
+					{
+						// Unregister this callback.
+						TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION);
 
-							// Determine if FINE location permission was granted. (Ignore COARSE permission.)
-							boolean granted = false;
-							if (permissions.length == grantResults.length) {
-								for (int index = 0; index < permissions.length; index++) {
-									if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[index])) {
-										granted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
-										break;
-									}
+						// Determine if FINE location permission was granted. (Ignore COARSE permission.)
+						boolean granted = false;
+						if (permissions.length == grantResults.length) {
+							for (int index = 0; index < permissions.length; index++) {
+								if (Manifest.permission.ACCESS_FINE_LOCATION.equals(permissions[index])) {
+									granted = (grantResults[index] == PackageManager.PERMISSION_GRANTED);
+									break;
 								}
 							}
-
-							// Notify WebView whether or not location access was granted.
-							callback.invoke(origin, granted, false);
 						}
-					};
-					TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, activityCallback);
-					String[] permissions = new String[] {
-						Manifest.permission.ACCESS_FINE_LOCATION,
-						Manifest.permission.ACCESS_COARSE_LOCATION
-					};
-					activity.requestPermissions(permissions, TiC.PERMISSION_CODE_LOCATION);
-				}
-				return;
+
+						// Notify WebView whether or not location access was granted.
+						callback.invoke(origin, granted, false);
+					}
+				};
+				TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_LOCATION, activityCallback);
+				String[] permissions = new String[] {
+					Manifest.permission.ACCESS_FINE_LOCATION,
+					Manifest.permission.ACCESS_COARSE_LOCATION
+				};
+				activity.requestPermissions(permissions, TiC.PERMISSION_CODE_LOCATION);
 			}
+			return;
 		}
 
 		// Notify WebView that location access is granted.
@@ -161,76 +159,74 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// Prompt end-user for permission on Android 6.0 and higher if needed.
-		if (Build.VERSION.SDK_INT >= 23) {
-			// Determine if we need to request for any permissions.
-			boolean isAudioRecordingPermissionRequired = false;
-			boolean isCameraPermissionRequired = false;
-			for (String nextName : resourceNames) {
-				if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(nextName)) {
-					int result = tiActivity.checkSelfPermission(Manifest.permission.RECORD_AUDIO);
-					isAudioRecordingPermissionRequired = (result != PackageManager.PERMISSION_GRANTED);
-				} else if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(nextName)) {
-					int result = tiActivity.checkSelfPermission(Manifest.permission.CAMERA);
-					isCameraPermissionRequired = (result != PackageManager.PERMISSION_GRANTED);
-				}
+		// Determine if we need to request for any permissions.
+		boolean isAudioRecordingPermissionRequired = false;
+		boolean isCameraPermissionRequired = false;
+		for (String nextName : resourceNames) {
+			if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(nextName)) {
+				int result = tiActivity.checkSelfPermission(Manifest.permission.RECORD_AUDIO);
+				isAudioRecordingPermissionRequired = (result != PackageManager.PERMISSION_GRANTED);
+			} else if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(nextName)) {
+				int result = tiActivity.checkSelfPermission(Manifest.permission.CAMERA);
+				isCameraPermissionRequired = (result != PackageManager.PERMISSION_GRANTED);
 			}
+		}
 
-			// Request permissions from end-user if needed.
-			if (isAudioRecordingPermissionRequired || isCameraPermissionRequired) {
-				ArrayList<String> permissionNameList = new ArrayList<>();
-				if (isAudioRecordingPermissionRequired) {
-					permissionNameList.add(Manifest.permission.RECORD_AUDIO);
-				}
-				if (isCameraPermissionRequired) {
-					permissionNameList.add(Manifest.permission.CAMERA);
-				}
-				TiBaseActivity.OnRequestPermissionsResultCallback callback;
-				callback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
-					@Override
-					public void onRequestPermissionsResult(
-						@NonNull TiBaseActivity activity, int requestCode,
-						@NonNull String[] permissions, @NonNull int[] grantResults)
-					{
-						// Unregister this callback.
-						TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA);
+		// Request permissions from end-user if needed.
+		if (isAudioRecordingPermissionRequired || isCameraPermissionRequired) {
+			ArrayList<String> permissionNameList = new ArrayList<>();
+			if (isAudioRecordingPermissionRequired) {
+				permissionNameList.add(Manifest.permission.RECORD_AUDIO);
+			}
+			if (isCameraPermissionRequired) {
+				permissionNameList.add(Manifest.permission.CAMERA);
+			}
+			TiBaseActivity.OnRequestPermissionsResultCallback callback;
+			callback = new TiBaseActivity.OnRequestPermissionsResultCallback() {
+				@Override
+				public void onRequestPermissionsResult(
+					@NonNull TiBaseActivity activity, int requestCode,
+					@NonNull String[] permissions, @NonNull int[] grantResults)
+				{
+					// Unregister this callback.
+					TiBaseActivity.unregisterPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA);
 
-						// Create a new resource name list with all granted permissions.
-						ArrayList<String> resourceNameList = new ArrayList<>();
-						for (String resourceName : request.getResources()) {
-							String permissionName = null;
-							if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resourceName)) {
-								permissionName = Manifest.permission.RECORD_AUDIO;
-							} else if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resourceName)) {
-								permissionName = Manifest.permission.CAMERA;
-							}
-							if (permissionName != null) {
-								// Check if resource was granted permission. If so, then add it to the list.
-								for (int index = 0; index < permissions.length; index++) {
-									if (permissionName.equals(permissions[index])) {
-										if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
-											resourceNameList.add(resourceName);
-											break;
-										}
+					// Create a new resource name list with all granted permissions.
+					ArrayList<String> resourceNameList = new ArrayList<>();
+					for (String resourceName : request.getResources()) {
+						String permissionName = null;
+						if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resourceName)) {
+							permissionName = Manifest.permission.RECORD_AUDIO;
+						} else if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resourceName)) {
+							permissionName = Manifest.permission.CAMERA;
+						}
+						if (permissionName != null) {
+							// Check if resource was granted permission. If so, then add it to the list.
+							for (int index = 0; index < permissions.length; index++) {
+								if (permissionName.equals(permissions[index])) {
+									if (grantResults[index] == PackageManager.PERMISSION_GRANTED) {
+										resourceNameList.add(resourceName);
+										break;
 									}
 								}
-							} else {
-								// This resource does not require permission. Add it to the granted list.
-								resourceNameList.add(resourceName);
 							}
-						}
-
-						// Notify WebView if which resources were granted permission.
-						if (resourceNameList.isEmpty()) {
-							request.deny();
 						} else {
-							request.grant(resourceNameList.toArray(new String[0]));
+							// This resource does not require permission. Add it to the granted list.
+							resourceNameList.add(resourceName);
 						}
 					}
-				};
-				TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, callback);
-				tiActivity.requestPermissions(permissionNameList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
-				return;
-			}
+
+					// Notify WebView if which resources were granted permission.
+					if (resourceNameList.isEmpty()) {
+						request.deny();
+					} else {
+						request.grant(resourceNameList.toArray(new String[0]));
+					}
+				}
+			};
+			TiBaseActivity.registerPermissionRequestCallback(TiC.PERMISSION_CODE_CAMERA, callback);
+			tiActivity.requestPermissions(permissionNameList.toArray(new String[0]), TiC.PERMISSION_CODE_CAMERA);
+			return;
 		}
 
 		// Grant permission to all resources.
@@ -422,7 +418,7 @@ public class TiWebChromeClient extends WebChromeClient
 
 		// Prompt the end-user for camera permission if required.
 		// Note: We only need external storage permission on OS versions older than Android 10.
-		if (chooserParams.isCaptureEnabled() && (Build.VERSION.SDK_INT >= 23)) {
+		if (chooserParams.isCaptureEnabled()) {
 			int permissionResult = activity.checkSelfPermission(Manifest.permission.CAMERA);
 			boolean isCameraPermissionRequired = (permissionResult != PackageManager.PERMISSION_GRANTED);
 			boolean isStoragePermissionRequired = (Build.VERSION.SDK_INT < 29);

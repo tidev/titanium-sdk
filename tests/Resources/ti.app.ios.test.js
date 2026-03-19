@@ -51,7 +51,7 @@ describe.ios('Titanium.App.iOS', function () {
 		should(searchableIndex).be.an.Object();
 		should(searchableIndex.apiName).eql('Ti.App.iOS.SearchableIndex');
 		should(searchableIndex.addToDefaultSearchableIndex).be.a.Function();
-		should(searchableIndex.deleteAllSearchableItemByDomainIdenifiers).be.a.Function();
+		should(searchableIndex.deleteAllSearchableItemByDomainIdentifiers).be.a.Function();
 		should(searchableIndex.deleteAllSearchableItems).be.a.Function();
 		should(searchableIndex.deleteAllSearchableItems).be.a.Function();
 		should(searchableIndex.deleteSearchableItemsByIdentifiers).be.a.Function();

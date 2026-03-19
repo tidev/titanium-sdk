@@ -84,7 +84,7 @@ methods:
         `Buffer` or `Blob` is provided as the `source` property in `params`.
 
 
-        `Blob` obects are read only. Throws an exception if `MODE_WRITE` or `MODE_APPEND` is
+        `Blob` objects are read only. Throws an exception if `MODE_WRITE` or `MODE_APPEND` is
         specified along with a blob object.
     parameters:
 

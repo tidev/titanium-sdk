@@ -83,6 +83,10 @@
 
 - (void)deleteAllSearchableItemByDomainIdenifiers:(id)args
 {
+  [self deleteAllSearchableItemByDomainIdentifiers:args];
+}
+- (void)deleteAllSearchableItemByDomainIdentifiers:(id)args
+{
   ENSURE_ARG_COUNT(args, 2);
   NSArray *domainIdentifiers = [args objectAtIndex:0];
   ENSURE_TYPE(domainIdentifiers, NSArray);
@@ -90,7 +94,7 @@
   KrollCallback *callback = [args objectAtIndex:1];
   ENSURE_TYPE(callback, KrollCallback);
 
-  ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdenifiers, args);
+  ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdentifiers, args);
 
   [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithDomainIdentifiers:domainIdentifiers
                                                                        completionHandler:^(NSError *_Nullable error) {

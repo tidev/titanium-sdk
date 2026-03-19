@@ -80,8 +80,6 @@ import android.widget.AdapterView;
 @SuppressWarnings("deprecation")
 public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListener
 {
-	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
-
 	private static final String TAG = "TiUIView";
 
 	// When distinguishing twofingertap and pinch events, minimum motion (in pixels)
@@ -500,7 +498,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		animBuilder.applyOptions(options);
 
-		// When using property Animators, we can only use absolute values to specify the anchor point, eg. "50px".
+		// When using property Animators, we can only use absolute values to specify the anchor point, e.g. "50px".
 		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
 		if (animBuilder.isUsingPropertyAnimators()) {
 			startTransformAfterLayout(outerView);
@@ -1527,9 +1525,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					if (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
-						disableHWAcceleration();
-					}
 					borderView.setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
 				}
 
@@ -1576,9 +1571,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				borderView.setBorderWidth(1);
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
-			if (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
-				disableHWAcceleration();
-			}
 			borderView.setRadius(value);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
@@ -2145,7 +2137,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * Can be overriden by inheriting views for special click handling.  For example,
+	 * Can be overridden by inheriting views for special click handling.  For example,
 	 * the Facebook module's login button view needs special click handling.
 	 */
 	protected void setOnClickListener(View view)

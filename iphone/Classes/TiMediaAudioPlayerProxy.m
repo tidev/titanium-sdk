@@ -377,7 +377,7 @@
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For playbackState property / playbackstate event

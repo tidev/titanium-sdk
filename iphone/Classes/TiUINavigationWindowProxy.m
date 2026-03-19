@@ -95,44 +95,13 @@
     [TiUtils configureController:navController withObject:self];
     [navController.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
     [[navController interactivePopGestureRecognizer] setDelegate:self];
-
-    BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-    if (interactiveDismissModeEnabled) {
-      [self configureFullWidthSwipeToClose];
-    }
   }
   return navController;
-}
-
-- (void)configureFullWidthSwipeToClose
-{
-  fullWidthBackGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
-
-  if (navController.interactivePopGestureRecognizer == nil) {
-    return;
-  }
-
-  id targets = [navController.interactivePopGestureRecognizer valueForKey:@"targets"];
-  if (targets == nil) {
-    return;
-  }
-
-  [fullWidthBackGestureRecognizer setValue:targets forKey:@"targets"];
-  [fullWidthBackGestureRecognizer setDelegate:self];
-  [navController.view addGestureRecognizer:fullWidthBackGestureRecognizer];
 }
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
   BOOL isRootWindow = (current == rootWindow);
-
-  BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-  if (interactiveDismissModeEnabled && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
-    BOOL isSystemSwipeToCloseEnabled = navController.interactivePopGestureRecognizer.isEnabled == YES;
-    BOOL areThereStackedViewControllers = navController.viewControllers.count > 1;
-
-    return isSystemSwipeToCloseEnabled || areThereStackedViewControllers;
-  }
 
   if (current != nil && !isRootWindow) {
     return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
@@ -265,7 +234,6 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
@@ -369,7 +337,7 @@
       [promise resolve:@[]];
     }
   } else {
-    // FIXME: forward/chain the underying promise from [window close:] done internally here rather than assume success
+    // FIXME: forward/chain the underlying promise from [window close:] done internally here rather than assume success
     [self closeWindow:window animated:NO];
     if (promise != nil) {
       [promise resolve:@[]];

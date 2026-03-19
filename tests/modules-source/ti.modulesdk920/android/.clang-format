@@ -21,6 +21,6 @@ SpacesInParentheses: false
 TabWidth: 4
 UseTab: ForContinuationAndIndentation
 SpaceAfterCStyleCast: true
-# Spaces inside {} for array literals, i.e. "new Object[] { args }"
+# Spaces inside {} for array literals, e.g. "new Object[] { args }"
 Cpp11BracedListStyle: false
 ReflowComments: false

@@ -352,7 +352,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: Windows 10 Store app fails for this...need to figure out why.
 	it.windowsBroken('animate (top)', function (finish) {
-		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on ci nodes, but not locally. Maybe issue with headless mac?
+		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on CI nodes, but not locally. Maybe issue with headless mac?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 		win = Ti.UI.createWindow();
@@ -391,7 +391,7 @@ describe('Titanium.UI.View', function () {
 	});
 
 	it('animate (top) - autoreverse', function (finish) {
-		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on ci nodes, but not locally. Maybe issue with headless mac?
+		if (isCI && utilities.isMacOS()) { // for whatever reason this fails on CI nodes, but not locally. Maybe issue with headless mac?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 		win = Ti.UI.createWindow();
@@ -432,7 +432,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: Windows 10 Store app fails for this...need to figure out why.
 	it.windowsBroken('animate (left)', function (finish) {
-		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on ci nodes, but not locally. Maybe issue with headless mac?
+		if (isCI && utilities.isMacOS()) { // for whatever reason this fails on CI nodes, but not locally. Maybe issue with headless mac?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 		win = Ti.UI.createWindow();
@@ -522,7 +522,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: Windows 10 Store app fails for this...need to figure out why.
 	it.windowsBroken('animate (left %)', function (finish) {
-		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on ci nodes, but not locally. Maybe issue with headless mac?
+		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on CI nodes, but not locally. Maybe issue with headless mac?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 		win = Ti.UI.createWindow();
@@ -559,7 +559,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: Windows 10 Store app fails for this...need to figure out why.
 	it.windowsBroken('animate (top %)', function (finish) {
-		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on ci nodes, but not locally. Maybe issue with headless mac?
+		if (isCI && utilities.isMacOS()) { // for whatever reason this fails on CI nodes, but not locally. Maybe issue with headless mac?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 		win = Ti.UI.createWindow();
@@ -595,7 +595,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: Windows 10 Store app fails for this...need to figure out why.
 	it.windowsBroken('animate (width %)', function (finish) {
-		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on ci nodes, but not locally. Maybe issue with headless mac?
+		if (isCI && utilities.isMacOS()) { // for whatever reason this fails on CI nodes, but not locally. Maybe issue with headless mac?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 		win = Ti.UI.createWindow();
@@ -632,7 +632,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: Windows 10 Store app fails for this...need to figure out why.
 	it.windowsBroken('animate (height %)', function (finish) {
-		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on ci nodes, but not locally. Maybe issue with headless mac?
+		if (isCI && utilities.isMacOS()) { // for whatever reaosn this fails on CI nodes, but not locally. Maybe issue with headless mac?
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 		win = Ti.UI.createWindow();

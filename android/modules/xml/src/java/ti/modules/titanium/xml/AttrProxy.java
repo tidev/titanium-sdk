@@ -43,7 +43,7 @@ public class AttrProxy extends NodeProxy
 	public boolean getSpecified()
 	{
 		// Harmony will return false even when ownerElement is null, whereas
-		// spec says: "If the ownerElement attribute is null (i.e. because it
+		// spec says: "If the ownerElement attribute is null (e.g. because it
 		// was just created or was set to null by the various removal and cloning
 		// operations) specified is true."
 		if (attr.getOwnerElement() == null) {

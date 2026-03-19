@@ -49,7 +49,7 @@ description: |
     or moves to the background state and fires the `paused` event.
 
     Alert-based interruptions result in temporary loss of control by your app and results in `pause`
-    event being fired. Your app continues to run in the foreground, but it does not recieve
+    event being fired. Your app continues to run in the foreground, but it does not receive
     touch events from the system. (It does continue to receive notifications and other types
     of events, such as accelerometer events.) When your app is moved back to the
     active state, the `resumed` event is fired.
@@ -132,7 +132,7 @@ description: |
 
     When you add an event listener on a Titanium module (such as `Ti.App` or
     [Ti.Geolocation](Titanium.Geolocation)), the event listener function is referenced from
-    the global context. This means the event listener function and any objecst it references
+    the global context. This means the event listener function and any object it references
     can't be garbage collected until the event listener is removed.
 
     This can lead to memory leaks if application-level event listeners are added and not
@@ -261,11 +261,25 @@ events:
     platforms: [iphone, android]
     since: {android: "3.3.0"}
 
+  - name: screenshotcaptured
+    summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.
+    description: |
+        Android is only available on devices with Android 14+ and you'll have to add the following permission
+        to your tiapp.xml: `<uses-permission android:name="android.permission.DETECT_SCREEN_CAPTURE"/>`
+    platforms: [android, iphone, ipad, macos]
+    since: 13.1.0
+    osver: {android: {min: "14.0"}}
+    properties:
+      - name: source
+        summary: The current window the screenshot was taken from.
+        platforms: [android]
+        type: String
+
   - name: uncaughtException
     summary: Fired when an uncaught JavaScript exception occurs.
     description: |
         This event will occur in both production and development builds, allowing you to warn the
-        user that an error has occured, and log more information to help you fix any bugs.
+        user that an error has occurred, and log more information to help you fix any bugs.
     properties:
       - name: message
         summary: The error message.
@@ -305,7 +319,7 @@ events:
           notes: Use `column` property for cross-platform parity.
         platforms: [android]
       - name: javascriptStack
-        summary: The javascript stack trace of the exception. (Deprecated since 9.0.0. Use `stack` instead.)
+        summary: The JavaScript stack trace of the exception. (Deprecated since 9.0.0. Use `stack` instead.)
         type: String
         since: "8.0.0"
         deprecated:
@@ -313,7 +327,7 @@ events:
           notes: Use `stack` property for cross-platform parity.
         platforms: [android]
       - name: javaStack
-        summary: The java stack trace of the exception. (Deprecated since 9.0.0. Use `nativeStack` instead.)
+        summary: The Java stack trace of the exception. (Deprecated since 9.0.0. Use `nativeStack` instead.)
         type: String
         since: "8.0.0"
         deprecated:
@@ -321,7 +335,7 @@ events:
           notes: Use `nativeStack` property for cross-platform parity.
         platforms: [android]
       - name: stack
-        summary: The javascript stack trace of the exception.
+        summary: The JavaScript stack trace of the exception.
         type: String
         since: "9.0.0"
       - name: nativeStack
@@ -329,7 +343,7 @@ events:
         type: String
         since: "9.0.0"
       - name: column
-        summary: The column offset on the line where the error occured.
+        summary: The column offset on the line where the error occurred.
         type: Number
         since: {android: "9.0.0",  iphone: "4.1.0", ipad: "4.1.0", macos: "9.2.0"}
     platforms: [android, iphone, ipad, macos]
@@ -385,7 +399,7 @@ events:
         the duration of the animation for the presentation and dismissal of the soft keyboard.
 
         Note that the keyboard `height` and `width` properties will not be accurate when the keyboard
-        is being dissmissed.
+        is being dismissed.
 
         For Android it will only work using Android 11 and up. The return values are empty but you can use
         `keyboardVisible` to check if the keyboard is visible or not.
@@ -405,8 +419,8 @@ events:
     description: |
         Examples of significant time changes include the arrival of midnight, an update to the time by a carrier,
         and the change to daylight savings time. If your application is currently in `paused` state, this message
-        will be is queued until your application returns to the foreground, at which point it is delievered. If multiple
-        changes occur, only the most recent one is delievered.
+        will be is queued until your application returns to the foreground, at which point it is delivered. If multiple
+        changes occur, only the most recent one is delivered.
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
 
@@ -488,7 +502,7 @@ properties:
     permission: read-only
 
   - name: currentService
-    summary: A reference to the currnet background service running when the application is placed in the background.
+    summary: A reference to the current background service running when the application is placed in the background.
     type: Titanium.App.iOS.BackgroundService
     permission: read-only
     platforms: [iphone, ipad, macos]
@@ -620,11 +634,11 @@ properties:
     platforms: [android, iphone, ipad, macos]
 
   - name: trackUserInteraction
-    summary: Indicates whether or not the user interaction shoud be tracked.
+    summary: Indicates whether or not the user interaction should be tracked.
     description: |
         Use the <Titanium.App.userinteraction> event to get notified about user interaction.
         For Android, user-interactions are controlled by the event and do not require this
-        property to be set explicitely. For iOS, this is done to prevent additional overhead.
+        property to be set explicitly. For iOS, this is done to prevent additional overhead.
     type: Boolean
     accessors: false
     platforms: [iphone, ipad, macos]

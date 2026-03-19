@@ -1,9 +1,9 @@
-'use strict';
+import path from 'node:path';
+import fs from 'fs-extra';
+import ejs from 'ejs';
+import { fileURLToPath } from 'node:url';
 
-const path = require('path');
-const fs = require('fs-extra');
-const ejs = require('ejs');
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const KROLL_DEFAULT = 'org.appcelerator.kroll.annotations.Kroll.DEFAULT';
 const TI_MODULE = 'ti.modules.titanium.TitaniumModule';
 
@@ -128,17 +128,14 @@ async function generateJS(bindings, outDir) {
  * @param {string} [outDir='../runtime/v8/generated'] path to place the output files
  * @returns {Promise<void>}
  */
-async function genBootstrap(outDir = path.join(__dirname, '../runtime/v8/generated')) {
+export async function generateBootstrap(outDir = path.join(__dirname, '../runtime/v8/generated')) {
 	const bindings = await loadBindings();
 	return generateJS(bindings, outDir);
 }
 
-if (require.main === module) {
-	genBootstrap().then(() => process.exit(0))
-		.catch(e => {
-			console.error(e);
-			process.exit(1);
-		});
+if (import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(import.meta.url)) {
+	generateBootstrap().catch(err => {
+		console.error(err);
+		process.exit(1);
+	});
 }
-
-module.exports = genBootstrap;

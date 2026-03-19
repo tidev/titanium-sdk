@@ -29,7 +29,7 @@ description: |
     using location updates, you should remove any registered event listeners.
 
     In manual mode, the application is responsible for dynamically updating the settings
-    to acheive its required accuracy while limiting battery usage. For example, an
+    to achieve its required accuracy while limiting battery usage. For example, an
     application might do any of the following:
 
     *   If the application isn't getting updates frequently enough, it can adjust its
