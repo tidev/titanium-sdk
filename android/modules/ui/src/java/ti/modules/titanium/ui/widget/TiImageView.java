@@ -454,6 +454,9 @@ public class TiImageView extends ViewGroup
 		/** Last scale center point used during a pinch-zoom along the y-axis. */
 		private float lastFocusY;
 
+		/** Flag indicating whether a pinch-zoom gesture is in progress. */
+		private boolean isScaling = false;
+
 		public ZoomHandler(@NonNull TiImageView tiImageView)
 		{
 			this.tiImageView = tiImageView;
@@ -471,7 +474,11 @@ public class TiImageView extends ViewGroup
 
 		public boolean onTouchEvent(MotionEvent event)
 		{
-			return this.gestureDetector.onTouchEvent(event) || this.scaleGestureDetector.onTouchEvent(event);
+			this.scaleGestureDetector.onTouchEvent(event);
+			if (this.scaleGestureDetector.isInProgress() || this.isScaling) {
+				return true;
+			}
+			return this.gestureDetector.onTouchEvent(event);
 		}
 
 		@Override
@@ -534,8 +541,7 @@ public class TiImageView extends ViewGroup
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
 		{
-			// Only allow scrolls if image is zoomed and we're not in the middle of doing a pinch-zoom.
-			if (!this.scaleGestureDetector.isInProgress() && !this.matrix.isIdentity()) {
+			if (!this.isScaling && e2.getPointerCount() == 1 && !this.matrix.isIdentity()) {
 				this.matrix.postTranslate(-dx, -dy);
 				applyLimitsToMatrix();
 				this.tiImageView.requestLayout();
@@ -547,6 +553,7 @@ public class TiImageView extends ViewGroup
 		@Override
 		public boolean onScaleBegin(ScaleGestureDetector detector)
 		{
+			this.isScaling = true;
 			this.lastFocusX = detector.getFocusX();
 			this.lastFocusY = detector.getFocusY();
 			return true;
@@ -569,6 +576,7 @@ public class TiImageView extends ViewGroup
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
+			this.isScaling = false;
 			if (applyLimitsToMatrix()) {
 				this.tiImageView.requestLayout();
 			}
