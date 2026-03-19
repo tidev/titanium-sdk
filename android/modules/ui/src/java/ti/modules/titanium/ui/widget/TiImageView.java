@@ -471,6 +471,9 @@ public class TiImageView extends ViewGroup
 		/** Zoom transformation matrix to be applied to the image. */
 		private final Matrix matrix;
 
+		/** Flag indicating whether a pinch-zoom gesture is in progress. */
+		private boolean isScaling = false;
+
 		/** Store values array for matrix calculations */
 		private final float[] matrixValues = new float[9];
 
@@ -506,7 +509,11 @@ public class TiImageView extends ViewGroup
 
 		public boolean onTouchEvent(MotionEvent event)
 		{
-			return this.gestureDetector.onTouchEvent(event) || this.scaleGestureDetector.onTouchEvent(event);
+			this.scaleGestureDetector.onTouchEvent(event);
+			if (this.scaleGestureDetector.isInProgress() || this.isScaling) {
+				return true;
+			}
+			return this.gestureDetector.onTouchEvent(event);
 		}
 
 		@Override
@@ -585,17 +592,17 @@ public class TiImageView extends ViewGroup
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
 		{
 			// Only allow scrolls if image is zoomed and we're not pinch-zooming
-			if (this.scaleGestureDetector.isInProgress() || currentScale <= 1.0f) {
-				return false;
+			if (!this.isScaling && e2.getPointerCount() == 1 && currentScale > 1.0f) {
+				return applyLimitsToMatrix(dx, dy, null, null);
 			}
-
-			return applyLimitsToMatrix(dx, dy, null, null);
+			return false;
 		}
 
 		@Override
 		public boolean onScaleBegin(ScaleGestureDetector detector)
 		{
 			// Cancel any ongoing animations
+			this.isScaling = true;
 			if (scaleAnimator != null && scaleAnimator.isRunning()) {
 				scaleAnimator.cancel();
 			}
@@ -632,7 +639,7 @@ public class TiImageView extends ViewGroup
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
-			// Nothing to handle here.
+			this.isScaling = false;
 		}
 
 		public Pair<Float, Float> getValidTouchPoint(ImageView imageView, float touchX, float touchY)
