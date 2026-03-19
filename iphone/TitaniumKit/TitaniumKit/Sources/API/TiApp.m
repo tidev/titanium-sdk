@@ -129,7 +129,9 @@ extern void UIColorFlushCache(void);
 
 - (void)initController
 {
-  sharedApp = self;
+  if (sharedApp == nil) {
+    sharedApp = self;
+  }
 
   // attach our main view controller
   controller = [[TiRootViewController alloc] init];
@@ -151,6 +153,18 @@ extern void UIColorFlushCache(void);
 
 - (void)registerApplicationDelegate:(id)applicationDelegate
 {
+  // Forward to sharedApp if we're not the sharedApp instance
+  if (self != sharedApp && sharedApp != nil) {
+    [sharedApp registerApplicationDelegate:applicationDelegate];
+    return;
+  }
+
+  // Check if already registered on sharedApp
+  if (sharedApp != nil && [[sharedApp applicationDelegates] containsObject:applicationDelegate]) {
+    return;
+  }
+
+  // Check if already registered on self
   if ([[self applicationDelegates] containsObject:applicationDelegate]) {
     NSLog(@"[WARN] Application delegate already exists in known application delegates!");
     return;
@@ -161,12 +175,20 @@ extern void UIColorFlushCache(void);
 
 - (void)unregisterApplicationDelegate:(id<UIApplicationDelegate>)applicationDelegate
 {
-  if (![[self applicationDelegates] containsObject:applicationDelegate]) {
-    NSLog(@"[WARN] Application delegate does not exist in known application delegates!");
+  // Forward to sharedApp if we're not the sharedApp instance
+  if (self != sharedApp && sharedApp != nil) {
+    [sharedApp unregisterApplicationDelegate:applicationDelegate];
     return;
   }
 
-  [[self applicationDelegates] removeObject:applicationDelegate];
+  // Remove from both sharedApp and self (in case it was registered on both)
+  if (sharedApp != nil && [[sharedApp applicationDelegates] containsObject:applicationDelegate]) {
+    [[sharedApp applicationDelegates] removeObject:applicationDelegate];
+  }
+
+  if ([[self applicationDelegates] containsObject:applicationDelegate]) {
+    [[self applicationDelegates] removeObject:applicationDelegate];
+  }
 }
 
 - (void)launchToUrl
@@ -410,8 +432,8 @@ extern void UIColorFlushCache(void);
   // If a "application-launch-url" is set, launch it directly
   [self launchToUrl];
 
-  // Boot our kroll-core
-  [self boot];
+  // Skip boot here - the scene delegate (sharedApp) will handle it
+  // This prevents the app from being booted twice
 
   // Create application support directory if not exists
   [self createDefaultDirectories];
@@ -689,7 +711,12 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToInvokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments
 {
-  NSString *selectorString = NSStringFromSelector(selector);
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  // App delegate has window == nil, scene delegate (sharedApp) has window != nil
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToInvokeSelector:selector withArguments:arguments];
+    return;
+  }
 
   if (appBooted && _applicationDelegates != nil) {
     for (id applicationDelegate in _applicationDelegates) {
@@ -697,13 +724,20 @@ extern void UIColorFlushCache(void);
         [self invokeSelector:selector withArguments:arguments onDelegate:applicationDelegate];
       }
     }
-  } else if (!appBooted && _applicationDelegates == nil) {
+  } else if (!appBooted) {
+    NSString *selectorString = NSStringFromSelector(selector);
     [[self queuedApplicationSelectors] setObject:arguments forKey:selectorString];
   }
 }
 
 - (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler
 {
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToPostNotification:_notification withNotificationName:_notificationName completionHandler:completionHandler];
+    return;
+  }
+
   typedef void (^NotificationBlock)(void);
 
   NotificationBlock myNotificationBlock = ^void() {
@@ -723,6 +757,12 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName
 {
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToPostBackgroundModeNotification:userInfo withNotificationName:notificationName];
+    return;
+  }
+
   // Check to see if the app booted and we still have the completion handler in the system
   NSString *key = [userInfo objectForKey:@"handlerId"];
   BOOL shouldContinue = NO;
@@ -1230,8 +1270,54 @@ extern void UIColorFlushCache(void);
   // Initialize the root-window
   window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
 
-  // Initialize the root-controller
+  // Initialize the root-controller (also sets sharedApp if not already set)
   [self initController];
+
+  // Boot the app (required for scene-based apps since applicationDidFinishLaunching: may not be called)
+  [self boot];
+
+  // Handle URL from scene connection options (iOS 13+ cold launch with URL)
+  NSArray<NSUserActivity *> *userActivities = connectionOptions.userActivities.allObjects;
+  for (NSUserActivity *userActivity in userActivities) {
+    if (userActivity.activityType == NSUserActivityTypeBrowsingWeb && userActivity.webpageURL != nil) {
+      [self handleURLFromScene:userActivity.webpageURL];
+      break;
+    }
+  }
+
+  // Handle URL contexts (custom URL schemes and universal links)
+  for (UIOpenURLContext *urlContext in connectionOptions.URLContexts) {
+    [self handleURLFromScene:urlContext.URL];
+  }
+}
+
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+{
+  // Handle URL when app is already running (iOS 13+)
+  for (UIOpenURLContext *urlContext in URLContexts) {
+    [self handleURLFromScene:urlContext.URL];
+  }
+}
+
+- (void)handleURLFromScene:(NSURL *)url
+{
+  if (url == nil) {
+    return;
+  }
+
+  NSMutableDictionary *urlLaunchOptions = [[NSMutableDictionary alloc] init];
+  [urlLaunchOptions setObject:[url absoluteString] forKey:@"url"];
+
+  if (appBooted) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:urlLaunchOptions];
+  } else {
+    if (queuedBootEvents == nil) {
+      queuedBootEvents = [[NSMutableDictionary alloc] init];
+    }
+    [queuedBootEvents setObject:urlLaunchOptions forKey:kTiApplicationLaunchedFromURL];
+  }
+
+  [urlLaunchOptions release];
 }
 
 #pragma mark Background Tasks
