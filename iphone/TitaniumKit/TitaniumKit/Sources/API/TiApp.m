@@ -159,12 +159,7 @@ extern void UIColorFlushCache(void);
     return;
   }
 
-  // Check if already registered on sharedApp
-  if (sharedApp != nil && [[sharedApp applicationDelegates] containsObject:applicationDelegate]) {
-    return;
-  }
-
-  // Check if already registered on self
+  // Check if already registered
   if ([[self applicationDelegates] containsObject:applicationDelegate]) {
     NSLog(@"[WARN] Application delegate already exists in known application delegates!");
     return;
@@ -181,14 +176,7 @@ extern void UIColorFlushCache(void);
     return;
   }
 
-  // Remove from both sharedApp and self (in case it was registered on both)
-  if (sharedApp != nil && [[sharedApp applicationDelegates] containsObject:applicationDelegate]) {
-    [[sharedApp applicationDelegates] removeObject:applicationDelegate];
-  }
-
-  if ([[self applicationDelegates] containsObject:applicationDelegate]) {
-    [[self applicationDelegates] removeObject:applicationDelegate];
-  }
+  [[self applicationDelegates] removeObject:applicationDelegate];
 }
 
 - (void)launchToUrl
