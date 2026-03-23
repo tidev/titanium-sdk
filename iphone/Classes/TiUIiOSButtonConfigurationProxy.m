@@ -160,8 +160,10 @@
 - (void)setAttributedString:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  _configuration.attributedTitle = [arg attributedString];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
+  if (attributedStringProxy) {
+    _configuration.attributedTitle = [attributedStringProxy attributedString];
+  }
 #endif
 }
 

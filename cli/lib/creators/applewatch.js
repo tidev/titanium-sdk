@@ -42,7 +42,7 @@ export class AppleWatchCreator extends Creator {
 		super(logger, config, cli);
 
 		this.title = 'Apple Watch™ App';
-		this.titleOrder = 3;
+		this.titleOrder = 4;
 		this.type = 'applewatch';
 	}
 

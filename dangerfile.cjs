@@ -3,7 +3,6 @@
 // requires
 const debug = require('debug')('dangerfile');
 const fs = require('fs-extra');
-const eslint = require('@seadub/danger-plugin-eslint').default;
 const junit = require('@seadub/danger-plugin-junit').default;
 const dependencies = require('@seadub/danger-plugin-dependencies').default;
 const load = require('@commitlint/load').default;
@@ -324,7 +323,6 @@ async function main() {
 		checkMergeable(),
 		checkPRisApproved(),
 		updateMilestone(),
-		eslint(),
 		dependencies({ type: 'npm' }),
 		checkForTestRunFailures()
 	]);
