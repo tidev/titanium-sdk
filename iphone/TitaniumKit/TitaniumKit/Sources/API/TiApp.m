@@ -129,9 +129,7 @@ extern void UIColorFlushCache(void);
 
 - (void)initController
 {
-  if (sharedApp == nil) {
-    sharedApp = self;
-  }
+  sharedApp = self;
 
   // attach our main view controller
   controller = [[TiRootViewController alloc] init];
