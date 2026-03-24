@@ -79,7 +79,10 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-  [self updateTabBarItem];
+  // Intentionally not calling updateTabBarItem here to prevent
+  // unnecessary UITabBarItem recreation during modal transitions.
+  // Tab bar item properties (icon, title, badge, colors) are only
+  // updated when explicitly set via the property setters below.
 }
 
 - (NSString *)apiName
