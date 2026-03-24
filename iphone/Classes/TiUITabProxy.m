@@ -44,6 +44,7 @@
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(lastTabBarTraitCollection);
   RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
 
   [super _destroy];
@@ -79,10 +80,24 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-  // Intentionally not calling updateTabBarItem here to prevent
-  // unnecessary UITabBarItem recreation during modal transitions.
-  // Tab bar item properties (icon, title, badge, colors) are only
-  // updated when explicitly set via the property setters below.
+  UITraitCollection *currentTraitCollection = controller.traitCollection;
+
+  if (currentTraitCollection == nil) {
+    currentTraitCollection = rootWindow.hostingController.traitCollection;
+  }
+
+  if (currentTraitCollection == nil) {
+    return;
+  }
+
+  if ((lastTabBarTraitCollection != nil)
+      && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:lastTabBarTraitCollection]
+      && (currentTraitCollection.horizontalSizeClass == lastTabBarTraitCollection.horizontalSizeClass)
+      && (currentTraitCollection.verticalSizeClass == lastTabBarTraitCollection.verticalSizeClass)) {
+    return;
+  }
+
+  [self updateTabBarItem];
 }
 
 - (NSString *)apiName
@@ -561,6 +576,10 @@
   ENSURE_UI_THREAD_0_ARGS;
 
   UIViewController *rootController = [rootWindow hostingController];
+  UITraitCollection *currentTraitCollection = controller.traitCollection;
+  if (currentTraitCollection == nil) {
+    currentTraitCollection = rootController.traitCollection;
+  }
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
   id badgeColor = [self valueForKey:@"badgeColor"];
   id iconInsets = [self valueForKey:@"iconInsets"];
@@ -584,6 +603,10 @@
     [newItem release];
 
     systemTab = YES;
+    if (currentTraitCollection != lastTabBarTraitCollection) {
+      [lastTabBarTraitCollection release];
+      lastTabBarTraitCollection = [currentTraitCollection retain];
+    }
     return;
   }
 
@@ -710,6 +733,11 @@
   [tabBarItem setBadgeValue:badgeValue];
 
   systemTab = NO;
+
+  if (currentTraitCollection != lastTabBarTraitCollection) {
+    [lastTabBarTraitCollection release];
+    lastTabBarTraitCollection = [currentTraitCollection retain];
+  }
 }
 
 - (UIEdgeInsets)calculateIconInsets:(id)value

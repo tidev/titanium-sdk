@@ -28,6 +28,7 @@
   BOOL hasFocus;
   BOOL iconOriginal;
   BOOL activeIconOriginal;
+  UITraitCollection *lastTabBarTraitCollection;
 
   id<TiOrientationController> parentOrientationController;
 
