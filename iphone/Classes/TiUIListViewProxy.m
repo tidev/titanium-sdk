@@ -10,6 +10,7 @@
 #import "TiUIListView.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewTemplate.h>
+#include <pthread.h>
 
 @interface TiUIListViewProxy ()
 @property (nonatomic, readwrite) TiUIListView *listView;
