@@ -228,38 +228,12 @@ static NSArray *tabGroupKeySequence;
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
     UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:tabController];
-    [tabController didMoveToParentViewController:parentController];
-    [tabController viewWillAppear:animated];
+    if (tabController.parentViewController != parentController) {
+      [parentController addChildViewController:tabController];
+      [tabController didMoveToParentViewController:parentController];
+    }
   }
   [super viewWillAppear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated;
-{
-  if ([self viewAttached]) {
-    UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    [tabController viewDidAppear:animated];
-  }
-  [super viewDidAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated;
-{
-  if ([self viewAttached]) {
-    UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    [tabController viewWillDisappear:animated];
-  }
-  [super viewWillDisappear:animated];
-}
-
-- (void)viewDidDisappear:(BOOL)animated;
-{
-  if ([self viewAttached]) {
-    UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    [tabController viewDidDisappear:animated];
-  }
-  [super viewDidDisappear:animated];
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
