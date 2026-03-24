@@ -1562,7 +1562,7 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    since: {android: "13.1.0"}
+    since: {android: "13.2.0"}
 
   - name: layout
     type: String
