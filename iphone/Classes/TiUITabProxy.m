@@ -44,6 +44,7 @@
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(lastTabBarTraitCollection);
   RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
 
   [super _destroy];
@@ -79,6 +80,23 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
+  UITraitCollection *currentTraitCollection = controller.traitCollection;
+
+  if (currentTraitCollection == nil) {
+    currentTraitCollection = rootWindow.hostingController.traitCollection;
+  }
+
+  if (currentTraitCollection == nil) {
+    return;
+  }
+
+  if ((lastTabBarTraitCollection != nil)
+      && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:lastTabBarTraitCollection]
+      && (currentTraitCollection.horizontalSizeClass == lastTabBarTraitCollection.horizontalSizeClass)
+      && (currentTraitCollection.verticalSizeClass == lastTabBarTraitCollection.verticalSizeClass)) {
+    return;
+  }
+
   [self updateTabBarItem];
 }
 
@@ -558,6 +576,10 @@
   ENSURE_UI_THREAD_0_ARGS;
 
   UIViewController *rootController = [rootWindow hostingController];
+  UITraitCollection *currentTraitCollection = controller.traitCollection;
+  if (currentTraitCollection == nil) {
+    currentTraitCollection = rootController.traitCollection;
+  }
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
   id badgeColor = [self valueForKey:@"badgeColor"];
   id iconInsets = [self valueForKey:@"iconInsets"];
@@ -581,6 +603,10 @@
     [newItem release];
 
     systemTab = YES;
+    if (currentTraitCollection != lastTabBarTraitCollection) {
+      [lastTabBarTraitCollection release];
+      lastTabBarTraitCollection = [currentTraitCollection retain];
+    }
     return;
   }
 
@@ -707,6 +733,11 @@
   [tabBarItem setBadgeValue:badgeValue];
 
   systemTab = NO;
+
+  if (currentTraitCollection != lastTabBarTraitCollection) {
+    [lastTabBarTraitCollection release];
+    lastTabBarTraitCollection = [currentTraitCollection retain];
+  }
 }
 
 - (UIEdgeInsets)calculateIconInsets:(id)value
