@@ -141,9 +141,14 @@ description: |
 
     #### Accessibility
 
-    Four accessibility-related view properties are available in Titanium Mobile for iOS
+    Nine accessibility-related view properties are available in Titanium Mobile for iOS
     and Android:
 
+    * <Titanium.UI.View.accessibilityRole>
+    * <Titanium.UI.View.accessibilityState>
+    * <Titanium.UI.View.accessibilityGroup>
+    * <Titanium.UI.View.accessibilityActions>
+    * <Titanium.UI.View.accessibilityLiveRegion>
     * <Titanium.UI.View.accessibilityLabel>
     * <Titanium.UI.View.accessibilityValue>
     * <Titanium.UI.View.accessibilityHint>
@@ -1113,6 +1118,25 @@ methods:
     platforms: [iphone, ipad, android, macos]
 
 properties:
+  - name: accessibilityActions
+    summary: Custom accessibility actions that can be triggered by the user via an assistive tool like VoiceOver or TalkBack.
+    description: |
+        Array of custom action names (strings). Each action name will be presented to the user.
+        When an action is triggered, an `accessibilityaction` event is fired containing the `action` name.
+    since: "13.2.0"
+    platforms: [android, iphone, ipad, macos]
+    type: Array<String>
+
+  - name: accessibilityGroup
+    summary: Whether this view and its descendants should be treated as a single selectable accessibility group.
+    description: |
+        On iOS, sets `shouldGroupAccessibilityChildren`.
+        On Android, uses `IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS` to focus the entire group.
+    since: "13.2.0"
+    platforms: [android, iphone, ipad, macos]
+    type: Boolean
+    default: false
+
   - name: accessibilityHidden
     summary: Whether the view should be "hidden" from (i.e., ignored by) the accessibility service.
     description: |
@@ -1156,6 +1180,36 @@ properties:
     since: "3.0.0"
     platforms: [android, iphone, ipad, macos]
     type: String
+
+  - name: accessibilityLiveRegion
+    summary: Specifies how changes in the view's content should be announced to the user.
+    description: |
+        Can be one of: `"polite"`, `"assertive"`, or `"none"`.
+        On Android, sets the `ViewCompat.setAccessibilityLiveRegion` mode.
+        On iOS, when this property changes to a non-empty string, it posts a `UIAccessibilityAnnouncementNotification` with the new value.
+    since: "13.2.0"
+    platforms: [android, iphone, ipad, macos]
+    type: String
+
+  - name: accessibilityRole
+    summary: The accessibility role describing the purpose of the view.
+    description: |
+        Known roles include `"button"`, `"image"`, `"header"`, `"link"`.
+        On iOS, this maps to `UIAccessibilityTraits` such as `UIAccessibilityTraitButton`.
+        On Android, this adjusts the `ClassName` or `Heading` state of the `AccessibilityNodeInfoCompat`.
+    since: "13.2.0"
+    platforms: [android, iphone, ipad, macos]
+    type: String
+
+  - name: accessibilityState
+    summary: A dictionary of key-value pairs describing the current state of the view for assistive tools.
+    description: |
+        Supported keys include `selected` (boolean) and `disabled` (boolean).
+        On iOS, this adds/removes `UIAccessibilityTraitSelected` and `UIAccessibilityTraitNotEnabled`.
+        On Android, this translates to `info.setSelected` and `info.setEnabled`.
+    since: "13.2.0"
+    platforms: [android, iphone, ipad, macos]
+    type: Dictionary
 
   - name: accessibilityValue
     summary: A string describing the value (if any) of the view for the device's accessibility service.

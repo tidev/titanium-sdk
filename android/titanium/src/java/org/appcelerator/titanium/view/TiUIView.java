@@ -44,6 +44,7 @@ import android.graphics.drawable.PaintDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
@@ -910,6 +911,22 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(newValue);
+
+		} else if (key.equals("accessibilityRole")) {
+			// Titanium property replay guarantees this setter is re-called on view realization.
+			applyAccessibilityRole(newValue);
+
+		} else if (key.equals("accessibilityState")) {
+			applyAccessibilityState(newValue);
+
+		} else if (key.equals("accessibilityGroup")) {
+			applyAccessibilityGroup(newValue);
+
+		} else if (key.equals("accessibilityActions")) {
+			applyAccessibilityActions(newValue);
+
+		} else if (key.equals("accessibilityLiveRegion")) {
+			applyAccessibilityLiveRegion(newValue);
 
 		} else if (key.equals(TiC.PROPERTY_ELEVATION)) {
 			if (getOuterView() != null) {
@@ -2301,7 +2318,228 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (nativeView != null) {
 			applyContentDescription();
 			applyAccessibilityHidden();
+			// Apply modern accessibility properties stored on the proxy.
+			// Titanium's property replay system re-invokes property setters on view realization,
+			// so these calls ensure properties set before the view was created are applied now.
+			if (proxy != null) {
+				applyAccessibilityRole(proxy.getProperty("accessibilityRole"));
+				applyAccessibilityState(proxy.getProperty("accessibilityState"));
+				applyAccessibilityGroup(proxy.getProperty("accessibilityGroup"));
+				applyAccessibilityActions(proxy.getProperty("accessibilityActions"));
+				applyAccessibilityLiveRegion(proxy.getProperty("accessibilityLiveRegion"));
+			}
 		}
+	}
+
+	// ---------------------------------------------------------------------------
+	// accessibilityRole
+	//
+	// Maps a string role name to an accessibility class name so that assistive
+	// technologies (TalkBack) announce the element type correctly.
+	//
+	// Mapping:
+	//   "button" → android.widget.Button
+	//   "image"  → android.widget.ImageView
+	//   "header" → sets isHeading(true) via AccessibilityNodeInfoCompat
+	//   "link"   → android.widget.Button (nearest semantic equivalent on Android)
+	// ---------------------------------------------------------------------------
+	private void applyAccessibilityRole(Object roleValue)
+	{
+		if (nativeView == null || roleValue == null) {
+			return;
+		}
+
+		final String role = TiConvert.toString(roleValue);
+		if (role == null || role.isEmpty()) {
+			return;
+		}
+
+		// We extend (not replace) the existing delegate so applyAccessibilityActions can
+		// co-exist on the same view. We use a named inner class field to avoid chaining issues.
+		ViewCompat.setAccessibilityDelegate(nativeView, new AccessibilityDelegateCompat()
+		{
+			@Override
+			public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+														  @NonNull AccessibilityNodeInfoCompat info)
+			{
+				super.onInitializeAccessibilityNodeInfo(host, info);
+
+				switch (role) {
+					case "button":
+						info.setClassName(android.widget.Button.class.getName());
+						break;
+					case "image":
+						info.setClassName(android.widget.ImageView.class.getName());
+						break;
+					case "header":
+						info.setHeading(true);
+						break;
+					case "link":
+						// Android has no distinct "link" role; Button is the closest semantic match.
+						info.setClassName(android.widget.Button.class.getName());
+						break;
+					default:
+						// Unknown roles are silently ignored for forward-compatibility.
+						break;
+				}
+			}
+		});
+	}
+
+	// ---------------------------------------------------------------------------
+	// accessibilityState
+	//
+	// Maps a state dictionary { selected: bool, disabled: bool } to the
+	// corresponding AccessibilityNodeInfoCompat properties.
+	// ---------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	private void applyAccessibilityState(Object stateValue)
+	{
+		if (nativeView == null || stateValue == null) {
+			return;
+		}
+
+		if (!(stateValue instanceof java.util.HashMap)) {
+			return;
+		}
+
+		java.util.HashMap<String, Object> stateMap = (java.util.HashMap<String, Object>) stateValue;
+		final boolean isSelected = TiConvert.toBoolean(stateMap.get("selected"), false);
+		final boolean isDisabled = TiConvert.toBoolean(stateMap.get("disabled"), false);
+
+		ViewCompat.setAccessibilityDelegate(nativeView, new AccessibilityDelegateCompat()
+		{
+			@Override
+			public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+														  @NonNull AccessibilityNodeInfoCompat info)
+			{
+				super.onInitializeAccessibilityNodeInfo(host, info);
+				info.setSelected(isSelected);
+				// setEnabled(false) tells TalkBack "dimmed" / "unavailable".
+				if (isDisabled) {
+					info.setEnabled(false);
+				}
+			}
+		});
+	}
+
+	// ---------------------------------------------------------------------------
+	// accessibilityGroup
+	//
+	// When true: IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS collapses the
+	// entire sub-tree into a single focusable element for TalkBack navigation,
+	// equivalent to iOS shouldGroupAccessibilityChildren = YES.
+	//
+	// When false: restore to AUTO so individual children are traversable.
+	// ---------------------------------------------------------------------------
+	private void applyAccessibilityGroup(Object groupValue)
+	{
+		if (nativeView == null || groupValue == null) {
+			return;
+		}
+
+		boolean shouldGroup = TiConvert.toBoolean(groupValue, false);
+		int importanceMode = shouldGroup
+			? ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+			: ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+		ViewCompat.setImportantForAccessibility(nativeView, importanceMode);
+	}
+
+	// ---------------------------------------------------------------------------
+	// accessibilityActions
+	//
+	// Registers custom accessibility actions visible to TalkBack's local context
+	// menu. When triggered, fires a Titanium "accessibilityaction" event with
+	// { action: <name> } so JS can handle it.
+	// ---------------------------------------------------------------------------
+	@SuppressWarnings("unchecked")
+	private void applyAccessibilityActions(Object actionsValue)
+	{
+		if (nativeView == null || actionsValue == null) {
+			return;
+		}
+
+		if (!(actionsValue instanceof Object[])) {
+			return;
+		}
+
+		Object[] actionArray = (Object[]) actionsValue;
+		if (actionArray.length == 0) {
+			return;
+		}
+
+		// Snapshot names into a typed list so the lambda can capture it safely.
+		final java.util.List<String> actionNames = new java.util.ArrayList<>();
+		for (Object item : actionArray) {
+			String name = TiConvert.toString(item);
+			if (name != null && !name.isEmpty()) {
+				actionNames.add(name);
+			}
+		}
+
+		final TiViewProxy actionProxy = proxy; // local final reference for lambda
+
+		ViewCompat.setAccessibilityDelegate(nativeView, new AccessibilityDelegateCompat()
+		{
+			@Override
+			public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+														  @NonNull AccessibilityNodeInfoCompat info)
+			{
+				super.onInitializeAccessibilityNodeInfo(host, info);
+				for (String name : actionNames) {
+					// Use a stable integer ID derived from the name's hashCode.
+					// Negative hashes are normalised to positive to avoid reserved IDs (< 0x01000000).
+					int actionId = (name.hashCode() & 0x7FFFFFFF) | 0x01000000;
+					info.addAction(new AccessibilityNodeInfoCompat.AccessibilityActionCompat(actionId, name));
+				}
+			}
+
+			@Override
+			public boolean performAccessibilityAction(@NonNull View host, int action, Bundle args)
+			{
+				// Check if this action ID belongs to one of our custom actions.
+				for (String name : actionNames) {
+					int actionId = (name.hashCode() & 0x7FFFFFFF) | 0x01000000;
+					if (action == actionId) {
+						if (actionProxy != null) {
+							KrollDict event = new KrollDict();
+							event.put("action", name);
+							actionProxy.fireEvent("accessibilityaction", event);
+						}
+						return true;
+					}
+				}
+				return super.performAccessibilityAction(host, action, args);
+			}
+		});
+	}
+
+	// ---------------------------------------------------------------------------
+	// accessibilityLiveRegion
+	//
+	// Maps "polite" / "assertive" to ViewCompat live-region modes. The region
+	// mode tells the OS to automatically announce the view's content description
+	// whenever it changes, without requiring an explicit focus event.
+	//
+	// Any other value (null, "none", "") → ACCESSIBILITY_LIVE_REGION_NONE (disabled).
+	// ---------------------------------------------------------------------------
+	private void applyAccessibilityLiveRegion(Object regionValue)
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		String region = TiConvert.toString(regionValue);
+		int mode;
+		if ("polite".equals(region)) {
+			mode = ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE;
+		} else if ("assertive".equals(region)) {
+			mode = ViewCompat.ACCESSIBILITY_LIVE_REGION_ASSERTIVE;
+		} else {
+			mode = ViewCompat.ACCESSIBILITY_LIVE_REGION_NONE;
+		}
+
+		ViewCompat.setAccessibilityLiveRegion(nativeView, mode);
 	}
 
 	private void applyAccessibilityHidden()
