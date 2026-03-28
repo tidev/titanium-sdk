@@ -234,6 +234,7 @@ public class TiC
 	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
 	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
 	public static final String PROPERTY_ACCESSIBILITY_DISABLE_LONG = "accessibilityDisableLongPress";
+	public static final String PROPERTY_ACCESSIBILITY_DISABLE_CLICK = "accessibilityDisableClick";
 	public static final String PROPERTY_ACCESSORY_TYPE = "accessoryType";
 	public static final String PROPERTY_ACTION = "action";
 	public static final String PROPERTY_ACTION_VIEW = "actionView";

@@ -1950,10 +1950,16 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			touchable.setSoundEffectsEnabled(soundEnabled);
 		}
 
+		boolean disableLongClick = false;
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG)) {
-			if (TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG))) {
-				removeAccessibilityLongClick();
-			}
+			disableLongClick = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG));
+		}
+		boolean disableClick = false;
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_ACCESSIBILITY_DISABLE_CLICK)) {
+			disableClick = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ACCESSIBILITY_DISABLE_CLICK));
+		}
+		if (disableLongClick || disableClick) {
+			applyAccessibilityDisableActions(disableLongClick, disableClick);
 		}
 		registerTouchEvents(touchable);
 
@@ -2625,7 +2631,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return composeContentDescription(proxy.getProperties());
 	}
 
-	public void removeAccessibilityLongClick()
+	public void applyAccessibilityDisableActions(boolean disableLongClick, boolean disableClick)
 	{
 		ViewCompat.setAccessibilityDelegate(nativeView, new AccessibilityDelegateCompat()
 		{
@@ -2634,8 +2640,22 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 														  @NonNull AccessibilityNodeInfoCompat info)
 			{
 				super.onInitializeAccessibilityNodeInfo(host, info);
-				info.removeAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK);
-				info.setLongClickable(false);
+				if (disableLongClick) {
+					info.removeAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_LONG_CLICK);
+					info.setLongClickable(false);
+				}
+				if (disableClick) {
+					info.removeAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_CLICK);
+					info.setClickable(false);
+				}
+				
+				// Keep the view focusable for TalkBack so it can read the text/label,
+				// even though we removed the click actions.
+				if (disableLongClick || disableClick) {
+					info.setFocusable(true);
+					// info.setScreenReaderFocusable(true); // Works on AndroidX Core 1.1.0+
+					info.setScreenReaderFocusable(true);
+				}
 			}
 		});
 	}

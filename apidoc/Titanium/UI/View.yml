@@ -1235,6 +1235,16 @@ properties:
     availability: creation
     type: Boolean
 
+  - name: accessibilityDisableClick
+    summary: Boolean value to remove the click activation notification for the device's accessibility service.
+    description: |
+        Will disable the "double tap to activate" message when selecting an item.
+    since: "13.2.0"
+    platforms: [android]
+    default: false
+    availability: creation
+    type: Boolean
+
   - name: anchorPoint
     summary: Coordinate of the view about which to pivot an animation.
     description: |

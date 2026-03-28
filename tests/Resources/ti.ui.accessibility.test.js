@@ -6,6 +6,16 @@
 
 describe('Ti.UI Accessibility Properties', function () {
 
+  it('accessibilityDisableClick is stored and retrieved', function () {
+    var view = Ti.UI.createView({ accessibilityDisableClick: true });
+    assert.strictEqual(view.accessibilityDisableClick, true, 'accessibilityDisableClick should be true');
+  });
+
+  it('accessibilityDisableLongPress is stored and retrieved', function () {
+    var view = Ti.UI.createView({ accessibilityDisableLongPress: false });
+    assert.strictEqual(view.accessibilityDisableLongPress, false, 'accessibilityDisableLongPress should be false');
+  });
+
   it('accessibilityRole is stored and retrieved', function () {
     var label = Ti.UI.createLabel({ accessibilityRole: 'button' });
     assert.strictEqual(label.accessibilityRole, 'button', 'accessibilityRole should be "button"');
