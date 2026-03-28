@@ -22,9 +22,25 @@
 #define STRING_NEW(isolate, string_literal) \
 	v8::String::NewFromUtf8(isolate, string_literal "", v8::NewStringType::kNormal).ToLocalChecked()
 
+namespace titanium {
+	// Helper for DEFINE_CONSTANT to work with both Object and Template
+	template <typename T>
+	inline void SetConstant(v8::Isolate* isolate, T target, v8::Local<v8::String> name, v8::Local<v8::Value> value) {
+		target->Set(isolate->GetCurrentContext(), name, value,
+			static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete)).FromJust();
+	}
+	template <>
+	inline void SetConstant<v8::Local<v8::ObjectTemplate>>(v8::Isolate* isolate, v8::Local<v8::ObjectTemplate> target, v8::Local<v8::String> name, v8::Local<v8::Value> value) {
+		target->Set(name, value, static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete));
+	}
+	template <>
+	inline void SetConstant<v8::Local<v8::FunctionTemplate>>(v8::Isolate* isolate, v8::Local<v8::FunctionTemplate> target, v8::Local<v8::String> name, v8::Local<v8::Value> value) {
+		target->PrototypeTemplate()->Set(name, value, static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete));
+	}
+}
+
 #define DEFINE_CONSTANT(isolate, target, name, value) \
-	(target)->Set(NEW_SYMBOL(isolate, name),          \
-		value, static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete))
+	titanium::SetConstant(isolate, target, NEW_SYMBOL(isolate, name), value)
 
 #define DEFINE_INT_CONSTANT(isolate, target, name, value) \
 	DEFINE_CONSTANT(isolate, target, name, v8::Integer::New(isolate, value))
@@ -72,8 +88,8 @@
 	LOGV(TAG, __VA_ARGS__); \
 	for (uint32_t i = 0; i < frameCount; i++) { \
 		v8::Local<v8::StackFrame> frame = stackTrace->GetFrame(i); \
-		v8::String::Utf8Value fnName(frame->GetFunctionName()); \
-		v8::String::Utf8Value scriptUrl(frame->GetScriptName()); \
+		v8::String::Utf8Value fnName(isolate, frame->GetFunctionName()); \
+		v8::String::Utf8Value scriptUrl(isolate, frame->GetScriptName()); \
 		LOGV(TAG, "    at %s [%s:%d:%d]", *fnName, *scriptUrl, frame->GetLineNumber(), frame->GetColumn()); \
 	} \
 }

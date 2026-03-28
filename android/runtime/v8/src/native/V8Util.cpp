@@ -220,6 +220,7 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 }
 
 static int uncaughtExceptionCounter = 0;
+static Persistent<Function> jsonStringifyFunction;
 
 void V8Util::fatalException(Isolate* isolate, TryCatch &tryCatch)
 {
@@ -240,22 +241,29 @@ Local<String> V8Util::jsonStringify(Isolate* isolate, Local<Value> value)
 
 	TryCatch tryCatch(isolate);
 
-	MaybeLocal<Value> jsonGlobal = context->Global()->Get(context, STRING_NEW(isolate, "JSON"));
-	if (jsonGlobal.IsEmpty()) {
-		LOGE(TAG, "!!!! JSON global not found/accessible !!!");
-		return scope.Escape(STRING_NEW(isolate, "ERROR"));
+	Local<Function> stringify;
+	if (jsonStringifyFunction.IsEmpty()) {
+		MaybeLocal<Value> jsonGlobal = context->Global()->Get(context, STRING_NEW(isolate, "JSON"));
+		if (jsonGlobal.IsEmpty()) {
+			LOGE(TAG, "!!!! JSON global not found/accessible !!!");
+			return scope.Escape(STRING_NEW(isolate, "ERROR"));
+		}
+
+		Local<Object> jsonObject = jsonGlobal.ToLocalChecked().As<Object>();
+		MaybeLocal<Value> stringifyValue = jsonObject->Get(context, STRING_NEW(isolate, "stringify"));
+		if (stringifyValue.IsEmpty()) {
+			LOGE(TAG, "!!!! JSON.stringifyValue not found/accessible !!!");
+			return scope.Escape(STRING_NEW(isolate, "ERROR"));
+		}
+
+		stringify = stringifyValue.ToLocalChecked().As<Function>();
+		jsonStringifyFunction.Reset(isolate, stringify);
+	} else {
+		stringify = jsonStringifyFunction.Get(isolate);
 	}
 
-	Local<Object> jsonObject = jsonGlobal.ToLocalChecked().As<Object>();
-	MaybeLocal<Value> stringifyValue = jsonObject->Get(context, STRING_NEW(isolate, "stringify"));
-	if (stringifyValue.IsEmpty()) {
-		LOGE(TAG, "!!!! JSON.stringifyValue not found/accessible !!!");
-		return scope.Escape(STRING_NEW(isolate, "ERROR"));
-	}
-
-	Local<Function> stringify = stringifyValue.ToLocalChecked().As<Function>();
 	Local<Value> args[] = { value };
-	MaybeLocal<Value> result = stringify->Call(context, jsonObject, 1, args);
+	MaybeLocal<Value> result = stringify->Call(context, stringify, 1, args);
 	if (result.IsEmpty()) {
 		LOGE(TAG, "!!!! JSON.stringify() result is null/undefined.!!!");
 		return scope.Escape(STRING_NEW(isolate, "ERROR"));
@@ -296,6 +304,7 @@ bool V8Util::isNaN(Isolate* isolate, Local<Value> value)
 void V8Util::dispose()
 {
 	isNaNFunction.Reset();
+	jsonStringifyFunction.Reset();
 }
 
 std::string V8Util::stackTraceString(Isolate* isolate, Local<StackTrace> frames, int maxCount) {
