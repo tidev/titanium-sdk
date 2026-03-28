@@ -8,6 +8,7 @@
 
 #import <TitaniumKit/TiViewProxy.h>
 #import <libkern/OSAtomic.h>
+#include <pthread.h>
 
 @interface TiUIScrollableViewProxy : TiViewProxy {
   pthread_rwlock_t viewsLock;
