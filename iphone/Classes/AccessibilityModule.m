@@ -7,11 +7,11 @@
 
 #ifdef USE_TI_ACCESSIBILITY
 
-#import "TiAccessibilityModule.h"
+#import "AccessibilityModule.h"
 #import <TitaniumKit/TiUIView.h>
 #import <TitaniumKit/TiUtils.h>
 
-@implementation TiAccessibilityModule
+@implementation AccessibilityModule
 
 #pragma mark - Internal
 
@@ -57,8 +57,17 @@
 // ---------------------------------------------------------------------------
 - (void)focus:(id)viewProxy
 {
+  NSArray *currentArgs = [JSContext currentArguments];
+  if (currentArgs != nil && [currentArgs count] > 0) {
+    viewProxy = [currentArgs objectAtIndex:0];
+  }
+
+  if ([viewProxy isKindOfClass:[JSValue class]]) {
+    viewProxy = [self JSValueToNative:(JSValue *)viewProxy];
+  }
+
   if (![viewProxy isKindOfClass:[TiViewProxy class]]) {
-    NSLog(@"[WARN] Ti.Accessibility.focus: argument must be a Ti.UI view proxy.");
+    NSLog(@"[WARN] Ti.Accessibility.focus: argument must be a Ti.UI view proxy, got %@", [viewProxy class]);
     return;
   }
 
@@ -67,13 +76,13 @@
   // Resolving the view and posting the notification must happen on the main thread.
   TiThreadPerformOnMainThread(
       ^{
-        // peekView returns the TiUIView if it has already been realized, nil otherwise.
-        // We use peekView (not -view) to avoid forcing premature view creation.
-        TiUIView *uiView = (TiUIView *)[proxy peekView];
-        if (uiView == nil) {
+        if (![proxy viewAttached]) {
           NSLog(@"[WARN] Ti.Accessibility.focus: view is not yet realized, ignoring.");
           return;
         }
+
+        // Retrieve the realized view
+        TiUIView *uiView = [proxy view];
 
         // Retrieve the real accessibility element in case the view overrides it.
         id element = [uiView accessibilityElement];
@@ -81,7 +90,10 @@
 
         // UIAccessibilityLayoutChangedNotification moves VoiceOver focus to the
         // supplied element on the next accessibility layout pass.
-        UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, targetView);
+        // A slight delay ensures it is not swallowed if called during a window transition.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+          UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, targetView);
+        });
       },
       NO);
 }

@@ -17,7 +17,7 @@
    Ti.Accessibility.announce('Loading complete');
    Ti.Accessibility.focus(myView);
  */
-@protocol TiAccessibilityExports <JSExport>
+@protocol AccessibilityExports <JSExport>
 
 /**
  Posts a VoiceOver announcement notification so that the message is read aloud.
@@ -43,7 +43,7 @@
 
  Registered as a built-in module under the name "Ti.Accessibility".
  */
-@interface TiAccessibilityModule : ObjcModule <TiAccessibilityExports>
+@interface AccessibilityModule : ObjcModule <AccessibilityExports>
 @end
 
 #endif /* USE_TI_ACCESSIBILITY */
