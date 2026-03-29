@@ -60,14 +60,13 @@ public class AccessibilityModule extends KrollModule
 
 		final android.view.View nativeView = uiView.getNativeView();
 		if (nativeView != null) {
-			nativeView.postDelayed(new Runnable() {
+			nativeView.post(new Runnable() {
 				@Override
 				public void run()
 				{
 					nativeView.performAccessibilityAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS, null);
-					nativeView.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
 				}
-			}, 100);
+			});
 		}
 	}
 

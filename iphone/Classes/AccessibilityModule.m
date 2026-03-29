@@ -90,10 +90,7 @@
 
         // UIAccessibilityLayoutChangedNotification moves VoiceOver focus to the
         // supplied element on the next accessibility layout pass.
-        // A slight delay ensures it is not swallowed if called during a window transition.
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-          UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, targetView);
-        });
+        UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, targetView);
       },
       NO);
 }
