@@ -5,6 +5,8 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+apply from: 'untar.gradle'
+
 buildscript {
 	ext.kotlin_version = '2.3.0'
 
@@ -13,7 +15,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.13.2'
+		classpath 'com.android.tools.build:gradle:9.1.0'
 		classpath 'com.google.gms:google-services:4.4.4'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 		classpath 'org.codehaus.groovy:groovy-json:3.0.17'

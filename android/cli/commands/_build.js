@@ -2228,6 +2228,8 @@ class AndroidBuilder extends Builder {
 		gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 		gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
 		gradleProperties.push({ key: 'org.gradle.configuration-cache', value: 'true' });
+		gradleProperties.push({ key: 'android.builtInKotlin', value: 'false' });
+		gradleProperties.push({ key: 'android.newDsl', value: 'false' });
 		await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 		// Copy optional "gradle.properties" file contents from Titanium project to the above generated file.
