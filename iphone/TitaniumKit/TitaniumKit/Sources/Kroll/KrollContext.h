@@ -52,7 +52,7 @@
 - (JSGlobalContextRef)context;
 - (BOOL)isKJSThread;
 
-- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_;
+- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(dispatch_semaphore_t)condition_;
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
 - (void)invokeBlockOnThread:(void (^)(void))block;
 + (void)invokeBlock:(void (^)(void))block;
@@ -84,11 +84,11 @@
   id target;
   SEL method;
   id obj;
-  NSCondition *condition;
+  dispatch_semaphore_t condition;
   id notify;
   SEL notifySelector;
 }
-- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(NSCondition *)condition_;
+- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(dispatch_semaphore_t)condition_;
 - (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ callback:(id)callback_ selector:(SEL)selector_;
 - (void)invoke:(KrollContext *)context;
 @end

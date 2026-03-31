@@ -8,7 +8,7 @@
 #import "KrollObject.h"
 #import "TiBindingRunLoop.h"
 #import "TiEvaluator.h"
-#import <pthread.h>
+#include <stdatomic.h>
 
 #ifndef TI_BASE_H
 #import "TiBase.h"
@@ -106,14 +106,14 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
   id<TiProxyDelegate> modelDelegate;
   NSURL *baseURL;
   NSString *krollDescription;
-  pthread_rwlock_t listenerLock;
+  dispatch_queue_t listenerQueue;
   BOOL reproxying;
   @protected
   NSMutableDictionary *dynprops;
   NSMutableArray *dynpropnames;
-  pthread_rwlock_t dynpropsLock; // NOTE: You must respect the dynprops lock when accessing dynprops elsewhere!
+  dispatch_queue_t dynpropsQueue; // NOTE: You must respect the dynprops queue when accessing dynprops elsewhere!
 
-  int bridgeCount;
+  atomic_int bridgeCount;
   KrollObject *pageKrollObject;
   id<TiEvaluator> pageContext;
   id<TiEvaluator> executionContext;
