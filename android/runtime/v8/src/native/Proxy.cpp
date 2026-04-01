@@ -310,6 +310,7 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
 	if (proxy == nullptr) {
+		JSException::Error(isolate, "Failed to unwrap Proxy instance.");
 		return;
 	}
 
@@ -355,6 +356,7 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
 	if (proxy == nullptr) {
+		JSException::Error(isolate, "Failed to unwrap Proxy instance.");
 		return;
 	}
 
