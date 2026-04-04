@@ -49,7 +49,6 @@ import ti.modules.titanium.ui.TabProxy;
 public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implements MenuItem.OnMenuItemClickListener
 {
 	// region private fields
-	private int mBottomNavigationHeightValue;
 	// BottomNavigationView lacks anything similar to onTabUnselected method of TabLayout.OnTabSelectedListener.
 	// We track the previously selected item index manually to mimic the behavior in order to keep parity across styles.
 	private int currentlySelectedIndex = -1;
@@ -81,11 +80,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void addViews(TiBaseActivity activity)
 	{
-		// Manually calculate the proper position of the BottomNavigationView.
-		int resourceID = activity.getResources().getIdentifier("design_bottom_navigation_height", "dimen",
-															   activity.getPackageName());
-		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
-
 		// Fetch padding properties. If at least 1 property is non-zero, then show a floating tab bar.
 		final TiDimension paddingLeft = TiConvert.toTiDimension(
 			this.proxy.getProperty(TiC.PROPERTY_PADDING_LEFT), TiDimension.TYPE_LEFT);
@@ -106,7 +100,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				View view, int left, int top, int right, int bottom,
 				int oldLeft, int oldTop, int oldRight, int oldBottom)
 			{
-				// Update bottom inset based on tab bar's height and position in window.
+				// Update bottom inset based on tab bar's actual height and position in window.
 				insetsProvider.setBottomBasedOn(view);
 			}
 		});
@@ -154,14 +148,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
 		//       This means the bottom tab bar should overlap/overlay the view pager content.
+		//       The bottom inset is provided via TiInsetsProvider.setBottomBasedOn() which uses
+		//       the actual rendered height of the BottomNavigationView.
 		TiCompositeLayout compositeLayout = (TiCompositeLayout) activity.getLayout();
 		{
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
 			params.autoFillsHeight = true;
-			if (compositeLayout.getFitsSystemWindows() && !isFloating) {
-				params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			}
 			compositeLayout.addView(this.tabGroupViewPager, params);
 		}
 		{
@@ -372,13 +365,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	public void showHideTabBar(boolean visible)
 	{
-		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, true);
+		int height = (mBottomNavigationView != null) ? mBottomNavigationView.getHeight() : 0;
+		super.setTabGroupViewPagerLayout(visible, height, true);
 		super.setTabGroupVisibilityWithAnimation(mBottomNavigationView, visible);
 	}
 
 	public void setTabGroupVisibility(boolean visible)
 	{
-		super.setTabGroupViewPagerLayout(visible, mBottomNavigationHeightValue, false);
+		int height = (mBottomNavigationView != null) ? mBottomNavigationView.getHeight() : 0;
+		super.setTabGroupViewPagerLayout(visible, height, false);
 		super.setTabGroupVisibility(mBottomNavigationView, visible);
 	}
 
