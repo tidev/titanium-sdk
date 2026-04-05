@@ -74,4 +74,38 @@ describe('Ti.UI Accessibility Properties', function () {
     }
   });
 
+  it('accessibilityViewIsModal can be set on creation', function () {
+    var view = Ti.UI.createView({ accessibilityViewIsModal: true });
+    assert.strictEqual(view.accessibilityViewIsModal, true, 'accessibilityViewIsModal should be true');
+  });
+
+  it('accessibilityViewIsModal defaults to false', function () {
+    var view = Ti.UI.createView({});
+    assert.strictEqual(view.accessibilityViewIsModal, false, 'accessibilityViewIsModal should default to false');
+  });
+
+  it('accessibilityViewIsModal can be set after creation', function () {
+    var view = Ti.UI.createView({ accessibilityViewIsModal: false });
+    view.accessibilityViewIsModal = true;
+    assert.strictEqual(view.accessibilityViewIsModal, true, 'accessibilityViewIsModal should be true after update');
+  });
+
+  it('accessibilityViewIsModal can be disabled after being enabled', function () {
+    var view = Ti.UI.createView({ accessibilityViewIsModal: true });
+    view.accessibilityViewIsModal = false;
+    assert.strictEqual(view.accessibilityViewIsModal, false, 'accessibilityViewIsModal should be false after update');
+  });
+
+  it('accessibilityViewIsModal works with nested views', function () {
+    var parent = Ti.UI.createView();
+    var modal = Ti.UI.createView({ accessibilityViewIsModal: true });
+    parent.add(modal);
+    assert.strictEqual(modal.accessibilityViewIsModal, true, 'modal should have accessibilityViewIsModal set to true');
+  });
+
+  it('accessibilityViewIsModal works with windows', function () {
+    var window = Ti.UI.createWindow({ accessibilityViewIsModal: true });
+    assert.strictEqual(window.accessibilityViewIsModal, true, 'window should have accessibilityViewIsModal set to true');
+  });
+
 });

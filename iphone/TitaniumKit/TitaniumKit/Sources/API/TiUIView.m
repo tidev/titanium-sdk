@@ -196,6 +196,9 @@ DEFINE_EXCEPTIONS
 
 - (void)removeFromSuperview
 {
+  // Restore accessibility state when view is removed
+  self.accessibilityViewIsModal = NO;
+
   if ([NSThread isMainThread]) {
     [super removeFromSuperview];
   } else {
@@ -662,6 +665,36 @@ DEFINE_EXCEPTIONS
   NSString *message = [TiUtils stringValue:liveRegion];
   if (message != nil && [message length] > 0) {
     UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, message);
+  }
+}
+
+- (void)setAccessibilityViewIsModal_:(NSNumber *)value
+{
+  BOOL isModal = [TiUtils boolValue:value def:NO];
+  self.accessibilityViewIsModal = isModal;
+
+  if (isModal) {
+    [self postScreenChangedNotification];
+  }
+}
+
+- (void)postScreenChangedNotification
+{
+  UIAccessibilityPostNotification(
+      UIAccessibilityScreenChangedNotification,
+      self);
+}
+
+- (void)didMoveToSuperview
+{
+  [super didMoveToSuperview];
+
+  // Apply accessibility modal property when view is added to hierarchy
+  if (self.superview != nil && self.proxy != nil) {
+    NSNumber *modalValue = [self.proxy valueForKey:@"accessibilityViewIsModal"];
+    if (modalValue != nil && [TiUtils boolValue:modalValue def:NO]) {
+      [self setAccessibilityViewIsModal_:modalValue];
+    }
   }
 }
 

@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
@@ -45,6 +46,7 @@ import android.graphics.drawable.RippleDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.accessibility.AccessibilityEvent;
 import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
@@ -109,6 +111,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected TiViewProxy proxy;
 	protected TiViewProxy parent;
 	protected ArrayList<TiUIView> children = new ArrayList<>();
+	private View.OnAttachStateChangeListener accessibilityViewIsModalAttachListener;
+	private HashMap<View, Integer> accessibilityViewIsModalModifiedViews = new HashMap<>();
 
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
@@ -928,6 +932,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		} else if (key.equals("accessibilityLiveRegion")) {
 			applyAccessibilityLiveRegion(newValue);
 
+		} else if (key.equals(TiC.PROPERTY_ACCESSIBILITY_VIEW_IS_MODAL)) {
+			applyAccessibilityViewIsModal(newValue);
+
 		} else if (key.equals(TiC.PROPERTY_ELEVATION)) {
 			if (getOuterView() != null) {
 				ViewCompat.setElevation(getOuterView(), TiConvert.toFloat(newValue));
@@ -1096,6 +1103,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_HIDDEN)) {
 			applyAccessibilityHidden(d.get(TiC.PROPERTY_ACCESSIBILITY_HIDDEN));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_ACCESSIBILITY_VIEW_IS_MODAL)) {
+			applyAccessibilityViewIsModal(d.get(TiC.PROPERTY_ACCESSIBILITY_VIEW_IS_MODAL));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ELEVATION) && !nativeViewNull) {
@@ -2548,6 +2559,100 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		ViewCompat.setAccessibilityLiveRegion(nativeView, mode);
+	}
+
+	private void applyAccessibilityViewIsModal(Object modalValue)
+	{
+		if (nativeView == null || modalValue == null) {
+			return;
+		}
+
+		final boolean isModal = TiConvert.toBoolean(modalValue, false);
+
+		if (accessibilityViewIsModalAttachListener != null) {
+			nativeView.removeOnAttachStateChangeListener(accessibilityViewIsModalAttachListener);
+			accessibilityViewIsModalAttachListener = null;
+		}
+
+		if (isModal) {
+			// Set modal view as important for accessibility
+			ViewCompat.setImportantForAccessibility(nativeView, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+
+			accessibilityViewIsModalAttachListener = new View.OnAttachStateChangeListener() {
+				@Override
+				public void onViewAttachedToWindow(View v)
+				{
+					accessibilityViewIsModalModifiedViews.clear();
+					hideSiblingsRecursive(getOuterView());
+					// Send accessibility event to move focus to modal
+					TiUIView.this.sendAccessibilityEvent();
+				}
+
+				@Override
+				public void onViewDetachedFromWindow(View v)
+				{
+					restoreAccessibilityViewIsModal();
+				}
+			};
+
+			nativeView.addOnAttachStateChangeListener(accessibilityViewIsModalAttachListener);
+
+			if (ViewCompat.isAttachedToWindow(nativeView)) {
+				accessibilityViewIsModalAttachListener.onViewAttachedToWindow(nativeView);
+			}
+
+		} else {
+			// Restore accessibility state
+			restoreAccessibilityViewIsModal();
+		}
+	}
+
+	private void hideSiblingsRecursive(View view)
+	{
+		if (view == null) {
+			return;
+		}
+		ViewParent parent = view.getParent();
+		if (parent instanceof ViewGroup) {
+			ViewGroup parentGroup = (ViewGroup) parent;
+			for (int i = 0; i < parentGroup.getChildCount(); i++) {
+				View child = parentGroup.getChildAt(i);
+				if (child != view) {
+					if (!accessibilityViewIsModalModifiedViews.containsKey(child)) {
+						accessibilityViewIsModalModifiedViews.put(child, child.getImportantForAccessibility());
+						ViewCompat.setImportantForAccessibility(child,
+							ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+					}
+				}
+			}
+			hideSiblingsRecursive(parentGroup);
+		}
+	}
+
+	private void sendAccessibilityEvent()
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		nativeView.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+	}
+
+	private void restoreAccessibilityViewIsModal()
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		// Set modal view back to AUTO
+		ViewCompat.setImportantForAccessibility(nativeView, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+
+		// Restore all modified views
+		for (Map.Entry<View, Integer> entry : accessibilityViewIsModalModifiedViews.entrySet()) {
+			ViewCompat.setImportantForAccessibility(entry.getKey(), entry.getValue());
+		}
+		accessibilityViewIsModalModifiedViews.clear();
+
 	}
 
 	private void applyAccessibilityHidden()

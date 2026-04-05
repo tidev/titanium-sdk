@@ -618,6 +618,12 @@
       forceModal = [TiUtils boolValue:@"forceModal" properties:dict def:NO];
       theController.modalInPresentation = forceModal;
 
+      // Apply accessibility modal property on window open
+      NSNumber *modalValue = [self valueForKey:@"accessibilityViewIsModal"];
+      if (modalValue != nil && [TiUtils boolValue:modalValue def:NO]) {
+        [[self view] setAccessibilityViewIsModal_:modalValue];
+      }
+
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] showModalController:theController animated:animated];
     } else {
@@ -651,6 +657,12 @@
   if ([self _handleClose:args]) {
     [self windowWillClose];
     if (isModal) {
+      // Restore accessibility state on window close
+      UIView *windowView = [self view];
+      if (windowView != nil) {
+        windowView.accessibilityViewIsModal = NO;
+      }
+
       NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
       [[TiApp app] hideModalController:controller animated:animated];
