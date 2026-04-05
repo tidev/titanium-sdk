@@ -2886,6 +2886,20 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   return NUMBOOL([self accessibilityElement].accessibilityElementsHidden);
 }
 
+- (void)setAccessibilityViewIsModal:(id)accessibilityViewIsModal
+{
+  ENSURE_UI_THREAD(setAccessibilityViewIsModal, accessibilityViewIsModal);
+  if ([self viewAttached]) {
+    [[self view] setAccessibilityViewIsModal_:accessibilityViewIsModal];
+  }
+  [self replaceValue:accessibilityViewIsModal forKey:@"accessibilityViewIsModal" notification:NO];
+}
+
+- (NSNumber *)accessibilityViewIsModal
+{
+  return [self valueForUndefinedKey:@"accessibilityViewIsModal"];
+}
+
 #pragma mark - View Templates
 
 - (void)unarchiveFromTemplate:(id)viewTemplate_

@@ -320,6 +320,21 @@ extern NSString *const TI_APPLICATION_GUID;
   }
 }
 
+- (void)contentSizeCategoryChanged:(NSNotification *)notification
+{
+  if (![self _hasListeners:@"fontScaleChanged"]) {
+    return;
+  }
+
+  NSDictionary *userInfo = [notification userInfo];
+  NSString *category = [userInfo objectForKey:UIContentSizeCategoryNewValueKey];
+  if (category == nil) {
+    category = [[UIApplication sharedApplication] preferredContentSizeCategory];
+  }
+  NSDictionary *event = [NSDictionary dictionaryWithObject:category forKey:@"category"];
+  [self fireEvent:@"fontScaleChanged" withObject:event];
+}
+
 #pragma mark Internal Memory Management
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
@@ -386,6 +401,7 @@ extern NSString *const TI_APPLICATION_GUID;
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
   [nc addObserver:self selector:@selector(didTakeScreenshot:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+  [nc addObserver:self selector:@selector(contentSizeCategoryChanged:) name:UIContentSizeCategoryDidChangeNotification object:nil];
 #ifdef __IPHONE_16_4
   // Ensure that the JSContext is debuggable during development
   if (@available(iOS 16.4, *)) {

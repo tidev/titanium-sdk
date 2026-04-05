@@ -196,6 +196,9 @@ DEFINE_EXCEPTIONS
 
 - (void)removeFromSuperview
 {
+  // Restore accessibility state when view is removed
+  self.accessibilityViewIsModal = NO;
+
   if ([NSThread isMainThread]) {
     [super removeFromSuperview];
   } else {
@@ -505,6 +508,193 @@ DEFINE_EXCEPTIONS
   id accessibilityElement = self.accessibilityElement;
   if (accessibilityElement != nil) {
     [accessibilityElement setAccessibilityElementsHidden:[TiUtils boolValue:accessibilityHidden def:NO]];
+  }
+}
+
+// MARK: Modern Accessibility Setters
+//
+// Titanium's property replay system guarantees that these setters are re-invoked
+// when a view is realized, proxy transferred, or properties are rebound.
+// Therefore, accessibility is implemented using self-contained property setters —
+// no centralized updateAccessibilityConfiguration or deferred queues are used.
+//
+// All setters obtain the real accessibility element first via [self accessibilityElement].
+// Some Titanium views (e.g., table rows) override accessibilityElement to return an
+// inner control — we must never assume self IS the accessibility element.
+
+- (void)setAccessibilityRole_:(id)role
+{
+  // Obtain the actual accessibility element. Some TiUIView subclasses override
+  // -accessibilityElement to return an inner UIControl rather than self.
+  id element = [self accessibilityElement];
+  if (element == nil) {
+    return;
+  }
+
+  NSString *roleStr = [TiUtils stringValue:role];
+  if (roleStr == nil) {
+    return;
+  }
+
+  // Read current traits so we can merge without stomping existing values.
+  UIAccessibilityTraits currentTraits = [element accessibilityTraits];
+
+  // Clear any previously applied role traits before setting the new one.
+  // These are the traits we manage — system-set traits (e.g., UIAccessibilityTraitUpdatesFrequently)
+  // are left untouched.
+  UIAccessibilityTraits roleMask = UIAccessibilityTraitButton
+      | UIAccessibilityTraitHeader
+      | UIAccessibilityTraitImage
+      | UIAccessibilityTraitLink;
+  currentTraits &= ~roleMask;
+
+  if ([roleStr isEqualToString:@"button"]) {
+    currentTraits |= UIAccessibilityTraitButton;
+  } else if ([roleStr isEqualToString:@"header"]) {
+    currentTraits |= UIAccessibilityTraitHeader;
+  } else if ([roleStr isEqualToString:@"image"]) {
+    currentTraits |= UIAccessibilityTraitImage;
+  } else if ([roleStr isEqualToString:@"link"]) {
+    currentTraits |= UIAccessibilityTraitLink;
+  }
+  // Unknown roles are silently ignored to remain forward-compatible.
+
+  [element setIsAccessibilityElement:YES];
+  [element setAccessibilityTraits:currentTraits];
+}
+
+- (void)setAccessibilityState_:(id)state
+{
+  // state is a dictionary: { selected: bool, disabled: bool }
+  id element = [self accessibilityElement];
+  if (element == nil || ![state isKindOfClass:[NSDictionary class]]) {
+    return;
+  }
+
+  UIAccessibilityTraits currentTraits = [element accessibilityTraits];
+
+  // Clear state-related traits before re-applying so stale state is removed.
+  currentTraits &= ~UIAccessibilityTraitSelected;
+  currentTraits &= ~UIAccessibilityTraitNotEnabled;
+
+  NSDictionary *stateDict = (NSDictionary *)state;
+  id selectedVal = [stateDict objectForKey:@"selected"];
+  if (selectedVal != nil && [TiUtils boolValue:selectedVal def:NO]) {
+    currentTraits |= UIAccessibilityTraitSelected;
+  }
+
+  id disabledVal = [stateDict objectForKey:@"disabled"];
+  if (disabledVal != nil && [TiUtils boolValue:disabledVal def:NO]) {
+    currentTraits |= UIAccessibilityTraitNotEnabled;
+  }
+
+  [element setIsAccessibilityElement:YES];
+  [element setAccessibilityTraits:currentTraits];
+}
+
+- (void)setAccessibilityGroup_:(id)group
+{
+  // Grouping tells VoiceOver to combine this container and its children into
+  // a single accessibility element, reducing swipe navigation noise.
+  BOOL shouldGroup = [TiUtils boolValue:group def:NO];
+
+  id element = [self accessibilityElement];
+
+  // shouldGroupAccessibilityChildren is only declared on UIView.
+  // If the element == self (the common case), set directly.
+  // If the element is a different UIView subclass, use KVC as a safe fallback.
+  if ([element isKindOfClass:[UIView class]]) {
+    [(UIView *)element setShouldGroupAccessibilityChildren:shouldGroup];
+  } else {
+    // Non-UIView accessibility elements do not support grouping.
+    NSLog(@"[WARN] accessibilityGroup ignored: accessibilityElement is not a UIView.");
+  }
+}
+
+- (void)setAccessibilityActions_:(id)actions
+{
+  // actions is an array of action name strings, e.g., ['activate', 'increment']
+  id element = [self accessibilityElement];
+  if (element == nil) {
+    return;
+  }
+
+  if (![actions isKindOfClass:[NSArray class]] || [(NSArray *)actions count] == 0) {
+    [element setAccessibilityCustomActions:nil];
+    return;
+  }
+
+  // Capture proxy weakly — the action block must not create a retain cycle.
+  __weak TiViewProxy *weakProxy = (TiViewProxy *)self.proxy;
+  NSArray *actionNames = (NSArray *)actions;
+  NSMutableArray *customActions = [NSMutableArray arrayWithCapacity:[actionNames count]];
+
+  for (id actionName in actionNames) {
+    NSString *name = [TiUtils stringValue:actionName];
+    if (name == nil) {
+      continue;
+    }
+
+    // Each UIAccessibilityCustomAction fires a Titanium event when VoiceOver triggers it.
+    // The action name is forwarded as `e.action` in the event payload.
+    UIAccessibilityCustomAction *customAction = [[UIAccessibilityCustomAction alloc]
+         initWithName:name
+        actionHandler:^BOOL(UIAccessibilityCustomAction *action) {
+          TiViewProxy *strongProxy = weakProxy;
+          if (strongProxy != nil) {
+            [strongProxy fireEvent:@"accessibilityaction"
+                        withObject:@{ @"action" : action.name }];
+          }
+          return YES;
+        }];
+    [customActions addObject:customAction];
+    [customAction release];
+  }
+
+  [element setIsAccessibilityElement:YES];
+  [element setAccessibilityCustomActions:customActions];
+}
+
+- (void)setAccessibilityLiveRegion_:(id)liveRegion
+{
+  // When this property changes, VoiceOver should automatically announce the new value.
+  // Mapping: any non-empty string value → post an announcement notification.
+  // The liveRegion string itself doubles as the announcement text on iOS because
+  // UIKit has no per-view live-region flag (unlike Android). This mirrors React Native's
+  // pattern of using accessibilityLiveRegion to trigger an announcement.
+  NSString *message = [TiUtils stringValue:liveRegion];
+  if (message != nil && [message length] > 0) {
+    UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, message);
+  }
+}
+
+- (void)setAccessibilityViewIsModal_:(NSNumber *)value
+{
+  BOOL isModal = [TiUtils boolValue:value def:NO];
+  self.accessibilityViewIsModal = isModal;
+
+  if (isModal) {
+    [self postScreenChangedNotification];
+  }
+}
+
+- (void)postScreenChangedNotification
+{
+  UIAccessibilityPostNotification(
+      UIAccessibilityScreenChangedNotification,
+      self);
+}
+
+- (void)didMoveToSuperview
+{
+  [super didMoveToSuperview];
+
+  // Apply accessibility modal property when view is added to hierarchy
+  if (self.superview != nil && self.proxy != nil) {
+    NSNumber *modalValue = [self.proxy valueForKey:@"accessibilityViewIsModal"];
+    if (modalValue != nil && [TiUtils boolValue:modalValue def:NO]) {
+      [self setAccessibilityViewIsModal_:modalValue];
+    }
   }
 }
 
