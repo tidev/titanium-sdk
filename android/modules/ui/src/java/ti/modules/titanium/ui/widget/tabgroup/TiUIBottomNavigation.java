@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -36,7 +37,9 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLifecycle;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -68,6 +71,39 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+
+		activity.addOnLifecycleEventListener(new TiLifecycle.OnLifecycleEvent() {
+			@Override
+			public void onCreate(Activity activity, Bundle savedInstanceState)
+			{
+			}
+
+			@Override
+			public void onStart(Activity activity)
+			{
+			}
+
+			@Override
+			public void onResume(Activity activity)
+			{
+				refreshTabContent();
+			}
+
+			@Override
+			public void onPause(Activity activity)
+			{
+			}
+
+			@Override
+			public void onStop(Activity activity)
+			{
+			}
+
+			@Override
+			public void onDestroy(Activity activity)
+			{
+			}
+		});
 	}
 
 	// Overriding addTab method to provide a proper guard for trying to add more tabs than the limit
@@ -578,5 +614,49 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			// Height not available, post it to run after a layout pass.
 			bottomNavigation.post(runnable);
 		}
+	}
+
+	/**
+	 * Refreshes all tab content views to apply new theme colors.
+	 * This is necessary when the theme (such as dark/light mode) changes.
+	 */
+	private void refreshTabContent()
+	{
+		if (tabsArray == null || tabsArray.isEmpty()) {
+			return;
+		}
+
+		Activity activity = proxy.getActivity();
+		int currentIndex = currentlySelectedIndex;
+
+		for (int i = 0; i < tabsArray.size(); i++) {
+			TiViewProxy tabProxy = (TiViewProxy) tabsArray.get(i);
+			if (tabProxy != null) {
+				TiUITab abstractTab = new TiUITab((TabProxy) tabProxy);
+				TiWindowProxy windowProxy = abstractTab.getWindowProxy();
+				if (windowProxy != null) {
+					abstractTab.getProxy().setActivity(activity);
+					windowProxy.setActivity(activity);
+					windowProxy.getOrCreateView();
+				}
+			}
+		}
+
+		centerView.removeAllViews();
+		if (currentIndex >= 0 && currentIndex < tabsArray.size()) {
+			TiViewProxy tabProxy = (TiViewProxy) tabsArray.get(currentIndex);
+			if (tabProxy != null) {
+				TiUITab abstractTab = new TiUITab((TabProxy) tabProxy);
+				TiWindowProxy windowProxy = abstractTab.getWindowProxy();
+				if (windowProxy != null) {
+					TiUIView view = windowProxy.getOrCreateView();
+					if (view != null) {
+						centerView.addView(view.getOuterView());
+					}
+				}
+			}
+		}
+
+		updateIconTint();
 	}
 }
