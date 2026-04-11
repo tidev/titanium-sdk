@@ -181,11 +181,14 @@ DEFINE_EXCEPTIONS
   [doubleTapRecognizer release];
   [twoFingerTapRecognizer release];
   [pinchRecognizer release];
+  [rotationRecognizer release];
   [leftSwipeRecognizer release];
   [rightSwipeRecognizer release];
   [upSwipeRecognizer release];
   [downSwipeRecognizer release];
   [longPressRecognizer release];
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
   proxy = nil;
   touchDelegate = nil;
   [super dealloc];
@@ -219,6 +222,8 @@ DEFINE_EXCEPTIONS
 {
   self = [super init];
   if (self != nil) {
+    hasStoredBackgroundForSelectionHighlight = NO;
+    backgroundSelectedHighlightTouchCount = 0;
   }
   return self;
 }
@@ -241,6 +246,9 @@ DEFINE_EXCEPTIONS
   if ([(TiViewProxy *)proxy _hasListeners:@"pinch"]) {
     [[self gestureRecognizerForEvent:@"pinch"] setEnabled:YES];
   }
+  if ([(TiViewProxy *)proxy _hasListeners:@"rotate"]) {
+    [[self gestureRecognizerForEvent:@"rotate"] setEnabled:YES];
+  }
   if ([(TiViewProxy *)proxy _hasListeners:@"longpress"]) {
     [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
   }
@@ -253,6 +261,7 @@ DEFINE_EXCEPTIONS
       [proxy _hasListeners:@"twofingertap"] ||
       [proxy _hasListeners:@"swipe"] ||
       [proxy _hasListeners:@"pinch"] ||
+      [proxy _hasListeners:@"rotate"] ||
       [proxy _hasListeners:@"longpress"];
 }
 
@@ -275,6 +284,93 @@ DEFINE_EXCEPTIONS
   // not it handles events, and if not, set it to the interaction default.
   if (!changedInteraction) {
     self.userInteractionEnabled = handlesTouches || [self interactionDefault];
+  }
+}
+
+#pragma mark Background Selected Highlight
+
+- (UIColor *)resolvedBackgroundSelectedColor
+{
+  if (backgroundSelectedColor != nil) {
+    return [backgroundSelectedColor _color];
+  }
+
+  return nil;
+}
+
+- (BOOL)shouldApplyBackgroundSelectedHighlight
+{
+  return backgroundSelectedColor != nil;
+}
+
+- (void)refreshBackgroundSelectedHighlight
+{
+  UIColor *color = [self resolvedBackgroundSelectedColor];
+  if (color == nil) {
+    return;
+  }
+
+  [super setBackgroundColor:color];
+}
+
+- (void)applyBackgroundSelectedHighlightWithAdditionalTouches:(NSUInteger)touchCount
+{
+  if (![self shouldApplyBackgroundSelectedHighlight]) {
+    return;
+  }
+
+  if (touchCount == 0 && !hasStoredBackgroundForSelectionHighlight) {
+    return;
+  }
+
+  if (!hasStoredBackgroundForSelectionHighlight) {
+    hasStoredBackgroundForSelectionHighlight = YES;
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
+    }
+  }
+
+  [self refreshBackgroundSelectedHighlight];
+
+  if (touchCount > 0) {
+    backgroundSelectedHighlightTouchCount += touchCount;
+  }
+}
+
+- (void)restoreBackgroundSelectedHighlight
+{
+  if (!hasStoredBackgroundForSelectionHighlight) {
+    return;
+  }
+
+  if (backgroundSelectedPreviousBackgroundColor != nil) {
+    [super setBackgroundColor:backgroundSelectedPreviousBackgroundColor];
+  } else {
+    [super setBackgroundColor:nil];
+  }
+
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+  hasStoredBackgroundForSelectionHighlight = NO;
+  backgroundSelectedHighlightTouchCount = 0;
+}
+
+- (void)decrementBackgroundSelectedTouches:(NSUInteger)touchCount
+{
+  if (touchCount == 0) {
+    return;
+  }
+
+  if (backgroundSelectedHighlightTouchCount <= touchCount) {
+    backgroundSelectedHighlightTouchCount = 0;
+  } else {
+    backgroundSelectedHighlightTouchCount -= touchCount;
+  }
+
+  if (backgroundSelectedHighlightTouchCount == 0) {
+    [self restoreBackgroundSelectedHighlight];
   }
 }
 
@@ -365,6 +461,10 @@ DEFINE_EXCEPTIONS
       [backgroundGradient setColors:colors];
       [self setBackgroundGradient_:backgroundGradient];
     }
+  }
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self refreshBackgroundSelectedHighlight];
   }
 }
 
@@ -597,6 +697,15 @@ DEFINE_EXCEPTIONS
   } else {
     TiColor *ticolor = [TiUtils colorValue:color];
     super.backgroundColor = [ticolor _color];
+  }
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
+    }
+    [self refreshBackgroundSelectedHighlight];
   }
 }
 
@@ -922,6 +1031,39 @@ DEFINE_EXCEPTIONS
   changedInteraction = YES;
 }
 
+- (void)setBackgroundSelectedColor_:(id)value
+{
+  if (value == nil || value == [NSNull null]) {
+    if (backgroundSelectedColor != nil) {
+      RELEASE_TO_NIL(backgroundSelectedColor);
+      if (hasStoredBackgroundForSelectionHighlight) {
+        [self restoreBackgroundSelectedHighlight];
+      }
+    }
+    return;
+  }
+
+  TiColor *color = [TiUtils colorValue:value];
+  if (color == nil) {
+    return;
+  }
+
+  if (backgroundSelectedColor != nil) {
+    UIColor *existingColor = [backgroundSelectedColor _color];
+    UIColor *newColor = [color _color];
+    if (existingColor != nil && newColor != nil && CGColorEqualToColor(existingColor.CGColor, newColor.CGColor)) {
+      return;
+    }
+  }
+
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  backgroundSelectedColor = [color retain];
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self refreshBackgroundSelectedHighlight];
+  }
+}
+
 - (BOOL)touchEnabled
 {
   return touchEnabled;
@@ -999,9 +1141,9 @@ DEFINE_EXCEPTIONS
 
 - (CAShapeLayer *)shadowLayer
 {
-  // If there is single cborderRadius, use self.layer as shadwoLayer.
+  // If there is single borderRadius, use self.layer as shadowLayer.
   // Shadow animation does not work if shadowLayer is added on self.layer.superlayer
-  // But in this case, shadwoLayer is self.layer. So animation will work on shadow as well.
+  // But in this case, shadowLayer is self.layer. So animation will work on shadow as well.
   NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
   if ((!array || array.count <= 1) && _shadowLayer != self.layer) {
     self.layer.mask = nil;
@@ -1361,6 +1503,17 @@ DEFINE_EXCEPTIONS
   return pinchRecognizer;
 }
 
+- (UIRotationGestureRecognizer *)rotationRecognizer
+{
+  if (rotationRecognizer == nil) {
+    rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedRotation:)];
+    [self configureGestureRecognizer:rotationRecognizer];
+    [self addGestureRecognizer:rotationRecognizer];
+  }
+  rotationRecognizer.delegate = self;
+  return rotationRecognizer;
+}
+
 - (UISwipeGestureRecognizer *)leftSwipeRecognizer
 {
   if (leftSwipeRecognizer == nil) {
@@ -1437,6 +1590,14 @@ DEFINE_EXCEPTIONS
   } else {
     [proxy fireEvent:@"singletap" withObject:event];
   }
+}
+
+- (void)recognizedRotation:(UIRotationGestureRecognizer *)recognizer
+{
+  NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          NUMDOUBLE(radiansToDegrees(recognizer.rotation)), @"rotate",
+                                      nil];
+  [self.proxy fireEvent:@"rotate" withObject:event];
 }
 
 - (void)recognizedPinch:(UIPinchGestureRecognizer *)recognizer
@@ -1550,6 +1711,8 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  [self applyBackgroundSelectedHighlightWithAdditionalTouches:[touches count]];
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesBegan:touches withEvent:event];
   }
@@ -1589,6 +1752,10 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self decrementBackgroundSelectedTouches:[touches count]];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesEnded:touches withEvent:event];
   }
@@ -1623,6 +1790,11 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (hasStoredBackgroundForSelectionHighlight) {
+    backgroundSelectedHighlightTouchCount = 0;
+    [self restoreBackgroundSelectedHighlight];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesCancelled:touches withEvent:event];
   }
@@ -1692,6 +1864,9 @@ DEFINE_EXCEPTIONS
   if ([event isEqualToString:@"pinch"]) {
     return [self pinchRecognizer];
   }
+  if ([event isEqualToString:@"rotate"]) {
+    return [self rotationRecognizer];
+  }
   if ([event isEqualToString:@"longpress"]) {
     return [self longPressRecognizer];
   }
@@ -1747,7 +1922,7 @@ DEFINE_EXCEPTIONS
 {
   if (listenerArray == nil) {
     listenerArray = [[NSArray alloc] initWithObjects:@"singletap",
-                                     @"doubletap", @"twofingertap", @"swipe", @"pinch", @"longpress", nil];
+                                     @"doubletap", @"twofingertap", @"swipe", @"rotate", @"pinch", @"longpress", nil];
   }
   for (NSString *eventName in listenerArray) {
     if ([proxy _hasListeners:eventName]) {

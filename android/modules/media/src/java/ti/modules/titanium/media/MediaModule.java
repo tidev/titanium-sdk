@@ -51,8 +51,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
@@ -629,10 +627,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasCameraPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
 		TiApplication app = TiApplication.getInstance();
 		int status = app.checkSelfPermission(Manifest.permission.CAMERA);
 		if (status != PackageManager.PERMISSION_GRANTED) {
@@ -650,9 +644,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasAudioRecorderPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
 		return (status == PackageManager.PERMISSION_GRANTED);
 	}
@@ -666,7 +657,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			int status_img = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES);
 			int status_vid = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO);
 			return (status_img == PackageManager.PERMISSION_GRANTED && status_vid == PackageManager.PERMISSION_GRANTED);
-		} else if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29) {
+		} else if (Build.VERSION.SDK_INT >= 29) {
 			// We don't have to request permission on versions older than Android 6.0 or Android 10/11
 			return true;
 		}
@@ -754,6 +745,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		});
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestAudioRecorderPermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
@@ -902,7 +894,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
-			ensureExternalPublicMediaDirectoryExists();
+
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -1006,7 +998,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
-			ensureExternalPublicMediaDirectoryExists();
+
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -1040,20 +1032,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// Generate file name.
 		return normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
-	}
-
-	private static void ensureExternalPublicMediaDirectoryExists()
-	{
-		// Work-around bug on Android 5.x and below where saving a file to gallery via MediaStore insert()
-		// will fail if its directory on external storage doesn't exist yet. Create it if needed.
-		// Bug Report: https://issuetracker.google.com/issues/37002888
-		if (Build.VERSION.SDK_INT < 23) {
-			File externalDir = Environment.getExternalStorageDirectory();
-			if (externalDir != null) {
-				File cameraDir = new File(externalDir, "DCIM/Camera");
-				cameraDir.mkdirs();
-			}
-		}
 	}
 
 	@Kroll.setProperty
@@ -1724,33 +1702,22 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.getProperty
 	public boolean getIsCameraSupported()
 	{
-		return Camera.getNumberOfCameras() > 0;
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
 	}
 
 	@Kroll.getProperty
 	public int[] getAvailableCameras()
 	{
-		int cameraCount = Camera.getNumberOfCameras();
-		int[] result = new int[cameraCount];
+		int[] result = new int[]{-1, -1};
 
-		if (cameraCount == 0) {
-			return result;
-		}
+		if (TiApplication.getInstance() != null) {
+			PackageManager pm = TiApplication.getInstance().getPackageManager();
+			if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
+				result[0] = CAMERA_FRONT;
+			}
 
-		CameraInfo cameraInfo = new CameraInfo();
-		for (int i = 0; i < cameraCount; i++) {
-			Camera.getCameraInfo(i, cameraInfo);
-			switch (cameraInfo.facing) {
-				case CameraInfo.CAMERA_FACING_FRONT:
-					result[i] = CAMERA_FRONT;
-					break;
-				case CameraInfo.CAMERA_FACING_BACK:
-					result[i] = CAMERA_REAR;
-					break;
-				default:
-					// This would be odd. As of API level 17,
-					// there are just the two options.
-					result[i] = -1;
+			if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+				result[1] = CAMERA_REAR;
 			}
 		}
 
@@ -1760,7 +1727,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.getProperty
 	public boolean getCanRecord()
 	{
-		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
 	}
 
 	@Override

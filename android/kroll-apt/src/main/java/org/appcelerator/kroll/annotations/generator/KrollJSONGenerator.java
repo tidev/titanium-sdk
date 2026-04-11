@@ -37,7 +37,7 @@ import javax.tools.StandardLocation;
 
 import org.json.simple.JSONValue;
 
-@SupportedSourceVersion(SourceVersion.RELEASE_11)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @SuppressWarnings("unchecked")
 @SupportedAnnotationTypes({
 	KrollJSONGenerator.Kroll_argument,
@@ -202,7 +202,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 				// using the FileObject API fails to read the file, we'll use the pure file API
 				String jsonPath = bindingsFile.toUri().toString();
 				if (System.getProperty("os.name").contains("Windows")) {
-					// the file URI in windows needs to be massaged (remove file:\)
+					// the file URI in Windows needs to be massaged (remove file:\)
 					jsonPath = jsonPath.substring(6);
 				}
 				if (jsonPath.startsWith("file:/")) {

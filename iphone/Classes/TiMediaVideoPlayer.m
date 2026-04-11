@@ -112,7 +112,7 @@
 {
   // The view hierarchy of the movie player controller's view is subject to change,
   // and traversing it is dangerous. If we received a touch which isn't on a TiUIView,
-  // assume it falls into the movie player view hiearchy; this matches previous
+  // assume it falls into the movie player view hierarchy; this matches previous
   // behavior as well.
 
   UITouch *touch = [[event allTouches] anyObject];

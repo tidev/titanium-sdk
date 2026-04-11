@@ -265,7 +265,7 @@ public class TiUIVideoView
 			// Url not loaded yet. Do that first.
 			Object urlObj = proxy.getProperty(TiC.PROPERTY_URL);
 			if (urlObj == null) {
-				Log.w(TAG, "play() ignored, no url set.");
+				Log.w(TAG, "play() ignored, no URL set.");
 				return;
 			}
 			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);

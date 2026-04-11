@@ -115,7 +115,13 @@ void APIModule::logInfo(const FunctionCallbackInfo<Value>& args)
 	Isolate* isolate = args.GetIsolate();
 	HandleScope scope(isolate);
 	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
-	APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
+
+	std::string cppStr(*message);
+
+	int maxChunk = 4050;
+	for (size_t i = 0, len = cppStr.length(); i < len; i+=maxChunk) {
+		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, cppStr.substr(i , maxChunk).c_str());
+	}
 }
 
 void APIModule::logWarn(const FunctionCallbackInfo<Value>& args)

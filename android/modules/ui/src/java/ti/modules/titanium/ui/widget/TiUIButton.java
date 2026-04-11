@@ -7,11 +7,25 @@
 package ti.modules.titanium.ui.widget;
 
 import java.util.HashMap;
+import android.app.Activity;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff.Mode;
+import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatButton;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.R;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -162,9 +176,10 @@ public class TiUIButton extends TiUIView
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
 		}
 		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-			if (attributedString instanceof AttributedStringProxy) {
-				setAttributedStringText((AttributedStringProxy) attributedString);
+			Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+			if (proxy != null) {
+				setAttributedStringText(proxy);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR) || d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
@@ -187,9 +202,8 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
 			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
-			if (value instanceof HashMap) {
+			if (value instanceof HashMap dict) {
 				needShadow = true;
-				HashMap dict = (HashMap) value;
 				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
 				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
 			}
@@ -220,8 +234,11 @@ public class TiUIButton extends TiUIView
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			setAttributedStringText((AttributedStringProxy) newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+			if (asProxy != null) {
+				setAttributedStringText(asProxy);
+			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			String colorString = TiConvert.toString(newValue);
 			btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString, activity) : this.defaultColor);
@@ -258,8 +275,7 @@ public class TiUIButton extends TiUIView
 				((MaterialButton) btn).setRippleColor(colorStateList);
 			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
-			if (newValue instanceof HashMap) {
-				HashMap dict = (HashMap) newValue;
+			if (newValue instanceof HashMap dict) {
 				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
 				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
 				btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
@@ -329,8 +345,7 @@ public class TiUIButton extends TiUIView
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				colorValue = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR), proxy.getActivity());
 			}
-			if (button instanceof MaterialButton) {
-				MaterialButton materialButton = (MaterialButton) button;
+			if (button instanceof MaterialButton materialButton) {
 				materialButton.setIcon(drawable);
 				materialButton.setIconTintMode(imageIsMask ? Mode.SRC_IN : Mode.DST);
 				materialButton.setIconTint(ColorStateList.valueOf(colorValue));

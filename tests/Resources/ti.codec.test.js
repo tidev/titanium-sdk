@@ -525,7 +525,7 @@ describe('Titanium.Codec', () => {
 			// +1 for the umlaut char set byte
 			const umlautLoc = PHRASE.indexOf('ä');
 			should(buffer[umlautLoc]).eql(195);
-			// C3 char set in utf-8
+			// C3 char set in UTF-8
 			should(buffer[umlautLoc + 1]).eql(164);
 			// umlaut-a itself
 			buffer.clear();

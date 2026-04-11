@@ -400,6 +400,31 @@
   [[self proxy] replaceValue:NUMBOOL(handleLinks) forKey:@"handleLinks" notification:NO];
 }
 
+- (void)setHtml_:(id)html
+{
+  ENSURE_SINGLE_ARG(html, NSString);
+  [[self proxy] replaceValue:html forKey:@"html" notification:NO];
+
+  NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                                        options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                                          NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                                             documentAttributes:nil
+                                                                                          error:nil];
+
+  // For parity with Android: Trim trailing newline characters which UIKit often appends for block tags.
+  while (attributedString.length > 0) {
+    unichar c = [[attributedString string] characterAtIndex:attributedString.length - 1];
+    if (c == '\n' || c == '\r') {
+      [attributedString deleteCharactersInRange:NSMakeRange(attributedString.length - 1, 1)];
+    } else {
+      break;
+    }
+  }
+
+  [(UITextView *)[self textWidgetView] setAttributedText:attributedString];
+  [attributedString release];
+}
+
 /*
 Text area constrains the text event though the content offset and edge insets are set to 0
 */

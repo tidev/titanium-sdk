@@ -37,7 +37,7 @@ describe('Titanium.App.Properties', function () {
 		should(Ti.App.Properties.getBool('test_bool')).be.be.true();
 	});
 
-	it('setBool on property from tiapp doesnt change value', function () {
+	it('setBool on property from tiapp doesn\'t change value', function () {
 		should(Ti.App.Properties.getBool('presetBool')).be.be.true();
 		Ti.App.Properties.setBool('presetBool', false); // should log warning
 		should(Ti.App.Properties.getBool('presetBool')).be.be.true();
@@ -54,7 +54,7 @@ describe('Titanium.App.Properties', function () {
 		should(Ti.App.Properties.getDouble('test_double')).be.eql(1.321);
 	});
 
-	it('setDouble on property from tiapp doesnt change value', function () {
+	it('setDouble on property from tiapp doesn\'t change value', function () {
 		should(Ti.App.Properties.getDouble('presetDouble')).be.eql(1.23456);
 		Ti.App.Properties.setDouble('presetDouble', 6.54321); // should log warning
 		should(Ti.App.Properties.getDouble('presetDouble')).be.eql(1.23456);
@@ -71,7 +71,7 @@ describe('Titanium.App.Properties', function () {
 		should(Ti.App.Properties.getInt('test_int')).be.eql(1);
 	});
 
-	it('setInt on property from tiapp doesnt change value', function () {
+	it('setInt on property from tiapp doesn\'t change value', function () {
 		should(Ti.App.Properties.getInt('presetInt')).be.eql(1337);
 		Ti.App.Properties.setInt('presetInt', 666); // should log warning
 		should(Ti.App.Properties.getInt('presetInt')).be.eql(1337);
@@ -112,7 +112,7 @@ describe('Titanium.App.Properties', function () {
 		should(Ti.App.Properties.getString('test_string')).be.eql('some test string');
 	});
 
-	it('setString on property from tiapp doesnt change value', function () {
+	it('setString on property from tiapp doesn\'t change value', function () {
 		should(Ti.App.Properties.getString('presetString')).be.eql('Hello!');
 		Ti.App.Properties.setString('presetString', 'a new value'); // should log warning
 		should(Ti.App.Properties.getString('presetString')).be.eql('Hello!');
@@ -144,7 +144,7 @@ describe('Titanium.App.Properties', function () {
 		should(properties.contains('test_property')).be.be.false();
 	});
 
-	it('removeProperty doesnt remove properties from tiapp', function () {
+	it('removeProperty doesn\'t remove properties from tiapp', function () {
 		var properties = Ti.App.Properties.listProperties();
 		should(properties).be.a.Object();
 		should(properties.contains('presetString')).be.be.true();

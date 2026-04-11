@@ -126,7 +126,7 @@ typedef enum {
   NSCache *cache;
   NSOperationQueue *queue;
   NSMutableArray *timeout;
-  NSRecursiveLock *lock;
+  dispatch_queue_t lockQueue;
 }
 
 /**

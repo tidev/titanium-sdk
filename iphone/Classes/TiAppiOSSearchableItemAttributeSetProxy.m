@@ -544,8 +544,8 @@
   _attributes.lyricist = value;
 }
 
-// The title for a collection of media. This is analagous to a record album,
-// or photo album whichs are collections of audio or images.
+// The title for a collection of media. This is analogous to a record album,
+// or photo album which are collections of audio or images.
 - (NSString *)album
 {
   return _attributes.album;
@@ -810,7 +810,7 @@
 
 // This attribute indicates where the item was obtained from.
 // Examples:
-//- downloaded file may refer to the site they were downloaded from,the refering URL, etc
+//- downloaded file may refer to the site they were downloaded from, the referring URL, etc
 //- files received by email may indicate who sent the file, the message subject, etc
 - (NSArray *)contentSources
 {
@@ -1344,7 +1344,7 @@
 
 - (void)setPostalCode:(id)value
 {
-  ENSURE_IOS_API(@"10", @"Ti.App.iOS.SearchableItemAttributSet.postalCode");
+  ENSURE_IOS_API(@"10", @"Ti.App.iOS.SearchableItemAttributeSet.postalCode");
   ENSURE_SINGLE_ARG(value, NSString);
   ENSURE_UI_THREAD(setPostalCode, value);
   [_attributes setPostalCode:[TiUtils stringValue:value]];

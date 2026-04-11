@@ -480,7 +480,7 @@ DEFINE_EXCEPTIONS
       imageSize.height *= 2;
     }
 
-    // Skip the imageloader completely if this is obviously a file we can load off the fileystem.
+    // Skip the imageloader completely if this is obviously a file we can load off the filesystem.
     // why were we ever doing that in the first place...?
     if ([img isFileURL]) {
       UIImage *image = nil;
