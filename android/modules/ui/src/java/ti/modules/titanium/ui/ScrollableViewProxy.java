@@ -9,6 +9,7 @@ package ti.modules.titanium.ui;
 import android.app.Activity;
 import android.os.Message;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -311,6 +312,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 		// TODO: Deprecate old event
 		if (hasListeners("dragEnd")) {
+			Log.w(TAG, "dragEnd is deprecated.  Use " + TiC.EVENT_DRAGEND + " instead.");
 			KrollDict options = new KrollDict();
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
@@ -328,6 +330,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 		// TODO: Deprecate old event
 		if (hasListeners("scrollEnd")) {
+			Log.w(TAG, "scrollEnd is deprecated.  Use " + TiC.EVENT_SCROLLEND + " instead.");
 			KrollDict options = new KrollDict();
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
