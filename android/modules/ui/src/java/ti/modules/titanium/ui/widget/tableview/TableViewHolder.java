@@ -37,6 +37,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
@@ -49,6 +51,13 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	private static final String TAG = "TableViewHolder";
 
 	private ColorStateList defaultTextColors = null;
+
+	// Caching for view optimization
+	private final Map<String, Object> cachedProperties = new HashMap<>();
+	private Drawable cachedBackgroundDrawable = null;
+	private Drawable cachedRippleDrawable = null;
+	private int lastWidth = -1;
+	private int lastHeight = -1;
 
 	// Top
 	private final TiCompositeLayout header;
@@ -109,6 +118,8 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 	/**
 	 * Reset row into nominal state.
+	 * Note: Does NOT clear cachedProperties so that bind() can skip
+	 * re-applying unchanged values via needsUpdate().
 	 */
 	private void reset()
 	{
@@ -178,7 +189,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 				tableViewProperties.getString(TiC.PROPERTY_MAX_ROW_HEIGHT));
 			final TiDimension maxHeightDimension = TiConvert.toTiDimension(rawMaxHeight, TiDimension.TYPE_HEIGHT);
 			final int maxHeight = rawMaxHeight != null ? maxHeightDimension.getAsPixels(itemView) : -1;
-			if (maxHeight > -1) {
+			if (maxHeight > -1 && needsUpdate("maxRowHeight", maxHeight)) {
 				nativeRowView.measure(0, 0);
 
 				// Enforce max row height.
@@ -191,10 +202,15 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			final String rawMinHeight = properties.optString(TiC.PROPERTY_MIN_ROW_HEIGHT,
 				tableViewProperties.getString(TiC.PROPERTY_MIN_ROW_HEIGHT));
 			final int minHeight = TiConvert.toTiDimension(rawMinHeight, TiDimension.TYPE_HEIGHT).getAsPixels(itemView);
-			this.container.setMinimumHeight(minHeight);
+			if (needsUpdate("minRowHeight", minHeight)) {
+				this.container.setMinimumHeight(minHeight);
+			}
 
 			// Set font and text color for title.
-			TiUIHelper.styleText(this.title, properties.getKrollDict(TiC.PROPERTY_FONT));
+			final KrollDict fontDict = properties.getKrollDict(TiC.PROPERTY_FONT);
+			if (needsUpdate("font", fontDict)) {
+				TiUIHelper.styleText(this.title, fontDict);
+			}
 
 			// Set title color.
 			int titleColor = 0;
@@ -223,23 +239,27 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 					titleColor = defaultTitleColor;
 				}
 			}
-			if (titleColor != Color.TRANSPARENT) {
+			if (needsUpdate("titleColor", titleColor)) {
+				if (titleColor != Color.TRANSPARENT) {
 
-				// Set specified `title` color.
-				this.title.setTextColor(titleColor);
-			} else {
+					// Set specified `title` color.
+					this.title.setTextColor(titleColor);
+				} else {
 
-				// Set default `title` color from current theme.
-				this.title.setTextColor(this.defaultTextColors);
+					// Set default `title` color from current theme.
+					this.title.setTextColor(this.defaultTextColors);
+				}
 			}
 
 			// Handle row left and right images.
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
-				if (drawable != null) {
-					this.leftImage.setImageDrawable(drawable);
-					this.leftImage.setVisibility(View.VISIBLE);
+				if (needsUpdate("leftImage", url)) {
+					final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+					if (drawable != null) {
+						this.leftImage.setImageDrawable(drawable);
+						this.leftImage.setVisibility(View.VISIBLE);
+					}
 				}
 			}
 
@@ -260,10 +280,12 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
-				if (drawable != null) {
-					this.rightImage.setImageDrawable(drawable);
-					this.rightImage.setVisibility(View.VISIBLE);
+				if (needsUpdate("rightImage", url)) {
+					final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
+					if (drawable != null) {
+						this.rightImage.setImageDrawable(drawable);
+						this.rightImage.setVisibility(View.VISIBLE);
+					}
 				}
 			} else {
 				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
@@ -357,13 +379,20 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 					tableViewProperties.optString(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
 						properties.optString(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR, null));
 
-				// Set ripple background.
+				// Set ripple background, using cache when possible.
 				if (touchFeedback) {
-					backgroundDrawable = generateRippleDrawable(backgroundDrawable, touchFeedbackColor);
+					if (getCachedRipple() == null || needsUpdate("rippleKey", touchFeedbackColor)) {
+						backgroundDrawable = generateRippleDrawable(backgroundDrawable, touchFeedbackColor);
+						setCachedRipple(backgroundDrawable);
+					} else {
+						backgroundDrawable = getCachedRipple();
+					}
 				}
 
-				// Set container background.
-				this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
+				// Set container background, using cache when possible.
+				if (needsUpdate("selectedKey", backgroundColor)) {
+					this.container.setBackground(generateSelectedDrawable(properties, backgroundDrawable));
+				}
 				this.container.setActivated(selected);
 
 				// Remove original background as it has been set on `container`.
@@ -382,6 +411,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_TITLE)
 				&& proxy.getChildren().length == 0) {
 
+				final String titleText = properties.optString(TiC.PROPERTY_TITLE, "");
 				int left = this.title.getPaddingLeft();
 				if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT)) {
 					left = TiConvert.toTiDimension(properties.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT)
@@ -404,9 +434,11 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 				}
 				this.title.setPadding(left, top, right, bottom);
 
-				// No child views.
-				// Only title specified, display row title.
-				this.title.setText(properties.optString(TiC.PROPERTY_TITLE, ""));
+				if (needsUpdate("title", titleText)) {
+					// No child views.
+					// Only title specified, display row title.
+					this.title.setText(titleText);
+				}
 				this.title.setVisibility(View.VISIBLE);
 			}
 		}
@@ -540,6 +572,15 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 	 * @param updateHeader Boolean determine if header should be updated.
 	 * @param updateFooter Boolean determine if footer should be updated.
 	 */
+	/**
+	 * Set header and footer views/title for row.
+	 * Uses TiTableView section header/footer cache to avoid recreating views.
+	 *
+	 * @param tableViewProxy TableView proxy.
+	 * @param properties Row proxy holding header/footer.
+	 * @param updateHeader Boolean determine if header should be updated.
+	 * @param updateFooter Boolean determine if footer should be updated.
+	 */
 	private void setHeaderFooter(TiViewProxy tableViewProxy,
 								 KrollDict properties,
 								 boolean updateHeader,
@@ -549,11 +590,17 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			return;
 		}
 
-		final View nativeTableView = tableViewProxy.getOrCreateView().getNativeView();
+		final TiUITableView tiUITableView = (TiUITableView) tableViewProxy.getOrCreateView();
+		if (tiUITableView == null) {
+			return;
+		}
+
+		final View nativeTableView = tiUITableView.getNativeView();
 		if (nativeTableView == null) {
 			return;
 		}
 
+		final TiTableView tiTableView = tiUITableView.getTableView();
 		final Context context = this.itemView.getContext();
 
 		// Handle `header` and `footer`.
@@ -570,33 +617,40 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 
-				// Handle header view.
+				// Handle header view with caching.
 				final TiViewProxy headerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_HEADER_VIEW);
-				if ((context instanceof Activity) && (headerProxy.getActivity() != context)) {
-					headerProxy.releaseViews();
-					headerProxy.setActivity((Activity) context);
+				final String cacheKey = "header_" + System.identityHashCode(headerProxy);
+				View headerView = tiTableView != null ? tiTableView.getCachedSectionHeader(cacheKey) : null;
+
+				if (headerView == null) {
+					// Create view from proxy if not cached.
+					if ((context instanceof Activity) && (headerProxy.getActivity() != context)) {
+						headerProxy.releaseViews();
+						headerProxy.setActivity((Activity) context);
+					}
+
+					final TiUIView view = headerProxy.getOrCreateView();
+					if (view != null) {
+						headerView = view.getOuterView();
+						if (headerView != null && tiTableView != null) {
+							tiTableView.cacheSectionHeader(cacheKey, headerView);
+						}
+					}
 				}
 
-				final TiUIView view = headerProxy.getOrCreateView();
-				if (view != null) {
-					final View headerView = view.getOuterView();
-
-					if (headerView != null) {
-						final ViewGroup parent = (ViewGroup) headerView.getParent();
-
-						if (parent != null) {
-							parent.removeView(headerView);
-						}
-
-						// TODO: Do not override fill behaviour, allow child to control fill.
-						view.getLayoutParams().autoFillsWidth = true;
-
-						// Amend maximum size for header to parent TableView measured height.
-						this.header.setChildFillHeight(nativeTableView.getMeasuredHeight());
-
-						this.header.addView(headerView, view.getLayoutParams());
-						this.header.setVisibility(View.VISIBLE);
+				if (headerView != null) {
+					final ViewGroup parent = (ViewGroup) headerView.getParent();
+					if (parent != null) {
+						parent.removeView(headerView);
 					}
+
+					// Amend maximum size for header to parent TableView measured height.
+					this.header.setChildFillHeight(nativeTableView.getMeasuredHeight());
+
+					this.header.addView(headerView, new ViewGroup.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.WRAP_CONTENT));
+					this.header.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -612,35 +666,117 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 			} else if (properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 
-				// Handle footer view.
+				// Handle footer view with caching.
 				final TiViewProxy footerProxy = (TiViewProxy) properties.get(TiC.PROPERTY_FOOTER_VIEW);
-				if ((context instanceof Activity) && (footerProxy.getActivity() != context)) {
-					footerProxy.releaseViews();
-					footerProxy.setActivity((Activity) context);
+				final String cacheKey = "footer_" + System.identityHashCode(footerProxy);
+				View footerView = tiTableView != null ? tiTableView.getCachedSectionFooter(cacheKey) : null;
+
+				if (footerView == null) {
+					// Create view from proxy if not cached.
+					if ((context instanceof Activity) && (footerProxy.getActivity() != context)) {
+						footerProxy.releaseViews();
+						footerProxy.setActivity((Activity) context);
+					}
+
+					final TiUIView view = footerProxy.getOrCreateView();
+					if (view != null) {
+						footerView = view.getOuterView();
+						if (footerView != null && tiTableView != null) {
+							tiTableView.cacheSectionFooter(cacheKey, footerView);
+						}
+					}
 				}
 
-				final TiUIView view = footerProxy.getOrCreateView();
-				if (view != null) {
-					final View footerView = view.getOuterView();
-
-					if (footerView != null) {
-						final ViewGroup parent = (ViewGroup) footerView.getParent();
-
-						if (parent != null) {
-							parent.removeView(footerView);
-						}
-
-						// TODO: Do not override fill behaviour, allow child to control fill.
-						view.getLayoutParams().autoFillsWidth = true;
-
-						// Amend maximum size for footer to parent TableView measured height.
-						this.footer.setChildFillHeight(nativeTableView.getMeasuredHeight());
-
-						this.footer.addView(footerView, view.getLayoutParams());
-						this.footer.setVisibility(View.VISIBLE);
+				if (footerView != null) {
+					final ViewGroup parent = (ViewGroup) footerView.getParent();
+					if (parent != null) {
+						parent.removeView(footerView);
 					}
+
+					// Amend maximum size for footer to parent TableView measured height.
+					this.footer.setChildFillHeight(nativeTableView.getMeasuredHeight());
+
+					this.footer.addView(footerView, new ViewGroup.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.WRAP_CONTENT));
+					this.footer.setVisibility(View.VISIBLE);
 				}
 			}
 		}
+	}
+
+	/**
+	 * Check if property needs update based on caching.
+	 * @param key Property key
+	 * @param value Property value
+	 * @return true if property needs update
+	 */
+	protected boolean needsUpdate(String key, Object value)
+	{
+		Object cached = cachedProperties.get(key);
+		boolean needsUpdate = !equalsWithNull(cached, value);
+		if (needsUpdate) {
+			cachedProperties.put(key, value);
+		}
+		return needsUpdate;
+	}
+
+	/**
+	 * Safe equals check that handles null values.
+	 */
+	private boolean equalsWithNull(Object a, Object b)
+	{
+		if (a == null && b == null) {
+			return true;
+		}
+		if (a == null || b == null) {
+			return false;
+		}
+		return a.equals(b);
+	}
+
+	/**
+	 * Get cached background drawable.
+	 */
+	protected Drawable getCachedBackground()
+	{
+		return cachedBackgroundDrawable;
+	}
+
+	/**
+	 * Set cached background drawable.
+	 */
+	protected void setCachedBackground(Drawable drawable)
+	{
+		this.cachedBackgroundDrawable = drawable;
+	}
+
+	/**
+	 * Get cached ripple drawable.
+	 */
+	protected Drawable getCachedRipple()
+	{
+		return cachedRippleDrawable;
+	}
+
+	/**
+	 * Set cached ripple drawable.
+	 */
+	protected void setCachedRipple(Drawable drawable)
+	{
+		this.cachedRippleDrawable = drawable;
+	}
+
+	/**
+	 * Check if dimensions changed.
+	 */
+	protected boolean dimensionsChanged(int width, int height)
+	{
+		boolean changed = lastWidth != width || lastHeight != height;
+		if (changed) {
+			lastWidth = width;
+			lastHeight = height;
+		}
+		return changed;
 	}
 }

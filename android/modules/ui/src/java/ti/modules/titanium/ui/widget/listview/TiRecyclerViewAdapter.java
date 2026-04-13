@@ -14,12 +14,13 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import androidx.collection.LruCache;
 
 public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, V extends TiViewProxy>
 	extends RecyclerView.Adapter<VH>
@@ -29,6 +30,9 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 	protected LayoutInflater inflater;
 	protected List<V> models;
 	protected SelectionTracker tracker;
+
+	// Hash caching for DiffUtil optimization
+	private final LruCache<V, Long> modelHashCache = new LruCache<>(100);
 
 	public TiRecyclerViewAdapter(@NonNull Context context, @NonNull List<V> models)
 	{
@@ -117,7 +121,7 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 			return;
 		}
 
-		final var diffResult = DiffUtil.calculateDiff(new AsyncListDiffer(newModelsClone, this.models));
+		final var diffResult = DiffUtil.calculateDiff(new TableViewDiffCallback(newModelsClone, this.models));
 
 		// Update models.
 		this.models = newModelsClone;
@@ -129,13 +133,13 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 	/**
 	 * Define DiffUtil.Callback to optimize updating the adapter.
 	 */
-	private class AsyncListDiffer extends DiffUtil.Callback
+	private class TableViewDiffCallback extends DiffUtil.Callback
 	{
 
 		List<V> newViews;
 		List<V> oldViews;
 
-		public AsyncListDiffer(List<V> newViews, List<V> oldViews)
+		public TableViewDiffCallback(List<V> newViews, List<V> oldViews)
 		{
 			this.newViews = newViews;
 			this.oldViews = oldViews;
@@ -183,17 +187,23 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 				return false;
 			}
 
-			final KrollDict oldProperties = oldView.getProperties();
-			final KrollDict newProperties = newView.getProperties();
-
-			if (oldProperties == null || newProperties == null) {
-				return false;
-			}
-
 			// Calculate content specific hashes.
 			// Compare properties and children.
-			final long oldHash = oldProperties.hashCode() ^ Arrays.hashCode(oldView.getChildren());
-			final long newHash = newProperties.hashCode() ^ Arrays.hashCode(newView.getChildren());
+			final long oldHash = ((long) oldView.getProperties().hashCode()) ^ Arrays.hashCode(oldView.getChildren());
+			final long newHash = ((long) newView.getProperties().hashCode()) ^ Arrays.hashCode(newView.getChildren());
+
+			// Update hash cache
+			final Long oldCachedHash = modelHashCache.get(oldView);
+			final Long newCachedHash = modelHashCache.get(newView);
+
+			modelHashCache.put(oldView, oldHash);
+			modelHashCache.put(newView, newHash);
+
+			// If both items are the same proxy (areItemsTheSame returned true),
+			// compare cached hash to detect content changes.
+			if (oldView == newView) {
+				return oldCachedHash != null && oldCachedHash == oldHash;
+			}
 
 			return oldHash == newHash;
 		}

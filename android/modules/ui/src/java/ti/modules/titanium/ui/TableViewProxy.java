@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,6 +20,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import androidx.recyclerview.selection.SelectionTracker;
@@ -70,7 +73,13 @@ public class TableViewProxy extends RecyclerViewProxy
 	private final List<TableViewSectionProxy> sections = new ArrayList<>();
 	private KrollDict contentOffset = null;
 
-	private boolean shouldUpdate = true;
+	private volatile boolean shouldUpdate = true;
+
+	// Batch update support
+	private volatile boolean batchUpdateMode = false;
+	private int batchDepth = 0;
+	private final List<Runnable> updateQueue = Collections.synchronizedList(new ArrayList<>());
+	private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
 	public TableViewProxy()
 	{
@@ -198,6 +207,27 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// don't update when coming from setData loop
 		if (!internalUpdate) {
+			queueUpdate();
+		}
+	}
+
+	/**
+	 * Queue update for batch processing or execute immediately if not in batch mode.
+	 */
+	private void queueUpdate()
+	{
+		if (batchUpdateMode) {
+			// Queue the update for later execution
+			updateQueue.add(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					update();
+				}
+			});
+		} else {
+			// Execute immediately
 			update();
 		}
 	}
@@ -234,7 +264,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		}
 
 		// Notify TableView of update.
-		update();
+		queueUpdate();
 	}
 
 	@Override
@@ -259,6 +289,9 @@ public class TableViewProxy extends RecyclerViewProxy
 			row.fireSyncEvent(TiC.EVENT_DELETE, null);
 
 			section.remove(row);
+
+			// Notify TableView of update.
+			queueUpdate();
 		}
 	}
 
@@ -295,7 +328,7 @@ public class TableViewProxy extends RecyclerViewProxy
 				// Allow updating rows after move operation.
 				shouldUpdate = true;
 
-				update();
+				queueUpdate();
 				return tableView.getAdapterIndex(fromItem);
 			}
 		}
@@ -381,7 +414,7 @@ public class TableViewProxy extends RecyclerViewProxy
 					section.remove(row);
 
 					// Notify TableView of update.
-					update();
+					queueUpdate();
 				}
 			}
 		}
@@ -402,7 +435,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			this.sections.remove(section);
 			section.setParent(null);
 
-			update();
+			queueUpdate();
 		}
 	}
 
@@ -536,7 +569,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// Allow updating rows after iteration.
 		shouldUpdate = true;
-		update();
+		queueUpdate();
 	}
 
 	/**
@@ -667,7 +700,7 @@ public class TableViewProxy extends RecyclerViewProxy
 					section.add(existingRow.getIndexInSection() + 1, row);
 
 					// Notify TableView of update.
-					update();
+					queueUpdate();
 				}
 			}
 		}
@@ -700,7 +733,7 @@ public class TableViewProxy extends RecyclerViewProxy
 					section.add(existingRow.getIndexInSection(), row);
 
 					// Notify TableView of update.
-					update();
+					queueUpdate();
 				}
 			}
 		}
@@ -724,7 +757,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			this.sections.add(index + 1, section);
 
 			// Notify TableView of update.
-			update();
+			queueUpdate();
 		}
 	}
 
@@ -746,7 +779,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			this.sections.add(index, section);
 
 			// Notify TableView of update.
-			update();
+			queueUpdate();
 		}
 	}
 
@@ -1018,9 +1051,51 @@ public class TableViewProxy extends RecyclerViewProxy
 			tableView.update(force);
 		}
 	}
+
 	public void update()
 	{
 		this.update(false);
+	}
+
+	/**
+	 * Begin a batch update operation.
+	 * All subsequent data changes will be queued and applied at once when endBatchUpdate() is called.
+	 * Supports nesting: each beginBatchUpdate() must be paired with an endBatchUpdate().
+	 */
+	@Kroll.method
+	public void beginBatchUpdate()
+	{
+		batchDepth++;
+		batchUpdateMode = true;
+	}
+
+	/**
+	 * End a batch update operation and apply all queued changes.
+	 * If batch updates are nested, only the outermost endBatchUpdate() flushes the queue.
+	 */
+	@Kroll.method
+	public void endBatchUpdate()
+	{
+		if (batchDepth > 0) {
+			batchDepth--;
+		}
+		if (batchDepth == 0) {
+			batchUpdateMode = false;
+			if (!updateQueue.isEmpty()) {
+				// Apply all queued updates on main thread
+				mainHandler.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						for (Runnable update : updateQueue) {
+							update.run();
+						}
+						updateQueue.clear();
+					}
+				});
+			}
+		}
 	}
 
 	/**
@@ -1050,7 +1125,7 @@ public class TableViewProxy extends RecyclerViewProxy
 					section.set(existingRow.getIndexInSection(), row);
 
 					// Notify TableView of new items.
-					update();
+					queueUpdate();
 				}
 			}
 		}
@@ -1072,7 +1147,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			this.sections.set(index, section);
 
 			// Notify TableView of update.
-			update();
+			queueUpdate();
 		}
 	}
 }

@@ -7,9 +7,12 @@
 package ti.modules.titanium.ui.widget.tableview;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import android.util.SparseBooleanArray;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
@@ -53,13 +56,28 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 	private static final int CACHE_SIZE = 32;
 	private static final int PRELOAD_INTERVAL = 800;
+	private static final int SCROLL_EVENT_THROTTLE_MS = 16; // ~60fps
+
+	// Header/Footer caching
+	private final Map<String, View> sectionHeaderCache = new HashMap<>();
+	private final Map<String, View> sectionFooterCache = new HashMap<>();
+
+	// Row complexity caching
+	private final Map<TableViewRowProxy, Integer> complexityCache = new HashMap<>();
+	private int lastRowCount = 0;
+
+	// Scroll throttling
+	private long lastScrollEventTime = 0;
+	private boolean isPreloading = false;
+	private long lastScrollTimestamp = 0;
 
 	private final TableViewAdapter adapter;
 	private final DividerItemDecoration decoration;
 	private final TableViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final List<TableViewRowProxy> rows = new ArrayList<>(CACHE_SIZE);
-	private final List<KrollDict> selectedRows = new ArrayList<>();
+	// Selection tracking with SparseBooleanArray for better performance
+	private final SparseBooleanArray selectedRowIndices = new SparseBooleanArray();
 
 	private boolean hasLaidOutChildren = false;
 	private SelectionTracker tracker;
@@ -133,9 +151,14 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				}
 
 				isScrolling = true;
+				updateScrollTimestamp();
+
+				// Throttle scroll events for better performance
+				if (!shouldFireScrollEvent()) {
+					return;
+				}
 
 				final KrollDict payload = generateScrollPayload();
-
 				proxy.fireSyncEvent(TiC.EVENT_SCROLL, payload);
 			}
 		});
@@ -166,6 +189,10 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 									   int oldRight, int oldBottom)
 			{
 				TiUIHelper.firePostLayoutEvent(proxy);
+				// Recalculate cache size after first layout
+				if (!hasLaidOutChildren) {
+					recalculateCacheSize();
+				}
 			}
 		});
 
@@ -265,7 +292,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 					{
 						super.onSelectionChanged();
 
-						selectedRows.clear();
+						// Clear selection indices for rebuild
+						selectedRowIndices.clear();
 
 						if (tracker.hasSelection()) {
 							final Iterator<TableViewRowProxy> i = tracker.getSelection().iterator();
@@ -277,16 +305,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 									continue;
 								}
 
-								final KrollDict selectedRow = new KrollDict();
-
-								selectedRow.put(TiC.PROPERTY_INDEX, row.index);
-								selectedRow.put(TiC.EVENT_PROPERTY_ROW, row);
-								selectedRow.put(TiC.PROPERTY_ROW_DATA, row.getProperties());
-								if (getParent() instanceof TableViewSectionProxy) {
-									selectedRow.put(TiC.PROPERTY_SECTION, getParent());
-								}
-
-								selectedRows.add(selectedRow);
+								// Use SparseBooleanArray for efficient selection tracking
+								selectedRowIndices.put(row.index, true);
 
 								if (!allowsMultipleSelection) {
 									row.fireEvent(TiC.EVENT_CLICK, null);
@@ -298,8 +318,28 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 						if (allowsMultipleSelection) {
 							final KrollDict data = new KrollDict();
 
-							data.put(TiC.PROPERTY_SELECTED_ROWS, selectedRows.toArray(new KrollDict[0]));
-							data.put(TiC.PROPERTY_STARTING_ROW, selectedRows.isEmpty() ? null : selectedRows.get(0));
+							// Build selected rows array from SparseBooleanArray
+							final List<KrollDict> selectedRowsList = new ArrayList<>();
+							for (int idx = 0; idx < selectedRowIndices.size(); idx++) {
+								final int key = selectedRowIndices.keyAt(idx);
+								if (selectedRowIndices.get(key)) {
+									final TableViewRowProxy row = getRowByIndex(key);
+									if (row != null && !row.isPlaceholder()) {
+										final KrollDict selectedRow = new KrollDict();
+										selectedRow.put(TiC.PROPERTY_INDEX, row.index);
+										selectedRow.put(TiC.EVENT_PROPERTY_ROW, row);
+										selectedRow.put(TiC.PROPERTY_ROW_DATA, row.getProperties());
+										if (getParent() instanceof TableViewSectionProxy) {
+											selectedRow.put(TiC.PROPERTY_SECTION, getParent());
+										}
+										selectedRowsList.add(selectedRow);
+									}
+								}
+							}
+
+							data.put(TiC.PROPERTY_SELECTED_ROWS, selectedRowsList.toArray(new KrollDict[0]));
+							data.put(TiC.PROPERTY_STARTING_ROW,
+								selectedRowsList.isEmpty() ? null : selectedRowsList.get(0));
 							proxy.fireEvent(TiC.EVENT_ROWS_SELECTED, data);
 						}
 					}
@@ -723,36 +763,67 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			final Handler handler = new Handler();
 			final long startTime = SystemClock.elapsedRealtime();
 
-			for (int i = 0; i < Math.min(this.rows.size(), PRELOAD_INTERVAL / 8); i++) {
-				final TableViewRowProxy row = this.rows.get(i);
+			// Optimized preloading: only preload if no scrolling and limit duration to 400ms
+			if (shouldPreload()) {
+				setPreloading(true);
+				final int targetCount = Math.min(this.rows.size(), 8); // Preload 8 views max
+				final int[] completedCount = {0};
 
-				// Fill event queue with pre-load attempts.
+				for (int i = 0; i < targetCount; i++) {
+					final int position = i; // Copy for inner class
+					final TableViewRowProxy row = this.rows.get(i);
+
+					// Stagger preloads at 50ms intervals to avoid UI blocking
+					handler.postDelayed(new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							final long currentTime = SystemClock.elapsedRealtime();
+							final long delta = currentTime - startTime;
+
+							// Only pre-load views for a maximum period of 400ms
+							if (delta <= 400
+								&& recyclerView.getLastTouchX() == 0
+								&& recyclerView.getLastTouchY() == 0
+								&& shouldPreload()) {
+
+								// Trigger view creation by accessing the view
+								final TableViewRowProxy.RowView rowView =
+									(TableViewRowProxy.RowView) row.getOrCreateView();
+								if (rowView != null) {
+									rowView.getNativeView();
+								}
+							}
+							// Track completion and clear preloading flag when all done
+							completedCount[0]++;
+							if (completedCount[0] >= targetCount) {
+								setPreloading(false);
+							}
+						}
+					}, position * 50); // Stagger at 50ms intervals
+				}
+
+				// Safety net: ensure isPreloading is reset after max preload duration
 				handler.postDelayed(new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						final long currentTime = SystemClock.elapsedRealtime();
-						final long delta = currentTime - startTime;
-
-						// Only pre-load views for a maximum period of time.
-						// This prevents over-taxing older devices.
-						if (delta <= PRELOAD_INTERVAL
-							&& recyclerView.getLastTouchX() == 0
-							&& recyclerView.getLastTouchY() == 0) {
-
-							// While there is no user interaction;
-							// pre-load views for smooth initial scroll.
-							row.getOrCreateView();
-						}
+						setPreloading(false);
 					}
-				}, 8); // Pre-load at 120Hz to prevent noticeable UI blocking.
+				}, 500);
 			}
 		}
 
 		Parcelable recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
 		// Notify adapter of changes on UI thread.
 		this.adapter.update(rows, force);
+
+		// Recalculate cache size based on new row complexity (only on forced/full updates)
+		if (force) {
+			recalculateCacheSize();
+		}
 
 		// FIXME: This is not an ideal workaround for an issue where recycled items that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
@@ -797,8 +868,191 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 			}
 		});
 	}
+
 	public void update()
 	{
 		this.update(false);
+	}
+
+	/**
+	 * Get cached section header view.
+	 */
+	public View getCachedSectionHeader(String sectionId)
+	{
+		return sectionHeaderCache.get(sectionId);
+	}
+
+	/**
+	 * Cache section header view.
+	 */
+	public void cacheSectionHeader(String sectionId, View view)
+	{
+		sectionHeaderCache.put(sectionId, view);
+	}
+
+	/**
+	 * Get cached section footer view.
+	 */
+	public View getCachedSectionFooter(String sectionId)
+	{
+		return sectionFooterCache.get(sectionId);
+	}
+
+	/**
+	 * Cache section footer view.
+	 */
+	public void cacheSectionFooter(String sectionId, View view)
+	{
+		sectionFooterCache.put(sectionId, view);
+	}
+
+	/**
+	 * Check if should preload (no scrolling, not already preloading).
+	 */
+	public boolean shouldPreload()
+	{
+		if (isPreloading || isScrolling) {
+			return false;
+		}
+		// Only preload if no recent scroll activity
+		final long currentTime = SystemClock.elapsedRealtime();
+		if (lastScrollTimestamp > 0 && (currentTime - lastScrollTimestamp) < 500) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Set preloading state.
+	 */
+	public void setPreloading(boolean preloading)
+	{
+		this.isPreloading = preloading;
+	}
+
+	/**
+	 * Check if scroll event should be throttled.
+	 */
+	public boolean shouldFireScrollEvent()
+	{
+		final long currentTime = SystemClock.elapsedRealtime();
+		final boolean shouldFire = (currentTime - lastScrollEventTime) > SCROLL_EVENT_THROTTLE_MS;
+		if (shouldFire) {
+			lastScrollEventTime = currentTime;
+		}
+		return shouldFire;
+	}
+
+	/**
+	 * Update last scroll timestamp.
+	 */
+	public void updateScrollTimestamp()
+	{
+		this.lastScrollTimestamp = SystemClock.elapsedRealtime();
+	}
+
+	/**
+	 * Determine row complexity for dynamic pool sizing.
+	 * Uses cached complexity scores when available.
+	 */
+	private int getRowComplexity(TableViewRowProxy row)
+	{
+		if (row == null || row.getProperties() == null) {
+			return 0; // Simple
+		}
+
+		// Check cache first
+		Integer cached = complexityCache.get(row);
+		if (cached != null) {
+			return cached;
+		}
+
+		final KrollDict props = row.getProperties();
+		int complexity = 0;
+
+		// Check for complex properties
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_LAYOUT)
+			&& !"horizontal".equals(props.optString(TiC.PROPERTY_LAYOUT, null))) {
+			complexity++;
+		}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)
+			&& props.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
+			complexity++;
+		}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_IMAGE)
+			|| props.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_SELECTED_IMAGE)) {
+			complexity++;
+		}
+		if (row.getChildren() != null && row.getChildren().length > 5) {
+			complexity++;
+		}
+		if (props.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)
+			|| props.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
+			complexity++;
+		}
+
+		// Cache the complexity score
+		complexityCache.put(row, complexity);
+		return complexity;
+	}
+
+	/**
+	 * Get optimal cache size based on row complexity.
+	 * Uses cached complexity scores and only recalculates when row count changes.
+	 */
+	private int getOptimalCacheSize()
+	{
+		if (rows.isEmpty()) {
+			return CACHE_SIZE;
+		}
+
+		// Skip recalculation if row count hasn't changed
+		if (rows.size() == lastRowCount && !complexityCache.isEmpty()) {
+			// Use previously calculated result
+			int totalComplexity = 0;
+			for (TableViewRowProxy row : rows) {
+				Integer cached = complexityCache.get(row);
+				totalComplexity += (cached != null ? cached : getRowComplexity(row));
+			}
+			final int avgComplexity = totalComplexity / Math.max(rows.size(), 1);
+			if (avgComplexity <= 1) {
+				return 12;
+			} else if (avgComplexity <= 3) {
+				return 8;
+			} else {
+				return 4;
+			}
+		}
+
+		// Full recalculation needed
+		lastRowCount = rows.size();
+		complexityCache.clear();
+
+		int totalComplexity = 0;
+		for (TableViewRowProxy row : rows) {
+			totalComplexity += getRowComplexity(row);
+		}
+		final int avgComplexity = totalComplexity / Math.max(rows.size(), 1);
+
+		// Adjust cache size based on complexity
+		// Simple rows (0-1): larger cache
+		// Medium rows (2-3): medium cache
+		// Complex rows (4+): smaller cache
+		if (avgComplexity <= 1) {
+			return 12; // Large cache for simple rows
+		} else if (avgComplexity <= 3) {
+			return 8; // Medium cache for medium rows
+		} else {
+			return 4; // Small cache for complex rows
+		}
+	}
+
+	/**
+	 * Recalculate and apply optimal cache size.
+	 */
+	public void recalculateCacheSize()
+	{
+		final int optimalSize = getOptimalCacheSize();
+		recyclerView.setItemViewCacheSize(optimalSize);
 	}
 }

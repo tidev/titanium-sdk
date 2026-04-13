@@ -72,6 +72,9 @@ public class TiBorderWrapperView extends FrameLayout
 		for (int i = 0; i < this.radius.length; i++) {
 			this.radius[i] = 0;
 		}
+
+		// Skip onDraw() when no border properties are set
+		setWillNotDraw(true);
 	}
 
 	@Override
@@ -143,11 +146,17 @@ public class TiBorderWrapperView extends FrameLayout
 	public void setColor(int color)
 	{
 		this.color = color;
+		if (color != Color.TRANSPARENT || borderWidth > 0) {
+			setWillNotDraw(false);
+		}
 	}
 
 	public void setBgColor(int color)
 	{
 		this.backgroundColor = color;
+		if (color != Color.TRANSPARENT) {
+			setWillNotDraw(false);
+		}
 	}
 
 	public boolean hasRadius()
@@ -236,11 +245,18 @@ public class TiBorderWrapperView extends FrameLayout
 				this.radius[i] = pixels;
 			}
 		}
+
+		if (hasRadius()) {
+			setWillNotDraw(false);
+		}
 	}
 
 	public void setBorderWidth(float borderWidth)
 	{
 		this.borderWidth = borderWidth;
+		if (borderWidth > 0 || color != Color.TRANSPARENT) {
+			setWillNotDraw(false);
+		}
 	}
 
 	@Override
