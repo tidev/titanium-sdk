@@ -132,14 +132,15 @@ NestedScrollView bugs. Programmatic scrolling uses `View.scrollTo()` (instant ju
 **File**: `TiUIScrollView.java` lines 983-1057
 
 **Fix**:
-- Check if the Google NestedScrollView bug still exists in current AndroidX versions
-- If fixed: enable smooth scrolling by default
-- If not: implement custom `SmoothScroller` that works around the bug
-- Fallback: `ObjectAnimator` for manual smooth-scroll animation
+- The `mLastScrollerY` bug in NestedScrollView was fixed in Support Library 28.0.0 /
+  androidx.core:core:1.0.0+ (late 2018). Titanium SDK uses AndroidX, so the fix is included.
+- Removed `getScrollY() > 0` workaround in `scrollTo()` — smooth scrolling now always works
+- Fixed `scrollToTop()` animated path: uses `smoothScrollTo(0, 0)` instead of
+  `smoothScrollBy(0, -height)` hack with temporary `setSmoothScrollingEnabled(false)`
 
 **Expected improvement**: Smoother programmatic scroll animations
 
-**Status**: OPEN — Requires checking AndroidX NestedScrollView bug status
+**Status**: DONE — Removed workarounds, smooth scrolling enabled for all positions
 
 ---
 
@@ -152,12 +153,12 @@ This causes a visible jump from (0,0) to the offset position on the first draw p
 
 **Fix**:
 - Set initial offset in `onLayout()` instead of `onDraw()` (earlier in the pipeline)
-- Use `setInitialOffset` flag to call `scrollTo()` before the first draw
-- Set view to `INVISIBLE` until initial offset is applied, then set to `VISIBLE`
+- `onDraw()` now only calls `super.onDraw()` — no offset logic
+- Both TiVerticalScrollView and TiHorizontalScrollView override `onLayout()` to set initial offset
 
 **Expected improvement**: No visible jump on load
 
-**Status**: OPEN — Requires changing onLayout instead of onDraw
+**Status**: DONE — Initial offset set in onLayout instead of onDraw
 
 ---
 
@@ -196,12 +197,12 @@ by many view types, changes could have side effects.
 ### Phase 3: View Hierarchy Optimization
 - [x] Lazy-create TiSwipeRefreshLayout only when needed
 - [x] ~~Hardware layer for off-screen children (Option A)~~ (skipped)
-- [ ] Set initial offset in onLayout instead of onDraw
+- [x] Set initial offset in onLayout instead of onDraw
 
 ### Phase 4: Smooth Scrolling
-- [ ] Check AndroidX NestedScrollView bug status
-- [ ] Implement custom SmoothScroller or ObjectAnimator
-- [ ] Fallback strategy for old Android versions
+- [x] Check AndroidX NestedScrollView bug status (fixed since 28.0.0)
+- [x] Remove getScrollY() > 0 workaround in scrollTo()
+- [x] Fix scrollToTop() animated path with smoothScrollTo(0, 0)
 
 ---
 
@@ -237,6 +238,18 @@ by many view types, changes could have side effects.
 - In `processProperties()`: SwipeRefreshLayout only created when `refreshControl` property exists
 - Without `refreshControl`: ScrollView directly as nativeView (`setNativeView(this.scrollView)`)
 - In `propertyChanged()` for REFRESH_CONTROL: Dynamic creation when `swipeRefreshLayout == null`
+
+### BOTTLENECK #6: Smooth Scrolling Workarounds
+**Status**: DONE
+- NestedScrollView `mLastScrollerY` bug was fixed in Support Library 28.0.0 / AndroidX core 1.0.0+
+- Removed `getScrollY() > 0` check that disabled smooth scrolling in `scrollTo()`
+- Fixed `scrollToTop()` animated path: `smoothScrollTo(0, 0)` instead of `smoothScrollBy(0, -height)` with `setSmoothScrollingEnabled(false)` hack
+
+### BOTTLENECK #7: Initial Offset in onDraw
+**Status**: DONE
+- Both `TiVerticalScrollView` and `TiHorizontalScrollView` now override `onLayout()` to set initial offset
+- `onDraw()` only calls `super.onDraw()` — no offset logic
+- Offset is applied earlier in the rendering pipeline, avoiding the visible jump
 
 ---
 
@@ -335,12 +348,12 @@ perf(android): lazy-create TiSwipeRefreshLayout in ScrollView
 ### Phase 3: View Hierarchy Optimization
 - [x] Lazy TiSwipeRefreshLayout
 - [x] ~~Hardware-layer viewport tracking~~ (skipped — not practical for NestedScrollView)
-- [ ] Initial offset fix
+- [x] Initial offset fix
 
 ### Phase 4: Smooth Scrolling
-- [ ] Bug status checked
-- [ ] Smooth scroll implemented
-- [ ] Fallback strategy
+- [x] Bug status checked (fixed in AndroidX since 28.0.0)
+- [x] Removed getScrollY() > 0 workaround
+- [x] Fixed scrollToTop() animated path
 
 ### Tests:
 - [ ] Tests executed

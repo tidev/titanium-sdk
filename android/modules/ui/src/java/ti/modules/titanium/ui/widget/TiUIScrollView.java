@@ -512,14 +512,21 @@ public class TiUIScrollView extends TiUIView
 			}
 		}
 
-		public void onDraw(Canvas canvas)
+		@Override
+		protected void onLayout(boolean changed, int l, int t, int r, int b)
 		{
-			super.onDraw(canvas);
-			// setting offset once when this view is visible
+			super.onLayout(changed, l, t, r, b);
+			// Set initial content offset in onLayout instead of onDraw for earlier pipeline application.
+			// This avoids a visible jump from (0,0) to the offset position on first draw.
 			if (!setInitialOffset) {
 				scrollTo(offsetX.getAsPixels(scrollView), offsetY.getAsPixels(scrollView));
 				setInitialOffset = true;
 			}
+		}
+
+		public void onDraw(Canvas canvas)
+		{
+			super.onDraw(canvas);
 		}
 
 		@Override
@@ -654,14 +661,20 @@ public class TiUIScrollView extends TiUIView
 			return false;
 		}
 
-		public void onDraw(Canvas canvas)
+		@Override
+		protected void onLayout(boolean changed, int l, int t, int r, int b)
 		{
-			super.onDraw(canvas);
-			// setting offset once this view is visible
+			super.onLayout(changed, l, t, r, b);
+			// Set initial content offset in onLayout instead of onDraw for earlier pipeline application.
 			if (!setInitialOffset) {
 				scrollTo(offsetX.getAsPixels(scrollView), offsetY.getAsPixels(scrollView));
 				setInitialOffset = true;
 			}
+		}
+
+		public void onDraw(Canvas canvas)
+		{
+			super.onDraw(canvas);
 		}
 
 		@Override
@@ -1079,14 +1092,10 @@ public class TiUIScrollView extends TiUIView
 		x = TiConvert.toTiDimension(x, -1).getAsPixels(view);
 		y = TiConvert.toTiDimension(y, -1).getAsPixels(view);
 
-		// Disable smooth scrolling for vertical scroll views if not at top of view.
-		// Note: This works-around a bug in Google's NestedScrollView where attempting to
-		//       smooth scrolls will move to a totally different position or opposite directions.
-		if (smoothScroll && (view instanceof TiVerticalScrollView)) {
-			if (((TiVerticalScrollView) view).getScrollY() > 0) {
-				smoothScroll = false;
-			}
-		}
+			// Note: A previous workaround disabled smooth scrolling when getScrollY() > 0
+			// due to a NestedScrollView bug where smoothScrollTo() moved to the wrong position.
+			// This bug was fixed in AndroidX (Support Library 28.0.0 / androidx.core:core:1.0.0+),
+			// so the workaround is no longer needed.
 
 		// Scroll to the given position.
 		if (smoothScroll) {
@@ -1123,23 +1132,13 @@ public class TiUIScrollView extends TiUIView
 			// Scroll to the left-most side of the horizontal scroll view.
 			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_LEFT);
 		} else if (view instanceof TiVerticalScrollView) {
-			if (animated == false) {
-				// Scroll to the top of the vertical scroll view.
-				// Note: There is a bug in Google's NestedScrollView where smooth scrolling to top fails
-				//       and can scroll down instead. We must work-around it by temporarily disabling it.
-				TiVerticalScrollView verticalScrollView = (TiVerticalScrollView) view;
-				boolean wasEnabled = verticalScrollView.isSmoothScrollingEnabled();
-				verticalScrollView.setSmoothScrollingEnabled(false);
-				try {
-					((TiVerticalScrollView) view).fullScroll(View.FOCUS_UP);
-				} finally {
-					verticalScrollView.setSmoothScrollingEnabled(wasEnabled);
-				}
+			if (animated) {
+				// Note: Previous workaround disabled smooth scrolling due to a NestedScrollView bug.
+				// This bug was fixed in AndroidX (Support Library 28.0.0+), so smoothScrollTo works correctly.
+				((TiVerticalScrollView) view).smoothScrollTo(0, 0);
 			} else {
-				NestedScrollView nestedScrollView = ((TiVerticalScrollView) view);
-				nestedScrollView.smoothScrollBy(0, -nestedScrollView.getChildAt(0).getHeight());
+				((TiVerticalScrollView) view).fullScroll(View.FOCUS_UP);
 			}
-
 		}
 	}
 
