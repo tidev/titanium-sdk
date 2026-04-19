@@ -310,7 +310,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_DRAGEND, options);
 		}
-		// TODO: Deprecate old event
+
 		if (hasListeners("dragEnd")) {
 			Log.w(TAG, "dragEnd is deprecated.  Use " + TiC.EVENT_DRAGEND + " instead.");
 			KrollDict options = new KrollDict();
@@ -328,7 +328,7 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_SCROLLEND, options);
 		}
-		// TODO: Deprecate old event
+
 		if (hasListeners("scrollEnd")) {
 			Log.w(TAG, "scrollEnd is deprecated.  Use " + TiC.EVENT_SCROLLEND + " instead.");
 			KrollDict options = new KrollDict();
