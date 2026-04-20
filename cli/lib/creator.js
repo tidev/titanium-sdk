@@ -12,19 +12,14 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-import appc from 'node-appc';
-import async from 'async';
 import ejs from 'ejs';
 import fields from 'fields';
-import fs from 'fs-extra';
 import http from 'node:http';
-import path, { join } from 'node:path';
-import request from 'request';
-import temp from 'temp';
+import { dirname, join } from 'node:path';
 import { validAppId } from 'node-titanium-sdk/titaium';
-import { existsSync, expand } from 'node-titanium-sdk/util';
-import { createWriteStream, mkdirSync, unlinkSync } from 'node:fs';
-import { unlink } from 'node:fs/promises';
+import { createTempDir, existsSync, expand, isWritableSync, request } from 'node-titanium-sdk/util';
+import { createWriteStream } from 'node:fs';
+import { rm } from 'node:fs/promises';
 
 /**
  * The base class for project creators (i.e. apps, modules).
@@ -80,59 +75,49 @@ export class Creator {
 	 *
 	 * @param {String} srcDir - The directory to copy
 	 * @param {String} destDir - The directory to copy the files to
-	 * @param {Function} callback - A function to call after all of the files have been copied
 	 * @param {Object} variables - An object to resolve filename substitutions and .ejs templates
-	 * @return {undefined}
 	 */
-	copyDir(srcDir, destDir, callback, variables) {
-		if (!fs.existsSync(srcDir)) {
-			return callback();
+	async copyDir(srcDir, destDir, variables = {}) {
+		if (!existsSync(srcDir)) {
+			return;
 		}
 
-		variables || (variables = {});
+		await mkdir(destDir, { recursive: true });
 
-		fs.ensureDirSync(destDir);
+		const ejsRegExp = /\.ejs$/;
+		const nameRegExp = /\{\{(\w+?)\}\}/g;
+		const ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')); // eslint-disable-line security/detect-non-literal-regexp
+		const ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')); // eslint-disable-line security/detect-non-literal-regexp
 
-		const _t = this,
-			ejsRegExp = /\.ejs$/,
-			nameRegExp = /\{\{(\w+?)\}\}/g,
-			ignoreDirs = new RegExp(this.config.get('cli.ignoreDirs')), // eslint-disable-line security/detect-non-literal-regexp
-			ignoreFiles = new RegExp(this.config.get('cli.ignoreFiles')); // eslint-disable-line security/detect-non-literal-regexp
+		for (const filename of await readdir(srcDir)) {
+			const src = join(srcDir, filename);
 
-		async.eachSeries(fs.readdirSync(srcDir), function (filename, next) {
-			const src = path.join(srcDir, filename);
-
-			if (!fs.existsSync(src)) {
-				return next();
+			if (!existsSync(src)) {
+				continue;
 			}
 
-			const destName = filename.replace(nameRegExp, function (match, name) {
+			const destName = filename.replace(nameRegExp, (match, name) => {
 				return variables[name] || variables[name.substring(0, 1).toLowerCase() + name.substring(1)] || match;
 			});
-			let dest = path.join(destDir, destName);
+			let dest = join(destDir, destName);
 
 			if (isDir(src) && !ignoreDirs.test(filename)) {
-				_t.copyDir(src, dest, next, variables);
+				await this.copyDir(src, dest, variables);
 
 			} else if (!ignoreFiles.test(filename)) {
 				if (ejsRegExp.test(filename)) {
 					dest = dest.replace(ejsRegExp, '');
-					_t.logger.debug(`Copying ${src.cyan} => ${dest.cyan}`);
+					this.logger.debug(`Copying ${src.cyan} => ${dest.cyan}`);
 					// strip the .ejs extension and render the template
-					fs.writeFileSync(dest, ejs.render(fs.readFileSync(src).toString(), variables));
+					await writeFile(dest, ejs.render(await readFile(src), variables));
 				} else {
-					_t.logger.debug(`Copying ${src.cyan} => ${dest.cyan}`);
-					fs.writeFileSync(dest, fs.readFileSync(src));
+					this.logger.debug(`Copying ${src.cyan} => ${dest.cyan}`);
+					await writeFile(dest, await readFile(src));
 				}
 
-				fs.chmodSync(dest, fs.statSync(src).mode & 0o777);
-				next();
-
-			} else {
-				// ignore
-				next();
+				await chmod(dest, stat(src).mode & 0o777);
 			}
-		}, callback);
+		}
 	}
 
 	/**
@@ -143,12 +128,12 @@ export class Creator {
 	 * @returns {Object}
 	 */
 	configOptionId(order) {
-		const cli = this.cli,
-			config = this.config,
-			logger = this.logger,
-			idPrefix = config.get('app.idprefix');
+		const cli = this.cli;
+		const config = this.config;
+		const logger = this.logger;
+		const idPrefix = config.get('app.idprefix');
 
-		function validate(value, callback) {
+		const validate = (value) => {
 			if (!value) {
 				logger.error('Please specify an App ID\n');
 				return callback(true);
@@ -434,9 +419,9 @@ export class Creator {
 		const cli = this.cli,
 			config = this.config,
 			logger = this.logger;
-		let workspaceDir = config.app.workspace ? appc.fs.resolvePath(config.app.workspace) : null;
+		let workspaceDir = config.app.workspace ? expand(config.app.workspace) : null;
 
-		workspaceDir && !fs.existsSync(workspaceDir) && (workspaceDir = null);
+		workspaceDir && !existsSync(workspaceDir) && (workspaceDir = null);
 
 		function validate(dir, callback) {
 			if (!dir) {
@@ -444,29 +429,28 @@ export class Creator {
 				return callback(true);
 			}
 
-			dir = appc.fs.resolvePath(dir);
+			dir = expand(dir);
 
 			// check if the directory is writable
 			let prev = null,
 				curr = dir;
 			while (curr != prev) { // eslint-disable-line eqeqeq
-				if (fs.existsSync(curr)) {
-					if (appc.fs.isDirWritable(curr)) {
+				if (existsSync(curr)) {
+					if (isWritableSync(curr)) {
 						break;
-					} else {
-						logger.error('Directory "curr" is not writable\n');
-						return callback(true);
 					}
+					logger.error('Directory "curr" is not writable\n');
+					return callback(true);
 				}
 
 				prev = curr;
-				curr = path.dirname(curr);
+				curr = dirname(curr);
 			}
 
 			// check if the project already exists
 			if (cli.argv.name && !cli.argv.force && dir) {
-				const projectDir = path.join(dir, cli.argv.name);
-				if (fs.existsSync(projectDir)) {
+				const projectDir = join(dir, cli.argv.name);
+				if (existsSync(projectDir)) {
 					logger.error(`Project already exists: ${projectDir}`);
 					logger.error('Either change the project name, workspace directory, or re-run this command with the --force flag.\n');
 					process.exit(1);
@@ -520,35 +504,39 @@ export class Creator {
 		}
 
 		if (/\.zip$/.test(template) && existsSync(template)) {
-			return this.unzipFile(template, next);
+			return this.unzipFile(template);
 		}
 
 		// could be the name of a template in one of the template paths
-		this.cli.env.os.sdkPaths.forEach(function (dir) {
-			if (existsSync(dir = expand(dir, 'templates')) && searchPaths.indexOf(dir) === -1) {
+		for (const dir of this.cli.env.os.sdkPaths) {
+			dir = expand(dir, 'templates');
+			if (existsSync(dir) && !searchPaths.includes(dir)) {
 				searchPaths.push(dir);
 			}
-		});
+		}
 
-		(Array.isArray(additionalPaths) ? additionalPaths : [ additionalPaths ]).forEach(function (p) {
-			if (p && existsSync(p = expand(p)) && searchPaths.indexOf(p) === -1) {
-				searchPaths.push(p);
+		const additionalSearchPaths = Array.isArray(additionalPaths) ? additionalPaths : [ additionalPaths ];
+		for (const path of additionalSearchPaths) {
+			path = expand(path);
+			if (path && existsSync(path) && !searchPaths.includes(path)) {
+				searchPaths.push(path);
 			}
-		});
+		}
 
 		let dir;
 		while (dir = searchPaths.shift()) {
-			if (existsSync(dir = join(dir, template))) {
-				return next(null, dir);
+			dir = join(dir, template);
+			if (existsSync(dir)) {
+				return dir;
 			}
 		}
 
 		// last possibility is it's a local directory
 		if (isDir(template)) {
-			return next(template);
+			return template;
 		}
 
-		next(new Error(`Unable to find template "${template}"`));
+		throw new Error(`Unable to find template "${template}"`);
 	}
 
 	/**
@@ -557,8 +545,8 @@ export class Creator {
 	 * @param {String} url - The URL of a zip file to download
 	 */
 	async downloadFile(url) {
-		const tempName = temp.path({ suffix: '.zip' });
-		const tempDir = path.dirname(tempName);
+		const tempName = await createTempPath({ suffix: '.zip' });
+		const tempDir = dirname(tempName);
 
 		await mkdir(tempDir, { recursive: true });
 		this.logger.info(`Downloading ${url.cyan}`);
@@ -568,8 +556,8 @@ export class Creator {
 			.then(res => {
 				res.pipe(tempStream);
 
-				res.on('error', () => {
-					rmSync(tempName, { recursive: true });
+				res.on('error', async () => {
+					await rm(tempName, { force: true, recursive: true });
 					this.logger.log();
 					this.logger.error(`Failed to download template: ${url}\n`);
 					reject(new Error(`Failed to download template: ${url}`));
@@ -584,10 +572,14 @@ export class Creator {
 					}
 
 					tempStream.on('close', async () => {
-						this.unzipFile(tempName)
-							.then(resolve)
-							.catch(reject)
-							.finally(() => unlink(tempName));
+						try {
+							const dir = await this.unzipFile(tempName);
+							resolve(dir);
+						} catch (error) {
+							reject(error);
+						} finally {
+							await rm(tempName, { force: true, recursive: true });
+						}
 					});
 				});
 			});
@@ -599,8 +591,7 @@ export class Creator {
 	* @param {String} zipFile - A local path to a zip file to unzip
 	*/
 	async unzipFile(zipFile) {
-		const dir = temp.mkdirSync({ prefix: 'titanium-' });
-		mkdirSync(dir, { recursive: true });
+		const dir = await createTempDir({ prefix: 'titanium-' });
 		this.logger.info(`Extracting ${zipFile.cyan}`);
 		const logger = this.logger;
 

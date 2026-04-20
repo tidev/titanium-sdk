@@ -14,6 +14,9 @@ import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { commonOptions } from '../lib/common-options';
+import { TiappXML } from 'node-titanium-sdk/titanium';
+import { validateTiappXml } from '../lib/validate-tiapp-xml';
+import { validateCorrectSDK } from '../lib/validate-correct-sdk';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -121,7 +124,7 @@ export function config(logger, config, cli) {
 								if (fs.existsSync(path.join(projectDir, 'tiapp.xml'))) {
 									let tiapp;
 									try {
-										tiapp = cli.tiapp = new tiappxml(path.join(projectDir, 'tiapp.xml'), cli.argv.platform);
+										tiapp = cli.tiapp = new TiappXML(path.join(projectDir, 'tiapp.xml'));
 									} catch (ex) {
 										logger.error(ex);
 										logger.log();
@@ -131,10 +134,10 @@ export function config(logger, config, cli) {
 									tiapp.properties || (tiapp.properties = {});
 
 									// make sure the tiapp.xml is sane
-									ti.validateTiappXml(logger, config, tiapp);
+									validateTiappXml(logger, config, tiapp);
 
 									// check that the Titanium SDK version is correct
-									if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+									if (!validateCorrectSDK(logger, config, cli, 'build')) {
 										throw new cli.GracefulShutdown();
 									}
 
