@@ -42,11 +42,6 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 
 	public AssetCryptImpl()
 	{
-		try {
-			System.loadLibrary("ti.cloak");
-		} catch (Exception e) {
-			Log.e(TAG, "Could not load 'ti.cloak' library");
-		}
 	}
 
 	@Override

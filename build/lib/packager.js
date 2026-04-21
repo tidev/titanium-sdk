@@ -168,8 +168,7 @@ export class Packager {
 			await exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' });
 		}
 
-		// Include 'ti.cloak'
-		return unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
+		return;
 	}
 
 	/**

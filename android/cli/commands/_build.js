@@ -2864,7 +2864,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// ti.cloak's default export is jacked... there's nested default exports
-		let { default: Cloak } = await import('ti.cloak');
+		let { default: Cloak } = await import('../lib/ti.cloak/index.js');
 		while (Cloak && typeof Cloak === 'object') {
 			Cloak = Cloak.default;
 		}
@@ -2895,6 +2895,17 @@ class AndroidBuilder extends Builder {
 
 				this.logger.info('Writing encryption key...');
 				await cloak.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
+
+				const bindingDest = path.join(this.buildGenAppIdDir, 'ti/cloak/Binding.java');
+				await fs.ensureDir(path.dirname(bindingDest));
+
+				await fs.writeFile(
+				  bindingDest,
+				  ejs.render(
+				    await fs.readFile(path.join(this.templatesDir, 'Binding.java'), 'utf8'),
+				    {}
+				  )
+				);
 
 				// Generate 'AssetCryptImpl.java' from template.
 				const assetCryptDest = path.join(this.buildGenAppIdDir, 'AssetCryptImpl.java');
