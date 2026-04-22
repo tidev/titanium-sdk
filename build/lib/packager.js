@@ -289,7 +289,7 @@ export class Packager {
 	}
 
 	async copySupportDir() {
-		const ignoreDirs = [ 'packaged', '.pyc', path.join(SUPPORT_DIR, 'dev'), path.join(SUPPORT_DIR, 'ti.cloak.zip') ];
+		const ignoreDirs = [ 'packaged', '.pyc', path.join(SUPPORT_DIR, 'dev') ];
 		// Copy support/ into root, but filter out folders based on OS
 		if (this.targetOS !== 'osx') {
 			ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'), path.join(SUPPORT_DIR, 'osx'));

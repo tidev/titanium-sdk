@@ -1,4 +1,4 @@
-package ti.cloak;
+package ti.crypt;
 
 import java.security.MessageDigest;
 

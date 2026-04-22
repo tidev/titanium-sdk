@@ -2863,16 +2863,16 @@ class AndroidBuilder extends Builder {
 			return;
 		}
 
-		// ti.cloak's default export is jacked... there's nested default exports
-		let { default: Cloak } = await import('../lib/ti.cloak/index.js');
-		while (Cloak && typeof Cloak === 'object') {
-			Cloak = Cloak.default;
+		// ti.crypt's default export is jacked... there's nested default exports
+		let { default: Crypt } = await import('../lib/ti.crypt/index.js');
+		while (Crypt && typeof Crypt === 'object') {
+			Crypt = Crypt.default;
 		}
-		if (typeof Cloak !== 'function') {
+		if (typeof Crypt !== 'function') {
 			throw new Error('Could not load encryption library!');
 		}
-		const cloak = this.encryptJS ? new Cloak() : null;
-		if (!cloak) {
+		const crypt = this.encryptJS ? new Crypt() : null;
+		if (!crypt) {
 			throw new Error('Could not load encryption library!');
 		}
 
@@ -2889,14 +2889,14 @@ class AndroidBuilder extends Builder {
 						this.logger.debug(`Encrypting: ${from.cyan}`);
 						await fs.ensureDir(path.dirname(to));
 						this.unmarkBuildDirFile(to);
-						return await cloak.encryptFile(from, to);
+						return await crypt.encryptFile(from, to);
 					})
 				);
 
 				this.logger.info('Writing encryption key...');
-				await cloak.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
+				await crypt.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
 
-				const bindingDest = path.join(this.buildGenAppIdDir, 'ti/cloak/Binding.java');
+				const bindingDest = path.join(this.buildGenAppIdDir, 'ti/crypt/Binding.java');
 				await fs.ensureDir(path.dirname(bindingDest));
 
 				await fs.writeFile(
@@ -2918,7 +2918,7 @@ class AndroidBuilder extends Builder {
 						{
 							appid: this.appid,
 							assets: this.jsFilesToEncrypt.map(f => f.replace(/\\/g, '/')),
-							salt: cloak.salt
+							salt: crypt.salt
 						}
 					)
 				);

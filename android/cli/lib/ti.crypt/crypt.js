@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import crypto from 'crypto';
 import path from 'path';
 
-export default class Cloak {
+export default class Crypt {
 	constructor() {
 		// 16-byte salt (also IV)
 		this.salt = crypto.randomBytes(16);
@@ -42,7 +42,7 @@ export default class Cloak {
 				await fs.mkdir(dir, { recursive: true });
 
 				await fs.writeFile(
-					path.join(dir, 'cloak.key'),
+					path.join(dir, 'crypt.key'),
 					this.salt
 				);
 			})
