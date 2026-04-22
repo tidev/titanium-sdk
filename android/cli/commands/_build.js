@@ -2864,10 +2864,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// ti.crypt's default export is jacked... there's nested default exports
-		let { default: Crypt } = await import('../lib/ti.crypt/index.js');
-		while (Crypt && typeof Crypt === 'object') {
-			Crypt = Crypt.default;
-		}
+		let { Crypt } = await import('../lib/ti.crypt/index.js');
 		if (typeof Crypt !== 'function') {
 			throw new Error('Could not load encryption library!');
 		}
