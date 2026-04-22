@@ -2893,8 +2893,9 @@ class AndroidBuilder extends Builder {
 					})
 				);
 
-				this.logger.info('Writing encryption key...');
-				await crypt.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
+				// FIXME: currently not used
+				// this.logger.info('Writing encryption key...');
+				// await crypt.setKey('android', this.abis, path.join(this.buildAppMainDir, 'jniLibs'));
 
 				const bindingDest = path.join(this.buildGenAppIdDir, 'ti/crypt/Binding.java');
 				await fs.ensureDir(path.dirname(bindingDest));
