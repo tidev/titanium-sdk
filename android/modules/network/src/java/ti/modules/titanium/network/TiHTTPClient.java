@@ -98,6 +98,8 @@ public class TiHTTPClient
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
 	private static final String HTML_META_TAG_REGEX = "charset=([^\"\']*)";
 	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
+	private static final Pattern HTML_META_TAG_PATTERN = Pattern.compile(HTML_META_TAG_REGEX);
+	private static final Pattern XML_DECLARATION_TAG_PATTERN = Pattern.compile(XML_DECLARATION_TAG_REGEX);
 
 	private static AtomicInteger httpClientThreadCounter;
 	private HttpURLConnection client;
@@ -540,16 +542,16 @@ public class TiHTTPClient
 	 */
 	private String detectResponseDataEncoding()
 	{
-		String regex;
+		Pattern pattern;
 		if (contentType == null) {
 			Log.w(TAG, "Could not detect charset, no content type specified.", Log.DEBUG_MODE);
 			return null;
 
 		} else if (contentType.contains("xml")) {
-			regex = XML_DECLARATION_TAG_REGEX;
+			pattern = XML_DECLARATION_TAG_PATTERN;
 
 		} else if (contentType.contains("html")) {
-			regex = HTML_META_TAG_REGEX;
+			pattern = HTML_META_TAG_PATTERN;
 
 		} else {
 			Log.w(TAG, "Cannot detect charset, unknown content type: " + contentType, Log.DEBUG_MODE);
@@ -563,7 +565,6 @@ public class TiHTTPClient
 			responseSequence = responseOut.toString();
 		}
 		if (responseSequence != null) {
-			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(responseSequence);
 			if (matcher.find()) {
 				return matcher.group(1);

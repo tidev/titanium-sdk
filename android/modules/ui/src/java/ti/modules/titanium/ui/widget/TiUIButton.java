@@ -166,9 +166,10 @@ public class TiUIButton extends TiUIView
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
 		}
 		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-			if (attributedString instanceof AttributedStringProxy) {
-				setAttributedStringText((AttributedStringProxy) attributedString);
+			Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+			if (proxy != null) {
+				setAttributedStringText(proxy);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR) || d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
@@ -223,8 +224,11 @@ public class TiUIButton extends TiUIView
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			setAttributedStringText((AttributedStringProxy) newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+			if (asProxy != null) {
+				setAttributedStringText(asProxy);
+			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			String colorString = TiConvert.toString(newValue);
 			btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString, activity) : this.defaultColor);
