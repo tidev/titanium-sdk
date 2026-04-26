@@ -80,24 +80,34 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-  UITraitCollection *currentTraitCollection = controller.traitCollection;
+  __weak TiUITabProxy *weakSelf = self;
+  TiThreadPerformOnMainThread(^{
+    TiUITabProxy *strongSelf = weakSelf;
+    if (strongSelf == nil) {
+      return;
+    }
 
-  if (currentTraitCollection == nil) {
-    currentTraitCollection = rootWindow.hostingController.traitCollection;
-  }
+    // If a modal is being dismissed, trait collection changes from UIKit
+    // are spurious — the tab bar item doesn't need rebuilding.
+    if (strongSelf->controller.presentedViewController != nil) {
+      return;
+    }
 
-  if (currentTraitCollection == nil) {
-    return;
-  }
-
-  if ((lastTabBarTraitCollection != nil)
-      && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:lastTabBarTraitCollection]
-      && (currentTraitCollection.horizontalSizeClass == lastTabBarTraitCollection.horizontalSizeClass)
-      && (currentTraitCollection.verticalSizeClass == lastTabBarTraitCollection.verticalSizeClass)) {
-    return;
-  }
-
-  [self updateTabBarItem];
+    UITraitCollection *currentTraitCollection = strongSelf->controller.traitCollection;
+    if (currentTraitCollection == nil) {
+      currentTraitCollection = strongSelf->rootWindow.hostingController.traitCollection;
+    }
+    if (currentTraitCollection == nil) {
+      return;
+    }
+    if ((strongSelf->lastTabBarTraitCollection != nil)
+        && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:strongSelf->lastTabBarTraitCollection]
+        && (currentTraitCollection.horizontalSizeClass == strongSelf->lastTabBarTraitCollection.horizontalSizeClass)
+        && (currentTraitCollection.verticalSizeClass == strongSelf->lastTabBarTraitCollection.verticalSizeClass)) {
+      return;
+    }
+    [strongSelf updateTabBarItem];
+  }, NO); // NO = non-blocking, since this is a notification handler
 }
 
 - (NSString *)apiName
@@ -603,10 +613,8 @@
     [newItem release];
 
     systemTab = YES;
-    if (currentTraitCollection != lastTabBarTraitCollection) {
-      [lastTabBarTraitCollection release];
-      lastTabBarTraitCollection = [currentTraitCollection retain];
-    }
+    [lastTabBarTraitCollection release];
+    lastTabBarTraitCollection = [currentTraitCollection retain];
     return;
   }
 
@@ -734,10 +742,8 @@
 
   systemTab = NO;
 
-  if (currentTraitCollection != lastTabBarTraitCollection) {
-    [lastTabBarTraitCollection release];
-    lastTabBarTraitCollection = [currentTraitCollection retain];
-  }
+  [lastTabBarTraitCollection release];
+  lastTabBarTraitCollection = [currentTraitCollection retain];
 }
 
 - (UIEdgeInsets)calculateIconInsets:(id)value
