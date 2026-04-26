@@ -81,33 +81,35 @@
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
   __weak TiUITabProxy *weakSelf = self;
-  TiThreadPerformOnMainThread(^{
-    TiUITabProxy *strongSelf = weakSelf;
-    if (strongSelf == nil) {
-      return;
-    }
+  TiThreadPerformOnMainThread(
+      ^{
+        TiUITabProxy *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+          return;
+        }
 
-    // If a modal is being dismissed, trait collection changes from UIKit
-    // are spurious — the tab bar item doesn't need rebuilding.
-    if (strongSelf->controller.presentedViewController != nil) {
-      return;
-    }
+        // If a modal is being dismissed, trait collection changes from UIKit
+        // are spurious — the tab bar item doesn't need rebuilding.
+        if (strongSelf->controller.presentedViewController != nil) {
+          return;
+        }
 
-    UITraitCollection *currentTraitCollection = strongSelf->controller.traitCollection;
-    if (currentTraitCollection == nil) {
-      currentTraitCollection = strongSelf->rootWindow.hostingController.traitCollection;
-    }
-    if (currentTraitCollection == nil) {
-      return;
-    }
-    if ((strongSelf->lastTabBarTraitCollection != nil)
-        && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:strongSelf->lastTabBarTraitCollection]
-        && (currentTraitCollection.horizontalSizeClass == strongSelf->lastTabBarTraitCollection.horizontalSizeClass)
-        && (currentTraitCollection.verticalSizeClass == strongSelf->lastTabBarTraitCollection.verticalSizeClass)) {
-      return;
-    }
-    [strongSelf updateTabBarItem];
-  }, NO); // NO = non-blocking, since this is a notification handler
+        UITraitCollection *currentTraitCollection = strongSelf->controller.traitCollection;
+        if (currentTraitCollection == nil) {
+          currentTraitCollection = strongSelf->rootWindow.hostingController.traitCollection;
+        }
+        if (currentTraitCollection == nil) {
+          return;
+        }
+        if ((strongSelf->lastTabBarTraitCollection != nil)
+            && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:strongSelf->lastTabBarTraitCollection]
+            && (currentTraitCollection.horizontalSizeClass == strongSelf->lastTabBarTraitCollection.horizontalSizeClass)
+            && (currentTraitCollection.verticalSizeClass == strongSelf->lastTabBarTraitCollection.verticalSizeClass)) {
+          return;
+        }
+        [strongSelf updateTabBarItem];
+      },
+      NO); // NO = non-blocking, since this is a notification handler
 }
 
 - (NSString *)apiName
