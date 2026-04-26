@@ -58,11 +58,8 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 {
 
 	protected final static String TAG = "TiUIBottomNavigation";
-	static int id_layout = 0;
-	static int id_content = 0;
-	static int id_bottomNavigation = 0;
 	private int currentlySelectedIndex = -1;
-	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<MenuItem>();
+	private ArrayList<MenuItem> mMenuItemsArray;
 	private RelativeLayout layout = null;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
@@ -72,37 +69,72 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	{
 		super(proxy, activity);
 
-		activity.addOnLifecycleEventListener(new TiLifecycle.OnLifecycleEvent() {
+		activity.addOnLifecycleEventListener(new TiLifecycle.OnLifecycleEvent()
+		{
 			@Override
-			public void onCreate(Activity activity, Bundle savedInstanceState)
-			{
-			}
+			public void onCreate(Activity activity, Bundle savedInstanceState) {}
 
 			@Override
-			public void onStart(Activity activity)
-			{
-			}
+			public void onStart(Activity activity) {}
 
 			@Override
 			public void onResume(Activity activity)
 			{
-				refreshTabContent();
+				if (centerView == null || tabsArray == null || tabsArray.isEmpty()) {
+					return;
+				}
+
+				int currentNightMode = activity.getResources().getConfiguration().uiMode
+					& android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+
+				Object stored = proxy.getProperty("_lastNightMode");
+				int lastNightMode = (stored != null) ? TiConvert.toInt(stored, -1) : -1;
+				if (currentNightMode == lastNightMode) {
+					return;
+				}
+				proxy.setProperty("_lastNightMode", currentNightMode);
+
+				// Always update activity context on all tab window proxies so they
+				// re-resolve theme colors on the next mode switch.
+				for (Object tab : tabsArray) {
+					TiUITab abstractTab = new TiUITab((TabProxy) tab);
+					TiWindowProxy windowProxy = abstractTab.getWindowProxy();
+					if (windowProxy != null) {
+						abstractTab.getProxy().setActivity(activity);
+						windowProxy.setActivity(activity);
+						windowProxy.getOrCreateView();
+					}
+				}
+
+				// Skip view rebuild on first run — just prime the proxies.
+				if (lastNightMode == -1) {
+					return;
+				}
+
+				// Rebuild the visible tab content.
+				if (currentlySelectedIndex >= 0 && currentlySelectedIndex < tabsArray.size()) {
+					TiUITab abstractTab = new TiUITab((TabProxy) tabsArray.get(currentlySelectedIndex));
+					TiWindowProxy windowProxy = abstractTab.getWindowProxy();
+					if (windowProxy != null) {
+						centerView.removeAllViews();
+						TiUIView view = windowProxy.getOrCreateView();
+						if (view != null) {
+							centerView.addView(view.getOuterView());
+						}
+					}
+				}
+
+				updateIconTint();
 			}
 
 			@Override
-			public void onPause(Activity activity)
-			{
-			}
+			public void onPause(Activity activity) {}
 
 			@Override
-			public void onStop(Activity activity)
-			{
-			}
+			public void onStop(Activity activity) {}
 
 			@Override
-			public void onDestroy(Activity activity)
-			{
-			}
+			public void onDestroy(Activity activity) {}
 		});
 	}
 
@@ -140,14 +172,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void addViews(TiBaseActivity activity)
 	{
 		mMenuItemsArray = new ArrayList<>();
-		if (tabsArray == null) {
-			tabsArray = new ArrayList<Object>();
-		}
 
 		try {
-			id_layout = TiRHelper.getResource("layout.titanium_ui_bottom_navigation");
-			id_content = TiRHelper.getResource("id.bottomNavBar_content");
-			id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
+			int id_layout = TiRHelper.getResource("layout.titanium_ui_bottom_navigation");
+			int id_content = TiRHelper.getResource("id.bottomNavBar_content");
+			int id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
 
 			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppRootOrCurrentActivity());
 			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
@@ -614,49 +643,5 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			// Height not available, post it to run after a layout pass.
 			bottomNavigation.post(runnable);
 		}
-	}
-
-	/**
-	 * Refreshes all tab content views to apply new theme colors.
-	 * This is necessary when the theme (such as dark/light mode) changes.
-	 */
-	private void refreshTabContent()
-	{
-		if (tabsArray == null || tabsArray.isEmpty()) {
-			return;
-		}
-
-		Activity activity = proxy.getActivity();
-		int currentIndex = currentlySelectedIndex;
-
-		for (int i = 0; i < tabsArray.size(); i++) {
-			TiViewProxy tabProxy = (TiViewProxy) tabsArray.get(i);
-			if (tabProxy != null) {
-				TiUITab abstractTab = new TiUITab((TabProxy) tabProxy);
-				TiWindowProxy windowProxy = abstractTab.getWindowProxy();
-				if (windowProxy != null) {
-					abstractTab.getProxy().setActivity(activity);
-					windowProxy.setActivity(activity);
-					windowProxy.getOrCreateView();
-				}
-			}
-		}
-
-		centerView.removeAllViews();
-		if (currentIndex >= 0 && currentIndex < tabsArray.size()) {
-			TiViewProxy tabProxy = (TiViewProxy) tabsArray.get(currentIndex);
-			if (tabProxy != null) {
-				TiUITab abstractTab = new TiUITab((TabProxy) tabProxy);
-				TiWindowProxy windowProxy = abstractTab.getWindowProxy();
-				if (windowProxy != null) {
-					TiUIView view = windowProxy.getOrCreateView();
-					if (view != null) {
-						centerView.addView(view.getOuterView());
-					}
-				}
-			}
-		}
-
-		updateIconTint();
 	}
 }
