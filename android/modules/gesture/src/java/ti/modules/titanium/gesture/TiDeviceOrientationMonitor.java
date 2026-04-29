@@ -13,9 +13,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.Surface;
 import org.appcelerator.kroll.common.Log;
@@ -484,6 +486,8 @@ public final class TiDeviceOrientationMonitor
 		private boolean isEnabled;
 		private ContentObserver contentObserver;
 		private TiDeviceOrientation lastReadOrientation;
+		private DisplayManager displayManager;
+		private DisplayManager.DisplayListener displayListener;
 
 		public ScreenEventHandler(TiDeviceOrientationMonitor monitor)
 		{
@@ -496,6 +500,7 @@ public final class TiDeviceOrientationMonitor
 			this.monitor = monitor;
 			this.isEnabled = false;
 			this.lastReadOrientation = TiDeviceOrientation.UNKNOWN;
+			this.displayManager = (DisplayManager) this.monitor.context.getSystemService(Context.DISPLAY_SERVICE);
 			this.contentObserver = new ContentObserver(this.monitor.handler) {
 				@Override
 				public boolean deliverSelfNotifications()
@@ -507,6 +512,26 @@ public final class TiDeviceOrientationMonitor
 				public void onChange(boolean wasSelfChanged)
 				{
 					updateLastReadOrientation();
+				}
+			};
+			// Use DisplayManager.DisplayListener (API 17+) for efficient orientation detection
+			this.displayListener = new DisplayManager.DisplayListener() {
+				@Override
+				public void onDisplayAdded(int displayId)
+				{
+				}
+
+				@Override
+				public void onDisplayRemoved(int displayId)
+				{
+				}
+
+				@Override
+				public void onDisplayChanged(int displayId)
+				{
+					if (displayId == Display.DEFAULT_DISPLAY) {
+						updateLastReadOrientation();
+					}
 				}
 			};
 		}
@@ -541,26 +566,12 @@ public final class TiDeviceOrientationMonitor
 			} catch (Exception ex) {
 			}
 
-			// Set up a timer to poll for the current screen orientation.
-			// Note: There is no reliable event-based way of doing this on Android 4.1 or older.
-			//       For example, the Activity.onConfigurationChanged() method won't
-			//       be called for 180 degree changes such as LandscapeRight<->LandscapeLeft.
-			// TODO: In the future, use API Level 17 "DisplayManager.Listener" instead.
-			final long TIMER_INTERVAL_IN_MILLISECONDS = 200;
-			final Runnable runnable = new Runnable() {
-				@Override
-				public void run()
-				{
-					// Fetch the screen's current orientation.
-					updateLastReadOrientation();
-
-					// Schedule this timer's next elapse time if screen handler is still enabled.
-					if (isEnabled()) {
-						ScreenEventHandler.this.monitor.handler.postDelayed(this, TIMER_INTERVAL_IN_MILLISECONDS);
-					}
-				}
-			};
-			this.monitor.handler.postDelayed(runnable, TIMER_INTERVAL_IN_MILLISECONDS);
+			// Use DisplayManager.DisplayListener (API 17+) for efficient event-based orientation detection.
+			try {
+				this.displayManager.registerDisplayListener(this.displayListener, this.monitor.handler);
+			} catch (Exception ex) {
+				Log.w(TAG, "Failed to register DisplayManager listener: " + ex.getMessage());
+			}
 		}
 
 		public void disable()
@@ -577,6 +588,15 @@ public final class TiDeviceOrientationMonitor
 					contentResolver.unregisterContentObserver(this.contentObserver);
 				}
 			} catch (Exception ex) {
+			}
+
+			// Stop listening for display orientation changes via DisplayManager.
+			if (this.displayManager != null) {
+				try {
+					this.displayManager.unregisterDisplayListener(this.displayListener);
+				} catch (Exception ex) {
+					Log.w(TAG, "Failed to unregister DisplayManager listener: " + ex.getMessage());
+				}
 			}
 
 			// Flag this handler as disabled.
