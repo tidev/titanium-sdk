@@ -534,13 +534,8 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
 
-			// Throttle scroll events to ~60fps
-			long currentTime = SystemClock.elapsedRealtime();
-			if ((currentTime - lastScrollEventTime) < SCROLL_EVENT_THROTTLE_MS) {
-				return;
-			}
-			lastScrollEventTime = currentTime;
-
+			// Always fire dragstart immediately - must not be throttled,
+			// otherwise the matching dragend (gated on isScrolling) is also lost.
 			if (!isScrolling && isTouching) {
 				isScrolling = true;
 				KrollDict data = new KrollDict();
@@ -548,6 +543,13 @@ public class TiUIScrollView extends TiUIView
 				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
 			}
+
+			// Throttle scroll events to ~60fps
+			long currentTime = SystemClock.elapsedRealtime();
+			if ((currentTime - lastScrollEventTime) < SCROLL_EVENT_THROTTLE_MS) {
+				return;
+			}
+			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
 
@@ -682,6 +684,16 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onScrollChanged(l, t, oldl, oldt);
 
+			// Always fire dragstart immediately - must not be throttled,
+			// otherwise the matching dragend (gated on isScrolling) is also lost.
+			if (!isScrolling && isTouching) {
+				isScrolling = true;
+				KrollDict data = new KrollDict();
+				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
+				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
+			}
+
 			// Throttle scroll events to ~60fps
 			long currentTime = SystemClock.elapsedRealtime();
 			if ((currentTime - lastScrollEventTime) < SCROLL_EVENT_THROTTLE_MS) {
@@ -689,18 +701,9 @@ public class TiUIScrollView extends TiUIView
 			}
 			lastScrollEventTime = currentTime;
 
-			KrollDict data = new KrollDict();
-
-			if (!isScrolling && isTouching) {
-				isScrolling = true;
-				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
-				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
-				getProxy().fireEvent(TiC.EVENT_DRAGSTART, data);
-			}
-
 			setContentOffset(l, t);
 
-			data = new KrollDict();
+			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
 			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
 			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
