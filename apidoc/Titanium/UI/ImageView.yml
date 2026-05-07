@@ -199,7 +199,7 @@ properties:
     type: Number
     default: 0.5
     platforms: [iphone, ipad, macos]
-    since: "13.2.0"
+    since: "13.3.0"
 
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
