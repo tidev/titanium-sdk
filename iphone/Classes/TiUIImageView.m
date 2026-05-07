@@ -326,8 +326,9 @@ DEFINE_EXCEPTIONS
 
     // do a nice fade in animation to replace the new incoming image
     // with our placeholder
+    CGFloat duration = fadeInTimeSet ? fadeInTime : 0.5;
     [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDuration:0.5];
+    [UIView setAnimationDuration:duration];
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
 
@@ -788,6 +789,12 @@ DEFINE_EXCEPTIONS
   [self.proxy replaceValue:NUMINT(dur) forKey:@"duration" notification:NO];
 
   [self updateTimer];
+}
+
+- (void)setFadeInTime_:(id)value
+{
+  fadeInTime = [TiUtils floatValue:value def:0.5];
+  fadeInTimeSet = YES;
 }
 
 - (void)setRepeatCount_:(id)count
