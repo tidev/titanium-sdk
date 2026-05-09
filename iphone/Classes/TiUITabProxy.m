@@ -528,6 +528,13 @@
     }
   }
 
+  if ([self _hasListeners:@"focus"]) {
+    [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
+- (void)handleDidSelect:(NSDictionary *)event
+{
   if ([self _hasListeners:@"selected"]) {
     [self fireEvent:@"selected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }

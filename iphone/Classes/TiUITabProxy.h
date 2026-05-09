@@ -51,6 +51,7 @@
 - (void)handleDidBlur:(NSDictionary *)event;
 - (void)handleWillFocus;
 - (void)handleDidFocus:(NSDictionary *)event;
+- (void)handleDidSelect:(NSDictionary *)event;
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (void)updateTabBarItem;
