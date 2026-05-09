@@ -319,28 +319,13 @@ DEFINE_EXCEPTIONS
   [self setTintedImage:image];
 
   if (placeholderLoading) {
-    UIImageView *iv = [self imageView];
-    iv.alpha = 0;
-
     [(TiViewProxy *)[self proxy] contentsWillChange];
 
-    // do a nice fade in animation to replace the new incoming image
-    // with our placeholder
-    CGFloat duration = fadeInTimeSet ? fadeInTime : 0.5;
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDuration:duration];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
-
     for (UIView *view in [self subviews]) {
-      if (view != iv) {
+      if (view != [self imageView]) {
         [view setAlpha:0];
       }
     }
-
-    iv.alpha = 1;
-
-    [UIView commitAnimations];
 
     placeholderLoading = NO;
     [self fireLoadEventWithState:@"image"];
@@ -789,12 +774,6 @@ DEFINE_EXCEPTIONS
   [self.proxy replaceValue:NUMINT(dur) forKey:@"duration" notification:NO];
 
   [self updateTimer];
-}
-
-- (void)setFadeInTime_:(id)value
-{
-  fadeInTime = [TiUtils floatValue:value def:0.5];
-  fadeInTimeSet = YES;
 }
 
 - (void)setRepeatCount_:(id)count

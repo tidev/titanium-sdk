@@ -192,15 +192,6 @@ properties:
     type: Number
     default: 200 ms in Release 2.1.1 and later. Platform-specific default in earlier releases.
 
-  - name: fadeInTime
-    summary: |
-        Duration in seconds for the fade-in transition when a remote image finishes loading.
-        Only applies when a `defaultImage` (or the built-in placeholder) is displayed while the remote image downloads.
-    type: Number
-    default: 0.5
-    platforms: [iphone, ipad, macos]
-    since: "13.3.0"
-
   - name: enableZoomControls
     summary: Show zoom controls when the user touches the image view.
     type: Boolean

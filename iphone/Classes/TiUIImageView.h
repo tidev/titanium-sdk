@@ -33,8 +33,6 @@
   TiDimension height;
   CGFloat autoHeight;
   CGFloat autoWidth;
-  CGFloat fadeInTime;
-  BOOL fadeInTimeSet;
   NSInteger loadCount;
   NSInteger readyCount;
   NSInteger loadTotal;
