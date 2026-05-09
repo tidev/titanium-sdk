@@ -114,6 +114,17 @@ public class TiWebViewBinding
 
 	public void destroy()
 	{
+		// Remove JavaScript interfaces to prevent memory leaks
+		// This must be done before setting webView to null
+		if (webView != null) {
+			if (interfacesAdded) {
+				webView.removeJavascriptInterface("TiApp");
+				webView.removeJavascriptInterface("TiAPI");
+				webView.removeJavascriptInterface("_TiReturn");
+				interfacesAdded = false;
+			}
+		}
+
 		// remove any event listener that have already been added to the Ti.APP through
 		// this web view instance
 		appBinding.clearEventListeners();
