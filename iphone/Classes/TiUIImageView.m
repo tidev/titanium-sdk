@@ -319,27 +319,13 @@ DEFINE_EXCEPTIONS
   [self setTintedImage:image];
 
   if (placeholderLoading) {
-    UIImageView *iv = [self imageView];
-    iv.alpha = 0;
-
     [(TiViewProxy *)[self proxy] contentsWillChange];
 
-    // do a nice fade in animation to replace the new incoming image
-    // with our placeholder
-    [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDuration:0.5];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(animationCompleted:finished:context:)];
-
     for (UIView *view in [self subviews]) {
-      if (view != iv) {
+      if (view != [self imageView]) {
         [view setAlpha:0];
       }
     }
-
-    iv.alpha = 1;
-
-    [UIView commitAnimations];
 
     placeholderLoading = NO;
     [self fireLoadEventWithState:@"image"];
