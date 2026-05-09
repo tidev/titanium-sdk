@@ -59,6 +59,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 	protected final static String TAG = "TiUIBottomNavigation";
 	private int currentlySelectedIndex = -1;
+	private int lastNightMode = -1;
 	private ArrayList<MenuItem> mMenuItemsArray;
 	private RelativeLayout layout = null;
 	private FrameLayout centerView;
@@ -87,20 +88,17 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				int currentNightMode = activity.getResources().getConfiguration().uiMode
 					& android.content.res.Configuration.UI_MODE_NIGHT_MASK;
 
-				Object stored = proxy.getProperty("_lastNightMode");
-				int lastNightMode = (stored != null) ? TiConvert.toInt(stored, -1) : -1;
 				if (currentNightMode == lastNightMode) {
 					return;
 				}
-				proxy.setProperty("_lastNightMode", currentNightMode);
+				lastNightMode = currentNightMode;
 
 				// Always update activity context on all tab window proxies so they
 				// re-resolve theme colors on the next mode switch.
 				for (Object tab : tabsArray) {
-					TiUITab abstractTab = new TiUITab((TabProxy) tab);
-					TiWindowProxy windowProxy = abstractTab.getWindowProxy();
-					if (windowProxy != null) {
-						abstractTab.getProxy().setActivity(activity);
+					Object windowProp = ((TabProxy) tab).getProperty(TiC.PROPERTY_WINDOW);
+					if (windowProp instanceof TiWindowProxy windowProxy) {
+						((TabProxy) tab).setActivity(activity);
 						windowProxy.setActivity(activity);
 						windowProxy.getOrCreateView();
 					}
@@ -113,9 +111,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 				// Rebuild the visible tab content.
 				if (currentlySelectedIndex >= 0 && currentlySelectedIndex < tabsArray.size()) {
-					TiUITab abstractTab = new TiUITab((TabProxy) tabsArray.get(currentlySelectedIndex));
-					TiWindowProxy windowProxy = abstractTab.getWindowProxy();
-					if (windowProxy != null) {
+					Object windowProp = ((TabProxy) tabsArray.get(currentlySelectedIndex))
+						.getProperty(TiC.PROPERTY_WINDOW);
+					if (windowProp instanceof TiWindowProxy windowProxy) {
 						centerView.removeAllViews();
 						TiUIView view = windowProxy.getOrCreateView();
 						if (view != null) {
@@ -603,12 +601,13 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 		TabProxy tp = ((TabProxy) tabsArray.get(tabIndex));
 		if (tp != null) {
-			TiUITab abstractTab = new TiUITab(tp);
-
-			centerView.removeAllViews();
-			TiUIView view = abstractTab.getWindowProxy().getOrCreateView();
-			if (view != null) {
-				centerView.addView(view.getOuterView());
+			Object windowProp = tp.getProperty(TiC.PROPERTY_WINDOW);
+			if (windowProp instanceof TiWindowProxy windowProxy) {
+				centerView.removeAllViews();
+				TiUIView view = windowProxy.getOrCreateView();
+				if (view != null) {
+					centerView.addView(view.getOuterView());
+				}
 			}
 		}
 		updateIconTint();
