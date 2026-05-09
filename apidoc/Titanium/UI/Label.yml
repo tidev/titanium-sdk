@@ -20,10 +20,7 @@ properties:
         The underlying attributed string drawn by the label. If set, avoid setting common attributes
         in the label, such as `color` and `font`, as unexpected behaviors may result.
 
-        Prior to Release 3.6.0, assign this property an object from the
-        <Titanium.UI.iOS.AttributedString> class.
-
-        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
+        For Alloy, you can use an `<AttributedString>`
         element inside a `<Label>` element and set the text property as node text:
 
         ``` xml
@@ -55,6 +52,27 @@ properties:
             }
           ]
         }
+
+        Since 13.2.0 you can also use the AttributedString object without `Titanium.UI.createAttributedString()`:
+        ``` js
+        var text =  'Bacon ipsum dolor Titanium SDK rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+        var label = Titanium.UI.createLabel({
+            attributedString: {
+                text: text,
+                attributes: [
+                    {
+                        type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                        value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                        range: [text.indexOf('Titanium'), ('Titanium').length]
+                    },
+                    {
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
+                        value: "red",
+                        range: [text.indexOf('Titanium'), ('Titanium').length]
+                    }
+                ]
+            }
+        });
         ```
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad, macos]

@@ -3490,7 +3490,7 @@ class iOSBuilder extends Builder {
 
 		// If we're building for macOS catalyst, set the "Optimize for Mac" flag
 		let deviceFamily = this.deviceFamilies[this.deviceFamily];
-		if (this.target === 'macos') {
+		if (this.target === 'macos' || this.target === 'dist-macappstore') {
 			deviceFamily = [ ...deviceFamily.split(','), '6' ].join(',');
 		}
 

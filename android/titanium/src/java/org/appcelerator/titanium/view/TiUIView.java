@@ -1379,6 +1379,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			children.clear();
 			children = null;
 		}
+		// Clear detector to prevent memory leak
+		detector = null;
+		// Clear touchView WeakReference to prevent memory leak
+		if (touchView != null) {
+			touchView.clear();
+			touchView = null;
+		}
 		proxy = null;
 		layoutParams = null;
 	}
@@ -2202,7 +2209,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected void disableHWAcceleration()
 	{
-		if (this.borderView != null) {
+		if (this.borderView != null && !(proxy.hasProperty("keepHardwareMode")
+			&& TiConvert.toBoolean(proxy.getProperty("keepHardwareMode"), false))
+		) {
 			this.borderView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 	}
