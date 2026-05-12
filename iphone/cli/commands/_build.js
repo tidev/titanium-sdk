@@ -6482,13 +6482,35 @@ class iOSBuilder extends Builder {
 			let changed = false;
 			const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['LaunchLogo.png'];
 
-			if (launchLogo) {
-				// sanity check that LaunchLogo is usable
-				const stat = fs.statSync(launchLogo.src),
-					mtime = JSON.parse(JSON.stringify(stat.mtime)),
-					launchLogoContents = fs.readFileSync(launchLogo.src),
-					hash = this.hash(launchLogoContents);
+			// Run all up-front I/O in parallel: the LaunchLogo source stat+read (if present) and
+			// the existsSync probe for every destination we may have to generate. The categorization
+			// step below stays synchronous over the resolved results.
+			const lookupEntries = Object.keys(lookup).map(name => ({
+				name,
+				spec: lookup[name],
+				filename: name + '.png',
+				dest: path.join(assetCatalogDir, name + '.png')
+			}));
+			const [ launchLogoData, ...destExists ] = await Promise.all([
+				launchLogo
+					? (async () => {
+						const [ stat, launchLogoContents ] = await Promise.all([
+							fs.stat(launchLogo.src),
+							fs.readFile(launchLogo.src)
+						]);
+						return {
+							stat,
+							launchLogoContents,
+							mtime: JSON.parse(JSON.stringify(stat.mtime)),
+							hash: this.hash(launchLogoContents)
+						};
+					})()
+					: Promise.resolve(null),
+				...lookupEntries.map(entry => fs.pathExists(entry.dest))
+			]);
 
+			if (launchLogoData) {
+				const { stat, launchLogoContents, mtime, hash } = launchLogoData;
 				changed = !prev || prev.size !== stat.size || prev.mtime !== mtime || prev.hash !== hash;
 
 				this.currentBuildManifest.files['LaunchLogo.png'] = {
@@ -6515,11 +6537,9 @@ class iOSBuilder extends Builder {
 			let logged = false;
 
 			// build the list of images to be generated
-			Object.keys(lookup).forEach(name => {
-				const spec = lookup[name],
-					filename = name + '.png',
-					dest = path.join(assetCatalogDir, filename),
-					desc = `${name} - Used for ${spec.idiom} - size: ${spec.size}x${spec.size}`;
+			lookupEntries.forEach((entry, idx) => {
+				const { spec, filename, dest } = entry;
+				const desc = `${entry.name} - Used for ${spec.idiom} - size: ${spec.size}x${spec.size}`;
 
 				images.push({
 					idiom: spec.idiom,
@@ -6530,7 +6550,7 @@ class iOSBuilder extends Builder {
 				this.unmarkBuildDirFile(dest);
 
 				// if the source image hasn't changed, then don't need to regenerate the missing launch logos
-				if (!changed && fs.existsSync(dest)) {
+				if (!changed && destExists[idx]) {
 					this.logger.trace(`Found generated ${spec.size}x${spec.size} launch logo: ${dest.cyan}`);
 					return;
 				}
@@ -6643,14 +6663,34 @@ class iOSBuilder extends Builder {
 			return [];
 		}
 
-		const missingIcons = [];
-		Object.keys(lookup).forEach(key => {
+		// Read every previously-generated icon (if any) in parallel before deciding which still
+		// need to be regenerated. When the default icon changed we can't trust any cached output,
+		// so skip the disk checks entirely.
+		const candidates = Object.keys(lookup).map(key => {
 			const filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png';
-			const dest = path.join(appIconSetDir, filename);
+			return {
+				meta: lookup[key],
+				filename,
+				dest: path.join(appIconSetDir, filename)
+			};
+		});
+		const existingInfo = await Promise.all(candidates.map(async ({ dest }) => {
+			if (defaultIconChanged || !(await fs.pathExists(dest))) {
+				return null;
+			}
+			try {
+				const contents = await fs.readFile(dest);
+				return appc.image.pngInfo(contents);
+			} catch {
+				return null;
+			}
+		}));
+
+		const missingIcons = [];
+		candidates.forEach(({ meta, filename, dest }, idx) => {
 			this.unmarkBuildDirFile(dest);
 
 			// inject images into the app icon set
-			const meta = lookup[key];
 			meta.idioms.forEach(function (idiom) {
 				appIconSet.images.push({
 					size:     meta.width + 'x' + meta.height,
@@ -6663,15 +6703,11 @@ class iOSBuilder extends Builder {
 			// check if the icon was previously resized
 			const width = meta.width * meta.scale;
 			const height = meta.height * meta.scale;
-			if (!defaultIconChanged && fs.existsSync(dest)) {
-				const contents = fs.readFileSync(dest),
-					pngInfo = appc.image.pngInfo(contents);
-
-				if (pngInfo.width === width && pngInfo.height === height) {
-					this.logger.trace(`Found generated ${width}x${height} app icon: ${dest.cyan}`);
-					// icon looks good, no need to generate it!
-					return;
-				}
+			const pngInfo = existingInfo[idx];
+			if (pngInfo && pngInfo.width === width && pngInfo.height === height) {
+				this.logger.trace(`Found generated ${width}x${height} app icon: ${dest.cyan}`);
+				// icon looks good, no need to generate it!
+				return;
 			}
 
 			missingIcons.push({
