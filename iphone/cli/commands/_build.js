@@ -5003,15 +5003,34 @@ class iOSBuilder extends Builder {
 						return null;
 					}
 
-					let contents = fs.readFileSync(srcFile),
-						changed = false;
 					const rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
-						destExists = fs.existsSync(destFile),
-						existingContent = destExists && fs.readFileSync(destFile),
-						srcHash = this.hash(contents),
-						srcMtime = JSON.parse(JSON.stringify(srcStat.mtime));
+						srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+						prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
+						destExists = fs.existsSync(destFile);
 
 					this.unmarkBuildDirFile(destFile);
+
+					// Fast path: if stat (size+mtime) matches the previous build and dest still exists,
+					// the source can't have changed, so reuse the cached fingerprint and skip read/hash/write.
+					// Skipped for appFiles (rendered through ejs each build) and once a Frameworks bulk
+					// copy has already run this build (the dest may have been replaced with fresh content).
+					if (
+						!appFiles[filename]
+						&& destExists
+						&& !nameChanged
+						&& prev
+						&& prev.size === srcStat.size
+						&& prev.mtime === srcMtime
+						&& !(dir === 'Frameworks' && !copyFrameworks)
+					) {
+						this.currentBuildManifest.files[rel] = prev;
+						return null;
+					}
+
+					let contents = fs.readFileSync(srcFile),
+						changed = false;
+					const existingContent = destExists && fs.readFileSync(destFile),
+						srcHash = this.hash(contents);
 
 					this.currentBuildManifest.files[rel] = {
 						hash: srcHash,
@@ -5033,9 +5052,7 @@ class iOSBuilder extends Builder {
 					}
 
 					if (extRegExp.test(srcFile)) {
-						// look up the file to see if the original source changed
-						const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
-						if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
+						if (destExists && !nameChanged && prev && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
 							// the original hasn't changed, so let's assume that there's nothing to do
 							return null;
 						}
