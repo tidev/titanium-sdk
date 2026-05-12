@@ -5897,21 +5897,13 @@ class iOSBuilder extends Builder {
 		const imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 		const imageSets = {};
+		const namespaceDirs = new Set();
 		for (let [ file, info ] of imageAssets) {
 			const directories = file.split('/');
 			let newPath = '';
 			for (let i = 0; i < directories.length - 1; i++) {
 				newPath = newPath + '/' + directories[i];
-
-				await this.writeAssetContentsFile(path.join(assetCatalog, newPath, 'Contents.json'), {
-					info: {
-						version: 1,
-						author: 'xcode'
-					},
-					properties: {
-						'provides-namespace': true
-					},
-				});
+				namespaceDirs.add(newPath);
 			}
 
 			const match = file.match(imageNameRegExp);
@@ -5953,16 +5945,23 @@ class iOSBuilder extends Builder {
 			resourcesToCopy.get(file).isImage = true;
 		}
 
-		// finally create all the Content.json files
-		return Promise.all(Object.keys(imageSets).map(async set => {
-			return this.writeAssetContentsFile(path.join(assetCatalog, set, 'Contents.json'), {
+		// finally write all the Contents.json files in parallel: the per-namespace markers
+		// (deduped above via namespaceDirs) and the imageset manifests.
+		const namespaceContents = {
+			info: { version: 1, author: 'xcode' },
+			properties: { 'provides-namespace': true }
+		};
+		const writes = [];
+		for (const dir of namespaceDirs) {
+			writes.push(this.writeAssetContentsFile(path.join(assetCatalog, dir, 'Contents.json'), namespaceContents));
+		}
+		for (const set of Object.keys(imageSets)) {
+			writes.push(this.writeAssetContentsFile(path.join(assetCatalog, set, 'Contents.json'), {
 				images: imageSets[set].images,
-				info: {
-					version: 1,
-					author: 'xcode'
-				}
-			});
-		}));
+				info: { version: 1, author: 'xcode' }
+			}));
+		}
+		return Promise.all(writes);
 	}
 
 	/**
