@@ -3328,7 +3328,28 @@ class iOSBuilder extends Builder {
 		const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
 		const contents = fs.readFileSync(srcFile).toString();
 
-		xcodeProject.hash = xcodeParser.parse(contents);
+		// Parsing the template pbxproj is non-trivial (~50-200ms) and the source only changes
+		// when the SDK itself does. Cache the parsed tree on disk keyed by a hash of the source.
+		const pbxprojCacheDir = path.join(this.buildDir, 'incremental', 'xcode-project');
+		const pbxprojCacheFile = path.join(pbxprojCacheDir, 'template-parsed.json');
+		const pbxprojHashFile = path.join(pbxprojCacheDir, 'template-src.sha1');
+		const srcHash = this.hash(contents);
+		let parsed;
+		if (fs.existsSync(pbxprojHashFile) && fs.existsSync(pbxprojCacheFile)
+			&& fs.readFileSync(pbxprojHashFile, 'utf8') === srcHash) {
+			this.logger.trace(`Reusing cached parsed pbxproj from ${pbxprojCacheFile.cyan}`);
+			parsed = JSON.parse(fs.readFileSync(pbxprojCacheFile, 'utf8'));
+		} else {
+			parsed = xcodeParser.parse(contents);
+			try {
+				fs.ensureDirSync(pbxprojCacheDir);
+				fs.writeFileSync(pbxprojCacheFile, JSON.stringify(parsed));
+				fs.writeFileSync(pbxprojHashFile, srcHash);
+			} catch (e) {
+				this.logger.trace(`Unable to persist pbxproj cache: ${e.message}`);
+			}
+		}
+		xcodeProject.hash = parsed;
 		const xobjs = xcodeProject.hash.project.objects;
 
 		if (appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
