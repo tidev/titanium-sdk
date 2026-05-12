@@ -6194,7 +6194,6 @@ class iOSBuilder extends Builder {
 			}
 		};
 		const flattenIcons = []; // icons with alpha channel to "flatten" with white bg
-		// FIXME: Do these in parallel
 		// This goes through the app icons and tries to:
 		// validate it matches one of the ones we need
 		// its height/width matches what we need
@@ -6205,21 +6204,26 @@ class iOSBuilder extends Builder {
 		// if usable, we expand out into appIconSet and remove from lookup map (this is how we keep track of what's missing)
 		// if we don't need to flatten, we add to resources to copy (after chnaging dest to iconset asset catalog)
 		// if we do need to flatten we eventually merge over top white bg
-		appIcons.forEach((info, filename) => {
+
+		// Read + parse all candidate icons in parallel; the subsequent validation/categorization
+		// mutates shared state (lookup, appIconSet, flattenIcons, resourcesToCopy) so it stays serial.
+		const iconCandidates = [];
+		for (const [ filename, info ] of appIcons) {
 			if (!info.tag) {
 				// probably appicon.png, we don't care so skip it
-				return;
+				continue;
 			}
-
 			if (!lookup[info.tag]) {
-				// we don't care about this image
 				this.logger.debug(`Unsupported app icon ${info.src.replace(this.projectDir + '/', '').cyan}, skipping`);
-				return;
+				continue;
 			}
-
-			const contents = fs.readFileSync(info.src);
-			const pngInfo = appc.image.pngInfo(contents);
-
+			iconCandidates.push({ filename, info });
+		}
+		const iconReads = await Promise.all(iconCandidates.map(async ({ filename, info }) => {
+			const contents = await fs.readFile(info.src);
+			return { filename, info, contents, pngInfo: appc.image.pngInfo(contents) };
+		}));
+		iconReads.forEach(({ filename, info, contents, pngInfo }) => {
 			// check that the app icon is square
 			if (pngInfo.width !== pngInfo.height) {
 				this.logger.warn(`Skipping app icon ${
