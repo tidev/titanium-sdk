@@ -11,6 +11,7 @@
  */
 
 import { BaseAppCreator } from './base_app.js';
+import { execSync } from 'node:child_process';
 
 /**
  * Creates application projects.
@@ -29,10 +30,20 @@ export class AppCreator extends BaseAppCreator {
 	 */
 	constructor(logger, config, cli) { // eslint-disable-line no-unused-vars
 		super(logger, config, cli, {
-			title: 'Titanium App (Classic)',
-			titleOrder: 1,
-			type: 'app'
+			title: 'Titanium App (Alloy)',
+			titleOrder: 2,
+			type: 'alloy'
 		});
+	}
+
+	init() {
+		// check if alloy is installed
+		try {
+			execSync('alloy --version');
+		} catch (err) {
+			throw new Error('Alloy is not installed');
+		}
+		return super.init();
 	}
 }
 

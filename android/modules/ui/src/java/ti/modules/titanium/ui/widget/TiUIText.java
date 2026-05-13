@@ -271,9 +271,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-			if (attributedString instanceof AttributedStringProxy) {
-				setAttributedStringText((AttributedStringProxy) attributedString);
+			Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+			if (proxy != null) {
+				setAttributedStringText(proxy);
 			}
 		}
 
@@ -473,8 +474,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT) && newValue instanceof AttributedStringProxy) {
 			setAttributedStringHint((AttributedStringProxy) newValue);
-		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			setAttributedStringText((AttributedStringProxy) newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+			if (asProxy != null) {
+				setAttributedStringText(asProxy);
+			}
 		} else if (key.equals(TiC.PROPERTY_PADDING)) {
 			setTextPadding((HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_FULLSCREEN)) {

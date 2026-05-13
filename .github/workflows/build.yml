@@ -17,12 +17,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '20.x'
+          node-version: '24'
           java-version: '17'
 
   ios:
@@ -31,16 +29,14 @@ jobs:
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '20.x'
+          node-version: '24'
 
   js:
     runs-on: ubuntu-latest
@@ -48,14 +44,11 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
 
     - name: Use Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
-        node-version: '20.x'
-        cache: 'npm'
+        node-version: '24'
 
     - name: Install dependencies
       run: npm ci
@@ -68,13 +61,11 @@ jobs:
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     needs: [android, ios, js]
     steps:
     - name: Checkout repository
       uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
     - name: Create version tag
       run: |
         PACKAGE_VERSION=$(sed -n 's/^ *"version": *"//p' package.json | tr -d '"' | tr -d ',' | tr -d '[[:space:]]')
@@ -84,6 +75,6 @@ jobs:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '20.x'
+        node-version: '24'
         java-version: '17'
         vtag: ${{ env.vtag }}

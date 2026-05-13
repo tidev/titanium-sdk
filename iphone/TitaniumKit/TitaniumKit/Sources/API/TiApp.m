@@ -759,8 +759,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 {
   if (pendingCompletionHandlers != nil) {
     for (NSString *key in [pendingCompletionHandlers allKeys]) {
-      // Do not remove from the pending handlers for now, as it's removed after the enumeration finished
-      [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed removeAfterExecution:NO];
+      [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed];
     }
   }
   RELEASE_TO_NIL(pendingCompletionHandlers);
@@ -772,19 +771,17 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
   NSString *key = (NSString *)timer.userInfo;
   if ([pendingCompletionHandlers objectForKey:key]) {
     // Send an event notifying the developer that the background-fetch failed
-    [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed removeAfterExecution:YES];
+    [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed];
   }
 }
 
 // Gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
-- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result removeAfterExecution:(BOOL)removeAfterExecution
+- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result
 {
-  if ([pendingCompletionHandlers objectForKey:key]) {
-    void (^completionHandler)(UIBackgroundFetchResult) = [pendingCompletionHandlers objectForKey:key];
+  void (^completionHandler)(UIBackgroundFetchResult) = [pendingCompletionHandlers objectForKey:key];
+  if (completionHandler != nil) {
+    [pendingCompletionHandlers removeObjectForKey:key];
     completionHandler(result);
-    if (removeAfterExecution) {
-      [pendingCompletionHandlers removeObjectForKey:key];
-    }
   } else {
     DebugLog(@"[ERROR] The specified completion handler with ID = %@ has already expired or been removed from the system", key);
   }
