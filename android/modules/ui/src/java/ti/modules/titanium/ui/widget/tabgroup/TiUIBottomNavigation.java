@@ -71,7 +71,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private int currentlySelectedIndex = -1;
 	private int lastNightMode = -1;
 	private ArrayList<MenuItem> mMenuItemsArray;
-	private RelativeLayout layout = null;
+	private DrawerLayout layout = null;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
