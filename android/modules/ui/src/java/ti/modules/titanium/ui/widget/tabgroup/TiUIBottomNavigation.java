@@ -33,7 +33,6 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -176,7 +175,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			int id_content = TiRHelper.getResource("id.bottomNavBar_content");
 			int id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
 
-			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppRootOrCurrentActivity());
+			LayoutInflater inflater = LayoutInflater.from(activity);
 			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
 			bottomNavigation = layout.findViewById(id_bottomNavigation);
 			centerView = layout.findViewById(id_content);
@@ -393,7 +392,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
 				bottomMenuView.getChildAt(index).setBackgroundColor(TiConvert.toColor(
-					tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), TiApplication.getAppRootOrCurrentActivity()
+					tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), tabProxy.getActivity()
 				));
 			}
 		} catch (Exception e) {

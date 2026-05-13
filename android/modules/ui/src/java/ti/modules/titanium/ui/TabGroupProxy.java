@@ -431,8 +431,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				int theme = TiRHelper.getResource("style."
 					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
 				topActivity.setTheme(theme);
-				topActivity.getApplicationContext().setTheme(theme);
 			} catch (Exception e) {
+				Log.w(TAG, "Could not apply theme: " + e.getMessage());
 			}
 		}
 
