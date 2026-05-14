@@ -54,7 +54,6 @@ import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
@@ -71,20 +70,20 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private int currentlySelectedIndex = -1;
 	private int lastNightMode = -1;
 	private ArrayList<MenuItem> mMenuItemsArray;
-	private DrawerLayout layout = null;
+	private DrawerLayout layout;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
-	private static AppCompatActivity activity;
+	private AppCompatActivity activity;
 	private TiViewProxy leftView;
 	private TiViewProxy rightView;
-	private FrameLayout leftFrame = null;
-	private FrameLayout rightFrame = null;
+	private FrameLayout leftFrame;
+	private FrameLayout rightFrame;
 	private int leftWidth;
 	private int rightWidth;
-	private ActionBarDrawerToggle drawerToggle = null;
-	static int id_drawer_open_string = 0;
-	static int id_drawer_close_string = 0;
+	private ActionBarDrawerToggle drawerToggle;
+	int id_drawer_open_string;
+	int id_drawer_close_string;
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -152,7 +151,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			public void onStop(Activity activity) {}
 
 			@Override
-			public void onDestroy(Activity activity) {}
+			public void onDestroy(Activity activity)
+			{
+				if (layout != null && drawerToggle != null) {
+					layout.removeDrawerListener(drawerToggle);
+				}
+			}
 		});
 	}
 
@@ -202,7 +206,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			centerView = layout.findViewById(id_content);
 
 			bottomNavigation.setOnItemSelectedListener(this);
-			TiUIBottomNavigation.activity = activity;
+			this.activity = activity;
 			activity.setLayout(layout);
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_LEFT)
 				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_RIGHT)
@@ -602,6 +606,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		if (tabsArray == null || tabsArray.isEmpty()) {
 			return;
 		}
+		if (tabIndex < 0 || tabIndex >= tabsArray.size()) {
+			return;
+		}
 
 		// unselected event
 		if ((currentlySelectedIndex >= 0) && (tabIndex != currentlySelectedIndex)
@@ -644,11 +651,17 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 	public void showHideTabBar(boolean visible)
 	{
+		if (bottomNavigation == null) {
+			return;
+		}
 		super.setTabGroupVisibilityWithAnimation(bottomNavigation, visible);
 	}
 
 	public void setTabGroupVisibility(boolean visible)
 	{
+		if (bottomNavigation == null) {
+			return;
+		}
 		super.setTabGroupVisibility(bottomNavigation, visible);
 	}
 
@@ -669,6 +682,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		if (leftFrame != null) {
 			return;
 		}
+		if (layout == null) {
+			return;
+		}
 		leftFrame = new FrameLayout(proxy.getActivity());
 
 		DrawerLayout.LayoutParams frameLayout = new DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.WRAP_CONTENT,
@@ -686,6 +702,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private void initRight()
 	{
 		if (rightFrame != null) {
+			return;
+		}
+		if (layout == null) {
 			return;
 		}
 		rightFrame = new FrameLayout(proxy.getActivity());
@@ -760,36 +779,21 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			activity.getSupportActionBar().setHomeButtonEnabled(true);
 
-			// Get the toolbar and manually set the navigation click listener
-			try {
-				// Use reflection to get the toolbar from the ActionBar
-				Field toolbarField = activity.getSupportActionBar().getClass().getDeclaredField("mDecorToolbar");
-				toolbarField.setAccessible(true);
-				Object decorToolbar = toolbarField.get(activity.getSupportActionBar());
-				if (decorToolbar != null) {
-					Field toolbarField2 = decorToolbar.getClass().getDeclaredField("mToolbar");
-					toolbarField2.setAccessible(true);
-					Toolbar toolbar = (androidx.appcompat.widget.Toolbar) toolbarField2.get(decorToolbar);
-					if (toolbar != null) {
-						// Set our custom click listener that will toggle the drawer
-						toolbar.setNavigationOnClickListener(new View.OnClickListener()
-						{
-							@Override
-							public void onClick(View v)
-							{
-								// Toggle the left drawer
-								if (layout.isDrawerOpen(GravityCompat.START)) {
-									layout.closeDrawer(GravityCompat.START);
-								} else {
-									layout.openDrawer(GravityCompat.START);
-								}
-							}
-						});
+			// Find the Toolbar and set the navigation click listener to toggle the drawer
+			Toolbar toolbar = findToolbar(activity);
+			if (toolbar != null) {
+				toolbar.setNavigationOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						if (layout.isDrawerOpen(GravityCompat.START)) {
+							layout.closeDrawer(GravityCompat.START);
+						} else {
+							layout.openDrawer(GravityCompat.START);
+						}
 					}
-				}
-			} catch (Exception e) {
-				// If reflection fails, fallback to default behavior
-				Log.e(TAG, "Could not set navigation click listener: " + e.getMessage());
+				});
 			}
 		}
 
@@ -971,11 +975,17 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			this.rightFrame.setLayoutParams(rightFrameLayout);
 
 		} else if (key.equals(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(newValue));
+			if (layout != null) {
+				layout.setDrawerLockMode(TiConvert.toInt(newValue));
+			}
 		} else if (key.equals(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.START);
+			if (layout != null) {
+				layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.START);
+			}
 		} else if (key.equals(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
-			layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.END);
+			if (layout != null) {
+				layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.END);
+			}
 		}
 	}
 
@@ -992,13 +1002,39 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		View nativeView = outerView != null ? outerView : view.getNativeView();
 		ViewGroup parentViewGroup = (ViewGroup) nativeView.getParent();
 		if (parentViewGroup != null) {
-			parentViewGroup.removeAllViews();
+			parentViewGroup.removeView(nativeView);
 		}
 		return nativeView;
 	}
 
+	private Toolbar findToolbar(AppCompatActivity activity)
+	{
+		ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
+		return findToolbarInViewGroup(decorView);
+	}
+
+	private Toolbar findToolbarInViewGroup(ViewGroup parent)
+	{
+		for (int i = 0; i < parent.getChildCount(); i++) {
+			View child = parent.getChildAt(i);
+			if (child instanceof Toolbar) {
+				return (Toolbar) child;
+			}
+			if (child instanceof ViewGroup) {
+				Toolbar result = findToolbarInViewGroup((ViewGroup) child);
+				if (result != null) {
+					return result;
+				}
+			}
+		}
+		return null;
+	}
+
 	public void toggleLeft()
 	{
+		if (layout == null) {
+			return;
+		}
 		if (layout.isDrawerOpen(GravityCompat.START)) {
 			closeLeft();
 		} else {
@@ -1008,16 +1044,25 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 	public void openLeft()
 	{
+		if (layout == null) {
+			return;
+		}
 		layout.openDrawer(GravityCompat.START);
 	}
 
 	public void closeLeft()
 	{
+		if (layout == null) {
+			return;
+		}
 		layout.closeDrawer(GravityCompat.START);
 	}
 
 	public void toggleRight()
 	{
+		if (layout == null) {
+			return;
+		}
 		if (layout.isDrawerOpen(GravityCompat.END)) {
 			closeRight();
 		} else {
@@ -1027,31 +1072,49 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 	public void openRight()
 	{
+		if (layout == null) {
+			return;
+		}
 		layout.openDrawer(GravityCompat.END);
 	}
 
 	public void closeRight()
 	{
+		if (layout == null) {
+			return;
+		}
 		layout.closeDrawer(GravityCompat.END);
 	}
 
 	public boolean isLeftOpen()
 	{
+		if (layout == null) {
+			return false;
+		}
 		return layout.isDrawerOpen(GravityCompat.START);
 	}
 
 	public boolean isRightOpen()
 	{
+		if (layout == null) {
+			return false;
+		}
 		return layout.isDrawerOpen(GravityCompat.END);
 	}
 
 	public boolean isLeftVisible()
 	{
+		if (layout == null) {
+			return false;
+		}
 		return layout.isDrawerVisible(GravityCompat.START);
 	}
 
 	public boolean isRightVisible()
 	{
+		if (layout == null) {
+			return false;
+		}
 		return layout.isDrawerVisible(GravityCompat.END);
 	}
 
