@@ -385,9 +385,14 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 
 			if (!hasTouchFeedback) {
-				BottomNavigationMenuView bottomMenuView =
-					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
-				bottomMenuView.getChildAt(index).setBackground(null);
+				// Don't clear background - only remove the ripple wrapping.
+				// Apply state drawable background if custom tab colors are defined.
+				if (hasCustomBackground(tabProxy)) {
+					BottomNavigationMenuView bottomMenuView =
+						((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
+					Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+					bottomMenuView.getChildAt(index).setBackground(drawable);
+				}
 			}
 
 			if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
