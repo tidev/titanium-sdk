@@ -64,10 +64,12 @@ export function init(logger, config, cli) {
 			}
 
 			const projectDir = cli.argv['project-dir'];
+			const platform = normalizePlatform(cli.argv.platform);
 			const bridge = createTiViteBridge({
-				platform: builder.platform,
+				platform,
 				deployType: builder.deployType,
-				target: cli.argv.target
+				target: cli.argv.target,
+				nativeModules: collectNativeModules(builder)
 			});
 			const bridgePlugin = tiBridgePlugin({
 				context: bridge.context,
@@ -94,4 +96,26 @@ export function init(logger, config, cli) {
 			builder.tiSymbols = result.tiSymbols;
 		}
 	});
+}
+
+// `ti build -p iphone|ipad|ios` all target iOS. Normalize to a stable token
+// before it leaves the CLI so downstream consumers (Vite plugins) deal with a
+// single value per platform.
+function normalizePlatform(raw) {
+	if (typeof raw !== 'string') return undefined;
+	if (/^(iphone|ipad|ios)$/i.test(raw)) return 'ios';
+	if (/^android$/i.test(raw)) return 'android';
+	return raw;
+}
+
+function collectNativeModules(builder) {
+	const modules = builder?.tiapp?.modules;
+	if (!Array.isArray(modules)) {
+		return [];
+	}
+	return modules
+		.filter(entry => entry && typeof entry.id === 'string')
+		.map(entry => {
+			return { ...entry, id: entry.id };
+		});
 }
