@@ -39,6 +39,8 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -198,7 +200,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			int id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
 
 			LayoutInflater inflater = LayoutInflater.from(activity);
-			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
+			layout = (DrawerLayout) inflater.inflate(id_layout, null, false);
 			bottomNavigation = layout.findViewById(id_bottomNavigation);
 			centerView = layout.findViewById(id_content);
 
