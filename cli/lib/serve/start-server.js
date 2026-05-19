@@ -23,10 +23,14 @@ export async function startServer({ logger, project, server }) {
 	const vitePath = resolveVitePath(projectDir);
 	const { createServer } = await import(pathToFileURL(vitePath).href);
 	const configFile = findViteConfigFile(projectDir);
+	const origin = createServerOrigin(server.host, server.port);
 	const bridge = createTiViteBridge({
 		command: 'serve',
 		platform: project.platform,
-		target: project.target
+		target: project.target,
+		devServer: {
+			origin
+		}
 	});
 
 	const viteServer = await createServer({
@@ -68,8 +72,16 @@ export async function startServer({ logger, project, server }) {
 	return {
 		viteServer,
 		bridge,
+		origin,
 		urls
 	};
+}
+
+function createServerOrigin(host, port) {
+	const normalizedHost = host.includes(':') && !host.startsWith('[')
+		? `[${host}]`
+		: host;
+	return `http://${normalizedHost}:${port}`;
 }
 
 function collectUrls(resolvedUrls) {

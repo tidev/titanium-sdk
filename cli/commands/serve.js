@@ -18,6 +18,7 @@ import { resolveHost } from '../lib/serve/resolve-host.js';
 import { createServeHash, readServeMetadata, writeServeMetadata } from '../lib/serve/metadata.js';
 
 const DEFAULT_PORT = 8323;
+const SERVE_ARTIFACT_FORMAT = 1;
 
 export const cliVersion = '>=3.2.1';
 export const title = 'Serve';
@@ -116,6 +117,7 @@ export async function run(logger, config, cli, finished) {
 	let viteServer;
 	try {
 		const buildHash = createServeHash({
+			artifactFormat: SERVE_ARTIFACT_FORMAT,
 			tiapp: cli.tiapp && typeof cli.tiapp.toString === 'function' ? cli.tiapp.toString() : cli.tiapp,
 			target: cli.argv.target,
 			server: {
@@ -150,6 +152,7 @@ export async function run(logger, config, cli, finished) {
 			}
 		});
 		viteServer = serverResult.viteServer;
+		cli.argv['vite-dev-server-origin'] = serverResult.origin;
 
 		const builder = await getPlatformBuilder(cli, platform);
 

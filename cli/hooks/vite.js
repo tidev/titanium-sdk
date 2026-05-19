@@ -57,20 +57,23 @@ export function init(logger, config, cli) {
 
 			builder.useBundler = true;
 
-			// `ti serve` already started the Vite dev server before invoking the build pipeline.
-			// Only mark the builder as bundler-backed and skip one-off Vite build work here.
-			if (commandName === 'serve') {
-				return;
-			}
-
 			const projectDir = cli.argv['project-dir'];
 			const platform = normalizePlatform(cli.argv.platform);
-			const bridge = createTiViteBridge({
+			const bridgeContext = {
+				command: commandName,
 				platform,
 				deployType: builder.deployType,
 				target: cli.argv.target,
 				nativeModules: collectNativeModules(builder)
-			});
+			};
+
+			if (commandName === 'serve' && cli.argv['vite-dev-server-origin']) {
+				bridgeContext.devServer = {
+					origin: cli.argv['vite-dev-server-origin']
+				};
+			}
+
+			const bridge = createTiViteBridge(bridgeContext);
 			const bridgePlugin = tiBridgePlugin({
 				context: bridge.context,
 				reportTiApiUsage: bridge.reportTiApiUsage
