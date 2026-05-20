@@ -348,9 +348,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 
 			// MediaPlayer.setDataSource(Context, Uri, headers) may route through ContentResolver and fail for http(s) URLs.
 			// Use the string overload for http(s) so we can play remote videos reliably.
-			String scheme = (mUri != null) ? mUri.getScheme() : null;
+			String scheme = mUri != null ? mUri.getScheme() : null;
 
-			if ((scheme != null) && scheme.startsWith("http")) {
+			if (scheme != null && scheme.startsWith("http")) {
 				mMediaPlayer.setDataSource(mUri.toString());
 			} else {
 				mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
