@@ -1263,14 +1263,14 @@ extern void UIColorFlushCache(void);
   NSArray<NSUserActivity *> *userActivities = connectionOptions.userActivities.allObjects;
   for (NSUserActivity *userActivity in userActivities) {
     if (userActivity.activityType == NSUserActivityTypeBrowsingWeb && userActivity.webpageURL != nil) {
-      [self handleURLFromScene:userActivity.webpageURL];
+      [self handleURLFromScene:userActivity.webpageURL source:nil];
       break;
     }
   }
 
   // Handle URL contexts (custom URL schemes and universal links)
   for (UIOpenURLContext *urlContext in connectionOptions.URLContexts) {
-    [self handleURLFromScene:urlContext.URL];
+    [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
   }
 }
 
@@ -1278,29 +1278,31 @@ extern void UIColorFlushCache(void);
 {
   // Handle URL when app is already running (iOS 13+)
   for (UIOpenURLContext *urlContext in URLContexts) {
-    [self handleURLFromScene:urlContext.URL];
+    [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
   }
 }
 
-- (void)handleURLFromScene:(NSURL *)url
+- (void)handleURLFromScene:(NSURL *)url source:(NSString *)source
 {
   if (url == nil) {
     return;
   }
 
-  NSMutableDictionary *urlLaunchOptions = [[NSMutableDictionary alloc] init];
-  [urlLaunchOptions setObject:[url absoluteString] forKey:@"url"];
+  [launchOptions setObject:[url absoluteString] forKey:@"url"];
+  if (source != nil) {
+    [launchOptions setObject:source forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
 
   if (appBooted) {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:urlLaunchOptions];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
   } else {
     if (queuedBootEvents == nil) {
       queuedBootEvents = [[NSMutableDictionary alloc] init];
     }
-    [queuedBootEvents setObject:urlLaunchOptions forKey:kTiApplicationLaunchedFromURL];
+    [queuedBootEvents setObject:launchOptions forKey:kTiApplicationLaunchedFromURL];
   }
-
-  [urlLaunchOptions release];
 }
 
 #pragma mark Background Tasks
