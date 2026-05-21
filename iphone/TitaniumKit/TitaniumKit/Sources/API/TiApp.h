@@ -290,7 +290,7 @@
 - (void)registerBackgroundService:(TiProxy *)proxy;
 - (void)unregisterBackgroundService:(TiProxy *)proxy;
 - (void)stopBackgroundService:(TiProxy *)proxy;
-- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result removeAfterExecution:(BOOL)removeAfterExecution;
+- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result;
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key;
 - (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo;
 
