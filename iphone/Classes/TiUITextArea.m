@@ -110,6 +110,39 @@
 {
   [[self textWidgetView] sizeToFit];
   [super frameSizeChanged:frame bounds:bounds];
+  [self updateVerticalAlignment];
+}
+
+- (void)updateVerticalAlignment
+{
+  UITextView *tv = (UITextView *)[self textWidgetView];
+
+  id basePadding = [[self proxy] valueForUndefinedKey:@"padding"];
+  UIEdgeInsets baseInset = basePadding ? [TiUtils contentInsets:basePadding] : UIEdgeInsetsZero;
+
+  // Always reset to base insets first so we start from a clean state
+  tv.textContainerInset = baseInset;
+  [tv layoutIfNeeded];
+
+  // Calculate the actual content height using base padding
+  CGFloat contentHeight = tv.contentSize.height;
+  CGFloat boundsHeight = self.bounds.size.height - 2 * self.layer.borderWidth;
+
+  if (contentHeight < boundsHeight && verticalAlign != UIControlContentVerticalAlignmentTop) {
+    CGFloat extraSpace = boundsHeight - contentHeight;
+    if (verticalAlign == UIControlContentVerticalAlignmentCenter) {
+      tv.textContainerInset = UIEdgeInsetsMake(baseInset.top + (extraSpace / 2.0), baseInset.left, baseInset.bottom + (extraSpace / 2.0), baseInset.right);
+    } else if (verticalAlign == UIControlContentVerticalAlignmentBottom) {
+      tv.textContainerInset = UIEdgeInsetsMake(baseInset.top, baseInset.left, baseInset.bottom + extraSpace, baseInset.right);
+    }
+    // Content fits, no scrolling needed
+    tv.scrollEnabled = NO;
+    // Reset offset so text is visible at the correct position
+    tv.contentOffset = CGPointZero;
+  } else if (tv.isFirstResponder) {
+    // During editing, ensure the cursor stays visible by scrolling the selected range into view
+    [tv scrollRangeToVisible:tv.selectedRange];
+  }
 }
 
 - (UIView<UITextInputTraits> *)textWidgetView
@@ -130,6 +163,32 @@
     lastSelectedRange.length = 0;
 
     textWidgetView = textViewImpl;
+
+    verticalAlign = UIControlContentVerticalAlignmentCenter;
+    linesCount = 0;
+    maxRows = -1;
+
+    id padding = [[self proxy] valueForUndefinedKey:@"padding"];
+    if (padding) {
+      [self setPadding_:padding];
+    }
+
+    id va = [[self proxy] valueForUndefinedKey:@"verticalAlign"];
+    if (va) {
+      [self setVerticalAlign_:va];
+    } else {
+      [self updateVerticalAlignment];
+    }
+
+    id linesProp = [[self proxy] valueForUndefinedKey:@"lines"];
+    if (linesProp) {
+      [self setLines_:linesProp];
+    }
+
+    id maxLinesProp = [[self proxy] valueForUndefinedKey:@"maxLines"];
+    if (maxLinesProp) {
+      [self setMaxLines_:maxLinesProp];
+    }
   }
   return textWidgetView;
 }
@@ -224,6 +283,14 @@
 }
 #pragma mark Public APIs
 
+- (void)setValue_:(id)value
+{
+  [super setValue_:value];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self updateVerticalAlignment];
+  });
+}
+
 - (void)setShowUndoRedoActions:(id)value
 {
   UITextView *tv = (UITextView *)[self textWidgetView];
@@ -255,6 +322,25 @@
   [(UITextView *)[self textWidgetView] setScrollEnabled:[TiUtils boolValue:value]];
 }
 
+- (void)setLines_:(id)value
+{
+  linesCount = [TiUtils intValue:value def:0];
+  [[self proxy] replaceValue:NUMINTEGER(linesCount) forKey:@"lines" notification:NO];
+  if (linesCount > 0) {
+    UITextView *tv = (UITextView *)[self textWidgetView];
+    CGFloat lineHeight = tv.font.lineHeight;
+    CGRect frame = self.bounds;
+    frame.size.height = lineHeight * linesCount;
+    [self setFrame:frame];
+  }
+}
+
+- (void)setMaxLines_:(id)value
+{
+  maxRows = [TiUtils intValue:value def:-1];
+  [[self proxy] replaceValue:NUMINTEGER(maxRows) forKey:@"maxLines" notification:NO];
+}
+
 - (void)setEditable_:(id)value
 {
   BOOL _trulyEnabled = ([TiUtils boolValue:value def:YES] && [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"enabled"] def:YES]);
@@ -276,6 +362,16 @@
   [(UITextView *)[self textWidgetView] setScrollsToTop:[TiUtils boolValue:value def:YES]];
 }
 
+- (void)setVerticalAlign_:(id)value
+{
+  verticalAlign = [TiUtils intValue:value];
+  if (verticalAlign < UIControlContentVerticalAlignmentCenter || verticalAlign > UIControlContentVerticalAlignmentBottom) {
+    verticalAlign = UIControlContentVerticalAlignmentCenter;
+  }
+  [[self proxy] replaceValue:value forKey:@"verticalAlign" notification:NO];
+  [self updateVerticalAlignment];
+}
+
 - (void)setBackgroundColor_:(id)color
 {
   [[self textWidgetView] setBackgroundColor:[TiUtils colorValue:color].color];
@@ -284,9 +380,14 @@
 - (void)setPadding_:(id)args
 {
   ENSURE_TYPE(args, NSDictionary);
-  [(UITextView *)[self textWidgetView] setTextContainerInset:[TiUtils contentInsets:args]];
+  UIEdgeInsets inset = [TiUtils contentInsets:args];
+  [(UITextView *)[self textWidgetView] setTextContainerInset:inset];
 
   [[self proxy] replaceValue:args forKey:@"padding" notification:NO];
+
+  // Let the layout system handle it.
+  // We don't force offset here because that breaks simulated vertical alignment via insets.
+  [self updateVerticalAlignment];
 }
 
 #pragma mark Public Method
@@ -333,6 +434,9 @@
   returnActive = NO;
 
   [self textWidget:tv didBlurWithText:text];
+
+  // Apply vertical alignment after editing is complete
+  [self updateVerticalAlignment];
 }
 
 - (void)textViewDidChange:(UITextView *)tv
@@ -340,6 +444,19 @@
   NSNumber *textareaHeight = [NSNumber numberWithFloat:tv.contentSize.height];
 
   [(TiUITextAreaProxy *)[self proxy] noteValueChange:[(UITextView *)textWidgetView text]:textareaHeight];
+
+  // Enforce maxLines cap
+  if (maxRows > 0) {
+    CGFloat lineHeight = tv.font.lineHeight;
+    CGFloat maxHeight = lineHeight * maxRows + 2 * self.layer.borderWidth;
+    if (self.bounds.size.height > maxHeight) {
+      CGRect frame = self.bounds;
+      frame.size.height = maxHeight;
+      tv.scrollEnabled = YES;
+    } else {
+      tv.scrollEnabled = NO;
+    }
+  }
 }
 
 - (void)textViewDidChangeSelection:(UITextView *)tv
@@ -446,7 +563,19 @@ Text area constrains the text event though the content offset and edge insets ar
 - (CGFloat)contentHeightForWidth:(CGFloat)value
 {
   UITextView *ourView = (UITextView *)[self textWidgetView];
-  return [ourView sizeThatFits:CGSizeMake(value, 1E100)].height;
+
+  // Measure using base padding only (without inflated alignment insets)
+  // so the layout engine can shrink the frame when content decreases.
+  id basePadding = [[self proxy] valueForUndefinedKey:@"padding"];
+  UIEdgeInsets baseInset = basePadding ? [TiUtils contentInsets:basePadding] : UIEdgeInsetsZero;
+  UIEdgeInsets savedInset = ourView.textContainerInset;
+  ourView.textContainerInset = baseInset;
+  [ourView layoutIfNeeded];
+
+  CGFloat height = [ourView sizeThatFits:CGSizeMake(value, 1E100)].height;
+
+  ourView.textContainerInset = savedInset;
+  return height;
 }
 
 - (void)scrollViewDidScroll:(id)scrollView
