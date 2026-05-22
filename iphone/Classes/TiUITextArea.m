@@ -448,14 +448,22 @@
   // Enforce maxLines cap
   if (maxRows > 0) {
     CGFloat lineHeight = tv.font.lineHeight;
-    CGFloat maxHeight = lineHeight * maxRows + 2 * self.layer.borderWidth;
-    if (self.bounds.size.height > maxHeight) {
+    UIEdgeInsets padding = tv.textContainerInset;
+    CGFloat maxHeight = lineHeight * maxRows + 2 * self.layer.borderWidth + padding.top + padding.bottom;
+
+    // Only cap when content exceeds maxLines. Below maxLines, let the textarea
+    // grow naturally without interfering with scrollEnabled.
+    CGFloat contentTextHeight = tv.contentSize.height;
+    if (contentTextHeight > maxHeight) {
       CGRect frame = self.bounds;
-      frame.size.height = maxHeight;
+      if (frame.size.height > maxHeight) {
+        frame.size.height = maxHeight;
+        [self setFrame:frame];
+      }
       tv.scrollEnabled = YES;
-    } else {
-      tv.scrollEnabled = NO;
+      [tv scrollRangeToVisible:tv.selectedRange];
     }
+    // Below maxLines: don't touch scrollEnabled, let the textarea grow naturally.
   }
 }
 
@@ -570,23 +578,40 @@ Text area constrains the text event though the content offset and edge insets ar
   UIEdgeInsets baseInset = basePadding ? [TiUtils contentInsets:basePadding] : UIEdgeInsetsZero;
   UIEdgeInsets savedInset = ourView.textContainerInset;
   ourView.textContainerInset = baseInset;
-  [ourView layoutIfNeeded];
 
-  CGFloat height = [ourView sizeThatFits:CGSizeMake(value, 1E100)].height;
-
+  // Force the text view to update its layout so contentSize is current.
+  // This is needed because UITextView updates its layout asynchronously.
+  CGSize fits = [ourView sizeThatFits:CGSizeMake(value, CGFLOAT_MAX)];
   ourView.textContainerInset = savedInset;
+
+  CGFloat height = fits.height;
+
+  // Cap height at maxLines
+  if (maxRows > 0) {
+    CGFloat lineHeight = ourView.font.lineHeight;
+    UIEdgeInsets padding = savedInset;
+    CGFloat maxHeight = lineHeight * maxRows + 2 * self.layer.borderWidth + padding.top + padding.bottom;
+    height = MIN(height, maxHeight);
+  }
+
   return height;
 }
 
 - (void)scrollViewDidScroll:(id)scrollView
 {
-  // Ensure that system messages that cause the scrollView to
-  // scroll are ignored if scrollable is set to false
+  // Clamp content offset to valid bounds when scrolling is disabled.
+  // This prevents cursor displacement while keeping the view from
+  // scrolling to invalid positions.
   UITextView *ourView = (UITextView *)[self textWidgetView];
   if (![ourView isScrollEnabled]) {
     CGPoint origin = [scrollView contentOffset];
-    if ((origin.x != 0) || (origin.y != 0)) {
-      [scrollView setContentOffset:CGPointZero animated:NO];
+    CGSize cs = ourView.contentSize;
+    CGFloat maxOffsetY = MAX(0.0, cs.height - ourView.bounds.size.height);
+    CGFloat maxOffsetX = MAX(0.0, cs.width - ourView.bounds.size.width);
+    CGFloat clampedX = origin.x < 0 ? 0 : (origin.x > maxOffsetX ? maxOffsetX : origin.x);
+    CGFloat clampedY = origin.y < 0 ? 0 : (origin.y > maxOffsetY ? maxOffsetY : origin.y);
+    if (origin.x != clampedX || origin.y != clampedY) {
+      [scrollView setContentOffset:CGPointMake(clampedX, clampedY) animated:NO];
     }
   }
 }
