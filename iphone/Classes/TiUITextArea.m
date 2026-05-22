@@ -329,8 +329,9 @@
   if (linesCount > 0) {
     UITextView *tv = (UITextView *)[self textWidgetView];
     CGFloat lineHeight = tv.font.lineHeight;
+    UIEdgeInsets padding = tv.textContainerInset;
     CGRect frame = self.bounds;
-    frame.size.height = lineHeight * linesCount;
+    frame.size.height = lineHeight * linesCount + padding.top + padding.bottom + 2 * self.layer.borderWidth;
     [self setFrame:frame];
   }
 }
@@ -585,6 +586,14 @@ Text area constrains the text event though the content offset and edge insets ar
   ourView.textContainerInset = savedInset;
 
   CGFloat height = fits.height;
+
+  // Floor height at lines
+  if (linesCount > 0) {
+    CGFloat lineHeight = ourView.font.lineHeight;
+    UIEdgeInsets padding = savedInset;
+    CGFloat minHeight = lineHeight * linesCount + 2 * self.layer.borderWidth + padding.top + padding.bottom;
+    height = MAX(height, minHeight);
+  }
 
   // Cap height at maxLines
   if (maxRows > 0) {
