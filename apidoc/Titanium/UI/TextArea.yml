@@ -520,7 +520,7 @@ properties:
     summary: Vertical alignment within this text area.
     type: [Number, String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
-    default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER>
+    default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP>
     platforms: [android, iphone, ipad, macos]
 
 events:

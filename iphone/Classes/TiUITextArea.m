@@ -164,7 +164,7 @@
 
     textWidgetView = textViewImpl;
 
-    verticalAlign = UIControlContentVerticalAlignmentCenter;
+    verticalAlign = UIControlContentVerticalAlignmentTop;
     linesCount = 0;
     maxRows = -1;
 
