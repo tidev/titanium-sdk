@@ -1253,6 +1253,18 @@ extern void UIColorFlushCache(void);
   // Initialize the root-window
   window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
 
+  // If this is a separate scene delegate instance, share the app delegate's launchOptions
+  if (launchOptions == nil) {
+    id<UIApplicationDelegate> appDel = [[UIApplication sharedApplication] delegate];
+    if (appDel != (id<UIApplicationDelegate>)self && [appDel isKindOfClass:[TiApp class]]) {
+      launchOptions = (NSMutableDictionary *)[(TiApp *)appDel launchOptions];
+      [launchOptions retain];
+    }
+    if (launchOptions == nil) {
+      launchOptions = [[NSMutableDictionary alloc] init];
+    }
+  }
+
   // Initialize the root-controller (also sets sharedApp if not already set)
   [self initController];
 
