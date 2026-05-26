@@ -346,7 +346,15 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			Map<String, String> headers = new HashMap<>();
 			headers.put("Cache-Control", "no-cache");
 
-			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
+			// MediaPlayer.setDataSource(Context, Uri, headers) may route through ContentResolver and fail for http(s) URLs.
+			// Use the string overload for http(s) so we can play remote videos reliably.
+			String scheme = mUri != null ? mUri.getScheme() : null;
+
+			if (scheme != null && scheme.startsWith("http")) {
+				mMediaPlayer.setDataSource(mUri.toString());
+			} else {
+				mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
 		}

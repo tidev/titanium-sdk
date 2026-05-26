@@ -17,7 +17,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-import { DOMParser } from 'xmldom';
+import { DOMParser } from '@xmldom/xmldom';
 import fs from 'fs-extra';
 import os from 'node:os';
 
