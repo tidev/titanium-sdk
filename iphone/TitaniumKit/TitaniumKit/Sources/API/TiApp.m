@@ -392,14 +392,14 @@ extern void UIColorFlushCache(void);
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   }
 
-  // Map launched URL
+  // Map launched URL and queue handleurl event for cold launch
   if (urlOptions != nil) {
-    [launchOptions setObject:[urlOptions absoluteString] forKey:@"url"];
+    [self handleURLFromScene:urlOptions source:sourceBundleId];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
   }
 
-  // Map launched App-ID
-  if (sourceBundleId != nil) {
+  // Map launched App-ID (if no URL, still store source)
+  if (sourceBundleId != nil && urlOptions == nil) {
     [launchOptions setObject:sourceBundleId forKey:@"source"];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
   }
