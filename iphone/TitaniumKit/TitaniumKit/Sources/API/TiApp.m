@@ -243,6 +243,19 @@ extern void UIColorFlushCache(void);
       for (NSString *notificationName in queuedBootEvents) {
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:[queuedBootEvents objectForKey:notificationName]];
       }
+      // Re-set URL/source in launchOptions from the queued event so that
+      // Ti.App.arguments.url reflects it even if TIMOB-3432 cleared it.
+      NSDictionary *urlEvent = [queuedBootEvents objectForKey:kTiApplicationLaunchedFromURL];
+      if (urlEvent != nil) {
+        id url = [urlEvent objectForKey:@"url"];
+        id source = [urlEvent objectForKey:@"source"];
+        if (url != nil) {
+          [launchOptions setObject:url forKey:@"url"];
+        }
+        if (source != nil) {
+          [launchOptions setObject:source forKey:@"source"];
+        }
+      }
       RELEASE_TO_NIL(queuedBootEvents);
     }
 
