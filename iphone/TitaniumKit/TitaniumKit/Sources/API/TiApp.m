@@ -36,6 +36,7 @@ extern void UIColorFlushCache(void);
 @interface TiApp ()
 - (void)checkBackgroundServices;
 - (void)appBoot;
+- (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
 @end
 
 @implementation TiApp
@@ -1314,6 +1315,133 @@ extern void UIColorFlushCache(void);
       queuedBootEvents = [[NSMutableDictionary alloc] init];
     }
     [queuedBootEvents setObject:launchOptions forKey:kTiApplicationLaunchedFromURL];
+  }
+}
+
+#pragma mark Scene Lifecycle
+
+- (void)sceneWillResignActive:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneWillResignActive:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  if ([self forceSplashAsSnapshot]) {
+    [window addSubview:[self splashScreenView]];
+  }
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+
+  [[ImageLoader sharedLoader] suspend];
+  [kjsBridge gc];
+}
+
+- (void)sceneDidBecomeActive:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneDidBecomeActive:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  if ([self forceSplashAsSnapshot] && splashScreenView != nil) {
+    [[self splashScreenView] removeFromSuperview];
+    RELEASE_TO_NIL(splashScreenView);
+  }
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
+
+  [[ImageLoader sharedLoader] resume];
+}
+
+- (void)sceneDidEnterBackground:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneDidEnterBackground:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
+
+  if (backgroundServices == nil) {
+    return;
+  }
+
+  UIApplication *app = [UIApplication sharedApplication];
+  TiApp *tiapp = self;
+  bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [app endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
+        NO);
+  }];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [tiapp beginBackgrounding];
+  });
+}
+
+- (void)sceneWillEnterForeground:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneWillEnterForeground:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  [self flushCompletionHandlerQueue];
+  [sessionId release];
+  sessionId = [[TiUtils createUUID] retain];
+
+  // TIMOB-3432. Ensure URL is cleared when resume event is fired.
+  [launchOptions removeObjectForKey:@"url"];
+  [launchOptions removeObjectForKey:@"source"];
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+
+  if (backgroundServices == nil) {
+    return;
+  }
+
+  [self endBackgrounding];
+}
+
+#pragma mark Shared User Activity Processing
+
+- (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity
+{
+  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
+
+  if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+    if ([userActivity userInfo] != nil) {
+      [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+    }
+  }
+
+  if ([userActivity title] != nil) {
+    [dict setObject:[userActivity title] forKey:@"title"];
+  }
+
+  if ([userActivity webpageURL] != nil) {
+    [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+  }
+
+  if ([userActivity userInfo] != nil) {
+    [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+  }
+
+  // Update launchOptions so that we send only expected values rather than NSUserActivity
+  NSMutableDictionary *userActivityDict = [NSMutableDictionary dictionaryWithDictionary:launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]];
+  [userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
+  [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+
+  return dict;
+}
+
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity
+{
+  NSDictionary *dict = [self dictionaryFromUserActivity:userActivity];
+
+  [self tryToInvokeSelector:@selector(scene:continueUserActivity:)
+              withArguments:[NSOrderedSet orderedSetWithObjects:scene, userActivity, nil]];
+
+  if (appBooted) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
+  } else {
+    [[self queuedBootEvents] setObject:dict forKey:kTiContinueActivity];
   }
 }
 
