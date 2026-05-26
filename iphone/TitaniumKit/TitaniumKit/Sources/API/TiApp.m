@@ -1309,13 +1309,17 @@ extern void UIColorFlushCache(void);
     [launchOptions removeObjectForKey:@"source"];
   }
 
+  // Snapshot the mutable launchOptions so later mutations (e.g. TIMOB-3432
+  // clearing in sceneWillEnterForeground:) don't affect the queued or posted event.
+  NSDictionary *optionsSnapshot = [[launchOptions copy] autorelease];
+
   if (appBooted) {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:launchOptions];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:optionsSnapshot];
   } else {
     if (queuedBootEvents == nil) {
       queuedBootEvents = [[NSMutableDictionary alloc] init];
     }
-    [queuedBootEvents setObject:launchOptions forKey:kTiApplicationLaunchedFromURL];
+    [queuedBootEvents setObject:optionsSnapshot forKey:kTiApplicationLaunchedFromURL];
   }
 }
 
