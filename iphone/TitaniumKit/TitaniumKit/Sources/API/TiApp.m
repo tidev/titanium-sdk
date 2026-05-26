@@ -1272,12 +1272,13 @@ extern void UIColorFlushCache(void);
   // Boot the app (required for scene-based apps since applicationDidFinishLaunching: may not be called)
   [self boot];
 
-  // Handle URL from scene connection options (iOS 13+ cold launch with URL)
+  // Handle URL and user activities from scene connection options (iOS 13+ cold launch with URL/intents)
   NSArray<NSUserActivity *> *userActivities = connectionOptions.userActivities.allObjects;
   for (NSUserActivity *userActivity in userActivities) {
     if (userActivity.activityType == NSUserActivityTypeBrowsingWeb && userActivity.webpageURL != nil) {
       [self handleURLFromScene:userActivity.webpageURL source:nil];
-      break;
+    } else {
+      [self dictionaryFromUserActivity:userActivity];
     }
   }
 
