@@ -199,7 +199,7 @@ static NSArray *tabGroupKeySequence;
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
     NSUInteger blessedController = [tabController selectedIndex];
     if (blessedController != NSNotFound) {
-      [[tabs objectAtIndex:blessedController] handleDidFocus:nil];
+      [[tabs objectAtIndex:blessedController] handleDidFocus:[((TiUITabGroup *)self.view) focusEvent]];
     }
   }
   [super gainFocus];

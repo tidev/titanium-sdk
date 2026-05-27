@@ -325,6 +325,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			cameraActivity = null;
 		}
 
+		// Clear all static references to prevent memory leaks
+		mediaContext = null;
+		callbackContext = null;
+		successCallback = null;
+		errorCallback = null;
+		cancelCallback = null;
+		androidbackCallback = null;
+		overlayProxy = null;
+		camera = null;
+		recorder = null;
+		videoContentUri = null;
+		videoParcelFileDescriptor = null;
+
 		// Destroy this activity.
 		super.onDestroy();
 	}
