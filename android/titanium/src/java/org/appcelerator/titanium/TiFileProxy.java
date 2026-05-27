@@ -14,17 +14,23 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiExifHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.stream.FileStreamProxy;
+
+import android.content.ContentResolver;
 import android.net.Uri;
+
+import androidx.exifinterface.media.ExifInterface;
 
 @Kroll.proxy
 public class TiFileProxy extends KrollProxy
@@ -291,7 +297,17 @@ public class TiFileProxy extends KrollProxy
 				}
 
 				if (args[0] instanceof TiBlob) {
+					ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 					tbf.write((TiBlob) args[0], append);
+					ExifInterface exifData = new ExifInterface(contentResolver
+						.openFileDescriptor(Uri.fromFile(tbf.getNativeFile()), "rw").getFileDescriptor());
+
+					String[] attributes = TiExifHelper.attributes;
+					KrollDict kd = ((TiBlob) args[0]).getExif();
+					for (int i = 0; i < attributes.length; i++) {
+						exifData.setAttribute(attributes[i], kd.getString(attributes[i]));
+					}
+					exifData.saveAttributes();
 				} else if (args[0] instanceof String) {
 					tbf.write((String) args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
