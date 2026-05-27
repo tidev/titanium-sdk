@@ -95,6 +95,7 @@
     "@babel/core": "7.28.4",
     "@babel/types": "7.28.4",
     "@npmcli/arborist": "9.1.6",
+    "@xmldom/xmldom": "^0.9.10",
     "always-tail": "0.2.0",
     "ansi-escapes": "7.1.1",
     "appc-tasks": "1.0.3",
@@ -123,7 +124,6 @@
     "temp": "0.9.4",
     "wrap-ansi": "9.0.2",
     "xcode": "3.0.1",
-    "xmldom": "0.6.0",
     "yauzl": "3.2.0"
   },
   "devDependencies": {
@@ -159,8 +159,8 @@
     "ssri": "8.0.1",
     "stream-splitter": "0.3.2",
     "strip-ansi": "7.1.2",
-    "titanium": "8.1.1",
-    "titanium-docgen": "4.10.4"
+    "titanium": "8.1.5",
+    "titanium-docgen": "5.0.0"
   },
   "repository": {
     "type": "git",
