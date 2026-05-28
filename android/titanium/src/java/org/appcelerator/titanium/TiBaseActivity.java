@@ -48,6 +48,12 @@ import org.appcelerator.titanium.util.TiEdgeToEdgeHelper;
 
 import android.Manifest;
 import android.app.Activity;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
+
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -98,6 +104,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private final TiWeakList<OnWindowFocusChangedEvent> windowFocusChangedListeners = new TiWeakList<>();
 	private final TiWeakList<interceptOnBackPressedEvent> interceptOnBackPressedListeners = new TiWeakList<>();
 	private final TiWeakList<OnInstanceStateEvent> instanceStateListeners = new TiWeakList<>();
+	private OnBackInvokedCallback backInvokedCallback;
 	private final TiWeakList<OnActivityResultEvent> onActivityResultListeners = new TiWeakList<>();
 	private final TiWeakList<OnCreateOptionsMenuEvent> onCreateOptionsMenuListeners = new TiWeakList<>();
 	private final TiWeakList<OnPrepareOptionsMenuEvent> onPrepareOptionsMenuListeners = new TiWeakList<>();
@@ -532,14 +539,14 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void setFullscreen(boolean fullscreen)
 	{
 		if (fullscreen) {
-			//getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-			View decorView = getWindow().getDecorView();
-			// Hide both the navigation bar and the status bar.
-			// SYSTEM_UI_FLAG_FULLSCREEN is only available on Android 4.1 and higher, but as
-			// a general rule, you should design your app to hide the status bar whenever you
-			// hide the navigation bar.
-			int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
-			decorView.setSystemUiVisibility(uiOptions);
+			Window window = getWindow();
+			WindowInsetsControllerCompat insetsController = WindowCompat
+				.getInsetsController(window, window.getDecorView());
+			if (insetsController != null) {
+				insetsController.hide(WindowInsetsCompat.Type.systemBars());
+				insetsController.setSystemBarsBehavior(
+					WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+			}
 		}
 	}
 
@@ -556,22 +563,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// Add additional window flags to better handle fullscreen support on devices with notches.
 		{
-			// Fetch flags.
-			int uiFlags = getWindow().getDecorView().getSystemUiVisibility();
 			int allWindowFlags = windowFlags | getWindow().getAttributes().flags;
 
 			// If status bar is to be hidden, then we must also set the translucent status bar flag
 			// or else devices with a notch will show a black bar where the status bar used to be.
 			boolean isHidingStatusBar = (allWindowFlags & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
-			isHidingStatusBar |= (uiFlags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0;
-			isHidingStatusBar |= (uiFlags & View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN) != 0;
 			if (isHidingStatusBar) {
 				windowFlags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 			}
 
 			// If navigation bar is to be hidden, then we must also set its translucent flag
 			// or else devices with a notch will show a black bar where the navigation bar used to be.
-			if ((uiFlags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+			if ((allWindowFlags & WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS) == 0
+				&& (windowFlags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION) != 0) {
 				windowFlags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
 			}
 		}
@@ -603,19 +607,21 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		// Update system UI flags with based on currently assigned translucency flags.
+		// Update system UI bars behavior based on currently assigned translucency flags.
 		{
-			int systemUIFlags = 0;
-			int allWindowFlags = getWindow().getAttributes().flags;
-			if ((allWindowFlags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0) {
-				systemUIFlags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-			}
-			if ((allWindowFlags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION) != 0) {
-				systemUIFlags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION;
-			}
-			if (systemUIFlags != 0) {
-				systemUIFlags |= getWindow().getDecorView().getSystemUiVisibility();
-				getWindow().getDecorView().setSystemUiVisibility(systemUIFlags);
+			Window window = getWindow();
+			int allWindowFlags = window.getAttributes().flags;
+			WindowInsetsControllerCompat insetsController = WindowCompat
+				.getInsetsController(window, window.getDecorView());
+			if (insetsController != null) {
+				boolean hasTranslucentStatus = (allWindowFlags
+					& WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) != 0;
+				boolean hasTranslucentNav = (allWindowFlags
+					& WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION) != 0;
+				if (hasTranslucentStatus || hasTranslucentNav) {
+					insetsController.setSystemBarsBehavior(
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+				}
 			}
 		}
 
@@ -762,6 +768,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			this.setTheme(theme);
 		}
 
+		// Set status bar color from intent before super.onCreate() (pre-36 APIs only).
+		// On Android 15+ (API 35+) with target SDK 36, Window.setStatusBarColor() is ignored,
+		// so the status bar area uses the content frame's backgroundColor instead (set below).
+		if (intent != null && intent.hasExtra(TiC.PROPERTY_STATUS_BAR_COLOR)
+			&& Build.VERSION.SDK_INT < 36) {
+			String statusBarColorStr = intent.getStringExtra(TiC.PROPERTY_STATUS_BAR_COLOR);
+			if (statusBarColorStr != null) {
+				int statusBarColor = TiColorHelper.parseColor(statusBarColorStr, this);
+				getWindow().setStatusBarColor(statusBarColor);
+			}
+		}
+
 		// Set ActionBar into split mode must be done before the decor view has been created
 		// we need to do this before calling super.onCreate()
 		if (intent != null && intent.hasExtra(TiC.PROPERTY_SPLIT_ACTIONBAR)) {
@@ -845,12 +863,32 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		TiEdgeToEdgeHelper.enable(this);
 
+		// Register predictive back callback for Android 16+ (API 36).
+		// This supersedes the deprecated onBackPressed() when enableOnBackInvokedCallback is true.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			this.backInvokedCallback = this::handleBackNavigation;
+			getOnBackInvokedDispatcher().registerOnBackInvokedCallback(
+				OnBackInvokedDispatcher.PRIORITY_DEFAULT, this.backInvokedCallback);
+		}
+
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		// If user changed the layout during app.js load, keep that
 		if (!overriddenLayout) {
 			super.setContentView(layout);
+		}
+
+		// Apply the window's backgroundColor as the content frame's background so it shows
+		// through the transparent status bar on SDK 36+. On API 36+, Window.setStatusBarColor()
+		// is ignored, so the status bar area shows the content frame's background instead.
+		if (this.window != null && this.window.hasProperty(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			int bgColor = TiConvert.toColor(
+				this.window.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), this);
+			View content = findViewById(android.R.id.content);
+			if (content != null) {
+				content.setBackgroundColor(bgColor);
+			}
 		}
 
 		// Set the title of the activity after setContentView.
@@ -1029,6 +1067,16 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	@Override
 	public void onBackPressed()
+	{
+		handleBackNavigation();
+	}
+
+	/**
+	 * Handles back navigation for both legacy onBackPressed() and predictive back (API 33+).
+	 * Contains the shared logic for intercepting back events, firing JS events, and app exit.
+	 * Subclasses may override this to provide custom back handling.
+	 */
+	protected void handleBackNavigation()
 	{
 		// Notify all listener that the back button was pressed.
 		synchronized (interceptOnBackPressedListeners.synchronizedList())
@@ -1680,6 +1728,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		// Stop listening for safe-area inset changes.
 		if (this.safeAreaMonitor != null) {
 			this.safeAreaMonitor.stop();
+		}
+
+		// Unregister predictive back callback.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && this.backInvokedCallback != null) {
+			getOnBackInvokedDispatcher().unregisterOnBackInvokedCallback(this.backInvokedCallback);
+			this.backInvokedCallback = null;
 		}
 
 		// Notify listeners that this activity is being destroyed.

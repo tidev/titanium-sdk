@@ -19,6 +19,8 @@ import android.view.Window;
 
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
@@ -303,16 +305,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		if (isUsingSolidTitaniumTheme() && (Build.VERSION.SDK_INT >= 27)) {
 			Activity activity = (this.proxy != null) ? this.proxy.getActivity() : null;
 			Window window = (activity != null) ? activity.getWindow() : null;
-			View decorView = (window != null) ? window.getDecorView() : null;
-			if ((window != null) && (decorView != null)) {
-				int uiFlags = decorView.getSystemUiVisibility();
-				if (ColorUtils.calculateLuminance(colorInt) > 0.5) {
-					uiFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-				} else {
-					uiFlags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-				}
-				decorView.setSystemUiVisibility(uiFlags);
+			if (window != null) {
 				window.setNavigationBarColor(colorInt);
+				WindowInsetsControllerCompat insetsController =
+					WindowCompat.getInsetsController(window, window.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightNavigationBars(
+						ColorUtils.calculateLuminance(colorInt) > 0.5);
+				}
 			}
 		}
 	}

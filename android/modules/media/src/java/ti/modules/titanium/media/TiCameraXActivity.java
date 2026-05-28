@@ -626,6 +626,17 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	@Override
 	public void onBackPressed()
 	{
+		handleCameraBack();
+	}
+
+	@Override
+	protected void handleBackNavigation()
+	{
+		handleCameraBack();
+	}
+
+	private void handleCameraBack()
+	{
 		if (androidbackCallback != null) {
 			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(-1, "User pressed androidback");
