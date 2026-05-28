@@ -25,7 +25,7 @@ import { ProcessSplashesTask } from '../lib/process-splashes-task.js';
 import Color from '../../../common/lib/color.js';
 import { ProcessCSSTask } from '../../../cli/lib/tasks/process-css-task.js';
 import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js';
-import { DOMParser } from 'xmldom';
+import { DOMParser } from '@xmldom/xmldom';
 import ejs from 'ejs';
 import EmulatorManager from 'node-titanium-sdk/lib/emulator.js';
 import fields from 'fields';
