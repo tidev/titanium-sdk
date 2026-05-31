@@ -2356,16 +2356,18 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-  if ([searchController isActive])
+  if ([searchController isActive]) {
     return;
+  }
   CGRect minimumContentRect = [_tableView bounds];
   InsetScrollViewForKeyboard(_tableView, keyboardTop, minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 - (void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
-  if ([searchController isActive])
+  if ([searchController isActive]) {
     return;
+  }
   if ([_tableView isScrollEnabled]) {
     CGRect minimumContentRect = [_tableView bounds];
 

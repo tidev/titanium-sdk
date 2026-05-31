@@ -2799,16 +2799,18 @@
 
 - (void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
-  if ([searchController isActive])
+  if ([searchController isActive]) {
     return;
+  }
   CGRect minimumContentRect = [tableview bounds];
   InsetScrollViewForKeyboard(tableview, keyboardTop, minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 - (void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
-  if ([searchController isActive])
+  if ([searchController isActive]) {
     return;
+  }
   if ([tableview isScrollEnabled]) {
     CGRect minimumContentRect = [tableview bounds];
 
