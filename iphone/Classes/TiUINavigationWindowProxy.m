@@ -397,33 +397,12 @@
 {
   if (navController && [self viewAttached]) {
     UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:navController];
-    [navController didMoveToParentViewController:parentController];
-    [navController viewWillAppear:animated];
+    if (navController.parentViewController != parentController) {
+      [parentController addChildViewController:navController];
+      [navController didMoveToParentViewController:parentController];
+    }
   }
   [super viewWillAppear:animated];
-}
-- (void)viewWillDisappear:(BOOL)animated
-{
-  if ([self viewAttached]) {
-    [navController viewWillDisappear:animated];
-  }
-  [super viewWillDisappear:animated];
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-  if ([self viewAttached]) {
-    [navController viewDidAppear:animated];
-  }
-  [super viewDidAppear:animated];
-}
-- (void)viewDidDisappear:(BOOL)animated
-{
-  if ([self viewAttached]) {
-    [navController viewDidDisappear:animated];
-  }
-  [super viewDidDisappear:animated];
 }
 
 - (BOOL)homeIndicatorAutoHide
