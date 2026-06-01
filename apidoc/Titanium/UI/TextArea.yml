@@ -413,8 +413,8 @@ properties:
 
   - name: lines
     summary: Number of lines tall the text area height will be, if set.
-    description: Sets the height of the text area by line height. Set to 0 to let the text area grow based on content.
-    default: 0
+    description: Sets the height of the text area by line height. Set to -1 to respect the view's height property instead.
+    default: 1
     type: Number
     since: { android: "7.5.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
     platforms: [android, iphone, ipad, macos]
@@ -431,8 +431,8 @@ properties:
 
   - name: maxLines
     summary: Maximum line count of text field input.
-    description: Sets the maximum number of lines that the field will extend to when pressing `Return`. Once the maximum is reached, the text area stops growing and scrolling is enabled. A value of 0 means no limit.
-    default: 0
+    description: Sets the maximum number of lines that the field will extend to when pressing `Return`. Once the maximum is reached, the text area stops growing and scrolling is enabled. A value of `-1` means no limit.
+    default: -1
     type: Number
     since: { android: "7.5.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
     platforms: [android, iphone, ipad, macos]

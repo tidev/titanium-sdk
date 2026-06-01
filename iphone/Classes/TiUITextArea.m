@@ -173,21 +173,21 @@
       [self setPadding_:padding];
     }
 
-    id va = [[self proxy] valueForUndefinedKey:@"verticalAlign"];
-    if (va) {
-      [self setVerticalAlign_:va];
+    id verticalAlignValue = [[self proxy] valueForUndefinedKey:@"verticalAlign"];
+    if (verticalAlignValue) {
+      [self setVerticalAlign_:verticalAlignValue];
     } else {
       [self updateVerticalAlignment];
     }
 
-    id linesProp = [[self proxy] valueForUndefinedKey:@"lines"];
-    if (linesProp) {
-      [self setLines_:linesProp];
+    NSNumber *lines = [[self proxy] valueForUndefinedKey:@"lines"];
+    if ([lines isKindOfClass:[NSNumber class]]) {
+      [self setLines_:lines];
     }
 
-    id maxLinesProp = [[self proxy] valueForUndefinedKey:@"maxLines"];
-    if (maxLinesProp) {
-      [self setMaxLines_:maxLinesProp];
+    NSNumber *maxLines = [[self proxy] valueForUndefinedKey:@"maxLines"];
+    if ([maxLines isKindOfClass:[NSNumber class]]) {
+      [self setMaxLines_:maxLines];
     }
   }
   return textWidgetView;
@@ -286,9 +286,11 @@
 - (void)setValue_:(id)value
 {
   [super setValue_:value];
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [self updateVerticalAlignment];
-  });
+  TiThreadPerformOnMainThread(
+      ^{
+        [self updateVerticalAlignment];
+      },
+      NO);
 }
 
 - (void)setShowUndoRedoActions:(id)value

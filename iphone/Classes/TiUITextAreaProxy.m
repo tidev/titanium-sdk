@@ -18,8 +18,8 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 DEFINE_DEF_INT_PROP(maxLength, -1);
 DEFINE_DEF_INT_PROP(verticalAlign, UIControlContentVerticalAlignmentTop);
 DEFINE_DEF_BOOL_PROP(scrollable, YES);
-DEFINE_DEF_INT_PROP(lines, 0);
-DEFINE_DEF_INT_PROP(maxLines, 0);
+DEFINE_DEF_INT_PROP(lines, 1);
+DEFINE_DEF_INT_PROP(maxLines, -1);
 
 - (NSString *)apiName
 {
