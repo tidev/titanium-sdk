@@ -118,7 +118,7 @@
   UITextView *tv = (UITextView *)[self textWidgetView];
 
   id basePadding = [[self proxy] valueForUndefinedKey:@"padding"];
-  UIEdgeInsets baseInset = basePadding ? [TiUtils contentInsets:basePadding] : UIEdgeInsetsZero;
+  UIEdgeInsets baseInset = [TiUtils contentInsets:basePadding];
 
   // Always reset to base insets first so we start from a clean state
   tv.textContainerInset = baseInset;
@@ -578,7 +578,7 @@ Text area constrains the text event though the content offset and edge insets ar
   // Measure using base padding only (without inflated alignment insets)
   // so the layout engine can shrink the frame when content decreases.
   id basePadding = [[self proxy] valueForUndefinedKey:@"padding"];
-  UIEdgeInsets baseInset = basePadding ? [TiUtils contentInsets:basePadding] : UIEdgeInsetsZero;
+  UIEdgeInsets baseInset = [TiUtils contentInsets:basePadding];
   UIEdgeInsets savedInset = ourView.textContainerInset;
   ourView.textContainerInset = baseInset;
 

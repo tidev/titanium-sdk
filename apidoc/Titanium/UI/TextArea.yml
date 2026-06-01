@@ -522,6 +522,7 @@ properties:
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP>
     platforms: [android, iphone, ipad, macos]
+    since: { android: "0.8", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
 
 events:
   - name: blur
