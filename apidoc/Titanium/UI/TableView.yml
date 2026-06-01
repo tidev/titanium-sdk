@@ -1257,6 +1257,17 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
+  - name: searchText
+    summary: The string to use as the search parameter.
+    description: |
+        Provides a generic search API for the TableView. It will show all TableViewRows with the
+        searchText in the title. This property can not be used when the
+        [searchView](Titanium.UI.TableView.searchView) property is set. Used in conjunction with
+        the [title](Titanium.UI.TableViewRow.title) property of the TableViewRow.
+    type: String
+    platforms: [android, iphone, ipad]
+    since: 13.1.0
+
   - name: hideSearchOnSelection
     summary: Determines whether the search field should hide on completion.
     description: |
