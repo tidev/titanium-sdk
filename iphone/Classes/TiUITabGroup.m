@@ -704,7 +704,7 @@ DEFINE_EXCEPTIONS
   TiThreadPerformOnMainThread(
       ^{
         isTabBarHidden = NO;
-        UIViewController *parentController = TiApp.controller.topPresentedController;
+        UIViewController *parentController = [self.proxy windowHoldingController];
         [parentController addChildViewController:self.tabController];
         [self addSubview:self.tabController.view];
         self.tabController.view.frame = self.bounds;
