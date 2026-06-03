@@ -44,7 +44,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
@@ -585,7 +584,7 @@ public class TiUIWebView extends TiUIView
 		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
 
 		// Reconstruct URL, omitting any query parameters.
-		final String finalUrl = finalUri.getScheme() + TiUrl.SCHEME_SUFFIX + finalUri.getPath();
+		final String finalUrl = finalUri.buildUpon().clearQuery().build().toString();
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
