@@ -190,7 +190,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.addItemDecoration(decoration);
 
 		// Create list adapter.
-		this.adapter = new ListViewAdapter(getContext(), this.items);
+		this.adapter = new ListViewAdapter(getContext(), this.items,
+			TiConvert.toBoolean(proxy.getProperty("flatLayout"), false));
 		this.recyclerView.setAdapter(this.adapter);
 
 		// Create ItemTouchHelper for swipe-to-delete and move gestures.

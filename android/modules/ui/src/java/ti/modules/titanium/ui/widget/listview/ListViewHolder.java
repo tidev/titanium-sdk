@@ -47,39 +47,38 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	private static final String TAG = "ListViewHolder";
 
 	// Top
-	private final TiCompositeLayout header;
-	private final TextView headerTitle;
+	private TiCompositeLayout header;
+	private TextView headerTitle;
 
 	// Middle
 	private final ConstraintLayout container;
-	private final ImageView leftImage;
+	private ImageView leftImage;
 	private final TiCompositeLayout content;
-	private final ImageView rightImage;
+	private ImageView rightImage;
 
 	// Bottom
-	private final TiCompositeLayout footer;
-	private final TextView footerTitle;
+	private TiCompositeLayout footer;
+	private TextView footerTitle;
+	private boolean flatLayout = false;
 
-	public ListViewHolder(final Context context, final ViewGroup viewGroup)
+	public ListViewHolder(final Context context, final ViewGroup viewGroup, boolean flatLayout)
 	{
 		super(context, viewGroup);
+		this.flatLayout = flatLayout;
 
 		// Obtain views from identifiers.
-		this.header = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header);
-
-		this.headerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header_title);
+		if (!flatLayout) {
+			this.header = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header);
+			this.headerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_header_title);
+			this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
+			this.rightImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_right_image);
+			this.footer = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer);
+			this.footerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer_title);
+		}
 
 		this.container = viewGroup.findViewById(R.id.titanium_ui_listview_holder);
-
-		this.leftImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_left_image);
-
 		this.content = viewGroup.findViewById(R.id.titanium_ui_listview_holder_content);
 
-		this.rightImage = viewGroup.findViewById(R.id.titanium_ui_listview_holder_right_image);
-
-		this.footer = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer);
-
-		this.footerTitle = viewGroup.findViewById(R.id.titanium_ui_listview_holder_footer_title);
 	}
 
 	/**
@@ -119,65 +118,67 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 		boolean canEdit = listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
 			|| !listViewProperties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
 
-		// Handle selection checkmark.
-		if (listViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
-			&& canEdit
-			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
-			&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
-			&& !proxy.isPlaceholder()) {
+		if (!flatLayout) {
+			// Handle selection checkmark.
+			if (listViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+				&& canEdit
+				&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
+				&& listViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
+				&& !proxy.isPlaceholder()) {
 
-			if (selected) {
-				this.leftImage.setImageDrawable(checkcircleDrawable);
-			} else {
-				this.leftImage.setImageDrawable(circleDrawable);
-			}
-			this.leftImage.setVisibility(View.VISIBLE);
-		}
-
-		// Handle accessory type icon.
-		if (properties.containsKeyAndNotNull(TiC.PROPERTY_ACCESSORY_TYPE)) {
-			final int accessorType = properties.optInt(TiC.PROPERTY_ACCESSORY_TYPE, UIModule.LIST_ACCESSORY_TYPE_NONE);
-
-			switch (accessorType) {
-				case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
-					this.rightImage.setImageDrawable(checkDrawable);
-					break;
-				case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
-					this.rightImage.setImageDrawable(moreDrawable);
-					break;
-				case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
-					this.rightImage.setImageDrawable(disclosureDrawable);
-			}
-			if (accessorType != UIModule.LIST_ACCESSORY_TYPE_NONE) {
-				this.rightImage.setVisibility(View.VISIBLE);
-			}
-		}
-
-		// Display drag drawable when item can move.
-		final boolean isEditing = listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
-		final boolean canMove = properties.optBoolean(TiC.PROPERTY_CAN_MOVE,
-			listViewProperties.optBoolean(TiC.PROPERTY_CAN_MOVE, false));
-		if (isEditing && canMove) {
-			this.rightImage.setImageDrawable(dragDrawable);
-			this.rightImage.setVisibility(View.VISIBLE);
-
-			RecyclerView.ViewHolder mViewHolder = this;
-			this.rightImage.setOnTouchListener(new View.OnTouchListener()
-			{
-				@Override
-				public boolean onTouch(View view, MotionEvent motionEvent)
-				{
-					if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
-						TiListView listView = listViewProxy.getListView();
-						listView.startDragging(mViewHolder);
-					}
-					return false;
+				if (selected) {
+					this.leftImage.setImageDrawable(checkcircleDrawable);
+				} else {
+					this.leftImage.setImageDrawable(circleDrawable);
 				}
-			});
-		} else {
-			this.rightImage.setOnTouchListener(null);
-		}
+				this.leftImage.setVisibility(View.VISIBLE);
+			}
 
+			// Handle accessory type icon.
+			if (properties.containsKeyAndNotNull(TiC.PROPERTY_ACCESSORY_TYPE)) {
+				final int accessorType = properties.optInt(TiC.PROPERTY_ACCESSORY_TYPE,
+					UIModule.LIST_ACCESSORY_TYPE_NONE);
+
+				switch (accessorType) {
+					case UIModule.LIST_ACCESSORY_TYPE_CHECKMARK:
+						this.rightImage.setImageDrawable(checkDrawable);
+						break;
+					case UIModule.LIST_ACCESSORY_TYPE_DETAIL:
+						this.rightImage.setImageDrawable(moreDrawable);
+						break;
+					case UIModule.LIST_ACCESSORY_TYPE_DISCLOSURE:
+						this.rightImage.setImageDrawable(disclosureDrawable);
+				}
+				if (accessorType != UIModule.LIST_ACCESSORY_TYPE_NONE) {
+					this.rightImage.setVisibility(View.VISIBLE);
+				}
+			}
+
+			// Display drag drawable when item can move.
+			final boolean isEditing = listViewProperties.optBoolean(TiC.PROPERTY_EDITING, false);
+			final boolean canMove = properties.optBoolean(TiC.PROPERTY_CAN_MOVE,
+				listViewProperties.optBoolean(TiC.PROPERTY_CAN_MOVE, false));
+			if (isEditing && canMove) {
+				this.rightImage.setImageDrawable(dragDrawable);
+				this.rightImage.setVisibility(View.VISIBLE);
+
+				RecyclerView.ViewHolder mViewHolder = this;
+				this.rightImage.setOnTouchListener(new View.OnTouchListener()
+				{
+					@Override
+					public boolean onTouch(View view, MotionEvent motionEvent)
+					{
+						if (motionEvent.getActionMasked() == MotionEvent.ACTION_DOWN) {
+							TiListView listView = listViewProxy.getListView();
+							listView.startDragging(mViewHolder);
+						}
+						return false;
+					}
+				});
+			} else {
+				this.rightImage.setOnTouchListener(null);
+			}
+		}
 		if (proxy != null) {
 			// Update list item proxy's activity in case it has changed, such as after a dark/light theme change.
 			final Context context = this.itemView.getContext();
@@ -254,30 +255,32 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 			}
 		}
 
-		if (section == null) {
+		if (!flatLayout) {
+			if (section == null) {
 
-			// Handle `header` and `footer` for rows without a parent section.
-			setHeaderFooter(listViewProxy, properties, true, true);
+				// Handle `header` and `footer` for rows without a parent section.
+				setHeaderFooter(listViewProxy, properties, true, true);
 
-		} else {
+			} else {
 
-			// Handle `header` and `footer` for  rows with a parent section.
-			// Obtain parent section properties.
-			final KrollDict sectionProperties = section.getProperties();
-			final int indexInSection = proxy.getIndexInSection();
-			final int filteredIndex = proxy.getFilteredIndex();
+				// Handle `header` and `footer` for  rows with a parent section.
+				// Obtain parent section properties.
+				final KrollDict sectionProperties = section.getProperties();
+				final int indexInSection = proxy.getIndexInSection();
+				final int filteredIndex = proxy.getFilteredIndex();
 
-			if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
+				if (indexInSection == 0 || filteredIndex == 0 || proxy.isPlaceholder()) {
 
-				// Only set header on first row in section.
-				setHeaderFooter(listViewProxy, sectionProperties, true, false);
-			}
-			if ((indexInSection >= section.getItemCount() - 1)
-				|| (filteredIndex >= section.getFilteredItemCount() - 1)
-				|| proxy.isPlaceholder()) {
+					// Only set header on first row in section.
+					setHeaderFooter(listViewProxy, sectionProperties, true, false);
+				}
+				if ((indexInSection >= section.getItemCount() - 1)
+					|| (filteredIndex >= section.getFilteredItemCount() - 1)
+					|| proxy.isPlaceholder()) {
 
-				// Only set footer on last row in section.
-				setHeaderFooter(listViewProxy, sectionProperties, false, true);
+					// Only set footer on last row in section.
+					setHeaderFooter(listViewProxy, sectionProperties, false, true);
+				}
 			}
 		}
 	}
@@ -287,17 +290,19 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 	 */
 	private void reset()
 	{
-		this.header.removeAllViews();
 		this.content.removeAllViews();
-		this.footer.removeAllViews();
-
-		this.header.setVisibility(View.GONE);
-		this.headerTitle.setVisibility(View.GONE);
-		this.footer.setVisibility(View.GONE);
-		this.footerTitle.setVisibility(View.GONE);
 		this.content.setVisibility(View.GONE);
-		this.leftImage.setVisibility(View.GONE);
-		this.rightImage.setVisibility(View.GONE);
+
+		if (!flatLayout) {
+			this.header.removeAllViews();
+			this.footer.removeAllViews();
+			this.header.setVisibility(View.GONE);
+			this.headerTitle.setVisibility(View.GONE);
+			this.footer.setVisibility(View.GONE);
+			this.footerTitle.setVisibility(View.GONE);
+			this.leftImage.setVisibility(View.GONE);
+			this.rightImage.setVisibility(View.GONE);
+		}
 	}
 
 	/**
