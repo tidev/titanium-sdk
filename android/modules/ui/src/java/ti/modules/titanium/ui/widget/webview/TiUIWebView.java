@@ -44,6 +44,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.util.TiUrl;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
@@ -584,7 +585,7 @@ public class TiUIWebView extends TiUIView
 		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
 
 		// Reconstruct URL, omitting any query parameters.
-		final String finalUrl = finalUri.toString().replace(query, "");
+		final String finalUrl = finalUri.getScheme() + TiUrl.SCHEME_SUFFIX + finalUri.getPath();
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
@@ -593,6 +594,9 @@ public class TiUIWebView extends TiUIView
 				InputStream fis = null;
 				try {
 					fis = tiFile.getInputStream();
+					if (fis == null) {
+						throw new IOException("Unable to open input stream for \"" + finalUrl + "\"");
+					}
 					InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
 					BufferedReader breader = new BufferedReader(reader);
 					String line = breader.readLine();
