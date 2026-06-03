@@ -6,6 +6,7 @@
  */
 #include <stdio.h>
 #include <cstring>
+#include <string>
 
 #include <v8-platform.h>
 #include <libplatform/libplatform.h>
@@ -90,14 +91,24 @@ static void krollLog(const FunctionCallbackInfo<Value>& args)
 
 	Local<String> tag = args[0].As<String>();
 	Local<String> message = args[1].As<String>();
-	Local<String> space = STRING_NEW(isolate, " ");
-	for (uint32_t i = 2; i < len; ++i) {
-		message = String::Concat(isolate, String::Concat(isolate, message, space), args[i].As<String>());
-	}
 
-	String::Utf8Value tagValue(isolate, tag);
-	String::Utf8Value messageValue(isolate, message);
-	__android_log_print(ANDROID_LOG_DEBUG, *tagValue, *messageValue);
+	if (len > 2) {
+		String::Utf8Value firstMessage(isolate, message);
+		std::string combined(*firstMessage, firstMessage.length());
+
+		for (uint32_t i = 2; i < len; ++i) {
+			String::Utf8Value argValue(isolate, args[i].As<String>());
+			combined += ' ';
+			combined.append(*argValue, argValue.length());
+		}
+
+		String::Utf8Value tagValue(isolate, tag);
+		__android_log_print(ANDROID_LOG_DEBUG, *tagValue, "%s", combined.c_str());
+	} else {
+		String::Utf8Value tagValue(isolate, tag);
+		String::Utf8Value messageValue(isolate, message);
+		__android_log_print(ANDROID_LOG_DEBUG, *tagValue, *messageValue);
+	}
 }
 
 /* static */
