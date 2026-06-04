@@ -35,6 +35,7 @@ import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiImageCache;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -1296,6 +1297,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		 * to lose all it's content when the activity is recreated.
 		 */
 		getTiApp().setRootActivity(null);
+		// Clearing image cache for night mode change
+		TiImageCache.clear();
 		this.recreate();
 	}
 
