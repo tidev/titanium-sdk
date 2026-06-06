@@ -5,6 +5,7 @@ on:
     types: [completed]
     branches:
     - master
+    - main
     - "[0-9]+_[0-9]+_X"
 
 jobs:

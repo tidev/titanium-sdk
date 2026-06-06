@@ -359,7 +359,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
   if (userActivity != nil && [userActivity isKindOfClass:[NSUserActivity class]]) {
     NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
 
-    if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+    if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
       if ([userActivity userInfo] != nil) {
         [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
       }
@@ -392,12 +392,6 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
   if (_localNotification != nil) {
     localNotification = [[[self class] dictionaryWithLocalNotification:_localNotification] retain];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-
-    // Queue the "localnotificationaction" event for iOS 9 and lower.
-    // For iOS 10+, the "userNotificationCenter:didReceiveNotificationResponse:withCompletionHandler" delegate handles it
-    if ([TiUtils isIOSVersionLower:@"9.0"]) {
-      [self tryToPostNotification:localNotification withNotificationName:kTiLocalNotificationAction completionHandler:nil];
-    }
   }
 
   // Map launched URL
@@ -769,8 +763,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 {
   if (pendingCompletionHandlers != nil) {
     for (NSString *key in [pendingCompletionHandlers allKeys]) {
-      // Do not remove from the pending handlers for now, as it's removed after the enumeration finished
-      [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed removeAfterExecution:NO];
+      [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed];
     }
   }
   RELEASE_TO_NIL(pendingCompletionHandlers);
@@ -782,19 +775,17 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
   NSString *key = (NSString *)timer.userInfo;
   if ([pendingCompletionHandlers objectForKey:key]) {
     // Send an event notifying the developer that the background-fetch failed
-    [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed removeAfterExecution:YES];
+    [self performCompletionHandlerWithKey:key andResult:UIBackgroundFetchResultFailed];
   }
 }
 
 // Gets called when user ends finishes with backgrounding stuff. By default this would always be called with UIBackgroundFetchResultNoData.
-- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result removeAfterExecution:(BOOL)removeAfterExecution
+- (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result
 {
-  if ([pendingCompletionHandlers objectForKey:key]) {
-    void (^completionHandler)(UIBackgroundFetchResult) = [pendingCompletionHandlers objectForKey:key];
+  void (^completionHandler)(UIBackgroundFetchResult) = [pendingCompletionHandlers objectForKey:key];
+  if (completionHandler != nil) {
+    [pendingCompletionHandlers removeObjectForKey:key];
     completionHandler(result);
-    if (removeAfterExecution) {
-      [pendingCompletionHandlers removeObjectForKey:key];
-    }
   } else {
     DebugLog(@"[ERROR] The specified completion handler with ID = %@ has already expired or been removed from the system", key);
   }
@@ -1127,7 +1118,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
   [sessionId release];
   sessionId = [[TiUtils createUUID] retain];
 
-  // TIMOB-3432. Ensure url is cleared when resume event is fired.
+  // TIMOB-3432. Ensure URL is cleared when resume event is fired.
   [launchOptions removeObjectForKey:@"url"];
   [launchOptions removeObjectForKey:@"source"];
 

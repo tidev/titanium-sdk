@@ -58,7 +58,7 @@ static NSArray *scrollViewKeySequence;
 {
   [super windowWillOpen];
   // Since layout children is overridden in scrollview need to make sure that
-  // a full layout occurs atleast once if view is attached
+  // a full layout occurs at least once if view is attached
   if ([self viewAttached]) {
     [self contentsWillChange];
   }
@@ -445,7 +445,7 @@ static NSArray *scrollViewKeySequence;
   }
 }
 
-// listerner which tells when dragging ended in the scroll view.
+// listener which tells when dragging ended in the scroll view.
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
 {
   CGPoint offset = [scrollView contentOffset];

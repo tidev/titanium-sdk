@@ -26,7 +26,7 @@ public final class JSDebugger
 	// The port to listen to for debugger connections
 	private final int port;
 
-	// The sdk version we report in embedding host header for handshake message to debugger.
+	// The SDK version we report in embedding host header for handshake message to debugger.
 	private final String sdkVersion;
 
 	// The lock used to wait for debugger to connect

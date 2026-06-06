@@ -141,6 +141,16 @@ static NSArray *tabGroupKeySequence;
   tabs = [newTabOrder mutableCopy];
 }
 
+- (void)hideTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:YES animated:YES];
+}
+
+- (void)showTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:NO animated:YES];
+}
+
 #pragma mark Window Management
 
 - (void)windowWillOpen
@@ -189,7 +199,7 @@ static NSArray *tabGroupKeySequence;
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
     NSUInteger blessedController = [tabController selectedIndex];
     if (blessedController != NSNotFound) {
-      [[tabs objectAtIndex:blessedController] handleDidFocus:nil];
+      [[tabs objectAtIndex:blessedController] handleDidFocus:[((TiUITabGroup *)self.view) focusEvent]];
     }
   }
   [super gainFocus];
@@ -217,9 +227,11 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:tabController];
-    [tabController didMoveToParentViewController:parentController];
+    if (tabController.parentViewController == nil) {
+      UIViewController *parentController = [self windowHoldingController];
+      [parentController addChildViewController:tabController];
+      [tabController didMoveToParentViewController:parentController];
+    }
     [tabController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];

@@ -44,6 +44,7 @@
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(lastTabBarTraitCollection);
   RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
 
   [super _destroy];
@@ -59,13 +60,17 @@
   // since we're special proxy type instead of normal, we force in values
   [self replaceValue:nil forKey:@"title" notification:NO];
   [self replaceValue:nil forKey:@"icon" notification:NO];
-  [self replaceValue:nil forKey:@"badge" notification:NO];
+  [self replaceValue:nil forKey:@"iconInsets" notification:NO];
+  [self replaceValue:nil forKey:@"activeIcon" notification:NO];
   [self replaceValue:NUMBOOL(YES) forKey:@"iconIsMask" notification:NO];
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
   [self replaceValue:nil forKey:@"tintColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTintColor" notification:NO];
+  [self replaceValue:nil forKey:@"badge" notification:NO];
+  [self replaceValue:nil forKey:@"badgeColor" notification:NO];
+
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didChangeTraitCollection:)
                                                name:kTiTraitCollectionChanged
@@ -75,7 +80,36 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-  [self updateTabBarItem];
+  __weak TiUITabProxy *weakSelf = self;
+  TiThreadPerformOnMainThread(
+      ^{
+        TiUITabProxy *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+          return;
+        }
+
+        // If a modal is being dismissed, trait collection changes from UIKit
+        // are spurious — the tab bar item doesn't need rebuilding.
+        if (strongSelf->controller.presentedViewController != nil) {
+          return;
+        }
+
+        UITraitCollection *currentTraitCollection = strongSelf->controller.traitCollection;
+        if (currentTraitCollection == nil) {
+          currentTraitCollection = strongSelf->rootWindow.hostingController.traitCollection;
+        }
+        if (currentTraitCollection == nil) {
+          return;
+        }
+        if ((strongSelf->lastTabBarTraitCollection != nil)
+            && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:strongSelf->lastTabBarTraitCollection]
+            && (currentTraitCollection.horizontalSizeClass == strongSelf->lastTabBarTraitCollection.horizontalSizeClass)
+            && (currentTraitCollection.verticalSizeClass == strongSelf->lastTabBarTraitCollection.verticalSizeClass)) {
+          return;
+        }
+        [strongSelf updateTabBarItem];
+      },
+      NO); // NO = non-blocking, since this is a notification handler
 }
 
 - (NSString *)apiName
@@ -267,43 +301,12 @@
     [controllerStack addObject:[self rootController]];
     [controller.interactivePopGestureRecognizer addTarget:self action:@selector(popGestureStateHandler:)];
     [[controller interactivePopGestureRecognizer] setDelegate:self];
-
-    BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[tabGroup valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-    if (interactiveDismissModeEnabled) {
-      [self configureFullWidthSwipeToClose];
-    }
   }
   return controller;
 }
 
-- (void)configureFullWidthSwipeToClose
-{
-  fullWidthBackGestureRecognizer = [[UIPanGestureRecognizer alloc] init];
-
-  if (controller.interactivePopGestureRecognizer == nil) {
-    return;
-  }
-
-  id targets = [controller.interactivePopGestureRecognizer valueForKey:@"targets"];
-  if (targets == nil) {
-    return;
-  }
-
-  [fullWidthBackGestureRecognizer setValue:targets forKey:@"targets"];
-  [fullWidthBackGestureRecognizer setDelegate:self];
-  [controller.view addGestureRecognizer:fullWidthBackGestureRecognizer];
-}
-
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-  BOOL interactiveDismissModeEnabled = [TiUtils boolValue:[self valueForKey:@"interactiveDismissModeEnabled"] def:NO];
-  if (interactiveDismissModeEnabled && [gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
-    BOOL isSystemSwipeToCloseEnabled = controller.interactivePopGestureRecognizer.isEnabled == YES;
-    BOOL areThereStackedViewControllers = controller.viewControllers.count > 1;
-
-    return isSystemSwipeToCloseEnabled || areThereStackedViewControllers;
-  }
-
   if (current != nil) {
     return [TiUtils boolValue:[current valueForKey:@"swipeToClose"] def:YES];
   }
@@ -319,8 +322,6 @@
 {
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
-
-  [window processForSafeArea];
 
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
@@ -468,8 +469,6 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
-
   if (theWindow == rootWindow) {
     // This is probably too late for the root view controller.
     // Figure out how to call open before this callback
@@ -559,6 +558,13 @@
     }
   }
 
+  if ([self _hasListeners:@"focus"]) {
+    [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
+- (void)handleDidSelect:(NSDictionary *)event
+{
   if ([self _hasListeners:@"selected"]) {
     [self fireEvent:@"selected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
@@ -589,39 +595,52 @@
   ENSURE_UI_THREAD_0_ARGS;
 
   UIViewController *rootController = [rootWindow hostingController];
+  UITraitCollection *currentTraitCollection = controller.traitCollection;
+  if (currentTraitCollection == nil) {
+    currentTraitCollection = rootController.traitCollection;
+  }
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
   id badgeColor = [self valueForKey:@"badgeColor"];
   id iconInsets = [self valueForKey:@"iconInsets"];
   id icon = [self valueForKey:@"icon"];
 
-  // System-icons
+  NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
+  [rootController setTitle:title];
+
+  // tab bar item with system-icon:
   if ([icon isKindOfClass:[NSNumber class]]) {
     int value = [TiUtils intValue:icon];
     UITabBarItem *newItem = [[UITabBarItem alloc] initWithTabBarSystemItem:value tag:value];
-    [newItem setBadgeValue:badgeValue];
 
+    // badge
     if (badgeColor != nil) {
       [newItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
     }
+    [newItem setBadgeValue:badgeValue];
 
-    [rootController setTabBarItem:newItem];
+    [controller setTabBarItem:newItem];
     [newItem release];
+
     systemTab = YES;
+    [lastTabBarTraitCollection release];
+    lastTabBarTraitCollection = [currentTraitCollection retain];
     return;
   }
 
-  NSString *title = [TiUtils stringValue:[self valueForKey:@"title"]];
-
+  // tab bar item with custom icon:
   UIImage *image;
   UIImage *activeImage = nil;
   if (icon == nil) {
     image = nil;
   } else {
+    // icon
     if ([icon isKindOfClass:[TiBlob class]]) {
       image = [(TiBlob *)icon image];
     } else {
       image = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:icon proxy:self]];
     }
+
+    // active icon
     id activeIcon = [self valueForKey:@"activeIcon"];
     if ([activeIcon isKindOfClass:[NSString class]]) {
       activeImage = [[ImageLoader sharedLoader] loadImmediateImage:[TiUtils toURL:activeIcon proxy:self]];
@@ -629,6 +648,7 @@
       activeImage = [(TiBlob *)activeIcon image];
     }
 
+    // image rendering modes
     if (image != nil) {
       NSInteger theMode = iconOriginal ? UIImageRenderingModeAlwaysOriginal : UIImageRenderingModeAlwaysTemplate;
       image = [image imageWithRenderingMode:theMode];
@@ -638,6 +658,7 @@
       activeImage = [activeImage imageWithRenderingMode:theMode];
     }
 
+    // tinted icon
     TiColor *tintColor = [TiUtils colorValue:[self valueForKey:@"tintColor"]];
     if (tintColor == nil) {
       tintColor = [TiUtils colorValue:[tabGroup valueForKey:@"tintColor"]];
@@ -652,6 +673,7 @@
       image = [TiUtils imageWithTint:image tintColor:[tintColor color]];
     }
 
+    // tinted active icon
     TiColor *activeTintColor = [TiUtils colorValue:[self valueForKey:@"activeTintColor"]];
     if (activeTintColor == nil) {
       activeTintColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTintColor"]];
@@ -670,12 +692,12 @@
       }
     }
   }
-  [rootController setTitle:title];
-  UITabBarItem *ourItem = nil;
 
-  systemTab = NO;
-  ourItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+  // (re-)init tab bar item
+  UITabBarItem *tabBarItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+  [controller setTabBarItem:tabBarItem];
 
+  // title appearance
   TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
   if (titleColor == nil) {
     titleColor = [TiUtils colorValue:[tabGroup valueForKey:@"titleColor"]];
@@ -685,48 +707,52 @@
     activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
   }
   if ((titleColor != nil) || (activeTitleColor != nil)) {
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = UITabBarAppearance.new;
       if (titleColor != nil) {
-        UITabBarItemStateAppearance *normalAppearance = appearance.stackedLayoutAppearance.normal;
-        normalAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.inlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+        appearance.compactInlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
       }
       if (activeTitleColor != nil) {
-        UITabBarItemStateAppearance *selectedAppearance = appearance.stackedLayoutAppearance.selected;
-        selectedAppearance.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.inlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+        appearance.compactInlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
       }
       TiColor *backgroundColor = [TiUtils colorValue:[tabGroup valueForKey:@"tabsBackgroundColor"]];
       if (backgroundColor != nil) {
         appearance.backgroundColor = [backgroundColor color];
       }
-      ourItem.standardAppearance = appearance;
-      ourItem.scrollEdgeAppearance = appearance;
+      tabBarItem.standardAppearance = appearance;
+      tabBarItem.scrollEdgeAppearance = appearance;
+      [appearance release];
     } else {
-#endif
       if (titleColor != nil) {
-        [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
+        [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
       }
       if (activeTitleColor != nil) {
-        [ourItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
+        [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
       }
-#if IS_SDK_IOS_15
     }
-#endif
   }
 
+  // icon insets
   if (iconInsets != nil) {
-    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [ourItem imageInsets])) {
-      [ourItem setImageInsets:[self calculateIconInsets:iconInsets]];
+    if (!UIEdgeInsetsEqualToEdgeInsets([TiUtils contentInsets:iconInsets], [tabBarItem imageInsets])) {
+      [tabBarItem setImageInsets:[self calculateIconInsets:iconInsets]];
     }
   }
 
+  // badge
   if (badgeColor != nil) {
-    [ourItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
+    [tabBarItem setBadgeColor:[[TiUtils colorValue:badgeColor] color]];
   }
+  [tabBarItem setBadgeValue:badgeValue];
 
-  [ourItem setBadgeValue:badgeValue];
-  [rootController setTabBarItem:ourItem];
+  systemTab = NO;
+
+  [lastTabBarTraitCollection release];
+  lastTabBarTraitCollection = [currentTraitCollection retain];
 }
 
 - (UIEdgeInsets)calculateIconInsets:(id)value
