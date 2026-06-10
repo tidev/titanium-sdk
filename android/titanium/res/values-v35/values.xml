@@ -2,14 +2,14 @@
 <resources>
 	<!-- Todo remove windowOptOutEdgeToEdgeEnforcement after implementing Edge-to-edge -->
 	<style name="Base.Theme.Titanium.Light" parent="Theme.MaterialComponents.Light.DarkActionBar">
-		<item name="android:windowLightStatusBar">false</item>
-		<item name="android:windowLightNavigationBar">false</item>
-		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
+		<item name="android:navigationBarColor">@android:color/transparent</item>
+		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
 	</style>
 
 	<style name="Base.Theme.Titanium.Dark" parent="Theme.MaterialComponents">
-		<item name="android:windowLightStatusBar">false</item>
-		<item name="android:windowLightNavigationBar">false</item>
-		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
+		<item name="android:navigationBarColor">@android:color/transparent</item>
+		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
 	</style>
 </resources>

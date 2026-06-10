@@ -26,6 +26,7 @@
 		android:icon="<%- appIcon %>"
 		android:label="<%- appLabel %>"
 		android:name="<%- classname %>Application"
+		android:enableOnBackInvokedCallback="true"
 		android:usesCleartextTraffic="true"
 		android:theme="@style/Theme.Titanium.App">
 

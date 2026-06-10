@@ -41,6 +41,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
@@ -340,13 +343,29 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
-			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
+			int flags = TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS));
+			WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(win, win.getDecorView());
+			if (insetsController != null) {
+				insetsController.setAppearanceLightStatusBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+				insetsController.setAppearanceLightNavigationBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+				if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
+					insetsController.hide(WindowInsetsCompat.Type.systemBars());
+					insetsController.setSystemBarsBehavior(
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+				}
+			}
 		}
 
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
 			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0
 				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(win, win.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(true);
+				}
 			}
 		}
 
@@ -495,7 +514,22 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (name.equals(TiC.PROPERTY_UI_FLAGS)) {
 			if (windowActivity != null && windowActivity.get() != null) {
 				AppCompatActivity activity = windowActivity.get();
-				activity.getWindow().getDecorView().setSystemUiVisibility(TiConvert.toInt(value));
+				Window window = activity.getWindow();
+				int flags = TiConvert.toInt(value);
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(window, window.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+					insetsController.setAppearanceLightNavigationBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+					if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0
+						|| (flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+						insetsController.hide(WindowInsetsCompat.Type.systemBars());
+						insetsController.setSystemBarsBehavior(
+							WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+					}
+				}
 			}
 		}
 
