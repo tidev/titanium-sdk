@@ -416,8 +416,8 @@ properties:
     description: Sets the height of the text area by line height. Set to -1 to respect the view's height property instead.
     default: 1
     type: Number
-    since: { android: "7.5.0" }
-    platforms: [android]
+    since: { android: "7.5.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
+    platforms: [android, iphone, ipad, macos]
 
   - name: maxLength
     summary: Maximum length of text field input.
@@ -431,11 +431,11 @@ properties:
 
   - name: maxLines
     summary: Maximum line count of text field input.
-    description: Sets the maximum of lines that the field will be extended to when pressing `Return`.
+    description: Sets the maximum number of lines that the field will extend to when pressing `Return`. Once the maximum is reached, the text area stops growing and scrolling is enabled. A value of `-1` means no limit.
     default: -1
     type: Number
-    since: { android: "7.5.0" }
-    platforms: [android]
+    since: { android: "7.5.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
+    platforms: [android, iphone, ipad, macos]
 
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
@@ -500,6 +500,7 @@ properties:
     summary: Determines whether this text area can be scrolled.
     type: Boolean
     default: true
+    since: { iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
     platforms: [iphone, ipad, macos]
 
   - name: selection
@@ -520,7 +521,8 @@ properties:
     type: [Number, String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP>
-    platforms: [android]
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "0.8", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
 
 events:
   - name: blur
