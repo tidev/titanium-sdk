@@ -294,6 +294,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 	 */
 	public void onWindowFocusChange(boolean focused)
 	{
+		if (this.isFocused == focused) {
+			return;
+		}
 		this.isFocused = focused;
 		fireEvent((focused) ? TiC.EVENT_FOCUS : TiC.EVENT_BLUR, null, false);
 	}
