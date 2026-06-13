@@ -257,10 +257,16 @@
     return;
   }
 
+  // Snapshot the mutable launchOptions to prevent mutation issues
+  // between event creation and event processing on the run loop.
+  NSDictionary *launchOptions = [[info userInfo] copy];
+
   [self fireEvent:@"handleurl"
        withObject:@{
-         @"launchOptions" : [info userInfo]
+         @"launchOptions" : launchOptions
        }];
+
+  [launchOptions release];
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX

@@ -33,14 +33,10 @@ extern void UIColorFlushCache(void);
 
 #define SHUTDOWN_TIMEOUT_IN_SEC 3
 
-BOOL applicationInMemoryPanic = NO; // TODO: Remove in SDK 9.0+
-
-// TODO: Remove in SDK 9.0+
-TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be run on main thread, or else there is a risk of deadlock!
-
 @interface TiApp ()
 - (void)checkBackgroundServices;
 - (void)appBoot;
+- (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
 @end
 
 @implementation TiApp
@@ -156,6 +152,13 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 
 - (void)registerApplicationDelegate:(id)applicationDelegate
 {
+  // Forward to sharedApp if we're not the sharedApp instance
+  if (self != sharedApp && sharedApp != nil) {
+    [sharedApp registerApplicationDelegate:applicationDelegate];
+    return;
+  }
+
+  // Check if already registered
   if ([[self applicationDelegates] containsObject:applicationDelegate]) {
     NSLog(@"[WARN] Application delegate already exists in known application delegates!");
     return;
@@ -166,8 +169,9 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 
 - (void)unregisterApplicationDelegate:(id<UIApplicationDelegate>)applicationDelegate
 {
-  if (![[self applicationDelegates] containsObject:applicationDelegate]) {
-    NSLog(@"[WARN] Application delegate does not exist in known application delegates!");
+  // Forward to sharedApp if we're not the sharedApp instance
+  if (self != sharedApp && sharedApp != nil) {
+    [sharedApp unregisterApplicationDelegate:applicationDelegate];
     return;
   }
 
@@ -238,6 +242,19 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
     if (queuedBootEvents != nil) {
       for (NSString *notificationName in queuedBootEvents) {
         [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:[queuedBootEvents objectForKey:notificationName]];
+      }
+      // Re-set URL/source in launchOptions from the queued event so that
+      // Ti.App.arguments.url reflects it even if TIMOB-3432 cleared it.
+      NSDictionary *urlEvent = [queuedBootEvents objectForKey:kTiApplicationLaunchedFromURL];
+      if (urlEvent != nil) {
+        id url = [urlEvent objectForKey:@"url"];
+        id source = [urlEvent objectForKey:@"source"];
+        if (url != nil) {
+          [launchOptions setObject:url forKey:@"url"];
+        }
+        if (source != nil) {
+          [launchOptions setObject:source forKey:@"source"];
+        }
       }
       RELEASE_TO_NIL(queuedBootEvents);
     }
@@ -327,14 +344,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
     [[TiLogServer defaultLogServer] start];
   }
 
-  // Initialize the root-window
-  window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-
   // Initialize the launch options to be used by the client
   launchOptions = [[NSMutableDictionary alloc] initWithDictionary:launchOptions_];
-
-  // Initialize the root-controller
-  [self initController];
 
   // If we have a APNS-UUID, assign it
   NSString *apnsUUID = [[NSUserDefaults standardUserDefaults] stringForKey:@"APNSRemoteDeviceUUID"];
@@ -394,14 +405,14 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
   }
 
-  // Map launched URL
+  // Map launched URL and queue handleurl event for cold launch
   if (urlOptions != nil) {
-    [launchOptions setObject:[urlOptions absoluteString] forKey:@"url"];
+    [self handleURLFromScene:urlOptions source:sourceBundleId];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsURLKey];
   }
 
-  // Map launched App-ID
-  if (sourceBundleId != nil) {
+  // Map launched App-ID (if no URL, still store source)
+  if (sourceBundleId != nil && urlOptions == nil) {
     [launchOptions setObject:sourceBundleId forKey:@"source"];
     [launchOptions removeObjectForKey:UIApplicationLaunchOptionsSourceApplicationKey];
   }
@@ -421,8 +432,8 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
   // If a "application-launch-url" is set, launch it directly
   [self launchToUrl];
 
-  // Boot our kroll-core
-  [self boot];
+  // Skip boot here - the scene delegate (sharedApp) will handle it
+  // This prevents the app from being booted twice
 
   // Create application support directory if not exists
   [self createDefaultDirectories];
@@ -700,7 +711,12 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 
 - (void)tryToInvokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments
 {
-  NSString *selectorString = NSStringFromSelector(selector);
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  // App delegate has window == nil, scene delegate (sharedApp) has window != nil
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToInvokeSelector:selector withArguments:arguments];
+    return;
+  }
 
   if (appBooted && _applicationDelegates != nil) {
     for (id applicationDelegate in _applicationDelegates) {
@@ -708,13 +724,20 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
         [self invokeSelector:selector withArguments:arguments onDelegate:applicationDelegate];
       }
     }
-  } else if (!appBooted && _applicationDelegates == nil) {
+  } else if (!appBooted) {
+    NSString *selectorString = NSStringFromSelector(selector);
     [[self queuedApplicationSelectors] setObject:arguments forKey:selectorString];
   }
 }
 
 - (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler
 {
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToPostNotification:_notification withNotificationName:_notificationName completionHandler:completionHandler];
+    return;
+  }
+
   typedef void (^NotificationBlock)(void);
 
   NotificationBlock myNotificationBlock = ^void() {
@@ -734,6 +757,12 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 
 - (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName
 {
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToPostBackgroundModeNotification:userInfo withNotificationName:notificationName];
+    return;
+  }
+
   // Check to see if the app booted and we still have the completion handler in the system
   NSString *key = [userInfo objectForKey:@"handlerId"];
   BOOL shouldContinue = NO;
@@ -1224,6 +1253,214 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 - (KrollBridge *)krollBridge
 {
   return kjsBridge;
+}
+
+#pragma mark UIWindowSceneDelegate
+
+- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
+{
+  return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+}
+
+- (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
+{
+  // Initialize the root-window
+  window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+
+  // If this is a separate scene delegate instance, share the app delegate's launchOptions
+  if (launchOptions == nil) {
+    id<UIApplicationDelegate> appDel = [[UIApplication sharedApplication] delegate];
+    if (appDel != (id<UIApplicationDelegate>)self && [appDel isKindOfClass:[TiApp class]]) {
+      launchOptions = (NSMutableDictionary *)[(TiApp *)appDel launchOptions];
+      [launchOptions retain];
+    }
+    if (launchOptions == nil) {
+      launchOptions = [[NSMutableDictionary alloc] init];
+    }
+  }
+
+  // Initialize the root-controller (also sets sharedApp if not already set)
+  [self initController];
+
+  // Boot the app (required for scene-based apps since applicationDidFinishLaunching: may not be called)
+  [self boot];
+
+  // Handle URL and user activities from scene connection options (iOS 13+ cold launch with URL/intents)
+  NSArray<NSUserActivity *> *userActivities = connectionOptions.userActivities.allObjects;
+  for (NSUserActivity *userActivity in userActivities) {
+    if (userActivity.activityType == NSUserActivityTypeBrowsingWeb && userActivity.webpageURL != nil) {
+      [self handleURLFromScene:userActivity.webpageURL source:nil];
+    } else {
+      [self dictionaryFromUserActivity:userActivity];
+    }
+  }
+
+  // Handle URL contexts (custom URL schemes and universal links)
+  for (UIOpenURLContext *urlContext in connectionOptions.URLContexts) {
+    [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
+  }
+}
+
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
+{
+  // Handle URL when app is already running (iOS 13+)
+  for (UIOpenURLContext *urlContext in URLContexts) {
+    [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
+  }
+}
+
+- (void)handleURLFromScene:(NSURL *)url source:(NSString *)source
+{
+  if (url == nil) {
+    return;
+  }
+
+  [launchOptions setObject:[url absoluteString] forKey:@"url"];
+  if (source != nil) {
+    [launchOptions setObject:source forKey:@"source"];
+  } else {
+    [launchOptions removeObjectForKey:@"source"];
+  }
+
+  // Snapshot the mutable launchOptions so later mutations (e.g. TIMOB-3432
+  // clearing in sceneWillEnterForeground:) don't affect the queued or posted event.
+  NSDictionary *optionsSnapshot = [[launchOptions copy] autorelease];
+
+  if (appBooted) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiApplicationLaunchedFromURL object:self userInfo:optionsSnapshot];
+  } else {
+    if (queuedBootEvents == nil) {
+      queuedBootEvents = [[NSMutableDictionary alloc] init];
+    }
+    [queuedBootEvents setObject:optionsSnapshot forKey:kTiApplicationLaunchedFromURL];
+  }
+}
+
+#pragma mark Scene Lifecycle
+
+- (void)sceneWillResignActive:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneWillResignActive:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  if ([self forceSplashAsSnapshot]) {
+    [window addSubview:[self splashScreenView]];
+  }
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+
+  [[ImageLoader sharedLoader] suspend];
+  [kjsBridge gc];
+}
+
+- (void)sceneDidBecomeActive:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneDidBecomeActive:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  if ([self forceSplashAsSnapshot] && splashScreenView != nil) {
+    [[self splashScreenView] removeFromSuperview];
+    RELEASE_TO_NIL(splashScreenView);
+  }
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
+
+  [[ImageLoader sharedLoader] resume];
+}
+
+- (void)sceneDidEnterBackground:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneDidEnterBackground:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
+
+  if (backgroundServices == nil) {
+    return;
+  }
+
+  UIApplication *app = [UIApplication sharedApplication];
+  TiApp *tiapp = self;
+  bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+    TiThreadPerformOnMainThread(
+        ^{
+          if (bgTask != UIBackgroundTaskInvalid) {
+            [app endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+          }
+        },
+        NO);
+  }];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [tiapp beginBackgrounding];
+  });
+}
+
+- (void)sceneWillEnterForeground:(UIScene *)scene
+{
+  [self tryToInvokeSelector:@selector(sceneWillEnterForeground:)
+              withArguments:[NSOrderedSet orderedSetWithObject:scene]];
+
+  [self flushCompletionHandlerQueue];
+  [sessionId release];
+  sessionId = [[TiUtils createUUID] retain];
+
+  // TIMOB-3432. Ensure URL is cleared when resume event is fired.
+  [launchOptions removeObjectForKey:@"url"];
+  [launchOptions removeObjectForKey:@"source"];
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+
+  if (backgroundServices == nil) {
+    return;
+  }
+
+  [self endBackgrounding];
+}
+
+#pragma mark Shared User Activity Processing
+
+- (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity
+{
+  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
+
+  if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
+    if ([userActivity userInfo] != nil) {
+      [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
+    }
+  }
+
+  if ([userActivity title] != nil) {
+    [dict setObject:[userActivity title] forKey:@"title"];
+  }
+
+  if ([userActivity webpageURL] != nil) {
+    [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
+  }
+
+  if ([userActivity userInfo] != nil) {
+    [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
+  }
+
+  // Update launchOptions so that we send only expected values rather than NSUserActivity
+  NSMutableDictionary *userActivityDict = [NSMutableDictionary dictionaryWithDictionary:launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]];
+  [userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
+  [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+
+  return dict;
+}
+
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity
+{
+  NSDictionary *dict = [self dictionaryFromUserActivity:userActivity];
+
+  [self tryToInvokeSelector:@selector(scene:continueUserActivity:)
+              withArguments:[NSOrderedSet orderedSetWithObjects:scene, userActivity, nil]];
+
+  if (appBooted) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
+  } else {
+    [[self queuedBootEvents] setObject:dict forKey:kTiContinueActivity];
+  }
 }
 
 #pragma mark Background Tasks
