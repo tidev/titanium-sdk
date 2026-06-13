@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import java.io.BufferedReader;
 import java.io.File;
@@ -94,7 +93,6 @@ public class TiUIWebView extends TiUIView
 		}
 
 		@Override
-		@RequiresApi(23)
 		public ActionMode startActionMode(ActionMode.Callback callback, int type)
 		{
 			if (disableContextMenu) {
