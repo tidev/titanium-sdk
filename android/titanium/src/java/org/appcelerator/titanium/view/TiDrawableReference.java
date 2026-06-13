@@ -976,6 +976,16 @@ public class TiDrawableReference
 		return url;
 	}
 
+	public int getResourceId()
+	{
+		return resourceId;
+	}
+
+	public String getTypeName()
+	{
+		return type != null ? type.name() : "null";
+	}
+
 	@Override
 	public String toString()
 	{
