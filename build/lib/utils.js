@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const titanium = path.resolve(__dirname, '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
 const exec = util.promisify(childProcess.exec);
+const execFile = util.promisify(childProcess.execFile);
 
 const tempDir = os.tmpdir();
 
@@ -296,7 +297,24 @@ export async function cacheExtract(inFile, integrity, outDir, extractFunc) {
 * @returns {Promise<void>}
 */
 export function unzip(zipfile, dest) {
-	return util.promisify(appc.zip.unzip)(zipfile, dest, null);
+	return fs.ensureDir(dest).then(async () => {
+		if (os.platform() === 'win32') {
+			await execFile('powershell.exe', [
+				'-NoProfile',
+				'-NonInteractive',
+				'-Command',
+				'Expand-Archive',
+				'-LiteralPath',
+				zipfile,
+				'-DestinationPath',
+				dest,
+				'-Force'
+			]);
+			return;
+		}
+
+		await execFile('unzip', [ '-q', '-o', zipfile, '-d', dest ]);
+	});
 }
 
 /**
