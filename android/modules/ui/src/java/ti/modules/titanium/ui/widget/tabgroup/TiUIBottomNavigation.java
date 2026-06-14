@@ -9,7 +9,6 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
@@ -33,7 +32,6 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -61,7 +59,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private int currentlySelectedIndex = -1;
 	private int lastNightMode = -1;
 	private ArrayList<MenuItem> mMenuItemsArray;
-	private RelativeLayout layout = null;
+	private RelativeLayout layout;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
@@ -176,7 +174,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			int id_content = TiRHelper.getResource("id.bottomNavBar_content");
 			int id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
 
-			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppRootOrCurrentActivity());
+			LayoutInflater inflater = LayoutInflater.from(activity);
 			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
 			bottomNavigation = layout.findViewById(id_bottomNavigation);
 			centerView = layout.findViewById(id_content);
@@ -371,7 +369,8 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 			boolean hasTouchFeedback = TiConvert.toBoolean(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK), true);
 			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
-			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
+			if (hasTouchFeedback && (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)
+				|| hasTouchFeedbackColor)) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
 				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
@@ -385,15 +384,21 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 
 			if (!hasTouchFeedback) {
-				Drawable drawable = new RippleDrawable(ColorStateList.valueOf(Color.TRANSPARENT), null, null);
-				this.bottomNavigation.getChildAt(0).setBackground(drawable);
+				// Don't clear background - only remove the ripple wrapping.
+				// Apply state drawable background if custom tab colors are defined.
+				if (hasCustomBackground(tabProxy)) {
+					BottomNavigationMenuView bottomMenuView =
+						((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
+					Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+					bottomMenuView.getChildAt(index).setBackground(drawable);
+				}
 			}
 
 			if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
 				bottomMenuView.getChildAt(index).setBackgroundColor(TiConvert.toColor(
-					tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), TiApplication.getAppRootOrCurrentActivity()
+					tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), tabProxy.getActivity()
 				));
 			}
 		} catch (Exception e) {

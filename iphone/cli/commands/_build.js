@@ -17,7 +17,7 @@ import bufferEqual from 'buffer-equal';
 import Builder from 'node-titanium-sdk/lib/builder.js';
 import crypto from 'node:crypto';
 import colors from 'colors';
-import { DOMParser } from 'xmldom';
+import { DOMParser } from '@xmldom/xmldom';
 import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';

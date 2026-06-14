@@ -227,9 +227,11 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:tabController];
-    [tabController didMoveToParentViewController:parentController];
+    if (tabController.parentViewController == nil) {
+      UIViewController *parentController = [self windowHoldingController];
+      [parentController addChildViewController:tabController];
+      [tabController didMoveToParentViewController:parentController];
+    }
     [tabController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
