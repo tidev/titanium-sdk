@@ -5,8 +5,8 @@
 			"integrity": "sha512-F3t4bOjAfqBuxehOYw+Z4YYP3MT9zeIMLkmigQ/vKU8R7WlwNC/hkmsVG9o+xRsy7eykRPN0QcqtBvgDszPHQg=="
 		},
 		"facebook": {
-			"url": "https://github.com/tidev/ti.facebook/releases/download/ios-15.0.0/facebook-iphone-15.0.0.zip",
-			"integrity": "sha512-6rTYS2lhrM+PHgQuPjzaEax4HySAwv/z/K2UkdSa5kRpu46soSJAPqslCfKoXVQOVxKF2aXVt8PKYZ9r1OKDMg=="
+			"url": "https://github.com/tidev/ti.facebook/releases/download/ios-16.0.0/facebook-iphone-16.0.0.zip",
+			"integrity": "sha512-zqsrtHaRbZv5Qo/Fy6sVYYpELCz2YKuykDHu3nyn91VG1mTTBNH9Cw9reJkY2j2sfJ0AjkoaCb9nnfNLO5uycQ=="
 		},
 		"ti.coremotion": {
 			"url": "https://github.com/tidev/ti.coremotion/releases/download/v4.0.1/ti.coremotion-iphone-4.0.1.zip",
@@ -31,8 +31,8 @@
 	},
 	"android": {
 		"facebook": {
-			"url": "https://github.com/tidev/ti.facebook/releases/download/v14.0.0-android/facebook-android-14.0.0.zip",
-			"integrity": "sha512-vqCmgvCNcRHH8fdD4cFVg4qpCxuWCasRL9nMZGWJjuNmIWgJmrnKI2x5SRN5Hr87yV5rfruu3NvE9mUYdgesRg=="
+			"url": "https://github.com/tidev/ti.facebook/releases/download/android-15.0.0/facebook-android-15.0.0.zip",
+			"integrity": "sha512-bRydSiKMHthC4MJO3MU0jl9Bf69L/GS4fBTfEafuCHcoqfaZR7LrwKk8+CfGDh/BGq7xTGUJAX+pI1ePfS48LQ=="
 		},
 		"ti.map": {
 			"url": "https://github.com/tidev/ti.map/releases/download/v5.7.0-android/ti.map-android-5.7.0.zip",

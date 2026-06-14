@@ -612,19 +612,6 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
-		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.START) != Gravity.START) {
-			if (getNativeView() != null) {
-				ViewGroup view = (ViewGroup) getNativeView().getParent();
-				view.setFocusableInTouchMode(true);
-				view.requestFocus();
-			}
-			Context context = TiApplication.getInstance().getApplicationContext();
-			InputMethodManager inputManager =
-				(InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-			inputManager.hideSoftInputFromWindow(tv.getWindowToken(), 0);
-		}
-
 		Editable editable = getText();
 		if (editable == null) return true;
 
