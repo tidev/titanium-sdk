@@ -1345,6 +1345,11 @@ extern void UIColorFlushCache(void);
     [launchOptions removeObjectForKey:@"source"];
   }
 
+  // Add scene identifier if available
+  if (_sceneId != nil) {
+    [launchOptions setObject:_sceneId forKey:@"scene"];
+  }
+
   // Snapshot the mutable launchOptions so later mutations (e.g. TIMOB-3432
   // clearing in sceneWillEnterForeground:) don't affect the queued or posted event.
   NSDictionary *optionsSnapshot = [[launchOptions copy] autorelease];
