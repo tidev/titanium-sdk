@@ -48,6 +48,7 @@
   BOOL appBooted;
 
   NSString *sessionId;
+  NSString *_sceneId;
 
   UIBackgroundTaskIdentifier bgTask;
   NSMutableArray *backgroundServices;
@@ -226,6 +227,12 @@
  @param animated If _YES_, animates the view controller as it’s hidden; otherwise, does not.
  */
 - (void)hideModalController:(UIViewController *)controller animated:(BOOL)animated;
+
+/**
+ Returns the unique identifier for the scene this TiApp instance belongs to.
+ Available on iOS 13 and later. Returns _nil_ on earlier versions or if the scene is not connected.
+ */
+@property (nonatomic, readonly, copy) NSString *sceneId NS_AVAILABLE_IOS(13_0);
 
 /**
  Returns unique identifier for the current application launch.

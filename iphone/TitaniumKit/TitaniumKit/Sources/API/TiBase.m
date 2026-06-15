@@ -112,6 +112,7 @@ NSString *const kTiRemoteExtentionWillExpire = @"remoteextentionwillexpire";
 NSString *const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
+NSString *const kTiSceneDismissNotification = @"TiSceneDismiss";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
 NSString *const kTiTraitCollectionChanged = @"TiTraitCollectionChanged";
