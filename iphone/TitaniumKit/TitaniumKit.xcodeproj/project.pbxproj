@@ -24,6 +24,8 @@
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
 		DBA1A1A12400000100000001 /* TiSceneRegistry.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000200000001 /* TiSceneRegistry.h */; };
 		DBA1A1A12400000300000001 /* TiSceneRegistry.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000400000001 /* TiSceneRegistry.m */; };
+		DBA1A1A12400000900000001 /* TiSceneProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000a00000001 /* TiSceneProxy.h */; };
+		DBA1A1A12400000b00000001 /* TiSceneProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000c00000001 /* TiSceneProxy.m */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
 		4A1FF4432523262A00A0F923 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1FF4422523262A00A0F923 /* ErrorView.swift */; };
 		B106A6FD24535CB800B1305E /* JSValue+Addons.h in Headers */ = {isa = PBXBuildFile; fileRef = B106A6FB24535CB800B1305E /* JSValue+Addons.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -360,6 +362,8 @@
 		DBE66A35210F92FD00095F1E /* KrollWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollWrapper.m; sourceTree = "<group>"; };
 		DBA1A1A12400000200000001 /* TiSceneRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiSceneRegistry.h; sourceTree = "<group>"; };
 		DBA1A1A12400000400000001 /* TiSceneRegistry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiSceneRegistry.m; sourceTree = "<group>"; };
+		DBA1A1A12400000a00000001 /* TiSceneProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiSceneProxy.h; sourceTree = "<group>"; };
+		DBA1A1A12400000c00000001 /* TiSceneProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiSceneProxy.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -507,6 +511,8 @@
 				DB15FC4C1F0A848200A82C45 /* TiApp.m */,
 				DBA1A1A12400000200000001 /* TiSceneRegistry.h */,
 				DBA1A1A12400000400000001 /* TiSceneRegistry.m */,
+				DBA1A1A12400000a00000001 /* TiSceneProxy.h */,
+				DBA1A1A12400000c00000001 /* TiSceneProxy.m */,
 				DB258D231F097680000D0D8D /* TiBase.h */,
 				DB258D241F097680000D0D8D /* TiBase.m */,
 				DB15FD221F0A8A7B00A82C45 /* TiBindingEvent.h */,
@@ -898,6 +904,7 @@
 				DB15FBF11F0A80E400A82C45 /* TiThreading.m in Sources */,
 				DB15FC821F0A855F00A82C45 /* UIImage+Resize.m in Sources */,
 				DBA1A1A12400000300000001 /* TiSceneRegistry.m in Sources */,
+				DBA1A1A12400000b00000001 /* TiSceneProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
