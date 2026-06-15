@@ -1298,9 +1298,11 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
   } else {
     taskRequest = [[[BGAppRefreshTaskRequest alloc] initWithIdentifier:bgTask[@"identifier"]] autorelease];
   }
-  taskRequest.earliestBeginDate = bgTask[@"beginDate"];
-
-  [BGTaskScheduler.sharedScheduler submitTaskRequest:taskRequest error:nil];
+  taskRequest.earliestBeginDate = [TiUtils dateForUTCDate:bgTask[@"beginDate"]];
+  NSError *error = nil;
+  if ([BGTaskScheduler.sharedScheduler submitTaskRequest:taskRequest error:&error]) {
+    DebugLog(@"[ERROR] Could not submit background task %@: %@", bgTask[@"identifier"], error.localizedDescription);
+  }
 }
 
 - (void)backgroundTaskCompletedForIdentifier:(NSString *)identifier
@@ -1318,7 +1320,7 @@ TI_INLINE void waitForMemoryPanicCleared(void); // WARNING: This must never be r
 {
   NSDictionary *bgTask = nil;
   for (NSDictionary *backgroundTask in backgroundTasks) {
-    if (backgroundTask[@"identifier"] == identifier) {
+    if ([backgroundTask[@"identifier"] isEqual:identifier]) {
       bgTask = backgroundTask;
       break;
     }

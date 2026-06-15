@@ -113,6 +113,15 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
   }
 
+  if ((count == 1) && [type isEqual:@"backgroundprocess"]) {
+    NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
+    if ([backgroundModes containsObject:@"processing"]) {
+      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundProcessNotification:) name:kTiBackgroundProcessNotification object:nil];
+    } else {
+      DebugLog(@"[ERROR] Cannot add backgroundprocess eventListener. Please add `processing` to UIBackgroundModes inside info.plist ");
+    }
+  }
+
   if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector
@@ -166,14 +175,6 @@
   }
   if ((count == 1) && [type isEqual:@"sessioneventscompleted"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiURLSessionEventsCompleted object:nil];
-  }
-  if ((count == 1) && [type isEqual:@"backgroundprocess"]) {
-    NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
-    if ([backgroundModes containsObject:@"processing"]) {
-      [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveBackgroundProcessNotification:) name:kTiBackgroundProcessNotification object:nil];
-    } else {
-      DebugLog(@"[ERROR] Cannot add backgroundprocess eventListener. Please add `processing` to UIBackgroundModes inside info.plist ");
-    }
   }
   if ((count == 1) && [type isEqual:@"silentpush"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSilentPushNotification object:nil];
@@ -426,7 +427,7 @@
   ENSURE_STRING(args[@"type"]);
 
   if ([TiUtils isIOSVersionLower:@"13.0"]) {
-    DebugLog(@"This API is not supported fo iOS < 13.0");
+    DebugLog(@"This API is not supported for iOS < 13.0");
     return;
   }
 
