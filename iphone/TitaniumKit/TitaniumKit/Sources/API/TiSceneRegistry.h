@@ -16,6 +16,11 @@
  */
 @interface TiSceneRegistry : NSObject
 
+{
+  @private
+  NSMutableDictionary *_sceneMap;
+}
+
 + (instancetype)sharedRegistry;
 
 /**
