@@ -15,6 +15,7 @@
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
 #import "TiLogServer.h"
+#import "TiSceneRegistry.h"
 #import "TiSharedConfig.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
@@ -1278,6 +1279,10 @@ extern void UIColorFlushCache(void);
 
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
 {
+  // Register with scene registry
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  [registry registerTiApp:self forSceneUUID:session.persistentIdentifier];
+
   // Initialize the root-window
   window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
 
@@ -1508,6 +1513,10 @@ extern void UIColorFlushCache(void);
 {
   NSString *sceneId = scene.session.persistentIdentifier;
   DebugLog(@"[DEBUG] TiApp Scene did disconnect: %@", sceneId);
+
+  // Unregister from scene registry
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  [registry unregisterTiAppForSceneUUID:sceneId];
 
   // Fire disconnect notification (for future JS API)
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDismissNotification

@@ -6,8 +6,10 @@
  */
 
 #import "TiAppiOSProxy.h"
+#import "TiSceneProxy.h"
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
@@ -386,6 +388,34 @@
   userDefaultsProxy.defaultsObject = defaultsObject;
 
   return userDefaultsProxy;
+}
+
+#pragma mark - Scene APIs
+
+- (id)currentScene
+{
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *primary = [registry primaryScene];
+  if (primary) {
+    TiSceneProxy *sceneProxy = [[TiSceneProxy alloc] initWithSceneUUID:primary.sceneId tiApp:primary];
+    return [sceneProxy autorelease];
+  }
+  return [NSNull null];
+}
+
+- (id)scenes
+{
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  NSDictionary *allScenes = [registry allScenes];
+
+  NSMutableArray *sceneArray = [NSMutableArray array];
+  for (NSString *sceneUUID in allScenes) {
+    TiApp *tiApp = allScenes[sceneUUID];
+    TiSceneProxy *sceneProxy = [[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp];
+    [sceneArray addObject:[sceneProxy autorelease]];
+  }
+
+  return [sceneArray copy];
 }
 
 - (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
