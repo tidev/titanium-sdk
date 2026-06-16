@@ -264,7 +264,7 @@
 - (void)updateKeyboardStatus
 {
   if (([[[self.proxy owningApp] controller] keyboardVisible]) && ([[[self.proxy owningApp] controller] keyboardFocusedProxy] == [self proxy])) {
-    [[self.proxy owningApp] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+    [[[self.proxy owningApp] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
   }
 }
 
