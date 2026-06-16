@@ -218,15 +218,8 @@ methods:
       - name: options
         summary: |
             Optional dictionary with scene configuration options.
-        type: Dictionary
+        type: Dictionary<RequestSceneOptions>
         optional: true
-        properties:
-          - name: configurationName
-            summary: |
-                The name of the `UISceneConfiguration` to use. Must match a
-                configuration name in the app's `UIApplicationSceneManifest`.
-                If omitted, the system uses the default configuration.
-            type: String
     osver: {ios: {min: "13.0"}}
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
@@ -1749,3 +1742,19 @@ properties:
   - name: categories
     summary: Set of categories of user notification actions required by the application to use.
     type: Array<Titanium.App.iOS.UserNotificationCategory>
+
+---
+name: RequestSceneOptions
+summary: |
+    Dictionary of options for <Titanium.App.iOS.requestScene>.
+since: {iphone: "13.3.0", ipad: "13.3.0"}
+platforms: [iphone, ipad]
+
+properties:
+
+  - name: configurationName
+    summary: |
+        The name of the `UISceneConfiguration` to use. Must match a
+        configuration name in the app's `UIApplicationSceneManifest`.
+        If omitted, the system uses the default configuration.
+    type: String
