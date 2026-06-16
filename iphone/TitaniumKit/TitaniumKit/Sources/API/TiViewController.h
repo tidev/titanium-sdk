@@ -8,6 +8,8 @@
 #import "TiControllerProtocols.h"
 #import <UIKit/UIKit.h>
 
+@class TiApp;
+
 @interface TiViewController : UIViewController <UIAdaptivePresentationControllerDelegate> {
 
   TiViewProxy *_proxy;
@@ -18,5 +20,6 @@
 
 - (id)initWithViewProxy:(TiViewProxy *)window;
 - (TiViewProxy *)proxy;
+- (TiApp *)owningApp API_AVAILABLE(ios(13_0));
 
 @end

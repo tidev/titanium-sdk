@@ -7,6 +7,7 @@
 
 #import "TiViewController.h"
 #import "TiApp.h"
+#import "TiSceneRegistry.h"
 
 @implementation TiViewController
 
@@ -40,8 +41,22 @@
   id object = [_proxy valueForUndefinedKey:@"orientationModes"];
   _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
   if (_supportedOrientations == TiOrientationNone) {
-    _supportedOrientations = [[[TiApp app] controller] getDefaultOrientations];
+    _supportedOrientations = [[[self owningApp] controller] getDefaultOrientations];
   }
+}
+
+- (TiApp *)owningApp
+{
+  if (@available(iOS 13.0, *)) {
+    UIWindow *window = [self view].window;
+    if (window != nil) {
+      TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
+      if (app != nil) {
+        return app;
+      }
+    }
+  }
+  return [TiApp app];
 }
 
 - (TiViewProxy *)proxy
@@ -113,7 +128,7 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-  return [[[TiApp app] controller] lastValidOrientation:_supportedOrientations];
+  return [[[self owningApp] controller] lastValidOrientation:_supportedOrientations];
 }
 
 - (void)loadView
@@ -256,9 +271,9 @@
     return [(id<TiWindowProtocol>)_proxy preferredStatusBarStyle];
   }
 
-  if ([[[TiApp app] controller] topContainerController] != nil) {
+  if ([[[self owningApp] controller] topContainerController] != nil) {
     // Prefer the style of the most recent view controller.
-    return [[[[TiApp app] controller] topContainerController] preferredStatusBarStyle];
+    return [[[[self owningApp] controller] topContainerController] preferredStatusBarStyle];
   }
 
   return UIStatusBarStyleDefault;

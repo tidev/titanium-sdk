@@ -83,6 +83,7 @@ enum {
 };
 
 @class TiAction, TiBlob;
+@class TiApp;
 // For TableRows, we need to have minimumParentHeightForWidth:
 
 /**
@@ -439,6 +440,13 @@ enum {
 - (BOOL)isUsingBarButtonItem;
 
 - (CGRect)appFrame; // TODO: Why is this here? It doesn't have anything to do with a specific instance.
+
+/**
+ Returns the TiApp instance that owns this view's scene.
+ In multi-scene mode, resolves to the correct TiApp for the view's UIWindow.
+ Falls back to [TiApp app] (sharedApp singleton) for single-scene or pre-iOS 13.
+ */
+- (TiApp *)owningApp API_AVAILABLE(ios(13_0));
 
 #pragma mark Building up and tearing down
 - (void)firePropertyChanges;

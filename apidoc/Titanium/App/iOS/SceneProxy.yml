@@ -1,0 +1,116 @@
+---
+name: Titanium.App.iOS.SceneProxy
+summary: Proxy object representing a UIWindowScene in a multi-scene iOS application.
+description: |
+    A SceneProxy provides access to a single UIWindowScene instance and its properties.
+    Scene proxies are obtained via <Titanium.App.iOS.currentScene>, <Titanium.App.iOS.scenes>,
+    or the <Titanium.UI.Window.scene> property.
+
+    Multi-scene support is only available on iOS 13 and later, and requires the
+    `UIApplicationSceneManifest` configuration in your application's `Info.plist`.
+    In single-scene apps (the default), `currentScene` returns `null` and `scenes`
+    returns an empty array.
+
+    ### Example
+
+    ``` js
+    // Get the current scene
+    var scene = Ti.App.iOS.currentScene;
+    Ti.API.info('Scene ID: ' + scene.sceneId);
+    Ti.API.info('Scene Name: ' + scene.sceneName);
+    Ti.API.info('Active: ' + scene.isActive);
+    Ti.API.info('Foreground: ' + scene.isForeground);
+    Ti.API.info('Primary: ' + scene.isPrimary);
+
+    // Get trait collection info
+    var traits = scene.traitCollection;
+    Ti.API.info('UI Style: ' + traits.userInterfaceStyle);
+    Ti.API.info('Horizontal Size Class: ' + traits.horizontalSizeClass);
+    Ti.API.info('Vertical Size Class: ' + traits.verticalSizeClass);
+    ```
+extends: Titanium.Proxy
+platforms: [iphone, ipad, macos]
+since: {iphone: "13.3.0", ipad: "13.3.0"}
+properties:
+  - name: id
+    summary: The unique identifier of the scene (alias for sceneId).
+    description: |
+        Convenience accessor that returns the same value as <Titanium.App.iOS.SceneProxy.sceneId>.
+        This is the `persistentIdentifier` of the scene's `UISceneSession`.
+    type: String
+    permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: sceneId
+    summary: The unique identifier of the scene.
+    description: |
+        The `persistentIdentifier` of the scene's `UISceneSession`.
+        This value uniquely identifies the scene across its lifetime.
+    type: String
+    permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: sceneName
+    summary: The configuration name of the scene.
+    description: |
+        The name of the `UISceneConfiguration` used to create this scene.
+        Defaults to "Default Configuration" if no custom name is set.
+    type: String
+    permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: isActive
+    summary: Whether the scene is currently active and receiving input.
+    description: |
+        Returns `true` when the scene is in the foreground and receiving events.
+        A scene becomes active when `scenedidbecomeactive` fires and inactive when
+        `scenewillresignactive` fires.
+    type: Boolean
+    permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: isForeground
+    summary: Whether the scene is in the foreground (visible but may not be active).
+    description: |
+        Returns `true` when the scene is visible on screen, even if it is not
+        the active scene (for example, when a system overlay is shown on top of it).
+        A scene enters the foreground when `scenewillenterforeground` fires and
+        enters the background when `scenedidenterbackground` fires.
+    type: Boolean
+    permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: isPrimary
+    summary: Whether this scene is the primary (first) scene.
+    description: |
+        Returns `true` for the scene that was launched first or is designated as
+        the primary scene in the scene configuration.
+    type: Boolean
+    permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: window
+    summary: The root window proxy for this scene.
+    description: |
+        Returns the <Titanium.UI.Window> proxy for the root view controller of this scene.
+        Returns `null` if the scene does not have a window.
+    type: Titanium.UI.Window
+    permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: traitCollection
+    summary: The trait collection for this scene.
+    description: |
+        Returns a dictionary with the scene's `UITraitCollection` properties:
+
+        * `userInterfaceStyle` (Number): The user interface style. One of 0 (Unspecified), 1 (Light), or 2 (Dark).
+        * `horizontalSizeClass` (Number): The horizontal size class. One of 0 (Unspecified), 1 (Compact), or 2 (Regular).
+        * `verticalSizeClass` (Number): The vertical size class. One of 0 (Unspecified), 1 (Compact), or 2 (Regular).
+        * `displayScale` (Number): The display scale factor.
+        * `layoutDirection` (Number): The layout direction. One of 0 (Left to Right), 1 (Right to Left).
+
+        Returns `null` if the scene does not have a window or on iOS versions prior to 13.0.
+    type: Dictionary
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}

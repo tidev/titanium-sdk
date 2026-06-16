@@ -1865,6 +1865,32 @@ properties:
     since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
     osver: {ios: {min: "13.0"}}
 
+  - name: scene
+    summary: The scene proxy associated with this window.
+    description: |
+        Returns a <Titanium.App.iOS.SceneProxy> object representing the UIWindowScene
+        that this window belongs to. In multi-scene apps on iPadOS, each window is
+        associated with a specific scene. Use this property to access scene-specific
+        information such as trait collections.
+
+        Returns `null` if scenes are not available (iOS versions prior to 13.0 or
+        apps without a scene manifest).
+
+        ``` js
+        var win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+        win.addEventListener('open', function() {
+            var scene = win.scene;
+            if (scene) {
+                Ti.API.info('Window belongs to scene: ' + scene.sceneId);
+            }
+        });
+        ```
+    type: Titanium.App.iOS.SceneProxy
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
   - name: modalStyle
     summary: Presentation style of this modal window.
     platforms: [iphone, ipad, macos]

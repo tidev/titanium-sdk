@@ -135,7 +135,7 @@
 
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-  [[[TiApp app] controller] dismissKeyboard];
+  [[[self owningApp] controller] dismissKeyboard];
   TiThreadPerformOnMainThread(
       ^{
         [self pushOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
@@ -151,7 +151,7 @@
 
   JSContext *context = [self currentContext];
 
-  if (window == rootWindow && ![[TiApp app] willTerminate]) {
+  if (window == rootWindow && ![[self owningApp] willTerminate]) {
     DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
     return [KrollPromise rejectedWithErrorMessage:@"Can not close the root window of the NavigationWindow. Close the NavigationWindow instead." inContext:context];
   }
