@@ -510,7 +510,7 @@
 
 - (UIView *)viewForKeyboardAccessory;
 {
-  return [[[[TiApp app] window] subviews] lastObject];
+  return [[[self view].window subviews] lastObject];
 }
 
 - (void)extractKeyboardInfo:(NSDictionary *)userInfo
@@ -1186,7 +1186,7 @@
 
 - (void)refreshOrientationWithDuration:(id)unused
 {
-  if (![[TiApp app] windowIsKeyWindow]) {
+  if (![[self view].window isKeyWindow]) {
     VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
     return;
   }

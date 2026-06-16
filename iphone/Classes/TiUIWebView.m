@@ -987,7 +987,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                                                       completionHandler();
                                                     }]];
 
-  [[TiApp app] showModalController:alertController animated:YES];
+  [[self.proxy owningApp] showModalController:alertController animated:YES];
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completionHandler
@@ -1008,7 +1008,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                                                       completionHandler(NO);
                                                     }]];
 
-  [[TiApp app] showModalController:alertController animated:YES];
+  [[self.proxy owningApp] showModalController:alertController animated:YES];
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString *_Nullable))completionHandler
@@ -1032,7 +1032,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
                                                       completionHandler(nil);
                                                     }]];
 
-  [[TiApp app] showModalController:alertController animated:YES];
+  [[self.proxy owningApp] showModalController:alertController animated:YES];
 }
 
 - (void)fireBeforeLoad:(nonnull WKNavigationAction *)navigationAction

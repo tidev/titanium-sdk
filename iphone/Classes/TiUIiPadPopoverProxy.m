@@ -169,7 +169,7 @@ static NSArray *popoverSequence;
   [contentViewProxy setProxyObserver:self];
 
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
+    UIView *topWindowView = [[[self owningApp] controller] topWindowProxyView];
     if ([topWindowView isKindOfClass:[TiUIView class]]) {
       TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
       if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -253,7 +253,7 @@ static NSArray *popoverSequence;
   [contentViewProxy windowDidClose];
 
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
+    UIView *topWindowView = [[[self owningApp] controller] topWindowProxyView];
     if ([topWindowView isKindOfClass:[TiUIView class]]) {
       TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
       if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

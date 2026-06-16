@@ -263,8 +263,8 @@
 #pragma mark - Titanium Internal Use Only
 - (void)updateKeyboardStatus
 {
-  if (([[[TiApp app] controller] keyboardVisible]) && ([[[TiApp app] controller] keyboardFocusedProxy] == [self proxy])) {
-    [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+  if (([[[self.proxy owningApp] controller] keyboardVisible]) && ([[[self.proxy owningApp] controller] keyboardFocusedProxy] == [self proxy])) {
+    [[self.proxy owningApp] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
   }
 }
 

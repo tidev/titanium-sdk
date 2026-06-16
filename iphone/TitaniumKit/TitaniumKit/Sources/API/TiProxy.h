@@ -16,6 +16,7 @@
 
 @class KrollBridge;
 @class KrollObject;
+@class TiApp;
 
 // Common exceptions to throw when the function call was improper
 extern NSString *const TiExceptionInvalidType;
@@ -167,6 +168,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 - (id)_proxy:(TiProxyBridgeType)type;
 - (void)contextWasShutdown:(id<TiEvaluator>)context;
 - (TiHost *)_host;
+
+/**
+ Returns the TiApp instance that owns this proxy's execution context.
+ In multi-scene mode, resolves to the correct TiApp for the proxy's KrollBridge.
+ Falls back to [TiApp app] (sharedApp singleton) for single-scene or pre-iOS 13.
+ */
+- (TiApp *)owningApp;
 - (NSURL *)_baseURL;
 - (void)_setBaseURL:(NSURL *)url;
 - (void)_destroy;

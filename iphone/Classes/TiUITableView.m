@@ -2487,7 +2487,7 @@
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       controller = [[proxy windowHoldingController] retain];
     } else {
-      controller = [[[TiApp app] controller] retain];
+      controller = [[[self.proxy owningApp] controller] retain];
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
@@ -2541,7 +2541,7 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self convertRect:keyboardEndFrame fromView:nil];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
@@ -2551,7 +2551,7 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self convertRect:keyboardEndFrame fromView:nil];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
@@ -3006,7 +3006,7 @@
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[[TiApp app] controller] retain];
+      searchControllerPresenter = [[[self.proxy owningApp] controller] retain];
     }
   }
   searchControllerPresenter.definesPresentationContext = YES;

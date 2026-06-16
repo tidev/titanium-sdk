@@ -278,19 +278,19 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 - (void)setBackgroundColor:(id)color
 {
-  TiRootViewController *controller = [[TiApp app] controller];
+  TiRootViewController *controller = [[self owningApp] controller];
   [controller setBackgroundColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setTintColor:(id)color
 {
-  UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
+  UIWindow *controller = [[[[self owningApp] controller] topWindowProxyView] window];
   [controller setTintColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setBackgroundImage:(id)image
 {
-  TiRootViewController *controller = [[TiApp app] controller];
+  TiRootViewController *controller = [[self owningApp] controller];
   UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
   if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
     // special case where we're asking for Default.png and it's in Bundle not path
