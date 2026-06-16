@@ -61,3 +61,7 @@ junit_report.xml
 
 # VS Code History Extension
 .history
+
+# Local plans and analysis docs
+docs/plans/*.md
+docs/analysis/*.md
