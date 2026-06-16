@@ -9,6 +9,7 @@
 #import "TiRootViewController.h"
 #import "TiSceneRegistry.h"
 #import "TiUtils.h"
+#import "TiWindow.h"
 #import "TiWindowProxy.h"
 
 @implementation TiSceneProxy
@@ -62,6 +63,22 @@
 {
   TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
   return NUMBOOL([registry isSceneForegroundForUUID:_sceneUUID]);
+}
+
+- (id)isKey
+{
+  // In multi-scene mode, isKeyWindow returns YES for all foreground scenes
+  // and activationState == ForegroundActive is true for all visible scenes.
+  // Instead, use TiWindow.lastActiveWindow which tracks which window was
+  // last touched, giving a reliable focus indicator in all multitasking modes.
+  if (@available(iOS 13.0, *)) {
+    UIWindow *lastActive = [TiWindow lastActiveWindow];
+    UIWindow *myWindow = [_tiApp window];
+    if (lastActive != nil && myWindow != nil && lastActive == myWindow) {
+      return NUMBOOL(YES);
+    }
+  }
+  return NUMBOOL(NO);
 }
 
 - (id)window

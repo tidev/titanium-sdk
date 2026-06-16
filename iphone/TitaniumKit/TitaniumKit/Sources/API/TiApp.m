@@ -17,6 +17,7 @@
 #import "TiLogServer.h"
 #import "TiSceneRegistry.h"
 #import "TiSharedConfig.h"
+#import "TiWindow.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
 #import <CoreLocation/CoreLocation.h>
@@ -1222,6 +1223,12 @@ extern void UIColorFlushCache(void);
 
 - (void)dealloc
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIWindowDidBecomeKeyNotification
+                                                object:window];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIWindowDidBecomeVisibleNotification
+                                                object:window];
   RELEASE_TO_NIL(kjsBridge);
   RELEASE_TO_NIL(loadView);
   RELEASE_TO_NIL(window);
@@ -1287,7 +1294,21 @@ extern void UIColorFlushCache(void);
   [registry setSceneForeground:NO forUUID:session.persistentIdentifier];
 
   // Initialize the root-window
-  window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+  window = [[TiWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+
+  // Listen for focus changes to detect when this scene gains visibility/key status.
+  // UIWindowDidBecomeKeyNotification fires when a window becomes key (Slide Over),
+  // but NOT in Split View where both windows are key simultaneously.
+  // UIWindowDidBecomeVisibleNotification fires when a window becomes visible
+  // (useful as a fallback in multitasking scenarios).
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(windowDidBecomeKey:)
+                                               name:UIWindowDidBecomeKeyNotification
+                                             object:window];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(windowDidBecomeVisible:)
+                                               name:UIWindowDidBecomeVisibleNotification
+                                             object:window];
 
   // Set scene identifier
   if (_sceneId == nil) {
@@ -1418,6 +1439,33 @@ extern void UIColorFlushCache(void);
                                                     userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
   [[ImageLoader sharedLoader] resume];
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)note
+{
+  // Fired when this scene's window becomes key (gains focus).
+  // In Slide Over mode this fires when the user taps the window to bring it forward.
+  // In Split View this may not fire (both windows can be key simultaneously).
+  if (_sceneId != nil) {
+    [[TiSceneRegistry sharedRegistry] setSceneActive:YES forUUID:_sceneId];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDidBecomeActiveNotification
+                                                        object:self
+                                                      userInfo:@{ @"scene" : _sceneId }];
+  }
+}
+
+- (void)windowDidBecomeVisible:(NSNotification *)note
+{
+  // Fired when this scene's window becomes visible (e.g., Slide Over reveal,
+  // Split View resize, or returning from background).
+  // This is a fallback for UIWindowDidBecomeKeyNotification which doesn't fire
+  // in Split View where both windows are key simultaneously.
+  if (_sceneId != nil) {
+    [[TiSceneRegistry sharedRegistry] setSceneForeground:YES forUUID:_sceneId];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillEnterForegroundNotification
+                                                        object:self
+                                                      userInfo:@{ @"scene" : _sceneId }];
+  }
 }
 
 - (void)sceneDidEnterBackground:(UIScene *)scene

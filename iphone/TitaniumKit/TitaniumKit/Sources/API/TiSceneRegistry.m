@@ -7,6 +7,7 @@
 
 #import "TiSceneRegistry.h"
 #import "TiApp.h"
+#import "TiWindow.h"
 #import <UIKit/UIKit.h>
 
 @implementation TiSceneRegistry
@@ -37,6 +38,9 @@
 {
   if (sceneUUID && tiApp) {
     _sceneMap[sceneUUID] = tiApp;
+    if (_primarySceneUUID == nil) {
+      _primarySceneUUID = [sceneUUID copy];
+    }
   }
 }
 
@@ -46,6 +50,9 @@
   [_sceneActiveState removeObjectForKey:sceneUUID];
   [_sceneForegroundState removeObjectForKey:sceneUUID];
   [_sceneNames removeObjectForKey:sceneUUID];
+  if ([sceneUUID isEqualToString:_primarySceneUUID]) {
+    _primarySceneUUID = nil;
+  }
 }
 
 - (NSDictionary<NSString *, TiApp *> *)allScenes
@@ -60,10 +67,8 @@
 
 - (TiApp *)primaryScene
 {
-  NSArray *allUUIDs = [_sceneMap allKeys];
-  if (allUUIDs.count > 0) {
-    NSString *primaryUUID = allUUIDs[0];
-    return _sceneMap[primaryUUID];
+  if (_primarySceneUUID != nil) {
+    return _sceneMap[_primarySceneUUID];
   }
   return nil;
 }
@@ -98,6 +103,23 @@
     }
   }
 
+  return nil;
+}
+
+- (NSString *)focusedSceneUUID
+{
+  if (@available(iOS 13.0, *)) {
+    UIWindow *lastActive = [TiWindow lastActiveWindow];
+    if (lastActive != nil) {
+      UIWindowScene *windowScene = lastActive.windowScene;
+      if (windowScene != nil) {
+        NSString *sceneUUID = windowScene.session.persistentIdentifier;
+        if ([self sceneForUUID:sceneUUID] != nil) {
+          return sceneUUID;
+        }
+      }
+    }
+  }
   return nil;
 }
 

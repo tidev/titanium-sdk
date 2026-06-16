@@ -36,4 +36,9 @@
  */
 - (instancetype)initWithSceneUUID:(NSString *)sceneUUID tiApp:(TiApp *)tiApp;
 
+/**
+ * Whether this scene's window is the key window (has input focus).
+ */
+- (id)isKey;
+
 @end

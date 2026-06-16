@@ -55,6 +55,7 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindow.h>
 #import <TitaniumKit/UIImage+Alpha.h>
 #import <TitaniumKit/UIImage+Resize.h>
 #import <TitaniumKit/UIImage+RoundedCorner.h>

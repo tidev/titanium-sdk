@@ -499,6 +499,26 @@
   return @[];
 }
 
+- (id)focusedScene
+{
+  if (@available(iOS 13.0, *)) {
+    Class registryClass = NSClassFromString(@"TiSceneRegistry");
+    if (registryClass) {
+      id registry = [registryClass sharedRegistry];
+      NSString *focusedUUID = [registry focusedSceneUUID];
+      if (focusedUUID != nil) {
+        TiApp *tiApp = [registry sceneForUUID:focusedUUID];
+        Class sceneProxyClass = NSClassFromString(@"TiSceneProxy");
+        if (sceneProxyClass && tiApp != nil) {
+          id sceneProxy = [[sceneProxyClass alloc] initWithSceneUUID:focusedUUID tiApp:tiApp];
+          return [sceneProxy autorelease];
+        }
+      }
+    }
+  }
+  return [NSNull null];
+}
+
 - (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
 {
   NSDictionary *a = nil;

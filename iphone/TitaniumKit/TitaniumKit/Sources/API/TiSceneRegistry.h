@@ -23,6 +23,7 @@
   NSMutableDictionary *_sceneActiveState;
   NSMutableDictionary *_sceneForegroundState;
   NSMutableDictionary *_sceneNames;
+  NSString *_primarySceneUUID;
 }
 
 + (instancetype)sharedRegistry;
@@ -63,6 +64,16 @@
  * Returns nil if no matching scene is found.
  */
 - (TiApp *)appForWindow:(UIWindow *)window API_AVAILABLE(ios(13_0));
+
+/**
+ * Return the scene UUID of the currently focused scene.
+ * Uses TiWindow.lastActiveWindow to determine which scene the user
+ * last interacted with. This works in Split View, Slide Over, and
+ * full-screen modes, unlike isKeyWindow which returns YES for all
+ * foreground scenes in Split View.
+ * Returns nil if no scene has been interacted with yet.
+ */
+- (NSString *)focusedSceneUUID API_AVAILABLE(ios(13_0));
 
 /**
  * Set whether a scene is active (foreground and receiving input).
