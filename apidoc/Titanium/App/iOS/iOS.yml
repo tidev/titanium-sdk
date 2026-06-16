@@ -200,6 +200,36 @@ methods:
     osver: {ios: {min: "8.2"}}
     since: "4.1.0"
 
+  - name: requestScene
+    summary: Request the system to open a new scene (window).
+    description: |
+        Requests that the system activate a new scene session, creating a new
+        window on iPadOS (Split View or Slide Over). The system will call
+        `scene:willConnectToSession:` on a new TiApp instance, which boots
+        the app's JavaScript in the new scene context.
+
+        On iOS versions prior to 13.0, or when the app does not have a
+        `UIApplicationSceneManifest` in its Info.plist, this method does nothing.
+
+        The optional `configurationName` parameter specifies which scene
+        configuration to use from the `UIApplicationSceneManifest`. If omitted,
+        the system uses the default configuration.
+    parameters:
+      - name: options
+        summary: |
+            Optional dictionary with scene configuration options.
+        type: Dictionary
+        optional: true
+        properties:
+          - name: configurationName
+            summary: |
+                The name of the `UISceneConfiguration` to use. Must match a
+                configuration name in the app's `UIApplicationSceneManifest`.
+                If omitted, the system uses the default configuration.
+            type: String
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
 properties:
   - name: EVENT_ACCESSIBILITY_LAYOUT_CHANGED
     summary: Convenience constant for system event "accessibilitylayoutchanged".

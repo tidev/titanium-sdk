@@ -519,6 +519,22 @@
   return [NSNull null];
 }
 
+- (id)requestScene:(id)args
+{
+  ENSURE_UI_THREAD(requestScene, args);
+
+  if (@available(iOS 13.0, *)) {
+    UISceneActivationRequestOptions *options = [[UISceneActivationRequestOptions alloc] init];
+    [[UIApplication sharedApplication] requestSceneSessionActivation:nil
+                                                        userActivity:nil
+                                                             options:options
+                                                        errorHandler:^(NSError *error) {
+                                                          DebugLog(@"[ERROR] requestScene failed: %@", error.localizedDescription);
+                                                        }];
+  }
+  return nil;
+}
+
 - (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
 {
   NSDictionary *a = nil;
