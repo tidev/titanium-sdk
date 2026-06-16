@@ -8,6 +8,7 @@
 
 #import "TiUIiPadPopoverProxy.h"
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiWindowProxy.h>
 #import <libkern/OSAtomic.h>
@@ -199,11 +200,11 @@ static NSArray *popoverSequence;
           theController.popoverPresentationController.backgroundColor = [[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color];
         }
 
-        [TiApp.app.controller.topPresentedController presentViewController:theController
+        [[[self owningApp] controller] topPresentedController] presentViewController:theController
                                                                   animated:animated
                                                                 completion:^{
-                                                                  popoverInitialized = YES;
-                                                                  [contentViewProxy windowDidOpen];
+      popoverInitialized = YES;
+      [contentViewProxy windowDidOpen];
                                                                 }];
       },
       YES);
