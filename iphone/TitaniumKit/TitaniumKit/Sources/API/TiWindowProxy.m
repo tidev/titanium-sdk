@@ -9,6 +9,8 @@
 #import "KrollPromise.h"
 #import "TiApp.h"
 #import "TiErrorController.h"
+#import "TiSceneProxy.h"
+#import "TiSceneRegistry.h"
 #import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
 
@@ -1003,6 +1005,38 @@
 {
   // Overridden in subclass
   return NO;
+}
+
+- (id)scene
+{
+  if (@available(iOS 13.0, *)) {
+    UIWindow *nativeWindow = nil;
+
+    // Try to get the native window from the controller's view
+    if (controller != nil && [controller isViewLoaded]) {
+      nativeWindow = [controller view].window;
+    }
+
+    // Fallback: try through our own view
+    if (nativeWindow == nil) {
+      UIView *ourView = [self view];
+      if (ourView != nil) {
+        nativeWindow = ourView.window;
+      }
+    }
+
+    if (nativeWindow != nil) {
+      TiApp *tiApp = [[TiSceneRegistry sharedRegistry] appForWindow:nativeWindow];
+      if (tiApp != nil) {
+        NSString *sceneUUID = [tiApp sceneId];
+        if (sceneUUID != nil) {
+          TiSceneProxy *sceneProxy = [[[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp] autorelease];
+          return sceneProxy;
+        }
+      }
+    }
+  }
+  return [NSNull null];
 }
 
 @end

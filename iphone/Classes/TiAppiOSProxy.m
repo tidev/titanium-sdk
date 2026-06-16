@@ -6,9 +6,10 @@
  */
 
 #import "TiAppiOSProxy.h"
-#import "TiSceneProxy.h"
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiEvaluator.h>
+#import <TitaniumKit/TiSceneProxy.h>
 #import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
 
@@ -143,6 +144,43 @@
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:nil];
   }
+
+  if ((count == 1) && [type isEqual:@"scenewillconnect"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sceneWillConnect:)
+                                                 name:kTiSceneWillConnectNotification
+                                               object:nil];
+  }
+  if ((count == 1) && [type isEqual:@"scenedidbecomeactive"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sceneDidBecomeActive:)
+                                                 name:kTiSceneDidBecomeActiveNotification
+                                               object:nil];
+  }
+  if ((count == 1) && [type isEqual:@"scenewillresignactive"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sceneWillResignActive:)
+                                                 name:kTiSceneWillResignActiveNotification
+                                               object:nil];
+  }
+  if ((count == 1) && [type isEqual:@"scenedidenterbackground"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sceneDidEnterBackground:)
+                                                 name:kTiSceneDidEnterBackgroundNotification
+                                               object:nil];
+  }
+  if ((count == 1) && [type isEqual:@"scenewillenterforeground"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sceneWillEnterForeground:)
+                                                 name:kTiSceneWillEnterForegroundNotification
+                                               object:nil];
+  }
+  if ((count == 1) && [type isEqual:@"scenediddismiss"]) {
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(sceneDidDismiss:)
+                                                 name:kTiSceneDismissNotification
+                                               object:nil];
+  }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -201,6 +239,24 @@
   }
   if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+  }
+  if ((count == 0) && [type isEqual:@"scenewillconnect"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSceneWillConnectNotification object:nil];
+  }
+  if ((count == 0) && [type isEqual:@"scenedidbecomeactive"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSceneDidBecomeActiveNotification object:nil];
+  }
+  if ((count == 0) && [type isEqual:@"scenewillresignactive"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSceneWillResignActiveNotification object:nil];
+  }
+  if ((count == 0) && [type isEqual:@"scenedidenterbackground"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSceneDidEnterBackgroundNotification object:nil];
+  }
+  if ((count == 0) && [type isEqual:@"scenewillenterforeground"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSceneWillEnterForegroundNotification object:nil];
+  }
+  if ((count == 0) && [type isEqual:@"scenediddismiss"]) {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiSceneDismissNotification object:nil];
   }
 }
 
@@ -394,28 +450,53 @@
 
 - (id)currentScene
 {
-  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
-  TiApp *primary = [registry primaryScene];
-  if (primary) {
-    TiSceneProxy *sceneProxy = [[TiSceneProxy alloc] initWithSceneUUID:primary.sceneId tiApp:primary];
-    return [sceneProxy autorelease];
+  Class registryClass = NSClassFromString(@"TiSceneRegistry");
+  if (registryClass) {
+    id registry = [registryClass sharedRegistry];
+    // Find the TiApp that owns this proxy's execution context.
+    // Each scene has its own TiApp and KrollBridge, so we look up
+    // the scene by the TiApp's sceneId rather than using primaryScene.
+    TiApp *currentTiApp = (TiApp *)[(id<TiEvaluator>)[self executionContext] host];
+    if (currentTiApp && currentTiApp.sceneId != nil) {
+      Class sceneProxyClass = NSClassFromString(@"TiSceneProxy");
+      if (sceneProxyClass) {
+        id sceneProxy = [[sceneProxyClass alloc] initWithSceneUUID:currentTiApp.sceneId tiApp:currentTiApp];
+        return [sceneProxy autorelease];
+      }
+    }
+    // Fallback to primary scene if scene context is not available
+    TiApp *primary = [registry primaryScene];
+    if (primary) {
+      Class sceneProxyClass = NSClassFromString(@"TiSceneProxy");
+      if (sceneProxyClass) {
+        id sceneProxy = [[sceneProxyClass alloc] initWithSceneUUID:primary.sceneId tiApp:primary];
+        return [sceneProxy autorelease];
+      }
+    }
   }
   return [NSNull null];
 }
 
 - (id)scenes
 {
-  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
-  NSDictionary *allScenes = [registry allScenes];
+  Class registryClass = NSClassFromString(@"TiSceneRegistry");
+  if (registryClass) {
+    id registry = [registryClass sharedRegistry];
+    NSDictionary *allScenes = [registry allScenes];
 
-  NSMutableArray *sceneArray = [NSMutableArray array];
-  for (NSString *sceneUUID in allScenes) {
-    TiApp *tiApp = allScenes[sceneUUID];
-    TiSceneProxy *sceneProxy = [[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp];
-    [sceneArray addObject:[sceneProxy autorelease]];
+    NSMutableArray *sceneArray = [NSMutableArray array];
+    Class sceneProxyClass = NSClassFromString(@"TiSceneProxy");
+    if (sceneProxyClass) {
+      for (NSString *sceneUUID in allScenes) {
+        TiApp *tiApp = allScenes[sceneUUID];
+        id sceneProxy = [[sceneProxyClass alloc] initWithSceneUUID:sceneUUID tiApp:tiApp];
+        [sceneArray addObject:[sceneProxy autorelease]];
+      }
+    }
+
+    return [sceneArray copy];
   }
-
-  return [sceneArray copy];
+  return @[];
 }
 
 - (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
@@ -1374,6 +1455,77 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_NOT_SUPPORTED, UNNotificationSettingN
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_NONE, UNAlertStyleNone);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_ALERT, UNAlertStyleAlert);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
+
+#pragma mark - Scene Lifecycle Events
+
+- (void)sceneWillConnect:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *tiApp = [registry sceneForUUID:sceneUUID];
+  TiSceneProxy *sceneProxy = [[[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp] autorelease];
+  [self fireEvent:@"scenewillconnect" withObject:@{ @"sceneId" : sceneUUID, @"scene" : sceneProxy ?: [NSNull null] }];
+}
+
+- (void)sceneDidBecomeActive:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *tiApp = [registry sceneForUUID:sceneUUID];
+  TiSceneProxy *sceneProxy = [[[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp] autorelease];
+  [self fireEvent:@"scenedidbecomeactive" withObject:@{ @"sceneId" : sceneUUID, @"scene" : sceneProxy ?: [NSNull null] }];
+}
+
+- (void)sceneWillResignActive:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *tiApp = [registry sceneForUUID:sceneUUID];
+  TiSceneProxy *sceneProxy = [[[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp] autorelease];
+  [self fireEvent:@"scenewillresignactive" withObject:@{ @"sceneId" : sceneUUID, @"scene" : sceneProxy ?: [NSNull null] }];
+}
+
+- (void)sceneDidEnterBackground:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *tiApp = [registry sceneForUUID:sceneUUID];
+  TiSceneProxy *sceneProxy = [[[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp] autorelease];
+  [self fireEvent:@"scenedidenterbackground" withObject:@{ @"sceneId" : sceneUUID, @"scene" : sceneProxy ?: [NSNull null] }];
+}
+
+- (void)sceneWillEnterForeground:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *tiApp = [registry sceneForUUID:sceneUUID];
+  TiSceneProxy *sceneProxy = [[[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp] autorelease];
+  [self fireEvent:@"scenewillenterforeground" withObject:@{ @"sceneId" : sceneUUID, @"scene" : sceneProxy ?: [NSNull null] }];
+}
+
+- (void)sceneDidDismiss:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  [self fireEvent:@"scenediddismiss" withObject:@{ @"sceneId" : sceneUUID }];
+}
 
 @end
 

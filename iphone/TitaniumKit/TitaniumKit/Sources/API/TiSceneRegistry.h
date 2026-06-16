@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 
 @class TiApp;
+@class UIWindow;
 
 /**
  * Central registry for managing all active TiApp scene instances.
@@ -19,6 +20,9 @@
 {
   @private
   NSMutableDictionary *_sceneMap;
+  NSMutableDictionary *_sceneActiveState;
+  NSMutableDictionary *_sceneForegroundState;
+  NSMutableDictionary *_sceneNames;
 }
 
 + (instancetype)sharedRegistry;
@@ -52,5 +56,42 @@
  * Get the number of active scenes.
  */
 - (NSUInteger)sceneCount;
+
+/**
+ * Find the TiApp instance that owns the given UIWindow.
+ * Uses the window's windowScene to look up the registered scene.
+ * Returns nil if no matching scene is found.
+ */
+- (TiApp *)appForWindow:(UIWindow *)window API_AVAILABLE(ios(13_0));
+
+/**
+ * Set whether a scene is active (foreground and receiving input).
+ */
+- (void)setSceneActive:(BOOL)active forUUID:(NSString *)sceneUUID;
+
+/**
+ * Set whether a scene is in the foreground (visible but may not be active).
+ */
+- (void)setSceneForeground:(BOOL)foreground forUUID:(NSString *)sceneUUID;
+
+/**
+ * Set the configuration name for a scene.
+ */
+- (void)setSceneName:(NSString *)name forUUID:(NSString *)sceneUUID;
+
+/**
+ * Check whether a scene is active.
+ */
+- (BOOL)isSceneActiveForUUID:(NSString *)sceneUUID;
+
+/**
+ * Check whether a scene is in the foreground.
+ */
+- (BOOL)isSceneForegroundForUUID:(NSString *)sceneUUID;
+
+/**
+ * Get the configuration name for a scene.
+ */
+- (NSString *)sceneNameForUUID:(NSString *)sceneUUID;
 
 @end

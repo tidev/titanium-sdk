@@ -1101,6 +1101,17 @@
   if (activeAlertControllerCount == 0) {
     UIViewController *topVC = [self topPresentedController];
     if (topVC == self) {
+      // Only trigger orientation change if this controller's window is in the foreground.
+      // In multi-scene mode, a background scene closing an alert should not
+      // force orientation changes on the foreground scene.
+      if (@available(iOS 13.0, *)) {
+        UIWindow *sceneWindow = [self view].window;
+        if (sceneWindow != nil && ![sceneWindow isKeyWindow]) {
+          // This scene is not in the foreground — skip orientation change
+          [self dismissKeyboard];
+          return;
+        }
+      }
       [self didCloseWindow:nil];
     } else {
       [self dismissKeyboard];
@@ -1182,6 +1193,18 @@
 
   if (forcingRotation) {
     return;
+  }
+
+  // In multi-scene mode (iOS 13+ with windowScene), the system manages
+  // orientation per window scene. Skip forced view transforms here —
+  // they cause incorrect rotations at startup and during scene transitions.
+  if (@available(iOS 13.0, *)) {
+    UIWindow *sceneWindow = [self view].window;
+    if (sceneWindow != nil && sceneWindow.windowScene != nil) {
+      [self resetTransformAndForceLayout:YES];
+      [self updateStatusBar];
+      return;
+    }
   }
 
   UIInterfaceOrientation target = [self lastValidOrientation:[self getFlags:NO]];

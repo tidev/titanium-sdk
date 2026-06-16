@@ -43,6 +43,8 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/TiLogServer.h>
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiSceneProxy.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiSharedConfig.h>
 #import <TitaniumKit/TiStreamProxy.h>
 #import <TitaniumKit/TiTabGroup.h>

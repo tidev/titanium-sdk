@@ -6,31 +6,24 @@
  */
 
 #import "TiSceneProxy.h"
-#import "TiApp.h"
+#import "TiRootViewController.h"
+#import "TiSceneRegistry.h"
 #import "TiUtils.h"
+#import "TiWindowProxy.h"
 
 @implementation TiSceneProxy
 
+@synthesize sceneUUID = _sceneUUID;
+@synthesize tiApp = _tiApp;
+
 - (instancetype)initWithSceneUUID:(NSString *)sceneUUID tiApp:(TiApp *)tiApp
 {
-  self = [super initWithTitaniumObject:nil];
+  self = [super init];
   if (self) {
     _sceneUUID = [sceneUUID copy];
     _tiApp = tiApp;
   }
   return self;
-}
-
-#pragma mark - TiViewProxy overrides
-
-- (TiView *)createTiView
-{
-  return nil;
-}
-
-- (TiUIView *)createProxy
-{
-  return nil;
 }
 
 #pragma mark - Property getters
@@ -40,10 +33,15 @@
   return _sceneUUID;
 }
 
+- (id)id
+{
+  return [self sceneId];
+}
+
 - (id)sceneName
 {
-  // Scene name from configuration or default
-  NSString *name = _tiApp.sceneName;
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  NSString *name = [registry sceneNameForUUID:_sceneUUID];
   return name ?: @"Default Configuration";
 }
 
@@ -51,53 +49,51 @@
 {
   TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
   TiApp *primary = [registry primaryScene];
-  return [TiUtils boolValue:[primary isEqual:_tiApp]];
+  return NUMBOOL([primary isEqual:_tiApp]);
 }
 
 - (id)isActive
 {
-  // Scene is active if it's the primary scene
-  return [self isPrimary];
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  return NUMBOOL([registry isSceneActiveForUUID:_sceneUUID]);
 }
 
 - (id)isForeground
 {
-  // Scene is in foreground if it's active
-  return [self isActive];
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  return NUMBOOL([registry isSceneForegroundForUUID:_sceneUUID]);
 }
 
 - (id)window
 {
-  // Return the root window proxy for this scene
-  UIWindow *window = _tiApp.window;
-  if (window) {
-    // Find the window proxy
-    TiUIView *view = [window viewWithTag:1000];
-    if (view) {
-      return [view proxy];
+  if (_tiApp != nil && [_tiApp controller] != nil) {
+    // The root view controller's proxy is the root window for this scene
+    id rootProxy = [[_tiApp controller] proxy];
+    if ([rootProxy isKindOfClass:[TiWindowProxy class]]) {
+      return rootProxy;
     }
-  }
-  return nil;
-}
-
-- (id)traitCollection
-{
-  UIWindow *window = _tiApp.window;
-  if (window && window.traitCollection) {
-    return @{
-      @"userInterfaceIdiom" : @(window.traitCollection.userInterfaceIdiom),
-      @"horizontalSizeClass" : @(window.traitCollection.horizontalSizeClass),
-      @"verticalSizeClass" : @(window.traitCollection.verticalSizeClass)
-    };
   }
   return [NSNull null];
 }
 
-#pragma mark - Proxy registration
-
-+ (void)registerWithRegistry:(TiRegistry *)registry
+- (id)traitCollection
 {
-  [registry registerProxy:[TiSceneProxy class] forType:@"TiAppiOSScene"];
+  if (@available(iOS 13.0, *)) {
+    if (_tiApp != nil && [_tiApp window] != nil) {
+      UIWindowScene *windowScene = [[_tiApp window] windowScene];
+      if (windowScene != nil) {
+        UITraitCollection *traits = [windowScene traitCollection];
+        return @{
+          @"userInterfaceStyle" : @((NSInteger)traits.userInterfaceStyle),
+          @"horizontalSizeClass" : @((NSInteger)traits.horizontalSizeClass),
+          @"verticalSizeClass" : @((NSInteger)traits.verticalSizeClass),
+          @"displayScale" : @(traits.displayScale),
+          @"layoutDirection" : @((NSInteger)traits.layoutDirection)
+        };
+      }
+    }
+  }
+  return [NSNull null];
 }
 
 @end

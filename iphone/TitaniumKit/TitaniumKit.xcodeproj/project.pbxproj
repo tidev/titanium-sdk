@@ -22,9 +22,9 @@
 
 /* Begin PBXBuildFile section */
 		4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A175274218B64E70094C7B6 /* KrollTimerManager.h */; };
-		DBA1A1A12400000100000001 /* TiSceneRegistry.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000200000001 /* TiSceneRegistry.h */; };
+		DBA1A1A12400000100000001 /* TiSceneRegistry.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000200000001 /* TiSceneRegistry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DBA1A1A12400000300000001 /* TiSceneRegistry.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000400000001 /* TiSceneRegistry.m */; };
-		DBA1A1A12400000900000001 /* TiSceneProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000a00000001 /* TiSceneProxy.h */; };
+		DBA1A1A12400000900000001 /* TiSceneProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000a00000001 /* TiSceneProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DBA1A1A12400000b00000001 /* TiSceneProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = DBA1A1A12400000c00000001 /* TiSceneProxy.m */; };
 		4A175277218B64E70094C7B6 /* KrollTimerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A175275218B64E70094C7B6 /* KrollTimerManager.m */; };
 		4A1FF4432523262A00A0F923 /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1FF4422523262A00A0F923 /* ErrorView.swift */; };
@@ -735,6 +735,8 @@
 				DB15FC5F1F0A84C900A82C45 /* Webcolor.h in Headers */,
 				DB258DA31F097680000D0D8D /* TiViewTemplate.h in Headers */,
 				DB15FD1A1F0A89A400A82C45 /* TiUIWindow.h in Headers */,
+				DBA1A1A12400000100000001 /* TiSceneRegistry.h in Headers */,
+				DBA1A1A12400000900000001 /* TiSceneProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

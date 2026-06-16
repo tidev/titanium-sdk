@@ -1282,6 +1282,9 @@ extern void UIColorFlushCache(void);
   // Register with scene registry
   TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
   [registry registerTiApp:self forSceneUUID:session.persistentIdentifier];
+  [registry setSceneName:session.configuration.name forUUID:session.persistentIdentifier];
+  [registry setSceneActive:NO forUUID:session.persistentIdentifier];
+  [registry setSceneForeground:NO forUUID:session.persistentIdentifier];
 
   // Initialize the root-window
   window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
@@ -1327,6 +1330,11 @@ extern void UIColorFlushCache(void);
   for (UIOpenURLContext *urlContext in connectionOptions.URLContexts) {
     [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
   }
+
+  // Post scene connect notification
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillConnectNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : session.persistentIdentifier }];
 }
 
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
@@ -1382,6 +1390,10 @@ extern void UIColorFlushCache(void);
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification
                                                       object:self
                                                     userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneActive:NO forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillResignActiveNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
   [[ImageLoader sharedLoader] suspend];
   [kjsBridge gc];
@@ -1400,6 +1412,10 @@ extern void UIColorFlushCache(void);
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification
                                                       object:self
                                                     userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneActive:YES forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDidBecomeActiveNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
   [[ImageLoader sharedLoader] resume];
 }
@@ -1410,6 +1426,10 @@ extern void UIColorFlushCache(void);
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneForeground:NO forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDidEnterBackgroundNotification
                                                       object:self
                                                     userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
@@ -1448,6 +1468,10 @@ extern void UIColorFlushCache(void);
   [launchOptions removeObjectForKey:@"source"];
 
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneForeground:YES forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillEnterForegroundNotification
                                                       object:self
                                                     userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
