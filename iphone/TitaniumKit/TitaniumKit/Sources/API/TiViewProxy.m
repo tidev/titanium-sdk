@@ -1388,15 +1388,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (TiApp *)owningApp
 {
   if (@available(iOS 13.0, *)) {
-    UIWindow *window = [[self view] window];
-    if (window != nil) {
-      TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
-      if (app != nil) {
-        return app;
+    if ([self viewAttached]) {
+      UIWindow *window = [[self view] window];
+      if (window != nil) {
+        TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
+        if (app != nil) {
+          return app;
+        }
       }
     }
   }
-  return [TiApp app];
+  return [super owningApp];
 }
 
 #pragma mark Building up and Tearing down

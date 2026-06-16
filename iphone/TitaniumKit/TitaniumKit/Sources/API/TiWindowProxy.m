@@ -234,7 +234,11 @@
   if ([[[self owningApp] controller] presentedViewController] != nil) {
     return YES;
   }
-  return ([[[[self owningApp] controller] view] superview] != nil);
+  UIViewController *ctrl = [[self owningApp] controller];
+  if (![ctrl isViewLoaded]) {
+    return NO;
+  }
+  return ([ctrl view].superview != nil);
 }
 
 #pragma mark - TiWindowProtocol Base Methods

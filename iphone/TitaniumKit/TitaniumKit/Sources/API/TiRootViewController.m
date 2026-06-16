@@ -221,11 +221,12 @@
 
   [ourView setBackgroundColor:chosenColor];
   [[ourView superview] setBackgroundColor:chosenColor];
-  UIWindow *sceneWindow = [self view].window;
+  UIWindow *sceneWindow = nil;
+  if ([self isViewLoaded]) {
+    sceneWindow = [self view].window;
+  }
   if (sceneWindow != nil) {
     sceneWindow.backgroundColor = chosenColor;
-  } else {
-    [[UIApplication sharedApplication] keyWindow].backgroundColor = chosenColor;
   }
   if (bgImage != nil) {
     [[ourView layer] setContents:(id)bgImage.CGImage];
@@ -515,6 +516,9 @@
 
 - (UIView *)viewForKeyboardAccessory;
 {
+  if (![self isViewLoaded]) {
+    return nil;
+  }
   return [[[self view].window subviews] lastObject];
 }
 
@@ -1110,7 +1114,10 @@
       // In multi-scene mode, a background scene closing an alert should not
       // force orientation changes on the foreground scene.
       if (@available(iOS 13.0, *)) {
-        UIWindow *sceneWindow = [self view].window;
+        UIWindow *sceneWindow = nil;
+        if ([self isViewLoaded]) {
+          sceneWindow = [self view].window;
+        }
         if (sceneWindow != nil && ![sceneWindow isKeyWindow]) {
           // This scene is not in the foreground — skip orientation change
           [self dismissKeyboard];
@@ -1191,7 +1198,7 @@
 
 - (void)refreshOrientationWithDuration:(id)unused
 {
-  if (![[self view].window isKeyWindow]) {
+  if (![self isViewLoaded] || ![[self view].window isKeyWindow]) {
     VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
     return;
   }
@@ -1204,7 +1211,10 @@
   // orientation per window scene. Skip forced view transforms here —
   // they cause incorrect rotations at startup and during scene transitions.
   if (@available(iOS 13.0, *)) {
-    UIWindow *sceneWindow = [self view].window;
+    UIWindow *sceneWindow = nil;
+    if ([self isViewLoaded]) {
+      sceneWindow = [self view].window;
+    }
     if (sceneWindow != nil && sceneWindow.windowScene != nil) {
       [self resetTransformAndForceLayout:YES];
       [self updateStatusBar];

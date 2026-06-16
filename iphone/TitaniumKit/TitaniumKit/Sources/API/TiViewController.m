@@ -48,10 +48,19 @@
 - (TiApp *)owningApp
 {
   if (@available(iOS 13.0, *)) {
-    UIWindow *window = [self view].window;
-    if (window != nil) {
-      TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
-      if (app != nil) {
+    if ([self isViewLoaded]) {
+      UIWindow *window = [self view].window;
+      if (window != nil) {
+        TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
+        if (app != nil) {
+          return app;
+        }
+      }
+    }
+    // View not loaded yet — use proxy's owningApp (via executionContext.host)
+    if (_proxy != nil && [_proxy respondsToSelector:@selector(owningApp)]) {
+      TiApp *app = [(id)_proxy owningApp];
+      if (app != nil && [app isKindOfClass:[TiApp class]]) {
         return app;
       }
     }

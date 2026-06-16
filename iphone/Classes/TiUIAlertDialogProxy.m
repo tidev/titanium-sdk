@@ -83,7 +83,7 @@ static BOOL alertShowing = NO;
 - (TiApp *)owningTiApp
 {
   // If an owning window proxy was explicitly set, use its native window to find the TiApp
-  if (owningWindowProxy != nil) {
+  if (owningWindowProxy != nil && [owningWindowProxy viewAttached]) {
     UIWindow *nativeWindow = [[owningWindowProxy view] window];
     if (nativeWindow != nil) {
       if (@available(iOS 13.0, *)) {
