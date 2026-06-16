@@ -640,6 +640,8 @@ DEFINE_EXCEPTIONS
     _borderLayer.fillColor = UIColor.clearColor.CGColor;
     _borderLayer.strokeColor = self.layer.borderColor;
     _borderLayer.lineWidth = self.layer.borderWidth * 2;
+    self.layer.borderColor = nil;
+    self.layer.borderWidth = 0;
     [self.layer addSublayer:_borderLayer];
   }
   return _borderLayer;
