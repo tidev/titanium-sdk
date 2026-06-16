@@ -1381,16 +1381,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (CGRect)appFrame // TODO: Why is this here? It doesn't have anything to do with a specific instance.
 {
-  if (@available(iOS 13.0, *)) {
-    UIWindow *window = [[self view] window];
-    if (window != nil) {
-      TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
-      if (app != nil) {
-        return [[[app controller] view] bounds];
-      }
-    }
-  }
-  CGRect result = [[[[TiApp app] controller] view] bounds];
+  CGRect result = [[[[self owningApp] controller] view] bounds];
   return result;
 }
 

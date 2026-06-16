@@ -492,7 +492,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 
 - (NSNumber *)statusBarHeight
 {
-  return @(UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame.size.height);
+  UIWindow *sceneWindow = [[self owningApp] window];
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  return @(sceneWindow.windowScene.statusBarManager.statusBarFrame.size.height);
 }
 
 #pragma mark iPhone namespace

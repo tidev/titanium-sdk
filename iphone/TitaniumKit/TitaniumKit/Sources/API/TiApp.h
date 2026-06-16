@@ -149,7 +149,7 @@
 
 - (BOOL)windowIsKeyWindow;
 
-- (UIView *)topMostView;
+- (UIView *)topMostView __attribute__((deprecated("Use the view's own window coordinate system instead in multi-scene apps")));
 
 - (void)registerApplicationDelegate:(id)applicationDelegate;
 

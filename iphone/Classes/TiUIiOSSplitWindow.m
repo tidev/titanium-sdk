@@ -116,7 +116,7 @@
 - (void)layoutSubviewsForOrientation:(UIInterfaceOrientation)orientation
 {
   CGSize refSize = self.bounds.size;
-  BOOL isPortrait = UIApplication.sharedApplication.keyWindow.frame.size.height > UIApplication.sharedApplication.keyWindow.frame.size.width;
+  BOOL isPortrait = self.bounds.size.height > self.bounds.size.width;
 
   CGRect masterRect = CGRectZero;
   CGRect detailRect = CGRectZero;

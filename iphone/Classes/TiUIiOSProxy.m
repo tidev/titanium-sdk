@@ -118,7 +118,10 @@
   ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
   ENSURE_SINGLE_ARG(value, NSString);
 
-  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  UIWindow *keyWindow = [[self owningApp] window];
+  if (keyWindow == nil) {
+    keyWindow = UIApplication.sharedApplication.keyWindow;
+  }
   CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
   UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
   if (!view) {
@@ -270,7 +273,10 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  UIWindow *keyWindow = [[self owningApp] window];
+  if (keyWindow == nil) {
+    keyWindow = UIApplication.sharedApplication.keyWindow;
+  }
   CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
   UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
   if (view) {

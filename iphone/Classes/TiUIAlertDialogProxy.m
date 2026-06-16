@@ -95,26 +95,8 @@ static BOOL alertShowing = NO;
     }
   }
 
-  // Walk parent chain to find a TiWindowProxy, then use its native window
-  TiViewProxy *ancestor = self.parent;
-  while (ancestor != nil) {
-    if ([ancestor isKindOfClass:[TiWindowProxy class]]) {
-      UIWindow *nativeWindow = [[ancestor view] window];
-      if (nativeWindow != nil) {
-        if (@available(iOS 13.0, *)) {
-          TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:nativeWindow];
-          if (app != nil) {
-            return app;
-          }
-        }
-      }
-      break;
-    }
-    ancestor = ancestor.parent;
-  }
-
-  // Fallback to sharedApp for single-scene mode
-  return [TiApp app];
+  // Delegate to inherited owningApp (uses executionContext.host or view-based lookup)
+  return [self owningApp];
 }
 
 - (void)show:(id)unused

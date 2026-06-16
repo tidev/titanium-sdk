@@ -2652,7 +2652,7 @@
   CGFloat rowWidth = tableview.bounds.size.width;
 #ifdef TI_USE_AUTOLAYOUT
   if (rowWidth == 0) {
-    rowWidth = [[[[[UIApplication sharedApplication] delegate] window] rootViewController] view].bounds.size.width;
+    rowWidth = [[[[self.proxy owningApp] window] rootViewController] view].bounds.size.width;
   }
 #endif
 
