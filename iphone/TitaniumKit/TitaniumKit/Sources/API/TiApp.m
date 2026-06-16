@@ -37,6 +37,8 @@ extern void UIColorFlushCache(void);
 - (void)checkBackgroundServices;
 - (void)appBoot;
 - (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
+- (TiApp *)owningInstance;
+- (void)handleSceneConnectionOptions:(UISceneConnectionOptions *)connectionOptions;
 @end
 
 @implementation TiApp
@@ -126,6 +128,19 @@ extern void UIColorFlushCache(void);
   }
 
   return _applicationDelegates;
+}
+
+// iOS instantiates a dedicated scene-delegate instance because `TiApp` is named
+// as the `UISceneDelegateClassName` while also being the `UIApplicationDelegate`.
+// Titanium keeps a single owning instance — the app delegate — that holds all app
+// and launch state (`launchOptions`, notifications, queued selectors, the JS bridge,
+// etc.). The scene-delegate instance forwards every scene callback here so that
+// `[TiApp app]` always reflects the same instance that received
+// `application:didFinishLaunchingWithOptions:`.
+- (TiApp *)owningInstance
+{
+  id appDelegate = [[UIApplication sharedApplication] delegate];
+  return [appDelegate isKindOfClass:[TiApp class]] ? (TiApp *)appDelegate : self;
 }
 
 - (void)initController
@@ -432,8 +447,9 @@ extern void UIColorFlushCache(void);
   // If a "application-launch-url" is set, launch it directly
   [self launchToUrl];
 
-  // Skip boot here - the scene delegate (sharedApp) will handle it
-  // This prevents the app from being booted twice
+  // Do not boot here. With the scene lifecycle, booting happens in
+  // scene:willConnectToSession: — which is forwarded to this same (app-delegate)
+  // instance — so the window can be created against the connecting UIWindowScene.
 
   // Create application support directory if not exists
   [self createDefaultDirectories];
@@ -711,13 +727,6 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToInvokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments
 {
-  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
-  // App delegate has window == nil, scene delegate (sharedApp) has window != nil
-  if (window == nil && sharedApp != nil && sharedApp != self) {
-    [sharedApp tryToInvokeSelector:selector withArguments:arguments];
-    return;
-  }
-
   if (appBooted && _applicationDelegates != nil) {
     for (id applicationDelegate in _applicationDelegates) {
       if ([applicationDelegate respondsToSelector:selector]) {
@@ -732,12 +741,6 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler
 {
-  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
-  if (window == nil && sharedApp != nil && sharedApp != self) {
-    [sharedApp tryToPostNotification:_notification withNotificationName:_notificationName completionHandler:completionHandler];
-    return;
-  }
-
   typedef void (^NotificationBlock)(void);
 
   NotificationBlock myNotificationBlock = ^void() {
@@ -757,12 +760,6 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName
 {
-  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
-  if (window == nil && sharedApp != nil && sharedApp != self) {
-    [sharedApp tryToPostBackgroundModeNotification:userInfo withNotificationName:notificationName];
-    return;
-  }
-
   // Check to see if the app booted and we still have the completion handler in the system
   NSString *key = [userInfo objectForKey:@"handlerId"];
   BOOL shouldContinue = NO;
@@ -1259,35 +1256,52 @@ extern void UIColorFlushCache(void);
 
 - (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
 {
-  return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+  // MRC: this method does not start with alloc/new/copy, so it must return an
+  // autoreleased object — otherwise UIKit leaks one configuration per scene connection.
+  return [[[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role] autorelease];
 }
 
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
 {
-  // Initialize the root-window
-  window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
-
-  // If this is a separate scene delegate instance, share the app delegate's launchOptions
-  if (launchOptions == nil) {
-    id<UIApplicationDelegate> appDel = [[UIApplication sharedApplication] delegate];
-    if (appDel != (id<UIApplicationDelegate>)self && [appDel isKindOfClass:[TiApp class]]) {
-      launchOptions = (NSMutableDictionary *)[(TiApp *)appDel launchOptions];
-      [launchOptions retain];
-    }
-    if (launchOptions == nil) {
-      launchOptions = [[NSMutableDictionary alloc] init];
-    }
+  // Route everything onto the single owning instance (the app delegate), which
+  // already holds the launch state captured in didFinishLaunchingWithOptions:.
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner scene:scene willConnectToSession:session options:connectionOptions];
+    return;
   }
 
-  // Initialize the root-controller (also sets sharedApp if not already set)
-  [self initController];
+  // Initialize the root-window against the connecting window scene
+  RELEASE_TO_NIL(window);
+  window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
 
-  // Boot the app (required for scene-based apps since applicationDidFinishLaunching: may not be called)
-  [self boot];
+  // Only boot once. A scene may reconnect after being disconnected; in that case
+  // reuse the existing controller/bridge rather than booting a second JS runtime.
+  if (kjsBridge == nil) {
+    // Capture a cold-launch quick action before booting so booted: can deliver it
+    if (connectionOptions.shortcutItem != nil && launchedShortcutItem == nil) {
+      launchedShortcutItem = [connectionOptions.shortcutItem retain];
+    }
 
-  // Handle URL and user activities from scene connection options (iOS 13+ cold launch with URL/intents)
-  NSArray<NSUserActivity *> *userActivities = connectionOptions.userActivities.allObjects;
-  for (NSUserActivity *userActivity in userActivities) {
+    // Initialize the root-controller (also sets sharedApp if not already set)
+    [self initController];
+
+    // Boot the app (required for scene-based apps since applicationDidFinishLaunching: may not be called)
+    [self boot];
+
+    // Handle remaining cold-launch payloads delivered via the scene connection
+    [self handleSceneConnectionOptions:connectionOptions];
+  } else {
+    // Re-attach the existing controller to the new window for a reconnected scene
+    [window setRootViewController:controller];
+    [window makeKeyAndVisible];
+  }
+}
+
+- (void)handleSceneConnectionOptions:(UISceneConnectionOptions *)connectionOptions
+{
+  // Handle user activities (Handoff, universal links, Spotlight)
+  for (NSUserActivity *userActivity in connectionOptions.userActivities) {
     if (userActivity.activityType == NSUserActivityTypeBrowsingWeb && userActivity.webpageURL != nil) {
       [self handleURLFromScene:userActivity.webpageURL source:nil];
     } else {
@@ -1299,10 +1313,31 @@ extern void UIColorFlushCache(void);
   for (UIOpenURLContext *urlContext in connectionOptions.URLContexts) {
     [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
   }
+
+  // Handle a cold launch from a tapped local or remote notification. Reuse the
+  // standard delegate path so the same events fire as during normal runtime.
+  UNNotificationResponse *notificationResponse = connectionOptions.notificationResponse;
+  if (notificationResponse != nil) {
+    // Mirror the legacy launchOptions path so [[TiApp app] remoteNotification]
+    // is populated for a cold launch from a remote push.
+    if ([notificationResponse.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
+      [self generateNotification:notificationResponse.notification.request.content.userInfo];
+    }
+    [self userNotificationCenter:[UNUserNotificationCenter currentNotificationCenter]
+        didReceiveNotificationResponse:notificationResponse
+                 withCompletionHandler:^{
+                 }];
+  }
 }
 
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
 {
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner scene:scene openURLContexts:URLContexts];
+    return;
+  }
+
   // Handle URL when app is already running (iOS 13+)
   for (UIOpenURLContext *urlContext in URLContexts) {
     [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
@@ -1340,6 +1375,12 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneWillResignActive:(UIScene *)scene
 {
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner sceneWillResignActive:scene];
+    return;
+  }
+
   [self tryToInvokeSelector:@selector(sceneWillResignActive:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
@@ -1354,6 +1395,12 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneDidBecomeActive:(UIScene *)scene
 {
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner sceneDidBecomeActive:scene];
+    return;
+  }
+
   [self tryToInvokeSelector:@selector(sceneDidBecomeActive:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
@@ -1369,6 +1416,12 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneDidEnterBackground:(UIScene *)scene
 {
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner sceneDidEnterBackground:scene];
+    return;
+  }
+
   [self tryToInvokeSelector:@selector(sceneDidEnterBackground:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
@@ -1397,6 +1450,12 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneWillEnterForeground:(UIScene *)scene
 {
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner sceneWillEnterForeground:scene];
+    return;
+  }
+
   [self tryToInvokeSelector:@selector(sceneWillEnterForeground:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
@@ -1451,6 +1510,12 @@ extern void UIColorFlushCache(void);
 
 - (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity
 {
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner scene:scene continueUserActivity:userActivity];
+    return;
+  }
+
   NSDictionary *dict = [self dictionaryFromUserActivity:userActivity];
 
   [self tryToInvokeSelector:@selector(scene:continueUserActivity:)
@@ -1587,6 +1652,23 @@ extern void UIColorFlushCache(void);
 {
   [self tryToInvokeSelector:@selector(application:performActionForShortcutItem:completionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, shortcutItem, [completionHandler copy], nil]];
+
+  BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
+  completionHandler(handledShortCutItem);
+}
+
+// With the scene lifecycle, a quick action triggered while the app is already
+// running is delivered here instead of application:performActionForShortcutItem:.
+- (void)windowScene:(UIWindowScene *)windowScene performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded))completionHandler
+{
+  TiApp *owner = [self owningInstance];
+  if (owner != self) {
+    [owner windowScene:windowScene performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
+    return;
+  }
+
+  [self tryToInvokeSelector:@selector(application:performActionForShortcutItem:completionHandler:)
+              withArguments:[NSOrderedSet orderedSetWithObjects:[UIApplication sharedApplication], shortcutItem, [completionHandler copy], nil]];
 
   BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
   completionHandler(handledShortCutItem);
