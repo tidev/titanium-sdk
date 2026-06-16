@@ -845,6 +845,26 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
+  - name: focusedScene
+    summary: The scene proxy for the scene the user is currently interacting with.
+    description: |
+        Returns a <Titanium.App.iOS.SceneProxy> object representing the scene that
+        the user last interacted with (tapped, scrolled, etc.). This is determined
+        by tracking which window received the most recent touch event via hit testing.
+
+        In multi-scene mode (iPad Split View, Slide Over), both scenes may report
+        `isActive` and `isForeground` as `true` simultaneously. The `focusedScene`
+        property reliably identifies which scene has input focus, unlike
+        <Titanium.App.iOS.SceneProxy.isKey> which uses the same tracking mechanism
+        but is accessed per-scene.
+
+        Returns `null` if no scene has been interacted with yet (e.g., on app launch
+        before any touch) or on iOS versions prior to 13.0.
+    type: Titanium.App.iOS.SceneProxy
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
 events:
   - name: notification
     summary: Fired when a local notification is received by the application.

@@ -4,12 +4,42 @@ summary: Proxy object representing a UIWindowScene in a multi-scene iOS applicat
 description: |
     A SceneProxy provides access to a single UIWindowScene instance and its properties.
     Scene proxies are obtained via <Titanium.App.iOS.currentScene>, <Titanium.App.iOS.scenes>,
-    or the <Titanium.UI.Window.scene> property.
+    <Titanium.App.iOS.focusedScene>, or the <Titanium.UI.Window.scene> property.
 
-    Multi-scene support is only available on iOS 13 and later, and requires the
-    `UIApplicationSceneManifest` configuration in your application's `Info.plist`.
-    In single-scene apps (the default), `currentScene` returns `null` and `scenes`
-    returns an empty array.
+    Multi-scene support is available on iOS 13 and later. The Titanium SDK includes
+    a default `UIApplicationSceneManifest` in the generated `Info.plist` with
+    `UIApplicationSupportsMultipleScenes` set to `true` and a single scene configuration
+    named "Default Configuration" with delegate class `TiApp`.
+
+    To add additional scene configurations (e.g., for CarPlay or custom window scenes),
+    add them under the `<ios><plist><dict>` section in your `tiapp.xml`:
+
+        <ios>
+            <plist>
+                <dict>
+                    <key>UIApplicationSceneManifest</key>
+                    <dict>
+                        <key>UIApplicationSupportsMultipleScenes</key>
+                        <true/>
+                        <key>UISceneConfigurations</key>
+                        <dict>
+                            <key>UIWindowSceneSessionRoleApplication</key>
+                            <array>
+                                <dict>
+                                    <key>UISceneConfigurationName</key>
+                                    <string>Default Configuration</string>
+                                    <key>UISceneDelegateClassName</key>
+                                    <string>TiApp</string>
+                                </dict>
+                            </array>
+                        </dict>
+                    </dict>
+                </dict>
+            </plist>
+        </ios>
+
+    In single-scene apps (iOS versions prior to 13.0 or apps without a scene manifest),
+    `currentScene` returns `null` and `scenes` returns an empty array.
 
     ### Example
 
@@ -21,6 +51,7 @@ description: |
     Ti.API.info('Active: ' + scene.isActive);
     Ti.API.info('Foreground: ' + scene.isForeground);
     Ti.API.info('Primary: ' + scene.isPrimary);
+    Ti.API.info('Key (focused): ' + scene.isKey);
 
     // Get trait collection info
     var traits = scene.traitCollection;
@@ -87,6 +118,24 @@ properties:
         the primary scene in the scene configuration.
     type: Boolean
     permission: read-only
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: isKey
+    summary: Whether this scene's window is the one the user is currently interacting with.
+    description: |
+        Returns `true` when this scene's window was the last window to receive a touch event.
+        This is the most reliable way to determine which scene has input focus in
+        multi-scene mode (iPad Split View, Slide Over).
+
+        **Important:** In iPad Split View, both scenes report `isKeyWindow` as `true`
+        and `activationState` as `foregroundActive` simultaneously. The `isKey` property
+        uses hit-test tracking instead, making it a reliable focus indicator.
+
+        For the same information at the module level, use
+        <Titanium.App.iOS.focusedScene> which returns the focused scene proxy directly.
+    type: Boolean
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
   - name: window
