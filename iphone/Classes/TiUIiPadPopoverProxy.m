@@ -200,12 +200,12 @@ static NSArray *popoverSequence;
           theController.popoverPresentationController.backgroundColor = [[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color];
         }
 
-        [[[self owningApp] controller] topPresentedController] presentViewController:theController
-                                                                  animated:animated
-                                                                completion:^{
-      popoverInitialized = YES;
-      [contentViewProxy windowDidOpen];
-                                                                }];
+        [[[[self owningApp] controller] topPresentedController] presentViewController:theController
+                                                                             animated:animated
+                                                                           completion:^{
+                                                                             popoverInitialized = YES;
+                                                                             [contentViewProxy windowDidOpen];
+                                                                           }];
       },
       YES);
 }
