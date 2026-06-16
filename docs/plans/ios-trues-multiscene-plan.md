@@ -174,11 +174,25 @@ Ti.App.iOS.addEventListener('scenediddismiss', handler);
 
 All events include `sceneId` (String) and `scene` (TiSceneProxy) in event data.
 
-#### 2.3 Scene-Specific Window Association ✅
+#### 2.3 `requestScene` Method ✅
+
+**File:** `iphone/Classes/TiAppiOSProxy.m`
+
+`Ti.App.iOS.requestScene(options)` requests that the system activate a new scene session, creating a new window on iPadOS (Split View or Slide Over). The system calls `scene:willConnectToSession:` on a new TiApp instance, which boots the app's JavaScript in the new scene context.
+
+- Uses `UIApplication.requestSceneSessionActivation:userActivity:options:errorHandler:` (iOS 13+)
+- Optional `configurationName` parameter specifies which `UISceneConfiguration` to use from `UIApplicationSceneManifest`
+- The new scene runs `app.js` from scratch in its own JS context — window objects cannot be passed between scenes
+- Use `Ti.App.iOS.currentScene.isPrimary` to differentiate primary vs secondary scene UI
+- Use `Ti.App.Properties` for inter-scene communication (separate JS contexts cannot share objects)
+
+**API Documentation:** `apidoc/Titanium/App/iOS/iOS.yml` includes `requestScene` method and `RequestSceneOptions` type definition.
+
+#### 2.4 Scene-Specific Window Association ✅
 
 `Ti.UI.Window` now has a `scene` property that returns the `TiSceneProxy` for the window's scene.
 
-#### 2.4 API Documentation ✅
+#### 2.5 API Documentation ✅
 
 **Files:**
 - `apidoc/Titanium/App/iOS/SceneProxy.yml` — SceneProxy properties including `isKey` and tiapp.xml configuration
@@ -190,7 +204,27 @@ All events include `sceneId` (String) and `scene` (TiSceneProxy) in event data.
 
 **Problem:** `[TiApp app]` returns the global singleton (`sharedApp`), which points to whichever scene most recently called `initController`. In multi-scene mode, this causes windows to open in the wrong scene, modals on the wrong window, orientation changes on the wrong scene, and `appFrame` returning wrong dimensions.
 
-**Solution:** Add `owningApp` method that resolves the correct TiApp instance for the current view hierarchy, falling back to `[TiApp app]` for single-scene and backwards compatibility.
+**Solution:** Add `owningApp` instance method that resolves the correct TiApp instance for the current view hierarchy, falling back to `[TiApp app]` for single-scene and backwards compatibility.
+
+#### Why an instance method (`owningApp`) instead of a class method (`[TiApp owningApp]`)?
+
+`owningApp` must be an instance method on `TiProxy`/`TiViewProxy`/`TiViewController` because it needs the **view hierarchy context** to determine which scene the caller belongs to. The resolution chain is:
+
+1. **TiProxy**: Uses `executionContext.host` — the TiApp instance that owns this proxy's JS context. Each scene has its own `KrollBridge`, so this is inherently scene-specific.
+2. **TiViewProxy**: Overrides to use `[[self view] window]` → `TiSceneRegistry.appForWindow:` — walks the view hierarchy to find which `UIWindow` (and thus which `UIWindowScene`) this view belongs to, then resolves the owning TiApp. Falls back to `[TiApp app]`.
+3. **TiViewController**: Uses `[self view].window` → `appForWindow:`, same approach but guarded with `isViewLoaded`.
+
+A class method `[TiApp owningApp]` would have no receiver context — it wouldn't know *which* proxy or view is asking, so it couldn't walk the view hierarchy. The whole point is that `[[self owningApp] controller]` in `TiWindowProxy` opens a window controller in *this proxy's* scene, not whichever scene `[TiApp app]` happens to point to.
+
+#### Why not modify `[TiApp app]` directly to be scene-aware?
+
+`[TiApp app]` is used pervasively across the SDK and third-party modules as `sharedApp` — a stable global reference. Changing its semantics would break:
+
+- **Third-party modules** that call `[TiApp app]` expecting the global singleton behavior. These modules don't know about scenes and should continue to work unchanged, targeting the primary scene (identical to current single-scene behavior).
+- **Internal code paths** where the global singleton is actually needed — e.g., `TiApp`'s own lifecycle methods, `[TiApp app]->kjsBridge` for JS evaluation, and places where any active scene is acceptable.
+- **Thread safety** — `[TiApp app]` is called from background threads. Making it context-dependent (e.g., thread-local scene) would introduce race conditions and subtle bugs when background threads have no scene context.
+
+Instead, `owningApp` is opt-in: only TitaniumKit and Classes/ code that is explicitly scene-sensitive uses it, while `[TiApp app]` remains the safe default. This ensures backwards compatibility without requiring every call site to be audited.
 
 #### 3.1 TiProxy.owningApp (base class) ✅
 
@@ -312,7 +346,7 @@ A test app exists at `/Users/marcbender/multiscene/multiscenetest/` that tests:
 | `TitaniumKit/.../API/TiBase.h/m` | Modify | Scene notification constants | ✅ |
 | `TitaniumKit/TitaniumKit.h` | Modify | Add TiSceneProxy, TiSceneRegistry, TiWindow headers | ✅ |
 | `TitaniumKit.xcodeproj/project.pbxproj` | Modify | Add new files | ✅ |
-| `iphone/Classes/TiAppiOSProxy.m` | Modify | `currentScene`, `scenes`, `focusedScene`, scene events | ✅ |
+| `iphone/Classes/TiAppiOSProxy.m` | Modify | `currentScene`, `scenes`, `focusedScene`, `requestScene`, scene events | ✅ |
 | `iphone/Classes/TiUIAlertDialogProxy.m` | Modify | `owningTiApp` with `viewAttached` guard | ✅ |
 | `iphone/TitaniumKit/TitaniumKit/TitaniumKit.h` | Modify | Umbrella header updates | ✅ |
 | `iphone/iphone/Titanium.plist` | Modify | UIApplicationSceneManifest | ✅ |

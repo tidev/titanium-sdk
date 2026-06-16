@@ -112,6 +112,28 @@ After baseline is stable, deprecate `sharedApp` in favor of per-scene access:
 
 ---
 
+## Design Decision: Why `owningApp` (instance method) instead of `[TiApp owningApp]` (class method)
+
+The `owningApp` pattern resolves the correct TiApp instance for a proxy's scene via the view hierarchy. It is implemented as an **instance method** on `TiProxy`, `TiViewProxy`, and `TiViewController` — not as a class method on `TiApp` — for three reasons:
+
+### 1. It needs view hierarchy context
+
+`owningApp` resolves the scene by walking the view hierarchy: `[[self view] window]` → `TiSceneRegistry.appForWindow:`. A class method `[TiApp owningApp]` has no receiver context — it wouldn't know *which* proxy or view is asking. The whole point is that `[[self owningApp] controller]` in `TiWindowProxy` opens a window controller in *this proxy's* scene, not whichever scene `[TiApp app]` happens to point to.
+
+### 2. It cannot modify `[TiApp app]` without breaking compatibility
+
+`[TiApp app]` is used pervasively across the SDK and third-party modules as `sharedApp` — a stable global reference. Changing its semantics would break:
+
+- **Third-party modules** that call `[TiApp app]` expecting the global singleton behavior. These modules don't know about scenes and should continue to work unchanged, targeting the primary scene (identical to current single-scene behavior).
+- **Internal code paths** where the global singleton is actually needed — e.g., `TiApp`'s own lifecycle methods, `[TiApp app]->kjsBridge` for JS evaluation, and places where any active scene is acceptable.
+- **Thread safety** — `[TiApp app]` is called from background threads. Making it context-dependent (e.g., thread-local scene) would introduce race conditions when background threads have no scene context.
+
+### 3. It's opt-in and backwards compatible
+
+`owningApp` falls back to `[TiApp app]` when no scene is found (single-scene apps, pre-iOS 13, views not yet in a window hierarchy). Only TitaniumKit and Classes/ code that is explicitly scene-sensitive uses `owningApp`. Old modules and unchanged code paths continue to use `[TiApp app]` unchanged, targeting the primary scene — identical to legacy single-scene behavior.
+
+---
+
 ## Success Criteria
 
 - [x] No double event firing (verified in logs)
