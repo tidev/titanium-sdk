@@ -174,7 +174,7 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
  In multi-scene mode, resolves to the correct TiApp for the proxy's KrollBridge.
  Falls back to [TiApp app] (sharedApp singleton) for single-scene or pre-iOS 13.
  */
-- (TiApp *)owningApp;
+- (TiApp *)owningInstance;
 - (NSURL *)_baseURL;
 - (void)_setBaseURL:(NSURL *)url;
 - (void)_destroy;

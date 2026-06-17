@@ -177,19 +177,19 @@ static JSValueRef AlertCallback(JSContextRef jsContext, JSObjectRef jsFunction, 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *message = [TiUtils stringValue:[KrollObject toID:ctx value:args[0]]];
 
-  TiApp *owningApp = (TiApp *)[ctx.delegate host];
-  if (owningApp == nil) {
-    owningApp = [TiApp app];
+  TiApp *owningInstance = (TiApp *)[ctx.delegate host];
+  if (owningInstance == nil) {
+    owningInstance = [TiApp app];
   }
-  [[owningApp controller] incrementActiveAlertControllerCount];
+  [[owningInstance controller] incrementActiveAlertControllerCount];
 
   UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:UIAlertControllerStyleAlert];
   [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                             style:UIAlertActionStyleDefault
                                           handler:^(UIAlertAction *_Nonnull action) {
-                                            [[owningApp controller] decrementActiveAlertControllerCount];
+                                            [[owningInstance controller] decrementActiveAlertControllerCount];
                                           }]];
-  [owningApp showModalController:alert animated:YES];
+  [owningInstance showModalController:alert animated:YES];
 
   return JSValueMakeUndefined(jsContext);
 }

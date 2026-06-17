@@ -1074,7 +1074,7 @@
 
 - (void)updateStatusBarView
 {
-  UIWindow *keyWindow = [[self owningApp] window];
+  UIWindow *keyWindow = [[self owningInstance] window];
   if (keyWindow == nil) {
     keyWindow = UIApplication.sharedApplication.keyWindow;
   }

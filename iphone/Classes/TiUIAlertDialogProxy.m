@@ -95,8 +95,8 @@ static BOOL alertShowing = NO;
     }
   }
 
-  // Delegate to inherited owningApp (uses executionContext.host or view-based lookup)
-  return [self owningApp];
+  // Delegate to inherited owningInstance (uses executionContext.host or view-based lookup)
+  return [self owningInstance];
 }
 
 - (void)show:(id)unused

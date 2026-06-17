@@ -447,7 +447,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   return nil;
 }
 
-- (TiApp *)owningApp
+- (TiApp *)owningInstance
 {
   TiHost *host = [self _host];
   if ([host isKindOfClass:[TiApp class]]) {

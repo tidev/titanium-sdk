@@ -610,7 +610,7 @@
       id initialValue = [self valueForKeyPath:keyPath];
       [_initialValues setObject:(initialValue != nil ? initialValue : [NSNull null]) forKey:keyPath];
     } @catch (NSException *exception) {
-      [[self.proxy owningApp] showModalError:[NSString stringWithFormat:@"The bindId \"%@\" is reserved by the system, please choose a different name and try again.", [[keyPath componentsSeparatedByString:@"."] firstObject]]];
+      [[self.proxy owningInstance] showModalError:[NSString stringWithFormat:@"The bindId \"%@\" is reserved by the system, please choose a different name and try again.", [[keyPath componentsSeparatedByString:@"."] firstObject]]];
     }
   }
   block();

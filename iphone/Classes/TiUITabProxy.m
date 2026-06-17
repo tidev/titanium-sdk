@@ -345,7 +345,7 @@
     return promise;
   }
 
-  [[[self owningApp] controller] dismissKeyboard];
+  [[[self owningInstance] controller] dismissKeyboard];
 
   // We need to generate a promise for the given window and store it so openOnUIThread can grab it
   JSContext *context = [self currentContext];
@@ -366,7 +366,7 @@
 
   JSContext *context = [self currentContext];
 
-  if (window == rootWindow && ![[self owningApp] willTerminate]) {
+  if (window == rootWindow && ![[self owningInstance] willTerminate]) {
     DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
     return [KrollPromise rejectedWithErrorMessage:@"Can not close root window of the tab. Use removeTab instead" inContext:context];
   }

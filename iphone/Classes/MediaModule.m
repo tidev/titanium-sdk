@@ -902,7 +902,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
       [cameraView windowWillClose];
     }
 
-    [[self owningApp] hideModalController:picker animated:animatedPicker];
+    [[self owningInstance] hideModalController:picker animated:animatedPicker];
     [[TiApp controller] repositionSubviews];
 
     if (cameraView != nil) {
@@ -1153,7 +1153,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 {
   ENSURE_UI_THREAD(hideMusicLibrary, args);
   if (musicPicker != nil) {
-    [[self owningApp] hideModalController:musicPicker animated:animatedPicker];
+    [[self owningInstance] hideModalController:musicPicker animated:animatedPicker];
     [[TiApp controller] repositionSubviews];
     [self destroyPicker];
   }
@@ -1289,7 +1289,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     return;
   }
 
-  TiApp *tiApp = [self owningApp];
+  TiApp *tiApp = [self owningInstance];
   [tiApp showModalController:editor animated:animated];
 }
 
@@ -1300,7 +1300,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 
   if (editor != nil) {
     BOOL animated = [TiUtils boolValue:@"animated" properties:args def:YES];
-    [[self owningApp] hideModalController:editor animated:animated];
+    [[self owningInstance] hideModalController:editor animated:animated];
     RELEASE_TO_NIL(editor);
   }
 }
@@ -1428,7 +1428,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 - (void)displayCamera:(UIViewController *)picker_
 {
-  TiApp *tiApp = [self owningApp];
+  TiApp *tiApp = [self owningInstance];
   [tiApp showModalController:picker_ animated:animatedPicker];
 }
 #endif
@@ -1436,7 +1436,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIAOPENMUSICLIBRARY)
 - (void)displayModalPicker:(UIViewController *)picker_ settings:(NSDictionary *)args
 {
-  TiApp *tiApp = [self owningApp];
+  TiApp *tiApp = [self owningInstance];
   if (![TiUtils isIPad]) {
     picker_.presentationController.delegate = self;
     [tiApp showModalController:picker_ animated:animatedPicker];
@@ -1467,7 +1467,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     [thePresenter setPermittedArrowDirections:arrowDirection];
     [thePresenter setDelegate:self];
   }
-  [[self owningApp] showModalController:theController animated:animatedPicker];
+  [[self owningInstance] showModalController:theController animated:animatedPicker];
   return;
 }
 #endif
@@ -1478,7 +1478,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     [cameraView windowWillClose];
   }
 
-  [[self owningApp] hideModalController:picker_ animated:animatedPicker];
+  [[self owningInstance] hideModalController:picker_ animated:animatedPicker];
   [[TiApp controller] repositionSubviews];
 
   if (cameraView != nil) {

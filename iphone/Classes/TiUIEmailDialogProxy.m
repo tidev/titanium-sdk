@@ -131,7 +131,7 @@
 
   BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
   [self retain];
-  [[self owningApp] showModalController:composer animated:animated];
+  [[self owningInstance] showModalController:composer animated:animated];
 #endif
 }
 
@@ -150,7 +150,7 @@ MAKE_SYSTEM_PROP(FAILED, MFMailComposeResultFailed);
 
   BOOL animated = YES;
 
-  [[self owningApp] hideModalController:composer animated:animated];
+  [[self owningInstance] hideModalController:composer animated:animated];
   [composer autorelease];
   if ([self _hasListeners:@"complete"]) {
     NSDictionary *event = [NSDictionary dictionaryWithObject:NUMINT(result) forKey:@"result"];

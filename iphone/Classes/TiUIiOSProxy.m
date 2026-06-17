@@ -118,7 +118,7 @@
   ENSURE_UI_THREAD(setStatusBarBackgroundColor, value);
   ENSURE_SINGLE_ARG(value, NSString);
 
-  UIWindow *keyWindow = [[self owningApp] window];
+  UIWindow *keyWindow = [[self owningInstance] window];
   if (keyWindow == nil) {
     keyWindow = UIApplication.sharedApplication.keyWindow;
   }
@@ -273,7 +273,7 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
-  UIWindow *keyWindow = [[self owningApp] window];
+  UIWindow *keyWindow = [[self owningInstance] window];
   if (keyWindow == nil) {
     keyWindow = UIApplication.sharedApplication.keyWindow;
   }

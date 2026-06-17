@@ -278,19 +278,19 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 - (void)setBackgroundColor:(id)color
 {
-  TiRootViewController *controller = [[self owningApp] controller];
+  TiRootViewController *controller = [[self owningInstance] controller];
   [controller setBackgroundColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setTintColor:(id)color
 {
-  UIWindow *controller = [[[[self owningApp] controller] topWindowProxyView] window];
+  UIWindow *controller = [[[[self owningInstance] controller] topWindowProxyView] window];
   [controller setTintColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setBackgroundImage:(id)image
 {
-  TiRootViewController *controller = [[self owningApp] controller];
+  TiRootViewController *controller = [[self owningInstance] controller];
   UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
   if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
     // special case where we're asking for Default.png and it's in Bundle not path
@@ -492,7 +492,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 
 - (NSNumber *)statusBarHeight
 {
-  UIWindow *sceneWindow = [[self owningApp] window];
+  UIWindow *sceneWindow = [[self owningInstance] window];
   if (sceneWindow == nil) {
     sceneWindow = UIApplication.sharedApplication.keyWindow;
   }

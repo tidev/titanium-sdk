@@ -123,7 +123,7 @@
 {
   [super windowWillOpen];
   if (tab == nil && !self.isManaged) {
-    [[[[self owningApp] controller] topContainerController] willOpenWindow:self];
+    [[[[self owningInstance] controller] topContainerController] willOpenWindow:self];
   }
 }
 
@@ -152,14 +152,14 @@
   [self forgetProxy:openAnimation];
   RELEASE_TO_NIL(openAnimation);
   if (tab == nil && !self.isManaged) {
-    [[[[self owningApp] controller] topContainerController] didOpenWindow:self];
+    [[[[self owningInstance] controller] topContainerController] didOpenWindow:self];
   }
 }
 
 - (void)windowWillClose
 {
   if (tab == nil && !self.isManaged) {
-    [[[[self owningApp] controller] topContainerController] willCloseWindow:self];
+    [[[[self owningInstance] controller] topContainerController] willCloseWindow:self];
   }
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super windowWillClose];
@@ -179,7 +179,7 @@
   [self forgetProxy:closeAnimation];
   RELEASE_TO_NIL(closeAnimation);
   if (tab == nil && !self.isManaged) {
-    [[[[self owningApp] controller] topContainerController] didCloseWindow:self];
+    [[[[self owningInstance] controller] topContainerController] didCloseWindow:self];
   }
   tab = nil;
   self.isManaged = NO;
@@ -190,7 +190,7 @@
 
 - (void)attachViewToTopContainerController
 {
-  UIViewController<TiControllerContainment> *topContainerController = [[[self owningApp] controller] topContainerController];
+  UIViewController<TiControllerContainment> *topContainerController = [[[self owningInstance] controller] topContainerController];
   UIView *rootView = [topContainerController hostingView];
   TiUIView *theView = [self view];
   [rootView addSubview:theView];
@@ -225,16 +225,16 @@
 
 - (BOOL)isRootViewLoaded
 {
-  return [[[self owningApp] controller] isViewLoaded];
+  return [[[self owningInstance] controller] isViewLoaded];
 }
 
 - (BOOL)isRootViewAttached
 {
   // When a modal window is up, just return yes
-  if ([[[self owningApp] controller] presentedViewController] != nil) {
+  if ([[[self owningInstance] controller] presentedViewController] != nil) {
     return YES;
   }
-  UIViewController *ctrl = [[self owningApp] controller];
+  UIViewController *ctrl = [[self owningInstance] controller];
   if (![ctrl isViewLoaded]) {
     return NO;
   }
@@ -247,7 +247,7 @@
   JSContext *context = [self currentContext];
 
   // If an error is up, Go away
-  if ([[[[self owningApp] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
+  if ([[[[self owningInstance] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
     return [KrollPromise rejectedWithErrorMessage:@"ErrorController is up. ABORTING open" inContext:context];
   }
@@ -287,11 +287,11 @@
     if ([self argOrWindowPropertyExists:@"fullscreen" args:args]) {
       hidesStatusBar = NO;
     } else {
-      hidesStatusBar = [[[self owningApp] controller] statusBarInitiallyHidden];
+      hidesStatusBar = [[[self owningInstance] controller] statusBarInitiallyHidden];
     }
   }
 
-  int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[self owningApp] controller] defaultStatusBarStyle]];
+  int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[self owningInstance] controller] defaultStatusBarStyle]];
 
   [self assignStatusBarStyle:theStyle];
 
@@ -314,13 +314,13 @@
 
 - (void)setStatusBarStyle:(id)style
 {
-  int theStyle = [TiUtils intValue:style def:[[[self owningApp] controller] defaultStatusBarStyle]];
+  int theStyle = [TiUtils intValue:style def:[[[self owningInstance] controller] defaultStatusBarStyle]];
   [self assignStatusBarStyle:theStyle];
   [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
   if (focussed) {
     TiThreadPerformOnMainThread(
         ^{
-          [[[self owningApp] controller] updateStatusBar];
+          [[[self owningInstance] controller] updateStatusBar];
         },
         YES);
   }
@@ -388,7 +388,7 @@
 
 - (BOOL)_handleOpen:(id)args
 {
-  TiRootViewController *theController = [[self owningApp] controller];
+  TiRootViewController *theController = [[self owningInstance] controller];
   if (isModal || (tab != nil) || self.isManaged) {
     [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
@@ -410,7 +410,7 @@
 
 - (BOOL)_handleClose:(id)args
 {
-  TiRootViewController *theController = [[self owningApp] controller];
+  TiRootViewController *theController = [[self owningInstance] controller];
   if (isModal || (tab != nil) || self.isManaged) {
     [self forgetProxy:closeAnimation];
     RELEASE_TO_NIL(closeAnimation);
@@ -454,7 +454,7 @@
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
   if (current != arg) {
-    [[[self owningApp] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
+    [[[self owningInstance] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
 
@@ -545,7 +545,7 @@
   }
 
   // Fallback to the app's root view controller.
-  return [[self owningApp] controller];
+  return [[self owningInstance] controller];
 }
 
 #pragma mark - Private Methods
@@ -581,7 +581,7 @@
     return;
   }
 
-  if (![[[self owningApp] controller] statusBarVisibilityChanged]) {
+  if (![[[self owningInstance] controller] statusBarVisibilityChanged]) {
     return;
   }
 
@@ -625,7 +625,7 @@
       theController.modalInPresentation = forceModal;
 
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
-      [[self owningApp] showModalController:theController animated:animated];
+      [[self owningInstance] showModalController:theController animated:animated];
     } else {
       [self windowWillOpen];
       if (!self.isManaged && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))) {
@@ -659,7 +659,7 @@
     if (isModal) {
       NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
-      [[self owningApp] hideModalController:controller animated:animated];
+      [[self owningInstance] hideModalController:controller animated:animated];
     } else {
       if (closeAnimation != nil) {
         [closeAnimation setDelegate:self];
@@ -699,7 +699,7 @@
 - (TiOrientationFlags)orientationFlags
 {
   if ([self isModal]) {
-    return (_supportedOrientations == TiOrientationNone) ? [[[self owningApp] controller] getDefaultOrientations] : _supportedOrientations;
+    return (_supportedOrientations == TiOrientationNone) ? [[[self owningInstance] controller] getDefaultOrientations] : _supportedOrientations;
   }
   return _supportedOrientations;
 }
@@ -930,7 +930,7 @@
   BOOL isOpenAnimation = NO;
   UIView *hostingView = nil;
   if (sender == openAnimation) {
-    hostingView = [[[[self owningApp] controller] topContainerController] hostingView];
+    hostingView = [[[[self owningInstance] controller] topContainerController] hostingView];
     isOpenAnimation = YES;
   } else {
     hostingView = [[self view] superview];

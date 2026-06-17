@@ -2314,7 +2314,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[[self.proxy owningApp] controller] retain];
+      searchControllerPresenter = [[[self.proxy owningInstance] controller] retain];
     }
   }
   searchControllerPresenter.definesPresentationContext = YES;
@@ -2404,7 +2404,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       controller = [proxy windowHoldingController];
     } else {
-      controller = [[self.proxy owningApp] controller];
+      controller = [[self.proxy owningInstance] controller];
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;

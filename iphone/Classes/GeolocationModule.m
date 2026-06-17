@@ -296,7 +296,7 @@ extern NSString *const TI_APPLICATION_GUID;
       UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
       UIAlertAction *action = [UIAlertAction actionWithTitle:ok style:UIAlertActionStyleCancel handler:nil];
       [alertController addAction:action];
-      [[self owningApp] showModalController:alertController animated:YES];
+      [[self owningInstance] showModalController:alertController animated:YES];
     }
   }
   [lock unlock];

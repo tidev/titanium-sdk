@@ -1381,11 +1381,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (CGRect)appFrame // TODO: Why is this here? It doesn't have anything to do with a specific instance.
 {
-  CGRect result = [[[[self owningApp] controller] view] bounds];
+  CGRect result = [[[[self owningInstance] controller] view] bounds];
   return result;
 }
 
-- (TiApp *)owningApp
+- (TiApp *)owningInstance
 {
   if (@available(iOS 13.0, *)) {
     if ([self viewAttached]) {
@@ -1398,7 +1398,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
   }
-  return [super owningApp];
+  return [super owningInstance];
 }
 
 #pragma mark Building up and Tearing down

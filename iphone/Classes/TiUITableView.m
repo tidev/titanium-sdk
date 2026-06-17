@@ -2487,7 +2487,7 @@
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       controller = [[proxy windowHoldingController] retain];
     } else {
-      controller = [[[self.proxy owningApp] controller] retain];
+      controller = [[[self.proxy owningInstance] controller] retain];
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
@@ -2652,7 +2652,7 @@
   CGFloat rowWidth = tableview.bounds.size.width;
 #ifdef TI_USE_AUTOLAYOUT
   if (rowWidth == 0) {
-    rowWidth = [[[[self.proxy owningApp] window] rootViewController] view].bounds.size.width;
+    rowWidth = [[[[self.proxy owningInstance] window] rootViewController] view].bounds.size.width;
   }
 #endif
 
@@ -3006,7 +3006,7 @@
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[[self.proxy owningApp] controller] retain];
+      searchControllerPresenter = [[[self.proxy owningInstance] controller] retain];
     }
   }
   searchControllerPresenter.definesPresentationContext = YES;

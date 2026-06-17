@@ -21,7 +21,7 @@ Enable **true multi-scene support** for iPadOS Split View, CarPlay, and visionOS
 | JavaScript API | ✅ `Ti.App.iOS.currentScene`, `scenes`, `focusedScene`, lifecycle events |
 | Scene tracking | ✅ `TiSceneRegistry` manages all active `TiApp` instances |
 | Scene dismiss | ✅ `sceneDidDisconnect` / `sceneDidDismiss` handler implemented |
-| Scene-aware `owningApp` | ✅ Replaces `[TiApp app]` in scene-sensitive code |
+| Scene-aware `owningInstance` | ✅ Replaces `[TiApp app]` in scene-sensitive code |
 | Focus detection | ✅ `TiWindow` hitTest-based tracking via `focusedScene` and `isKey` |
 
 ## Discovered Bugs in Current Implementation
@@ -33,9 +33,9 @@ Enable **true multi-scene support** for iPadOS Split View, CarPlay, and visionOS
 | **Shared `launchOptions`** | Scene delegate shares mutable `launchOptions` dict | URL mutations in one scene affect another | ✅ Fixed |
 | **No scene cleanup** | No `sceneDidDisconnect` handler | Dismissed scenes remain in memory | ✅ Fixed |
 | **Global notifications without scene context** | Notifications fire without scene identifier | Cannot determine which scene triggered the event | ✅ Fixed |
-| **`[TiApp app]` targets wrong scene** | Global singleton targets primary/last scene | Windows open in wrong scene, modals on wrong window | ✅ Fixed via `owningApp` |
-| **`keyWindow` returns wrong window** | `sharedApplication.keyWindow` deprecated/unreliable | Orientation, alerts, and frames use wrong scene | ✅ Fixed via `owningApp` |
-| **Infinite recursion in `owningApp`** | `[self view].window` during view creation | Crash on app launch (frameForController, appFrame loops) | ✅ Fixed via `viewAttached`/`isViewLoaded` guards |
+| **`[TiApp app]` targets wrong scene** | Global singleton targets primary/last scene | Windows open in wrong scene, modals on wrong window | ✅ Fixed via `owningInstance` |
+| **`keyWindow` returns wrong window** | `sharedApplication.keyWindow` deprecated/unreliable | Orientation, alerts, and frames use wrong scene | ✅ Fixed via `owningInstance` |
+| **Infinite recursion in `owningInstance`** | `[self view].window` during view creation | Crash on app launch (frameForController, appFrame loops) | ✅ Fixed via `viewAttached`/`isViewLoaded` guards |
 | **Focus detection fails in Split View** | Both scenes report `isActive`, `isForeground`, `isKeyWindow=YES` | Cannot determine which scene has focus | ✅ Fixed via `TiWindow.lastActiveWindow` |
 | **`isPrimary` returns wrong scene** | `primaryScene` used `allKeys[0]` (unordered) | New scene could be reported as primary | ✅ Fixed via `_primarySceneUUID` |
 
@@ -204,17 +204,17 @@ All events include `sceneId` (String) and `scene` (TiSceneProxy) in event data.
 
 **Problem:** `[TiApp app]` returns the global singleton (`sharedApp`), which points to whichever scene most recently called `initController`. In multi-scene mode, this causes windows to open in the wrong scene, modals on the wrong window, orientation changes on the wrong scene, and `appFrame` returning wrong dimensions.
 
-**Solution:** Add `owningApp` instance method that resolves the correct TiApp instance for the current view hierarchy, falling back to `[TiApp app]` for single-scene and backwards compatibility.
+**Solution:** Add `owningInstance` instance method that resolves the correct TiApp instance for the current view hierarchy, falling back to `[TiApp app]` for single-scene and backwards compatibility.
 
-#### Why an instance method (`owningApp`) instead of a class method (`[TiApp owningApp]`)?
+#### Why an instance method (`owningInstance`) instead of a class method (`[TiApp owningInstance]`)?
 
-`owningApp` must be an instance method on `TiProxy`/`TiViewProxy`/`TiViewController` because it needs the **view hierarchy context** to determine which scene the caller belongs to. The resolution chain is:
+`owningInstance` must be an instance method on `TiProxy`/`TiViewProxy`/`TiViewController` because it needs the **view hierarchy context** to determine which scene the caller belongs to. The resolution chain is:
 
 1. **TiProxy**: Uses `executionContext.host` — the TiApp instance that owns this proxy's JS context. Each scene has its own `KrollBridge`, so this is inherently scene-specific.
 2. **TiViewProxy**: Overrides to use `[[self view] window]` → `TiSceneRegistry.appForWindow:` — walks the view hierarchy to find which `UIWindow` (and thus which `UIWindowScene`) this view belongs to, then resolves the owning TiApp. Falls back to `[TiApp app]`.
 3. **TiViewController**: Uses `[self view].window` → `appForWindow:`, same approach but guarded with `isViewLoaded`.
 
-A class method `[TiApp owningApp]` would have no receiver context — it wouldn't know *which* proxy or view is asking, so it couldn't walk the view hierarchy. The whole point is that `[[self owningApp] controller]` in `TiWindowProxy` opens a window controller in *this proxy's* scene, not whichever scene `[TiApp app]` happens to point to.
+A class method `[TiApp owningInstance]` would have no receiver context — it wouldn't know *which* proxy or view is asking, so it couldn't walk the view hierarchy. The whole point is that `[[self owningInstance] controller]` in `TiWindowProxy` opens a window controller in *this proxy's* scene, not whichever scene `[TiApp app]` happens to point to.
 
 #### Why not modify `[TiApp app]` directly to be scene-aware?
 
@@ -224,23 +224,23 @@ A class method `[TiApp owningApp]` would have no receiver context — it wouldn'
 - **Internal code paths** where the global singleton is actually needed — e.g., `TiApp`'s own lifecycle methods, `[TiApp app]->kjsBridge` for JS evaluation, and places where any active scene is acceptable.
 - **Thread safety** — `[TiApp app]` is called from background threads. Making it context-dependent (e.g., thread-local scene) would introduce race conditions and subtle bugs when background threads have no scene context.
 
-Instead, `owningApp` is opt-in: only TitaniumKit and Classes/ code that is explicitly scene-sensitive uses it, while `[TiApp app]` remains the safe default. This ensures backwards compatibility without requiring every call site to be audited.
+Instead, `owningInstance` is opt-in: only TitaniumKit and Classes/ code that is explicitly scene-sensitive uses it, while `[TiApp app]` remains the safe default. This ensures backwards compatibility without requiring every call site to be audited.
 
-#### 3.1 TiProxy.owningApp (base class) ✅
+#### 3.1 TiProxy.owningInstance (base class) ✅
 
 Uses `executionContext.host` (the TiApp instance for this JS context) to resolve the owning TiApp. Falls back to `[TiApp app]`.
 
-#### 3.2 TiViewProxy.owningApp ✅
+#### 3.2 TiViewProxy.owningInstance ✅
 
 Overrides to use `TiSceneRegistry.appForWindow:` via the view's window. Guarded with `viewAttached` to prevent infinite recursion during view creation.
 
 #### 3.3 TiWindowProxy ✅
 
-Inherits `owningApp` from TiViewProxy. All 20 `[TiApp app]` call sites replaced with `[[self owningApp] ...]`.
+Inherits `owningInstance` from TiViewProxy. All 20 `[TiApp app]` call sites replaced with `[[self owningInstance] ...]`.
 
-#### 3.4 TiViewController.owningApp ✅
+#### 3.4 TiViewController.owningInstance ✅
 
-Uses `isViewLoaded` guard + `appForWindow:` lookup, with `_proxy.owningApp` fallback.
+Uses `isViewLoaded` guard + `appForWindow:` lookup, with `_proxy.owningInstance` fallback.
 
 #### 3.5 TiRootViewController ✅
 
@@ -248,17 +248,17 @@ All `[self view].window` accesses guarded with `isViewLoaded` to prevent crashes
 
 #### 3.6 TiUINavigationWindowProxy ✅
 
-Inherits `owningApp` from TiWindowProxy → TiViewProxy. 2 call sites replaced.
+Inherits `owningInstance` from TiWindowProxy → TiViewProxy. 2 call sites replaced.
 
 #### 3.7 TiUITabProxy ✅
 
-Inherits `owningApp` from TiViewProxy. 2 call sites replaced.
+Inherits `owningInstance` from TiViewProxy. 2 call sites replaced.
 
 #### 3.8 TiUIAlertDialogProxy ✅
 
 `owningTiApp` guarded with `viewAttached` on `owningWindowProxy`.
 
-**Backwards Compatibility:** `[TiApp app]` unchanged — returns `sharedApp` singleton. Old modules continue to target the primary scene. `owningApp` falls back to `[TiApp app]` when no scene is found.
+**Backwards Compatibility:** `[TiApp app]` unchanged — returns `sharedApp` singleton. Old modules continue to target the primary scene. `owningInstance` falls back to `[TiApp app]` when no scene is found.
 
 ---
 
@@ -322,7 +322,7 @@ A test app exists at `/Users/marcbender/multiscene/multiscenetest/` that tests:
 - [x] Lifecycle events fire once per scene
 - [x] Backwards compatible: launch on iPhone → single scene works
 - [x] Non-multi-scene apps work without crashes (Keyboardcontroldemo regression test)
-- [x] `owningApp` falls back to `[TiApp app]` in single-scene mode
+- [x] `owningInstance` falls back to `[TiApp app]` in single-scene mode
 
 ---
 
@@ -338,11 +338,11 @@ A test app exists at `/Users/marcbender/multiscene/multiscenetest/` that tests:
 | `TitaniumKit/.../API/TiWindow.m` | **New** | UIWindow subclass implementation | ✅ |
 | `TitaniumKit/.../API/TiApp.h` | Modify | sceneId, scene lifecycle, notification constants | ✅ |
 | `TitaniumKit/.../API/TiApp.m` | Modify | All Phase 0-2 changes | ✅ |
-| `TitaniumKit/.../API/TiProxy.h/m` | Modify | Base `owningApp` method | ✅ |
-| `TitaniumKit/.../API/TiViewProxy.m` | Modify | `owningApp` override with `viewAttached` guard, `appFrame` fix | ✅ |
-| `TitaniumKit/.../API/TiViewController.h/m` | Modify | `owningApp` with `isViewLoaded` guard | ✅ |
+| `TitaniumKit/.../API/TiProxy.h/m` | Modify | Base `owningInstance` method | ✅ |
+| `TitaniumKit/.../API/TiViewProxy.m` | Modify | `owningInstance` override with `viewAttached` guard, `appFrame` fix | ✅ |
+| `TitaniumKit/.../API/TiViewController.h/m` | Modify | `owningInstance` with `isViewLoaded` guard | ✅ |
 | `TitaniumKit/.../API/TiRootViewController.m` | Modify | `isViewLoaded` guards on `[self view].window` accesses | ✅ |
-| `TitaniumKit/.../API/TiWindowProxy.m` | Modify | `isRootViewAttached` guard, `owningApp` replacements | ✅ |
+| `TitaniumKit/.../API/TiWindowProxy.m` | Modify | `isRootViewAttached` guard, `owningInstance` replacements | ✅ |
 | `TitaniumKit/.../API/TiBase.h/m` | Modify | Scene notification constants | ✅ |
 | `TitaniumKit/TitaniumKit.h` | Modify | Add TiSceneProxy, TiSceneRegistry, TiWindow headers | ✅ |
 | `TitaniumKit.xcodeproj/project.pbxproj` | Modify | Add new files | ✅ |
@@ -362,7 +362,7 @@ A test app exists at `/Users/marcbender/multiscene/multiscenetest/` that tests:
 |---|---|---|---|
 | iOS 13+ Scene API | None (already minimum iOS 15) | ✅ | ✅ |
 | Single KrollBridge | Shared state conflicts | Per-scene UI state tracking, guard boot | ✅ |
-| Backwards compatibility | Existing apps break | `owningApp` falls back to `[TiApp app]` | ✅ Verified |
+| Backwards compatibility | Existing apps break | `owningInstance` falls back to `[TiApp app]` | ✅ Verified |
 | Memory management | Multiple scene instances | Cleanup on `scenediddismiss`, registry tracking | ✅ |
 | iPad-only feature | iPhone testing gap | Graceful degradation on iPhone (single scene) | ✅ |
 | Focus detection | `isKeyWindow`/`activationState` unreliable in Split View | `TiWindow.lastActiveWindow` hitTest tracking | ✅ |
@@ -375,7 +375,7 @@ A test app exists at `/Users/marcbender/multiscene/multiscenetest/` that tests:
 1. **Phase 0** – Bug fixes (prerequisites) ✅
 2. **Phase 1** – Scene registry and native architecture ✅
 3. **Phase 2** – JavaScript API ✅
-4. **Phase 3** – Scene-aware `owningApp` replacements ✅
+4. **Phase 3** – Scene-aware `owningInstance` replacements ✅
 5. **Phase 4** – Configuration and multi-scene enablement (partially done, tiapp.xml pending)
 6. **Phase 5** – Tests and validation (manual testing done, integration tests pending)
 
@@ -398,7 +398,7 @@ A test app exists at `/Users/marcbender/multiscene/multiscenetest/` that tests:
 - [x] Scene proxy exposes correct properties (id, name, isPrimary, isActive, isKey)
 
 ### Phase 3 (Scene-Aware State) ✅
-- [x] `[TiApp app]` replaced with `owningApp` in scene-sensitive code
+- [x] `[TiApp app]` replaced with `owningInstance` in scene-sensitive code
 - [x] Windows open in correct scene
 - [x] Alerts appear in correct scene
 - [x] Orientation follows correct scene

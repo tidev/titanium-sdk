@@ -20,6 +20,6 @@
 
 - (id)initWithViewProxy:(TiViewProxy *)window;
 - (TiViewProxy *)proxy;
-- (TiApp *)owningApp API_AVAILABLE(ios(13_0));
+- (TiApp *)owningInstance API_AVAILABLE(ios(13_0));
 
 @end
