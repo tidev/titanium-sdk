@@ -37,7 +37,7 @@ extern void UIColorFlushCache(void);
 - (void)checkBackgroundServices;
 - (void)appBoot;
 - (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
-- (TiApp *)owningApp;
+- (TiApp *)owningInstance;
 - (void)handleSceneConnectionOptions:(UISceneConnectionOptions *)connectionOptions;
 @end
 
@@ -137,7 +137,7 @@ extern void UIColorFlushCache(void);
 // etc.). The scene-delegate instance forwards every scene callback here so that
 // `[TiApp app]` always reflects the same instance that received
 // `application:didFinishLaunchingWithOptions:`.
-- (TiApp *)owningApp
+- (TiApp *)owningInstance
 {
   id appDelegate = [[UIApplication sharedApplication] delegate];
   return [appDelegate isKindOfClass:[TiApp class]] ? (TiApp *)appDelegate : self;
@@ -1265,7 +1265,7 @@ extern void UIColorFlushCache(void);
 {
   // Route everything onto the single owning instance (the app delegate), which
   // already holds the launch state captured in didFinishLaunchingWithOptions:.
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner scene:scene willConnectToSession:session options:connectionOptions];
     return;
@@ -1332,7 +1332,7 @@ extern void UIColorFlushCache(void);
 
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
 {
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner scene:scene openURLContexts:URLContexts];
     return;
@@ -1375,7 +1375,7 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneWillResignActive:(UIScene *)scene
 {
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner sceneWillResignActive:scene];
     return;
@@ -1395,7 +1395,7 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneDidBecomeActive:(UIScene *)scene
 {
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner sceneDidBecomeActive:scene];
     return;
@@ -1416,7 +1416,7 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneDidEnterBackground:(UIScene *)scene
 {
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner sceneDidEnterBackground:scene];
     return;
@@ -1450,7 +1450,7 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneWillEnterForeground:(UIScene *)scene
 {
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner sceneWillEnterForeground:scene];
     return;
@@ -1510,7 +1510,7 @@ extern void UIColorFlushCache(void);
 
 - (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity
 {
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner scene:scene continueUserActivity:userActivity];
     return;
@@ -1661,7 +1661,7 @@ extern void UIColorFlushCache(void);
 // running is delivered here instead of application:performActionForShortcutItem:.
 - (void)windowScene:(UIWindowScene *)windowScene performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded))completionHandler
 {
-  TiApp *owner = [self owningApp];
+  TiApp *owner = [self owningInstance];
   if (owner != self) {
     [owner windowScene:windowScene performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
     return;
