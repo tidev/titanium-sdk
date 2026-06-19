@@ -24,7 +24,7 @@ runs:
     - name: Use JDK
       uses: actions/setup-java@v5
       with:
-        distribution: 'adopt'
+        distribution: 'temurin'
         java-version: ${{ inputs.java-version }}
 
     - name: Install dependencies

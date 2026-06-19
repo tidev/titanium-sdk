@@ -28,7 +28,7 @@ runs:
     - name: Setup Java
       uses: actions/setup-java@v5
       with:
-        distribution: 'adopt'
+        distribution: 'temurin'
         java-version: ${{ inputs.java-version }}
 
     - name: Install dependencies
@@ -50,7 +50,7 @@ runs:
       shell: bash
 
     - name: Install ccache
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: hendrikmuhs/ccache-action@v1.2.23
       with:
         create-symlink: true
         key: ${{ runner.os }}-ccache-${{ github.sha }}

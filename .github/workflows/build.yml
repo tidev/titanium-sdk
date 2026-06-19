@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/build-android
         with:
           node-version: '24'
-          java-version: '17'
+          java-version: '21'
 
   ios:
     runs-on: macos-15
@@ -76,5 +76,5 @@ jobs:
       uses: ./.github/actions/package
       with:
         node-version: '24'
-        java-version: '17'
+        java-version: '21'
         vtag: ${{ env.vtag }}
