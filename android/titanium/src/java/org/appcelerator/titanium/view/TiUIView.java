@@ -438,10 +438,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
-			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
-				&& TiConvert.toTiDimension(d.getString(TiC.PROPERTY_BORDER_WIDTH), TiDimension.TYPE_WIDTH).getValue()
-					   > 0f)
-			|| (d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS));
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS);
 	}
 
 	protected boolean hasColorState(KrollDict d)
@@ -1552,10 +1550,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					proxy.setProperty(TiC.PROPERTY_BORDER_WIDTH, borderWidth);
 				}
 
-				TiDimension width = TiConvert.toTiDimension(borderWidth, TiDimension.TYPE_WIDTH);
-				if (width != null) {
-					borderView.setBorderWidth((float) width.getPixels(borderView));
-				}
+				borderView.setBorderWidth(borderWidth);
 
 				nativeView.invalidate();
 				borderView.invalidate();
@@ -1580,12 +1575,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			borderView.setRadius(value);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
-			float width = 0;
-			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
-			if (bwidth != null) {
-				width = (float) bwidth.getPixels(getNativeView());
-			}
-			borderView.setBorderWidth(width);
+			borderView.setBorderWidth(value);
 		}
 		borderView.postInvalidate();
 	}
