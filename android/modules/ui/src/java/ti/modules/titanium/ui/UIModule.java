@@ -420,6 +420,8 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	public static final int ATTRIBUTE_SUBSCRIPT_STYLE = 8;
 	@Kroll.constant
 	public static final int ATTRIBUTE_BASELINE_OFFSET = 9;
+	@Kroll.constant
+	public static final int ATTRIBUTE_ROUNDED_BACKGROUND_COLOR = 10;
 
 	@Kroll.constant
 	public static final int INPUT_TYPE_CLASS_NUMBER = InputType.TYPE_CLASS_NUMBER;
