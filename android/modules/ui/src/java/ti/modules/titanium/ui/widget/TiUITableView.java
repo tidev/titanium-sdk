@@ -23,6 +23,8 @@ import android.view.ViewParent;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.SnapHelper;
 
 import ti.modules.titanium.ui.RefreshControlProxy;
 import ti.modules.titanium.ui.SearchBarProxy;
@@ -40,6 +42,7 @@ public class TiUITableView extends TiUIView
 
 	protected final TiTableView tableView;
 	private TiViewProxy searchProxy;
+	SnapHelper snapHelper = new LinearSnapHelper();
 
 	public TiUITableView(TiViewProxy proxy)
 	{
@@ -244,6 +247,14 @@ public class TiUITableView extends TiUIView
 				defaultDrawable.setSize(0, height);
 				this.tableView.setSeparator(defaultDrawable);
 				divider.recycle();
+			}
+		}
+
+		if (name.equals(TiC.PROPERTY_SNAPPING)) {
+			if (TiConvert.toBoolean(value, false)) {
+				snapHelper.attachToRecyclerView(this.tableView.getRecyclerView());
+			} else {
+				snapHelper.attachToRecyclerView(null);
 			}
 		}
 
