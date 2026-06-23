@@ -42,6 +42,7 @@ public class TiBorderWrapperView extends FrameLayout
 	private Paint paint;
 	private Rect bounds;
 	private ViewOutlineProvider viewOutlineProvider;
+	private int viewMaxWidth = -1;
 	public TiBorderWrapperView(Context context)
 	{
 		super(context);
@@ -238,6 +239,20 @@ public class TiBorderWrapperView extends FrameLayout
 		}
 	}
 
+	/*
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		int measuredWidth = widthMeasureSpec;
+		int measuredHeight = heightMeasureSpec;
+		if (viewMaxWidth != -1 && measuredWidth > viewMaxWidth) {
+			measuredWidth = viewMaxWidth;
+		}
+		setMeasuredDimension(measuredWidth, measuredHeight);
+	}
+	*/
+
 	public void setBorderWidth(float borderWidth)
 	{
 		this.borderWidth = borderWidth;
@@ -247,5 +262,10 @@ public class TiBorderWrapperView extends FrameLayout
 	public boolean onSetAlpha(int alpha)
 	{
 		return false;
+	}
+
+	public void setMaxWidth(int maxWidth)
+	{
+		viewMaxWidth = maxWidth;
 	}
 }
