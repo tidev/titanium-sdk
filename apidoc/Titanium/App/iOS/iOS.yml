@@ -209,17 +209,35 @@ methods:
         the app's JavaScript in the new scene context.
 
         On iOS versions prior to 13.0, or when the app does not have a
-        `UIApplicationSceneManifest` in its Info.plist, this method does nothing.
+        `UIApplicationSceneManifest` in its Info.plist, the returned Promise
+        rejects with an Error.
 
         The optional `configurationName` parameter specifies which scene
         configuration to use from the `UIApplicationSceneManifest`. If omitted,
         the system uses the default configuration.
+
+        Returns a Promise that resolves with an object containing a `scene`
+        property (a [Titanium.App.iOS.SceneProxy](Titanium.App.iOS.SceneProxy))
+        when the new scene has connected. The proxy can be used to attach
+        per-scene lifecycle listeners such as `didbecomeactive` and
+        `willresignactive`. The Promise rejects with an Error if the system
+        refuses the activation or if multi-scene support is unavailable.
+
+        Because iOS activates scenes asynchronously, the proxy is not
+        available as a synchronous return value. Use `then`/`catch` or
+        `await` to receive the proxy.
     parameters:
       - name: options
         summary: |
             Optional dictionary with scene configuration options.
         type: Dictionary<RequestSceneOptions>
         optional: true
+    returns:
+        type: Promise<RequestSceneResult>
+        summary: |
+            A Promise that resolves with `{ scene: Titanium.App.iOS.SceneProxy }`
+            when the new scene connects, or rejects with an Error if activation
+            fails or multi-scene support is unavailable.
     osver: {ios: {min: "13.0"}}
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
@@ -1468,81 +1486,16 @@ events:
 
         The `scene` property provides a <Titanium.App.iOS.SceneProxy> with the scene's
         properties. At this point, the scene is not yet active or in the foreground.
+
+        Per-scene lifecycle events (becoming active, resigning active, entering
+        background, entering foreground) fire on the SceneProxy itself — add listeners
+        via `scene.addEventListener('didbecomeactive', ...)` rather than on Ti.App.iOS.
     properties:
       - name: sceneId
         summary: The unique identifier of the scene.
         type: String
       - name: scene
         summary: The scene proxy object for the new scene.
-        type: Titanium.App.iOS.SceneProxy
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
-
-  - name: scenedidbecomeactive
-    summary: Fired when a scene becomes active and receives input.
-    description: |
-        This event fires when a scene transitions to the active state, meaning it is
-        in the foreground and receiving user input events. This is the scene-level
-        equivalent of the legacy [resumed](Titanium.App.iOS.resumed) event.
-    properties:
-      - name: sceneId
-        summary: The unique identifier of the scene.
-        type: String
-      - name: scene
-        summary: The scene proxy object for the active scene.
-        type: Titanium.App.iOS.SceneProxy
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
-
-  - name: scenewillresignactive
-    summary: Fired when a scene is about to resign the active state.
-    description: |
-        This event fires when a scene is about to lose its active status, for example
-        when a system overlay (like a notification center) covers the scene or when
-        the user switches to another scene. This is the scene-level equivalent of the
-        legacy [pause](Titanium.App.iOS.pause) event.
-    properties:
-      - name: sceneId
-        summary: The unique identifier of the scene.
-        type: String
-      - name: scene
-        summary: The scene proxy object for the resigning scene.
-        type: Titanium.App.iOS.SceneProxy
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
-
-  - name: scenedidenterbackground
-    summary: Fired when a scene enters the background.
-    description: |
-        This event fires when a scene is no longer visible on screen. This can happen
-        when the user switches to another app or when the scene is dismissed. This is
-        the scene-level equivalent of the legacy [pause](Titanium.App.iOS.pause) event.
-    properties:
-      - name: sceneId
-        summary: The unique identifier of the scene.
-        type: String
-      - name: scene
-        summary: The scene proxy object for the background scene.
-        type: Titanium.App.iOS.SceneProxy
-    platforms: [iphone, ipad]
-    osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
-
-  - name: scenewillenterforeground
-    summary: Fired when a scene is about to enter the foreground.
-    description: |
-        This event fires when a scene transitions from the background to the foreground,
-        meaning it becomes visible on screen but may not yet be active. This is the
-        scene-level equivalent of the legacy [resumed](Titanium.App.iOS.resumed) event.
-    properties:
-      - name: sceneId
-        summary: The unique identifier of the scene.
-        type: String
-      - name: scene
-        summary: The scene proxy object for the foreground scene.
         type: Titanium.App.iOS.SceneProxy
     platforms: [iphone, ipad]
     osver: {ios: {min: "13.0"}}
@@ -1758,3 +1711,18 @@ properties:
         configuration name in the app's `UIApplicationSceneManifest`.
         If omitted, the system uses the default configuration.
     type: String
+    optional: true
+
+---
+name: RequestSceneResult
+summary: |
+    Resolution value of the Promise returned by <Titanium.App.iOS.requestScene>
+    when the newly-requested scene has connected.
+since: {iphone: "13.3.0", ipad: "13.3.0"}
+platforms: [iphone, ipad]
+
+properties:
+
+  - name: scene
+    summary: The scene proxy for the newly-connected scene.
+    type: Titanium.App.iOS.SceneProxy

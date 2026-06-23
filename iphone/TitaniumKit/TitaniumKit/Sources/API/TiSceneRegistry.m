@@ -7,6 +7,7 @@
 
 #import "TiSceneRegistry.h"
 #import "TiApp.h"
+#import "TiSceneProxy.h"
 #import "TiWindow.h"
 #import <UIKit/UIKit.h>
 
@@ -30,6 +31,9 @@
     _sceneActiveState = [[NSMutableDictionary alloc] init];
     _sceneForegroundState = [[NSMutableDictionary alloc] init];
     _sceneNames = [[NSMutableDictionary alloc] init];
+    _sceneProxyMap = [[NSMutableDictionary alloc] init];
+    _pendingSceneCallbacks = [[NSMutableArray alloc] init];
+    _pendingSceneRequestCount = 0;
   }
   return self;
 }
@@ -168,6 +172,83 @@
     return nil;
   }
   return _sceneNames[sceneUUID];
+}
+
+#pragma mark - Scene Proxy Registry
+
+- (void)registerSceneProxy:(TiSceneProxy *)proxy forUUID:(NSString *)sceneUUID
+{
+  if (proxy == nil || sceneUUID == nil) {
+    return;
+  }
+  @synchronized(_sceneProxyMap) {
+    _sceneProxyMap[sceneUUID] = proxy;
+  }
+}
+
+- (void)unregisterSceneProxyForUUID:(NSString *)sceneUUID
+{
+  if (sceneUUID == nil) {
+    return;
+  }
+  @synchronized(_sceneProxyMap) {
+    [_sceneProxyMap removeObjectForKey:sceneUUID];
+  }
+}
+
+- (TiSceneProxy *)sceneProxyForUUID:(NSString *)sceneUUID
+{
+  if (sceneUUID == nil) {
+    return nil;
+  }
+  @synchronized(_sceneProxyMap) {
+    return _sceneProxyMap[sceneUUID];
+  }
+}
+
+- (TiSceneProxy *)ensureSceneProxyForUUID:(NSString *)sceneUUID tiApp:(TiApp *)tiApp
+{
+  if (sceneUUID == nil) {
+    return nil;
+  }
+  @synchronized(_sceneProxyMap) {
+    TiSceneProxy *existing = _sceneProxyMap[sceneUUID];
+    if (existing != nil) {
+      return existing;
+    }
+    TiSceneProxy *proxy = [[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp];
+    _sceneProxyMap[sceneUUID] = proxy;
+    return [proxy autorelease];
+  }
+}
+
+#pragma mark - Pending requestScene Callback Queue
+
+- (void)enqueuePendingSceneCallback:(NSDictionary *)pending
+{
+  if (pending == nil) {
+    return;
+  }
+  [_pendingSceneCallbacks addObject:pending];
+  _pendingSceneRequestCount++;
+}
+
+- (NSDictionary *)dequeuePendingSceneCallback
+{
+  if (_pendingSceneCallbacks.count == 0) {
+    return nil;
+  }
+  NSDictionary *head = [[_pendingSceneCallbacks[0] retain] autorelease];
+  [_pendingSceneCallbacks removeObjectAtIndex:0];
+  if (_pendingSceneRequestCount > 0) {
+    _pendingSceneRequestCount--;
+  }
+  return head;
+}
+
+- (NSInteger)pendingSceneRequestCount
+{
+  return _pendingSceneRequestCount;
 }
 
 @end

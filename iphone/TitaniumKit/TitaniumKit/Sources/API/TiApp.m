@@ -1352,6 +1352,11 @@ extern void UIColorFlushCache(void);
     [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
   }
 
+  // Ensure a long-lived TiSceneProxy exists for this scene before posting the
+  // connect notification. This covers the primary scene on cold launch, which
+  // connects before the TiAppiOSProxy (and its notification observers) exist.
+  [registry ensureSceneProxyForUUID:session.persistentIdentifier tiApp:self];
+
   // Post scene connect notification
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillConnectNotification
                                                       object:self

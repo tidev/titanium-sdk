@@ -8,12 +8,16 @@
 #import <Foundation/Foundation.h>
 
 @class TiApp;
+@class TiSceneProxy;
 @class UIWindow;
 
 /**
  * Central registry for managing all active TiApp scene instances.
  * Each scene gets its own TiApp instance, and this registry tracks them
  * so JavaScript can access scene-specific information.
+ *
+ * Main-thread-only — all access must occur on the main queue (scene notifications,
+ * requestScene errorHandler, and ENSURE_UI_THREAD-gated entry points all run on main).
  */
 @interface TiSceneRegistry : NSObject
 
@@ -24,6 +28,9 @@
   NSMutableDictionary *_sceneForegroundState;
   NSMutableDictionary *_sceneNames;
   NSString *_primarySceneUUID;
+  NSMutableDictionary<NSString *, TiSceneProxy *> *_sceneProxyMap;
+  NSMutableArray<NSDictionary *> *_pendingSceneCallbacks;
+  NSInteger _pendingSceneRequestCount;
 }
 
 + (instancetype)sharedRegistry;
@@ -104,5 +111,54 @@
  * Get the configuration name for a scene.
  */
 - (NSString *)sceneNameForUUID:(NSString *)sceneUUID;
+
+#pragma mark - Scene Proxy Registry
+
+/**
+ * Register a long-lived TiSceneProxy for a scene UUID.
+ * The registry retains the proxy; unregister releases it.
+ */
+- (void)registerSceneProxy:(TiSceneProxy *)proxy forUUID:(NSString *)sceneUUID;
+
+/**
+ * Unregister (release) the TiSceneProxy for a scene UUID.
+ */
+- (void)unregisterSceneProxyForUUID:(NSString *)sceneUUID;
+
+/**
+ * Look up the long-lived TiSceneProxy for a scene UUID.
+ * Returns nil if no proxy is registered for the UUID.
+ */
+- (TiSceneProxy *)sceneProxyForUUID:(NSString *)sceneUUID;
+
+/**
+ * Ensure a long-lived TiSceneProxy exists for a scene UUID, creating and
+ * registering one if absent. Returns the proxy (retained by the registry).
+ * Use this from TiApp's scene:willConnectToSession: so the proxy exists for
+ * every scene — including the primary scene on cold launch, which connects
+ * before the TiAppiOSProxy (and its notification observers) exist.
+ */
+- (TiSceneProxy *)ensureSceneProxyForUUID:(NSString *)sceneUUID tiApp:(TiApp *)tiApp;
+
+#pragma mark - Pending requestScene Callback Queue
+
+/**
+ * Enqueue a pending requestScene callback descriptor.
+ * The descriptor is an NSDictionary with keys onComplete, onError, configurationName.
+ * Values are retained KrollCallback* / NSString* (or NSNull if absent).
+ */
+- (void)enqueuePendingSceneCallback:(NSDictionary *)pending;
+
+/**
+ * Dequeue and return the head of the pending-callback queue, decrementing
+ * the outstanding-request counter. Returns nil if the queue is empty.
+ */
+- (NSDictionary *)dequeuePendingSceneCallback;
+
+/**
+ * The number of outstanding requestScene requests that have not yet been
+ * matched to a connecting scene or an error.
+ */
+- (NSInteger)pendingSceneRequestCount;
 
 @end
