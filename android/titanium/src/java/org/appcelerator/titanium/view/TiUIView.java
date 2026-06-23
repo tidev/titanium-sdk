@@ -73,6 +73,8 @@ import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
+import ti.modules.titanium.ui.UIModule;
+
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy.
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
@@ -972,6 +974,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			} else {
 				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
 			}
+		} else if (key.equals(TiC.PROPERTY_CLIP_MODE)) {
+			if (nativeView != null) {
+				setClipMode(TiConvert.toInt(newValue, UIModule.CLIP_MODE_DEFAULT));
+			}
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -1139,6 +1145,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_CLIP_MODE) && !nativeViewNull) {
+			setClipMode(TiConvert.toInt(d.getInt(TiC.PROPERTY_CLIP_MODE), UIModule.CLIP_MODE_DEFAULT));
+		}
+
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
@@ -1192,6 +1202,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 			}
 			nativeView.setBackground(background);
+		}
+	}
+
+	private void setClipMode(int clipMode)
+	{
+		if (nativeView == null) {
+			return;
+		}
+
+		TiViewProxy currentProxy = proxy;
+		while (currentProxy.getParent() != null) {
+			if (currentProxy.getOrCreateView().getOuterView() instanceof ViewGroup viewGroup) {
+				viewGroup.setClipChildren(clipMode != UIModule.CLIP_MODE_DISABLED);
+			}
+			currentProxy = currentProxy.getParent();
+			if (currentProxy.getApiName().equals("Ti.UI.Window")) {
+				return;
+			}
 		}
 	}
 
