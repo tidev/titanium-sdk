@@ -122,7 +122,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				mBottomNavigationView.setBackground(shapeDrawable);
 			}
 			ShapeAppearanceModel model = shapeDrawable.getShapeAppearanceModel();
-			float radius = (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(mBottomNavigationView);
+			TiDimension borderRadius = TiConvert.toTiDimension(
+				this.proxy.getProperty(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_LEFT);
+			float radius = (borderRadius != null)
+				? borderRadius.getAsPixels(mBottomNavigationView)
+				: (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(mBottomNavigationView);
+			// Remove borderRadius from proxy to prevent TiUIView from creating a border wrapper around the ViewPager.
+			this.proxy.setProperty(TiC.PROPERTY_BORDER_RADIUS, null);
 			model = model.toBuilder().setAllCorners(CornerFamily.ROUNDED, radius).build();
 			shapeDrawable.setShapeAppearanceModel(model);
 			this.mBottomNavigationView.setPadding((int) (radius * 0.75), 0, (int) (radius * 0.75), 0);

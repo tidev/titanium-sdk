@@ -214,7 +214,11 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 						bottomNavigation.setBackground(shapeDrawable);
 					}
 					ShapeAppearanceModel model = shapeDrawable.getShapeAppearanceModel();
-					float radius = (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(bottomNavigation);
+					TiDimension borderRadius = TiConvert.toTiDimension(
+						this.proxy.getProperty(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_LEFT);
+					float radius = (borderRadius != null)
+						? borderRadius.getAsPixels(bottomNavigation)
+						: (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(bottomNavigation);
 					model = model.toBuilder().setAllCorners(CornerFamily.ROUNDED, radius).build();
 					shapeDrawable.setShapeAppearanceModel(model);
 					bottomNavigation.setPadding((int) (radius * 0.75), 0, (int) (radius * 0.75), 0);
