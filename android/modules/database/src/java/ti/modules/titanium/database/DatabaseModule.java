@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.content.Context;
@@ -45,13 +46,24 @@ public class DatabaseModule extends KrollModule
 	@Kroll.constant
 	public static final int FIELD_TYPE_DOUBLE = 3;
 
+	@Kroll.constant
+	public static final int CREATE_IF_NECESSARY = SQLiteDatabase.CREATE_IF_NECESSARY;
+	@Kroll.constant
+	public static final int NO_LOCALIZED_COLLATORS = SQLiteDatabase.NO_LOCALIZED_COLLATORS;
+	@Kroll.constant
+	public static final int ENABLE_WRITE_AHEAD_LOGGING = SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING;
+	@Kroll.constant
+	public static final int OPEN_READWRITE = SQLiteDatabase.OPEN_READWRITE;
+	@Kroll.constant
+	public static final int OPEN_READONLY = SQLiteDatabase.OPEN_READONLY;
+
 	public DatabaseModule()
 	{
 		super();
 	}
 
 	@Kroll.method
-	public TiDatabaseProxy open(Object file)
+	public TiDatabaseProxy open(Object file, @Kroll.argument(optional = true) Object flags)
 	{
 		// Acquire database name or file object providing full file path from argument.
 		TiBaseFile dbTiBaseFile = null;
@@ -97,8 +109,12 @@ public class DatabaseModule extends KrollModule
 				throw new IllegalArgumentException(message);
 			}
 			Log.d(TAG, "Opening database from filesystem: " + absolutePath);
+			int flagValues = SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS;
+			if (flags != null) {
+				flagValues = TiConvert.toInt(flags);
+			}
 			SQLiteDatabase db = SQLiteDatabase.openDatabase(
-				absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+				absolutePath, null, flagValues);
 			if (db != null) {
 				dbp = new TiDatabaseProxy(db);
 			} else {
@@ -137,7 +153,7 @@ public class DatabaseModule extends KrollModule
 		Context ctx = TiApplication.getInstance();
 		for (String dbname : ctx.databaseList()) {
 			if (dbname.equals(name)) {
-				return open(name);
+				return open(name, null);
 			}
 		}
 
@@ -195,7 +211,7 @@ public class DatabaseModule extends KrollModule
 		}
 
 		// Open a connection to the installed database.
-		return open(name);
+		return open(name, null);
 	}
 
 	@Override
