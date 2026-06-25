@@ -62,6 +62,15 @@ public class TiUIScrollView extends TiUIView
 	private double cachedContentSizeWidth = 0;
 	private double cachedContentSizeHeight = 0;
 
+	// Cached contentInset TiDimension values for efficient pixel conversion
+	private static final TiDimension INSET_ZERO = new TiDimension(0, TiDimension.TYPE_TOP);
+	private TiDimension cachedInsetTopDim = INSET_ZERO;
+	private TiDimension cachedInsetBottomDim = INSET_ZERO;
+	private TiDimension cachedInsetLeftDim = INSET_ZERO;
+	private TiDimension cachedInsetRightDim = INSET_ZERO;
+	// Default false matches iOS UIScrollView behavior: content can extend into inset area
+	private boolean cachedClipToPadding = false;
+
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
 	private int type;
@@ -823,11 +832,116 @@ public class TiUIScrollView extends TiUIView
 		}
 	}
 
+	/**
+	 * Applies the cached contentInset values to extend the scrollable area.
+	 *
+	 * On Android, we match iOS UIScrollView.contentInset behavior:
+	 * - Content can extend into inset areas (clipToPadding=false by default)
+	 * - Background becomes visible in the inset areas when scrolled to edges
+	 */
+	private void applyContentInset()
+	{
+		if (this.scrollView != null) {
+			// clipToPadding controls whether children draw into the padding area.
+			// false matches iOS UIScrollView where content can extend into insets.
+			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
+
+			int topPad = (int) cachedInsetTopDim.getAsPixels(this.scrollView);
+			int bottomPad = (int) cachedInsetBottomDim.getAsPixels(this.scrollView);
+			int leftPad = (int) cachedInsetLeftDim.getAsPixels(this.scrollView);
+			int rightPad = (int) cachedInsetRightDim.getAsPixels(this.scrollView);
+
+			// Set padding for ALL sides including top/bottom.
+			// iOS UIScrollView.contentInset does NOT change the frame size,
+			// only the scrollable content area via padding.
+			this.scrollView.setPadding(leftPad, topPad, rightPad, bottomPad);
+
+			// Invalidate content property cache so scrollable area is recalculated
+			TiScrollViewLayout layout = getLayout();
+			if (layout != null) {
+				layout.invalidateContentPropertyCache();
+			}
+
+		}
+	}
+
+	/**
+	 * Sets contentInset from a dictionary with 'top', 'bottom', 'left', 'right' keys.
+	 */
+	private void setContentInset(Object value)
+	{
+		if (value == null) {
+			// Reset all insets to zero when set to null
+			cachedInsetTopDim = INSET_ZERO;
+			cachedInsetBottomDim = INSET_ZERO;
+			cachedInsetLeftDim = INSET_ZERO;
+			cachedInsetRightDim = INSET_ZERO;
+			applyContentInset();
+			updateScrollViewLayoutFromPadding();
+		} else if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+
+			// top
+			if (dict.containsKey("top") && dict.get("top") != null) {
+				cachedInsetTopDim = TiConvert.toTiDimension(dict.get("top"), TiDimension.TYPE_TOP);
+			}
+
+			// bottom
+			if (dict.containsKey("bottom") && dict.get("bottom") != null) {
+				cachedInsetBottomDim = TiConvert.toTiDimension(dict.get("bottom"), TiDimension.TYPE_BOTTOM);
+			}
+
+			// left
+			if (dict.containsKey("left") && dict.get("left") != null) {
+				cachedInsetLeftDim = TiConvert.toTiDimension(dict.get("left"), TiDimension.TYPE_LEFT);
+			}
+
+			// right
+			if (dict.containsKey("right") && dict.get("right") != null) {
+				cachedInsetRightDim = TiConvert.toTiDimension(dict.get("right"), TiDimension.TYPE_RIGHT);
+			}
+
+			applyContentInset();
+			updateScrollViewLayoutFromPadding();
+		} else {
+			Log.w(TAG, "contentInset must be a dictionary with 'top', 'bottom', 'left', 'right' keys or null.");
+		}
+	}
+
+	/**
+	 * Updates the parent content width/height based on the current padding insets.
+	 */
+	private void updateScrollViewLayoutFromPadding()
+	{
+		View nativeView = this.scrollView;
+		if (nativeView == null) {
+			return;
+		}
+
+		TiScrollViewLayout layout = getLayout();
+		if (layout != null) {
+			int measuredWidth = nativeView.getMeasuredWidth();
+			int measuredHeight = nativeView.getMeasuredHeight();
+
+			// Reduce parent dimensions by the padding insets
+			int leftRightPadding = (int) cachedInsetLeftDim.getAsPixels(nativeView)
+				+ (int) cachedInsetRightDim.getAsPixels(nativeView);
+			int topBottomPadding = (int) cachedInsetTopDim.getAsPixels(nativeView)
+				+ (int) cachedInsetBottomDim.getAsPixels(nativeView);
+
+			layout.setParentContentWidth(Math.max(0, measuredWidth - leftRightPadding));
+			layout.setParentContentHeight(Math.max(0, measuredHeight - topBottomPadding));
+
+			// Trigger re-layout so the new content dimensions take effect immediately
+			nativeView.requestLayout();
+		}
+	}
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+			Log.w(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
 
 		if (key.equals(TiC.PROPERTY_CONTENT_WIDTH) || key.equals(TiC.PROPERTY_CONTENT_HEIGHT)) {
@@ -871,6 +985,20 @@ public class TiUIScrollView extends TiUIView
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (this.scrollView != null) {
 				this.scrollView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
+		} else if (key.equals(TiC.PROPERTY_CONTENT_INSETS)) {
+			setContentInset(newValue);
+		} else if (key.equals(TiC.PROPERTY_CLIP_TO_PADDING)) {
+			if (this.scrollView != null) {
+				boolean newClipToPadding = TiConvert.toBoolean(newValue, cachedClipToPadding);
+				cachedClipToPadding = newClipToPadding;
+				((android.view.ViewGroup) this.scrollView).setClipToPadding(newClipToPadding);
+			}
+		} else if (key.equals(TiC.PROPERTY_CLIP_CHILDREN)) {
+			if (this.scrollView != null) {
+				((android.view.ViewGroup) this.scrollView).setClipChildren(
+					TiConvert.toBoolean(newValue, true)
+				);
 			}
 		}
 
@@ -1001,13 +1129,13 @@ public class TiUIScrollView extends TiUIView
 
 		switch (type) {
 			case TYPE_HORIZONTAL:
-				Log.d(TAG, "creating horizontal scroll view", Log.DEBUG_MODE);
+				Log.w(TAG, "creating horizontal scroll view", Log.DEBUG_MODE);
 				this.scrollView = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
 				scrollViewLayout = ((TiHorizontalScrollView) this.scrollView).getLayout();
 				break;
 			case TYPE_VERTICAL:
 			default:
-				Log.d(TAG, "creating vertical scroll view", Log.DEBUG_MODE);
+				Log.w(TAG, "creating vertical scroll view", Log.DEBUG_MODE);
 				this.scrollView = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
 				scrollViewLayout = ((TiVerticalScrollView) this.scrollView).getLayout();
 		}
@@ -1048,6 +1176,25 @@ public class TiUIScrollView extends TiUIView
 
 		this.scrollView.setHorizontalScrollBarEnabled(showHorizontalScrollBar);
 		this.scrollView.setVerticalScrollBarEnabled(showVerticalScrollBar);
+
+		// Set default values for Android-specific properties (can be overridden by JS)
+		if (d.containsKey(TiC.PROPERTY_CLIP_TO_PADDING)) {
+			cachedClipToPadding = TiConvert.toBoolean(d.get(TiC.PROPERTY_CLIP_TO_PADDING), false);
+			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
+		} else {
+			cachedClipToPadding = false; // Default matches iOS UIScrollView behavior
+		}
+		if (d.containsKey(TiC.PROPERTY_CLIP_CHILDREN)) {
+			((android.view.ViewGroup) this.scrollView).setClipChildren(
+				TiConvert.toBoolean(d.get(TiC.PROPERTY_CLIP_CHILDREN), true)
+			);
+		}
+
+		// Process contentInset from initial properties dictionary
+		if (d.containsKey(TiC.PROPERTY_CONTENT_INSETS)) {
+			Object insetValue = d.get(TiC.PROPERTY_CONTENT_INSETS);
+			setContentInset(insetValue);
+		}
 
 		super.processProperties(d);
 	}
@@ -1150,12 +1297,17 @@ public class TiUIScrollView extends TiUIView
 		int width = getLayout().getMeasuredWidth();
 		int height = getLayout().getMeasuredHeight();
 
+		// Add top and bottom insets to the content size to match iOS behavior.
+		// This ensures JavaScript sees the correct scrollable area including insets.
+		int topInset = (int) cachedInsetTopDim.getAsPixels(getNativeView());
+		int bottomInset = (int) cachedInsetBottomDim.getAsPixels(getNativeView());
+
 		// Only recalculate TiDimension values if content size changed
 		if (width != cachedContentWidth || height != cachedContentHeight) {
 			cachedContentWidth = width;
 			cachedContentHeight = height;
 			TiDimension dimensionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
-			TiDimension dimensionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+			TiDimension dimensionHeight = new TiDimension(height + topInset + bottomInset, TiDimension.TYPE_HEIGHT);
 			cachedContentSizeWidth = dimensionWidth.getAsDefault(getNativeView());
 			cachedContentSizeHeight = dimensionHeight.getAsDefault(getNativeView());
 		}
