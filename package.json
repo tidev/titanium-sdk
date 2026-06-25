@@ -76,7 +76,10 @@
     "test:mac": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version",
     "test:mac:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version --only-failed",
     "test:mac:trace": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version --log-level trace",
-    "test:integration": "node ./build/scons test"
+    "test:integration": "node ./build/scons test",
+    "docs:vitepress:sync": "npm run docs:vitepress:convert --prefix vitepress",
+    "docs:vitepress:dev": "npm run dev --prefix vitepress",
+    "docs:vitepress:build": "npm run build --prefix vitepress"
   },
   "commitlint": {
     "extends": [

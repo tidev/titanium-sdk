@@ -61,3 +61,11 @@ junit_report.xml
 
 # VS Code History Extension
 .history
+
+# VitePress docs
+/vitepress/node_modules/
+/vitepress/docs/api/
+/vitepress/docs/.vitepress/sidebar.mjs
+/vitepress/docs/.vitepress/dist/
+/vitepress/docs/.vitepress/cache/
+/vitepress/docs/public/images/
