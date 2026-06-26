@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'fs';
 import { join, dirname, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
 import yaml from 'js-yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -8,6 +9,12 @@ const ROOT = join(__dirname, '..');
 const APIDOC_DIR = join(ROOT, '..', 'apidoc', 'Titanium');
 const DOCS_DIR = join(ROOT, 'docs');
 const API_OUT = join(DOCS_DIR, 'api');
+const MODULES_CACHE = join(ROOT, 'modules-cache');
+
+const MODULES = [
+  { name: 'Facebook', repo: 'tidev/ti.facebook', apidoc: 'apidoc' },
+  { name: 'Map', repo: 'tidev/ti.map', apidoc: 'apidoc' },
+];
 
 const copied = new Set();
 
@@ -23,11 +30,11 @@ function slugify(name) {
   return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
 
-function namespaceFromPath(ymlPath) {
-  const rel = ymlPath.replace(APIDOC_DIR, '').replace(/^\//, '');
+function namespaceFromPath(ymlPath, baseDir = APIDOC_DIR, prefix = 'Titanium') {
+  const rel = ymlPath.replace(baseDir, '').replace(/^\//, '');
   const dir = dirname(rel);
   const parts = dir.split('/').filter(p => p && p !== '.');
-  return ['Titanium', ...parts].join('.');
+  return [prefix, ...parts].join('.');
 }
 
 function docToPath(name, ymlPath) {
@@ -120,11 +127,11 @@ function fmtPlatforms(p) {
   return Array.isArray(p) ? p.join(', ') : p;
 }
 
-function docToMd(doc, ymlPath) {
+function docToMd(doc, ymlPath, nsOpts = {}) {
   let { name, summary, description, extends: ext, since, platforms, deprecated } = doc;
   // Infer namespace for types without a dot-separated prefix
   if (!name.includes('.')) {
-    const ns = namespaceFromPath(ymlPath);
+    const ns = namespaceFromPath(ymlPath, nsOpts.baseDir || APIDOC_DIR, nsOpts.prefix || 'Titanium');
     if (name !== ns) {
       name = ns + '.' + name;
     }
@@ -163,7 +170,8 @@ function docToMd(doc, ymlPath) {
       if (p.description) body += copyImages(linkify(p.description), ymlDir) + '\n\n';
       const PLATFORM_DEFAULT_SINCE = { android: '1.0', iphone: '1.0', ipad: '1.0', macos: '9.2.0' };
       function platSince(plat, ver) {
-        return `${plat.charAt(0).toUpperCase() + plat.slice(1)}: ${ver}`;
+        const names = { android: 'Android', iphone: 'iOS', ipad: 'iPad', macos: 'macOS' };
+        return `${names[plat] || plat.charAt(0).toUpperCase() + plat.slice(1)}: ${ver}`;
       }
       const info = [];
       const platforms = p.platforms ? (Array.isArray(p.platforms) ? p.platforms : [p.platforms]) : [];
@@ -266,7 +274,9 @@ function sidebarTree(items) {
       if (i === parts.length - 1) {
         node[key] = { text: it.text, link: it.path };
       } else {
-        if (!node[key]) node[key] = {};
+        if (!node[key] || node[key].link) {
+          node[key] = node[key] && node[key].link ? { _link: { text: node[key].text, link: node[key].link } } : {};
+        }
         node = node[key];
       }
     }
@@ -276,7 +286,14 @@ function sidebarTree(items) {
     const folders = [];
     const links = [];
     for (const [key, val] of Object.entries(obj)) {
-      if (val.link) {
+      if (key.startsWith('_')) continue;
+      if (val._link) {
+        const children = toSidebar(val);
+        children.unshift({ text: val._link.text, link: val._link.link });
+        const label = key.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        const displayLabel = label.replace(/\b(Ios|Ipad)\b/gi, match => match === 'Ios' ? 'iOS' : match === 'Ipad' ? 'iPad' : match);
+        folders.push({ text: displayLabel, collapsed: true, items: children });
+      } else if (val.link) {
         links.push(val);
       } else {
         const children = toSidebar(val);
@@ -309,11 +326,63 @@ function run() {
     }
   }
 
+  const modEntries = [];
+  for (const mod of MODULES) {
+    const cacheDir = join(MODULES_CACHE, mod.name.toLowerCase());
+    if (!existsSync(cacheDir)) {
+      const url = `https://github.com/${mod.repo}.git`;
+      console.log(`\n📦 Cloning ${mod.repo}...`);
+      execSync(`git clone --depth 1 --single-branch ${url} "${cacheDir}"`, { stdio: 'inherit' });
+    }
+    const apidocDir = join(cacheDir, mod.apidoc);
+    if (!existsSync(apidocDir)) {
+      console.log(`  ⚠ No apidoc directory found at ${apidocDir}, skipping`);
+      continue;
+    }
+    const prefix = 'Modules.' + mod.name;
+    const modFiles = walkYml(apidocDir);
+    for (const ymlPath of modFiles) {
+      const content = readFileSync(ymlPath, 'utf-8');
+      const docs = yaml.loadAll(content);
+      for (const doc of docs) {
+        if (!doc || !doc.name) continue;
+        const result = docToMd(doc, ymlPath, { baseDir: apidocDir, prefix });
+        mkdirSync(result.outDir, { recursive: true });
+        writeFileSync(result.outFile, result.content, 'utf-8');
+        const fullPath = '/api' + result.path;
+        const displayName = result.shortName.includes('.') ? result.shortName.split('.').pop() : result.shortName;
+        items.push({ text: displayName, path: fullPath });
+        console.log(`  ✓ ${doc.name} → ${result.path}`);
+      }
+    }
+    modEntries.push({ text: mod.name, link: '/api/modules/' + mod.name.toLowerCase() });
+  }
+
+  if (modEntries.length > 0) {
+    const modIndexDir = join(API_OUT, 'modules');
+    mkdirSync(modIndexDir, { recursive: true });
+    const links = modEntries.map(e => `- [${e.text}](${e.link}/)`).join('\n');
+    const modIndex = `---\ntitle: Modules\n---\n\n# Modules\n\n${links}\n`;
+    writeFileSync(join(modIndexDir, 'index.md'), modIndex, 'utf-8');
+    console.log(`\n📄 Generated modules index page`);
+  }
+
   const sidebar = sidebarTree(items);
-  // Auto-expand Titanium root with link to index
+  // Ensure Titanium is first, auto-expand with link to index
+  const tiIdx = sidebar.findIndex(s => s.text === 'Titanium');
+  if (tiIdx > 0) {
+    const [ti] = sidebar.splice(tiIdx, 1);
+    sidebar.unshift(ti);
+  }
   if (sidebar.length > 0 && sidebar[0].text === 'Titanium') {
-    sidebar[0].collapsed = false;
+    sidebar[0].collapsed = true;
     sidebar[0].link = '/api/titanium/';
+  }
+
+  const modIdx = sidebar.findIndex(s => s.text === 'Modules');
+  if (modIdx !== -1) {
+    sidebar[modIdx].collapsed = false;
+    sidebar[modIdx].link = '/api/modules/';
   }
 
   const sidContent = `// Auto-generated by convert.mjs — do not edit manually

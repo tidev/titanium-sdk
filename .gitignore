@@ -67,5 +67,7 @@ junit_report.xml
 /vitepress/docs/api/
 /vitepress/docs/.vitepress/sidebar.mjs
 /vitepress/docs/.vitepress/dist/
+/vitepress/docs/.vitepress/.temp/
 /vitepress/docs/.vitepress/cache/
 /vitepress/docs/public/images/
+/vitepress/modules-cache/

@@ -11,8 +11,6 @@ The Titanium SDK allows developers to build native mobile applications for Andro
 ## Getting Started
 
 - [API Reference](/api/titanium/) — Browse the full Titanium API
-- [Global APIs](/api/global/) — Global JavaScript utilities
-- [Node.js APIs](/api/nodejs/) — Node.js-compatible shims
 - [Modules](/api/modules/) — Third-party module support
 
 ## About the SDK
