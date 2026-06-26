@@ -10,7 +10,7 @@
     "convert": "node scripts/convert.mjs"
   },
   "dependencies": {
-    "vitepress": "^1.6.3",
+    "vitepress": "2.0.0-alpha.17",
     "js-yaml": "^4.1.0",
     "markdown-it": "^12.3.2"
   }
