@@ -77,6 +77,7 @@
     "test:mac:onlyFailed": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version --only-failed",
     "test:mac:trace": "npm run cleanbuild:ios -- --skip-zip --no-docs --symlink && npm run test:integration -- ios -T macos --sdk-version $npm_package_version --log-level trace",
     "test:integration": "node ./build/scons test",
+    "docs:vitepress:clean": "npm run clean --prefix vitepress",
     "docs:vitepress:sync": "npm run convert --prefix vitepress && npm run build --prefix vitepress",
     "docs:vitepress:dev": "npm run dev --prefix vitepress",
     "docs:vitepress:build": "npm run build --prefix vitepress"

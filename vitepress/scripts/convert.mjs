@@ -163,9 +163,16 @@ function docToMd(doc, ymlPath, nsOpts = {}) {
     return md.renderInline(linkify(text));
   }
 
+  function wrapCodeBlocks(html) {
+    return html.replace(
+      /<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g,
+      (_, lang, code) => `<div class="language-${lang}"><pre class="shiki"><code>${code}</code></pre></div>`
+    );
+  }
+
   function renderBlock(text) {
     if (!text) return '';
-    return md.render(copyImages(linkify(text), ymlDir));
+    return wrapCodeBlocks(md.render(copyImages(linkify(text), ymlDir)));
   }
 
   const fmData = { title: name };

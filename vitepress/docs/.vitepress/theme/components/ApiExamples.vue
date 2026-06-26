@@ -7,7 +7,7 @@ const examples = frontmatter.value.examples || []
 
 <template>
   <div v-if="examples.length">
-    <h2>Examples</h2>
+    <h2 id="examples">Examples <a class="header-anchor" href="#examples">#</a></h2>
     <div v-for="(ex, i) in examples" :key="i" class="example">
       <h3 v-if="ex.title">{{ ex.title }}</h3>
       <p v-if="ex.intro" class="example-intro">{{ ex.intro }}</p>

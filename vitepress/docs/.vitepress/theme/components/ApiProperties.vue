@@ -31,7 +31,7 @@ function platformInfo(p) {
 
 <template>
   <div v-if="props.length">
-    <h2>Properties</h2>
+    <h2 id="properties">Properties <a class="header-anchor" href="#properties">#</a></h2>
     <div v-for="p in props" :key="p.name" class="property">
       <div class="property-header">
       <h3 :id="p.name.toLowerCase().replace(/\s+/g, '-')">

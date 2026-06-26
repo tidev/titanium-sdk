@@ -11,7 +11,7 @@ function slugify(text) {
 
 <template>
   <div v-if="events.length">
-    <h2>Events</h2>
+    <h2 id="events">Events <a class="header-anchor" href="#events">#</a></h2>
     <div v-for="e in events" :key="e.name" class="event">
       <h3 :id="slugify(e.name)">
         {{ e.name }}

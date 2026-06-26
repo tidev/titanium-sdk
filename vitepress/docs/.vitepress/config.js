@@ -4,7 +4,7 @@ import sidebar from './sidebar.mjs';
 export default defineConfig({
   title: 'Titanium SDK',
   description: 'Titanium SDK API Reference',
-  base: '/',
+  base: process.env.BASE || '/',
   lastUpdated: true,
   cleanUrls: true,
 
