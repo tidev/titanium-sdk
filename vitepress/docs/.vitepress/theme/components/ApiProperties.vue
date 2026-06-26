@@ -50,8 +50,12 @@ function platformInfo(p) {
 
 <style scoped>
 .property {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  padding: 0.2rem 0;
   border-bottom: 1px solid var(--vp-c-divider);
+}
+.property h3 {
+  margin-top: 0;
 }
 .property-header {
   margin-bottom: 1rem;

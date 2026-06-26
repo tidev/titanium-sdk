@@ -69,7 +69,7 @@ function linkify(text) {
       }
     }
     const typeName = typeParts.join('.');
-    if (!typeName || typeName.split('.').length < 2) return '&lt;' + ref + '&gt;';
+    if (!typeName || typeName.split('.').length < 2) return '<' + ref + '>';
     const rest = parts.slice(typeParts.length).join('.');
     const slugParts = typeParts.map(p => slugify(p));
     const dirPath = typeParts.slice(0, -1).map(p => p.toLowerCase()).join('/');
@@ -236,11 +236,24 @@ function docToMd(doc, ymlPath, nsOpts = {}) {
   function escapeBodyHtml(text) {
     const VUE_TAGS = ['ApiProperties', 'ApiMethods', 'ApiEvents', 'ApiExamples'];
     const saved = [];
+
     text = text.replace(
       new RegExp('</?(?:' + VUE_TAGS.join('|') + ')\\s*/?>', 'g'),
       match => { saved.push(match); return '\x00' + (saved.length - 1) + '\x00'; }
     );
+
+    text = text.replace(/```[\s\S]*?```/g, match => {
+      saved.push(match);
+      return '\x00' + (saved.length - 1) + '\x00';
+    });
+
+    text = text.replace(/`[^`]+`/g, match => {
+      saved.push(match);
+      return '\x00' + (saved.length - 1) + '\x00';
+    });
+
     text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
     text = text.replace(/\x00(\d+)\x00/g, (_, i) => saved[parseInt(i)]);
     return text;
   }
@@ -257,7 +270,7 @@ function docToMd(doc, ymlPath, nsOpts = {}) {
   if (ext) meta.push(`**Extends:** \`${ext}\``);
   if (since) meta.push(`**Since:** ${fmtSince(since)}`);
   if (platforms) meta.push(`**Platforms:** ${fmtPlatforms(platforms)}`);
-  if (meta.length > 0) body += meta.join(' &middot; ') + '\n\n';
+  if (meta.length > 0) body += meta.join(' · ') + '\n\n';
 
   body = escapeBodyHtml(body);
 

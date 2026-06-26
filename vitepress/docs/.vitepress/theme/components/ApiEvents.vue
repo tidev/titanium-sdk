@@ -44,7 +44,13 @@ function slugify(text) {
 
 <style scoped>
 .event {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+.event h3 {
+  margin-top:0;
+  margin-bottom: 0.5rem;
 }
 .description {
   margin-top: 0.5rem;
