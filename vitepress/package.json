@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "vitepress": "^1.6.3",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "markdown-it": "^12.3.2"
   }
 }

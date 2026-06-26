@@ -3,6 +3,9 @@ import { join, dirname, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { execSync } from 'child_process';
 import yaml from 'js-yaml';
+import MarkdownIt from 'markdown-it';
+
+const md = new MarkdownIt({ html: false, breaks: true });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -66,7 +69,7 @@ function linkify(text) {
       }
     }
     const typeName = typeParts.join('.');
-    if (!typeName || typeName.split('.').length < 2) return match;
+    if (!typeName || typeName.split('.').length < 2) return '&lt;' + ref + '&gt;';
     const rest = parts.slice(typeParts.length).join('.');
     const slugParts = typeParts.map(p => slugify(p));
     const dirPath = typeParts.slice(0, -1).map(p => p.toLowerCase()).join('/');
@@ -95,19 +98,34 @@ function copyImages(md, ymlDir) {
   });
 }
 
-function renderTable(headers, rows) {
-  if (rows.length === 0) return '';
-  let md = '| ' + headers.join(' | ') + ' |\n';
-  md += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
-  for (const row of rows) {
-    md += '| ' + row.join(' | ') + ' |\n';
-  }
-  md += '\n';
-  return md;
-}
+function parseExample(text) {
+  if (!text.includes('```')) return { code: [{ content: text, language: '' }] };
 
-function cell(text) {
-  return (text || '').toString().replace(/\n/g, ' ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const blocks = [];
+  let cursor = text;
+  let consumed = 0;
+
+  while (cursor.includes('```')) {
+    const start = cursor.indexOf('```');
+    const afterOpen = cursor.slice(start + 3);
+    const langEnd = afterOpen.indexOf('\n');
+    if (langEnd === -1) break;
+    const lang = afterOpen.slice(0, langEnd).trim();
+    const innerStart = langEnd + 1;
+    const close = afterOpen.indexOf('```');
+    if (close === -1 || close <= innerStart) break;
+    const codeContent = afterOpen.slice(innerStart, close).replace(/\n$/, '');
+    const blockLen = 3 + langEnd + 1 + close + 3;
+    blocks.push({ lang, code: codeContent, startOffset: consumed + start, endOffset: consumed + start + blockLen });
+    consumed += start + blockLen;
+    cursor = afterOpen.slice(close + 3);
+  }
+
+  if (blocks.length === 0) return { code: [{ content: text, language: '' }] };
+
+  const intro = text.slice(0, blocks[0].startOffset).trim();
+  const code = blocks.map(b => ({ content: b.code, language: b.lang }));
+  return { code, intro: intro || undefined };
 }
 
 function fmtType(t) {
@@ -129,7 +147,6 @@ function fmtPlatforms(p) {
 
 function docToMd(doc, ymlPath, nsOpts = {}) {
   let { name, summary, description, extends: ext, since, platforms, deprecated } = doc;
-  // Infer namespace for types without a dot-separated prefix
   if (!name.includes('.')) {
     const ns = namespaceFromPath(ymlPath, nsOpts.baseDir || APIDOC_DIR, nsOpts.prefix || 'Titanium');
     if (name !== ns) {
@@ -141,7 +158,94 @@ function docToMd(doc, ymlPath, nsOpts = {}) {
   const outDir = join(API_OUT, pathInfo.dir);
   const outFile = join(outDir, pathInfo.file);
 
-  let body = '';
+  function renderText(text) {
+    if (!text) return '';
+    return md.renderInline(linkify(text));
+  }
+
+  function renderBlock(text) {
+    if (!text) return '';
+    return md.render(copyImages(linkify(text), ymlDir));
+  }
+
+  const fmData = { title: name };
+
+  fmData.properties = (doc.properties || []).map(p => {
+    const entry = { name: p.name, type: fmtType(p.type) };
+    if (p.summary) entry.summary = renderText(p.summary);
+    if (p.description) entry.description = renderBlock(p.description);
+    if (p.deprecated) entry.deprecated = true;
+    if (p.platforms) {
+      entry.platforms = Array.isArray(p.platforms) ? p.platforms : [p.platforms];
+    }
+    if (p.since) entry.since = p.since;
+    return entry;
+  });
+
+  fmData.methods = (doc.methods || []).map(m => {
+    const entry = { name: m.name };
+    if (m.summary) entry.summary = renderText(m.summary);
+    if (m.description) entry.description = renderBlock(m.description);
+    const params = (m.parameters || []).map(p => {
+      const pe = { name: p.name, type: fmtType(p.type) };
+      if (p.summary) pe.summary = renderText(p.summary);
+      if (p.optional) pe.optional = true;
+      return pe;
+    });
+    if (params.length) entry.parameters = params;
+    if (m.returns) {
+      const rt = Array.isArray(m.returns)
+        ? m.returns.map(r => fmtType(r.type)).join(', ')
+        : fmtType(m.returns.type);
+      entry.returns = { type: rt };
+      if (m.returns.summary) entry.returns.summary = m.returns.summary;
+    }
+    return entry;
+  });
+
+  fmData.events = (doc.events || []).map(e => {
+    const entry = { name: e.name };
+    if (e.summary) entry.summary = renderText(e.summary);
+    if (e.description) entry.description = renderBlock(e.description);
+    const eProps = (e.properties || []).map(p => {
+      const pe = { name: p.name, type: fmtType(p.type) };
+      if (p.summary) pe.summary = renderText(p.summary);
+      return pe;
+    });
+    if (eProps.length) entry.properties = eProps;
+    return entry;
+  });
+
+  fmData.examples = (doc.examples || []).map(ex => {
+    const entry = {};
+    if (ex.title) entry.title = ex.title;
+    if (ex.example) {
+      const parsed = parseExample(ex.example);
+      entry.code = parsed.code;
+      if (parsed.intro) entry.intro = parsed.intro;
+    }
+    return entry;
+  });
+
+  // Remove empty collections
+  if (!fmData.properties.length) delete fmData.properties;
+  if (!fmData.methods.length) delete fmData.methods;
+  if (!fmData.events.length) delete fmData.events;
+  if (!fmData.examples.length) delete fmData.examples;
+
+  function escapeBodyHtml(text) {
+    const VUE_TAGS = ['ApiProperties', 'ApiMethods', 'ApiEvents', 'ApiExamples'];
+    const saved = [];
+    text = text.replace(
+      new RegExp('</?(?:' + VUE_TAGS.join('|') + ')\\s*/?>', 'g'),
+      match => { saved.push(match); return '\x00' + (saved.length - 1) + '\x00'; }
+    );
+    text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    text = text.replace(/\x00(\d+)\x00/g, (_, i) => saved[parseInt(i)]);
+    return text;
+  }
+
+  let body = `# ${name}\n\n`;
   if (deprecated) {
     body += `> **Deprecated** since ${deprecated.since}${deprecated.notes ? ': ' + deprecated.notes : ''}\n\n`;
   }
@@ -155,101 +259,15 @@ function docToMd(doc, ymlPath, nsOpts = {}) {
   if (platforms) meta.push(`**Platforms:** ${fmtPlatforms(platforms)}`);
   if (meta.length > 0) body += meta.join(' &middot; ') + '\n\n';
 
-  const props = doc.properties || [];
-  const methods = doc.methods || [];
-  const events = doc.events || [];
-  const examples = doc.examples || [];
+  body = escapeBodyHtml(body);
 
-  if (props.length) {
-    body += '## Properties\n\n';
-    for (const p of props) {
-      const name = p.name + (p.deprecated ? ' *(deprecated)*' : '');
-      body += `### ${name}\n\n`;
-      body += `**Type:** \`${fmtType(p.type)}\`\n\n`;
-      if (p.summary) body += linkify(p.summary) + '\n\n';
-      if (p.description) body += copyImages(linkify(p.description), ymlDir) + '\n\n';
-      const PLATFORM_DEFAULT_SINCE = { android: '1.0', iphone: '1.0', ipad: '1.0', macos: '9.2.0' };
-      function platSince(plat, ver) {
-        const names = { android: 'Android', iphone: 'iOS', ipad: 'iPad', macos: 'macOS' };
-        return `${names[plat] || plat.charAt(0).toUpperCase() + plat.slice(1)}: ${ver}`;
-      }
-      const info = [];
-      const platforms = p.platforms ? (Array.isArray(p.platforms) ? p.platforms : [p.platforms]) : [];
-      if (typeof p.since === 'object') {
-        const parts = Object.entries(p.since).map(([plat, ver]) => platSince(plat, ver));
-        info.push(parts.join(' | '));
-      } else if (p.since && platforms.length) {
-        const parts = platforms.map(plat => platSince(plat, p.since));
-        info.push(parts.join(' | '));
-      } else if (p.since) {
-        info.push(`Since: ${p.since}`);
-      } else if (platforms.length) {
-        const parts = platforms.map(plat => platSince(plat, PLATFORM_DEFAULT_SINCE[plat] || '?'));
-        info.push(parts.join(' | '));
-      }
+  if (fmData.properties) body += '<ApiProperties />\n\n';
+  if (fmData.methods) body += '<ApiMethods />\n\n';
+  if (fmData.events) body += '<ApiEvents />\n\n';
+  if (fmData.examples) body += '<ApiExamples />\n\n';
 
-      if (info.length) {
-        body += `> ${info.join(' · ')}\n\n`;
-      }
-    }
-  }
-
-  if (methods.length) {
-    body += '## Methods\n\n';
-    for (const m of methods) {
-      body += `### ${m.name}\n\n`;
-      if (m.summary) body += linkify(m.summary) + '\n\n';
-      if (m.description) body += linkify(m.description) + '\n\n';
-      const params = m.parameters || [];
-      if (params.length) {
-        body += '**Parameters:**\n\n';
-        const headers = ['Name', 'Type', 'Summary', 'Optional'];
-        const rows = params.map(p => [
-          `\`${p.name}\``,
-          `\`${fmtType(p.type)}\``,
-          cell(linkify(p.summary || '')),
-          p.optional ? 'Yes' : 'No',
-        ]);
-        body += renderTable(headers, rows);
-      }
-      if (m.returns) {
-        const rt = Array.isArray(m.returns) ? m.returns.map(r => fmtType(r.type)).join(', ') : fmtType(m.returns.type);
-        const rs = m.returns.summary ? ' &mdash; ' + m.returns.summary : '';
-        body += `**Returns:** \`${rt}\`${rs}\n\n`;
-      }
-    }
-  }
-
-  if (events.length) {
-    body += '## Events\n\n';
-    for (const e of events) {
-      body += `### ${e.name}\n\n`;
-      if (e.summary) body += linkify(e.summary) + '\n\n';
-      if (e.description) body += linkify(e.description) + '\n\n';
-      const eProps = e.properties || [];
-      if (eProps.length) {
-        body += '**Event Properties:**\n\n';
-        const headers = ['Name', 'Type', 'Summary'];
-        const rows = eProps.map(p => [
-          `\`${p.name}\``,
-          `\`${fmtType(p.type)}\``,
-          cell(linkify(p.summary || '')),
-        ]);
-        body += renderTable(headers, rows);
-      }
-    }
-  }
-
-  if (examples.length) {
-    body += '## Examples\n\n';
-    for (const ex of examples) {
-      if (ex.title) body += `### ${ex.title}\n\n`;
-      if (ex.example) body += ex.example + '\n\n';
-    }
-  }
-
-  const frontmatter = `---\ntitle: ${name}\n---\n\n`;
-  const content = frontmatter + `# ${name}\n\n` + body;
+  const frontmatter = `---\n${yaml.dump(fmData)}---\n\n`;
+  const content = frontmatter + body;
 
   const pathSuffix = '/' + (pathInfo.dir ? pathInfo.dir + '/' : '') + pathInfo.file.replace(/\.md$/, '');
   return { outDir, outFile, content, name, shortName: doc.name, path: pathSuffix };

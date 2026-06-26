@@ -9,7 +9,7 @@ export default defineConfig({
   cleanUrls: true,
 
   markdown: {
-    html: false,
+    html: true,
   },
 
   ignoreDeadLinks: true,
