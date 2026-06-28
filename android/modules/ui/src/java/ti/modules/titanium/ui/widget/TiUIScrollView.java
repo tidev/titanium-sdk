@@ -842,6 +842,18 @@ public class TiUIScrollView extends TiUIView
 	private void applyContentInset()
 	{
 		if (this.scrollView != null) {
+			// Early return: no insets to apply. Avoids unnecessary pixel computation,
+			// setPadding call (which triggers requestLayout()), and cache invalidation.
+			if (cachedInsetTopDim.getIntValue() == 0
+				&& cachedInsetBottomDim.getIntValue() == 0
+				&& cachedInsetLeftDim.getIntValue() == 0
+				&& cachedInsetRightDim.getIntValue() == 0) {
+
+				// clipToPadding still needs to be set even with zero insets to match iOS behavior
+				((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
+				return;
+			}
+
 			// clipToPadding controls whether children draw into the padding area.
 			// false matches iOS UIScrollView where content can extend into insets.
 			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
@@ -939,8 +951,10 @@ public class TiUIScrollView extends TiUIView
 			layout.setParentContentWidth(Math.max(0, measuredWidth - leftRightPadding));
 			layout.setParentContentHeight(Math.max(0, measuredHeight - topBottomPadding));
 
-			// Trigger re-layout so the new content dimensions take effect immediately
-			nativeView.requestLayout();
+			// NOTE: requestLayout() is intentionally NOT called here.
+			// applyContentInset() already triggered it via setPadding(), which propagates
+			// through the view hierarchy. An additional requestLayout() would cause a
+			// redundant second layout pass for the same change.
 		}
 	}
 
