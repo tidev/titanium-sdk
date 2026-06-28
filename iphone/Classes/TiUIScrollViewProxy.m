@@ -30,6 +30,8 @@ static NSArray *scrollViewKeySequence;
   [self initializeProperty:@"zoomScale" defaultValue:NUMFLOAT(1.0)];
   [self initializeProperty:@"canCancelEvents" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"scrollingEnabled" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"contentInset" defaultValue:nil];
+  [self initializeProperty:@"scrollIndicatorInsets" defaultValue:nil];
   [super _initWithProperties:properties];
 }
 
@@ -52,6 +54,54 @@ static NSArray *scrollViewKeySequence;
     contentOffset = [[TiPoint alloc] initWithPoint:CGPointMake(0, 0)];
   }
   return [contentOffset autorelease];
+}
+
+- (id)contentInset
+{
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].contentInset;
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+                             NUMFLOAT(insets.top), @"top",
+                         NUMFLOAT(insets.left), @"left",
+                         NUMFLOAT(insets.bottom), @"bottom",
+                         NUMFLOAT(insets.right), @"right",
+                         nil];
+  }
+  return [NSNull null];
+}
+
+- (void)setContentInset:(id)value
+{
+  ENSURE_UI_THREAD(setContentInset, value);
+  [self setValue:value forKey:@"contentInset"];
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [TiUtils contentInsets:value];
+    [(TiUIScrollView *)[self view] scrollView].contentInset = insets;
+  }
+}
+
+- (id)scrollIndicatorInsets
+{
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].scrollIndicatorInsets;
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+                             NUMFLOAT(insets.top), @"top",
+                         NUMFLOAT(insets.left), @"left",
+                         NUMFLOAT(insets.bottom), @"bottom",
+                         NUMFLOAT(insets.right), @"right",
+                         nil];
+  }
+  return [NSNull null];
+}
+
+- (void)setScrollIndicatorInsets:(id)value
+{
+  ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
+  [self setValue:value forKey:@"scrollIndicatorInsets"];
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [TiUtils contentInsets:value];
+    [(TiUIScrollView *)[self view] scrollView].scrollIndicatorInsets = insets;
+  }
 }
 
 - (void)windowWillOpen

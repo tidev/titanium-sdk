@@ -258,6 +258,26 @@ properties:
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
     type: Point
 
+  - name: contentInset
+    summary: Insets for the content of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the content on each side. Setting this property adjusts where the content is
+        positioned relative to the scroll view's bounds.
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "13.4.0"
+
+  - name: scrollIndicatorInsets
+    summary: Insets for the scroll indicators of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the scroll indicators on each side. Useful when using custom content insets or
+        when the scroll view is placed within a container that obscures part of the scroll area.
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "13.4.0"
+
   - name: contentWidth
     summary: Width of the scrollable region.
     description: |
