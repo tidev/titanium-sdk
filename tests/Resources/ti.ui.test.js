@@ -259,57 +259,14 @@ describe('Titanium.UI', function () {
 		it('#fetchSemanticColor() with user colors', () => {
 			const semanticColors = require('./semantic.colors.json');
 
-			const result = Ti.UI.fetchSemanticColor('textColor');
-			if (OS_IOS) {
-				// We get a Ti.UI.Color proxy on iOS
-				should(result).be.an.Object();
-				should(result.apiName).eql('Ti.UI.Color');
-				result.toHex().toLowerCase().should.eql(semanticColors.textColor[Ti.UI.semanticColorType].toLowerCase());
-			} else {
-				function validateColor(colorString, lightColorExpected, darkColorExpected) {
-					colorString.should.equalOneOf([
-						`ti.semantic.color:${darkColorExpected};${lightColorExpected}`,
-						`ti.semantic.color:${lightColorExpected};${darkColorExpected}`,
-					]);
-				}
-				validateColor(result, 'light=rgba(255, 31, 31, 1.000)', 'dark=rgba(255, 133, 226, 1.000)');
-				validateColor(
-					Ti.UI.fetchSemanticColor('green_100.0'),
-					'light=rgba(0, 255, 0, 1.000)',
-					'dark=rgba(0, 128, 0, 1.000)'
-				);
-				validateColor(
-					Ti.UI.fetchSemanticColor('blue_75.0'),
-					'light=rgba(0, 0, 255, 0.750)',
-					'dark=rgba(0, 0, 128, 0.750)'
-				);
-				validateColor(
-					Ti.UI.fetchSemanticColor('cyan_50.0'),
-					'light=rgba(0, 255, 255, 0.500)',
-					'dark=rgba(0, 128, 128, 0.500)'
-				);
-				validateColor(
-					Ti.UI.fetchSemanticColor('red_25.0'),
-					'light=rgba(255, 0, 0, 0.250)',
-					'dark=rgba(128, 0, 0, 0.250)'
-				);
-				validateColor(
-					Ti.UI.fetchSemanticColor('magenta_0'),
-					'light=rgba(255, 0, 255, 0.000)',
-					'dark=rgba(128, 0, 128, 0.000)'
-				);
-				validateColor(
-					Ti.UI.fetchSemanticColor('yellow_noalpha'),
-					'light=rgba(255, 255, 0, 1.000)',
-					'dark=rgba(128, 128, 0, 1.000)'
-				);
-				// NOTE: hex => % gives more precise value, but this will effectively become 50% under the covers
-				validateColor(
-					Ti.UI.fetchSemanticColor('green_hex8'),
-					'light=rgba(0, 255, 0, 0.502)',
-					'dark=rgba(0, 128, 0, 0.502)'
-				);
-			}
+			const style =  Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_DARK ? 'dark' : 'light';
+			// use "green_hex8" because its format matches format returned by .toHex(): #aarrggbb
+			// could be any color, but we'll need to format it before comparing
+			const colorName = 'green_hex8';
+			const result = Ti.UI.fetchSemanticColor(colorName);
+			should(result).be.an.Object();
+			should(result.apiName).eql('Ti.UI.Color');
+			result.toHex().toLowerCase().should.eql(semanticColors[colorName][style].toLowerCase());
 		});
 
 		it.ios('#fetchSemanticColor() with system colors', function () {
@@ -401,10 +358,14 @@ describe('Titanium.UI', function () {
 				[ 'widget_edittext_dark', '#ff000000' ],
 			]);
 			for (const [ colorName, hex ] of colors) {
-				const resourceId = Ti.UI.fetchSemanticColor(colorName);
-				resourceId.should.eql(`@color/${colorName}`);
-				const color = Ti.UI.Android.getColorResource(resourceId);
-				color.toHex().toLowerCase().should.equal(hex, colorName);
+				const color = Ti.UI.Android.getColorResource(colorName);
+				should(color).should.be.an.Object();
+				should(color.apiName).eql('Ti.UI.Color');
+				should(color.toHex).be.a.Function();
+				should(color.toString).be.a.Function();
+				color.toHex().toLowerCase().should.equal(hex);
+				color.toString().toLowerCase().should.equal(colorName);
+				color.toHex().should.equal(Ti.UI.fetchSemanticColor(colorName).toHex());
 			}
 		});
 
@@ -429,6 +390,34 @@ describe('Titanium.UI', function () {
 				win.removeEventListener('postlayout', postlayout); // only run once
 				try {
 					should(view).matchImage(`snapshots/${backgroundColor}${suffix}.png`);
+				} catch (e) {
+					return finish(e);
+				}
+				finish();
+			});
+			win.open();
+		});
+
+		it('use Ti.UI.Color via color properties', function (finish) {
+			// FIXME: Does not honour scale correctly on macOS.
+			if (isCI && utilities.isMacOS()) {
+				return finish();
+			}
+
+			win = Ti.UI.createWindow();
+			const style =  Ti.UI.userInterfaceStyle === Ti.UI.USER_INTERFACE_STYLE_DARK ? 'dark' : 'light';
+			const view = Ti.UI.createView({
+				backgroundColor: Ti.UI.fetchSemanticColor('ti.ui.color'),  // Ti.UI.Color instance
+				// NOTE: use a number divisble by 1, 2, 3 or 4 because ios scale may be one of those numbers!
+				// And bug in TiBlob on iOS reports width/height in pts, not px
+				width: '12px',
+				height: '12px'
+			});
+			win.add(view);
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view).matchImage(`snapshots/tiuicolor_${style}.png`);
 				} catch (e) {
 					return finish(e);
 				}
