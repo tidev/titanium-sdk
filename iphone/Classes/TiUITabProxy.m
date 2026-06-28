@@ -158,7 +158,6 @@
     [rootWindow setIsManaged:YES];
     [rootWindow setTab:self];
     [rootWindow setParentOrientationController:self];
-    [rootWindow open:nil];
   }
   return [rootWindow hostingController];
 }
@@ -323,13 +322,15 @@
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
 
-  if (window == rootWindow) {
-    [rootWindow windowWillOpen];
-    [rootWindow windowDidOpen];
-  }
   [window setIsManaged:YES];
   [window setTab:self];
   [window setParentOrientationController:self];
+
+  if (window == rootWindow) {
+    [rootWindow windowWillOpen];
+    [rootWindow windowDidOpen];
+    return [KrollPromise resolved:@[] inContext:[self currentContext]];
+  }
 
   // Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
@@ -470,9 +471,9 @@
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
   if (theWindow == rootWindow) {
-    // This is probably too late for the root view controller.
-    // Figure out how to call open before this callback
-    [theWindow open:nil];
+    if ([[theWindow closed] boolValue]) {
+      [[self openWindow:@[ theWindow ]] flush];
+    }
   } else if ([theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
