@@ -14,6 +14,7 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -150,7 +151,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		decoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
 		this.recyclerView.addItemDecoration(decoration);
 
-		this.adapter = new TableViewAdapter(getContext(), this.rows);
+		this.adapter = new TableViewAdapter(getContext(), this.rows,
+			TiConvert.toBoolean(proxy.getProperty("flatLayout"), false));
 		this.recyclerView.setAdapter(this.adapter);
 
 		// Create ItemTouchHelper for swipe-to-delete and move gestures.
