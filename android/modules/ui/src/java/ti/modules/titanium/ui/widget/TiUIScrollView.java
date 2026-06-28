@@ -881,6 +881,13 @@ public class TiUIScrollView extends TiUIView
 		} else if (value instanceof HashMap) {
 			HashMap dict = (HashMap) value;
 
+			// Reset all insets to zero first, then override with any present keys.
+			// This matches iOS behavior where an empty {} resets all insets.
+			cachedInsetTopDim = INSET_ZERO;
+			cachedInsetBottomDim = INSET_ZERO;
+			cachedInsetLeftDim = INSET_ZERO;
+			cachedInsetRightDim = INSET_ZERO;
+
 			// top
 			if (dict.containsKey("top") && dict.get("top") != null) {
 				cachedInsetTopDim = TiConvert.toTiDimension(dict.get("top"), TiDimension.TYPE_TOP);
