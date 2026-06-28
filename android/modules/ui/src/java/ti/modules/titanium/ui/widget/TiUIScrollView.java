@@ -68,6 +68,12 @@ public class TiUIScrollView extends TiUIView
 	private TiDimension cachedInsetBottomDim = INSET_ZERO;
 	private TiDimension cachedInsetLeftDim = INSET_ZERO;
 	private TiDimension cachedInsetRightDim = INSET_ZERO;
+
+	// Cached pixel values to avoid recomputing in applyContentInset/updateScrollViewLayoutFromPadding
+	private int cachedPixelTopPad = 0;
+	private int cachedPixelBottomPad = 0;
+	private int cachedPixelLeftPad = 0;
+	private int cachedPixelRightPad = 0;
 	// Default false matches iOS UIScrollView behavior: content can extend into inset area
 	private boolean cachedClipToPadding = false;
 
@@ -842,31 +848,31 @@ public class TiUIScrollView extends TiUIView
 	private void applyContentInset()
 	{
 		if (this.scrollView != null) {
+			// clipToPadding controls whether children draw into the padding area.
+			// false matches iOS UIScrollView where content can extend into insets.
+			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
+
 			// Early return: no insets to apply. Avoids unnecessary pixel computation,
 			// setPadding call (which triggers requestLayout()), and cache invalidation.
 			if (cachedInsetTopDim.getIntValue() == 0
 				&& cachedInsetBottomDim.getIntValue() == 0
 				&& cachedInsetLeftDim.getIntValue() == 0
 				&& cachedInsetRightDim.getIntValue() == 0) {
-
-				// clipToPadding still needs to be set even with zero insets to match iOS behavior
-				((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
 				return;
 			}
 
-			// clipToPadding controls whether children draw into the padding area.
-			// false matches iOS UIScrollView where content can extend into insets.
-			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
-
-			int topPad = (int) cachedInsetTopDim.getAsPixels(this.scrollView);
-			int bottomPad = (int) cachedInsetBottomDim.getAsPixels(this.scrollView);
-			int leftPad = (int) cachedInsetLeftDim.getAsPixels(this.scrollView);
-			int rightPad = (int) cachedInsetRightDim.getAsPixels(this.scrollView);
+			// Compute pixel values once and cache for reuse in updateScrollViewLayoutFromPadding()
+			cachedPixelTopPad = (int) cachedInsetTopDim.getAsPixels(this.scrollView);
+			cachedPixelBottomPad = (int) cachedInsetBottomDim.getAsPixels(this.scrollView);
+			cachedPixelLeftPad = (int) cachedInsetLeftDim.getAsPixels(this.scrollView);
+			cachedPixelRightPad = (int) cachedInsetRightDim.getAsPixels(this.scrollView);
 
 			// Set padding for ALL sides including top/bottom.
 			// iOS UIScrollView.contentInset does NOT change the frame size,
 			// only the scrollable content area via padding.
-			this.scrollView.setPadding(leftPad, topPad, rightPad, bottomPad);
+			this.scrollView.setPadding(
+				cachedPixelLeftPad, cachedPixelTopPad,
+				cachedPixelRightPad, cachedPixelBottomPad);
 
 			// Invalidate content property cache so scrollable area is recalculated
 			TiScrollViewLayout layout = getLayout();
@@ -942,11 +948,9 @@ public class TiUIScrollView extends TiUIView
 			int measuredWidth = nativeView.getMeasuredWidth();
 			int measuredHeight = nativeView.getMeasuredHeight();
 
-			// Reduce parent dimensions by the padding insets
-			int leftRightPadding = (int) cachedInsetLeftDim.getAsPixels(nativeView)
-				+ (int) cachedInsetRightDim.getAsPixels(nativeView);
-			int topBottomPadding = (int) cachedInsetTopDim.getAsPixels(nativeView)
-				+ (int) cachedInsetBottomDim.getAsPixels(nativeView);
+			// Reduce parent dimensions by the cached padding insets
+			int leftRightPadding = cachedPixelLeftPad + cachedPixelRightPad;
+			int topBottomPadding = cachedPixelTopPad + cachedPixelBottomPad;
 
 			layout.setParentContentWidth(Math.max(0, measuredWidth - leftRightPadding));
 			layout.setParentContentHeight(Math.max(0, measuredHeight - topBottomPadding));
