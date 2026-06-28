@@ -94,8 +94,8 @@ properties:
     summary: Whether the scene is currently active and receiving input.
     description: |
         Returns `true` when the scene is in the foreground and receiving events.
-        A scene becomes active when the [didbecomeactive](Titanium.App.iOS.SceneProxy.didbecomeactive)
-        event fires and inactive when [willresignactive](Titanium.App.iOS.SceneProxy.willresignactive) fires.
+        A scene becomes active when the [focus](Titanium.App.iOS.SceneProxy.focus)
+        event fires and inactive when the [blur](Titanium.App.iOS.SceneProxy.blur) fires.
     type: Boolean
     permission: read-only
     since: {iphone: "13.3.0", ipad: "13.3.0"}
@@ -105,8 +105,8 @@ properties:
     description: |
         Returns `true` when the scene is visible on screen, even if it is not
         the active scene (for example, when a system overlay is shown on top of it).
-        A scene enters the foreground when the [willenterforeground](Titanium.App.iOS.SceneProxy.willenterforeground)
-        event fires and enters the background when [didenterbackground](Titanium.App.iOS.SceneProxy.didenterbackground) fires.
+        A scene enters the foreground when the [resumed](Titanium.App.iOS.SceneProxy.resumed)
+        event fires and enters the background when [paused](Titanium.App.iOS.SceneProxy.paused) fires.
     type: Boolean
     permission: read-only
     since: {iphone: "13.3.0", ipad: "13.3.0"}
@@ -165,14 +165,15 @@ properties:
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
 events:
-  - name: didbecomeactive
+  - name: focus
     summary: Fired when this scene becomes active and can receive user input.
     description: |
         Fires when the scene transitions to the active state, meaning it is in the
         foreground and receiving user input events. This is the per-scene equivalent
-        of the legacy [resumed](Titanium.App.iOS.resumed) event.
+        of the legacy [resumed](Titanium.App.iOS.resumed) event and mirrors
+        [Titanium.UI.Window.focus](Titanium.UI.Window.focus) at the scene level.
 
-        Add a listener via `scene.addEventListener('didbecomeactive', fn)`. The
+        Add a listener via `scene.addEventListener('focus', fn)`. The
         listener fires only for this scene, not for other scenes in the app.
     properties:
       - name: sceneId
@@ -185,15 +186,16 @@ events:
     osver: {ios: {min: "13.0"}}
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
-  - name: willresignactive
+  - name: blur
     summary: Fired when this scene is about to resign the active state.
     description: |
         Fires when the scene is about to lose its active status, for example when a
         system overlay (like the notification center) covers the scene or when the
         user switches to another scene. This is the per-scene equivalent of the
-        legacy [pause](Titanium.App.iOS.pause) event.
+        legacy [pause](Titanium.App.iOS.pause) event and mirrors
+        [Titanium.UI.Window.blur](Titanium.UI.Window.blur) at the scene level.
 
-        Add a listener via `scene.addEventListener('willresignactive', fn)`.
+        Add a listener via `scene.addEventListener('blur', fn)`.
     properties:
       - name: sceneId
         summary: The unique identifier of the scene.
@@ -205,14 +207,15 @@ events:
     osver: {ios: {min: "13.0"}}
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
-  - name: didenterbackground
+  - name: paused
     summary: Fired when this scene has entered the background.
     description: |
         Fires when the scene is no longer visible on screen. This can happen when
         the user switches to another app or when the scene is dismissed. This is
-        the per-scene equivalent of the legacy [pause](Titanium.App.iOS.pause) event.
+        the per-scene equivalent of the legacy [paused](Titanium.App.iOS.paused)
+        event.
 
-        Add a listener via `scene.addEventListener('didenterbackground', fn)`.
+        Add a listener via `scene.addEventListener('paused', fn)`.
     properties:
       - name: sceneId
         summary: The unique identifier of the scene.
@@ -224,14 +227,15 @@ events:
     osver: {ios: {min: "13.0"}}
     since: {iphone: "13.3.0", ipad: "13.3.0"}
 
-  - name: willenterforeground
+  - name: resumed
     summary: Fired when this scene is about to enter the foreground.
     description: |
         Fires when the scene transitions from the background to the foreground,
         meaning it becomes visible on screen but may not yet be active. This is
-        the per-scene equivalent of the legacy [resumed](Titanium.App.iOS.resumed) event.
+        the per-scene equivalent of the legacy [resume](Titanium.App.iOS.resume)
+        event.
 
-        Add a listener via `scene.addEventListener('willenterforeground', fn)`.
+        Add a listener via `scene.addEventListener('resumed', fn)`.
     properties:
       - name: sceneId
         summary: The unique identifier of the scene.

@@ -219,8 +219,8 @@ methods:
         Returns a Promise that resolves with an object containing a `scene`
         property (a [Titanium.App.iOS.SceneProxy](Titanium.App.iOS.SceneProxy))
         when the new scene has connected. The proxy can be used to attach
-        per-scene lifecycle listeners such as `didbecomeactive` and
-        `willresignactive`. The Promise rejects with an Error if the system
+        per-scene lifecycle listeners such as `focus` and
+        `blur`. The Promise rejects with an Error if the system
         refuses the activation or if multi-scene support is unavailable.
 
         Because iOS activates scenes asynchronously, the proxy is not
@@ -1489,7 +1489,7 @@ events:
 
         Per-scene lifecycle events (becoming active, resigning active, entering
         background, entering foreground) fire on the SceneProxy itself — add listeners
-        via `scene.addEventListener('didbecomeactive', ...)` rather than on Ti.App.iOS.
+        via `scene.addEventListener('focus', ...)` rather than on Ti.App.iOS.
     properties:
       - name: sceneId
         summary: The unique identifier of the scene.

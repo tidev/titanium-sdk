@@ -169,7 +169,7 @@ static BOOL _sceneObserversRegistered = NO;
                                                object:nil];
   }
 
-  if (count == 1 && ([type isEqual:@"scenewillconnect"] || [type isEqual:@"scenedidbecomeactive"] || [type isEqual:@"scenewillresignactive"] || [type isEqual:@"scenedidenterbackground"] || [type isEqual:@"scenewillenterforeground"] || [type isEqual:@"scenediddismiss"])) {
+  if (count == 1 && ([type isEqual:@"scenewillconnect"] || [type isEqual:@"scenediddismiss"] || [type isEqual:@"focus"] || [type isEqual:@"blur"] || [type isEqual:@"paused"] || [type isEqual:@"resumed"])) {
     [self _ensureSceneObserversRegistered];
   }
 }
@@ -1552,7 +1552,7 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
   if (proxy == nil)
     return;
 
-  [proxy fireEvent:@"didbecomeactive" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+  [proxy fireEvent:@"focus" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
 }
 
 - (void)sceneWillResignActive:(NSNotification *)note
@@ -1565,7 +1565,7 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
   if (proxy == nil)
     return;
 
-  [proxy fireEvent:@"willresignactive" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+  [proxy fireEvent:@"blur" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
 }
 
 - (void)sceneDidEnterBackground:(NSNotification *)note
@@ -1578,7 +1578,7 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
   if (proxy == nil)
     return;
 
-  [proxy fireEvent:@"didenterbackground" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+  [proxy fireEvent:@"paused" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
 }
 
 - (void)sceneWillEnterForeground:(NSNotification *)note
@@ -1591,7 +1591,7 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
   if (proxy == nil)
     return;
 
-  [proxy fireEvent:@"willenterforeground" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+  [proxy fireEvent:@"resumed" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
 }
 
 - (void)sceneDidDismiss:(NSNotification *)note

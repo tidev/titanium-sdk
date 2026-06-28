@@ -11,7 +11,7 @@ const should = require('./utilities/assertions');
 // Multi-scene tests require iOS 13+ and a platform that supports multiple
 // windows (iPad simulator recommended). On iPhone the newly-requested scene
 // may not become active without user interaction, so the second test's
-// didbecomeactive assertion is most reliable on iPad.
+// focus assertion is most reliable on iPad.
 
 describe('Ti.App.iOS scenes', function () {
   this.timeout(30000);
@@ -32,7 +32,7 @@ describe('Ti.App.iOS scenes', function () {
     });
   });
 
-  it('per-scene didbecomeactive fires on the SceneProxy', function () {
+  it('per-scene focus fires on the SceneProxy', function () {
     if (!hasRequestScene) {
       this.skip();
       return;
@@ -41,7 +41,7 @@ describe('Ti.App.iOS scenes', function () {
       const scene = e.scene;
       return new Promise(function (resolve, reject) {
         let fired = false;
-        scene.addEventListener('didbecomeactive', function (evt) {
+        scene.addEventListener('focus', function (evt) {
           if (fired) {
             return;
           }
@@ -49,14 +49,14 @@ describe('Ti.App.iOS scenes', function () {
           try {
             should(evt).have.property('sceneId');
             should(evt.scene).be.exactly(scene);
-            scene.removeEventListener('didbecomeactive', this);
+            scene.removeEventListener('focus', this);
             resolve();
           } catch (err) {
             reject(err);
           }
         });
         // On iPad the new window typically becomes key automatically, firing
-        // didbecomeactive. On iPhone this may require user interaction with
+        // focus. On iPhone this may require user interaction with
         // the new scene.
       });
     });
