@@ -30,7 +30,7 @@ static NSArray *scrollViewKeySequence;
   [self initializeProperty:@"zoomScale" defaultValue:NUMFLOAT(1.0)];
   [self initializeProperty:@"canCancelEvents" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"scrollingEnabled" defaultValue:NUMBOOL(YES)];
-  [self initializeProperty:@"contentInset" defaultValue:nil];
+  [self initializeProperty:@"contentInsets" defaultValue:nil];
   [self initializeProperty:@"scrollIndicatorInsets" defaultValue:nil];
   [super _initWithProperties:properties];
 }
@@ -56,7 +56,7 @@ static NSArray *scrollViewKeySequence;
   return [contentOffset autorelease];
 }
 
-- (id)contentInset
+- (id)contentInsets
 {
   if ([self viewAttached]) {
     UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].contentInset;
@@ -70,10 +70,10 @@ static NSArray *scrollViewKeySequence;
   return [NSNull null];
 }
 
-- (void)setContentInset:(id)value
+- (void)setContentInsets:(id)value
 {
-  ENSURE_UI_THREAD(setContentInset, value);
-  [self setValue:value forKey:@"contentInset"];
+  ENSURE_UI_THREAD(setContentInsets, value);
+  [self setValue:value forKey:@"contentInsets"];
   if ([self viewAttached]) {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
     [(TiUIScrollView *)[self view] scrollView].contentInset = insets;

@@ -258,7 +258,7 @@ properties:
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
     type: Point
 
-  - name: contentInset
+  - name: contentInsets
     summary: Insets for the content of the scroll view.
     description: |
         A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
