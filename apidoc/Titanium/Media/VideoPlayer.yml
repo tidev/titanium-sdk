@@ -575,6 +575,15 @@ properties:
     platforms: [iphone, ipad, macos]
     type: MovieSize
 
+  - name: speed
+    summary: Playback speed of the video.
+    description: |
+      Playback speed of the video. Android: only available for API level >= 23.
+    type: Number
+    platforms: [android]
+    since: 12.4.0
+    availability: creation
+
   - name: overlayView
     summary: Use the overlay view to add additional custom views between the video content and the controls.
     description: |

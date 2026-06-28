@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -187,7 +187,7 @@ NSArray *bufferKeySequence = nil;
   const void *source = [[sourceBuffer data] bytes];
   NSRange replacement = NSMakeRange(offset, sourceLength);
   [data replaceBytesInRange:replacement withBytes:(source + sourceOffset)];
-//ignore leak, Xcode getting confused over the function name
+// ignore leak, Xcode getting confused over the function name
 #ifndef __clang_analyzer__
   return NUMUINTEGER(replacement.length);
 #else
@@ -278,7 +278,7 @@ NSArray *bufferKeySequence = nil;
 
 - (TiBlob *)toBlob:(id)_void
 {
-  //TODO: Static analysis finds we're leaking the [data copy]. We should have an autorelease here, but for later.
+  // TODO: Static analysis finds we're leaking the [data copy]. We should have an autorelease here, but for later.
   return [[[TiBlob alloc] initWithData:[[data copy] autorelease] mimetype:@"application/octet-stream"] autorelease];
 }
 

@@ -287,7 +287,7 @@ methods:
         *   If `sourcePosition` is included, a substring of the source string starting at the
             specified position is encoded.
 
-        *   If `sourceLength` is included, at most the specified numer of characters
+        *   If `sourceLength` is included, at most the specified number of characters
             are encoded.
 
         Throws an exception if `charset` is not a valid character set,

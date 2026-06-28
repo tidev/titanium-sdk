@@ -47,7 +47,7 @@ iOS 6 changed the way that applications access the device's contacts. As a resul
 2.1.3 introduces a new API to check or request authorization to access contacts.
 
 Use the new
-[Ti.Contacts.contactsAuthorization](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts-property-contactsAuthorization)
+[Ti.Contacts.contactsAuthorization](https://titaniumsdk.com/api/)
 property indicates whether the application is authorized to access contacts. It returns
 one of four values:
 
@@ -58,13 +58,13 @@ one of four values:
     The application should not attempt to reauthorize in this case.
 *   `AUTHORIZATION_UNKNOWN`. Current authorization state is unknown, and the application
     should call the
-    [requestAuthorization](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts-method-requestAuthorization)
+    [requestAuthorization](https://titaniumsdk.com/api/)
     method to request authorization from the user. 
 
 On iOS prior to iOS 6, and on Android, `contactsAuthorization` always returns `AUTHORIZATION_AUTHORIZED`. 
 
 For more information and sample code using the new APIs, see the
-[Titanium.Contacts](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Contacts)
+[Titanium.Contacts](https://titaniumsdk.com/api/)
 reference page.
 
 ### iPhone 5 Assets and Splash Screens

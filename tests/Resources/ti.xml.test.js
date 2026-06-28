@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	var testSource = {},
 		invalidSource = {};
 
-	// some common initialization specific to the xml suite
+	// some common initialization specific to the XML suite
 	function countNodes(node, type) {
 		var nodeCount = 0,
 			i,

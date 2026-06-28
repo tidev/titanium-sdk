@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -20,24 +20,25 @@
 // much smoother on the new window during a tab transition
 #define EXTERNAL_JS_WAIT_TIME (150 / 1000)
 
-/** 
+/**
  * This class is a helper that will be used when we have an external
  * window w/ JS so that we can attempt to wait for the window context
  * to be fully loaded on the UI thread (since JS runs in a different
  * thread) and attempt to wait up til EXTERNAL_JS_WAIT_TIME before
  * timing out. If timed out, will go ahead and start opening the window
- * and as the JS context finishes, will continue opening from there - 
+ * and as the JS context finishes, will continue opening from there -
  * this has a nice effect of immediately opening if fast but not delaying
  * if slow (so you get weird button delay effects for example)
  *
  */
 
 @interface TiUIWindowProxyLatch : NSObject {
-  NSCondition *lock;
+  dispatch_semaphore_t semaphore;
+  dispatch_queue_t stateQueue;
   TiUIWindowProxy *window;
   id args;
   BOOL completed;
-  BOOL timeout;
+  BOOL timedOut;
 }
 @end
 
@@ -48,14 +49,20 @@
   if (self = [super init]) {
     window = [window_ retain];
     args = [args_ retain];
-    lock = [[NSCondition alloc] init];
+    semaphore = dispatch_semaphore_create(0);
+    stateQueue = dispatch_queue_create("ti.window.latch", DISPATCH_QUEUE_SERIAL);
   }
   return self;
 }
 
 - (void)dealloc
 {
-  RELEASE_TO_NIL(lock);
+  if (semaphore) {
+    dispatch_release(semaphore);
+  }
+  if (stateQueue) {
+    dispatch_release(stateQueue);
+  }
   RELEASE_TO_NIL(window);
   RELEASE_TO_NIL(args);
   [super dealloc];
@@ -63,30 +70,41 @@
 
 - (void)booted:(id)arg
 {
-  [lock lock];
-  completed = YES;
-  [lock signal];
-  if (timeout) {
+  __block BOOL shouldBoot = NO;
+  dispatch_sync(stateQueue, ^{
+    completed = YES;
+    if (timedOut) {
+      shouldBoot = YES;
+    }
+  });
+  dispatch_semaphore_signal(semaphore);
+  if (shouldBoot) {
     [window boot:YES args:args];
   }
-  [lock unlock];
 }
 
 - (BOOL)waitForBoot
 {
-  BOOL yn = NO;
-  [lock lock];
-  if (completed) {
-    yn = YES;
-  } else {
-    if (![lock waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:EXTERNAL_JS_WAIT_TIME]]) {
-      timeout = YES;
-    } else {
-      yn = YES;
-    }
+  __block BOOL alreadyCompleted = NO;
+  dispatch_sync(stateQueue, ^{
+    alreadyCompleted = completed;
+  });
+
+  if (alreadyCompleted) {
+    return YES;
   }
-  [lock unlock];
-  return yn;
+
+  dispatch_time_t timeout_time = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(EXTERNAL_JS_WAIT_TIME * NSEC_PER_SEC));
+  long result = dispatch_semaphore_wait(semaphore, timeout_time);
+
+  if (result != 0) {
+    // Timed out
+    dispatch_sync(stateQueue, ^{
+      timedOut = YES;
+    });
+    return NO;
+  }
+  return YES;
 }
 
 @end
@@ -207,13 +225,13 @@
   // Sadly, today is not that day. Without shutdown, we leak all over the place.
   if (context != nil) {
     NSMutableArray *childrenToRemove = [[NSMutableArray alloc] init];
-    pthread_rwlock_rdlock(&childrenLock);
-    for (TiViewProxy *child in children) {
-      if ([child belongsToContext:context]) {
-        [childrenToRemove addObject:child];
+    dispatch_sync(childrenQueue, ^{
+      for (TiViewProxy *child in children) {
+        if ([child belongsToContext:context]) {
+          [childrenToRemove addObject:child];
+        }
       }
-    }
-    pthread_rwlock_unlock(&childrenLock);
+    });
     [context performSelector:@selector(shutdown:) withObject:nil afterDelay:1.0];
     RELEASE_TO_NIL(context);
 
@@ -236,10 +254,6 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  [self performSelector:@selector(processForSafeArea)
-             withObject:nil
-             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
-
   [self performSelector:@selector(updateStatusBarView)
              withObject:nil
              afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
@@ -266,7 +280,7 @@
 
 - (void)viewWillAppear:(BOOL)animated; // Called when the view is about to made visible. Default does nothing
 {
-  // TO DO: Refactor navigation bar customisation iOS 13
+  // TODO: Refactor navigation bar customisation iOS 13
   if ([self shouldUseNavBarApperance]) {
     TiColor *newColor = [TiUtils colorValue:[self valueForKey:@"barColor"]];
     if (newColor == nil) {
@@ -318,19 +332,20 @@
 
 - (void)setNavTintColor:(id)color
 {
-  __block TiColor *newColor = [TiUtils colorValue:color];
+  __block TiColor *newColor = [[TiUtils colorValue:color] retain];
 
   [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
   TiThreadPerformOnMainThread(
       ^{
         if (controller != nil) {
           if (newColor == nil) {
-            //Get from TabGroup
+            // Get from TabGroup
             newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
           }
           UINavigationBar *navBar = [[controller navigationController] navigationBar];
           [navBar setTintColor:[newColor color]];
           [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
+          [newColor release];
         }
       },
       NO);
@@ -447,7 +462,7 @@
     [ourNB setBackgroundImage:resizableImage
                 forBarMetrics:UIBarMetricsDefault];
 
-    //You can only set up the shadow image with a custom background image.
+    // You can only set up the shadow image with a custom background image.
     id shadowImageValue = [self valueForUndefinedKey:@"shadowImage"];
     theImage = [TiUtils toImage:shadowImageValue proxy:self];
 
@@ -461,7 +476,7 @@
     } else {
       BOOL clipValue = [TiUtils boolValue:[self valueForUndefinedKey:@"hideShadow"] def:NO];
       if (clipValue) {
-        //Set an empty Image.
+        // Set an empty Image.
         ourNB.shadowImage = [[[UIImage alloc] init] autorelease];
         if ([self shouldUseNavBarApperance]) {
           ourNB.standardAppearance.shadowColor = nil;
@@ -521,7 +536,7 @@
 
 - (void)updateNavButtons
 {
-  //Update LeftNavButton
+  // Update LeftNavButton
   NSDictionary *lProperties = [self valueForUndefinedKey:@"leftNavSettings"];
   id leftNavButtons = [self valueForUndefinedKey:@"leftNavButtons"];
   if (!IS_NULL_OR_NIL(leftNavButtons)) {
@@ -530,7 +545,7 @@
     leftNavButtons = [self valueForUndefinedKey:@"leftNavButton"];
     [self setLeftNavButton:leftNavButtons withObject:lProperties];
   }
-  //Update RightNavButton
+  // Update RightNavButton
   NSDictionary *rProperties = [self valueForUndefinedKey:@"rightNavSettings"];
   id rightNavButtons = [self valueForUndefinedKey:@"rightNavButtons"];
   if (!IS_NULL_OR_NIL(rightNavButtons)) {
@@ -579,7 +594,7 @@
   NSArray *curValues = [self valueForUndefinedKey:@"rightNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
 
-  //Clean up current values
+  // Clean up current values
   for (TiViewProxy *curProxy in curValues) {
     if (![(NSArray *)arg containsObject:curProxy]) {
       [curProxy removeBarButtonView];
@@ -649,7 +664,7 @@
   NSArray *curValues = [self valueForUndefinedKey:@"leftNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
 
-  //Clean up current values
+  // Clean up current values
   for (TiViewProxy *curProxy in curValues) {
     if (![(NSArray *)arg containsObject:curProxy]) {
       [curProxy removeBarButtonView];
@@ -687,7 +702,6 @@
       ^{
         if (controller != nil) {
           [controller setHidesBottomBarWhenPushed:[TiUtils boolValue:value]];
-          [self processForSafeArea];
         }
       },
       NO);
@@ -695,11 +709,13 @@
 
 - (void)hideTabBar:(id)value
 {
+  DEPRECATED_REPLACED_REMOVED(@"UI.Window.hideTabBar()", @"12.7.0", @"13.0.0", @"UI.Window.tabBarHidden");
   [self setTabBarHidden:[NSNumber numberWithBool:YES]];
 }
 
 - (void)showTabBar:(id)value
 {
+  DEPRECATED_REPLACED_REMOVED(@"UI.Window.showTabBar()", @"12.7.0", @"13.0.0", @"UI.Window.tabBarHidden");
   [self setTabBarHidden:[NSNumber numberWithBool:NO]];
 }
 
@@ -742,8 +758,8 @@
   ENSURE_UI_THREAD_1_ARG(proxy);
   [self replaceValue:proxy forKey:@"backButtonTitle" notification:NO];
   if (controller != nil) {
-    [self refreshBackButton]; //Because this is actually a property of a DIFFERENT view controller,
-    //we can't attach this until we're in the navbar stack.
+    [self refreshBackButton]; // Because this is actually a property of a DIFFERENT view controller,
+    // we can't attach this until we're in the navbar stack.
   }
 }
 
@@ -752,15 +768,15 @@
   ENSURE_UI_THREAD_1_ARG(proxy);
   [self replaceValue:proxy forKey:@"backButtonTitleImage" notification:NO];
   if (controller != nil) {
-    [self refreshBackButton]; //Because this is actually a property of a DIFFERENT view controller,
-    //we can't attach this until we're in the navbar stack.
+    [self refreshBackButton]; // Because this is actually a property of a DIFFERENT view controller,
+    // we can't attach this until we're in the navbar stack.
   }
 }
 
 - (void)updateNavBar
 {
-  //Called from the view when the screen rotates.
-  //Resize titleControl and barImage based on navbar bounds
+  // Called from the view when the screen rotates.
+  // Resize titleControl and barImage based on navbar bounds
   if (!shouldUpdateNavBar || controller == nil || [controller navigationController] == nil) {
     return; // No need to update the title if not in a nav controller
   }
@@ -788,7 +804,7 @@
   availableTitleSize.width = barFrame.size.width - (2 * TI_NAVBAR_BUTTON_WIDTH);
   availableTitleSize.height = barFrame.size.height;
 
-  //Check for titlePrompt. Ugly hack. Assuming 50% for prompt height.
+  // Check for titlePrompt. Ugly hack. Assuming 50% for prompt height.
   if (ourNavItem.prompt != nil) {
     availableTitleSize.height /= 2.0f;
     barFrame.origin.y = barFrame.size.height = availableTitleSize.height;
@@ -800,7 +816,7 @@
   if ([oldView isKindOfClass:[TiUIView class]]) {
     TiViewProxy *oldProxy = (TiViewProxy *)[(TiUIView *)oldView proxy];
     if (oldProxy == titleControl) {
-      //relayout titleControl
+      // relayout titleControl
       CGRect barBounds;
       barBounds.origin = CGPointZero;
 #ifndef TI_USE_AUTOLAYOUT
@@ -809,7 +825,7 @@
       [oldView setBounds:barBounds];
       [oldView setAutoresizingMask:UIViewAutoresizingNone];
 
-      //layout the titleControl children
+      // layout the titleControl children
       [titleControl layoutChildren:NO];
 
       return;
@@ -821,7 +837,7 @@
     newTitleView = [titleControl barButtonViewForSize:availableTitleSize];
   } else {
     NSURL *path = [TiUtils toURL:[self valueForKey:@"titleImage"] proxy:self];
-    //Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
+    // Todo: This should be [TiUtils navBarTitleViewSize] with the thumbnail scaling. For now, however, we'll go with auto.
     UIImage *image = [[ImageLoader sharedLoader] loadImmediateImage:path withSize:CGSizeZero];
     if (image != nil) {
       if ([oldView isKindOfClass:[UIImageView class]]) {
@@ -1013,7 +1029,7 @@
     return;
   }
 
-  //Need to clear title for titleAttributes to apply correctly on iOS6.
+  // Need to clear title for titleAttributes to apply correctly on iOS 6.
   [[controller navigationItem] setTitle:nil];
   SETPROP(@"titleAttributes", setTitleAttributes);
   SETPROP(@"title", setTitle);
@@ -1064,7 +1080,7 @@
   if (view) {
     id top = [[self safeAreaViewProxy] valueForKey:@"top"];
     if (top && [top floatValue] != frame.size.height) {
-      //TIMOB-28323: Once fixed by apple, remove it.
+      // TIMOB-28323: Once fixed by apple, remove it.
       frame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width, [top floatValue]);
     }
     view.frame = frame;
@@ -1076,7 +1092,7 @@
   return self.safeAreaViewProxy;
 }
 
-- (void)processForSafeArea
+- (BOOL)processForSafeArea
 {
   [self setValue:@{ @"top" : NUMFLOAT(0.0),
     @"left" : NUMFLOAT(0.0),
@@ -1087,8 +1103,12 @@
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
 
-  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
-  safeAreaInset = [[topContainerController hostingView] safeAreaInsets];
+  if (self.isManaged && self.tab) {
+    // Prefer safe area from our own controller hierarchy so tab/nav containers are respected.
+    safeAreaInset = self.hostingController.view.safeAreaInsets;
+  } else {
+    safeAreaInset = TiApp.controller.topContainerController.hostingView.safeAreaInsets;
+  }
 
   if (self.tabGroup) {
     edgeInsets = [self tabGroupEdgeInsetsForSafeAreaInset:safeAreaInset];
@@ -1098,18 +1118,17 @@
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
   }
 
-  if (self.shouldExtendSafeArea) {
-    [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
-      @"left" : NUMFLOAT(edgeInsets.left),
-      @"bottom" : NUMFLOAT(edgeInsets.bottom),
-      @"right" : NUMFLOAT(edgeInsets.right) }
-            forKey:@"safeAreaPadding"];
+  [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
+    @"left" : NUMFLOAT(edgeInsets.left),
+    @"bottom" : NUMFLOAT(edgeInsets.bottom),
+    @"right" : NUMFLOAT(edgeInsets.right) }
+          forKey:@"safeAreaPadding"];
 
-    if (!UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets)) {
-      self.safeAreaInsetsUpdated = YES;
-    }
-    oldSafeAreaInsets = edgeInsets;
-    return;
+  BOOL safeAreaInsetsChanged = !UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets);
+  oldSafeAreaInsets = edgeInsets;
+
+  if (self.shouldExtendSafeArea) {
+    return safeAreaInsetsChanged;
   }
 
   TiViewProxy *safeAreaProxy = [self safeAreaViewProxy];
@@ -1130,6 +1149,8 @@
   if (!oldRight || [oldRight floatValue] != edgeInsets.right) {
     [safeAreaProxy setRight:NUMFLOAT(edgeInsets.right)];
   }
+
+  return safeAreaInsetsChanged;
 }
 
 - (UIEdgeInsets)tabGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
@@ -1150,12 +1171,10 @@
       edgeInsets.right = safeAreaInset.right;
     }
   }
-  if ([TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:NO]) {
-    edgeInsets.top = safeAreaInset.top;
-  }
-  if ([TiUtils boolValue:[self valueForUndefinedKey:@"tabBarHidden"] def:NO]) {
-    edgeInsets.bottom = safeAreaInset.bottom;
-  }
+
+  edgeInsets.top = safeAreaInset.top;
+  edgeInsets.bottom = safeAreaInset.bottom;
+
   return edgeInsets;
 }
 
@@ -1177,9 +1196,7 @@
       edgeInsets.right = safeAreaInset.right;
     }
   }
-  if ([TiUtils boolValue:[self valueForUndefinedKey:@"navBarHidden"] def:NO]) {
-    edgeInsets.top = safeAreaInset.top;
-  }
+  edgeInsets.top = safeAreaInset.top;
   edgeInsets.bottom = safeAreaInset.bottom;
   return edgeInsets;
 }

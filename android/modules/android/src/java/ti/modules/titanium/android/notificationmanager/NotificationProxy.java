@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -229,7 +229,7 @@ public class NotificationProxy extends KrollProxy
 	public void setTickerText(String tickerText)
 	{
 		notificationBuilder.setTicker(tickerText);
-		//set the javascript object
+		//set the JavaScript object
 		setProperty(TiC.PROPERTY_TICKER_TEXT, tickerText);
 	}
 

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -683,10 +683,10 @@ public class TiConvert
 	}
 
 	/**
-	 * Returns a url string by appending the
+	 * Returns a URL string by appending the
 	 * String representation of 'uri' to file:///android_asset/Resources/
-	 * @param uri the uri, cannot be null.
-	 * @return url string.
+	 * @param uri the URI, cannot be null.
+	 * @return URL string.
 	 */
 	public static String toURL(Uri uri)
 	{

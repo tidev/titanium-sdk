@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -49,7 +49,7 @@ OperationQueue *sharedQueue = nil;
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
   @try {
-    //The nice thing about performSelector is that providing extra arguments is quite safe.
+    // The nice thing about performSelector is that providing extra arguments is quite safe.
     id result = [target performSelector:selector withObject:arg];
 
     if (afterTarget != nil && after != nil) {

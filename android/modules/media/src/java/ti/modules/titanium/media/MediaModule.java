@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -51,8 +51,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
@@ -93,7 +91,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	public static final int NO_CAMERA = 2;
 	@Kroll.constant
 	public static final int NO_VIDEO = 3;
-
+	@Kroll.constant
+	public static final int NO_FOCUS = 4;
 	@Kroll.constant
 	public static final int IMAGE_SCALING_AUTO = -1;
 	@Kroll.constant
@@ -240,6 +239,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	private static String mediaType = MEDIA_TYPE_PHOTO;
 	private static ContentResolver contentResolver;
 	private boolean useCameraX = false;
+	private static boolean pathOnly = false;
 
 	public MediaModule()
 	{
@@ -627,10 +627,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasCameraPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
 		TiApplication app = TiApplication.getInstance();
 		int status = app.checkSelfPermission(Manifest.permission.CAMERA);
 		if (status != PackageManager.PERMISSION_GRANTED) {
@@ -648,9 +644,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasAudioRecorderPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
 		return (status == PackageManager.PERMISSION_GRANTED);
 	}
@@ -664,7 +657,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			int status_img = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES);
 			int status_vid = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO);
 			return (status_img == PackageManager.PERMISSION_GRANTED && status_vid == PackageManager.PERMISSION_GRANTED);
-		} else if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29) {
+		} else if (Build.VERSION.SDK_INT >= 29) {
 			// We don't have to request permission on versions older than Android 6.0 or Android 10/11
 			return true;
 		}
@@ -752,6 +745,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		});
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestAudioRecorderPermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)
@@ -900,7 +894,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
-			ensureExternalPublicMediaDirectoryExists();
+
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -1004,7 +998,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
-			ensureExternalPublicMediaDirectoryExists();
+
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -1038,20 +1032,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// Generate file name.
 		return normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
-	}
-
-	private static void ensureExternalPublicMediaDirectoryExists()
-	{
-		// Work-around bug on Android 5.x and below where saving a file to gallery via MediaStore insert()
-		// will fail if its directory on external storage doesn't exist yet. Create it if needed.
-		// Bug Report: https://issuetracker.google.com/issues/37002888
-		if (Build.VERSION.SDK_INT < 23) {
-			File externalDir = Environment.getExternalStorageDirectory();
-			if (externalDir != null) {
-				File cameraDir = new File(externalDir, "DCIM/Camera");
-				cameraDir.mkdirs();
-			}
-		}
 	}
 
 	@Kroll.setProperty
@@ -1115,6 +1095,15 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
 		galleryIntent.getIntent().setAction(Intent.ACTION_GET_CONTENT);
 
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_MAX_IMAGES)
+			&& options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)
+				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			// set max image count
+			galleryIntent = new TiIntentWrapper(new Intent(MediaStore.ACTION_PICK_IMAGES));
+			galleryIntent.getIntent()
+				.putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, options.getInt(TiC.PROPERTY_MAX_IMAGES));
+		}
+
 		boolean isSelectingPhoto = false;
 		boolean isSelectingVideo = false;
 		if (options.containsKey(TiC.PROPERTY_MEDIA_TYPES)) {
@@ -1160,6 +1149,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (options.containsKey(TiC.PROPERTY_ALLOW_MULTIPLE)) {
 			allowMultiple = TiConvert.toBoolean(options.get(TiC.PROPERTY_ALLOW_MULTIPLE));
 			galleryIntent.getIntent().putExtra(Intent.EXTRA_ALLOW_MULTIPLE, allowMultiple);
+		}
+
+		pathOnly = false;
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_PATH_ONLY)) {
+			pathOnly = options.getBoolean(TiC.PROPERTY_PATH_ONLY);
 		}
 
 		final int code = allowMultiple ? PICK_IMAGE_MULTIPLE : PICK_IMAGE_SINGLE;
@@ -1400,16 +1394,18 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		d.put("width", width);
 		d.put("height", height);
 
-		// Add the image/video's crop dimensiosn to the dictionary.
+		// Add the image/video's crop dimension to the dictionary.
 		KrollDict cropRect = new KrollDict();
 		cropRect.put("x", 0);
 		cropRect.put("y", 0);
 		cropRect.put("width", width);
 		cropRect.put("height", height);
 		d.put("cropRect", cropRect);
-
+		d.put("path", imageData.getNativePath());
 		// Add the blob to the dictionary.
-		d.put("media", imageData);
+		if (!pathOnly) {
+			d.put("media", imageData);
+		}
 		return d;
 	}
 
@@ -1699,39 +1695,29 @@ public class MediaModule extends KrollModule implements Handler.Callback
 				Log.e(TAG, "Camera preview is not open, unable to switch camera.");
 				return;
 			}
+			activity.switchCamera(whichCamera);
 		}
 	}
 
 	@Kroll.getProperty
 	public boolean getIsCameraSupported()
 	{
-		return Camera.getNumberOfCameras() > 0;
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
 	}
 
 	@Kroll.getProperty
 	public int[] getAvailableCameras()
 	{
-		int cameraCount = Camera.getNumberOfCameras();
-		int[] result = new int[cameraCount];
+		int[] result = new int[]{-1, -1};
 
-		if (cameraCount == 0) {
-			return result;
-		}
+		if (TiApplication.getInstance() != null) {
+			PackageManager pm = TiApplication.getInstance().getPackageManager();
+			if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
+				result[0] = CAMERA_FRONT;
+			}
 
-		CameraInfo cameraInfo = new CameraInfo();
-		for (int i = 0; i < cameraCount; i++) {
-			Camera.getCameraInfo(i, cameraInfo);
-			switch (cameraInfo.facing) {
-				case CameraInfo.CAMERA_FACING_FRONT:
-					result[i] = CAMERA_FRONT;
-					break;
-				case CameraInfo.CAMERA_FACING_BACK:
-					result[i] = CAMERA_REAR;
-					break;
-				default:
-					// This would be odd. As of API level 17,
-					// there are just the two options.
-					result[i] = -1;
+			if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+				result[1] = CAMERA_REAR;
 			}
 		}
 
@@ -1741,7 +1727,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.getProperty
 	public boolean getCanRecord()
 	{
-		return TiApplication.getInstance().getPackageManager().hasSystemFeature("android.hardware.microphone");
+		return TiApplication.getInstance().getPackageManager().hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
 	}
 
 	@Override

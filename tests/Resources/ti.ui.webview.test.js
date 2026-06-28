@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -675,7 +675,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it('requestHeaders with redirecting url should work properly', function (finish) {
+	it('requestHeaders with redirecting URL should work properly', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com',
@@ -752,7 +752,7 @@ describe('Titanium.UI.WebView', function () {
 
 				should(e).have.a.property('url').which.is.a.String();
 				should(e.url).startWith('https://www.google.com');
-				// Sometimes we get an url like: https://www.google.com/#spf=1588254369582
+				// Sometimes we get an URL like: https://www.google.com/#spf=1588254369582
 				// should(e.url).be.equalOneOf([ 'https://www.google.com/', 'https://www.google.com' ]);
 			} catch (err) {
 				return finish(err);

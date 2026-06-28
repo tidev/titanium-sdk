@@ -165,7 +165,7 @@ description: |
         - [canEdit](Titanium.UI.ListItem.canEdit) - When this is set to true, it allows the item to be deleted
           from the ListView through a user initiated action. The item can only be deleted when the ListView is
           in editing mode. The ListView can enter 'editing' mode either by explicitly setting the [editing](Titanium.UI.ListView.editing)
-          property to true, or by swiping accross an item whose `canEdit` property is set to true. When the user
+          property to true, or by swiping across an item whose `canEdit` property is set to true. When the user
           deletes the item, a [delete](Titanium.UI.ListView.delete) event is fired.
 
         - [editActions](Titanium.UI.ListItem.editActions) - When [canEdit](Titanium.UI.ListItem.canEdit) is set to true, the default behavior
@@ -193,7 +193,7 @@ description: |
           be deleted or reordered.
 
         - [requiresEditingToMove](Titanium.UI.ListView.requiresEditingToMove) - Determines if the ListView
-          should be able to drag-and-drop without explicitely enabling editing support (like drag bars).
+          should be able to drag-and-drop without explicitly enabling editing support (like drag bars).
 
         - [pruneSectionsOnEdit](Titanium.UI.ListView.pruneSectionsOnEdit) - When this property is set to true and the
           user action results in a section having no other items, the section is deleted from the List View. Please note
@@ -639,7 +639,7 @@ events:
         This event will fire while the list view is scrolling and the user releases the finger.
         On iOS no event is fired when the finger is not released. Use  `direction` to determine the scroll direction,
         `velocity` to determine scroll speed, targetContentOffset to determine where the scrolling will end (in dpi).
-        When `direction` is `down`, `velocity` is negative and viceversa. On Android `velocity` and `targetContentOffset` is 0.
+        When `direction` is `down`, `velocity` is negative and vice versa. On Android `velocity` and `targetContentOffset` is 0.
 
     platforms: [android, iphone, ipad, macos]
     since:
@@ -648,7 +648,7 @@ events:
         ipad: 5.4.0
     properties:
       - name: direction
-        summary: Direction of the scroll either 'up', or 'down'.
+        summary: Direction of the scroll either 'up', 'down' or 'unknown'.
         type: String
 
       - name: velocity
@@ -658,6 +658,30 @@ events:
       - name: targetContentOffset
         summary: |
            The expected y axis offset when the scrolling action decelerates to a stop.
+        type: Number
+      
+      - name: visibleItemCount
+        summary: The number of visible items in the list view when the event fires.
+        type: Number
+
+      - name: firstVisibleItem
+        summary: The first visible item in the list view when the event fires; this item might not be fully visible. May be -1 on iOS.
+        type: [Object, Number]
+
+      - name: firstVisibleSection
+        summary: The first visible section in the list view when the event fires.
+        type: Titanium.UI.ListSection
+
+      - name: firstVisibleItemIndex
+        summary: |
+            The index of the first visible item in the list view when the event fires; this item might not be fully visible.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
+        type: Number
+
+      - name: firstVisibleSectionIndex
+        summary: |
+            The index of the first visible section in the list view when the event fires.
+            Note: The index is `-1` when there are no items in the <Titanium.UI.ListView>.
         type: Number
 
 properties:
@@ -683,6 +707,12 @@ properties:
         iphone: 3.2.0
         ipad: 3.2.0
     platforms: [android, iphone, ipad, macos]
+
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
 
   - name: disableBounce
     summary: Determines whether the scroll-bounce of the list view should be disabled.
@@ -1527,7 +1557,7 @@ examples:
         create a refresh control.
 
         ``` js
-        var win = Ti.UI.createWindow({backgroundColor: 'white'});
+        var win = Ti.UI.createWindow();
         var listView = Ti.UI.createListView({height:'90%', top:0});
         var sections = [];
 
@@ -1687,7 +1717,7 @@ examples:
         `app/views/index.xml`:
         ``` xml
         <Alloy>
-            <Window backgroundColor="white">
+            <Window>
                 <ListView id="listView" defaultItemTemplate="template">
 
                     <!-- The Templates tag sets the ListView's templates property -->
@@ -1821,7 +1851,7 @@ summary: |
 description: |
     Not all properties apply to all methods.
     `animationStyle` does not apply to the `scrollToItem` method.
-    `positon` only applies to the `scrollToItem` method.
+    `position` only applies to the `scrollToItem` method.
     Since Release 3.3.0 of the Titanium SDK, Android supports the `animated` property and is applicable only to `scrollToItem`
 platforms: [iphone, ipad, android, macos]
 since: {android: "10.1.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}

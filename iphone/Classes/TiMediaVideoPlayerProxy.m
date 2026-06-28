@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -83,7 +83,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For durationavailable event
@@ -126,7 +126,7 @@ NSArray *moviePlayerKeys = nil;
 
   // we need this code below since the player can be realized before loading
   // properties in certain cases and when we go to create it again after setting
-  // url we will need to set the new controller to the already created view
+  // URL we will need to set the new controller to the already created view
   if ([self viewAttached]) {
     TiMediaVideoPlayer *vp = (TiMediaVideoPlayer *)[self view];
     [vp setMovie:movie];
@@ -140,7 +140,7 @@ NSArray *moviePlayerKeys = nil;
     if (url == nil) {
       [playerLock unlock];
       // this is OK - we just need to delay creation of the
-      // player until after the url is set
+      // player until after the URL is set
       return nil;
     }
     movie = [[AVPlayerViewController alloc] init];
@@ -174,11 +174,6 @@ NSArray *moviePlayerKeys = nil;
   reallyAttached = YES;
 }
 
-- (void)viewDidAttach
-{
-  [TiApp.controller.topPresentedController addChildViewController:movie];
-}
-
 - (void)viewDidDetach
 {
   [self removeNotificationObserver];
@@ -188,7 +183,6 @@ NSArray *moviePlayerKeys = nil;
   [movie setPlayer:nil];
   RELEASE_TO_NIL(movie);
   reallyAttached = NO;
-  [movie removeFromParentViewController];
 }
 
 - (void)windowWillClose
@@ -232,7 +226,7 @@ NSArray *moviePlayerKeys = nil;
 - (void)setBackgroundView:(id)proxy
 {
   DEPRECATED_REPLACED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"Media.VideoPlayer.overlayView")
-      [self setOverlayView:proxy];
+  [self setOverlayView:proxy];
 }
 
 - (NSNumber *)playing
@@ -372,7 +366,7 @@ NSArray *moviePlayerKeys = nil;
     AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
     [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
     [self removeNotificationObserver]; // Remove old observers
-    [self addNotificationObserver]; // Add new oberservers
+    [self addNotificationObserver]; // Add new observers
   } else {
     [self ensurePlayer];
   }
@@ -747,7 +741,7 @@ NSArray *moviePlayerKeys = nil;
 
   if (url == nil) {
     [self throwException:TiExceptionInvalidType
-               subreason:@"Tried to play movie player without a valid url or media property"
+               subreason:@"Tried to play movie player without a valid URL or media property"
                 location:CODELOCATION];
   }
 

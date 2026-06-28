@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -33,7 +33,7 @@
 @property (nonatomic, assign) int contentHeight;
 
 /**
-    Connectes the collected preview data to the iOS delegates.
+ * Connects the collected preview data to the iOS delegates.
  */
 - (void)connectToDelegate;
 

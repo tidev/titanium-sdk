@@ -198,6 +198,14 @@ events:
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
     platforms: [android, iphone, ipad, macos]
+    properties:
+      - name: x
+        summary: X coordinate from the scrollable touch position.
+        type: Number
+
+      - name: y
+        summary: Y coordinate from the scrollable touch position.
+        type: Number
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
   - name: dragend
@@ -213,6 +221,13 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
             Is always `true` on Android.
         type: Boolean
+      - name: x
+        summary: X coordinate from the scrollable touch position.
+        type: Number
+
+      - name: y
+        summary: Y coordinate from the scrollable touch position.
+        type: Number
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "6.2.0" }
 
 properties:
@@ -258,6 +273,17 @@ properties:
     default: Undefined.
     platforms: [iphone, ipad, macos]
     since: "3.2.3"
+
+  - name: edgeEffect
+    summary: Configures the edge effects displayed when the scroll view hits its bounds.
+    description: |
+        Provide a dictionary with `top`, `right`, `bottom`, and `left` keys set to the
+        `Titanium.UI.iOS.SCROLL_VIEW_EDGE_EFFECT_STYLE_*` constants to control each edge
+        individually. Requires a <Titanium.UI.NavigationWindow> to apply the effect style.
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    osver: { ios: { min: "26.0" } }
+    since: "13.1.0"
 
   - name: disableBounce
     summary: Determines whether scroll bounce of the scrollable region is enabled.
@@ -412,7 +438,6 @@ examples:
 
         ``` js
         var win = Ti.UI.createWindow({
-          backgroundColor: 'white',
           exitOnClose: true,
           fullscreen: false,
           title: 'ScrollView Demo'
@@ -443,9 +468,7 @@ examples:
         Tables with SOFT_INPUT_ADJUST_PAN" section of <Titanium.UI.TableView>.
 
         ``` js
-        var win = Ti.UI.createWindow({
-          backgroundColor:'white'
-        });
+        var win = Ti.UI.createWindow();
 
         if (Ti.UI.Android){
           win.windowSoftInputMode = Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;

@@ -133,7 +133,7 @@ properties:
 
   - name: userInfo
     summary: Custom data object.
-    type: Dictionary
+    type: UserInfoDictionary
 
   - name: category
     summary: Category identifier of the notification.
@@ -161,6 +161,19 @@ properties:
     type: Dictionary
 
 ---
+name: UserInfoDictionary
+summary: |
+    Dictionary object of parameters.
+platforms: [iphone, ipad, macos]
+
+properties:
+  - name: showInForeground
+    summary: Show notification if app is in foreground
+    description: |
+        Boolean if a notification banner is shown if the app is in foreground.
+    type: Number
+
+---
 name: GetUserNotificationSettings
 summary: |
     Dictionary object of parameters used to register the application with local notifications using
@@ -177,7 +190,7 @@ properties:
     constants: Titanium.App.iOS.USER_NOTIFICATION_TYPE_*
 
   - name: categories
-    summary: Set of categories of user notification actions required by the applicaiton to use.
+    summary: Set of categories of user notification actions required by the application to use.
     type: Array<Titanium.App.iOS.UserNotificationCategory>
     description: |
         Only available in iOS < 10. iOS 10 and later returns notification settings more detailed,
@@ -204,7 +217,7 @@ properties:
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
 
   - name: notificationCenterSetting
-    summary: The current notication-center settings.
+    summary: The current notification-center settings.
     type: Number
     constants: [Titanium.App.iOS.USER_NOTIFICATION_SETTING_*]
 

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -121,7 +121,7 @@ public class DateTimeFormatProxy extends KrollProxy
 		String dateStyleStringId = TiConvert.toString(options.get("dateStyle"));
 		String timeStyleStringId = TiConvert.toString(options.get("timeStyle"));
 
-		// Determine if at least 1 "date" componoent has been configured.
+		// Determine if at least 1 "date" component has been configured.
 		boolean hasCustomDateSettings
 			=  (weekdayFormatId != null)
 			|| (eraFormatId != null)
@@ -129,7 +129,7 @@ public class DateTimeFormatProxy extends KrollProxy
 			|| (monthFormatId != null)
 			|| (dayFormatId != null);
 
-		// Determine if at least 1 "time" componoent has been configured.
+		// Determine if at least 1 "time" component has been configured.
 		boolean hasCustomTimeSettings
 			=  (hourFormatId != null)
 			|| (minuteFormatId != null)
@@ -315,7 +315,7 @@ public class DateTimeFormatProxy extends KrollProxy
 				index = endIndex;
 			}
 
-			// Add the substring part enttry to the collection.
+			// Add the substring part entry to the collection.
 			KrollDict entry = new KrollDict();
 			entry.put(TiC.PROPERTY_TYPE, typeName);
 			entry.put(TiC.PROPERTY_VALUE, substring);

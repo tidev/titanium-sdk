@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -45,10 +45,11 @@
 #pragma mark - Titanium Internal Use Only
 - (void)manageRotation;
 - (UIScrollView *)scrollview;
+- (NSArray<UIView *> *)scrollableSubviews;
 - (void)setCurrentPage:(id)page animated:(NSNumber *)animate;
 - (void)addView:(id)viewproxy;
 - (void)removeView:(id)args;
-- (void)refreshScrollView:(CGRect)visibleBounds readd:(BOOL)readd;
+- (void)refreshScrollView:(CGRect)visibleBounds reAdd:(BOOL)reAdd;
 - (void)setIndicatorImage:(UIImage *)image forPage:(NSInteger)page;
 @end
 

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -70,7 +70,7 @@ typedef enum {
 + (BOOL)isIPad;
 + (BOOL)isRetinaDisplay;
 + (BOOL)isRetinaHDDisplay;
-+ (BOOL)isIOS8OrGreater;
++ (BOOL)isIOS8OrGreater __attribute__((deprecated));
 + (CGFloat)floatValue:(id)value;
 + (CGFloat)floatValue:(id)value def:(CGFloat)def;
 + (void)setView:(UIView *)view positionRect:(CGRect)frameRect;

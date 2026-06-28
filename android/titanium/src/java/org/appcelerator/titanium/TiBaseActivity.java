@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -34,8 +34,8 @@ import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiActivityResultHandler;
 import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -45,7 +45,10 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
+import android.Manifest;
 import android.app.Activity;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Context;
@@ -54,6 +57,7 @@ import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
@@ -65,8 +69,11 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -100,6 +107,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
+	public boolean keyboardVisible = false;
+
+	Activity.ScreenCaptureCallback screenCaptureCallback = null;
+
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -127,13 +138,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected int msgId = -1;
 	//Storing the activity's dialogs and their persistence
 	private final CopyOnWriteArrayList<DialogWrapper> dialogs = new CopyOnWriteArrayList<>();
-
 	public TiWindowProxy lwWindow;
 	public boolean isResumed = false;
 
 	public static boolean canFinishRoot = true;
 
-	private boolean overridenLayout;
+	private boolean overriddenLayout;
 
 	public static class DialogWrapper
 	{
@@ -338,6 +348,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		if (window.hasProperty(TiC.PROPERTY_TITLE)) {
 			String oldTitle = (String) getTitle();
 			String newTitle = TiConvert.toString(window.getProperty(TiC.PROPERTY_TITLE));
+			int colorInt = -1;
 
 			if (oldTitle == null) {
 				oldTitle = "";
@@ -347,12 +358,32 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				newTitle = "";
 			}
 
+			if (window.hasProperty(TiC.PROPERTY_TITLE_ATTRIBUTES)) {
+				KrollDict innerAttributes = window.getProperties().getKrollDict(TiC.PROPERTY_TITLE_ATTRIBUTES);
+				colorInt = TiColorHelper.parseColor(
+					TiConvert.toString(innerAttributes.getString(TiC.PROPERTY_COLOR)), this);
+			}
+
 			if (!newTitle.equals(oldTitle)) {
 				final String fnewTitle = newTitle;
+				final int finalColorInt = colorInt;
 				runOnUiThread(new Runnable() {
 					public void run()
 					{
 						setTitle(fnewTitle);
+
+						ActionBar actionBar = getSupportActionBar();
+						if (actionBar != null) {
+							if (finalColorInt != -1) {
+								SpannableStringBuilder ssb;
+								ssb = new SpannableStringBuilder(fnewTitle);
+								ssb.setSpan(new ForegroundColorSpan(finalColorInt),
+									0, ssb.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+								actionBar.setTitle(ssb);
+							} else {
+								actionBar.setTitle(fnewTitle);
+							}
+						}
 					}
 				});
 			}
@@ -606,25 +637,25 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	// Record if user has set a content view manually from hyperloop code during require of app.js!
+	// Record if user has set a content view manually from Hyperloop code during require of app.js!
 	@Override
 	public void setContentView(View view)
 	{
-		overridenLayout = true;
+		overriddenLayout = true;
 		super.setContentView(view);
 	}
 
 	@Override
 	public void setContentView(int layoutResID)
 	{
-		overridenLayout = true;
+		overriddenLayout = true;
 		super.setContentView(layoutResID);
 	}
 
 	@Override
 	public void setContentView(View view, LayoutParams params)
 	{
-		overridenLayout = true;
+		overriddenLayout = true;
 		super.setContentView(view, params);
 	}
 
@@ -632,22 +663,38 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void attachBaseContext(Context newBase)
 	{
 		baseContext = newBase;
-		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
+		super.attachBaseContext(newBase);
 	}
 
 	@Override
 	/**
 	 * When the activity is created, this method adds it to the activity stack and
-	 * fires a javascript 'create' event.
+	 * fires a JavaScript 'create' event.
 	 * @param savedInstanceState Bundle of saved data.
 	 */
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		Log.d(TAG, "Activity " + this + " onCreate", Log.DEBUG_MODE);
-
 		this.inForeground = true;
 		this.launchIntent = getIntent();
-		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this);
+
+		TiApplication tiApp = getTiApp();
+		TiApplication.addToActivityStack(this);
+
+		if (Build.VERSION.SDK_INT >= 34) {
+			screenCaptureCallback = new Activity.ScreenCaptureCallback()
+			{
+				@Override
+				public void onScreenCaptured()
+				{
+					KrollDict kd = new KrollDict();
+					kd.put("source", getWindowProxy());
+					getTiApp().fireAppEvent("screenshotcaptured", kd);
+				}
+			};
+		}
+
+		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this, tiApp);
 
 		// Fetch the current UI mode flags. Used to determine light/dark theme being used.
 		Configuration config = getResources().getConfiguration();
@@ -667,9 +714,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				this.launchIntent.putExtras(oldExtras);
 			}
 		}
-
-		TiApplication tiApp = getTiApp();
-		TiApplication.addToActivityStack(this);
 
 		// Increment the Titanium activity reference count. To be decremented in onDestroy() method.
 		// Titanium's JavaScript runtime is created when we have at least 1 activity and destroyed when we have 0.
@@ -760,20 +804,49 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					windowProxy.fireSafeAreaChangedEvent();
 				}
 			}
+
+			@Override
+			public void onKeyboardChanged(boolean isVisible, int width, int height, Insets keyboardSize)
+			{
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || tiApp == null) return;
+
+				if (isVisible != keyboardVisible && tiApp.hasListener(TiC.EVENT_KEYBOARD_FRAME_CHANGED)) {
+					KrollDict kdX = new KrollDict();
+					kdX.put("left", keyboardSize.left);
+					kdX.put("right", keyboardSize.right);
+
+					KrollDict kdY = new KrollDict();
+					kdX.put("top", keyboardSize.top);
+					kdX.put("bottom", keyboardSize.bottom);
+
+					KrollDict kdFrame = new KrollDict();
+					kdFrame.put("x", kdX);
+					kdFrame.put("y", kdY);
+					kdFrame.put("height", keyboardSize.bottom);
+					kdFrame.put("width", width - keyboardSize.left - keyboardSize.right);
+
+					KrollDict kdAll = new KrollDict();
+					kdAll.put("keyboardFrame", kdFrame);
+					kdAll.put("animationDuration", 0);
+
+					tiApp.fireAppEvent(TiC.EVENT_KEYBOARD_FRAME_CHANGED, kdAll);
+					keyboardVisible = isVisible;
+				}
+			}
 		});
 		this.safeAreaMonitor.start();
 
 		try {
 			windowCreated(savedInstanceState);
 		} catch (Throwable t) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			TiApplication.handleInternalException(t);
 		}
 
 		// set the current activity back to what it was originally
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		// If user changed the layout during app.js load, keep that
-		if (!overridenLayout) {
+		if (!overriddenLayout) {
 			super.setContentView(layout);
 		}
 
@@ -793,7 +866,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			try {
 				window.onWindowActivityCreated();
 			} catch (Throwable t) {
-				Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+				TiApplication.handleInternalException(t);
 			}
 		}
 		if (activityProxy != null) {
@@ -982,8 +1055,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			// Invoke the "onBack" property's callback if assigned.
 			if (this.window.hasProperty(TiC.PROPERTY_ON_BACK) && (this.activityProxy != null)) {
 				Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
-				if (value instanceof KrollFunction) {
-					KrollFunction onBackCallback = (KrollFunction) value;
+				if (value instanceof KrollFunction onBackCallback) {
 					onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 					hasBackEventHandler = true;
 				}
@@ -1212,9 +1284,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		final int NIGHT_MASK = Configuration.UI_MODE_NIGHT_MASK;
 		if ((newConfig.uiMode & NIGHT_MASK) != (this.lastUIModeFlags & NIGHT_MASK)) {
 			this.lastNightMode = AppCompatDelegate.getDefaultNightMode();
-			ActivityCompat.recreate(this);
+			this.updateActivity();
 		}
 		this.lastUIModeFlags = newConfig.uiMode;
+	}
+
+	private void updateActivity()
+	{
+		/**
+		 * Set root activity to null to avoid duplication which causes the window
+		 * to lose all it's content when the activity is recreated.
+		 */
+		getTiApp().setRootActivity(null);
+		this.recreate();
 	}
 
 	@Override
@@ -1229,7 +1311,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		int mode = AppCompatDelegate.getDefaultNightMode();
 		if (this.inForeground && (mode != this.lastNightMode)) {
 			this.lastNightMode = mode;
-			ActivityCompat.recreate(this);
+			this.updateActivity();
 		}
 	}
 
@@ -1285,7 +1367,37 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void removeOnLifecycleEventListener(OnLifecycleEvent listener)
 	{
-		// TODO stub
+		lifecycleListeners.remove(listener);
+	}
+
+	public void removeOnInstanceStateEventListener(OnInstanceStateEvent listener)
+	{
+		instanceStateListeners.remove(listener);
+	}
+
+	public void removeOnWindowFocusChangedEventListener(OnWindowFocusChangedEvent listener)
+	{
+		windowFocusChangedListeners.remove(listener);
+	}
+
+	public void removeInterceptOnBackPressedEventListener(interceptOnBackPressedEvent listener)
+	{
+		interceptOnBackPressedListeners.remove(listener);
+	}
+
+	public void removeOnActivityResultListener(OnActivityResultEvent listener)
+	{
+		onActivityResultListeners.remove(listener);
+	}
+
+	public void removeOnCreateOptionsMenuEventListener(OnCreateOptionsMenuEvent listener)
+	{
+		onCreateOptionsMenuListeners.remove(listener);
+	}
+
+	public void removeOnPrepareOptionsMenuEventListener(OnPrepareOptionsMenuEvent listener)
+	{
+		onPrepareOptionsMenuListeners.remove(listener);
 	}
 
 	private void dispatchCallback(String propertyName, KrollDict data)
@@ -1304,7 +1416,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			data.put(TiC.EVENT_PROPERTY_SOURCE, this.activityProxy);
 			this.activityProxy.callPropertySync(propertyName, new Object[] { data });
 		} catch (Throwable ex) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, ex);
+			TiApplication.handleInternalException(ex);
 		}
 	}
 
@@ -1349,7 +1461,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	@Override
 	/**
-	 * When this activity pauses, this method sets the current activity to null, fires a javascript 'pause' event,
+	 * When this activity pauses, this method sets the current activity to null, fires a JavaScript 'pause' event,
 	 * and if the activity is finishing, remove all dialogs associated with it.
 	 */
 	protected void onPause()
@@ -1392,7 +1504,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	@Override
 	/**
-	 * When the activity resumes, this method updates the current activity to this and fires a javascript
+	 * When the activity resumes, this method updates the current activity to this and fires a JavaScript
 	 * 'resume' event.
 	 */
 	protected void onResume()
@@ -1432,7 +1544,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When this activity starts, this method updates the current activity to this if necessary and
-	 * fire javascript 'start' and 'focus' events. Focus events will only fire if
+	 * fire JavaScript 'start' and 'focus' events. Focus events will only fire if
 	 * the activity is not a tab activity.
 	 */
 	protected void onStart()
@@ -1465,11 +1577,17 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		applyNightMode();
+
+		if (Build.VERSION.SDK_INT >= 34 && TiApplication.getInstance().checkCallingOrSelfPermission(
+			Manifest.permission.DETECT_SCREEN_CAPTURE) == PackageManager.PERMISSION_GRANTED
+			&& screenCaptureCallback != null) {
+			registerScreenCaptureCallback(ContextCompat.getMainExecutor(this), screenCaptureCallback);
+		}
 	}
 
 	@Override
 	/**
-	 * When this activity stops, this method fires the javascript 'blur' and 'stop' events. Blur events will only fire
+	 * When this activity stops, this method fires the JavaScript 'blur' and 'stop' events. Blur events will only fire
 	 * if the activity is not a tab activity.
 	 */
 	protected void onStop()
@@ -1490,6 +1608,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
+		}
+		if (Build.VERSION.SDK_INT >= 34 && screenCaptureCallback != null) {
+			unregisterScreenCaptureCallback(screenCaptureCallback);
 		}
 	}
 
@@ -1512,7 +1633,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When a key, touch, or trackball event is dispatched to the activity, this method fires the
-	 * javascript 'userinteraction' event.
+	 * JavaScript 'userinteraction' event.
 	 */
 	public void onUserInteraction()
 	{
@@ -1524,7 +1645,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When the activity is about to go into the background as a result of user choice, this method fires the
-	 * javascript 'userleavehint' event.
+	 * JavaScript 'userleavehint' event.
 	 */
 	protected void onUserLeaveHint()
 	{
@@ -1540,7 +1661,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs
-	 * clean up, and fires javascript 'destroy' event.
+	 * clean up, and fires JavaScript 'destroy' event.
 	 */
 	protected void onDestroy()
 	{
@@ -1575,7 +1696,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		// "isFinishing" will return true if the Android OS won't restore this destroyed activity later.
 		// This happens when finish() method is called of end-user back navigates out of the activity.
-		// Note: Will breturn false if system intends to restore the activity later, which happens if
+		// Note: Will return false if system intends to restore the activity later, which happens if
 		//       system setting "Don't keep activities" is enabled or "Background process limit" was exceeded.
 		boolean isFinishing = isFinishing();
 
@@ -1636,8 +1757,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	protected void onSaveInstanceState(Bundle outState)
 	{
-		super.onSaveInstanceState(outState);
-
 		// If activity is being temporarily destroyed, then save settings to be restored when activity is recreated.
 		if (!isFinishing()) {
 			if (supportHelper != null) {
@@ -1658,6 +1777,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -1804,7 +1925,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public void setSustainMode(boolean sustainMode)
 	{
-		if (hasSustainMode() && this.sustainMode != sustainMode) {
+		if (hasSustainMode() && this.sustainMode != sustainMode && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			getWindow().setSustainedPerformanceMode(sustainMode);
 			this.sustainMode = sustainMode;
 		} else {

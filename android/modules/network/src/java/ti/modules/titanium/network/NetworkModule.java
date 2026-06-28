@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -211,6 +211,9 @@ public class NetworkModule extends KrollModule
 					break;
 				case ConnectivityManager.TYPE_MOBILE:
 					type = NetworkModule.NETWORK_MOBILE;
+					break;
+				case ConnectivityManager.TYPE_ETHERNET:
+					type = NetworkModule.NETWORK_LAN;
 					break;
 				default:
 					type = NetworkModule.NETWORK_UNKNOWN;
