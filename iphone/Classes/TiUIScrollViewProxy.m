@@ -219,10 +219,30 @@ static NSArray *scrollViewKeySequence;
 - (void)windowWillOpen
 {
   [super windowWillOpen];
+  
   // Since layout children is overridden in scrollview need to make sure that
   // a full layout occurs at least once if view is attached
   if ([self viewAttached]) {
     [self contentsWillChange];
+    
+    // CRITICAL: Re-apply contentInsets and scrollIndicatorInsets here
+    // because they may have been set during initialization when the view
+    // was not yet attached. Safe area insets are now calculated.
+    id savedContentInsets = [self valueForUndefinedKey:@"contentInsets"];
+    if (savedContentInsets != nil && ![savedContentInsets isEqual:[NSNull null]]) {
+      UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+      scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+      UIEdgeInsets insets = [TiUtils contentInsets:savedContentInsets];
+      scrollView.contentInset = insets;
+    }
+    
+    id savedScrollIndicatorInsets = [self valueForUndefinedKey:@"scrollIndicatorInsets"];
+    if (savedScrollIndicatorInsets != nil && ![savedScrollIndicatorInsets isEqual:[NSNull null]]) {
+      UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+      scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
+      UIEdgeInsets insets = [TiUtils contentInsets:savedScrollIndicatorInsets];
+      scrollView.scrollIndicatorInsets = insets;
+    }
   }
 }
 
