@@ -276,7 +276,7 @@ properties:
             bottom: 20,
             right: 10,
             animated: true,           // Enable smooth transition (default: false)
-            duration: 0.3,            // Animation duration in seconds (default: 0.2s)
+            duration: 300,            // Animation duration in milliseconds (default: 300ms)
             safearea: 34              // Additional bottom offset for iOS tab bars (default: 34px)
         };
         ```
@@ -306,7 +306,7 @@ properties:
             bottom: 20,
             right: 10,
             animated: true,           // Enable smooth transition (default: false)
-            duration: 0.3             // Animation duration in seconds (default: 0.2s)
+            duration: 300             // Animation duration in milliseconds (default: 300ms)
         };
         ```
     type: Dictionary
