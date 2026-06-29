@@ -374,6 +374,7 @@ public class TiC
 	public static final String PROPERTY_CONTENT_INSETS = "contentInsets";
 	public static final String PROPERTY_CONTENT_INSET_END_WITH_ACTIONS = "contentInsetEndWithActions";
 	public static final String PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION = "contentInsetStartWithNavigation";
+	public static final String PROPERTY_SCROLL_INDICATOR_INSETS = "scrollIndicatorInsets";
 	public static final String PROPERTY_CLIP_CHILDREN = "clipChildren";
 	public static final String PROPERTY_CLIP_TO_PADDING = "clipToPadding";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";

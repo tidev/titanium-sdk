@@ -23,6 +23,8 @@ import ti.modules.titanium.ui.widget.TiUIScrollView;
 	propertyAccessors = {
 		TiC.PROPERTY_CONTENT_HEIGHT,
 		TiC.PROPERTY_CONTENT_WIDTH,
+		TiC.PROPERTY_CONTENT_INSETS,
+		TiC.PROPERTY_SCROLL_INDICATOR_INSETS,
 		TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
 		TiC.PROPERTY_SCROLL_TYPE,
@@ -77,6 +79,30 @@ public class ScrollViewProxy extends TiViewProxy
 	public void setScrollingEnabled(Object enabled)
 	{
 		getScrollView().setScrollingEnabled(enabled);
+	}
+
+	@Kroll.getProperty
+	public HashMap getContentInsets()
+	{
+		return getScrollView().getContentInsets();
+	}
+
+	@Kroll.setProperty
+	public void setContentInsets(Object value)
+	{
+		getScrollView().setContentInsets(value);
+	}
+
+	@Kroll.getProperty
+	public HashMap getScrollIndicatorInsets()
+	{
+		return getScrollView().getScrollIndicatorInsets();
+	}
+
+	@Kroll.setProperty
+	public void setScrollIndicatorInsets(Object value)
+	{
+		getScrollView().setScrollIndicatorInsets(value);
 	}
 
 	@Kroll.method

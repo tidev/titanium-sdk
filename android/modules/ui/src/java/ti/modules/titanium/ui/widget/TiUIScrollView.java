@@ -77,6 +77,16 @@ public class TiUIScrollView extends TiUIView
 	// Default false matches iOS UIScrollView behavior: content can extend into inset area
 	private boolean cachedClipToPadding = false;
 
+	// Cached scrollIndicatorInset values
+	private TiDimension cachedScrollIndicatorTopDim = INSET_ZERO;
+	private TiDimension cachedScrollIndicatorBottomDim = INSET_ZERO;
+	private TiDimension cachedScrollIndicatorLeftDim = INSET_ZERO;
+	private TiDimension cachedScrollIndicatorRightDim = INSET_ZERO;
+
+	// Custom scrollbar views (positioned via insets)
+	private View customVerticalScrollBar;
+	private View customHorizontalScrollBar;
+
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
 	private int type;
@@ -962,6 +972,167 @@ public class TiUIScrollView extends TiUIView
 		}
 	}
 
+	/**
+	 * Sets scroll indicator insets with custom scrollbar views.
+	 *
+	 * @param value Dictionary with top/left/bottom/right keys
+	 */
+	private void setScrollIndicatorInsets(Object value)
+	{
+		if (scrollView == null) {
+			return;
+		}
+
+		int top = 0, left = 0, right = 0, bottom = 0;
+
+		if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+			if (dict.containsKey("top")) {
+				top = TiConvert.toInt(dict.get("top"), 0);
+			}
+			if (dict.containsKey("left")) {
+				left = TiConvert.toInt(dict.get("left"), 0);
+			}
+			if (dict.containsKey("right")) {
+				right = TiConvert.toInt(dict.get("right"), 0);
+			}
+			if (dict.containsKey("bottom")) {
+				bottom = TiConvert.toInt(dict.get("bottom"), 0);
+			}
+		}
+
+		cachedScrollIndicatorTopDim = new TiDimension(top, TiDimension.TYPE_TOP);
+		cachedScrollIndicatorBottomDim = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
+		cachedScrollIndicatorLeftDim = new TiDimension(left, TiDimension.TYPE_LEFT);
+		cachedScrollIndicatorRightDim = new TiDimension(right, TiDimension.TYPE_RIGHT);
+
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Gets scroll indicator insets.
+	 *
+	 * @return HashMap with top/left/bottom/right values
+	 */
+	public HashMap getScrollIndicatorInsets()
+	{
+		HashMap insets = new HashMap();
+		insets.put("top", cachedScrollIndicatorTopDim.getIntValue());
+		insets.put("left", cachedScrollIndicatorLeftDim.getIntValue());
+		insets.put("right", cachedScrollIndicatorRightDim.getIntValue());
+		insets.put("bottom", cachedScrollIndicatorBottomDim.getIntValue());
+		return insets;
+	}
+
+	/**
+	 * Updates custom scrollbar views based on scrollIndicatorInsets.
+	 * Hides native scrollbars and positions custom views instead.
+	 */
+	private void updateCustomScrollBars()
+	{
+		if (scrollView == null) {
+			return;
+		}
+
+		// Hide native scrollbars
+		scrollView.setHorizontalScrollBarEnabled(false);
+		scrollView.setVerticalScrollBarEnabled(false);
+
+		// Remove existing custom scrollbars
+		if (customVerticalScrollBar != null && customVerticalScrollBar.getParent() != null) {
+			((ViewGroup) customVerticalScrollBar.getParent()).removeView(customVerticalScrollBar);
+		}
+		if (customHorizontalScrollBar != null && customHorizontalScrollBar.getParent() != null) {
+			((ViewGroup) customHorizontalScrollBar.getParent()).removeView(customHorizontalScrollBar);
+		}
+
+		// Only create custom scrollbars if there are actual insets to position them
+		int totalRightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int totalBottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+
+		if (totalRightInset > 0) {
+			createVerticalScrollBar();
+		}
+		if (totalBottomInset > 0) {
+			createHorizontalScrollBar();
+		}
+	}
+
+	/**
+	 * Creates a custom vertical scrollbar view.
+	 */
+	private void createVerticalScrollBar()
+	{
+		if (scrollView == null || scrollView.getContext() == null) {
+			return;
+		}
+
+		customVerticalScrollBar = new View(scrollView.getContext());
+		customVerticalScrollBar.setBackgroundColor(0x80000000); // semi-transparent black
+
+		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.MATCH_PARENT,
+			ViewGroup.LayoutParams.MATCH_PARENT
+		);
+		params.gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+		params.rightMargin = rightInset;
+		params.bottomMargin = bottomInset;
+
+		if (scrollView.getParent() instanceof FrameLayout) {
+			((FrameLayout) scrollView.getParent()).addView(customVerticalScrollBar, params);
+		} else if (scrollView.getParent() instanceof ViewGroup) {
+			((ViewGroup) scrollView.getParent()).addView(customVerticalScrollBar, params);
+		}
+	}
+
+	/**
+	 * Creates a custom horizontal scrollbar view.
+	 */
+	private void createHorizontalScrollBar()
+	{
+		if (scrollView == null || scrollView.getContext() == null) {
+			return;
+		}
+
+		customHorizontalScrollBar = new View(scrollView.getContext());
+		customHorizontalScrollBar.setBackgroundColor(0x80000000);
+
+		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.MATCH_PARENT,
+			ViewGroup.LayoutParams.MATCH_PARENT
+		);
+		params.gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+		params.rightMargin = rightInset;
+		params.bottomMargin = bottomInset;
+
+		if (scrollView.getParent() instanceof FrameLayout) {
+			((FrameLayout) scrollView.getParent()).addView(customHorizontalScrollBar, params);
+		} else if (scrollView.getParent() instanceof ViewGroup) {
+			((ViewGroup) scrollView.getParent()).addView(customHorizontalScrollBar, params);
+		}
+	}
+
+	/**
+	 * Gets content insets as dictionary.
+	 *
+	 * @return HashMap with top/left/bottom/right values
+	 */
+	public HashMap getContentInsets()
+	{
+		HashMap insets = new HashMap();
+		insets.put("top", cachedInsetTopDim.getIntValue());
+		insets.put("left", cachedInsetLeftDim.getIntValue());
+		insets.put("right", cachedInsetRightDim.getIntValue());
+		insets.put("bottom", cachedInsetBottomDim.getIntValue());
+		return insets;
+	}
+
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
@@ -1013,6 +1184,8 @@ public class TiUIScrollView extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_CONTENT_INSETS)) {
 			setContentInset(newValue);
+		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_INSETS)) {
+			setScrollIndicatorInsets(newValue);
 		} else if (key.equals(TiC.PROPERTY_CLIP_TO_PADDING)) {
 			if (this.scrollView != null) {
 				boolean newClipToPadding = TiConvert.toBoolean(newValue, cachedClipToPadding);
@@ -1219,6 +1392,11 @@ public class TiUIScrollView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_CONTENT_INSETS)) {
 			Object insetValue = d.get(TiC.PROPERTY_CONTENT_INSETS);
 			setContentInset(insetValue);
+		}
+
+		// Process scrollIndicatorInsets from initial properties dictionary (no-op on Android)
+		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_INSETS)) {
+			setScrollIndicatorInsets(d.get(TiC.PROPERTY_SCROLL_INDICATOR_INSETS));
 		}
 
 		super.processProperties(d);
