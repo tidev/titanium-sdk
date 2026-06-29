@@ -296,7 +296,14 @@ export async function cacheExtract(inFile, integrity, outDir, extractFunc) {
 * @returns {Promise<void>}
 */
 export function unzip(zipfile, dest) {
-	return util.promisify(appc.zip.unzip)(zipfile, dest, null);
+	return fs.ensureDir(dest).then(async () => {
+		if (os.platform() !== 'win32') {
+			await exec('unzip -q -o "' + zipfile + '" -d "' + dest + '"');
+			return;
+		}
+
+		await util.promisify(appc.zip.unzip)(zipfile, dest, null);
+	});
 }
 
 /**
