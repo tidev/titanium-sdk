@@ -291,8 +291,9 @@ properties:
         On iOS, this property disables automatic scroll indicator inset adjustment
         (`automaticallyAdjustsScrollIndicatorInsets = NO`) to allow manual control.
         
-        The scroll indicator insets must be less than or equal to the `contentInsets` on each side,
-        otherwise iOS may ignore them and use default values.
+        The `scrollIndicatorInsets` can be set independently from `contentInsets` — they do NOT
+        need to be smaller. This allows scroll indicators to extend beyond the content area
+        (e.g., for visual alignment with other UI elements).
         
         Can also be set with options for animated transitions:
         ```javascript
