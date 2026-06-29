@@ -80,46 +80,86 @@ static NSArray *scrollViewKeySequence;
     // Disable automatic content inset adjustment to allow manual values
     scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     
-    UIEdgeInsets insets = [TiUtils contentInsets:value];
+    // Extract insets and options from the same dictionary
+    NSDictionary *insetsDict = value;
+    if ([value isKindOfClass:[NSDictionary class]]) {
+      // Check if this is an options dictionary (has animated/duration/safearea keys)
+      BOOL hasOptions = [value objectForKey:@"animated"] != nil || 
+                        [value objectForKey:@"duration"] != nil ||
+                        [value objectForKey:@"safearea"] != nil;
+      
+      if (hasOptions) {
+        // Extract insets from the same dictionary
+        insetsDict = @{
+          @"top": value[@"top"],
+          @"left": value[@"left"],
+          @"bottom": value[@"bottom"],
+          @"right": value[@"right"]
+        };
+      }
+    }
+    
+    UIEdgeInsets insets = [TiUtils contentInsets:insetsDict];
     scrollView.contentInset = insets;
-        scrollView.contentInset.top,
-        scrollView.contentInset.left,
-        scrollView.contentInset.bottom,
-        scrollView.contentInset.right);
   } else {
   }
 }
 
 - (void)setContentInsets:(id)value options:(id)options
 {
-  ENSURE_UI_THREAD(setContentInsets, value);
-  [self replaceValue:value forKey:@"contentInsets" notification:NO];
-  if ([self viewAttached]) {
-    UIEdgeInsets insets = [TiUtils contentInsets:value];
-    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+  // This method is no longer needed - options are now part of the value dictionary
+  // Kept for backward compatibility but should not be called
+  [self setContentInsets:value];
+}
 
+- (void)setScrollIndicatorInsets:(id)value
+{
+  ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
+  [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
+  if ([self viewAttached]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    
+    // Disable automatic scroll indicator inset adjustment
+    scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
+    
+    // Extract insets and options from the same dictionary
+    NSDictionary *insetsDict = value;
     BOOL animated = NO;
     CGFloat duration = 0.2; // default 200ms
-    CGFloat safeAreaOffset = 34.0; // default iOS tab bar height
-
-    if ([options isKindOfClass:[NSDictionary class]]) {
-      id animVal = [options objectForKey:@"animated"];
+    
+    if ([value isKindOfClass:[NSDictionary class]]) {
+      // Check for animation options
+      id animVal = [value objectForKey:@"animated"];
       if (animVal != nil && ![animVal isEqual:[NSNull null]]) {
         animated = [TiUtils boolValue:animVal def:NO];
       }
-      id durVal = [options objectForKey:@"duration"];
+      id durVal = [value objectForKey:@"duration"];
       if (durVal != nil && ![durVal isEqual:[NSNull null]]) {
         duration = [TiUtils doubleValue:durVal def:0.2];
       }
-      id safeVal = [options objectForKey:@"safearea"];
-      if (safeVal != nil && ![safeVal isEqual:[NSNull null]]) {
-        safeAreaOffset = [TiUtils doubleValue:safeVal def:34.0];
-      }
+      
+      // Extract insets from the same dictionary
+      insetsDict = @{
+        @"top": value[@"top"],
+        @"left": value[@"left"],
+        @"bottom": value[@"bottom"],
+        @"right": value[@"right"]
+      };
     }
-
+    
+    UIEdgeInsets insets = [TiUtils contentInsets:insetsDict];
+    
     void (^updateInsets)(void) = ^{
-      scrollView.contentInset = insets;
       scrollView.scrollIndicatorInsets = insets;
+    };
+    
+    if (animated && duration > 0) {
+      [UIView animateWithDuration:duration animations:updateInsets];
+    } else {
+      updateInsets();
+    }
+  }
+}
 
       // Auto-scroll to bottom if content exceeds bounds
       CGSize contentSize = scrollView.contentSize;
@@ -177,40 +217,6 @@ static NSArray *scrollViewKeySequence;
   }
 }
 
-- (void)setScrollIndicatorInsets:(id)value options:(id)options
-{
-  ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
-  [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
-  if ([self viewAttached]) {
-    UIEdgeInsets insets = [TiUtils contentInsets:value];
-    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
-
-    BOOL animated = NO;
-    CGFloat duration = 0.2; // default 200ms
-
-    if ([options isKindOfClass:[NSDictionary class]]) {
-      id animVal = [options objectForKey:@"animated"];
-      if (animVal != nil && ![animVal isEqual:[NSNull null]]) {
-        animated = [TiUtils boolValue:animVal def:NO];
-      }
-      id durVal = [options objectForKey:@"duration"];
-      if (durVal != nil && ![durVal isEqual:[NSNull null]]) {
-        duration = [TiUtils doubleValue:durVal def:0.2];
-      }
-    }
-
-    void (^updateInsets)(void) = ^{
-      scrollView.scrollIndicatorInsets = insets;
-    };
-
-    if (animated && duration > 0) {
-      [UIView animateWithDuration:duration animations:updateInsets];
-    } else {
-      updateInsets();
-    }
-  }
-}
-
 - (void)windowWillOpen
 {
   [super windowWillOpen];
@@ -220,7 +226,6 @@ static NSArray *scrollViewKeySequence;
   if ([self viewAttached]) {
     [self contentsWillChange];
     
-    
     // CRITICAL: Re-apply contentInsets and scrollIndicatorInsets here
     // because they may have been set during initialization when the view
     // was not yet attached. Safe area insets are now calculated.
@@ -228,7 +233,15 @@ static NSArray *scrollViewKeySequence;
     if (savedContentInsets != nil && ![savedContentInsets isEqual:[NSNull null]]) {
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
       scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-      UIEdgeInsets insets = [TiUtils contentInsets:savedContentInsets];
+      
+      // Extract only the inset values (ignore animation options)
+      NSDictionary *insetsDict = @{
+        @"top": savedContentInsets[@"top"],
+        @"left": savedContentInsets[@"left"],
+        @"bottom": savedContentInsets[@"bottom"],
+        @"right": savedContentInsets[@"right"]
+      };
+      UIEdgeInsets insets = [TiUtils contentInsets:insetsDict];
       scrollView.contentInset = insets;
     }
     
@@ -236,7 +249,15 @@ static NSArray *scrollViewKeySequence;
     if (savedScrollIndicatorInsets != nil && ![savedScrollIndicatorInsets isEqual:[NSNull null]]) {
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
       scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
-      UIEdgeInsets insets = [TiUtils contentInsets:savedScrollIndicatorInsets];
+      
+      // Extract only the inset values (ignore animation options)
+      NSDictionary *insetsDict = @{
+        @"top": savedScrollIndicatorInsets[@"top"],
+        @"left": savedScrollIndicatorInsets[@"left"],
+        @"bottom": savedScrollIndicatorInsets[@"bottom"],
+        @"right": savedScrollIndicatorInsets[@"right"]
+      };
+      UIEdgeInsets insets = [TiUtils contentInsets:insetsDict];
       scrollView.scrollIndicatorInsets = insets;
     }
   } else {

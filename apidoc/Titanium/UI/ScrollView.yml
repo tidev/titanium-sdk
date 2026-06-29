@@ -268,13 +268,16 @@ properties:
         On iOS, this property disables automatic content inset adjustment (`contentInsetAdjustmentBehavior = Never`)
         to allow manual control over the inset values.
         
-        Can also be set with options for animated transitions:
+        Can also include animation options directly in the dictionary:
         ```javascript
         scrollView.contentInsets = {
-            insets: { top: 20, left: 10, bottom: 20, right: 10 },
-            animated: true,
-            duration: 0.3,      // seconds (default: 0.2s)
-            safearea: 34        // additional bottom offset for iOS tab bars (default: 34px)
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 0.3,            // Animation duration in seconds (default: 0.2s)
+            safearea: 34              // Additional bottom offset for iOS tab bars (default: 34px)
         };
         ```
     type: Dictionary
@@ -295,12 +298,15 @@ properties:
         need to be smaller. This allows scroll indicators to extend beyond the content area
         (e.g., for visual alignment with other UI elements).
         
-        Can also be set with options for animated transitions:
+        Can also include animation options directly in the dictionary:
         ```javascript
         scrollView.scrollIndicatorInsets = {
-            insets: { top: 20, left: 10, bottom: 20, right: 10 },
-            animated: true,
-            duration: 0.3  // seconds (default: 0.2s)
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 0.3             // Animation duration in seconds (default: 0.2s)
         };
         ```
     type: Dictionary
