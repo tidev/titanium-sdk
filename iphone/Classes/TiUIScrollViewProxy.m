@@ -73,10 +73,19 @@ static NSArray *scrollViewKeySequence;
 - (void)setContentInsets:(id)value
 {
   ENSURE_UI_THREAD(setContentInsets, value);
+  TiAPIInfo(@"[TiUIScrollViewProxy] setContentInsets called with value: %@", value);
   [self replaceValue:value forKey:@"contentInsets" notification:NO];
   if ([self viewAttached]) {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
+    TiAPIInfo(@"[TiUIScrollViewProxy] Setting contentInset to top:%f left:%f bottom:%f right:%f", insets.top, insets.left, insets.bottom, insets.right);
     [(TiUIScrollView *)[self view] scrollView].contentInset = insets;
+    TiAPIInfo(@"[TiUIScrollViewProxy] After set: contentInset is now top:%f left:%f bottom:%f right:%f",
+        [(TiUIScrollView *)[self view] scrollView].contentInset.top,
+        [(TiUIScrollView *)[self view] scrollView].contentInset.left,
+        [(TiUIScrollView *)[self view] scrollView].contentInset.bottom,
+        [(TiUIScrollView *)[self view] scrollView].contentInset.right);
+  } else {
+    TiAPIInfo(@"[TiUIScrollViewProxy] View not attached, skipping native set");
   }
 }
 
