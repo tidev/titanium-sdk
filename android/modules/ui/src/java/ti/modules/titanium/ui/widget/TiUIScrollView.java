@@ -977,7 +977,7 @@ public class TiUIScrollView extends TiUIView
 	 *
 	 * @param value Dictionary with top/left/bottom/right keys
 	 */
-	private void setScrollIndicatorInsets(Object value)
+	public void setScrollIndicatorInsets(Object value)
 	{
 		if (scrollView == null) {
 			return;

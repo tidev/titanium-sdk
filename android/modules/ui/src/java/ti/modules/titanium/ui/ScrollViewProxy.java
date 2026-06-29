@@ -88,7 +88,7 @@ public class ScrollViewProxy extends TiViewProxy
 	@Kroll.setProperty
 	public void setContentInsets(Object value)
 	{
-		getScrollView().setContentInsets(value);
+		getScrollView().setContentInset(value);
 	}
 
 	@Kroll.getProperty
