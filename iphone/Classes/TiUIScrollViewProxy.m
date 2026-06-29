@@ -162,6 +162,7 @@ static NSArray *scrollViewKeySequence;
 - (void)setScrollIndicatorInsets:(id)value
 {
   ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
+  NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorInsets called with value: %@", value);
   [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
   if ([self viewAttached]) {
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
@@ -179,6 +180,8 @@ static NSArray *scrollViewKeySequence;
           scrollView.scrollIndicatorInsets.left,
           scrollView.scrollIndicatorInsets.bottom,
           scrollView.scrollIndicatorInsets.right);
+  } else {
+    NSLog(@"[TiUIScrollViewProxy] scrollIndicatorInsets: View not attached, value stored for later");
   }
 }
 
