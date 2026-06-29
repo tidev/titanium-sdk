@@ -1,4 +1,0 @@
-{"version":1}
-{"index":"1","parentIndex":"root","title":"Referenz aus TableViewExtension verstehen","description":"Schauen, wie contentInset und scrollIndicatorInset im TableViewExtension-Modul implementiert sind, um das gleiche Muster zu übernehmen","completed":false,"deleted":false}
-{"index":"2","parentIndex":"root","title":"scrollView.js contentInset hinzufügen","description":"In /Users/marcbender/Ti/modules/iphone/scrollView/1.0/code/iphone/scrollView.js die Property-Inits für contentInset und scrollIndicatorInset hinzufügen und an den nativeView weitergeben","completed":false,"deleted":false}
-{"index":"3","parentIndex":"root","title":"iOS native View anpassen","description":"Den Objective-C ScrollView nativeView so erweitern, dass die Inset-Werte an UISCrollView weitergereicht werden","completed":false,"deleted":false}
