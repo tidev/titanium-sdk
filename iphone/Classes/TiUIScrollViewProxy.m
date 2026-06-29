@@ -73,7 +73,7 @@ static NSArray *scrollViewKeySequence;
 - (void)setContentInsets:(id)value
 {
   ENSURE_UI_THREAD(setContentInsets, value);
-  [self setValue:value forKey:@"contentInsets"];
+  [self replaceValue:value forKey:@"contentInsets" notification:NO];
   if ([self viewAttached]) {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
     [(TiUIScrollView *)[self view] scrollView].contentInset = insets;
@@ -83,7 +83,7 @@ static NSArray *scrollViewKeySequence;
 - (void)setContentInsets:(id)value options:(id)options
 {
   ENSURE_UI_THREAD(setContentInsets, value);
-  [self setValue:value forKey:@"contentInsets"];
+  [self replaceValue:value forKey:@"contentInsets" notification:NO];
   if ([self viewAttached]) {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
@@ -148,7 +148,7 @@ static NSArray *scrollViewKeySequence;
 - (void)setScrollIndicatorInsets:(id)value
 {
   ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
-  [self setValue:value forKey:@"scrollIndicatorInsets"];
+  [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
   if ([self viewAttached]) {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
     [(TiUIScrollView *)[self view] scrollView].scrollIndicatorInsets = insets;
@@ -158,7 +158,7 @@ static NSArray *scrollViewKeySequence;
 - (void)setScrollIndicatorInsets:(id)value options:(id)options
 {
   ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
-  [self setValue:value forKey:@"scrollIndicatorInsets"];
+  [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
   if ([self viewAttached]) {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
