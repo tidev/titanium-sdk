@@ -84,8 +84,172 @@ public class TiUIScrollView extends TiUIView
 	private TiDimension cachedScrollIndicatorRightDim = INSET_ZERO;
 
 	// Custom scrollbar views (positioned via insets)
-	private View customVerticalScrollBar;
-	private View customHorizontalScrollBar;
+	private CustomVerticalScrollBar customVerticalScrollBar;
+	private CustomHorizontalScrollBar customHorizontalScrollBar;
+
+	// ponytail: custom scrollbar with thumb and track, positioned via insets
+	public class CustomVerticalScrollBar extends ViewGroup
+	{
+		private View track;
+		private View thumb;
+		private int lastScrollY = 0;
+
+		public CustomVerticalScrollBar(Context context)
+		{
+			super(context);
+			init();
+		}
+
+		private void init()
+		{
+			setClickable(true);
+
+			// Track (background)
+			track = new View(getContext());
+			track.setBackgroundColor(0x33000000); // semi-transparent
+			addView(track, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+			// Thumb (scrollable part)
+			thumb = new View(getContext());
+			thumb.setBackgroundColor(0x80000000); // more opaque
+			addView(thumb, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			int width = MeasureSpec.getSize(widthMeasureSpec);
+			int height = MeasureSpec.getSize(heightMeasureSpec);
+
+			setMeasuredDimension(width, height);
+
+			// Measure track to fill parent
+			track.measure(
+				MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+			);
+
+			// Measure thumb - width fills, height calculated based on scroll ratio
+			int contentHeight = scrollView.getScrollRange() + height;
+			int thumbHeight = Math.max(40, height * height / contentHeight); // min 40px
+			thumb.measure(
+				MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(thumbHeight, MeasureSpec.EXACTLY)
+			);
+		}
+
+		@Override
+		protected void onLayout(boolean changed, int l, int t, int r, int b)
+		{
+			track.layout(l, t, r, b);
+
+			// Calculate thumb position based on scroll offset
+			int scrollRange = scrollView.getScrollRange();
+			int thumbHeight = thumb.getMeasuredHeight();
+			int trackHeight = b - t;
+
+			int thumbTop;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollView.getScrollY() / scrollRange;
+				thumbTop = (int) (ratio * (trackHeight - thumbHeight));
+			} else {
+				thumbTop = 0;
+			}
+
+			thumb.layout(l, t + thumbTop, r, t + thumbTop + thumbHeight);
+		}
+
+		public void updateScrollPosition(int scrollY, int scrollRange, int viewportHeight)
+		{
+			if (scrollRange <= 0) {
+				thumb.setVisibility(View.GONE);
+			} else {
+				thumb.setVisibility(View.VISIBLE);
+				requestLayout();
+			}
+		}
+	}
+
+	public class CustomHorizontalScrollBar extends ViewGroup
+	{
+		private View track;
+		private View thumb;
+
+		public CustomHorizontalScrollBar(Context context)
+		{
+			super(context);
+			init();
+		}
+
+		private void init()
+		{
+			setClickable(true);
+
+			// Track (background)
+			track = new View(getContext());
+			track.setBackgroundColor(0x33000000);
+			addView(track, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
+			// Thumb (scrollable part)
+			thumb = new View(getContext());
+			thumb.setBackgroundColor(0x80000000);
+			addView(thumb, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			int width = MeasureSpec.getSize(widthMeasureSpec);
+			int height = MeasureSpec.getSize(heightMeasureSpec);
+
+			setMeasuredDimension(width, height);
+
+			// Measure track to fill parent
+			track.measure(
+				MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+			);
+
+			// Measure thumb - height fills, width calculated based on scroll ratio
+			int contentWidth = scrollView.getScrollRange() + width;
+			int thumbWidth = Math.max(40, width * width / contentWidth); // min 40px
+			thumb.measure(
+				MeasureSpec.makeMeasureSpec(thumbWidth, MeasureSpec.EXACTLY),
+				MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+			);
+		}
+
+		@Override
+		protected void onLayout(boolean changed, int l, int t, int r, int b)
+		{
+			track.layout(l, t, r, b);
+
+			// Calculate thumb position based on scroll offset
+			int scrollRange = scrollView.getScrollRange();
+			int thumbWidth = thumb.getMeasuredWidth();
+			int trackWidth = r - l;
+
+			int thumbLeft;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollView.getScrollX() / scrollRange;
+				thumbLeft = (int) (ratio * (trackWidth - thumbWidth));
+			} else {
+				thumbLeft = 0;
+			}
+
+			thumb.layout(l + thumbLeft, t, l + thumbLeft + thumbWidth, b);
+		}
+
+		public void updateScrollPosition(int scrollX, int scrollRange, int viewportWidth)
+		{
+			if (scrollRange <= 0) {
+				thumb.setVisibility(View.GONE);
+			} else {
+				thumb.setVisibility(View.VISIBLE);
+				requestLayout();
+			}
+		}
+	}
 
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
@@ -577,6 +741,10 @@ public class TiUIScrollView extends TiUIView
 			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
+			// Update custom vertical scrollbar position
+			if (customVerticalScrollBar != null) {
+				customVerticalScrollBar.updateScrollPosition(t, getScrollRange(), getMeasuredHeight());
+			}
 
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
@@ -1067,8 +1235,7 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		customVerticalScrollBar = new View(scrollView.getContext());
-		customVerticalScrollBar.setBackgroundColor(0x80000000); // semi-transparent black
+		customVerticalScrollBar = new CustomVerticalScrollBar(scrollView.getContext());
 
 		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
 		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
@@ -1097,8 +1264,7 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		customHorizontalScrollBar = new View(scrollView.getContext());
-		customHorizontalScrollBar.setBackgroundColor(0x80000000);
+		customHorizontalScrollBar = new CustomHorizontalScrollBar(scrollView.getContext());
 
 		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
 		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
