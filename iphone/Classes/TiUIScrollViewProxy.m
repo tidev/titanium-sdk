@@ -73,7 +73,6 @@ static NSArray *scrollViewKeySequence;
 - (void)setContentInsets:(id)value
 {
   ENSURE_UI_THREAD(setContentInsets, value);
-  NSLog(@"[TiUIScrollViewProxy] setContentInsets called with value: %@", value);
   [self replaceValue:value forKey:@"contentInsets" notification:NO];
   if ([self viewAttached]) {
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
@@ -82,15 +81,12 @@ static NSArray *scrollViewKeySequence;
     scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     
     UIEdgeInsets insets = [TiUtils contentInsets:value];
-    NSLog(@"[TiUIScrollViewProxy] Setting contentInset to top:%f left:%f bottom:%f right:%f", insets.top, insets.left, insets.bottom, insets.right);
     scrollView.contentInset = insets;
-    NSLog(@"[TiUIScrollViewProxy] After set: contentInset is now top:%f left:%f bottom:%f right:%f",
         scrollView.contentInset.top,
         scrollView.contentInset.left,
         scrollView.contentInset.bottom,
         scrollView.contentInset.right);
   } else {
-    NSLog(@"[TiUIScrollViewProxy] View not attached, skipping native set");
   }
 }
 
@@ -162,7 +158,6 @@ static NSArray *scrollViewKeySequence;
 - (void)setScrollIndicatorInsets:(id)value
 {
   ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
-  NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorInsets called with value: %@", value);
   [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
   if ([self viewAttached]) {
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
@@ -173,15 +168,12 @@ static NSArray *scrollViewKeySequence;
     scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
     
     UIEdgeInsets insets = [TiUtils contentInsets:value];
-    NSLog(@"[TiUIScrollViewProxy] Setting scrollIndicatorInsets to top:%f left:%f bottom:%f right:%f", insets.top, insets.left, insets.bottom, insets.right);
     scrollView.scrollIndicatorInsets = insets;
-    NSLog(@"[TiUIScrollViewProxy] After set: scrollIndicatorInsets is now top:%f left:%f bottom:%f right:%f",
           scrollView.scrollIndicatorInsets.top,
           scrollView.scrollIndicatorInsets.left,
           scrollView.scrollIndicatorInsets.bottom,
           scrollView.scrollIndicatorInsets.right);
   } else {
-    NSLog(@"[TiUIScrollViewProxy] scrollIndicatorInsets: View not attached, value stored for later");
   }
 }
 
@@ -228,32 +220,26 @@ static NSArray *scrollViewKeySequence;
   if ([self viewAttached]) {
     [self contentsWillChange];
     
-    NSLog(@"[TiUIScrollViewProxy] windowWillOpen — re-applying insets if needed");
     
     // CRITICAL: Re-apply contentInsets and scrollIndicatorInsets here
     // because they may have been set during initialization when the view
     // was not yet attached. Safe area insets are now calculated.
     id savedContentInsets = [self valueForUndefinedKey:@"contentInsets"];
-    NSLog(@"[TiUIScrollViewProxy] Saved contentInsets: %@", savedContentInsets);
     if (savedContentInsets != nil && ![savedContentInsets isEqual:[NSNull null]]) {
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
       scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
       UIEdgeInsets insets = [TiUtils contentInsets:savedContentInsets];
-      NSLog(@"[TiUIScrollViewProxy] Re-applying contentInset: top:%f left:%f bottom:%f right:%f", insets.top, insets.left, insets.bottom, insets.right);
       scrollView.contentInset = insets;
     }
     
     id savedScrollIndicatorInsets = [self valueForUndefinedKey:@"scrollIndicatorInsets"];
-    NSLog(@"[TiUIScrollViewProxy] Saved scrollIndicatorInsets: %@", savedScrollIndicatorInsets);
     if (savedScrollIndicatorInsets != nil && ![savedScrollIndicatorInsets isEqual:[NSNull null]]) {
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
       scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
       UIEdgeInsets insets = [TiUtils contentInsets:savedScrollIndicatorInsets];
-      NSLog(@"[TiUIScrollViewProxy] Re-applying scrollIndicatorInsets: top:%f left:%f bottom:%f right:%f", insets.top, insets.left, insets.bottom, insets.right);
       scrollView.scrollIndicatorInsets = insets;
     }
   } else {
-    NSLog(@"[TiUIScrollViewProxy] windowWillOpen but view not attached!");
   }
 }
 
