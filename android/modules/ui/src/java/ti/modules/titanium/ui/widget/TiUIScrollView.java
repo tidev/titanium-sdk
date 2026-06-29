@@ -896,7 +896,7 @@ public class TiUIScrollView extends TiUIView
 	/**
 	 * Sets contentInset from a dictionary with 'top', 'bottom', 'left', 'right' keys.
 	 */
-	private void setContentInset(Object value)
+	public void setContentInset(Object value)
 	{
 		if (value == null) {
 			// Reset all insets to zero when set to null
