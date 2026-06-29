@@ -76,14 +76,19 @@ static NSArray *scrollViewKeySequence;
   NSLog(@"[TiUIScrollViewProxy] setContentInsets called with value: %@", value);
   [self replaceValue:value forKey:@"contentInsets" notification:NO];
   if ([self viewAttached]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    
+    // Disable automatic content inset adjustment to allow manual values
+    scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    
     UIEdgeInsets insets = [TiUtils contentInsets:value];
     NSLog(@"[TiUIScrollViewProxy] Setting contentInset to top:%f left:%f bottom:%f right:%f", insets.top, insets.left, insets.bottom, insets.right);
-    [(TiUIScrollView *)[self view] scrollView].contentInset = insets;
+    scrollView.contentInset = insets;
     NSLog(@"[TiUIScrollViewProxy] After set: contentInset is now top:%f left:%f bottom:%f right:%f",
-        [(TiUIScrollView *)[self view] scrollView].contentInset.top,
-        [(TiUIScrollView *)[self view] scrollView].contentInset.left,
-        [(TiUIScrollView *)[self view] scrollView].contentInset.bottom,
-        [(TiUIScrollView *)[self view] scrollView].contentInset.right);
+        scrollView.contentInset.top,
+        scrollView.contentInset.left,
+        scrollView.contentInset.bottom,
+        scrollView.contentInset.right);
   } else {
     NSLog(@"[TiUIScrollViewProxy] View not attached, skipping native set");
   }
@@ -159,8 +164,21 @@ static NSArray *scrollViewKeySequence;
   ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
   [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
   if ([self viewAttached]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    
+    // CRITICAL: Disable automatic adjustment BEFORE setting insets manually
+    // iOS automatically adjusts scroll indicator insets based on safe area layout
+    // which overrides any manual values we set
+    scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
+    
     UIEdgeInsets insets = [TiUtils contentInsets:value];
-    [(TiUIScrollView *)[self view] scrollView].scrollIndicatorInsets = insets;
+    NSLog(@"[TiUIScrollViewProxy] Setting scrollIndicatorInsets to top:%f left:%f bottom:%f right:%f", insets.top, insets.left, insets.bottom, insets.right);
+    scrollView.scrollIndicatorInsets = insets;
+    NSLog(@"[TiUIScrollViewProxy] After set: scrollIndicatorInsets is now top:%f left:%f bottom:%f right:%f",
+          scrollView.scrollIndicatorInsets.top,
+          scrollView.scrollIndicatorInsets.left,
+          scrollView.scrollIndicatorInsets.bottom,
+          scrollView.scrollIndicatorInsets.right);
   }
 }
 
