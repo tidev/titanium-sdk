@@ -130,7 +130,8 @@ public class TiUIScrollView extends TiUIView
 			);
 
 			// Measure thumb - width fills, height calculated based on scroll ratio
-			int contentHeight = scrollView.getScrollRange() + height;
+			// ponytail: use passed scrollRange instead of non-existent getScrollRange()
+			int contentHeight = height + (scrollRange > 0 ? scrollRange : 0);
 			int thumbHeight = Math.max(40, height * height / contentHeight); // min 40px
 			thumb.measure(
 				MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
@@ -144,13 +145,12 @@ public class TiUIScrollView extends TiUIView
 			track.layout(l, t, r, b);
 
 			// Calculate thumb position based on scroll offset
-			int scrollRange = scrollView.getScrollRange();
 			int thumbHeight = thumb.getMeasuredHeight();
 			int trackHeight = b - t;
 
 			int thumbTop;
 			if (scrollRange > 0) {
-				float ratio = (float) scrollView.getScrollY() / scrollRange;
+				float ratio = (float) scrollY / scrollRange;
 				thumbTop = (int) (ratio * (trackHeight - thumbHeight));
 			} else {
 				thumbTop = 0;
@@ -161,6 +161,9 @@ public class TiUIScrollView extends TiUIView
 
 		public void updateScrollPosition(int scrollY, int scrollRange, int viewportHeight)
 		{
+			this.scrollY = scrollY;
+			this.scrollRange = scrollRange;
+
 			if (scrollRange <= 0) {
 				thumb.setVisibility(View.GONE);
 			} else {
@@ -168,6 +171,9 @@ public class TiUIScrollView extends TiUIView
 				requestLayout();
 			}
 		}
+
+		private int scrollY = 0;
+		private int scrollRange = 0;
 	}
 
 	public class CustomHorizontalScrollBar extends ViewGroup
@@ -211,7 +217,8 @@ public class TiUIScrollView extends TiUIView
 			);
 
 			// Measure thumb - height fills, width calculated based on scroll ratio
-			int contentWidth = scrollView.getScrollRange() + width;
+			// ponytail: use passed scrollRange instead of non-existent getScrollRange()
+			int contentWidth = width + (scrollRange > 0 ? scrollRange : 0);
 			int thumbWidth = Math.max(40, width * width / contentWidth); // min 40px
 			thumb.measure(
 				MeasureSpec.makeMeasureSpec(thumbWidth, MeasureSpec.EXACTLY),
@@ -225,13 +232,12 @@ public class TiUIScrollView extends TiUIView
 			track.layout(l, t, r, b);
 
 			// Calculate thumb position based on scroll offset
-			int scrollRange = scrollView.getScrollRange();
 			int thumbWidth = thumb.getMeasuredWidth();
 			int trackWidth = r - l;
 
 			int thumbLeft;
 			if (scrollRange > 0) {
-				float ratio = (float) scrollView.getScrollX() / scrollRange;
+				float ratio = (float) scrollX / scrollRange;
 				thumbLeft = (int) (ratio * (trackWidth - thumbWidth));
 			} else {
 				thumbLeft = 0;
@@ -242,6 +248,9 @@ public class TiUIScrollView extends TiUIView
 
 		public void updateScrollPosition(int scrollX, int scrollRange, int viewportWidth)
 		{
+			this.scrollX = scrollX;
+			this.scrollRange = scrollRange;
+
 			if (scrollRange <= 0) {
 				thumb.setVisibility(View.GONE);
 			} else {
@@ -249,6 +258,9 @@ public class TiUIScrollView extends TiUIView
 				requestLayout();
 			}
 		}
+
+		private int scrollX = 0;
+		private int scrollRange = 0;
 	}
 
 	private static int verticalAttrId = -1;
@@ -743,7 +755,8 @@ public class TiUIScrollView extends TiUIView
 			setContentOffset(l, t);
 			// Update custom vertical scrollbar position
 			if (customVerticalScrollBar != null) {
-				customVerticalScrollBar.updateScrollPosition(t, getScrollRange(), getMeasuredHeight());
+				int scrollRange = getChildAt(0).getMeasuredHeight() - getMeasuredHeight();
+				customVerticalScrollBar.updateScrollPosition(t, scrollRange, getMeasuredHeight());
 			}
 
 			KrollDict data = new KrollDict();
@@ -898,6 +911,12 @@ public class TiUIScrollView extends TiUIView
 
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			// Update custom horizontal scrollbar position
+			if (customHorizontalScrollBar != null) {
+				int scrollRange = getChildAt(0).getMeasuredWidth() - getMeasuredWidth();
+				customHorizontalScrollBar.updateScrollPosition(l, scrollRange, getMeasuredWidth());
+			}
+
 			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
 			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 
