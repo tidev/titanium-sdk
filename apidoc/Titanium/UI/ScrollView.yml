@@ -264,6 +264,9 @@ properties:
         A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
         to inset the content on each side. Setting this property adjusts where the content is
         positioned relative to the scroll view's bounds.
+        
+        Can also be set with options: `{ insets: {...}, animated: true, duration: 300, safearea: 34 }`
+        where `safearea` adds an offset to the bottom for iOS tab bars (default: 34px).
     type: Dictionary
     platforms: [iphone, ipad, macos]
     since: "13.4.0"
@@ -274,6 +277,9 @@ properties:
         A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
         to inset the scroll indicators on each side. Useful when using custom content insets or
         when the scroll view is placed within a container that obscures part of the scroll area.
+        
+        Can also be set with options: `{ insets: {...}, animated: true, duration: 300 }` for
+        animated transitions.
     type: Dictionary
     platforms: [iphone, ipad, macos]
     since: "13.4.0"

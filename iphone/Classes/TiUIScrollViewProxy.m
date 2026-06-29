@@ -80,6 +80,57 @@ static NSArray *scrollViewKeySequence;
   }
 }
 
+- (void)setContentInsets:(id)value options:(id)options
+{
+  ENSURE_UI_THREAD(setContentInsets, value);
+  [self setValue:value forKey:@"contentInsets"];
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [TiUtils contentInsets:value];
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+
+    BOOL animated = NO;
+    CGFloat duration = 0.2; // default 200ms
+    CGFloat safeAreaOffset = 34.0; // default iOS tab bar height
+
+    if ([options isKindOfClass:[NSDictionary class]]) {
+      id animVal = [options objectForKey:@"animated"];
+      if (animVal != nil && ![animVal isEqual:[NSNull null]]) {
+        animated = [TiUtils boolValue:animVal def:NO];
+      }
+      id durVal = [options objectForKey:@"duration"];
+      if (durVal != nil && ![durVal isEqual:[NSNull null]]) {
+        duration = [TiUtils doubleValue:durVal def:0.2];
+      }
+      id safeVal = [options objectForKey:@"safearea"];
+      if (safeVal != nil && ![safeVal isEqual:[NSNull null]]) {
+        safeAreaOffset = [TiUtils doubleValue:safeVal def:34.0];
+      }
+    }
+
+    void (^updateInsets)(void) = ^{
+      scrollView.contentInset = insets;
+      scrollView.scrollIndicatorInsets = insets;
+
+      // Auto-scroll to bottom if content exceeds bounds
+      CGSize contentSize = scrollView.contentSize;
+      CGSize boundSize = scrollView.bounds.size;
+      CGFloat bottomInset = insets.bottom + safeAreaOffset;
+      CGFloat newBottom = contentSize.height - boundSize.height + bottomInset;
+      CGFloat newRight = contentSize.width - boundSize.width;
+
+      if (newBottom > 0 || newRight > 0) {
+        scrollView.contentOffset = CGPointMake(newRight, newBottom);
+      }
+    };
+
+    if (animated && duration > 0) {
+      [UIView animateWithDuration:duration animations:updateInsets];
+    } else {
+      updateInsets();
+    }
+  }
+}
+
 - (id)scrollIndicatorInsets
 {
   if ([self viewAttached]) {
@@ -101,6 +152,40 @@ static NSArray *scrollViewKeySequence;
   if ([self viewAttached]) {
     UIEdgeInsets insets = [TiUtils contentInsets:value];
     [(TiUIScrollView *)[self view] scrollView].scrollIndicatorInsets = insets;
+  }
+}
+
+- (void)setScrollIndicatorInsets:(id)value options:(id)options
+{
+  ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
+  [self setValue:value forKey:@"scrollIndicatorInsets"];
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [TiUtils contentInsets:value];
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+
+    BOOL animated = NO;
+    CGFloat duration = 0.2; // default 200ms
+
+    if ([options isKindOfClass:[NSDictionary class]]) {
+      id animVal = [options objectForKey:@"animated"];
+      if (animVal != nil && ![animVal isEqual:[NSNull null]]) {
+        animated = [TiUtils boolValue:animVal def:NO];
+      }
+      id durVal = [options objectForKey:@"duration"];
+      if (durVal != nil && ![durVal isEqual:[NSNull null]]) {
+        duration = [TiUtils doubleValue:durVal def:0.2];
+      }
+    }
+
+    void (^updateInsets)(void) = ^{
+      scrollView.scrollIndicatorInsets = insets;
+    };
+
+    if (animated && duration > 0) {
+      [UIView animateWithDuration:duration animations:updateInsets];
+    } else {
+      updateInsets();
+    }
   }
 }
 
