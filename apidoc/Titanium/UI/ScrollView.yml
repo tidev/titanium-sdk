@@ -286,6 +286,46 @@ properties:
     platforms: [android]
     since: "13.4.0"
 
+  - name: horizontalScrollIndicatorInsets
+    summary: Inset distances for the horizontal scroll indicator on Android.
+    description: |
+        Sets the inset distances for the horizontal scroll indicator track and thumb.
+        When this property is set, a custom scroll indicator is used instead of the native one.
+
+        The dictionary accepts the following keys:
+
+        * `top` - Inset distance at the top (in dip)
+        * `bottom` - Inset distance at the bottom (in dip)
+        * `left` - Inset distance on the left side (in dip)
+        * `right` - Inset distance on the right side (in dip)
+
+        All keys are optional. Unspecified keys default to 0.
+
+        **Note:** Requires `showHorizontalScrollIndicator` to be `true` for the indicator to be visible.
+    type: Dictionary
+    platforms: [android]
+    since: "13.4.0"
+
+  - name: verticalScrollIndicatorInsets
+    summary: Inset distances for the vertical scroll indicator on Android.
+    description: |
+        Sets the inset distances for the vertical scroll indicator track and thumb.
+        When this property is set, a custom scroll indicator is used instead of the native one.
+
+        The dictionary accepts the following keys:
+
+        * `top` - Inset distance at the top (in dip)
+        * `bottom` - Inset distance at the bottom (in dip)
+        * `left` - Inset distance on the left side (in dip)
+        * `right` - Inset distance on the right side (in dip)
+
+        All keys are optional. Unspecified keys default to 0.
+
+        **Note:** Requires `showVerticalScrollIndicator` to be `true` for the indicator to be visible.
+    type: Dictionary
+    platforms: [android]
+    since: "13.4.0"
+
   - name: clipChildren
     summary: Determines whether child views are clipped to their bounds.
     description: |
@@ -422,6 +462,50 @@ properties:
     default: Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT
     platforms: [iphone, ipad, macos]
 
+  - name: scrollIndicatorBackgroundColor
+    summary: Background (track) color of the custom scroll indicator.
+    description: |
+        Sets the background color of the scroll indicator track. Only applies when using custom
+        scroll indicators (when any of `scrollIndicatorColor`, `scrollIndicatorBackgroundColor`,
+        `scrollIndicatorRadius`, `verticalScrollIndicatorInsets`, or `horizontalScrollIndicatorInsets`
+        are set).
+
+        Accepts a hex color string (e.g., `'#66666666'`) or an integer color value.
+
+        Default value is `0x66666666` (semi-transparent gray).
+    type: String
+    default: '#66666666'
+    platforms: [android]
+    since: "13.4.0"
+
+  - name: scrollIndicatorColor
+    summary: Color of the custom scroll indicator thumb.
+    description: |
+        Sets the color of the scroll indicator thumb (the draggable part). Only applies when using
+        custom scroll indicators (when any of `scrollIndicatorColor`, `scrollIndicatorBackgroundColor`,
+        `scrollIndicatorRadius`, `verticalScrollIndicatorInsets`, or `horizontalScrollIndicatorInsets`
+        are set).
+
+        Accepts a hex color string (e.g., `'#66666666'`) or an integer color value.
+
+        Default value is `0xFF666666` (gray).
+    type: String
+    default: '#66666666'
+    platforms: [android]
+    since: "13.4.0"
+
+  - name: scrollIndicatorRadius
+    summary: Corner radius of the custom scroll indicator.
+    description: |
+        Sets the corner radius (in dip) for the scroll indicator thumb and track, giving them
+        rounded corners. Only applies when using custom scroll indicators.
+
+        Default value is `6` dip.
+    type: Number
+    default: 6
+    platforms: [android]
+    since: "13.4.0"
+
   - name: scrollType
     summary: |
         Limits the direction of the scrollable region, overriding the deduced setting. Set to
@@ -504,6 +588,58 @@ examples:
           width: '100%'
         });
         scrollView.add(view);
+        win.add(scrollView);
+        win.open();
+        ```
+
+  - title: ScrollView with Custom Scroll Indicators (Android)
+    example: |
+        Create a scroll view with custom-styled scroll indicators on Android.
+
+        ``` js
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          fullscreen: false,
+          title: 'Custom Scroll Indicators'
+        });
+
+        var scrollView = Ti.UI.createScrollView({
+            width: '100%',
+            height: '80%',
+            scrollType: 'vertical',
+            showVerticalScrollIndicator: true,
+            // Custom scroll indicator styling
+            scrollIndicatorColor: '#0000FF',  // Blue thumb
+            scrollIndicatorBackgroundColor: '#17c400',  // Green track
+            scrollIndicatorRadius: 8,  // Rounded corners
+            verticalScrollIndicatorInsets: {
+                top: 20,
+                bottom: 20,
+                left: 0,
+                right: 10
+            }
+        });
+
+        var contentView = Ti.UI.createView({
+            layout: 'vertical',
+            height: 2000,
+            width: '100%'
+        });
+
+        for (var i = 0; i < 20; i++) {
+            var label = Ti.UI.createLabel({
+                text: 'Item ' + (i + 1),
+                height: 60,
+                width: '90%',
+                top: 10,
+                left: '5%',
+                color: '#333',
+                font: { fontSize: 16, fontWeight: 'bold' }
+            });
+            contentView.add(label);
+        }
+
+        scrollView.add(contentView);
         win.add(scrollView);
         win.open();
         ```
