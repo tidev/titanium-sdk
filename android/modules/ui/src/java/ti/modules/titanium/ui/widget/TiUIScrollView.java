@@ -1307,7 +1307,10 @@ public class TiUIScrollView extends TiUIView
 	 */
 	public void setScrollIndicatorColor(Object value)
 	{
-		scrollIndicatorColor = TiConvert.toInt(value, 0xFF666666);
+		String colorStr = TiConvert.toString(value);
+		scrollIndicatorColor = (colorStr != null && !colorStr.isEmpty())
+			? TiConvert.toColor(colorStr)
+			: 0xFF666666;
 		updateCustomScrollBars();
 	}
 
@@ -1316,7 +1319,10 @@ public class TiUIScrollView extends TiUIView
 	 */
 	public void setScrollIndicatorBackgroundColor(Object value)
 	{
-		scrollIndicatorBackgroundColor = TiConvert.toInt(value, 0x66666666);
+		String colorStr = TiConvert.toString(value);
+		scrollIndicatorBackgroundColor = (colorStr != null && !colorStr.isEmpty())
+			? TiConvert.toColor(colorStr)
+			: 0x66666666;
 		updateCustomScrollBars();
 	}
 
