@@ -1149,28 +1149,35 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		int top = 0, left = 0, right = 0, bottom = 0;
+		float topDp = 0, leftDp = 0, rightDp = 0, bottomDp = 0;
 
 		if (value instanceof HashMap) {
 			HashMap dict = (HashMap) value;
 			if (dict.containsKey("top")) {
-				top = TiConvert.toInt(dict.get("top"), 0);
+				topDp = TiConvert.toFloat(dict.get("top"), 0);
 			}
 			if (dict.containsKey("left")) {
-				left = TiConvert.toInt(dict.get("left"), 0);
+				leftDp = TiConvert.toFloat(dict.get("left"), 0);
 			}
 			if (dict.containsKey("right")) {
-				right = TiConvert.toInt(dict.get("right"), 0);
+				rightDp = TiConvert.toFloat(dict.get("right"), 0);
 			}
 			if (dict.containsKey("bottom")) {
-				bottom = TiConvert.toInt(dict.get("bottom"), 0);
+				bottomDp = TiConvert.toFloat(dict.get("bottom"), 0);
 			}
 		}
 
-		cachedScrollIndicatorTopDim = new TiDimension(top, TiDimension.TYPE_TOP);
-		cachedScrollIndicatorBottomDim = new TiDimension(bottom, TiDimension.TYPE_BOTTOM);
-		cachedScrollIndicatorLeftDim = new TiDimension(left, TiDimension.TYPE_LEFT);
-		cachedScrollIndicatorRightDim = new TiDimension(right, TiDimension.TYPE_RIGHT);
+		// Convert dp to pixels
+		float density = scrollView.getContext().getResources().getDisplayMetrics().density;
+		int topPx = Math.round(topDp * density);
+		int leftPx = Math.round(leftDp * density);
+		int rightPx = Math.round(rightDp * density);
+		int bottomPx = Math.round(bottomDp * density);
+
+		cachedScrollIndicatorTopDim = new TiDimension(topPx, TiDimension.TYPE_TOP);
+		cachedScrollIndicatorBottomDim = new TiDimension(bottomPx, TiDimension.TYPE_BOTTOM);
+		cachedScrollIndicatorLeftDim = new TiDimension(leftPx, TiDimension.TYPE_LEFT);
+		cachedScrollIndicatorRightDim = new TiDimension(rightPx, TiDimension.TYPE_RIGHT);
 
 		updateCustomScrollBars();
 	}
