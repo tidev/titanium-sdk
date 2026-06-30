@@ -98,13 +98,17 @@ public class TiUIScrollView extends TiUIView
 	{
 		private static final int SCROLLBAR_WIDTH = 12;
 		private Paint paint = new Paint();
+		private int topInset;
+		private int bottomInset;
 
-		public CustomVerticalScrollBar(Context context)
+		public CustomVerticalScrollBar(Context context, int topInset, int bottomInset)
 		{
 			super(context);
+			this.topInset = topInset;
+			this.bottomInset = bottomInset;
 			setClickable(false);
 			setFocusable(false);
-			Log.d(TAG, "CustomVerticalScrollBar created");
+			Log.d(TAG, "CustomVerticalScrollBar created, topInset=" + topInset + " bottomInset=" + bottomInset);
 		}
 
 		@Override
@@ -112,13 +116,6 @@ public class TiUIScrollView extends TiUIView
 		{
 			int height = MeasureSpec.getSize(heightMeasureSpec);
 			setMeasuredDimension(SCROLLBAR_WIDTH, height);
-			Log.d(TAG, "CustomVerticalScrollBar measured: w=" + getMeasuredWidth() + " h=" + getMeasuredHeight());
-		}
-
-		@Override
-		protected void onLayout(boolean changed, int l, int t, int r, int b)
-		{
-			Log.d(TAG, "CustomVerticalScrollBar onLayout: changed=" + changed + " b-t=" + (b - t));
 		}
 
 		@Override
@@ -128,25 +125,31 @@ public class TiUIScrollView extends TiUIView
 			int trackHeight = getHeight();
 			if (trackHeight == 0) return;
 
-			int thumbHeight = Math.max(40, trackHeight * trackHeight / (trackHeight + scrollRange));
-			int thumbTop;
-			if (scrollRange > 0) {
-				float ratio = (float) scrollY / scrollRange;
-				thumbTop = (int) (ratio * (trackHeight - thumbHeight));
-			} else {
-				thumbTop = 0;
-			}
-
-			// Draw track (red, semi-transparent)
+			// Track: full height
 			paint.setColor(0x66FF0000);
 			canvas.drawRect(0, 0, SCROLLBAR_WIDTH, trackHeight, paint);
 
-			// Draw thumb (bright red, opaque)
+			// Thumb: only within the inset area
+			int thumbArea = trackHeight - topInset - bottomInset;
+			if (thumbArea <= 0) return;
+
+			int thumbHeight = Math.max(40, thumbArea * thumbArea / (thumbArea + scrollRange));
+			int thumbTop;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollY / scrollRange;
+				thumbTop = topInset + (int) (ratio * (thumbArea - thumbHeight));
+			} else {
+				thumbTop = topInset;
+			}
+			// Clamp thumb within inset bounds
+			thumbTop = Math.max(topInset, Math.min(thumbTop, trackHeight - bottomInset - thumbHeight));
+
 			paint.setColor(0xFFFF0000);
 			canvas.drawRect(0, thumbTop, SCROLLBAR_WIDTH, thumbTop + thumbHeight, paint);
 
-			String msg = "CustomVerticalScrollBar onDraw: visible=" + (scrollRange > 0)
-				+ " thumbTop=" + thumbTop + " thumbHeight=" + thumbHeight;
+			String msg = "CustomVerticalScrollBar onDraw: track=" + trackHeight
+				+ " thumbTop=" + thumbTop + " thumbH=" + thumbHeight
+				+ " topInset=" + topInset + " bottomInset=" + bottomInset;
 			Log.d(TAG, msg);
 		}
 
@@ -1324,10 +1327,11 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		customVerticalScrollBar = new CustomVerticalScrollBar(scrollView.getContext());
-
-		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int topInset = cachedScrollIndicatorTopDim.getIntValue();
 		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+
+		customVerticalScrollBar = new CustomVerticalScrollBar(scrollView.getContext(), topInset, bottomInset);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 			ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -1349,10 +1353,10 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		customHorizontalScrollBar = new CustomHorizontalScrollBar(scrollView.getContext());
-
-		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int leftInset = cachedScrollIndicatorLeftDim.getIntValue();
 		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+
+		customHorizontalScrollBar = new CustomHorizontalScrollBar(scrollView.getContext());
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 			ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1360,6 +1364,7 @@ public class TiUIScrollView extends TiUIView
 		);
 		params.gravity = android.view.Gravity.BOTTOM;
 		params.bottomMargin = bottomInset;
+		params.leftMargin = leftInset;
 
 		contentWrapper.addView(customHorizontalScrollBar, params);
 		customHorizontalScrollBar.bringToFront();
