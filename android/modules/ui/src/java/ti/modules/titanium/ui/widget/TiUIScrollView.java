@@ -152,7 +152,7 @@ public class TiUIScrollView extends TiUIView
 			if (trackHeight == 0) return;
 
 			// Track: full height
-			paint.setColor(0x66FF0000);
+			paint.setColor(trackColor);
 			canvas.drawRect(0, 0, SCROLLBAR_WIDTH, trackHeight, paint);
 
 			// Thumb: only within the inset area
@@ -170,7 +170,7 @@ public class TiUIScrollView extends TiUIView
 			// Clamp thumb within inset bounds
 			thumbTop = Math.max(topInset, Math.min(thumbTop, trackHeight - bottomInset - thumbHeight));
 
-			paint.setColor(0xFFFF0000);
+			paint.setColor(thumbColor);
 			canvas.drawRect(0, thumbTop, SCROLLBAR_WIDTH, thumbTop + thumbHeight, paint);
 
 			String msg = "CustomVerticalScrollBar onDraw: track=" + trackHeight
