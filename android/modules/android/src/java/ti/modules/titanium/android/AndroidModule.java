@@ -712,7 +712,6 @@ public class AndroidModule extends KrollModule
 				currentActivity.requestPermissions(filteredPermissions.toArray(new String[0]), REQUEST_CODE);
 				return;
 			}
-			// Min supported SDK is 24, so runtime permission APIs are always available.
 			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(0, null);
 			if (permissionCallback != null) {
