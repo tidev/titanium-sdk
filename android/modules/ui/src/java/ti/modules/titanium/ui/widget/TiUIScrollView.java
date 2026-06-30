@@ -43,6 +43,7 @@ public class TiUIScrollView extends TiUIView
 	public static final int TYPE_HORIZONTAL = 1;
 
 	private static final String TAG = "TiUIScrollView";
+	private int scrollType = TYPE_VERTICAL;
 
 	private View scrollView;
 	private FrameLayout contentWrapper;
@@ -1274,10 +1275,10 @@ public class TiUIScrollView extends TiUIView
 					setNativeView(contentWrapper);
 
 					// Now create the custom scrollbars
-					if (cachedScrollIndicatorRightDim.getIntValue() > 0) {
+					if (scrollType == TYPE_VERTICAL && cachedScrollIndicatorRightDim.getIntValue() > 0) {
 						createVerticalScrollBar();
 					}
-					if (cachedScrollIndicatorBottomDim.getIntValue() > 0) {
+					if (scrollType == TYPE_HORIZONTAL && cachedScrollIndicatorBottomDim.getIntValue() > 0) {
 						createHorizontalScrollBar();
 					}
 				}
@@ -1315,10 +1316,12 @@ public class TiUIScrollView extends TiUIView
 			int totalRightInset = cachedScrollIndicatorRightDim.getIntValue();
 			int totalBottomInset = cachedScrollIndicatorBottomDim.getIntValue();
 
-			if (totalRightInset > 0) {
+			// Only show vertical scrollbar for vertical scroll type
+			if (scrollType == TYPE_VERTICAL && totalRightInset > 0) {
 				createVerticalScrollBar();
 			}
-			if (totalBottomInset > 0) {
+			// Only show horizontal scrollbar for horizontal scroll type
+			if (scrollType == TYPE_HORIZONTAL && totalBottomInset > 0) {
 				createHorizontalScrollBar();
 			}
 		}
@@ -1568,6 +1571,8 @@ public class TiUIScrollView extends TiUIView
 				+ "set the scrolling direction.";
 			Log.w(TAG, warningMessage);
 		}
+
+		this.scrollType = type;
 
 		// we create the view here since we now know the potential widget type
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
