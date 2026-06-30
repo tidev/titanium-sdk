@@ -44,6 +44,8 @@ public class TiUIScrollView extends TiUIView
 
 	private static final String TAG = "TiUIScrollView";
 	private int scrollType = TYPE_VERTICAL;
+	private boolean showVerticalScrollBar = true;
+	private boolean showHorizontalScrollBar = false;
 
 	private View scrollView;
 	private FrameLayout contentWrapper;
@@ -1275,10 +1277,10 @@ public class TiUIScrollView extends TiUIView
 					setNativeView(contentWrapper);
 
 					// Now create the custom scrollbars
-					if (scrollType == TYPE_VERTICAL && cachedScrollIndicatorRightDim.getIntValue() > 0) {
+					if (showVerticalScrollBar && cachedScrollIndicatorRightDim.getIntValue() > 0) {
 						createVerticalScrollBar();
 					}
-					if (scrollType == TYPE_HORIZONTAL && cachedScrollIndicatorBottomDim.getIntValue() > 0) {
+					if (showHorizontalScrollBar && cachedScrollIndicatorBottomDim.getIntValue() > 0) {
 						createHorizontalScrollBar();
 					}
 				}
@@ -1316,12 +1318,10 @@ public class TiUIScrollView extends TiUIView
 			int totalRightInset = cachedScrollIndicatorRightDim.getIntValue();
 			int totalBottomInset = cachedScrollIndicatorBottomDim.getIntValue();
 
-			// Only show vertical scrollbar for vertical scroll type
-			if (scrollType == TYPE_VERTICAL && totalRightInset > 0) {
+			if (showVerticalScrollBar && totalRightInset > 0) {
 				createVerticalScrollBar();
 			}
-			// Only show horizontal scrollbar for horizontal scroll type
-			if (scrollType == TYPE_HORIZONTAL && totalBottomInset > 0) {
+			if (showHorizontalScrollBar && totalBottomInset > 0) {
 				createHorizontalScrollBar();
 			}
 		}
@@ -1508,8 +1508,8 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		boolean showHorizontalScrollBar = false;
-		boolean showVerticalScrollBar = false;
+		boolean showHorizontalScrollBar = (scrollType == TYPE_HORIZONTAL);
+		boolean showVerticalScrollBar = (scrollType == TYPE_VERTICAL);
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
@@ -1526,6 +1526,9 @@ public class TiUIScrollView extends TiUIView
 			Log.w(TAG, "Both scroll bars cannot be shown. Defaulting to vertical shown");
 			showHorizontalScrollBar = false;
 		}
+
+		this.showVerticalScrollBar = showVerticalScrollBar;
+		this.showHorizontalScrollBar = showHorizontalScrollBar;
 
 		if (d.containsKey(TiC.PROPERTY_CONTENT_OFFSET)) {
 			Object offset = d.get(TiC.PROPERTY_CONTENT_OFFSET);
