@@ -1375,10 +1375,10 @@ public class TiUIScrollView extends TiUIView
 					setNativeView(contentWrapper);
 
 					// Now create the custom scrollbars
-					if (showVerticalScrollBar && cachedScrollIndicatorRightDim.getIntValue() > 0) {
+					if (showVerticalScrollBar && cachedVerticalScrollIndicatorRightDim.getIntValue() > 0) {
 						createVerticalScrollBar();
 					}
-					if (showHorizontalScrollBar && cachedScrollIndicatorBottomDim.getIntValue() > 0) {
+					if (showHorizontalScrollBar && cachedHorizontalScrollIndicatorBottomDim.getIntValue() > 0) {
 						createHorizontalScrollBar();
 					}
 				}
@@ -1413,13 +1413,13 @@ public class TiUIScrollView extends TiUIView
 
 		// If wrapper is already attached, create scrollbars immediately
 		if (contentWrapper != null) {
-			int totalRightInset = cachedScrollIndicatorRightDim.getIntValue();
-			int totalBottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+			int vRightInset = cachedVerticalScrollIndicatorRightDim.getIntValue();
+			int hBottomInset = cachedHorizontalScrollIndicatorBottomDim.getIntValue();
 
-			if (showVerticalScrollBar && totalRightInset > 0) {
+			if (showVerticalScrollBar && vRightInset > 0) {
 				createVerticalScrollBar();
 			}
-			if (showHorizontalScrollBar && totalBottomInset > 0) {
+			if (showHorizontalScrollBar && hBottomInset > 0) {
 				createHorizontalScrollBar();
 			}
 		}
