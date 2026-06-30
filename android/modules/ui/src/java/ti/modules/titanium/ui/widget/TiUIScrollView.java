@@ -88,6 +88,18 @@ public class TiUIScrollView extends TiUIView
 	private TiDimension cachedScrollIndicatorLeftDim = INSET_ZERO;
 	private TiDimension cachedScrollIndicatorRightDim = INSET_ZERO;
 
+	// Cached verticalScrollIndicatorInset values
+	private TiDimension cachedVerticalScrollIndicatorTopDim = INSET_ZERO;
+	private TiDimension cachedVerticalScrollIndicatorBottomDim = INSET_ZERO;
+	private TiDimension cachedVerticalScrollIndicatorLeftDim = INSET_ZERO;
+	private TiDimension cachedVerticalScrollIndicatorRightDim = INSET_ZERO;
+
+	// Cached horizontalScrollIndicatorInset values
+	private TiDimension cachedHorizontalScrollIndicatorTopDim = INSET_ZERO;
+	private TiDimension cachedHorizontalScrollIndicatorBottomDim = INSET_ZERO;
+	private TiDimension cachedHorizontalScrollIndicatorLeftDim = INSET_ZERO;
+	private TiDimension cachedHorizontalScrollIndicatorRightDim = INSET_ZERO;
+
 	private CustomVerticalScrollBar customVerticalScrollBar;
 	private CustomHorizontalScrollBar customHorizontalScrollBar;
 
@@ -181,13 +193,17 @@ public class TiUIScrollView extends TiUIView
 	{
 		private static final int SCROLLBAR_HEIGHT = 12;
 		private Paint paint = new Paint();
+		private int leftInset;
+		private int rightInset;
 
-		public CustomHorizontalScrollBar(Context context)
+		public CustomHorizontalScrollBar(Context context, int leftInset, int rightInset)
 		{
 			super(context);
+			this.leftInset = leftInset;
+			this.rightInset = rightInset;
 			setClickable(false);
 			setFocusable(false);
-			Log.d(TAG, "CustomHorizontalScrollBar created");
+			Log.d(TAG, "CustomHorizontalScrollBar created, leftInset=" + leftInset + " rightInset=" + rightInset);
 		}
 
 		@Override
@@ -198,37 +214,37 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
-		protected void onLayout(boolean changed, int l, int t, int r, int b)
-		{
-			Log.d(TAG, "CustomHorizontalScrollBar onLayout: changed=" + changed + " r-l=" + (r - l));
-		}
-
-		@Override
 		protected void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
 			int trackWidth = getWidth();
 			if (trackWidth == 0) return;
 
-			int thumbWidth = Math.max(40, trackWidth * trackWidth / (trackWidth + scrollRange));
-			int thumbLeft;
-			if (scrollRange > 0) {
-				float ratio = (float) scrollX / scrollRange;
-				thumbLeft = (int) (ratio * (trackWidth - thumbWidth));
-			} else {
-				thumbLeft = 0;
-			}
-
-			// Draw track (red, semi-transparent)
+			// Draw track (red, semi-transparent) full width
 			paint.setColor(0x66FF0000);
 			canvas.drawRect(0, 0, trackWidth, SCROLLBAR_HEIGHT, paint);
 
-			// Draw thumb (bright red, opaque)
+			// Thumb: only within left/right inset area
+			int thumbArea = trackWidth - leftInset - rightInset;
+			if (thumbArea <= 0) return;
+
+			int thumbWidth = Math.max(40, thumbArea * thumbArea / (thumbArea + scrollRange));
+			int thumbLeft;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollX / scrollRange;
+				thumbLeft = leftInset + (int) (ratio * (thumbArea - thumbWidth));
+			} else {
+				thumbLeft = leftInset;
+			}
+			// Clamp thumb within inset bounds
+			thumbLeft = Math.max(leftInset, Math.min(thumbLeft, trackWidth - rightInset - thumbWidth));
+
 			paint.setColor(0xFFFF0000);
 			canvas.drawRect(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_HEIGHT, paint);
 
-			String msg = "CustomHorizontalScrollBar onDraw: visible=" + (scrollRange > 0)
-				+ " thumbLeft=" + thumbLeft + " thumbWidth=" + thumbWidth;
+			String msg = "CustomHorizontalScrollBar onDraw: track=" + trackWidth
+				+ " thumbLeft=" + thumbLeft + " thumbW=" + thumbWidth
+				+ " leftInset=" + leftInset + " rightInset=" + rightInset;
 			Log.d(TAG, msg);
 		}
 
@@ -1186,6 +1202,88 @@ public class TiUIScrollView extends TiUIView
 	}
 
 	/**
+	 * Sets vertical scroll indicator insets.
+	 */
+	public void setVerticalScrollIndicatorInsets(Object value)
+	{
+		if (scrollView == null) {
+			return;
+		}
+
+		float topDp = 0, leftDp = 0, rightDp = 0, bottomDp = 0;
+
+		if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+			if (dict.containsKey("top")) {
+				topDp = TiConvert.toFloat(dict.get("top"), 0);
+			}
+			if (dict.containsKey("left")) {
+				leftDp = TiConvert.toFloat(dict.get("left"), 0);
+			}
+			if (dict.containsKey("right")) {
+				rightDp = TiConvert.toFloat(dict.get("right"), 0);
+			}
+			if (dict.containsKey("bottom")) {
+				bottomDp = TiConvert.toFloat(dict.get("bottom"), 0);
+			}
+		}
+
+		// Convert dp to pixels
+		float density = scrollView.getContext().getResources().getDisplayMetrics().density;
+		cachedVerticalScrollIndicatorTopDim = new TiDimension(
+			Math.round(topDp * density), TiDimension.TYPE_TOP);
+		cachedVerticalScrollIndicatorBottomDim = new TiDimension(
+			Math.round(bottomDp * density), TiDimension.TYPE_BOTTOM);
+		cachedVerticalScrollIndicatorLeftDim = new TiDimension(
+			Math.round(leftDp * density), TiDimension.TYPE_LEFT);
+		cachedVerticalScrollIndicatorRightDim = new TiDimension(
+			Math.round(rightDp * density), TiDimension.TYPE_RIGHT);
+
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Sets horizontal scroll indicator insets.
+	 */
+	public void setHorizontalScrollIndicatorInsets(Object value)
+	{
+		if (scrollView == null) {
+			return;
+		}
+
+		float topDp = 0, leftDp = 0, rightDp = 0, bottomDp = 0;
+
+		if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+			if (dict.containsKey("top")) {
+				topDp = TiConvert.toFloat(dict.get("top"), 0);
+			}
+			if (dict.containsKey("left")) {
+				leftDp = TiConvert.toFloat(dict.get("left"), 0);
+			}
+			if (dict.containsKey("right")) {
+				rightDp = TiConvert.toFloat(dict.get("right"), 0);
+			}
+			if (dict.containsKey("bottom")) {
+				bottomDp = TiConvert.toFloat(dict.get("bottom"), 0);
+			}
+		}
+
+		// Convert dp to pixels
+		float density = scrollView.getContext().getResources().getDisplayMetrics().density;
+		cachedHorizontalScrollIndicatorTopDim = new TiDimension(
+			Math.round(topDp * density), TiDimension.TYPE_TOP);
+		cachedHorizontalScrollIndicatorBottomDim = new TiDimension(
+			Math.round(bottomDp * density), TiDimension.TYPE_BOTTOM);
+		cachedHorizontalScrollIndicatorLeftDim = new TiDimension(
+			Math.round(leftDp * density), TiDimension.TYPE_LEFT);
+		cachedHorizontalScrollIndicatorRightDim = new TiDimension(
+			Math.round(rightDp * density), TiDimension.TYPE_RIGHT);
+
+		updateCustomScrollBars();
+	}
+
+	/**
 	 * Gets scroll indicator insets.
 	 *
 	 * @return HashMap with top/left/bottom/right values
@@ -1337,9 +1435,10 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		int topInset = cachedScrollIndicatorTopDim.getIntValue();
-		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
-		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int topInset = cachedVerticalScrollIndicatorTopDim.getIntValue();
+		int bottomInset = cachedVerticalScrollIndicatorBottomDim.getIntValue();
+		int leftInset = cachedVerticalScrollIndicatorLeftDim.getIntValue();
+		int rightInset = cachedVerticalScrollIndicatorRightDim.getIntValue();
 
 		customVerticalScrollBar = new CustomVerticalScrollBar(scrollView.getContext(), topInset, bottomInset);
 
@@ -1348,6 +1447,7 @@ public class TiUIScrollView extends TiUIView
 			ViewGroup.LayoutParams.MATCH_PARENT
 		);
 		params.gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+		params.leftMargin = leftInset;
 		params.rightMargin = rightInset;
 
 		contentWrapper.addView(customVerticalScrollBar, params);
@@ -1363,18 +1463,20 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		int leftInset = cachedScrollIndicatorLeftDim.getIntValue();
-		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+		int leftInset = cachedHorizontalScrollIndicatorLeftDim.getIntValue();
+		int rightInset = cachedHorizontalScrollIndicatorRightDim.getIntValue();
+		int topInset = cachedHorizontalScrollIndicatorTopDim.getIntValue();
+		int bottomInset = cachedHorizontalScrollIndicatorBottomDim.getIntValue();
 
-		customHorizontalScrollBar = new CustomHorizontalScrollBar(scrollView.getContext());
+		customHorizontalScrollBar = new CustomHorizontalScrollBar(scrollView.getContext(), leftInset, rightInset);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 			ViewGroup.LayoutParams.MATCH_PARENT,
 			ViewGroup.LayoutParams.WRAP_CONTENT
 		);
 		params.gravity = android.view.Gravity.BOTTOM;
+		params.topMargin = topInset;
 		params.bottomMargin = bottomInset;
-		params.leftMargin = leftInset;
 
 		contentWrapper.addView(customHorizontalScrollBar, params);
 		customHorizontalScrollBar.bringToFront();
@@ -1443,6 +1545,10 @@ public class TiUIScrollView extends TiUIView
 			setContentInset(newValue);
 		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_INSETS)) {
 			setScrollIndicatorInsets(newValue);
+		} else if (key.equals(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS)) {
+			setVerticalScrollIndicatorInsets(newValue);
+		} else if (key.equals(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS)) {
+			setHorizontalScrollIndicatorInsets(newValue);
 		} else if (key.equals(TiC.PROPERTY_CLIP_TO_PADDING)) {
 			if (this.scrollView != null) {
 				boolean newClipToPadding = TiConvert.toBoolean(newValue, cachedClipToPadding);
@@ -1520,11 +1626,6 @@ public class TiUIScrollView extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR)) {
 			showVerticalScrollBar = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR);
-		}
-
-		if (showHorizontalScrollBar && showVerticalScrollBar) {
-			Log.w(TAG, "Both scroll bars cannot be shown. Defaulting to vertical shown");
-			showHorizontalScrollBar = false;
 		}
 
 		this.showVerticalScrollBar = showVerticalScrollBar;
@@ -1659,6 +1760,12 @@ public class TiUIScrollView extends TiUIView
 		// Process scrollIndicatorInsets from initial properties dictionary
 		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_INSETS)) {
 			setScrollIndicatorInsets(d.get(TiC.PROPERTY_SCROLL_INDICATOR_INSETS));
+		}
+		if (d.containsKey(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS)) {
+			setVerticalScrollIndicatorInsets(d.get(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS));
+		}
+		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS)) {
+			setHorizontalScrollIndicatorInsets(d.get(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS));
 		}
 
 		super.processProperties(d);
