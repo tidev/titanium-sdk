@@ -377,6 +377,8 @@ public class TiC
 	public static final String PROPERTY_SCROLL_INDICATOR_INSETS = "scrollIndicatorInsets";
 	public static final String PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS = "verticalScrollIndicatorInsets";
 	public static final String PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS = "horizontalScrollIndicatorInsets";
+	public static final String PROPERTY_SCROLL_INDICATOR_COLOR = "scrollIndicatorColor";
+	public static final String PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR = "scrollIndicatorBackgroundColor";
 	public static final String PROPERTY_CLIP_CHILDREN = "clipChildren";
 	public static final String PROPERTY_CLIP_TO_PADDING = "clipToPadding";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";

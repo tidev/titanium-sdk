@@ -100,6 +100,10 @@ public class TiUIScrollView extends TiUIView
 	private TiDimension cachedHorizontalScrollIndicatorLeftDim = INSET_ZERO;
 	private TiDimension cachedHorizontalScrollIndicatorRightDim = INSET_ZERO;
 
+	// Cached scroll indicator colors
+	private int scrollIndicatorColor = 0xFF666666;
+	private int scrollIndicatorBackgroundColor = 0x66666666;
+
 	private CustomVerticalScrollBar customVerticalScrollBar;
 	private CustomHorizontalScrollBar customHorizontalScrollBar;
 
@@ -115,15 +119,22 @@ public class TiUIScrollView extends TiUIView
 		private Paint paint = new Paint();
 		private int topInset;
 		private int bottomInset;
+		private int thumbColor;
+		private int trackColor;
 
-		public CustomVerticalScrollBar(Context context, int topInset, int bottomInset)
+		public CustomVerticalScrollBar(Context context, int topInset, int bottomInset, int thumbColor, int trackColor)
 		{
 			super(context);
 			this.topInset = topInset;
 			this.bottomInset = bottomInset;
+			this.thumbColor = thumbColor;
+			this.trackColor = trackColor;
 			setClickable(false);
 			setFocusable(false);
-			Log.d(TAG, "CustomVerticalScrollBar created, topInset=" + topInset + " bottomInset=" + bottomInset);
+			String vsLog = "CustomVerticalScrollBar created, topInset=" + topInset
+				+ " bottomInset=" + bottomInset + " thumb=" + Integer.toHexString(thumbColor)
+				+ " track=" + Integer.toHexString(trackColor);
+			Log.d(TAG, vsLog);
 		}
 
 		@Override
@@ -195,15 +206,22 @@ public class TiUIScrollView extends TiUIView
 		private Paint paint = new Paint();
 		private int leftInset;
 		private int rightInset;
+		private int thumbColor;
+		private int trackColor;
 
-		public CustomHorizontalScrollBar(Context context, int leftInset, int rightInset)
+		public CustomHorizontalScrollBar(Context context, int leftInset, int rightInset, int thumbColor, int trackColor)
 		{
 			super(context);
 			this.leftInset = leftInset;
 			this.rightInset = rightInset;
+			this.thumbColor = thumbColor;
+			this.trackColor = trackColor;
 			setClickable(false);
 			setFocusable(false);
-			Log.d(TAG, "CustomHorizontalScrollBar created, leftInset=" + leftInset + " rightInset=" + rightInset);
+			String hsLog = "CustomHorizontalScrollBar created, leftInset=" + leftInset
+				+ " rightInset=" + rightInset + " thumb=" + Integer.toHexString(thumbColor)
+				+ " track=" + Integer.toHexString(trackColor);
+			Log.d(TAG, hsLog);
 		}
 
 		@Override
@@ -220,8 +238,8 @@ public class TiUIScrollView extends TiUIView
 			int trackWidth = getWidth();
 			if (trackWidth == 0) return;
 
-			// Draw track (red, semi-transparent) full width
-			paint.setColor(0x66FF0000);
+			// Draw track full width
+			paint.setColor(trackColor);
 			canvas.drawRect(0, 0, trackWidth, SCROLLBAR_HEIGHT, paint);
 
 			// Thumb: only within left/right inset area
@@ -239,12 +257,13 @@ public class TiUIScrollView extends TiUIView
 			// Clamp thumb within inset bounds
 			thumbLeft = Math.max(leftInset, Math.min(thumbLeft, trackWidth - rightInset - thumbWidth));
 
-			paint.setColor(0xFFFF0000);
+			paint.setColor(thumbColor);
 			canvas.drawRect(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_HEIGHT, paint);
 
 			String msg = "CustomHorizontalScrollBar onDraw: track=" + trackWidth
 				+ " thumbLeft=" + thumbLeft + " thumbW=" + thumbWidth
-				+ " leftInset=" + leftInset + " rightInset=" + rightInset;
+				+ " thumbColor=" + Integer.toHexString(thumbColor)
+				+ " trackColor=" + Integer.toHexString(trackColor);
 			Log.d(TAG, msg);
 		}
 
@@ -1284,6 +1303,24 @@ public class TiUIScrollView extends TiUIView
 	}
 
 	/**
+	 * Sets scroll indicator color (thumb color).
+	 */
+	public void setScrollIndicatorColor(Object value)
+	{
+		scrollIndicatorColor = TiConvert.toInt(value, 0xFF666666);
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Sets scroll indicator background color (track color).
+	 */
+	public void setScrollIndicatorBackgroundColor(Object value)
+	{
+		scrollIndicatorBackgroundColor = TiConvert.toInt(value, 0x66666666);
+		updateCustomScrollBars();
+	}
+
+	/**
 	 * Gets scroll indicator insets.
 	 *
 	 * @return HashMap with top/left/bottom/right values
@@ -1437,7 +1474,9 @@ public class TiUIScrollView extends TiUIView
 		int leftInset = cachedVerticalScrollIndicatorLeftDim.getIntValue();
 		int rightInset = cachedVerticalScrollIndicatorRightDim.getIntValue();
 
-		customVerticalScrollBar = new CustomVerticalScrollBar(scrollView.getContext(), topInset, bottomInset);
+		customVerticalScrollBar = new CustomVerticalScrollBar(
+			scrollView.getContext(), topInset, bottomInset,
+			scrollIndicatorColor, scrollIndicatorBackgroundColor);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 			ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -1465,7 +1504,9 @@ public class TiUIScrollView extends TiUIView
 		int topInset = cachedHorizontalScrollIndicatorTopDim.getIntValue();
 		int bottomInset = cachedHorizontalScrollIndicatorBottomDim.getIntValue();
 
-		customHorizontalScrollBar = new CustomHorizontalScrollBar(scrollView.getContext(), leftInset, rightInset);
+		customHorizontalScrollBar = new CustomHorizontalScrollBar(
+			scrollView.getContext(), leftInset, rightInset,
+			scrollIndicatorColor, scrollIndicatorBackgroundColor);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 			ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1546,6 +1587,10 @@ public class TiUIScrollView extends TiUIView
 			setVerticalScrollIndicatorInsets(newValue);
 		} else if (key.equals(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS)) {
 			setHorizontalScrollIndicatorInsets(newValue);
+		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_COLOR)) {
+			setScrollIndicatorColor(newValue);
+		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR)) {
+			setScrollIndicatorBackgroundColor(newValue);
 		} else if (key.equals(TiC.PROPERTY_CLIP_TO_PADDING)) {
 			if (this.scrollView != null) {
 				boolean newClipToPadding = TiConvert.toBoolean(newValue, cachedClipToPadding);
