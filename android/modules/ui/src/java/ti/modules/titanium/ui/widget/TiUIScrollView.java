@@ -1308,9 +1308,14 @@ public class TiUIScrollView extends TiUIView
 	public void setScrollIndicatorColor(Object value)
 	{
 		String colorStr = TiConvert.toString(value);
-		scrollIndicatorColor = (colorStr != null && !colorStr.isEmpty())
+		int newColor = (colorStr != null && !colorStr.isEmpty())
 			? TiConvert.toColor(colorStr)
 			: 0xFF666666;
+		String vsLog = "setScrollIndicatorColor: value=" + value
+			+ " parsed=" + Integer.toHexString(newColor)
+			+ " old=" + Integer.toHexString(scrollIndicatorColor);
+		Log.d(TAG, vsLog);
+		scrollIndicatorColor = newColor;
 		updateCustomScrollBars();
 	}
 
@@ -1320,9 +1325,14 @@ public class TiUIScrollView extends TiUIView
 	public void setScrollIndicatorBackgroundColor(Object value)
 	{
 		String colorStr = TiConvert.toString(value);
-		scrollIndicatorBackgroundColor = (colorStr != null && !colorStr.isEmpty())
+		int newColor = (colorStr != null && !colorStr.isEmpty())
 			? TiConvert.toColor(colorStr)
 			: 0x66666666;
+		String hsLog = "setScrollIndicatorBackgroundColor: value=" + value
+			+ " parsed=" + Integer.toHexString(newColor)
+			+ " old=" + Integer.toHexString(scrollIndicatorBackgroundColor);
+		Log.d(TAG, hsLog);
+		scrollIndicatorBackgroundColor = newColor;
 		updateCustomScrollBars();
 	}
 
@@ -1480,6 +1490,9 @@ public class TiUIScrollView extends TiUIView
 		int leftInset = cachedVerticalScrollIndicatorLeftDim.getIntValue();
 		int rightInset = cachedVerticalScrollIndicatorRightDim.getIntValue();
 
+		String vcbLog = "createVerticalScrollBar: color=" + Integer.toHexString(scrollIndicatorColor)
+			+ " bg=" + Integer.toHexString(scrollIndicatorBackgroundColor);
+		Log.d(TAG, vcbLog);
 		customVerticalScrollBar = new CustomVerticalScrollBar(
 			scrollView.getContext(), topInset, bottomInset,
 			scrollIndicatorColor, scrollIndicatorBackgroundColor);
@@ -1510,6 +1523,9 @@ public class TiUIScrollView extends TiUIView
 		int topInset = cachedHorizontalScrollIndicatorTopDim.getIntValue();
 		int bottomInset = cachedHorizontalScrollIndicatorBottomDim.getIntValue();
 
+		String hcbLog = "createHorizontalScrollBar: color=" + Integer.toHexString(scrollIndicatorColor)
+			+ " bg=" + Integer.toHexString(scrollIndicatorBackgroundColor);
+		Log.d(TAG, hcbLog);
 		customHorizontalScrollBar = new CustomHorizontalScrollBar(
 			scrollView.getContext(), leftInset, rightInset,
 			scrollIndicatorColor, scrollIndicatorBackgroundColor);
