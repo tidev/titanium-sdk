@@ -1831,6 +1831,18 @@ public class TiUIScrollView extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS)) {
 			setHorizontalScrollIndicatorInsets(d.get(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS));
 		}
+		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_COLOR)) {
+			String cStr = TiConvert.toString(d.get(TiC.PROPERTY_SCROLL_INDICATOR_COLOR));
+			scrollIndicatorColor = (cStr != null && !cStr.isEmpty())
+				? TiConvert.toColor(cStr)
+				: 0xFF666666;
+		}
+		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR)) {
+			String cStr = TiConvert.toString(d.get(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR));
+			scrollIndicatorBackgroundColor = (cStr != null && !cStr.isEmpty())
+				? TiConvert.toColor(cStr)
+				: 0x66666666;
+		}
 
 		super.processProperties(d);
 	}
