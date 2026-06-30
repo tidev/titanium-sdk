@@ -9,6 +9,7 @@ package ti.modules.titanium.ui.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import androidx.core.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Xml;
@@ -103,6 +104,8 @@ public class TiUIScrollView extends TiUIView
 	// Cached scroll indicator colors
 	private int scrollIndicatorColor = 0xFF666666;
 	private int scrollIndicatorBackgroundColor = 0x66666666;
+	private int scrollIndicatorRadius = 6;
+	private boolean hasCustomScrollIndicatorProps;
 
 	private CustomVerticalScrollBar customVerticalScrollBar;
 	private CustomHorizontalScrollBar customHorizontalScrollBar;
@@ -117,18 +120,25 @@ public class TiUIScrollView extends TiUIView
 	{
 		private static final int SCROLLBAR_WIDTH = 12;
 		private Paint paint = new Paint();
+		private RectF trackRect = new RectF();
+		private RectF thumbRect = new RectF();
 		private int topInset;
 		private int bottomInset;
 		private int thumbColor;
 		private int trackColor;
+		private int radius;
 
-		public CustomVerticalScrollBar(Context context, int topInset, int bottomInset, int thumbColor, int trackColor)
+		public CustomVerticalScrollBar(
+			Context context, int topInset, int bottomInset,
+			int thumbColor, int trackColor, int radius)
 		{
 			super(context);
 			this.topInset = topInset;
 			this.bottomInset = bottomInset;
 			this.thumbColor = thumbColor;
 			this.trackColor = trackColor;
+			this.radius = radius;
+			paint.setAntiAlias(true);
 			setClickable(false);
 			setFocusable(false);
 			String vsLog = "CustomVerticalScrollBar created, topInset=" + topInset
@@ -151,9 +161,12 @@ public class TiUIScrollView extends TiUIView
 			int trackHeight = getHeight();
 			if (trackHeight == 0) return;
 
-			// Track: full height
+			int r = Math.min(radius, SCROLLBAR_WIDTH / 2);
+
+			// Track: full height with rounded edges
+			trackRect.set(0, 0, SCROLLBAR_WIDTH, trackHeight);
 			paint.setColor(trackColor);
-			canvas.drawRect(0, 0, SCROLLBAR_WIDTH, trackHeight, paint);
+			canvas.drawRoundRect(trackRect, r, r, paint);
 
 			// Thumb: only within the inset area
 			int thumbArea = trackHeight - topInset - bottomInset;
@@ -170,8 +183,9 @@ public class TiUIScrollView extends TiUIView
 			// Clamp thumb within inset bounds
 			thumbTop = Math.max(topInset, Math.min(thumbTop, trackHeight - bottomInset - thumbHeight));
 
+			thumbRect.set(0, thumbTop, SCROLLBAR_WIDTH, thumbTop + thumbHeight);
 			paint.setColor(thumbColor);
-			canvas.drawRect(0, thumbTop, SCROLLBAR_WIDTH, thumbTop + thumbHeight, paint);
+			canvas.drawRoundRect(thumbRect, r, r, paint);
 
 			String msg = "CustomVerticalScrollBar onDraw: track=" + trackHeight
 				+ " thumbTop=" + thumbTop + " thumbH=" + thumbHeight
@@ -204,18 +218,25 @@ public class TiUIScrollView extends TiUIView
 	{
 		private static final int SCROLLBAR_HEIGHT = 12;
 		private Paint paint = new Paint();
+		private RectF trackRect = new RectF();
+		private RectF thumbRect = new RectF();
 		private int leftInset;
 		private int rightInset;
 		private int thumbColor;
 		private int trackColor;
+		private int radius;
 
-		public CustomHorizontalScrollBar(Context context, int leftInset, int rightInset, int thumbColor, int trackColor)
+		public CustomHorizontalScrollBar(
+			Context context, int leftInset, int rightInset,
+			int thumbColor, int trackColor, int radius)
 		{
 			super(context);
 			this.leftInset = leftInset;
 			this.rightInset = rightInset;
 			this.thumbColor = thumbColor;
 			this.trackColor = trackColor;
+			this.radius = radius;
+			paint.setAntiAlias(true);
 			setClickable(false);
 			setFocusable(false);
 			String hsLog = "CustomHorizontalScrollBar created, leftInset=" + leftInset
@@ -238,9 +259,12 @@ public class TiUIScrollView extends TiUIView
 			int trackWidth = getWidth();
 			if (trackWidth == 0) return;
 
-			// Draw track full width
+			int r = Math.min(radius, SCROLLBAR_HEIGHT / 2);
+
+			// Draw track full width with rounded edges
+			trackRect.set(0, 0, trackWidth, SCROLLBAR_HEIGHT);
 			paint.setColor(trackColor);
-			canvas.drawRect(0, 0, trackWidth, SCROLLBAR_HEIGHT, paint);
+			canvas.drawRoundRect(trackRect, r, r, paint);
 
 			// Thumb: only within left/right inset area
 			int thumbArea = trackWidth - leftInset - rightInset;
@@ -257,8 +281,9 @@ public class TiUIScrollView extends TiUIView
 			// Clamp thumb within inset bounds
 			thumbLeft = Math.max(leftInset, Math.min(thumbLeft, trackWidth - rightInset - thumbWidth));
 
+			thumbRect.set(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_HEIGHT);
 			paint.setColor(thumbColor);
-			canvas.drawRect(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_HEIGHT, paint);
+			canvas.drawRoundRect(thumbRect, r, r, paint);
 
 			String msg = "CustomHorizontalScrollBar onDraw: track=" + trackWidth
 				+ " thumbLeft=" + thumbLeft + " thumbW=" + thumbWidth
@@ -1258,6 +1283,7 @@ public class TiUIScrollView extends TiUIView
 		cachedVerticalScrollIndicatorRightDim = new TiDimension(
 			Math.round(rightDp * density), TiDimension.TYPE_RIGHT);
 
+		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
 	}
 
@@ -1299,6 +1325,7 @@ public class TiUIScrollView extends TiUIView
 		cachedHorizontalScrollIndicatorRightDim = new TiDimension(
 			Math.round(rightDp * density), TiDimension.TYPE_RIGHT);
 
+		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
 	}
 
@@ -1312,6 +1339,7 @@ public class TiUIScrollView extends TiUIView
 			? TiConvert.toColor(colorStr)
 			: 0xFF666666;
 		scrollIndicatorColor = newColor;
+		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
 	}
 
@@ -1325,6 +1353,18 @@ public class TiUIScrollView extends TiUIView
 			? TiConvert.toColor(colorStr)
 			: 0x66666666;
 		scrollIndicatorBackgroundColor = newColor;
+		hasCustomScrollIndicatorProps = true;
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Sets scroll indicator corner radius.
+	 */
+	public void setScrollIndicatorRadius(Object value)
+	{
+		int radius = TiConvert.toInt(value, 6);
+		scrollIndicatorRadius = Math.max(0, radius);
+		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
 	}
 
@@ -1420,10 +1460,10 @@ public class TiUIScrollView extends TiUIView
 					setNativeView(contentWrapper);
 
 					// Now create the custom scrollbars
-					if (showVerticalScrollBar) {
+					if (hasCustomScrollIndicatorProps || showVerticalScrollBar) {
 						createVerticalScrollBar();
 					}
-					if (showHorizontalScrollBar) {
+					if (hasCustomScrollIndicatorProps || showHorizontalScrollBar) {
 						createHorizontalScrollBar();
 					}
 				}
@@ -1441,9 +1481,11 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		// Hide native scrollbars
-		scrollView.setHorizontalScrollBarEnabled(false);
-		scrollView.setVerticalScrollBarEnabled(false);
+		// Hide native scrollbars when using custom scroll indicators
+		if (hasCustomScrollIndicatorProps) {
+			scrollView.setHorizontalScrollBarEnabled(false);
+			scrollView.setVerticalScrollBarEnabled(false);
+		}
 
 		// Remove existing custom scrollbars
 		if (customVerticalScrollBar != null && customVerticalScrollBar.getParent() != null) {
@@ -1458,10 +1500,10 @@ public class TiUIScrollView extends TiUIView
 
 		// If wrapper is already attached, create scrollbars immediately
 		if (contentWrapper != null) {
-			if (showVerticalScrollBar) {
+			if (hasCustomScrollIndicatorProps || showVerticalScrollBar) {
 				createVerticalScrollBar();
 			}
-			if (showHorizontalScrollBar) {
+			if (hasCustomScrollIndicatorProps || showHorizontalScrollBar) {
 				createHorizontalScrollBar();
 			}
 		}
@@ -1484,7 +1526,7 @@ public class TiUIScrollView extends TiUIView
 
 		customVerticalScrollBar = new CustomVerticalScrollBar(
 			scrollView.getContext(), topInset, bottomInset,
-			scrollIndicatorColor, scrollIndicatorBackgroundColor);
+			scrollIndicatorColor, scrollIndicatorBackgroundColor, scrollIndicatorRadius);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 			ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -1514,7 +1556,7 @@ public class TiUIScrollView extends TiUIView
 
 		customHorizontalScrollBar = new CustomHorizontalScrollBar(
 			scrollView.getContext(), leftInset, rightInset,
-			scrollIndicatorColor, scrollIndicatorBackgroundColor);
+			scrollIndicatorColor, scrollIndicatorBackgroundColor, scrollIndicatorRadius);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 			ViewGroup.LayoutParams.MATCH_PARENT,
@@ -1599,6 +1641,8 @@ public class TiUIScrollView extends TiUIView
 			setScrollIndicatorColor(newValue);
 		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR)) {
 			setScrollIndicatorBackgroundColor(newValue);
+		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_RADIUS)) {
+			setScrollIndicatorRadius(newValue);
 		} else if (key.equals(TiC.PROPERTY_CLIP_TO_PADDING)) {
 			if (this.scrollView != null) {
 				boolean newClipToPadding = TiConvert.toBoolean(newValue, cachedClipToPadding);
@@ -1822,12 +1866,18 @@ public class TiUIScrollView extends TiUIView
 			scrollIndicatorColor = (cStr != null && !cStr.isEmpty())
 				? TiConvert.toColor(cStr)
 				: 0xFF666666;
+			hasCustomScrollIndicatorProps = true;
 		}
 		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR)) {
 			String cStr = TiConvert.toString(d.get(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR));
 			scrollIndicatorBackgroundColor = (cStr != null && !cStr.isEmpty())
 				? TiConvert.toColor(cStr)
 				: 0x66666666;
+			hasCustomScrollIndicatorProps = true;
+		}
+		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_RADIUS)) {
+			scrollIndicatorRadius = Math.max(0, TiConvert.toInt(d.get(TiC.PROPERTY_SCROLL_INDICATOR_RADIUS), 6));
+			hasCustomScrollIndicatorProps = true;
 		}
 
 		super.processProperties(d);
