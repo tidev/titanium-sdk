@@ -8,6 +8,7 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import androidx.core.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Xml;
@@ -44,6 +45,7 @@ public class TiUIScrollView extends TiUIView
 	private static final String TAG = "TiUIScrollView";
 
 	private View scrollView;
+	private FrameLayout contentWrapper;
 	private TiSwipeRefreshLayout swipeRefreshLayout;
 	private TiDimension offsetX = new TiDimension(0, TiDimension.TYPE_LEFT);
 	private TiDimension offsetY = new TiDimension(0, TiDimension.TYPE_TOP);
@@ -83,13 +85,166 @@ public class TiUIScrollView extends TiUIView
 	private TiDimension cachedScrollIndicatorLeftDim = INSET_ZERO;
 	private TiDimension cachedScrollIndicatorRightDim = INSET_ZERO;
 
-	// ponytail: Custom scroll bar classes removed - using native scrollbars with padding adjustment
+	private CustomVerticalScrollBar customVerticalScrollBar;
+	private CustomHorizontalScrollBar customHorizontalScrollBar;
 
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
 	private int type;
 	private TiDimension xDimension;
 	private TiDimension yDimension;
+
+	public class CustomVerticalScrollBar extends View
+	{
+		private static final int SCROLLBAR_WIDTH = 12;
+		private Paint paint = new Paint();
+
+		public CustomVerticalScrollBar(Context context)
+		{
+			super(context);
+			setClickable(false);
+			setFocusable(false);
+			Log.d(TAG, "CustomVerticalScrollBar created");
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			int height = MeasureSpec.getSize(heightMeasureSpec);
+			setMeasuredDimension(SCROLLBAR_WIDTH, height);
+			Log.d(TAG, "CustomVerticalScrollBar measured: w=" + getMeasuredWidth() + " h=" + getMeasuredHeight());
+		}
+
+		@Override
+		protected void onLayout(boolean changed, int l, int t, int r, int b)
+		{
+			Log.d(TAG, "CustomVerticalScrollBar onLayout: changed=" + changed + " b-t=" + (b - t));
+		}
+
+		@Override
+		protected void onDraw(Canvas canvas)
+		{
+			super.onDraw(canvas);
+			int trackHeight = getHeight();
+			if (trackHeight == 0) return;
+
+			int thumbHeight = Math.max(40, trackHeight * trackHeight / (trackHeight + scrollRange));
+			int thumbTop;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollY / scrollRange;
+				thumbTop = (int) (ratio * (trackHeight - thumbHeight));
+			} else {
+				thumbTop = 0;
+			}
+
+			// Draw track (red, semi-transparent)
+			paint.setColor(0x66FF0000);
+			canvas.drawRect(0, 0, SCROLLBAR_WIDTH, trackHeight, paint);
+
+			// Draw thumb (bright red, opaque)
+			paint.setColor(0xFFFF0000);
+			canvas.drawRect(0, thumbTop, SCROLLBAR_WIDTH, thumbTop + thumbHeight, paint);
+
+			String msg = "CustomVerticalScrollBar onDraw: visible=" + (scrollRange > 0)
+				+ " thumbTop=" + thumbTop + " thumbHeight=" + thumbHeight;
+			Log.d(TAG, msg);
+		}
+
+		public void updateScrollPosition(int scrollY, int scrollRange, int viewportHeight)
+		{
+			this.scrollY = scrollY;
+			this.scrollRange = scrollRange;
+			String msg2 = "CustomVerticalScrollBar update: scrollY=" + scrollY
+				+ " scrollRange=" + scrollRange + " viewport=" + viewportHeight;
+			Log.d(TAG, msg2);
+
+			if (scrollRange > 0) {
+				setVisibility(View.VISIBLE);
+				requestLayout();
+				postInvalidate();
+			} else {
+				setVisibility(View.GONE);
+			}
+		}
+
+		private int scrollY = 0;
+		private int scrollRange = 0;
+	}
+
+	public class CustomHorizontalScrollBar extends View
+	{
+		private static final int SCROLLBAR_HEIGHT = 12;
+		private Paint paint = new Paint();
+
+		public CustomHorizontalScrollBar(Context context)
+		{
+			super(context);
+			setClickable(false);
+			setFocusable(false);
+			Log.d(TAG, "CustomHorizontalScrollBar created");
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			int width = MeasureSpec.getSize(widthMeasureSpec);
+			setMeasuredDimension(width, SCROLLBAR_HEIGHT);
+		}
+
+		@Override
+		protected void onLayout(boolean changed, int l, int t, int r, int b)
+		{
+			Log.d(TAG, "CustomHorizontalScrollBar onLayout: changed=" + changed + " r-l=" + (r - l));
+		}
+
+		@Override
+		protected void onDraw(Canvas canvas)
+		{
+			super.onDraw(canvas);
+			int trackWidth = getWidth();
+			if (trackWidth == 0) return;
+
+			int thumbWidth = Math.max(40, trackWidth * trackWidth / (trackWidth + scrollRange));
+			int thumbLeft;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollX / scrollRange;
+				thumbLeft = (int) (ratio * (trackWidth - thumbWidth));
+			} else {
+				thumbLeft = 0;
+			}
+
+			// Draw track (red, semi-transparent)
+			paint.setColor(0x66FF0000);
+			canvas.drawRect(0, 0, trackWidth, SCROLLBAR_HEIGHT, paint);
+
+			// Draw thumb (bright red, opaque)
+			paint.setColor(0xFFFF0000);
+			canvas.drawRect(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_HEIGHT, paint);
+
+			String msg = "CustomHorizontalScrollBar onDraw: visible=" + (scrollRange > 0)
+				+ " thumbLeft=" + thumbLeft + " thumbWidth=" + thumbWidth;
+			Log.d(TAG, msg);
+		}
+
+		public void updateScrollPosition(int scrollX, int scrollRange, int viewportWidth)
+		{
+			this.scrollX = scrollX;
+			this.scrollRange = scrollRange;
+			Log.d(TAG, "CustomHorizontalScrollBar update: scrollX=" + scrollX
+				+ " scrollRange=" + scrollRange + " viewport=" + viewportWidth);
+
+			if (scrollRange > 0) {
+				setVisibility(View.VISIBLE);
+				requestLayout();
+				postInvalidate();
+			} else {
+				setVisibility(View.GONE);
+			}
+		}
+
+		private int scrollX = 0;
+		private int scrollRange = 0;
+	}
 
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -575,6 +730,11 @@ public class TiUIScrollView extends TiUIView
 			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
+			// Update custom vertical scrollbar position
+			if (customVerticalScrollBar != null) {
+				int scrollRange = getChildAt(0).getMeasuredHeight() - getMeasuredHeight();
+				customVerticalScrollBar.updateScrollPosition(t, scrollRange, getMeasuredHeight());
+			}
 
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
@@ -725,6 +885,11 @@ public class TiUIScrollView extends TiUIView
 			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
+			// Update custom horizontal scrollbar position
+			if (customHorizontalScrollBar != null) {
+				int scrollRange = getChildAt(0).getMeasuredWidth() - getMeasuredWidth();
+				customHorizontalScrollBar.updateScrollPosition(l, scrollRange, getMeasuredWidth());
+			}
 
 			KrollDict data = new KrollDict();
 			data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
@@ -1023,8 +1188,96 @@ public class TiUIScrollView extends TiUIView
 	}
 
 	/**
+	 * Ensures a FrameLayout wrapper exists around scrollView.
+	 * NestedScrollView/HorizontalScrollView only allow one child,
+	 * so we need a wrapper to host the custom scrollbar views.
+	 * Uses post() to defer until the view is attached to the Android hierarchy.
+	 */
+	private void ensureContentWrapper()
+	{
+		if (contentWrapper != null) {
+			return;
+		}
+
+		// If scrollView is already attached, create the wrapper immediately
+		if (scrollView.getParent() instanceof ViewGroup) {
+			contentWrapper = new FrameLayout(scrollView.getContext());
+			contentWrapper.setLayoutParams(new FrameLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT,
+				ViewGroup.LayoutParams.MATCH_PARENT
+			));
+			contentWrapper.setClipChildren(false);
+			contentWrapper.setClipToPadding(false);
+
+			ViewGroup oldParent = (ViewGroup) scrollView.getParent();
+			int index = oldParent.indexOfChild(scrollView);
+			oldParent.removeViewAt(index);
+			contentWrapper.addView(scrollView, 0);
+			// Use TiCompositeLayout.LayoutParams for TiCompositeLayout parent
+			if (oldParent instanceof TiCompositeLayout) {
+				TiCompositeLayout.LayoutParams lp = new TiCompositeLayout.LayoutParams();
+				lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+				lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+				oldParent.addView(contentWrapper, index, lp);
+			} else {
+				oldParent.addView(contentWrapper, index,
+					new ViewGroup.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.MATCH_PARENT
+					));
+			}
+			setNativeView(contentWrapper);
+		} else {
+			// Not yet attached — defer wrapper creation until the view is ready
+			scrollView.post(new Runnable() {
+				@Override
+				public void run()
+				{
+					if (contentWrapper != null || scrollView == null) {
+						return;
+					}
+					contentWrapper = new FrameLayout(scrollView.getContext());
+					contentWrapper.setLayoutParams(new FrameLayout.LayoutParams(
+						ViewGroup.LayoutParams.MATCH_PARENT,
+						ViewGroup.LayoutParams.MATCH_PARENT
+					));
+					contentWrapper.setClipChildren(false);
+					contentWrapper.setClipToPadding(false);
+
+					ViewGroup oldParent = (ViewGroup) scrollView.getParent();
+					int index = oldParent.indexOfChild(scrollView);
+					oldParent.removeViewAt(index);
+					contentWrapper.addView(scrollView, 0);
+					// Use TiCompositeLayout.LayoutParams for TiCompositeLayout parent
+					if (oldParent instanceof TiCompositeLayout) {
+						TiCompositeLayout.LayoutParams lp = new TiCompositeLayout.LayoutParams();
+						lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+						lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+						oldParent.addView(contentWrapper, index, lp);
+					} else {
+						oldParent.addView(contentWrapper, index,
+							new ViewGroup.LayoutParams(
+								ViewGroup.LayoutParams.MATCH_PARENT,
+								ViewGroup.LayoutParams.MATCH_PARENT
+							));
+					}
+					setNativeView(contentWrapper);
+
+					// Now create the custom scrollbars
+					if (cachedScrollIndicatorRightDim.getIntValue() > 0) {
+						createVerticalScrollBar();
+					}
+					if (cachedScrollIndicatorBottomDim.getIntValue() > 0) {
+						createHorizontalScrollBar();
+					}
+				}
+			});
+		}
+	}
+
+	/**
 	 * Updates custom scrollbar views based on scrollIndicatorInsets.
-	 * Uses padding to position native scrollbars when insets are set.
+	 * Hides native scrollbars and positions custom views instead.
 	 */
 	private void updateCustomScrollBars()
 	{
@@ -1032,22 +1285,86 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		int totalRightInset = cachedScrollIndicatorRightDim.getIntValue();
-		int totalBottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+		// Hide native scrollbars
+		scrollView.setHorizontalScrollBarEnabled(false);
+		scrollView.setVerticalScrollBarEnabled(false);
 
-		if (totalRightInset > 0 || totalBottomInset > 0) {
-			// Use native scrollbars with adjusted padding for positioning
-			// The padding will push the scrollbars inward
-			scrollView.setHorizontalScrollBarEnabled(true);
-			scrollView.setVerticalScrollBarEnabled(true);
-
-			// Custom scrollbars removed - using native scrollbars only
-		} else {
-			// No insets: use default native scrollbar positioning
-			scrollView.setHorizontalScrollBarEnabled(true);
-			scrollView.setVerticalScrollBarEnabled(true);
+		// Remove existing custom scrollbars
+		if (customVerticalScrollBar != null && customVerticalScrollBar.getParent() != null) {
+			((ViewGroup) customVerticalScrollBar.getParent()).removeView(customVerticalScrollBar);
 		}
+		if (customHorizontalScrollBar != null && customHorizontalScrollBar.getParent() != null) {
+			((ViewGroup) customHorizontalScrollBar.getParent()).removeView(customHorizontalScrollBar);
+		}
+
+		// Ensure wrapper exists (lazy if not attached yet)
+		ensureContentWrapper();
+
+		// If wrapper is already attached, create scrollbars immediately
+		if (contentWrapper != null) {
+			int totalRightInset = cachedScrollIndicatorRightDim.getIntValue();
+			int totalBottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+
+			if (totalRightInset > 0) {
+				createVerticalScrollBar();
+			}
+			if (totalBottomInset > 0) {
+				createHorizontalScrollBar();
+			}
+		}
+		// Otherwise the scrollbars are created in the post() callback above
 	}
+
+	/**
+	 * Creates a custom vertical scrollbar view.
+	 */
+	private void createVerticalScrollBar()
+	{
+		if (scrollView == null || scrollView.getContext() == null || contentWrapper == null) {
+			return;
+		}
+
+		customVerticalScrollBar = new CustomVerticalScrollBar(scrollView.getContext());
+
+		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.WRAP_CONTENT,
+			ViewGroup.LayoutParams.MATCH_PARENT
+		);
+		params.gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+		params.rightMargin = rightInset;
+
+		contentWrapper.addView(customVerticalScrollBar, params);
+		customVerticalScrollBar.bringToFront();
+	}
+
+	/**
+	 * Creates a custom horizontal scrollbar view.
+	 */
+	private void createHorizontalScrollBar()
+	{
+		if (scrollView == null || scrollView.getContext() == null || contentWrapper == null) {
+			return;
+		}
+
+		customHorizontalScrollBar = new CustomHorizontalScrollBar(scrollView.getContext());
+
+		int rightInset = cachedScrollIndicatorRightDim.getIntValue();
+		int bottomInset = cachedScrollIndicatorBottomDim.getIntValue();
+
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.MATCH_PARENT,
+			ViewGroup.LayoutParams.WRAP_CONTENT
+		);
+		params.gravity = android.view.Gravity.BOTTOM;
+		params.bottomMargin = bottomInset;
+
+		contentWrapper.addView(customHorizontalScrollBar, params);
+		customHorizontalScrollBar.bringToFront();
+	}
+
 	public HashMap getContentInsets()
 	{
 		HashMap insets = new HashMap();
@@ -1319,7 +1636,7 @@ public class TiUIScrollView extends TiUIView
 			setContentInset(insetValue);
 		}
 
-		// Process scrollIndicatorInsets from initial properties dictionary (no-op on Android)
+		// Process scrollIndicatorInsets from initial properties dictionary
 		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_INSETS)) {
 			setScrollIndicatorInsets(d.get(TiC.PROPERTY_SCROLL_INDICATOR_INSETS));
 		}
