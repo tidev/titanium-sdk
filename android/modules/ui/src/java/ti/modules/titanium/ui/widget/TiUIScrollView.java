@@ -237,8 +237,6 @@ public class TiUIScrollView extends TiUIView
 				setAlpha(1f);
 				setVisibility(View.VISIBLE);
 				scheduleFadeOut();
-				// Request layout to trigger onDraw() with updated position
-				requestLayout();
 				postInvalidate();
 			} else {
 				setAlpha(0f);
@@ -333,8 +331,6 @@ public class TiUIScrollView extends TiUIView
 				setAlpha(1f);
 				setVisibility(View.VISIBLE);
 				scheduleFadeOut();
-				// Request layout to trigger onDraw() with updated position
-				requestLayout();
 				postInvalidate();
 			} else {
 				setAlpha(0f);
