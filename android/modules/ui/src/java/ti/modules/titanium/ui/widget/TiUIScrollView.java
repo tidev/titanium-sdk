@@ -704,6 +704,7 @@ public class TiUIScrollView extends TiUIView
 	private class TiVerticalScrollView extends NestedScrollView
 	{
 		private TiScrollViewLayout layout;
+		private KrollDict reusableScrollEventData = new KrollDict();
 
 		public TiVerticalScrollView(Context context, LayoutArrangement arrangement)
 		{
@@ -839,11 +840,11 @@ public class TiUIScrollView extends TiUIView
 				customVerticalScrollBar.updateScrollPosition(t, scrollRange, getMeasuredHeight());
 			}
 
-			// Prepare event data once and reuse for all fire calls
-			KrollDict eventData = new KrollDict();
-			eventData.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
-			eventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
-			getProxy().fireEvent(TiC.EVENT_SCROLL, eventData);
+			// Reuse existing KrollDict to avoid allocations per scroll event
+			reusableScrollEventData.clear();
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			getProxy().fireEvent(TiC.EVENT_SCROLL, reusableScrollEventData);
 		}
 
 		@Override
@@ -889,6 +890,7 @@ public class TiUIScrollView extends TiUIView
 	private class TiHorizontalScrollView extends HorizontalScrollView
 	{
 		private TiScrollViewLayout layout;
+		private KrollDict reusableScrollEventData = new KrollDict();
 
 		public TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
 		{
@@ -993,11 +995,11 @@ public class TiUIScrollView extends TiUIView
 				customHorizontalScrollBar.updateScrollPosition(l, scrollRange, getMeasuredWidth());
 			}
 
-			// Prepare event data once and reuse for all fire calls
-			KrollDict eventData = new KrollDict();
-			eventData.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
-			eventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
-			getProxy().fireEvent(TiC.EVENT_SCROLL, eventData);
+			// Reuse existing KrollDict to avoid allocations per scroll event
+			reusableScrollEventData.clear();
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			getProxy().fireEvent(TiC.EVENT_SCROLL, reusableScrollEventData);
 		}
 
 		@Override
