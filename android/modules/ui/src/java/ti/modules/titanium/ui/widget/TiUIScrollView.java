@@ -110,9 +110,43 @@ public class TiUIScrollView extends TiUIView
 	private CustomVerticalScrollBar customVerticalScrollBar;
 	private CustomHorizontalScrollBar customHorizontalScrollBar;
 
-	// Fade animation fields (moved from CustomScrollBar classes)
-	private android.os.Handler fadeHandler;
-	private Runnable fadeRunnable;
+	/**
+	 * Gets the active custom scrollbar view.
+	 * @return The active custom scrollbar (vertical or horizontal)
+	 */
+	private View getCustomScrollBar()
+	{
+		if (customVerticalScrollBar != null) {
+			return customVerticalScrollBar;
+		} else if (customHorizontalScrollBar != null) {
+			return customHorizontalScrollBar;
+		}
+		return null;
+	}
+
+	/**
+	 * Schedules the fade-out animation for the active custom scrollbar.
+	 */
+	private void scheduleFadeOut()
+	{
+		View view = getCustomScrollBar();
+		if (view != null) {
+			// Cancel any existing fade animation first to prevent conflicts
+			view.animate().cancel();
+			// Start new fade animation with immediate effect
+			view.animate().alpha(0f).setDuration(200).start(); // FADE_DURATION = 200ms (reduced from 300ms)
+			new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
+				@Override
+				public void run()
+				{
+					View view2 = getCustomScrollBar();
+					if (view2 != null && view2.getAlpha() == 0f) {
+						view2.setVisibility(View.GONE);
+					}
+				}
+			}, 200); // FADE_DURATION = 200ms (reduced from 300ms)
+		}
+	}
 
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
@@ -123,8 +157,7 @@ public class TiUIScrollView extends TiUIView
 	public class CustomVerticalScrollBar extends View
 	{
 		private static final int SCROLLBAR_WIDTH = 12;
-		private static final int FADE_DURATION = 300;
-		private static final int FADE_DELAY = 1000;
+		private static final int FADE_DURATION = 200; // Reduced from 300ms for better performance
 		private Paint paint = new Paint();
 		private RectF trackRect = new RectF();
 		private RectF thumbRect = new RectF();
@@ -133,38 +166,6 @@ public class TiUIScrollView extends TiUIView
 		private int thumbColor;
 		private int trackColor;
 		private int radius;
-		private android.os.Handler fadeHandler;
-		private Runnable fadeRunnable;
-
-		// Fade animation methods (moved from TiUIScrollView)
-		public void scheduleFadeOut()
-		{
-			cancelFadeOut();
-			fadeRunnable = new Runnable() {
-				@Override
-				public void run()
-				{
-					animate().alpha(0f).setDuration(FADE_DURATION).setStartDelay(0);
-					postDelayed(new Runnable() {
-						@Override
-						public void run()
-						{
-							if (getAlpha() == 0f) {
-								setVisibility(View.GONE);
-							}
-						}
-					}, FADE_DURATION);
-				}
-			};
-			fadeHandler.postDelayed(fadeRunnable, FADE_DELAY);
-		}
-
-		public void cancelFadeOut()
-		{
-			if (fadeHandler != null && fadeRunnable != null) {
-				fadeHandler.removeCallbacks(fadeRunnable);
-			}
-		}
 
 		public CustomVerticalScrollBar(
 			Context context, int topInset, int bottomInset,
@@ -177,14 +178,10 @@ public class TiUIScrollView extends TiUIView
 			this.trackColor = trackColor;
 			this.radius = radius;
 			paint.setAntiAlias(true);
-			fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 			setAlpha(0f);
 			setClickable(false);
 			setFocusable(false);
-			String vsLog = "CustomVerticalScrollBar created, topInset=" + topInset
-				+ " bottomInset=" + bottomInset + " thumb=" + Integer.toHexString(thumbColor)
-				+ " track=" + Integer.toHexString(trackColor);
-			Log.d(TAG, vsLog);
+			// Debug logging removed
 		}
 
 		@Override
@@ -227,28 +224,23 @@ public class TiUIScrollView extends TiUIView
 			paint.setColor(thumbColor);
 			canvas.drawRoundRect(thumbRect, r, r, paint);
 
-			String msg = "CustomVerticalScrollBar onDraw: track=" + trackHeight
-				+ " thumbTop=" + thumbTop + " thumbH=" + thumbHeight
-				+ " topInset=" + topInset + " bottomInset=" + bottomInset;
-			Log.d(TAG, msg);
+			// Debug logging removed
 		}
 
 		public void updateScrollPosition(int scrollY, int scrollRange, int viewportHeight)
 		{
 			this.scrollY = scrollY;
 			this.scrollRange = scrollRange;
-			String msg2 = "CustomVerticalScrollBar update: scrollY=" + scrollY
-				+ " scrollRange=" + scrollRange + " viewport=" + viewportHeight;
-			Log.d(TAG, msg2);
+			// Debug logging removed
 
 			if (scrollRange > 0) {
 				setAlpha(1f);
 				setVisibility(View.VISIBLE);
+				scheduleFadeOut();
+				// Request layout to trigger onDraw() with updated position
 				requestLayout();
 				postInvalidate();
-				scheduleFadeOut();
 			} else {
-				cancelFadeOut();
 				setAlpha(0f);
 				setVisibility(View.GONE);
 			}
@@ -261,8 +253,7 @@ public class TiUIScrollView extends TiUIView
 	public class CustomHorizontalScrollBar extends View
 	{
 		private static final int SCROLLBAR_HEIGHT = 12;
-		private static final int FADE_DURATION = 300;
-		private static final int FADE_DELAY = 1000;
+		private static final int FADE_DURATION = 200; // Reduced from 300ms for better performance
 		private Paint paint = new Paint();
 		private RectF trackRect = new RectF();
 		private RectF thumbRect = new RectF();
@@ -271,38 +262,6 @@ public class TiUIScrollView extends TiUIView
 		private int thumbColor;
 		private int trackColor;
 		private int radius;
-		private android.os.Handler fadeHandler;
-		private Runnable fadeRunnable;
-
-		// Fade animation methods (moved from TiUIScrollView)
-		public void scheduleFadeOut()
-		{
-			cancelFadeOut();
-			fadeRunnable = new Runnable() {
-				@Override
-				public void run()
-				{
-					animate().alpha(0f).setDuration(FADE_DURATION).setStartDelay(0);
-					postDelayed(new Runnable() {
-						@Override
-						public void run()
-						{
-							if (getAlpha() == 0f) {
-								setVisibility(View.GONE);
-							}
-						}
-					}, FADE_DURATION);
-				}
-			};
-			fadeHandler.postDelayed(fadeRunnable, FADE_DELAY);
-		}
-
-		public void cancelFadeOut()
-		{
-			if (fadeHandler != null && fadeRunnable != null) {
-				fadeHandler.removeCallbacks(fadeRunnable);
-			}
-		}
 
 		public CustomHorizontalScrollBar(
 			Context context, int leftInset, int rightInset,
@@ -315,14 +274,10 @@ public class TiUIScrollView extends TiUIView
 			this.trackColor = trackColor;
 			this.radius = radius;
 			paint.setAntiAlias(true);
-			fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 			setAlpha(0f);
 			setClickable(false);
 			setFocusable(false);
-			String hsLog = "CustomHorizontalScrollBar created, leftInset=" + leftInset
-				+ " rightInset=" + rightInset + " thumb=" + Integer.toHexString(thumbColor)
-				+ " track=" + Integer.toHexString(trackColor);
-			Log.d(TAG, hsLog);
+			// Debug logging removed
 		}
 
 		@Override
@@ -365,28 +320,23 @@ public class TiUIScrollView extends TiUIView
 			paint.setColor(thumbColor);
 			canvas.drawRoundRect(thumbRect, r, r, paint);
 
-			String msg = "CustomHorizontalScrollBar onDraw: track=" + trackWidth
-				+ " thumbLeft=" + thumbLeft + " thumbW=" + thumbWidth
-				+ " thumbColor=" + Integer.toHexString(thumbColor)
-				+ " trackColor=" + Integer.toHexString(trackColor);
-			Log.d(TAG, msg);
+			// Debug logging removed
 		}
 
 		public void updateScrollPosition(int scrollX, int scrollRange, int viewportWidth)
 		{
 			this.scrollX = scrollX;
 			this.scrollRange = scrollRange;
-			Log.d(TAG, "CustomHorizontalScrollBar update: scrollX=" + scrollX
-				+ " scrollRange=" + scrollRange + " viewport=" + viewportWidth);
+			// Debug logging removed
 
 			if (scrollRange > 0) {
 				setAlpha(1f);
 				setVisibility(View.VISIBLE);
+				scheduleFadeOut();
+				// Request layout to trigger onDraw() with updated position
 				requestLayout();
 				postInvalidate();
-				scheduleFadeOut();
 			} else {
-				cancelFadeOut();
 				setAlpha(0f);
 				setVisibility(View.GONE);
 			}
@@ -886,12 +836,11 @@ public class TiUIScrollView extends TiUIView
 				customVerticalScrollBar.updateScrollPosition(t, scrollRange, getMeasuredHeight());
 			}
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
-			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
-
-			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+			// Prepare event data once and reuse for all fire calls
+			KrollDict eventData = new KrollDict();
+			eventData.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			eventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			getProxy().fireEvent(TiC.EVENT_SCROLL, eventData);
 		}
 
 		@Override
@@ -1041,12 +990,11 @@ public class TiUIScrollView extends TiUIView
 				customHorizontalScrollBar.updateScrollPosition(l, scrollRange, getMeasuredWidth());
 			}
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
-			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
-
-			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+			// Prepare event data once and reuse for all fire calls
+			KrollDict eventData = new KrollDict();
+			eventData.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+			eventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			getProxy().fireEvent(TiC.EVENT_SCROLL, eventData);
 		}
 
 		@Override
