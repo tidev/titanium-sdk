@@ -35,6 +35,9 @@ public final class JSDebugger
 	// Are we ready to continue? Has the debugger been connected and we've processed the first set of messages?
 	private final AtomicBoolean ready = new AtomicBoolean(false);
 
+	// The session UUID generated for this debugger instance, validated when a client connects
+	private String sessionId;
+
 	// Holding place for messages received from V8 intended for debugger
 	private final LinkedBlockingQueue<String> v8Messages = new LinkedBlockingQueue<>();
 
@@ -120,9 +123,8 @@ public final class JSDebugger
 		synchronized (this.waitLock)
 		{
 			try {
-				// FIXME Use this UUID to store sessions and enforce it's used when a client is connecting
-				String id = UUID.randomUUID().toString();
-				String url = "127.0.0.1:" + this.port + "/" + id;
+				this.sessionId = UUID.randomUUID().toString();
+				String url = "127.0.0.1:" + this.port + "/" + this.sessionId;
 				Log.w(TAG, "Debugger listening on ws://" + url);
 				Log.w(
 					TAG,
@@ -163,6 +165,12 @@ public final class JSDebugger
 		@Override
 		public void onOpen(WebSocket conn, ClientHandshake handshake)
 		{
+			String resourceDescriptor = conn.getResourceDescriptor();
+			if (resourceDescriptor == null || !resourceDescriptor.endsWith("/" + sessionId)) {
+				Log.w(TAG, "Debugger client rejected: invalid session UUID");
+				conn.close();
+				return;
+			}
 			// Start up V8MessageHandler to process responses we get
 			try {
 				Log.w(TAG, "Debugger client connected");
