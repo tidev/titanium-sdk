@@ -165,7 +165,8 @@ public class TiUIScrollView extends TiUIView
 	{
 		private static final int SCROLLBAR_WIDTH = 12;
 		private static final int FADE_DURATION = 200; // Reduced from 300ms for better performance
-		private Paint paint = new Paint();
+		private Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		private Paint thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		private RectF trackRect = new RectF();
 		private RectF thumbRect = new RectF();
 		private int topInset;
@@ -184,7 +185,8 @@ public class TiUIScrollView extends TiUIView
 			this.thumbColor = thumbColor;
 			this.trackColor = trackColor;
 			this.radius = radius;
-			paint.setAntiAlias(true);
+			trackPaint.setColor(trackColor);
+			thumbPaint.setColor(thumbColor);
 			setAlpha(0f);
 			setClickable(false);
 			setFocusable(false);
@@ -209,8 +211,7 @@ public class TiUIScrollView extends TiUIView
 
 			// Track: full height with rounded edges
 			trackRect.set(0, 0, SCROLLBAR_WIDTH, trackHeight);
-			paint.setColor(trackColor);
-			canvas.drawRoundRect(trackRect, r, r, paint);
+			canvas.drawRoundRect(trackRect, r, r, trackPaint);
 
 			// Thumb: only within the inset area
 			int thumbArea = trackHeight - topInset - bottomInset;
@@ -228,8 +229,7 @@ public class TiUIScrollView extends TiUIView
 			thumbTop = Math.max(topInset, Math.min(thumbTop, trackHeight - bottomInset - thumbHeight));
 
 			thumbRect.set(0, thumbTop, SCROLLBAR_WIDTH, thumbTop + thumbHeight);
-			paint.setColor(thumbColor);
-			canvas.drawRoundRect(thumbRect, r, r, paint);
+			canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
 
 			// Debug logging removed
 		}
@@ -259,7 +259,8 @@ public class TiUIScrollView extends TiUIView
 	{
 		private static final int SCROLLBAR_HEIGHT = 12;
 		private static final int FADE_DURATION = 200; // Reduced from 300ms for better performance
-		private Paint paint = new Paint();
+		private Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		private Paint thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		private RectF trackRect = new RectF();
 		private RectF thumbRect = new RectF();
 		private int leftInset;
@@ -278,7 +279,8 @@ public class TiUIScrollView extends TiUIView
 			this.thumbColor = thumbColor;
 			this.trackColor = trackColor;
 			this.radius = radius;
-			paint.setAntiAlias(true);
+			trackPaint.setColor(trackColor);
+			thumbPaint.setColor(thumbColor);
 			setAlpha(0f);
 			setClickable(false);
 			setFocusable(false);
@@ -303,8 +305,7 @@ public class TiUIScrollView extends TiUIView
 
 			// Draw track full width with rounded edges
 			trackRect.set(0, 0, trackWidth, SCROLLBAR_HEIGHT);
-			paint.setColor(trackColor);
-			canvas.drawRoundRect(trackRect, r, r, paint);
+			canvas.drawRoundRect(trackRect, r, r, trackPaint);
 
 			// Thumb: only within left/right inset area
 			int thumbArea = trackWidth - leftInset - rightInset;
@@ -322,8 +323,7 @@ public class TiUIScrollView extends TiUIView
 			thumbLeft = Math.max(leftInset, Math.min(thumbLeft, trackWidth - rightInset - thumbWidth));
 
 			thumbRect.set(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_HEIGHT);
-			paint.setColor(thumbColor);
-			canvas.drawRoundRect(thumbRect, r, r, paint);
+			canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
 
 			// Debug logging removed
 		}
