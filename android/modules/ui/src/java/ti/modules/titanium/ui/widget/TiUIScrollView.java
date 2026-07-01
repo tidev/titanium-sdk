@@ -729,6 +729,7 @@ public class TiUIScrollView extends TiUIView
 				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
+			return super.onTouchEvent(event);
 		}
 
 		@Override
@@ -896,6 +897,7 @@ public class TiUIScrollView extends TiUIView
 				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
+			return super.onTouchEvent(event);
 		}
 
 		@Override
