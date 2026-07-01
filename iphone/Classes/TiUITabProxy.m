@@ -24,6 +24,7 @@
 
 @interface TiUITabProxy ()
 - (void)openOnUIThread:(NSArray *)args;
+- (BOOL)lazyLoadingEnabled;
 @end
 
 @implementation TiUITabProxy
@@ -158,6 +159,9 @@
     [rootWindow setIsManaged:YES];
     [rootWindow setTab:self];
     [rootWindow setParentOrientationController:self];
+    if (![self lazyLoadingEnabled]) {
+      [rootWindow open:nil];
+    }
   }
   return [rootWindow hostingController];
 }
@@ -317,20 +321,27 @@
   return tabGroup;
 }
 
+- (BOOL)lazyLoadingEnabled
+{
+  if (![tabGroup isKindOfClass:[TiUITabGroupProxy class]]) {
+    return NO;
+  }
+
+  return [(TiUITabGroupProxy *)tabGroup lazyLoadingEnabled];
+}
+
 - (KrollPromise *)openWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
   ENSURE_TYPE(window, TiWindowProxy); // FIXME: Should we catch and return a rejected Promise? Or throw sync like this?
 
-  [window setIsManaged:YES];
-  [window setTab:self];
-  [window setParentOrientationController:self];
-
   if (window == rootWindow) {
     [rootWindow windowWillOpen];
     [rootWindow windowDidOpen];
-    return [KrollPromise resolved:@[] inContext:[self currentContext]];
   }
+  [window setIsManaged:YES];
+  [window setTab:self];
+  [window setParentOrientationController:self];
 
   // Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
@@ -470,9 +481,10 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  if (theWindow == rootWindow) {
+  if ([self lazyLoadingEnabled] && theWindow == rootWindow) {
     if ([[theWindow closed] boolValue]) {
-      [[self openWindow:@[ theWindow ]] flush];
+      [theWindow windowWillOpen];
+      [theWindow windowDidOpen];
     }
   } else if ([theWindow opening]) {
     [theWindow windowWillOpen];

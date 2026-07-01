@@ -428,6 +428,18 @@ properties:
     platforms: [ipad]
     since: 13.1.0
 
+  - name: lazyLoadingEnabled
+    summary: Lazily opens each tab's root window only when that tab becomes active/selected.
+    description: |
+        When set to `true`, iOS opens a tab's root <Titanium.UI.Window> only when that tab is shown.
+        When set to `false`, iOS preserves the legacy behavior and opens all tabs root window during tab group initialization.
+        Defaults to `false` for compatibility, but will default to `true` starting with SDK `14.0.0.GA`.
+    type: Boolean
+    default: false
+    availability: creation
+    platforms: [iphone, ipad, macos]
+    since: 13.3.0
+
   - name: swipeable
     summary: |
         Boolean value indicating if tab navigation can be done by swipes, in addition to tab clicks.
