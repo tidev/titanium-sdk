@@ -60,6 +60,8 @@ public class TiUIScrollView extends TiUIView
 
 	// Scroll event throttling (~60fps)
 	private static final int SCROLL_EVENT_THROTTLE_MS = 16;
+	private static final int FADE_DURATION = 200; // Fade-out animation duration in ms
+
 	private long lastScrollEventTime = 0;
 	private int cachedOffsetX = 0;
 	private int cachedOffsetY = 0;
@@ -110,6 +112,19 @@ public class TiUIScrollView extends TiUIView
 	private CustomVerticalScrollBar customVerticalScrollBar;
 	private CustomHorizontalScrollBar customHorizontalScrollBar;
 
+	// Reusable handler and runnable for fade-out animation to avoid allocations per scroll event
+	private final android.os.Handler fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+	private final Runnable fadeRunnable = new Runnable() {
+		@Override
+		public void run()
+		{
+			View view2 = getCustomScrollBar();
+			if (view2 != null && view2.getAlpha() == 0f) {
+				view2.setVisibility(View.GONE);
+			}
+		}
+	};
+
 	/**
 	 * Gets the active custom scrollbar view.
 	 * @return The active custom scrollbar (vertical or horizontal)
@@ -131,20 +146,12 @@ public class TiUIScrollView extends TiUIView
 	{
 		View view = getCustomScrollBar();
 		if (view != null) {
-			// Cancel any existing fade animation first to prevent conflicts
+			// Cancel any existing fade animation and pending runnable to prevent conflicts
 			view.animate().cancel();
+			fadeHandler.removeCallbacks(fadeRunnable);
 			// Start new fade animation with immediate effect
-			view.animate().alpha(0f).setDuration(200).start(); // FADE_DURATION = 200ms (reduced from 300ms)
-			new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(new Runnable() {
-				@Override
-				public void run()
-				{
-					View view2 = getCustomScrollBar();
-					if (view2 != null && view2.getAlpha() == 0f) {
-						view2.setVisibility(View.GONE);
-					}
-				}
-			}, 200); // FADE_DURATION = 200ms (reduced from 300ms)
+			view.animate().alpha(0f).setDuration(FADE_DURATION).start();
+			fadeHandler.postDelayed(fadeRunnable, FADE_DURATION);
 		}
 	}
 
