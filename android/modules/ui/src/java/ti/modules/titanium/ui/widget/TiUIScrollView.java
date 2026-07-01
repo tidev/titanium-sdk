@@ -161,27 +161,34 @@ public class TiUIScrollView extends TiUIView
 	private TiDimension xDimension;
 	private TiDimension yDimension;
 
-	public class CustomVerticalScrollBar extends View
+	public class CustomScrollBar extends View
 	{
-		private static final int SCROLLBAR_WIDTH = 12;
+		public enum Orientation { VERTICAL, HORIZONTAL }
+
+		private static final int SCROLLBAR_SIZE = 12;
 		private static final int FADE_DURATION = 200; // Reduced from 300ms for better performance
+		private static final int MIN_THUMB_SIZE = 40; // Minimum thumb size for usability
 		private Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		private Paint thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		private RectF trackRect = new RectF();
 		private RectF thumbRect = new RectF();
-		private int topInset;
-		private int bottomInset;
+
+		private final Orientation orientation;
+		private int insetStart, insetEnd; // top/bottom for vertical, left/right for horizontal
 		private int thumbColor;
 		private int trackColor;
 		private int radius;
+		private int scrollPosition, scrollRange;
 
-		public CustomVerticalScrollBar(
-			Context context, int topInset, int bottomInset,
+		public CustomScrollBar(
+			Context context, Orientation orientation,
+			int insetStart, int insetEnd,
 			int thumbColor, int trackColor, int radius)
 		{
 			super(context);
-			this.topInset = topInset;
-			this.bottomInset = bottomInset;
+			this.orientation = orientation;
+			this.insetStart = insetStart;
+			this.insetEnd = insetEnd;
 			this.thumbColor = thumbColor;
 			this.trackColor = trackColor;
 			this.radius = radius;
@@ -196,157 +203,125 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
-			int height = MeasureSpec.getSize(heightMeasureSpec);
-			setMeasuredDimension(SCROLLBAR_WIDTH, height);
+			if (orientation == Orientation.VERTICAL) {
+				int height = MeasureSpec.getSize(heightMeasureSpec);
+				setMeasuredDimension(SCROLLBAR_SIZE, height);
+			} else {
+				int width = MeasureSpec.getSize(widthMeasureSpec);
+				setMeasuredDimension(width, SCROLLBAR_SIZE);
+			}
 		}
 
 		@Override
 		protected void onDraw(Canvas canvas)
 		{
 			super.onDraw(canvas);
-			int trackHeight = getHeight();
-			if (trackHeight == 0) return;
 
-			int r = Math.min(radius, SCROLLBAR_WIDTH / 2);
+			if (orientation == Orientation.VERTICAL) {
+				int trackHeight = getHeight();
+				if (trackHeight == 0) return;
 
-			// Track: full height with rounded edges
-			trackRect.set(0, 0, SCROLLBAR_WIDTH, trackHeight);
-			canvas.drawRoundRect(trackRect, r, r, trackPaint);
+				int r = Math.min(radius, SCROLLBAR_SIZE / 2);
 
-			// Thumb: only within the inset area
-			int thumbArea = trackHeight - topInset - bottomInset;
-			if (thumbArea <= 0) return;
+				// Track: full height with rounded edges
+				trackRect.set(0, 0, SCROLLBAR_SIZE, trackHeight);
+				canvas.drawRoundRect(trackRect, r, r, trackPaint);
 
-			int thumbHeight = Math.max(40, thumbArea * thumbArea / (thumbArea + scrollRange));
-			int thumbTop;
-			if (scrollRange > 0) {
-				float ratio = (float) scrollY / scrollRange;
-				thumbTop = topInset + (int) (ratio * (thumbArea - thumbHeight));
-			} else {
-				thumbTop = topInset;
+				// Thumb: only within the inset area
+				int thumbArea = trackHeight - insetStart - insetEnd;
+				if (thumbArea <= 0) return;
+
+				int thumbHeight = Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange));
+				int thumbTop;
+				if (scrollRange > 0) {
+					float ratio = (float) scrollPosition / scrollRange;
+					thumbTop = insetStart + (int) (ratio * (thumbArea - thumbHeight));
+				} else {
+					thumbTop = insetStart;
+				}
+				// Clamp thumb within inset bounds
+				thumbTop = Math.max(insetStart, Math.min(thumbTop, trackHeight - insetEnd - thumbHeight));
+
+				thumbRect.set(0, thumbTop, SCROLLBAR_SIZE, thumbTop + thumbHeight);
+				canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
+
+			} else { // HORIZONTAL
+				int trackWidth = getWidth();
+				if (trackWidth == 0) return;
+
+				int r = Math.min(radius, SCROLLBAR_SIZE / 2);
+
+				// Draw track full width with rounded edges
+				trackRect.set(0, 0, trackWidth, SCROLLBAR_SIZE);
+				canvas.drawRoundRect(trackRect, r, r, trackPaint);
+
+				// Thumb: only within left/right inset area
+				int thumbArea = trackWidth - insetStart - insetEnd;
+				if (thumbArea <= 0) return;
+
+				int thumbWidth = Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange));
+				int thumbLeft;
+				if (scrollRange > 0) {
+					float ratio = (float) scrollPosition / scrollRange;
+					thumbLeft = insetStart + (int) (ratio * (thumbArea - thumbWidth));
+				} else {
+					thumbLeft = insetStart;
+				}
+				// Clamp thumb within inset bounds
+				thumbLeft = Math.max(insetStart, Math.min(thumbLeft, trackWidth - insetEnd - thumbWidth));
+
+				thumbRect.set(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_SIZE);
+				canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
 			}
-			// Clamp thumb within inset bounds
-			thumbTop = Math.max(topInset, Math.min(thumbTop, trackHeight - bottomInset - thumbHeight));
-
-			thumbRect.set(0, thumbTop, SCROLLBAR_WIDTH, thumbTop + thumbHeight);
-			canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
 
 			// Debug logging removed
+		}
+
+		public void updateScrollPosition(int scrollPos, int scrollRange, int viewportSize)
+		{
+			this.scrollPosition = scrollPos;
+			this.scrollRange = scrollRange;
+			// Debug logging removed
+
+			if (scrollRange > 0) {
+				setAlpha(1f);
+				setVisibility(View.VISIBLE);
+				scheduleFadeOut();
+				postInvalidate();
+			} else {
+				setAlpha(0f);
+				setVisibility(View.GONE);
+			}
+		}
+	}
+
+	// Legacy aliases for backward compatibility during refactoring
+	public class CustomVerticalScrollBar extends CustomScrollBar
+	{
+		public CustomVerticalScrollBar(Context context, int topInset, int bottomInset,
+									  int thumbColor, int trackColor, int radius)
+		{
+			super(context, Orientation.VERTICAL, topInset, bottomInset, thumbColor, trackColor, radius);
 		}
 
 		public void updateScrollPosition(int scrollY, int scrollRange, int viewportHeight)
 		{
-			this.scrollY = scrollY;
-			this.scrollRange = scrollRange;
-			// Debug logging removed
-
-			if (scrollRange > 0) {
-				setAlpha(1f);
-				setVisibility(View.VISIBLE);
-				scheduleFadeOut();
-				postInvalidate();
-			} else {
-				setAlpha(0f);
-				setVisibility(View.GONE);
-			}
+			super.updateScrollPosition(scrollY, scrollRange, viewportHeight);
 		}
-
-		private int scrollY = 0;
-		private int scrollRange = 0;
 	}
 
-	public class CustomHorizontalScrollBar extends View
+	public class CustomHorizontalScrollBar extends CustomScrollBar
 	{
-		private static final int SCROLLBAR_HEIGHT = 12;
-		private static final int FADE_DURATION = 200; // Reduced from 300ms for better performance
-		private Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		private Paint thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		private RectF trackRect = new RectF();
-		private RectF thumbRect = new RectF();
-		private int leftInset;
-		private int rightInset;
-		private int thumbColor;
-		private int trackColor;
-		private int radius;
-
-		public CustomHorizontalScrollBar(
-			Context context, int leftInset, int rightInset,
-			int thumbColor, int trackColor, int radius)
+		public CustomHorizontalScrollBar(Context context, int leftInset, int rightInset,
+										int thumbColor, int trackColor, int radius)
 		{
-			super(context);
-			this.leftInset = leftInset;
-			this.rightInset = rightInset;
-			this.thumbColor = thumbColor;
-			this.trackColor = trackColor;
-			this.radius = radius;
-			trackPaint.setColor(trackColor);
-			thumbPaint.setColor(thumbColor);
-			setAlpha(0f);
-			setClickable(false);
-			setFocusable(false);
-			// Debug logging removed
-		}
-
-		@Override
-		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-		{
-			int width = MeasureSpec.getSize(widthMeasureSpec);
-			setMeasuredDimension(width, SCROLLBAR_HEIGHT);
-		}
-
-		@Override
-		protected void onDraw(Canvas canvas)
-		{
-			super.onDraw(canvas);
-			int trackWidth = getWidth();
-			if (trackWidth == 0) return;
-
-			int r = Math.min(radius, SCROLLBAR_HEIGHT / 2);
-
-			// Draw track full width with rounded edges
-			trackRect.set(0, 0, trackWidth, SCROLLBAR_HEIGHT);
-			canvas.drawRoundRect(trackRect, r, r, trackPaint);
-
-			// Thumb: only within left/right inset area
-			int thumbArea = trackWidth - leftInset - rightInset;
-			if (thumbArea <= 0) return;
-
-			int thumbWidth = Math.max(40, thumbArea * thumbArea / (thumbArea + scrollRange));
-			int thumbLeft;
-			if (scrollRange > 0) {
-				float ratio = (float) scrollX / scrollRange;
-				thumbLeft = leftInset + (int) (ratio * (thumbArea - thumbWidth));
-			} else {
-				thumbLeft = leftInset;
-			}
-			// Clamp thumb within inset bounds
-			thumbLeft = Math.max(leftInset, Math.min(thumbLeft, trackWidth - rightInset - thumbWidth));
-
-			thumbRect.set(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_HEIGHT);
-			canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
-
-			// Debug logging removed
+			super(context, Orientation.HORIZONTAL, leftInset, rightInset, thumbColor, trackColor, radius);
 		}
 
 		public void updateScrollPosition(int scrollX, int scrollRange, int viewportWidth)
 		{
-			this.scrollX = scrollX;
-			this.scrollRange = scrollRange;
-			// Debug logging removed
-
-			if (scrollRange > 0) {
-				setAlpha(1f);
-				setVisibility(View.VISIBLE);
-				scheduleFadeOut();
-				postInvalidate();
-			} else {
-				setAlpha(0f);
-				setVisibility(View.GONE);
-			}
+			super.updateScrollPosition(scrollX, scrollRange, viewportWidth);
 		}
-
-		private int scrollX = 0;
-		private int scrollRange = 0;
 	}
 
 	public class TiScrollViewLayout extends TiCompositeLayout
@@ -381,7 +356,7 @@ public class TiUIScrollView extends TiUIView
 					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 						fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					}
-					return true;
+					return false;
 				}
 				@Override
 				public boolean onDoubleTap(MotionEvent e)
@@ -389,7 +364,7 @@ public class TiUIScrollView extends TiUIView
 					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP)) {
 						fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 					}
-					return true;
+					return false;
 				}
 			});
 			setOnTouchListener(new OnTouchListener() {
@@ -754,13 +729,6 @@ public class TiUIScrollView extends TiUIView
 				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
-			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
-			//Link: http://code.google.com/p/android/issues/detail?id=18990
-			try {
-				return super.onTouchEvent(event);
-			} catch (IllegalArgumentException e) {
-				return false;
-			}
 		}
 
 		@Override
@@ -787,11 +755,8 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
 		{
-			if (mScrollingEnabled) {
-				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-			} else {
-				dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
-			}
+			if (!mScrollingEnabled) return;
+			super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 		}
 
 		@Override
@@ -931,13 +896,6 @@ public class TiUIScrollView extends TiUIView
 				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
 				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
 			}
-			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
-			//Link: http://code.google.com/p/android/issues/detail?id=18990
-			try {
-				return super.onTouchEvent(event);
-			} catch (IllegalArgumentException e) {
-				return false;
-			}
 		}
 
 		@Override
@@ -1064,6 +1022,8 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void release()
 	{
+		fadeHandler.removeCallbacksAndMessages(null);
+
 		// If a refresh control is currently assigned, then detach it.
 		View nativeView = getNativeView();
 		if (nativeView instanceof TiSwipeRefreshLayout) {
@@ -2011,15 +1971,16 @@ public class TiUIScrollView extends TiUIView
 	public void scrollToBottom(boolean animated)
 	{
 		View view = this.scrollView;
-		if (view instanceof TiHorizontalScrollView) {
-			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
-		} else if (view instanceof TiVerticalScrollView) {
-			if (animated == false) {
-				((TiVerticalScrollView) view).fullScroll(View.FOCUS_DOWN);
-			} else {
-				NestedScrollView nestedScrollView = ((TiVerticalScrollView) view);
-				nestedScrollView.smoothScrollBy(0, nestedScrollView.getChildAt(0).getHeight());
-			}
+		if (view == null) return;
+
+		int contentHeight = getLayout().getMeasuredHeight();
+		int viewportHeight = view.getMeasuredHeight();
+		int targetY = Math.max(0, contentHeight - viewportHeight);
+
+		if (animated && view instanceof TiVerticalScrollView) {
+			((TiVerticalScrollView) view).smoothScrollTo(0, targetY);
+		} else {
+			view.scrollTo(0, targetY);
 		}
 	}
 
