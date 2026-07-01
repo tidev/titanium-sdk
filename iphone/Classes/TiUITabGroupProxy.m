@@ -162,7 +162,7 @@ static NSArray *tabGroupKeySequence;
 - (void)windowWillOpen
 {
   if (![self lazyLoadingEnabled]) {
-    DebugLog(@"[WARN] Ti.UI.TabGroup.lazyLoadingEnabled is currently false by default on iOS, but will default to true starting with SDK 14.0.0.GA. Set lazyLoadingEnabled explicitly to preserve the current behavior.");
+    DebugLog(@"[WARN] Ti.UI.TabGroup.lazyLoadingEnabled is currently false by default on iOS, but will default to true starting with SDK 14.0.0.GA. Set lazyLoadingEnabled explicitly to false to preserve the current behavior.");
   }
   TiUITabGroup *tg = (TiUITabGroup *)self.view;
   [tg open:nil];
