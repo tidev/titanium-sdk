@@ -269,7 +269,17 @@ static NSArray *scrollViewKeySequence;
       return;
     }
 
-    // Apply color on next runloop to ensure indicators are fully created
+    // Force indicator recreation to ensure they accept backgroundColor
+    scrollView.showsVerticalScrollIndicator = NO;
+    scrollView.showsHorizontalScrollIndicator = NO;
+    [scrollView setNeedsLayout];
+    [scrollView layoutIfNeeded];
+    scrollView.showsVerticalScrollIndicator = YES;
+    scrollView.showsHorizontalScrollIndicator = YES;
+    [scrollView setNeedsLayout];
+    [scrollView layoutIfNeeded];
+
+    // Apply color after recreation on next runloop
     dispatch_async(dispatch_get_main_queue(), ^{
       UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
       NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applying to %lu subviews", (unsigned long)sv.subviews.count);
@@ -290,7 +300,7 @@ static NSArray *scrollViewKeySequence;
             subview.layer.backgroundColor = color.CGColor;
             subview.layer.cornerRadius = 1.5f;
             subview.alpha = 1.0f;
-            NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applied backgroundColor + alpha=1.0 on %@", className);
+            NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applied backgroundColor on %@", className);
           }
         }
       }
@@ -379,7 +389,17 @@ static NSArray *scrollViewKeySequence;
       UIColor *color = [[TiUtils colorValue:savedScrollIndicatorColor] color];
       NSLog(@"[TiUIScrollViewProxy] windowWillOpen: parsed color = %@", color);
       if (color != nil) {
-        // Apply color on next runloop to ensure indicators are fully created
+        // Force indicator recreation to ensure they accept backgroundColor
+        scrollView.showsVerticalScrollIndicator = NO;
+        scrollView.showsHorizontalScrollIndicator = NO;
+        [scrollView setNeedsLayout];
+        [scrollView layoutIfNeeded];
+        scrollView.showsVerticalScrollIndicator = YES;
+        scrollView.showsHorizontalScrollIndicator = YES;
+        [scrollView setNeedsLayout];
+        [scrollView layoutIfNeeded];
+
+        // Apply color after recreation on next runloop
         dispatch_async(dispatch_get_main_queue(), ^{
           UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
           for (UIView *subview in sv.subviews) {
@@ -399,7 +419,7 @@ static NSArray *scrollViewKeySequence;
                 subview.layer.backgroundColor = color.CGColor;
                 subview.layer.cornerRadius = 1.5f;
                 subview.alpha = 1.0f;
-                NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed applied backgroundColor + alpha=1.0 on %@", className);
+                NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed applied backgroundColor on %@", className);
               }
             }
           }
