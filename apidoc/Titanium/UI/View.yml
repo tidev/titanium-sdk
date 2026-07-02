@@ -1408,7 +1408,12 @@ properties:
     description: |
         If [borderColor](Titanium.UI.View.borderColor) is set without [borderWidth](Titanium.UI.View.borderWidth), this value
         will be changed to 1 of the unit declared as 'ti.ui.defaultunit' in tiapp.xml descriptor.
-    type: Number
+
+        Since Titanium 14.0.0:
+        Width for each side can be specified as a string or array. For example, `'10 20'` will set top and bottom to `10`
+        and left and right to `20`. Specifying `'1 2 3 4'` or `[1, 2, 3, 4]` will set top, right, bottom and left widths
+        in that order (CSS convention).
+    type: [Number, String, Array<Number>, Array<String>]
     default: 0
 
   - name: bottom
