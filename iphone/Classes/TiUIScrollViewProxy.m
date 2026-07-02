@@ -155,13 +155,9 @@ static NSArray *scrollViewKeySequence;
     }
 
     UIEdgeInsets insets = [TiUtils contentInsets:value];
-    UIEdgeInsets current = scrollView.scrollIndicatorInsets;
-    // verticalScrollIndicatorInsets affects left/right (vertical indicator is on the side)
-    insets.left = current.left;
-    insets.right = current.right;
 
     void (^updateInsets)(void) = ^{
-      scrollView.scrollIndicatorInsets = insets;
+      scrollView.verticalScrollIndicatorInsets = insets;
     };
 
     if (animated && duration > 0) {
@@ -200,13 +196,9 @@ static NSArray *scrollViewKeySequence;
     }
 
     UIEdgeInsets insets = [TiUtils contentInsets:value];
-    UIEdgeInsets current = scrollView.scrollIndicatorInsets;
-    // horizontalScrollIndicatorInsets affects top/bottom (horizontal indicator is on top/bottom)
-    insets.top = current.top;
-    insets.bottom = current.bottom;
 
     void (^updateInsets)(void) = ^{
-      scrollView.scrollIndicatorInsets = insets;
+      scrollView.horizontalScrollIndicatorInsets = insets;
     };
 
     if (animated && duration > 0) {
@@ -220,7 +212,7 @@ static NSArray *scrollViewKeySequence;
 - (id)verticalScrollIndicatorInsets
 {
   if ([self viewAttached]) {
-    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].scrollIndicatorInsets;
+    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].verticalScrollIndicatorInsets;
     return @{
       @"top" : @(insets.top),
       @"left" : @(insets.left),
@@ -234,7 +226,7 @@ static NSArray *scrollViewKeySequence;
 - (id)horizontalScrollIndicatorInsets
 {
   if ([self viewAttached]) {
-    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].scrollIndicatorInsets;
+    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].horizontalScrollIndicatorInsets;
     return @{
       @"top" : @(insets.top),
       @"left" : @(insets.left),
@@ -364,36 +356,30 @@ static NSArray *scrollViewKeySequence;
       scrollView.contentInset = insets;
     }
 
-    // Combine verticalScrollIndicatorInsets (left/right) and horizontalScrollIndicatorInsets (top/bottom)
+    // Apply verticalScrollIndicatorInsets (left/right)
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
     scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
-
-    CGFloat top = 0.0, left = 0.0, bottom = 0.0, right = 0.0;
 
     id savedVerticalScrollIndicatorInsets = [self valueForUndefinedKey:@"verticalScrollIndicatorInsets"];
     if (savedVerticalScrollIndicatorInsets != nil && ![savedVerticalScrollIndicatorInsets isEqual:[NSNull null]]) {
       NSDictionary *vInsets = savedVerticalScrollIndicatorInsets;
-      if (vInsets[@"left"]) {
-        left = [vInsets[@"left"] floatValue];
-      }
-      if (vInsets[@"right"]) {
-        right = [vInsets[@"right"] floatValue];
-      }
+      CGFloat top = [vInsets[@"top"] floatValue];
+      CGFloat left = [vInsets[@"left"] floatValue];
+      CGFloat bottom = [vInsets[@"bottom"] floatValue];
+      CGFloat right = [vInsets[@"right"] floatValue];
+      scrollView.verticalScrollIndicatorInsets = UIEdgeInsetsMake(top, left, bottom, right);
     }
 
+    // Apply horizontalScrollIndicatorInsets (top/bottom)
     id savedHorizontalScrollIndicatorInsets = [self valueForUndefinedKey:@"horizontalScrollIndicatorInsets"];
     if (savedHorizontalScrollIndicatorInsets != nil && ![savedHorizontalScrollIndicatorInsets isEqual:[NSNull null]]) {
       NSDictionary *hInsets = savedHorizontalScrollIndicatorInsets;
-      if (hInsets[@"top"]) {
-        top = [hInsets[@"top"] floatValue];
-      }
-      if (hInsets[@"bottom"]) {
-        bottom = [hInsets[@"bottom"] floatValue];
-      }
+      CGFloat top = [hInsets[@"top"] floatValue];
+      CGFloat left = [hInsets[@"left"] floatValue];
+      CGFloat bottom = [hInsets[@"bottom"] floatValue];
+      CGFloat right = [hInsets[@"right"] floatValue];
+      scrollView.horizontalScrollIndicatorInsets = UIEdgeInsetsMake(top, left, bottom, right);
     }
-
-    UIEdgeInsets insets = UIEdgeInsetsMake(top, left, bottom, right);
-    scrollView.scrollIndicatorInsets = insets;
 
     // Re-apply scrollIndicatorColor after view is attached
     NSLog(@"[TiUIScrollViewProxy] windowWillOpen: checking scrollIndicatorColor");
