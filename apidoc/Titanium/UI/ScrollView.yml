@@ -284,23 +284,46 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "13.4.0"
 
-  - name: scrollIndicatorInsets
-    summary: Insets for the scroll indicators of the scroll view.
+  - name: verticalScrollIndicatorInsets
+    summary: Insets for the vertical scroll indicator of the scroll view.
     description: |
         A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
-        to inset the scroll indicators on each side. Useful when using custom content insets or
+        to inset the vertical scroll indicator. The `left` and `right` values position the vertical
+        scroll indicator horizontally. Useful when using custom content insets or
         when the scroll view is placed within a container that obscures part of the scroll area.
-        
+
         On iOS, this property disables automatic scroll indicator inset adjustment
         (`automaticallyAdjustsScrollIndicatorInsets = NO`) to allow manual control.
-        
-        The `scrollIndicatorInsets` can be set independently from `contentInsets` — they do NOT
-        need to be smaller. This allows scroll indicators to extend beyond the content area
-        (e.g., for visual alignment with other UI elements).
-        
+
         Can also include animation options directly in the dictionary:
         ```javascript
-        scrollView.scrollIndicatorInsets = {
+        scrollView.verticalScrollIndicatorInsets = {
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 300             // Animation duration in milliseconds (default: 300ms)
+        };
+        ```
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "13.4.0"
+
+  - name: horizontalScrollIndicatorInsets
+    summary: Insets for the horizontal scroll indicator of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the horizontal scroll indicator. The `top` and `bottom` values position the horizontal
+        scroll indicator vertically. Useful when using custom content insets or
+        when the scroll view is placed within a container that obscures part of the scroll area.
+
+        On iOS, this property disables automatic scroll indicator inset adjustment
+        (`automaticallyAdjustsScrollIndicatorInsets = NO`) to allow manual control.
+
+        Can also include animation options directly in the dictionary:
+        ```javascript
+        scrollView.horizontalScrollIndicatorInsets = {
             top: 20,
             left: 10,
             bottom: 20,
