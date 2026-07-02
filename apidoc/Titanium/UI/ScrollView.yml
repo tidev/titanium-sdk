@@ -288,7 +288,7 @@ properties:
         ```
     type: Dictionary
     platforms: [iphone, ipad, macos]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: verticalScrollIndicatorInsets
     summary: Insets for the vertical scroll indicator of the scroll view.
@@ -314,7 +314,7 @@ properties:
         ```
     type: Dictionary
     platforms: [iphone, ipad, macos]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: horizontalScrollIndicatorInsets
     summary: Insets for the horizontal scroll indicator of the scroll view.
@@ -340,7 +340,7 @@ properties:
         ```
     type: Dictionary
     platforms: [iphone, ipad, macos]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: scrollIndicatorColor
     summary: Color of the scroll indicators.
@@ -357,7 +357,7 @@ properties:
         Works on iOS 9 and later.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, macos]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: contentWidth
     summary: Width of the scrollable region.
