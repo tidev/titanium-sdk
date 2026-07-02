@@ -343,6 +343,11 @@ properties:
         on the underlying indicator image views. This is a custom extension beyond the
         native `scrollIndicatorStyle` which only supports black/white/automatic/default.
 
+        **Notes:**
+        - On iOS 16 and later, the color only slightly tints the scroll indicator due to
+          internal rendering in the private `_UIScrollViewScrollIndicator` class.
+        - Alpha values in the color are ignored; full opacity is always used.
+
         Works on iOS 9 and later.
     type: UIColor
     platforms: [iphone, ipad, macos]
