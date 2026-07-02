@@ -242,6 +242,32 @@ describe('Titanium.UI.ScrollView', function () {
 		should(scrollView.horizontalScrollIndicatorInsets.right).eql(35);
 	});
 
+	it.ios('scrollIndicatorColor', function (finish) {
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL
+		});
+		const content = Ti.UI.createView({
+			height: 2000,
+			width: Ti.UI.FILL
+		});
+		scrollView.add(content);
+		win.add(scrollView);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				scrollView.scrollIndicatorColor = '#ff0000';
+				should(scrollView.scrollIndicatorColor).be.a.String();
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
 	it.ios('horizontalScrollIndicatorInsets with animation options', function (finish) {
 		win = Ti.UI.createWindow();
 		const scrollView = Ti.UI.createScrollView({

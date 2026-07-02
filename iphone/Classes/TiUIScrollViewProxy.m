@@ -33,6 +33,7 @@ static NSArray *scrollViewKeySequence;
   [self initializeProperty:@"contentInsets" defaultValue:nil];
   [self initializeProperty:@"verticalScrollIndicatorInsets" defaultValue:nil];
   [self initializeProperty:@"horizontalScrollIndicatorInsets" defaultValue:nil];
+  [self initializeProperty:@"scrollIndicatorColor" defaultValue:nil];
   [super _initWithProperties:properties];
 }
 
@@ -240,6 +241,41 @@ static NSArray *scrollViewKeySequence;
     };
   }
   return [NSNull null];
+}
+
+- (id)scrollIndicatorColor
+{
+  if ([self viewAttached]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    for (UIView *subview in scrollView.subviews) {
+      if ([subview isKindOfClass:[UIImageView class]]) {
+        return [(UIImageView *)subview tintColor];
+      }
+    }
+  }
+  return [NSNull null];
+}
+
+- (void)setScrollIndicatorColor:(id)value
+{
+  ENSURE_UI_THREAD(setScrollIndicatorColor, value);
+  [self replaceValue:value forKey:@"scrollIndicatorColor" notification:NO];
+  if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    UIColor *color = [TiUtils colorValue:value];
+    if (color == nil) {
+      return;
+    }
+
+    for (UIView *subview in scrollView.subviews) {
+      if ([subview isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)subview;
+        imageView.tintColor = color;
+        imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+      }
+    }
+    [scrollView flashScrollIndicators];
+  }
 }
 
 - (void)windowWillOpen

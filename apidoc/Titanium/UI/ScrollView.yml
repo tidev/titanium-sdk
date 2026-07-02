@@ -336,6 +336,18 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "13.4.0"
 
+  - name: scrollIndicatorColor
+    summary: Color of the scroll indicators.
+    description: |
+        Sets the color of both vertical and horizontal scroll indicators via tinting
+        on the underlying indicator image views. This is a custom extension beyond the
+        native `scrollIndicatorStyle` which only supports black/white/automatic/default.
+
+        Works on iOS 9 and later.
+    type: UIColor
+    platforms: [iphone, ipad, macos]
+    since: "13.4.0"
+
   - name: contentWidth
     summary: Width of the scrollable region.
     description: |
