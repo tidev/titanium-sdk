@@ -349,7 +349,7 @@ properties:
         - Alpha values in the color are ignored; full opacity is always used.
 
         Works on iOS 9 and later.
-    type: UIColor
+    type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, macos]
     since: "13.4.0"
 
