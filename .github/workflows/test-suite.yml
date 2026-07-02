@@ -1,0 +1,119 @@
+name: Test Suite
+on:
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      USE_CCACHE: 1
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install 32-bit dependencies
+        run: sudo apt-get install -y gperf libatomic1:i386 libc6:i386 libstdc++6:i386
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - run: npm ci
+      - uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+      - uses: hendrikmuhs/ccache-action@v1.2.23
+        with:
+          key: ${{ github.sha }}
+      - uses: actions/cache@v5
+        with:
+          path: dist/android/libv8
+          key: v8-${{ hashFiles('dist/android/libv8/**') }}
+      - run: npm run test:android
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-test-results
+          path: junit.*.xml
+
+  ios:
+    runs-on: macos-26
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      USE_CCACHE: 1
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - uses: hendrikmuhs/ccache-action@v1.2.23
+        with:
+          key: ${{ github.sha }}
+      - run: npm run test:ios
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-test-results
+          path: junit.*.xml
+
+  report:
+    if: always()
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: test-results
+      - name: Aggregate test results
+        run: |
+          cat > /tmp/aggregate_results.py << 'PYEOF'
+          import xml.etree.ElementTree as ET, glob, os
+
+          total_tests = 0
+          total_failures = 0
+          total_skipped = 0
+
+          for f in glob.glob('test-results/**/junit*.xml', recursive=True):
+              print(f'Parsing: {os.path.relpath(f)}')
+              for suite in ET.parse(f).getroot().findall('.//testsuite'):
+                  total_tests += int(suite.get('tests', 0))
+                  total_failures += int(suite.get('failures', 0))
+                  total_skipped += int(suite.get('skipped', 0))
+
+          passed = total_tests - total_failures - total_skipped
+
+          if total_tests > 0:
+              rate = passed / total_tests * 100
+              ratio = f'{passed}/{total_tests}'
+          else:
+              rate = 0
+              ratio = 'N/A'
+
+          lines = []
+          lines.append('## Test Results Summary')
+          lines.append('')
+          lines.append('| Metric | Value |')
+          lines.append('|--------|-------|')
+          lines.append(f'| Total Tests | {total_tests} |')
+          lines.append(f'| Passed | {passed} |')
+          lines.append(f'| Failed | {total_failures} |')
+          lines.append(f'| Skipped | {total_skipped} |')
+          lines.append(f'| Pass Rate | {rate:.1f}% |')
+          lines.append('')
+          lines.append(f'**Success/Failed Ratio:** {ratio}')
+          lines.append('')
+          summary = '\n'.join(lines)
+
+          print(summary)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write(summary + '\n')
+          PYEOF
+          python3 /tmp/aggregate_results.py
