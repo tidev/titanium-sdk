@@ -297,7 +297,6 @@ static NSArray *scrollViewKeySequence;
               NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applied tint via UIImageView");
             }
           } else {
-            subview.tintColor = [UIColor clearColor];
             subview.backgroundColor = color;
             subview.layer.backgroundColor = color.CGColor;
             subview.layer.cornerRadius = 1.5f;
@@ -419,7 +418,6 @@ static NSArray *scrollViewKeySequence;
                   NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed applied tint via UIImageView");
                 }
               } else {
-                subview.tintColor = [UIColor clearColor];
                 subview.backgroundColor = color;
                 subview.layer.backgroundColor = color.CGColor;
                 subview.layer.cornerRadius = 1.5f;
