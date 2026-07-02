@@ -295,7 +295,6 @@ static NSArray *scrollViewKeySequence;
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
     UIColor *color = [[TiUtils colorValue:value] color];
     if (color == nil) {
-      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: color is nil, returning");
       return;
     }
 
@@ -320,8 +319,6 @@ static NSArray *scrollViewKeySequence;
       UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
       [self applyScrollIndicatorColorToScrollView:sv];
     });
-  } else {
-    NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: view not attached or value is nil/NSNull");
   }
 }
 
@@ -382,11 +379,8 @@ static NSArray *scrollViewKeySequence;
     }
 
     // Re-apply scrollIndicatorColor after view is attached
-    NSLog(@"[TiUIScrollViewProxy] windowWillOpen: checking scrollIndicatorColor");
     id savedScrollIndicatorColor = [self valueForUndefinedKey:@"scrollIndicatorColor"];
-    NSLog(@"[TiUIScrollViewProxy] windowWillOpen: savedScrollIndicatorColor = %@", savedScrollIndicatorColor);
     if (savedScrollIndicatorColor != nil && ![savedScrollIndicatorColor isEqual:[NSNull null]]) {
-      NSLog(@"[TiUIScrollViewProxy] windowWillOpen: applying scrollIndicatorColor");
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
 
       // Force indicator recreation to ensure they accept backgroundColor
@@ -404,8 +398,6 @@ static NSArray *scrollViewKeySequence;
         UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
         [self applyScrollIndicatorColorToScrollView:sv];
       });
-    } else {
-      NSLog(@"[TiUIScrollViewProxy] windowWillOpen: skipping scrollIndicatorColor (nil or NSNull)");
     }
   }
 }
