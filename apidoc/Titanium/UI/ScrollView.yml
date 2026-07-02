@@ -280,6 +280,30 @@ properties:
     platforms: [android]
     since: "13.4.0"
 
+  - name: scrollIndicatorInsets
+    summary: Inset distances for both the vertical and horizontal scroll indicators on Android.
+    description: |
+        iOS-style shorthand that sets the inset distances for the scroll indicator track and
+        thumb on **both** axes at once. When this property is set, a custom scroll indicator is
+        used instead of the native one. Use <Titanium.UI.ScrollView.verticalScrollIndicatorInsets>
+        or <Titanium.UI.ScrollView.horizontalScrollIndicatorInsets> to set insets for a single
+        axis only.
+
+        The dictionary accepts the following keys:
+
+        * `top` - Inset distance at the top (in dip)
+        * `bottom` - Inset distance at the bottom (in dip)
+        * `left` - Inset distance on the left side (in dip)
+        * `right` - Inset distance on the right side (in dip)
+
+        All keys are optional. Unspecified keys default to 0.
+
+        **Note:** Requires `showVerticalScrollIndicator` and/or `showHorizontalScrollIndicator`
+        to be `true` for the corresponding indicator to be visible.
+    type: Dictionary<Number>
+    platforms: [android]
+    since: "13.4.0"
+
   - name: horizontalScrollIndicatorInsets
     summary: Inset distances for the horizontal scroll indicator on Android.
     description: |
@@ -479,11 +503,11 @@ properties:
         `scrollIndicatorRadius`, `verticalScrollIndicatorInsets`, or `horizontalScrollIndicatorInsets`
         are set).
 
-        Accepts a hex color string (e.g., `'#66666666'`) or an integer color value.
+        Accepts a hex color string (e.g., `'#FF666666'`) or an integer color value.
 
         Default value is `0xFF666666` (gray).
     type: String
-    default: '#66666666'
+    default: '#FF666666'
     platforms: [android]
     since: "13.4.0"
 

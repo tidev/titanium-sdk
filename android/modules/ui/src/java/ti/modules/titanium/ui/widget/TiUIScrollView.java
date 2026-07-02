@@ -112,46 +112,48 @@ public class TiUIScrollView extends TiUIView
 	private CustomVerticalScrollBar customVerticalScrollBar;
 	private CustomHorizontalScrollBar customHorizontalScrollBar;
 
-	// Reusable handler and runnable for fade-out animation to avoid allocations per scroll event
+	// Reusable handler and runnable for fade-out animation to avoid allocations per scroll event.
+	// Both custom scrollbars share one handler/runnable so the fade targets whichever bars
+	// currently exist. Previously the fade only touched the "active" bar (getCustomScrollBar()
+	// preferred the vertical one), so when both bars were shown the horizontal scrollbar was
+	// never faded out and stayed visible permanently.
 	private final android.os.Handler fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 	private final Runnable fadeRunnable = new Runnable() {
 		@Override
 		public void run()
 		{
-			View view2 = getCustomScrollBar();
-			if (view2 != null && view2.getAlpha() == 0f) {
-				view2.setVisibility(View.GONE);
-			}
+			hideIfFaded(customVerticalScrollBar);
+			hideIfFaded(customHorizontalScrollBar);
 		}
 	};
 
-	/**
-	 * Gets the active custom scrollbar view.
-	 * @return The active custom scrollbar (vertical or horizontal)
-	 */
-	private View getCustomScrollBar()
+	private void hideIfFaded(View view)
 	{
-		if (customVerticalScrollBar != null) {
-			return customVerticalScrollBar;
-		} else if (customHorizontalScrollBar != null) {
-			return customHorizontalScrollBar;
+		// Use a threshold instead of exact 0f equality: this runnable is posted with the same
+		// duration as the alpha animator, so scheduler jitter can fire it a few ms before the
+		// animator has written the exact 0f target. < 0.99f also avoids re-hiding a bar that a
+		// subsequent scroll has just re-shown (alpha 1f).
+		if (view != null && view.getAlpha() < 0.99f) {
+			view.setVisibility(View.GONE);
 		}
-		return null;
 	}
 
 	/**
-	 * Schedules the fade-out animation for the active custom scrollbar.
+	 * Schedules the fade-out animation for all currently shown custom scrollbars.
 	 */
 	private void scheduleFadeOut()
 	{
-		View view = getCustomScrollBar();
+		fadeHandler.removeCallbacks(fadeRunnable);
+		fadeView(customVerticalScrollBar);
+		fadeView(customHorizontalScrollBar);
+		fadeHandler.postDelayed(fadeRunnable, FADE_DURATION);
+	}
+
+	private void fadeView(View view)
+	{
 		if (view != null) {
-			// Cancel any existing fade animation and pending runnable to prevent conflicts
 			view.animate().cancel();
-			fadeHandler.removeCallbacks(fadeRunnable);
-			// Start new fade animation with immediate effect
 			view.animate().alpha(0f).setDuration(FADE_DURATION).start();
-			fadeHandler.postDelayed(fadeRunnable, FADE_DURATION);
 		}
 	}
 
@@ -166,7 +168,6 @@ public class TiUIScrollView extends TiUIView
 		public enum Orientation { VERTICAL, HORIZONTAL }
 
 		private static final int SCROLLBAR_SIZE = 12;
-		private static final int FADE_DURATION = 200; // Reduced from 300ms for better performance
 		private static final int MIN_THUMB_SIZE = 40; // Minimum thumb size for usability
 		private Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		private Paint thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -231,7 +232,10 @@ public class TiUIScrollView extends TiUIView
 				int thumbArea = trackHeight - insetStart - insetEnd;
 				if (thumbArea <= 0) return;
 
-				int thumbHeight = Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange));
+				// Clamp thumb to thumbArea so that large insets (thumbArea < MIN_THUMB_SIZE)
+				// don't make the thumb taller than the available track and overflow it.
+				int thumbHeight = Math.min(thumbArea,
+					Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange)));
 				int thumbTop;
 				if (scrollRange > 0) {
 					float ratio = (float) scrollPosition / scrollRange;
@@ -259,7 +263,10 @@ public class TiUIScrollView extends TiUIView
 				int thumbArea = trackWidth - insetStart - insetEnd;
 				if (thumbArea <= 0) return;
 
-				int thumbWidth = Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange));
+				// Clamp thumb to thumbArea so that large insets (thumbArea < MIN_THUMB_SIZE)
+				// don't make the thumb wider than the available track and overflow it.
+				int thumbWidth = Math.min(thumbArea,
+					Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange)));
 				int thumbLeft;
 				if (scrollRange > 0) {
 					float ratio = (float) scrollPosition / scrollRange;
@@ -800,16 +807,20 @@ public class TiUIScrollView extends TiUIView
 			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
-			// Update custom vertical scrollbar position
+			// Update custom vertical scrollbar position.
+			// Use the canonical Android scroll range/extent so the thumb ratio accounts for
+			// contentInset padding (clipToPadding=false) and matches the native scrollbar math,
+			// instead of the raw child-minus-viewport delta which ignored padding.
 			if (customVerticalScrollBar != null) {
-				int scrollRange = getChildAt(0).getMeasuredHeight() - getMeasuredHeight();
-				customVerticalScrollBar.updateScrollPosition(t, scrollRange, getMeasuredHeight());
+				int scrollRange = computeVerticalScrollRange() - computeVerticalScrollExtent();
+				customVerticalScrollBar.updateScrollPosition(t, Math.max(0, scrollRange), getMeasuredHeight());
 			}
 
 			// Reuse existing KrollDict to avoid allocations per scroll event
 			reusableScrollEventData.clear();
 			reusableScrollEventData.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
 			reusableScrollEventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			getProxy().fireEvent(TiC.EVENT_SCROLL, reusableScrollEventData);
 		}
 
@@ -949,16 +960,24 @@ public class TiUIScrollView extends TiUIView
 			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
-			// Update custom horizontal scrollbar position
+			// Update custom horizontal scrollbar position.
+			// Use the canonical Android scroll range/extent so the thumb ratio accounts for
+			// contentInset padding (clipToPadding=false) and matches the native scrollbar math,
+			// instead of the raw child-minus-viewport delta which ignored padding.
 			if (customHorizontalScrollBar != null) {
-				int scrollRange = getChildAt(0).getMeasuredWidth() - getMeasuredWidth();
-				customHorizontalScrollBar.updateScrollPosition(l, scrollRange, getMeasuredWidth());
+				int scrollRange = computeHorizontalScrollRange() - computeHorizontalScrollExtent();
+				customHorizontalScrollBar.updateScrollPosition(l, Math.max(0, scrollRange), getMeasuredWidth());
 			}
 
-			// Reuse existing KrollDict to avoid allocations per scroll event
+			// Reuse existing KrollDict to avoid allocations per scroll event.
+			// NOTE: use offsetX (the actual scroll offset, updated by setContentOffset) for
+			// EVENT_PROPERTY_X, NOT xDimension (which is the raw touch coordinate and is null
+			// until the first touch — using it caused wrong values and an NPE on programmatic
+			// scrollTo() before any touch).
 			reusableScrollEventData.clear();
-			reusableScrollEventData.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
 			reusableScrollEventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			getProxy().fireEvent(TiC.EVENT_SCROLL, reusableScrollEventData);
 		}
 
@@ -1090,12 +1109,30 @@ public class TiUIScrollView extends TiUIView
 			// false matches iOS UIScrollView where content can extend into insets.
 			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
 
-			// Early return: no insets to apply. Avoids unnecessary pixel computation,
-			// setPadding call (which triggers requestLayout()), and cache invalidation.
+			// When all insets are zero (the common reset path via contentInset={} or null),
+			// we still must clear any previously-applied padding and cached pixel values —
+			// otherwise the old padding stays in place and content remains inset forever.
+			// The early return below skips the expensive setPadding only when there is truly
+			// nothing to change (no prior padding either).
 			if (cachedInsetTopDim.getIntValue() == 0
 				&& cachedInsetBottomDim.getIntValue() == 0
 				&& cachedInsetLeftDim.getIntValue() == 0
 				&& cachedInsetRightDim.getIntValue() == 0) {
+				if (cachedPixelTopPad != 0 || cachedPixelBottomPad != 0
+					|| cachedPixelLeftPad != 0 || cachedPixelRightPad != 0) {
+					cachedPixelTopPad = 0;
+					cachedPixelBottomPad = 0;
+					cachedPixelLeftPad = 0;
+					cachedPixelRightPad = 0;
+					this.scrollView.setPadding(0, 0, 0, 0);
+					TiScrollViewLayout layout = getLayout();
+					if (layout != null) {
+						layout.invalidateContentPropertyCache();
+					}
+				}
+				// Invalidate contentSize cache so reported content height no longer includes insets.
+				cachedContentWidth = -1;
+				cachedContentHeight = -1;
 				return;
 			}
 
@@ -1117,6 +1154,9 @@ public class TiUIScrollView extends TiUIView
 			if (layout != null) {
 				layout.invalidateContentPropertyCache();
 			}
+			// Invalidate contentSize cache so it recomputes including the new insets.
+			cachedContentWidth = -1;
+			cachedContentHeight = -1;
 
 		}
 	}
@@ -1250,6 +1290,24 @@ public class TiUIScrollView extends TiUIView
 		cachedScrollIndicatorLeftDim = new TiDimension(leftPx, TiDimension.TYPE_LEFT);
 		cachedScrollIndicatorRightDim = new TiDimension(rightPx, TiDimension.TYPE_RIGHT);
 
+		// The generic scrollIndicatorInsets property is iOS-style: it applies to BOTH axes.
+		// Mirror the parsed values into the vertical and horizontal caches so the custom bars
+		// actually pick them up (createVertical/HorizontalScrollBar only read those axis-specific
+		// caches), and set hasCustomScrollIndicatorProps so updateCustomScrollBars builds the bars.
+		// Without this, setting scrollIndicatorInsets was a no-op: the flag stayed false (so no
+		// custom bars were created and native bars were not hidden) and the values were written to
+		// cachedScrollIndicator*Dim fields that nothing reads.
+		cachedVerticalScrollIndicatorTopDim = cachedScrollIndicatorTopDim;
+		cachedVerticalScrollIndicatorBottomDim = cachedScrollIndicatorBottomDim;
+		cachedVerticalScrollIndicatorLeftDim = cachedScrollIndicatorLeftDim;
+		cachedVerticalScrollIndicatorRightDim = cachedScrollIndicatorRightDim;
+
+		cachedHorizontalScrollIndicatorTopDim = cachedScrollIndicatorTopDim;
+		cachedHorizontalScrollIndicatorBottomDim = cachedScrollIndicatorBottomDim;
+		cachedHorizontalScrollIndicatorLeftDim = cachedScrollIndicatorLeftDim;
+		cachedHorizontalScrollIndicatorRightDim = cachedScrollIndicatorRightDim;
+
+		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
 	}
 
@@ -1421,36 +1479,25 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		// If scrollView is already attached, create the wrapper immediately
-		if (scrollView.getParent() instanceof ViewGroup) {
-			contentWrapper = new FrameLayout(scrollView.getContext());
-			contentWrapper.setLayoutParams(new FrameLayout.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT,
-				ViewGroup.LayoutParams.MATCH_PARENT
-			));
-			contentWrapper.setClipChildren(false);
-			contentWrapper.setClipToPadding(false);
+		// The view we wrap is the top-level native view. When a refreshControl is set, the
+		// SwipeRefreshLayout wraps the scroll view and we MUST keep that nesting intact:
+		// SwipeRefreshLayout drives pull-to-refresh through the NestedScrolling API on its
+		// direct child. Wrapping the inner scrollView (the previous behavior) reparented it
+		// out of the SwipeRefreshLayout into a plain FrameLayout, which is not a
+		// NestedScrollingParent — that silently severed the nested-scroll chain and broke
+		// pull-to-refresh whenever a custom scrollbar property was also set. Wrapping the
+		// SwipeRefreshLayout instead keeps SwipeRefreshLayout -> NestedScrollView intact and
+		// still gives us a FrameLayout host for the custom scrollbar views.
+		View wrapTarget = (swipeRefreshLayout != null) ? swipeRefreshLayout : scrollView;
+		if (wrapTarget == null) {
+			return;
+		}
 
-			ViewGroup oldParent = (ViewGroup) scrollView.getParent();
-			int index = oldParent.indexOfChild(scrollView);
-			oldParent.removeViewAt(index);
-			contentWrapper.addView(scrollView, 0);
-			// Use TiCompositeLayout.LayoutParams for TiCompositeLayout parent
-			if (oldParent instanceof TiCompositeLayout) {
-				TiCompositeLayout.LayoutParams lp = new TiCompositeLayout.LayoutParams();
-				lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-				lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-				oldParent.addView(contentWrapper, index, lp);
-			} else {
-				oldParent.addView(contentWrapper, index,
-					new ViewGroup.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						ViewGroup.LayoutParams.MATCH_PARENT
-					));
-			}
-			setNativeView(contentWrapper);
-		} else {
-			// Not yet attached — defer wrapper creation until the view is ready
+		// If wrapTarget is already attached, create the wrapper immediately.
+		if (wrapTarget.getParent() instanceof ViewGroup) {
+			buildContentWrapper(wrapTarget);
+		} else if (scrollView != null) {
+			// Not yet attached — defer wrapper creation until the view is ready.
 			scrollView.post(new Runnable() {
 				@Override
 				public void run()
@@ -1458,34 +1505,14 @@ public class TiUIScrollView extends TiUIView
 					if (contentWrapper != null || scrollView == null) {
 						return;
 					}
-					contentWrapper = new FrameLayout(scrollView.getContext());
-					contentWrapper.setLayoutParams(new FrameLayout.LayoutParams(
-						ViewGroup.LayoutParams.MATCH_PARENT,
-						ViewGroup.LayoutParams.MATCH_PARENT
-					));
-					contentWrapper.setClipChildren(false);
-					contentWrapper.setClipToPadding(false);
-
-					ViewGroup oldParent = (ViewGroup) scrollView.getParent();
-					int index = oldParent.indexOfChild(scrollView);
-					oldParent.removeViewAt(index);
-					contentWrapper.addView(scrollView, 0);
-					// Use TiCompositeLayout.LayoutParams for TiCompositeLayout parent
-					if (oldParent instanceof TiCompositeLayout) {
-						TiCompositeLayout.LayoutParams lp = new TiCompositeLayout.LayoutParams();
-						lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
-						lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
-						oldParent.addView(contentWrapper, index, lp);
-					} else {
-						oldParent.addView(contentWrapper, index,
-							new ViewGroup.LayoutParams(
-								ViewGroup.LayoutParams.MATCH_PARENT,
-								ViewGroup.LayoutParams.MATCH_PARENT
-							));
+					View target = (swipeRefreshLayout != null) ? swipeRefreshLayout : scrollView;
+					if (target == null || !(target.getParent() instanceof ViewGroup)) {
+						return;
 					}
-					setNativeView(contentWrapper);
+					buildContentWrapper(target);
 
-					// Now create the custom scrollbars
+					// Now create the custom scrollbars (deferred path only — the immediate
+					// path is followed by updateCustomScrollBars, which creates them itself).
 					if (hasCustomScrollIndicatorProps && showVerticalScrollBar) {
 						createVerticalScrollBar();
 					}
@@ -1495,6 +1522,41 @@ public class TiUIScrollView extends TiUIView
 				}
 			});
 		}
+	}
+
+	/**
+	 * Builds the contentWrapper around {@code wrapTarget} and reparents it in place at the
+	 * same index. The wrapper becomes the new native view; custom scrollbar views are later
+	 * added to it. Shared by the immediate and deferred attach paths of ensureContentWrapper.
+	 */
+	private void buildContentWrapper(View wrapTarget)
+	{
+		contentWrapper = new FrameLayout(wrapTarget.getContext());
+		contentWrapper.setLayoutParams(new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.MATCH_PARENT,
+			ViewGroup.LayoutParams.MATCH_PARENT
+		));
+		contentWrapper.setClipChildren(false);
+		contentWrapper.setClipToPadding(false);
+
+		ViewGroup oldParent = (ViewGroup) wrapTarget.getParent();
+		int index = oldParent.indexOfChild(wrapTarget);
+		oldParent.removeViewAt(index);
+		contentWrapper.addView(wrapTarget, 0);
+		// Use TiCompositeLayout.LayoutParams for TiCompositeLayout parent
+		if (oldParent instanceof TiCompositeLayout) {
+			TiCompositeLayout.LayoutParams lp = new TiCompositeLayout.LayoutParams();
+			lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+			lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+			oldParent.addView(contentWrapper, index, lp);
+		} else {
+			oldParent.addView(contentWrapper, index,
+				new ViewGroup.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.MATCH_PARENT
+				));
+		}
+		setNativeView(contentWrapper);
 	}
 
 	/**
@@ -1558,7 +1620,9 @@ public class TiUIScrollView extends TiUIView
 			ViewGroup.LayoutParams.WRAP_CONTENT,
 			ViewGroup.LayoutParams.MATCH_PARENT
 		);
-		params.gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+		// Use a layout-direction-aware gravity so the vertical scrollbar sits on the trailing
+		// edge (right in LTR, left in RTL), matching how Android mirrors native scrollbars.
+		params.gravity = android.view.Gravity.RELATIVE_LAYOUT_DIRECTION | android.view.Gravity.END;
 		params.leftMargin = leftInset;
 		params.rightMargin = rightInset;
 
@@ -1734,8 +1798,14 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
-		boolean showHorizontalScrollBar = (scrollType == TYPE_HORIZONTAL);
-		boolean showVerticalScrollBar = (scrollType == TYPE_VERTICAL);
+		// Default both to false and only enable when the JS explicitly sets the
+		// showHorizontal/VerticalScrollIndicator property. Previously this was seeded from
+		// `scrollType`, but at this point `this.scrollType` is still the field default
+		// (TYPE_VERTICAL) — it is only updated to the deduced `type` further below — so a
+		// vertical ScrollView ended up with a native vertical scrollbar enabled by default,
+		// and a horizontal ScrollView (scrollType:'horizontal') got a vertical scrollbar too.
+		boolean showHorizontalScrollBar = false;
+		boolean showVerticalScrollBar = false;
 
 		if (d.containsKey(TiC.PROPERTY_SCROLLING_ENABLED)) {
 			setScrollingEnabled(d.get(TiC.PROPERTY_SCROLLING_ENABLED));
@@ -1974,6 +2044,12 @@ public class TiUIScrollView extends TiUIView
 	{
 		View view = this.scrollView;
 		if (view == null) return;
+
+		if (view instanceof TiHorizontalScrollView) {
+			// Horizontal scroll views scroll to the right-most edge, not a vertical target.
+			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
+			return;
+		}
 
 		int contentHeight = getLayout().getMeasuredHeight();
 		int viewportHeight = view.getMeasuredHeight();
