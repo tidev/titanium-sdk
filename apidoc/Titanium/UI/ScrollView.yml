@@ -267,6 +267,12 @@ properties:
         
         On iOS, this property disables automatic content inset adjustment (`contentInsetAdjustmentBehavior = Never`)
         to allow manual control over the inset values.
+
+        **Interaction with `autoAdjustScrollViewInsets`:** Setting this property overrides the
+        window-level `autoAdjustScrollViewInsets` behavior for this scroll view — automatic safe
+        area inset adjustment is disabled and the manual values take precedence. If you want the
+        safe area to be applied automatically, do not set `contentInsets`; use the `safearea` key
+        (see below) to add a manual bottom offset instead.
         
         Can also include animation options directly in the dictionary:
         ```javascript
