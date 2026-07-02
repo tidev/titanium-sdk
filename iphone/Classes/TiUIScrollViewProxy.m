@@ -74,7 +74,7 @@ static NSArray *scrollViewKeySequence;
 {
   ENSURE_UI_THREAD(setContentInsets, value);
   [self replaceValue:value forKey:@"contentInsets" notification:NO];
-  if ([self viewAttached]) {
+  if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
 
     // Disable automatic content inset adjustment to allow manual values
@@ -111,6 +111,7 @@ static NSArray *scrollViewKeySequence;
     }
 
     UIEdgeInsets insets = [TiUtils contentInsets:insetsDict];
+    insets.bottom += safeAreaOffset;
 
     void (^updateInsets)(void) = ^{
       scrollView.contentInset = insets;
@@ -121,22 +122,14 @@ static NSArray *scrollViewKeySequence;
     } else {
       updateInsets();
     }
-  } else {
   }
-}
-
-- (void)setContentInsets:(id)value options:(id)options
-{
-  // This method is no longer needed - options are now part of the value dictionary
-  // Kept for backward compatibility but should not be called
-  [self setContentInsets:value];
 }
 
 - (void)setScrollIndicatorInsets:(id)value
 {
   ENSURE_UI_THREAD(setScrollIndicatorInsets, value);
   [self replaceValue:value forKey:@"scrollIndicatorInsets" notification:NO];
-  if ([self viewAttached]) {
+  if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
 
     // Disable automatic scroll indicator inset adjustment
@@ -174,7 +167,7 @@ static NSArray *scrollViewKeySequence;
     };
 
     if (animated && duration > 0) {
-      [UIView animateWithDuration:duration animations:updateInsets];
+      [UIView animateWithDuration:duration / 1000.0 animations:updateInsets];
     } else {
       updateInsets();
     }
@@ -244,7 +237,6 @@ static NSArray *scrollViewKeySequence;
           right ? right.floatValue : 0.0);
       scrollView.scrollIndicatorInsets = insets;
     }
-  } else {
   }
 }
 
