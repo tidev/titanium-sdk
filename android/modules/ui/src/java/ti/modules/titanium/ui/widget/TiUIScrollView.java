@@ -88,12 +88,6 @@ public class TiUIScrollView extends TiUIView
 	// Default false matches iOS UIScrollView behavior: content can extend into inset area
 	private boolean cachedClipToPadding = false;
 
-	// Cached scrollIndicatorInset values
-	private TiDimension cachedScrollIndicatorTopDim = INSET_ZERO;
-	private TiDimension cachedScrollIndicatorBottomDim = INSET_ZERO;
-	private TiDimension cachedScrollIndicatorLeftDim = INSET_ZERO;
-	private TiDimension cachedScrollIndicatorRightDim = INSET_ZERO;
-
 	// Cached verticalScrollIndicatorInset values
 	private TiDimension cachedVerticalScrollIndicatorTopDim = INSET_ZERO;
 	private TiDimension cachedVerticalScrollIndicatorBottomDim = INSET_ZERO;
@@ -1218,16 +1212,6 @@ public class TiUIScrollView extends TiUIView
 	}
 
 	/**
-	 * Sets scroll indicator insets with custom scrollbar views.
-	 *
-	 * @param value Dictionary with top/left/bottom/right keys
-	 */
-	public void setScrollIndicatorInsets(Object value)
-	{
-		applyScrollIndicatorInsets(value);
-	}
-
-	/**
 	 * Parses a {top, left, right, bottom} inset dictionary to pixel ints, accepting the
 	 * same value grammar as contentInset (Number, or a dimension string such as '12dp'
 	 * / '12px') via TiConvert.toTiDimension + TiDimension.getAsPixels. The previous
@@ -1258,39 +1242,6 @@ public class TiUIScrollView extends TiUIView
 	}
 
 	/**
-	 * Applies scroll indicator insets values (iOS-style: affects BOTH axes).
-	 */
-	private void applyScrollIndicatorInsets(Object value)
-	{
-		if (scrollView == null) {
-			return;
-		}
-
-		int[] px = parseInsetsToPx(value); // {top, left, right, bottom}
-		cachedScrollIndicatorTopDim = new TiDimension(px[0], TiDimension.TYPE_TOP);
-		cachedScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
-		cachedScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
-		cachedScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
-
-		// iOS-style: applies to BOTH axes — mirror into the vertical and horizontal caches so
-		// the custom bars actually pick them up (createVertical/HorizontalScrollBar only read
-		// those axis-specific caches), and set hasCustomScrollIndicatorProps so the bars are
-		// built. Without this, setting scrollIndicatorInsets was a no-op.
-		cachedVerticalScrollIndicatorTopDim = cachedScrollIndicatorTopDim;
-		cachedVerticalScrollIndicatorBottomDim = cachedScrollIndicatorBottomDim;
-		cachedVerticalScrollIndicatorLeftDim = cachedScrollIndicatorLeftDim;
-		cachedVerticalScrollIndicatorRightDim = cachedScrollIndicatorRightDim;
-
-		cachedHorizontalScrollIndicatorTopDim = cachedScrollIndicatorTopDim;
-		cachedHorizontalScrollIndicatorBottomDim = cachedScrollIndicatorBottomDim;
-		cachedHorizontalScrollIndicatorLeftDim = cachedScrollIndicatorLeftDim;
-		cachedHorizontalScrollIndicatorRightDim = cachedScrollIndicatorRightDim;
-
-		hasCustomScrollIndicatorProps = true;
-		updateCustomScrollBars();
-	}
-
-	/**
 	 * Sets vertical scroll indicator insets.
 	 */
 	public void setVerticalScrollIndicatorInsets(Object value)
@@ -1312,14 +1263,6 @@ public class TiUIScrollView extends TiUIView
 		cachedVerticalScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
 		cachedVerticalScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
 		cachedVerticalScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
-
-		// Mirror back into the generic cache so getScrollIndicatorInsets() reflects the
-		// effective values after a per-axis override (it reads the generic cache and would
-		// otherwise stay stale, reporting the last generic-set value forever).
-		cachedScrollIndicatorTopDim = cachedVerticalScrollIndicatorTopDim;
-		cachedScrollIndicatorBottomDim = cachedVerticalScrollIndicatorBottomDim;
-		cachedScrollIndicatorLeftDim = cachedVerticalScrollIndicatorLeftDim;
-		cachedScrollIndicatorRightDim = cachedVerticalScrollIndicatorRightDim;
 
 		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
@@ -1347,13 +1290,6 @@ public class TiUIScrollView extends TiUIView
 		cachedHorizontalScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
 		cachedHorizontalScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
 		cachedHorizontalScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
-
-		// Mirror back into the generic cache so getScrollIndicatorInsets() reflects the
-		// effective values after a per-axis override (see applyVerticalScrollIndicatorInsets).
-		cachedScrollIndicatorTopDim = cachedHorizontalScrollIndicatorTopDim;
-		cachedScrollIndicatorBottomDim = cachedHorizontalScrollIndicatorBottomDim;
-		cachedScrollIndicatorLeftDim = cachedHorizontalScrollIndicatorLeftDim;
-		cachedScrollIndicatorRightDim = cachedHorizontalScrollIndicatorRightDim;
 
 		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
@@ -1396,21 +1332,6 @@ public class TiUIScrollView extends TiUIView
 		scrollIndicatorRadius = Math.max(0, radius);
 		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
-	}
-
-	/**
-	 * Gets scroll indicator insets.
-	 *
-	 * @return HashMap with top/left/bottom/right values
-	 */
-	public HashMap getScrollIndicatorInsets()
-	{
-		HashMap insets = new HashMap();
-		insets.put("top", cachedScrollIndicatorTopDim.getIntValue());
-		insets.put("left", cachedScrollIndicatorLeftDim.getIntValue());
-		insets.put("right", cachedScrollIndicatorRightDim.getIntValue());
-		insets.put("bottom", cachedScrollIndicatorBottomDim.getIntValue());
-		return insets;
 	}
 
 	/**
@@ -1693,8 +1614,6 @@ public class TiUIScrollView extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_CONTENT_INSETS)) {
 			setContentInset(newValue);
-		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_INSETS)) {
-			setScrollIndicatorInsets(newValue);
 		} else if (key.equals(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS)) {
 			setVerticalScrollIndicatorInsets(newValue);
 		} else if (key.equals(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS)) {
@@ -1919,10 +1838,6 @@ public class TiUIScrollView extends TiUIView
 			setContentInset(insetValue);
 		}
 
-		// Process scrollIndicatorInsets from initial properties dictionary
-		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_INSETS)) {
-			setScrollIndicatorInsets(d.get(TiC.PROPERTY_SCROLL_INDICATOR_INSETS));
-		}
 		if (d.containsKey(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS)) {
 			setVerticalScrollIndicatorInsets(d.get(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS));
 		}

@@ -306,33 +306,6 @@ properties:
     platforms: [android]
     since: "14.0.0"
 
-  - name: scrollIndicatorInsets
-    summary: Inset distances for both the vertical and horizontal scroll indicators on Android.
-    description: |
-        iOS-style shorthand that sets the inset distances for the scroll indicator track and
-        thumb on **both** axes at once. When this property is set, a custom scroll indicator is
-        used instead of the native one. Use <Titanium.UI.ScrollView.verticalScrollIndicatorInsets>
-        or <Titanium.UI.ScrollView.horizontalScrollIndicatorInsets> to set insets for a single
-        axis only.
-
-        The dictionary accepts the following keys:
-
-        * `top` - Inset distance at the top (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
-        * `bottom` - Inset distance at the bottom (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
-        * `left` - Inset distance on the left side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
-        * `right` - Inset distance on the right side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
-
-        All keys are optional. Unspecified keys default to 0.
-
-        Reading this property returns a dictionary whose `top`/`bottom`/`left`/`right` values are
-        the resolved inset distances in **pixels** (not the dip values that were originally set).
-
-        **Note:** Requires `showVerticalScrollIndicator` and/or `showHorizontalScrollIndicator`
-        to be `true` for the corresponding indicator to be visible.
-    type: Dictionary<Number>
-    platforms: [android]
-    since: "14.0.0"
-
   - name: horizontalScrollIndicatorInsets
     summary: Inset distances for the horizontal scroll indicator on Android.
     description: |
@@ -348,9 +321,9 @@ properties:
 
         All keys are optional. Unspecified keys default to 0.
 
-        Reading this property returns the dictionary that was last assigned (the values are
-        returned as-set and are **not** resolved to pixels, unlike
-        <Titanium.UI.ScrollView.scrollIndicatorInsets>).
+        Reading this property returns the dictionary that was last assigned, with the values in
+        the units they were given (a Number in dip or a dimension string such as `'12dp'`); the
+        values are **not** resolved to pixels.
 
         **Note:** Requires `showHorizontalScrollIndicator` to be `true` for the indicator to be visible.
     type: Dictionary<Number>
@@ -372,9 +345,9 @@ properties:
 
         All keys are optional. Unspecified keys default to 0.
 
-        Reading this property returns the dictionary that was last assigned (the values are
-        returned as-set and are **not** resolved to pixels, unlike
-        <Titanium.UI.ScrollView.scrollIndicatorInsets>).
+        Reading this property returns the dictionary that was last assigned, with the values in
+        the units they were given (a Number in dip or a dimension string such as `'12dp'`); the
+        values are **not** resolved to pixels.
 
         **Note:** Requires `showVerticalScrollIndicator` to be `true` for the indicator to be visible.
     type: Dictionary<Number>

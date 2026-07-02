@@ -96,18 +96,6 @@ public class ScrollViewProxy extends TiViewProxy
 		getScrollView().setContentInset(value);
 	}
 
-	@Kroll.getProperty
-	public HashMap getScrollIndicatorInsets()
-	{
-		return getScrollView().getScrollIndicatorInsets();
-	}
-
-	@Kroll.setProperty
-	public void setScrollIndicatorInsets(Object value)
-	{
-		getScrollView().setScrollIndicatorInsets(value);
-	}
-
 	@Kroll.method
 	public void scrollToBottom(@Kroll.argument(optional = true) HashMap args)
 	{

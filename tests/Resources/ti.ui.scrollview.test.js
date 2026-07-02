@@ -432,19 +432,10 @@ describe('Titanium.UI.ScrollView', function () {
 		should(cleared.right).eql(0);
 	});
 
-	// Regression: the generic scrollIndicatorInsets property was a no-op (it never set
-	// hasCustomScrollIndicatorProps and wrote fields the bars never read). At a minimum
-	// setting it must not crash and the getters must round-trip the keys. (Axis-specific
-	// and color/radius properties are exercised together as a smoke test.)
+	// Regression: the per-axis scroll indicator inset setters must not crash and the getters
+	// must round-trip the keys. Color/radius properties are exercised together as a smoke test.
 	it.android('scroll indicator properties round-trip without crashing', function () {
 		const scrollView = Ti.UI.createScrollView({});
-
-		// generic (applies to both axes); getter returns pixel ints, so just check > 0
-		scrollView.scrollIndicatorInsets = { top: 5, bottom: 5, left: 5, right: 5 };
-		const g = scrollView.scrollIndicatorInsets;
-		should(g).be.an.Object();
-		should(g.top).be.a.Number();
-		should(g.top).be.greaterThan(0);
 
 		// axis-specific (stored as the raw dict the caller set)
 		scrollView.verticalScrollIndicatorInsets = { top: 8, bottom: 8, left: 8, right: 8 };
@@ -481,7 +472,7 @@ describe('Titanium.UI.ScrollView', function () {
 			height: 300,
 			contentHeight: 2000,
 			refreshControl: refreshControl,
-			scrollIndicatorInsets: { top: 10, bottom: 10, left: 10, right: 10 },
+			verticalScrollIndicatorInsets: { top: 10, bottom: 10, left: 10, right: 10 },
 			scrollIndicatorColor: '#FF0000FF',
 			showVerticalScrollIndicator: true
 		});
@@ -512,20 +503,22 @@ describe('Titanium.UI.ScrollView', function () {
 		}, 6000);
 	});
 
-	// Regression: scrollIndicatorInsets used TiConvert.parseFloat which silently turned
-	// unit-suffixed strings like '12dp' into 0 (contentInset accepted them). Setting a
-	// dimension string must now yield a non-zero inset.
-	it.android('scrollIndicatorInsets accepts dimension strings (e.g. 12dp)', function () {
+	// Regression: the per-axis scroll indicator inset setters used TiConvert.parseFloat which
+	// silently turned unit-suffixed strings like '12dp' into 0 (contentInset accepted them).
+	// The setter must now accept dimension strings without throwing (parsed to pixels internally
+	// for the custom bars); a plain Number must round-trip via the getter.
+	it.android('verticalScrollIndicatorInsets accepts dimension strings (e.g. 12dp)', function () {
 		const scrollView = Ti.UI.createScrollView({});
-		scrollView.scrollIndicatorInsets = { top: '12dp', bottom: '12dp', left: '12dp', right: '12dp' };
-		const g = scrollView.scrollIndicatorInsets;
-		should(g).be.an.Object();
-		// 12dp resolves to 12*density px, which is > 0 on every density (previously 0).
-		should(g.top).be.a.Number();
-		should(g.top).be.greaterThan(0);
-		should(g.left).be.greaterThan(0);
-		should(g.right).be.greaterThan(0);
-		should(g.bottom).be.greaterThan(0);
+		// a plain Number round-trips as a Number
+		scrollView.verticalScrollIndicatorInsets = { top: 12, bottom: 12, left: 12, right: 12 };
+		const n = scrollView.verticalScrollIndicatorInsets;
+		should(n).be.an.Object();
+		should(n.top).eql(12);
+		// a dimension string must not throw (previously parsed to 0, silently no inset)
+		scrollView.verticalScrollIndicatorInsets = { top: '12dp', bottom: '12dp', left: '12dp', right: '12dp' };
+		const s = scrollView.verticalScrollIndicatorInsets;
+		should(s).be.an.Object();
+		should(s.top).eql('12dp');
 	});
 
 	// Regression: contentSize() added only top/bottom insets to the height, omitting
@@ -570,20 +563,5 @@ describe('Titanium.UI.ScrollView', function () {
 		});
 		win.add(scrollView);
 		win.open();
-	});
-
-	// Regression: getScrollIndicatorInsets() read only the generic cache and returned stale
-	// values after a per-axis override (the axis-specific setters did not mirror back). After
-	// setVerticalScrollIndicatorInsets, the generic getter must reflect the override.
-	it.android('getScrollIndicatorInsets reflects per-axis override', function () {
-		const scrollView = Ti.UI.createScrollView({});
-		// generic zero first
-		scrollView.scrollIndicatorInsets = { top: 0, bottom: 0, left: 0, right: 0 };
-		should(scrollView.scrollIndicatorInsets.top).eql(0);
-		// vertical override with a positive value must propagate to the generic getter
-		scrollView.verticalScrollIndicatorInsets = { top: '10dp', bottom: '10dp', left: '10dp', right: '10dp' };
-		const g = scrollView.scrollIndicatorInsets;
-		should(g.top).be.a.Number();
-		should(g.top).be.greaterThan(0); // previously stayed 0 (stale generic cache)
 	});
 });
