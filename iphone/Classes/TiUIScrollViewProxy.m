@@ -270,19 +270,16 @@ static NSArray *scrollViewKeySequence;
   }
 
   for (UIView *subview in scrollView.subviews) {
-    NSString *className = NSStringFromClass([subview class]);
-    if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
-      if ([subview isKindOfClass:[UIImageView class]]) {
-        UIImageView *imageView = (UIImageView *)subview;
-        if (imageView.image != nil) {
-          imageView.tintColor = color;
-          imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        }
-      } else {
-        subview.backgroundColor = color;
-        subview.layer.backgroundColor = color.CGColor;
-        subview.layer.cornerRadius = 1.5f;
+    if ([subview isKindOfClass:[UIImageView class]]) {
+      UIImageView *imageView = (UIImageView *)subview;
+      if (imageView.image != nil) {
+        imageView.tintColor = color;
+        imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
       }
+    } else if ([[NSStringFromClass([subview class]) isEqualToString:@"_UIScrollViewScrollIndicator"]]) {
+      subview.backgroundColor = color;
+      subview.layer.backgroundColor = color.CGColor;
+      subview.layer.cornerRadius = 1.5f;
     }
   }
 }
@@ -308,11 +305,9 @@ static NSArray *scrollViewKeySequence;
     scrollView.showsVerticalScrollIndicator = NO;
     scrollView.showsHorizontalScrollIndicator = NO;
     [scrollView setNeedsLayout];
-    [scrollView layoutIfNeeded];
     scrollView.showsVerticalScrollIndicator = YES;
     scrollView.showsHorizontalScrollIndicator = YES;
     [scrollView setNeedsLayout];
-    [scrollView layoutIfNeeded];
 
     // Apply color after recreation on next runloop
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -387,11 +382,9 @@ static NSArray *scrollViewKeySequence;
       scrollView.showsVerticalScrollIndicator = NO;
       scrollView.showsHorizontalScrollIndicator = NO;
       [scrollView setNeedsLayout];
-      [scrollView layoutIfNeeded];
       scrollView.showsVerticalScrollIndicator = YES;
       scrollView.showsHorizontalScrollIndicator = YES;
       [scrollView setNeedsLayout];
-      [scrollView layoutIfNeeded];
 
       // Apply color after recreation on next runloop
       dispatch_async(dispatch_get_main_queue(), ^{
@@ -752,9 +745,6 @@ static NSArray *scrollViewKeySequence;
                                   [TiUtils sizeToDictionary:scrollView.contentSize], @"contentSize",
                                   nil]];
   }
-
-  // Re-apply scroll indicator color on each scroll (indicators may be regenerated)
-  [self applyScrollIndicatorColorToScrollView:scrollView];
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale
