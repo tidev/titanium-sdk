@@ -276,7 +276,7 @@ static NSArray *scrollViewKeySequence;
         imageView.tintColor = color;
         imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
       }
-    } else if ([[NSStringFromClass([subview class]) isEqualToString:@"_UIScrollViewScrollIndicator"]]) {
+    } else if ([NSStringFromClass([subview class]) isEqualToString:@"_UIScrollViewScrollIndicator"]) {
       subview.backgroundColor = color;
       subview.layer.backgroundColor = color.CGColor;
       subview.layer.cornerRadius = 1.5f;
