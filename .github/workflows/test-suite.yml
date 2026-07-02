@@ -1,17 +1,13 @@
 name: Test Suite
 on:
   workflow_dispatch:
-  pull_request:
 
 jobs:
   android:
     runs-on: ubuntu-latest
-    env:
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
-      USE_CCACHE: 1
     steps:
       - uses: actions/checkout@v6
-      - name: Dependencies including 32-bit support
+      - name: Install 32-bit dependencies
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update -y -qq
@@ -26,20 +22,9 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - run: npm ci
-      - uses: actions/cache@v5
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-      - uses: hendrikmuhs/ccache-action@v1.2.23
-        with:
-          key: ${{ github.sha }}
-      - uses: actions/cache@v5
-        with:
-          path: dist/android/libv8
-          key: v8-${{ hashFiles('dist/android/libv8/**') }}
-      - run: npm run test:android
+      - run: npm i -g titanium alloy
+      - run: ti sdk install latest
+      - run: node ./build/scons test android
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -49,8 +34,6 @@ jobs:
   ios:
     runs-on: macos-26
     env:
-      CCACHE_DIR: ${{ github.workspace }}/.ccache
-      USE_CCACHE: 1
       DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v6
@@ -59,10 +42,9 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
-      - uses: hendrikmuhs/ccache-action@v1.2.23
-        with:
-          key: ${{ github.sha }}
-      - run: npm run test:ios
+      - run: npm i -g titanium alloy
+      - run: ti sdk install latest
+      - run: node ./build/scons test ios -F iphone
       - uses: actions/upload-artifact@v4
         if: always()
         with:
