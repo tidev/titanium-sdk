@@ -112,53 +112,8 @@ public class TiUIScrollView extends TiUIView
 	private int scrollIndicatorRadius = 6;
 	private boolean hasCustomScrollIndicatorProps;
 
-	private CustomVerticalScrollBar customVerticalScrollBar;
-	private CustomHorizontalScrollBar customHorizontalScrollBar;
-
-	// Reusable handler and runnable for fade-out animation to avoid allocations per scroll event.
-	// Both custom scrollbars share one handler/runnable so the fade targets whichever bars
-	// currently exist. Previously the fade only touched the "active" bar (getCustomScrollBar()
-	// preferred the vertical one), so when both bars were shown the horizontal scrollbar was
-	// never faded out and stayed visible permanently.
-	private final android.os.Handler fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
-	private final Runnable fadeRunnable = new Runnable() {
-		@Override
-		public void run()
-		{
-			hideIfFaded(customVerticalScrollBar);
-			hideIfFaded(customHorizontalScrollBar);
-		}
-	};
-
-	private void hideIfFaded(View view)
-	{
-		// Use a threshold instead of exact 0f equality: this runnable is posted with the same
-		// duration as the alpha animator, so scheduler jitter can fire it a few ms before the
-		// animator has written the exact 0f target. < 0.99f also avoids re-hiding a bar that a
-		// subsequent scroll has just re-shown (alpha 1f).
-		if (view != null && view.getAlpha() < 0.99f) {
-			view.setVisibility(View.GONE);
-		}
-	}
-
-	/**
-	 * Schedules the fade-out animation for all currently shown custom scrollbars.
-	 */
-	private void scheduleFadeOut()
-	{
-		fadeHandler.removeCallbacks(fadeRunnable);
-		fadeView(customVerticalScrollBar);
-		fadeView(customHorizontalScrollBar);
-		fadeHandler.postDelayed(fadeRunnable, FADE_DURATION);
-	}
-
-	private void fadeView(View view)
-	{
-		if (view != null) {
-			view.animate().cancel();
-			view.animate().alpha(0f).setDuration(FADE_DURATION).start();
-		}
-	}
+	private CustomScrollBar customVerticalScrollBar;
+	private CustomScrollBar customHorizontalScrollBar;
 
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
@@ -183,6 +138,21 @@ public class TiUIScrollView extends TiUIView
 		private int trackColor;
 		private int radius;
 		private int scrollPosition, scrollRange;
+
+		// Per-instance fade-out: each bar owns its alpha/visibility lifecycle, so the fade is
+		// independent per axis and a recreated bar cannot be GONE'd by a stale runnable from a
+		// previous bar (the previous shared fadeRunnable read the bar fields at dispatch time).
+		// Cleared in onDetachedFromWindow.
+		private final android.os.Handler fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+		private final Runnable fadeRunnable = new Runnable() {
+			@Override
+			public void run()
+			{
+				if (getAlpha() < 0.99f) {
+					setVisibility(View.GONE);
+				}
+			}
+		};
 
 		public CustomScrollBar(
 			Context context, Orientation orientation,
@@ -221,70 +191,63 @@ public class TiUIScrollView extends TiUIView
 		{
 			super.onDraw(canvas);
 
+			// Both axes share the same thumb-sizing math; only the track extent and the
+			// RectF orientation differ. Parameterize via computeThumb so the clamp logic
+			// (MIN_THUMB_SIZE floor + thumbArea clamp + inset-bounds clamp) lives in one place.
 			if (orientation == Orientation.VERTICAL) {
 				int trackHeight = getHeight();
 				if (trackHeight == 0) return;
 
 				int r = Math.min(radius, SCROLLBAR_SIZE / 2);
-
-				// Track: full height with rounded edges
 				trackRect.set(0, 0, SCROLLBAR_SIZE, trackHeight);
 				canvas.drawRoundRect(trackRect, r, r, trackPaint);
 
-				// Thumb: only within the inset area
-				int thumbArea = trackHeight - insetStart - insetEnd;
-				if (thumbArea <= 0) return;
-
-				// Clamp thumb to thumbArea so that large insets (thumbArea < MIN_THUMB_SIZE)
-				// don't make the thumb taller than the available track and overflow it.
-				int thumbHeight = Math.min(thumbArea,
-					Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange)));
-				int thumbTop;
-				if (scrollRange > 0) {
-					float ratio = (float) scrollPosition / scrollRange;
-					thumbTop = insetStart + (int) (ratio * (thumbArea - thumbHeight));
-				} else {
-					thumbTop = insetStart;
-				}
-				// Clamp thumb within inset bounds
-				thumbTop = Math.max(insetStart, Math.min(thumbTop, trackHeight - insetEnd - thumbHeight));
-
-				thumbRect.set(0, thumbTop, SCROLLBAR_SIZE, thumbTop + thumbHeight);
+				int[] thumb = computeThumb(trackHeight);
+				if (thumb == null) return;
+				thumbRect.set(0, thumb[0], SCROLLBAR_SIZE, thumb[0] + thumb[1]);
 				canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
-
 			} else { // HORIZONTAL
 				int trackWidth = getWidth();
 				if (trackWidth == 0) return;
 
 				int r = Math.min(radius, SCROLLBAR_SIZE / 2);
-
-				// Draw track full width with rounded edges
 				trackRect.set(0, 0, trackWidth, SCROLLBAR_SIZE);
 				canvas.drawRoundRect(trackRect, r, r, trackPaint);
 
-				// Thumb: only within left/right inset area
-				int thumbArea = trackWidth - insetStart - insetEnd;
-				if (thumbArea <= 0) return;
-
-				// Clamp thumb to thumbArea so that large insets (thumbArea < MIN_THUMB_SIZE)
-				// don't make the thumb wider than the available track and overflow it.
-				int thumbWidth = Math.min(thumbArea,
-					Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange)));
-				int thumbLeft;
-				if (scrollRange > 0) {
-					float ratio = (float) scrollPosition / scrollRange;
-					thumbLeft = insetStart + (int) (ratio * (thumbArea - thumbWidth));
-				} else {
-					thumbLeft = insetStart;
-				}
-				// Clamp thumb within inset bounds
-				thumbLeft = Math.max(insetStart, Math.min(thumbLeft, trackWidth - insetEnd - thumbWidth));
-
-				thumbRect.set(thumbLeft, 0, thumbLeft + thumbWidth, SCROLLBAR_SIZE);
+				int[] thumb = computeThumb(trackWidth);
+				if (thumb == null) return;
+				thumbRect.set(thumb[0], 0, thumb[0] + thumb[1], SCROLLBAR_SIZE);
 				canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
 			}
+		}
 
-			// Debug logging removed
+		/**
+		 * Computes the thumb start (top for vertical / left for horizontal) and size
+		 * (height / width) for the current scroll position along this bar's axis, using the
+		 * bar's insetStart/insetEnd and the cached scrollPosition/scrollRange.
+		 * <p>Clamps the thumb size to the inset area so large insets (thumbArea smaller than
+		 * MIN_THUMB_SIZE) can't make the thumb overflow the track, and clamps the position to
+		 * the inset bounds.
+		 * @param trackSize track extent (height for vertical, width for horizontal)
+		 * @return int[2] {thumbStart, thumbSize} in pixels, or null if there is no inset area
+		 */
+		private int[] computeThumb(int trackSize)
+		{
+			int thumbArea = trackSize - insetStart - insetEnd;
+			if (thumbArea <= 0) {
+				return null;
+			}
+			int thumbSize = Math.min(thumbArea,
+				Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange)));
+			int thumbStart;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollPosition / scrollRange;
+				thumbStart = insetStart + (int) (ratio * (thumbArea - thumbSize));
+			} else {
+				thumbStart = insetStart;
+			}
+			thumbStart = Math.max(insetStart, Math.min(thumbStart, trackSize - insetEnd - thumbSize));
+			return new int[] { thumbStart, thumbSize };
 		}
 
 		public void updateScrollPosition(int scrollPos, int scrollRange, int viewportSize)
@@ -318,34 +281,25 @@ public class TiUIScrollView extends TiUIView
 				}
 			}
 		}
-	}
 
-	// Legacy aliases for backward compatibility during refactoring
-	public class CustomVerticalScrollBar extends CustomScrollBar
-	{
-		public CustomVerticalScrollBar(Context context, int topInset, int bottomInset,
-									  int thumbColor, int trackColor, int radius)
+		/**
+		 * Schedules this bar's fade-out: cancel any in-flight alpha animator and pending hide
+		 * runnable, then animate alpha to 0 and hide (GONE) after FADE_DURATION. Re-arming each
+		 * scroll frame keeps the bar visible while scrolling and fades it once scrolling stops.
+		 */
+		private void scheduleFadeOut()
 		{
-			super(context, Orientation.VERTICAL, topInset, bottomInset, thumbColor, trackColor, radius);
+			fadeHandler.removeCallbacks(fadeRunnable);
+			animate().cancel();
+			animate().alpha(0f).setDuration(FADE_DURATION).start();
+			fadeHandler.postDelayed(fadeRunnable, FADE_DURATION);
 		}
 
-		public void updateScrollPosition(int scrollY, int scrollRange, int viewportHeight)
+		@Override
+		protected void onDetachedFromWindow()
 		{
-			super.updateScrollPosition(scrollY, scrollRange, viewportHeight);
-		}
-	}
-
-	public class CustomHorizontalScrollBar extends CustomScrollBar
-	{
-		public CustomHorizontalScrollBar(Context context, int leftInset, int rightInset,
-										int thumbColor, int trackColor, int radius)
-		{
-			super(context, Orientation.HORIZONTAL, leftInset, rightInset, thumbColor, trackColor, radius);
-		}
-
-		public void updateScrollPosition(int scrollX, int scrollRange, int viewportWidth)
-		{
-			super.updateScrollPosition(scrollX, scrollRange, viewportWidth);
+			fadeHandler.removeCallbacksAndMessages(null);
+			super.onDetachedFromWindow();
 		}
 	}
 
@@ -1061,7 +1015,8 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void release()
 	{
-		fadeHandler.removeCallbacksAndMessages(null);
+		// Custom scrollbar fade handlers are cleared automatically: super.release() detaches
+		// the native view tree, which triggers each CustomScrollBar's onDetachedFromWindow.
 
 		// If a refresh control is currently assigned, then detach it. Check the
 		// swipeRefreshLayout field (not getNativeView()): when custom scrollbar properties
@@ -1471,15 +1426,17 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		// The view we wrap is the top-level native view. When a refreshControl is set, the
-		// SwipeRefreshLayout wraps the scroll view and we MUST keep that nesting intact:
-		// SwipeRefreshLayout drives pull-to-refresh through the NestedScrolling API on its
-		// direct child. Wrapping the inner scrollView (the previous behavior) reparented it
-		// out of the SwipeRefreshLayout into a plain FrameLayout, which is not a
-		// NestedScrollingParent — that silently severed the nested-scroll chain and broke
-		// pull-to-refresh whenever a custom scrollbar property was also set. Wrapping the
-		// SwipeRefreshLayout instead keeps SwipeRefreshLayout -> NestedScrollView intact and
-		// still gives us a FrameLayout host for the custom scrollbar views.
-		View wrapTarget = (swipeRefreshLayout != null) ? swipeRefreshLayout : scrollView;
+		// Wrap the current top-level native view. getNativeView() is the single source of
+		// truth for that: it is the SwipeRefreshLayout when refreshControl is set, the
+		// scrollView otherwise — so this keeps the SwipeRefreshLayout -> NestedScrollView
+		// nesting intact (pull-to-refresh keeps working) and gives us a FrameLayout host for
+		// the custom scrollbar views. Wrapping the inner scrollView directly (previous
+		// behavior) reparented it out of the SwipeRefreshLayout into a plain FrameLayout,
+		// severing the nested-scroll chain.
+		View wrapTarget = getNativeView();
+		if (wrapTarget == null) {
+			wrapTarget = scrollView;
+		}
 		if (wrapTarget == null) {
 			return;
 		}
@@ -1496,7 +1453,10 @@ public class TiUIScrollView extends TiUIView
 					if (contentWrapper != null || scrollView == null) {
 						return;
 					}
-					View target = (swipeRefreshLayout != null) ? swipeRefreshLayout : scrollView;
+					View target = getNativeView();
+					if (target == null) {
+						target = scrollView;
+					}
 					if (target == null || !(target.getParent() instanceof ViewGroup)) {
 						return;
 					}
@@ -1560,15 +1520,9 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		// Cancel any pending fade-out runnable before tearing down and recreating the bar
-		// views. A previously-posted fadeRunnable reads the customVerticalScrollBar /
-		// customHorizontalScrollBar fields at dispatch time, so after recreation it would
-		// operate on the NEW bar (whose constructor sets alpha 0) and setVisibility(GONE) on
-		// it — harmless visually (alpha 0 anyway) but it leaves the new bar GONE until the next
-		// scroll. Removing the pending callback here keeps the recreation clean.
-		fadeHandler.removeCallbacks(fadeRunnable);
-
-		// Hide native scrollbars when using custom scroll indicators
+		// Hide native scrollbars when using custom scroll indicators. Per-bar fade handlers
+		// are cleared automatically: removeView-ing an old bar below triggers its
+		// onDetachedFromWindow, which cancels its own pending fade runnable.
 		if (hasCustomScrollIndicatorProps) {
 			scrollView.setHorizontalScrollBarEnabled(false);
 			scrollView.setVerticalScrollBarEnabled(false);
@@ -1611,8 +1565,8 @@ public class TiUIScrollView extends TiUIView
 		int leftInset = cachedVerticalScrollIndicatorLeftDim.getIntValue();
 		int rightInset = cachedVerticalScrollIndicatorRightDim.getIntValue();
 
-		customVerticalScrollBar = new CustomVerticalScrollBar(
-			scrollView.getContext(), topInset, bottomInset,
+		customVerticalScrollBar = new CustomScrollBar(
+			scrollView.getContext(), CustomScrollBar.Orientation.VERTICAL, topInset, bottomInset,
 			scrollIndicatorColor, scrollIndicatorBackgroundColor, scrollIndicatorRadius);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -1643,8 +1597,8 @@ public class TiUIScrollView extends TiUIView
 		int topInset = cachedHorizontalScrollIndicatorTopDim.getIntValue();
 		int bottomInset = cachedHorizontalScrollIndicatorBottomDim.getIntValue();
 
-		customHorizontalScrollBar = new CustomHorizontalScrollBar(
-			scrollView.getContext(), leftInset, rightInset,
+		customHorizontalScrollBar = new CustomScrollBar(
+			scrollView.getContext(), CustomScrollBar.Orientation.HORIZONTAL, leftInset, rightInset,
 			scrollIndicatorColor, scrollIndicatorBackgroundColor, scrollIndicatorRadius);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
