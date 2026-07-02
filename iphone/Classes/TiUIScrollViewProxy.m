@@ -265,20 +265,29 @@ static NSArray *scrollViewKeySequence;
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
     UIColor *color = [TiUtils colorValue:value];
     if (color == nil) {
+      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: color is nil, returning");
       return;
     }
 
+    NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: applying color to scrollView with %lu subviews", (unsigned long)scrollView.subviews.count);
+
     // Scroll indicator UIImageViews are direct subviews of UIScrollView
     for (UIView *subview in scrollView.subviews) {
+      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: checking subview: %@", NSStringFromClass([subview class]));
       if ([subview isKindOfClass:[UIImageView class]]) {
         UIImageView *imageView = (UIImageView *)subview;
+        NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: found UIImageView with image: %@, applying tint", imageView.image ? @"YES" : @"NO");
         if (imageView.image != nil) {
           imageView.tintColor = color;
           imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+          NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: applied tint color: %@", color);
         }
       }
     }
     [scrollView flashScrollIndicators];
+    NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: called flashScrollIndicators");
+  } else {
+    NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: view not attached or value is nil/NSNull");
   }
 }
 
