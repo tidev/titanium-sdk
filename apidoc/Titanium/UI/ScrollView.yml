@@ -96,6 +96,17 @@ methods:
 
         On iOS, `scrollToBottom` moves the bottom-right corner of the scrollable region into the
         viewable area.
+    parameters:
+      - name: options
+        summary: |
+            A JS object for specifying the animation properties when scrolling the view. Only
+            honored on Android; the argument is ignored on iOS.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+            (the scroll snaps to the edge without animation).
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: {iphone: "2.1.0", ipad: "2.1.0"}
 
   - name: scrollToTop
@@ -108,6 +119,17 @@ methods:
 
         On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the
         viewable area.
+    parameters:
+      - name: options
+        summary: |
+            A JS object for specifying the animation properties when scrolling the view. Only
+            honored on Android; the argument is ignored on iOS.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+            (the scroll snaps to the edge without animation).
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: "7.0.0"
 
 events:
@@ -126,6 +148,10 @@ events:
       - name: contentSize
         summary: |
             The current content size of the scroll view defined by its `width` and `height` properties.
+            On Android, the reported `width` and `height` include the
+            <Titanium.UI.ScrollView.contentInset> padding so that the content size reflects the
+            full scrollable region (measured content plus insets). On iOS, `contentSize` reflects
+            the content size only.
         type: Size
         since: { iphone: "5.2.0", ipad: "5.2.0", android: "8.3.0" }
 
@@ -278,7 +304,7 @@ properties:
         All keys are optional. Unspecified keys default to 0.
     type: Dictionary<Number>
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: scrollIndicatorInsets
     summary: Inset distances for both the vertical and horizontal scroll indicators on Android.
@@ -291,18 +317,21 @@ properties:
 
         The dictionary accepts the following keys:
 
-        * `top` - Inset distance at the top (in dip)
-        * `bottom` - Inset distance at the bottom (in dip)
-        * `left` - Inset distance on the left side (in dip)
-        * `right` - Inset distance on the right side (in dip)
+        * `top` - Inset distance at the top (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `bottom` - Inset distance at the bottom (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `left` - Inset distance on the left side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `right` - Inset distance on the right side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
 
         All keys are optional. Unspecified keys default to 0.
+
+        Reading this property returns a dictionary whose `top`/`bottom`/`left`/`right` values are
+        the resolved inset distances in **pixels** (not the dip values that were originally set).
 
         **Note:** Requires `showVerticalScrollIndicator` and/or `showHorizontalScrollIndicator`
         to be `true` for the corresponding indicator to be visible.
     type: Dictionary<Number>
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: horizontalScrollIndicatorInsets
     summary: Inset distances for the horizontal scroll indicator on Android.
@@ -312,17 +341,21 @@ properties:
 
         The dictionary accepts the following keys:
 
-        * `top` - Inset distance at the top (in dip)
-        * `bottom` - Inset distance at the bottom (in dip)
-        * `left` - Inset distance on the left side (in dip)
-        * `right` - Inset distance on the right side (in dip)
+        * `top` - Inset distance at the top (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `bottom` - Inset distance at the bottom (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `left` - Inset distance on the left side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `right` - Inset distance on the right side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
 
         All keys are optional. Unspecified keys default to 0.
+
+        Reading this property returns the dictionary that was last assigned (the values are
+        returned as-set and are **not** resolved to pixels, unlike
+        <Titanium.UI.ScrollView.scrollIndicatorInsets>).
 
         **Note:** Requires `showHorizontalScrollIndicator` to be `true` for the indicator to be visible.
     type: Dictionary<Number>
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: verticalScrollIndicatorInsets
     summary: Inset distances for the vertical scroll indicator on Android.
@@ -332,17 +365,21 @@ properties:
 
         The dictionary accepts the following keys:
 
-        * `top` - Inset distance at the top (in dip)
-        * `bottom` - Inset distance at the bottom (in dip)
-        * `left` - Inset distance on the left side (in dip)
-        * `right` - Inset distance on the right side (in dip)
+        * `top` - Inset distance at the top (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `bottom` - Inset distance at the bottom (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `left` - Inset distance on the left side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `right` - Inset distance on the right side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
 
         All keys are optional. Unspecified keys default to 0.
+
+        Reading this property returns the dictionary that was last assigned (the values are
+        returned as-set and are **not** resolved to pixels, unlike
+        <Titanium.UI.ScrollView.scrollIndicatorInsets>).
 
         **Note:** Requires `showVerticalScrollIndicator` to be `true` for the indicator to be visible.
     type: Dictionary<Number>
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: clipChildren
     summary: Determines whether child views are clipped to their bounds.
@@ -354,7 +391,7 @@ properties:
     type: Boolean
     default: true
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: clipToPadding
     summary: Determines whether child views are clipped to the padding area.
@@ -367,7 +404,7 @@ properties:
     type: Boolean
     default: false
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: decelerationRate
     summary: The deceleration rate of the ScrollView.
@@ -493,7 +530,7 @@ properties:
     type: String
     default: '#66666666'
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: scrollIndicatorColor
     summary: Color of the custom scroll indicator thumb.
@@ -509,7 +546,7 @@ properties:
     type: String
     default: '#FF666666'
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: scrollIndicatorRadius
     summary: Corner radius of the custom scroll indicator.
@@ -521,7 +558,7 @@ properties:
     type: Number
     default: 6
     platforms: [android]
-    since: "13.4.0"
+    since: "14.0.0"
 
   - name: scrollType
     summary: |
