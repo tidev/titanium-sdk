@@ -25,7 +25,9 @@ jobs:
       - run: npm ci
       - run: npm i -g alloy
       - run: node node_modules/titanium/bin/ti.js sdk install latest
-      - run: node ./build/scons test android
+      - name: Get installed SDK version
+        run: echo "SDK_VERSION=$(ls ~/.titanium/mobilesdk/linux/ | sort -V | tail -1)" >> $GITHUB_ENV
+      - run: node ./build/scons test android --sdk-version ${{ env.SDK_VERSION }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -45,7 +47,9 @@ jobs:
       - run: npm ci
       - run: npm i -g alloy
       - run: node node_modules/titanium/bin/ti.js sdk install latest
-      - run: node ./build/scons test ios -F iphone
+      - name: Get installed SDK version
+        run: echo "SDK_VERSION=$(ls ~/.titanium/mobilesdk/osx/ | sort -V | tail -1)" >> $GITHUB_ENV
+      - run: node ./build/scons test ios -F iphone --sdk-version ${{ env.SDK_VERSION }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
