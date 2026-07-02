@@ -791,6 +791,20 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		@Override
+		protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY)
+		{
+			super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+			// Overscroll clamps the scroll position at the edge, so onScrollChanged does not fire
+			// during the overscroll pull and the custom bar would already be fading. Re-show it at
+			// the clamped edge position and re-arm the fade so the indicator stays visible while
+			// overscrolling and fades shortly after release (same lifecycle as a normal scroll).
+			if (customVerticalScrollBar != null) {
+				int scrollRange = computeVerticalScrollRange() - computeVerticalScrollExtent();
+				customVerticalScrollBar.updateScrollPosition(scrollY, Math.max(0, scrollRange), getMeasuredHeight());
+			}
+		}
+
+		@Override
 		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 		{
 			// Reset flag used to detect if child view's onMeasure() got called.
@@ -945,6 +959,18 @@ public class TiUIScrollView extends TiUIView
 			reusableScrollEventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
 			reusableScrollEventData.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
 			getProxy().fireEvent(TiC.EVENT_SCROLL, reusableScrollEventData);
+		}
+
+		@Override
+		protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY)
+		{
+			super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+			// See TiVerticalScrollView.onOverScrolled: keep the custom indicator visible during
+			// the overscroll pull (onScrollChanged does not fire while the position is clamped).
+			if (customHorizontalScrollBar != null) {
+				int scrollRange = computeHorizontalScrollRange() - computeHorizontalScrollExtent();
+				customHorizontalScrollBar.updateScrollPosition(scrollX, Math.max(0, scrollRange), getMeasuredWidth());
+			}
 		}
 
 		@Override
