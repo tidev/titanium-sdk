@@ -22,7 +22,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// FIXME iOS gives us an ELEMENT_NODE, not DOCUMENT_NODE
 	it.iosBroken('responseXML', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = function () {
 			try {
@@ -69,7 +69,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('downloadLargeFile', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = function () {
 			//  should(xhr.responseData.length).be.greaterThan(0);
@@ -92,7 +92,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-23127', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = () => finish();
 
@@ -103,7 +103,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-23214', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = () => finish();
 
@@ -114,7 +114,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-19042', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = function () {
@@ -135,7 +135,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('largeFileWithRedirect', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = function () {
 			// should(xhr.responseData.length).be.greaterThan(0);
@@ -528,7 +528,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// FIXME iOS doesn't work. I think because of app thinning removing Logo.png
 	it.iosBroken('POST multipart/form-data containing Ti.Blob', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		const imageFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 		const attachment = imageFile.read();
@@ -583,7 +583,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const xhr = Ti.Network.createHTTPClient({
 			username: 'user',
 			password: 'passwd',
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = function () {
@@ -614,7 +614,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const xhr = Ti.Network.createHTTPClient({
 			username: 'user',
 			password: 'wrong_password',
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = e => finish(new Error('Authenticating with wrong password: ' + JSON.stringify(e, null, 1)));
@@ -627,7 +627,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it.android('save response data to temp directory', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = function (e) {
@@ -661,7 +661,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// FIXME: Windows 'source' is missing on onload
 	it.windowsMissing('send on response', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		this.timeout(Timeout.NETWORK);
 
@@ -706,7 +706,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		}
 
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4,
+			timeout: Timeout.NETWORK,
 			file
 		});
 		xhr.onload = function (_e) {
@@ -792,7 +792,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-27767 - trigger error callback for invalid URL', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onerror = _e => finish();
 		xhr.open('GET', 'https://www.google .com/'); // URL with space
@@ -803,7 +803,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	it.allBroken('#timeoutForResource', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			cache: false,
-			timeout: 6e4,
+			timeout: Timeout.NETWORK,
 			timeoutForResource: 50
 		});
 
