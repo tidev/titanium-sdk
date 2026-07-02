@@ -10,6 +10,7 @@
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 const isMacOS = utilities.isMacOS();
 const isIOSDevice = OS_IOS && !isMacOS && !Ti.Platform.model.includes('(Simulator)');
@@ -326,7 +327,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('works via callback argument', function (finish) {
-				this.timeout(1e4); // 10 sec
+				this.timeout(Timeout.DEFAULT); // 10 sec
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
@@ -351,7 +352,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('works via Promise return value', function (finish) {
-				this.timeout(1e4); // 10 sec
+				this.timeout(Timeout.DEFAULT); // 10 sec
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
@@ -371,7 +372,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('works via callback argument', function (finish) {
-				this.timeout(6e4); // 60 sec
+				this.timeout(Timeout.NETWORK); // 60 sec
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
@@ -413,7 +414,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('works via Promise return value', function (finish) {
-				this.timeout(6e4); // 60 sec
+				this.timeout(Timeout.NETWORK); // 60 sec
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
@@ -462,7 +463,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('works via callback argument', function (finish) {
-				this.timeout(6e4); // 60 sec
+				this.timeout(Timeout.NETWORK); // 60 sec
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
@@ -510,7 +511,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('works via Promise return value', function (finish) {
-				this.timeout(6e4); // 60 sec
+				this.timeout(Timeout.NETWORK); // 60 sec
 
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
@@ -576,7 +577,7 @@ describe('Titanium.Geolocation', () => {
 			/*
 			it('works via callback argument', function (finish) {
 
-				this.timeout(6e4); // 60 sec
+				this.timeout(Timeout.NETWORK); // 60 sec
 
 				// If we do not add state and zipcode, we end up with Morrow Bay, CA address on Android now!
 				// the coords are: 35.3601686, -120.8433491
@@ -596,7 +597,7 @@ describe('Titanium.Geolocation', () => {
 			});
 
 			it('works via Promise return value', function (finish) {
-				this.timeout(6e4); // 60 sec
+				this.timeout(Timeout.NETWORK); // 60 sec
 
 				const result = Ti.Geolocation.forwardGeocoder('440 N Bernardo Ave, Mountain View, CA 94043');
 				result.should.be.a.Promise();
@@ -613,7 +614,7 @@ describe('Titanium.Geolocation', () => {
 			*/
 		});
 		it.ios('#requestTemporaryFullAccuracyAuthorization()', function (finish) {
-			this.timeout(6e4); // 60 sec
+			this.timeout(Timeout.NETWORK); // 60 sec
 			if (OS_VERSION_MAJOR < 14) {
 				return finish();
 			}
@@ -638,7 +639,7 @@ describe('Titanium.Geolocation', () => {
 			it('is a Function', () => should(Ti.Geolocation.reverseGeocoder).be.a.Function());
 
 			it('works via function callback', function (finish) {
-				this.timeout(6e4); // 60 sec
+				this.timeout(Timeout.NETWORK); // 60 sec
 
 				Ti.Geolocation.reverseGeocoder(37.3883645, -122.0512682, function (data) {
 					try {

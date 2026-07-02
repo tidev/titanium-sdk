@@ -8,9 +8,10 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Network.HTTPClient', function () {
-	this.timeout(6e4);
+	this.timeout(Timeout.NETWORK);
 
 	it('apiName', function () {
 		const client = Ti.Network.createHTTPClient();
@@ -662,7 +663,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 6e4
 		});
-		this.timeout(6e4);
+		this.timeout(Timeout.NETWORK);
 
 		let count = 0;
 		xhr.onload = function (e) {
@@ -697,7 +698,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	it.windowsMissing('.file set to a Ti.Filesystem.File object', function (finish) {
-		this.timeout(6e4);
+		this.timeout(Timeout.NETWORK);
 
 		const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'DownloadedImage.png');
 		if (file.exists()) {

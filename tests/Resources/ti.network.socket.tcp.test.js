@@ -7,11 +7,12 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Network.Socket.TCP', function () {
 	var socket;
-	this.timeout(6e4);
+	this.timeout(Timeout.NETWORK);
 
 	afterEach(function () {
 		if (socket && socket.state == Ti.Network.Socket.CONNECTED) { // eslint-disable-line eqeqeq

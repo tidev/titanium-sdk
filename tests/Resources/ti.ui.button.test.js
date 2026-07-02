@@ -8,9 +8,10 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.Button', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -98,7 +99,7 @@ describe('Titanium.UI.Button', function () {
 	// FIXME iOS getFile().read() returns null for Logo.png
 	it.iosAndWindowsBroken('image(Blob)', function (finish) {
 		this.slow(1000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
@@ -120,7 +121,7 @@ describe('Titanium.UI.Button', function () {
 	describe('imageIsMask', () => {
 		it('true', function (finish) {
 			this.slow(1000);
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const button = Ti.UI.createButton({
@@ -142,7 +143,7 @@ describe('Titanium.UI.Button', function () {
 
 		it('false', function (finish) {
 			this.slow(1000);
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const button = Ti.UI.createButton({
@@ -165,7 +166,7 @@ describe('Titanium.UI.Button', function () {
 
 	it('tintColor', function (finish) {
 		this.slow(1000);
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		const button = Ti.UI.createButton({
@@ -283,7 +284,7 @@ describe('Titanium.UI.Button', function () {
 	// FIXME Get working on iOS
 	it.iosBroken('backgroundGradient', function (finish) {
 		this.slow(1000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'

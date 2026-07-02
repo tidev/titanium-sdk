@@ -9,11 +9,12 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.WebView', function () {
 	this.slow(3000);
-	this.timeout(30000);
+	this.timeout(Timeout.LONG);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -34,7 +35,7 @@ describe('Titanium.UI.WebView', function () {
 	// iOS works most of the time, but also has some odd failures sometimes. SDK 8+ is reworking this.
 	it.allBroken('loading', function (finish) {
 		this.slow(5000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
@@ -211,7 +212,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	describe.windows('ms-appx* urls', function () {
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		it('ms-appx:', function (finish) {
 			var w,
@@ -304,7 +305,7 @@ describe('Titanium.UI.WebView', function () {
 
 	it.windowsBroken('.userAgent', function (finish) {
 		this.slow(15000);
-		this.timeout(60000);
+		this.timeout(Timeout.NETWORK);
 
 		if (OS_ANDROID && OS_VERSION_MAJOR < 6) { // unsure at what exact version this fails
 			return finish();
@@ -342,7 +343,7 @@ describe('Titanium.UI.WebView', function () {
 	// FIXME: temperamental on Android and broken on Windows
 	it.androidAndWindowsBroken('.zoomLevel', function (finish) {
 		this.slow(5000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 
@@ -600,7 +601,7 @@ describe('Titanium.UI.WebView', function () {
 	// Verifies local HTML file can access local JS file and invoke an HTML "onload" callback.
 	it.windowsMissing('html-script-tag', function (finish) {
 		this.slow(3000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		Ti.App.addEventListener('ti.ui.webview.script.tag:onPageLoaded', function () {
 			finish();
@@ -737,7 +738,7 @@ describe('Titanium.UI.WebView', function () {
 
 	it('progress event', function (finish) {
 		this.slow(5000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({

@@ -27,7 +27,7 @@ describe.android('Titanium.Android.Service', function () {
 
 	it('startService-background-normal', function (finish) {
 		var intent;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.normal.js',
@@ -46,7 +46,7 @@ describe.android('Titanium.Android.Service', function () {
 			elapseInterval = 1000,
 			totalDuration = (elapseCount - 1) * elapseInterval,
 			startTime = Date.now();
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.interval.js',
@@ -73,7 +73,7 @@ describe.android('Titanium.Android.Service', function () {
 			wasServiceExecuted = false,
 			wasPauseReceived = false,
 			wasStopReceived = false;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.normal.js',
@@ -143,7 +143,7 @@ describe.android('Titanium.Android.Service', function () {
 			interval = 1000,
 			totalDuration = (maxCount - 1) * interval,
 			startTime = Date.now();
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.interval.js',
@@ -208,7 +208,7 @@ describe.android('Titanium.Android.Service', function () {
 
 	it('service-self-stopping-with-intent', function (finish) {
 		var intent;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.normal.js',
@@ -224,7 +224,7 @@ describe.android('Titanium.Android.Service', function () {
 	it('service-self-stopping-with-proxy', function (finish) {
 		var intent,
 			service;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.normal.js',
@@ -240,7 +240,7 @@ describe.android('Titanium.Android.Service', function () {
 
 	it('startService-foreground-normal', function (finish) {
 		var intent;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.normal.js',
@@ -260,7 +260,7 @@ describe.android('Titanium.Android.Service', function () {
 		var intent,
 			service,
 			channel = null;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		intent = Ti.Android.createServiceIntent({
 			url: 'ti.android.service.normal.js',

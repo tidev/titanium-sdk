@@ -9,6 +9,7 @@
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.App', () => {
 
@@ -274,7 +275,7 @@ describe('Titanium.App', () => {
 
 	it('#fireEvent - JSON serialization (TIMOB-25785)', function (finish) {
 		var validObject, validArray, invalidObject, invalidArray;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		validObject = {
 			nl: null,
@@ -366,7 +367,7 @@ describe('Titanium.App', () => {
 	});
 
 	it.android('pause/resume events', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 
 		// Cannot resume activity on Android 10.0+
 		if (parseInt(Ti.Platform.version) >= 10) {

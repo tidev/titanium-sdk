@@ -9,10 +9,11 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.ScrollView', function () {
 	let win;
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {
@@ -266,7 +267,7 @@ describe('Titanium.UI.ScrollView', function () {
 	// Verify ScrollView shrinks width/height-wise to just fit its contents.
 	it('Ti.UI.SIZE', function (finish) {
 		this.slow(5000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 		win = Ti.UI.createWindow();
 		const scrollView = Ti.UI.createScrollView({
 			layout: 'vertical',

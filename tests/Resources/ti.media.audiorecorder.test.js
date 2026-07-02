@@ -10,6 +10,7 @@
 /* eslint-disable mocha/no-identical-title */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Media', () => {
 	it('#createAudioRecorder()', () => should(Ti.Media.createAudioRecorder).be.a.Function());
@@ -161,7 +162,7 @@ describe('Titanium.Media.AudioRecorder', () => {
 		}
 
 		this.slow(5000);
-		this.timeout(15000);
+		this.timeout(Timeout.DEFAULT);
 
 		// Required to start recording on iOS.
 		if (OS_IOS) {

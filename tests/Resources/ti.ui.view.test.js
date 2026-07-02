@@ -9,6 +9,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 const isAndroid = utilities.isAndroid();
@@ -19,7 +20,7 @@ describe('Titanium.UI.View', function () {
 	let win;
 
 	this.slow(2000);
-	this.timeout(10000);
+	this.timeout(Timeout.DEFAULT);
 
 	before(finish => {
 		rootWindow = Ti.UI.createWindow({ exitOnClose: false });
@@ -116,7 +117,7 @@ describe('Titanium.UI.View', function () {
 
 	// Windows supports linear gradient only
 	it.androidAndWindowsMissing('backgroundGradient (radial)', function (finish) {
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: '#fff'
@@ -206,7 +207,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME Windows throws exception
 	it.windowsBroken('backgroundGradient (linear)', function (finish) {
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: '#fff'
@@ -949,7 +950,7 @@ describe('Titanium.UI.View', function () {
 
 	it('.backgroundImage (URL-redirect)', function (finish) {
 		this.slow(8000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createView({
