@@ -361,22 +361,32 @@ static NSArray *scrollViewKeySequence;
     }
 
     // Re-apply scrollIndicatorColor after view is attached
+    NSLog(@"[TiUIScrollViewProxy] windowWillOpen: checking scrollIndicatorColor");
     id savedScrollIndicatorColor = [self valueForUndefinedKey:@"scrollIndicatorColor"];
+    NSLog(@"[TiUIScrollViewProxy] windowWillOpen: savedScrollIndicatorColor = %@", savedScrollIndicatorColor);
     if (savedScrollIndicatorColor != nil && ![savedScrollIndicatorColor isEqual:[NSNull null]]) {
+      NSLog(@"[TiUIScrollViewProxy] windowWillOpen: applying scrollIndicatorColor");
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
       UIColor *color = [TiUtils colorValue:savedScrollIndicatorColor];
+      NSLog(@"[TiUIScrollViewProxy] windowWillOpen: parsed color = %@", color);
       if (color != nil) {
         for (UIView *subview in scrollView.subviews) {
+          NSLog(@"[TiUIScrollViewProxy] windowWillOpen: checking subview: %@", NSStringFromClass([subview class]));
           if ([subview isKindOfClass:[UIImageView class]]) {
             UIImageView *imageView = (UIImageView *)subview;
+            NSLog(@"[TiUIScrollViewProxy] windowWillOpen: found UIImageView with image: %@", imageView.image ? @"YES" : @"NO");
             if (imageView.image != nil) {
               imageView.tintColor = color;
               imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+              NSLog(@"[TiUIScrollViewProxy] windowWillOpen: applied tint");
             }
           }
         }
         [scrollView flashScrollIndicators];
+        NSLog(@"[TiUIScrollViewProxy] windowWillOpen: called flashScrollIndicators");
       }
+    } else {
+      NSLog(@"[TiUIScrollViewProxy] windowWillOpen: skipping scrollIndicatorColor (nil or NSNull)");
     }
   }
 }
