@@ -23,8 +23,8 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
       - run: npm ci
-      - run: npm i -g titanium alloy
-      - run: ti sdk install latest
+      - run: npm i -g alloy
+      - run: node node_modules/titanium/bin/ti.js sdk install latest
       - run: node ./build/scons test android
       - uses: actions/upload-artifact@v4
         if: always()
@@ -43,8 +43,8 @@ jobs:
           node-version: '24'
           cache: 'npm'
       - run: npm ci
-      - run: npm i -g titanium alloy
-      - run: ti sdk install latest
+      - run: npm i -g alloy
+      - run: node node_modules/titanium/bin/ti.js sdk install latest
       - run: node ./build/scons test ios -F iphone
       - uses: actions/upload-artifact@v4
         if: always()
