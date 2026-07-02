@@ -263,24 +263,34 @@ static NSArray *scrollViewKeySequence;
   [self replaceValue:value forKey:@"scrollIndicatorColor" notification:NO];
   if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
-    UIColor *color = [TiUtils colorValue:value];
+    UIColor *color = [[TiUtils colorValue:value] color];
     if (color == nil) {
       NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: color is nil, returning");
       return;
     }
 
+    // First, trigger indicator creation by scrolling
+    [scrollView setContentOffset:CGPointMake(0.0, 1.0) animated:NO];
+    [scrollView setContentOffset:CGPointMake(0.0, 0.0) animated:NO];
+
     NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: applying color to scrollView with %lu subviews", (unsigned long)scrollView.subviews.count);
 
-    // Scroll indicator UIImageViews are direct subviews of UIScrollView
     for (UIView *subview in scrollView.subviews) {
-      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: checking subview: %@", NSStringFromClass([subview class]));
-      if ([subview isKindOfClass:[UIImageView class]]) {
-        UIImageView *imageView = (UIImageView *)subview;
-        NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: found UIImageView with image: %@, applying tint", imageView.image ? @"YES" : @"NO");
-        if (imageView.image != nil) {
-          imageView.tintColor = color;
-          imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-          NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: applied tint color: %@", color);
+      NSString *className = NSStringFromClass([subview class]);
+      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: checking subview: %@", className);
+      if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
+        NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: found indicator view: %@", className);
+        SEL tintColorSel = NSSelectorFromString(@"setTintColor:");
+        if ([subview respondsToSelector:tintColorSel]) {
+          [subview performSelector:tintColorSel withObject:color];
+          NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: applied tintColor via setTintColor:");
+        } else if ([subview isKindOfClass:[UIImageView class]]) {
+          UIImageView *imageView = (UIImageView *)subview;
+          if (imageView.image != nil) {
+            imageView.tintColor = color;
+            imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: applied tint via UIImageView");
+          }
         }
       }
     }
@@ -367,7 +377,7 @@ static NSArray *scrollViewKeySequence;
     if (savedScrollIndicatorColor != nil && ![savedScrollIndicatorColor isEqual:[NSNull null]]) {
       NSLog(@"[TiUIScrollViewProxy] windowWillOpen: applying scrollIndicatorColor");
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
-      UIColor *color = [TiUtils colorValue:savedScrollIndicatorColor];
+      UIColor *color = [[TiUtils colorValue:savedScrollIndicatorColor] color];
       NSLog(@"[TiUIScrollViewProxy] windowWillOpen: parsed color = %@", color);
       if (color != nil) {
         // First, trigger indicator creation by scrolling
