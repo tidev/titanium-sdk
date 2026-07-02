@@ -63,6 +63,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   CALayer *gradientLayer;
   CALayer *bgdImageLayer;
   CAShapeLayer *_borderLayer;
+  CGFloat borderTopWidth;
+  CGFloat borderRightWidth;
+  CGFloat borderBottomWidth;
+  CGFloat borderLeftWidth;
   int clipMode;
 
   CGAffineTransform virtualParentTransform;
