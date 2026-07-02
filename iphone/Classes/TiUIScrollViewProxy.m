@@ -370,15 +370,27 @@ static NSArray *scrollViewKeySequence;
       UIColor *color = [TiUtils colorValue:savedScrollIndicatorColor];
       NSLog(@"[TiUIScrollViewProxy] windowWillOpen: parsed color = %@", color);
       if (color != nil) {
+        // First, trigger indicator creation by scrolling
+        [scrollView setContentOffset:CGPointMake(0.0, 1.0) animated:NO];
+        [scrollView setContentOffset:CGPointMake(0.0, 0.0) animated:NO];
+
         for (UIView *subview in scrollView.subviews) {
-          NSLog(@"[TiUIScrollViewProxy] windowWillOpen: checking subview: %@", NSStringFromClass([subview class]));
-          if ([subview isKindOfClass:[UIImageView class]]) {
-            UIImageView *imageView = (UIImageView *)subview;
-            NSLog(@"[TiUIScrollViewProxy] windowWillOpen: found UIImageView with image: %@", imageView.image ? @"YES" : @"NO");
-            if (imageView.image != nil) {
-              imageView.tintColor = color;
-              imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-              NSLog(@"[TiUIScrollViewProxy] windowWillOpen: applied tint");
+          NSString *className = NSStringFromClass([subview class]);
+          NSLog(@"[TiUIScrollViewProxy] windowWillOpen: checking subview: %@", className);
+          if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
+            NSLog(@"[TiUIScrollViewProxy] windowWillOpen: found indicator view: %@", className);
+            // Try setTintColor: via performSelector (private method on _UIScrollViewScrollIndicator)
+            SEL tintColorSel = NSSelectorFromString(@"setTintColor:");
+            if ([subview respondsToSelector:tintColorSel]) {
+              [subview performSelector:tintColorSel withObject:color];
+              NSLog(@"[TiUIScrollViewProxy] windowWillOpen: applied tintColor via setTintColor:");
+            } else if ([subview isKindOfClass:[UIImageView class]]) {
+              UIImageView *imageView = (UIImageView *)subview;
+              if (imageView.image != nil) {
+                imageView.tintColor = color;
+                imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+                NSLog(@"[TiUIScrollViewProxy] windowWillOpen: applied tint via UIImageView");
+              }
             }
           }
         }
