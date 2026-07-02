@@ -15,7 +15,7 @@
 
 import appc from 'node-appc';
 import { Creator } from '../creator.js';
-import DOMParser from 'xmldom';
+import DOMParser from '@xmldom/xmldom';
 import fields from 'fields';
 import fs from 'fs-extra';
 import moment from 'moment';

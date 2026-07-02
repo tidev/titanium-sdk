@@ -14,7 +14,6 @@ import android.text.InputType;
 import android.text.method.ArrowKeyMovementMethod;
 import android.util.AttributeSet;
 import android.view.ActionMode;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +21,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ViewCompat;
@@ -232,14 +229,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	@Override
 	public boolean onKeyPreIme(int keyCode, KeyEvent event)
 	{
-		// Work-around Android bug where center-aligned and right-aligned EditText won't
-		// always pan above the virtual keyboard when given the focus. (See TIMOB-23757)
-		boolean isLeftAligned = (getGravity() & Gravity.LEFT) != 0;
-		if ((Build.VERSION.SDK_INT < 24) && !isLeftAligned && (keyCode == KeyEvent.KEYCODE_BACK)) {
-			ViewGroup view = (ViewGroup) getParent();
-			view.setFocusableInTouchMode(true);
-			view.requestFocus();
-		}
 		return super.onKeyPreIme(keyCode, event);
 	}
 
@@ -306,7 +295,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	 * @return Returns the new context menu handling action mode. Returns null to not show a menu.
 	 */
 	@Override
-	@RequiresApi(23)
 	public ActionMode startActionMode(ActionMode.Callback callback, int type)
 	{
 		return super.startActionMode(onWrap(callback), type);
@@ -654,7 +642,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/** Wraps Google's "ActionMode.Callback2" so that we can remove particular context menu items from it. */
-	@RequiresApi(23)
 	private static class ActionModeCallback2Wrapper extends ActionMode.Callback2
 	{
 		private final ActionModeCallbackWrapper callback;

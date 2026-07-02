@@ -255,7 +255,7 @@ async function updateLibrary() {
 		console.log(`Decompressing downloaded V8 file: ${inFile}`);
 		const untarCommandLine
 			= quotePath(path.join(__dirname, '..', isWindows ? 'gradlew.bat' : 'gradlew'))
-			+ ' -b ' + quotePath(path.join(__dirname, '..', 'untar.gradle'))
+			+ ' -p ' + quotePath(path.join(__dirname, '..'))
 			+ ' -Pcompression=bzip2'
 			+ ' -Psrc=' + quotePath(inFile)
 			+ ' -Pdest=' + quotePath(outDir);
