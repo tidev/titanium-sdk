@@ -69,6 +69,9 @@ public class TiUIScrollView extends TiUIView
 	private int cachedContentHeight = -1;
 	private double cachedContentSizeWidth = 0;
 	private double cachedContentSizeHeight = 0;
+	// Reused KrollDict for the contentSize() result so the per-frame scroll event does not
+	// allocate a fresh dict on every onScrollChanged (~60fps). See contentSize().
+	private final KrollDict reusableContentSizeData = new KrollDict();
 
 	// Cached contentInset TiDimension values for efficient pixel conversion
 	private static final TiDimension INSET_ZERO = new TiDimension(0, TiDimension.TYPE_TOP);
@@ -286,18 +289,33 @@ public class TiUIScrollView extends TiUIView
 
 		public void updateScrollPosition(int scrollPos, int scrollRange, int viewportSize)
 		{
+			int oldPos = this.scrollPosition;
+			int oldRange = this.scrollRange;
 			this.scrollPosition = scrollPos;
 			this.scrollRange = scrollRange;
-			// Debug logging removed
 
 			if (scrollRange > 0) {
-				setAlpha(1f);
-				setVisibility(View.VISIBLE);
+				// Dirty-guard the per-frame state: this method is called on every scroll
+				// frame (~60fps), so only setAlpha/setVisibility/postInvalidate when the value
+				// actually changed. scheduleFadeOut still re-arms each frame to keep the bar
+				// visible while scrolling and fade it once scrolling stops.
+				if (getAlpha() != 1f) {
+					setAlpha(1f);
+				}
+				if (getVisibility() != View.VISIBLE) {
+					setVisibility(View.VISIBLE);
+				}
+				if (scrollPos != oldPos || scrollRange != oldRange) {
+					postInvalidate();
+				}
 				scheduleFadeOut();
-				postInvalidate();
 			} else {
-				setAlpha(0f);
-				setVisibility(View.GONE);
+				if (getAlpha() != 0f) {
+					setAlpha(0f);
+				}
+				if (getVisibility() != View.GONE) {
+					setVisibility(View.GONE);
+				}
 			}
 		}
 	}
@@ -2096,29 +2114,28 @@ public class TiUIScrollView extends TiUIView
 		int width = getLayout().getMeasuredWidth();
 		int height = getLayout().getMeasuredHeight();
 
-		// Add insets to the content size to match iOS behavior so JavaScript sees the
-		// correct scrollable area including insets. Include left/right on the width too, not
-		// just top/bottom on the height — otherwise a horizontal ScrollView with left/right
-		// contentInset reports a contentSize.width that is too small by left+right.
-		int topInset = (int) cachedInsetTopDim.getAsPixels(getNativeView());
-		int bottomInset = (int) cachedInsetBottomDim.getAsPixels(getNativeView());
-		int leftInset = (int) cachedInsetLeftDim.getAsPixels(getNativeView());
-		int rightInset = (int) cachedInsetRightDim.getAsPixels(getNativeView());
-
-		// Only recalculate TiDimension values if content size changed
+		// Only recalculate when the content size changed. Inset changes are covered because
+		// applyContentInset() invalidates cachedContentWidth/Height (sets them to -1). We read
+		// the cached pixel pads (maintained in applyContentInset) instead of re-running
+		// getAsPixels() on every call — this is a hot path (called per scroll frame from both
+		// onScrollChanged handlers), so it must not allocate or re-convert.
 		if (width != cachedContentWidth || height != cachedContentHeight) {
 			cachedContentWidth = width;
 			cachedContentHeight = height;
-			TiDimension dimensionWidth = new TiDimension(width + leftInset + rightInset, TiDimension.TYPE_WIDTH);
-			TiDimension dimensionHeight = new TiDimension(height + topInset + bottomInset, TiDimension.TYPE_HEIGHT);
+			TiDimension dimensionWidth = new TiDimension(
+				width + cachedPixelLeftPad + cachedPixelRightPad, TiDimension.TYPE_WIDTH);
+			TiDimension dimensionHeight = new TiDimension(
+				height + cachedPixelTopPad + cachedPixelBottomPad, TiDimension.TYPE_HEIGHT);
 			cachedContentSizeWidth = dimensionWidth.getAsDefault(getNativeView());
 			cachedContentSizeHeight = dimensionHeight.getAsDefault(getNativeView());
 		}
 
-		KrollDict contentData = new KrollDict();
-		contentData.put(TiC.PROPERTY_WIDTH, cachedContentSizeWidth);
-		contentData.put(TiC.PROPERTY_HEIGHT, cachedContentSizeHeight);
-		return contentData;
+		// Reuse a single KrollDict instead of allocating a new one per scroll frame. The
+		// scroll handler puts this dict into reusableScrollEventData and fires the event
+		// synchronously, so mutating it next frame is safe (same pattern as the scroll dict).
+		reusableContentSizeData.put(TiC.PROPERTY_WIDTH, cachedContentSizeWidth);
+		reusableContentSizeData.put(TiC.PROPERTY_HEIGHT, cachedContentSizeHeight);
+		return reusableContentSizeData;
 	}
 
 	@Override
