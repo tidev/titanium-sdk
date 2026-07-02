@@ -60,7 +60,7 @@ public class TiUIScrollView extends TiUIView
 
 	// Scroll event throttling (~60fps)
 	private static final int SCROLL_EVENT_THROTTLE_MS = 16;
-	private static final int FADE_DURATION = 200; // Fade-out animation duration in ms
+	private static final int FADE_DURATION = 450; // Fade-out animation duration in ms
 
 	private long lastScrollEventTime = 0;
 	private int cachedOffsetX = 0;
@@ -135,10 +135,31 @@ public class TiUIScrollView extends TiUIView
 
 		// Per-instance fade-out: each bar owns its alpha/visibility lifecycle, so the fade is
 		// independent per axis and a recreated bar cannot be GONE'd by a stale runnable from a
-		// previous bar (the previous shared fadeRunnable read the bar fields at dispatch time).
-		// Cleared in onDetachedFromWindow.
+		// previous bar. Cleared in onDetachedFromWindow.
+		//
+		// Two-phase fade so the indicator stays solidly visible while scrolling/overscrolling
+		// and only dims once interaction stops:
+		//   - While updateScrollPosition() is called every frame, scheduleFadeOut() re-arms
+		//     fadeStartRunnable; it never fires because each frame removes and re-posts it, so no
+		//     alpha animation runs and the bar holds at alpha 1 (no "fade in then straight out").
+		//   - After FADE_DURATION ms with no re-arm, fadeStartRunnable fires and begins the
+		//     alpha 1->0 animation; fadeGoneRunnable then hides (GONE) the bar.
+		//   - While the user is still touching the scroll view, scheduleFadeOut() skips arming
+		//     entirely so an overscroll stretch held without movement keeps the bar visible until
+		//     the finger lifts (setTouching(false) then arms the fade).
 		private final android.os.Handler fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
-		private final Runnable fadeRunnable = new Runnable() {
+		private boolean touching = false;
+		private final Runnable fadeStartRunnable = new Runnable() {
+			@Override
+			public void run()
+			{
+				animate().cancel();
+				animate().alpha(0f).setDuration(FADE_DURATION).start();
+				fadeHandler.removeCallbacks(fadeGoneRunnable);
+				fadeHandler.postDelayed(fadeGoneRunnable, FADE_DURATION);
+			}
+		};
+		private final Runnable fadeGoneRunnable = new Runnable() {
 			@Override
 			public void run()
 			{
@@ -277,16 +298,51 @@ public class TiUIScrollView extends TiUIView
 		}
 
 		/**
-		 * Schedules this bar's fade-out: cancel any in-flight alpha animator and pending hide
-		 * runnable, then animate alpha to 0 and hide (GONE) after FADE_DURATION. Re-arming each
-		 * scroll frame keeps the bar visible while scrolling and fades it once scrolling stops.
+		 * Schedules this bar's fade-out using a two-phase model so the indicator stays solidly
+		 * visible while scrolling/overscrolling and only dims once interaction stops:
+		 *   - cancel any in-flight alpha animator and pending fade runnables, and reset alpha to 1
+		 *     so the bar is solid while frames keep arriving.
+		 *   - unless the user is still touching the view, post fadeStartRunnable after
+		 *     FADE_DURATION; each re-arm (every scroll frame) removes and re-posts it, so it only
+		 *     fires once scrolling/overscrolling has been idle for FADE_DURATION. While touching,
+		 *     no fade is armed at all so a held overscroll stretch keeps the bar visible until the
+		 *     finger lifts (see setTouching).
 		 */
 		private void scheduleFadeOut()
 		{
-			fadeHandler.removeCallbacks(fadeRunnable);
+			fadeHandler.removeCallbacks(fadeStartRunnable);
+			fadeHandler.removeCallbacks(fadeGoneRunnable);
 			animate().cancel();
-			animate().alpha(0f).setDuration(FADE_DURATION).start();
-			fadeHandler.postDelayed(fadeRunnable, FADE_DURATION);
+			if (getAlpha() != 1f) {
+				setAlpha(1f);
+			}
+			if (!touching) {
+				fadeHandler.postDelayed(fadeStartRunnable, FADE_DURATION);
+			}
+		}
+
+		/**
+		 * Mirrors the scroll view's touch state to the bar. While touching, the bar is held solid
+		 * (no fade) so an overscroll stretch held without movement keeps the indicator visible;
+		 * on release, the normal inactivity fade is armed.
+		 */
+		public void setTouching(boolean touching)
+		{
+			this.touching = touching;
+			fadeHandler.removeCallbacks(fadeStartRunnable);
+			fadeHandler.removeCallbacks(fadeGoneRunnable);
+			animate().cancel();
+			if (touching) {
+				// Hold the indicator solid for the gesture. Do NOT force VISIBLE here: if there
+				// is nothing to scroll (scrollRange 0) the bar should stay hidden. updateScrollPosition
+				// (called on scroll/overscroll) is what drives visibility based on the scroll range.
+				if (getAlpha() != 1f) {
+					setAlpha(1f);
+				}
+			} else {
+				// Finger lifted -> arm the inactivity fade.
+				scheduleFadeOut();
+			}
 		}
 
 		@Override
@@ -686,21 +742,34 @@ public class TiUIScrollView extends TiUIView
 			xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
 			yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
 
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
+			int action = event.getAction();
+			if (action == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+			if (action == MotionEvent.ACTION_MOVE && !isTouching) {
 				isTouching = true;
+				if (customVerticalScrollBar != null) {
+					// Hold the indicator solid for the whole gesture (including an overscroll
+					// stretch held without movement) so it only fades once the finger lifts.
+					customVerticalScrollBar.setTouching(true);
+				}
 			}
-			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
-				isScrolling = false;
+			if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+				if (isTouching && customVerticalScrollBar != null) {
+					customVerticalScrollBar.setTouching(false);
+				}
 				isTouching = false;
-				KrollDict data = new KrollDict();
-				data.put("decelerate", true);
+				if (isScrolling) {
+					isScrolling = false;
+					if (action == MotionEvent.ACTION_UP) {
+						KrollDict data = new KrollDict();
+						data.put("decelerate", true);
 
-				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
-				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
-				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+						data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+						data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
+						getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+					}
+				}
 			}
 			return super.onTouchEvent(event);
 		}
@@ -873,20 +942,33 @@ public class TiUIScrollView extends TiUIView
 			xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
 			yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
 
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
+			int action = event.getAction();
+			if (action == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+			if (action == MotionEvent.ACTION_MOVE && !isTouching) {
 				isTouching = true;
+				if (customHorizontalScrollBar != null) {
+					// Hold the indicator solid for the whole gesture (including an overscroll
+					// stretch held without movement) so it only fades once the finger lifts.
+					customHorizontalScrollBar.setTouching(true);
+				}
 			}
-			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
-				isScrolling = false;
+			if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+				if (isTouching && customHorizontalScrollBar != null) {
+					customHorizontalScrollBar.setTouching(false);
+				}
 				isTouching = false;
-				KrollDict data = new KrollDict();
-				data.put("decelerate", true);
-				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
-				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
-				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+				if (isScrolling) {
+					isScrolling = false;
+					if (action == MotionEvent.ACTION_UP) {
+						KrollDict data = new KrollDict();
+						data.put("decelerate", true);
+						data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+						data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
+						getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+					}
+				}
 			}
 			return super.onTouchEvent(event);
 		}
