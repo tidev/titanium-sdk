@@ -8,6 +8,8 @@ package ti.modules.titanium.ui.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import androidx.core.widget.NestedScrollView;
 import android.util.AttributeSet;
 import android.util.Xml;
@@ -42,11 +44,21 @@ public class TiUIScrollView extends TiUIView
 	public static final int TYPE_HORIZONTAL = 1;
 
 	private static final String TAG = "TiUIScrollView";
+	private int scrollType = TYPE_VERTICAL;
+	private boolean showVerticalScrollBar = true;
+	private boolean showHorizontalScrollBar = false;
 
 	private View scrollView;
+	private FrameLayout contentWrapper;
 	private TiSwipeRefreshLayout swipeRefreshLayout;
 	private TiDimension offsetX = new TiDimension(0, TiDimension.TYPE_LEFT);
 	private TiDimension offsetY = new TiDimension(0, TiDimension.TYPE_TOP);
+	// Last contentOffset (in scroll pixels) pushed to the proxy. Used to skip the per-frame
+	// setProperty bridge call + KrollDict allocation while the offset is constant (held overscroll
+	// stretch, settled fling). Sentinel forces the first push; invalidated when contentOffset is
+	// set via the Object path so the next scroll frame re-syncs.
+	private int lastPushedOffsetX = Integer.MIN_VALUE;
+	private int lastPushedOffsetY = Integer.MIN_VALUE;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
@@ -54,6 +66,8 @@ public class TiUIScrollView extends TiUIView
 
 	// Scroll event throttling (~60fps)
 	private static final int SCROLL_EVENT_THROTTLE_MS = 16;
+	private static final int FADE_DURATION = 450; // Fade-out animation duration in ms
+
 	private long lastScrollEventTime = 0;
 	private int cachedOffsetX = 0;
 	private int cachedOffsetY = 0;
@@ -61,12 +75,289 @@ public class TiUIScrollView extends TiUIView
 	private int cachedContentHeight = -1;
 	private double cachedContentSizeWidth = 0;
 	private double cachedContentSizeHeight = 0;
+	// Reused KrollDict for the contentSize() result so the per-frame scroll event does not
+	// allocate a fresh dict on every onScrollChanged (~60fps). See contentSize().
+	private final KrollDict reusableContentSizeData = new KrollDict();
+
+	// Cached contentInset TiDimension values for efficient pixel conversion
+	private static final TiDimension INSET_ZERO = new TiDimension(0, TiDimension.TYPE_TOP);
+	private TiDimension cachedInsetTopDim = INSET_ZERO;
+	private TiDimension cachedInsetBottomDim = INSET_ZERO;
+	private TiDimension cachedInsetLeftDim = INSET_ZERO;
+	private TiDimension cachedInsetRightDim = INSET_ZERO;
+
+	// Cached pixel values to avoid recomputing in applyContentInset/updateScrollViewLayoutFromPadding
+	private int cachedPixelTopPad = 0;
+	private int cachedPixelBottomPad = 0;
+	private int cachedPixelLeftPad = 0;
+	private int cachedPixelRightPad = 0;
+	// Default false matches iOS UIScrollView behavior: content can extend into inset area
+	private boolean cachedClipToPadding = false;
+
+	// Cached verticalScrollIndicatorInset values
+	private TiDimension cachedVerticalScrollIndicatorTopDim = INSET_ZERO;
+	private TiDimension cachedVerticalScrollIndicatorBottomDim = INSET_ZERO;
+	private TiDimension cachedVerticalScrollIndicatorLeftDim = INSET_ZERO;
+	private TiDimension cachedVerticalScrollIndicatorRightDim = INSET_ZERO;
+
+	// Cached horizontalScrollIndicatorInset values
+	private TiDimension cachedHorizontalScrollIndicatorTopDim = INSET_ZERO;
+	private TiDimension cachedHorizontalScrollIndicatorBottomDim = INSET_ZERO;
+	private TiDimension cachedHorizontalScrollIndicatorLeftDim = INSET_ZERO;
+	private TiDimension cachedHorizontalScrollIndicatorRightDim = INSET_ZERO;
+
+	// Cached scroll indicator colors
+	private int scrollIndicatorColor = 0xFF666666;
+	private int scrollIndicatorBackgroundColor = 0x66666666;
+	private int scrollIndicatorRadius = 6;
+	private boolean hasCustomScrollIndicatorProps;
+
+	private CustomScrollBar customVerticalScrollBar;
+	private CustomScrollBar customHorizontalScrollBar;
 
 	private static int verticalAttrId = -1;
 	private static int horizontalAttrId = -1;
 	private int type;
 	private TiDimension xDimension;
 	private TiDimension yDimension;
+
+	public class CustomScrollBar extends View
+	{
+		public enum Orientation { VERTICAL, HORIZONTAL }
+
+		private static final int SCROLLBAR_SIZE = 12;
+		private static final int MIN_THUMB_SIZE = 40; // Minimum thumb size for usability
+		private Paint trackPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		private Paint thumbPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		private RectF trackRect = new RectF();
+		private RectF thumbRect = new RectF();
+
+		private final Orientation orientation;
+		private int insetStart, insetEnd; // top/bottom for vertical, left/right for horizontal
+		private int thumbColor;
+		private int trackColor;
+		private int radius;
+		private int scrollPosition, scrollRange;
+
+		// Per-instance fade-out: each bar owns its alpha/visibility lifecycle, so the fade is
+		// independent per axis and a recreated bar cannot be GONE'd by a stale runnable from a
+		// previous bar. Cleared in onDetachedFromWindow.
+		//
+		// Two-phase fade so the indicator stays solidly visible while scrolling/overscrolling
+		// and only dims once interaction stops:
+		//   - While updateScrollPosition() is called every frame, scheduleFadeOut() re-arms
+		//     fadeStartRunnable; it never fires because each frame removes and re-posts it, so no
+		//     alpha animation runs and the bar holds at alpha 1 (no "fade in then straight out").
+		//   - After FADE_DURATION ms with no re-arm, fadeStartRunnable fires and begins the
+		//     alpha 1->0 animation; fadeGoneRunnable then hides (GONE) the bar.
+		//   - While the user is still touching the scroll view, scheduleFadeOut() skips arming
+		//     entirely so an overscroll stretch held without movement keeps the bar visible until
+		//     the finger lifts (setTouching(false) then arms the fade).
+		private final android.os.Handler fadeHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+		private boolean touching = false;
+		private final Runnable fadeStartRunnable = new Runnable() {
+			@Override
+			public void run()
+			{
+				animate().cancel();
+				animate().alpha(0f).setDuration(FADE_DURATION).start();
+				fadeHandler.removeCallbacks(fadeGoneRunnable);
+				fadeHandler.postDelayed(fadeGoneRunnable, FADE_DURATION);
+			}
+		};
+		private final Runnable fadeGoneRunnable = new Runnable() {
+			@Override
+			public void run()
+			{
+				if (getAlpha() < 0.99f) {
+					setVisibility(View.GONE);
+				}
+			}
+		};
+
+		public CustomScrollBar(
+			Context context, Orientation orientation,
+			int insetStart, int insetEnd,
+			int thumbColor, int trackColor, int radius)
+		{
+			super(context);
+			this.orientation = orientation;
+			this.insetStart = insetStart;
+			this.insetEnd = insetEnd;
+			this.thumbColor = thumbColor;
+			this.trackColor = trackColor;
+			this.radius = radius;
+			trackPaint.setColor(trackColor);
+			thumbPaint.setColor(thumbColor);
+			setAlpha(0f);
+			setClickable(false);
+			setFocusable(false);
+			// Debug logging removed
+		}
+
+		@Override
+		protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+		{
+			if (orientation == Orientation.VERTICAL) {
+				int height = MeasureSpec.getSize(heightMeasureSpec);
+				setMeasuredDimension(SCROLLBAR_SIZE, height);
+			} else {
+				int width = MeasureSpec.getSize(widthMeasureSpec);
+				setMeasuredDimension(width, SCROLLBAR_SIZE);
+			}
+		}
+
+		@Override
+		protected void onDraw(Canvas canvas)
+		{
+			super.onDraw(canvas);
+
+			// Both axes share the same thumb-sizing math; only the track extent and the
+			// RectF orientation differ. Parameterize via computeThumb so the clamp logic
+			// (MIN_THUMB_SIZE floor + thumbArea clamp + inset-bounds clamp) lives in one place.
+			if (orientation == Orientation.VERTICAL) {
+				int trackHeight = getHeight();
+				if (trackHeight == 0) return;
+
+				int r = Math.min(radius, SCROLLBAR_SIZE / 2);
+				trackRect.set(0, 0, SCROLLBAR_SIZE, trackHeight);
+				canvas.drawRoundRect(trackRect, r, r, trackPaint);
+
+				int[] thumb = computeThumb(trackHeight);
+				if (thumb == null) return;
+				thumbRect.set(0, thumb[0], SCROLLBAR_SIZE, thumb[0] + thumb[1]);
+				canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
+			} else { // HORIZONTAL
+				int trackWidth = getWidth();
+				if (trackWidth == 0) return;
+
+				int r = Math.min(radius, SCROLLBAR_SIZE / 2);
+				trackRect.set(0, 0, trackWidth, SCROLLBAR_SIZE);
+				canvas.drawRoundRect(trackRect, r, r, trackPaint);
+
+				int[] thumb = computeThumb(trackWidth);
+				if (thumb == null) return;
+				thumbRect.set(thumb[0], 0, thumb[0] + thumb[1], SCROLLBAR_SIZE);
+				canvas.drawRoundRect(thumbRect, r, r, thumbPaint);
+			}
+		}
+
+		/**
+		 * Computes the thumb start (top for vertical / left for horizontal) and size
+		 * (height / width) for the current scroll position along this bar's axis, using the
+		 * bar's insetStart/insetEnd and the cached scrollPosition/scrollRange.
+		 * <p>Clamps the thumb size to the inset area so large insets (thumbArea smaller than
+		 * MIN_THUMB_SIZE) can't make the thumb overflow the track, and clamps the position to
+		 * the inset bounds.
+		 * @param trackSize track extent (height for vertical, width for horizontal)
+		 * @return int[2] {thumbStart, thumbSize} in pixels, or null if there is no inset area
+		 */
+		private int[] computeThumb(int trackSize)
+		{
+			int thumbArea = trackSize - insetStart - insetEnd;
+			if (thumbArea <= 0) {
+				return null;
+			}
+			int thumbSize = Math.min(thumbArea,
+				Math.max(MIN_THUMB_SIZE, thumbArea * thumbArea / (thumbArea + scrollRange)));
+			int thumbStart;
+			if (scrollRange > 0) {
+				float ratio = (float) scrollPosition / scrollRange;
+				thumbStart = insetStart + (int) (ratio * (thumbArea - thumbSize));
+			} else {
+				thumbStart = insetStart;
+			}
+			thumbStart = Math.max(insetStart, Math.min(thumbStart, trackSize - insetEnd - thumbSize));
+			return new int[] { thumbStart, thumbSize };
+		}
+
+		public void updateScrollPosition(int scrollPos, int scrollRange, int viewportSize)
+		{
+			int oldPos = this.scrollPosition;
+			int oldRange = this.scrollRange;
+			this.scrollPosition = scrollPos;
+			this.scrollRange = scrollRange;
+
+			if (scrollRange > 0) {
+				// Dirty-guard the per-frame state: this method is called on every scroll
+				// frame (~60fps), so only setAlpha/setVisibility/postInvalidate when the value
+				// actually changed. scheduleFadeOut still re-arms each frame to keep the bar
+				// visible while scrolling and fade it once scrolling stops.
+				if (getAlpha() != 1f) {
+					setAlpha(1f);
+				}
+				if (getVisibility() != View.VISIBLE) {
+					setVisibility(View.VISIBLE);
+				}
+				if (scrollPos != oldPos || scrollRange != oldRange) {
+					postInvalidate();
+				}
+				scheduleFadeOut();
+			} else {
+				if (getAlpha() != 0f) {
+					setAlpha(0f);
+				}
+				if (getVisibility() != View.GONE) {
+					setVisibility(View.GONE);
+				}
+			}
+		}
+
+		/**
+		 * Schedules this bar's fade-out using a two-phase model so the indicator stays solidly
+		 * visible while scrolling/overscrolling and only dims once interaction stops:
+		 *   - cancel any in-flight alpha animator and pending fade runnables, and reset alpha to 1
+		 *     so the bar is solid while frames keep arriving.
+		 *   - unless the user is still touching the view, post fadeStartRunnable after
+		 *     FADE_DURATION; each re-arm (every scroll frame) removes and re-posts it, so it only
+		 *     fires once scrolling/overscrolling has been idle for FADE_DURATION. While touching,
+		 *     no fade is armed at all so a held overscroll stretch keeps the bar visible until the
+		 *     finger lifts (see setTouching).
+		 */
+		private void scheduleFadeOut()
+		{
+			fadeHandler.removeCallbacks(fadeStartRunnable);
+			fadeHandler.removeCallbacks(fadeGoneRunnable);
+			animate().cancel();
+			if (getAlpha() != 1f) {
+				setAlpha(1f);
+			}
+			if (!touching) {
+				fadeHandler.postDelayed(fadeStartRunnable, FADE_DURATION);
+			}
+		}
+
+		/**
+		 * Mirrors the scroll view's touch state to the bar. While touching, the bar is held solid
+		 * (no fade) so an overscroll stretch held without movement keeps the indicator visible;
+		 * on release, the normal inactivity fade is armed.
+		 */
+		public void setTouching(boolean touching)
+		{
+			this.touching = touching;
+			fadeHandler.removeCallbacks(fadeStartRunnable);
+			fadeHandler.removeCallbacks(fadeGoneRunnable);
+			animate().cancel();
+			if (touching) {
+				// Hold the indicator solid for the gesture. Do NOT force VISIBLE here: if there
+				// is nothing to scroll (scrollRange 0) the bar should stay hidden. updateScrollPosition
+				// (called on scroll/overscroll) is what drives visibility based on the scroll range.
+				if (getAlpha() != 1f) {
+					setAlpha(1f);
+				}
+			} else {
+				// Finger lifted -> arm the inactivity fade.
+				scheduleFadeOut();
+			}
+		}
+
+		@Override
+		protected void onDetachedFromWindow()
+		{
+			fadeHandler.removeCallbacksAndMessages(null);
+			super.onDetachedFromWindow();
+		}
+	}
 
 	public class TiScrollViewLayout extends TiCompositeLayout
 	{
@@ -100,7 +391,7 @@ public class TiUIScrollView extends TiUIView
 					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_SINGLE_TAP)) {
 						fireEvent(TiC.EVENT_SINGLE_TAP, dictFromEvent(e));
 					}
-					return true;
+					return false;
 				}
 				@Override
 				public boolean onDoubleTap(MotionEvent e)
@@ -108,7 +399,7 @@ public class TiUIScrollView extends TiUIView
 					if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_DOUBLE_TAP)) {
 						fireEvent(TiC.EVENT_DOUBLE_TAP, dictFromEvent(e));
 					}
-					return true;
+					return false;
 				}
 			});
 			setOnTouchListener(new OnTouchListener() {
@@ -423,6 +714,7 @@ public class TiUIScrollView extends TiUIView
 	private class TiVerticalScrollView extends NestedScrollView
 	{
 		private TiScrollViewLayout layout;
+		private KrollDict reusableScrollEventData = new KrollDict();
 
 		public TiVerticalScrollView(Context context, LayoutArrangement arrangement)
 		{
@@ -456,29 +748,36 @@ public class TiUIScrollView extends TiUIView
 			xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
 			yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
 
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
+			int action = event.getAction();
+			if (action == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+			if (action == MotionEvent.ACTION_MOVE && !isTouching) {
 				isTouching = true;
+				if (customVerticalScrollBar != null) {
+					// Hold the indicator solid for the whole gesture (including an overscroll
+					// stretch held without movement) so it only fades once the finger lifts.
+					customVerticalScrollBar.setTouching(true);
+				}
 			}
-			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
-				isScrolling = false;
+			if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+				if (isTouching && customVerticalScrollBar != null) {
+					customVerticalScrollBar.setTouching(false);
+				}
 				isTouching = false;
-				KrollDict data = new KrollDict();
-				data.put("decelerate", true);
+				if (isScrolling) {
+					isScrolling = false;
+					if (action == MotionEvent.ACTION_UP) {
+						KrollDict data = new KrollDict();
+						data.put("decelerate", true);
 
-				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
-				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
-				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+						data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+						data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
+						getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+					}
+				}
 			}
-			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
-			//Link: http://code.google.com/p/android/issues/detail?id=18990
-			try {
-				return super.onTouchEvent(event);
-			} catch (IllegalArgumentException e) {
-				return false;
-			}
+			return super.onTouchEvent(event);
 		}
 
 		@Override
@@ -505,11 +804,8 @@ public class TiUIScrollView extends TiUIView
 		@Override
 		public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed)
 		{
-			if (mScrollingEnabled) {
-				super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
-			} else {
-				dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
-			}
+			if (!mScrollingEnabled) return;
+			super.onNestedScroll(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
 		}
 
 		@Override
@@ -552,13 +848,35 @@ public class TiUIScrollView extends TiUIView
 			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
+			// Update custom vertical scrollbar position.
+			// Use the canonical Android scroll range/extent so the thumb ratio accounts for
+			// contentInset padding (clipToPadding=false) and matches the native scrollbar math,
+			// instead of the raw child-minus-viewport delta which ignored padding.
+			if (customVerticalScrollBar != null) {
+				int scrollRange = computeVerticalScrollRange() - computeVerticalScrollExtent();
+				customVerticalScrollBar.updateScrollPosition(t, Math.max(0, scrollRange), getMeasuredHeight());
+			}
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
-			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+			// Reuse existing KrollDict to avoid allocations per scroll event
+			reusableScrollEventData.clear();
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+			getProxy().fireEvent(TiC.EVENT_SCROLL, reusableScrollEventData);
+		}
 
-			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+		@Override
+		protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY)
+		{
+			super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+			// Overscroll clamps the scroll position at the edge, so onScrollChanged does not fire
+			// during the overscroll pull and the custom bar would already be fading. Re-show it at
+			// the clamped edge position and re-arm the fade so the indicator stays visible while
+			// overscrolling and fades shortly after release (same lifecycle as a normal scroll).
+			if (customVerticalScrollBar != null) {
+				int scrollRange = computeVerticalScrollRange() - computeVerticalScrollExtent();
+				customVerticalScrollBar.updateScrollPosition(scrollY, Math.max(0, scrollRange), getMeasuredHeight());
+			}
 		}
 
 		@Override
@@ -604,6 +922,7 @@ public class TiUIScrollView extends TiUIView
 	private class TiHorizontalScrollView extends HorizontalScrollView
 	{
 		private TiScrollViewLayout layout;
+		private KrollDict reusableScrollEventData = new KrollDict();
 
 		public TiHorizontalScrollView(Context context, LayoutArrangement arrangement)
 		{
@@ -629,28 +948,35 @@ public class TiUIScrollView extends TiUIView
 			xDimension = new TiDimension((double) event.getX(), TiDimension.TYPE_LEFT);
 			yDimension = new TiDimension((double) event.getY(), TiDimension.TYPE_TOP);
 
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
+			int action = event.getAction();
+			if (action == MotionEvent.ACTION_MOVE && !mScrollingEnabled) {
 				return false;
 			}
-			if (event.getAction() == MotionEvent.ACTION_MOVE && !isTouching) {
+			if (action == MotionEvent.ACTION_MOVE && !isTouching) {
 				isTouching = true;
+				if (customHorizontalScrollBar != null) {
+					// Hold the indicator solid for the whole gesture (including an overscroll
+					// stretch held without movement) so it only fades once the finger lifts.
+					customHorizontalScrollBar.setTouching(true);
+				}
 			}
-			if (event.getAction() == MotionEvent.ACTION_UP && isScrolling) {
-				isScrolling = false;
+			if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+				if (isTouching && customHorizontalScrollBar != null) {
+					customHorizontalScrollBar.setTouching(false);
+				}
 				isTouching = false;
-				KrollDict data = new KrollDict();
-				data.put("decelerate", true);
-				data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
-				data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
-				getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+				if (isScrolling) {
+					isScrolling = false;
+					if (action == MotionEvent.ACTION_UP) {
+						KrollDict data = new KrollDict();
+						data.put("decelerate", true);
+						data.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(scrollView));
+						data.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(scrollView));
+						getProxy().fireEvent(TiC.EVENT_DRAGEND, data);
+					}
+				}
 			}
-			//There's a known Android bug (version 3.1 and above) that will throw an exception when we use 3+ fingers to touch the scrollview.
-			//Link: http://code.google.com/p/android/issues/detail?id=18990
-			try {
-				return super.onTouchEvent(event);
-			} catch (IllegalArgumentException e) {
-				return false;
-			}
+			return super.onTouchEvent(event);
 		}
 
 		@Override
@@ -702,13 +1028,37 @@ public class TiUIScrollView extends TiUIView
 			lastScrollEventTime = currentTime;
 
 			setContentOffset(l, t);
+			// Update custom horizontal scrollbar position.
+			// Use the canonical Android scroll range/extent so the thumb ratio accounts for
+			// contentInset padding (clipToPadding=false) and matches the native scrollbar math,
+			// instead of the raw child-minus-viewport delta which ignored padding.
+			if (customHorizontalScrollBar != null) {
+				int scrollRange = computeHorizontalScrollRange() - computeHorizontalScrollExtent();
+				customHorizontalScrollBar.updateScrollPosition(l, Math.max(0, scrollRange), getMeasuredWidth());
+			}
 
-			KrollDict data = new KrollDict();
-			data.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
-			data.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
-			data.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+			// Reuse existing KrollDict to avoid allocations per scroll event.
+			// NOTE: use offsetX (the actual scroll offset, updated by setContentOffset) for
+			// EVENT_PROPERTY_X, NOT xDimension (which is the raw touch coordinate and is null
+			// until the first touch — using it caused wrong values and an NPE on programmatic
+			// scrollTo() before any touch).
+			reusableScrollEventData.clear();
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
+			reusableScrollEventData.put(TiC.PROPERTY_CONTENT_SIZE, contentSize());
+			getProxy().fireEvent(TiC.EVENT_SCROLL, reusableScrollEventData);
+		}
 
-			getProxy().fireEvent(TiC.EVENT_SCROLL, data);
+		@Override
+		protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX, boolean clampedY)
+		{
+			super.onOverScrolled(scrollX, scrollY, clampedX, clampedY);
+			// See TiVerticalScrollView.onOverScrolled: keep the custom indicator visible during
+			// the overscroll pull (onScrollChanged does not fire while the position is clamped).
+			if (customHorizontalScrollBar != null) {
+				int scrollRange = computeHorizontalScrollRange() - computeHorizontalScrollExtent();
+				customHorizontalScrollBar.updateScrollPosition(scrollX, Math.max(0, scrollRange), getMeasuredWidth());
+			}
 		}
 
 		@Override
@@ -773,10 +1123,17 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void release()
 	{
-		// If a refresh control is currently assigned, then detach it.
-		View nativeView = getNativeView();
-		if (nativeView instanceof TiSwipeRefreshLayout) {
-			RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout) nativeView);
+		// Custom scrollbar fade handlers are cleared automatically: super.release() detaches
+		// the native view tree, which triggers each CustomScrollBar's onDetachedFromWindow.
+
+		// If a refresh control is currently assigned, then detach it. Check the
+		// swipeRefreshLayout field (not getNativeView()): when custom scrollbar properties
+		// are also set, ensureContentWrapper wraps the SwipeRefreshLayout into a contentWrapper
+		// and makes the contentWrapper the native view, so getNativeView() is a plain
+		// FrameLayout here and the instanceof check would skip the unassign, leaking the
+		// RefreshControlProxy and the SwipeRefreshLayout (and their listeners).
+		if (this.swipeRefreshLayout != null) {
+			RefreshControlProxy.unassignFrom(this.swipeRefreshLayout);
 		}
 
 		// Release scroll view reference.
@@ -794,9 +1151,24 @@ public class TiUIScrollView extends TiUIView
 	 */
 	public void setContentOffset(int x, int y)
 	{
+		// Reuse the offset TiDimension fields instead of allocating two new ones every scroll
+		// frame (~60fps). Reset units to UNDEFINED (pixel): scroll positions are always in
+		// pixels, even if a prior JS setContentOffset('10dp') left a different unit on the field.
+		offsetX.setValue(x);
+		offsetX.setUnits(TiDimension.COMPLEX_UNIT_UNDEFINED);
+		offsetY.setValue(y);
+		offsetY.setUnits(TiDimension.COMPLEX_UNIT_UNDEFINED);
+
+		// Skip the bridge push when the offset hasn't changed since the last push: avoids a
+		// KrollDict allocation + setProperty call every frame while the offset is constant
+		// (held overscroll stretch, settled fling, repeated scrollTo to the same position).
+		if (x == lastPushedOffsetX && y == lastPushedOffsetY) {
+			return;
+		}
+		lastPushedOffsetX = x;
+		lastPushedOffsetY = y;
+
 		KrollDict offset = new KrollDict();
-		offsetX = new TiDimension(x, TiDimension.TYPE_LEFT);
-		offsetY = new TiDimension(y, TiDimension.TYPE_TOP);
 		offset.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
 		offset.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
 		getProxy().setProperty(TiC.PROPERTY_CONTENT_OFFSET, offset);
@@ -818,16 +1190,498 @@ public class TiUIScrollView extends TiUIView
 			if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_Y)) {
 				offsetY = TiConvert.toTiDimension(contentOffset, TiC.PROPERTY_Y, TiDimension.TYPE_TOP);
 			}
+			// Invalidate the last-pushed cache: the offset source changed, so the next scroll
+			// frame must re-push the (now pixel) position rather than skip as "unchanged".
+			lastPushedOffsetX = Integer.MIN_VALUE;
+			lastPushedOffsetY = Integer.MIN_VALUE;
 		} else {
 			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
+	}
+
+	/**
+	 * Applies the cached contentInset values to extend the scrollable area.
+	 *
+	 * On Android, we match iOS UIScrollView.contentInset behavior:
+	 * - Content can extend into inset areas (clipToPadding=false by default)
+	 * - Background becomes visible in the inset areas when scrolled to edges
+	 */
+	private void applyContentInset()
+	{
+		if (this.scrollView != null) {
+			// clipToPadding controls whether children draw into the padding area.
+			// false matches iOS UIScrollView where content can extend into insets.
+			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
+
+			// When all insets are zero (the common reset path via contentInset={} or null),
+			// we still must clear any previously-applied padding and cached pixel values —
+			// otherwise the old padding stays in place and content remains inset forever.
+			// The early return below skips the expensive setPadding only when there is truly
+			// nothing to change (no prior padding either).
+			if (cachedInsetTopDim.getIntValue() == 0
+				&& cachedInsetBottomDim.getIntValue() == 0
+				&& cachedInsetLeftDim.getIntValue() == 0
+				&& cachedInsetRightDim.getIntValue() == 0) {
+				if (cachedPixelTopPad != 0 || cachedPixelBottomPad != 0
+					|| cachedPixelLeftPad != 0 || cachedPixelRightPad != 0) {
+					cachedPixelTopPad = 0;
+					cachedPixelBottomPad = 0;
+					cachedPixelLeftPad = 0;
+					cachedPixelRightPad = 0;
+					this.scrollView.setPadding(0, 0, 0, 0);
+					TiScrollViewLayout layout = getLayout();
+					if (layout != null) {
+						layout.invalidateContentPropertyCache();
+					}
+				}
+				// Invalidate contentSize cache so reported content height no longer includes insets.
+				cachedContentWidth = -1;
+				cachedContentHeight = -1;
+				return;
+			}
+
+			// Compute pixel values once and cache for reuse in updateScrollViewLayoutFromPadding()
+			cachedPixelTopPad = (int) cachedInsetTopDim.getAsPixels(this.scrollView);
+			cachedPixelBottomPad = (int) cachedInsetBottomDim.getAsPixels(this.scrollView);
+			cachedPixelLeftPad = (int) cachedInsetLeftDim.getAsPixels(this.scrollView);
+			cachedPixelRightPad = (int) cachedInsetRightDim.getAsPixels(this.scrollView);
+
+			// Set padding for ALL sides including top/bottom.
+			// iOS UIScrollView.contentInset does NOT change the frame size,
+			// only the scrollable content area via padding.
+			this.scrollView.setPadding(
+				cachedPixelLeftPad, cachedPixelTopPad,
+				cachedPixelRightPad, cachedPixelBottomPad);
+
+			// Invalidate content property cache so scrollable area is recalculated
+			TiScrollViewLayout layout = getLayout();
+			if (layout != null) {
+				layout.invalidateContentPropertyCache();
+			}
+			// Invalidate contentSize cache so it recomputes including the new insets.
+			cachedContentWidth = -1;
+			cachedContentHeight = -1;
+
+		}
+	}
+
+	/**
+	 * Sets contentInset from a dictionary with 'top', 'bottom', 'left', 'right' keys.
+	 */
+	public void setContentInset(Object value)
+	{
+		if (value == null) {
+			// Reset all insets to zero when set to null
+			cachedInsetTopDim = INSET_ZERO;
+			cachedInsetBottomDim = INSET_ZERO;
+			cachedInsetLeftDim = INSET_ZERO;
+			cachedInsetRightDim = INSET_ZERO;
+			applyContentInset();
+			updateScrollViewLayoutFromPadding();
+		} else if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+
+			// Reset all insets to zero first, then override with any present keys.
+			// This matches iOS behavior where an empty {} resets all insets.
+			cachedInsetTopDim = INSET_ZERO;
+			cachedInsetBottomDim = INSET_ZERO;
+			cachedInsetLeftDim = INSET_ZERO;
+			cachedInsetRightDim = INSET_ZERO;
+
+			// top
+			if (dict.containsKey("top") && dict.get("top") != null) {
+				cachedInsetTopDim = TiConvert.toTiDimension(dict.get("top"), TiDimension.TYPE_TOP);
+			}
+
+			// bottom
+			if (dict.containsKey("bottom") && dict.get("bottom") != null) {
+				cachedInsetBottomDim = TiConvert.toTiDimension(dict.get("bottom"), TiDimension.TYPE_BOTTOM);
+			}
+
+			// left
+			if (dict.containsKey("left") && dict.get("left") != null) {
+				cachedInsetLeftDim = TiConvert.toTiDimension(dict.get("left"), TiDimension.TYPE_LEFT);
+			}
+
+			// right
+			if (dict.containsKey("right") && dict.get("right") != null) {
+				cachedInsetRightDim = TiConvert.toTiDimension(dict.get("right"), TiDimension.TYPE_RIGHT);
+			}
+
+			applyContentInset();
+			updateScrollViewLayoutFromPadding();
+		} else {
+			Log.w(TAG, "contentInset must be a dictionary with 'top', 'bottom', 'left', 'right' keys or null.");
+		}
+	}
+
+	/**
+	 * Updates the parent content width/height based on the current padding insets.
+	 */
+	private void updateScrollViewLayoutFromPadding()
+	{
+		View nativeView = this.scrollView;
+		if (nativeView == null) {
+			return;
+		}
+
+		TiScrollViewLayout layout = getLayout();
+		if (layout != null) {
+			int measuredWidth = nativeView.getMeasuredWidth();
+			int measuredHeight = nativeView.getMeasuredHeight();
+
+			// Reduce parent dimensions by the cached padding insets
+			int leftRightPadding = cachedPixelLeftPad + cachedPixelRightPad;
+			int topBottomPadding = cachedPixelTopPad + cachedPixelBottomPad;
+
+			layout.setParentContentWidth(Math.max(0, measuredWidth - leftRightPadding));
+			layout.setParentContentHeight(Math.max(0, measuredHeight - topBottomPadding));
+
+			// NOTE: requestLayout() is intentionally NOT called here.
+			// applyContentInset() already triggered it via setPadding(), which propagates
+			// through the view hierarchy. An additional requestLayout() would cause a
+			// redundant second layout pass for the same change.
+		}
+	}
+
+	/**
+	 * Parses a {top, left, right, bottom} inset dictionary to pixel ints, accepting the
+	 * same value grammar as contentInset (Number, or a dimension string such as '12dp'
+	 * / '12px') via TiConvert.toTiDimension + TiDimension.getAsPixels. The previous
+	 * implementation used TiConvert.toFloat, which runs Float.parseFloat on strings and
+	 * silently turned {top: '12dp'} into 0 (whereas contentInset accepted '12dp').
+	 *
+	 * @return int[4] {top, left, right, bottom} in pixels
+	 */
+	private int[] parseInsetsToPx(Object value)
+	{
+		int[] px = new int[4]; // top, left, right, bottom
+		if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+			if (dict.containsKey("top") && dict.get("top") != null) {
+				px[0] = TiConvert.toTiDimension(dict.get("top"), TiDimension.TYPE_TOP).getAsPixels(scrollView);
+			}
+			if (dict.containsKey("left") && dict.get("left") != null) {
+				px[1] = TiConvert.toTiDimension(dict.get("left"), TiDimension.TYPE_LEFT).getAsPixels(scrollView);
+			}
+			if (dict.containsKey("right") && dict.get("right") != null) {
+				px[2] = TiConvert.toTiDimension(dict.get("right"), TiDimension.TYPE_RIGHT).getAsPixels(scrollView);
+			}
+			if (dict.containsKey("bottom") && dict.get("bottom") != null) {
+				px[3] = TiConvert.toTiDimension(dict.get("bottom"), TiDimension.TYPE_BOTTOM).getAsPixels(scrollView);
+			}
+		}
+		return px;
+	}
+
+	/**
+	 * Sets vertical scroll indicator insets.
+	 */
+	public void setVerticalScrollIndicatorInsets(Object value)
+	{
+		applyVerticalScrollIndicatorInsets(value);
+	}
+
+	/**
+	 * Applies vertical scroll indicator insets values.
+	 */
+	private void applyVerticalScrollIndicatorInsets(Object value)
+	{
+		if (scrollView == null) {
+			return;
+		}
+
+		int[] px = parseInsetsToPx(value);
+		cachedVerticalScrollIndicatorTopDim = new TiDimension(px[0], TiDimension.TYPE_TOP);
+		cachedVerticalScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
+		cachedVerticalScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
+		cachedVerticalScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
+
+		hasCustomScrollIndicatorProps = true;
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Sets horizontal scroll indicator insets.
+	 */
+	public void setHorizontalScrollIndicatorInsets(Object value)
+	{
+		applyHorizontalScrollIndicatorInsets(value);
+	}
+
+	/**
+	 * Applies horizontal scroll indicator insets values.
+	 */
+	private void applyHorizontalScrollIndicatorInsets(Object value)
+	{
+		if (scrollView == null) {
+			return;
+		}
+
+		int[] px = parseInsetsToPx(value);
+		cachedHorizontalScrollIndicatorTopDim = new TiDimension(px[0], TiDimension.TYPE_TOP);
+		cachedHorizontalScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
+		cachedHorizontalScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
+		cachedHorizontalScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
+
+		hasCustomScrollIndicatorProps = true;
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Sets scroll indicator color (thumb color).
+	 */
+	public void setScrollIndicatorColor(Object value)
+	{
+		String colorStr = TiConvert.toString(value);
+		int newColor = (colorStr != null && !colorStr.isEmpty())
+			? TiConvert.toColor(colorStr)
+			: 0xFF666666;
+		scrollIndicatorColor = newColor;
+		hasCustomScrollIndicatorProps = true;
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Sets scroll indicator background color (track color).
+	 */
+	public void setScrollIndicatorBackgroundColor(Object value)
+	{
+		String colorStr = TiConvert.toString(value);
+		int newColor = (colorStr != null && !colorStr.isEmpty())
+			? TiConvert.toColor(colorStr)
+			: 0x66666666;
+		scrollIndicatorBackgroundColor = newColor;
+		hasCustomScrollIndicatorProps = true;
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Sets scroll indicator corner radius.
+	 */
+	public void setScrollIndicatorRadius(Object value)
+	{
+		int radius = TiConvert.toInt(value, 6);
+		scrollIndicatorRadius = Math.max(0, radius);
+		hasCustomScrollIndicatorProps = true;
+		updateCustomScrollBars();
+	}
+
+	/**
+	 * Ensures a FrameLayout wrapper exists around scrollView.
+	 * NestedScrollView/HorizontalScrollView only allow one child,
+	 * so we need a wrapper to host the custom scrollbar views.
+	 * Uses post() to defer until the view is attached to the Android hierarchy.
+	 */
+	private void ensureContentWrapper()
+	{
+		if (contentWrapper != null) {
+			return;
+		}
+
+		// The view we wrap is the top-level native view. When a refreshControl is set, the
+		// Wrap the current top-level native view. getNativeView() is the single source of
+		// truth for that: it is the SwipeRefreshLayout when refreshControl is set, the
+		// scrollView otherwise — so this keeps the SwipeRefreshLayout -> NestedScrollView
+		// nesting intact (pull-to-refresh keeps working) and gives us a FrameLayout host for
+		// the custom scrollbar views. Wrapping the inner scrollView directly (previous
+		// behavior) reparented it out of the SwipeRefreshLayout into a plain FrameLayout,
+		// severing the nested-scroll chain.
+		View wrapTarget = getNativeView();
+		if (wrapTarget == null) {
+			wrapTarget = scrollView;
+		}
+		if (wrapTarget == null) {
+			return;
+		}
+
+		// If wrapTarget is already attached, create the wrapper immediately.
+		if (wrapTarget.getParent() instanceof ViewGroup) {
+			buildContentWrapper(wrapTarget);
+		} else if (scrollView != null) {
+			// Not yet attached — defer wrapper creation until the view is ready.
+			scrollView.post(new Runnable() {
+				@Override
+				public void run()
+				{
+					if (contentWrapper != null || scrollView == null) {
+						return;
+					}
+					View target = getNativeView();
+					if (target == null) {
+						target = scrollView;
+					}
+					if (target == null || !(target.getParent() instanceof ViewGroup)) {
+						return;
+					}
+					buildContentWrapper(target);
+
+					// Now create the custom scrollbars (deferred path only — the immediate
+					// path is followed by updateCustomScrollBars, which creates them itself).
+					if (hasCustomScrollIndicatorProps && showVerticalScrollBar) {
+						createVerticalScrollBar();
+					}
+					if (hasCustomScrollIndicatorProps && showHorizontalScrollBar) {
+						createHorizontalScrollBar();
+					}
+				}
+			});
+		}
+	}
+
+	/**
+	 * Builds the contentWrapper around {@code wrapTarget} and reparents it in place at the
+	 * same index. The wrapper becomes the new native view; custom scrollbar views are later
+	 * added to it. Shared by the immediate and deferred attach paths of ensureContentWrapper.
+	 */
+	private void buildContentWrapper(View wrapTarget)
+	{
+		contentWrapper = new FrameLayout(wrapTarget.getContext());
+		contentWrapper.setLayoutParams(new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.MATCH_PARENT,
+			ViewGroup.LayoutParams.MATCH_PARENT
+		));
+		contentWrapper.setClipChildren(false);
+		contentWrapper.setClipToPadding(false);
+
+		ViewGroup oldParent = (ViewGroup) wrapTarget.getParent();
+		int index = oldParent.indexOfChild(wrapTarget);
+		oldParent.removeViewAt(index);
+		contentWrapper.addView(wrapTarget, 0);
+		// Use TiCompositeLayout.LayoutParams for TiCompositeLayout parent
+		if (oldParent instanceof TiCompositeLayout) {
+			TiCompositeLayout.LayoutParams lp = new TiCompositeLayout.LayoutParams();
+			lp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+			lp.height = ViewGroup.LayoutParams.MATCH_PARENT;
+			oldParent.addView(contentWrapper, index, lp);
+		} else {
+			oldParent.addView(contentWrapper, index,
+				new ViewGroup.LayoutParams(
+					ViewGroup.LayoutParams.MATCH_PARENT,
+					ViewGroup.LayoutParams.MATCH_PARENT
+				));
+		}
+		setNativeView(contentWrapper);
+	}
+
+	/**
+	 * Updates custom scrollbar views based on scrollIndicatorInsets.
+	 * Hides native scrollbars and positions custom views instead.
+	 */
+	private void updateCustomScrollBars()
+	{
+		if (scrollView == null) {
+			return;
+		}
+
+		// Hide native scrollbars when using custom scroll indicators. Per-bar fade handlers
+		// are cleared automatically: removeView-ing an old bar below triggers its
+		// onDetachedFromWindow, which cancels its own pending fade runnable.
+		if (hasCustomScrollIndicatorProps) {
+			scrollView.setHorizontalScrollBarEnabled(false);
+			scrollView.setVerticalScrollBarEnabled(false);
+		}
+
+		// Remove existing custom scrollbars
+		if (customVerticalScrollBar != null && customVerticalScrollBar.getParent() != null) {
+			((ViewGroup) customVerticalScrollBar.getParent()).removeView(customVerticalScrollBar);
+		}
+		if (customHorizontalScrollBar != null && customHorizontalScrollBar.getParent() != null) {
+			((ViewGroup) customHorizontalScrollBar.getParent()).removeView(customHorizontalScrollBar);
+		}
+
+		// Ensure wrapper exists (lazy if not attached yet)
+		ensureContentWrapper();
+
+		// If wrapper is already attached, create scrollbars immediately
+		if (contentWrapper != null) {
+			if (hasCustomScrollIndicatorProps && showVerticalScrollBar) {
+				createVerticalScrollBar();
+			}
+			if (hasCustomScrollIndicatorProps && showHorizontalScrollBar) {
+				createHorizontalScrollBar();
+			}
+		}
+		// Otherwise the scrollbars are created in the post() callback above
+	}
+
+	/**
+	 * Creates a custom vertical scrollbar view.
+	 */
+	private void createVerticalScrollBar()
+	{
+		if (scrollView == null || scrollView.getContext() == null || contentWrapper == null) {
+			return;
+		}
+
+		int topInset = cachedVerticalScrollIndicatorTopDim.getIntValue();
+		int bottomInset = cachedVerticalScrollIndicatorBottomDim.getIntValue();
+		int leftInset = cachedVerticalScrollIndicatorLeftDim.getIntValue();
+		int rightInset = cachedVerticalScrollIndicatorRightDim.getIntValue();
+
+		customVerticalScrollBar = new CustomScrollBar(
+			scrollView.getContext(), CustomScrollBar.Orientation.VERTICAL, topInset, bottomInset,
+			scrollIndicatorColor, scrollIndicatorBackgroundColor, scrollIndicatorRadius);
+
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.WRAP_CONTENT,
+			ViewGroup.LayoutParams.MATCH_PARENT
+		);
+		// Use a layout-direction-aware gravity so the vertical scrollbar sits on the trailing
+		// edge (right in LTR, left in RTL), matching how Android mirrors native scrollbars.
+		params.gravity = android.view.Gravity.RELATIVE_LAYOUT_DIRECTION | android.view.Gravity.END;
+		params.leftMargin = leftInset;
+		params.rightMargin = rightInset;
+
+		contentWrapper.addView(customVerticalScrollBar, params);
+		customVerticalScrollBar.bringToFront();
+	}
+
+	/**
+	 * Creates a custom horizontal scrollbar view.
+	 */
+	private void createHorizontalScrollBar()
+	{
+		if (scrollView == null || scrollView.getContext() == null || contentWrapper == null) {
+			return;
+		}
+
+		int leftInset = cachedHorizontalScrollIndicatorLeftDim.getIntValue();
+		int rightInset = cachedHorizontalScrollIndicatorRightDim.getIntValue();
+		int topInset = cachedHorizontalScrollIndicatorTopDim.getIntValue();
+		int bottomInset = cachedHorizontalScrollIndicatorBottomDim.getIntValue();
+
+		customHorizontalScrollBar = new CustomScrollBar(
+			scrollView.getContext(), CustomScrollBar.Orientation.HORIZONTAL, leftInset, rightInset,
+			scrollIndicatorColor, scrollIndicatorBackgroundColor, scrollIndicatorRadius);
+
+		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+			ViewGroup.LayoutParams.MATCH_PARENT,
+			ViewGroup.LayoutParams.WRAP_CONTENT
+		);
+		params.gravity = android.view.Gravity.BOTTOM;
+		params.topMargin = topInset;
+		params.bottomMargin = bottomInset;
+
+		contentWrapper.addView(customHorizontalScrollBar, params);
+		customHorizontalScrollBar.bringToFront();
+	}
+
+	public HashMap getContentInsets()
+	{
+		HashMap insets = new HashMap();
+		insets.put("top", cachedInsetTopDim.getIntValue());
+		insets.put("left", cachedInsetLeftDim.getIntValue());
+		insets.put("right", cachedInsetRightDim.getIntValue());
+		insets.put("bottom", cachedInsetBottomDim.getIntValue());
+		return insets;
 	}
 
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
 	{
 		if (Log.isDebugModeEnabled()) {
-			Log.d(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
+			Log.w(TAG, "Property: " + key + " old: " + oldValue + " new: " + newValue, Log.DEBUG_MODE);
 		}
 
 		if (key.equals(TiC.PROPERTY_CONTENT_WIDTH) || key.equals(TiC.PROPERTY_CONTENT_HEIGHT)) {
@@ -859,18 +1713,61 @@ public class TiUIScrollView extends TiUIView
 					Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 				}
 			} else if (newValue instanceof RefreshControlProxy) {
-				// Lazily create SwipeRefreshLayout wrapper when refreshControl is set dynamically
+				// Lazily create SwipeRefreshLayout wrapper when refreshControl is set dynamically.
 				this.swipeRefreshLayout = createSwipeRefreshLayout();
 				this.swipeRefreshLayout.setSwipeRefreshEnabled(false);
-				this.swipeRefreshLayout.addView(this.scrollView);
 				((RefreshControlProxy) newValue).assignTo(this.swipeRefreshLayout);
-				setNativeView(this.swipeRefreshLayout);
+				if (contentWrapper != null) {
+					// A contentWrapper was already built (custom scrollbar props were set
+					// earlier) and is the native view, with scrollView as its first child.
+					// Insert the SwipeRefreshLayout where scrollView sat, keeping the
+					// NestedScrollView -> SwipeRefreshLayout nesting intact and the custom
+					// scrollbar views hosted in contentWrapper. The native view stays
+					// contentWrapper, so pull-to-refresh keeps working (previously this path
+					// pulled scrollView out of contentWrapper into an orphan SwipeRefreshLayout
+					// and broke both pull-to-refresh and the custom scrollbars).
+					int index = contentWrapper.indexOfChild(this.scrollView);
+					if (index >= 0) {
+						contentWrapper.removeViewAt(index);
+					} else {
+						index = 0;
+					}
+					this.swipeRefreshLayout.addView(this.scrollView, 0);
+					contentWrapper.addView(this.swipeRefreshLayout, index);
+				} else {
+					this.swipeRefreshLayout.addView(this.scrollView);
+					setNativeView(this.swipeRefreshLayout);
+				}
 			} else {
 				Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 			}
 		} else if (TiC.PROPERTY_OVER_SCROLL_MODE.equals(key)) {
 			if (this.scrollView != null) {
 				this.scrollView.setOverScrollMode(TiConvert.toInt(newValue, View.OVER_SCROLL_ALWAYS));
+			}
+		} else if (key.equals(TiC.PROPERTY_CONTENT_INSETS)) {
+			setContentInset(newValue);
+		} else if (key.equals(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS)) {
+			setVerticalScrollIndicatorInsets(newValue);
+		} else if (key.equals(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS)) {
+			setHorizontalScrollIndicatorInsets(newValue);
+		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_COLOR)) {
+			setScrollIndicatorColor(newValue);
+		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR)) {
+			setScrollIndicatorBackgroundColor(newValue);
+		} else if (key.equals(TiC.PROPERTY_SCROLL_INDICATOR_RADIUS)) {
+			setScrollIndicatorRadius(newValue);
+		} else if (key.equals(TiC.PROPERTY_CLIP_TO_PADDING)) {
+			if (this.scrollView != null) {
+				boolean newClipToPadding = TiConvert.toBoolean(newValue, cachedClipToPadding);
+				cachedClipToPadding = newClipToPadding;
+				((android.view.ViewGroup) this.scrollView).setClipToPadding(newClipToPadding);
+			}
+		} else if (key.equals(TiC.PROPERTY_CLIP_CHILDREN)) {
+			if (this.scrollView != null) {
+				((android.view.ViewGroup) this.scrollView).setClipChildren(
+					TiConvert.toBoolean(newValue, true)
+				);
 			}
 		}
 
@@ -925,6 +1822,12 @@ public class TiUIScrollView extends TiUIView
 	@Override
 	public void processProperties(KrollDict d)
 	{
+		// Default both to false and only enable when the JS explicitly sets the
+		// showHorizontal/VerticalScrollIndicator property. Previously this was seeded from
+		// `scrollType`, but at this point `this.scrollType` is still the field default
+		// (TYPE_VERTICAL) — it is only updated to the deduced `type` further below — so a
+		// vertical ScrollView ended up with a native vertical scrollbar enabled by default,
+		// and a horizontal ScrollView (scrollType:'horizontal') got a vertical scrollbar too.
 		boolean showHorizontalScrollBar = false;
 		boolean showVerticalScrollBar = false;
 
@@ -939,10 +1842,8 @@ public class TiUIScrollView extends TiUIView
 			showVerticalScrollBar = TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR);
 		}
 
-		if (showHorizontalScrollBar && showVerticalScrollBar) {
-			Log.w(TAG, "Both scroll bars cannot be shown. Defaulting to vertical shown");
-			showHorizontalScrollBar = false;
-		}
+		this.showVerticalScrollBar = showVerticalScrollBar;
+		this.showHorizontalScrollBar = showHorizontalScrollBar;
 
 		if (d.containsKey(TiC.PROPERTY_CONTENT_OFFSET)) {
 			Object offset = d.get(TiC.PROPERTY_CONTENT_OFFSET);
@@ -989,6 +1890,8 @@ public class TiUIScrollView extends TiUIView
 			Log.w(TAG, warningMessage);
 		}
 
+		this.scrollType = type;
+
 		// we create the view here since we now know the potential widget type
 		LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
 		TiScrollViewLayout scrollViewLayout;
@@ -1001,13 +1904,13 @@ public class TiUIScrollView extends TiUIView
 
 		switch (type) {
 			case TYPE_HORIZONTAL:
-				Log.d(TAG, "creating horizontal scroll view", Log.DEBUG_MODE);
+				Log.w(TAG, "creating horizontal scroll view", Log.DEBUG_MODE);
 				this.scrollView = new TiHorizontalScrollView(getProxy().getActivity(), arrangement);
 				scrollViewLayout = ((TiHorizontalScrollView) this.scrollView).getLayout();
 				break;
 			case TYPE_VERTICAL:
 			default:
-				Log.d(TAG, "creating vertical scroll view", Log.DEBUG_MODE);
+				Log.w(TAG, "creating vertical scroll view", Log.DEBUG_MODE);
 				this.scrollView = new TiVerticalScrollView(getProxy().getActivity(), arrangement);
 				scrollViewLayout = ((TiVerticalScrollView) this.scrollView).getLayout();
 		}
@@ -1048,6 +1951,50 @@ public class TiUIScrollView extends TiUIView
 
 		this.scrollView.setHorizontalScrollBarEnabled(showHorizontalScrollBar);
 		this.scrollView.setVerticalScrollBarEnabled(showVerticalScrollBar);
+
+		// Set default values for Android-specific properties (can be overridden by JS)
+		if (d.containsKey(TiC.PROPERTY_CLIP_TO_PADDING)) {
+			cachedClipToPadding = TiConvert.toBoolean(d.get(TiC.PROPERTY_CLIP_TO_PADDING), false);
+			((android.view.ViewGroup) this.scrollView).setClipToPadding(cachedClipToPadding);
+		} else {
+			cachedClipToPadding = false; // Default matches iOS UIScrollView behavior
+		}
+		if (d.containsKey(TiC.PROPERTY_CLIP_CHILDREN)) {
+			((android.view.ViewGroup) this.scrollView).setClipChildren(
+				TiConvert.toBoolean(d.get(TiC.PROPERTY_CLIP_CHILDREN), true)
+			);
+		}
+
+		// Process contentInset from initial properties dictionary
+		if (d.containsKey(TiC.PROPERTY_CONTENT_INSETS)) {
+			Object insetValue = d.get(TiC.PROPERTY_CONTENT_INSETS);
+			setContentInset(insetValue);
+		}
+
+		if (d.containsKey(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS)) {
+			setVerticalScrollIndicatorInsets(d.get(TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS));
+		}
+		if (d.containsKey(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS)) {
+			setHorizontalScrollIndicatorInsets(d.get(TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS));
+		}
+		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_COLOR)) {
+			String cStr = TiConvert.toString(d.get(TiC.PROPERTY_SCROLL_INDICATOR_COLOR));
+			scrollIndicatorColor = (cStr != null && !cStr.isEmpty())
+				? TiConvert.toColor(cStr)
+				: 0xFF666666;
+			hasCustomScrollIndicatorProps = true;
+		}
+		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR)) {
+			String cStr = TiConvert.toString(d.get(TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR));
+			scrollIndicatorBackgroundColor = (cStr != null && !cStr.isEmpty())
+				? TiConvert.toColor(cStr)
+				: 0x66666666;
+			hasCustomScrollIndicatorProps = true;
+		}
+		if (d.containsKey(TiC.PROPERTY_SCROLL_INDICATOR_RADIUS)) {
+			scrollIndicatorRadius = Math.max(0, TiConvert.toInt(d.get(TiC.PROPERTY_SCROLL_INDICATOR_RADIUS), 6));
+			hasCustomScrollIndicatorProps = true;
+		}
 
 		super.processProperties(d);
 	}
@@ -1116,15 +2063,34 @@ public class TiUIScrollView extends TiUIView
 	public void scrollToBottom(boolean animated)
 	{
 		View view = this.scrollView;
+		if (view == null) return;
+
 		if (view instanceof TiHorizontalScrollView) {
-			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
-		} else if (view instanceof TiVerticalScrollView) {
-			if (animated == false) {
-				((TiVerticalScrollView) view).fullScroll(View.FOCUS_DOWN);
+			// Horizontal scroll views scroll to the right-most edge, not a vertical target.
+			// Honor the `animated` flag for symmetry with the vertical branch (previously the
+			// horizontal branch always snapped via fullScroll, ignoring `animated`).
+			int contentWidth = getLayout().getMeasuredWidth();
+			int viewportWidth = view.getMeasuredWidth();
+			int targetX = Math.max(0, contentWidth + cachedPixelLeftPad + cachedPixelRightPad - viewportWidth);
+			if (animated) {
+				((TiHorizontalScrollView) view).smoothScrollTo(targetX, 0);
 			} else {
-				NestedScrollView nestedScrollView = ((TiVerticalScrollView) view);
-				nestedScrollView.smoothScrollBy(0, nestedScrollView.getChildAt(0).getHeight());
+				((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
 			}
+			return;
+		}
+
+		// Include the contentInset top/bottom padding in the target. With clipToPadding=false
+		// (the default), the true bottom scroll position is contentHeight + topPad + bottomPad -
+		// viewport; the previous child-minus-viewport math undershot by exactly topPad+bottomPad.
+		int contentHeight = getLayout().getMeasuredHeight();
+		int viewportHeight = view.getMeasuredHeight();
+		int targetY = Math.max(0, contentHeight + cachedPixelTopPad + cachedPixelBottomPad - viewportHeight);
+
+		if (animated && view instanceof TiVerticalScrollView) {
+			((TiVerticalScrollView) view).smoothScrollTo(0, targetY);
+		} else {
+			view.scrollTo(0, targetY);
 		}
 	}
 
@@ -1150,20 +2116,28 @@ public class TiUIScrollView extends TiUIView
 		int width = getLayout().getMeasuredWidth();
 		int height = getLayout().getMeasuredHeight();
 
-		// Only recalculate TiDimension values if content size changed
+		// Only recalculate when the content size changed. Inset changes are covered because
+		// applyContentInset() invalidates cachedContentWidth/Height (sets them to -1). We read
+		// the cached pixel pads (maintained in applyContentInset) instead of re-running
+		// getAsPixels() on every call — this is a hot path (called per scroll frame from both
+		// onScrollChanged handlers), so it must not allocate or re-convert.
 		if (width != cachedContentWidth || height != cachedContentHeight) {
 			cachedContentWidth = width;
 			cachedContentHeight = height;
-			TiDimension dimensionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
-			TiDimension dimensionHeight = new TiDimension(height, TiDimension.TYPE_HEIGHT);
+			TiDimension dimensionWidth = new TiDimension(
+				width + cachedPixelLeftPad + cachedPixelRightPad, TiDimension.TYPE_WIDTH);
+			TiDimension dimensionHeight = new TiDimension(
+				height + cachedPixelTopPad + cachedPixelBottomPad, TiDimension.TYPE_HEIGHT);
 			cachedContentSizeWidth = dimensionWidth.getAsDefault(getNativeView());
 			cachedContentSizeHeight = dimensionHeight.getAsDefault(getNativeView());
 		}
 
-		KrollDict contentData = new KrollDict();
-		contentData.put(TiC.PROPERTY_WIDTH, cachedContentSizeWidth);
-		contentData.put(TiC.PROPERTY_HEIGHT, cachedContentSizeHeight);
-		return contentData;
+		// Reuse a single KrollDict instead of allocating a new one per scroll frame. The
+		// scroll handler puts this dict into reusableScrollEventData and fires the event
+		// synchronously, so mutating it next frame is safe (same pattern as the scroll dict).
+		reusableContentSizeData.put(TiC.PROPERTY_WIDTH, cachedContentSizeWidth);
+		reusableContentSizeData.put(TiC.PROPERTY_HEIGHT, cachedContentSizeHeight);
+		return reusableContentSizeData;
 	}
 
 	@Override

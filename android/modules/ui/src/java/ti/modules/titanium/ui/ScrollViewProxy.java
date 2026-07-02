@@ -29,7 +29,12 @@ import ti.modules.titanium.ui.widget.TiUIScrollView;
 		TiC.PROPERTY_CONTENT_OFFSET,
 		TiC.PROPERTY_CAN_CANCEL_EVENTS,
 		TiC.PROPERTY_OVER_SCROLL_MODE,
-		TiC.PROPERTY_REFRESH_CONTROL
+		TiC.PROPERTY_REFRESH_CONTROL,
+		TiC.PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS,
+		TiC.PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS,
+		TiC.PROPERTY_SCROLL_INDICATOR_COLOR,
+		TiC.PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR,
+		TiC.PROPERTY_SCROLL_INDICATOR_RADIUS
 	})
 public class ScrollViewProxy extends TiViewProxy
 {
@@ -77,6 +82,18 @@ public class ScrollViewProxy extends TiViewProxy
 	public void setScrollingEnabled(Object enabled)
 	{
 		getScrollView().setScrollingEnabled(enabled);
+	}
+
+	@Kroll.getProperty
+	public HashMap getContentInsets()
+	{
+		return getScrollView().getContentInsets();
+	}
+
+	@Kroll.setProperty
+	public void setContentInsets(Object value)
+	{
+		getScrollView().setContentInset(value);
 	}
 
 	@Kroll.method

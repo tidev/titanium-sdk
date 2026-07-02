@@ -96,7 +96,17 @@ methods:
 
         On iOS, `scrollToBottom` moves the bottom-right corner of the scrollable region into the
         viewable area.
-    platforms: [android, iphone, ipad, macos]
+    parameters:
+      - name: options
+        summary: |
+            A JS object for specifying the animation properties when scrolling the view. Only
+            honored on Android; the argument is ignored on iOS.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+            (the scroll snaps to the edge without animation).
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: {iphone: "2.1.0", ipad: "2.1.0"}
 
   - name: scrollToTop
@@ -109,7 +119,17 @@ methods:
 
         On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the
         viewable area.
-    platforms: [iphone, ipad, android, macos]
+    parameters:
+      - name: options
+        summary: |
+            A JS object for specifying the animation properties when scrolling the view. Only
+            honored on Android; the argument is ignored on iOS.
+
+            Note that the default here is equivalent to passing in `{ animated: false }`
+            (the scroll snaps to the edge without animation).
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: false }"
     since: "7.0.0"
 
 events:
@@ -128,8 +148,11 @@ events:
       - name: contentSize
         summary: |
             The current content size of the scroll view defined by its `width` and `height` properties.
+            On Android, the reported `width` and `height` include the
+            <Titanium.UI.ScrollView.contentInset> padding so that the content size reflects the
+            full scrollable region (measured content plus insets). On iOS, `contentSize` reflects
+            the content size only.
         type: Size
-        platforms: [android, iphone, ipad, macos]
         since: { iphone: "5.2.0", ipad: "5.2.0", android: "8.3.0" }
 
       - name: decelerating
@@ -197,7 +220,6 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [android, iphone, ipad, macos]
     properties:
       - name: x
         summary: X coordinate from the scrollable touch position.
@@ -213,7 +235,6 @@ events:
     description: |
         A dragging gesture is when a touch remains in contact with the display to physically drag
         the view, as opposed to it being the result of scrolling momentum.
-    platforms: [android, iphone, ipad, macos]
     properties:
       - name: decelerate
         summary: |
@@ -241,7 +262,6 @@ properties:
         any touch events from its subviews. Note that this behavior may be slightly different from iOS.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad, macos]
 
   - name: contentHeight
     summary: Height of the scrollable region.
@@ -266,6 +286,99 @@ properties:
         Measured in platform-specific units; pixels on Android, effective pixels on Windows and density-independent pixels (dip) on iOS.
     type: [Number, String]
 
+  - name: contentInset
+    summary: Defines the inset distances for the scrollable region's content area.
+    description: |
+        Provides space around the scrollable content without affecting touch targets.
+
+        On Android, this property maps to `View.setPadding()` on the ScrollView, which shifts
+        the entire content area inward. This may affect the visual position of the scrollbar track.
+
+        The dictionary accepts the following keys:
+
+        * `top` - Inset distance at the top (in platform-specific units)
+        * `bottom` - Inset distance at the bottom (in platform-specific units)
+        * `left` - Inset distance on the left side (in platform-specific units)
+        * `right` - Inset distance on the right side (in platform-specific units)
+
+        All keys are optional. Unspecified keys default to 0.
+    type: Dictionary<Number>
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: horizontalScrollIndicatorInsets
+    summary: Inset distances for the horizontal scroll indicator on Android.
+    description: |
+        Sets the inset distances for the horizontal scroll indicator track and thumb.
+        When this property is set, a custom scroll indicator is used instead of the native one.
+
+        The dictionary accepts the following keys:
+
+        * `top` - Inset distance at the top (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `bottom` - Inset distance at the bottom (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `left` - Inset distance on the left side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `right` - Inset distance on the right side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+
+        All keys are optional. Unspecified keys default to 0.
+
+        Reading this property returns the dictionary that was last assigned, with the values in
+        the units they were given (a Number in dip or a dimension string such as `'12dp'`); the
+        values are **not** resolved to pixels.
+
+        **Note:** Requires `showHorizontalScrollIndicator` to be `true` for the indicator to be visible.
+    type: Dictionary<Number>
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: verticalScrollIndicatorInsets
+    summary: Inset distances for the vertical scroll indicator on Android.
+    description: |
+        Sets the inset distances for the vertical scroll indicator track and thumb.
+        When this property is set, a custom scroll indicator is used instead of the native one.
+
+        The dictionary accepts the following keys:
+
+        * `top` - Inset distance at the top (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `bottom` - Inset distance at the bottom (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `left` - Inset distance on the left side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+        * `right` - Inset distance on the right side (a Number in dip, or a dimension string such as `'12dp'` / `'12px'`)
+
+        All keys are optional. Unspecified keys default to 0.
+
+        Reading this property returns the dictionary that was last assigned, with the values in
+        the units they were given (a Number in dip or a dimension string such as `'12dp'`); the
+        values are **not** resolved to pixels.
+
+        **Note:** Requires `showVerticalScrollIndicator` to be `true` for the indicator to be visible.
+    type: Dictionary<Number>
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: clipChildren
+    summary: Determines whether child views are clipped to their bounds.
+    description: |
+        When set to `false`, child views can draw outside of their parent's bounds.
+        This is useful for creating effects like floating elements or shadows that extend beyond the ScrollView.
+
+        Default value is `true` on Android.
+    type: Boolean
+    default: true
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: clipToPadding
+    summary: Determines whether child views are clipped to the padding area.
+    description: |
+        When set to `false`, child views can draw into the padding area of the ScrollView.
+        This allows content to extend into the padding space, which is useful when combined with
+        <Titanium.UI.ScrollView.contentInset> to create inset spacing around scrollable content.
+
+        Default value is `false` on Android (to support contentInset behavior).
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: "14.0.0"
+
   - name: decelerationRate
     summary: The deceleration rate of the ScrollView.
     type: Number
@@ -280,7 +393,7 @@ properties:
         Provide a dictionary with `top`, `right`, `bottom`, and `left` keys set to the
         `Titanium.UI.iOS.SCROLL_VIEW_EDGE_EFFECT_STYLE_*` constants to control each edge
         individually. Requires a <Titanium.UI.NavigationWindow> to apply the effect style.
-    type: Dictionary
+    type: Dictionary<Number>
     platforms: [iphone, ipad, macos]
     osver: { ios: { min: "26.0" } }
     since: "13.1.0"
@@ -354,7 +467,6 @@ properties:
         An alternate to the pullView property. See <Titanium.UI.RefreshControl> for usage and examples. Since Titanium
         SDK 7.5.0, the RefreshControl API is also available on iOS < 10.
     type: Titanium.UI.RefreshControl
-    platforms: [android, iphone, ipad, macos]
     since: { android: "6.3.0", iphone: "6.0.0", ipad: "6.0.0" }
 
   - name: scrollsToTop
@@ -377,6 +489,50 @@ properties:
     default: Titanium.UI.iOS.ScrollIndicatorStyle.DEFAULT
     platforms: [iphone, ipad, macos]
 
+  - name: scrollIndicatorBackgroundColor
+    summary: Background (track) color of the custom scroll indicator.
+    description: |
+        Sets the background color of the scroll indicator track. Only applies when using custom
+        scroll indicators (when any of `scrollIndicatorColor`, `scrollIndicatorBackgroundColor`,
+        `scrollIndicatorRadius`, `verticalScrollIndicatorInsets`, or `horizontalScrollIndicatorInsets`
+        are set).
+
+        Accepts a hex color string (e.g., `'#66666666'`) or an integer color value.
+
+        Default value is `0x66666666` (semi-transparent gray).
+    type: String
+    default: '#66666666'
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: scrollIndicatorColor
+    summary: Color of the custom scroll indicator thumb.
+    description: |
+        Sets the color of the scroll indicator thumb (the draggable part). Only applies when using
+        custom scroll indicators (when any of `scrollIndicatorColor`, `scrollIndicatorBackgroundColor`,
+        `scrollIndicatorRadius`, `verticalScrollIndicatorInsets`, or `horizontalScrollIndicatorInsets`
+        are set).
+
+        Accepts a hex color string (e.g., `'#FF666666'`) or an integer color value.
+
+        Default value is `0xFF666666` (gray).
+    type: String
+    default: '#FF666666'
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: scrollIndicatorRadius
+    summary: Corner radius of the custom scroll indicator.
+    description: |
+        Sets the corner radius (in dip) for the scroll indicator thumb and track, giving them
+        rounded corners. Only applies when using custom scroll indicators.
+
+        Default value is `6` dip.
+    type: Number
+    default: 6
+    platforms: [android]
+    since: "14.0.0"
+
   - name: scrollType
     summary: |
         Limits the direction of the scrollable region, overriding the deduced setting. Set to
@@ -392,7 +548,6 @@ properties:
     summary: Determines whether scrolling is enabled for the view.
     type: Boolean
     default: true
-    platforms: [android, iphone, ipad, macos]
     since: { iphone: "3.0.0", ipad: "3.0.0", android: "3.0.0" }
 
   - name: showHorizontalScrollIndicator
@@ -432,6 +587,89 @@ properties:
     default: 1
     platforms: [iphone, ipad, macos]
 examples:
+  - title: ScrollView with contentInset
+    example: |
+        Create a scroll view with inset padding around the content area.
+
+        ``` js
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          fullscreen: false,
+          title: 'ScrollView Demo'
+        });
+
+        var scrollView = Ti.UI.createScrollView({
+            width: '100%',
+            height: '80%',
+            contentInset: {
+                top: 60,
+                bottom: 60
+            },
+            showVerticalScrollIndicator: true
+        });
+        var view = Ti.UI.createView({
+          backgroundColor:'#336699',
+          borderRadius: 10,
+          height: 2000,
+          width: '100%'
+        });
+        scrollView.add(view);
+        win.add(scrollView);
+        win.open();
+        ```
+
+  - title: ScrollView with Custom Scroll Indicators (Android)
+    example: |
+        Create a scroll view with custom-styled scroll indicators on Android.
+
+        ``` js
+        var win = Ti.UI.createWindow({
+          exitOnClose: true,
+          fullscreen: false,
+          title: 'Custom Scroll Indicators'
+        });
+
+        var scrollView = Ti.UI.createScrollView({
+            width: '100%',
+            height: '80%',
+            scrollType: 'vertical',
+            showVerticalScrollIndicator: true,
+            // Custom scroll indicator styling
+            scrollIndicatorColor: '#0000FF',  // Blue thumb
+            scrollIndicatorBackgroundColor: '#17c400',  // Green track
+            scrollIndicatorRadius: 8,  // Rounded corners
+            verticalScrollIndicatorInsets: {
+                top: 20,
+                bottom: 20,
+                left: 0,
+                right: 10
+            }
+        });
+
+        var contentView = Ti.UI.createView({
+            layout: 'vertical',
+            height: 2000,
+            width: '100%'
+        });
+
+        for (var i = 0; i < 20; i++) {
+            var label = Ti.UI.createLabel({
+                text: 'Item ' + (i + 1),
+                height: 60,
+                width: '90%',
+                top: 10,
+                left: '5%',
+                color: '#333',
+                font: { fontSize: 16, fontWeight: 'bold' }
+            });
+            contentView.add(label);
+        }
+
+        scrollView.add(contentView);
+        win.add(scrollView);
+        win.open();
+        ```
+
   - title: Simple Scroll View
     example: |
         Create a scroll view with content.

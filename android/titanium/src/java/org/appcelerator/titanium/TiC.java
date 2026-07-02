@@ -371,8 +371,17 @@ public class TiC
 	public static final String PROPERTY_COMMENT = "comment";
 	public static final String PROPERTY_CONTENT_HEIGHT = "contentHeight";
 	public static final String PROPERTY_CONTENT_SIZE = "contentSize";
+	public static final String PROPERTY_CONTENT_INSETS = "contentInsets";
 	public static final String PROPERTY_CONTENT_INSET_END_WITH_ACTIONS = "contentInsetEndWithActions";
 	public static final String PROPERTY_CONTENT_INSET_START_WITH_NAVIGATION = "contentInsetStartWithNavigation";
+	public static final String PROPERTY_SCROLL_INDICATOR_INSETS = "scrollIndicatorInsets";
+	public static final String PROPERTY_VERTICAL_SCROLL_INDICATOR_INSETS = "verticalScrollIndicatorInsets";
+	public static final String PROPERTY_HORIZONTAL_SCROLL_INDICATOR_INSETS = "horizontalScrollIndicatorInsets";
+	public static final String PROPERTY_SCROLL_INDICATOR_COLOR = "scrollIndicatorColor";
+	public static final String PROPERTY_SCROLL_INDICATOR_BACKGROUND_COLOR = "scrollIndicatorBackgroundColor";
+	public static final String PROPERTY_SCROLL_INDICATOR_RADIUS = "scrollIndicatorRadius";
+	public static final String PROPERTY_CLIP_CHILDREN = "clipChildren";
+	public static final String PROPERTY_CLIP_TO_PADDING = "clipToPadding";
 	public static final String PROPERTY_CONTENT_INTENT = "contentIntent";
 	public static final String PROPERTY_CONTENT_OFFSET = "contentOffset";
 	public static final String PROPERTY_CONTINUOUS_UPDATE = "continuousUpdate";

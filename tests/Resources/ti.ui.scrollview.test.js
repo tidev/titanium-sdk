@@ -290,4 +290,278 @@ describe('Titanium.UI.ScrollView', function () {
 		win.add(scrollView);
 		win.open();
 	});
+
+	// === Regression tests for the feat/android-scrollview-contentinset fixes ===
+
+	// Regression: the scroll event payload dropped contentSize. It must be present
+	// (an object with numeric width/height) on every scroll event.
+	it.android('scroll event includes contentSize (vertical)', function (finish) {
+		this.timeout(8000);
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			width: 300,
+			height: 300,
+			contentHeight: 2000,
+			showVerticalScrollIndicator: true
+		});
+		scrollView.add(Ti.UI.createView({ height: 2000, backgroundColor: 'red' }));
+		let done = false;
+		scrollView.addEventListener('scroll', function (e) {
+			if (done) return;
+			try {
+				should(e.contentSize).be.an.Object();
+				should(e.contentSize.width).be.a.Number();
+				should(e.contentSize.height).be.a.Number();
+				done = true;
+				finish();
+			} catch (err) {
+				done = true;
+				finish(err);
+			}
+		});
+		win.addEventListener('open', function () {
+			scrollView.scrollTo(0, 100);
+		});
+		win.add(scrollView);
+		win.open();
+		setTimeout(function () {
+			if (!done) {
+				done = true;
+				finish(new Error('scroll event with contentSize never fired'));
+			}
+		}, 6000);
+	});
+
+	// Regression: the horizontal onScrollChanged used xDimension (the raw touch
+	// coordinate, null until the first touch) instead of offsetX, so a programmatic
+	// scrollTo before any touch NPE'd and the reported x was the touch position. The
+	// event must fire with numeric x/y and contentSize after a programmatic scroll.
+	it.android('horizontal scroll event reports numeric x and contentSize (no NPE before touch)', function (finish) {
+		this.timeout(8000);
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			scrollType: 'horizontal',
+			width: 300,
+			height: 300,
+			contentWidth: 2000,
+			showHorizontalScrollIndicator: true
+		});
+		scrollView.add(Ti.UI.createView({ width: 2000, backgroundColor: 'blue' }));
+		let done = false;
+		scrollView.addEventListener('scroll', function (e) {
+			if (done) return;
+			try {
+				should(e.x).be.a.Number();
+				should(e.y).be.a.Number();
+				should(e.contentSize).be.an.Object();
+				should(e.contentSize.width).be.a.Number();
+				should(e.contentSize.height).be.a.Number();
+				done = true;
+				finish();
+			} catch (err) {
+				done = true;
+				finish(err);
+			}
+		});
+		win.addEventListener('open', function () {
+			// programmatic scroll BEFORE any touch — previously threw NPE
+			scrollView.scrollTo(100, 0);
+		});
+		win.add(scrollView);
+		win.open();
+		setTimeout(function () {
+			if (!done) {
+				done = true;
+				finish(new Error('horizontal scroll event never fired'));
+			}
+		}, 6000);
+	});
+
+	// Regression: scrollToBottom() was rewritten to a vertical-only scroll, so it did
+	// nothing on a horizontal scroll view. It must move contentOffset.x past 0.
+	it.android('scrollToBottom() reaches the right edge for horizontal scrollType', function (finish) {
+		this.timeout(8000);
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			scrollType: 'horizontal',
+			width: 300,
+			height: 300,
+			contentWidth: 2000,
+			showHorizontalScrollIndicator: true
+		});
+		scrollView.add(Ti.UI.createView({ width: 2000, backgroundColor: 'green' }));
+		win.addEventListener('open', function () {
+			// give the layout a tick to settle, then scroll to the rightmost edge
+			setTimeout(function () {
+				scrollView.scrollToBottom();
+				setTimeout(function () {
+					try {
+						should(scrollView.contentOffset).be.an.Object();
+						should(scrollView.contentOffset.x).be.a.Number();
+						should(scrollView.contentOffset.x).be.greaterThan(0);
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				}, 300);
+			}, 300);
+		});
+		win.add(scrollView);
+		win.open();
+	});
+
+	// Regression: clearing contentInset with {} left the previously-applied padding
+	// in place (the early-return skipped setPadding). The getter must report all zeros
+	// after clearing.
+	it.android('contentInsets round-trip and reset to zero when cleared', function () {
+		const scrollView = Ti.UI.createScrollView({});
+		scrollView.contentInsets = { top: 20, bottom: 20, left: 10, right: 10 };
+		const insets = scrollView.contentInsets;
+		should(insets).be.an.Object();
+		should(insets.top).eql(20);
+		should(insets.bottom).eql(20);
+		should(insets.left).eql(10);
+		should(insets.right).eql(10);
+		// clearing with an empty dict must reset every inset to zero
+		scrollView.contentInsets = {};
+		const cleared = scrollView.contentInsets;
+		should(cleared.top).eql(0);
+		should(cleared.bottom).eql(0);
+		should(cleared.left).eql(0);
+		should(cleared.right).eql(0);
+	});
+
+	// Regression: the per-axis scroll indicator inset setters must not crash and the getters
+	// must round-trip the keys. Color/radius properties are exercised together as a smoke test.
+	it.android('scroll indicator properties round-trip without crashing', function () {
+		const scrollView = Ti.UI.createScrollView({});
+
+		// axis-specific (stored as the raw dict the caller set)
+		scrollView.verticalScrollIndicatorInsets = { top: 8, bottom: 8, left: 8, right: 8 };
+		const v = scrollView.verticalScrollIndicatorInsets;
+		should(v).be.an.Object();
+		should(v.top).be.a.Number();
+
+		scrollView.horizontalScrollIndicatorInsets = { top: 8, bottom: 8, left: 8, right: 8 };
+		const h = scrollView.horizontalScrollIndicatorInsets;
+		should(h).be.an.Object();
+		should(h.left).be.a.Number();
+
+		// color + radius
+		scrollView.scrollIndicatorColor = '#FF0000FF';
+		should(scrollView.scrollIndicatorColor).be.a.String();
+		scrollView.scrollIndicatorBackgroundColor = '#0000FFFF';
+		should(scrollView.scrollIndicatorBackgroundColor).be.a.String();
+		scrollView.scrollIndicatorRadius = 10;
+		should(scrollView.scrollIndicatorRadius).eql(10);
+	});
+
+	// Regression: ensureContentWrapper reparented the inner scrollView out of the
+	// SwipeRefreshLayout into a plain FrameLayout, severing the nested-scroll chain
+	// and breaking pull-to-refresh when refreshControl and a custom scrollbar property
+	// were both set. The scroll view must still emit scroll events in that combination
+	// (i.e. the NestedScrollView is still the scrolling view).
+	it.android('refreshControl + custom scroll indicator does not break scrolling', function (finish) {
+		this.timeout(8000);
+		win = Ti.UI.createWindow();
+		const refreshControl = Ti.UI.createRefreshControl({});
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			width: 300,
+			height: 300,
+			contentHeight: 2000,
+			refreshControl: refreshControl,
+			verticalScrollIndicatorInsets: { top: 10, bottom: 10, left: 10, right: 10 },
+			scrollIndicatorColor: '#FF0000FF',
+			showVerticalScrollIndicator: true
+		});
+		scrollView.add(Ti.UI.createView({ height: 2000, backgroundColor: 'yellow' }));
+		let done = false;
+		scrollView.addEventListener('scroll', function (e) {
+			if (done) return;
+			try {
+				should(e.contentSize).be.an.Object();
+				should(e.contentSize.height).be.a.Number();
+				done = true;
+				finish();
+			} catch (err) {
+				done = true;
+				finish(err);
+			}
+		});
+		win.addEventListener('open', function () {
+			scrollView.scrollTo(0, 100);
+		});
+		win.add(scrollView);
+		win.open();
+		setTimeout(function () {
+			if (!done) {
+				done = true;
+				finish(new Error('scroll never fired with refreshControl + custom indicator'));
+			}
+		}, 6000);
+	});
+
+	// Regression: the per-axis scroll indicator inset setters used TiConvert.parseFloat which
+	// silently turned unit-suffixed strings like '12dp' into 0 (contentInset accepted them).
+	// The setter must now accept dimension strings without throwing (parsed to pixels internally
+	// for the custom bars); a plain Number must round-trip via the getter.
+	it.android('verticalScrollIndicatorInsets accepts dimension strings (e.g. 12dp)', function () {
+		const scrollView = Ti.UI.createScrollView({});
+		// a plain Number round-trips as a Number
+		scrollView.verticalScrollIndicatorInsets = { top: 12, bottom: 12, left: 12, right: 12 };
+		const n = scrollView.verticalScrollIndicatorInsets;
+		should(n).be.an.Object();
+		should(n.top).eql(12);
+		// a dimension string must not throw (previously parsed to 0, silently no inset)
+		scrollView.verticalScrollIndicatorInsets = { top: '12dp', bottom: '12dp', left: '12dp', right: '12dp' };
+		const s = scrollView.verticalScrollIndicatorInsets;
+		should(s).be.an.Object();
+		should(s.top).eql('12dp');
+	});
+
+	// Regression: contentSize() added only top/bottom insets to the height, omitting
+	// left/right from the width — so a horizontal ScrollView with left/right contentInset
+	// reported a contentSize.width that was too small. After adding left/right insets the
+	// reported width must grow.
+	it.android('contentSize width includes left/right contentInset (horizontal)', function (finish) {
+		this.timeout(8000);
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			scrollType: 'horizontal',
+			width: 300,
+			height: 300,
+			contentWidth: 2000,
+			showHorizontalScrollIndicator: true
+		});
+		scrollView.add(Ti.UI.createView({ width: 2000, backgroundColor: 'purple' }));
+		let widthWithout = null;
+		let widthWith = null;
+		let phase = 0;
+		scrollView.addEventListener('scroll', function (e) {
+			try {
+				should(e.contentSize).be.an.Object();
+				should(e.contentSize.width).be.a.Number();
+				if (phase === 0) {
+					widthWithout = e.contentSize.width;
+					// now add left/right contentInset and scroll again
+					scrollView.contentInsets = { left: 60, right: 60 };
+					phase = 1;
+					setTimeout(function () { scrollView.scrollTo(200, 0); }, 100);
+				} else if (phase === 1 && widthWith === null) {
+					widthWith = e.contentSize.width;
+					should(widthWith).be.greaterThan(widthWithout);
+					finish();
+				}
+			} catch (err) {
+				finish(err);
+			}
+		});
+		win.addEventListener('open', function () {
+			scrollView.scrollTo(100, 0);
+		});
+		win.add(scrollView);
+		win.open();
+	});
 });
