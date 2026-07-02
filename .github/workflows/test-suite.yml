@@ -35,7 +35,7 @@ jobs:
           arch: x86_64
           avd-name: testAVD
           force-avd-creation: true
-          emulator-options: -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -memory 2048 -no-check-update -no-telemetry
+          emulator-options: -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -memory 2048
           script: node ./build/scons test android --sdk-version ${{ env.SDK_VERSION }}
       - uses: actions/upload-artifact@v4
         if: always()
