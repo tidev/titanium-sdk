@@ -36,6 +36,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Outline;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -61,6 +62,7 @@ import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewOutlineProvider;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnTouchListener;
@@ -143,6 +145,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	private boolean zIndexChanged = false;
 	protected TiBorderWrapperView borderView;
+	private boolean usingBorderOutline = false;
 	// For twofingertap detection
 	private boolean didScale = false;
 
@@ -451,6 +454,112 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_DISABLED_COLOR);
 	}
 
+	/**
+	 * Returns true if the borderRadius value is uniform across all corners.
+	 * Outline.setRoundRect() only supports a single radius, so non-uniform
+	 * arrays/strings must fall back to the TiBorderWrapperView path.
+	 */
+	private boolean isBorderRadiusUniform(Object radiusObj)
+	{
+		if (radiusObj instanceof Object[]) {
+			Object[] arr = (Object[]) radiusObj;
+			if (arr.length <= 1) {
+				return true;
+			}
+			String first = TiConvert.toString(arr[0]);
+			for (int i = 1; i < arr.length; i++) {
+				if (!first.equals(TiConvert.toString(arr[i]))) {
+					return false;
+				}
+			}
+			return true;
+		}
+		if (radiusObj instanceof String) {
+			String[] parts = ((String) radiusObj).split("\\s");
+			if (parts.length <= 1) {
+				return true;
+			}
+			String first = parts[0];
+			for (int i = 1; i < parts.length; i++) {
+				if (!first.equals(parts[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns true if the view should use ViewOutlineProvider for borderRadius
+	 * instead of the TiBorderWrapperView: no border stroke and radius is uniform.
+	 */
+	private boolean canUseBorderOutline(KrollDict d)
+	{
+		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+			&& !d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
+			&& !(d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
+				&& TiConvert.toTiDimension(
+					TiConvert.toString(d.get(TiC.PROPERTY_BORDER_WIDTH)), TiDimension.TYPE_WIDTH).getValue() > 0f)
+			&& isBorderRadiusUniform(d.get(TiC.PROPERTY_BORDER_RADIUS));
+	}
+
+	/**
+	 * Attempts to apply a uniform borderRadius via ViewOutlineProvider.
+	 * Returns true if the outline was applied, false if it cannot be used
+	 * (caller should fall back to the wrapper).
+	 */
+	private boolean tryApplyBorderRadiusAsOutline(Object radiusObj)
+	{
+		if (nativeView == null) {
+			return false;
+		}
+
+		if (!isBorderRadiusUniform(radiusObj)) {
+			return false;
+		}
+
+		final float radiusPixels;
+		if (radiusObj instanceof Object[]) {
+			Object[] arr = (Object[]) radiusObj;
+			if (arr.length > 0) {
+				TiDimension dim = TiConvert.toTiDimension(arr[0], TiDimension.TYPE_WIDTH);
+				radiusPixels = dim != null ? (float) dim.getPixels(nativeView) : 0;
+			} else {
+				radiusPixels = 0;
+			}
+		} else if (radiusObj instanceof CharSequence) {
+			float parsedRadius = 0;
+			String text = radiusObj.toString();
+			String[] parts = text.split("\\s");
+			if (parts.length > 0 && parts[0].length() > 0) {
+				TiDimension dim = TiConvert.toTiDimension(parts[0], TiDimension.TYPE_WIDTH);
+				parsedRadius = dim != null ? (float) dim.getPixels(nativeView) : 0;
+			}
+			radiusPixels = parsedRadius;
+		} else {
+			TiDimension dim = TiConvert.toTiDimension(radiusObj, TiDimension.TYPE_WIDTH);
+			radiusPixels = dim != null ? (float) dim.getPixels(nativeView) : 0;
+		}
+
+		if (radiusPixels <= 0) {
+			nativeView.setOutlineProvider(null);
+			nativeView.setClipToOutline(false);
+			return true;
+		}
+
+		nativeView.setOutlineProvider(new ViewOutlineProvider() {
+			@Override
+			public void getOutline(View view, Outline outline)
+			{
+				outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), radiusPixels);
+			}
+		});
+		nativeView.setClipToOutline(true);
+		nativeView.invalidateOutline();
+		return true;
+	}
+
 	public float[] getPreTranslationValue(float[] points)
 	{
 		if (layoutParams.optionTransform != null) {
@@ -605,8 +714,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 			}
 			final View v = getOuterView();
-			if (v != null) {
-				bLayoutPending.set(true);
+			if (v != null && bLayoutPending.compareAndSet(false, true)) {
 				OnGlobalLayoutListener layoutListener = new OnGlobalLayoutListener() {
 					@Override
 					public void onGlobalLayout()
@@ -622,9 +730,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					}
 				};
 				v.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+				nativeView.requestLayout();
 			}
-
-			nativeView.requestLayout();
 		}
 	}
 
@@ -855,18 +962,25 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 				if (hasBorder) {
 					if (borderView == null && parent != null) {
-						// Since we have to create a new border wrapper view, we need to remove this view, and re-add
-						// it.
-						// This will ensure the border wrapper view is added correctly.
-						TiUIView parentView = parent.getOrCreateView();
-						if (parentView != null) {
-							int removedChildIndex = parentView.findChildIndex(this);
-							parentView.remove(this);
-							initializeBorder(d, bgColor);
-							if (removedChildIndex == -1) {
-								parentView.add(this);
-							} else {
-								parentView.add(this, removedChildIndex);
+						// Use outline for uniform borderRadius-only (no border stroke).
+						// Falls through to TiBorderWrapperView for non-uniform radii.
+						if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX) && canUseBorderOutline(d)) {
+							usingBorderOutline = true;
+							handleBorderProperty(key, newValue);
+						} else {
+							// Since we have to create a new border wrapper view, we need to remove this view, and re-add
+							// it.
+							// This will ensure the border wrapper view is added correctly.
+							TiUIView parentView = parent.getOrCreateView();
+							if (parentView != null) {
+								int removedChildIndex = parentView.findChildIndex(this);
+								parentView.remove(this);
+								initializeBorder(d, bgColor);
+								if (removedChildIndex == -1) {
+									parentView.add(this);
+								} else {
+									parentView.add(this, removedChildIndex);
+								}
 							}
 						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
@@ -1499,6 +1613,20 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	{
 		if (hasBorder(d)) {
 
+			// Use ViewOutlineProvider for borderRadius-only with uniform radius.
+			// Falls through to TiBorderWrapperView for non-uniform radii.
+			if (canUseBorderOutline(d)) {
+				usingBorderOutline = true;
+				if (tryApplyBorderRadiusAsOutline(d.get(TiC.PROPERTY_BORDER_RADIUS))) {
+					if (bgColor != null) {
+						nativeView.setBackgroundColor(bgColor);
+					}
+					nativeView.postInvalidate();
+					return;
+				}
+			}
+			usingBorderOutline = false;
+
 			if (nativeView != null) {
 
 				if (borderView == null) {
@@ -1571,6 +1699,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	private void handleBorderProperty(String property, Object value)
 	{
+		if (usingBorderOutline && borderView == null) {
+			if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
+				tryApplyBorderRadiusAsOutline(value);
+			}
+			return;
+		}
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
 			int color = value != null ? TiConvert.toColor(value.toString(), proxy.getActivity()) : Color.TRANSPARENT;
 			borderView.setColor(color);
