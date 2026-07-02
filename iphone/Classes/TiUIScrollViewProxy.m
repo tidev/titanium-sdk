@@ -269,33 +269,15 @@ static NSArray *scrollViewKeySequence;
       return;
     }
 
-    // Force indicator recreation by toggling visibility
-    scrollView.showsVerticalScrollIndicator = NO;
-    scrollView.showsHorizontalScrollIndicator = NO;
-    [scrollView setNeedsLayout];
-    [scrollView layoutIfNeeded];
-
-    scrollView.showsVerticalScrollIndicator = YES;
-    scrollView.showsHorizontalScrollIndicator = YES;
-    [scrollView setNeedsLayout];
-    [scrollView layoutIfNeeded];
-
     // Apply color on next runloop to ensure indicators are fully created
     dispatch_async(dispatch_get_main_queue(), ^{
       UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
-      NSMutableSet *processedViews = [NSMutableSet set];
       NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applying to %lu subviews", (unsigned long)sv.subviews.count);
       for (UIView *subview in sv.subviews) {
         NSString *className = NSStringFromClass([subview class]);
         NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed subview: %@", className);
         if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
-          // Skip duplicates
-          if ([processedViews containsObject:subview]) {
-            NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed skipping duplicate indicator");
-            continue;
-          }
-          [processedViews addObject:subview];
-          NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed found indicator: %@ (total: %lu)", className, (unsigned long)processedViews.count);
+          NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed found indicator: %@", className);
           if ([subview isKindOfClass:[UIImageView class]]) {
             UIImageView *imageView = (UIImageView *)subview;
             if (imageView.image != nil) {
@@ -311,7 +293,6 @@ static NSArray *scrollViewKeySequence;
           }
         }
       }
-      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applied to %lu unique indicators", (unsigned long)processedViews.count);
     });
   } else {
     NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: view not attached or value is nil/NSNull");
@@ -397,32 +378,14 @@ static NSArray *scrollViewKeySequence;
       UIColor *color = [[TiUtils colorValue:savedScrollIndicatorColor] color];
       NSLog(@"[TiUIScrollViewProxy] windowWillOpen: parsed color = %@", color);
       if (color != nil) {
-        // Force indicator recreation by toggling visibility
-        scrollView.showsVerticalScrollIndicator = NO;
-        scrollView.showsHorizontalScrollIndicator = NO;
-        [scrollView setNeedsLayout];
-        [scrollView layoutIfNeeded];
-
-        scrollView.showsVerticalScrollIndicator = YES;
-        scrollView.showsHorizontalScrollIndicator = YES;
-        [scrollView setNeedsLayout];
-        [scrollView layoutIfNeeded];
-
         // Apply color on next runloop to ensure indicators are fully created
         dispatch_async(dispatch_get_main_queue(), ^{
           UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
-          NSMutableSet *processedViews = [NSMutableSet set];
           for (UIView *subview in sv.subviews) {
             NSString *className = NSStringFromClass([subview class]);
             NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed subview: %@", className);
             if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
-              // Skip duplicates
-              if ([processedViews containsObject:subview]) {
-                NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed skipping duplicate indicator");
-                continue;
-              }
-              [processedViews addObject:subview];
-              NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed found indicator: %@ (total: %lu)", className, (unsigned long)processedViews.count);
+              NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed found indicator: %@", className);
               if ([subview isKindOfClass:[UIImageView class]]) {
                 UIImageView *imageView = (UIImageView *)subview;
                 if (imageView.image != nil) {
@@ -438,7 +401,6 @@ static NSArray *scrollViewKeySequence;
               }
             }
           }
-          NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed applied to %lu unique indicators", (unsigned long)processedViews.count);
         });
       }
     } else {
