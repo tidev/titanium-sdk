@@ -615,7 +615,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('beforeload should provide the URL that is about to be loaded and handle redirects', (finish) => {
-		const url = 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com';
+		const url = 'https://httpbin.org/redirect/1';
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url
@@ -679,7 +679,7 @@ describe('Titanium.UI.WebView', function () {
 	it('requestHeaders with redirecting URL should work properly', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://mockbin.org/redirect/301?to=https%3A%2F%2Fgoogle.com',
+			url: 'https://httpbin.org/redirect/1',
 			requestHeaders: { 'Custom-field1': 'value1' }
 		});
 
