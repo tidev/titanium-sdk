@@ -11,6 +11,7 @@
 #import "KrollCallback.h"
 #import "KrollContext.h"
 #import "ListenerEntry.h"
+#import "TiApp.h"
 #import "TiBindingEvent.h"
 #import "TiComplexValue.h"
 #import "TiHost.h"
@@ -444,6 +445,15 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return [executionContext host];
   }
   return nil;
+}
+
+- (TiApp *)owningInstance
+{
+  TiHost *host = [self _host];
+  if ([host isKindOfClass:[TiApp class]]) {
+    return (TiApp *)host;
+  }
+  return [TiApp app];
 }
 
 - (NSURL *)_baseURL

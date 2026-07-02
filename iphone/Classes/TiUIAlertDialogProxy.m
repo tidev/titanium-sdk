@@ -7,7 +7,9 @@
 
 #import "TiUIAlertDialogProxy.h"
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiWindowProxy.h>
 
 static NSCondition *alertCondition;
 static BOOL alertShowing = NO;
@@ -49,7 +51,9 @@ static BOOL alertShowing = NO;
     [self forgetSelf];
     [self autorelease];
     RELEASE_TO_NIL_AUTORELEASE(alertController);
-    [[[TiApp app] controller] decrementActiveAlertControllerCount];
+    TiApp *app = presentingApp ?: [TiApp app];
+    [[app controller] decrementActiveAlertControllerCount];
+    presentingApp = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
   }
 }
@@ -65,6 +69,34 @@ static BOOL alertShowing = NO;
                                           [self cleanup];
                                         }];
   }
+}
+
+- (void)setWindow:(id)value
+{
+  if ([value isKindOfClass:[TiWindowProxy class]]) {
+    owningWindowProxy = value;
+  } else {
+    owningWindowProxy = nil;
+  }
+}
+
+- (TiApp *)owningTiApp
+{
+  // If an owning window proxy was explicitly set, use its native window to find the TiApp
+  if (owningWindowProxy != nil && [owningWindowProxy viewAttached]) {
+    UIWindow *nativeWindow = [[owningWindowProxy view] window];
+    if (nativeWindow != nil) {
+      if (@available(iOS 13.0, *)) {
+        TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:nativeWindow];
+        if (app != nil) {
+          return app;
+        }
+      }
+    }
+  }
+
+  // Delegate to inherited owningInstance (uses executionContext.host or view-based lookup)
+  return [self owningInstance];
 }
 
 - (void)show:(id)unused
@@ -103,7 +135,8 @@ static BOOL alertShowing = NO;
   style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
 
   RELEASE_TO_NIL(alertController);
-  [[[TiApp app] controller] incrementActiveAlertControllerCount];
+  presentingApp = [self owningTiApp];
+  [[presentingApp controller] incrementActiveAlertControllerCount];
 
   alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                          message:[TiUtils stringValue:[self valueForKey:@"message"]]
@@ -178,7 +211,7 @@ static BOOL alertShowing = NO;
   }
 
   [self retain];
-  [[TiApp app] showModalController:alertController animated:YES];
+  [presentingApp showModalController:alertController animated:YES];
 }
 
 - (void)suspended:(NSNotification *)note

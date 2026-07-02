@@ -520,6 +520,30 @@ properties:
     since: "6.1.0"
     platforms: [iphone, ipad, macos]
 
+  - name: window
+    summary: The window to present the alert in, for scene-aware display.
+    description: |
+        In multi-scene apps on iPadOS, alert dialogs are normally presented in the
+        foreground (key) scene's window. Setting this property to a specific
+        <Titanium.UI.Window> ensures the alert is presented in the same scene
+        as that window, even if the window is not in the foreground.
+
+        This is essential for Split View scenarios where multiple scenes are
+        visible simultaneously and an alert should appear in the correct scene.
+
+        ``` js
+        var dialog = Ti.UI.createAlertDialog({
+            title: 'Scene Alert',
+            message: 'This alert appears in the correct scene.'
+        });
+        dialog.window = myWindow; // Present in this window's scene
+        dialog.show();
+        ```
+    type: Titanium.UI.Window
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
 examples:
   - title: Single-button Alert Dialog (using alias)
     example: |

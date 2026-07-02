@@ -463,7 +463,11 @@ DEFINE_EXCEPTIONS
   [dummyView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
   [dummyView addSubview:self];
 
-  [[[[[UIApplication sharedApplication] keyWindow] rootViewController] view] addSubview:dummyView];
+  UIWindow *sceneWindow = self.window;
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  [[[sceneWindow rootViewController] view] addSubview:dummyView];
 
   [self updateWidthAndHeight];
   [self layoutChildren];

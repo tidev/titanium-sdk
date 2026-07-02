@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollContext.h"
+#import "Bridge.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "KrollTimerManager.h"
@@ -176,15 +177,19 @@ static JSValueRef AlertCallback(JSContextRef jsContext, JSObjectRef jsFunction, 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *message = [TiUtils stringValue:[KrollObject toID:ctx value:args[0]]];
 
-  [[[TiApp app] controller] incrementActiveAlertControllerCount];
+  TiApp *owningInstance = (TiApp *)[ctx.delegate host];
+  if (owningInstance == nil) {
+    owningInstance = [TiApp app];
+  }
+  [[owningInstance controller] incrementActiveAlertControllerCount];
 
   UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:UIAlertControllerStyleAlert];
   [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                             style:UIAlertActionStyleDefault
                                           handler:^(UIAlertAction *_Nonnull action) {
-                                            [[[TiApp app] controller] decrementActiveAlertControllerCount];
+                                            [[owningInstance controller] decrementActiveAlertControllerCount];
                                           }]];
-  [[TiApp app] showModalController:alert animated:YES];
+  [owningInstance showModalController:alert animated:YES];
 
   return JSValueMakeUndefined(jsContext);
 }

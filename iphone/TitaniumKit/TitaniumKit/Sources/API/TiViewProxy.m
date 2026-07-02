@@ -11,6 +11,7 @@
 #import "TiBlob.h"
 #import "TiLayoutQueue.h"
 #import "TiLocale.h"
+#import "TiSceneRegistry.h"
 #import "TiStylesheet.h"
 #import "TiUIView.h"
 #import "TiUIViewProxy.h"
@@ -1380,8 +1381,24 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (CGRect)appFrame // TODO: Why is this here? It doesn't have anything to do with a specific instance.
 {
-  CGRect result = [[[[TiApp app] controller] view] bounds];
+  CGRect result = [[[[self owningInstance] controller] view] bounds];
   return result;
+}
+
+- (TiApp *)owningInstance
+{
+  if (@available(iOS 13.0, *)) {
+    if ([self viewAttached]) {
+      UIWindow *window = [[self view] window];
+      if (window != nil) {
+        TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
+        if (app != nil) {
+          return app;
+        }
+      }
+    }
+  }
+  return [super owningInstance];
 }
 
 #pragma mark Building up and Tearing down
