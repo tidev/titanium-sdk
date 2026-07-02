@@ -511,4 +511,79 @@ describe('Titanium.UI.ScrollView', function () {
 			}
 		}, 6000);
 	});
+
+	// Regression: scrollIndicatorInsets used TiConvert.parseFloat which silently turned
+	// unit-suffixed strings like '12dp' into 0 (contentInset accepted them). Setting a
+	// dimension string must now yield a non-zero inset.
+	it.android('scrollIndicatorInsets accepts dimension strings (e.g. 12dp)', function () {
+		const scrollView = Ti.UI.createScrollView({});
+		scrollView.scrollIndicatorInsets = { top: '12dp', bottom: '12dp', left: '12dp', right: '12dp' };
+		const g = scrollView.scrollIndicatorInsets;
+		should(g).be.an.Object();
+		// 12dp resolves to 12*density px, which is > 0 on every density (previously 0).
+		should(g.top).be.a.Number();
+		should(g.top).be.greaterThan(0);
+		should(g.left).be.greaterThan(0);
+		should(g.right).be.greaterThan(0);
+		should(g.bottom).be.greaterThan(0);
+	});
+
+	// Regression: contentSize() added only top/bottom insets to the height, omitting
+	// left/right from the width — so a horizontal ScrollView with left/right contentInset
+	// reported a contentSize.width that was too small. After adding left/right insets the
+	// reported width must grow.
+	it.android('contentSize width includes left/right contentInset (horizontal)', function (finish) {
+		this.timeout(8000);
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			scrollType: 'horizontal',
+			width: 300,
+			height: 300,
+			contentWidth: 2000,
+			showHorizontalScrollIndicator: true
+		});
+		scrollView.add(Ti.UI.createView({ width: 2000, backgroundColor: 'purple' }));
+		let widthWithout = null;
+		let widthWith = null;
+		let phase = 0;
+		scrollView.addEventListener('scroll', function (e) {
+			try {
+				should(e.contentSize).be.an.Object();
+				should(e.contentSize.width).be.a.Number();
+				if (phase === 0) {
+					widthWithout = e.contentSize.width;
+					// now add left/right contentInset and scroll again
+					scrollView.contentInsets = { left: 60, right: 60 };
+					phase = 1;
+					setTimeout(function () { scrollView.scrollTo(200, 0); }, 100);
+				} else if (phase === 1 && widthWith === null) {
+					widthWith = e.contentSize.width;
+					should(widthWith).be.greaterThan(widthWithout);
+					finish();
+				}
+			} catch (err) {
+				finish(err);
+			}
+		});
+		win.addEventListener('open', function () {
+			scrollView.scrollTo(100, 0);
+		});
+		win.add(scrollView);
+		win.open();
+	});
+
+	// Regression: getScrollIndicatorInsets() read only the generic cache and returned stale
+	// values after a per-axis override (the axis-specific setters did not mirror back). After
+	// setVerticalScrollIndicatorInsets, the generic getter must reflect the override.
+	it.android('getScrollIndicatorInsets reflects per-axis override', function () {
+		const scrollView = Ti.UI.createScrollView({});
+		// generic zero first
+		scrollView.scrollIndicatorInsets = { top: 0, bottom: 0, left: 0, right: 0 };
+		should(scrollView.scrollIndicatorInsets.top).eql(0);
+		// vertical override with a positive value must propagate to the generic getter
+		scrollView.verticalScrollIndicatorInsets = { top: '10dp', bottom: '10dp', left: '10dp', right: '10dp' };
+		const g = scrollView.scrollIndicatorInsets;
+		should(g.top).be.a.Number();
+		should(g.top).be.greaterThan(0); // previously stayed 0 (stale generic cache)
+	});
 });

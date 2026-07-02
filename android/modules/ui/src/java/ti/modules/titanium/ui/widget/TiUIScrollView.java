@@ -1045,10 +1045,14 @@ public class TiUIScrollView extends TiUIView
 	{
 		fadeHandler.removeCallbacksAndMessages(null);
 
-		// If a refresh control is currently assigned, then detach it.
-		View nativeView = getNativeView();
-		if (nativeView instanceof TiSwipeRefreshLayout) {
-			RefreshControlProxy.unassignFrom((TiSwipeRefreshLayout) nativeView);
+		// If a refresh control is currently assigned, then detach it. Check the
+		// swipeRefreshLayout field (not getNativeView()): when custom scrollbar properties
+		// are also set, ensureContentWrapper wraps the SwipeRefreshLayout into a contentWrapper
+		// and makes the contentWrapper the native view, so getNativeView() is a plain
+		// FrameLayout here and the instanceof check would skip the unassign, leaking the
+		// RefreshControlProxy and the SwipeRefreshLayout (and their listeners).
+		if (this.swipeRefreshLayout != null) {
+			RefreshControlProxy.unassignFrom(this.swipeRefreshLayout);
 		}
 
 		// Release scroll view reference.
@@ -1251,8 +1255,37 @@ public class TiUIScrollView extends TiUIView
 	}
 
 	/**
-	 * Applies scroll indicator insets values.
-	 * Refactored from setScrollIndicatorInsets/setVerticalScrollIndicatorInsets/setHorizontalScrollIndicatorInsets.
+	 * Parses a {top, left, right, bottom} inset dictionary to pixel ints, accepting the
+	 * same value grammar as contentInset (Number, or a dimension string such as '12dp'
+	 * / '12px') via TiConvert.toTiDimension + TiDimension.getAsPixels. The previous
+	 * implementation used TiConvert.toFloat, which runs Float.parseFloat on strings and
+	 * silently turned {top: '12dp'} into 0 (whereas contentInset accepted '12dp').
+	 *
+	 * @return int[4] {top, left, right, bottom} in pixels
+	 */
+	private int[] parseInsetsToPx(Object value)
+	{
+		int[] px = new int[4]; // top, left, right, bottom
+		if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+			if (dict.containsKey("top") && dict.get("top") != null) {
+				px[0] = TiConvert.toTiDimension(dict.get("top"), TiDimension.TYPE_TOP).getAsPixels(scrollView);
+			}
+			if (dict.containsKey("left") && dict.get("left") != null) {
+				px[1] = TiConvert.toTiDimension(dict.get("left"), TiDimension.TYPE_LEFT).getAsPixels(scrollView);
+			}
+			if (dict.containsKey("right") && dict.get("right") != null) {
+				px[2] = TiConvert.toTiDimension(dict.get("right"), TiDimension.TYPE_RIGHT).getAsPixels(scrollView);
+			}
+			if (dict.containsKey("bottom") && dict.get("bottom") != null) {
+				px[3] = TiConvert.toTiDimension(dict.get("bottom"), TiDimension.TYPE_BOTTOM).getAsPixels(scrollView);
+			}
+		}
+		return px;
+	}
+
+	/**
+	 * Applies scroll indicator insets values (iOS-style: affects BOTH axes).
 	 */
 	private void applyScrollIndicatorInsets(Object value)
 	{
@@ -1260,43 +1293,16 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		float topDp = 0, leftDp = 0, rightDp = 0, bottomDp = 0;
+		int[] px = parseInsetsToPx(value); // {top, left, right, bottom}
+		cachedScrollIndicatorTopDim = new TiDimension(px[0], TiDimension.TYPE_TOP);
+		cachedScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
+		cachedScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
+		cachedScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
 
-		if (value instanceof HashMap) {
-			HashMap dict = (HashMap) value;
-			if (dict.containsKey("top")) {
-				topDp = TiConvert.toFloat(dict.get("top"), 0);
-			}
-			if (dict.containsKey("left")) {
-				leftDp = TiConvert.toFloat(dict.get("left"), 0);
-			}
-			if (dict.containsKey("right")) {
-				rightDp = TiConvert.toFloat(dict.get("right"), 0);
-			}
-			if (dict.containsKey("bottom")) {
-				bottomDp = TiConvert.toFloat(dict.get("bottom"), 0);
-			}
-		}
-
-		// Convert dp to pixels
-		float density = scrollView.getContext().getResources().getDisplayMetrics().density;
-		int topPx = Math.round(topDp * density);
-		int leftPx = Math.round(leftDp * density);
-		int rightPx = Math.round(rightDp * density);
-		int bottomPx = Math.round(bottomDp * density);
-
-		cachedScrollIndicatorTopDim = new TiDimension(topPx, TiDimension.TYPE_TOP);
-		cachedScrollIndicatorBottomDim = new TiDimension(bottomPx, TiDimension.TYPE_BOTTOM);
-		cachedScrollIndicatorLeftDim = new TiDimension(leftPx, TiDimension.TYPE_LEFT);
-		cachedScrollIndicatorRightDim = new TiDimension(rightPx, TiDimension.TYPE_RIGHT);
-
-		// The generic scrollIndicatorInsets property is iOS-style: it applies to BOTH axes.
-		// Mirror the parsed values into the vertical and horizontal caches so the custom bars
-		// actually pick them up (createVertical/HorizontalScrollBar only read those axis-specific
-		// caches), and set hasCustomScrollIndicatorProps so updateCustomScrollBars builds the bars.
-		// Without this, setting scrollIndicatorInsets was a no-op: the flag stayed false (so no
-		// custom bars were created and native bars were not hidden) and the values were written to
-		// cachedScrollIndicator*Dim fields that nothing reads.
+		// iOS-style: applies to BOTH axes — mirror into the vertical and horizontal caches so
+		// the custom bars actually pick them up (createVertical/HorizontalScrollBar only read
+		// those axis-specific caches), and set hasCustomScrollIndicatorProps so the bars are
+		// built. Without this, setting scrollIndicatorInsets was a no-op.
 		cachedVerticalScrollIndicatorTopDim = cachedScrollIndicatorTopDim;
 		cachedVerticalScrollIndicatorBottomDim = cachedScrollIndicatorBottomDim;
 		cachedVerticalScrollIndicatorLeftDim = cachedScrollIndicatorLeftDim;
@@ -1321,7 +1327,6 @@ public class TiUIScrollView extends TiUIView
 
 	/**
 	 * Applies vertical scroll indicator insets values.
-	 * Refactored from setVerticalScrollIndicatorInsets/setHorizontalScrollIndicatorInsets.
 	 */
 	private void applyVerticalScrollIndicatorInsets(Object value)
 	{
@@ -1329,34 +1334,19 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		float topDp = 0, leftDp = 0, rightDp = 0, bottomDp = 0;
+		int[] px = parseInsetsToPx(value);
+		cachedVerticalScrollIndicatorTopDim = new TiDimension(px[0], TiDimension.TYPE_TOP);
+		cachedVerticalScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
+		cachedVerticalScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
+		cachedVerticalScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
 
-		if (value instanceof HashMap) {
-			HashMap dict = (HashMap) value;
-			if (dict.containsKey("top")) {
-				topDp = TiConvert.toFloat(dict.get("top"), 0);
-			}
-			if (dict.containsKey("left")) {
-				leftDp = TiConvert.toFloat(dict.get("left"), 0);
-			}
-			if (dict.containsKey("right")) {
-				rightDp = TiConvert.toFloat(dict.get("right"), 0);
-			}
-			if (dict.containsKey("bottom")) {
-				bottomDp = TiConvert.toFloat(dict.get("bottom"), 0);
-			}
-		}
-
-		// Convert dp to pixels
-		float density = scrollView.getContext().getResources().getDisplayMetrics().density;
-		cachedVerticalScrollIndicatorTopDim = new TiDimension(
-			Math.round(topDp * density), TiDimension.TYPE_TOP);
-		cachedVerticalScrollIndicatorBottomDim = new TiDimension(
-			Math.round(bottomDp * density), TiDimension.TYPE_BOTTOM);
-		cachedVerticalScrollIndicatorLeftDim = new TiDimension(
-			Math.round(leftDp * density), TiDimension.TYPE_LEFT);
-		cachedVerticalScrollIndicatorRightDim = new TiDimension(
-			Math.round(rightDp * density), TiDimension.TYPE_RIGHT);
+		// Mirror back into the generic cache so getScrollIndicatorInsets() reflects the
+		// effective values after a per-axis override (it reads the generic cache and would
+		// otherwise stay stale, reporting the last generic-set value forever).
+		cachedScrollIndicatorTopDim = cachedVerticalScrollIndicatorTopDim;
+		cachedScrollIndicatorBottomDim = cachedVerticalScrollIndicatorBottomDim;
+		cachedScrollIndicatorLeftDim = cachedVerticalScrollIndicatorLeftDim;
+		cachedScrollIndicatorRightDim = cachedVerticalScrollIndicatorRightDim;
 
 		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
@@ -1372,7 +1362,6 @@ public class TiUIScrollView extends TiUIView
 
 	/**
 	 * Applies horizontal scroll indicator insets values.
-	 * Refactored from setHorizontalScrollIndicatorInsets/setVerticalScrollIndicatorInsets.
 	 */
 	private void applyHorizontalScrollIndicatorInsets(Object value)
 	{
@@ -1380,34 +1369,18 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
-		float topDp = 0, leftDp = 0, rightDp = 0, bottomDp = 0;
+		int[] px = parseInsetsToPx(value);
+		cachedHorizontalScrollIndicatorTopDim = new TiDimension(px[0], TiDimension.TYPE_TOP);
+		cachedHorizontalScrollIndicatorBottomDim = new TiDimension(px[3], TiDimension.TYPE_BOTTOM);
+		cachedHorizontalScrollIndicatorLeftDim = new TiDimension(px[1], TiDimension.TYPE_LEFT);
+		cachedHorizontalScrollIndicatorRightDim = new TiDimension(px[2], TiDimension.TYPE_RIGHT);
 
-		if (value instanceof HashMap) {
-			HashMap dict = (HashMap) value;
-			if (dict.containsKey("top")) {
-				topDp = TiConvert.toFloat(dict.get("top"), 0);
-			}
-			if (dict.containsKey("left")) {
-				leftDp = TiConvert.toFloat(dict.get("left"), 0);
-			}
-			if (dict.containsKey("right")) {
-				rightDp = TiConvert.toFloat(dict.get("right"), 0);
-			}
-			if (dict.containsKey("bottom")) {
-				bottomDp = TiConvert.toFloat(dict.get("bottom"), 0);
-			}
-		}
-
-		// Convert dp to pixels
-		float density = scrollView.getContext().getResources().getDisplayMetrics().density;
-		cachedHorizontalScrollIndicatorTopDim = new TiDimension(
-			Math.round(topDp * density), TiDimension.TYPE_TOP);
-		cachedHorizontalScrollIndicatorBottomDim = new TiDimension(
-			Math.round(bottomDp * density), TiDimension.TYPE_BOTTOM);
-		cachedHorizontalScrollIndicatorLeftDim = new TiDimension(
-			Math.round(leftDp * density), TiDimension.TYPE_LEFT);
-		cachedHorizontalScrollIndicatorRightDim = new TiDimension(
-			Math.round(rightDp * density), TiDimension.TYPE_RIGHT);
+		// Mirror back into the generic cache so getScrollIndicatorInsets() reflects the
+		// effective values after a per-axis override (see applyVerticalScrollIndicatorInsets).
+		cachedScrollIndicatorTopDim = cachedHorizontalScrollIndicatorTopDim;
+		cachedScrollIndicatorBottomDim = cachedHorizontalScrollIndicatorBottomDim;
+		cachedScrollIndicatorLeftDim = cachedHorizontalScrollIndicatorLeftDim;
+		cachedScrollIndicatorRightDim = cachedHorizontalScrollIndicatorRightDim;
 
 		hasCustomScrollIndicatorProps = true;
 		updateCustomScrollBars();
@@ -1569,6 +1542,14 @@ public class TiUIScrollView extends TiUIView
 			return;
 		}
 
+		// Cancel any pending fade-out runnable before tearing down and recreating the bar
+		// views. A previously-posted fadeRunnable reads the customVerticalScrollBar /
+		// customHorizontalScrollBar fields at dispatch time, so after recreation it would
+		// operate on the NEW bar (whose constructor sets alpha 0) and setVisibility(GONE) on
+		// it — harmless visually (alpha 0 anyway) but it leaves the new bar GONE until the next
+		// scroll. Removing the pending callback here keeps the recreation clean.
+		fadeHandler.removeCallbacks(fadeRunnable);
+
 		// Hide native scrollbars when using custom scroll indicators
 		if (hasCustomScrollIndicatorProps) {
 			scrollView.setHorizontalScrollBarEnabled(false);
@@ -1706,12 +1687,31 @@ public class TiUIScrollView extends TiUIView
 					Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 				}
 			} else if (newValue instanceof RefreshControlProxy) {
-				// Lazily create SwipeRefreshLayout wrapper when refreshControl is set dynamically
+				// Lazily create SwipeRefreshLayout wrapper when refreshControl is set dynamically.
 				this.swipeRefreshLayout = createSwipeRefreshLayout();
 				this.swipeRefreshLayout.setSwipeRefreshEnabled(false);
-				this.swipeRefreshLayout.addView(this.scrollView);
 				((RefreshControlProxy) newValue).assignTo(this.swipeRefreshLayout);
-				setNativeView(this.swipeRefreshLayout);
+				if (contentWrapper != null) {
+					// A contentWrapper was already built (custom scrollbar props were set
+					// earlier) and is the native view, with scrollView as its first child.
+					// Insert the SwipeRefreshLayout where scrollView sat, keeping the
+					// NestedScrollView -> SwipeRefreshLayout nesting intact and the custom
+					// scrollbar views hosted in contentWrapper. The native view stays
+					// contentWrapper, so pull-to-refresh keeps working (previously this path
+					// pulled scrollView out of contentWrapper into an orphan SwipeRefreshLayout
+					// and broke both pull-to-refresh and the custom scrollbars).
+					int index = contentWrapper.indexOfChild(this.scrollView);
+					if (index >= 0) {
+						contentWrapper.removeViewAt(index);
+					} else {
+						index = 0;
+					}
+					this.swipeRefreshLayout.addView(this.scrollView, 0);
+					contentWrapper.addView(this.swipeRefreshLayout, index);
+				} else {
+					this.swipeRefreshLayout.addView(this.scrollView);
+					setNativeView(this.swipeRefreshLayout);
+				}
 			} else {
 				Log.e(TAG, "Invalid value assigned to property '" + key + "'. Must be of type 'RefreshControl'.");
 			}
@@ -2047,13 +2047,25 @@ public class TiUIScrollView extends TiUIView
 
 		if (view instanceof TiHorizontalScrollView) {
 			// Horizontal scroll views scroll to the right-most edge, not a vertical target.
-			((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
+			// Honor the `animated` flag for symmetry with the vertical branch (previously the
+			// horizontal branch always snapped via fullScroll, ignoring `animated`).
+			int contentWidth = getLayout().getMeasuredWidth();
+			int viewportWidth = view.getMeasuredWidth();
+			int targetX = Math.max(0, contentWidth + cachedPixelLeftPad + cachedPixelRightPad - viewportWidth);
+			if (animated) {
+				((TiHorizontalScrollView) view).smoothScrollTo(targetX, 0);
+			} else {
+				((TiHorizontalScrollView) view).fullScroll(View.FOCUS_RIGHT);
+			}
 			return;
 		}
 
+		// Include the contentInset top/bottom padding in the target. With clipToPadding=false
+		// (the default), the true bottom scroll position is contentHeight + topPad + bottomPad -
+		// viewport; the previous child-minus-viewport math undershot by exactly topPad+bottomPad.
 		int contentHeight = getLayout().getMeasuredHeight();
 		int viewportHeight = view.getMeasuredHeight();
-		int targetY = Math.max(0, contentHeight - viewportHeight);
+		int targetY = Math.max(0, contentHeight + cachedPixelTopPad + cachedPixelBottomPad - viewportHeight);
 
 		if (animated && view instanceof TiVerticalScrollView) {
 			((TiVerticalScrollView) view).smoothScrollTo(0, targetY);
@@ -2084,16 +2096,20 @@ public class TiUIScrollView extends TiUIView
 		int width = getLayout().getMeasuredWidth();
 		int height = getLayout().getMeasuredHeight();
 
-		// Add top and bottom insets to the content size to match iOS behavior.
-		// This ensures JavaScript sees the correct scrollable area including insets.
+		// Add insets to the content size to match iOS behavior so JavaScript sees the
+		// correct scrollable area including insets. Include left/right on the width too, not
+		// just top/bottom on the height — otherwise a horizontal ScrollView with left/right
+		// contentInset reports a contentSize.width that is too small by left+right.
 		int topInset = (int) cachedInsetTopDim.getAsPixels(getNativeView());
 		int bottomInset = (int) cachedInsetBottomDim.getAsPixels(getNativeView());
+		int leftInset = (int) cachedInsetLeftDim.getAsPixels(getNativeView());
+		int rightInset = (int) cachedInsetRightDim.getAsPixels(getNativeView());
 
 		// Only recalculate TiDimension values if content size changed
 		if (width != cachedContentWidth || height != cachedContentHeight) {
 			cachedContentWidth = width;
 			cachedContentHeight = height;
-			TiDimension dimensionWidth = new TiDimension(width, TiDimension.TYPE_WIDTH);
+			TiDimension dimensionWidth = new TiDimension(width + leftInset + rightInset, TiDimension.TYPE_WIDTH);
 			TiDimension dimensionHeight = new TiDimension(height + topInset + bottomInset, TiDimension.TYPE_HEIGHT);
 			cachedContentSizeWidth = dimensionWidth.getAsDefault(getNativeView());
 			cachedContentSizeHeight = dimensionHeight.getAsDefault(getNativeView());
