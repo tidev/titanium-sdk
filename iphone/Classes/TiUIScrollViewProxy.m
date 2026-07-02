@@ -289,7 +289,8 @@ static NSArray *scrollViewKeySequence;
             subview.backgroundColor = color;
             subview.layer.backgroundColor = color.CGColor;
             subview.layer.cornerRadius = 1.5f;
-            NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applied backgroundColor on %@", className);
+            subview.alpha = 1.0f;
+            NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applied backgroundColor + alpha=1.0 on %@", className);
           }
         }
       }
@@ -397,7 +398,8 @@ static NSArray *scrollViewKeySequence;
                 subview.backgroundColor = color;
                 subview.layer.backgroundColor = color.CGColor;
                 subview.layer.cornerRadius = 1.5f;
-                NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed applied backgroundColor on %@", className);
+                subview.alpha = 1.0f;
+                NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed applied backgroundColor + alpha=1.0 on %@", className);
               }
             }
           }
