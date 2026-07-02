@@ -247,6 +247,7 @@ static NSArray *scrollViewKeySequence;
 {
   if ([self viewAttached]) {
     UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    // Scroll indicator UIImageViews are direct subviews of UIScrollView
     for (UIView *subview in scrollView.subviews) {
       if ([subview isKindOfClass:[UIImageView class]]) {
         return [(UIImageView *)subview tintColor];
@@ -267,22 +268,17 @@ static NSArray *scrollViewKeySequence;
       return;
     }
 
-    [self applyColorToImageViewsInView:scrollView subView:scrollView color:color];
-    [scrollView flashScrollIndicators];
-  }
-}
-
-- (void)applyColorToImageViewsInView:(UIView *)parentView subView:(UIView *)view color:(UIColor *)color
-{
-  if ([view isKindOfClass:[UIImageView class]]) {
-    UIImageView *imageView = (UIImageView *)view;
-    if (imageView.image != nil) {
-      imageView.tintColor = color;
-      imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    // Scroll indicator UIImageViews are direct subviews of UIScrollView
+    for (UIView *subview in scrollView.subviews) {
+      if ([subview isKindOfClass:[UIImageView class]]) {
+        UIImageView *imageView = (UIImageView *)subview;
+        if (imageView.image != nil) {
+          imageView.tintColor = color;
+          imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        }
+      }
     }
-  }
-  for (UIView *subview in view.subviews) {
-    [self applyColorToImageViewsInView:parentView subView:subview color:color];
+    [scrollView flashScrollIndicators];
   }
 }
 
