@@ -53,6 +53,12 @@ public class TiUIScrollView extends TiUIView
 	private TiSwipeRefreshLayout swipeRefreshLayout;
 	private TiDimension offsetX = new TiDimension(0, TiDimension.TYPE_LEFT);
 	private TiDimension offsetY = new TiDimension(0, TiDimension.TYPE_TOP);
+	// Last contentOffset (in scroll pixels) pushed to the proxy. Used to skip the per-frame
+	// setProperty bridge call + KrollDict allocation while the offset is constant (held overscroll
+	// stretch, settled fling). Sentinel forces the first push; invalidated when contentOffset is
+	// set via the Object path so the next scroll frame re-syncs.
+	private int lastPushedOffsetX = Integer.MIN_VALUE;
+	private int lastPushedOffsetY = Integer.MIN_VALUE;
 	private boolean setInitialOffset = false;
 	private boolean mScrollingEnabled = true;
 	private boolean isScrolling = false;
@@ -1145,9 +1151,24 @@ public class TiUIScrollView extends TiUIView
 	 */
 	public void setContentOffset(int x, int y)
 	{
+		// Reuse the offset TiDimension fields instead of allocating two new ones every scroll
+		// frame (~60fps). Reset units to UNDEFINED (pixel): scroll positions are always in
+		// pixels, even if a prior JS setContentOffset('10dp') left a different unit on the field.
+		offsetX.setValue(x);
+		offsetX.setUnits(TiDimension.COMPLEX_UNIT_UNDEFINED);
+		offsetY.setValue(y);
+		offsetY.setUnits(TiDimension.COMPLEX_UNIT_UNDEFINED);
+
+		// Skip the bridge push when the offset hasn't changed since the last push: avoids a
+		// KrollDict allocation + setProperty call every frame while the offset is constant
+		// (held overscroll stretch, settled fling, repeated scrollTo to the same position).
+		if (x == lastPushedOffsetX && y == lastPushedOffsetY) {
+			return;
+		}
+		lastPushedOffsetX = x;
+		lastPushedOffsetY = y;
+
 		KrollDict offset = new KrollDict();
-		offsetX = new TiDimension(x, TiDimension.TYPE_LEFT);
-		offsetY = new TiDimension(y, TiDimension.TYPE_TOP);
 		offset.put(TiC.EVENT_PROPERTY_X, offsetX.getAsDefault(scrollView));
 		offset.put(TiC.EVENT_PROPERTY_Y, offsetY.getAsDefault(scrollView));
 		getProxy().setProperty(TiC.PROPERTY_CONTENT_OFFSET, offset);
@@ -1169,6 +1190,10 @@ public class TiUIScrollView extends TiUIView
 			if (contentOffset.containsKeyAndNotNull(TiC.PROPERTY_Y)) {
 				offsetY = TiConvert.toTiDimension(contentOffset, TiC.PROPERTY_Y, TiDimension.TYPE_TOP);
 			}
+			// Invalidate the last-pushed cache: the offset source changed, so the next scroll
+			// frame must re-push the (now pixel) position rather than skip as "unchanged".
+			lastPushedOffsetX = Integer.MIN_VALUE;
+			lastPushedOffsetY = Integer.MIN_VALUE;
 		} else {
 			Log.e(TAG, "ContentOffset must be an instance of HashMap");
 		}
