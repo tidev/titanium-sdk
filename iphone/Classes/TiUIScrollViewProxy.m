@@ -283,12 +283,19 @@ static NSArray *scrollViewKeySequence;
     // Apply color on next runloop to ensure indicators are fully created
     dispatch_async(dispatch_get_main_queue(), ^{
       UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
+      NSMutableSet *processedViews = [NSMutableSet set];
       NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applying to %lu subviews", (unsigned long)sv.subviews.count);
       for (UIView *subview in sv.subviews) {
         NSString *className = NSStringFromClass([subview class]);
         NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed subview: %@", className);
         if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
-          NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed found indicator: %@", className);
+          // Skip duplicates
+          if ([processedViews containsObject:subview]) {
+            NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed skipping duplicate indicator");
+            continue;
+          }
+          [processedViews addObject:subview];
+          NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed found indicator: %@ (total: %lu)", className, (unsigned long)processedViews.count);
           if ([subview isKindOfClass:[UIImageView class]]) {
             UIImageView *imageView = (UIImageView *)subview;
             if (imageView.image != nil) {
@@ -304,8 +311,7 @@ static NSArray *scrollViewKeySequence;
           }
         }
       }
-      [sv flashScrollIndicators];
-      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed called flashScrollIndicators");
+      NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor:delayed applied to %lu unique indicators", (unsigned long)processedViews.count);
     });
   } else {
     NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: view not attached or value is nil/NSNull");
@@ -405,11 +411,18 @@ static NSArray *scrollViewKeySequence;
         // Apply color on next runloop to ensure indicators are fully created
         dispatch_async(dispatch_get_main_queue(), ^{
           UIScrollView *sv = [(TiUIScrollView *)[self view] scrollView];
+          NSMutableSet *processedViews = [NSMutableSet set];
           for (UIView *subview in sv.subviews) {
             NSString *className = NSStringFromClass([subview class]);
             NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed subview: %@", className);
             if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
-              NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed found indicator: %@", className);
+              // Skip duplicates
+              if ([processedViews containsObject:subview]) {
+                NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed skipping duplicate indicator");
+                continue;
+              }
+              [processedViews addObject:subview];
+              NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed found indicator: %@ (total: %lu)", className, (unsigned long)processedViews.count);
               if ([subview isKindOfClass:[UIImageView class]]) {
                 UIImageView *imageView = (UIImageView *)subview;
                 if (imageView.image != nil) {
@@ -425,8 +438,7 @@ static NSArray *scrollViewKeySequence;
               }
             }
           }
-          [sv flashScrollIndicators];
-          NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed called flashScrollIndicators");
+          NSLog(@"[TiUIScrollViewProxy] windowWillOpen:delayed applied to %lu unique indicators", (unsigned long)processedViews.count);
         });
       }
     } else {
