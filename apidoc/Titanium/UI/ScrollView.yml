@@ -258,6 +258,61 @@ properties:
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
     type: Point
 
+  - name: contentInsets
+    summary: Insets for the content of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the content on each side. Setting this property adjusts where the content is
+        positioned relative to the scroll view's bounds.
+        
+        On iOS, this property disables automatic content inset adjustment (`contentInsetAdjustmentBehavior = Never`)
+        to allow manual control over the inset values.
+        
+        Can also include animation options directly in the dictionary:
+        ```javascript
+        scrollView.contentInsets = {
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 300,            // Animation duration in milliseconds (default: 300ms)
+            safearea: 34              // Additional bottom offset for iOS tab bars (default: 0)
+        };
+        ```
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "13.4.0"
+
+  - name: scrollIndicatorInsets
+    summary: Insets for the scroll indicators of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the scroll indicators on each side. Useful when using custom content insets or
+        when the scroll view is placed within a container that obscures part of the scroll area.
+        
+        On iOS, this property disables automatic scroll indicator inset adjustment
+        (`automaticallyAdjustsScrollIndicatorInsets = NO`) to allow manual control.
+        
+        The `scrollIndicatorInsets` can be set independently from `contentInsets` — they do NOT
+        need to be smaller. This allows scroll indicators to extend beyond the content area
+        (e.g., for visual alignment with other UI elements).
+        
+        Can also include animation options directly in the dictionary:
+        ```javascript
+        scrollView.scrollIndicatorInsets = {
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 300             // Animation duration in milliseconds (default: 300ms)
+        };
+        ```
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "13.4.0"
+
   - name: contentWidth
     summary: Width of the scrollable region.
     description: |
