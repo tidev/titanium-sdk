@@ -74,8 +74,10 @@ extern NSString *const TI_APPLICATION_GUID;
   NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:[appDelegate krollBridge]];
   [nc postNotification:notification];
 
+  /* Reboot via scene-aware method (creates new window, controller, and bridge) */
+  [appDelegate rebootApp];
+
   /* Begin foregrounding simulation */
-  [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
   [appDelegate applicationWillEnterForeground:app];
   [appDelegate applicationDidBecomeActive:app];
   /* End foregrounding simulation */
