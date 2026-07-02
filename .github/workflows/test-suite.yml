@@ -27,22 +27,16 @@ jobs:
       - run: node node_modules/titanium/bin/ti.js sdk install latest
       - name: Get installed SDK version
         run: echo "SDK_VERSION=$(ls ~/.titanium/mobilesdk/linux/ | sort -V | tail -1)" >> $GITHUB_ENV
-      - name: Enable KVM
-        run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-      - name: Create and start Android emulator
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "system-images;android-34;google_apis;x86_64" || true
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n testAVD -k "system-images;android-34;google_apis;x86_64" -d pixel_6 --force
-          nohup $ANDROID_HOME/emulator/emulator -avd testAVD -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -memory 2048 > /dev/null 2>&1 &
-          $ANDROID_HOME/platform-tools/adb wait-for-device
-          $ANDROID_HOME/platform-tools/adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; echo "Boot completed!"'
-        shell: bash
-        timeout-minutes: 15
-      - run: node ./build/scons test android --sdk-version ${{ env.SDK_VERSION }}
+      - name: Run Android tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          avd-name: testAVD
+          force-avd-creation: true
+          emulator-options: -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -memory 2048 -no-check-update -no-telemetry
+          script: node ./build/scons test android --sdk-version ${{ env.SDK_VERSION }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
