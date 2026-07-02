@@ -267,14 +267,22 @@ static NSArray *scrollViewKeySequence;
       return;
     }
 
-    for (UIView *subview in scrollView.subviews) {
-      if ([subview isKindOfClass:[UIImageView class]]) {
-        UIImageView *imageView = (UIImageView *)subview;
-        imageView.tintColor = color;
-        imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-      }
-    }
+    [self applyColorToImageViewsInView:scrollView subView:scrollView color:color];
     [scrollView flashScrollIndicators];
+  }
+}
+
+- (void)applyColorToImageViewsInView:(UIView *)parentView subView:(UIView *)view color:(UIColor *)color
+{
+  if ([view isKindOfClass:[UIImageView class]]) {
+    UIImageView *imageView = (UIImageView *)view;
+    if (imageView.image != nil) {
+      imageView.tintColor = color;
+      imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+    }
+  }
+  for (UIView *subview in view.subviews) {
+    [self applyColorToImageViewsInView:parentView subView:subview color:color];
   }
 }
 
@@ -314,15 +322,16 @@ static NSArray *scrollViewKeySequence;
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
       scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
 
-      // Extract only the vertical inset values (ignore animation options)
+      // Extract all inset values (ignore animation options)
+      NSNumber *top = savedVerticalScrollIndicatorInsets[@"top"];
       NSNumber *left = savedVerticalScrollIndicatorInsets[@"left"];
+      NSNumber *bottom = savedVerticalScrollIndicatorInsets[@"bottom"];
       NSNumber *right = savedVerticalScrollIndicatorInsets[@"right"];
 
-      UIEdgeInsets current = scrollView.scrollIndicatorInsets;
       UIEdgeInsets insets = UIEdgeInsetsMake(
-          current.top,
+          top ? top.floatValue : 0.0,
           left ? left.floatValue : 0.0,
-          current.bottom,
+          bottom ? bottom.floatValue : 0.0,
           right ? right.floatValue : 0.0);
       scrollView.scrollIndicatorInsets = insets;
     }
@@ -332,16 +341,17 @@ static NSArray *scrollViewKeySequence;
       UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
       scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
 
-      // Extract only the horizontal inset values (ignore animation options)
+      // Extract all inset values (ignore animation options)
       NSNumber *top = savedHorizontalScrollIndicatorInsets[@"top"];
+      NSNumber *left = savedHorizontalScrollIndicatorInsets[@"left"];
       NSNumber *bottom = savedHorizontalScrollIndicatorInsets[@"bottom"];
+      NSNumber *right = savedHorizontalScrollIndicatorInsets[@"right"];
 
-      UIEdgeInsets current = scrollView.scrollIndicatorInsets;
       UIEdgeInsets insets = UIEdgeInsetsMake(
           top ? top.floatValue : 0.0,
-          current.left,
+          left ? left.floatValue : 0.0,
           bottom ? bottom.floatValue : 0.0,
-          current.right);
+          right ? right.floatValue : 0.0);
       scrollView.scrollIndicatorInsets = insets;
     }
   }
