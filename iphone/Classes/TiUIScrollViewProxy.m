@@ -359,6 +359,25 @@ static NSArray *scrollViewKeySequence;
           right ? right.floatValue : 0.0);
       scrollView.scrollIndicatorInsets = insets;
     }
+
+    // Re-apply scrollIndicatorColor after view is attached
+    id savedScrollIndicatorColor = [self valueForUndefinedKey:@"scrollIndicatorColor"];
+    if (savedScrollIndicatorColor != nil && ![savedScrollIndicatorColor isEqual:[NSNull null]]) {
+      UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+      UIColor *color = [TiUtils colorValue:savedScrollIndicatorColor];
+      if (color != nil) {
+        for (UIView *subview in scrollView.subviews) {
+          if ([subview isKindOfClass:[UIImageView class]]) {
+            UIImageView *imageView = (UIImageView *)subview;
+            if (imageView.image != nil) {
+              imageView.tintColor = color;
+              imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+            }
+          }
+        }
+        [scrollView flashScrollIndicators];
+      }
+    }
   }
 }
 
