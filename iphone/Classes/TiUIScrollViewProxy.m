@@ -269,6 +269,12 @@ static NSArray *scrollViewKeySequence;
     return;
   }
 
+  // Force full opacity (ignore alpha channel)
+  CGFloat red, green, blue, alpha;
+  if ([color getRed:&red green:&green blue:&blue alpha:&alpha]) {
+    color = [UIColor colorWithRed:red green:green blue:blue alpha:1.0f];
+  }
+
   for (UIView *subview in scrollView.subviews) {
     NSString *className = NSStringFromClass([subview class]);
     if ([className isEqualToString:@"_UIScrollViewScrollIndicator"] || [subview isKindOfClass:[UIImageView class]]) {
@@ -297,6 +303,12 @@ static NSArray *scrollViewKeySequence;
     if (color == nil) {
       NSLog(@"[TiUIScrollViewProxy] setScrollIndicatorColor: color is nil, returning");
       return;
+    }
+
+    // Force full opacity (ignore alpha channel)
+    CGFloat red, green, blue, alpha;
+    if ([color getRed:&red green:&green blue:&blue alpha:&alpha]) {
+      color = [UIColor colorWithRed:red green:green blue:blue alpha:1.0f];
     }
 
     // Force indicator recreation to ensure they accept backgroundColor
