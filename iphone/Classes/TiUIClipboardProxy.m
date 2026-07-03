@@ -163,37 +163,48 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
   if (mimeType == nil) {
     mimeType = @"application/octet-stream";
   }
-  UIPasteboard *board = [self pasteboard];
-
-  ClipboardType dataType = mimeTypeToDataType(mimeType);
-  switch (dataType) {
-  case CLIPBOARD_TEXT: {
-    board.strings = nil;
-    break;
-  }
-  case CLIPBOARD_URI_LIST: {
-    board.URLs = nil;
-    break;
-  }
-  case CLIPBOARD_IMAGE: {
-    board.images = nil;
-    break;
-  }
-  case CLIPBOARD_COLOR: {
-    board.colors = nil;
-    break;
-  }
-  case CLIPBOARD_UNKNOWN:
-  default: {
-    [[self pasteboard] setItems:@[]];
-  }
-  }
+  NSString *finalMimeType = mimeType;
+  // UIPasteboard mutators must run on the main thread; off-main-thread writes
+  // are silently dropped or delayed on iOS 26, so subsequent main-thread reads
+  // see stale state.
+  TiThreadPerformOnMainThread(
+      ^{
+        UIPasteboard *board = [self pasteboard];
+        ClipboardType dataType = mimeTypeToDataType(finalMimeType);
+        switch (dataType) {
+        case CLIPBOARD_TEXT: {
+          board.strings = nil;
+          break;
+        }
+        case CLIPBOARD_URI_LIST: {
+          board.URLs = nil;
+          break;
+        }
+        case CLIPBOARD_IMAGE: {
+          board.images = nil;
+          break;
+        }
+        case CLIPBOARD_COLOR: {
+          board.colors = nil;
+          break;
+        }
+        case CLIPBOARD_UNKNOWN:
+        default: {
+          [board setItems:@[]];
+        }
+        }
+      },
+      YES);
 }
 
 - (void)clearText
 {
-  UIPasteboard *board = [self pasteboard];
-  board.strings = nil;
+  TiThreadPerformOnMainThread(
+      ^{
+        UIPasteboard *board = [self pasteboard];
+        board.strings = nil;
+      },
+      YES);
 }
 
 - (id)getData:(NSString *)mimeType
@@ -384,50 +395,64 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
   data = [self JSValueToNative:data];
   // TODO: If value is NSNull or undefined, should we throw or just clear the data for the given mime type?
 
-  UIPasteboard *board = [self pasteboard];
-  ClipboardType dataType = mimeTypeToDataType(mimeType);
-  switch (dataType) {
-  case CLIPBOARD_TEXT: {
-    board.string = [TiUtils stringValue:data];
-    break;
-  }
-  case CLIPBOARD_URI_LIST: {
-    board.URL = [NSURL URLWithString:[TiUtils stringValue:data]];
-    break;
-  }
-  case CLIPBOARD_IMAGE: {
-    UIImage *image = [TiUtils toImage:data proxy:self];
-    if (image) {
-      board.image = image;
-    } else {
-      board.image = nil;
-    }
-    break;
-  }
-  case CLIPBOARD_COLOR: {
-    board.color = [[TiUtils colorValue:data] color];
-    break;
-  }
-  case CLIPBOARD_UNKNOWN:
-  default: {
-    NSData *raw;
-    if ([data isKindOfClass:[TiBlob class]]) {
-      raw = [(TiBlob *)data data];
-    } else if ([data isKindOfClass:[TiFile class]]) {
-      raw = [[(TiFile *)data blob] data];
-    } else {
-      raw = [[TiUtils stringValue:data] dataUsingEncoding:NSUTF8StringEncoding];
-    }
+  JSValue *finalData = data;
+  NSString *finalMimeType = mimeType;
+  // UIPasteboard mutators must run on the main thread; off-main-thread writes
+  // are silently dropped or delayed on iOS 26, so subsequent main-thread reads
+  // see stale state.
+  TiThreadPerformOnMainThread(
+      ^{
+        UIPasteboard *board = [self pasteboard];
+        ClipboardType dataType = mimeTypeToDataType(finalMimeType);
+        switch (dataType) {
+        case CLIPBOARD_TEXT: {
+          board.string = [TiUtils stringValue:finalData];
+          break;
+        }
+        case CLIPBOARD_URI_LIST: {
+          board.URL = [NSURL URLWithString:[TiUtils stringValue:finalData]];
+          break;
+        }
+        case CLIPBOARD_IMAGE: {
+          UIImage *image = [TiUtils toImage:finalData proxy:self];
+          if (image) {
+            board.image = image;
+          } else {
+            board.image = nil;
+          }
+          break;
+        }
+        case CLIPBOARD_COLOR: {
+          board.color = [[TiUtils colorValue:finalData] color];
+          break;
+        }
+        case CLIPBOARD_UNKNOWN:
+        default: {
+          NSData *raw;
+          if ([finalData isKindOfClass:[TiBlob class]]) {
+            raw = [(TiBlob *)finalData data];
+          } else if ([finalData isKindOfClass:[TiFile class]]) {
+            raw = [[(TiFile *)finalData blob] data];
+          } else {
+            raw = [[TiUtils stringValue:finalData] dataUsingEncoding:NSUTF8StringEncoding];
+          }
 
-    [board setData:raw forPasteboardType:mimeTypeToUTType(mimeType)];
-  }
-  }
+          [board setData:raw forPasteboardType:mimeTypeToUTType(finalMimeType)];
+        }
+        }
+      },
+      YES);
 }
 
 - (void)setText:(NSString *)text
 {
-  UIPasteboard *board = [self pasteboard];
-  board.string = text;
+  NSString *finalText = text;
+  TiThreadPerformOnMainThread(
+      ^{
+        UIPasteboard *board = [self pasteboard];
+        board.string = finalText;
+      },
+      YES);
 }
 
 @end
