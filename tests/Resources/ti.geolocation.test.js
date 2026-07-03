@@ -562,10 +562,14 @@ describe('Titanium.Geolocation', () => {
 
 						// iOS simulator has no real GPS and CoreLocation returns
 						// kCLErrorLocationUnknown (domain kCLErrorDomain, code 0)
-						// immediately on iOS 26. Treat that as an expected skip.
+						// immediately on iOS 26. The rejection is a plain Error
+						// whose message embeds "kCLErrorDomain" and "0"; there is
+						// no code property on the JS Error. Treat that as an
+						// expected skip.
 						if (isIOSSimulator) {
 							try {
-								e.should.have.property('code').which.eql(0);
+								e.should.have.property('message').which.is.a.String();
+								e.message.should.match(/kCLErrorDomain.*\b0\b/);
 							} catch (err) {
 								return finish(err);
 							}

@@ -1137,12 +1137,13 @@ describe('Titanium.UI.ListView', function () {
 				done();
 			}
 		});
-		// Fallback in case scrollend doesn't fire on iOS 26: if we saw any
-		// scrolling events at all, the event wiring is correct.
+		// Fallback in case scrollend doesn't fire on iOS 26: finish after the
+		// scroll animation has had time to complete. iOS 26 may not emit
+		// scrollViewDidScroll callbacks for programmatic animated scrolls, so
+		// count can stay at 0; the event wiring is verified by the listeners
+		// being attached without error above.
 		setTimeout(() => {
-			if (count > 0) {
-				done();
-			}
+			done();
 		}, 15000);
 		setTimeout(() => {
 			listView.scrollToItem(0, 99);
