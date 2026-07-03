@@ -315,9 +315,13 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
   __block BOOL result = NO;
   // UIPasteboard reads must run on the main thread; off-main-thread reads on
   // iOS 26 return a stale snapshot that poisons subsequent main-thread reads.
+  // Use board.string (not hasStrings): on iOS 26 hasStrings is not kept in
+  // sync with a freshly written string, so it returns NO right after a
+  // board.string = assignment.
   TiThreadPerformOnMainThread(
       ^{
-        result = [[self pasteboard] hasStrings];
+        NSString *str = [[self pasteboard] string];
+        result = str != nil && [str length] > 0;
       },
       YES);
   return result;

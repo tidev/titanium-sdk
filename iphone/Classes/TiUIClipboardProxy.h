@@ -15,6 +15,12 @@ READONLY_PROPERTY(bool, allowCreation, AllowCreation);
 READONLY_PROPERTY(NSString *, name, Name);
 READONLY_PROPERTY(bool, unique, Unique);
 
+// The "text" property is exposed via @property so that JS `clipboard.text = x`
+// routes through setText: and `clipboard.text` routes through getText. Without
+// the @property declaration JSExport treats these as plain methods and JS
+// property assignment never reaches the native setter (silent no-op on iOS 26).
+@property (nonatomic, copy, getter=getText, setter=setText:) NSString *text;
+
 // Methods
 - (void)clearData:(NSString *)type;
 - (void)clearText;
