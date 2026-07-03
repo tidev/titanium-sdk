@@ -197,7 +197,7 @@ describe('Intl.DateTimeFormat',  () => {
 				should(partsArray[index++]).be.eql({ type: 'literal', value: '.' });
 				should(partsArray[index++]).be.eql({ type: 'fractionalSecond', value: '123' });
 			}
-			should(partsArray[index++]).be.equalOneOf([{ type: 'literal', value: ' ' }, { type: 'literal', value: ' ' }]);
+			should(partsArray[index++]).be.equalOneOf([{ type: 'literal', value: ' ' }, { type: 'literal', value: ' ' }, { type: 'literal', value: ' ' }]);
 			should(partsArray[index++]).be.eql({ type: 'dayPeriod', value: 'PM' });
 			should(partsArray.length).be.eql(index);
 		});

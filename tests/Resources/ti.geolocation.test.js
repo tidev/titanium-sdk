@@ -14,6 +14,7 @@ const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 const isMacOS = utilities.isMacOS();
 const isIOSDevice = OS_IOS && !isMacOS && !Ti.Platform.model.includes('(Simulator)');
+const isIOSSimulator = OS_IOS && !isMacOS && Ti.Platform.model.includes('(Simulator)');
 
 // What permission should we check/ask for in tests?
 const permission = Ti.Geolocation.AUTHORIZATION_ALWAYS;
@@ -480,6 +481,10 @@ describe('Titanium.Geolocation', () => {
 								// Sometimes fails on Android device/emulator with network/passive/gps is unavailable
 								should(data).have.property('code').which.is.not.eql(0);
 								should(data).have.property('error').which.match(/^\w+ is unavailable$/);
+							} else if (isIOSSimulator && !data.success) {
+								// iOS simulator has no real GPS; CoreLocation returns
+								// kCLErrorLocationUnknown (code 0) on iOS 26.
+								should(data).have.property('code').which.eql(0);
 							} else {
 								should(data).have.property('code').which.eql(0);
 								should(data.coords).be.an.Object();
@@ -549,6 +554,18 @@ describe('Titanium.Geolocation', () => {
 							try {
 								e.should.have.property('message').which.is.a.String();
 								e.message.should.match(/^\w+ is unavailable$/);
+							} catch (err) {
+								return finish(err);
+							}
+							return finish();
+						}
+
+						// iOS simulator has no real GPS and CoreLocation returns
+						// kCLErrorLocationUnknown (domain kCLErrorDomain, code 0)
+						// immediately on iOS 26. Treat that as an expected skip.
+						if (isIOSSimulator) {
+							try {
+								e.should.have.property('code').which.eql(0);
 							} catch (err) {
 								return finish(err);
 							}

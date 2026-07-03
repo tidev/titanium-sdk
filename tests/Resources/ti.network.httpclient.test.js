@@ -269,9 +269,13 @@ describe('Titanium.Network.HTTPClient', function () {
 			if (xhr.status === 200) {
 				should(e.success).be.true();
 
+				// postman-echo.com lowercases header keys, so look up the
+				// lowercased names. httpbin.org preserved casing but has been
+				// intermittently 503/slow (11s+), causing status 0 on the
+				// simulator within the 30s timeout.
 				const response = JSON.parse(xhr.responseText).headers;
-				response['Adhoc-Header'].should.eql('notcleared');
-				response.should.not.have.property('Cleared-Header');
+				response['adhoc-header'].should.eql('notcleared');
+				response.should.not.have.property('cleared-header');
 			} else if (xhr.status !== 503) { // service unavailable (over quota)
 				return finish(new Error(`Received unexpected response: ${xhr.status}`));
 			}
@@ -283,7 +287,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 			finish();
 		};
-		xhr.open('GET', 'https://httpbin.org/headers');
+		xhr.open('GET', 'https://postman-echo.com/headers');
 		xhr.setRequestHeader('Adhoc-Header', 'notcleared');
 		xhr.setRequestHeader('Cleared-Header', 'notcleared');
 		should(function () {
