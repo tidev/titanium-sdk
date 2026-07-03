@@ -138,8 +138,13 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	it('largeFileWithRedirect', function (finish) {
+		// Per-request timeout must be shorter than the mocha test timeout so
+		// onerror can fire and retries can run within the mocha window; with
+		// equal 60s/60s timeouts mocha aborts before the first request even
+		// times out, so done() is never called.
+		this.timeout(120000);
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: Timeout.NETWORK
+			timeout: 25000
 		});
 		xhr.onload = function () {
 			// should(xhr.responseData.length).be.greaterThan(0);
