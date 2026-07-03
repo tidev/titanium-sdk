@@ -304,22 +304,48 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
 
 - (bool)hasText
 {
-  return [[self pasteboard] hasStrings];
+  __block BOOL result = NO;
+  // UIPasteboard reads must run on the main thread; off-main-thread reads on
+  // iOS 26 return a stale snapshot that poisons subsequent main-thread reads.
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[self pasteboard] hasStrings];
+      },
+      YES);
+  return result;
 }
 
 - (bool)hasColors
 {
-  return [[self pasteboard] hasColors];
+  __block BOOL result = NO;
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[self pasteboard] hasColors];
+      },
+      YES);
+  return result;
 }
 
 - (bool)hasImages
 {
-  return [[self pasteboard] hasImages];
+  __block BOOL result = NO;
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[self pasteboard] hasImages];
+      },
+      YES);
+  return result;
 }
 
 - (bool)hasURLs
 {
-  return [[self pasteboard] hasURLs];
+  __block BOOL result = NO;
+  TiThreadPerformOnMainThread(
+      ^{
+        result = [[self pasteboard] hasURLs];
+      },
+      YES);
+  return result;
 }
 
 - (void)setItems:(NSDictionary<NSString *, id> *)args
