@@ -364,7 +364,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		function second_cookie_fn() {
 			try {
 				Ti.API.info('Second Load');
-				const second_cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
+				const setCookie = this.getResponseHeader('Set-Cookie');
+				if (!setCookie) {
+					return finish(new Error('No Set-Cookie header in second response from google.com'));
+				}
+				const second_cookie_string = setCookie.split(';')[0];
 				// Cookie should be the same
 				should(cookie_string).eql(second_cookie_string);
 			} catch (err) {
@@ -374,7 +378,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		}
 
 		xhr.onload = function () {
-			cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
+			const setCookie = this.getResponseHeader('Set-Cookie');
+			if (!setCookie) {
+				return finish(new Error('No Set-Cookie header in first response from google.com'));
+			}
+			cookie_string = setCookie.split(';')[0];
 			xhr.clearCookies('http://www.microsoft.com');
 			xhr.onload = second_cookie_fn;
 			// Have to do this on delay for Android, or else the open and send get cancelled due to:
