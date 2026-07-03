@@ -456,7 +456,12 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 
 - (NSNumber *)overrideUserInterfaceStyle
 {
-  NSNumber *style = @(TiApp.controller.overrideUserInterfaceStyle);
+  // Read from the same UIWindow the setter writes to. Reading from
+  // TiApp.controller.overrideUserInterfaceStyle (UIViewController) returned
+  // UNSPECIFIED (0) regardless of what was set on the window, because the
+  // controller and window are separate objects each with their own
+  // overrideUserInterfaceStyle property.
+  NSNumber *style = @(TiApp.app.window.overrideUserInterfaceStyle);
   return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
 }
 
