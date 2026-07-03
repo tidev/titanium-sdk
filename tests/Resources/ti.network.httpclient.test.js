@@ -163,7 +163,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://httpbin.org/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%main%2Ftests%2FResources%2Flarge.jpg');
+		xhr.open('GET', 'https://httpbin.org/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%2Fmain%2Ftests%2FResources%2Flarge.jpg');
 		xhr.send();
 	});
 
@@ -455,7 +455,7 @@ describe('Titanium.Network.HTTPClient', function () {
 					finish(new Error(e.error || this.responseText));
 				}
 			};
-			xhr2.open('GET', 'https://httpbin.org/cookies/delete?k2=&k1=');
+			xhr2.open('GET', 'https://postman-echo.com/cookies/delete?k2=&k1=');
 			xhr2.send();
 		};
 		xhr.onerror = function (e) {
@@ -466,7 +466,10 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error(e.error || this.responseText));
 			}
 		};
-		xhr.open('GET', 'https://httpbin.org/cookies/set?k2=v2&k1=v1');
+		// httpbin.org/cookies/* has been returning 503 from its AWS ELB for
+		// extended periods; postman-echo.com exposes the same cookie set/delete
+		// semantics and is reliably up.
+		xhr.open('GET', 'https://postman-echo.com/cookies/set?k2=v2&k1=v1');
 		xhr.send();
 	});
 
