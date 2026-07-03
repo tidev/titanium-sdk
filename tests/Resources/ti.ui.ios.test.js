@@ -4,7 +4,7 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-/* global OS_VERSION_MAJOR */
+/* global OS_IOS, OS_VERSION_MAJOR */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
@@ -40,6 +40,12 @@ describe.ios('Titanium.UI.iOS', function () {
 		should(Ti.UI.iOS.createLivePhotoBadge).not.be.undefined();
 		should(Ti.UI.iOS.createLivePhotoBadge).be.a.Function();
 		livePhotoBadge = Ti.UI.iOS.createLivePhotoBadge(Ti.UI.iOS.LIVEPHOTO_BADGE_OPTIONS_OVER_CONTENT);
+		// PHLivePhotoView.livePhotoBadgeImageWithOptions: returns nil on the
+		// simulator (badges only render on real devices), so only assert the
+		// returned object shape when running on a device.
+		if (OS_IOS && Ti.Platform.model.includes('(Simulator)')) {
+			return;
+		}
 		should(livePhotoBadge).be.an.Object();
 		// TODO Test that we created a Ti.Blob!
 	});

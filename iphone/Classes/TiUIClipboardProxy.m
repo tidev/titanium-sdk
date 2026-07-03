@@ -28,12 +28,25 @@ static ClipboardType mimeTypeToDataType(NSString *mimeType)
 
   // Types "URL" and "Text" are for IE compatibility. We want to have
   // a consistent interface with WebKit's HTML 5 DataTransfer.
-  // support text, text.plain, public.text, public.plain-text, public.utf8-plain-text
-  if ([mimeType isEqualToString:@"text"] || [mimeType hasPrefix:@"text/plain"] || UTTypeConformsTo((CFStringRef)mimeType, kUTTypeText)) {
+  // Support both MIME types and UTI strings: text, text/plain, text.plain,
+  // public.text, public.plain-text, public.utf8-plain-text. We check the
+  // known UTI strings explicitly because UTTypeConformsTo (deprecated
+  // MobileCoreServices C API) is unreliable on newer iOS versions and was
+  // causing public.plain-text to fall through to CLIPBOARD_UNKNOWN.
+  if ([mimeType isEqualToString:@"text"]
+      || [mimeType hasPrefix:@"text/plain"]
+      || [mimeType isEqualToString:@"text.plain"]
+      || [mimeType isEqualToString:@"public.text"]
+      || [mimeType isEqualToString:@"public.plain-text"]
+      || [mimeType isEqualToString:@"public.utf8-plain-text"]
+      || UTTypeConformsTo((CFStringRef)mimeType, kUTTypeText)) {
     return CLIPBOARD_TEXT;
   }
 
-  if ([mimeType isEqualToString:@"url"] || [mimeType hasPrefix:@"text/uri-list"] || UTTypeConformsTo((CFStringRef)mimeType, kUTTypeURL)) {
+  if ([mimeType isEqualToString:@"url"]
+      || [mimeType hasPrefix:@"text/uri-list"]
+      || [mimeType isEqualToString:@"public.url"]
+      || UTTypeConformsTo((CFStringRef)mimeType, kUTTypeURL)) {
     return CLIPBOARD_URI_LIST;
   }
 
