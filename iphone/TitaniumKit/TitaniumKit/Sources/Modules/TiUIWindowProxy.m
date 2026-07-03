@@ -1201,6 +1201,18 @@
   }
   edgeInsets.top = safeAreaInset.top;
   edgeInsets.bottom = safeAreaInset.bottom;
+  // The child controller's view safeAreaInsets report a zero bottom inset when
+  // edgesForExtendedLayout excludes the bottom edge (the Titanium default when
+  // "extendEdges" is unset). The home-indicator area is still part of the
+  // screen's safe area, so fall back to the enclosing UINavigationController's
+  // view safeAreaInsets, which extends under the home indicator by default.
+  UINavigationController *navController = [self.tab controller];
+  if (navController != nil && navController.view != nil) {
+    CGFloat navBottom = navController.view.safeAreaInsets.bottom;
+    if (navBottom > edgeInsets.bottom) {
+      edgeInsets.bottom = navBottom;
+    }
+  }
   return edgeInsets;
 }
 
