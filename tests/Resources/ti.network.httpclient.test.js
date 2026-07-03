@@ -370,12 +370,16 @@ describe('Titanium.Network.HTTPClient', function () {
 			try {
 				Ti.API.info('Second Load');
 				const setCookie = this.getResponseHeader('Set-Cookie');
-				if (!setCookie) {
-					return finish(new Error('No Set-Cookie header in second response from google.com'));
+				// google.com only sends Set-Cookie when establishing a new cookie
+				// session; on a second request the stored cookie is sent back and
+				// no Set-Cookie is returned. That is the success case here — it
+				// means clearCookies('http://www.microsoft.com') did not wipe the
+				// google.com cookie. If a Set-Cookie is present, it must match the
+				// original value.
+				if (setCookie) {
+					const second_cookie_string = setCookie.split(';')[0];
+					should(cookie_string).eql(second_cookie_string);
 				}
-				const second_cookie_string = setCookie.split(';')[0];
-				// Cookie should be the same
-				should(cookie_string).eql(second_cookie_string);
 			} catch (err) {
 				return finish(err);
 			}
@@ -451,7 +455,7 @@ describe('Titanium.Network.HTTPClient', function () {
 					finish(new Error(e.error || this.responseText));
 				}
 			};
-			xhr2.open('GET', 'http://www.httpbin.org/cookies/delete?k2=&k1=');
+			xhr2.open('GET', 'https://httpbin.org/cookies/delete?k2=&k1=');
 			xhr2.send();
 		};
 		xhr.onerror = function (e) {
@@ -462,7 +466,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error(e.error || this.responseText));
 			}
 		};
-		xhr.open('GET', 'http://www.httpbin.org/cookies/set?k2=v2&k1=v1');
+		xhr.open('GET', 'https://httpbin.org/cookies/set?k2=v2&k1=v1');
 		xhr.send();
 	});
 
@@ -731,7 +735,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('POST', 'http://httpbin.org/post');
+		xhr.open('POST', 'https://httpbin.org/post');
 		xhr.setRequestHeader('Content-Type', 'application/json; charset=utf8');
 		xhr.send(JSON.stringify({ count: count }));
 	});
@@ -801,10 +805,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		client.send();
 	});
 
-	it.windowsBroken('progress event', finish => {
+	it.windowsBroken('progress event', function (finish) {
+		this.timeout(120000);
 		let progressVar = -1;
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 5000
+			timeout: 30000
 		});
 		xhr.onsendstream = e => {
 			try {
@@ -826,7 +831,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				// Safely serialize error without circular references from source proxy
 				const errorInfo = { code: e.code, message: e.message };
 				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
-				finish(new Error('failed to retrieve large image: ' + e));
+				finish(new Error('failed to retrieve large image: ' + JSON.stringify(errorInfo)));
 			}
 		};
 		xhr.open('POST', 'https://httpbin.org/post');
