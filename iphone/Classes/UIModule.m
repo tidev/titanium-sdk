@@ -451,7 +451,13 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
               forKey:@"overrideUserInterfaceStyle"
         notification:NO];
   int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+  // Apply to both the window and the root view controller. userInterfaceStyle
+  // reads TiApp.controller.traitCollection.userInterfaceStyle, which only
+  // reflects the override if the controller's own overrideUserInterfaceStyle
+  // is set; setting the window alone doesn't propagate to the controller's
+  // traitCollection on iOS 26.
   TiApp.app.window.overrideUserInterfaceStyle = style;
+  TiApp.controller.overrideUserInterfaceStyle = style;
 }
 
 - (NSNumber *)overrideUserInterfaceStyle
