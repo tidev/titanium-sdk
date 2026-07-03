@@ -1053,7 +1053,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     decisionHandler(WKNavigationActionPolicyCancel);
     return;
   }
-  NSArray<NSString *> *allowedURLSchemes = [[self proxy] valueForKey:@"allowedURLSchemes"];
+  TiProxy *proxy = [self proxy];
+  if (proxy == nil) {
+    decisionHandler(WKNavigationActionPolicyCancel);
+    return;
+  }
+  NSArray<NSString *> *allowedURLSchemes = [proxy valueForKey:@"allowedURLSchemes"];
 
   // Do not load the URL if it's black-listed.
   // DEPRECATED: Should use "blockedURLs" property with a "blockedurl" event listener instead.
@@ -1061,12 +1066,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
     for (NSString *blockedURL in _blacklistedURLs) {
       if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        if ([[self proxy] _hasListeners:@"blacklisturl"]) {
-          [[self proxy] fireEvent:@"blacklisturl"
-                       withObject:@{
-                         @"url" : urlCandidate,
-                         @"message" : @"Webview did not load blacklisted url."
-                       }];
+        if ([proxy _hasListeners:@"blacklisturl"]) {
+          [proxy fireEvent:@"blacklisturl"
+                withObject:@{
+                  @"url" : urlCandidate,
+                  @"message" : @"Webview did not load blacklisted url."
+                }];
         }
         decisionHandler(WKNavigationActionPolicyCancel);
         [self _cleanupLoadingIndicator];
@@ -1079,12 +1084,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if (_blockedURLs != nil && _blockedURLs.count > 0) {
     for (NSString *blockedURL in _blockedURLs) {
       if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        if ([[self proxy] _hasListeners:@"blockedurl"]) {
-          [[self proxy] fireEvent:@"blockedurl"
-                       withObject:@{
-                         @"url" : urlCandidate,
-                         @"message" : @"Webview did not load blocked url."
-                       }];
+        if ([proxy _hasListeners:@"blockedurl"]) {
+          [proxy fireEvent:@"blockedurl"
+                withObject:@{
+                  @"url" : urlCandidate,
+                  @"message" : @"Webview did not load blocked url."
+                }];
         }
         decisionHandler(WKNavigationActionPolicyCancel);
         [self _cleanupLoadingIndicator];

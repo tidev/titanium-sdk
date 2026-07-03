@@ -10,6 +10,7 @@
 'use strict';
 
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Media', () => {
 	it('#createVideoPlayer()', () => {
@@ -205,7 +206,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 			});
 
 			it.ios('in milliseconds', function (finish) {
-				this.timeout(10000);
+				this.timeout(Timeout.DEFAULT);
 
 				player = Ti.Media.createVideoPlayer({
 					url: 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/remote/mov_bbb.mp4',
@@ -379,7 +380,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	});
 
 	it('Close window containing a video player (TIMOB-25574)', function (finish) {
-		this.timeout(15000);
+		this.timeout(Timeout.DEFAULT);
 
 		const window = Ti.UI.createWindow({
 			backgroundColor: 'white'
@@ -424,7 +425,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	});
 
 	it('Release video player and close window (TIMOB-26033)', function (finish) {
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 		const videoWindow = Ti.UI.createWindow();
 		player = Ti.Media.createVideoPlayer({
 			url: 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/remote/mov_bbb.mp4',
@@ -458,7 +459,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	});
 
 	it.ios('App should not crash when setting video player URL to null (TIMOB-27799)', function (finish) {
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		player = Ti.Media.createVideoPlayer({
@@ -480,7 +481,7 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	});
 
 	it.ios('App should not crash when setting URL after video player creation (TIMOB-28217)', function (finish) {
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		player = Ti.Media.createVideoPlayer({

@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Label', function () {
@@ -57,7 +58,7 @@ describe('Titanium.UI.Label', function () {
 		// Tests if "maxLines" correctly truncates strings with '\n' characters.
 		it('truncates strings with newline characters', function (finish) {
 			this.slow(1000);
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow({
 				layout: 'vertical',
@@ -208,7 +209,7 @@ describe('Titanium.UI.Label', function () {
 	// Can we place the label inside a view?
 	it.androidAndIosBroken('width', function (finish) {
 		this.slow(1000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({ backgroundColor: '#ddd' });
 
@@ -234,7 +235,7 @@ describe('Titanium.UI.Label', function () {
 	// Can we listen to it on bgView?
 	it.androidAndIosBroken('height', function (finish) {
 		this.slow(1000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({ backgroundColor: '#eee' });
 
@@ -331,7 +332,7 @@ describe('Titanium.UI.Label', function () {
 
 	it('animate font color', function (finish) {
 		this.slow(2000);
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		win = Ti.UI.createWindow();
 
 		const label = Ti.UI.createLabel({

@@ -1506,10 +1506,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)dealloc
 {
   //	RELEASE_TO_NIL(pendingAdds);
-  // Note: destroyQueue and childrenQueue are released in _destroy,
-  // which is called by [super dealloc] via TiProxy. Releasing them
-  // here would cause use-after-free since _destroy still needs them.
   RELEASE_TO_NIL(barButtonItem);
+  // Release queues here, not in _destroy, so child proxies can still
+  // access them when their windowWillClose calls [super windowWillClose].
+  if (childrenQueue) {
+    dispatch_release(childrenQueue);
+    childrenQueue = nil;
+  }
+  if (destroyQueue) {
+    dispatch_release(destroyQueue);
+    destroyQueue = nil;
+  }
   [super dealloc];
 }
 
@@ -1619,12 +1626,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
   });
-
-  // Safe to release after dispatch_sync returns — the queues are no longer needed.
-  dispatch_release(childrenQueue);
-  childrenQueue = nil;
-  dispatch_release(destroyQueue);
-  destroyQueue = nil;
 }
 
 - (void)destroy

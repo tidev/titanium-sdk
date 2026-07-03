@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 describe.ios('Titanium.UI.iOS', () => {
@@ -123,7 +124,7 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 		let win;
 
 		this.slow(2000);
-		this.timeout(15000);
+		this.timeout(Timeout.DEFAULT);
 
 		afterEach(done => { // fires after every test in sub-suites too...
 			if (win && !win.closed) {

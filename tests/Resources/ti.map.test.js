@@ -8,12 +8,13 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 var should = require('./utilities/assertions'),
-	Map = require('ti.map');
+	Map = require('ti.map'),
+	Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Map', function () {
 	let win;
 
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	afterEach(function (done) {
 		if (win) {

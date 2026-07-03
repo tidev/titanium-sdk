@@ -9,9 +9,10 @@
 /* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.Notification', function () {
-	this.timeout(10000);
+	this.timeout(Timeout.DEFAULT);
 
 	let window;
 	afterEach(done => {

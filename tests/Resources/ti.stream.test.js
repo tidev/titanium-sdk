@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Stream', function () {
 	before(function () {
@@ -162,7 +163,7 @@ describe('Titanium.Stream', function () {
 			blobStream,
 			blobStr,
 			finished = false;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -230,7 +231,7 @@ describe('Titanium.Stream', function () {
 			offset = 10,
 			length = 20,
 			finished = false;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -290,7 +291,7 @@ describe('Titanium.Stream', function () {
 			i,
 			blobStream,
 			dest;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -346,7 +347,7 @@ describe('Titanium.Stream', function () {
 			i,
 			destStream2,
 			bufferStream;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -409,7 +410,7 @@ describe('Titanium.Stream', function () {
 			bufferStream,
 			blobStream;
 
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		// Used as a function for handling comparison
 		function handler(e) {

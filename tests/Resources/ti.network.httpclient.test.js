@@ -8,9 +8,10 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Network.HTTPClient', function () {
-	this.timeout(6e4);
+	this.timeout(Timeout.NETWORK);
 
 	it('apiName', function () {
 		const client = Ti.Network.createHTTPClient();
@@ -21,7 +22,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// FIXME iOS gives us an ELEMENT_NODE, not DOCUMENT_NODE
 	it.iosBroken('responseXML', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = function () {
 			try {
@@ -38,7 +39,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to retrieve RSS feed: ' + e)); // Windows fails here. I think we need to update the URL!
 			}
 		};
@@ -68,7 +71,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('downloadLargeFile', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = function () {
 			//  should(xhr.responseData.length).be.greaterThan(0);
@@ -80,7 +83,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to retrieve large image: ' + e));
 			}
 		};
@@ -91,7 +96,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-23127', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = () => finish();
 
@@ -102,7 +107,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-23214', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = () => finish();
 
@@ -113,7 +118,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-19042', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = function () {
@@ -134,7 +139,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('largeFileWithRedirect', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onload = function () {
 			// should(xhr.responseData.length).be.greaterThan(0);
@@ -146,8 +151,10 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
-				finish(new Error('failed to retrieve redirected large image: ' + JSON.stringify(e, null, 2)));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				finish(new Error('failed to retrieve redirected large image: ' + JSON.stringify(errorInfo)));
 			}
 		};
 
@@ -167,7 +174,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to post empty request: ' + e));
 			}
 		};
@@ -199,7 +208,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
@@ -234,7 +245,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to retrieve headers: ' + e)); // Failing on Windows here, likely need to update test!
 			}
 		};
@@ -286,7 +299,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to send data: ' + e));
 			}
 		};
@@ -475,7 +490,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				xhr.abort();
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -507,7 +524,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -527,7 +546,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// FIXME iOS doesn't work. I think because of app thinning removing Logo.png
 	it.iosBroken('POST multipart/form-data containing Ti.Blob', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		const imageFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 		const attachment = imageFile.read();
@@ -564,7 +583,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -582,7 +603,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const xhr = Ti.Network.createHTTPClient({
 			username: 'user',
 			password: 'passwd',
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = function () {
@@ -600,7 +621,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to authenticate: ' + e));
 			}
 		};
@@ -613,7 +636,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const xhr = Ti.Network.createHTTPClient({
 			username: 'user',
 			password: 'wrong_password',
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = e => finish(new Error('Authenticating with wrong password: ' + JSON.stringify(e, null, 1)));
@@ -626,7 +649,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it.android('save response data to temp directory', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 
 		xhr.onload = function (e) {
@@ -648,7 +671,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to authenticate: ' + e));
 			}
 		};
@@ -660,9 +685,9 @@ describe('Titanium.Network.HTTPClient', function () {
 	// FIXME: Windows 'source' is missing on onload
 	it.windowsMissing('send on response', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
-		this.timeout(6e4);
+		this.timeout(Timeout.NETWORK);
 
 		let count = 0;
 		xhr.onload = function (e) {
@@ -686,7 +711,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -697,7 +724,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	it.windowsMissing('.file set to a Ti.Filesystem.File object', function (finish) {
-		this.timeout(6e4);
+		this.timeout(Timeout.NETWORK);
 
 		const file = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'DownloadedImage.png');
 		if (file.exists()) {
@@ -705,7 +732,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		}
 
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4,
+			timeout: Timeout.NETWORK,
 			file
 		});
 		xhr.onload = function (_e) {
@@ -725,7 +752,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -781,7 +810,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				Ti.API.warn('failed, attempting to retry request...');
 				xhr.send();
 			} else {
-				Ti.API.debug(JSON.stringify(e, null, 2));
+				// Safely serialize error without circular references from source proxy
+				const errorInfo = { code: e.code, message: e.message };
+				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
 				finish(new Error('failed to retrieve large image: ' + e));
 			}
 		};
@@ -791,7 +822,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('TIMOB-27767 - trigger error callback for invalid URL', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 6e4
+			timeout: Timeout.NETWORK
 		});
 		xhr.onerror = _e => finish();
 		xhr.open('GET', 'https://www.google .com/'); // URL with space
@@ -802,7 +833,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	it.allBroken('#timeoutForResource', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			cache: false,
-			timeout: 6e4,
+			timeout: Timeout.NETWORK,
 			timeoutForResource: 50
 		});
 

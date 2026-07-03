@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Database', function () {
 	it('apiName', function () {
@@ -431,7 +432,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('executes asynchronously', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_async.db');
 			// Execute a query to create a test table
 			db.executeAsync('CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)', err => {
@@ -475,7 +476,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('returns a Promise', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_async.db');
 			// Execute a query to create a test table
 			const result = db.executeAsync('CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)');
@@ -549,7 +550,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('executes synchronously', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_all.db');
 
 			// FIXME: There's no way to send in binding parameters, you have to bake them into the query string with this API
@@ -625,7 +626,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('executes asynchronously', function (finish) { // eslint-disable-line mocha/no-identical-title
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_all.db');
 
 			const queries = [
@@ -671,7 +672,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('returns Promise', function (finish) { // eslint-disable-line mocha/no-identical-title
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_all.db');
 
 			const queries = [
@@ -798,7 +799,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('handles being closed mid-query', function (finish) {
-			this.timeout(30000);
+			this.timeout(Timeout.LONG);
 			this.slow(2000);
 			const db = Ti.Database.open('execute_all_async.db');
 			const queries = [
@@ -864,7 +865,7 @@ describe('Titanium.Database', function () {
 		// Try to get the db object to get GC'd while we're running queries!
 		// Note that I can't really think of any better way to try and test this scenario
 		it('does not allow DB to be GC\'d', function (finish) {
-			this.timeout(120000); // 2 minutes
+			this.timeout(Timeout.NETWORK); // 2 minutes
 			this.slow(20000); // 20 sec
 			// note that we call a fucntion that has a db instance scope to it and not referenced elsewhere,
 			// not explicitly closed, not referenced in the async callback

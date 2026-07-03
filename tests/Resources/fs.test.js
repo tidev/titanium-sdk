@@ -9,6 +9,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 const path = require('path');
@@ -190,7 +191,7 @@ describe('fs', function () {
 
 		it('copies file asynchronously to destination', function (finished) {
 			this.slow(2000);
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			const dest = path.join(Ti.Filesystem.tempDirectory, 'fs.addontest.js');
 			// ensure file doesn't already exist

@@ -9,6 +9,7 @@
 'use strict';
 
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	let win;
@@ -45,7 +46,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	});
 
 	it('.tint', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createMaskedImage({
 			mask: '/Logo.png',
@@ -63,7 +64,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	});
 
 	it('.image', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createMaskedImage({
 			mask: '/Logo.png',

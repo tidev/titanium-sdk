@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Module Built with SDK 9.2.0', function () {
 	const MAX_INT32 = 2147483647;
@@ -230,7 +231,7 @@ describe('Module Built with SDK 9.2.0', function () {
 	});
 
 	it('#invokeCallbackAsync()', function (finish) {
-		this.timeout(1000);
+		this.timeout(Timeout.DEFAULT);
 		let wasInvoked = false;
 		tiModule.callback = (arg1, arg2, arg3) => {
 			try {

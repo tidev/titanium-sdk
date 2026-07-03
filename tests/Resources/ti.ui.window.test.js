@@ -11,10 +11,11 @@
 /* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Window', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -57,7 +58,7 @@ describe('Titanium.UI.Window', function () {
 		});
 
 		it.ios('.extendSafeArea', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			// TODO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
 			win = Ti.UI.createWindow({
 				backgroundColor: 'gray',
@@ -582,7 +583,7 @@ describe('Titanium.UI.Window', function () {
 		// TODO: Also broken on Android, need to figure out why this test is unreliable.
 		describe.allBroken('.orientationModes', function () {
 			this.slow(5000);
-			this.timeout(20000);
+			this.timeout(Timeout.LONG);
 
 			function doOrientationModeTest(orientation, finish) {
 				win = Ti.UI.createWindow({
@@ -622,7 +623,7 @@ describe('Titanium.UI.Window', function () {
 		// Labels from parent window will move to child window's label positions during open animation.
 		it.android('#addSharedElement()', function (finish) {
 			this.slow(5000);
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow({
 				backgroundColor: 'blue'
@@ -764,7 +765,7 @@ describe('Titanium.UI.Window', function () {
 
 		it('#remove(View)', function (finish) {
 			this.slow(1000);
-			this.timeout(20000);
+			this.timeout(Timeout.LONG);
 
 			win = Ti.UI.createWindow({
 				backgroundColor: 'gray'
@@ -795,7 +796,7 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	describe('events', function () {
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		// FIXME https://jira-archive.titaniumsdk.com/TIMOB-23640
 		it.windowsDesktopBroken('postlayout event gets fired', function (finish) {
@@ -884,7 +885,7 @@ describe('Titanium.UI.Window', function () {
 	// What you should not see is a crash
 	it('should_not_crash', function (finish) {
 		this.slow(5000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		const win1 = Ti.UI.createWindow();
 		win1.open();
@@ -904,7 +905,7 @@ describe('Titanium.UI.Window', function () {
 
 	it('window_close_order_1', function (finish) {
 		this.slow(5000);
-		this.timeout(30000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 		const win2 = Ti.UI.createWindow({ backgroundColor: 'blue' });
@@ -931,7 +932,7 @@ describe('Titanium.UI.Window', function () {
 
 	it('window_close_order_2', function (finish) {
 		this.slow(5000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 		const win2 = Ti.UI.createWindow({ backgroundColor: 'blue' });
@@ -958,7 +959,7 @@ describe('Titanium.UI.Window', function () {
 	// TIMOB-20600
 	it('TIMOB-20600', function (finish) {
 		this.slow(5000);
-		this.timeout(30000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 		const win2 = Ti.UI.createWindow({ backgroundColor: 'blue' });
@@ -990,7 +991,7 @@ describe('Titanium.UI.Window', function () {
 
 	it('window_navigation', function (finish) {
 		this.slow(5000);
-		this.timeout(30000);
+		this.timeout(Timeout.LONG);
 		let rootWindowFocus = 0;
 		let rootWindowBlur = 0;
 		let rootWindowOpen = 0;
@@ -1082,7 +1083,7 @@ describe('Titanium.UI.Window', function () {
 	// Verify that Titanium handles the issue and avoids a crash.
 	it.android('TIMOB-26157', function (finish) {
 		this.slow(1000);
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'rgba(0,0,255,128)',
@@ -1132,7 +1133,7 @@ describe('Titanium.UI.Window', function () {
 
 	describe.android('activity transitions', function () {
 		this.slow(5000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		function doTransitionTest(windowSettings, finish) {
 			windowSettings.title = 'Child Window';

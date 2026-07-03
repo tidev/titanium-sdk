@@ -8,11 +8,12 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 const isAndroid = utilities.isAndroid();
 
 describe('Titanium.UI.ImageView', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -205,7 +206,7 @@ describe('Titanium.UI.ImageView', function () {
 
 		it.windowsBroken('with redirected URL and autorotate set to true', function (finish) {
 			this.slow(8000);
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView({
@@ -222,7 +223,7 @@ describe('Titanium.UI.ImageView', function () {
 		// The below works on all platforms because this JS file is in the "Resources" directory.
 		it('with root-relative path', function (finish) {
 			this.slow(8000);
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView({
@@ -235,7 +236,7 @@ describe('Titanium.UI.ImageView', function () {
 		});
 
 		it('with image from folder', function (finish) {
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			let loadCount = 0;
 			win = Ti.UI.createWindow();
@@ -256,7 +257,7 @@ describe('Titanium.UI.ImageView', function () {
 
 		it('fires error event for URL pointing at resource that does not exist', function (finish) {
 			// Default timeout for iOS is 20 seconds.
-			this.timeout(21000);
+			this.timeout(Timeout.LONG);
 
 			win = Ti.UI.createWindow();
 			const img = Ti.UI.createImageView({});
@@ -312,7 +313,7 @@ describe('Titanium.UI.ImageView', function () {
 	it.windows('images', function (finish) {
 		var imageView,
 			error;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		imageView = Ti.UI.createImageView({
@@ -349,7 +350,7 @@ describe('Titanium.UI.ImageView', function () {
 	it('images (File)', function (finish) {
 		var imageView,
 			error;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		imageView = Ti.UI.createImageView({
@@ -386,7 +387,7 @@ describe('Titanium.UI.ImageView', function () {
 	it.androidAndIosBroken('images (Blob)', function (finish) {
 		var imageView,
 			error;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		imageView = Ti.UI.createImageView({
@@ -467,7 +468,7 @@ describe('Titanium.UI.ImageView', function () {
 		var view,
 			innerView;
 		this.slow(1000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 

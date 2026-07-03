@@ -9,6 +9,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 const isCI = Ti.App.Properties.getBool('isCI', false);
@@ -63,7 +64,7 @@ describe('Titanium.Utils', () => {
 			if (isCI && utilities.isMacOS()) { // FIXME: On macOS CI (maybe < 10.15.6?), the window focus event never fires! Does app need explicit focus added?
 				return finish(); // FIXME: skip when we move to official mocha package
 			}
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const label = Ti.UI.createLabel({ text: 'test' });
