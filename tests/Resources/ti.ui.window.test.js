@@ -282,7 +282,7 @@ describe('Titanium.UI.Window', function () {
 					try {
 						should(rootWindow.leftNavButton).be.an.Object();
 						should(rootWindow.rightNavButton).be.an.Object();
-						should(win).matchImage('snapshots/navButton_left_defaultColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
+						should(win).matchImage('snapshots/navButton_left_defaultColor_right_greenColor@3x~iphone.png', { maxPixelMismatch: 0 });
 					} catch (e) {
 						return finish(e);
 					}
@@ -329,7 +329,7 @@ describe('Titanium.UI.Window', function () {
 					try {
 						should(rootWindow.leftNavButton).be.an.Object();
 						should(rootWindow.rightNavButton).be.an.Object();
-						should(win).matchImage('snapshots/navButton_left_redColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
+						should(win).matchImage('snapshots/navButton_left_redColor_right_greenColor@3x~iphone.png', { maxPixelMismatch: 0 });
 					} catch (e) {
 						return finish(e);
 					}

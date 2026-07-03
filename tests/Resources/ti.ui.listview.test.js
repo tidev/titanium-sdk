@@ -1218,7 +1218,7 @@ describe('Titanium.UI.ListView', function () {
 		view.add(listView);
 
 		// ListViewItem should fill 50% of its parent ListView.
-		should(view).matchImage('snapshots/listViewItemScaling_percent.png', { maxPixelMismatch: OS_IOS ? 2 : 0 }); // 2 pixels differ on actual iPhone
+		should(view).matchImage('snapshots/listViewItemScaling_percent@3x~iphone.png', { maxPixelMismatch: 0 });
 	});
 
 	it('ListViewItem scaling (FILL)', function () {
@@ -1255,7 +1255,7 @@ describe('Titanium.UI.ListView', function () {
 		view.add(listView);
 
 		// ListViewItem should fill the height of its parent ListView.
-		should(view).matchImage('snapshots/listViewItemScaling_fill.png', { maxPixelMismatch: OS_IOS ? 10 : 0 }); // 10 pixels differ on actual iPhone
+		should(view).matchImage('snapshots/listViewItemScaling_fill@3x~iphone.png', { maxPixelMismatch: 0 });
 	});
 
 	it('ListViewItem accessoryType', function () {
@@ -1291,7 +1291,7 @@ describe('Titanium.UI.ListView', function () {
 		should(listView.sections[0].items[3].properties.accessoryType).be.eql(Ti.UI.LIST_ACCESSORY_TYPE_DISCLOSURE);
 
 		// Validate items accessoryType icons.
-		should(view).matchImage('snapshots/listViewItem_accessoryTypes.png', { maxPixelMismatch: OS_IOS ? 378 : 0 }); // iphone device can differ by 378
+		should(view).matchImage('snapshots/listViewItem_accessoryTypes@3x~iphone.png', { maxPixelMismatch: 0 });
 	});
 
 	it('ListViewItem borderRadius', function () {
@@ -1328,7 +1328,7 @@ describe('Titanium.UI.ListView', function () {
 		view.add(listView);
 
 		// ListViewItem should fill the height of its parent ListView.
-		should(view).matchImage('snapshots/listViewItem_borderRadius.png', { maxPixelMismatch: OS_IOS ? 28 : 0 }); // 28 pixels differ on actual iPhone
+		should(view).matchImage('snapshots/listViewItem_borderRadius@3x~iphone.png', { maxPixelMismatch: 0 });
 	});
 
 	it('ListItem default template layout', function () {
@@ -1416,7 +1416,7 @@ describe('Titanium.UI.ListView', function () {
 		view.add(listView);
 
 		// Validate ListView only renders two items with specified `template`.
-		should(view).matchImage('snapshots/listViewItem_template.png', { maxPixelMismatch: OS_IOS ? 23 : 0 }); // 23 pixels differ on actual iPhone
+		should(view).matchImage('snapshots/listViewItem_template@3x~iphone.png', { maxPixelMismatch: 0 });
 	});
 
 	it('ListView header & footer', function () {
@@ -1477,8 +1477,8 @@ describe('Titanium.UI.ListView', function () {
 
 		// Both ListView and ListSection header and footer should be visible.
 		// Even without defining ListSection items.
-		should(view).matchImage('snapshots/listView_listSection_header_footer.png', {
-			maxPixelMismatch: OS_IOS ? 478 : 0 // iPad differs by ~4 pixels, iphone by 478
+		should(view).matchImage('snapshots/listView_listSection_header_footer@3x~iphone.png', {
+			maxPixelMismatch: 0
 		});
 	});
 
@@ -1534,9 +1534,9 @@ describe('Titanium.UI.ListView', function () {
 
 		view.add(listView);
 
-		should(view).matchImage('snapshots/listview_style_inset_grouped.png', {
+		should(view).matchImage('snapshots/listview_style_inset_grouped@3x~iphone.png', {
 			threshold: 0.1,
-			maxPixelMismatch: 18380
+			maxPixelMismatch: 0
 		});
 	});
 });

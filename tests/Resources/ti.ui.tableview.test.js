@@ -1580,7 +1580,7 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		// TableViewRow should fill 50% of its parent TableView.
-		should(view).matchImage('snapshots/tableViewRowScaling_fill.png', { maxPixelMismatch: OS_IOS ? 8 : 0 }); // 8 pixels differ on actual iPhone
+		should(view).matchImage('snapshots/tableViewRowScaling_fill@3x~iphone.png', { maxPixelMismatch: 0 });
 	});
 
 	it('TableViewRow internal icons', function () {
@@ -1607,8 +1607,8 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		// TableView should display rows of internal icons.
-		should(view).matchImage('snapshots/tableViewRow_icons.png', {
-			maxPixelMismatch: OS_IOS ? 378 : 0 // iPhoen XR differs by 378 pixels
+		should(view).matchImage('snapshots/tableViewRow_icons@3x~iphone.png', {
+			maxPixelMismatch: 0
 		});
 	});
 
@@ -1809,8 +1809,9 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		should(view).matchImage('snapshots/tableview_style_inset_grouped.png', {
-			threshold: 0.1
+		should(view).matchImage('snapshots/tableview_style_inset_grouped@3x~iphone.png', {
+			threshold: 0.1,
+			maxPixelMismatch: 0
 		});
 	});
 });
