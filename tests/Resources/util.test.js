@@ -533,9 +533,9 @@ describe('util', () => {
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
 						+ '  func: <ref *1> [Function: func] {\n'
-						+ '    [prototype]: func { [constructor]: [Circular *1] },\n'
+						+ '    [length]: 0,\n'
 						+ '    [name]: \'func\',\n'
-						+ '    [length]: 0\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
 						+ '  }\n'
 						+ '}'
 					);

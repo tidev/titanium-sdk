@@ -654,8 +654,8 @@ describe('Titanium.Geolocation', () => {
 						should(data.places[0].postalCode).be.eql('94043');
 						should(data.places[0]).have.property('latitude').which.is.a.Number();
 						should(data.places[0]).have.property('longitude').which.is.a.Number();
-						should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
-						should(data.places[0].state).be.oneOf('California', 'CA');
+						should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States', 'Vereinigte Staaten');
+						should(data.places[0].state).be.oneOf('California', 'CA', 'Kalifornien');
 						should(data.places[0].countryCode).be.eql('US');
 						should(data.places[0]).have.property('city').which.is.a.String();
 						should(data.places[0]).have.property('address').which.is.a.String();
@@ -681,8 +681,8 @@ describe('Titanium.Geolocation', () => {
 					should(data.places[0].postalCode).be.eql('94043');
 					should(data.places[0]).have.property('latitude').which.is.a.Number();
 					should(data.places[0]).have.property('longitude').which.is.a.Number();
-					should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States');
-					should(data.places[0].state).be.oneOf('California', 'CA');
+					should(data.places[0].country).be.oneOf('USA', 'United States of America', 'United States', 'Vereinigte Staaten');
+					should(data.places[0].state).be.oneOf('California', 'CA', 'Kalifornien');
 					should(data.places[0].countryCode).be.eql('US');
 					should(data.places[0]).have.property('city').which.is.a.String();
 					should(data.places[0]).have.property('address').which.is.a.String();
