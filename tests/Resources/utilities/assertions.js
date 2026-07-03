@@ -9,7 +9,7 @@ const zlib = require('browserify-zlib');
 global.binding.register('zlib', zlib);
 const PNG = require('pngjs').PNG;
 const cgbiToPng = isIOSDevice ? require('cgbi-to-png') : { revert: buf => buf };
-const pixelmatch = require('pixelmatch');
+const pixelmatch = require('pixelmatch').default || require('pixelmatch');
 
 // Copied from newer should.js
 // Verifies the descriptor for an own property on a target

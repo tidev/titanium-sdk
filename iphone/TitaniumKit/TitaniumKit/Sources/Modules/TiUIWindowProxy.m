@@ -1118,16 +1118,19 @@
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
   }
 
-  [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
-    @"left" : NUMFLOAT(edgeInsets.left),
-    @"bottom" : NUMFLOAT(edgeInsets.bottom),
-    @"right" : NUMFLOAT(edgeInsets.right) }
-          forKey:@"safeAreaPadding"];
-
   BOOL safeAreaInsetsChanged = !UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets);
   oldSafeAreaInsets = edgeInsets;
 
   if (self.shouldExtendSafeArea) {
+    // Only report the safe-area insets as padding when the window extends
+    // under the safe area. When extendSafeArea is false the content is laid
+    // out within the safe area already, so no additional padding is needed
+    // and safeAreaPadding must stay zero.
+    [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
+      @"left" : NUMFLOAT(edgeInsets.left),
+      @"bottom" : NUMFLOAT(edgeInsets.bottom),
+      @"right" : NUMFLOAT(edgeInsets.right) }
+            forKey:@"safeAreaPadding"];
     return safeAreaInsetsChanged;
   }
 
