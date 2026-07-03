@@ -109,12 +109,20 @@ static NSString *mimeTypeToUTType(NSString *mimeType)
   if (self = [super init]) {
     isUnique = [TiUtils boolValue:dict[@"unique"] def:false];
     shouldCreatePasteboard = [TiUtils boolValue:dict[@"allowCreation"] def:true];
-    if (isUnique) {
-      _pasteboard = [[UIPasteboard pasteboardWithUniqueName] retain];
-    } else {
-      NSString *pasteboardName = dict[@"name"];
-      _pasteboard = [[UIPasteboard pasteboardWithName:pasteboardName create:shouldCreatePasteboard] retain];
-    }
+    NSString *pasteboardName = dict[@"name"];
+    // UIPasteboard must be created on the main thread; on iOS 26 a named
+    // pasteboard created from a background thread reports its name correctly
+    // but silently drops writes, so clipboard.text reads back nil after a
+    // setText.
+    TiThreadPerformOnMainThread(
+        ^{
+          if (isUnique) {
+            _pasteboard = [[UIPasteboard pasteboardWithUniqueName] retain];
+          } else {
+            _pasteboard = [[UIPasteboard pasteboardWithName:pasteboardName create:shouldCreatePasteboard] retain];
+          }
+        },
+        YES);
   }
   return self;
 }
