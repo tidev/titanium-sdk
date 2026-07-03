@@ -1507,8 +1507,15 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   //	RELEASE_TO_NIL(pendingAdds);
   RELEASE_TO_NIL(barButtonItem);
-  // Release queues here, not in _destroy, so child proxies can still
-  // access them when their windowWillClose calls [super windowWillClose].
+  // Run _destroy while the queues are still alive so detachView can nil
+  // view.proxy and release the view. Releasing the queues first would
+  // trip _destroy's !destroyQueue guard and skip detachView (zombie proxy).
+  // Releasing them in _destroy instead breaks post-_destroy accessor
+  // calls (e.g. a delayed parent.remove -> windowWillClose -> [self
+  // children] -> dispatch_sync(childrenQueue) on a queue we just freed).
+  // [super dealloc] (TiProxy) calls _destroy again, but the !destroyQueue
+  // guard makes that second call a no-op.
+  [self _destroy];
   if (childrenQueue) {
     dispatch_release(childrenQueue);
     childrenQueue = nil;
