@@ -15,18 +15,21 @@ READONLY_PROPERTY(bool, allowCreation, AllowCreation);
 READONLY_PROPERTY(NSString *, name, Name);
 READONLY_PROPERTY(bool, unique, Unique);
 
-// The "text" property is exposed via @property so that JS `clipboard.text = x`
-// routes through setText: and `clipboard.text` routes through getText. Without
-// the @property declaration JSExport treats these as plain methods and JS
-// property assignment never reaches the native setter (silent no-op on iOS 26).
-@property (nonatomic, copy, getter=getText, setter=setText:) NSString *text;
+// "text" is exposed both as a JS property (clipboard.text / clipboard.text = x)
+// and as JS methods (clipboard.getText() / clipboard.setText(x)). JSExport only
+// routes JS property assignment through the native setter when the property is
+// declared via @property; without it, clipboard.text = x silently no-ops on
+// iOS 26. The GETTER/SETTER macros below expose the legacy getX/setX method
+// forms alongside the property.
+@property (nonatomic, copy) NSString *text;
+GETTER(NSString *, Text);
+SETTER(NSString *, Text);
 
 // Methods
 - (void)clearData:(NSString *)type;
 - (void)clearText;
 - (JSValue *)getData:(NSString *)type;
 - (NSArray<NSDictionary<NSString *, id> *> *)getItems;
-- (NSString *)getText;
 - (bool)hasData:(id)type;
 - (bool)hasText;
 - (bool)hasURLs;
@@ -36,7 +39,6 @@ JSExportAs(setData,
            -(void)setData
            : (NSString *)type withData
            : (JSValue *)data);
-- (void)setText:(NSString *)text;
 - (void)setItems:(NSDictionary<NSString *, id> *)items;
 - (void)remove;
 

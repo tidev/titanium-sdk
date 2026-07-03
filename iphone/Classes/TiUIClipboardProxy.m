@@ -263,10 +263,13 @@ GETTER_IMPL(bool, allowCreation, AllowCreation);
   }
 }
 
-- (NSString *)getText
+- (NSString *)text
 {
   return [self getData:@"text/plain"];
 }
+
+GETTER_IMPL(NSString *, text, Text);
+SETTER_IMPL(NSString *, Text);
 
 - (bool)hasData:(id)type
 {
