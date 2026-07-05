@@ -368,6 +368,14 @@ describe('Titanium.Geolocation', () => {
 					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
+				// On the iOS simulator requestLocationPermissions() hits
+				// CoreLocation and the callback never fires (same hang as
+				// the other CoreLocation-backed calls). Skip on the simulator.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
+				}
+
 				Ti.Geolocation.requestLocationPermissions(permission, function (e) {
 					try {
 						should(e).have.a.property('success').which.is.a.Boolean();
@@ -391,6 +399,14 @@ describe('Titanium.Geolocation', () => {
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
 					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
+				}
+
+				// On the iOS simulator requestLocationPermissions() hits
+				// CoreLocation and the Promise never settles (same hang as
+				// the other CoreLocation-backed calls). Skip on the simulator.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
 				}
 
 				const result = Ti.Geolocation.requestLocationPermissions(permission);
