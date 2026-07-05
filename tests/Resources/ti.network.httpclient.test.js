@@ -371,47 +371,49 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	// Confirms that only the selected cookie is deleted
 	it('clearCookieUnaffectedCheck', function (finish) {
+		// Previously this test hit google.com twice and inspected the
+		// Set-Cookie response header. google.com no longer reliably sends
+		// Set-Cookie on every request, so use postman-echo's cookie API:
+		// set a cookie, clear cookies for an unrelated domain, then verify
+		// the cookie is still echoed back. The semantics being verified are
+		// the same — clearCookies for one host must not wipe another host's
+		// cookies.
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
 		});
 
-		let cookie_string;
-		function second_cookie_fn() {
+		xhr.onload = function () {
 			try {
-				Ti.API.info('Second Load');
-				const setCookie = this.getResponseHeader('Set-Cookie');
-				// google.com only sends Set-Cookie when establishing a new cookie
-				// session; on a second request the stored cookie is sent back and
-				// no Set-Cookie is returned. That is the success case here — it
-				// means clearCookies('http://www.microsoft.com') did not wipe the
-				// google.com cookie. If a Set-Cookie is present, it must match the
-				// original value.
-				if (setCookie) {
-					const second_cookie_string = setCookie.split(';')[0];
-					should(cookie_string).eql(second_cookie_string);
-				}
+				const resp = JSON.parse(this.responseText);
+				should(resp.cookies).have.ownProperty('k1');
+				should(resp.cookies.k1).eql('v1');
 			} catch (err) {
 				return finish(err);
 			}
-			finish();
-		}
-
-		xhr.onload = function () {
-			const setCookie = this.getResponseHeader('Set-Cookie');
-			if (!setCookie) {
-				return finish(new Error('No Set-Cookie header in first response from google.com'));
-			}
-			cookie_string = setCookie.split(';')[0];
+			// Clear cookies for an unrelated host — this must NOT touch the
+			// postman-echo.com cookie jar.
 			xhr.clearCookies('http://www.microsoft.com');
-			xhr.onload = second_cookie_fn;
-			// Have to do this on delay for Android, or else the open and send get cancelled due to:
-			// [WARN]  TiHTTPClient: (main) [2547,14552] open cancelled, a request is already pending for response.
-			// [WARN]  TiHTTPClient: (main) [1,14553] send cancelled, a request is already pending for response.
-			// FIXME We should file a bug to handle this better! Can't we "queue" up the open/send calls to occur as soon as this callback finishes?
-			setTimeout(function () {
-				xhr.open('GET', 'https://www.google.com');
-				xhr.send();
-			}, 1);
+
+			const xhr2 = Ti.Network.createHTTPClient({
+				timeout: 3e4
+			});
+			xhr2.onload = function () {
+				try {
+					const resp2 = JSON.parse(this.responseText);
+					// Cookie should still be present since we only cleared
+					// cookies for microsoft.com, not postman-echo.com.
+					should(resp2.cookies).have.ownProperty('k1');
+					should(resp2.cookies.k1).eql('v1');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			};
+			xhr2.onerror = function (e) {
+				finish(new Error(e.error || this.responseText));
+			};
+			xhr2.open('GET', 'https://postman-echo.com/cookies');
+			xhr2.send();
 		};
 		xhr.onerror = function (e) {
 			try {
@@ -420,7 +422,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(err);
 			}
 		};
-		xhr.open('GET', 'https://www.google.com');
+		xhr.open('GET', 'https://postman-echo.com/cookies/set?k1=v1');
 		xhr.send();
 	});
 
