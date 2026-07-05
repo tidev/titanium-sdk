@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 var should = require('./utilities/assertions');
+var Timeout = require('./utilities/timeouts');
 
 describe.android('Titanium.Android.Service', function () {
 	it('#startService()', function () {

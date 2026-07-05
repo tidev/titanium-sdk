@@ -1084,16 +1084,21 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			rowWidth += child.getMeasuredWidth() + getViewWidthPadding(child, getWidth());
 			rowHeight = child.getMeasuredHeight() + getViewHeightPadding(child, parentHeight);
 
+			// Always track the tallest child seen so far, even when the row
+			// overflows maxRight. Without this, a child whose width exceeds
+			// the available space leaves horizontalLayoutLineHeight at 0,
+			// causing computePosition() to center the child in a zero-height
+			// area and produce a negative y (e.g. -measuredHeight/2).
+			if (horizontalLayoutLineHeight < rowHeight) {
+				horizontalLayoutLineHeight = rowHeight;
+			}
+
 			if (rowWidth > maxRight) {
 				horizontalLayoutLastIndexBeforeWrap = i - 1;
 				return;
 
 			} else if (rowWidth == maxRight) {
 				break;
-			}
-
-			if (horizontalLayoutLineHeight < rowHeight) {
-				horizontalLayoutLineHeight = rowHeight;
 			}
 		}
 

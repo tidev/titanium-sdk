@@ -591,8 +591,12 @@ describe('Titanium.Network.HTTPClient', function () {
 				const result = JSON.parse(xhr.responseText);
 				// check sent headers
 				should(result).have.property('headers');
-				should(result.headers).have.property('Content-Type');
-				should(result.headers['Content-Type']).startWith('multipart/form-data');
+				// postman-echo lowercases header names (HTTP/2 convention), so
+				// look up Content-Type case-insensitively.
+				const headerKeys = Object.keys(result.headers);
+				const contentTypeKey = headerKeys.find(k => k.toLowerCase() === 'content-type');
+				should(contentTypeKey).be.ok();
+				should(result.headers[contentTypeKey]).startWith('multipart/form-data');
 
 				// check name got added
 				should(result).have.property('form');
