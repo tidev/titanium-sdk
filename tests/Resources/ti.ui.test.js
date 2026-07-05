@@ -365,14 +365,25 @@ describe('Titanium.UI', function () {
 			// iOS 26 changed several semantic color alphas: placeholderTextColor
 			// light 0x4d -> 0x4c, quaternaryLabelColor light 0x2e -> 0x2d,
 			// separatorColor light 0x4a -> 0x1f.
-			// iOS 26 also changed systemBlueColor light from #007aff to #0088ff
-			// and systemIndigoColor light from #5856d6 to #6155f5.
+			// iOS 26 also retuned several system colors to match the macOS
+			// (NSColor) light values: systemBlueColor #007aff -> #0088ff,
+			// systemIndigoColor #5856d6 -> #6155f5, systemOrangeColor
+			// #ff9500 -> #ff8d28, systemRedColor #ff3b30 -> #ff383c,
+			// systemTealColor #30b0c7 -> #00c3d0, systemPurpleColor
+			// #af52de -> #cb30e0, linkColor #007aff -> #0068da. Dark mode
+			// values are left at the pre-iOS-26 iOS values; we have no
+			// evidence those changed.
 			if (OS_IOS && OS_VERSION_MAJOR >= 26) {
 				colors.set('placeholderTextColor', { light: '#4c3c3c43', dark: '#4debebf5' });
 				colors.set('quaternaryLabelColor', { light: '#2d3c3c43', dark: '#29ebebf5' });
 				colors.set('separatorColor', { light: '#1f3c3c43', dark: '#99545458' });
 				colors.set('systemBlueColor', { light: '#0088ff', dark: '#0a84ff' });
 				colors.set('systemIndigoColor', { light: '#6155f5', dark: '#5e5ce6' });
+				colors.set('systemOrangeColor', { light: '#ff8d28', dark: '#ff9f0a' });
+				colors.set('systemRedColor', { light: '#ff383c', dark: '#ff453a' });
+				colors.set('systemTealColor', { light: '#00c3d0', dark: '#40c8e0' });
+				colors.set('systemPurpleColor', { light: '#cb30e0', dark: '#bf5af2' });
+				colors.set('linkColor', { light: '#0068da', dark: '#0984ff' });
 			}
 
 			const theme = Ti.UI.semanticColorType; // should be light or dark
