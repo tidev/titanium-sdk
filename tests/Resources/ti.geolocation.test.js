@@ -216,7 +216,15 @@ describe('Titanium.Geolocation', () => {
 		});
 
 		describe.androidMissing('.locationServicesAuthorization', () => {
-			it('is a Number', () => {
+			it('is a Number', function () {
+				// Same hang as locationAccuracyAuthorization on the iOS 26
+				// simulator — accessing the property blocks indefinitely on
+				// CoreLocation. Skip on the simulator; still verified on
+				// real iOS devices.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
+				}
 				should(Ti.Geolocation).have.a.property('locationServicesAuthorization').which.is.a.Number();
 			});
 

@@ -363,7 +363,8 @@ describe('Titanium.UI', function () {
 				colors.set('quaternaryLabelColor', { light: '#2e3c3c43', dark: '#29ebebf5' });
 			}
 			// iOS 26 changed several semantic color alphas: placeholderTextColor
-			// light 0x4d -> 0x4c, quaternaryLabelColor light 0x2e -> 0x2d,
+			// light 0x4d -> 0x4c, tertiaryLabelColor light 0x4d -> 0x4c,
+			// quaternaryLabelColor light 0x2e -> 0x2d,
 			// separatorColor light 0x4a -> 0x1f.
 			// iOS 26 also retuned several system colors to match the macOS
 			// (NSColor) light values: systemBlueColor #007aff -> #0088ff,
@@ -375,6 +376,7 @@ describe('Titanium.UI', function () {
 			// have no evidence those changed.
 			if (OS_IOS && OS_VERSION_MAJOR >= 26) {
 				colors.set('placeholderTextColor', { light: '#4c3c3c43', dark: '#4debebf5' });
+				colors.set('tertiaryLabelColor', { light: '#4c3c3c43', dark: '#4debebf5' });
 				colors.set('quaternaryLabelColor', { light: '#2d3c3c43', dark: '#29ebebf5' });
 				colors.set('separatorColor', { light: '#1f3c3c43', dark: '#99545458' });
 				colors.set('systemBlueColor', { light: '#0088ff', dark: '#0a84ff' });
