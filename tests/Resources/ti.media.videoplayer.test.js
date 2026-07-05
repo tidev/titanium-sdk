@@ -380,7 +380,10 @@ describe.androidARM64Broken('Titanium.Media.VideoPlayer', () => {
 	});
 
 	it('Close window containing a video player (TIMOB-25574)', function (finish) {
-		this.timeout(Timeout.DEFAULT);
+		// iOS 26 can take longer for the window lifecycle events (focus,
+		// open, close) to fire when a video player is involved; the
+		// default 10s timeout is not enough. Give it 30s.
+		this.timeout(30000);
 
 		const window = Ti.UI.createWindow({
 			backgroundColor: 'white'

@@ -343,7 +343,14 @@ describe('Titanium.Geolocation', () => {
 				should(Ti.Geolocation).have.a.property('hasLocationPermissions').which.is.a.Function();
 			});
 
-			it('returns a Boolean', () => {
+			it('returns a Boolean', function () {
+				// hasLocationPermissions() hits CoreLocation and blocks
+				// indefinitely on the iOS 26 simulator (same hang as the
+				// CoreLocation-backed property reads). Skip on the simulator.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
+				}
 				should(Ti.Geolocation.hasLocationPermissions()).be.a.Boolean();
 			});
 		});
