@@ -362,11 +362,13 @@ describe('Titanium.UI', function () {
 				colors.set('systemTealColor', { light: '#30b0c7', dark: '#40c8e0' });
 				colors.set('quaternaryLabelColor', { light: '#2e3c3c43', dark: '#29ebebf5' });
 			}
-			// iOS 26 slightly lowered the alpha of placeholderTextColor (light)
-			// from 0x4d to 0x4c, and quaternaryLabelColor (light) from 0x2e to 0x2d.
+			// iOS 26 changed several semantic color alphas: placeholderTextColor
+			// light 0x4d -> 0x4c, quaternaryLabelColor light 0x2e -> 0x2d,
+			// separatorColor light 0x4a -> 0x1f.
 			if (OS_IOS && OS_VERSION_MAJOR >= 26) {
 				colors.set('placeholderTextColor', { light: '#4c3c3c43', dark: '#4debebf5' });
 				colors.set('quaternaryLabelColor', { light: '#2d3c3c43', dark: '#29ebebf5' });
+				colors.set('separatorColor', { light: '#1f3c3c43', dark: '#99545458' });
 			}
 
 			const theme = Ti.UI.semanticColorType; // should be light or dark

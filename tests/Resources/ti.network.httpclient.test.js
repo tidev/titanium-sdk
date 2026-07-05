@@ -101,7 +101,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		xhr.open('POST', 'https://httpbin.org/post');
+		xhr.open('POST', 'https://postman-echo.com/post');
 		xhr.send('TIMOB-23127');
 	});
 
@@ -320,7 +320,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to send data: ' + e));
 			}
 		};
-		xhr.open('POST', 'http://www.httpbin.org/post');
+		xhr.open('POST', 'https://postman-echo.com/post');
 		xhr.send({
 			message: 'check me out',
 			numericid: 1234
@@ -563,7 +563,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const buffer = Ti.createBuffer({
 			length: 1024 * 10
 		}).toBlob();
-		xhr.open('POST', 'http://www.httpbin.org/post');
+		xhr.open('POST', 'https://postman-echo.com/post');
 		xhr.send({
 			data: buffer,
 			username: 'fgsandford1000',
@@ -620,7 +620,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('POST', 'http://www.httpbin.org/post');
+		xhr.open('POST', 'https://postman-echo.com/post');
 
 		const form = {
 			name,
