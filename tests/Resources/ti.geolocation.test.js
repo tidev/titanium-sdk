@@ -199,7 +199,12 @@ describe('Titanium.Geolocation', () => {
 			});
 		});
 
-		it.ios('.locationAccuracyAuthorization', () => {
+		it.ios('.locationAccuracyAuthorization', function () {
+			// On the iOS 26 simulator the first access to
+			// locationAccuracyAuthorization can block for tens of seconds
+			// while CoreLocation spins up. The default 2s mocha timeout is
+			// not enough; give it a generous window.
+			this.timeout(60000);
 			if (OS_VERSION_MAJOR >= 14) {
 				should(Ti.Geolocation).have.a.property('locationAccuracyAuthorization').which.is.a.Number();
 			}
