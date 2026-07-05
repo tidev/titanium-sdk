@@ -163,7 +163,15 @@ describe('Titanium.Geolocation', () => {
 		});
 
 		describe.ios('.hasCompass', () => {
-			it('is a Boolean', () => {
+			it('is a Boolean', function () {
+				// hasCompass reads [CLLocationManager headingAvailable],
+				// a CoreLocation class method that blocks indefinitely on
+				// the iOS 26 simulator. Skip on the simulator; still
+				// verified on real iOS devices.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
+				}
 				should(Ti.Geolocation).have.a.property('hasCompass').which.is.a.Boolean();
 			});
 
@@ -429,6 +437,14 @@ describe('Titanium.Geolocation', () => {
 					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
 				}
 
+				// getCurrentHeading() hits CoreLocation and the callback
+				// never fires on the iOS 26 simulator (no real compass
+				// hardware). Skip on the simulator.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
+				}
+
 				function testCurrentHeading() {
 					Ti.Geolocation.getCurrentHeading(function (data) {
 						try {
@@ -469,6 +485,14 @@ describe('Titanium.Geolocation', () => {
 				// can't get permissions on macOS or actual iOS devices, since it prompts
 				if ((isMacOS || isIOSDevice) && !Ti.Geolocation.hasLocationPermissions(permission)) {
 					return finish(); // FIXME: How can we limit to iOS only, and skip on macOS?
+				}
+
+				// getCurrentHeading() hits CoreLocation and the Promise
+				// never settles on the iOS 26 simulator (no real compass
+				// hardware). Skip on the simulator.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
 				}
 
 				function testCurrentHeading() {
