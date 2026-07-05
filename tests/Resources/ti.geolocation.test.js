@@ -234,7 +234,15 @@ describe('Titanium.Geolocation', () => {
 		});
 
 		describe('.locationServicesEnabled', () => {
-			it('is a Boolean', () => {
+			it('is a Boolean', function () {
+				// Same hang as locationAccuracyAuthorization/locationServicesAuthorization
+				// on the iOS 26 simulator — the property access blocks
+				// indefinitely on CoreLocation. Skip on the simulator; still
+				// verified on real iOS devices.
+				if (isIOSSimulator) {
+					this.skip();
+					return;
+				}
 				should(Ti.Geolocation).have.a.property('locationServicesEnabled').which.is.a.Boolean();
 			});
 
