@@ -474,30 +474,42 @@ class DeviceTestDetails {
 	 * @returns {boolean}
 	 */
 	handleTestContinuation(token) {
-		let modifiedToken = token;
-		let hasAnsi = true;
+		// Strip ANSI color codes robustly rather than by position. The old
+		// implementation used substring() with magic offsets (8/24/3/13) that
+		// assumed an exact ANSI prefix layout; any deviation corrupted the
+		// JSON fragment.
+		let cleaned = stripAnsi(token);
 
-		// strip off leading log level prefix!
-		if (modifiedToken.startsWith('[INFO]')) {
-			modifiedToken = modifiedToken.substring(8);
-			hasAnsi = false;
-			// colored output?
-		} else if (modifiedToken.startsWith('\u001b[32m[INFO] \u001b[39m')) {
-			// technically we get these characters on a colored [INFO] log prefix:
-			// <Buffer 1b 5b 33 32 6d 5b 49 4e 46 4f 5d 20 1b 5b 33 39 6d 3a 20 08 08 20 08 20>
-			//     \u001b [  3  2  m  [  I  N  F  O  ]  <space>\u001b[39m :  <space><backspace><backspace><space><backspace><space>
-			modifiedToken = modifiedToken.substring(24);
-		}
+		// Strip leading whitespace.
+		cleaned = cleaned.replace(/^\s+/, '');
 
+		// Strip leading log level prefix like "[INFO] ", "[DEBUG] ", "[WARN] ", etc.
+		cleaned = cleaned.replace(/^\[(?:INFO|DEBUG|WARN|ERROR|TRACE|LOG)\]\s?/, '');
+
+		// Strip leading device name prefix like "[Pixel_6] " if present.
 		if (this.name) {
-			if (hasAnsi) {
-				modifiedToken = modifiedToken.substring(this.name.length + 13); // strip ansi color code, '[, device name, '] ', ansi color code
-			} else {
-				modifiedToken = modifiedToken.substring(this.name.length + 3);
+			const namePrefix = `[${this.name}] `;
+			if (cleaned.startsWith(namePrefix)) {
+				cleaned = cleaned.substring(namePrefix.length);
 			}
 		}
 
-		return this.tryParsingTestResult(this.partialTestEnd + modifiedToken);
+		// Heuristic: if the cleaned content does not look like a JSON fragment,
+		// treat it as interleaved log noise (e.g. ImeTracker, Choreographer,
+		// ActivityTaskManager) and skip it without appending to partialTestEnd.
+		// The test app splits long JSON at '","' boundaries, so real chunks
+		// start with: " { [ } ] : , digit - or the literals true/false/null,
+		// optionally preceded by whitespace.
+		if (cleaned.length === 0) {
+			return false;
+		}
+		if (!/^\s*["{[\]}:,]/.test(cleaned)
+			&& !/^\s*-?\d/.test(cleaned)
+			&& !/^\s*(?:true|false|null)\b/.test(cleaned)) {
+			return false;
+		}
+
+		return this.tryParsingTestResult(this.partialTestEnd + cleaned);
 	}
 
 	/**
@@ -588,20 +600,37 @@ class DeviceTestDetails {
 	 */
 	tryParsingTestResult(resultJSON) {
 		//  grab out the JSON and add to our result set
-		try {
-			const result = JSON.parse(massageJSONString(resultJSON));
-			result.stdout = this.output; // record what we saw in output during the test
-			result.stderr = this.stderr; // record what we saw in output during the test
-			result.device = this.name.length ? this.name : undefined; // specify device if available
-			result.os_version = this.version; // specify os version if available
-			this.results.push(result);
+		let parsed = this.tryParse(resultJSON);
+		if (parsed === null) {
+			// If the full string failed, attempt to extract the outermost
+			// balanced JSON object. This handles cases where the first
+			// !TEST_END: line has trailing noise (e.g. a stray log fragment
+			// appended after the closing brace on the same logcat line).
+			const extracted = extractBalancedJSON(resultJSON);
+			if (extracted !== null) {
+				parsed = this.tryParse(extracted);
+			}
+		}
+		if (parsed !== null) {
+			parsed.stdout = this.output; // record what we saw in output during the test
+			parsed.stderr = this.stderr; // record what we saw in output during the test
+			parsed.device = this.name.length ? this.name : undefined; // specify device if available
+			parsed.os_version = this.version; // specify os version if available
+			this.results.push(parsed);
 			this.testEndIncomplete = false;
 			return true;
+		}
+		// if we fail to parse as JSON, assume we got truncated output!
+		this.partialTestEnd = resultJSON;
+		this.testEndIncomplete = true;
+		return false;
+	}
+
+	tryParse(resultJSON) {
+		try {
+			return JSON.parse(massageJSONString(resultJSON));
 		} catch (err) {
-			// if we fail to parse as JSON, assume we got truncated output!
-			this.partialTestEnd = resultJSON;
-			this.testEndIncomplete = true;
-			return false;
+			return null;
 		}
 	}
 
@@ -918,6 +947,49 @@ function massageJSONString(testResults) {
 		.replace(/\\f/g, '\\f')
 		// remove non-printable and other non-valid JSON chars
 		.replace(/[\u0000-\u0019]+/g, ''); // eslint-disable-line no-control-regex
+}
+
+/**
+ * Attempts to extract the outermost balanced JSON object from a string that
+ * may have trailing/leading noise (e.g. interleaved log fragments). Scans for
+ * the first '{', tracks brace depth while respecting string literals and
+ * backslash escapes, and returns the substring from that '{' through the
+ * matching '}'. Returns null if no balanced object is found.
+ * @param {string} input potentially JSON-with-noise string
+ * @returns {string|null}
+ */
+function extractBalancedJSON(input) {
+	const start = input.indexOf('{');
+	if (start < 0) {
+		return null;
+	}
+	let depth = 0;
+	let inString = false;
+	let escaped = false;
+	for (let i = start; i < input.length; i++) {
+		const ch = input[i];
+		if (inString) {
+			if (escaped) {
+				escaped = false;
+			} else if (ch === '\\') {
+				escaped = true;
+			} else if (ch === '"') {
+				inString = false;
+			}
+			continue;
+		}
+		if (ch === '"') {
+			inString = true;
+		} else if (ch === '{') {
+			depth++;
+		} else if (ch === '}') {
+			depth--;
+			if (depth === 0) {
+				return input.slice(start, i + 1);
+			}
+		}
+	}
+	return null;
 }
 
 /**
