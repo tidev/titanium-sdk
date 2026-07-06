@@ -316,11 +316,14 @@ function $Reporter(runner) {
 	runner.on('fail', function (test, err) {
 		test.err = err;
 		// Mocha throws a Pending error when this.skip() is called at runtime
-		// (e.g. inside a before()/it() hook). Tag the test so the reporter
-		// can show "runtime this.skip()" as the skip reason instead of the
-		// default "explicit it.skip".
+		// (e.g. inside a before()/it() hook). Runnable.prototype.skip was
+		// patched above to attach the reason string to test._skipReason.
+		// Fall back to a generic 'runtime this.skip()' label when no reason
+		// was provided.
 		if (err && (err.name === 'Pending' || err.code === 'ERR_MOCHA_PENDING')) {
-			test._skipReason = 'runtime this.skip()';
+			if (!test._skipReason) {
+				test._skipReason = 'runtime this.skip()';
+			}
 		}
 		if (test.type && test.type === 'hook') {
 			// report hook as failiure, the rest of the suite won't execute
@@ -429,6 +432,18 @@ const win = Ti.UI.createWindow({
 win.addEventListener('open', function () {
 	setTimeout(function () {
 		const Mocha = require('mocha');
+		// Patch Runnable.prototype.skip to accept an optional reason string.
+		// Mocha 8's this.skip() ignores arguments and always throws a Pending
+		// error with a fixed message; we want this.skip('reason') to attach
+		// the reason to the test so the reporter can show it.
+		const Runnable = require('mocha/lib/runnable');
+		const origSkip = Runnable.prototype.skip;
+		Runnable.prototype.skip = function (reason) {
+			if (typeof reason === 'string' && reason.length > 0) {
+				this._skipReason = reason;
+			}
+			origSkip.call(this);
+		};
 		const mocha = new Mocha({
 			ui: 'bdd',
 			reporter: $Reporter

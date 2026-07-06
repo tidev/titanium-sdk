@@ -169,7 +169,7 @@ describe('Titanium.Geolocation', () => {
 				// the iOS 26 simulator. Skip on the simulator; still
 				// verified on real iOS devices.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 				should(Ti.Geolocation).have.a.property('hasCompass').which.is.a.Boolean();
@@ -215,7 +215,7 @@ describe('Titanium.Geolocation', () => {
 			// main thread, deadlocking. Skip on the simulator; the property
 			// is still verified on real iOS devices.
 			if (isIOSSimulator) {
-				this.skip();
+				this.skip('iOS simulator: CoreLocation blocks indefinitely');
 				return;
 			}
 			if (OS_VERSION_MAJOR >= 14) {
@@ -230,7 +230,7 @@ describe('Titanium.Geolocation', () => {
 				// CoreLocation. Skip on the simulator; still verified on
 				// real iOS devices.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 				should(Ti.Geolocation).have.a.property('locationServicesAuthorization').which.is.a.Number();
@@ -248,7 +248,7 @@ describe('Titanium.Geolocation', () => {
 				// indefinitely on CoreLocation. Skip on the simulator; still
 				// verified on real iOS devices.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 				should(Ti.Geolocation).have.a.property('locationServicesEnabled').which.is.a.Boolean();
@@ -281,7 +281,7 @@ describe('Titanium.Geolocation', () => {
 		describe.ios('.showBackgroundLocationIndicator', () => {
 			before(function () {
 				if (isMacOS) {
-					this.skip();
+					this.skip('macOS does not support showBackgroundLocationIndicator');
 				}
 			});
 
@@ -356,7 +356,7 @@ describe('Titanium.Geolocation', () => {
 				// indefinitely on the iOS 26 simulator (same hang as the
 				// CoreLocation-backed property reads). Skip on the simulator.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 				should(Ti.Geolocation.hasLocationPermissions()).be.a.Boolean();
@@ -380,7 +380,7 @@ describe('Titanium.Geolocation', () => {
 				// CoreLocation and the callback never fires (same hang as
 				// the other CoreLocation-backed calls). Skip on the simulator.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 
@@ -413,7 +413,7 @@ describe('Titanium.Geolocation', () => {
 				// CoreLocation and the Promise never settles (same hang as
 				// the other CoreLocation-backed calls). Skip on the simulator.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 
@@ -441,7 +441,7 @@ describe('Titanium.Geolocation', () => {
 				// never fires on the iOS 26 simulator (no real compass
 				// hardware). Skip on the simulator.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 
@@ -491,7 +491,7 @@ describe('Titanium.Geolocation', () => {
 				// never settles on the iOS 26 simulator (no real compass
 				// hardware). Skip on the simulator.
 				if (isIOSSimulator) {
-					this.skip();
+					this.skip('iOS simulator: CoreLocation blocks indefinitely');
 					return;
 				}
 

@@ -144,7 +144,7 @@ describe('Titanium.Media.AudioRecorder', () => {
 			it('without starting returns null or undefined object', function () {
 				// We can't do this test unless we have access to the device's microphone.
 				if (!Ti.Media.canRecord || !Ti.Media.hasAudioRecorderPermissions()) {
-					this.skip();
+					this.skip('no microphone permission or no audio recorder');
 					return;
 				}
 				if (OS_IOS) {

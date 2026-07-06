@@ -788,7 +788,7 @@ describe('Titanium.Filesystem.File', function () {
 
 	it.android('externalCacheDirectory read/write', function () {
 		if (!Ti.Filesystem.isExternalStoragePresent()) {
-			this.skip();
+			this.skip('no external storage present');
 			return;
 		}
 		const stringContent = 'My external file content.';
@@ -799,7 +799,7 @@ describe('Titanium.Filesystem.File', function () {
 
 	it.android('externalStorageDirectory read/write', function () {
 		if (!Ti.Filesystem.isExternalStoragePresent()) {
-			this.skip();
+			this.skip('no external storage present');
 			return;
 		}
 		const stringContent = 'My external file content.';

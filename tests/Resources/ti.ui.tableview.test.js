@@ -1530,7 +1530,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableViewRow scaling (percent)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1558,7 +1558,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableViewRow scaling (FILL)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1586,7 +1586,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableViewRow internal icons', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1616,7 +1616,7 @@ describe('Titanium.UI.TableView', function () {
 	it.iosBroken('TableViewRow borderRadius', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1645,7 +1645,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableViewRow default title & image', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1675,7 +1675,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableView headerTitle & footerTitle', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1704,7 +1704,7 @@ describe('Titanium.UI.TableView', function () {
 	it.iosBroken('TableView headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1744,7 +1744,7 @@ describe('Titanium.UI.TableView', function () {
 	it.iosBroken('TableView + TableViewSection headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 

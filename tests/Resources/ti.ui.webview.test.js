@@ -912,7 +912,7 @@ describe('Titanium.UI.WebView', function () {
 	describe.ios('#findString()', function () {
 		it('is a Function', function () {
 			if (OS_VERSION_MAJOR < 14) {
-				this.skip();
+				this.skip('iOS < 14 does not support findString');
 				return;
 			}
 			const webView = Ti.UI.createWebView({
@@ -923,7 +923,7 @@ describe('Titanium.UI.WebView', function () {
 
 		it('#findString without configuration', function (finish) {
 			if (OS_VERSION_MAJOR < 14) {
-				this.skip();
+				this.skip('iOS < 14 does not support findString');
 				return finish();
 			}
 			win = Ti.UI.createWindow();

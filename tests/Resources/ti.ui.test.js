@@ -315,7 +315,7 @@ describe('Titanium.UI', function () {
 
 		it.ios('#fetchSemanticColor() with system colors', function () {
 			if (!isIOS13Plus) {
-				this.skip();
+				this.skip('iOS < 13 does not support semantic colors');
 				return;
 			}
 			const colors = new Map([

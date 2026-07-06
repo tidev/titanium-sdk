@@ -1208,7 +1208,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListViewItem scaling (percent)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1245,7 +1245,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListViewItem scaling (FILL)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1282,7 +1282,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListViewItem accessoryType', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1318,7 +1318,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListViewItem borderRadius', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1355,7 +1355,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListItem default template layout', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1389,7 +1389,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListItem template property', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1443,7 +1443,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListView header & footer', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1472,7 +1472,7 @@ describe('Titanium.UI.ListView', function () {
 	it('ListView + ListSection header & footer', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 

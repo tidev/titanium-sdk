@@ -1094,7 +1094,7 @@ describe('Titanium.UI.View', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		before(function () {
 			if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-				this.skip();
+				this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			}
 		});
 

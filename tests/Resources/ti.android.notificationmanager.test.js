@@ -16,7 +16,7 @@ describe('Titanium.Android.NotificationManager', function () {
 		// versions notifications are disabled by default; the assertion only
 		// holds on API < 33.
 		if (Ti.Platform.Android.API_LEVEL >= 33) {
-			this.skip();
+			this.skip('Android API 33+ requires POST_NOTIFICATIONS permission');
 			return;
 		}
 		var notificationEnabled = Ti.Android.NotificationManager.areNotificationsEnabled();

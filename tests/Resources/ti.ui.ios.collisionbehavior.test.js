@@ -151,7 +151,7 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 			// lifecycle/JSC issue on iOS 26 that can't be fixed from the
 			// test side. Skip on iOS 26+ until the native bug is resolved.
 			if (OS_IOS && OS_VERSION_MAJOR >= 26) {
-				this.skip();
+				this.skip('iOS 26 native JSC lifecycle bug (KrollObject callbacksForEvent)');
 				return;
 			}
 			win = Ti.UI.createWindow({
