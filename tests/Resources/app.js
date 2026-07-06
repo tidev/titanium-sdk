@@ -314,8 +314,11 @@ function $Reporter(runner) {
 	function reportTestEnd(test) {
 		const tdiff = new Date().getTime() - started;
 		const fixedNames = suiteAndTitle(suites, test.title);
+		// Mocha marks skipped tests with state 'pending'; normalize to 'skipped'
+		// so the test reporter counts them under "skipped" instead of "passed".
+		const state = test.state === 'pending' ? 'skipped' : (test.state || 'skipped');
 		const result = {
-			state: test.state || 'skipped',
+			state,
 			duration: tdiff,
 			suite: fixedNames.suite,
 			title: fixedNames.title,
