@@ -46,7 +46,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://httpbin.org/xml');
+		xhr.open('GET', 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/Resources/xml/element.xml');
 		xhr.send();
 	});
 
@@ -225,7 +225,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://httpbin.org/response-headers?freeform=titanium%3Dawesome');
+		xhr.open('GET', 'https://postman-echo.com/response-headers?freeform=titanium%3Dawesome');
 		xhr.send();
 	});
 
