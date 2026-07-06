@@ -82,6 +82,7 @@ export async function test(platforms, target, deviceId, deployType, deviceFamily
 		const results = {};
 		for (const platform of platforms) {
 			const result = await runBuild(platform, target, deviceId, deployType, deviceFamily, snapshotDir, snapshotPromises, sdkVersion, logLevel);
+			result.results = dedupeResults(result.results);
 			const prefix = generateJUnitPrefix(platform, target, junitPrefix || deviceFamily);
 			results[prefix] = result;
 			await outputJUnitXML(result, prefix);
@@ -990,6 +991,36 @@ function extractBalancedJSON(input) {
 		}
 	}
 	return null;
+}
+
+/**
+ * Removes duplicate entries from a results array. Two entries are considered
+ * duplicates when they share the same suite, title, file, and state. The iOS
+ * simulator log stream has been observed delivering each skipped test's
+ * !TEST_END: line twice (passed/failed tests are not affected), which
+ * inflates the skipped count and prints every skipped test twice in the
+ * report. This dedup is a defensive fix at the reporter level so the counts
+ * and JUnit output stay correct regardless of upstream duplication.
+ * @param {object[]} results test results, possibly with duplicates
+ * @returns {object[]} deduplicated results
+ */
+function dedupeResults(results) {
+	const seen = new Set();
+	const deduped = [];
+	let duplicates = 0;
+	for (const item of results) {
+		const key = `${item.suite}${item.title}${item.file || ''}${item.state}`;
+		if (seen.has(key)) {
+			duplicates++;
+			continue;
+		}
+		seen.add(key);
+		deduped.push(item);
+	}
+	if (duplicates > 0) {
+		console.warn('dedupeResults: removed %d duplicate result entr%s (likely iOS log-stream duplication)'.yellow, duplicates, duplicates === 1 ? 'y' : 'ies');
+	}
+	return deduped;
 }
 
 /**
