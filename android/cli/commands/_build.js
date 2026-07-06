@@ -37,7 +37,7 @@ import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import util from 'node:util';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadPackageJson } from '../../../cli/lib/pkginfo.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -2161,8 +2161,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// Add a reference to the core Titanium library.
-		const tiMavenRepoUrl = 'file://' + path.join(this.platformPath, 'm2repository').replace(/\\/g, '/');
-		this.mavenRepositoryUrls.push(encodeURI(tiMavenRepoUrl));
+		this.mavenRepositoryUrls.push(pathToFileURL(path.join(this.platformPath, 'm2repository')).href);
 		this.libDependencyStrings.push(`org.appcelerator:titanium:${this.titaniumSdkVersion}`);
 
 		// Process all Titanium modules referenced by the Titanium project.
@@ -2198,8 +2197,7 @@ class AndroidBuilder extends Builder {
 			if (repositoryDirPath && dependencyString) {
 				// Referenced module has a Maven repository.
 				// This supports dependency management to avoid library version conflicts.
-				const url = 'file://' + repositoryDirPath.replace(/\\/g, '/');
-				this.mavenRepositoryUrls.push(encodeURI(url));
+				this.mavenRepositoryUrls.push(pathToFileURL(repositoryDirPath).href);
 				this.libDependencyStrings.push(dependencyString);
 			} else {
 				// Module directory only contains JARs/AARs. (This is our legacy module distribution.)
