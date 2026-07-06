@@ -17,9 +17,19 @@ function loadTests(mocha, _require) {
 	// test/suite (test.file). The reporter uses test.file to show WHICH
 	// test file a skipped test came from. The wrapper falls through to
 	// the outer Titanium require for non-.test modules.
+	//
+	// Re-applying the mocha-filter setup after each emit is required:
+	// the BDD interface reassigns global.it/describe/etc. on every
+	// 'pre-require' event (see mocha/lib/interfaces/bdd.js), which
+	// discards the .ios/.android/... filter extensions attached to the
+	// previous global.it. Without this re-apply, `it.ios(...)` blows up
+	// with "it.ios is not a function" in any test file loaded after the
+	// first one.
+	const filter = require('./utilities/mocha-filter');
 	function require(file) {
 		if (typeof file === 'string' && file.endsWith('.test')) {
 			mocha.suite.emit('pre-require', global, file, mocha);
+			filter.setupMocha();
 		}
 		return _require(file);
 	}
