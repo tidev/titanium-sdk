@@ -133,7 +133,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		xhr.open('GET', 'http://www.httpbin.org/gert'); // BAD URL, should get 404
+		xhr.open('GET', 'https://postman-echo.com/status/404'); // BAD URL, should get 404
 		xhr.send();
 	});
 
@@ -169,7 +169,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://httpbin.org/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%2Fmain%2Ftests%2FResources%2Flarge.jpg');
+		xhr.open('GET', 'https://postman-echo.com/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%2Fmain%2Ftests%2FResources%2Flarge.jpg');
 		xhr.send();
 	});
 
@@ -646,8 +646,8 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it.ios('basic-auth success', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			username: 'user',
-			password: 'passwd',
+			username: 'postman',
+			password: 'password',
 			timeout: Timeout.NETWORK
 		});
 
@@ -673,13 +673,13 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://httpbin.org/basic-auth/user/passwd');
+		xhr.open('GET', 'https://postman-echo.com/basic-auth');
 		xhr.send();
 	});
 
 	it.ios('basic-auth failure', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			username: 'user',
+			username: 'postman',
 			password: 'wrong_password',
 			timeout: Timeout.NETWORK
 		});
@@ -688,7 +688,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		// This request should fail as password is wrong.
 		xhr.onerror = () => finish();
 
-		xhr.open('GET', 'http://httpbin.org/basic-auth/user/passwd');
+		xhr.open('GET', 'https://postman-echo.com/basic-auth');
 		xhr.send();
 	});
 

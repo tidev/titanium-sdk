@@ -547,12 +547,12 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('basicAuthentication', function (finish) {
-		const url = 'https://httpbin.org/basic-auth/user/password';
+		const url = 'https://postman-echo.com/basic-auth';
 
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url,
-			basicAuthentication: { username: 'user', password: 'password' }
+			basicAuthentication: { username: 'postman', password: 'password' }
 		});
 
 		webView.addEventListener('load', function () {
@@ -616,7 +616,7 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('beforeload should provide the URL that is about to be loaded and handle redirects', function (finish) {
 		this.timeout(60000);
-		const url = 'https://httpbin.org/redirect/1';
+		const url = 'https://postman-echo.com/redirect-to?url=https%3A%2F%2Fpostman-echo.com%2Fget';
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url
@@ -697,7 +697,7 @@ describe('Titanium.UI.WebView', function () {
 	it('requestHeaders with redirecting URL should work properly', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://httpbin.org/redirect/1',
+			url: 'https://postman-echo.com/redirect-to?url=https%3A%2F%2Fpostman-echo.com%2Fget',
 			requestHeaders: { 'Custom-field1': 'value1' }
 		});
 

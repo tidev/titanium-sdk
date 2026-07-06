@@ -78,7 +78,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 	it('#connect() and receive data', function (finish) {
 		var buffer = '';
 		socket = Ti.Network.Socket.createTCP({
-			host: 'www.httpbin.org', port: 80,
+			host: 'postman-echo.com', port: 80,
 			timeout: 20000,
 			connected: function (e) {
 				// receive callback
@@ -102,7 +102,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 				// send GET request
 				should(socket.write).not.be.null();
 				should(socket.write).be.a.Function();
-				socket.write(Ti.createBuffer({ value: 'GET /anything?q=SUCCESS HTTP/1.1\r\nHost: www.httpbin.org\r\nConnection: close\r\n\r\n' }));
+				socket.write(Ti.createBuffer({ value: 'GET /get?q=SUCCESS HTTP/1.1\r\nHost: postman-echo.com\r\nConnection: close\r\n\r\n' }));
 			},
 			error: function (e) {
 				finish(e);
@@ -142,7 +142,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 	it('#connect(), #write(), #pump() async', function (finish) {
 		var buffer = '';
 		socket = Ti.Network.Socket.createTCP({
-			host: 'www.httpbin.org',
+			host: 'postman-echo.com',
 			port: 80,
 			timeout: 20000,
 			connected: function (e) {
@@ -153,7 +153,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 				// send GET request
 				should(socket.write).not.be.null();
 				should(socket.write).be.a.Function();
-				socket.write(Ti.createBuffer({ value: 'GET /anything?q=SUCCESS HTTP/1.1\r\nHost: www.httpbin.org\r\nConnection: close\r\n\r\n' }), function (evt) {
+				socket.write(Ti.createBuffer({ value: 'GET /get?q=SUCCESS HTTP/1.1\r\nHost: postman-echo.com\r\nConnection: close\r\n\r\n' }), function (evt) {
 					evt.success.should.be.true();
 
 					Ti.Stream.pump(e.socket, function (e) {
