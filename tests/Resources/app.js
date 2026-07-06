@@ -11,7 +11,19 @@
 
 let failed = false;
 
-function loadTests() {
+function loadTests(mocha, _require) {
+	// Local require wrapper that emits Mocha's 'pre-require' event before
+	// each .test file is loaded, so Mocha records the file path on every
+	// test/suite (test.file). The reporter uses test.file to show WHICH
+	// test file a skipped test came from. The wrapper falls through to
+	// the outer Titanium require for non-.test modules.
+	function require(file) {
+		if (typeof file === 'string' && file.endsWith('.test')) {
+			mocha.suite.emit('pre-require', global, file, mocha);
+		}
+		return _require(file);
+	}
+
 	const should = require('./utilities/assertions');
 
 	// Must test global is available in first app.js explicitly!
@@ -303,6 +315,13 @@ function $Reporter(runner) {
 
 	runner.on('fail', function (test, err) {
 		test.err = err;
+		// Mocha throws a Pending error when this.skip() is called at runtime
+		// (e.g. inside a before()/it() hook). Tag the test so the reporter
+		// can show "runtime this.skip()" as the skip reason instead of the
+		// default "explicit it.skip".
+		if (err && (err.name === 'Pending' || err.code === 'ERR_MOCHA_PENDING')) {
+			test._skipReason = 'runtime this.skip()';
+		}
 		if (test.type && test.type === 'hook') {
 			// report hook as failiure, the rest of the suite won't execute
 			reportTestEnd(test);
@@ -317,11 +336,32 @@ function $Reporter(runner) {
 		// Mocha marks skipped tests with state 'pending'; normalize to 'skipped'
 		// so the test reporter counts them under "skipped" instead of "passed".
 		const state = test.state === 'pending' ? 'skipped' : (test.state || 'skipped');
+		// Derive a human-readable skip reason for skipped tests:
+		// - test._skipReason is set by mocha-filter.js when a *Missing/*Broken
+		//   filter triggered the skip, or by the fail handler for runtime
+		//   this.skip() calls.
+		// - For tests inside a pending suite (e.g. describe.allBroken), walk
+		//   up the parent chain to find the closest tagged suite.
+		// - Otherwise default to "explicit it.skip".
+		let skipReason;
+		if (state === 'skipped') {
+			skipReason = test._skipReason;
+			if (!skipReason && test.parent) {
+				let suite = test.parent;
+				while (suite && !skipReason) {
+					skipReason = suite._skipReason;
+					suite = suite.parent;
+				}
+			}
+			skipReason = skipReason || 'explicit it.skip';
+		}
 		const result = {
 			state,
 			duration: tdiff,
 			suite: fixedNames.suite,
 			title: fixedNames.title,
+			skipReason,
+			file: test.file,
 			error: test.err,
 			message: ''
 		};
@@ -394,7 +434,7 @@ win.addEventListener('open', function () {
 			reporter: $Reporter
 		});
 		mocha.suite.emit('pre-require', global, 'app.js', mocha);
-		loadTests();
+		loadTests(mocha, require);
 		// Start executing the test suite.
 		mocha.run(function (_failureCount) {
 			// We've finished executing all tests.

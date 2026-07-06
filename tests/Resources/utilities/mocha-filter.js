@@ -66,9 +66,16 @@ module.exports.setupMocha = function (_checks, skipOriginals) {
 				var passed = _checks[_key]();
 				if (arguments.length > 0) {
 					if (passed === 'skip' && notFailed) {
-						func.skip.apply(null, arguments);
+						// Tag the resulting test/suite with the filter name so
+						// the reporter can show WHY it was skipped. `func.skip`
+						// returns the created Test/Suite object synchronously.
+						var result = func.skip.apply(null, arguments);
+						if (result && typeof result === 'object') {
+							result._skipReason = _key;
+						}
+						return result;
 					} else if (passed && notFailed) {
-						func.apply(null, arguments);
+						return func.apply(null, arguments);
 					}
 				} else {
 					return ext(func, passed && notFailed);

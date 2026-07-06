@@ -1079,7 +1079,7 @@ export async function outputResults(results) {
 		suites[v].tests.forEach(test => {
 			if (test.state === 'skipped') {
 				skipped++;
-				skippedTests.push({ suite: v, title: test.title });
+				skippedTests.push({ suite: v, title: test.title, reason: test.skipReason, file: test.file });
 				console.log(indent() + '  - %s'.cyan, test.title);
 			} else if (test.state === 'failed') {
 				failures++;
@@ -1105,12 +1105,15 @@ export async function outputResults(results) {
 	console.log('%d Total Tests: %d passed, %d failed, %d skipped.', total, passes, failures, skipped);
 
 	// List skipped tests at the end so they're easy to find without scrolling
-	// through the per-suite output above.
+	// through the per-suite output above. Include the skip reason (filter name
+	// or 'runtime this.skip()' or 'explicit it.skip') and the source test file.
 	if (skippedTests.length > 0) {
 		console.log();
 		console.log('Skipped tests (%d):'.cyan, skippedTests.length);
 		skippedTests.forEach(t => {
-			console.log('  - %s > %s'.cyan, t.suite, t.title);
+			const reason = t.reason ? ` [${t.reason}]` : '';
+			const file = t.file ? ` (${t.file})` : '';
+			console.log('  - %s > %s%s%s'.cyan, t.suite, t.title, reason, file);
 		});
 	}
 }
