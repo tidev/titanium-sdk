@@ -1067,6 +1067,7 @@ export async function outputResults(results) {
 		passes = 0,
 		failures = 0,
 		skipped = 0;
+	const skippedTests = [];
 	function indent() {
 		return Array(indents).join('  ');
 	}
@@ -1078,6 +1079,7 @@ export async function outputResults(results) {
 		suites[v].tests.forEach(test => {
 			if (test.state === 'skipped') {
 				skipped++;
+				skippedTests.push({ suite: v, title: test.title });
 				console.log(indent() + '  - %s'.cyan, test.title);
 			} else if (test.state === 'failed') {
 				failures++;
@@ -1101,4 +1103,14 @@ export async function outputResults(results) {
 	// Spit out overall stats: test count, failure count, pending count, pass count.
 	const total = skipped + failures + passes;
 	console.log('%d Total Tests: %d passed, %d failed, %d skipped.', total, passes, failures, skipped);
+
+	// List skipped tests at the end so they're easy to find without scrolling
+	// through the per-suite output above.
+	if (skippedTests.length > 0) {
+		console.log();
+		console.log('Skipped tests (%d):'.cyan, skippedTests.length);
+		skippedTests.forEach(t => {
+			console.log('  - %s > %s'.cyan, t.suite, t.title);
+		});
+	}
 }
