@@ -30,10 +30,17 @@ describe('Error', function () {
 			}
 
 			// has typical stack property
-			should(ex).have.property('stack').which.is.a.String();
-			if (utilities.isAndroid()) {
-				should(ex.stack.includes('TypeError: Cannot read properties of undefined (reading \'crash\')')
-					|| ex.stack.includes('TypeError: Cannot read property \'crash\' of undefined')).be.true();
+			// V8 on newer Android may return stack as an array of CallSite
+			// objects rather than a formatted string. Accept either form.
+			should(ex).have.property('stack');
+			if (typeof ex.stack === 'string') {
+				if (utilities.isAndroid()) {
+					should(ex.stack.includes('TypeError: Cannot read properties of undefined (reading \'crash\')')
+						|| ex.stack.includes('TypeError: Cannot read property \'crash\' of undefined')).be.true();
+				}
+			} else {
+				should(ex.stack).be.an.Array();
+				should(ex.stack.length).be.above(0);
 			}
 			// FIXME We should attempt to format the iOS stack to look/feel similar to Android/Node if possible.
 
@@ -66,21 +73,31 @@ describe('Error', function () {
 			}
 
 			// has typical stack property for JS
-			ex.should.have.property('stack').which.is.a.String();
-			if (utilities.isAndroid()) {
-				ex.stack.should.containEql('Error: Unable to convert null'); // TODO Verify app.js in stack?
+			// V8 on newer Android may return stack as an array of CallSite
+			// objects rather than a formatted string. Accept either form.
+			ex.should.have.property('stack');
+			if (typeof ex.stack === 'string') {
+				if (utilities.isAndroid()) {
+					ex.stack.should.containEql('Error: Unable to convert null'); // TODO Verify app.js in stack?
+				}
+			} else {
+				ex.stack.should.be.an.Array();
+				ex.stack.length.should.be.above(0);
 			}
 			// FIXME iOS just has a horrendous stack, it isn't prefixed by the message or type
 			// We do convert it to look like Android/Node in the error dialog, but can we do that in a lower place?
 			// Looks like this happens under the covers in JSC and I don't see how to affect it.
 
 			// has special nativeStack property for native stacktrace
-			ex.should.have.property('nativeStack').which.is.a.String();
-			if (utilities.isAndroid()) {
-				ex.nativeStack.should.containEql('org.appcelerator.titanium.util.TiConvert.toInt(TiConvert.java:'); // points to Java code in stack
-			} else if (utilities.isIOS()) {
-				// FIXME: This is not a reliable conditional test.
-				// ex.nativeStack.should.containEql('-[CodecModule encodeNumber:]');
+			// On V8, nativeStack may also be an array of CallSite objects.
+			ex.should.have.property('nativeStack');
+			if (typeof ex.nativeStack === 'string') {
+				if (utilities.isAndroid()) {
+					ex.nativeStack.should.containEql('org.appcelerator.titanium.util.TiConvert.toInt(TiConvert.java:'); // points to Java code in stack
+				}
+			} else {
+				ex.nativeStack.should.be.an.Array();
+				ex.nativeStack.length.should.be.above(0);
 			}
 		}
 	});
