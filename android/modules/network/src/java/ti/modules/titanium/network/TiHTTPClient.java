@@ -1458,6 +1458,11 @@ public class TiHTTPClient
 							errorCode = getStatus();
 						}
 						data.putCodeAndMessage(errorCode, e.getMessage());
+						// Reset requestPending before dispatching onerror so the
+						// JS onerror handler can call send() to retry — otherwise
+						// send() silently no-ops on the pending flag and the test
+						// hangs until its mocha timeout (TIMOB-23372 follow-up).
+						requestPending = false;
 						dispatchCallback(TiC.PROPERTY_ONERROR, data);
 						return;
 					}
