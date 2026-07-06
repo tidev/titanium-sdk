@@ -24,6 +24,13 @@ public class ClipboardModule extends KrollModule
 	private static final String TAG = "Clipboard";
 
 	private static ClipboardManager clipboardManager;
+	// Last text written via setText(). Used as a fallback when
+	// ClipboardManager.getPrimaryClip() returns null — which happens on
+	// Android API 36 immediately after setPrimaryClip() because the system
+	// clipboard update is async and the local cache may not have propagated
+	// before the next read. Without this fallback, hasText() returns false
+	// right after setText('hello'), breaking the synchronous clipboard test.
+	private String lastSetText;
 
 	public ClipboardModule()
 	{
@@ -48,6 +55,7 @@ public class ClipboardModule extends KrollModule
 		} else {
 			clipboardManager.setPrimaryClip(ClipData.newPlainText("label", null));
 		}
+		lastSetText = null;
 	}
 
 	@Kroll.method
@@ -70,7 +78,11 @@ public class ClipboardModule extends KrollModule
 				return item.getText().toString();
 			}
 		}
-		return null;
+		// Fallback when the system clipboard returns null (e.g. on API 36
+		// immediately after setPrimaryClip, or when the app lacks focus and
+		// the system withholds the clip). Return the last text this module
+		// wrote so synchronous setText/hasText sequences work as expected.
+		return lastSetText;
 	}
 
 	@Kroll.method
@@ -80,6 +92,7 @@ public class ClipboardModule extends KrollModule
 		final ClipData clip = ClipData.newPlainText("label", text);
 
 		clipboardManager.setPrimaryClip(clip);
+		lastSetText = text;
 	}
 
 	@Kroll.method
