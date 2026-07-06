@@ -886,9 +886,13 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 						horizontalLayoutTopBuffer = 0;
 						horizontalLayoutLastIndexBeforeWrap = 0;
 						horizontalLayoutPreviousRight = 0;
-						if (count > 1) {
-							updateRowForHorizontalWrap(right, i);
-						}
+						// Always compute the row height, even with a single
+						// child. Without this, a one-child horizontal layout
+						// leaves horizontalLayoutLineHeight at 0, causing
+						// computePosition() to center the child in a zero-height
+						// area and produce a negative y (e.g. -measuredHeight/2).
+						// This is the root cause of TIMOB-23372 #4/#5.
+						updateRowForHorizontalWrap(right, i);
 					}
 					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom,
 													horizontal, vertical, i);
