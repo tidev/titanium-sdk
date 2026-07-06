@@ -129,6 +129,16 @@ public class TiHTTPClient
 	private URL mURL;
 	private String redirectedLocation;
 	private final ArrayList<File> tmpFiles = new ArrayList<>();
+	// Temp file created to spill a large response body when no explicit xhr.file
+	// was set. Tracked so we can delete it on abort() / send() reuse instead of
+	// leaking it until the app's temp dir is purged.
+	private File responseTempFile;
+	// Bytes of the response body for which the last ondatastream callback was
+	// dispatched. Throttles ondatastream to ~1% of contentLength (min 64KB) so a
+	// 13MB download does not flood V8 with ~26K progress events and stall the
+	// UI thread (ANR on Android API 36).
+	private long lastDataStreamTotalSize = 0;
+	private static final long DATA_STREAM_MIN_THROTTLE_BYTES = 64 * 1024;
 	protected SecurityManagerProtocol securityManager;
 	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
@@ -225,6 +235,14 @@ public class TiHTTPClient
 			}
 			responseData = null;
 			responseText = null;
+			// A previous request may have spilled a large response body to a
+			// temp file. The TiBlob wrapping it has just been nulled above, so
+			// the file is now unreachable — delete it before starting the new
+			// request to avoid accumulating tihttp*.tmp files across reuses.
+			deleteResponseTempFile();
+			// Reset the ondatastream throttle so the first chunk of the new
+			// response fires a 0% progress callback.
+			lastDataStreamTotalSize = 0;
 
 			int status = connection.getResponseCode();
 			// Stream holding the server's response
@@ -295,6 +313,9 @@ public class TiHTTPClient
 		if (tiFile == null) {
 			outFile = File.createTempFile("tihttp", ".tmp", TiApplication.getInstance().getTiTempDir());
 			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			// Track the spill file so we can delete it on abort()/send() reuse
+			// instead of leaking it until the system purges the app temp dir.
+			responseTempFile = outFile;
 		}
 
 		if (dumpResponseOut) {
@@ -342,6 +363,18 @@ public class TiHTTPClient
 
 		responseOut.write(data, 0, size);
 
+		// Throttle ondatastream callbacks to ~1% of contentLength (min 64KB).
+		// Without this, a 13MB download fires ~1600 callbacks (one per 8KB read
+		// buffer) and each is dispatched into V8, stalling the UI thread on
+		// Android API 36 (ANR). The final 100% callback is dispatched in
+		// finishedReceivingEntityData() so the throttle cannot drop it.
+		long threshold = dataStreamThreshold(contentLength);
+		if (contentLength > 0 && totalSize < contentLength
+			&& (totalSize - lastDataStreamTotalSize) < threshold) {
+			return;
+		}
+		lastDataStreamTotalSize = totalSize;
+
 		KrollDict callbackData = new KrollDict();
 		callbackData.put("totalCount", contentLength);
 		callbackData.put("totalSize", totalSize);
@@ -355,6 +388,15 @@ public class TiHTTPClient
 		callbackData.put("progress", progress);
 
 		dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
+	}
+
+	private long dataStreamThreshold(long contentLength)
+	{
+		if (contentLength > 0) {
+			long percent = contentLength / 100;
+			return Math.max(percent, DATA_STREAM_MIN_THROTTLE_BYTES);
+		}
+		return DATA_STREAM_MIN_THROTTLE_BYTES;
 	}
 
 	private void finishedReceivingEntityData(long contentLength) throws IOException
@@ -378,6 +420,19 @@ public class TiHTTPClient
 		}
 		responseOut.close();
 		responseOut = null;
+
+		// Guarantee a final ondatastream with progress=1.0 even when the last
+		// chunk was small enough to be skipped by the throttle. JS relies on
+		// receiving a 100% progress event to consider the download complete.
+		if (contentLength > 0 && lastDataStreamTotalSize < contentLength) {
+			KrollDict callbackData = new KrollDict();
+			callbackData.put("totalCount", contentLength);
+			callbackData.put("totalSize", contentLength);
+			callbackData.put(TiC.PROPERTY_SIZE, 0);
+			callbackData.put("progress", 1.0);
+			dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
+			lastDataStreamTotalSize = contentLength;
+		}
 	}
 
 	private interface ProgressListener {
@@ -388,6 +443,8 @@ public class TiHTTPClient
 	{
 		private ProgressListener listener;
 		private int transferred = 0, lastTransferred = 0;
+		private long contentLength = -1;
+		private static final int MIN_THROTTLE_BYTES = 64 * 1024;
 
 		public ProgressOutputStream(OutputStream delegate, ProgressListener listener)
 		{
@@ -395,10 +452,27 @@ public class TiHTTPClient
 			this.listener = listener;
 		}
 
+		public ProgressOutputStream(OutputStream delegate, ProgressListener listener, long contentLength)
+		{
+			this(delegate, listener);
+			this.contentLength = contentLength;
+		}
+
+		private int threshold()
+		{
+			if (contentLength > 0) {
+				long percent = contentLength / 100;
+				return (int) Math.max(percent, MIN_THROTTLE_BYTES);
+			}
+			return MIN_THROTTLE_BYTES;
+		}
+
 		private void fireProgress()
 		{
-			// filter to 512 bytes of granularity
-			if (transferred - lastTransferred >= 512) {
+			// Throttle to ~1% of contentLength (min 64KB) so a large upload
+			// does not dispatch ~26K onsendstream events (one per 512 bytes)
+			// and stall the V8 thread.
+			if (transferred - lastTransferred >= threshold()) {
 				lastTransferred = transferred;
 				listener.progress(transferred);
 			}
@@ -713,6 +787,10 @@ public class TiHTTPClient
 				}
 			} catch (Exception ex) {
 			}
+
+			// The user is no longer interested in the response, so the spill
+			// temp file (if any) can be deleted immediately.
+			deleteResponseTempFile();
 
 			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
@@ -1304,7 +1382,7 @@ public class TiHTTPClient
 								data.put("progress", currentProgress);
 								dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
 							}
-						});
+						}, contentLength);
 						printWriter = new PrintWriter(outputStream, true);
 
 						if (parts.size() > 0 && needMultipart) {
@@ -1564,6 +1642,18 @@ public class TiHTTPClient
 			tmpFile.delete();
 		}
 		tmpFiles.clear();
+	}
+
+	private void deleteResponseTempFile()
+	{
+		if (responseTempFile != null) {
+			try {
+				responseTempFile.delete();
+			} catch (Exception e) {
+				Log.w(TAG, "Unable to delete response temp file: " + e.getMessage(), e);
+			}
+			responseTempFile = null;
+		}
 	}
 
 	public String getLocation()
