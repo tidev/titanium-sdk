@@ -24,9 +24,16 @@ const exec = promisify(child_process.exec);
 const ROOT_DIR = path.join(__dirname, '../../..');
 const SOURCE_DIR = path.join(ROOT_DIR, 'tests');
 const PROJECT_NAME = 'mocha';
-// cert/profile used to build to iOS device
-const DEVELOPER_NAME = 'QE Department (C64864TF2L)';
-const PROVISIONING_PROFILE_UUID = '4a3fc2c3-4647-4472-90e5-15cba3a576df';
+// cert/profile used to build to iOS device. Read from env so non-TiDev
+// contributors can run device tests with their own signing identity.
+// Falls back to null when unset; the runner must fail fast if a device
+// target is requested without these.
+export function getSigningConfig() {
+	return {
+		developerName: process.env.TI_TEST_DEVELOPER_NAME || null,
+		provisioningProfileUuid: process.env.TI_TEST_PROVISIONING_PROFILE_UUID || null
+	};
+}
 // app id used
 const APP_ID = 'com.appcelerator.testApp.testing';
 const TMP_DIR = path.join(ROOT_DIR, 'tmp');
@@ -418,10 +425,18 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 		killiOSSimulator();
 
 		if (target === 'device') {
+			const { developerName, provisioningProfileUuid } = getSigningConfig();
+			if (!developerName || !provisioningProfileUuid) {
+				throw new Error(
+					'Device-target test run requested but TI_TEST_DEVELOPER_NAME and/or ' +
+					'TI_TEST_PROVISIONING_PROFILE_UUID are not set. Set them to your iOS ' +
+					'developer identity and provisioning profile UUID, or run against the simulator.'
+				);
+			}
 			args.push('--developer-name');
-			args.push(DEVELOPER_NAME);
+			args.push(developerName);
 			args.push('--pp-uuid');
-			args.push(PROVISIONING_PROFILE_UUID);
+			args.push(provisioningProfileUuid);
 		}
 
 		if (deviceFamily) {
