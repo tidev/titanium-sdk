@@ -202,7 +202,8 @@ describe('Titanium.Map', function () {
 
 	// Intentional skip, constant only for Android
 	// NOTE: Skipping. ti.playservices.isGooglePlayServicesAvailable() should be used instead!
-	it.skip('#isGooglePlayServicesAvailable()', function () { // eslint-disable-line mocha/no-skipped-tests
+	it('#isGooglePlayServicesAvailable()', function () {
+		this.skip('Google Play Services availability depends on the emulator image; skipped to avoid false negatives on images without Play Services.');
 		var value;
 		should(Map.isGooglePlayServicesAvailable).be.a.Function();
 
