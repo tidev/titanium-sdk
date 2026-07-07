@@ -14,7 +14,7 @@ let checks = {
 		return false;
 	}
 };
-const originalChecks = Object.keys(checks);
+let reservedChecks = new Set(Object.keys(checks));
 
 module.exports = function (defaults) {
 	if (typeof defaults !== 'undefined' && typeof defaults !== 'object') {
@@ -23,6 +23,7 @@ module.exports = function (defaults) {
 	// Add the ignore filter to the provided defaults object if it isn't already defined in it
 	!defaults.ignore && (defaults.ignore = checks.ignore);
 	checks = defaults;
+	reservedChecks = new Set(Object.keys(checks));
 	module.exports.setupMocha();
 };
 
@@ -116,12 +117,21 @@ module.exports.setupMocha = function (_checks, skipOriginals) {
  * @returns {Boolean}
  */
 module.exports.addFilter = function (name, filter) {
-	if (originalChecks.indexOf(name) > -1) {
-		return false;
+	if (reservedChecks.has(name)) {
+		throw new Error(
+			`mocha-filter: "${name}" is a reserved filter name and cannot be ` +
+			`re-registered via addFilter(). Pick a different name, or call ` +
+			`setupMocha() with a fresh defaults object if you really need to ` +
+			`replace a built-in.`
+		);
 	}
 	checks[name] = filter;
 	var obj;
 	module.exports.setupMocha((obj = {}, obj[name] = filter, obj), true);
+};
+
+module.exports.listReservedFilters = function () {
+	return Array.from(reservedChecks);
 };
 
 /**
