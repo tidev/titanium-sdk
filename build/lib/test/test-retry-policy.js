@@ -21,13 +21,15 @@ describe('retry-policy', function () {
 		}
 	});
 
-	it('applyRetryPolicy calls ctx.retries(count) when file is in policy', () => {
+	it('applyRetryPolicy calls currentTest.retries(count) when file is in policy', () => {
 		const target = Object.keys(RETRY_POLICY)[0];
 		const expected = RETRY_POLICY[target];
 		let called = null;
 		const ctx = {
-			retries: (n) => { called = n; },
-			test: { file: `/some/path/${target}` }
+			currentTest: {
+				file: `/some/path/${target}`,
+				retries: (n) => { called = n; }
+			}
 		};
 		applyRetryPolicy(ctx);
 		expect(called).to.equal(expected);
@@ -36,8 +38,10 @@ describe('retry-policy', function () {
 	it('applyRetryPolicy does nothing when file is not in policy', () => {
 		let called = null;
 		const ctx = {
-			retries: (n) => { called = n; },
-			test: { file: '/some/path/ti.unknown.test.js' }
+			currentTest: {
+				file: '/some/path/ti.unknown.test.js',
+				retries: (n) => { called = n; }
+			}
 		};
 		applyRetryPolicy(ctx);
 		expect(called).to.be.null;
@@ -48,8 +52,10 @@ describe('retry-policy', function () {
 		const target = Object.keys(RETRY_POLICY)[0];
 		let called = null;
 		const ctx = {
-			retries: (n) => { called = n; },
-			test: { file: `/some/path/${target}` }
+			currentTest: {
+				file: `/some/path/${target}`,
+				retries: (n) => { called = n; }
+			}
 		};
 		applyRetryPolicy(ctx);
 		expect(called).to.be.null;

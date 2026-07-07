@@ -25,9 +25,11 @@ describe('endpoints', function () {
 		}
 	});
 
-	it('uses postman-echo.com as the host', () => {
-		for (const key of URL_KEYS) {
-			expect(new URL(ENDPOINTS[key]).host, key).to.equal('postman-echo.com');
+	it('uses the configured base as the host', () => {
+		const expectedHost = (process.env.TI_TEST_ENDPOINTS_BASE && new URL(process.env.TI_TEST_ENDPOINTS_BASE).host) || 'postman-echo.com';
+		for (const [key, value] of Object.entries(ENDPOINTS)) {
+			if (key === 'tcpHost' || key === 'tcpRequestPath') continue;
+			expect(new URL(value).host, key).to.equal(expectedHost);
 		}
 	});
 
@@ -47,5 +49,12 @@ describe('endpoints', function () {
 	it('exposes TCP host and request path helpers', () => {
 		expect(ENDPOINTS.tcpHost).to.equal('postman-echo.com');
 		expect(ENDPOINTS.tcpRequestPath).to.equal('/get');
+	});
+
+	it('exposes cookie and webview endpoints added during implementation', () => {
+		expect(ENDPOINTS).to.include.all.keys('cookies', 'cookiesSet', 'cookiesDelete', 'webviewRedirect');
+		for (const key of ['cookies', 'cookiesSet', 'cookiesDelete', 'webviewRedirect']) {
+			expect(() => new URL(ENDPOINTS[key]), key).to.not.throw();
+		}
 	});
 });

@@ -24,7 +24,11 @@ const RETRY_POLICY = {
 
 /**
  * Apply the retry policy to a Mocha test context. Call from a global
- * `beforeEach` in app.js. Reads `ctx.test.file` to identify the source file.
+ * `beforeEach` in app.js. Reads `ctx.currentTest.file` to identify the
+ * source file. In Mocha 8.4.0+, a top-level `beforeEach` runs with
+ * `this.test` set to the hook itself (whose `.file` is undefined because
+ * the root suite has no `.file`), and `this.currentTest` set to the test
+ * about to run (whose `.file` is the actual source file path).
  *
  * Set `TI_TEST_RETRY_DISABLED=1` in the environment to disable retries
  * globally (useful when investigating a real failure you don't want
@@ -36,14 +40,14 @@ function applyRetryPolicy(ctx) {
 	if (process.env.TI_TEST_RETRY_DISABLED === '1') {
 		return;
 	}
-	const file = ctx && ctx.test && ctx.test.file;
-	if (!file) {
+	const test = ctx && ctx.currentTest;
+	if (!test || !test.file) {
 		return;
 	}
-	const basename = file.split('/').pop();
+	const basename = test.file.split('/').pop();
 	const retries = RETRY_POLICY[basename];
 	if (retries) {
-		ctx.retries(retries);
+		test.retries(retries);
 	}
 }
 

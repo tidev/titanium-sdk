@@ -109,12 +109,15 @@ module.exports.setupMocha = function (_checks, skipOriginals) {
 };
 
 /**
- * Add a new filter to the mocha functions. The predefined filters
- * cannot be overwritten, but user-defined ones can.
+ * Add a new filter to the mocha functions. If the name collides with a
+ * reserved filter (any default registered via `module.exports(defaults)`,
+ * or any filter previously registered via `addFilter`/`addFilters`), this
+ * throws. Once a filter is registered, its name is reserved against later
+ * shadowing.
  *
  * @param {String} name      The name of the filter, which will be used in the test
- * @param {Function} filter    The function that will determine whether to run the test
- * @returns {Boolean}
+ * @param {Function} filter  The function that will determine whether to run the test
+ * @throws {Error} when `name` collides with a reserved filter
  */
 module.exports.addFilter = function (name, filter) {
 	if (reservedChecks.has(name)) {
@@ -126,6 +129,7 @@ module.exports.addFilter = function (name, filter) {
 		);
 	}
 	checks[name] = filter;
+	reservedChecks.add(name);
 	var obj;
 	module.exports.setupMocha((obj = {}, obj[name] = filter, obj), true);
 };

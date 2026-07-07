@@ -20,6 +20,12 @@ describe('mocha-filter.addFilter shadow guard', function () {
 		filter({ ignore: () => false });
 	});
 
+	afterEach(() => {
+		// Some tests register extra filters (e.g. `ios` via addFilters); reset
+		// the module state so the next test starts from a clean baseline.
+		filter({ ignore: () => false });
+	});
+
 	it('listReservedFilters includes ignore', () => {
 		expect(filter.listReservedFilters()).to.include('ignore');
 	});
@@ -30,5 +36,10 @@ describe('mocha-filter.addFilter shadow guard', function () {
 
 	it('does not throw when addFilter uses a new name', () => {
 		expect(() => filter.addFilter('myCustomFilter', () => true)).to.not.throw();
+	});
+
+	it('throws when addFilter collides with a filter registered via addFilters', () => {
+		filter.addFilters({ ios: () => true });
+		expect(() => filter.addFilter('ios', () => false)).to.throw(/reserved/);
 	});
 });
