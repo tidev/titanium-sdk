@@ -12,6 +12,7 @@
 const should = require('./utilities/assertions');
 const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
+const { skipIfIOSSim, SKIP_IOS_SIM_CORELOCATION } = require('./utilities/skip-reasons');
 const isMacOS = utilities.isMacOS();
 const isIOSDevice = OS_IOS && !isMacOS && !Ti.Platform.model.includes('(Simulator)');
 const isIOSSimulator = OS_IOS && !isMacOS && Ti.Platform.model.includes('(Simulator)');
@@ -168,8 +169,7 @@ describe('Titanium.Geolocation', () => {
 				// a CoreLocation class method that blocks indefinitely on
 				// the iOS 26 simulator. Skip on the simulator; still
 				// verified on real iOS devices.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 				should(Ti.Geolocation).have.a.property('hasCompass').which.is.a.Boolean();
@@ -214,8 +214,7 @@ describe('Titanium.Geolocation', () => {
 			// and the native getter appears to dispatch-synchronize on the
 			// main thread, deadlocking. Skip on the simulator; the property
 			// is still verified on real iOS devices.
-			if (isIOSSimulator) {
-				this.skip('iOS simulator: CoreLocation blocks indefinitely');
+			if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 				return;
 			}
 			if (OS_VERSION_MAJOR >= 14) {
@@ -229,8 +228,7 @@ describe('Titanium.Geolocation', () => {
 				// simulator — accessing the property blocks indefinitely on
 				// CoreLocation. Skip on the simulator; still verified on
 				// real iOS devices.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 				should(Ti.Geolocation).have.a.property('locationServicesAuthorization').which.is.a.Number();
@@ -247,8 +245,7 @@ describe('Titanium.Geolocation', () => {
 				// on the iOS 26 simulator — the property access blocks
 				// indefinitely on CoreLocation. Skip on the simulator; still
 				// verified on real iOS devices.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 				should(Ti.Geolocation).have.a.property('locationServicesEnabled').which.is.a.Boolean();
@@ -355,8 +352,7 @@ describe('Titanium.Geolocation', () => {
 				// hasLocationPermissions() hits CoreLocation and blocks
 				// indefinitely on the iOS 26 simulator (same hang as the
 				// CoreLocation-backed property reads). Skip on the simulator.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 				should(Ti.Geolocation.hasLocationPermissions()).be.a.Boolean();
@@ -379,8 +375,7 @@ describe('Titanium.Geolocation', () => {
 				// On the iOS simulator requestLocationPermissions() hits
 				// CoreLocation and the callback never fires (same hang as
 				// the other CoreLocation-backed calls). Skip on the simulator.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 
@@ -412,8 +407,7 @@ describe('Titanium.Geolocation', () => {
 				// On the iOS simulator requestLocationPermissions() hits
 				// CoreLocation and the Promise never settles (same hang as
 				// the other CoreLocation-backed calls). Skip on the simulator.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 
@@ -440,8 +434,7 @@ describe('Titanium.Geolocation', () => {
 				// getCurrentHeading() hits CoreLocation and the callback
 				// never fires on the iOS 26 simulator (no real compass
 				// hardware). Skip on the simulator.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 
@@ -490,8 +483,7 @@ describe('Titanium.Geolocation', () => {
 				// getCurrentHeading() hits CoreLocation and the Promise
 				// never settles on the iOS 26 simulator (no real compass
 				// hardware). Skip on the simulator.
-				if (isIOSSimulator) {
-					this.skip('iOS simulator: CoreLocation blocks indefinitely');
+				if (skipIfIOSSim(this, SKIP_IOS_SIM_CORELOCATION)) {
 					return;
 				}
 

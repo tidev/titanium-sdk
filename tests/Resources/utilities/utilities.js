@@ -13,6 +13,10 @@ Utility.isIOS = function () {
 	return this.isIPhone() || this.isIPad();
 };
 
+Utility.isIOSSimulator = function () {
+	return this.isIOS() && !this.isMacOS() && Ti.Platform.model.includes('(Simulator)');
+};
+
 Utility.isMacOS = function () {
 	return Ti.Platform.name === 'Mac OS X';
 };
