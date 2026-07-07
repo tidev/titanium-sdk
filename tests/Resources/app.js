@@ -36,6 +36,12 @@ function loadTests(mocha, _require) {
 
 	const should = require('./utilities/assertions');
 
+	const { applyRetryPolicy } = require('./utilities/retry-policy');
+
+	beforeEach(function () {
+		applyRetryPolicy(this);
+	});
+
 	// Must test global is available in first app.js explicitly!
 	// (since app.js is treated slightly differently than required files on at least Android)
 	describe('global', () => {
