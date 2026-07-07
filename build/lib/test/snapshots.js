@@ -9,17 +9,11 @@ import fs from 'fs-extra';
 import child_process from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
+import { APP_ID, TMP_DIR, PROJECT_DIR } from './runner.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const exec = promisify(child_process.exec);
-
-const ROOT_DIR = path.join(__dirname, '../../..');
-const PROJECT_NAME = 'mocha';
-// app id used
-const APP_ID = 'com.appcelerator.testApp.testing';
-const TMP_DIR = path.join(ROOT_DIR, 'tmp');
-const PROJECT_DIR = path.join(TMP_DIR, PROJECT_NAME);
 
 // The special magic strings we expect in the logs!
 const GENERATED_IMAGE_PREFIX = '!IMAGE: ';

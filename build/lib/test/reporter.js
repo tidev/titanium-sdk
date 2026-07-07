@@ -13,15 +13,9 @@ import { spawn } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
 import { fileURLToPath } from 'node:url';
 import { SnapshotManager } from './snapshots.js';
+import { REPORT_DIR, JUNIT_TEMPLATE, PROJECT_DIR, PROJECT_NAME } from './runner.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const REPORT_DIR = path.join(__dirname, '../../..');
-const JUNIT_TEMPLATE = path.join(__dirname, 'junit.xml.ejs');
-const ROOT_DIR = path.join(__dirname, '../../..');
-const PROJECT_NAME = 'mocha';
-const TMP_DIR = path.join(ROOT_DIR, 'tmp');
-const PROJECT_DIR = path.join(TMP_DIR, PROJECT_NAME);
 
 // The special magic strings we expect in the logs!
 export const GENERATED_IMAGE_PREFIX = '!IMAGE: ';
