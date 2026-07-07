@@ -36,7 +36,7 @@
 {
   if (toolBar == nil) {
     toolBar = [[UIToolbar alloc] initWithFrame:[self bounds]];
-    [toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin];
+    [toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin];
     [self addSubview:toolBar];
     id extendVal = [[self proxy] valueForUndefinedKey:@"extendBackground"];
     extendsBackground = [TiUtils boolValue:extendVal def:NO];
@@ -84,7 +84,17 @@
   CGRect toolBounds;
   toolBounds.size = [[self toolBar] sizeThatFits:ourBounds.size];
   toolBounds.origin.x = 0.0;
-  toolBounds.origin.y = hideTopBorder ? -1.0 : 0.0;
+
+  TiDimension heightDim = ((TiViewProxy *)[self proxy]).layoutProperties->height;
+  if (!TiDimensionIsUndefined(heightDim) && !TiDimensionIsAuto(heightDim) && !TiDimensionIsAutoFill(heightDim) && !TiDimensionIsAutoSize(heightDim)) {
+    toolBounds.origin.y = (ourBounds.size.height - toolBounds.size.height) / 2.0;
+    if (hideTopBorder) {
+      toolBounds.origin.y -= 1.0;
+    }
+  } else {
+    toolBounds.origin.y = hideTopBorder ? -1.0 : 0.0;
+  }
+
   [toolBar setFrame:toolBounds];
 }
 #endif
@@ -168,6 +178,11 @@
 
 - (CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
+  TiDimension heightDim = ((TiViewProxy *)[self proxy]).layoutProperties->height;
+  if (!TiDimensionIsUndefined(heightDim) && !TiDimensionIsAuto(heightDim) && !TiDimensionIsAutoFill(heightDim) && !TiDimensionIsAutoSize(heightDim)) {
+    return suggestedHeight;
+  }
+
   CGFloat result = [[self toolBar] sizeThatFits:CGSizeZero].height;
   if (hideTopBorder) {
     result -= 1.0;
