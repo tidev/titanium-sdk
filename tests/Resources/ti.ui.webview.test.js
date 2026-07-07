@@ -11,6 +11,7 @@
 const should = require('./utilities/assertions');
 const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
+const { ENDPOINTS } = require('./utilities/endpoints');
 
 describe('Titanium.UI.WebView', function () {
 	this.slow(3000);
@@ -547,12 +548,12 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('basicAuthentication', function (finish) {
-		const url = 'https://postman-echo.com/basic-auth';
+		const url = ENDPOINTS.basicAuthSuccess;
 
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url,
-			basicAuthentication: { username: 'postman', password: 'password' }
+			basicAuthentication: { username: 'titanium', password: 'awesome' }
 		});
 
 		webView.addEventListener('load', function () {
@@ -616,7 +617,7 @@ describe('Titanium.UI.WebView', function () {
 
 	it.ios('beforeload should provide the URL that is about to be loaded and handle redirects', function (finish) {
 		this.timeout(60000);
-		const url = 'https://postman-echo.com/redirect-to?url=https%3A%2F%2Fpostman-echo.com%2Fget';
+		const url = ENDPOINTS.webviewRedirect;
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url
@@ -697,7 +698,7 @@ describe('Titanium.UI.WebView', function () {
 	it('requestHeaders with redirecting URL should work properly', function (finish) {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
-			url: 'https://postman-echo.com/redirect-to?url=https%3A%2F%2Fpostman-echo.com%2Fget',
+			url: ENDPOINTS.webviewRedirect,
 			requestHeaders: { 'Custom-field1': 'value1' }
 		});
 

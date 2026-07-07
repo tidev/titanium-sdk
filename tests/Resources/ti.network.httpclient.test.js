@@ -9,6 +9,7 @@
 'use strict';
 const should = require('./utilities/assertions');
 const Timeout = require('./utilities/timeouts');
+const { ENDPOINTS } = require('./utilities/endpoints');
 
 describe('Titanium.Network.HTTPClient', function () {
 	this.timeout(Timeout.NETWORK);
@@ -101,7 +102,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onload = () => finish();
 
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-		xhr.open('POST', 'https://postman-echo.com/post');
+		xhr.open('POST', ENDPOINTS.post);
 		xhr.send('TIMOB-23127');
 	});
 
@@ -133,7 +134,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		xhr.open('GET', 'https://postman-echo.com/status/404'); // BAD URL, should get 404
+		xhr.open('GET', ENDPOINTS.status404); // BAD URL, should get 404
 		xhr.send();
 	});
 
@@ -169,7 +170,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://postman-echo.com/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%2Fmain%2Ftests%2FResources%2Flarge.jpg');
+		xhr.open('GET', ENDPOINTS.largeFileWithRedirect);
 		xhr.send();
 	});
 
@@ -192,7 +193,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('POST', 'https://postman-echo.com/post');
+		xhr.open('POST', ENDPOINTS.post);
 		xhr.send();
 	});
 
@@ -225,7 +226,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
-		xhr.open('GET', 'https://postman-echo.com/response-headers?freeform=titanium%3Dawesome');
+		xhr.open('GET', ENDPOINTS.responseHeaders);
 		xhr.send();
 	});
 
@@ -293,7 +294,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 			finish();
 		};
-		xhr.open('GET', 'https://postman-echo.com/headers');
+		xhr.open('GET', ENDPOINTS.headers);
 		xhr.setRequestHeader('Adhoc-Header', 'notcleared');
 		xhr.setRequestHeader('Cleared-Header', 'notcleared');
 		should(function () {
@@ -320,7 +321,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to send data: ' + e));
 			}
 		};
-		xhr.open('POST', 'https://postman-echo.com/post');
+		xhr.open('POST', ENDPOINTS.post);
 		xhr.send({
 			message: 'check me out',
 			numericid: 1234
@@ -412,7 +413,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			xhr2.onerror = function (e) {
 				finish(new Error(e.error || this.responseText));
 			};
-			xhr2.open('GET', 'https://postman-echo.com/cookies');
+			xhr2.open('GET', ENDPOINTS.cookies);
 			xhr2.send();
 		};
 		xhr.onerror = function (e) {
@@ -422,7 +423,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(err);
 			}
 		};
-		xhr.open('GET', 'https://postman-echo.com/cookies/set?k1=v1');
+		xhr.open('GET', `${ENDPOINTS.cookiesSet}?k1=v1`);
 		xhr.send();
 	});
 
@@ -467,7 +468,7 @@ describe('Titanium.Network.HTTPClient', function () {
 					finish(new Error(e.error || this.responseText));
 				}
 			};
-			xhr2.open('GET', 'https://postman-echo.com/cookies/delete?k2=&k1=');
+			xhr2.open('GET', `${ENDPOINTS.cookiesDelete}?k2=&k1=`);
 			xhr2.send();
 		};
 		xhr.onerror = function (e) {
@@ -481,7 +482,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		// httpbin.org/cookies/* has been returning 503 from its AWS ELB for
 		// extended periods; postman-echo.com exposes the same cookie set/delete
 		// semantics and is reliably up.
-		xhr.open('GET', 'https://postman-echo.com/cookies/set?k2=v2&k1=v1');
+		xhr.open('GET', `${ENDPOINTS.cookiesSet}?k2=v2&k1=v1`);
 		xhr.send();
 	});
 
@@ -565,7 +566,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		const buffer = Ti.createBuffer({
 			length: 1024 * 10
 		}).toBlob();
-		xhr.open('POST', 'https://postman-echo.com/post');
+		xhr.open('POST', ENDPOINTS.post);
 		xhr.send({
 			data: buffer,
 			username: 'fgsandford1000',
@@ -635,7 +636,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('POST', 'https://postman-echo.com/post');
+		xhr.open('POST', ENDPOINTS.post);
 
 		const form = {
 			name,
@@ -646,8 +647,8 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it.ios('basic-auth success', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			username: 'postman',
-			password: 'password',
+			username: 'titanium',
+			password: 'awesome',
 			timeout: Timeout.NETWORK
 		});
 
@@ -673,13 +674,13 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://postman-echo.com/basic-auth');
+		xhr.open('GET', ENDPOINTS.basicAuthSuccess);
 		xhr.send();
 	});
 
 	it.ios('basic-auth failure', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			username: 'postman',
+			username: 'titanium',
 			password: 'wrong_password',
 			timeout: Timeout.NETWORK
 		});
@@ -688,7 +689,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		// This request should fail as password is wrong.
 		xhr.onerror = () => finish();
 
-		xhr.open('GET', 'https://postman-echo.com/basic-auth');
+		xhr.open('GET', ENDPOINTS.basicAuthFailure);
 		xhr.send();
 	});
 
@@ -763,7 +764,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('POST', 'https://postman-echo.com/post');
+		xhr.open('POST', ENDPOINTS.post);
 		xhr.setRequestHeader('Content-Type', 'application/json; charset=utf8');
 		xhr.send(JSON.stringify({ count: count }));
 	});
@@ -862,7 +863,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish(new Error('failed to retrieve large image: ' + JSON.stringify(errorInfo)));
 			}
 		};
-		xhr.open('POST', 'https://postman-echo.com/post');
+		xhr.open('POST', ENDPOINTS.post);
 		xhr.send(Ti.Utils.base64encode(Ti.Filesystem.getFile('SplashScreen.png')).toString());
 	});
 
