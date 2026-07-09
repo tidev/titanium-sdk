@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,19 +18,17 @@
 #import "TiProxy.h"
 #import "TiViewProxy.h"
 
-#include <libkern/OSAtomic.h>
-
-//Common exceptions to throw when the function call was improper
+// Common exceptions to throw when the function call was improper
 NSString *const TiExceptionInvalidType = @"Invalid type passed to function";
 NSString *const TiExceptionNotEnoughArguments = @"Invalid number of arguments to function";
 NSString *const TiExceptionRangeError = @"Value passed to function exceeds allowed range";
 
 NSString *const TiExceptionOSError = @"The iOS reported an error";
 
-//Should be rare, but also useful if arguments are used improperly.
+// Should be rare, but also useful if arguments are used improperly.
 NSString *const TiExceptionInternalInconsistency = @"Value was not the value expected";
 
-//Rare exceptions to indicate a bug in the titanium code (Eg, method that a subclass should have implemented)
+// Rare exceptions to indicate a bug in the Titanium code (e.g., method that a subclass should have implemented)
 NSString *const TiExceptionUnimplementedFunction = @"Subclass did not implement required method";
 
 NSString *const TiExceptionMemoryFailure = @"Memory allocation failed";
@@ -207,23 +205,23 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 #if PROXY_MEMORY_TRACK == 1
     NSLog(@"[DEBUG] INIT: %@ (%d)", self, [self hash]);
 #endif
-    pthread_rwlock_init(&listenerLock, NULL);
-    pthread_rwlock_init(&dynpropsLock, NULL);
+    listenerQueue = dispatch_queue_create("ti.proxy.listeners", DISPATCH_QUEUE_CONCURRENT);
+    dynpropsQueue = dispatch_queue_create("ti.proxy.dynprops", DISPATCH_QUEUE_CONCURRENT);
   }
   return self;
 }
 
 - (void)initializeProperty:(NSString *)name defaultValue:(id)value
 {
-  pthread_rwlock_wrlock(&dynpropsLock);
-  if (dynprops == nil) {
-    dynprops = [[NSMutableDictionary alloc] init];
-    dynpropnames = [[NSMutableArray alloc] init];
-  }
-  if ([dynprops valueForKey:name] == nil) {
-    [self addKey:name toValue:((value == nil) ? [NSNull null] : value)];
-  }
-  pthread_rwlock_unlock(&dynpropsLock);
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    if (dynprops == nil) {
+      dynprops = [[NSMutableDictionary alloc] init];
+      dynpropnames = [[NSMutableArray alloc] init];
+    }
+    if ([dynprops valueForKey:name] == nil) {
+      [self addKey:name toValue:((value == nil) ? [NSNull null] : value)];
+    }
+  });
 }
 
 + (BOOL)shouldRegisterOnInit
@@ -235,7 +233,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 {
   if (self = [self init]) {
     pageContext = (id)context; // do not retain
-    executionContext = context; //To ensure there is an execution context during _configure.
+    executionContext = context; // To ensure there is an execution context during _configure.
     if ([[self class] shouldRegisterOnInit]) // && ![NSThread isMainThread])
     {
       [pageContext registerProxy:self];
@@ -272,7 +270,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (void)boundBridge:(id<TiEvaluator>)newBridge withKrollObject:(KrollObject *)newKrollObject
 {
-  OSAtomicIncrement32(&bridgeCount);
+  atomic_fetch_add(&bridgeCount, 1);
   if (newBridge == pageContext) {
     pageKrollObject = newKrollObject;
   }
@@ -280,7 +278,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (void)unboundBridge:(id<TiEvaluator>)oldBridge
 {
-  if (OSAtomicDecrement32(&bridgeCount) < 0) {
+  if (atomic_fetch_sub(&bridgeCount, 1) - 1 < 0) {
     DeveloperLog(@"[WARN] BridgeCount for %@ is now at %d", self, bridgeCount);
   }
   if (oldBridge == pageContext) {
@@ -298,9 +296,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
   [self contextWasShutdown:context];
   if (pageContext == context) {
-    //TODO: Should we really stay bug compatible with the old behavior?
-    //I think we should instead have it that the proxy stays around until
-    //it's no longer referenced by any contexts at all.
+    // TODO: Should we really stay bug compatible with the old behavior?
+    // I think we should instead have it that the proxy stays around until
+    // it's no longer referenced by any contexts at all.
     [self _destroy];
     pageContext = nil;
     pageKrollObject = nil;
@@ -321,12 +319,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   //
 
   /*
-	 *	In theory, if two contexts are both using the proxy at the same time,
-	 *	bad things could happen since this value will be overwritten.
-	 *	TODO: Investigate thread safety of this, or to moot it.
-	 */
+   *	In theory, if two contexts are both using the proxy at the same time,
+   *	bad things could happen since this value will be overwritten.
+   *	TODO: Investigate thread safety of this, or to moot it.
+   */
 
-  executionContext = context; //don't retain
+  executionContext = context; // don't retain
 }
 
 - (void)_initWithProperties:(NSDictionary *)properties
@@ -393,14 +391,14 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   }
 
   // remove all listeners JS side proxy
-  pthread_rwlock_wrlock(&listenerLock);
-  RELEASE_TO_NIL(listeners);
-  pthread_rwlock_unlock(&listenerLock);
+  dispatch_barrier_sync(listenerQueue, ^{
+    RELEASE_TO_NIL(listeners);
+  });
 
-  pthread_rwlock_wrlock(&dynpropsLock);
-  RELEASE_TO_NIL(dynprops);
-  RELEASE_TO_NIL(dynpropnames);
-  pthread_rwlock_unlock(&dynpropsLock);
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    RELEASE_TO_NIL(dynprops);
+    RELEASE_TO_NIL(dynpropnames);
+  });
 
   RELEASE_TO_NIL(baseURL);
   RELEASE_TO_NIL(krollDescription);
@@ -426,8 +424,8 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   NSLog(@"[DEBUG] DEALLOC: %@ (%d)", self, [self hash]);
 #endif
   [self _destroy];
-  pthread_rwlock_destroy(&listenerLock);
-  pthread_rwlock_destroy(&dynpropsLock);
+  dispatch_release(listenerQueue);
+  dispatch_release(dynpropsQueue);
   [super dealloc];
 }
 
@@ -476,10 +474,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (BOOL)_hasListeners:(NSString *)type
 {
-  pthread_rwlock_rdlock(&listenerLock);
-  //If listeners is nil at this point, result is still false.
-  BOOL result = [[listeners objectForKey:type] intValue] > 0;
-  pthread_rwlock_unlock(&listenerLock);
+  __block BOOL result = NO;
+  dispatch_sync(listenerQueue, ^{
+    // If listeners is nil at this point, result is still false.
+    result = [[listeners objectForKey:type] intValue] > 0;
+  });
   return result;
 }
 
@@ -539,10 +538,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (id<NSFastEnumeration>)allKeys
 {
-  pthread_rwlock_rdlock(&dynpropsLock);
-  // Make sure the keys are in the same order as they were added in the JS
-  id<NSFastEnumeration> keys = [[dynpropnames copy] autorelease];
-  pthread_rwlock_unlock(&dynpropsLock);
+  __block id<NSFastEnumeration> keys = nil;
+  dispatch_sync(dynpropsQueue, ^{
+    // Make sure the keys are in the same order as they were added in the JS
+    keys = [[dynpropnames copy] autorelease];
+  });
 
   return keys;
 }
@@ -577,7 +577,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   }
 
   if (![bridge usesProxy:self]) {
-    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
+    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its JavaScript representation.", self);
   }
 
   return [bridge krollObjectForProxy:self];
@@ -596,7 +596,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   KrollBridge *ourBridge = (KrollBridge *)[context delegate];
 
   if (![ourBridge usesProxy:self]) {
-    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its javascript representation.", self);
+    DeveloperLog(@"[DEBUG] Proxy %@ may be missing its JavaScript representation.", self);
   }
 
   return [ourBridge krollObjectForProxy:self];
@@ -639,7 +639,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
   if (bridgeCount < 1) {
-    DeveloperLog(@"[DEBUG] Proxy %@ is missing its javascript representation needed to remember %@.", self, rememberedProxy);
+    DeveloperLog(@"[DEBUG] Proxy %@ is missing its JavaScript representation needed to remember %@.", self, rememberedProxy);
     return;
   }
 
@@ -673,9 +673,9 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     return;
   }
   if (bridgeCount < 1) {
-    //While this may be of concern and there used to be a
-    //warning here, too many false alarms were raised during
-    //multi-context cleanups.
+    // While this may be of concern and there used to be a
+    // warning here, too many false alarms were raised during
+    // multi-context cleanups.
     return;
   }
 
@@ -705,7 +705,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (void)setCallback:(KrollCallback *)eventCallback forKey:(NSString *)key
 {
-  BOOL isCallback = [eventCallback isKindOfClass:[KrollCallback class]]; //Also check against nil.
+  BOOL isCallback = [eventCallback isKindOfClass:[KrollCallback class]]; // Also check against nil.
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     if (!isCallback || ([eventCallback context] != [pageKrollObject context])) {
       [pageKrollObject forgetCallbackForKey:key];
@@ -761,17 +761,17 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   KrollObject *ourObject = [self krollObjectForContext:([listener isKindOfClass:[KrollCallback class]] ? [(KrollCallback *)listener context] : [(KrollWrapper *)listener bridge].krollContext)];
   [ourObject storeListener:listener forEvent:type];
 
-  //TODO: You know, we can probably nip this in the bud and do this at a lower level,
-  //Or make this less onerous.
-  int ourCallbackCount = 0;
+  // TODO: You know, we can probably nip this in the bud and do this at a lower level,
+  // Or make this less onerous.
+  __block int ourCallbackCount = 0;
 
-  pthread_rwlock_wrlock(&listenerLock);
-  ourCallbackCount = [[listeners objectForKey:type] intValue] + 1;
-  if (listeners == nil) {
-    listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
-  }
-  [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
-  pthread_rwlock_unlock(&listenerLock);
+  dispatch_barrier_sync(listenerQueue, ^{
+    ourCallbackCount = [[listeners objectForKey:type] intValue] + 1;
+    if (listeners == nil) {
+      listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
+    }
+    [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
+  });
 
   [self _listenerAdded:type count:ourCallbackCount];
 }
@@ -785,14 +785,15 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   KrollObject *ourObject = [self krollObjectForContext:[listener context]];
   [ourObject removeListener:listener forEvent:type];
 
-  //TODO: You know, we can probably nip this in the bud and do this at a lower level,
-  //Or make this less onerous.
+  // TODO: You know, we can probably nip this in the bud and do this at a lower level,
+  // Or make this less onerous.
 
-  pthread_rwlock_wrlock(&listenerLock);
-  int ourCallbackCount = [[listeners objectForKey:type] intValue];
-  ourCallbackCount = MAX(0, ourCallbackCount - 1);
-  [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
-  pthread_rwlock_unlock(&listenerLock);
+  __block int ourCallbackCount = 0;
+  dispatch_barrier_sync(listenerQueue, ^{
+    ourCallbackCount = [[listeners objectForKey:type] intValue];
+    ourCallbackCount = MAX(0, ourCallbackCount - 1);
+    [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
+  });
 
   [self _listenerRemoved:type count:ourCallbackCount];
 }
@@ -821,43 +822,43 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
     type = (NSString *)args;
   }
   id bubbleObject = [params objectForKey:@"bubbles"];
-  //TODO: Yes is the historical default. Is this the right thing to do, given the expense?
+  // TODO: Yes is the historical default. Is this the right thing to do, given the expense?
   BOOL bubble = [TiUtils boolValue:bubbleObject def:YES];
   if ((bubbleObject != nil) && ([params count] == 1)) {
-    params = nil; //No need to propagate when we already have this information
+    params = nil; // No need to propagate when we already have this information
   }
   if ([self doesntOverrideFireEventWithSource]) {
-    //TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
+    // TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
     // For now, we're shortcutting to suppress false warnings.
     [self fireEvent:type withObject:params propagate:bubble reportSuccess:NO errorCode:0 message:nil];
     return;
   }
   DebugLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].", [self class]);
-  [self fireEvent:type withObject:params withSource:self propagate:bubble]; //In case of not debugging, we don't change behavior, just in case.
+  [self fireEvent:type withObject:params withSource:self propagate:bubble]; // In case of not debugging, we don't change behavior, just in case.
 }
 
 - (void)fireEvent:(NSString *)type withObject:(id)obj
 {
   if ([self doesntOverrideFireEventWithSource]) {
-    //TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
+    // TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
     // For now, we're shortcutting to suppress false warnings.
     [self fireEvent:type withObject:obj propagate:YES reportSuccess:NO errorCode:0 message:nil];
     return;
   }
   DebugLog(@"[WARN] The Objective-C class %@ has overridden -[fireEvent:withObject:withSource:propagate:].", [self class]);
-  [self fireEvent:type withObject:obj withSource:self propagate:YES]; //In case of not debugging, we don't change behavior, just in case.
+  [self fireEvent:type withObject:obj withSource:self propagate:YES]; // In case of not debugging, we don't change behavior, just in case.
 }
 
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source
 {
-  //The warning for this is in the propagate version.
+  // The warning for this is in the propagate version.
   [self fireEvent:type withObject:obj withSource:source propagate:YES];
 }
 
 - (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)yn
 {
   if ([self doesntOverrideFireEventWithSource]) {
-    //TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
+    // TODO: Once the deprecated methods are removed, we can use the following line without checking to see if we'd shortcut.
     // For now, we're shortcutting to suppress false warnings.
     [self fireEvent:type withObject:obj propagate:yn reportSuccess:NO errorCode:0 message:nil];
     return;
@@ -880,7 +881,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   [self fireEvent:type withObject:obj propagate:YES reportSuccess:YES errorCode:code message:message];
 }
 
-//What classes should actually use.
+// What classes should actually use.
 - (void)fireEvent:(NSString *)type withObject:(id)obj propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(NSInteger)code message:(NSString *)message;
 {
   if (![self _hasListeners:type]) {
@@ -910,7 +911,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
       NSThread.isMainThread);
 }
 
-//Temporary method until source is removed, for our subclasses.
+// Temporary method until source is removed, for our subclasses.
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
 {
   if (![self _hasListeners:type]) {
@@ -936,8 +937,8 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (void)setValuesForKeysWithDictionary:(NSDictionary *)dictionary
 {
-  //It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
-  //so we should do this first as to not overwrite the subclass's setter.
+  // It's possible that the 'setvalueforkey' has its own plans of what should be in the JS object,
+  // so we should do this first as to not overwrite the subclass's setter.
   NSDictionary *keyedValues = [dictionary copy];
   if ((bridgeCount == 1) && (pageKrollObject != nil)) {
     for (NSString *currentKey in keyedValues) {
@@ -963,12 +964,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
   for (NSString *thisKey in keySequence) {
     id thisValue = [keyedValues objectForKey:thisKey];
-    if (thisValue == nil) //Dictionary doesn't have this key. Skip.
+    if (thisValue == nil) // Dictionary doesn't have this key. Skip.
     {
       continue;
     }
     if (thisValue == [NSNull null]) {
-      //When a null, we want to write a nil.
+      // When a null, we want to write a nil.
       thisValue = nil;
     }
     [self setValue:thisValue forKey:thisKey];
@@ -980,12 +981,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
       continue;
 
     id thisValue = [keyedValues objectForKey:thisKey];
-    if (thisValue == nil) //Dictionary doesn't have this key. Skip.
+    if (thisValue == nil) // Dictionary doesn't have this key. Skip.
     {
       continue;
     }
     if (thisValue == [NSNull null]) {
-      //When a null, we want to write a nil.
+      // When a null, we want to write a nil.
       thisValue = nil;
     }
     [self setValue:thisValue forKey:thisKey];
@@ -1013,11 +1014,12 @@ DEFINE_EXCEPTIONS
     return [self description];
   }
   if (dynprops != nil) {
-    pthread_rwlock_rdlock(&dynpropsLock);
-    // In some circumstances this result can be replaced at an inconvenient time,
-    // releasing the returned value - so we retain/autorelease.
-    id result = [[[dynprops objectForKey:key] retain] autorelease];
-    pthread_rwlock_unlock(&dynpropsLock);
+    __block id result = nil;
+    dispatch_sync(dynpropsQueue, ^{
+      // In some circumstances this result can be replaced at an inconvenient time,
+      // releasing the returned value - so we retain/autorelease.
+      result = [[[dynprops objectForKey:key] retain] autorelease];
+    });
 
     // if we have a stored value as complex, just unwrap
     // it and return the internal value
@@ -1027,8 +1029,8 @@ DEFINE_EXCEPTIONS
     }
     return result;
   }
-  //NOTE: we need to return nil here since in JS you can ask for properties
-  //that don't exist and it should return undefined, not an exception
+  // NOTE: we need to return nil here since in JS you can ask for properties
+  // that don't exist and it should return undefined, not an exception
   return nil;
 }
 
@@ -1039,8 +1041,8 @@ DEFINE_EXCEPTIONS
   }
   if ([value isKindOfClass:[KrollCallback class]]) {
     [self setCallback:value forKey:key];
-    //As a wrapper, we hold onto a KrollWrapper tuple so that other contexts
-    //may access the function.
+    // As a wrapper, we hold onto a KrollWrapper tuple so that other contexts
+    // may access the function.
     KrollWrapper *newValue = [[[KrollWrapper alloc] init] autorelease];
     [newValue setBridge:(KrollBridge *)[[(KrollCallback *)value context] delegate]];
     [newValue setJsobject:[(KrollCallback *)value function]];
@@ -1048,39 +1050,40 @@ DEFINE_EXCEPTIONS
     value = newValue;
   }
 
-  id current = nil;
-  pthread_rwlock_wrlock(&dynpropsLock);
-  if (dynprops != nil) {
-    // hold it for this invocation since set may cause it to be deleted
-    current = [[[dynprops objectForKey:key] retain] autorelease];
-    if (current == [NSNull null]) {
-      current = nil;
-    }
-  } else {
-    dynprops = [[NSMutableDictionary alloc] init];
-    dynpropnames = [[NSMutableArray alloc] init];
-  }
-
-  // TODO: Clarify internal difference between nil/NSNull
-  // (which represent different JS values, but possibly consistent internal behavior)
-
+  __block id current = nil;
+  __block BOOL newValue = NO;
   id propvalue = (value == nil) ? [NSNull null] : value;
 
-  BOOL newValue = (current != propvalue && ![current isEqual:propvalue]);
-
-  // We need to stage this out; the problem at hand is that some values
-  // we might store as properties (such as NSArray) use isEqual: as a
-  // strict address/hash comparison. So the notification must always
-  // occur, and it's up to the delegate to make sense of it (for now).
-
-  if (newValue) {
-    // Remember any proxies set on us so they don't get GC'd
-    if ([propvalue isKindOfClass:[TiProxy class]]) {
-      [self rememberProxy:propvalue];
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    if (dynprops != nil) {
+      // hold it for this invocation since set may cause it to be deleted
+      current = [[[dynprops objectForKey:key] retain] autorelease];
+      if (current == [NSNull null]) {
+        current = nil;
+      }
+    } else {
+      dynprops = [[NSMutableDictionary alloc] init];
+      dynpropnames = [[NSMutableArray alloc] init];
     }
-    [self addKey:key toValue:propvalue];
-  }
-  pthread_rwlock_unlock(&dynpropsLock);
+
+    // TODO: Clarify internal difference between nil/NSNull
+    // (which represent different JS values, but possibly consistent internal behavior)
+
+    newValue = (current != propvalue && ![current isEqual:propvalue]);
+
+    // We need to stage this out; the problem at hand is that some values
+    // we might store as properties (such as NSArray) use isEqual: as a
+    // strict address/hash comparison. So the notification must always
+    // occur, and it's up to the delegate to make sense of it (for now).
+
+    if (newValue) {
+      // Remember any proxies set on us so they don't get GC'd
+      if ([propvalue isKindOfClass:[TiProxy class]]) {
+        [self rememberProxy:propvalue];
+      }
+      [self addKey:key toValue:propvalue];
+    }
+  });
 
   if (self.modelDelegate != nil && notify) {
     [[(NSObject *)self.modelDelegate retain] autorelease];
@@ -1099,17 +1102,17 @@ DEFINE_EXCEPTIONS
 // TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?
 - (void)deleteKey:(NSString *)key
 {
-  pthread_rwlock_wrlock(&dynpropsLock);
-  if (dynprops != nil) {
-    [dynprops removeObjectForKey:key];
-    for (NSInteger i = 0, len = [dynpropnames count]; i < len; i++) {
-      if ([[dynpropnames objectAtIndex:i] isEqualToString:key]) {
-        [dynpropnames removeObjectAtIndex:i];
-        break;
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    if (dynprops != nil) {
+      [dynprops removeObjectForKey:key];
+      for (NSInteger i = 0, len = [dynpropnames count]; i < len; i++) {
+        if ([[dynpropnames objectAtIndex:i] isEqualToString:key]) {
+          [dynpropnames removeObjectAtIndex:i];
+          break;
+        }
       }
     }
-  }
-  pthread_rwlock_unlock(&dynpropsLock);
+  });
 }
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
@@ -1120,14 +1123,15 @@ DEFINE_EXCEPTIONS
 - (void)applyProperties:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSDictionary)
-      [self setValuesForKeysWithDictionary:args];
+  [self setValuesForKeysWithDictionary:args];
 }
 
 - (NSDictionary *)allProperties
 {
-  pthread_rwlock_rdlock(&dynpropsLock);
-  NSDictionary *props = [[dynprops copy] autorelease];
-  pthread_rwlock_unlock(&dynpropsLock);
+  __block NSDictionary *props = nil;
+  dispatch_sync(dynpropsQueue, ^{
+    props = [[dynprops copy] autorelease];
+  });
 
   return props;
 }
@@ -1152,16 +1156,16 @@ DEFINE_EXCEPTIONS
 
 - (void)didReceiveMemoryWarning:(NSNotification *)notification
 {
-  //FOR NOW, we're not dropping anything but we'll want to do before release
-  //subclasses need to call super if overriden
+  // FOR NOW, we're not dropping anything but we'll want to do before release
+  // subclasses need to call super if overridden
 }
 
 #pragma mark Dispatching Helper
 
-//TODO: Now that we have TiThreadPerform, we should optimize this out.
+// TODO: Now that we have TiThreadPerform, we should optimize this out.
 - (void)_dispatchWithObjectOnUIThread:(NSArray *)args
 {
-  //NOTE: this is called by ENSURE_UI_THREAD_WITH_OBJ and will always be on UI thread when we get here
+  // NOTE: this is called by ENSURE_UI_THREAD_WITH_OBJ and will always be on UI thread when we get here
   id method = [args objectAtIndex:0];
   id firstobj = [args count] > 1 ? [args objectAtIndex:1] : nil;
   id secondobj = [args count] > 2 ? [args objectAtIndex:2] : nil;
@@ -1207,7 +1211,7 @@ DEFINE_EXCEPTIONS
   return [NSNull null];
 }
 
-//For subclasses to override
+// For subclasses to override
 - (NSString *)apiName
 {
   DebugLog(@"[ERROR] Subclasses must override the apiName API endpoint.");

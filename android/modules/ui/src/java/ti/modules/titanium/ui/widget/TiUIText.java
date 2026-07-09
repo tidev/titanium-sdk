@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,6 @@ import java.util.Locale;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -33,6 +32,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.method.BaseKeyListener;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -57,6 +57,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import androidx.appcompat.view.ContextThemeWrapper;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.R;
 
 public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionListener, OnFocusChangeListener
 {
@@ -67,6 +68,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	private int viewHeightInLines;
 	private int maxLines = Integer.MAX_VALUE;
 	private int hintTextPadding;
+	private HashMap<String, Object> defaultPadding = new HashMap<String, Object>();
 	private InputFilterHandler inputFilterHandler;
 
 	protected TiUIEditText tv;
@@ -135,6 +137,23 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		this.tv.setOnEditorActionListener(this);
 		this.tv.setOnFocusChangeListener(this);
 		this.tv.setIncludeFontPadding(true);
+		if (proxy.hasListeners("empty")) {
+			this.tv.setOnKeyListener(new View.OnKeyListener()
+			{
+				@Override
+				public boolean onKey(View v, int keyCode, KeyEvent event)
+				{
+					Editable editable = getText();
+					if (editable != null && editable.length() == 0) {
+						KrollDict data = new KrollDict();
+						data.put("keyCode", keyCode);
+						fireEvent("empty", data);
+					}
+					return false;
+				}
+			});
+		}
+
 		if (field) {
 			this.tv.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
 		} else {
@@ -143,7 +162,18 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		textInputLayout.addView(this.tv, new TextInputLayout.LayoutParams(
 			TextInputLayout.LayoutParams.MATCH_PARENT, TextInputLayout.LayoutParams.MATCH_PARENT));
 
+		// store default padding
+		this.defaultPadding.put(TiC.PROPERTY_TOP, this.tv.getPaddingTop());
+		this.defaultPadding.put(TiC.PROPERTY_RIGHT, this.tv.getPaddingRight());
+		this.defaultPadding.put(TiC.PROPERTY_BOTTOM, this.tv.getPaddingBottom());
+		this.defaultPadding.put(TiC.PROPERTY_LEFT, this.tv.getPaddingLeft());
 		setNativeView(textInputLayout);
+	}
+
+	private Editable getText()
+	{
+		if (tv == null) return null;
+		return tv.getText();
 	}
 
 	@Override
@@ -171,11 +201,19 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		tv.setText(TiConvert.toString(d.get(TiC.PROPERTY_VALUE), ""));
 
 		if (d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR)) {
+			// Why transparent?
 			tv.setBackgroundColor(Color.TRANSPARENT);
+			if ("transparent".equals(d.get(TiC.PROPERTY_BACKGROUND_COLOR))
+				|| d.get(TiC.PROPERTY_BACKGROUND_COLOR) == null) {
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
+			} else {
+				textInputLayout.setBoxBackgroundColor(TiConvert.toColor(d.get(TiC.PROPERTY_BACKGROUND_COLOR),
+					TiApplication.getAppCurrentActivity()));
+			}
 		}
 
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+			tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT) || d.containsKey(TiC.PROPERTY_HINT_TYPE)) {
@@ -187,7 +225,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		if (d.containsKey(TiC.PROPERTY_HINT_TEXT_COLOR)) {
-			tv.setHintTextColor(TiConvert.toColor(d, TiC.PROPERTY_HINT_TEXT_COLOR));
+			tv.setHintTextColor(TiConvert.toColor(d, TiC.PROPERTY_HINT_TEXT_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ELLIPSIZE)) {
@@ -233,9 +271,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-			if (attributedString instanceof AttributedStringProxy) {
-				setAttributedStringText((AttributedStringProxy) attributedString);
+			Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+			if (proxy != null) {
+				setAttributedStringText(proxy);
 			}
 		}
 
@@ -262,6 +301,13 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				}
 				this.maxLines = value;
 				updateTextField();
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_HTML)) {
+			Spanned text = Html.fromHtml(TiConvert.toString(d, TiC.PROPERTY_HTML));
+			if (text != null) {
+				tv.setText(text, TextView.BufferType.SPANNABLE);
 			}
 		}
 
@@ -309,28 +355,39 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 	private void setTextPadding(HashMap<String, Object> d)
 	{
-		int paddingLeft = textInputLayout.getPaddingLeft();
-		int paddingRight = textInputLayout.getPaddingRight();
-		int paddingTop = textInputLayout.getPaddingTop();
-		int paddingBottom = textInputLayout.getPaddingBottom();
+		int paddingLeft = tv.getPaddingLeft();
+		int paddingRight = tv.getPaddingRight();
+		int paddingTop = tv.getPaddingTop();
+		int paddingBottom = tv.getPaddingBottom();
 
-		if (d.containsKey(TiC.PROPERTY_LEFT)) {
-			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
+		if (d == null) {
+			// reset to default padding
+			paddingLeft = (int) this.defaultPadding.get(TiC.PROPERTY_LEFT);
+			paddingRight = (int) this.defaultPadding.get(TiC.PROPERTY_RIGHT);
+			paddingTop = (int) this.defaultPadding.get(TiC.PROPERTY_TOP);
+			paddingBottom = (int) this.defaultPadding.get(TiC.PROPERTY_BOTTOM);
+		} else {
+			if (d.containsKey(TiC.PROPERTY_LEFT)) {
+				paddingLeft = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0),
+					TiDimension.TYPE_LEFT).getAsPixels(textInputLayout);
+			}
+
+			if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+				paddingRight = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0),
+					TiDimension.TYPE_RIGHT).getAsPixels(textInputLayout);
+			}
+
+			if (d.containsKey(TiC.PROPERTY_TOP)) {
+				paddingTop = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0),
+					TiDimension.TYPE_TOP).getAsPixels(textInputLayout);
+			}
+
+			if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+				paddingBottom = (int) TiConvert.toTiDimension(TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0),
+					TiDimension.TYPE_BOTTOM).getAsPixels(textInputLayout);
+			}
 		}
-
-		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
-			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_TOP)) {
-			paddingTop = TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
-			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
-		}
-
-		textInputLayout.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		tv.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 	}
 
 	@Override
@@ -353,9 +410,16 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			this.inputFilterHandler.setMaxLength(TiConvert.toInt(newValue, -1));
 		} else if (key.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			tv.setBackgroundColor(Color.TRANSPARENT);
+			if ("transparent".equals(newValue) || newValue == null) {
+				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
+			} else {
+				textInputLayout.setBoxBackgroundColor(
+					TiConvert.toColor(newValue, TiApplication.getAppCurrentActivity()));
+			}
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
-			tv.setTextColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT)) {
 			int type = UIModule.HINT_TYPE_STATIC;
 			if (proxy.getProperties() != null) {
@@ -363,7 +427,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 			setHintText(type, TiConvert.toString(newValue));
 		} else if (key.equals(TiC.PROPERTY_HINT_TEXT_COLOR)) {
-			tv.setHintTextColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setHintTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HINT_TYPE)) {
 			Object attributedHintText = proxy.getProperty(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT);
 			if (attributedHintText instanceof AttributedStringProxy) {
@@ -409,8 +474,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			TiUIHelper.linkifyIfEnabled(tv, newValue);
 		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_HINT_TEXT) && newValue instanceof AttributedStringProxy) {
 			setAttributedStringHint((AttributedStringProxy) newValue);
-		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			setAttributedStringText((AttributedStringProxy) newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+			if (asProxy != null) {
+				setAttributedStringText(asProxy);
+			}
 		} else if (key.equals(TiC.PROPERTY_PADDING)) {
 			setTextPadding((HashMap) newValue);
 		} else if (key.equals(TiC.PROPERTY_FULLSCREEN)) {
@@ -429,6 +497,11 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				}
 				this.maxLines = value;
 				updateTextField();
+			}
+		} else if (key.equals(TiC.PROPERTY_HTML)) {
+			Spanned text = Html.fromHtml(TiConvert.toString(newValue));
+			if (text != null) {
+				tv.setText(text, TextView.BufferType.SPANNABLE);
 			}
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
@@ -465,7 +538,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		// Fire change events, but only if it's coming from the end-user (ignore programmatic text changes).
 		if (!disableChangeEvent) {
 			// Fire a text "change" event.
-			String newText = tv.getText().toString();
+			Editable editable = getText();
+			if (editable == null) return;
+
+			String newText =  editable.toString();
 			if (proxy.shouldFireChange(proxy.getProperty(TiC.PROPERTY_VALUE), newText)) {
 				KrollDict data = new KrollDict();
 				data.put(TiC.PROPERTY_VALUE, newText);
@@ -527,28 +603,19 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	@Override
 	protected KrollDict getFocusEventObject(boolean hasFocus)
 	{
+		Editable editable = getText();
 		KrollDict event = new KrollDict();
-		event.put(TiC.PROPERTY_VALUE, tv.getText().toString());
+		event.put(TiC.PROPERTY_VALUE, editable == null ? "" : editable.toString());
 		return event;
 	}
 
 	@Override
 	public boolean onEditorAction(TextView v, int actionId, KeyEvent keyEvent)
 	{
-		// TIMOB-23757: https://code.google.com/p/android/issues/detail?id=182191
-		if (Build.VERSION.SDK_INT < 24 && (tv.getGravity() & Gravity.START) != Gravity.START) {
-			if (getNativeView() != null) {
-				ViewGroup view = (ViewGroup) getNativeView().getParent();
-				view.setFocusableInTouchMode(true);
-				view.requestFocus();
-			}
-			Context context = TiApplication.getInstance().getApplicationContext();
-			InputMethodManager inputManager =
-				(InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-			inputManager.hideSoftInputFromWindow(tv.getWindowToken(), 0);
-		}
+		Editable editable = getText();
+		if (editable == null) return true;
 
-		String value = tv.getText().toString();
+		String value = editable.toString();
 		KrollDict data = new KrollDict();
 		data.put(TiC.PROPERTY_VALUE, value);
 
@@ -778,7 +845,7 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 		}
 
 		// Update fullscreen edit handling.
-		// We might have to diable it due to Google bugs with password handling of certain input types.
+		// We might have to disable it due to Google bugs with password handling of certain input types.
 		handleFullscreen(d);
 
 		// Force keyboard to use English if enabled. (Not all keyboards honor this setting.)
@@ -850,6 +917,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 	public void setSelection(int start, int end)
 	{
+		if (tv == null) return;
+
 		// Validate arguments.
 		int textLength = tv.length();
 		if (start < 0 || start > textLength || end < 0 || end > textLength) {
@@ -864,8 +933,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 		// This works-around an Android 4.x bug where the "end" index will be ignored
 		// if setSelection() is called just after tapping the text field. (See: TIMOB-19639)
-		Editable text = tv.getText();
-		if (text.length() > 0) {
+		Editable text = getText();
+		if (text != null && text.length() > 0) {
 			boolean wasDisabled = this.disableChangeEvent;
 			this.disableChangeEvent = true;
 			text.replace(0, 1, text.subSequence(0, 1), 0, 1);
@@ -964,6 +1033,9 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			this.textInputLayout.setHint(hintText);
 			this.textInputLayout.setHintEnabled(true);
 		}
+
+		this.defaultPadding.put(TiC.PROPERTY_TOP, (type == UIModule.HINT_TYPE_ANIMATED)
+			? this.hintTextPadding : this.defaultPadding.get(TiC.PROPERTY_BOTTOM));
 
 		this.tv.setPadding(
 			this.tv.getPaddingLeft(),

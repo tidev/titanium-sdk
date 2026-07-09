@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -82,7 +82,7 @@
   UIColor *newColor = [UIColor colorWithCGColor:newCGColor];
   CGColorRelease(newCGColor);
 
-  //For the GRAY colors 'Middle level colors'
+  // For the GRAY colors 'Middle level colors'
   CGFloat white = 0;
   [oldColor getWhite:&white alpha:nil];
 
@@ -158,9 +158,6 @@
 
 - (void)setSelectedButtonColor_:(id)value
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return;
-  }
   UIColor *color = [[TiUtils colorValue:value] color];
   [[self segmentedControl] setSelectedSegmentTintColor:color];
 }

@@ -3,7 +3,7 @@ name: Titanium.Filesystem
 summary: The top level filesystem module, used to access files and directories on the device.
 description: |
     For examples of using the Filesystem APIs, refer to the
-    [Filesystem Access and Storage guide](https://docs.appcelerator.com/platform/latest/#!/guide/Filesystem_Access_and_Storage)
+    [Filesystem Access and Storage guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Working_with_Local_Data_Sources/Filesystem_Access_and_Storage.html)
     as well as the other Filesystem submodule API documentation.
 extends: Titanium.Module
 since: "0.1"
@@ -61,7 +61,7 @@ methods:
         `Resources` directory, **not** to the current context. This is a known issue
         that will be addressed in a future release.
 
-        On iOS9, if app thinning is enabled, and the file of interest is an image file
+        On iOS 9, if app thinning is enabled, and the file of interest is an image file
         that was bundled with the app (not downloaded during runtime), this will not return
         the image file since it is already allocated inside the assets catalog. Please
         use [getAsset](Titanium.Filesystem.getAsset) instead for this case.
@@ -113,7 +113,6 @@ methods:
         type: String
         repeatable: true
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
     since: "5.4.0"
 
   - name: isExternalStoragePresent

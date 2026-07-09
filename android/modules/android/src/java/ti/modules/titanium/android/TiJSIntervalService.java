@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,7 +25,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 
-@SuppressWarnings("deprecation")
 public class TiJSIntervalService extends TiJSService
 {
 	private static final String TAG = "TiJSIntervalService";

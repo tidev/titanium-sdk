@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@ describe('Titanium.UI.Picker', function () {
 		}
 	});
 
-	// FIXME: Intermittent crashes on macOS: https://jira.appcelerator.org/browse/TIMOB-28296
+	// FIXME: Intermittent crashes on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28296
 	describe('.type is PICKER_TYPE_DATE', () => {
 		it('lifecycle', function (finish) {
 			const date = new Date();

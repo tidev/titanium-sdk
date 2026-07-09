@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,25 +23,34 @@ import org.appcelerator.titanium.util.TiDeviceOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.graphics.fonts.Font;
+import android.graphics.fonts.SystemFonts;
+import android.os.Build;
 import android.text.InputType;
 import android.text.util.Linkify;
+import android.view.DisplayCutout;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import java.io.File;
+import java.util.List;
+import java.util.Set;
+
 @Kroll.module
-public class UIModule extends KrollModule
+public class UIModule extends KrollModule implements TiApplication.ConfigurationChangedListener
 {
 	private static final String TAG = "TiUIModule";
+	private int lastEmittedStyle;
 
 	@Kroll.constant
 	public static final int RETURN_KEY_TYPE_ACTION = 0;
@@ -434,18 +443,33 @@ public class UIModule extends KrollModule
 	@Kroll.constant
 	public static final int USER_INTERFACE_STYLE_UNSPECIFIED = Configuration.UI_MODE_NIGHT_UNDEFINED;
 
-	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
+	@Kroll.constant
+	public static final int BREAK_SIMPLE = 0;
+	@Kroll.constant
+	public static final int BREAK_HIGH_QUALITY = 1;
+	@Kroll.constant
+	public static final int BREAK_BALANCED = 2;
 
-	private UIModule.Receiver broadcastReceiver;
+	@Kroll.constant
+	public static final int HYPHEN_NONE = 0;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL = 1;
+	@Kroll.constant
+	public static final int HYPHEN_FULL = 2;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL_FAST = 3;
+	@Kroll.constant
+	public static final int HYPHEN_FULL_FAST = 4;
+
+	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
 	public UIModule()
 	{
 		super();
 
 		// Register the module's broadcast receiver.
-		this.broadcastReceiver = new UIModule.Receiver(this);
-		TiApplication.getInstance().registerReceiver(broadcastReceiver,
-													 new IntentFilter(Intent.ACTION_CONFIGURATION_CHANGED));
+		TiApplication.addConfigurationChangeListener(this);
+		lastEmittedStyle = getUserInterfaceStyle();
 
 		// Set up a listener to be invoked when the JavaScript runtime is about to be terminated/disposed.
 		KrollRuntime.addOnDisposingListener(new KrollRuntime.OnDisposingListener() {
@@ -454,9 +478,6 @@ public class UIModule extends KrollModule
 			{
 				// Remove this listener from the runtime's static collection.
 				KrollRuntime.removeOnDisposingListener(this);
-
-				// Unregister this module's broadcast receviers.
-				TiApplication.getInstance().unregisterReceiver(broadcastReceiver);
 			}
 		});
 	}
@@ -471,10 +492,35 @@ public class UIModule extends KrollModule
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
-			root.setBackgroundColor(color != null ? TiColorHelper.parseColor(color) : Color.TRANSPARENT);
+			root.setBackgroundColor(color != null ? TiColorHelper.parseColor(color, root) : Color.TRANSPARENT);
 		}
 	}
 
+	@Kroll.getProperty
+	public String[] availableSystemFontFamilies()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+			Set<Font> fonts = SystemFonts.getAvailableFonts();
+			String[] list = new String[fonts.size()];
+			int count = 0;
+			for (Font font: fonts) {
+				list[count] = font.getFile().getName().replaceFirst("[.][^.]+$", "");
+				count++;
+			}
+			return list;
+		} else {
+			String path = "/system/fonts";
+			File file = new File(path);
+			File[] ff = file.listFiles();
+			String[] list = new String[ff.length];
+			int count = 0;
+			for (File font: ff) {
+				list[count] = font.getName().replaceFirst("[.][^.]+$", "");
+				count++;
+			}
+			return list;
+		}
+	}
 	@Kroll.setProperty(runOnUiThread = true)
 	public void setBackgroundImage(Object image)
 	{
@@ -561,8 +607,8 @@ public class UIModule extends KrollModule
 		// Change the night mode.
 		AppCompatDelegate.setDefaultNightMode(nightModeId);
 
-		// Fire a "userinterfacestyle" change event via our broadcast receiver.
-		this.broadcastReceiver.onReceive(TiApplication.getInstance(), null);
+		// Fire a "userinterfacestyle" change event.
+		this.onConfigurationChanged(TiApplication.getInstance().getResources().getConfiguration());
 
 		// Force our top-most activity apply the assigned night mode.
 		// Note: Works-around a Google bug where it doesn't always call the activity's onNightModeChanged() method.
@@ -575,12 +621,65 @@ public class UIModule extends KrollModule
 	@Kroll.getProperty
 	public int getUserInterfaceStyle()
 	{
-		int styleId = getOverrideUserInterfaceStyle();
-		if (styleId == Configuration.UI_MODE_NIGHT_UNDEFINED) {
-			Configuration config = TiApplication.getInstance().getResources().getConfiguration();
-			styleId = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+		return getUserInterfaceStyle(TiApplication.getInstance().getResources().getConfiguration());
+	}
+
+	@Kroll.getProperty
+	public int statusBarHeight()
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			Window w = TiApplication.getAppCurrentActivity().getWindow();
+			if (w == null) return 0;
+			View dv = w.getDecorView();
+			if (dv == null) return 0;
+			if (dv.getRootWindowInsets() == null) return 0;
+			DisplayCutout dpc = dv.getRootWindowInsets().getDisplayCutout();
+			if (dpc == null) return 0;
+			List<Rect> rects = dpc.getBoundingRects();
+			if (rects.size() > 0) {
+				int h = dpc.getBoundingRects().get(0).height();
+				return (int) new TiDimension(h, TiDimension.TYPE_HEIGHT).getAsDefault(dv);
+			}
 		}
-		return styleId;
+		return 0;
+	}
+
+	@Kroll.getProperty
+	public KrollDict getCutoutSize()
+	{
+		KrollDict returnValue = new KrollDict();
+		returnValue.put("top", 0);
+		returnValue.put("left", 0);
+		returnValue.put("height", 0);
+		returnValue.put("width", 0);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+			Window w = TiApplication.getAppCurrentActivity().getWindow();
+			if (w == null) return returnValue;
+			View dv = w.getDecorView();
+			if (dv == null) return returnValue;
+			if (dv.getRootWindowInsets() == null) return returnValue;
+			DisplayCutout dpc = dv.getRootWindowInsets().getDisplayCutout();
+			if (dpc == null) return returnValue;
+			List<Rect> rects = dpc.getBoundingRects();
+
+			int cutouts = rects.size();
+			int[] result = new int[cutouts * 4];
+			int index = 0;
+
+			if (rects.size() > 0) {
+				int dh = dpc.getBoundingRects().get(0).height();
+				int dw = dpc.getBoundingRects().get(0).width();
+				int dt = dpc.getBoundingRects().get(0).top;
+				int dl = dpc.getBoundingRects().get(0).left;
+
+				returnValue.put("left", (int) new TiDimension(dl, TiDimension.TYPE_LEFT).getAsDefault(dv));
+				returnValue.put("top", (int) new TiDimension(dt, TiDimension.TYPE_TOP).getAsDefault(dv));
+				returnValue.put("width", (int) new TiDimension(dw, TiDimension.TYPE_WIDTH).getAsDefault(dv));
+				returnValue.put("height", (int) new TiDimension(dh, TiDimension.TYPE_HEIGHT).getAsDefault(dv));
+			}
+		}
+		return returnValue;
 	}
 
 	@Override
@@ -589,30 +688,27 @@ public class UIModule extends KrollModule
 		return "Ti.UI";
 	}
 
-	private static class Receiver extends BroadcastReceiver
+	private int getUserInterfaceStyle(@NonNull Configuration config)
 	{
-		private UIModule module;
-		private int lastEmittedStyle;
-
-		public Receiver(UIModule module)
-		{
-			super();
-			this.module = module;
-			lastEmittedStyle = this.module.getUserInterfaceStyle();
+		int styleId = getOverrideUserInterfaceStyle();
+		if (styleId == Configuration.UI_MODE_NIGHT_UNDEFINED) {
+			styleId = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 		}
+		return styleId;
+	}
 
-		@Override
-		public void onReceive(Context context, Intent intent)
-		{
-			int currentMode = this.module.getUserInterfaceStyle();
-			if (currentMode == lastEmittedStyle) {
-				return;
-			}
-			lastEmittedStyle = currentMode;
-
-			KrollDict event = new KrollDict();
-			event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
-			this.module.fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+	@Override
+	public void onConfigurationChanged(@NonNull Configuration config)
+	{
+		int currentMode = getUserInterfaceStyle(config);
+		if (currentMode == lastEmittedStyle) {
+			return;
 		}
+		lastEmittedStyle = currentMode;
+
+		KrollDict event = new KrollDict();
+		event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
+		fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+
 	}
 }

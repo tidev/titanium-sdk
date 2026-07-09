@@ -1,15 +1,15 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 #ifdef USE_TI_MEDIA
 
-#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS)
+#if defined(USE_TI_MEDIAGETAPPMUSICPLAYER) || defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAAPPMUSICPLAYER) || defined(USE_TI_MEDIAGETSYSTEMMUSICPLAYER) || defined(USE_TI_MEDIASYSTEMMUSICPLAYER) || defined(USE_TI_MEDIAHASMUSICLIBRARYPERMISSIONS) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
 #import <MediaPlayer/MediaPlayer.h>
 #endif
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
 #import <PhotosUI/PHPicker.h>
 #endif
 #import "TiMediaAudioSession.h"
@@ -25,7 +25,7 @@
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
                              UIImagePickerControllerDelegate,
 #endif
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
                              PHPickerViewControllerDelegate,
 #endif
 #ifdef USE_TI_MEDIAOPENMUSICLIBRARY
@@ -42,7 +42,7 @@
 #if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
   UIImagePickerController *picker;
 #endif
-#if IS_SDK_IOS_14 && defined(USE_TI_MEDIAOPENPHOTOGALLERY)
+#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
   PHPickerViewController *_phPicker;
   BOOL excludeLivePhoto;
 #endif
@@ -50,7 +50,7 @@
   BOOL saveToRoll;
 
 // Music picker
-#ifdef USE_TI_MEDIAOPENMUSICLIBRARY
+#if defined(USE_TI_MEDIAOPENMUSICLIBRARY) || defined(USE_TI_MEDIAQUERYMUSICLIBRARY)
   MPMediaPickerController *musicPicker;
 #endif
 

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -22,6 +22,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
 import android.graphics.Color;
+import android.os.Build;
 import android.text.Html;
 import android.text.Layout;
 import android.text.Selection;
@@ -34,9 +35,12 @@ import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import android.text.TextPaint;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import androidx.annotation.NonNull;
+import androidx.core.widget.TextViewCompat;
+
 import com.google.android.material.textview.MaterialTextView;
 
 public class TiUILabel extends TiUIView
@@ -44,6 +48,9 @@ public class TiUILabel extends TiUIView
 	private static final String TAG = "TiUILabel";
 	private static final float DEFAULT_SHADOW_RADIUS = 1f;
 	private static final float FONT_SIZE_EPSILON = 0.1f;
+	private static final int TEXT_FILTER_DEFAULT = 0;
+	private static final int TEXT_FILTER_UPPERCASE = 1;
+	private static final int TEXT_FILTER_LOWERCASE = 2;
 
 	private int defaultColor;
 	private TruncateAt ellipsize = TruncateAt.END;
@@ -58,6 +65,8 @@ public class TiUILabel extends TiUIView
 	private float unscaledFontSizeInPixels = -1.0f;
 	private CharSequence originalText = "";
 	private boolean isInvalidationAndLayoutsEnabled = true;
+	private float oldFontSize = -1.0f;
+	private int textFilter = TEXT_FILTER_DEFAULT;
 
 	public TiUILabel(final TiViewProxy proxy)
 	{
@@ -160,7 +169,7 @@ public class TiUILabel extends TiUIView
 				MaterialTextView textView = (MaterialTextView) this;
 				Object text = textView.getText();
 
-				//For html texts, we will manually detect url clicks.
+				// For HTML texts, we will manually detect url clicks.
 				if (text instanceof SpannedString) {
 					SpannedString spanned = (SpannedString) text;
 					Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
@@ -242,7 +251,7 @@ public class TiUILabel extends TiUIView
 		{
 			int value = textView.getWidth();
 			{
-				// Exlude the view's padding and borders.
+				// Exclude the view's padding and borders.
 				value -= textView.getTotalPaddingLeft() + textView.getTotalPaddingRight();
 			}
 			if ((this.layoutParams != null) && (this.layoutParams.optionWidth != null)
@@ -334,10 +343,10 @@ public class TiUILabel extends TiUIView
 			boolean hasProperty = false;
 			if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
 				hasProperty = true;
-				Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-				if (attributedString instanceof AttributedStringProxy) {
-					newText = AttributedStringProxy.toSpannable(((AttributedStringProxy) attributedString),
-																TiApplication.getAppCurrentActivity());
+				Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+				AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+				if (proxy != null) {
+					newText = AttributedStringProxy.toSpannable(proxy, TiApplication.getAppCurrentActivity());
 				}
 			}
 			if ((newText == null) && d.containsKey(TiC.PROPERTY_HTML)) {
@@ -392,16 +401,20 @@ public class TiUILabel extends TiUIView
 								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
 		}
+		if (d.containsKey(TiC.PROPERTY_LETTER_SPACING)) {
+			float value = TiConvert.toFloat(d.get(TiC.PROPERTY_LETTER_SPACING));
+			tv.setLetterSpacing(value);
+		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
 			if (color == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR));
+				tv.setTextColor(TiConvert.toColor(d, TiC.PROPERTY_COLOR, proxy.getActivity()));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR));
+			tv.setHighlightColor(TiConvert.toColor(d, TiC.PROPERTY_HIGHLIGHTED_COLOR, proxy.getActivity()));
 		}
 		if (d.containsKey(TiC.PROPERTY_FONT)) {
 			TiUIHelper.styleText(tv, d.getKrollDict(TiC.PROPERTY_FONT));
@@ -454,12 +467,41 @@ public class TiUILabel extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_COLOR)) {
 			needShadow = true;
-			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR);
+			shadowColor = TiConvert.toColor(d, TiC.PROPERTY_SHADOW_COLOR, proxy.getActivity());
 		}
 		if (needShadow) {
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		}
 
+		if (d.containsKey(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(d, TiC.PROPERTY_AUTOSIZE, false)) {
+				oldFontSize = tv.getTextSize();
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_BREAK_STRATEGY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setBreakStrategy(TiConvert.toInt(d.get(TiC.PROPERTY_BREAK_STRATEGY)));
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_HYPHENATION_FREQUENCY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setHyphenationFrequency(TiConvert.toInt(d.get(TiC.PROPERTY_HYPHENATION_FREQUENCY)));
+			}
+		}
+
+		if (d.containsKey(TiC.PROPERTY_TEXT_TRANSFORM)) {
+			String transformName = TiConvert.toString(d, TiC.PROPERTY_TEXT_TRANSFORM);
+			if (transformName.equals("uppercase")) {
+				textFilter = TEXT_FILTER_UPPERCASE;
+			} else if (transformName.equals("lowercase")) {
+				textFilter = TEXT_FILTER_LOWERCASE;
+			} else if (transformName.equals("none")) {
+				textFilter = TEXT_FILTER_DEFAULT;
+			}
+		}
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
@@ -473,9 +515,9 @@ public class TiUILabel extends TiUIView
 			|| key.equals(TiC.PROPERTY_TITLE)) {
 			CharSequence newText = null;
 			if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-				if (newValue instanceof AttributedStringProxy) {
-					newText = AttributedStringProxy.toSpannable((AttributedStringProxy) newValue,
-																TiApplication.getAppCurrentActivity());
+				AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+				if (asProxy != null) {
+					newText = AttributedStringProxy.toSpannable(asProxy, TiApplication.getAppCurrentActivity());
 				}
 				if (newText == null) {
 					newText = "";
@@ -496,10 +538,11 @@ public class TiUILabel extends TiUIView
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
 			} else {
-				tv.setTextColor(TiConvert.toColor((String) newValue));
+				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
-			tv.setHighlightColor(TiConvert.toColor((String) newValue));
+			// TODO: reset to default value when property is null
+			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_TEXT_ALIGN)) {
 			TiUIHelper.setAlignment(tv, TiConvert.toString(newValue), null);
 			tv.requestLayout();
@@ -548,7 +591,7 @@ public class TiUILabel extends TiUIView
 			shadowRadius = TiConvert.toFloat(newValue, DEFAULT_SHADOW_RADIUS);
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_SHADOW_COLOR)) {
-			shadowColor = TiConvert.toColor(TiConvert.toString(newValue));
+			shadowColor = TiConvert.toColor(newValue, proxy.getActivity());
 			tv.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_LINES)) {
 			this.viewHeightInLines = TiConvert.toInt(newValue, 0);
@@ -566,8 +609,11 @@ public class TiUILabel extends TiUIView
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
 				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0),
-								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+					TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
+		} else if (key.equals(TiC.PROPERTY_LETTER_SPACING)) {
+			float val = TiConvert.toFloat(newValue);
+			tv.setLetterSpacing(val);
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			// Update the view's height.
 			// Note: We may need to update lines/maxLines settings when switching to an auto-sized height.
@@ -579,6 +625,36 @@ public class TiUILabel extends TiUIView
 			if (hadFixedSize && isAutoSized) {
 				updateLabelText();
 			}
+		} else if (key.equals(TiC.PROPERTY_AUTOSIZE)) {
+			if (TiConvert.toBoolean(newValue, false)) {
+				oldFontSize = tv.getTextSize();
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+			} else {
+				TextViewCompat.setAutoSizeTextTypeWithDefaults(tv, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
+				if (oldFontSize != -1) {
+					tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, oldFontSize);
+					tv.requestLayout();
+				}
+			}
+
+		} else if (key.equals(TiC.PROPERTY_BREAK_STRATEGY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setBreakStrategy(TiConvert.toInt(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_HYPHENATION_FREQUENCY)) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				tv.setHyphenationFrequency(TiConvert.toInt(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_TEXT_TRANSFORM)) {
+			String transformName = TiConvert.toString(newValue);
+			if (transformName.equals("uppercase")) {
+				textFilter = TEXT_FILTER_UPPERCASE;
+			} else if (transformName.equals("lowercase")) {
+				textFilter = TEXT_FILTER_LOWERCASE;
+			} else if (transformName.equals("none")) {
+				textFilter = TEXT_FILTER_DEFAULT;
+			}
+			updateLabelText();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -750,8 +826,37 @@ public class TiUILabel extends TiUIView
 			textView.setSelected(true); // Start the marquee animation.
 		}
 
+		// apply text filer
+		switch (textFilter) {
+			case TEXT_FILTER_UPPERCASE -> {
+				text = text.toString().toUpperCase();
+			}
+			case TEXT_FILTER_LOWERCASE -> {
+				text = text.toString().toLowerCase();
+			}
+		}
 		// Update the view's text.
 		textView.setText(text, MaterialTextView.BufferType.NORMAL);
 		textView.requestLayout();
+	}
+
+	public int getLineCount()
+	{
+		MaterialTextView textView = (MaterialTextView) getNativeView();
+		if (textView != null && textView.getLayout() != null) {
+			return textView.getLineCount();
+		} else {
+			return 0;
+		}
+	}
+
+	public String getVisibleText()
+	{
+		MaterialTextView textView = (MaterialTextView) getNativeView();
+		if (textView != null && textView.getLayout() != null) {
+			return textView.getLayout().getText().toString();
+		} else {
+			return "";
+		}
 	}
 }

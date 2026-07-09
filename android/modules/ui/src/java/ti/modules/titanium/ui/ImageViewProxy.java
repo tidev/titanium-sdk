@@ -1,16 +1,18 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
 import android.app.Activity;
+
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.view.TiUIView;
+
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.widget.TiUIImageView;
 
@@ -27,7 +29,7 @@ import ti.modules.titanium.ui.widget.TiUIImageView;
 		TiC.PROPERTY_IMAGES,
 		TiC.PROPERTY_REPEAT_COUNT,
 		TiC.PROPERTY_SCALING_MODE
-})
+	})
 public class ImageViewProxy extends ViewProxy
 {
 	public ImageViewProxy()
@@ -108,16 +110,16 @@ public class ImageViewProxy extends ViewProxy
 		return getImageView().toBlob();
 	}
 
-	@Kroll.setProperty(runOnUiThread = true)
-	public void setTintColor(String color)
-	{
-		getImageView().setTintColor(color);
-	}
-
 	@Kroll.getProperty
 	public int getTintColor()
 	{
 		return getImageView().getTintColor();
+	}
+
+	@Kroll.setProperty(runOnUiThread = true)
+	public void setTintColor(String color)
+	{
+		getImageView().setTintColor(color);
 	}
 
 	@Override

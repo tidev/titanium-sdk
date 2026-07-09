@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,8 +27,8 @@ extern NSString *TitaniumModuleRequireFormat;
   NSDictionary *preload;
   BOOL shutdown;
   BOOL evaluationError;
-  //NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
-  //CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
+  // NOTE: Do NOT treat registeredProxies like a mutableDictionary; mutable dictionaries copy keys,
+  // CFMutableDictionaryRefs only retain keys, which lets them work with proxies properly.
   CFMutableDictionaryRef registeredProxies;
   NSCondition *shutdownCondition;
   os_unfair_lock proxyLock;

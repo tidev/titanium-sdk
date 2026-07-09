@@ -31,8 +31,8 @@ carthage build --archive
 ```
 
 ## Authors
-[@hansemannn](https://github.com/hansemannn), Axway
-[@janvennemann](https://github.com/janvennemann), Axway
+[@hansemannn](https://github.com/hansemannn)
+[@janvennemann](https://github.com/janvennemann)
 
 ## Copyright
 &copy; 2017 - present, Axway

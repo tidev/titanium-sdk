@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2014 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,7 +24,7 @@ JSValueRef KrollCallAsFunction(JSContextRef jsContext, JSObjectRef func, JSObjec
       args = [[NSMutableArray alloc] initWithCapacity:argCount];
       for (size_t c = 0; c < argCount; c++) {
         id value = [KrollObject toID:[o context] value:arguments[c]];
-        //TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
+        // TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
         if (value == nil) {
           [args addObject:[NSNull null]];
         } else {
@@ -82,7 +82,7 @@ JSValueRef KrollCallAsNamedFunction(JSContextRef jsContext, JSObjectRef func, JS
       args = [[NSMutableArray alloc] initWithCapacity:argCount];
       for (size_t c = 0; c < argCount; c++) {
         id value = [KrollObject toID:[o context] value:arguments[c]];
-        //TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
+        // TODO: This is a temprorary workaround for the time being. We have to properly take care of [undefined] objects.
         if (value == nil) {
           [args addObject:[NSNull null]];
         } else {
@@ -226,7 +226,7 @@ JSValueRef KrollCallAsNamedFunction(JSContextRef jsContext, JSObjectRef func, JS
 {
   // special generic factory for creating proxy objects for modules
   if (type == KrollMethodFactory) {
-    //TODO: This likely could be further optimized later
+    // TODO: This likely could be further optimized later
     //
     BOOL useResult = [_methodSignature methodReturnLength] == sizeof(id);
     id result = nil;

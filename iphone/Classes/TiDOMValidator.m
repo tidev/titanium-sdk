@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -30,7 +30,7 @@
 
 + (BOOL)checkNamespacePrefix:(NSString *)pName
 {
-  //Can be nil or empty
+  // Can be nil or empty
   if ([pName length] == 0) {
     return YES;
   }

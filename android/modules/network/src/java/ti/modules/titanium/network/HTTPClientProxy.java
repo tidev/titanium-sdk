@@ -1,12 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.network;
 
-import java.io.UnsupportedEncodingException;
+import android.os.Build;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -15,8 +15,9 @@ import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 
+import java.io.UnsupportedEncodingException;
+
 import ti.modules.titanium.xml.DocumentProxy;
-import android.os.Build;
 
 @Kroll.proxy(creatableInModule = NetworkModule.class,
 	propertyAccessors = {
@@ -26,7 +27,7 @@ import android.os.Build;
 		TiC.PROPERTY_ONERROR,
 		TiC.PROPERTY_ONREADYSTATECHANGE,
 		TiC.PROPERTY_ONDATASTREAM
-})
+	})
 public class HTTPClientProxy extends KrollProxy
 {
 	@Kroll.constant
@@ -39,9 +40,8 @@ public class HTTPClientProxy extends KrollProxy
 	public static final int LOADING = TiHTTPClient.READY_STATE_LOADING;
 	@Kroll.constant
 	public static final int DONE = TiHTTPClient.READY_STATE_DONE;
-
-	private static final String TAG = "TiHTTPClientProxy";
 	public static final String PROPERTY_SECURITY_MANAGER = "securityManager";
+	private static final String TAG = "TiHTTPClientProxy";
 	private TiHTTPClient client;
 
 	public HTTPClientProxy()
@@ -82,7 +82,7 @@ public class HTTPClientProxy extends KrollProxy
 				} else {
 					throw new IllegalArgumentException(
 						"Invalid argument passed to securityManager property."
-						+ " Does not conform to SecurityManagerProtocol");
+							+ " Does not conform to SecurityManagerProtocol");
 				}
 			}
 		}
@@ -241,12 +241,6 @@ public class HTTPClientProxy extends KrollProxy
 		this.setProperty("validatesSecureCertificate", value);
 	}
 
-	@Kroll.setProperty
-	public void setUsername(String value)
-	{
-		this.setProperty(TiC.PROPERTY_USERNAME, value);
-	}
-
 	@Kroll.getProperty
 	public String getUsername()
 	{
@@ -257,9 +251,9 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setPassword(String value)
+	public void setUsername(String value)
 	{
-		this.setProperty(TiC.PROPERTY_PASSWORD, value);
+		this.setProperty(TiC.PROPERTY_USERNAME, value);
 	}
 
 	@Kroll.getProperty
@@ -272,9 +266,9 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setDomain(String value)
+	public void setPassword(String value)
 	{
-		this.setProperty(TiC.PROPERTY_DOMAIN, value);
+		this.setProperty(TiC.PROPERTY_PASSWORD, value);
 	}
 
 	@Kroll.getProperty
@@ -287,9 +281,9 @@ public class HTTPClientProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setTlsVersion(int tlsVersion)
+	public void setDomain(String value)
 	{
-		client.setTlsVersion(tlsVersion);
+		this.setProperty(TiC.PROPERTY_DOMAIN, value);
 	}
 
 	@Kroll.getProperty
@@ -307,6 +301,12 @@ public class HTTPClientProxy extends KrollProxy
 			}
 		}
 		return tlsVersion;
+	}
+
+	@Kroll.setProperty
+	public void setTlsVersion(int tlsVersion)
+	{
+		client.setTlsVersion(tlsVersion);
 	}
 
 	@Override

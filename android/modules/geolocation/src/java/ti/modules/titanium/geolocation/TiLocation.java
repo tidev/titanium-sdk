@@ -1,13 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.geolocation;
 
 import java.util.List;
-import java.util.Locale;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
@@ -20,8 +19,6 @@ import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
 
-import com.appcelerator.aps.APSAnalytics;
-
 public class TiLocation
 {
 	public static final int ERR_POSITION_UNAVAILABLE = 6;
@@ -33,20 +30,12 @@ public class TiLocation
 
 	private static final String TAG = "TiLocation";
 
-	private String mobileId;
-	private String appGuid;
-	private String sessionId;
-	private String countryCode;
 	private List<String> knownProviders;
 
 	public TiLocation()
 	{
 		locationManager = (LocationManager) TiApplication.getInstance().getSystemService(Context.LOCATION_SERVICE);
 		knownProviders = locationManager.getAllProviders();
-		mobileId = APSAnalytics.getInstance().getMachineId();
-		appGuid = TiApplication.getInstance().getAppInfo().getGUID();
-		sessionId = APSAnalytics.getInstance().getCurrentSessionId();
-		countryCode = Locale.getDefault().getCountry();
 	}
 
 	public boolean isProvider(String name)

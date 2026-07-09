@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -24,6 +24,7 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -89,7 +90,7 @@ public class TiHTTPClient
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
 	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
 	private static final String TITANIUM_USER_AGENT =
-		"Appcelerator Titanium/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
+		"Titanium SDK/" + TiApplication.getInstance().getTiBuildVersion() + " (" + Build.MODEL
 		+ "; Android API Level: " + Integer.toString(Build.VERSION.SDK_INT) + "; "
 		+ TiPlatformHelper.getInstance().getLocale() + ";)";
 	private static final String[] FALLBACK_CHARSETS = { "UTF_8", "ISO_8859_1" };
@@ -97,6 +98,8 @@ public class TiHTTPClient
 	// Regular expressions for detecting charset information in response documents (ex: html, xml).
 	private static final String HTML_META_TAG_REGEX = "charset=([^\"\']*)";
 	private static final String XML_DECLARATION_TAG_REGEX = "encoding=[\"\']([^\"\']*)[\"\']";
+	private static final Pattern HTML_META_TAG_PATTERN = Pattern.compile(HTML_META_TAG_REGEX);
+	private static final Pattern XML_DECLARATION_TAG_PATTERN = Pattern.compile(XML_DECLARATION_TAG_REGEX);
 
 	private static AtomicInteger httpClientThreadCounter;
 	private HttpURLConnection client;
@@ -195,7 +198,7 @@ public class TiHTTPClient
 				}
 			}
 
-			// Check for new url that is redirected
+			// Check for new URL that is redirected
 			URL currentLocation = connection.getURL();
 			if (autoRedirect && !mURL.sameFile(currentLocation)) {
 				redirectedLocation = currentLocation.toString();
@@ -492,6 +495,11 @@ public class TiHTTPClient
 	private String decodeResponseData(String charsetName)
 	{
 		Charset charset;
+
+		if (charsetName.isEmpty()) {
+			return null;
+		}
+
 		try {
 			charset = Charset.forName(charsetName);
 
@@ -534,16 +542,16 @@ public class TiHTTPClient
 	 */
 	private String detectResponseDataEncoding()
 	{
-		String regex;
+		Pattern pattern;
 		if (contentType == null) {
 			Log.w(TAG, "Could not detect charset, no content type specified.", Log.DEBUG_MODE);
 			return null;
 
 		} else if (contentType.contains("xml")) {
-			regex = XML_DECLARATION_TAG_REGEX;
+			pattern = XML_DECLARATION_TAG_PATTERN;
 
 		} else if (contentType.contains("html")) {
-			regex = HTML_META_TAG_REGEX;
+			pattern = HTML_META_TAG_PATTERN;
 
 		} else {
 			Log.w(TAG, "Cannot detect charset, unknown content type: " + contentType, Log.DEBUG_MODE);
@@ -557,7 +565,6 @@ public class TiHTTPClient
 			responseSequence = responseOut.toString();
 		}
 		if (responseSequence != null) {
-			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(responseSequence);
 			if (matcher.find()) {
 				return matcher.group(1);
@@ -866,9 +873,9 @@ public class TiHTTPClient
 			throw new IllegalArgumentException("URL cannot be null");
 		}
 
-		// if the url is not prepended with either http or
+		// if the URL is not prepended with either http or
 		// https, then default to http and prepend the protocol
-		// to the url
+		// to the URL
 		String lowerCaseUrl = url.toLowerCase();
 		if (!lowerCaseUrl.startsWith("http://") && !lowerCaseUrl.startsWith("https://")) {
 			url = "http://" + url;
@@ -881,7 +888,7 @@ public class TiHTTPClient
 			this.uri = Uri.parse(url);
 		}
 
-		// If the original url does not contain any
+		// If the original URL does not contain any
 		// escaped query string (i.e., does not look
 		// pre-encoded), go ahead and reset it to the
 		// clean uri. Else keep it as is so the user's
@@ -902,10 +909,10 @@ public class TiHTTPClient
 		// The Android Uri doesn't seem to handle user ids with at-signs (@) in them
 		// properly, even if the @ is escaped.  It will set the host (uri.getHost()) to
 		// the part of the user name after the @.  For example, this Uri would get
-		// the host set to appcelerator.com when it should be mickey.com:
-		// http://testuser@appcelerator.com:password@mickey.com/xx
+		// the host set to example.com when it should be mickey.com:
+		// http://testuser@example.com:password@mickey.com/xx
 		// ... even if that first one is escaped to ...
-		// http://testuser%40appcelerator.com:password@mickey.com/xx
+		// http://testuser%40example.com:password@mickey.com/xx
 		// Tests show that Java URL handles it properly, however.  So revert to using Java URL.getHost()
 		// if we see that the Uri.getUserInfo has an at-sign in it.
 		// Also, uri.getPort() will throw an exception as it will try to parse what it thinks is the port
@@ -919,7 +926,7 @@ public class TiHTTPClient
 				port = javaUrl.getPort();
 
 			} catch (MalformedURLException e) {
-				Log.e(TAG, "Error attempting to derive Java url from uri: " + e.getMessage(), e);
+				Log.e(TAG, "Error attempting to derive Java URL from uri: " + e.getMessage(), e);
 			}
 
 		} else {
@@ -940,14 +947,6 @@ public class TiHTTPClient
 
 		setReadyState(READY_STATE_OPENED);
 		setRequestHeader("User-Agent", TITANIUM_USER_AGENT);
-		// Causes Auth to Fail with twitter and other size apparently block X- as well
-		// Ticket #729, ignore twitter for now
-		if (!hostString.contains("twitter.com")) {
-			setRequestHeader("X-Requested-With", "XMLHttpRequest");
-
-		} else {
-			Log.i(TAG, "Twitter: not sending X-Requested-With header", Log.DEBUG_MODE);
-		}
 	}
 
 	public void setRawData(Object data)
@@ -987,7 +986,7 @@ public class TiHTTPClient
 	{
 		try {
 			// TiResourceFile cannot use the FileBody approach directly, because it requires
-			// a java File object, which you can't get from packaged resources. So
+			// a Java File object, which you can't get from packaged resources. So
 			// TiResourceFile uses the approach we use for blobs, which is write out the
 			// contents to a temp file, then use that for the FileBody.
 			if (value instanceof TiBaseFile && !(value instanceof TiResourceFile)) {
@@ -1341,7 +1340,7 @@ public class TiHTTPClient
 						printWriter.close();
 					}
 
-					// Fix for https://jira.appcelerator.org/browse/TIMOB-23309
+					// Fix for https://jira-archive.titaniumsdk.com/TIMOB-23309
 					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
 					// This section of the code handles that.
 					if (autoRedirect) {
@@ -1371,10 +1370,18 @@ public class TiHTTPClient
 						}
 					}
 					handleResponse(client);
-
 				} catch (IOException e) {
 					if (!aborted) {
-						throw e;
+						KrollDict data = new KrollDict();
+						int errorCode = TiC.ERROR_CODE_UNKNOWN;
+						if (e instanceof SocketTimeoutException) {
+							errorCode = TiC.ERROR_CODE_TIMEOUT;
+						} else if (getStatus() >= 400) {
+							errorCode = getStatus();
+						}
+						data.putCodeAndMessage(errorCode, e.getMessage());
+						dispatchCallback(TiC.PROPERTY_ONERROR, data);
+						return;
 					}
 				} finally {
 					if (client != null) {
@@ -1467,7 +1474,6 @@ public class TiHTTPClient
 			// This is to set gzip default to disable
 			// https://code.google.com/p/android/issues/detail?id=174949
 			client.setRequestProperty("Accept-Encoding", "identity");
-			client.setRequestProperty(TITANIUM_ID_HEADER, TiApplication.getInstance().getAppGUID());
 			if (parts.size() > 0 && needMultipart) {
 				boundary = HttpUrlConnectionUtils.generateBoundary();
 				client.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
@@ -1517,7 +1523,7 @@ public class TiHTTPClient
 
 		public void completeSendingMultipart()
 		{
-			printWriter.append("--" + boundary + "--").append(LINE_FEED);
+			printWriter.append("--").append(boundary).append("--").append(LINE_FEED);
 		}
 
 		private void handleURLEncodedData(UrlEncodedFormEntity form) throws IOException

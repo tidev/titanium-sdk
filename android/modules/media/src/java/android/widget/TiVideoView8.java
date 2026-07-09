@@ -16,12 +16,12 @@
 
 /**
  * Modifications copyright:
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  *
- * This is the api level 8 VideoView.java with Titanium-specific modifications.
+ * This is the API level 8 VideoView.java with Titanium-specific modifications.
  */
 
 package android.widget;
@@ -34,6 +34,7 @@ import org.appcelerator.titanium.TiApplication;
 
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.TiPlaybackListener;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -107,6 +108,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 								   // preparing
 	@SuppressWarnings("unused")
 	private int mStateWhenSuspended; // state before calling suspend()
+	private boolean autoHide = false;
 
 	// TITANIUM
 	private TiPlaybackListener mPlaybackListener;
@@ -239,7 +241,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			}
 			constantDeprecationWarning(mScalingMode);
 		}
-		Log.i(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
+		Log.d(TAG, "setting size: " + width + 'x' + height, Log.DEBUG_MODE);
 		setMeasuredDimension(width, height);
 	}
 
@@ -344,7 +346,15 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			Map<String, String> headers = new HashMap<>();
 			headers.put("Cache-Control", "no-cache");
 
-			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
+			// MediaPlayer.setDataSource(Context, Uri, headers) may route through ContentResolver and fail for http(s) URLs.
+			// Use the string overload for http(s) so we can play remote videos reliably.
+			String scheme = mUri != null ? mUri.getScheme() : null;
+
+			if (scheme != null && scheme.startsWith("http")) {
+				mMediaPlayer.setDataSource(mUri.toString());
+			} else {
+				mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
 		}
@@ -492,15 +502,26 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 					// so
 					// start the video here instead of in the callback.
 					if (mTargetState == STATE_PLAYING) {
+						if (autoHide) {
+							setAlpha(1);
+						}
 						start();
 						if (mMediaController != null) {
-							mMediaController.show();
+							// Check if the activity is finishing to avoid WindowLeaked error
+							Context context = getContext();
+							if (!(context instanceof Activity) || !((Activity) context).isFinishing()) {
+								mMediaController.show();
+							}
 						}
 					} else if (!isPlaying() && (seekToPosition != 0 || getCurrentPosition() > 0)) {
 						if (mMediaController != null) {
-							// Show the media controls when we're paused into a
-							// video and make 'em stick.
-							mMediaController.show(0);
+							// Check if the activity is finishing to avoid WindowLeaked error
+							Context context = getContext();
+							if (!(context instanceof Activity) || !((Activity) context).isFinishing()) {
+								// Show the media controls when we're paused into a
+								// video and make 'em stick.
+								mMediaController.show(0);
+							}
 						}
 					}
 				}
@@ -606,6 +627,11 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				}
 				start();
 				if (mMediaController != null) {
+					// Check if the activity is finishing to avoid WindowLeaked error
+					Context context = getContext();
+					if (context instanceof Activity && ((Activity) context).isFinishing()) {
+						return;
+					}
 					mMediaController.show();
 				}
 			}
@@ -635,6 +661,9 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				mMediaController.hide();
 			if (mCurrentState != STATE_SUSPEND) {
 				release(true);
+			}
+			if (autoHide) {
+				setAlpha(0);
 			}
 		}
 	};
@@ -717,7 +746,7 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			// TITANIUM
 			if (mPlaybackListener != null) {
 				mPlaybackListener.onStartPlayback();
-				// Fired after a stop or play is called after a after url change.
+				// Fired after a stop or play is called after a after URL change.
 				if (oldState == STATE_PREPARED || oldState == STATE_PREPARING) {
 					mPlaybackListener.onPlayingPlayback();
 				}
@@ -883,5 +912,13 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 	{
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public void setAutoHide(boolean value)
+	{
+		if (value) {
+			setAlpha(0);
+		}
+		autoHide = value;
 	}
 }

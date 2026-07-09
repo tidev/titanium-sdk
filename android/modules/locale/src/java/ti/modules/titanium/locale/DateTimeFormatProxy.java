@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -121,7 +121,7 @@ public class DateTimeFormatProxy extends KrollProxy
 		String dateStyleStringId = TiConvert.toString(options.get("dateStyle"));
 		String timeStyleStringId = TiConvert.toString(options.get("timeStyle"));
 
-		// Determine if at least 1 "date" componoent has been configured.
+		// Determine if at least 1 "date" component has been configured.
 		boolean hasCustomDateSettings
 			=  (weekdayFormatId != null)
 			|| (eraFormatId != null)
@@ -129,7 +129,7 @@ public class DateTimeFormatProxy extends KrollProxy
 			|| (monthFormatId != null)
 			|| (dayFormatId != null);
 
-		// Determine if at least 1 "time" componoent has been configured.
+		// Determine if at least 1 "time" component has been configured.
 		boolean hasCustomTimeSettings
 			=  (hourFormatId != null)
 			|| (minuteFormatId != null)
@@ -152,24 +152,23 @@ public class DateTimeFormatProxy extends KrollProxy
 		if (hasCustomDateSettings || hasCustomTimeSettings) {
 			try {
 				// Generate a "skeleton" pattern without any separators using given options.
-				StringBuilder stringBuilder = new StringBuilder(32);
-				stringBuilder.append(getPatternForWeekdayId(weekdayFormatId));
-				stringBuilder.append(getPatternForYearId(yearFormatId));
-				stringBuilder.append(getPatternForMonthId(monthFormatId));
-				stringBuilder.append(getPatternForDayId(dayFormatId));
-				stringBuilder.append(getPatternForEraId(eraFormatId));
-				stringBuilder.append(getPatternForHourId(hourFormatId, hourCycleFormatId));
-				stringBuilder.append(getPatternForMinuteId(minuteFormatId));
-				stringBuilder.append(getPatternForSecondId(secondFormatId));
-				stringBuilder.append(getPatternForMillisecondDigits(millisecondDigits));
-				stringBuilder.append(getPatternForDayPeriodId(dayPeriodFormatId));
-				stringBuilder.append(getPatternForTimeZoneId(timeZoneFormatId));
+				String stringBuilder = getPatternForWeekdayId(weekdayFormatId)
+					+ getPatternForYearId(yearFormatId)
+					+ getPatternForMonthId(monthFormatId)
+					+ getPatternForDayId(dayFormatId)
+					+ getPatternForEraId(eraFormatId)
+					+ getPatternForHourId(hourFormatId, hourCycleFormatId)
+					+ getPatternForMinuteId(minuteFormatId)
+					+ getPatternForSecondId(secondFormatId)
+					+ getPatternForMillisecondDigits(millisecondDigits)
+					+ getPatternForDayPeriodId(dayPeriodFormatId)
+					+ getPatternForTimeZoneId(timeZoneFormatId);
 
 				// Have Android generate a localized date/time pattern string from above skeleton pattern.
 				// This will inject needed separators and auto-swap components like month/day according to locale.
 				// Note: Android 8 sometimes inserts invalid pattern char 'b' for AM/PM. Should be 'a' instead.
 				String datePattern = android.text.format.DateFormat.getBestDateTimePattern(
-					locale, stringBuilder.toString());
+					locale, stringBuilder);
 				datePattern = datePattern.replace('b', 'a');
 				this.dateFormat = new SimpleDateFormat(datePattern, locale);
 			} catch (Exception ex) {
@@ -316,7 +315,7 @@ public class DateTimeFormatProxy extends KrollProxy
 				index = endIndex;
 			}
 
-			// Add the substring part enttry to the collection.
+			// Add the substring part entry to the collection.
 			KrollDict entry = new KrollDict();
 			entry.put(TiC.PROPERTY_TYPE, typeName);
 			entry.put(TiC.PROPERTY_VALUE, substring);

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -42,9 +42,11 @@
 - (void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-  [(id)[self textWidgetView] setAttributedText:[arg attributedString]];
+  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:arg];
+  if (as) {
+    [[self proxy] replaceValue:as forKey:@"attributedString" notification:NO];
+    [(id)[self textWidgetView] setAttributedText:[as attributedString]];
+  }
 #endif
 }
 
@@ -58,7 +60,7 @@
     string = [string substringToIndex:maxLength];
   }
   [(id)[self textWidgetView] setText:string];
-  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string];
+  [(TiUITextWidgetProxy *)[self proxy] noteValueChange:string:nil];
 }
 
 - (void)setMaxLength_:(id)value
@@ -75,7 +77,7 @@
 
 - (void)dealloc
 {
-  //Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
+  // Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
   TiThreadPerformOnMainThread(
       ^{
         [textWidgetView removeFromSuperview];
@@ -151,6 +153,7 @@
 - (void)setAutocorrect_:(id)value
 {
   [[self textWidgetView] setAutocorrectionType:[TiUtils boolValue:value] ? UITextAutocorrectionTypeYes : UITextAutocorrectionTypeNo];
+  [[self textWidgetView] setSpellCheckingType:[TiUtils boolValue:value] ? UITextSpellCheckingTypeYes : UITextSpellCheckingTypeNo];
 }
 
 - (void)setAutofillType_:(id)value

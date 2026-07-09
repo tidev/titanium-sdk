@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2018 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -117,7 +117,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		if (javaStack != null) {
 			output += javaStack;
 
-			// no java stack, attempt to obtain last ten stack entries
+			// no Java stack, attempt to obtain last ten stack entries
 			// omitting our error handling entries
 		} else {
 			StackTraceElement[] trace = new Error().getStackTrace();
@@ -253,6 +253,11 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 												.setCancelable(false);
 
 		final AlertDialog dialog = builder.create();
+
+		// Check if the activity is finishing to avoid WindowLeaked error
+		if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+			return;
+		}
 		dialog.show();
 
 		final Window window = activity.getWindow();
@@ -263,6 +268,11 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	private static void showMaterialThemeErrorDialog(@NonNull Activity activity)
 	{
+		// Check if the activity is finishing to avoid WindowLeaked error
+		if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+			return;
+		}
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.Theme_Titanium_Dialog_Error);
 		builder.setTitle("Developer Error");
 		builder.setMessage(

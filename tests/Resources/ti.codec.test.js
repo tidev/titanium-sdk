@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -390,7 +390,7 @@ describe('Titanium.Codec', () => {
 				dest: buffer,
 				type: Ti.Codec.TYPE_LONG
 			});
-			if (Ti.Codec.getNativeByteOrder() == Ti.Codec.BIG_ENDIAN) { // eslint-disable-line eqeqeq
+			if (Ti.Codec.nativeByteOrder == Ti.Codec.BIG_ENDIAN) { // eslint-disable-line eqeqeq
 				for (i = 0; i < 3; i++) {
 					should(buffer[i]).eql(0);
 				}
@@ -525,7 +525,7 @@ describe('Titanium.Codec', () => {
 			// +1 for the umlaut char set byte
 			const umlautLoc = PHRASE.indexOf('ä');
 			should(buffer[umlautLoc]).eql(195);
-			// C3 char set in utf-8
+			// C3 char set in UTF-8
 			should(buffer[umlautLoc + 1]).eql(164);
 			// umlaut-a itself
 			buffer.clear();
@@ -546,13 +546,13 @@ describe('Titanium.Codec', () => {
 		});
 	});
 
-	describe('#getNativeByteOrder', () => {
-		it('is a Function', () => {
-			should(Ti.Codec.getNativeByteOrder).be.a.Function();
+	describe('#nativeByteOrder', () => {
+		it('is a getter', () => {
+			should(Ti.Codec).have.a.getter('nativeByteOrder');
 		});
 
 		it('returns one of [Ti.Codec.BIG_ENDIAN,Ti.Codec.LITTLE_ENDIAN]', () => {
-			should([ Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN ]).containEql(Ti.Codec.getNativeByteOrder());
+			should([ Ti.Codec.BIG_ENDIAN, Ti.Codec.LITTLE_ENDIAN ]).containEql(Ti.Codec.nativeByteOrder);
 		});
 	});
 

@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -48,7 +48,7 @@ public:
 
 	/**
 	 * Given a jclass, get the name of the class and return it as a Local<Value>
-	 * (using typical java.lang.Names, rather than jni slash separated names)
+	 * (using typical java.lang.Names, rather than JNI slash separated names)
 	 * @param javaClass
 	 */
 	static v8::Local<v8::Value> getJavaClassName(v8::Isolate* isolate, jclass javaClass);

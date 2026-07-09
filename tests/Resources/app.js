@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -81,7 +81,7 @@ function loadTests() {
 	// Titanium APIs
 	require('./core.runtime.test'); // tests on how proxies behave w/regard to hasOwnProperty
 	require('./ti.accelerometer.test');
-	require('./ti.analytics.test');
+
 	if (OS_ANDROID) {
 		require('./ti.android.test');
 		require('./ti.android.actionbar.test');
@@ -203,7 +203,6 @@ function loadTests() {
 	}
 	require('./ti.xml.test');
 	// Modules
-	require('./ti.cloudpush.test');
 	require('./ti.map.test');
 	require('./ti.modulesdk920.test');
 	if (OS_ANDROID) {

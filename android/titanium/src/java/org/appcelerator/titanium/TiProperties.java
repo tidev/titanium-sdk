@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -38,7 +38,7 @@ public class TiProperties
 	{
 		preferences = context.getSharedPreferences(name, Context.MODE_PRIVATE);
 		if (clear) {
-			preferences.edit().clear().commit();
+			preferences.edit().clear().apply();
 		}
 	}
 
@@ -64,18 +64,13 @@ public class TiProperties
 
 	public Object getPreference(String key)
 	{
-		Object value = null;
-		if (systemProperties != null) {
-			try {
-				value = systemProperties.get(key);
-			} catch (JSONException e) {
-				value = preferences.getAll().get(key);
-			}
+		if (systemProperties != null && systemProperties.has(key)) {
+			return systemProperties.opt(key);
 		}
-		if (value == null) {
-			value = preferences.getAll().get(key);
+		if (preferences.contains(key)) {
+			return preferences.getAll().get(key);
 		}
-		return value;
+		return null;
 	}
 
 	/**
@@ -103,7 +98,7 @@ public class TiProperties
 		} else {
 			editor.putString(key, value);
 		}
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -117,18 +112,15 @@ public class TiProperties
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "getInt called with key:" + key + ", def:" + def);
 		}
-		try {
-			int value = def;
-			if (systemProperties != null) {
-				try {
-					value = systemProperties.getInt(key);
-				} catch (JSONException e) {
-					value = preferences.getInt(key, def);
-				}
-			} else {
-				value = preferences.getInt(key, def);
+		if (systemProperties != null && systemProperties.has(key)) {
+			try {
+				return systemProperties.getInt(key);
+			} catch (JSONException e) {
+				// key exists in tiapp.xml but isn't an int — fall through to prefs
 			}
-			return value;
+		}
+		try {
+			return preferences.getInt(key, def);
 		} catch (ClassCastException cce) {
 			//Value stored as something other than int. Try and convert to int
 			String val = getString(key, "");
@@ -160,7 +152,7 @@ public class TiProperties
 
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putInt(key, value);
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -208,7 +200,7 @@ public class TiProperties
 
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putString(key, value + "");
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -222,18 +214,15 @@ public class TiProperties
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "getBool called with key:" + key + ", def:" + def);
 		}
-		try {
-			boolean value = def;
-			if (systemProperties != null) {
-				try {
-					value = systemProperties.getBoolean(key);
-				} catch (JSONException e) {
-					value = preferences.getBoolean(key, def);
-				}
-			} else {
-				value = preferences.getBoolean(key, def);
+		if (systemProperties != null && systemProperties.has(key)) {
+			try {
+				return systemProperties.getBoolean(key);
+			} catch (JSONException e) {
+				// key exists in tiapp.xml but isn't a boolean — fall through to prefs
 			}
-			return value;
+		}
+		try {
+			return preferences.getBoolean(key, def);
 		} catch (ClassCastException cce) {
 			//Value stored as something other than boolean. Try and convert to boolean
 			String val = getString(key, "");
@@ -266,7 +255,7 @@ public class TiProperties
 
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putBoolean(key, value);
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -311,7 +300,7 @@ public class TiProperties
 		}
 		editor.putInt(key + ".length", value.length);
 
-		editor.commit();
+		editor.apply();
 	}
 
 	/**
@@ -377,7 +366,7 @@ public class TiProperties
 		if (preferences.contains(key)) {
 			SharedPreferences.Editor editor = preferences.edit();
 			editor.remove(key);
-			editor.commit();
+			editor.apply();
 		}
 	}
 
@@ -386,7 +375,7 @@ public class TiProperties
 	 */
 	public void removeAllProperties()
 	{
-		preferences.edit().clear().commit();
+		preferences.edit().clear().apply();
 	}
 
 	public static void setSystemProperties(JSONObject prop)

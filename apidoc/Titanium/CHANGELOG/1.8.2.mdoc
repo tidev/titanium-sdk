@@ -7,12 +7,7 @@ improvements.
 
 Please see the updated [Titanium Mobile Reference Documentation for 1.8.2](/apidoc/mobile/1.8.2). 
 
-[Full list of Issues that were addressed in
-1.8.2](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12671)
-
-If you are upgrading from Titanium Mobile SDK 1.8.0.1 or earlier, refer to the 
-[Release Notes for Release 1.8.1](https://developer.appcelerator.com/apidoc/mobile/1.8.1/changelog.html) 
-for a list of issues addressed in that release. Note that Release 1.8.1 included fixes
+If you are upgrading from Titanium Mobile SDK 1.8.0.1 or earlier, note that Release 1.8.1 included fixes
 related to developing modules. If you are developing iOS or Android modules, see the 1.8.1 Release Notes 
 for more information.
 
@@ -20,8 +15,8 @@ Significant Changes In Titanium Mobile
 --------------------------------------
 
 * Known Android memory leaks in 1.8.1 have been addressed
-  ([TIMOB-7409](http://jira.appcelerator.org/browse/TIMOB-7409) &
-  [TIMOB-4367](http://jira.appcelerator.org/browse/TIMOB-4367)).
+  ([TIMOB-7409](https://jira-archive.titaniumsdk.com/TIMOB-7409) &
+  [TIMOB-4367](https://jira-archive.titaniumsdk.com/TIMOB-4367)).
 
 
 Known Issues
@@ -33,15 +28,15 @@ The following issues are known regressions in 1.8.2:
     failed to find entry` warnings are repeatedly logged to the console.
     This occurs in across all Android versions, with the exception of Android 4.0.2. 
     The functionality of the application does not appear to be affected.
-    [TIMOB-7831](http://jira.appcelerator.org/browse/TIMOB-7831)
+    [TIMOB-7831](https://jira-archive.titaniumsdk.com/TIMOB-7831)
 
 -   Android (V8 only): setInterval timer becomes very slow and jumpy.
-    [TIMOB-7813](https://jira.appcelerator.org/browse/TIMOB-7813)
+    [TIMOB-7813](https://jira-archive.titaniumsdk.com/TIMOB-7813)
 
 -   Android (V8 only): 4.0 ICS - TableView -- Scrolling through tableview and clicking on
     the rows eventually crashes the application. This issue has only been reproduced on
     the Samsung Galaxy Nexus running Android 4.0.2.
-    [TIMOB-7774](https://jira.appcelerator.org/browse/TIMOB-7774)
+    [TIMOB-7774](https://jira-archive.titaniumsdk.com/TIMOB-7774)
 
 
 Android Changes
@@ -55,47 +50,44 @@ The following section lists notable bug fixes in the Android platform.
 *   Several bug fixes for animation on Android, including:
 
     -   Crash during animations using 2DMatrix transforms. 
-        [TIMOB-7416](https://jira.appcelerator.org/browse/TIMOB-7416)
+        [TIMOB-7416](https://jira-archive.titaniumsdk.com/TIMOB-7416)
 
     -   Animation not initialized correctly when a transform is specified in
         `createAnimation`. 
-        [TIMOB-7517](https://jira.appcelerator.org/browse/TIMOB-7517)
+        [TIMOB-7517](https://jira-archive.titaniumsdk.com/TIMOB-7517)
 
     -   After animating a view, the parent view becomes transparent. 
-        [TIMOB-7412](https://jira.appcelerator.org/browse/TIMOB-7412)
+        [TIMOB-7412](https://jira-archive.titaniumsdk.com/TIMOB-7412)
 
 *   SDK cannot be built on Windows. 
-    [TIMOB-6315](https://jira.appcelerator.org/browse/TIMOB-6315)
+    [TIMOB-6315](https://jira-archive.titaniumsdk.com/TIMOB-6315)
 
 *   HTTPClient: file upload does not work to upload resource files.
-    [TIMOB-7264](https://jira.appcelerator.org/browse/TIMOB-7264)
+    [TIMOB-7264](https://jira-archive.titaniumsdk.com/TIMOB-7264)
 
 *   OptionDialog can't be called several times after a tabgroup is opened and closed.
-    [TIMOB-7240](https://jira.appcelerator.org/browse/TIMOB-7240)
+    [TIMOB-7240](https://jira-archive.titaniumsdk.com/TIMOB-7240)
    
 *   Rhino: Backing out of an application prints thousands of messages to the log.
-    [TIMOB-7252](https://jira.appcelerator.org/browse/TIMOB-7252)
+    [TIMOB-7252](https://jira-archive.titaniumsdk.com/TIMOB-7252)
 
 *   Distributing an application to the Android Marketplace fails on Windows.
-    [TIMOB-7677](https://jira.appcelerator.org/browse/TIMOB-7677)
+    [TIMOB-7677](https://jira-archive.titaniumsdk.com/TIMOB-7677)
 
 *   Global scope not available from included file.
-    [TIMOB-7019](https://jira.appcelerator.org/browse/TIMOB-7019)
+    [TIMOB-7019](https://jira-archive.titaniumsdk.com/TIMOB-7019)
 
 *   ImageViews cause app to unexpectedly crash.
-    [TIMOB-7676](https://jira.appcelerator.org/browse/TIMOB-7676)
+    [TIMOB-7676](https://jira-archive.titaniumsdk.com/TIMOB-7676)
 
 *   Application crashes when user leaves application using the Back button.
-    [TIMOB-7712](https://jira.appcelerator.org/browse/TIMOB-7712)
+    [TIMOB-7712](https://jira-archive.titaniumsdk.com/TIMOB-7712)
 
 *   Bad value for `ti.android.runtime` property in `tiapp.xml` causes application
     to crash on launch with runtime exception. With this fix, a build-time error
     is generated if `ti.android.runtime` is set to something other than `v8` or 
     `rhino`.
-    https://jira.appcelerator.org/browse/TIMOB-6166
-
-For a complete list of Android fixes in this release, see: 
-[Fixed Android Issues in JIRA]( https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12672).  
+    https://jira-archive.titaniumsdk.com/TIMOB-6166
 
 iOS Changes
 -----------
@@ -105,56 +97,53 @@ The following section lists notable bug fixes in iOS.
 *Bug Fixes*
 
 -   App crashes when trying to play a sound while resuming from the background.
-    [TIMOB-6763](https://jira.appcelerator.org/browse/TIMOB-6763)
+    [TIMOB-6763](https://jira-archive.titaniumsdk.com/TIMOB-6763)
 
 -   Several fixes for memory leaks:
 
     -   Tab object is not released when a tab is removed from a tab group.
-        [TIMOB-7644](https://jira.appcelerator.org/browse/TIMOB-7644)
+        [TIMOB-7644](https://jira-archive.titaniumsdk.com/TIMOB-7644)
 
     -   Tab objects are not released when a tab group is closed.
-        [TIMOB-7152](https://jira.appcelerator.org/browse/TIMOB-7152)
+        [TIMOB-7152](https://jira-archive.titaniumsdk.com/TIMOB-7152)
 
     -   Objects not released when map annotations are removed from a map.
-        [TIMOB-7467](https://jira.appcelerator.org/browse/TIMOB-7467)
+        [TIMOB-7467](https://jira-archive.titaniumsdk.com/TIMOB-7467)
 
 -   WebView.evalJS causes application to freeze and log deadlock warning.
-    [TIMOB-7616](https://jira.appcelerator.org/browse/TIMOB-7616)
+    [TIMOB-7616](https://jira-archive.titaniumsdk.com/TIMOB-7616)
 
 -   WebView doesn't handle touch events if any parent view has a touch event listener
     defined. To use an interactive web view **and** allow the parent view to receive
     touch events that occur outside of the web view, set the web view's
     `willHandleTouches` property to `false`.
-    [TIMOB-7547](https://jira.appcelerator.org/browse/TIMOB-7547)
+    [TIMOB-7547](https://jira-archive.titaniumsdk.com/TIMOB-7547)
 
 -   Tab freezes after opening a new window from a tab, then navigating back to the root
     window.
-    [TIMOB-7714](https://jira.appcelerator.org/browse/TIMOB-7714)
+    [TIMOB-7714](https://jira-archive.titaniumsdk.com/TIMOB-7714)
 
 -   HTTPClient returns a cached result. This fix disables caching by default,
     and introduces a new, iOS-only `cache` property that can be used to enable
     caching on an HTTPClient instance.
-    [TIMOB-7605](https://jira.appcelerator.org/browse/TIMOB-7605)
+    [TIMOB-7605](https://jira-archive.titaniumsdk.com/TIMOB-7605)
 
 -   TableView and ScrollView objects generate spurious error message:
     "Adding an event listener to a proxy that isn't already in the context." 
-    [TIMOB-7518](https://jira.appcelerator.org/browse/TIMOB-7518), 
-    [TIMOB-7347](https://jira.appcelerator.org/browse/TIMOB-7347)
+    [TIMOB-7518](https://jira-archive.titaniumsdk.com/TIMOB-7518), 
+    [TIMOB-7347](https://jira-archive.titaniumsdk.com/TIMOB-7347)
 
 -   Calling Ti.Geolocation.getCurrentPosition or getCurrentHeading with a null
     callback causes an application crash.
-    [TIMOB-7361](https://jira.appcelerator.org/browse/TIMOB-7361)
+    [TIMOB-7361](https://jira-archive.titaniumsdk.com/TIMOB-7361)
 
 -   When a tab group specifies a different `barImage` for each window, only the bar image for 
     the first window is used.  
-    [TIMOB-7613](https://jira.appcelerator.org/browse/TIMOB-7613)
+    [TIMOB-7613](https://jira-archive.titaniumsdk.com/TIMOB-7613)
      
 -   Opening a normal window after a modal window causes the normal window to 
     be reopened when the modal window is closed.
-    [TIMOB-7569](https://jira.appcelerator.org/browse/TIMOB-7569)
-
-For a complete list of iOS fixes in this release, see: 
-[Fixed iOS Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12673).
+    [TIMOB-7569](https://jira-archive.titaniumsdk.com/TIMOB-7569)
 
 Mobile Web Changes
 ------------------
@@ -172,10 +161,6 @@ following modules and objects are now at or near parity with the other platforms
 -   Titanium.UI.ScrollableView
 -   Titanium.UI.Switch
 -   Titanium.UI.WebView
-
-For a complete list of Mobile Web fixes in this release, see: [Fixed Mobile Web Issues in
-JIRA](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12674).
-
 
 Documentation Changes
 ---------------------
@@ -195,9 +180,3 @@ documentation for the following modules and objects:
 -   Titanium.UI.Slider
 -   Titanium.UI.WebView
 -   Titanium.UI.iOS module
-
-For a complete list of documentation fixes in this release, see:
-
-[Fixed Documentation Issues in JIRA](https://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12676)
-
-

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -178,11 +178,11 @@ public class TiResponseCache extends ResponseCache
 	}
 
 	/**
-	 * Check whether the content from uri has been cached. This method is optimized for
-	 * TiResponseCache. For other kinds of ResponseCache, eg. HttpResponseCache, it only
+	 * Check whether the content from URI has been cached. This method is optimized for
+	 * TiResponseCache. For other kinds of ResponseCache, e.g. HttpResponseCache, it only
 	 * checks whether the system's default response cache is set.
-	 * @param uri The uri to check if cached content exists for.
-	 * @return true if the content from uri is cached; false otherwise.
+	 * @param uri The URI to check if cached content exists for.
+	 * @return true if the content from URI is cached; false otherwise.
 	 */
 	public static boolean peek(URI uri)
 	{
@@ -231,7 +231,7 @@ public class TiResponseCache extends ResponseCache
 	 * @param uri The URI to fetch the endpoint of. Can be null.
 	 * @return
 	 * If the given URI is cached and references a redirect response, then the returned URI will
-	 * be the redirect's "location" URI.
+	 * be the redirects "location" URI.
 	 * <p>
 	 * If the given URI does not reference a redirect, then the given URI is returned.
 	 * <p>
@@ -412,7 +412,7 @@ public class TiResponseCache extends ResponseCache
 			return null;
 		}
 
-		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// Workaround for https://jira-archive.titaniumsdk.com/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
@@ -519,7 +519,7 @@ public class TiResponseCache extends ResponseCache
 			}
 		}
 
-		// Workaround for https://jira.appcelerator.org/browse/TIMOB-18913
+		// Workaround for https://jira-archive.titaniumsdk.com/TIMOB-18913
 		// This workaround should be removed when HTTPClient is refactored with HttpUrlConnection
 		// and HttpResponseCache is used instead of TiResponseCache.
 		// If it is a video, do not use cache. Cache is causing problems for Video Player on Lollipop
@@ -566,7 +566,7 @@ public class TiResponseCache extends ResponseCache
 			return null;
 		}
 
-		// Work around an android bug which gives us the wrong URI
+		// Work around an Android bug which gives us the wrong URI
 		try {
 			uri = conn.getURL().toURI();
 		} catch (URISyntaxException e) {

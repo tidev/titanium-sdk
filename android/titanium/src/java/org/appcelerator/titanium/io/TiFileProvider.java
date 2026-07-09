@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2017-2019 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -152,13 +152,6 @@ public class TiFileProvider extends ContentProvider
 						break;
 					}
 					case MediaStore.MediaColumns.DATA: {
-						// Fetch the file system path if it's an external file.
-						// Note: Android 7.0 and above no longer allows direct file access between apps.
-						if (Build.VERSION.SDK_INT < 24) {
-							if (file != null) {
-								nextColumnValue = file.getAbsolutePath();
-							}
-						}
 						break;
 					}
 					case OpenableColumns.SIZE: {

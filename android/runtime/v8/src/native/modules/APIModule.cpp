@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -48,7 +48,7 @@ void APIModule::Initialize(Local<Object> target, Local<Context> context)
 	// Hook methods to the API prototype, notice these aren't hooked to API
 	// itself, instead we return a singleton of an API instance and export it
 	// as Ti.API
-	// Not sure why we then hook apiName as instance proprty, since
+	// Not sure why we then hook apiName as instance property, since
 	// the difference is made moot by the singleton!
 	SetProtoMethod(isolate, constructor, "debug", logDebug);
 	SetProtoMethod(isolate, constructor, "info", logInfo);
@@ -115,7 +115,13 @@ void APIModule::logInfo(const FunctionCallbackInfo<Value>& args)
 	Isolate* isolate = args.GetIsolate();
 	HandleScope scope(isolate);
 	v8::String::Utf8Value message(isolate, APIModule::combineLogMessages(args));
-	APIModule::logInternal(LOG_LEVEL_INFO, LCAT, *message);
+
+	std::string cppStr(*message);
+
+	int maxChunk = 4050;
+	for (size_t i = 0, len = cppStr.length(); i < len; i+=maxChunk) {
+		APIModule::logInternal(LOG_LEVEL_INFO, LCAT, cppStr.substr(i , maxChunk).c_str());
+	}
 }
 
 void APIModule::logWarn(const FunctionCallbackInfo<Value>& args)

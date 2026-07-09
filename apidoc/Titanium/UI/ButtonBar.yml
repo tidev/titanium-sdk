@@ -2,14 +2,18 @@
 name: Titanium.UI.ButtonBar
 summary: An iOS button bar component.
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./buttonbar_android.png) |  |
+
     The button bar is a set of buttons joined into a single control.
     On iOS, you can set up the buttons with either a title or image, but not both.
     On Android, you can set up the buttons with a title, image, or both.
 
     Use the <Titanium.UI.createButtonBar> method or **`<ButtonBar>`** Alloy element to create a button bar.
 
-    The [TabbedBar](Titanium.UI.iOS.TabbedBar) control is a button bar where the 
-    last selected button mantains a pressed or selected state. The following discussion
+    The [TabbedBar](Titanium.UI.iOS.TabbedBar) control is a button bar where the
+    last selected button maintains a pressed or selected state. The following discussion
     applies to both button bar and tabbed bar.
 extends: Titanium.UI.View
 since: {android: "10.0.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0"}
@@ -20,10 +24,10 @@ excludes:
     properties: [children]
     methods: [add, remove, removeAllChildren, replaceAt]
 
-events: 
+events:
   - name: click
     summary: Fired when a button is clicked.
-    properties: 
+    properties:
       - name: index
         summary: Index of the clicked button.
         type: Number
@@ -32,17 +36,17 @@ properties:
     deprecated:
         since: "8.0.0"
         notes: |
-            This property has been deprecated in Titanium SDK 8.0.0 as this property has no effect 
+            This property has been deprecated in Titanium SDK 8.0.0 as this property has no effect
             and will be removed in SDK 9.0.0.
     summary: Index of the currently selected button.
     type: Number
   - name: labels
-    summary: Array of labels for the button bar. 
+    summary: Array of labels for the button bar.
     description: |
         The labels can be specified either using an array of strings, in which case
         each string defines the title for a button, or using an array of simple
         dictionary objects, <BarItemType>, which can specify title, image, width and
-        enabled state for each button. 
+        enabled state for each button.
 
         In Alloy you specify the labels with a nested `<Labels>` element that contains one or more `<Label>` elements.
 

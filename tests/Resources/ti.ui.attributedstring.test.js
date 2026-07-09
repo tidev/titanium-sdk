@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -71,7 +71,7 @@ describe('Titanium.UI.AttributedString', function () {
 	});
 
 	it('colored link', () => {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}
@@ -86,7 +86,7 @@ describe('Titanium.UI.AttributedString', function () {
 				attributes: [
 					{
 						type: Ti.UI.ATTRIBUTE_LINK,
-						value: 'https://developer.appcelerator.com',
+						value: 'https://titaniumsdk.com',
 						range: [ 14, 29 ]
 					},
 					{

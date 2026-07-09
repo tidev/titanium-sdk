@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -14,7 +14,6 @@ import android.text.InputType;
 import android.text.method.ArrowKeyMovementMethod;
 import android.util.AttributeSet;
 import android.view.ActionMode;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +21,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ViewCompat;
@@ -232,14 +229,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	@Override
 	public boolean onKeyPreIme(int keyCode, KeyEvent event)
 	{
-		// Work-around Android bug where center-aligned and right-aligned EditText won't
-		// always pan above the virtual keyboard when given the focus. (See TIMOB-23757)
-		boolean isLeftAligned = (getGravity() & Gravity.LEFT) != 0;
-		if ((Build.VERSION.SDK_INT < 24) && !isLeftAligned && (keyCode == KeyEvent.KEYCODE_BACK)) {
-			ViewGroup view = (ViewGroup) getParent();
-			view.setFocusableInTouchMode(true);
-			view.requestFocus();
-		}
 		return super.onKeyPreIme(keyCode, event);
 	}
 
@@ -306,7 +295,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	 * @return Returns the new context menu handling action mode. Returns null to not show a menu.
 	 */
 	@Override
-	@RequiresApi(23)
 	public ActionMode startActionMode(ActionMode.Callback callback, int type)
 	{
 		return super.startActionMode(onWrap(callback), type);
@@ -342,7 +330,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			}
 
 			// Wrap the given callback used to override context menu handling.
-			if ((Build.VERSION.SDK_INT >= 23) && (callback instanceof ActionMode.Callback2)) {
+			if (callback instanceof ActionMode.Callback2) {
 				callback = new ActionModeCallback2Wrapper((ActionMode.Callback2) callback, excludeMenuIdSet);
 			} else {
 				callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
@@ -443,7 +431,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 						// Request the parent to scroll if one of the following is true:
 						// - EditText is not scrollable. (ie: All text fits within the box.)
-						// - EditText is scrollabe, but cannot scroll any further in given direction.
+						// - EditText is scrollable, but cannot scroll any further in given direction.
 						if (!isScrollEnabled || !canScrollFurther) {
 							wasHandled = dispatchNestedPreScroll(deltaX, deltaY, null, null);
 							wasHandled |= dispatchNestedScroll(0, 0, deltaX, deltaY, null);
@@ -654,7 +642,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/** Wraps Google's "ActionMode.Callback2" so that we can remove particular context menu items from it. */
-	@RequiresApi(23)
 	private static class ActionModeCallback2Wrapper extends ActionMode.Callback2
 	{
 		private final ActionModeCallbackWrapper callback;

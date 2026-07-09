@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2014-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -106,6 +106,21 @@ public class AttributedStringProxy extends KrollProxy
 	{
 	}
 
+	public static AttributedStringProxy createFromProperties(Object properties)
+	{
+		if (properties instanceof AttributedStringProxy) {
+			return (AttributedStringProxy) properties;
+		}
+		if (properties instanceof HashMap<?, ?>) {
+			AttributedStringProxy proxy = new AttributedStringProxy();
+			KrollDict d = (properties instanceof KrollDict)
+							? (KrollDict) properties : new KrollDict((HashMap<String, Object>) properties);
+			proxy.handleCreationDict(d);
+			return proxy;
+		}
+		return null;
+	}
+
 	@Kroll.method
 	public void addAttribute(Object attr)
 	{
@@ -120,8 +135,7 @@ public class AttributedStringProxy extends KrollProxy
 			attribute.handleCreationDict(attributeDict);
 			Object obj = getProperty(TiC.PROPERTY_ATTRIBUTES);
 			AttributeProxy[] attributes = null;
-			if (obj instanceof Object[]) {
-				Object[] objArray = (Object[]) obj;
+			if (obj instanceof Object[] objArray) {
 				attributes = new AttributeProxy[objArray.length + 1];
 				for (int i = 0; i < objArray.length; i++) {
 					attributes[i] = AttributedStringProxy.attributeProxyFor(objArray[i], this);
@@ -181,8 +195,7 @@ public class AttributedStringProxy extends KrollProxy
 				Spannable spannableText = new SpannableString(textString);
 				AttributeProxy[] attributes = null;
 				Object obj = attrString.getProperty(TiC.PROPERTY_ATTRIBUTES);
-				if (obj instanceof Object[]) {
-					Object[] objArray = (Object[]) obj;
+				if (obj instanceof Object[] objArray) {
 					attributes = new AttributeProxy[objArray.length];
 					for (int i = 0; i < objArray.length; i++) {
 						attributes[i] = AttributedStringProxy.attributeProxyFor(objArray[i], attrString);
@@ -249,12 +262,12 @@ public class AttributedStringProxy extends KrollProxy
 										break;
 									case UIModule.ATTRIBUTE_BACKGROUND_COLOR:
 										spannableText.setSpan(
-											new BackgroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))),
+											new BackgroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 									case UIModule.ATTRIBUTE_FOREGROUND_COLOR:
 										spannableText.setSpan(
-											new ForegroundColorSpan(TiConvert.toColor(TiConvert.toString(attrValue))),
+											new ForegroundColorSpan(TiConvert.toColor(attrValue, activity)),
 											range[0], range[0] + range[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 										break;
 									case UIModule.ATTRIBUTE_STRIKETHROUGH_STYLE:
@@ -263,7 +276,7 @@ public class AttributedStringProxy extends KrollProxy
 										break;
 									case UIModule.ATTRIBUTE_UNDERLINE_COLOR:
 										final UnderlineColorSpan underlineColorSpan = new UnderlineColorSpan(
-											TiConvert.toColor(TiConvert.toString(attrValue)));
+											TiConvert.toColor(attrValue, activity));
 
 										spannableText.setSpan(underlineColorSpan, range[0], range[0] + range[1],
 											Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,7 +39,7 @@ import org.json.JSONObject;
 /**
  * This is the parent class of all proxies. A proxy is a dynamic object that can be created or
  * queried by the user through a module or another proxy's API. When you create a native view with
- * <a href="http://developer.appcelerator.com/apidoc/mobile/latest/Titanium.UI.createView-method.html">Titanium.UI.createView </a>,
+ * <a href="https://titaniumsdk.com/api/titanium/ui.html#createview">Titanium.UI.createView </a>,
  * the view object is a proxy itself.
  */
 @Kroll.proxy(name = "KrollProxy", propertyAccessors = { KrollProxy.PROPERTY_HAS_JAVA_LISTENER })
@@ -513,7 +513,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			Object oldValue = properties.get(name);
 			Object value = options.get(name);
 
-			// dont just fire the change event, make sure we set the property back on the KrollObject
+			// don't just fire the change event, make sure we set the property back on the KrollObject
 			// since the property change may not be driven from JS (KrollObject->Java proxy)
 			setProperty(name, value);
 
@@ -932,7 +932,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					} else {
 						String warningMessage
 							= "DEPRECATION WARNING: Events with 'code' and 'success' should have success be true"
-							+ " if and only if code is nonzero. For java modules, consider the putCodeAndMessage()"
+							+ " if and only if code is nonzero. For Java modules, consider the putCodeAndMessage()"
 							+ " method to do this for you. The capability to use other types will be removed in a"
 							+ " future version.";
 						Log.w(TAG, warningMessage, Log.DEBUG_MODE);
@@ -940,13 +940,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				} else if (successValue) {
 					String warningMessage
 						= "DEPRECATION WARNING: Events with 'success' of true should have an integer 'code' property"
-						+ " that is 0. For java modules, consider the putCodeAndMessage() method to do this for you."
+						+ " that is 0. For Java modules, consider the putCodeAndMessage() method to do this for you."
 						+ " The capability to use other types will be removed in a future version.";
 					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				} else {
 					String warningMessage
 						= "DEPRECATION WARNING: Events with 'success' of false should have an integer 'code' property"
-						+ " that is nonzero. For java modules, consider the putCodeAndMessage() method to do this for"
+						+ " that is nonzero. For Java modules, consider the putCodeAndMessage() method to do this for"
 						+ " you. The capability to use other types will be removed in a future version.";
 					Log.w(TAG, warningMessage, Log.DEBUG_MODE);
 				}
@@ -963,7 +963,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				krollData.remove(TiC.EVENT_PROPERTY_ERROR);
 			} else if (hashValue != null) {
 				String warningMessage
-					= "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For java modules,"
+					= "DEPRECATION WARNING: The 'error' event property is reserved to be a string. For Java modules,"
 					+ " consider the putCodeAndMessage() method to do this for you. The capability to use other types"
 					+ " will be removed in a future version.";
 				Log.w(TAG, warningMessage, Log.DEBUG_MODE);
@@ -1074,7 +1074,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 		Object newValue = value;
 
 		if (isLocaleProperty(name)) {
-			Log.i(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
+			Log.d(TAG, "Updating locale: " + name, Log.DEBUG_MODE);
 			Pair<String, String> update = updateLocaleProperty(name, TiConvert.toString(value));
 			if (update != null) {
 				propertyName = update.first;
@@ -1253,7 +1253,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 				}
 			}
 		} catch (Throwable t) {
-			Thread.getDefaultUncaughtExceptionHandler().uncaughtException(null, t);
+			TiApplication.handleInternalException(t);
 		}
 
 		return false;
@@ -1359,7 +1359,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					eventListeners.remove(eventName);
 				}
 				if (eventListeners.isEmpty()) {
-					// If we don't have any java listeners, we set the property to false
+					// If we don't have any Java listeners, we set the property to false
 					setProperty(PROPERTY_HAS_JAVA_LISTENER, false);
 				}
 			}

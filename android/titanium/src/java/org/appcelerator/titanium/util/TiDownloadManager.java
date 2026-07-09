@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -211,7 +211,7 @@ public class TiDownloadManager implements Handler.Callback
 			}
 		}
 
-		// If we've acquried an HTTP/HTTPS download stream, then wrap the stream.
+		// If we've acquired an HTTP/HTTPS download stream, then wrap the stream.
 		// The stream wrapper will automatically close the HTTP connection when the stream has been closed.
 		if ((inputStream != null) && (connection instanceof HttpURLConnection)) {
 			final HttpURLConnection httpConnection = (HttpURLConnection) connection;

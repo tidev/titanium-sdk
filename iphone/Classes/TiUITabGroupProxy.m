@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -17,7 +17,7 @@ static NSArray *tabGroupKeySequence;
 - (NSArray *)keySequence
 {
   if (tabGroupKeySequence == nil) {
-    //URL has to be processed first since the spinner depends on URL being remote
+    // URL has to be processed first since the spinner depends on URL being remote
     tabGroupKeySequence = [[NSArray arrayWithObjects:@"tabs", @"activeTab", nil] retain];
   }
   return tabGroupKeySequence;
@@ -43,6 +43,7 @@ static NSArray *tabGroupKeySequence;
 {
   [self initializeProperty:@"allowUserCustomization" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"extendEdges" defaultValue:[NSArray arrayWithObjects:NUMINT(15), nil]];
+  [self initializeProperty:@"lazyLoadingEnabled" defaultValue:NUMBOOL(NO)];
   [super _initWithProperties:properties];
 }
 
@@ -66,6 +67,11 @@ static NSArray *tabGroupKeySequence;
 - (BOOL)canFocusTabs
 {
   return focussed;
+}
+
+- (BOOL)lazyLoadingEnabled
+{
+  return [TiUtils boolValue:[self valueForUndefinedKey:@"lazyLoadingEnabled"] def:NO];
 }
 
 #pragma mark Public APIs
@@ -94,7 +100,7 @@ static NSArray *tabGroupKeySequence;
       }
     }
 
-    //TODO: close all the tabs and fire events
+    // TODO: close all the tabs and fire events
 
     [tabProxy removeFromTabGroup];
     [tabProxy setParentOrientationController:nil];
@@ -141,10 +147,23 @@ static NSArray *tabGroupKeySequence;
   tabs = [newTabOrder mutableCopy];
 }
 
+- (void)hideTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:YES animated:YES];
+}
+
+- (void)showTabBar:(id)args
+{
+  [(TiUITabGroup *)[self view] hideTabBar:NO animated:YES];
+}
+
 #pragma mark Window Management
 
 - (void)windowWillOpen
 {
+  if (![self lazyLoadingEnabled]) {
+    DebugLog(@"[WARN] Ti.UI.TabGroup.lazyLoadingEnabled is currently false by default on iOS, but will default to true starting with SDK 14.0.0.GA. Set lazyLoadingEnabled explicitly to false to preserve the current behavior.");
+  }
   TiUITabGroup *tg = (TiUITabGroup *)self.view;
   [tg open:nil];
   [super windowWillOpen];
@@ -189,7 +208,7 @@ static NSArray *tabGroupKeySequence;
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
     NSUInteger blessedController = [tabController selectedIndex];
     if (blessedController != NSNotFound) {
-      [[tabs objectAtIndex:blessedController] handleDidFocus:nil];
+      [[tabs objectAtIndex:blessedController] handleDidFocus:[((TiUITabGroup *)self.view) focusEvent]];
     }
   }
   [super gainFocus];
@@ -217,9 +236,11 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:tabController];
-    [tabController didMoveToParentViewController:parentController];
+    if (tabController.parentViewController == nil) {
+      UIViewController *parentController = [self windowHoldingController];
+      [parentController addChildViewController:tabController];
+      [tabController didMoveToParentViewController:parentController];
+    }
     [tabController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
@@ -328,7 +349,7 @@ static NSArray *tabGroupKeySequence;
   [super willChangeSize];
 
   [tabs makeObjectsPerformSelector:@selector(willChangeSize)];
-  //TODO: Shouldn't tabs have a lock protecting them?
+  // TODO: Shouldn't tabs have a lock protecting them?
 }
 
 @end

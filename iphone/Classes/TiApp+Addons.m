@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -9,6 +9,10 @@
 #ifdef USE_TI_APPIOS
 #import <CoreSpotlight/CoreSpotlight.h>
 #endif
+
+@interface TiApp (TiAddonsInternal)
+- (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
+@end
 
 @implementation TiApp (Addons)
 
@@ -21,14 +25,14 @@
   [self tryToInvokeSelector:@selector(application:performFetchWithCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, [completionHandler copy], nil]];
 
-  //Only for simulator builds
+  // Only for simulator builds
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"fetch"]) {
 
     // Generate unique key with timestamp.
     NSString *key = [NSString stringWithFormat:@"Fetch-%f", [[NSDate date] timeIntervalSince1970]];
 
-    // Store the completionhandler till we can come back and send appropriate message.
+    // Store the completion handler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
       pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
@@ -65,7 +69,7 @@
   [self tryToInvokeSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userInfo, [completionHandler copy], nil]];
 
-  //This only here for Simulator builds.
+  // This only here for Simulator builds.
 
   NSArray *backgroundModes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIBackgroundModes"];
   if ([backgroundModes containsObject:@"remote-notification"]) {
@@ -73,7 +77,7 @@
     // Generate unique key with timestamp.
     NSString *key = [NSString stringWithFormat:@"SilentPush-%f", [[NSDate date] timeIntervalSince1970]];
 
-    // Store the completionhandler till we can come back and send appropriate message.
+    // Store the completion handler till we can come back and send appropriate message.
     if (pendingCompletionHandlers == nil) {
       pendingCompletionHandlers = [[NSMutableDictionary alloc] init];
     }
@@ -98,30 +102,7 @@
 #ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler
 {
-  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
-
-  if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
-    if ([userActivity userInfo] != nil) {
-      [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
-    }
-  }
-
-  if ([userActivity title] != nil) {
-    [dict setObject:[userActivity title] forKey:@"title"];
-  }
-
-  if ([userActivity webpageURL] != nil) {
-    [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
-  }
-
-  if ([userActivity userInfo] != nil) {
-    [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
-  }
-
-  // Update launchOptions so that we send only expected values rather than NSUserActivity
-  NSMutableDictionary *userActivityDict = [NSMutableDictionary dictionaryWithDictionary:launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]];
-  [userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
-  [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+  NSDictionary *dict = [self dictionaryFromUserActivity:userActivity];
 
   [self tryToInvokeSelector:@selector(application:continueUserActivity:restorationHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, [restorationHandler copy], nil]];

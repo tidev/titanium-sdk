@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -697,7 +697,7 @@ describe('Titanium.Filesystem.File', function () {
 			const result = nonExistentDir.getDirectoryListing();
 			should(nonExistentDir).be.ok();
 			should(nonExistentDir.exists()).be.false();
-			should.not.exist(result); // null or undefined // FIXME: ios returns undefined, test checked for exactly null before
+			should.not.exist(result); // null or undefined // FIXME: iOS returns undefined, test checked for exactly null before
 		});
 
 		it('returns null for file', function () {
@@ -706,7 +706,7 @@ describe('Titanium.Filesystem.File', function () {
 			should(file).be.ok();
 			should(file.exists()).be.true();
 			should(file.isFile()).be.true();
-			should.not.exist(result); // null or undefined // FIXME: ios returns undefined, test checked for exactly null before
+			should.not.exist(result); // null or undefined // FIXME: iOS returns undefined, test checked for exactly null before
 		});
 
 		it.windowsBroken('can access resource directory files', function () {
@@ -720,7 +720,7 @@ describe('Titanium.Filesystem.File', function () {
 			const rootPath = rootDir.nativePath;
 
 			const filesFound = {};
-			// FIXME: If this is ios and the JS files are encrypted, we cannot get the resource dir listing properly
+			// FIXME: If this is iOS and the JS files are encrypted, we cannot get the resource dir listing properly
 			// See TIMOB-27646 - encrypted JS files won't be in the listing
 			if (!isIOS || !Ti.App.Properties.getBool('js.encrypted', false)) {
 				filesFound[rootPath + 'app.js'] = false;
@@ -842,7 +842,7 @@ describe('Titanium.Filesystem.File', function () {
 
 			// Generate a file:// URI for the temp dir. Android reports one as-is, iOS reports an absolute filepath so we pre-pend file:// to it
 			// file:///data/user/0/com.appcelerator.testApp.testing/cache/_tmp on Android
-			// Note also, that IOS reports trailing slash, Android does not
+			// Note also, that iOS reports trailing slash, Android does not
 			const prefix = isIOS ? `file://${Ti.Filesystem.tempDirectory}` : `${Ti.Filesystem.tempDirectory}/`;
 			fileURI = `${prefix}app.js`;
 			console.log(`Copying app.js to ${fileURI}`);

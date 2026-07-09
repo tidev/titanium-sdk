@@ -4,20 +4,20 @@ Pod::Spec.new do |s|
 
   s.name         = "TitaniumKit"
   s.version      = "1.0.0"
-  s.summary      = "Axway Titanium iOS Core framework"
+  s.summary      = "Titanium iOS Core framework"
 
   s.description  = <<-DESC
-                   The Axway Titanium iOS Core framework.
+                   Titanium iOS Core framework.
                    DESC
 
-  s.homepage     = "https://github.com/appcelerator/titanium_mobile"
+  s.homepage     = "https://github.com/tidev/titanium_mobile"
   s.license      = { :type => "Apache 2", :file => "LICENSE" }
-  s.author       = 'Axway Appcelerator'
+  s.author       = 'TiDev'
 
   s.platform     = :ios
   s.ios.deployment_target = '8.0'
 
-  s.source       = { :git => "https://github.com/appcelerator/titanium_mobile.git" }
+  s.source       = { :git => "https://github.com/tidev/titanium_mobile.git" }
 
   s.vendored_libraries = 'iphone/TitaniumKit/TitaniumKit/Libraries/**/*.{a}'
   s.preserve_paths = 'iphone/TitaniumKit/TitaniumKit/Libraries/**/*.{a}'

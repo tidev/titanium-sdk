@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2021 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -56,6 +56,45 @@ describe.android('Titanium.UI.Android.CardView', function () {
 			backgroundColor: 'orange'
 		});
 		should(cardView.backgroundColor).be.eql('orange');
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			finish();
+		});
+		win.open();
+	});
+
+	it('.borderRadius (single value)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderRadius: 20
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			finish();
+		});
+		win.open();
+	});
+
+	it('.borderRadius (array of radii)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderRadius: [ 0, 0, 20, 20 ]
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			finish();
+		});
+		win.open();
+	});
+
+	it('.borderRadius (string of radii)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderRadius: '0 0 20 20'
+		});
 		win.add(cardView);
 		win.addEventListener('postlayout', function listener() {
 			win.removeEventListener('postlayout', listener);

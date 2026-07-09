@@ -1,13 +1,27 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2021 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import static ti.modules.titanium.android.AndroidModule.STATUS_BAR_LIGHT;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.Window;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -22,57 +36,58 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiSafeDisplay;
+import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
+import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigation;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIBottomNavigationTabGroup;
 import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.view.LayoutInflater;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_TABS_BACKGROUND_COLOR,
 		TiC.PROPERTY_TABS_BACKGROUND_SELECTED_COLOR,
 		TiC.PROPERTY_SWIPEABLE,
+		TiC.PROPERTY_AUTO_TAB_TITLE,
 		TiC.PROPERTY_EXIT_ON_CLOSE,
-		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK
-})
+		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK,
+		TiC.PROPERTY_INDICATOR_COLOR
+	})
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "TabGroupProxy";
 	private static final String PROPERTY_POST_TAB_GROUP_CREATED = "postTabGroupCreated";
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
-
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static final int MSG_ADD_TAB = MSG_FIRST_ID + 100;
 	private static final int MSG_REMOVE_TAB = MSG_FIRST_ID + 101;
 	private static final int MSG_SET_ACTIVE_TAB = MSG_FIRST_ID + 102;
 	private static final int MSG_GET_ACTIVE_TAB = MSG_FIRST_ID + 103;
 	private static final int MSG_SET_TABS = MSG_FIRST_ID + 104;
 	private static final int MSG_DISABLE_TAB_NAVIGATION = MSG_FIRST_ID + 105;
-
-	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-
-	private ArrayList<TabProxy> tabs = new ArrayList<>();
+	private static int id_toolbar;
+	private final ArrayList<TabProxy> tabs = new ArrayList<>();
 	private WeakReference<AppCompatActivity> tabGroupActivity = new WeakReference<>(null);
 	private Object selectedTab; // NOTE: Can be TabProxy or Number
 	private String tabGroupTitle = null;
-	private static int id_toolbar;
+	private boolean autoTabTitle = false;
+	private boolean isTabBarVisible = true;
+	private boolean isTabGroupEnabled = true;
 
 	public TabGroupProxy()
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_SWIPEABLE, true);
+		defaultValues.put(TiC.PROPERTY_AUTO_TAB_TITLE, autoTabTitle);
 		defaultValues.put(TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK, true);
 	}
 
@@ -82,12 +97,49 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	}
 
 	@Kroll.method
-	public void disableTabNavigation(boolean disable)
+	public void disableTabNavigation(Object params)
 	{
-		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
-		if (tabGroup != null) {
-			tabGroup.disableTabNavigation(disable);
+		String message
+			= "Ti.UI.TabGroup.disableTabNavigation() has been deprecated in 12.7.0 in favor of"
+			+ " Ti.UI.TabGroup.tabBarVisible and Ti.UI.TabGroup.enabled properties."
+			+ " Ti.UI.TabGroup.disableTabNavigation() will be removed in 13.0.0.";
+		Log.w(TAG, message);
+
+		if (params instanceof Boolean) {
+			boolean isEnabled = !TiConvert.toBoolean(params, false);
+			setEnabled(isEnabled);
+			setTabBarVisible(isEnabled);
+			return;
 		}
+
+		if (params instanceof HashMap<?, ?>) {
+			KrollDict options = new KrollDict((HashMap<String, Object>) params);
+
+			boolean isEnabled = !options.optBoolean(TiC.PROPERTY_ENABLED, false);
+			boolean isAnimated = options.optBoolean(TiC.PROPERTY_ANIMATED, false);
+			setEnabled(isEnabled);
+
+			if (isAnimated) {
+				showHideTabBar(isEnabled);
+			} else {
+				setTabBarVisible(isEnabled);
+			}
+		}
+	}
+
+	@Kroll.setProperty
+	public void setEnabled(boolean enabled)
+	{
+		isTabGroupEnabled = enabled;
+		if (view != null) {
+			((TiUIAbstractTabGroup) view).disableTabNavigation(!isTabGroupEnabled);
+		}
+	}
+
+	@Kroll.getProperty
+	public boolean getEnabled()
+	{
+		return isTabGroupEnabled;
 	}
 
 	@Kroll.method
@@ -106,6 +158,43 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		if (tabGroup != null) {
 			tabGroup.addTab(tab);
+		}
+	}
+
+	@Kroll.setProperty
+	public void setTabBarVisible(boolean visible)
+	{
+		isTabBarVisible = visible;
+
+		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
+			bottomTabGroup.setTabGroupVisibility(visible);
+		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
+			tabGroupDefault.setTabGroupVisibility(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.setTabGroupVisibility(visible);
+		}
+	}
+
+	@Kroll.method
+	public void showTabBar()
+	{
+		showHideTabBar(true);
+	}
+
+	@Kroll.method
+	public void hideTabBar()
+	{
+		showHideTabBar(false);
+	}
+
+	private void showHideTabBar(boolean visible)
+	{
+		if (view instanceof TiUIBottomNavigationTabGroup bottomTabGroup) {
+			bottomTabGroup.showHideTabBar(visible);
+		} else if (view instanceof TiUITabLayoutTabGroup tabGroupDefault) {
+			tabGroupDefault.showHideTabBar(visible);
+		} else if (view instanceof TiUIBottomNavigation bottomNavigation) {
+			bottomNavigation.showHideTabBar(visible);
 		}
 	}
 
@@ -141,12 +230,6 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 	}
 
-	private TabProxy getActiveTabProxy()
-	{
-		Object activeTab = getActiveTab();
-		return (activeTab != null) ? parseTab(activeTab) : null;
-	}
-
 	@Kroll.setProperty
 	public void setActiveTab(Object tabOrIndex)
 	{
@@ -169,6 +252,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// called to fire events and update the active tab.
 			tabGroup.selectTab(tab);
 		}
+	}
+
+	private TabProxy getActiveTabProxy()
+	{
+		Object activeTab = getActiveTab();
+		return (activeTab != null) ? parseTab(activeTab) : null;
 	}
 
 	@Kroll.getProperty(name = "activity")
@@ -196,8 +285,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		tabs.clear();
 
-		if (obj instanceof Object[]) {
-			Object[] objArray = (Object[]) obj;
+		if (obj instanceof Object[] objArray) {
 			for (Object tabProxy : objArray) {
 				if (tabProxy instanceof TabProxy) {
 					addTab((TabProxy) tabProxy);
@@ -246,11 +334,20 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_AUTO_TAB_TITLE)) {
+			autoTabTitle = options.getBoolean(TiC.PROPERTY_AUTO_TAB_TITLE);
+		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_TABS)) {
 			setTabs(options.get(TiC.PROPERTY_TABS));
 		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_ACTIVE_TAB)) {
 			setActiveTab(options.get(TiC.PROPERTY_ACTIVE_TAB));
+		}
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_TAB_BAR_VISIBLE)) {
+			isTabBarVisible = options.optBoolean(TiC.PROPERTY_TAB_BAR_VISIBLE, isTabBarVisible);
+		}
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_ENABLED)) {
+			isTabGroupEnabled = options.optBoolean(TiC.PROPERTY_ENABLED, isTabGroupEnabled);
 		}
 	}
 
@@ -277,7 +374,11 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	{
 		// If the native view is drawn directly set the String as a title for the SupportActionBar.
 		if (view != null) {
-			((TiUIAbstractTabGroup) view).updateTitle(title);
+			if (autoTabTitle) {
+				((TiUIAbstractTabGroup) view).updateTitle("");
+			} else {
+				((TiUIAbstractTabGroup) view).updateTitle(title);
+			}
 		} else {
 			// If the native view is not yet drawn save the value to be passed during creation.
 			this.tabGroupTitle = title;
@@ -287,35 +388,91 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		Activity topActivity = TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
-		if (topActivity == null || topActivity.isFinishing()) {
+		Activity topActivity = getActivity();
+		if (topActivity == null || topActivity.isFinishing() || topActivity.isDestroyed()) {
 			return;
 		}
+
+		/**
+		 * Only applicable on Android 12 or Android 13.
+		 * As reported here on Google: https://issuetracker.google.com/issues/293645024
+		 * WindowContainer may not be available in very rare cases on devices running Android 12/13.
+		 * Wait for the view to be attached to a window before opening the TabGroup.
+		 */
+		if (Build.VERSION.SDK_INT >= 31 && Build.VERSION.SDK_INT <= 33) {
+			Window window = topActivity.getWindow();
+			View decorView = window != null ? window.getDecorView() : null;
+			if (decorView == null) {
+				return;
+			}
+
+			if (decorView.getDisplay() == null) {
+				TiSafeDisplay.getDisplaySafely(decorView, isDisplayAvailable -> {
+					// Display may not be available in very very rare cases,
+					// but we open it since it's now in try-catch.
+					openTabGroup(topActivity, options);
+				});
+				return;
+			}
+		}
+
+		openTabGroup(topActivity, options);
+	}
+
+	private void openTabGroup(Activity topActivity, KrollDict options)
+	{
+		// set theme for XML layout
+		if (hasProperty(TiC.PROPERTY_STYLE)
+			&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
+			&& getProperty(TiC.PROPERTY_THEME) != null) {
+			try {
+				String themeName = getProperty(TiC.PROPERTY_THEME).toString();
+				int theme = TiRHelper.getResource("style."
+					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
+				topActivity.setTheme(theme);
+			} catch (Exception e) {
+				Log.w(TAG, "Could not apply theme: " + e.getMessage());
+			}
+		}
+
 		Intent intent = new Intent(topActivity, TiActivity.class);
 		fillIntent(topActivity, intent);
 
 		int windowId = TiActivityWindows.addWindow(this);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-		if (!animated) {
-			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-			topActivity.startActivity(intent);
-			topActivity.overridePendingTransition(0, 0);
-		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-				   || options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
-			topActivity.startActivity(intent);
-			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
-			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
-			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
-		} else {
-			topActivity.startActivity(intent);
-			if (topActivity instanceof TiRootActivity) {
-				// A fade-in transition from root splash screen to first window looks better than a slide-up.
-				// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
-				topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+		try {
+			boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+			if (!animated) {
+				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				topActivity.startActivity(intent);
+				topActivity.overridePendingTransition(0, 0);
+			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
+				|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+				topActivity.startActivity(intent);
+				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+				topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+			} else {
+				topActivity.startActivity(intent);
+				if (topActivity instanceof TiRootActivity) {
+					// A fade-in transition from root splash screen to first window looks better than a slide-up.
+					// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
+					topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+				}
 			}
+		} catch (Exception e) {
+			// Last attempt to open the TabGroup (without any animation this time) as reported here:
+			// https://issuetracker.google.com/issues/293645024
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			new Handler(Looper.getMainLooper()).postDelayed(() -> {
+				try {
+					topActivity.startActivity(intent);
+				} catch (Exception ex) {
+					throw new RuntimeException("TabGroup failed to open: " + ex);
+				}
+			}, 500); // Just a hypothetical delay.
 		}
 	}
 
@@ -331,12 +488,24 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (getProperty(TiC.PROPERTY_STYLE) == null
 			|| ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_DEFAULT) {
 			view = new TiUITabLayoutTabGroup(this, activity);
+
+			if (getProperty(TiC.PROPERTY_TAB_MODE) != null) {
+				((TiUITabLayoutTabGroup) view).setTabMode((Integer) getProperty(TiC.PROPERTY_TAB_MODE));
+			}
 		} else {
-			view = new TiUIBottomNavigationTabGroup(this, activity);
+			if (TiConvert.toBoolean(getProperty("experimental"), false)) {
+				view = new TiUIBottomNavigation(this, activity);
+			} else {
+				view = new TiUIBottomNavigationTabGroup(this, activity);
+			}
 		}
 		// If we have set a title before the creation of the native view, set it now.
 		if (this.tabGroupTitle != null) {
-			((TiUIAbstractTabGroup) view).updateTitle(this.tabGroupTitle);
+			if (autoTabTitle) {
+				((TiUIAbstractTabGroup) view).updateTitle("");
+			} else {
+				((TiUIAbstractTabGroup) view).updateTitle(this.tabGroupTitle);
+			}
 		}
 		setModelListener(view);
 
@@ -366,6 +535,21 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Need to handle the cached activity proxy properties in the JS side.
 		callPropertySync(PROPERTY_POST_TAB_GROUP_CREATED, null);
+
+		if (getActivity() != null) {
+			if (hasPropertyAndNotNull(TiC.PROPERTY_FLAGS)) {
+				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT) {
+					getActivity().getWindow().getDecorView()
+						.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+				}
+			}
+			if (hasPropertyAndNotNull(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+				int colorInt = TiColorHelper.parseColor(
+					TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)),
+					TiApplication.getAppRootOrCurrentActivity());
+				getActivity().getWindow().setStatusBarColor(colorInt);
+			}
+		}
 	}
 
 	@Override
@@ -381,6 +565,15 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Finish open handling by loading proxy settings.
 		handlePostOpen();
 
+		if (autoTabTitle) {
+			// expand title to fix truncated title
+			TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
+			tabGroup.updateTitle(tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString() + " "
+				+ tabs.get(0).getProperty(TiC.PROPERTY_TITLE).toString());
+
+			// clear it again
+			tabGroup.updateTitle("");
+		}
 		super.onWindowActivityCreated();
 	}
 
@@ -394,10 +587,10 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// Load any tabs added before the tab group opened.
-		TiUIAbstractTabGroup tg = (TiUIAbstractTabGroup) view;
+		TiUIAbstractTabGroup tabGroup = (TiUIAbstractTabGroup) view;
 		for (TabProxy tab : tabs) {
 			if (tab != null) {
-				tg.addTab(tab);
+				tabGroup.addTab(tab);
 			}
 		}
 
@@ -405,7 +598,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// then we need to invoke onTabSelected so focus/blur event fire appropriately
 		TabProxy tab = getActiveTabProxy();
 		if (tab != null) {
-			tg.selectTab(tab);
+			tabGroup.selectTab(tab);
 			selectedTab = tab;
 		}
 
@@ -413,6 +606,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		// Prevent any duplicate events from firing by marking
 		// this group has having focus.
 		isFocused = true;
+
+		// Update UI if these properties are set before the native view is created.
+		tabGroup.onViewSizeAvailable(() -> {
+			setEnabled(isTabGroupEnabled);
+			setTabBarVisible(isTabBarVisible);
+		});
 	}
 
 	@Override
@@ -519,7 +718,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		tabProxy.onSelectionChanged(true);
 		tabProxy.onFocusChanged(true, focusEventData);
 
-		tabProxy.fireEvent(TiC.EVENT_SELECTED, null, false);
+		tabProxy.fireEvent(TiC.EVENT_SELECTED, focusEventData.clone(), false);
 	}
 
 	@Override

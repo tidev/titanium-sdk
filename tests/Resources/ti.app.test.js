@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -44,16 +44,6 @@ describe('Titanium.App', () => {
 
 			it('has no getter', () => {
 				should(Ti.App).not.have.a.getter('accessibilityEnabled');
-			});
-		});
-
-		describe('.analytics', () => {
-			it('is a read-only Boolean', () => {
-				should(Ti.App).have.a.readOnlyProperty('analytics').which.is.a.Boolean();
-			});
-
-			it('has no getter', () => {
-				should(Ti.App).not.have.a.getter('analytics');
 			});
 		});
 
@@ -237,15 +227,15 @@ describe('Titanium.App', () => {
 			});
 		});
 
-		describe('.sessionId', () => {
-			it('is a read-only String', () => {
-				should(Ti.App).have.a.readOnlyProperty('sessionId').which.is.a.String();
-			});
-
-			it('has no getter', () => {
-				should(Ti.App).not.have.a.getter('sessionId');
-			});
-		});
+		// describe('.sessionId', () => {
+		// 	it('is a read-only String', () => {
+		// 		should(Ti.App).have.a.readOnlyProperty('sessionId').which.is.a.String();
+		// 	});
+		//
+		// 	it('has no getter', () => {
+		// 		should(Ti.App).not.have.a.getter('sessionId');
+		// 	});
+		// });
 
 		describe('.url', () => {
 			it('is a read-only String', () => {

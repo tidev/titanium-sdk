@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,7 +28,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -160,6 +159,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			proxy.releaseViews();
 			proxy.setActivity((Activity) context);
 		}
+		final Activity activity = proxy.getActivity();
 
 		// Obtain row view.
 		final TableViewRowProxy.RowView rowView = (TableViewRowProxy.RowView) proxy.getOrCreateView();
@@ -198,7 +198,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 			// Set title color.
 			int titleColor = 0;
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_COLOR)) {
-				final int color = TiConvert.toColor(properties.getString(TiC.PROPERTY_COLOR));
+				final int color = TiConvert.toColor(properties, TiC.PROPERTY_COLOR, proxy.getActivity());
 
 				if (color != Color.TRANSPARENT) {
 
@@ -210,8 +210,8 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 				// Determine title color based on background.
 				final int tableBackgroundColor =
-					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR);
-				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR);
+					TiConvert.toColor(tableViewProxy.getProperties(), TiC.PROPERTY_BACKGROUND_COLOR, activity);
+				final int rowBackgroundColor = TiConvert.toColor(properties, TiC.PROPERTY_BACKGROUND_COLOR, activity);
 				final int backgroundColor = rowBackgroundColor != Color.TRANSPARENT
 					? rowBackgroundColor : tableBackgroundColor;
 				final int defaultTitleColor = backgroundColor < (Color.BLACK / 2) ? Color.WHITE : Color.BLACK;
@@ -330,20 +330,17 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 				// Obtain background drawable.
 				Drawable backgroundDrawable = rowView.getBackground();
-				if (backgroundDrawable instanceof TiBackgroundDrawable) {
-					final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
+				if (backgroundDrawable instanceof TiBackgroundDrawable drawable) {
 
 					backgroundDrawable = drawable.getBackground();
 				}
 
 				// Parse background color to determine transparency.
 				int backgroundColor = -1;
-				if (backgroundDrawable instanceof PaintDrawable) {
-					final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+				if (backgroundDrawable instanceof PaintDrawable drawable) {
 
 					backgroundColor = drawable.getPaint().getColor();
-				} else if (backgroundDrawable instanceof ColorDrawable) {
-					final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+				} else if (backgroundDrawable instanceof ColorDrawable drawable) {
 
 					backgroundColor = drawable.getColor();
 				}
@@ -500,12 +497,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 		if (colorValue.resourceId != 0) {
 
-			// Set title text color.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				title.setTextColor(resources.getColor(colorValue.resourceId, theme));
-			} else {
-				title.setTextColor(resources.getColor(colorValue.resourceId));
-			}
+			title.setTextColor(resources.getColor(colorValue.resourceId, theme));
 
 		} else {
 
@@ -520,12 +512,7 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 		} else if (backgroundColorValue.resourceId != 0) {
 
-			// Set title background color.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				title.setBackgroundColor(resources.getColor(backgroundColorValue.resourceId, theme));
-			} else {
-				title.setBackgroundColor(resources.getColor(backgroundColorValue.resourceId));
-			}
+			title.setBackgroundColor(resources.getColor(backgroundColorValue.resourceId, theme));
 
 		} else {
 

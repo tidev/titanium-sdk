@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -28,10 +28,10 @@ describe('Titanium.UI', () => {
 		should(section_0).be.a.Object();
 
 		// Set section items.
-		section_0.setItems([
+		section_0.items = [
 			{ properties: { title: 'Red' } },
 			{ properties: { title: 'White' } }
-		]);
+		];
 		should(section_0.items.length).be.eql(2);
 
 		// Append item to section.
@@ -45,11 +45,11 @@ describe('Titanium.UI', () => {
 		should(section_1).be.a.Object();
 
 		// Set section items.
-		section_1.setItems([
+		section_1.items = [
 			{ properties: { title: 'Green' } },
 			{ properties: { title: 'Yellow' } },
 			{ properties: { title: 'Blue' } }
-		]);
+		];
 		should(section_1.items.length).be.eql(3);
 
 		// Set listView sections.
@@ -189,8 +189,8 @@ describe('Titanium.UI.ListView', function () {
 			win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 			// Set section items.
-			fruitSection.setItems(fruitDataSet);
-			vegSection.setItems(vegDataSet);
+			fruitSection.items = fruitDataSet;
+			vegSection.items = vegDataSet;
 
 			// Set header and footer views for first section.
 			fruitSection.headerView = Ti.UI.createView({ backgroundColor: 'black', height: 42 });
@@ -279,22 +279,22 @@ describe('Titanium.UI.ListView', function () {
 			win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 			const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-			fruitSection.setItems([
+			fruitSection.items = [
 				{ properties: { title: 'Apple' } },
 				{ properties: { title: 'Banana' } },
-			]);
+			];
 
 			const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-			vegSection.setItems([
+			vegSection.items = [
 				{ properties: { title: 'Carrots' } },
 				{ properties: { title: 'Potatoes' } },
-			]);
+			];
 
 			const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-			fishSection.setItems([
+			fishSection.items = [
 				{ properties: { title: 'Cod' } },
 				{ properties: { title: 'Haddock' } },
-			]);
+			];
 
 			listView.sections = [ fruitSection ];
 
@@ -352,22 +352,22 @@ describe('Titanium.UI.ListView', function () {
 			win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 			const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-			fruitSection.setItems([
+			fruitSection.items = [
 				{ properties: { title: 'Apple' } },
 				{ properties: { title: 'Banana' } },
-			]);
+			];
 
 			const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-			vegSection.setItems([
+			vegSection.items = [
 				{ properties: { title: 'Carrots' } },
 				{ properties: { title: 'Potatoes' } },
-			]);
+			];
 
 			const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-			fishSection.setItems([
+			fishSection.items = [
 				{ properties: { title: 'Cod' } },
 				{ properties: { title: 'Haddock' } },
-			]);
+			];
 
 			listView.sections = [ fruitSection, fishSection ];
 
@@ -426,22 +426,22 @@ describe('Titanium.UI.ListView', function () {
 			win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 			const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-			fruitSection.setItems([
+			fruitSection.items = [
 				{ properties: { title: 'Apple' } },
 				{ properties: { title: 'Banana' } },
-			]);
+			];
 
 			const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-			vegSection.setItems([
+			vegSection.items = [
 				{ properties: { title: 'Carrots' } },
 				{ properties: { title: 'Potatoes' } },
-			]);
+			];
 
 			const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-			fishSection.setItems([
+			fishSection.items = [
 				{ properties: { title: 'Cod' } },
 				{ properties: { title: 'Haddock' } },
-			]);
+			];
 
 			listView.sections = [ fruitSection, fishSection ];
 
@@ -493,22 +493,22 @@ describe('Titanium.UI.ListView', function () {
 			win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 			const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-			fruitSection.setItems([
+			fruitSection.items = [
 				{ properties: { title: 'Apple' } },
 				{ properties: { title: 'Banana' } },
-			]);
+			];
 
 			const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-			vegSection.setItems([
+			vegSection.items = [
 				{ properties: { title: 'Carrots' } },
 				{ properties: { title: 'Potatoes' } },
-			]);
+			];
 
 			const fishSection = Ti.UI.createListSection({ headerTitle: 'Fish' });
-			fishSection.setItems([
+			fishSection.items = [
 				{ properties: { title: 'Cod' } },
 				{ properties: { title: 'Haddock' } },
-			]);
+			];
 
 			listView.sections = [ fruitSection, vegSection, fishSection ];
 
@@ -586,18 +586,18 @@ describe('Titanium.UI.ListView', function () {
 		ukHeaderView.add(Ti.UI.createLabel({ text: 'English UK Header', color: 'white' }));
 		ukFooterView.add(Ti.UI.createLabel({ text: 'English UK Footer', color: 'white' }));
 
-		ukSection.setItems([
+		ukSection.items = [
 			{ properties: { title: 'Lift', color: 'black' } },
 			{ properties: { title: 'Lorry', color: 'black' } },
 			{ properties: { title: 'Motorway', color: 'black' } }
-		]);
+		];
 		listView.appendSection(ukSection);
 
-		usSection.setItems([
+		usSection.items = [
 			{ properties: { title: 'Elevator', color: 'black' } },
 			{ properties: { title: 'Truck', color: 'black' } },
 			{ properties: { title: 'Freeway', color: 'black' } }
-		]);
+		];
 		listView.appendSection(usSection);
 
 		win.addEventListener('open', () => {
@@ -681,24 +681,24 @@ describe('Titanium.UI.ListView', function () {
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits / Frutas' });
-		fruitSection.setItems([
+		fruitSection.items = [
 			{ info: { text: 'Apple' }, es_info: { text: 'Manzana' }, pic: { image: 'Logo.png' } },
 			{ info: { text: 'Banana' }, es_info: { text: 'Banana' }, pic: { image: 'Logo.png' } }
-		]);
+		];
 		sections.push(fruitSection);
 
 		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables / Verduras' });
-		vegSection.setItems([
+		vegSection.items = [
 			{ info: { text: 'Carrot' }, es_info: { text: 'Zanahoria' }, pic: { image: 'Logo.png' } },
 			{ info: { text: 'Potato' }, es_info: { text: 'Patata' }, pic: { image: 'Logo.png' } }
-		]);
+		];
 		sections.push(vegSection);
 
 		const grainSection = Ti.UI.createListSection({ headerTitle: 'Grains / Granos' });
-		grainSection.setItems([
+		grainSection.items = [
 			{ info: { text: 'Corn' }, es_info: { text: 'Maiz' }, pic: { image: 'Logo.png' } },
 			{ info: { text: 'Rice' }, es_info: { text: 'Arroz' }, pic: { image: 'Logo.png' } }
-		]);
+		];
 		sections.push(grainSection);
 
 		listView.sections = sections;
@@ -939,16 +939,16 @@ describe('Titanium.UI.ListView', function () {
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 
 		const fruitSection = Ti.UI.createListSection({ headerTitle: 'Fruits' });
-		fruitSection.setItems([
+		fruitSection.items = [
 			{ properties: { title: 'Apple', searchableText: 'Apple' } },
 			{ properties: { title: 'Banana', searchableText: 'Banana' } },
-		]);
+		];
 
 		const vegSection = Ti.UI.createListSection({ headerTitle: 'Vegetables' });
-		vegSection.setItems([
+		vegSection.items = [
 			{ properties: { title: 'Carrots', searchableText: 'Carrots' } },
 			{ properties: { title: 'Potatoes', searchableText: 'Potatoes' } },
-		]);
+		];
 
 		listView.sections = [ fruitSection, vegSection ];
 
@@ -1071,6 +1071,65 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
+	it('scrolling event', finish => {
+		const listView = Ti.UI.createListView({
+			continuousUpdate: true,
+			templates: {
+				test: {
+					childTemplates: [ {
+						type: 'Ti.UI.View',
+						childTemplates: [ {
+							type: 'Ti.UI.Label',
+							bindId: 'label',
+							properties: {
+								color: 'black',
+								bindId: 'label'
+							}
+						} ],
+						properties: {
+							width: Ti.UI.FILL,
+							height: 100,
+							cardUseCompatPadding: true,
+							backgroundColor: 'white',
+						}
+					} ]
+				}
+			},
+			defaultItemTemplate: 'test'
+		});
+		const section = Ti.UI.createListSection();
+		const items = [];
+
+		for (let i = 0; i < 100; i++) {
+			items.push({
+				label: { text: 'item ' + i },
+				template: 'test'
+			});
+		}
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'gray'
+		});
+
+		section.setItems(items);
+		listView.sections = [ section ];
+
+		let count = 0;
+		listView.addEventListener('scrolling', () => {
+			count++;
+		});
+		listView.addEventListener('scrollend', () => {
+			if (count > 50) {
+				finish();
+			}
+		});
+		setTimeout(() => {
+			listView.scrollToItem(0, 99);
+		}, 1000);
+		win.add(listView);
+		win.open();
+	});
+
 	it.android('listView with Ti.UI.Android.CardView', finish => {
 		const listView = Ti.UI.createListView({
 			templates: {
@@ -1111,7 +1170,7 @@ describe('Titanium.UI.ListView', function () {
 			backgroundColor: 'gray'
 		});
 
-		section.setItems(items);
+		section.items = items;
 		listView.sections = [ section ];
 
 		win.addEventListener('open', () => {
@@ -1125,7 +1184,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem scaling (percent)', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1162,7 +1221,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem scaling (FILL)', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1199,7 +1258,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem accessoryType', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1235,7 +1294,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem borderRadius', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1272,7 +1331,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListItem default template layout', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1306,7 +1365,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListItem template property', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1360,7 +1419,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListView header & footer', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1389,7 +1448,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListView + ListSection header & footer', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1423,7 +1482,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it.ios('All text should show if ListView.style is .INSET_GROUPED ', () => {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}

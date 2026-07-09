@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -147,9 +147,11 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 		Intent mainIntent = Intent.makeMainActivity(getComponentName());
 		mainIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		mainIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+		mainIntent.setPackage(getPackageName());
 
 		// Fetch the intent this activity was launched with.
 		Intent newIntent = getIntent();
+		newIntent.setPackage(getPackageName());
 
 		// Determine if a Titanium root activity already exists.
 		// Only 1 root activity is allowed at a time to host the one and only Titanium JavaScript runtime.
@@ -186,7 +188,7 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 
 					// Recreate this activity on the current task.
 					if (isActivityForResult) {
-						// This activtiy was created via startActivityForResult().
+						// This activity was created via startActivityForResult().
 						// "Forward" the result handling to the next activity we're about to start-up.
 						Intent relaunchIntent = newIntent;
 						if (relaunchIntent == null) {
@@ -304,9 +306,9 @@ public class TiRootActivity extends TiLaunchActivity implements TiActivitySuppor
 						}
 					});
 					if (KrollRuntime.getActivityRefCount() > 0) {
-						Activity currentActvitiy = getTiApp().getCurrentActivity();
-						if (currentActvitiy != null) {
-							currentActvitiy.finishAffinity();
+						Activity currentActivity = getTiApp().getCurrentActivity();
+						if (currentActivity != null) {
+							currentActivity.finishAffinity();
 						}
 						TiApplication.terminateActivityStack();
 					} else {

@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -1079,11 +1079,11 @@ describe('Titanium.UI.TableView', function () {
 
 		try {
 			tableView.data = [];
-			tableView.setData(data_a);
+			tableView.data = data_a;
 			tableView.data = [];
-			tableView.setData(data_b);
+			tableView.data = data_b;
 			tableView.data = [];
-			tableView.setData(data_a);
+			tableView.data = data_a;
 		} catch (e) {
 			finish(e);
 		}
@@ -1419,7 +1419,7 @@ describe('Titanium.UI.TableView', function () {
 
 		row.add(view);
 
-		tableView.setData([ row ]);
+		tableView.data = [ row ];
 
 		tableView.addEventListener('postlayout', function onPostLayout() {
 			console.log('postlayout', row.rect.height, view.rect.height);
@@ -1455,7 +1455,7 @@ describe('Titanium.UI.TableView', function () {
 
 		row.add(view);
 
-		tableView.setData([ row ]);
+		tableView.data = [ row ];
 
 		// FIXME: Times out on ios?
 		row.addEventListener('postlayout', () => {
@@ -1527,7 +1527,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	it('TableViewRow scaling (percent)', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1546,7 +1546,7 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'blue'
 		});
 
-		tableView.setData([ row ]);
+		tableView.data = [ row ];
 
 		view.add(tableView);
 
@@ -1555,7 +1555,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	it('TableViewRow scaling (FILL)', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1574,7 +1574,7 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'blue'
 		});
 
-		tableView.setData([ row ]);
+		tableView.data = [ row ];
 
 		view.add(tableView);
 
@@ -1583,7 +1583,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	it('TableViewRow internal icons', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1597,11 +1597,11 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'white'
 		});
 
-		tableView.setData([
+		tableView.data = [
 			{ hasCheck: true },
 			{ hasChild: true },
 			{ hasDetail: true }
-		]);
+		];
 
 		view.add(tableView);
 
@@ -1613,7 +1613,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: Unsupported on iOS.
 	it.iosBroken('TableViewRow borderRadius', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1627,13 +1627,13 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'white'
 		});
 
-		tableView.setData([
+		tableView.data = [
 			{
 				backgroundColor: 'blue',
 				height: '64px',
 				borderRadius: '16px'
 			}
-		]);
+		];
 
 		view.add(tableView);
 
@@ -1642,7 +1642,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	it('TableViewRow default title & image', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1656,12 +1656,12 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'blue'
 		});
 
-		tableView.setData([
+		tableView.data = [
 			{
 				title: 'Default Title',
 				image: '/Logo.png'
 			}
-		]);
+		];
 
 		view.add(tableView);
 
@@ -1672,7 +1672,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	it('TableView headerTitle & footerTitle', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1688,7 +1688,7 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'white'
 		});
 
-		tableView.setData([ { title: 'Row', color: 'black' } ]);
+		tableView.data = [ { title: 'Row', color: 'black' } ];
 
 		view.add(tableView);
 
@@ -1701,7 +1701,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
 	it.iosBroken('TableView headerView & footerView', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1725,7 +1725,7 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'white'
 		});
 
-		tableView.setData([ { title: 'Row', color: 'black' } ]);
+		tableView.data = [ { title: 'Row', color: 'black' } ];
 
 		view.add(tableView);
 
@@ -1741,7 +1741,7 @@ describe('Titanium.UI.TableView', function () {
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
 	it.iosBroken('TableView + TableViewSection headerView & footerView', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1765,12 +1765,12 @@ describe('Titanium.UI.TableView', function () {
 			backgroundColor: 'white'
 		});
 
-		tableView.setData([
+		tableView.data = [
 			Ti.UI.createTableViewSection({
 				headerTitle: 'TableViewSection.headerTitle',
 				footerTitle: 'TableViewSection.footerTitle'
 			})
-		]);
+		];
 
 		view.add(tableView);
 
@@ -1784,7 +1784,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	it.ios('All text should show if TableView.style is .INSET_GROUPED ', () => {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}
@@ -1804,7 +1804,7 @@ describe('Titanium.UI.TableView', function () {
 		const label = Ti.UI.createLabel({ text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean interdum laoreet augue scelerisque convallis.' });
 		row.add(label);
 
-		tableView.setData([ row ]);
+		tableView.data = [ row ];
 
 		view.add(tableView);
 

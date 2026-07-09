@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -23,24 +23,24 @@ Width is auto: Consult view on preferred width. If so, use it. If not, act as if
 Okay, see if we have a width. If so, look to see if we have x. If so, we're done for horizontal.
 
 If width is valid:
-	if x is constant or percent:
-		create a valid x
-	else if left and right are defined:
-		Balance springily.
-	else if left is defined
-		x = left + width*anchorpoint
-	else if right is defined
-		x = superviewwidth - right - width*anchorpoint
-	else (left and right are undefined)
-		x = superviewwidth/2 - width*anchorpoint
+        if x is constant or percent:
+                create a valid x
+        else if left and right are defined:
+                Balance springily.
+        else if left is defined
+                x = left + width*anchorpoint
+        else if right is defined
+                x = superviewwidth - right - width*anchorpoint
+        else (left and right are undefined)
+                x = superviewwidth/2 - width*anchorpoint
 else (width is invalid)
-	(Same as before)
+        (Same as before)
 
 */
 
 CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NSObject<LayoutAutosizing> *autoSizer, CGSize referenceSize, UIViewAutoresizing *resultResizing)
 {
-  //TODO: Refactor for elegance.
+  // TODO: Refactor for elegance.
   CGFloat width;
   BOOL ignorePercent = NO;
   CGSize parentSize = CGSizeZero;
@@ -48,7 +48,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
   if ([autoSizer isKindOfClass:[TiViewProxy class]]) {
     TiViewProxy *parent = [(TiViewProxy *)autoSizer parent];
     if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
-      //Sandbox with percent values is garbage
+      // Sandbox with percent values is garbage
       ignorePercent = YES;
       parentSize = [parent size].rect.size;
     }
@@ -85,9 +85,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
   case TiDimensionTypeAutoFill: {
     width = TiDimensionCalculateMargins(constraint->left, constraint->right, referenceSize.width);
     BOOL autoFill = NO;
-    //Undefined falls to auto behavior
+    // Undefined falls to auto behavior
     if (TiDimensionIsUndefined(constraint->width) || TiDimensionIsAuto(constraint->width)) {
-      //Check if default auto behavior is fill
+      // Check if default auto behavior is fill
       if ([autoSizer respondsToSelector:@selector(defaultAutoWidthBehavior:)]) {
         if (TiDimensionIsAutoFill([autoSizer defaultAutoWidthBehavior:nil])) {
           autoFill = YES;
@@ -100,7 +100,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
       }
       break;
     }
-    //If it comes here it has to follow SIZE behavior
+    // If it comes here it has to follow SIZE behavior
     if ([autoSizer respondsToSelector:@selector(autoWidthForSize:)]) {
       CGFloat desiredWidth = [autoSizer autoWidthForSize:CGSizeMake(width, referenceSize.height)];
       width = width < desiredWidth ? width : desiredWidth;
@@ -111,7 +111,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
   }
   }
 
-  //Should we always do this or only for auto
+  // Should we always do this or only for auto
   if ([autoSizer respondsToSelector:@selector(verifyWidth:)]) {
     width = [autoSizer verifyWidth:width];
   }
@@ -145,9 +145,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
   case TiDimensionTypeAutoFill: {
     height = TiDimensionCalculateMargins(constraint->top, constraint->bottom, referenceSize.height);
     BOOL autoFill = NO;
-    //Undefined falls to auto behavior
+    // Undefined falls to auto behavior
     if (TiDimensionIsUndefined(constraint->height) || TiDimensionIsAuto(constraint->height)) {
-      //Check if default auto behavior is fill
+      // Check if default auto behavior is fill
       if ([autoSizer respondsToSelector:@selector(defaultAutoHeightBehavior:)]) {
         if (TiDimensionIsAutoFill([autoSizer defaultAutoHeightBehavior:nil])) {
           autoFill = YES;
@@ -160,7 +160,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
       }
       break;
     }
-    //If it comes here it has to follow size behavior
+    // If it comes here it has to follow size behavior
     if ([autoSizer respondsToSelector:@selector(autoHeightForSize:)]) {
       CGFloat desiredHeight = [autoSizer autoHeightForSize:CGSizeMake(width, height)];
       height = height < desiredHeight ? height : desiredHeight;
@@ -171,7 +171,7 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
   }
   }
 
-  //Should we always do this or only for auto
+  // Should we always do this or only for auto
   if ([autoSizer respondsToSelector:@selector(verifyHeight:)]) {
     height = [autoSizer verifyHeight:height];
   }
@@ -194,7 +194,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint *constr
   BOOL clearMargins = NO;
   TiViewProxy *parent = [viewProxy parent];
   if (parent != nil && (!TiLayoutRuleIsAbsolute([parent layoutProperties]->layoutStyle))) {
-    //Calculated Sandbox implies fixed margins
+    // Calculated Sandbox implies fixed margins
     clearMargins = YES;
   }
 
@@ -217,7 +217,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint *constr
   }
 
   if (!ignoreMargins) {
-    //Either the view has flexible width or pins were not defined for positioning
+    // Either the view has flexible width or pins were not defined for positioning
     int marginSuggestions = 0;
 
     if (TiDimensionDidCalculateValue(constraint->left, referenceSize.width, &frameLeft)) {
@@ -259,7 +259,7 @@ CGPoint PositionConstraintGivenSizeBoundsAddingResizing(LayoutConstraint *constr
   }
 
   if (!ignoreMargins) {
-    //Either the view has flexible height or pins were not defined for positioning
+    // Either the view has flexible height or pins were not defined for positioning
     int marginSuggestions = 0;
 
     if (TiDimensionDidCalculateValue(constraint->top, referenceSize.height, &frameTop)) {

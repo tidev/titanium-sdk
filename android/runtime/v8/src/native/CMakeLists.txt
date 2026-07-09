@@ -1,11 +1,11 @@
 ################################################################################
-# Appcelerator Titanium Mobile
-# Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
+# Titanium SDK
+# Copyright TiDev, Inc. 04/07/2022-Present
 # Licensed under the terms of the Apache Public License
 # Please see the LICENSE included with this distribution for details.
 ################################################################################
 
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.22.1)
 
 # Set project/library name and have it use the C++ compiler.
 # Note: Built library will be named "lib${PROJECT_NAME}.so".

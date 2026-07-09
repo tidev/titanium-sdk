@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2016-2020 by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -26,7 +26,7 @@ public final class JSDebugger
 	// The port to listen to for debugger connections
 	private final int port;
 
-	// The sdk version we report in embedding host header for handshake message to debugger.
+	// The SDK version we report in embedding host header for handshake message to debugger.
 	private final String sdkVersion;
 
 	// The lock used to wait for debugger to connect
@@ -34,6 +34,9 @@ public final class JSDebugger
 
 	// Are we ready to continue? Has the debugger been connected and we've processed the first set of messages?
 	private final AtomicBoolean ready = new AtomicBoolean(false);
+
+	// The session UUID generated for this debugger instance, validated when a client connects
+	private String sessionId;
 
 	// Holding place for messages received from V8 intended for debugger
 	private final LinkedBlockingQueue<String> v8Messages = new LinkedBlockingQueue<>();
@@ -93,6 +96,7 @@ public final class JSDebugger
 	{
 		try {
 			this.agentThread = new InspectorAgent(this.port);
+			this.agentThread.setReuseAddr(true);
 			this.agentThread.start();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to start websocket server agent to handle debugger connection", e);
@@ -119,9 +123,8 @@ public final class JSDebugger
 		synchronized (this.waitLock)
 		{
 			try {
-				// FIXME Use this UUID to store sessions and enforce it's used when a client is connecting
-				String id = UUID.randomUUID().toString();
-				String url = "127.0.0.1:" + this.port + "/" + id;
+				this.sessionId = UUID.randomUUID().toString();
+				String url = "127.0.0.1:" + this.port + "/" + this.sessionId;
 				Log.w(TAG, "Debugger listening on ws://" + url);
 				Log.w(
 					TAG,
@@ -162,6 +165,12 @@ public final class JSDebugger
 		@Override
 		public void onOpen(WebSocket conn, ClientHandshake handshake)
 		{
+			String resourceDescriptor = conn.getResourceDescriptor();
+			if (resourceDescriptor == null || !resourceDescriptor.endsWith("/" + sessionId)) {
+				Log.w(TAG, "Debugger client rejected: invalid session UUID");
+				conn.close();
+				return;
+			}
 			// Start up V8MessageHandler to process responses we get
 			try {
 				Log.w(TAG, "Debugger client connected");
@@ -204,7 +213,7 @@ public final class JSDebugger
 		{
 			inspectorMessages.offer(message); // put message into queue
 
-			// if we haven't initialied yet, sniff the incoming messages
+			// if we haven't initialized yet, sniff the incoming messages
 			if (!JSDebugger.this.ready.get()) {
 				// copy any waiting messages into our initial queue
 				String nextMessage = inspectorMessages.poll();

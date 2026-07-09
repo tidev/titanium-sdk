@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -13,7 +13,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	var testSource = {},
 		invalidSource = {};
 
-	// some common initialization specific to the xml suite
+	// some common initialization specific to the XML suite
 	function countNodes(node, type) {
 		var nodeCount = 0,
 			i,
@@ -78,7 +78,7 @@ describe.windowsBroken('Titanium.XML', function () {
 
 	// TIMOB-9071
 	it('getOrCreateAttributeNS', function () {
-		var xmlDoc = Ti.XML.parseString('<html><head></head><body><a href="http://appcelerator.com/" /></body></html>');
+		var xmlDoc = Ti.XML.parseString('<html><head></head><body><a href="http://titaniumsdk.com/" /></body></html>');
 		var anchor = xmlDoc.getElementsByTagName('a').item(0);
 		should(function () {
 			anchor.getAttributeNS(null, 'href');

@@ -19,7 +19,6 @@ methods:
     returns:
         type: Boolean
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
 
   - name: addToDefaultSearchableIndex
     summary: |
@@ -32,7 +31,6 @@ methods:
         summary: Function to invoke on success or failure of adding the array Titanium.App.iOS.SearchableItem object to the default search index.
         type: Callback<Dictionary>
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
 
   - name: deleteAllSearchableItems
     summary: |
@@ -42,9 +40,8 @@ methods:
         summary: Function to invoke on success or failure of deleting all search items.
         type: Callback<Dictionary>
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
 
-  - name: deleteAllSearchableItemByDomainIdenifiers
+  - name: deleteAllSearchableItemByDomainIdentifiers
     summary: |
         Removes search items based on an array of domain identifiers.
     parameters:
@@ -55,7 +52,6 @@ methods:
         summary: Function to invoke on success or failure of removing search items from the default search index.
         type: Callback<Dictionary>
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
 
   - name: deleteSearchableItemsByIdentifiers
     summary: |
@@ -68,7 +64,6 @@ methods:
         summary: Function to invoke on success or failure of removing search items from the default search index.
         type: Callback<Dictionary>
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "9.0"}}
 examples:
   - title: Add Searchable Content to the On-Device Index
     example: |

@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2013 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -26,7 +26,7 @@
 @property (nonatomic, readwrite, assign) id<TiUIListViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
 
-// Private API. Used by ListView directly. Not for public comsumption
+// Private API. Used by ListView directly. Not for public consumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;
 - (void)deleteItemAtIndex:(NSUInteger)index;
 - (void)addItem:(NSDictionary *)item atIndex:(NSUInteger)index;

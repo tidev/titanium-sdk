@@ -1,10 +1,12 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui;
+
+import android.app.Activity;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
@@ -15,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -32,9 +33,11 @@ import android.app.Activity;
 		TiC.PROPERTY_ENABLE_RETURN_KEY,
 		TiC.PROPERTY_FONT,
 		TiC.PROPERTY_FULLSCREEN,
+		TiC.PROPERTY_HINT_TEXT_ID,
 		TiC.PROPERTY_HINT_TEXT,
 		TiC.PROPERTY_HINT_TEXT_COLOR,
 		TiC.PROPERTY_HINT_TYPE,
+		TiC.PROPERTY_HTML,
 		TiC.PROPERTY_KEYBOARD_TYPE,
 		TiC.PROPERTY_LINES,
 		TiC.PROPERTY_MAX_LINES,
@@ -45,7 +48,7 @@ import android.app.Activity;
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_PADDING,
 		TiC.PROPERTY_RETURN_KEY_TYPE
-})
+	})
 public class TextAreaProxy extends TiViewProxy
 {
 	public TextAreaProxy()
@@ -59,6 +62,14 @@ public class TextAreaProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_EDITABLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_COPY, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
+	}
+
+	@Override
+	protected KrollDict getLangConversionTable()
+	{
+		KrollDict table = new KrollDict();
+		table.put(TiC.PROPERTY_HINT_TEXT, TiC.PROPERTY_HINT_TEXT_ID);
+		return table;
 	}
 
 	@Override

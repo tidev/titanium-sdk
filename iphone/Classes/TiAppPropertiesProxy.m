@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2010 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -179,32 +179,32 @@
 - (void)setBool:(id)args
 {
   SETPROP
-      [defaultsObject setBool:[TiUtils boolValue:value]
-                       forKey:key];
+  [defaultsObject setBool:[TiUtils boolValue:value]
+                   forKey:key];
   [defaultsObject synchronize];
 }
 
 - (void)setDouble:(id)args
 {
   SETPROP
-      [defaultsObject setDouble:[TiUtils doubleValue:value]
-                         forKey:key];
+  [defaultsObject setDouble:[TiUtils doubleValue:value]
+                     forKey:key];
   [defaultsObject synchronize];
 }
 
 - (void)setInt:(id)args
 {
   SETPROP
-      [defaultsObject setInteger:[TiUtils intValue:value]
-                          forKey:key];
+  [defaultsObject setInteger:[TiUtils intValue:value]
+                      forKey:key];
   [defaultsObject synchronize];
 }
 
 - (void)setString:(id)args
 {
   SETPROP
-      [defaultsObject setObject:[TiUtils stringValue:value]
-                         forKey:key];
+  [defaultsObject setObject:[TiUtils stringValue:value]
+                     forKey:key];
   [defaultsObject synchronize];
 }
 

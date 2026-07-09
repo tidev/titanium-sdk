@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2015 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -27,7 +27,7 @@ extern NSString *const kTiUnitPercent;
 
 #define TI_INLINE static __inline__
 
-//Not a class for speed reasons, like LayoutConstraint.
+// Not a class for speed reasons, like LayoutConstraint.
 
 typedef enum {
   TiDimensionTypeUndefined,
@@ -44,8 +44,8 @@ typedef enum {
 struct TiDimension {
   TiDimensionType type;
   CGFloat value;
-  //If type is TiDimensionTypeDip, value is a Dip constant,
-  //If type is TiDimensionTypePercent, value ranges from 0 (0%) to 1.0 (100%)
+  // If type is TiDimensionTypeDip, value is a Dip constant,
+  // If type is TiDimensionTypePercent, value ranges from 0 (0%) to 1.0 (100%)
 };
 
 typedef struct TiDimension TiDimension;
@@ -154,7 +154,7 @@ TI_INLINE CGFloat TiDimensionCalculateMargins(TiDimension dimension1, TiDimensio
   return boundingValue - (TiDimensionCalculateValue(dimension1, boundingValue) + TiDimensionCalculateValue(dimension2, boundingValue));
 }
 
-//TODO: Do these ALL have to be TI_INLINE?
+// TODO: Do these ALL have to be TI_INLINE?
 TI_INLINE CGRect TiDimensionLayerContentCenter(TiDimension top, TiDimension left, TiDimension bottom, TiDimension right, CGSize imageSize)
 {
   CGRect result;

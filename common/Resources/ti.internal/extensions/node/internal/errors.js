@@ -24,7 +24,7 @@
  * Only a few selected errors are exported manually here. Most of the functionality
  * is still missing and may be added as we move forward with Node compatibility.
  *
- * @see https://github.com/nodejs/node/blob/master/lib/internal/errors.js
+ * @see https://github.com/nodejs/node/blob/main/lib/internal/errors.js
  */
 
 import assert from './assert';
@@ -162,7 +162,7 @@ E('ERR_INTERNAL_ASSERTION', (message) => {
 	const suffix = 'This is caused by either a bug in Titanium '
 		+ 'or incorrect usage of Titanium internals.\n'
 		+ 'Please open an issue with this stack trace at '
-		+ 'https://jira.appcelerator.org\n';
+		+ 'https://github.com/tidev/titanium-sdk/issues\n';
 	return message === undefined ? suffix : `${message}\n${suffix}`;
 }, Error);
 E('ERR_INVALID_ARG_TYPE', (name, expected, actual) => {

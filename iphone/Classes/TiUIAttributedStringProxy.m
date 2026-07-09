@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-2018 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -10,6 +10,19 @@
 #import <TitaniumKit/TiUtils.h>
 
 @implementation TiUIAttributedStringProxy
+
++ (TiUIAttributedStringProxy *)fromProperties:(id)arg
+{
+  if ([arg isKindOfClass:[TiUIAttributedStringProxy class]]) {
+    return arg;
+  }
+  if ([arg isKindOfClass:[NSDictionary class]]) {
+    TiUIAttributedStringProxy *asProxy = [[TiUIAttributedStringProxy alloc] init];
+    [asProxy _initWithProperties:arg];
+    return [asProxy autorelease];
+  }
+  return nil;
+}
 
 - (void)_destroy
 {
@@ -107,7 +120,7 @@
         paragraphStyle.lineHeightMultiple = [TiUtils floatValue:objectValue];
       } else if ([key isEqualToString:@"hyphenationFactor"]) {
         paragraphStyle.hyphenationFactor = (float)[TiUtils floatValue:objectValue];
-      } else if ([TiUtils isIOSVersionOrGreater:@"9.0"] && [key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
+      } else if ([key isEqualToString:@"allowsDefaultTighteningForTruncation"]) {
         paragraphStyle.allowsDefaultTighteningForTruncation = [TiUtils boolValue:objectValue];
       } else {
         DebugLog(@"[WARN] Ti.UI.ATTRIBUTE_PARAGRAPH_STYLE - Unsupported property %@", key);
@@ -283,8 +296,8 @@
 
   for (NSString *key in _urls) {
     NSRange range = NSRangeFromString(key);
-    CGFloat tempLenght = range.location + range.length;
-    if (range.location <= tempIndx && tempLenght >= tempIndx) {
+    CGFloat tempLength = range.location + range.length;
+    if (range.location <= tempIndx && tempLength >= tempIndx) {
       return [_urls valueForKey:key];
     }
   }

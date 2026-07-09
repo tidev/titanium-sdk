@@ -23,7 +23,7 @@ CLI version:
 
 ### Logs
 Creating a trace-log:
-  - CLI: `appc run - p [ios|android] -l trace`
+  - CLI: `ti build - p [ios|android] -l trace`
   - Studio / Atom: `Log-Level (Bottom right): Trace`
 
 (Attach by dragging into this issue)
