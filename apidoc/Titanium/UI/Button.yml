@@ -266,6 +266,12 @@ properties:
     default: true
     since: "11.0.0"
 
+  - name: padding
+    summary: Sets the padding of this Button.
+    type: ButtonPadding
+    platforms: [android]
+    since:  {android: 12.7.0}
+
   - name: selectedColor
     summary: Button text color used to indicate the selected state, as a color name or hex triplet.
     description: |
@@ -361,7 +367,7 @@ properties:
     description: Only one of `title` or `titleid` should be specified.
     type: String
     since: "1.5"
-  
+
   - name: tooltip
     summary: The default text to display in the control's tooltip.
     description: |
@@ -421,3 +427,26 @@ examples:
             Titanium.API.info("You clicked the button");
         };
         ```
+
+---
+name: ButtonPadding
+extends: Padding
+summary: Dictionary object of parameters for the <Titanium.UI.Button.padding> that describes the padding.
+since: "12.7.0"
+platforms: [android]
+properties:
+  - name: left
+    type: Number
+    summary: Left padding
+
+  - name: right
+    type: Number
+    summary: Right padding
+
+  - name: top
+    type: Number
+    summary: Top padding
+
+  - name: bottom
+    type: Number
+    summary: Bottom padding

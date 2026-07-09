@@ -30,7 +30,8 @@ import ti.modules.titanium.ui.widget.TiUIButton;
 		TiC.PROPERTY_SHADOW_OFFSET,
 		TiC.PROPERTY_SHADOW_COLOR,
 		TiC.PROPERTY_SHADOW_RADIUS,
-		TiC.PROPERTY_TINT_COLOR
+		TiC.PROPERTY_TINT_COLOR,
+		TiC.PROPERTY_PADDING
 	})
 public class ButtonProxy extends TiViewProxy
 {
