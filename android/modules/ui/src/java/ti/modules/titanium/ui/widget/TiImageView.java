@@ -489,6 +489,9 @@ public class TiImageView extends ViewGroup
 		/** Value animator for smooth transitions */
 		private ValueAnimator scaleAnimator;
 
+		/** Flag to prevent scroll after pinch ends */
+		private boolean justEndedPinch = false;
+
 		public ZoomHandler(@NonNull TiImageView tiImageView)
 		{
 			this.tiImageView = tiImageView;
@@ -506,6 +509,24 @@ public class TiImageView extends ViewGroup
 
 		public boolean onTouchEvent(MotionEvent event)
 		{
+			// Reset post-pinch flag on fresh touch down or when all pointers are lifted
+			if (event.getActionMasked() == MotionEvent.ACTION_DOWN
+				|| event.getActionMasked() == MotionEvent.ACTION_UP
+				|| event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
+				justEndedPinch = false;
+			}
+
+			// If a pinch gesture is already in progress, only handle scale events
+			if (this.scaleGestureDetector.isInProgress()) {
+				this.scaleGestureDetector.onTouchEvent(event);
+				return true;
+			}
+			// If multiple pointers are present (pinch starting), prioritize scale detector
+			if (event.getPointerCount() > 1) {
+				boolean scaleHandled = this.scaleGestureDetector.onTouchEvent(event);
+				return scaleHandled;
+			}
+			// Single pointer: process both detectors as usual
 			return this.gestureDetector.onTouchEvent(event) || this.scaleGestureDetector.onTouchEvent(event);
 		}
 
@@ -584,8 +605,8 @@ public class TiImageView extends ViewGroup
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float dx, float dy)
 		{
-			// Only allow scrolls if image is zoomed and we're not pinch-zooming
-			if (this.scaleGestureDetector.isInProgress() || currentScale <= 1.0f) {
+			// Only allow scrolls if image is zoomed, we're not pinch-zooming, AND we didn't just end a pinch
+			if (this.scaleGestureDetector.isInProgress() || currentScale <= 1.0f || justEndedPinch) {
 				return false;
 			}
 
@@ -632,7 +653,8 @@ public class TiImageView extends ViewGroup
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
-			// Nothing to handle here.
+			// Set flag to prevent scroll/drag immediately after pinch ends
+			justEndedPinch = true;
 		}
 
 		public Pair<Float, Float> getValidTouchPoint(ImageView imageView, float touchX, float touchY)

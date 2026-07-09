@@ -33,7 +33,8 @@ void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, C
   // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   CGFloat bottomInset = MAX(0, obscuredHeight - unimportantArea);
-  [scrollView setContentInset:UIEdgeInsetsMake(0, 0, bottomInset, 0)];
+  UIEdgeInsets existingInsets = [scrollView contentInset];
+  [scrollView setContentInset:UIEdgeInsetsMake(existingInsets.top, existingInsets.left, bottomInset, existingInsets.right)];
 
   CGPoint offset = [scrollView contentOffset];
 
@@ -639,6 +640,8 @@ DEFINE_EXCEPTIONS
     _borderLayer.fillColor = UIColor.clearColor.CGColor;
     _borderLayer.strokeColor = self.layer.borderColor;
     _borderLayer.lineWidth = self.layer.borderWidth * 2;
+    self.layer.borderColor = nil;
+    self.layer.borderWidth = 0;
     [self.layer addSublayer:_borderLayer];
   }
   return _borderLayer;

@@ -2541,10 +2541,8 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }
@@ -2553,10 +2551,8 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }
@@ -2803,12 +2799,18 @@
 
 - (void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   CGRect minimumContentRect = [tableview bounds];
   InsetScrollViewForKeyboard(tableview, keyboardTop, minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 - (void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   if ([tableview isScrollEnabled]) {
     CGRect minimumContentRect = [tableview bounds];
 

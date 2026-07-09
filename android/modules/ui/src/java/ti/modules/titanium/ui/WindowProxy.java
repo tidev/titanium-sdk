@@ -16,7 +16,6 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
@@ -344,8 +343,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0) {
 				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 			}
 		}

@@ -142,14 +142,19 @@ public class TiUIHelper
 			negativeListener = createKillListener();
 		}
 
-		new MaterialAlertDialogBuilder(context)
+		AlertDialog dialog = new MaterialAlertDialogBuilder(context)
 			.setTitle(title)
 			.setMessage(message)
 			.setPositiveButton("Continue", positiveListener)
 			.setNegativeButton("Kill", negativeListener)
 			.setCancelable(false)
-			.create()
-			.show();
+			.create();
+
+		// Check if the context is an Activity and if it's finishing to avoid WindowLeaked error
+		if (context instanceof Activity && ((Activity) context).isFinishing()) {
+			return;
+		}
+		dialog.show();
 	}
 
 	public static void linkifyIfEnabled(TextView tv, Object autoLink)
