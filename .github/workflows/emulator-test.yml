@@ -1,7 +1,12 @@
 name: Android Emulator Test
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+      - "[0-9]+_[0-9]+_X"
+  pull_request:
 
 jobs:
   android:
