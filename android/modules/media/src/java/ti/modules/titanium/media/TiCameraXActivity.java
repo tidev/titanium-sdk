@@ -621,6 +621,18 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			orientationEventListener = null;
 		}
 
+		// Clear all static references to prevent memory leaks
+		callbackContext = null;
+		successCallback = null;
+		errorCallback = null;
+		cancelCallback = null;
+		androidbackCallback = null;
+		openCallback = null;
+		recordingCallback = null;
+		overlayProxy = null;
+		imageCapture = null;
+		videoCapture = null;
+
 		// Destroy this activity.
 		super.onDestroy();
 	}
