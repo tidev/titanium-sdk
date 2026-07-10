@@ -9,6 +9,8 @@ package ti.modules.titanium.ui.widget;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -49,6 +51,7 @@ public class TiUICollapseToolbar extends TiUIView
 	ImageView imageView = null;
 	MaterialToolbar toolbar = null;
 	KrollFunction homeIconFunction = null;
+	KrollFunction menuItemClickFunction = null;
 	boolean homeAsUp = false;
 	TiViewProxy localContentView = null;
 
@@ -93,6 +96,15 @@ public class TiUICollapseToolbar extends TiUIView
 			if (localContentView != null) {
 				setContentView(localContentView);
 			}
+
+			toolbar.setOnMenuItemClickListener(item -> {
+				if (proxy.hasListeners(TiC.EVENT_CLICK)) {
+					KrollDict event = new KrollDict();
+					event.put("itemId", item.getItemId());
+					fireEvent(TiC.EVENT_CLICK, event);
+				}
+				return true;
+			});
 
 			setNativeView(layout);
 		} catch (Exception e) {
@@ -255,6 +267,40 @@ public class TiUICollapseToolbar extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_NAVIGATION_ICON_COLOR)) {
 			setNavigationIconColor(TiConvert.toColor(d.getString(TiC.PROPERTY_NAVIGATION_ICON_COLOR), activity));
+		}
+	}
+
+	public void addMenuItem(KrollDict options)
+	{
+		if (toolbar != null && options.containsKeyAndNotNull(TiC.PROPERTY_TITLE)) {
+			Menu menu = toolbar.getMenu();
+			int itemId = menu.size();
+			if (options.containsKeyAndNotNull(TiC.PROPERTY_ITEM_ID)) {
+				itemId = options.getInt(TiC.PROPERTY_ITEM_ID);
+			}
+			MenuItem item = menu.add(Menu.NONE, itemId, Menu.NONE, options.getString(TiC.PROPERTY_TITLE));
+			if (options.containsKeyAndNotNull(TiC.PROPERTY_SHOW_AS_ACTION)) {
+				item.setShowAsAction(options.getInt(TiC.PROPERTY_SHOW_AS_ACTION));
+			}
+		}
+	}
+
+	public void removeMenuItem(int itemId)
+	{
+		if (toolbar != null) {
+			Menu menu = toolbar.getMenu();
+			MenuItem item = menu.findItem(itemId);
+			if (item != null) {
+				menu.removeItem(itemId);
+			}
+		}
+	}
+
+	public void clearMenu()
+	{
+		if (toolbar != null) {
+			Menu menu = toolbar.getMenu();
+			menu.clear();
 		}
 	}
 }
