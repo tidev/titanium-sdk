@@ -37,7 +37,7 @@ jobs:
           java-version: 21
 
       - name: Android SDK setup
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install Android dependencies
         run: |
@@ -97,16 +97,12 @@ jobs:
 
           script: |
             adb devices
+            npm run test:android
 
-            set +e
-            npm run test:android 2>&1 | tee test-output.log
-            TEST_EXIT=${PIPESTATUS[0]}
-            set -e
-
-            echo "## Android Test Results" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-
-            grep "Total Tests:" test-output.log >> "$GITHUB_STEP_SUMMARY" || \
-              echo "Test summary line not found" >> "$GITHUB_STEP_SUMMARY"
-
-            exit $TEST_EXIT
+      - name: Upload Android JUnit report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-android-report
+          path: junit.android.xml
+          if-no-files-found: warn
