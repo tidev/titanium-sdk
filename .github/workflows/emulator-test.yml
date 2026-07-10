@@ -54,6 +54,14 @@ jobs:
       - name: Build Android SDK
         run: npm run build:android
 
+      - name: Install Android SDK
+        run: |
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-34'
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;x86_64'
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install emulator
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+
       - name: Run tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -61,6 +69,9 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: Pixel 7
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          disable-animations: true
           script: npm run test:integration -- android --sdk-version $npm_package_version
 
       - name: Cleanup Gradle Cache
