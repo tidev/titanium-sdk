@@ -43,10 +43,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
-import java.util.WeakHashMap;
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 @Kroll.module
 public class UIModule extends KrollModule implements TiApplication.ConfigurationChangedListener
@@ -465,7 +467,10 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
 
-	protected static WeakHashMap<UIStyleChangedListener, Object> uiStyleChangedListeners = new WeakHashMap<>();
+	// Accessed from both the runtime thread (ColorProxy creation) and the UI thread (configuration
+	// changes), so it must be synchronized. Keys are weakly held so proxies can be garbage collected.
+	protected static final Map<UIStyleChangedListener, Object> uiStyleChangedListeners
+		= Collections.synchronizedMap(new WeakHashMap<>());
 
 	public interface UIStyleChangedListener {
 		void onUserInterfaceStyleChanged(int styleId);
@@ -473,19 +478,24 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 
 	public static void addUIStyleChangedListener(UIStyleChangedListener a)
 	{
-		Log.d(TAG, "addUIStyleChangedListener");
 		uiStyleChangedListeners.put(a, null);
 	}
 
 	public static void removeUIStyleChangedListener(UIStyleChangedListener a)
 	{
-		Log.d(TAG, "removeUIStyleChangedListener");
 		uiStyleChangedListeners.remove(a);
 	}
 
 	public static void notifyUIStyleChangedListeners(int styleId)
 	{
-		for (UIStyleChangedListener listener: uiStyleChangedListeners.keySet()) {
+		// Snapshot the listeners under lock, then notify outside of it to avoid holding the
+		// monitor across callbacks and to prevent ConcurrentModificationException.
+		UIStyleChangedListener[] listeners;
+		synchronized (uiStyleChangedListeners)
+		{
+			listeners = uiStyleChangedListeners.keySet().toArray(new UIStyleChangedListener[0]);
+		}
+		for (UIStyleChangedListener listener : listeners) {
 			listener.onUserInterfaceStyleChanged(styleId);
 		}
 	}

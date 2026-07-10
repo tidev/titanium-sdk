@@ -34,12 +34,15 @@ public class ColorProxy extends KrollProxy implements UIModule.UIStyleChangedLis
 	{
 		this.color = colorInt;
 		this.name = name;
-		UIModule.addUIStyleChangedListener(this);
+		// Only named colors can be re-resolved on a light/dark switch; a raw color int is fixed.
+		if (name != null) {
+			UIModule.addUIStyleChangedListener(this);
+		}
 	}
 
 	private @ColorInt int getColor()
 	{
-		if (!hasActualColorIntValue) {
+		if (!hasActualColorIntValue && name != null) {
 			color = TiColorHelper.getColorResource(name);
 			hasActualColorIntValue = true;
 		}

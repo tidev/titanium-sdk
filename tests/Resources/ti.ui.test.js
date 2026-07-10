@@ -359,7 +359,7 @@ describe('Titanium.UI', function () {
 			]);
 			for (const [ colorName, hex ] of colors) {
 				const color = Ti.UI.Android.getColorResource(colorName);
-				should(color).should.be.an.Object();
+				should(color).be.an.Object();
 				should(color.apiName).eql('Ti.UI.Color');
 				should(color.toHex).be.a.Function();
 				should(color.toString).be.a.Function();

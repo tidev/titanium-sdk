@@ -296,18 +296,17 @@ public class TiColorHelper
 		return false;
 	}
 
+	@NonNull
 	private static Context getDefaultContext()
 	{
+		// Favor an Activity context (needed for theme-based color resolution), falling back to the
+		// application context so this never returns null.
 		TiApplication tiApp = TiApplication.getInstance();
 		Context context = tiApp.getCurrentActivity();
-		if (context != null) {
-			return context;
-		}
-		context = tiApp.getRootActivity();
 		if (context == null) {
-			return context;
+			context = tiApp.getRootActivity();
 		}
-		return tiApp;
+		return context != null ? context : tiApp;
 	}
 
 	private static void buildColorTable()
