@@ -55,6 +55,13 @@ jobs:
       - name: Build Android SDK
         run: npm run build:android
 
+      - name: Upgrade Android SDK cmdline-tools
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'cmdline-tools;latest'
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+
       - name: Install Android SDK components
         run: |
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
@@ -62,7 +69,7 @@ jobs:
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'emulator'
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'system-images;android-30;default;arm64-v8a'
           echo "--- Installed packages ---"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
 
