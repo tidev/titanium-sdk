@@ -426,6 +426,23 @@ export function extractBalancedJSON(input) {
 }
 
 /**
+ * Defensively normalizes a result's state from Mocha's 'pending' to 'skipped'.
+ * The in-app runner (tests/Resources/app.js) already does this normalization
+ * before emitting the !TEST_END: JSON, but the reporter re-applies it so a
+ * future app.js regression (or a hand-built result from a different harness)
+ * does not inflate the 'passed' count or hide skipped tests from the
+ * skipped-tests summary.
+ * @param {object} result one test result
+ * @returns {object} the same result, with state normalized
+ */
+function normalizeState(result) {
+	if (result && result.state === 'pending') {
+		result.state = 'skipped';
+	}
+	return result;
+}
+
+/**
  * Removes duplicate entries from a results array. Two entries are considered
  * duplicates when they share the same suite, title, file, and state. The iOS
  * simulator log stream has been observed delivering each skipped test's
@@ -441,6 +458,7 @@ export function dedupeResults(results) {
 	const deduped = [];
 	let duplicates = 0;
 	for (const item of results) {
+		normalizeState(item);
 		const key = `${item.suite}${item.title}${item.file || ''}${item.state}`;
 		if (seen.has(key)) {
 			duplicates++;
@@ -514,6 +532,7 @@ export async function outputResults(results) {
 	console.log();
 
 	results.forEach(item => {
+		normalizeState(item);
 		const s = suites[item.suite] || { tests: [], suite: item.suite, duration: 0, passes: 0, failures: 0, start: '' }; // suite name to group by
 		s.tests.unshift(item);
 		s.duration += item.duration;
