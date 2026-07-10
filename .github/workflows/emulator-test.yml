@@ -74,8 +74,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Build Titanium SDK
-        run: npm run build:android
+      - name: Install Titanium SDK
+        run: npm i -g titanium
 
       - name: Run emulator tests
         uses: reactivecircus/android-emulator-runner@v2
