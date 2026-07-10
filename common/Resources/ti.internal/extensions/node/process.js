@@ -271,6 +271,13 @@ Ti.App.addEventListener('uncaughtException', function (event) {
 	process.emit('uncaughtException', error);
 });
 
+// Bridge global.onunhandledrejection to process 'unhandledRejection' event.
+// This enables Node.js-compatible process.on('unhandledRejection') listeners.
+global.onunhandledrejection = function (event) {
+	const reason = (event.reason instanceof Error) ? event.reason : new Error(String(event.reason));
+	process.emit('unhandledRejection', reason, event.promise);
+};
+
 export default process;
 
 // Use a nice predictable class/structure for our Immediate/Tick "timers"

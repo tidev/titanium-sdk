@@ -99,6 +99,7 @@ public:
 	static jclass v8PromiseClass;
 	static jclass v8ObjectClass;
 	static jclass v8FunctionClass;
+	static jclass v8RuntimeClass;
 	static jclass krollRuntimeClass;
 	static jclass krollInvocationClass;
 	static jclass krollExceptionClass;
@@ -157,6 +158,9 @@ public:
 	// KrollRuntime
 	static jint krollRuntimeDontIntercept;
 	static jmethodID krollRuntimeDispatchExceptionMethod;
+
+	// V8Runtime
+	static jmethodID v8RuntimeDispatchUnhandledRejectionMethod;
 
 	static jmethodID krollInvocationInitMethod;
 	static jmethodID krollExceptionInitMethod;

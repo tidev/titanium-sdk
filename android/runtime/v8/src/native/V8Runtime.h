@@ -10,6 +10,8 @@
 #include <jni.h>
 #include <v8.h>
 
+#include <vector>
+
 using namespace v8;
 
 namespace titanium {
@@ -38,6 +40,12 @@ public:
 	static Local<Object> ModuleObject();
 	static Local<Context> GlobalContext();
 	static Local<Function> RunModuleFunction();
+
+	// Unhandled promise rejection tracking
+	static void PromiseRejectCallback(PromiseRejectMessage message);
+	static void FireUnhandledRejections(void* data);
+	static std::vector<v8::Global<Promise>> pendingRejections;
+	static bool microtaskEnqueued;
 };
 }
 ;

@@ -44,6 +44,9 @@ bool V8Runtime::debuggerEnabled = false;
 bool V8Runtime::DBG = false;
 bool V8Runtime::initialized = false;
 
+std::vector<v8::Global<Promise>> V8Runtime::pendingRejections;
+bool V8Runtime::microtaskEnqueued = false;
+
 typedef std::unique_ptr<v8::ArrayBuffer::Allocator> V8ArrayBufferAllocator;
 V8ArrayBufferAllocator v8Allocator;
 
@@ -174,6 +177,115 @@ static void logV8Exception(Local<Message> msg, Local<Value> data)
 		msg->GetSourceLine(context).ToLocalChecked());
 }
 
+// --- Unhandled Promise Rejection Tracking ---
+
+void V8Runtime::PromiseRejectCallback(PromiseRejectMessage message)
+{
+	Isolate* isolate = V8Runtime::v8_isolate;
+	HandleScope handleScope(isolate);
+
+	PromiseRejectEvent event = message.GetEvent();
+	Local<Promise> promise = message.GetPromise();
+
+	if (event == kPromiseRejectWithNoHandler) {
+		// Promise rejected with no handler attached yet.
+		// Track it and enqueue a microtask to fire the event.
+		pendingRejections.push_back(v8::Global<Promise>(isolate, promise));
+
+		if (!microtaskEnqueued) {
+			microtaskEnqueued = true;
+			isolate->EnqueueMicrotask(FireUnhandledRejections, nullptr);
+		}
+	} else if (event == kPromiseHandlerAddedAfterReject) {
+		// A handler was attached to a previously rejected promise.
+		// Remove it from the pending vector — no event should fire.
+		for (auto it = pendingRejections.begin(); it != pendingRejections.end(); ++it) {
+			if (it->IsEmpty() || it->Get(isolate) == promise) {
+				pendingRejections.erase(it);
+				break;
+			}
+		}
+	}
+	// kPromiseRejectAfterResolved and kPromiseResolveAfterResolved are ignored.
+}
+
+void V8Runtime::FireUnhandledRejections(void* data)
+{
+	Isolate* isolate = V8Runtime::v8_isolate;
+	if (isolate == nullptr || pendingRejections.empty()) {
+		microtaskEnqueued = false;
+		return;
+	}
+
+	HandleScope handleScope(isolate);
+	Local<Context> context = isolate->GetCurrentContext();
+	JNIEnv *env = JNIUtil::getJNIEnv();
+	if (!env) {
+		microtaskEnqueued = false;
+		return;
+	}
+
+	// Process all pending unhandled rejections.
+	// Move the vector out first since the callback may trigger new rejections.
+	std::vector<v8::Global<Promise>> rejections;
+	rejections.swap(pendingRejections);
+	microtaskEnqueued = false;
+
+	for (auto& globalPromise : rejections) {
+		if (globalPromise.IsEmpty()) {
+			continue;
+		}
+
+		Local<Promise> promise = globalPromise.Get(isolate);
+		if (promise.IsEmpty()) {
+			continue;
+		}
+
+		// Extract the rejection reason.
+		Local<Value> reason = promise->Result();
+		Local<String> reasonStr;
+		if (reason->IsObject()) {
+			// For Error objects, try to get a useful string representation.
+			MaybeLocal<Value> maybeMessage = reason.As<Object>()->Get(
+				context, STRING_NEW(isolate, "message"));
+			MaybeLocal<Value> maybeStack = reason.As<Object>()->Get(
+				context, STRING_NEW(isolate, "stack"));
+			if (!maybeStack.IsEmpty() && !maybeStack.ToLocalChecked()->IsUndefined()) {
+				reasonStr = maybeStack.ToLocalChecked()->ToString(context).FromMaybe(
+					STRING_NEW(isolate, "Unknown error"));
+			} else if (!maybeMessage.IsEmpty() && !maybeMessage.ToLocalChecked()->IsUndefined()) {
+				reasonStr = maybeMessage.ToLocalChecked()->ToString(context).FromMaybe(
+					STRING_NEW(isolate, "Unknown error"));
+			} else {
+				reasonStr = reason->ToString(context).FromMaybe(
+					STRING_NEW(isolate, "Unknown error"));
+			}
+		} else if (!reason->IsUndefined()) {
+			reasonStr = reason->ToString(context).FromMaybe(
+				STRING_NEW(isolate, "Unknown error"));
+		} else {
+			reasonStr = STRING_NEW(isolate, "undefined");
+		}
+
+		// Convert to Java strings.
+		jstring jReason = TypeConverter::jsValueToJavaString(isolate, env, reasonStr);
+
+		// Call Java dispatchUnhandledRejection() on the V8Runtime instance.
+		env->CallVoidMethod(
+			V8Runtime::javaInstance,
+			JNIUtil::v8RuntimeDispatchUnhandledRejectionMethod,
+			jReason);
+		env->DeleteLocalRef(jReason);
+
+		if (env->ExceptionCheck()) {
+			env->ExceptionDescribe();
+			env->ExceptionClear();
+		}
+	}
+
+	// Global<Promise> unique_ptrs in 'rejections' auto-release when it goes out of scope.
+}
+
 } // namespace titanium
 
 extern "C" {
@@ -220,6 +332,8 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 
 		// Log all uncaught V8 exceptions.
 		isolate->AddMessageListener(logV8Exception);
+		// Track unhandled promise rejections and fire global.onunhandledrejection.
+		isolate->SetPromiseRejectCallback(V8Runtime::PromiseRejectCallback);
 		// isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
 		// isolate->SetAutorunMicrotasks(false);
 		// isolate->SetFatalErrorHandler(OnFatalError);
@@ -457,6 +571,13 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 		// KrollBindings
 		KrollBindings::dispose(V8Runtime::v8_isolate);
 		EventEmitter::dispose();
+
+		// Clear any pending unhandled promise rejections.
+		for (auto& globalPromise : V8Runtime::pendingRejections) {
+			globalPromise.Reset();
+		}
+		V8Runtime::pendingRejections.clear();
+		V8Runtime::microtaskEnqueued = false;
 
 		V8Runtime::GlobalContext()->DetachGlobal();
 	}
