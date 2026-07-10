@@ -9,12 +9,12 @@ on:
 
 jobs:
   test:
-    runs-on: macos-26
+    runs-on: ubuntu-latest
     name: Android Emulator Tests
+    timeout-minutes: 30
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      JAVA_HOME: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.11-10.0/arm64/Contents/Home
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -55,34 +55,48 @@ jobs:
       - name: Build Android SDK
         run: npm run build:android
 
-      - name: Upgrade Android SDK cmdline-tools
+      - name: Enable KVM
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'cmdline-tools;latest'
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
-      - name: Install Android SDK components
-        run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'platform-tools' 'platforms;android-30' 'build-tools;34.0.0'
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'emulator'
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'system-images;android-30;default;arm64-v8a'
-          echo "--- Installed packages ---"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
+      - name: AVD cache
+        uses: actions/cache@v5
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-35
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: Galaxy Nexus
+          cores: 2
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          channel: canary
+          script: echo "Generated AVD snapshot for caching."
 
       - name: Run tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
-          target: default
-          arch: arm64-v8a
-          profile: Pixel 6
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: Galaxy Nexus
+          cores: 2
           force-avd-creation: false
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
+          channel: canary
           script: npm run test:integration -- android --sdk-version $npm_package_version
 
       - name: Cleanup Gradle Cache
