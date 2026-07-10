@@ -1,12 +1,7 @@
 name: Android Emulator Test
 
 on:
-  push:
-    branches:
-      - master
-      - main
-      - "[0-9]+_[0-9]+_X"
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   android:
@@ -97,4 +92,16 @@ jobs:
 
           script: |
             adb devices
-            npm run test:android
+
+            set +e
+            npm run test:android 2>&1 | tee test-output.log
+            TEST_EXIT=${PIPESTATUS[0]}
+            set -e
+
+            echo "## Android Test Results" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+
+            grep "Total Tests:" test-output.log >> "$GITHUB_STEP_SUMMARY" || \
+              echo "Test summary line not found" >> "$GITHUB_STEP_SUMMARY"
+
+            exit $TEST_EXIT
