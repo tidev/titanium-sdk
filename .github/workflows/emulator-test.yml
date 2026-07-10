@@ -97,4 +97,4 @@ jobs:
 
           script: |
             adb devices
-            npm run test:integration -- android --sdk-version $npm_package_version
+            npm run test:android
