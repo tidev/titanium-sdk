@@ -54,21 +54,13 @@ jobs:
       - name: Build Android SDK
         run: npm run build:android
 
-      - name: Install Android SDK
-        run: |
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'build-tools;37.0.0' platform-tools 'platforms;android-34'
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;arm64-v8a'
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install emulator
-        env:
-          JAVA_HOME: ${{ env.JAVA_HOME }}
-
       - name: Run tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
-          target: google_apis
+          api-level: 30
+          target: default
           arch: arm64-v8a
-          profile: Pixel 7
+          profile: Pixel 6
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
           disable-animations: true
