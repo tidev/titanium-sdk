@@ -9,41 +9,52 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: Android Emulator Tests
+  android:
+    name: Titanium Android Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
 
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
       USE_CCACHE: 1
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Node
+        uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
 
-      - uses: actions/setup-java@v4
+      - name: Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      - name: Install dependencies
+      - name: Android SDK setup
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android dependencies
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "emulator" \
+            "system-images;android-35;google_apis;x86_64"
+
+      - name: Install npm dependencies
         run: npm ci
 
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - uses: hendrikmuhs/ccache-action@v1.2.23
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.23
         with:
           create-symlink: true
 
@@ -56,10 +67,6 @@ jobs:
             libatomic1:i386 \
             libc6:i386 \
             libstdc++6:i386
-
-      - name: Build Android
-        run: npm run build:android
-
       - name: Enable KVM
         run: |
           echo 'KERNEL=="kvm",GROUP="kvm",MODE="0666",OPTIONS+="static_node=kvm"' \
@@ -67,10 +74,13 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
-      - name: Run integration tests
+      - name: Build Titanium SDK
+        run: npm run build:android
+
+      - name: Run emulator tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 35
           target: google_apis
           arch: x86_64
           profile: pixel
@@ -78,7 +88,7 @@ jobs:
 
           emulator-options: >
             -no-window
-            -gpu off
+            -gpu swiftshader_indirect
             -noaudio
             -no-boot-anim
             -no-snapshot
@@ -88,9 +98,3 @@ jobs:
           script: |
             adb devices
             npm run test:integration -- android --sdk-version $npm_package_version
-
-      - name: Cleanup Gradle cache
-        if: always()
-        run: |
-          rm -f ~/.gradle/caches/modules-2/modules-2.lock
-          rm -f ~/.gradle/caches/modules-2/gc.properties
