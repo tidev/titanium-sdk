@@ -14,6 +14,7 @@ jobs:
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
+      JAVA_HOME: /Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.11-10.0/arm64/Contents/Home
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -53,6 +54,17 @@ jobs:
 
       - name: Build Android SDK
         run: npm run build:android
+
+      - name: Install Android SDK components
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'platform-tools' 'platforms;android-30' 'build-tools;34.0.0'
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'emulator'
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --no_https --install 'system-images;android-30;default;arm64-v8a'
+          echo "--- Installed packages ---"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list_installed || true
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
 
       - name: Run tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
