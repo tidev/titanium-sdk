@@ -963,11 +963,12 @@ async function outputJUnitXML(jsonResults, prefix) {
 		}
 		suites[item.suite] = s;
 	});
-	suites.passed = passed;
-	suites.failed = failed;
-	suites.skipped = skipped;
+
 	const keys = Object.keys(suites);
 	const values = keys.map(v => suites[v]);
+	values.passed = passed;
+	values.failed = failed;
+	values.skipped = skipped;
 	const template = await fs.readFile(JUNIT_TEMPLATE, 'utf8');
 	const r = ejs.render(template,  { suites: values, prefix: prefix });
 
