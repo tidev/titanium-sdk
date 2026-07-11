@@ -947,17 +947,25 @@ function generateJUnitPrefix(platform, target, customPrefix) {
 async function outputJUnitXML(jsonResults, prefix) {
 	// We need to go through the results and separate them out into suites!
 	const suites = {};
+	let passed = 0, failed = 0, skipped = 0;
 	jsonResults.results.forEach(item => {
 		const s = suites[item.suite] || { tests: [], suite: item.suite, duration: 0, passes: 0, failures: 0, start: '' }; // suite name to group by
 		s.tests.unshift(item);
 		s.duration += item.duration;
 		if (item.state === 'failed') {
 			s.failures += 1;
+			failed += 1;
 		} else if (item.state === 'passed') {
 			s.passes += 1;
+			passed += 1;
+		} else if (item.state === 'skipped') {
+			skipped += 1;
 		}
 		suites[item.suite] = s;
 	});
+	suites.passed = passed;
+	suites.failed = failed;
+	suites.skipped = skipped;
 	const keys = Object.keys(suites);
 	const values = keys.map(v => suites[v]);
 	const template = await fs.readFile(JUNIT_TEMPLATE, 'utf8');
