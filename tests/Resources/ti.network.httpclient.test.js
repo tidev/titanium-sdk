@@ -14,6 +14,11 @@ const { ENDPOINTS } = require('./utilities/endpoints');
 describe('Titanium.Network.HTTPClient', function () {
 	this.timeout(Timeout.NETWORK);
 
+	const VERBOSE_HTTP = Ti.App.Properties.getBool('testVerboseHttp', false);
+	function logRetry() { if (VERBOSE_HTTP) { Ti.API.warn('failed, attempting to retry request...'); } }
+	// Safely serialize error without circular references from source proxy
+	function logHttpError(e) { if (VERBOSE_HTTP) { Ti.API.debug('XHR error: ' + JSON.stringify({ code: e.code, message: e.message })); } }
+
 	it('apiName', function () {
 		const client = Ti.Network.createHTTPClient();
 		should(client).have.a.readOnlyProperty('apiName').which.is.a.String();
@@ -37,12 +42,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to retrieve RSS feed: ' + e)); // Windows fails here. I think we need to update the URL!
 			}
 		};
@@ -81,12 +85,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to retrieve large image: ' + e));
 			}
 		};
@@ -160,12 +163,12 @@ describe('Titanium.Network.HTTPClient', function () {
 				return finish();
 			}
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
 				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to retrieve redirected large image: ' + JSON.stringify(errorInfo)));
 			}
 		};
@@ -183,12 +186,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to post empty request: ' + e));
 			}
 		};
@@ -217,12 +219,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = e => {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to retrieve headers: ' + e));
 			}
 		};
@@ -254,12 +255,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to retrieve headers: ' + e)); // Failing on Windows here, likely need to update test!
 			}
 		};
@@ -312,12 +312,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to send data: ' + e));
 			}
 		};
@@ -451,7 +450,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			let attempts2 = 3;
 			xhr2.onload = function () {
 				try {
-					Ti.API.info('Clear Cookie');
+					if (VERBOSE_HTTP) { Ti.API.info('Clear Cookie'); }
 					const resp2 = JSON.parse(this.responseText);
 					should(resp2.cookies).not.have.ownProperty('v1');
 					should(resp2.cookies).not.have.ownProperty('v2');
@@ -462,7 +461,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			};
 			xhr2.onerror = function (e) {
 				if (attempts2-- > 0) {
-					Ti.API.warn('failed, attempting to retry request...');
+					logRetry();
 					xhr2.send();
 				} else {
 					finish(new Error(e.error || this.responseText));
@@ -473,7 +472,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				finish(new Error(e.error || this.responseText));
@@ -501,7 +500,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				if (dataStreamFinished) {
 					finish();
 				} else if (attempts-- > 0) {
-					Ti.API.warn('failed, attempting to retry request...');
+					logRetry();
 					xhr.abort();
 					xhr.send();
 				} else {
@@ -519,13 +518,12 @@ describe('Titanium.Network.HTTPClient', function () {
 
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.abort();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -554,12 +552,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -626,12 +623,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -664,12 +660,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to authenticate: ' + e));
 			}
 		};
@@ -714,12 +709,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to authenticate: ' + e));
 			}
 		};
@@ -754,12 +748,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -795,12 +788,11 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error(e.error || this.responseText));
 			}
 		};
@@ -854,12 +846,12 @@ describe('Titanium.Network.HTTPClient', function () {
 		let attempts = 3;
 		xhr.onerror = e => {
 			if (attempts-- > 0) {
-				Ti.API.warn('failed, attempting to retry request...');
+				logRetry();
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
 				const errorInfo = { code: e.code, message: e.message };
-				Ti.API.debug('XHR error: ' + JSON.stringify(errorInfo));
+				logHttpError(e);
 				finish(new Error('failed to retrieve large image: ' + JSON.stringify(errorInfo)));
 			}
 		};
