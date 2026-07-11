@@ -269,7 +269,7 @@ describe('Titanium.UI', function () {
 				});
 			} else if (constants[name].type === 'String') {
 				// FIXME These special constants are failing on Android and iOS. They appear to be hard-coded numbers (and not unique!)
-				([ 'FILL', 'SIZE', 'UNIT_CM', 'UNIT_DIP', 'UNIT_IN', 'UNIT_MM', 'UNIT_PX' ].indexOf(name) !== -1 ? it.skip : it)(name, function () { // eslint-disable-line no-loop-func
+				([ 'FILL', 'SIZE', 'UNIT_CM', 'UNIT_DIP', 'UNIT_IN', 'UNIT_MM', 'UNIT_PX' ].indexOf(name) !== -1 ? it.allBroken : it)(name, function () { // eslint-disable-line no-loop-func
 					should(Ti.UI).have.a.constant(name).which.is.a.String();
 				});
 			}
