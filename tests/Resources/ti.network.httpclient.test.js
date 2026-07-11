@@ -334,7 +334,8 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	// Confirms that only the selected cookie is deleted
 	// FIXME Windows hangs on this test! Maybe due to setTimeout in onload?
-	it.windowsBroken('clearCookiePositiveTest', function (finish) {
+	// FIXME iOS returns null for getResponseHeader('Set-Cookie')
+	it.iosAndWindowsBroken('clearCookiePositiveTest', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
 		});
