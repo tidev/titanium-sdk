@@ -694,6 +694,11 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	it.android('save response data to temp directory', function (finish) {
+		// Per-request timeout must be shorter than the mocha test timeout so
+		// onerror can fire and retries can run within the mocha window; the
+		// parent describe sets 60s, equal to the XHR timeout, so mocha aborts
+		// before the large.jpg download can complete on slow networks.
+		this.timeout(Timeout.DEVICE_OPERATION);
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: Timeout.NETWORK
 		});

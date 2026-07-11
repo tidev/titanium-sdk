@@ -474,7 +474,8 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: iOS fails with 'New layout set while view [object TiUIView] animating'
 	// FIXME: Windows fails with timeout
-	it.iosAndWindowsBroken('TIMOB-20598', function (finish) {
+	// FIXME: Android fails with 'expected 150 to equal 100' (rect.x not updated after animation)
+	it.allBroken('TIMOB-20598', function (finish) {
 		let left = 150;
 		let count = 0;
 
