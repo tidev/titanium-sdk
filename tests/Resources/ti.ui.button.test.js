@@ -133,6 +133,7 @@ describe('Titanium.UI.Button', function () {
 			win.addEventListener('open', () => {
 				try {
 					should(button.imageIsMask).be.true();
+					should(button).matchImage('snapshots/buttonImageIsMask.png');
 					finish();
 				} catch (err) {
 					finish(err);

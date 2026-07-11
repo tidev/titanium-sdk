@@ -116,6 +116,7 @@ describe('Titanium.UI.TextArea', () => {
 						win.removeEventListener('postlayout', listener);
 						textArea.enableCopy = false;
 						should(textArea.enableCopy).be.false();
+						should(textArea).matchImage('snapshots/textareaEnableCopy.png');
 						finish();
 					} catch (err) {
 						finish(err);

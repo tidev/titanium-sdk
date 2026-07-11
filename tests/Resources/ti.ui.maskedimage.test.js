@@ -57,6 +57,11 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 		}));
 		win.addEventListener('postlayout', function listener () {
 			win.removeEventListener('postlayout', listener);
+			try {
+				should(win).matchImage('snapshots/maskedImageTint.png');
+			} catch (err) {
+				return finish(err);
+			}
 			// Assume MaskedImage has rendered successfully by this point.
 			finish();
 		});
@@ -75,6 +80,11 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 		}));
 		win.addEventListener('postlayout', function listener () {
 			win.removeEventListener('postlayout', listener);
+			try {
+				should(win).matchImage('snapshots/maskedImageImage.png');
+			} catch (err) {
+				return finish(err);
+			}
 			// Assume MaskedImage has rendered successfully by this point.
 			finish();
 		});
