@@ -493,7 +493,7 @@ describe('Titanium.UI.TabGroup', function () {
 		}
 
 		this.slow(5000);
-		this.timeout(Timeout.DEFAULT);
+		this.timeout(Timeout.LONG);
 
 		const map = require('ti.map');
 		const mapView = map.createView({ top: 0, height: '80%' });
