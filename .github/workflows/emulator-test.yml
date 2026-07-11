@@ -1,16 +1,11 @@
 name: Android Emulator Test
 
 on:
-  push:
-    branches:
-      - master
-      - main
-      - "[0-9]+_[0-9]+_X"
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   android:
-    name: Titanium Android Tests
+    name: Titanium SDK Android Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 60
 
