@@ -168,9 +168,11 @@ export class SnapshotManager {
 				}
 				await exec(`${adbPath} ${adbTargetArgs} shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
 			} else {
-				// await exec(`${adbPath} -e shell "run-as ${APP_ID} cat '${filepath}'" > ${dest}`);
-				// Using cat as above on some emulators (especially older ones) mangles image files
-				await exec(`${adbPath} -e pull ${filepath} ${dest}`);
+				// On Android 11+ (API 30+) adb pull fails with "Permission denied" for files
+				// in the app's private data directory. Use exec-out + run-as to read the file
+				// as the app's user; exec-out preserves binary data (unlike shell, which
+				// translates \n and mangles images).
+				await exec(`${adbPath} -e exec-out run-as ${APP_ID} cat '${filepath}' > ${dest}`);
 			}
 			return dest;
 		}
