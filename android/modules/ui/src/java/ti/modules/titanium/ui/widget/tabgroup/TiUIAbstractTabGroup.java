@@ -216,7 +216,7 @@ public abstract class TiUIAbstractTabGroup extends TiUIView
 		try {
 			final int[] idArray = new int[] {
 				android.R.attr.colorBackground,
-				R.attr.colorPrimary,
+				androidx.appcompat.R.attr.colorPrimary,
 				R.attr.colorSurface,
 				R.attr.colorOnSurface
 			};
