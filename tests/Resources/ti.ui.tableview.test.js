@@ -963,7 +963,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// Verifies that we don't run into the JNI ref overflow issue on Android
 	// NOTE: skipping due to memory constrains on our Android 4.4 test device
-	it('TIMOB-15765 rev.1', finish => {
+	it('TIMOB-15765 rev.1', function (finish) {
 		this.skip('TIMOB-15765: tableview reload race condition; revisit when the underlying reload-during-scroll bug is fixed.');
 		var views = [],
 			references = 51200, // JNI max is 51200
@@ -996,7 +996,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	// NOTE: skipping due to memory constrains on our Android 4.4 test device
-	it('TIMOB-15765 rev.2', finish => {
+	it('TIMOB-15765 rev.2', function (finish) {
 		this.skip('TIMOB-15765: tableview reload race condition; revisit when the underlying reload-during-scroll bug is fixed.');
 		var references = 51200, // JNI max is 51200
 			error,
