@@ -8,10 +8,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import child_process from 'node:child_process';
 import { promisify } from 'node:util';
-import { fileURLToPath } from 'node:url';
 import { APP_ID, TMP_DIR, PROJECT_DIR } from './runner.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const exec = promisify(child_process.exec);
 

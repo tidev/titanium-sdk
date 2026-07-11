@@ -11,11 +11,8 @@ import ejs from 'ejs';
 import StreamSplitter from 'stream-splitter';
 import { spawn } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
-import { fileURLToPath } from 'node:url';
 import { SnapshotManager } from './snapshots.js';
 import { REPORT_DIR, JUNIT_TEMPLATE, PROJECT_DIR, PROJECT_NAME } from './runner.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // The special magic strings we expect in the logs!
 export const GENERATED_IMAGE_PREFIX = '!IMAGE: ';
