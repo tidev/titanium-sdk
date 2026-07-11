@@ -101,7 +101,7 @@ properties:
     type: Boolean
     default: false
     platforms: [iphone, ipad]
-    since: "14.1.0"
+    since: "14.0.0"
 
   - name: contentInsetEndWithActions
     summary: Returns the margin after the toolbar's content when there are action buttons.
