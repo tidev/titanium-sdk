@@ -1078,7 +1078,7 @@ describe('Titanium.UI.ListView', function () {
 		// events and the test times out. Accept any non-zero count as proof the
 		// event fires, and give the scroll animation enough room within the
 		// mocha window.
-		this.timeout(30000);
+		this.timeout(Timeout.LONG);
 		const listView = Ti.UI.createListView({
 			continuousUpdate: true,
 			templates: {

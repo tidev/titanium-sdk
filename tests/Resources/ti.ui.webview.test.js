@@ -616,7 +616,7 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	it.ios('beforeload should provide the URL that is about to be loaded and handle redirects', function (finish) {
-		this.timeout(60000);
+		this.timeout(Timeout.NETWORK);
 		const url = ENDPOINTS.webviewRedirect;
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({

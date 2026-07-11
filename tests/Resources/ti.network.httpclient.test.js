@@ -143,7 +143,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		// onerror can fire and retries can run within the mocha window; with
 		// equal 60s/60s timeouts mocha aborts before the first request even
 		// times out, so done() is never called.
-		this.timeout(120000);
+		this.timeout(Timeout.DEVICE_OPERATION);
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 25000
 		});
@@ -835,7 +835,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	it.windowsBroken('progress event', function (finish) {
-		this.timeout(120000);
+		this.timeout(Timeout.DEVICE_OPERATION);
 		let progressVar = -1;
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 30000
