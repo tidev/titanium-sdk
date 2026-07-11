@@ -109,6 +109,17 @@
       [result addObject:[thisProxy barButtonItem]];
       [thisProxy windowDidOpen];
     }
+    BOOL toolbarSeparated = [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"hideSharedBackground"] def:NO];
+    for (NSUInteger i = 0; i < result.count; i++) {
+      UIBarButtonItem *item = result[i];
+      TiViewProxy *proxy = value[i];
+      BOOL itemSeparated = [TiUtils boolValue:[proxy valueForUndefinedKey:@"hideSharedBackground"] def:NO];
+      if (toolbarSeparated || itemSeparated) {
+        if (@available(iOS 26.0, *)) {
+          item.hidesSharedBackground = YES;
+        }
+      }
+    }
     [[self toolBar] setItems:result];
   } else {
     UIToolbar *toolbar = [self toolBar];
