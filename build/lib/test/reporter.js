@@ -494,7 +494,7 @@ export function generateJUnitPrefix(platform, target, customPrefix) {
  * @param {String} prefix prefix for test names to identify them uniquely
  * @returns {Promise<void>}
  */
-export async function outputJUnitXML(jsonResults, prefix) {
+export async function outputJUnitXML(jsonResults, prefix, outputDir = REPORT_DIR) {
 	// We need to go through the results and separate them out into suites!
 	const suites = {};
 	jsonResults.results.forEach(item => {
@@ -514,7 +514,7 @@ export async function outputJUnitXML(jsonResults, prefix) {
 	const r = ejs.render(template,  { suites: values, prefix: prefix });
 
 	// Write the JUnit XML to a file
-	const outFile = path.join(REPORT_DIR, `junit.${prefix}.xml`);
+	const outFile = path.join(outputDir, `junit.${prefix}.xml`);
 	console.log(`JUnit test report written to ${outFile}`);
 	return fs.writeFile(outFile, r);
 }

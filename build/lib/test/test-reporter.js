@@ -102,7 +102,7 @@ describe('reporter helpers', function () {
 	describe('outputJUnitXML', () => {
 		it('writes a JUnit XML file with the prefix in the filename', async function () {
 			this.timeout(5000);
-			await fs.mkdtemp(path.join(os.tmpdir(), 'titanium-reporter-'));
+			const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'titanium-reporter-'));
 			const jsonResults = {
 				results: [
 					{ suite: 'S1', title: 't1', state: 'passed', duration: 5, file: 'f.test.js' },
@@ -110,12 +110,9 @@ describe('reporter helpers', function () {
 					{ suite: 'S2', title: 't3', state: 'skipped', duration: 0, file: 'g.test.js', skipReason: 'SKIP_IOS_SIM_CORELOCATION' }
 				]
 			};
-			// outputJUnitXML writes to REPORT_DIR (the repo root, set in runner.js).
-			// To avoid polluting the repo, we accept that this test writes junit.<prefix>.xml
-			// to the repo root and cleans up after.
 			const prefix = 'test-reporter-spec';
-			const outFile = path.join(process.cwd(), `junit.${prefix}.xml`);
-			await outputJUnitXML(jsonResults, prefix);
+			const outFile = path.join(tmpDir, `junit.${prefix}.xml`);
+			await outputJUnitXML(jsonResults, prefix, tmpDir);
 			expect(await fs.pathExists(outFile)).to.equal(true);
 			const xml = await fs.readFile(outFile, 'utf8');
 			expect(xml).to.contain('S1');
@@ -123,7 +120,7 @@ describe('reporter helpers', function () {
 			expect(xml).to.contain('t1');
 			expect(xml).to.contain('t2');
 			expect(xml).to.contain('t3');
-			await fs.remove(outFile);
+			await fs.remove(tmpDir);
 		});
 	});
 
