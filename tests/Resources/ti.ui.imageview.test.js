@@ -154,7 +154,7 @@ describe('Titanium.UI.ImageView', function () {
 
 		// Windows: TIMOB-24985
 		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.allBroken('with Ti.Fielsystem.File', finish => {
+		it.androidAndIosBroken('with Ti.Fielsystem.File', finish => {
 			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 
 			const imageView = Ti.UI.createImageView();
