@@ -282,6 +282,7 @@ describe('Titanium.UI.ScrollView', function () {
 			try {
 				should(scrollView.size.width < (win.size.width / 2)).be.be.true();
 				should(scrollView.size.height < (win.size.height / 2)).be.be.true();
+				should(scrollView).matchImage('snapshots/scrollViewSize.png');
 			} catch (err) {
 				return finish(err);
 			}

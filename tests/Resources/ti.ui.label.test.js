@@ -80,6 +80,7 @@ describe('Titanium.UI.Label', function () {
 				try {
 					// Both labels are expected to be 1 line tall.
 					should(label1.size.height).be.approximately(label2.size.height, 1);
+					should(win).matchImage('snapshots/labelTruncatesNewlines.png');
 				} catch (err) {
 					return finish(err);
 				}
