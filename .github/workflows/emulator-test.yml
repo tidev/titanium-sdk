@@ -1,10 +1,12 @@
 name: Android Emulator Test
 
 on:
-  workflow_dispatch:
+  pull_request_review:
+    types: [submitted]
 
 jobs:
   android:
+    if: github.event.review.state == 'approved'
     name: Titanium SDK Android Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 60
