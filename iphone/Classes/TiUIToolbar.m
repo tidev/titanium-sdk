@@ -109,6 +109,8 @@
       [result addObject:[thisProxy barButtonItem]];
       [thisProxy windowDidOpen];
     }
+
+#if IS_SDK_IOS_26
     BOOL toolbarSeparated = [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"hideSharedBackground"] def:NO];
     for (NSUInteger i = 0; i < result.count; i++) {
       UIBarButtonItem *item = result[i];
@@ -120,6 +122,7 @@
         }
       }
     }
+#endif
     [[self toolBar] setItems:result];
   } else {
     UIToolbar *toolbar = [self toolBar];
