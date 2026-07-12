@@ -130,7 +130,8 @@ describe('Titanium.UI.Button', function () {
 				imageIsMask: true,
 			});
 			win.add(button);
-			win.addEventListener('open', () => {
+			win.addEventListener('postlayout', function listener () {
+				win.removeEventListener('postlayout', listener);
 				try {
 					should(button.imageIsMask).be.true();
 					should(button).matchImage('snapshots/buttonImageIsMask.png');
