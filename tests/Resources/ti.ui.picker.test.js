@@ -44,7 +44,8 @@ describe('Titanium.UI.Picker', function () {
 				backgroundColor: '#000'
 			});
 			win.add(picker);
-			win.addEventListener('open', function () {
+			win.addEventListener('postlayout', function listener () {
+				win.removeEventListener('postlayout', listener);
 				try {
 					should(picker.value).be.eql(date);
 					should(win).matchImage('snapshots/pickerDateLifecycle.png');

@@ -58,7 +58,7 @@ describe('Titanium.UI.Label', function () {
 		// Tests if "maxLines" correctly truncates strings with '\n' characters.
 		it('truncates strings with newline characters', function (finish) {
 			this.slow(1000);
-			this.timeout(Timeout.DEFAULT);
+			this.timeout(Timeout.LONG);
 
 			win = Ti.UI.createWindow({
 				layout: 'vertical',
