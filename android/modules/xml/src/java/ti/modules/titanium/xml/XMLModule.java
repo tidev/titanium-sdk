@@ -23,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 @Kroll.module
@@ -66,7 +67,14 @@ public class XMLModule extends KrollModule
 	{
 		if (builder != null) {
 			try {
-				return new DocumentProxy(builder.parse(new ByteArrayInputStream(xml.getBytes(encoding))));
+				// Route through NodeProxy.getNodeProxy() so the returned
+				// DocumentProxy is registered in the proxy cache. This makes
+				// node.ownerDocument === doc hold in JS (same proxy instance),
+				// which lets should.js's eql() short-circuit on reference
+				// equality instead of deep-comparing the cyclic proxy graph.
+				Document doc = builder.parse(
+					new ByteArrayInputStream(xml.getBytes(encoding)));
+				return (DocumentProxy) NodeProxy.getNodeProxy(doc);
 			} catch (SAXException e) {
 				Log.e(TAG, "Error parsing XML", e);
 				throw e;

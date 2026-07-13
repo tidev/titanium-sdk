@@ -89,8 +89,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	});
 
 	// TIMOB-8551
-	// FIXME Get working on Android, fails
-	it.androidBroken('ownerDocumentProperty', function () {
+	it('ownerDocumentProperty', function () {
 		var doc = Ti.XML.parseString('<?xml version="1.0"?><root><test>data</test></root>'),
 			e1 = doc.firstChild,
 			e2 = doc.createElement('test');
@@ -111,8 +110,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	// FIXME Get working on iOS - doesn't throw exception on parsing empty string
 	// FIXME: new V8 changes have prevented exceptions from throwing?
 	// iOS gives: expected [Function] to throw exception
-	// Android gives: expected [Function] to throw exception
-	it.androidAndIosBroken('documentParsing', function () {
+	it.iosBroken('documentParsing', function () {
 		var localSources = testSource,
 			localInvalid = invalidSource;
 		// Parse valid documents
@@ -534,9 +532,8 @@ describe.windowsBroken('Titanium.XML', function () {
 	});
 
 	// FIXME: doctype support
-	// Android gives: expected true to equal false
 	// Windows gives: expected true to equal false
-	it.androidAndWindowsBroken('apiXmlDocumentProperties', function () {
+	it.windowsBroken('apiXmlDocumentProperties', function () {
 		// File with DTD
 		var doc = Ti.XML.parseString(testSource['with_dtd.xml']);
 		should(doc.documentElement).not.be.type('undefined');
@@ -557,7 +554,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	// FIXME: value property should return empty string according to spec
 	// Don't know why Android fails!
 	// Windows gives: expected true to equal false
-	it.androidAndWindowsBroken('apiXmlDocumentCreateAttribute', function () {
+	it.windowsBroken('apiXmlDocumentCreateAttribute', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			attr;
 		should(doc.createAttribute).be.a.Function();
@@ -584,8 +581,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(attr.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateCDATASection', function () {
+	it('apiXmlDocumentCreateCDATASection', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			data = 'This is my CDATA section',
 			section;
@@ -598,8 +594,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(section.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateComment', function () {
+	it('apiXmlDocumentCreateComment', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			data = 'This is my comment',
 			comment;
@@ -611,8 +606,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(comment.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateDocumentFragment', function () {
+	it('apiXmlDocumentCreateDocumentFragment', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			frag;
 		should(doc.createDocumentFragment).be.a.Function();
@@ -622,8 +616,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(frag.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateElement', function () {
+	it('apiXmlDocumentCreateElement', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			elem;
 		should(doc.createElement).be.a.Function();
@@ -637,8 +630,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(elem.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateElementNS', function () {
+	it('apiXmlDocumentCreateElementNS', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			elem;
 		should(doc.createElementNS).be.a.Function();
@@ -652,8 +644,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(elem.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateEntityReference', function () {
+	it('apiXmlDocumentCreateEntityReference', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			entity;
 		should(doc.createEntityReference).be.a.Function();
@@ -664,8 +655,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(entity.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateProcessingInstruction', function () {
+	it('apiXmlDocumentCreateProcessingInstruction', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			instruction;
 		should(doc.createProcessingInstruction).be.a.Function();
@@ -677,8 +667,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(instruction.ownerDocument).eql(doc);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlDocumentCreateTextNode', function () {
+	it('apiXmlDocumentCreateTextNode', function () {
 		var doc = Ti.XML.parseString('<test/>'),
 			value = 'This is some text',
 			text;
@@ -765,8 +754,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(elements.length).be.equal(0);
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidAndWindowsBroken('apiXmlDocumentImportNode', function () {
+	it.windowsBroken('apiXmlDocumentImportNode', function () {
 		var doc = Ti.XML.parseString('<a/>'),
 			otherDoc = Ti.XML.parseString(testSource['with_ns.xml']),
 			cakeNodes = otherDoc.documentElement.getElementsByTagNameNS('http://example.com', 'cake'),
@@ -801,7 +789,7 @@ describe.windowsBroken('Titanium.XML', function () {
 
 	// FIXME: some properties should be null if it is unspecified
 	// Windows: expected undefined not to have type undefined
-	it.androidAndWindowsBroken('apiXmlNodeProperties', function () {
+	it.windowsBroken('apiXmlNodeProperties', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			nodesList = doc.getElementsByTagName('nodes'),
 			node,
@@ -873,8 +861,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(node.localName).not.be.type('undefined');
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidAndWindowsDesktopBroken('apiXmlNodeAppendChild', function () {
+	it.windowsDesktopBroken('apiXmlNodeAppendChild', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			parentNode = doc.createElement('parentNode'),
 			childNode;
@@ -985,8 +972,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(results).be.true();
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlNodeInsertBefore', function () {
+	it('apiXmlNodeInsertBefore', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			parentNode = doc.createElement('parentNode'),
 			childNode3;
@@ -1033,8 +1019,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(parentNode.childNodes.length).eql(1);
 	});
 
-	// FIXME Get working on Android, causes crash
-	it.androidBroken('apiXmlNodeRemoveChild', function () {
+	it('apiXmlNodeRemoveChild', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			parentNode = doc.createElement('parentNode'),
 			childNode = doc.createElement('childNode'),
@@ -1048,8 +1033,7 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(parentNode.hasChildNodes()).be.false();
 	});
 
-	// FIXME Get working on Android, fails
-	it.androidBroken('apiXmlNodeReplaceChild', function () {
+	it('apiXmlNodeReplaceChild', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			parentNode = doc.createElement('parentNode'),
 			childNode = doc.createElement('childNode'),
@@ -1116,9 +1100,8 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(nodes.item(100) === null).be.true();
 	});
 
-	// Don't know why Android fails!
 	// Windows gives: expected undefined to be ''
-	it.androidAndWindowsBroken('apiXmlAttr', function () {
+	it.windowsBroken('apiXmlAttr', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			node = doc.getElementsByTagName('node').item(0),
 			attr,
