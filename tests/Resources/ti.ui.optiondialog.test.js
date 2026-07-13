@@ -101,7 +101,7 @@ describe('Titanium.UI.OptionDialog', () => {
 			});
 		});
 
-		// FIXME Get working on iOS and Android. persistent is defaulting to undefined? Docs say should be true
+		// FIXME Get working on iOS. persistent is defaulting to undefined? Docs say should be true
 		describe('.persistent', () => {
 			let dialog;
 			beforeEach(() => {
@@ -110,11 +110,11 @@ describe('Titanium.UI.OptionDialog', () => {
 				});
 			});
 
-			it.allBroken('is a Boolean', () => { // defaults to undefined
+			it('is a Boolean', () => {
 				should(dialog.persistent).be.a.Boolean();
 			});
 
-			it.allBroken('defaults to true', () => { // defaults to undefined
+			it('defaults to true', () => {
 				should(dialog.persistent).be.true();
 			});
 

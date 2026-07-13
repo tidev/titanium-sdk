@@ -78,10 +78,9 @@ describe('Titanium.UI.AlertDialog', () => {
 
 	describe('.buttonNames', () => {
 		// FIXME Get working on iOS - defaults to undefined, should be ['OK']
-		// FIXME Get working on Android - defaults to undefined, should be ['OK']
-		it.androidAndIosBroken('is a string[]', () => {
+		it.iosBroken('is a string[]', () => {
 			const bar = Ti.UI.createAlertDialog({});
-			should(bar.buttonNames).be.an.Array(); // undefined on iOS and Android
+			should(bar.buttonNames).be.an.Array();
 			should(bar.buttonNames).be.empty();
 			bar.buttonNames = [ 'this', 'other' ];
 			should(bar.buttonNames.length).eql(2);

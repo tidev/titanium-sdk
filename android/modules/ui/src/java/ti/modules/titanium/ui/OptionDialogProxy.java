@@ -30,6 +30,7 @@ public class OptionDialogProxy extends TiDialogProxy
 	public OptionDialogProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_PERSISTENT, true);
 	}
 
 	@Override
