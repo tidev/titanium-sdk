@@ -207,7 +207,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// Intentionally skip method that doesn't exist on Android
-	it.androidMissing('revert()', () => {
+	it('revert()', () => {
 		should(Ti.Contacts.revert).be.a.Function();
 		// TODO Test the method
 	});

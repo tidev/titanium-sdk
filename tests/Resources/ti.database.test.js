@@ -265,8 +265,7 @@ describe('Titanium.Database', function () {
 	});
 
 	// Check if it guards against 'closed' results
-	// FIXME Get working on Android, seems to retain rowCount after Result.close()
-	it.androidBroken('guards multiple calls to ResultSet#close()', function () {
+	it('guards multiple calls to ResultSet#close()', function () {
 		// Database name
 		var dbName = 'testDbOpen';
 

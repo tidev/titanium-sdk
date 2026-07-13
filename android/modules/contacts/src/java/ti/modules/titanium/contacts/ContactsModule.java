@@ -142,6 +142,12 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
+	public void revert()
+	{
+		Log.w(TAG, "Contacts.revert() is deprecated and no longer supported. Re-fetch your contacts instead.");
+	}
+
+	@Kroll.method
 	public PersonProxy getPersonByIdentifier(long id)
 	{
 		return contactsApi.getPersonById(id);
