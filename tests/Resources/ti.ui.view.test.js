@@ -828,8 +828,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	// FIXME one of the getters or setter for parent isn't there on Android. I can't find the property or accessors in our docs!
-	it.androidMissing('parent', function (finish) {
+	it('parent', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);

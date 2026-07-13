@@ -21,6 +21,7 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -31,7 +32,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
 
-@Kroll.module
+@Kroll.module(propertyAccessors = {
+	TiC.PROPERTY_USER_AGENT
+})
 @Kroll.topLevel({ "Ti", "Titanium" })
 public class TitaniumModule extends KrollModule
 {
@@ -47,17 +50,10 @@ public class TitaniumModule extends KrollModule
 	public TitaniumModule()
 	{
 		basePath = new Stack<>();
+		defaultValues.put(TiC.PROPERTY_USER_AGENT, computeUserAgent());
 	}
 
-	@Override
-	protected void initActivity(Activity activity)
-	{
-		super.initActivity(activity);
-		basePath.push(getCreationUrl().baseUrl);
-	}
-
-	@Kroll.getProperty
-	public String getUserAgent()
+	private String computeUserAgent()
 	{
 		StringBuilder builder = new StringBuilder();
 		String httpAgent = System.getProperty("http.agent");
@@ -66,6 +62,13 @@ public class TitaniumModule extends KrollModule
 		}
 		builder.append(" Titanium/").append(getVersion());
 		return builder.toString();
+	}
+
+	@Override
+	protected void initActivity(Activity activity)
+	{
+		super.initActivity(activity);
+		basePath.push(getCreationUrl().baseUrl);
 	}
 
 	@Kroll.getProperty

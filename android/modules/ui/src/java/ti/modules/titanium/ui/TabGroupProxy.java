@@ -213,7 +213,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			tabGroup.removeTabAt(indexToRemove);
 		}
 
-		tab.setParent(null);
+		tab.setParentInternal(null);
 	}
 
 	@Kroll.getProperty

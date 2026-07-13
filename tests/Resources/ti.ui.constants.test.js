@@ -20,7 +20,7 @@ describe('Titanium.UI', function () {
 		should(Ti.UI).have.a.constant('AUTOFILL_TYPE_ONE_TIME_CODE').which.is.a.String();
 	});
 
-	it.androidMissing('TEXT_STYLE_* constants', function () {
+	it('TEXT_STYLE_* constants', function () {
 		should(Ti.UI.TEXT_STYLE_HEADLINE).be.a.String();
 		should(Ti.UI.TEXT_STYLE_SUBHEADLINE).be.a.String();
 		should(Ti.UI.TEXT_STYLE_BODY).be.a.String();

@@ -695,7 +695,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			item.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
 			item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
 
-			item.setParent(this.proxy);
+			item.setParentInternal(this.proxy);
 			this.items.add(item);
 		}
 
@@ -755,7 +755,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
 					sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-				item.setParent(section);
+				item.setParentInternal(section);
 				this.items.add(item);
 			}
 		}
@@ -767,7 +767,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			item.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
 			item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-			item.setParent(this.proxy);
+			item.setParentInternal(this.proxy);
 			this.items.add(item);
 		}
 

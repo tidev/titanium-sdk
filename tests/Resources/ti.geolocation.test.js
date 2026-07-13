@@ -180,7 +180,7 @@ describe('Titanium.Geolocation', () => {
 		});
 
 		// Intentionally skip for Android, doesn't exist
-		describe.androidMissing('.headingFilter', () => {
+		describe('.headingFilter', () => {
 			it('is a Number', () => {
 				should(Ti.Geolocation).have.a.property('headingFilter').which.is.a.Number();
 			});

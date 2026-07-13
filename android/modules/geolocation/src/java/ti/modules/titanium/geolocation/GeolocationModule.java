@@ -110,6 +110,7 @@ import androidx.core.location.LocationManagerCompat;
 	TiC.PROPERTY_ACCURACY,
 	"activityType",
 	"distanceFilter",
+	"headingFilter",
 	"locationServicesAuthorization"
 })
 public class GeolocationModule extends KrollModule implements Handler.Callback, LocationProviderListener
@@ -203,6 +204,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		defaultValues.put(TiC.PROPERTY_ACCURACY, ACCURACY_HIGH);
 		defaultValues.put("activityType", ACTIVITYTYPE_OTHER);
 		defaultValues.put("distanceFilter", 0);
+		defaultValues.put("headingFilter", 0);
 		defaultValues.put("locationServicesAuthorization", AUTHORIZATION_UNKNOWN);
 
 		context = TiApplication.getInstance().getRootOrCurrentActivity();
@@ -391,6 +393,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	{
 		if (key.equals(TiC.PROPERTY_ACCURACY)) {
 			propertyChangedAccuracy(newValue);
+		} else if (key.equals("headingFilter")) {
+			tiCompass.headingFilter = TiConvert.toInt(newValue);
 		}
 	}
 
@@ -1046,18 +1050,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public void setHeadingTime(int value)
 	{
 		tiCompass.headingTime = value;
-	}
-
-	@Kroll.getProperty
-	public int getHeadingFilter()
-	{
-		return tiCompass.headingFilter;
-	}
-
-	@Kroll.setProperty
-	public void getHeadingFilter(int value)
-	{
-		tiCompass.headingFilter = value;
 	}
 
 	/**

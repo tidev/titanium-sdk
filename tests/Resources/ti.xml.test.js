@@ -504,7 +504,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	// Android gives: expected [Function] not to throw exception (got [TypeError: textNode.getText is not a function])
 	// Windows gives: expected [Function] not to throw exception (got [TypeError: textNode.getText is not a function. (In 'textNode.getText()', 'textNode.getText' is undefined)])
 	// I don't see getText() in the API docs
-	it.androidAndWindowsMissing('apiXMLTextGetText', function () {
+	it.windowsMissing('apiXMLTextGetText', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			textValue = 'this is some test',
 			textNode,
