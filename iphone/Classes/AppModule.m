@@ -36,7 +36,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   TiThreadPerformOnMainThread(
       ^{
-        [[[TiApp app] controller] shutdownUi:self];
+        [[[self owningInstance] controller] shutdownUi:self];
       },
       NO);
 }
@@ -589,7 +589,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (NSNumber *)keyboardVisible
 {
-  return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
+  return NUMBOOL([[[self owningInstance] controller] keyboardVisible]);
 }
 
 - (void)setForceSplashAsSnapshot:(id)args

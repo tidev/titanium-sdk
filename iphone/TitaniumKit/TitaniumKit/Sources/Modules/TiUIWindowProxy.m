@@ -1074,7 +1074,10 @@
 
 - (void)updateStatusBarView
 {
-  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  UIWindow *keyWindow = [[self owningInstance] window];
+  if (keyWindow == nil) {
+    keyWindow = UIApplication.sharedApplication.keyWindow;
+  }
   CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
   UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
   if (view) {

@@ -73,7 +73,7 @@
   }
 
   RELEASE_TO_NIL(alertController);
-  [[[TiApp app] controller] incrementActiveAlertControllerCount];
+  [[[self owningInstance] controller] incrementActiveAlertControllerCount];
   alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                          message:[TiUtils stringValue:[self valueForKey:@"message"]]
                                                   preferredStyle:UIAlertControllerStyleActionSheet] retain];
@@ -108,7 +108,7 @@
   BOOL isPopover = NO;
 
   if ([TiUtils isIPad]) {
-    UIViewController *topVC = [[[TiApp app] controller] topPresentedController];
+    UIViewController *topVC = [[[self owningInstance] controller] topPresentedController];
     isPopover = ((topVC.modalPresentationStyle == UIModalPresentationPopover) && (![topVC isKindOfClass:[UIAlertController class]]));
     /**
          ** This block commented out since it seems to have no effect on the alert controller.
@@ -130,7 +130,7 @@
   }
 
   [self retain];
-  [[TiApp app] showModalController:alertController animated:animated];
+  [[self owningInstance] showModalController:alertController animated:animated];
 }
 
 - (void)hide:(id)args
@@ -263,7 +263,7 @@
 {
   if (showDialog) {
     showDialog = NO;
-    [[[TiApp app] controller] decrementActiveAlertControllerCount];
+    [[[self owningInstance] controller] decrementActiveAlertControllerCount];
     RELEASE_TO_NIL_AUTORELEASE(alertController);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self forgetSelf];

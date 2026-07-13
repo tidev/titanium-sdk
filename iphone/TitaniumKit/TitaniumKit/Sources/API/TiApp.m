@@ -15,7 +15,9 @@
 #import "TiErrorController.h"
 #import "TiExceptionHandler.h"
 #import "TiLogServer.h"
+#import "TiSceneRegistry.h"
 #import "TiSharedConfig.h"
+#import "TiWindow.h"
 #import "Webcolor.h"
 #import <AVFoundation/AVFoundation.h>
 #import <CoreLocation/CoreLocation.h>
@@ -37,8 +39,6 @@ extern void UIColorFlushCache(void);
 - (void)checkBackgroundServices;
 - (void)appBoot;
 - (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
-- (TiApp *)owningInstance;
-- (void)handleSceneConnectionOptions:(UISceneConnectionOptions *)connectionOptions;
 @end
 
 @implementation TiApp
@@ -51,6 +51,7 @@ extern void UIColorFlushCache(void);
 @synthesize localNotification;
 @synthesize appBooted;
 @synthesize userAgent;
+@synthesize sceneId = _sceneId;
 
 + (TiApp *)app
 {
@@ -128,19 +129,6 @@ extern void UIColorFlushCache(void);
   }
 
   return _applicationDelegates;
-}
-
-// iOS instantiates a dedicated scene-delegate instance because `TiApp` is named
-// as the `UISceneDelegateClassName` while also being the `UIApplicationDelegate`.
-// Titanium keeps a single owning instance — the app delegate — that holds all app
-// and launch state (`launchOptions`, notifications, queued selectors, the JS bridge,
-// etc.). The scene-delegate instance forwards every scene callback here so that
-// `[TiApp app]` always reflects the same instance that received
-// `application:didFinishLaunchingWithOptions:`.
-- (TiApp *)owningInstance
-{
-  id appDelegate = [[UIApplication sharedApplication] delegate];
-  return [appDelegate isKindOfClass:[TiApp class]] ? (TiApp *)appDelegate : self;
 }
 
 - (void)initController
@@ -447,9 +435,8 @@ extern void UIColorFlushCache(void);
   // If a "application-launch-url" is set, launch it directly
   [self launchToUrl];
 
-  // Do not boot here. With the scene lifecycle, booting happens in
-  // scene:willConnectToSession: — which is forwarded to this same (app-delegate)
-  // instance — so the window can be created against the connecting UIWindowScene.
+  // Skip boot here - the scene delegate (sharedApp) will handle it
+  // This prevents the app from being booted twice
 
   // Create application support directory if not exists
   [self createDefaultDirectories];
@@ -727,6 +714,13 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToInvokeSelector:(SEL)selector withArguments:(NSOrderedSet<id> *)arguments
 {
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  // App delegate has window == nil, scene delegate (sharedApp) has window != nil
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToInvokeSelector:selector withArguments:arguments];
+    return;
+  }
+
   if (appBooted && _applicationDelegates != nil) {
     for (id applicationDelegate in _applicationDelegates) {
       if ([applicationDelegate respondsToSelector:selector]) {
@@ -741,6 +735,12 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToPostNotification:(NSDictionary *)_notification withNotificationName:(NSString *)_notificationName completionHandler:(void (^)(void))completionHandler
 {
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToPostNotification:_notification withNotificationName:_notificationName completionHandler:completionHandler];
+    return;
+  }
+
   typedef void (^NotificationBlock)(void);
 
   NotificationBlock myNotificationBlock = ^void() {
@@ -760,6 +760,12 @@ extern void UIColorFlushCache(void);
 
 - (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName
 {
+  // Only forward if we're the app delegate instance (not the scene delegate / sharedApp)
+  if (window == nil && sharedApp != nil && sharedApp != self) {
+    [sharedApp tryToPostBackgroundModeNotification:userInfo withNotificationName:notificationName];
+    return;
+  }
+
   // Check to see if the app booted and we still have the completion handler in the system
   NSString *key = [userInfo objectForKey:@"handlerId"];
   BOOL shouldContinue = NO;
@@ -1066,7 +1072,11 @@ extern void UIColorFlushCache(void);
   if ([self forceSplashAsSnapshot]) {
     [window addSubview:[self splashScreenView]];
   }
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+
+  // Only fire if no scene delegate is active (non-scene app fallback)
+  if ([application connectedScenes].count == 0) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+  }
 
   // suspend any image loading
   [[ImageLoader sharedLoader] suspend];
@@ -1087,7 +1097,10 @@ extern void UIColorFlushCache(void);
 
   // NOTE: Have to fire a separate but non-'resume' event here because there is SOME information
   // (like new URL) that is not passed through as part of the normal foregrounding process.
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
+  // Only fire if no scene delegate is active (non-scene app fallback)
+  if ([application connectedScenes].count == 0) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
+  }
 
   // resume any image loading
   [[ImageLoader sharedLoader] resume];
@@ -1098,7 +1111,10 @@ extern void UIColorFlushCache(void);
   [self tryToInvokeSelector:@selector(applicationDidEnterBackground:)
               withArguments:[NSOrderedSet orderedSetWithObject:application]];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
+  // Only fire if no scene delegate is active (non-scene app fallback)
+  if ([application connectedScenes].count == 0) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
+  }
 
   if (backgroundServices == nil) {
     return;
@@ -1138,7 +1154,10 @@ extern void UIColorFlushCache(void);
   [launchOptions removeObjectForKey:@"url"];
   [launchOptions removeObjectForKey:@"source"];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+  // Only fire if no scene delegate is active (non-scene app fallback)
+  if ([application connectedScenes].count == 0) {
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+  }
 
   if (backgroundServices == nil) {
     return;
@@ -1204,6 +1223,12 @@ extern void UIColorFlushCache(void);
 
 - (void)dealloc
 {
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIWindowDidBecomeKeyNotification
+                                                object:window];
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIWindowDidBecomeVisibleNotification
+                                                object:window];
   RELEASE_TO_NIL(kjsBridge);
   RELEASE_TO_NIL(loadView);
   RELEASE_TO_NIL(window);
@@ -1285,52 +1310,65 @@ extern void UIColorFlushCache(void);
 
 - (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
 {
-  // MRC: this method does not start with alloc/new/copy, so it must return an
-  // autoreleased object — otherwise UIKit leaks one configuration per scene connection.
-  return [[[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role] autorelease];
+  return [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
 }
 
 - (void)scene:(UIScene *)scene willConnectToSession:(UISceneSession *)session options:(UISceneConnectionOptions *)connectionOptions
 {
-  // Route everything onto the single owning instance (the app delegate), which
-  // already holds the launch state captured in didFinishLaunchingWithOptions:.
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner scene:scene willConnectToSession:session options:connectionOptions];
-    return;
+  // Register with scene registry
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  [registry registerTiApp:self forSceneUUID:session.persistentIdentifier];
+  [registry setSceneName:session.configuration.name forUUID:session.persistentIdentifier];
+  [registry setSceneActive:NO forUUID:session.persistentIdentifier];
+  [registry setSceneForeground:NO forUUID:session.persistentIdentifier];
+
+  // Initialize the root-window
+  window = [[TiWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+
+  // Listen for focus changes to detect when this scene gains visibility/key status.
+  // UIWindowDidBecomeKeyNotification fires when a window becomes key (Slide Over),
+  // but NOT in Split View where both windows are key simultaneously.
+  // UIWindowDidBecomeVisibleNotification fires when a window becomes visible
+  // (useful as a fallback in multitasking scenarios).
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(windowDidBecomeKey:)
+                                               name:UIWindowDidBecomeKeyNotification
+                                             object:window];
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(windowDidBecomeVisible:)
+                                               name:UIWindowDidBecomeVisibleNotification
+                                             object:window];
+
+  // Set scene identifier
+  if (_sceneId == nil) {
+    _sceneId = session.persistentIdentifier;
   }
 
-  // Initialize the root-window against the connecting window scene
-  RELEASE_TO_NIL(window);
-  window = [[UIWindow alloc] initWithWindowScene:(UIWindowScene *)scene];
+  // Create per-scene launchOptions (independent copy, mutations don't leak to other scenes)
+  if (launchOptions == nil) {
+    launchOptions = [[NSMutableDictionary alloc] init];
 
-  // Only boot once. A scene may reconnect after being disconnected; in that case
-  // reuse the existing controller/bridge rather than booting a second JS runtime.
-  if (kjsBridge == nil) {
-    // Capture a cold-launch quick action before booting so booted: can deliver it
-    if (connectionOptions.shortcutItem != nil && launchedShortcutItem == nil) {
-      launchedShortcutItem = [connectionOptions.shortcutItem retain];
+    // Copy base options from app delegate (if different instance)
+    id<UIApplicationDelegate> appDel = [[UIApplication sharedApplication] delegate];
+    if (appDel != (id<UIApplicationDelegate>)self && [appDel isKindOfClass:[TiApp class]]) {
+      NSDictionary *baseOptions = [(TiApp *)appDel launchOptions];
+      if (baseOptions.count > 0) {
+        [launchOptions setDictionary:baseOptions];
+      }
     }
-
-    // Initialize the root-controller (also sets sharedApp if not already set)
-    [self initController];
-
-    // Boot the app (required for scene-based apps since applicationDidFinishLaunching: may not be called)
-    [self boot];
-
-    // Handle remaining cold-launch payloads delivered via the scene connection
-    [self handleSceneConnectionOptions:connectionOptions];
-  } else {
-    // Re-attach the existing controller to the new window for a reconnected scene
-    [window setRootViewController:controller];
-    [window makeKeyAndVisible];
   }
-}
 
-- (void)handleSceneConnectionOptions:(UISceneConnectionOptions *)connectionOptions
-{
-  // Handle user activities (Handoff, universal links, Spotlight)
-  for (NSUserActivity *userActivity in connectionOptions.userActivities) {
+  // Initialize the root-controller (also sets sharedApp if not already set)
+  [self initController];
+
+  // Boot only once – share KrollBridge across all scenes
+  if (kjsBridge == nil) {
+    [self boot];
+  }
+
+  // Handle URL and user activities from scene connection options (iOS 13+ cold launch with URL/intents)
+  NSArray<NSUserActivity *> *userActivities = connectionOptions.userActivities.allObjects;
+  for (NSUserActivity *userActivity in userActivities) {
     if (userActivity.activityType == NSUserActivityTypeBrowsingWeb && userActivity.webpageURL != nil) {
       [self handleURLFromScene:userActivity.webpageURL source:nil];
     } else {
@@ -1343,30 +1381,19 @@ extern void UIColorFlushCache(void);
     [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
   }
 
-  // Handle a cold launch from a tapped local or remote notification. Reuse the
-  // standard delegate path so the same events fire as during normal runtime.
-  UNNotificationResponse *notificationResponse = connectionOptions.notificationResponse;
-  if (notificationResponse != nil) {
-    // Mirror the legacy launchOptions path so [[TiApp app] remoteNotification]
-    // is populated for a cold launch from a remote push.
-    if ([notificationResponse.notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
-      [self generateNotification:notificationResponse.notification.request.content.userInfo];
-    }
-    [self userNotificationCenter:[UNUserNotificationCenter currentNotificationCenter]
-        didReceiveNotificationResponse:notificationResponse
-                 withCompletionHandler:^{
-                 }];
-  }
+  // Ensure a long-lived TiSceneProxy exists for this scene before posting the
+  // connect notification. This covers the primary scene on cold launch, which
+  // connects before the TiAppiOSProxy (and its notification observers) exist.
+  [registry ensureSceneProxyForUUID:session.persistentIdentifier tiApp:self];
+
+  // Post scene connect notification
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillConnectNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : session.persistentIdentifier }];
 }
 
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts
 {
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner scene:scene openURLContexts:URLContexts];
-    return;
-  }
-
   // Handle URL when app is already running (iOS 13+)
   for (UIOpenURLContext *urlContext in URLContexts) {
     [self handleURLFromScene:urlContext.URL source:urlContext.options.sourceApplication];
@@ -1384,6 +1411,11 @@ extern void UIColorFlushCache(void);
     [launchOptions setObject:source forKey:@"source"];
   } else {
     [launchOptions removeObjectForKey:@"source"];
+  }
+
+  // Add scene identifier if available
+  if (_sceneId != nil) {
+    [launchOptions setObject:_sceneId forKey:@"scene"];
   }
 
   // Snapshot the mutable launchOptions so later mutations (e.g. TIMOB-3432
@@ -1404,19 +1436,19 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneWillResignActive:(UIScene *)scene
 {
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner sceneWillResignActive:scene];
-    return;
-  }
-
   [self tryToInvokeSelector:@selector(sceneWillResignActive:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
   if ([self forceSplashAsSnapshot]) {
     [window addSubview:[self splashScreenView]];
   }
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification object:self];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSuspendNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneActive:NO forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillResignActiveNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
   [[ImageLoader sharedLoader] suspend];
   [kjsBridge gc];
@@ -1424,12 +1456,6 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneDidBecomeActive:(UIScene *)scene
 {
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner sceneDidBecomeActive:scene];
-    return;
-  }
-
   [self tryToInvokeSelector:@selector(sceneDidBecomeActive:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
@@ -1438,23 +1464,56 @@ extern void UIColorFlushCache(void);
     RELEASE_TO_NIL(splashScreenView);
   }
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification object:self];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumedNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneActive:YES forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDidBecomeActiveNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
   [[ImageLoader sharedLoader] resume];
 }
 
+- (void)windowDidBecomeKey:(NSNotification *)note
+{
+  // Fired when this scene's window becomes key (gains focus).
+  // In Slide Over mode this fires when the user taps the window to bring it forward.
+  // In Split View this may not fire (both windows can be key simultaneously).
+  if (_sceneId != nil) {
+    [[TiSceneRegistry sharedRegistry] setSceneActive:YES forUUID:_sceneId];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDidBecomeActiveNotification
+                                                        object:self
+                                                      userInfo:@{ @"scene" : _sceneId }];
+  }
+}
+
+- (void)windowDidBecomeVisible:(NSNotification *)note
+{
+  // Fired when this scene's window becomes visible (e.g., Slide Over reveal,
+  // Split View resize, or returning from background).
+  // This is a fallback for UIWindowDidBecomeKeyNotification which doesn't fire
+  // in Split View where both windows are key simultaneously.
+  if (_sceneId != nil) {
+    [[TiSceneRegistry sharedRegistry] setSceneForeground:YES forUUID:_sceneId];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillEnterForegroundNotification
+                                                        object:self
+                                                      userInfo:@{ @"scene" : _sceneId }];
+  }
+}
+
 - (void)sceneDidEnterBackground:(UIScene *)scene
 {
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner sceneDidEnterBackground:scene];
-    return;
-  }
-
   [self tryToInvokeSelector:@selector(sceneDidEnterBackground:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification object:self];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiPausedNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneForeground:NO forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDidEnterBackgroundNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
   if (backgroundServices == nil) {
     return;
@@ -1479,12 +1538,6 @@ extern void UIColorFlushCache(void);
 
 - (void)sceneWillEnterForeground:(UIScene *)scene
 {
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner sceneWillEnterForeground:scene];
-    return;
-  }
-
   [self tryToInvokeSelector:@selector(sceneWillEnterForeground:)
               withArguments:[NSOrderedSet orderedSetWithObject:scene]];
 
@@ -1496,7 +1549,13 @@ extern void UIColorFlushCache(void);
   [launchOptions removeObjectForKey:@"url"];
   [launchOptions removeObjectForKey:@"source"];
 
-  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification object:self];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiResumeNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
+  [[TiSceneRegistry sharedRegistry] setSceneForeground:YES forUUID:scene.session.persistentIdentifier];
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneWillEnterForegroundNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : scene.session.persistentIdentifier }];
 
   if (backgroundServices == nil) {
     return;
@@ -1539,22 +1598,56 @@ extern void UIColorFlushCache(void);
 
 - (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity
 {
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner scene:scene continueUserActivity:userActivity];
-    return;
-  }
-
   NSDictionary *dict = [self dictionaryFromUserActivity:userActivity];
 
   [self tryToInvokeSelector:@selector(scene:continueUserActivity:)
               withArguments:[NSOrderedSet orderedSetWithObjects:scene, userActivity, nil]];
 
   if (appBooted) {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:dict];
+    NSMutableDictionary *eventDict = [NSMutableDictionary dictionaryWithDictionary:dict];
+    eventDict[@"scene"] = scene.session.persistentIdentifier;
+    [[NSNotificationCenter defaultCenter] postNotificationName:kTiContinueActivity object:self userInfo:eventDict];
   } else {
-    [[self queuedBootEvents] setObject:dict forKey:kTiContinueActivity];
+    NSMutableDictionary *eventDict = [NSMutableDictionary dictionaryWithDictionary:dict];
+    eventDict[@"scene"] = scene.session.persistentIdentifier;
+    [[self queuedBootEvents] setObject:eventDict forKey:kTiContinueActivity];
   }
+}
+
+// Scene disconnect – cleanup when scene is removed
+- (void)sceneDidDisconnect:(UIScene *)scene
+{
+  NSString *sceneId = scene.session.persistentIdentifier;
+  DebugLog(@"[DEBUG] TiApp Scene did disconnect: %@", sceneId);
+
+  // Unregister from scene registry
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  [registry unregisterTiAppForSceneUUID:sceneId];
+
+  // Fire disconnect notification (for future JS API)
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDismissNotification
+                                                      object:self
+                                                    userInfo:@{ @"scene" : sceneId }];
+
+  // If this is the sharedApp, transfer ownership to another active scene
+  if (self == sharedApp) {
+    for (UIScene *otherScene in [UIApplication sharedApplication].connectedScenes) {
+      if ([otherScene isKindOfClass:[UIWindowScene class]]) {
+        TiApp *otherApp = (TiApp *)otherScene.delegate;
+        if (otherApp && otherApp != self) {
+          sharedApp = otherApp;
+          DebugLog(@"[DEBUG] Transferred sharedApp to scene: %@", otherApp.sceneId);
+          break;
+        }
+      }
+    }
+    if (!sharedApp) {
+      sharedApp = nil;
+    }
+  }
+
+  // Cleanup window
+  window = nil;
 }
 
 #pragma mark Background Tasks
@@ -1681,23 +1774,6 @@ extern void UIColorFlushCache(void);
 {
   [self tryToInvokeSelector:@selector(application:performActionForShortcutItem:completionHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, shortcutItem, [completionHandler copy], nil]];
-
-  BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
-  completionHandler(handledShortCutItem);
-}
-
-// With the scene lifecycle, a quick action triggered while the app is already
-// running is delivered here instead of application:performActionForShortcutItem:.
-- (void)windowScene:(UIWindowScene *)windowScene performActionForShortcutItem:(UIApplicationShortcutItem *)shortcutItem completionHandler:(void (^)(BOOL succeeded))completionHandler
-{
-  TiApp *owner = [self owningInstance];
-  if (owner != self) {
-    [owner windowScene:windowScene performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
-    return;
-  }
-
-  [self tryToInvokeSelector:@selector(application:performActionForShortcutItem:completionHandler:)
-              withArguments:[NSOrderedSet orderedSetWithObjects:[UIApplication sharedApplication], shortcutItem, [completionHandler copy], nil]];
 
   BOOL handledShortCutItem = [self handleShortcutItem:shortcutItem queueToBootIfNotLaunched:NO];
   completionHandler(handledShortCutItem);

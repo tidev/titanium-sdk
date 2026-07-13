@@ -200,6 +200,47 @@ methods:
     osver: {ios: {min: "8.2"}}
     since: "4.1.0"
 
+  - name: requestScene
+    summary: Request the system to open a new scene (window).
+    description: |
+        Requests that the system activate a new scene session, creating a new
+        window on iPadOS (Split View or Slide Over). The system will call
+        `scene:willConnectToSession:` on a new TiApp instance, which boots
+        the app's JavaScript in the new scene context.
+
+        On iOS versions prior to 13.0, or when the app does not have a
+        `UIApplicationSceneManifest` in its Info.plist, the returned Promise
+        rejects with an Error.
+
+        The optional `configurationName` parameter specifies which scene
+        configuration to use from the `UIApplicationSceneManifest`. If omitted,
+        the system uses the default configuration.
+
+        Returns a Promise that resolves with an object containing a `scene`
+        property (a [Titanium.App.iOS.SceneProxy](Titanium.App.iOS.SceneProxy))
+        when the new scene has connected. The proxy can be used to attach
+        per-scene lifecycle listeners such as `focus` and
+        `blur`. The Promise rejects with an Error if the system
+        refuses the activation or if multi-scene support is unavailable.
+
+        Because iOS activates scenes asynchronously, the proxy is not
+        available as a synchronous return value. Use `then`/`catch` or
+        `await` to receive the proxy.
+    parameters:
+      - name: options
+        summary: |
+            Optional dictionary with scene configuration options.
+        type: Dictionary<RequestSceneOptions>
+        optional: true
+    returns:
+        type: Promise<RequestSceneResult>
+        summary: |
+            A Promise that resolves with `{ scene: Titanium.App.iOS.SceneProxy }`
+            when the new scene connects, or rejects with an Error if activation
+            fails or multi-scene support is unavailable.
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
 properties:
   - name: EVENT_ACCESSIBILITY_LAYOUT_CHANGED
     summary: Convenience constant for system event "accessibilitylayoutchanged".
@@ -817,6 +858,54 @@ properties:
       since: "9.1.0"
       notes: Use <Titanium.UI.userInterfaceStyle> instead, which is supported cross-platform.
 
+  - name: currentScene
+    summary: The scene proxy for the current scene context.
+    description: |
+        Returns a <Titanium.App.iOS.SceneProxy> object representing the current scene.
+        In multi-scene apps, each scene has its own JavaScript context and `currentScene`
+        returns the scene associated with the calling context.
+
+        Returns `null` if scenes are not available (iOS versions prior to 13.0 or apps
+        without a scene manifest).
+    type: Titanium.App.iOS.SceneProxy
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: scenes
+    summary: An array of all active scene proxies.
+    description: |
+        Returns an array of <Titanium.App.iOS.SceneProxy> objects representing all
+        currently registered scenes. Each element provides access to the scene's
+        properties such as `isActive`, `isForeground`, and `sceneName`.
+
+        Returns an empty array if scenes are not available (iOS versions prior to 13.0
+        or apps without a scene manifest).
+    type: Array<Titanium.App.iOS.SceneProxy>
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: focusedScene
+    summary: The scene proxy for the scene the user is currently interacting with.
+    description: |
+        Returns a <Titanium.App.iOS.SceneProxy> object representing the scene that
+        the user last interacted with (tapped, scrolled, etc.). This is determined
+        by tracking which window received the most recent touch event via hit testing.
+
+        In multi-scene mode (iPad Split View, Slide Over), both scenes may report
+        `isActive` and `isForeground` as `true` simultaneously. The `focusedScene`
+        property reliably identifies which scene has input focus, unlike
+        <Titanium.App.iOS.SceneProxy.isKey> which uses the same tracking mechanism
+        but is accessed per-scene.
+
+        Returns `null` if no scene has been interacted with yet (e.g., on app launch
+        before any touch) or on iOS versions prior to 13.0.
+    type: Titanium.App.iOS.SceneProxy
+    permission: read-only
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
 events:
   - name: notification
     summary: Fired when a local notification is received by the application.
@@ -1389,6 +1478,42 @@ events:
         since: "13.1.0"
         notes: Use [Titanium.App.screenshotcaptured](Titanium.App.screenshotcaptured) instead.
 
+  - name: scenewillconnect
+    summary: Fired when a new scene is being connected to the app.
+    description: |
+        This event fires when iOS creates a new scene for the application, for example
+        when the user opens the app in a new window on iPadOS Split View.
+
+        The `scene` property provides a <Titanium.App.iOS.SceneProxy> with the scene's
+        properties. At this point, the scene is not yet active or in the foreground.
+
+        Per-scene lifecycle events (becoming active, resigning active, entering
+        background, entering foreground) fire on the SceneProxy itself — add listeners
+        via `scene.addEventListener('focus', ...)` rather than on Ti.App.iOS.
+    properties:
+      - name: sceneId
+        summary: The unique identifier of the scene.
+        type: String
+      - name: scene
+        summary: The scene proxy object for the new scene.
+        type: Titanium.App.iOS.SceneProxy
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
+  - name: scenediddismiss
+    summary: Fired when a scene is dismissed by the user or system.
+    description: |
+        This event fires when a scene is removed, for example when the user closes
+        a scene in iPadOS Split View or the system reclaims scene resources.
+    properties:
+      - name: sceneId
+        summary: The unique identifier of the dismissed scene.
+        type: String
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "13.0"}}
+    since: {iphone: "13.3.0", ipad: "13.3.0"}
+
 
 ---
 name: NotificationParams
@@ -1570,3 +1695,34 @@ properties:
   - name: categories
     summary: Set of categories of user notification actions required by the application to use.
     type: Array<Titanium.App.iOS.UserNotificationCategory>
+
+---
+name: RequestSceneOptions
+summary: |
+    Dictionary of options for <Titanium.App.iOS.requestScene>.
+since: {iphone: "13.3.0", ipad: "13.3.0"}
+platforms: [iphone, ipad]
+
+properties:
+
+  - name: configurationName
+    summary: |
+        The name of the `UISceneConfiguration` to use. Must match a
+        configuration name in the app's `UIApplicationSceneManifest`.
+        If omitted, the system uses the default configuration.
+    type: String
+    optional: true
+
+---
+name: RequestSceneResult
+summary: |
+    Resolution value of the Promise returned by <Titanium.App.iOS.requestScene>
+    when the newly-requested scene has connected.
+since: {iphone: "13.3.0", ipad: "13.3.0"}
+platforms: [iphone, ipad]
+
+properties:
+
+  - name: scene
+    summary: The scene proxy for the newly-connected scene.
+    type: Titanium.App.iOS.SceneProxy

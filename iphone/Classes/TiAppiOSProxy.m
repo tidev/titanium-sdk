@@ -6,8 +6,12 @@
  */
 
 #import "TiAppiOSProxy.h"
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiEvaluator.h>
+#import <TitaniumKit/TiSceneProxy.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
@@ -46,6 +50,29 @@
 - (NSString *)apiName
 {
   return @"Ti.App.iOS";
+}
+
+static BOOL _sceneObserversRegistered = NO;
+
+// Scene lifecycle observers feed per-scene TiSceneProxy listeners (via
+// sceneWillConnect:/sceneDidBecomeActive:/etc.) and the global scenewillconnect
+// /scenediddismiss events. They must be registered eagerly because proxy
+// listener adds go through TiProxy's _listenerAdded:count: on the proxy, not
+// this proxy — so we cannot rely on a Ti.App.iOS-level listener to trigger
+// registration. Idempotent.
+- (void)_ensureSceneObserversRegistered
+{
+  if (_sceneObserversRegistered) {
+    return;
+  }
+  _sceneObserversRegistered = YES;
+  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+  [nc addObserver:self selector:@selector(sceneWillConnect:) name:kTiSceneWillConnectNotification object:nil];
+  [nc addObserver:self selector:@selector(sceneDidBecomeActive:) name:kTiSceneDidBecomeActiveNotification object:nil];
+  [nc addObserver:self selector:@selector(sceneWillResignActive:) name:kTiSceneWillResignActiveNotification object:nil];
+  [nc addObserver:self selector:@selector(sceneDidEnterBackground:) name:kTiSceneDidEnterBackgroundNotification object:nil];
+  [nc addObserver:self selector:@selector(sceneWillEnterForeground:) name:kTiSceneWillEnterForegroundNotification object:nil];
+  [nc addObserver:self selector:@selector(sceneDidDismiss:) name:kTiSceneDismissNotification object:nil];
 }
 
 - (void)_listenerAdded:(NSString *)type count:(int)count
@@ -141,6 +168,10 @@
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:nil];
   }
+
+  if (count == 1 && ([type isEqual:@"scenewillconnect"] || [type isEqual:@"scenediddismiss"] || [type isEqual:@"focus"] || [type isEqual:@"blur"] || [type isEqual:@"paused"] || [type isEqual:@"resumed"])) {
+    [self _ensureSceneObserversRegistered];
+  }
 }
 
 - (void)_listenerRemoved:(NSString *)type count:(int)count
@@ -200,6 +231,9 @@
   if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
   }
+  // Scene observers are registered eagerly via _ensureSceneObserversRegistered
+  // and removed in dealloc; they are not tied to Ti.App.iOS-level listener counts
+  // because they also feed per-scene TiSceneProxy listeners.
 }
 
 #pragma mark Public
@@ -386,6 +420,136 @@
   userDefaultsProxy.defaultsObject = defaultsObject;
 
   return userDefaultsProxy;
+}
+
+#pragma mark - Scene APIs
+
+- (id)currentScene
+{
+  [self _ensureSceneObserversRegistered];
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  // Find the TiApp that owns this proxy's execution context.
+  // Each scene has its own TiApp and KrollBridge, so we look up
+  // the scene by the TiApp's sceneId rather than using primaryScene.
+  TiApp *currentTiApp = (TiApp *)[(id<TiEvaluator>)[self executionContext] host];
+  if (currentTiApp && currentTiApp.sceneId != nil) {
+    TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:currentTiApp.sceneId tiApp:currentTiApp];
+    if (proxy != nil) {
+      return proxy;
+    }
+  }
+  // Fallback to primary scene if scene context is not available
+  TiApp *primary = [registry primaryScene];
+  if (primary != nil && primary.sceneId != nil) {
+    TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:primary.sceneId tiApp:primary];
+    if (proxy != nil) {
+      return proxy;
+    }
+  }
+  return [NSNull null];
+}
+
+- (id)scenes
+{
+  [self _ensureSceneObserversRegistered];
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  NSDictionary *allScenes = [registry allScenes];
+
+  NSMutableArray *sceneArray = [NSMutableArray array];
+  for (NSString *sceneUUID in allScenes) {
+    TiApp *tiApp = allScenes[sceneUUID];
+    TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:sceneUUID tiApp:tiApp];
+    if (proxy != nil) {
+      [sceneArray addObject:proxy];
+    }
+  }
+
+  return [sceneArray copy];
+}
+
+- (id)focusedScene
+{
+  if (@available(iOS 13.0, *)) {
+    [self _ensureSceneObserversRegistered];
+    TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+    NSString *focusedUUID = [registry focusedSceneUUID];
+    if (focusedUUID != nil) {
+      TiApp *tiApp = [registry sceneForUUID:focusedUUID];
+      TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:focusedUUID tiApp:tiApp];
+      if (proxy != nil) {
+        return proxy;
+      }
+    }
+  }
+  return [NSNull null];
+}
+
+- (id)requestScene:(id)args
+{
+  [self _ensureSceneObserversRegistered];
+
+  // Create the Promise synchronously on the calling (JS) thread so it can be
+  // returned to JS immediately. iOS scene activation and the resolve/reject
+  // calls happen asynchronously on the main thread.
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
+
+  NSString *configurationName = nil;
+  if (args != nil && [args isKindOfClass:[NSArray class]] && [(NSArray *)args count] > 0) {
+    id first = [(NSArray *)args objectAtIndex:0];
+    if (first != nil && [first isKindOfClass:[NSDictionary class]]) {
+      id cfg = [first objectForKey:@"configurationName"];
+      if (cfg != nil && [cfg isKindOfClass:[NSString class]]) {
+        configurationName = [cfg retain];
+      }
+    }
+  }
+
+  if (@available(iOS 13.0, *)) {
+    TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+
+    // Enqueue the pending descriptor holding the promise; sceneWillConnect:
+    // dequeues and resolves it with the new scene proxy. The dict retains
+    // the promise (and configurationName) until the descriptor is drained.
+    NSMutableDictionary *pending = [[NSMutableDictionary alloc] init];
+    [pending setObject:promise forKey:@"promise"];
+    if (configurationName != nil) {
+      [pending setObject:configurationName forKey:@"configurationName"];
+    }
+    [registry enqueuePendingSceneCallback:pending];
+    [pending release];
+
+    // requestSceneSessionActivation must be called on the main thread.
+    void (^activationBlock)(void) = ^{
+      UISceneActivationRequestOptions *options = [[UISceneActivationRequestOptions alloc] init];
+      [[UIApplication sharedApplication] requestSceneSessionActivation:nil
+                                                          userActivity:nil
+                                                               options:options
+                                                          errorHandler:^(NSError *error) {
+                                                            DebugLog(@"[ERROR] requestScene failed: %@", error.localizedDescription);
+                                                            NSDictionary *head = [registry dequeuePendingSceneCallback];
+                                                            if (head != nil) {
+                                                              KrollPromise *p = [head objectForKey:@"promise"];
+                                                              if (p != nil && [p isKindOfClass:[KrollPromise class]]) {
+                                                                [p rejectWithErrorMessage:error.localizedDescription ?: @"unknown error"];
+                                                              }
+                                                            }
+                                                          }];
+      [options release];
+    };
+    if ([NSThread isMainThread]) {
+      activationBlock();
+    } else {
+      TiThreadPerformOnMainThread(activationBlock, NO);
+    }
+  } else {
+    [promise rejectWithErrorMessage:@"scenes require iOS 13+"];
+  }
+
+  if (configurationName != nil) {
+    [configurationName release];
+  }
+
+  return promise.JSValue;
 }
 
 - (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
@@ -1344,6 +1508,111 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_NOT_SUPPORTED, UNNotificationSettingN
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_NONE, UNAlertStyleNone);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_ALERT, UNAlertStyleAlert);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
+
+#pragma mark - Scene Lifecycle Events
+
+- (void)sceneWillConnect:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *tiApp = [registry sceneForUUID:sceneUUID];
+
+  // TiApp.m already ensured a proxy exists for this UUID before posting the
+  // notification. Use it (read-only) so listeners attach to the long-lived
+  // instance. Defensive fallback creates one if the observer somehow ran
+  // before TiApp.m's ensure call.
+  TiSceneProxy *sceneProxy = [registry ensureSceneProxyForUUID:sceneUUID tiApp:tiApp];
+
+  // Counter-gated dequeue: resolve the requestScene Promise for a genuinely
+  // new scene while a requestScene is outstanding. Cold-launch state
+  // restoration and warm reconnects do not consume the slot (counter is 0).
+  if ([registry pendingSceneRequestCount] > 0) {
+    NSDictionary *pending = [registry dequeuePendingSceneCallback];
+    if (pending != nil) {
+      KrollPromise *promise = [pending objectForKey:@"promise"];
+      if (promise != nil && [promise isKindOfClass:[KrollPromise class]]) {
+        [promise resolve:@[ @{ @"scene" : sceneProxy ?: [NSNull null] } ]];
+      }
+    }
+  }
+
+  [self fireEvent:@"scenewillconnect" withObject:@{ @"sceneId" : sceneUUID, @"scene" : sceneProxy ?: [NSNull null] }];
+}
+
+- (void)sceneDidBecomeActive:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneProxy *proxy = [[TiSceneRegistry sharedRegistry] sceneProxyForUUID:sceneUUID];
+  if (proxy == nil)
+    return;
+
+  [proxy fireEvent:@"focus" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+}
+
+- (void)sceneWillResignActive:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneProxy *proxy = [[TiSceneRegistry sharedRegistry] sceneProxyForUUID:sceneUUID];
+  if (proxy == nil)
+    return;
+
+  [proxy fireEvent:@"blur" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+}
+
+- (void)sceneDidEnterBackground:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneProxy *proxy = [[TiSceneRegistry sharedRegistry] sceneProxyForUUID:sceneUUID];
+  if (proxy == nil)
+    return;
+
+  [proxy fireEvent:@"paused" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+}
+
+- (void)sceneWillEnterForeground:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneProxy *proxy = [[TiSceneRegistry sharedRegistry] sceneProxyForUUID:sceneUUID];
+  if (proxy == nil)
+    return;
+
+  [proxy fireEvent:@"resumed" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
+}
+
+- (void)sceneDidDismiss:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  [registry unregisterSceneProxyForUUID:sceneUUID];
+
+  // Defensive drain: if a requestScene was outstanding and iOS dismissed a
+  // scene without the connect reaching us, release the head callback to
+  // avoid a leak.
+  if ([registry pendingSceneRequestCount] > 0) {
+    NSDictionary *pending = [registry dequeuePendingSceneCallback];
+    (void)pending; // descriptor is autoreleased; its retained callbacks release with it
+  }
+
+  [self fireEvent:@"scenediddismiss" withObject:@{ @"sceneId" : sceneUUID }];
+}
 
 @end
 
