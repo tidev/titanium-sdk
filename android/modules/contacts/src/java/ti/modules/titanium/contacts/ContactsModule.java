@@ -124,7 +124,7 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public PersonProxy createPerson(KrollDict options)
+	public PersonProxy createPerson(@Kroll.argument(optional = true) KrollDict options)
 	{
 		return contactsApi.addContact(options);
 	}

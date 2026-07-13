@@ -91,8 +91,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user? it.iosBroken
-	// FIXME Android says "Contacts permissions missing" it.androidBroken
-	it.allBroken('getAllPeople()', () => {
+	it('getAllPeople()', () => {
 		var people,
 			i;
 		should(Ti.Contacts.getAllPeople).be.a.Function();
@@ -147,8 +146,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
-	// FIXME Android says "Contacts permissions missing"
-	it.allBroken('#getPeopleWithName()', () => {
+	it('#getPeopleWithName()', () => {
 		should(Ti.Contacts.getPeopleWithName).be.a.Function();
 		const smiths = Ti.Contacts.getPeopleWithName('smith');
 		should(smiths).be.an.Array();

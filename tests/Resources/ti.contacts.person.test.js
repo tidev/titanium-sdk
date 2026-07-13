@@ -9,11 +9,12 @@
 'use strict';
 var should = require('./utilities/assertions');
 
-// FIXME Every test here fails on Android, likely due to permissions
 // FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
 // FIXME: Need to move from AddressBook framework to Contacts
-describe.allBroken('Titanium.Contacts.Person', function () {
-	it('apiName', function () {
+describe.iosBroken('Titanium.Contacts.Person', function () {
+	// Android's Kroll bridge does not expose apiName as a readOnly property
+	// on the constructor function itself (only on instances).
+	it.androidBroken('apiName', function () {
 		should(Ti.Contacts.Person).have.a.readOnlyProperty('apiName').which.is.a.String();
 		should(Ti.Contacts.Person.apiName).be.eql('Ti.Contacts.Person');
 	});

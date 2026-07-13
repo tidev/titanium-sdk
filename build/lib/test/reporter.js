@@ -9,10 +9,10 @@ import fs from 'fs-extra';
 import 'colors';
 import ejs from 'ejs';
 import StreamSplitter from 'stream-splitter';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import stripAnsi from 'strip-ansi';
 import { SnapshotManager } from './snapshots.js';
-import { REPORT_DIR, JUNIT_TEMPLATE, PROJECT_DIR, PROJECT_NAME } from './runner.js';
+import { REPORT_DIR, JUNIT_TEMPLATE, PROJECT_DIR, PROJECT_NAME, APP_ID } from './runner.js';
 
 // The special magic strings we expect in the logs!
 export const GENERATED_IMAGE_PREFIX = '!IMAGE: ';
@@ -238,6 +238,27 @@ export class DeviceTestDetails {
  * @param {Promise[]} snapshotPromises array to hold promises for grabbign generated images
  * @returns {Promise<object>}
  */
+// Dangerous Android runtime permissions the test app declares in its manifest.
+// Granted via `adb shell pm grant` once the app has started so permission-gated
+// tests (Contacts, Geolocation, Camera) can run without an interactive prompt.
+const ANDROID_RUNTIME_PERMISSIONS = [
+	'android.permission.READ_CONTACTS',
+	'android.permission.WRITE_CONTACTS',
+	'android.permission.ACCESS_FINE_LOCATION',
+	'android.permission.ACCESS_COARSE_LOCATION',
+	'android.permission.CAMERA'
+];
+
+function grantAndroidRuntimePermissions() {
+	for (const permission of ANDROID_RUNTIME_PERMISSIONS) {
+		try {
+			spawnSync('adb', [ 'shell', 'pm', 'grant', APP_ID, permission ], { stdio: 'ignore' });
+		} catch {
+			// Ignore: permission may already be granted, app not yet installed, or multiple devices connected.
+		}
+	}
+}
+
 export async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 	return new Promise((resolve, reject) => {
 		const deviceMap = new Map();
@@ -294,6 +315,11 @@ export async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
 					|| token.includes('-- Start simulator log ---')
 					|| token.includes('-- Start mac application log ---')) {
 					started = true;
+					// Auto-grant dangerous runtime permissions on Android so permission-gated
+					// tests (Contacts, Geolocation, Camera) can run without an interactive prompt.
+					if (target === 'emulator' || target === 'device') {
+						grantAndroidRuntimePermissions();
+					}
 				}
 				return;
 			}

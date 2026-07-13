@@ -549,8 +549,15 @@ public class ContactsApiLevel5 extends CommonContactsApi
 	protected PersonProxy addContact(KrollDict options)
 	{
 
-		if (options == null || !hasContactsPermissions()) {
+		if (!hasContactsPermissions()) {
 			return null;
+		}
+
+		if (options == null) {
+			// In-memory person only; not persisted until the caller sets
+			// properties and invokes save(). Matches iOS createPerson() which
+			// returns a person with empty default property values.
+			return new PersonProxy();
 		}
 
 		String firstName = "";
