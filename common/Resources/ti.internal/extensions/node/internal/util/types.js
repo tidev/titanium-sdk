@@ -52,7 +52,16 @@ export function isAnyArrayBuffer(value) {
 }
 
 export function isArgumentsObject(value) {
-	return isObject(value) && checkPrototype(value, 'Arguments');
+	if (!isObject(value)) {
+		return false;
+	}
+	// Reject objects that spoof the Arguments tag via an own Symbol.toStringTag.
+	// Real arguments objects report [object Arguments] via the internal class,
+	// not through an own Symbol.toStringTag property.
+	if (Object.getOwnPropertyDescriptor(value, Symbol.toStringTag)) {
+		return false;
+	}
+	return checkPrototype(value, 'Arguments');
 }
 
 export function isArrayBuffer(value) {

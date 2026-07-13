@@ -1312,7 +1312,7 @@ describe('util', () => {
 				util.types.isArgumentsObject([]).should.be.false();
 			});
 
-			it.allBroken('should return false for object with Symbol.toStringTag of "Arguments"', () => {
+			it('should return false for object with Symbol.toStringTag of "Arguments"', () => {
 				util.types.isArgumentsObject({ [Symbol.toStringTag]: 'Arguments' }).should.be.false();
 			});
 		});

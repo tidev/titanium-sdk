@@ -164,24 +164,26 @@ describe('Titanium.App.Properties', function () {
 		should(Ti.App.Properties.hasProperty('presetString')).be.be.true();
 	});
 
-	// FIXME Get working on Android and iOS
-	it.androidAndIosBroken('change events', function (finish) {
+	// FIXME Get working on iOS
+	it.iosBroken('change events', function (finish) {
 		var eventCount = 0;
 		Ti.App.Properties.addEventListener('change', function (properties) {
 			should(properties.source).be.a.Object();
 			should(properties.type).be.eql('change');
 			eventCount++;
 		});
-		Ti.App.Properties.setBool('test_bool', true);
-		Ti.App.Properties.setDouble('test_double', 1.23);
-		Ti.App.Properties.setInt('test_int', 1);
-		Ti.App.Properties.setString('test_string', 'test');
-		Ti.App.Properties.setList('test_list', [ 1, 2, 3 ]);
-		Ti.App.Properties.setObject('test_object', { test: 'test' });
+		// Use fresh keys so the value-changed guard in each setter fires
+		// a change event for every call (reused keys would be skipped).
+		Ti.App.Properties.setBool('change_event_bool', true);
+		Ti.App.Properties.setDouble('change_event_double', 1.23);
+		Ti.App.Properties.setInt('change_event_int', 1);
+		Ti.App.Properties.setString('change_event_string', 'test');
+		Ti.App.Properties.setList('change_event_list', [ 1, 2, 3 ]);
+		Ti.App.Properties.setObject('change_event_object', { test: 'test' });
 
 		// verify all change events have fired
 		setTimeout(function () {
-			should(eventCount).be.eql(6); // Android and iOS only get 4!
+			should(eventCount).be.eql(6);
 			finish();
 		}, 800);
 

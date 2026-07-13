@@ -1509,7 +1509,7 @@ describe('fs', function () {
 	});
 
 	describe('#chownSync()', () => {
-		it.allBroken('is a function', () => should(fs.chownSync).be.a.Function());
+		it('is a function', () => should(fs.chownSync).be.a.Function());
 	});
 
 	describe('#fdatasync()', () => {
