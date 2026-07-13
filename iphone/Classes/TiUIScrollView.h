@@ -17,6 +17,7 @@
   TiUIView *touchHandler;
   UIView *touchedContentView;
 }
+@property (nonatomic, retain) UIColor *scrollIndicatorColor;
 - (void)setTouchHandler:(TiUIView *)handler;
 @end
 

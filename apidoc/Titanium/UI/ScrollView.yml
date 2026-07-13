@@ -282,6 +282,107 @@ properties:
         The <Titanium.UI.ScrollView.setContentOffset> method can be used to prevent this animation.
     type: Point
 
+  - name: contentInsets
+    summary: Insets for the content of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the content on each side. Setting this property adjusts where the content is
+        positioned relative to the scroll view's bounds.
+        
+        On iOS, this property disables automatic content inset adjustment (`contentInsetAdjustmentBehavior = Never`)
+        to allow manual control over the inset values.
+
+        **Interaction with `autoAdjustScrollViewInsets`:** Setting this property overrides the
+        window-level `autoAdjustScrollViewInsets` behavior for this scroll view — automatic safe
+        area inset adjustment is disabled and the manual values take precedence. If you want the
+        safe area to be applied automatically, do not set `contentInsets`; use the `safearea` key
+        (see below) to add a manual bottom offset instead.
+        
+        Can also include animation options directly in the dictionary:
+        ```javascript
+        scrollView.contentInsets = {
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 300,            // Animation duration in milliseconds (default: 300ms)
+            safearea: 34              // Additional bottom offset for iOS tab bars (default: 0)
+        };
+        ```
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "14.0.0"
+
+  - name: verticalScrollIndicatorInsets
+    summary: Insets for the vertical scroll indicator of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the vertical scroll indicator. The `left` and `right` values position the vertical
+        scroll indicator horizontally. Useful when using custom content insets or
+        when the scroll view is placed within a container that obscures part of the scroll area.
+
+        On iOS, this property disables automatic scroll indicator inset adjustment
+        (`automaticallyAdjustsScrollIndicatorInsets = NO`) to allow manual control.
+
+        Can also include animation options directly in the dictionary:
+        ```javascript
+        scrollView.verticalScrollIndicatorInsets = {
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 300             // Animation duration in milliseconds (default: 300ms)
+        };
+        ```
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "14.0.0"
+
+  - name: horizontalScrollIndicatorInsets
+    summary: Insets for the horizontal scroll indicator of the scroll view.
+    description: |
+        A dictionary with `top`, `left`, `bottom`, and `right` keys specifying the number of pixels
+        to inset the horizontal scroll indicator. The `top` and `bottom` values position the horizontal
+        scroll indicator vertically. Useful when using custom content insets or
+        when the scroll view is placed within a container that obscures part of the scroll area.
+
+        On iOS, this property disables automatic scroll indicator inset adjustment
+        (`automaticallyAdjustsScrollIndicatorInsets = NO`) to allow manual control.
+
+        Can also include animation options directly in the dictionary:
+        ```javascript
+        scrollView.horizontalScrollIndicatorInsets = {
+            top: 20,
+            left: 10,
+            bottom: 20,
+            right: 10,
+            animated: true,           // Enable smooth transition (default: false)
+            duration: 300             // Animation duration in milliseconds (default: 300ms)
+        };
+        ```
+    type: Dictionary
+    platforms: [iphone, ipad, macos]
+    since: "14.0.0"
+
+  - name: scrollIndicatorColor
+    summary: Color of the scroll indicators.
+    description: |
+        Sets the color of both vertical and horizontal scroll indicators via tinting
+        on the underlying indicator image views. This is a custom extension beyond the
+        native `scrollIndicatorStyle` which only supports black/white/automatic/default.
+
+        **Notes:**
+        - On iOS 16 and later, the color only slightly tints the scroll indicator due to
+          internal rendering in the private `_UIScrollViewScrollIndicator` class.
+        - Alpha values in the color are ignored; full opacity is always used.
+
+        Works on iOS 9 and later.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
+    since: "14.0.0"
+
   - name: contentWidth
     summary: Width of the scrollable region.
     description: |

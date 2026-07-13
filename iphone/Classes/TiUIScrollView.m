@@ -13,10 +13,51 @@
 
 @implementation TiUIScrollViewImpl
 
+- (void)dealloc
+{
+  RELEASE_TO_NIL(_scrollIndicatorColor);
+  [super dealloc];
+}
+
 - (void)setTouchHandler:(TiUIView *)handler
 {
   // Assign only. No retain
   touchHandler = handler;
+}
+
+// Applies the configured scrollIndicatorColor to whatever indicator subviews
+// currently exist. Called from layoutSubviews so the color is re-applied
+// whenever UIKit lazily (re)creates the indicator views — no toggling of
+// showsXScrollIndicator or dispatch_async races required.
+- (void)applyScrollIndicatorColor
+{
+  if (_scrollIndicatorColor == nil) {
+    return;
+  }
+  for (UIView *subview in self.subviews) {
+    if ([subview isKindOfClass:[UIImageView class]]) {
+      UIImageView *imageView = (UIImageView *)subview;
+      if (imageView.image != nil) {
+        if (![imageView.tintColor isEqual:_scrollIndicatorColor]
+            || imageView.image.renderingMode != UIImageRenderingModeAlwaysTemplate) {
+          imageView.tintColor = _scrollIndicatorColor;
+          imageView.image = [imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        }
+      }
+    } else if ([NSStringFromClass([subview class]) isEqualToString:@"_UIScrollViewScrollIndicator"]) {
+      if (![subview.backgroundColor isEqual:_scrollIndicatorColor]) {
+        subview.backgroundColor = _scrollIndicatorColor;
+        subview.layer.backgroundColor = _scrollIndicatorColor.CGColor;
+        subview.layer.cornerRadius = 1.5f;
+      }
+    }
+  }
+}
+
+- (void)layoutSubviews
+{
+  [super layoutSubviews];
+  [self applyScrollIndicatorColor];
 }
 
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view
