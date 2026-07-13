@@ -172,9 +172,29 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public PersonProxy getPersonByIdentifier(long id)
+	public PersonProxy getPersonByIdentifier(Object id)
 	{
-		return contactsApi.getPersonById(id);
+		if (id == null) {
+			return null;
+		}
+		Long parsedId = parsePersonIdentifier(id);
+		if (parsedId == null) {
+			return null;
+		}
+		return contactsApi.getPersonById(parsedId);
+	}
+
+	private Long parsePersonIdentifier(Object id)
+	{
+		if (id instanceof Number) {
+			return ((Number) id).longValue();
+		}
+		String s = String.valueOf(id);
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	@Kroll.method

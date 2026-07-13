@@ -371,6 +371,19 @@ public class TitaniumModule extends KrollModule
 	}
 
 	@Kroll.method
+	public void applyProperties(Object arg)
+	{
+		if (!(arg instanceof HashMap)) {
+			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
+			return;
+		}
+		HashMap props = (HashMap) arg;
+		for (Object name : props.keySet()) {
+			setProperty(TiConvert.toString(name), props.get(name));
+		}
+	}
+
+	@Kroll.method
 	public String localize(Object[] args)
 	{
 		String key = (String) args[0];

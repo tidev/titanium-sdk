@@ -97,8 +97,8 @@ describe('Titanium', () => {
 
 		it('#removeEventListener()', () => should(Ti.removeEventListener).be.a.Function());
 
-		// FIXME Get working on IOS/Android!
-		it.androidAndIosBroken('#applyProperties()', function () {
+		// FIXME Get working on IOS!
+		it.iosBroken('#applyProperties()', function () {
 			should(Ti.applyProperties).be.a.Function();
 			Ti.mocha_test = undefined;
 			should(Ti.applyProperties({ mocha_test: 'mocha_test_value' }));

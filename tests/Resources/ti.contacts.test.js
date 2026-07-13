@@ -150,8 +150,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
-	// FIXME Android says property is undefined, not a function
-	it.allBroken('#getPersonByIdentifier()', () => {
+	it.iosAndWindowsBroken('#getPersonByIdentifier()', () => {
 		should(Ti.Contacts.getPersonByIdentifier).be.a.Function();
 		// check for a person by bad identifier
 		const noPerson = Ti.Contacts.getPersonByIdentifier('doesntexist');
