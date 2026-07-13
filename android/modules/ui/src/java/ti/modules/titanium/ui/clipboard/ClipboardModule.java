@@ -116,6 +116,11 @@ public class ClipboardModule extends KrollModule
 				&& description.getMimeType(0).startsWith(type)) {
 				return isTypeText(type) ? hasText() : true;
 			}
+		} else if (isTypeText(type) && lastSetText != null) {
+			// Fallback when the system clipboard returns null (e.g. on API 36
+			// immediately after setPrimaryClip). Fall back to lastSetText so
+			// synchronous setData/hasData sequences work, mirroring getText().
+			return true;
 		}
 		return false;
 	}
