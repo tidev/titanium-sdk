@@ -38,5 +38,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: junit-ios-report
-          path: junit.ios.xml
+          path: junit.ios.iphone.xml
           if-no-files-found: warn
