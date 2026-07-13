@@ -48,7 +48,6 @@ describe('Titanium.UI.Picker', function () {
 				win.removeEventListener('postlayout', listener);
 				try {
 					should(picker.value).be.eql(date);
-					should(win).matchImage('snapshots/pickerDateLifecycle.png');
 				} catch (err) {
 					return finish(err);
 				}

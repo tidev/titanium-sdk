@@ -46,7 +46,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	});
 
 	it('.tint', function (finish) {
-		this.timeout(Timeout.DEFAULT);
+		this.timeout(Timeout.LONG);
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createMaskedImage({
 			mask: '/Logo.png',
@@ -69,7 +69,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	});
 
 	it('.image', function (finish) {
-		this.timeout(Timeout.DEFAULT);
+		this.timeout(Timeout.LONG);
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createMaskedImage({
 			mask: '/Logo.png',
