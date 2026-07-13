@@ -10,11 +10,12 @@
 'use strict';
 const should = require('./utilities/assertions');
 
-// Intentionally skip on Android, this type doesn't exist
 // FIXME This holds for permission prompt on iOS and hangs the tests. How can we "click OK" for user?
 // FIXME: Need to move from AddressBook framework to Contacts for macOS
-describe.allBroken('Titanium.Contacts.Group', function () {
-	it('apiName', function () {
+describe.iosBroken('Titanium.Contacts.Group', function () {
+	// Android's Kroll bridge does not expose apiName as a readOnly property
+	// on the constructor function itself.
+	it.androidBroken('apiName', function () {
 		should(Ti.Contacts.Group).have.a.readOnlyProperty('apiName').which.is.a.String();
 		should(Ti.Contacts.Group.apiName).be.eql('Ti.Contacts.Group');
 	});

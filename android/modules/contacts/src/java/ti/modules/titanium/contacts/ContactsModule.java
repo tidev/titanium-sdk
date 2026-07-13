@@ -130,6 +130,30 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
+	public GroupProxy createGroup(@Kroll.argument(optional = true) KrollDict options)
+	{
+		return new GroupProxy(options);
+	}
+
+	@Kroll.method
+	public Object[] getAllGroups()
+	{
+		return new GroupProxy[0];
+	}
+
+	@Kroll.method
+	public GroupProxy getGroupByIdentifier(Object identifier)
+	{
+		return null;
+	}
+
+	@Kroll.method
+	public void removeGroup(GroupProxy group)
+	{
+		// In-memory only; no ContactsContract.Groups persistence yet.
+	}
+
+	@Kroll.method
 	public Object[] getPeopleWithName(String name)
 	{
 		return contactsApi.getPeopleWithName(name);

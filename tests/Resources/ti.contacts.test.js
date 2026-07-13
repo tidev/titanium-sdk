@@ -65,8 +65,7 @@ describe.macMissing('Titanium.Contacts', () => {
 		}).not.throw();
 	});
 
-	// Intentionally skip on Android, this methods doesn't exist
-	it.androidMissing('createGroup()', () => {
+	it('createGroup()', () => {
 		should(Ti.Contacts.createGroup).be.a.Function();
 		// exercising Ti.Contacts.Group creation is done in ti.contacts.group.test.js
 	});
@@ -77,8 +76,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
-	// Intentionally skip on Android, this methods doesn't exist it.androidMissing
-	it.allBroken('getAllGroups()', () => {
+	it.iosAndWindowsBroken('getAllGroups()', () => {
 		var groups,
 			i;
 		should(Ti.Contacts.getAllGroups).be.a.Function();
@@ -104,8 +102,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS and hangs the tests. How can we "click OK" for user? it.iosBroken
-	// Intentionally skip on Android, these methods don't exist it.androidMissing
-	((utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('getGroupByIdentifier()', () => {
+	((utilities.isIOS()) ? it.skip : it)('getGroupByIdentifier()', () => {
 		var noGroup;
 		should(Ti.Contacts.getGroupByIdentifier).be.a.Function();
 		noGroup = Ti.Contacts.getGroupByIdentifier('doesntexist');
@@ -190,8 +187,7 @@ describe.macMissing('Titanium.Contacts', () => {
 		should(queriedPerson).be.null();
 	});
 
-	// Intentionally skip method that doesn't exist on Android
-	it.androidMissing('removeGroup()', () => {
+	it('removeGroup()', () => {
 		should(Ti.Contacts.removeGroup).be.a.Function();
 		// We exercise removal in Group add/remove
 	});
