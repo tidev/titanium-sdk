@@ -208,7 +208,7 @@ describe('Titanium.UI.Label', function () {
 
 	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because neither platform fires it for that type (only maybe bubbles up from label)
 	// Can we place the label inside a view?
-	it.androidAndIosBroken('width', function (finish) {
+	it('width', function (finish) {
 		this.slow(1000);
 		this.timeout(Timeout.DEFAULT);
 
@@ -234,7 +234,7 @@ describe('Titanium.UI.Label', function () {
 
 	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because neither platform fires it for that type (only maybe bubbles up from label)
 	// Can we listen to it on bgView?
-	it.androidAndIosBroken('height', function (finish) {
+	it('height', function (finish) {
 		this.slow(1000);
 		this.timeout(Timeout.DEFAULT);
 
@@ -271,7 +271,7 @@ describe('Titanium.UI.Label', function () {
 	});
 
 	// Intermittent timeout on Android. FIXME Shoudl be using postlayout event, not open
-	it.androidBroken('border (without width/height)', function (finish) {
+	it('border (without width/height)', function (finish) {
 		win = Ti.UI.createWindow();
 		const label = Ti.UI.createLabel({
 			borderWidth: 5,

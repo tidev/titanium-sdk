@@ -421,7 +421,7 @@ describe('Titanium.UI.SearchBar', () => {
 	});
 
 	// FIXME Intermittently fails on Android?
-	it.androidBroken('TableView', function (finish) {
+	it('TableView', function (finish) {
 		var sb = Ti.UI.createSearchBar({
 				barColor: 'blue',
 				height: 44
@@ -447,7 +447,7 @@ describe('Titanium.UI.SearchBar', () => {
 	});
 
 	// FIXME this seems to hard-crash Android. No stacktrace, no errors from logcat. File a JIRA?
-	it.androidBroken('ListView', function (finish) {
+	it('ListView', function (finish) {
 		var sb = Ti.UI.createSearchBar({
 				barColor: 'blue',
 				height: 44
@@ -476,7 +476,7 @@ describe('Titanium.UI.SearchBar', () => {
 	});
 
 	// FIXME this seems to hard-crash Android. No stacktrace, no errors from logcat. File a JIRA?
-	it.androidBroken('TIMOB-9745,TIMOB-7020', function (finish) {
+	it('TIMOB-9745,TIMOB-7020', function (finish) {
 		var data = [ {
 				title: 'Row 1',
 				color: 'red'

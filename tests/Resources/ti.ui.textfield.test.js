@@ -114,7 +114,7 @@ describe('Titanium.UI.TextField', () => {
 		});
 
 		// FIXME Intermittently failing on Android on build machine, I think due to test timeout
-		it.androidBroken('.height', function (finish) {
+		it('.height', function (finish) {
 			this.timeout(Timeout.DEFAULT);
 			const textField = Ti.UI.createTextField({
 				value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ullamcorper massa, eget tempor sapien. Phasellus nisi metus, tempus a magna nec, ultricies rutrum lacus. Aliquam sit amet augue suscipit, dignissim tellus eu, consectetur elit. Praesent ligula velit, blandit vel urna sit amet, suscipit euismod nunc.',
@@ -333,7 +333,7 @@ describe('Titanium.UI.TextField', () => {
 		});
 
 		// FIXME Defaults to undefined on Android. Docs say default is false
-		it.androidBroken('.passwordMask', function () {
+		it('.passwordMask', function () {
 			const text = 'this is some text',
 				textField = Ti.UI.createTextField({
 					value: text
@@ -612,7 +612,7 @@ describe('Titanium.UI.TextField', () => {
 		// The "focus" and "blur" events are not supposed to bubble up the view hierarchy.
 		// Windows ticket TIMOB-26177
 		// Android intermittently fails (but quite often)
-		it.androidAndWindowsBroken('focus-blur-bubbles', function (finish) {
+		it('focus-blur-bubbles', function (finish) {
 			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();

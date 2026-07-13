@@ -185,7 +185,6 @@ describe('Titanium.UI', function () {
 			LIST_ACCESSORY_TYPE_NONE: { type: 'Number', platforms: NOT_MOBILEWEB },
 
 			LIST_ITEM_TEMPLATE_CONTACTS: { type: 'Number', platforms: IOS_AND_WINDOWS },
-			LIST_ITEM_TEMPLATE_DEFAULT: { type: 'Number', platforms: NOT_MOBILEWEB },
 			LIST_ITEM_TEMPLATE_SETTINGS: { type: 'Number', platforms: IOS_AND_WINDOWS },
 			LIST_ITEM_TEMPLATE_SUBTITLE: { type: 'Number', platforms: IOS_AND_WINDOWS },
 
@@ -253,43 +252,41 @@ describe('Titanium.UI', function () {
 			URL_ERROR_UNSUPPORTED_SCHEME: { type: 'Number', platforms: NOT_MOBILEWEB }
 		},
 		platform = Ti.Platform.osname,
-		name,
-		i,
 		constantsVary;
 
-	for (name in constants) {
-		if (Object.prototype.hasOwnProperty.call(constants, name)) {
-			// Don't test if the constant isn't for this platform!
-			if (constants[name].platforms.indexOf(platform) === -1) {
-				continue;
-			}
-			if (constants[name].type === 'Number') {
-				it(name, function () { // eslint-disable-line no-loop-func
-					should(Ti.UI).have.a.constant(name).which.is.a.Number();
-				});
-			} else if (constants[name].type === 'String') {
-				// FIXME These special constants are failing on Android and iOS. They appear to be hard-coded numbers (and not unique!)
-				([ 'FILL', 'SIZE', 'UNIT_CM', 'UNIT_DIP', 'UNIT_IN', 'UNIT_MM', 'UNIT_PX' ].indexOf(name) !== -1 ? it.allBroken : it)(name, function () { // eslint-disable-line no-loop-func
-					should(Ti.UI).have.a.constant(name).which.is.a.String();
-				});
-			}
+	Object.keys(constants).forEach(function (name) {
+		if (!Object.prototype.hasOwnProperty.call(constants, name)) {
+			return;
 		}
-	}
+		// Don't test if the constant isn't for this platform!
+		if (constants[name].platforms.indexOf(platform) === -1) {
+			return;
+		}
+		if (constants[name].type === 'Number') {
+			it(name, function () {
+				should(Ti.UI).have.a.constant(name).which.is.a.Number();
+			});
+		} else if (constants[name].type === 'String') {
+			it(name, function () {
+				should(Ti.UI).have.a.constant(name).which.is.a.String();
+			});
+		}
+	});
 
 	// Constants that are Strings on Android and Numbers elsewhere
 	constantsVary = [
+		'LIST_ITEM_TEMPLATE_DEFAULT',
 		'TEXT_ALIGNMENT_CENTER', 'TEXT_ALIGNMENT_LEFT', 'TEXT_ALIGNMENT_RIGHT',
 		'TEXT_VERTICAL_ALIGNMENT_BOTTOM', 'TEXT_VERTICAL_ALIGNMENT_CENTER', 'TEXT_VERTICAL_ALIGNMENT_TOP'
 	];
 	// Verify our constants that may be String or Number depending on platform.
-	for (i = 0; i < constantsVary.length; i++) {
-		// FIXME Get these working on iOS, Android, and Windows.
-		it.allBroken(constantsVary[i], function () { // eslint-disable-line no-loop-func
+	constantsVary.forEach(function (constantName) {
+		it(constantName, function () {
 			if (utilities.isAndroid()) {
-				should(Ti.UI).have.a.constant(constantsVary[i]).which.is.a.String();
+				should(Ti.UI).have.a.constant(constantName).which.is.a.String();
 			} else {
-				should(Ti.UI).have.a.constant(constantsVary[i]).which.is.a.Number();
+				should(Ti.UI).have.a.constant(constantName).which.is.a.Number();
 			}
 		});
-	}
+	});
 });

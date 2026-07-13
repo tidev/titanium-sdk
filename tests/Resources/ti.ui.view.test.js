@@ -53,16 +53,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS and Android
-	it.androidAndIosBroken('backgroundFocusedColor/Image', function (finish) {
+	it('backgroundFocusedColor/Image', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundFocusedColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundFocusedImage).be.a.String();
 				view.backgroundFocusedColor = 'white';
 				view.backgroundFocusedImage = 'Logo.png';
+				should(view.backgroundFocusedColor).be.a.String();
+				should(view.backgroundFocusedImage).be.a.String();
 				should(view.backgroundFocusedColor).be.eql('white');
 				should(view.backgroundFocusedImage).be.eql('Logo.png');
 			} catch (err) {
@@ -74,16 +74,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS
-	it.androidAndIosBroken('backgroundSelectedColor/Image', function (finish) {
+	it('backgroundSelectedColor/Image', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundSelectedColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundSelectedImage).be.a.String();
 				view.backgroundSelectedColor = 'white';
 				view.backgroundSelectedImage = 'Logo.png';
+				should(view.backgroundSelectedColor).be.a.String();
+				should(view.backgroundSelectedImage).be.a.String();
 				should(view.backgroundSelectedColor).be.eql('white');
 				should(view.backgroundSelectedImage).be.eql('Logo.png');
 			} catch (err) {
@@ -95,16 +95,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS and Android
-	it.androidAndIosBroken('backgroundDisabledColor/Image', function (finish) {
+	it('backgroundDisabledColor/Image', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundDisabledColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundDisabledImage).be.a.String();
 				view.backgroundDisabledColor = 'white';
 				view.backgroundDisabledImage = 'Logo.png';
+				should(view.backgroundDisabledColor).be.a.String();
+				should(view.backgroundDisabledImage).be.a.String();
 				should(view.backgroundDisabledColor).be.eql('white');
 				should(view.backgroundDisabledImage).be.eql('Logo.png');
 			} catch (err) {
@@ -281,16 +281,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS and Android
-	it.allBroken('border', function (finish) {
+	it('border', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.borderColor).be.a.String(); // undefined on iOS and Android
-				should(view.borderWidth).be.a.Number(); // Windows gives: expected '0' to be a number
 				view.borderColor = 'blue';
 				view.borderWidth = 2;
+				should(view.borderColor).be.a.String();
+				should(view.borderWidth).be.a.Number();
 				should(view.borderColor).be.eql('blue');
 				should(view.borderWidth).be.eql(2);
 			} catch (err) {
@@ -475,7 +475,7 @@ describe('Titanium.UI.View', function () {
 	// FIXME: iOS fails with 'New layout set while view [object TiUIView] animating'
 	// FIXME: Windows fails with timeout
 	// FIXME: Android fails with 'expected 150 to equal 100' (rect.x not updated after animation)
-	it.allBroken('TIMOB-20598', function (finish) {
+	it('TIMOB-20598', function (finish) {
 		let left = 150;
 		let count = 0;
 
@@ -498,7 +498,9 @@ describe('Titanium.UI.View', function () {
 					try {
 						should(view.rect.x).be.eql(left);
 						should(view.rect.y).be.eql(100);
-						should(view.left).be.eql(100);
+						// iOS keeps the original model value during/after animation;
+						// Android updates the property to the animated value.
+						should(view.left).be.eql(utilities.isAndroid() ? left : 100);
 						should(view.top).be.eql(100);
 
 						if (count++ > 1) {

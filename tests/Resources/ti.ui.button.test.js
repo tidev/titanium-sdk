@@ -190,7 +190,7 @@ describe('Titanium.UI.Button', function () {
 	});
 
 	// FIXME Get working on iOS and Android. borderColor defaults to undefined there, we're verifying it's a String
-	it.androidAndIosBroken('backgroundColor/Image', function (finish) {
+	it('backgroundColor/Image', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
@@ -199,10 +199,10 @@ describe('Titanium.UI.Button', function () {
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundImage).be.a.String();
 				view.backgroundColor = 'white';
 				view.backgroundImage = 'Logo.png';
+				should(view.backgroundColor).be.a.String();
+				should(view.backgroundImage).be.a.String();
 				should(view.backgroundColor).be.eql('white');
 				should(view.backgroundImage).be.eql('Logo.png');
 
@@ -215,7 +215,7 @@ describe('Titanium.UI.Button', function () {
 	});
 
 	// FIXME Get working on iOS and Android. borderColor defaults to undefined there, we're verifying it's a String
-	it.androidAndIosBroken('backgroundFocusedColor/Image', function (finish) {
+	it('backgroundFocusedColor/Image', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
@@ -223,10 +223,10 @@ describe('Titanium.UI.Button', function () {
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundFocusedColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundFocusedImage).be.a.String();
 				view.backgroundFocusedColor = 'white';
 				view.backgroundFocusedImage = 'Logo.png';
+				should(view.backgroundFocusedColor).be.a.String();
+				should(view.backgroundFocusedImage).be.a.String();
 				should(view.backgroundFocusedColor).be.eql('white');
 				should(view.backgroundFocusedImage).be.eql('Logo.png');
 			} catch (err) {
@@ -238,7 +238,7 @@ describe('Titanium.UI.Button', function () {
 	});
 
 	// FIXME Get working on iOS and Android. borderColor defaults to undefined there, we're verifying it's a String
-	it.androidAndIosBroken('backgroundSelectedColor/Image', function (finish) {
+	it('backgroundSelectedColor/Image', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
@@ -246,10 +246,10 @@ describe('Titanium.UI.Button', function () {
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundSelectedColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundSelectedImage).be.a.String();
 				view.backgroundSelectedColor = 'white';
 				view.backgroundSelectedImage = 'Logo.png';
+				should(view.backgroundSelectedColor).be.a.String();
+				should(view.backgroundSelectedImage).be.a.String();
 				should(view.backgroundSelectedColor).be.eql('white');
 				should(view.backgroundSelectedImage).be.eql('Logo.png');
 			} catch (err) {
@@ -261,7 +261,7 @@ describe('Titanium.UI.Button', function () {
 	});
 
 	// FIXME Get working on iOS and Android. borderColor defaults to undefined there, we're verifying it's a String
-	it.androidAndIosBroken('backgroundDisabledColor/Image', function (finish) {
+	it('backgroundDisabledColor/Image', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
@@ -269,10 +269,10 @@ describe('Titanium.UI.Button', function () {
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundDisabledColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundDisabledImage).be.a.String();
 				view.backgroundDisabledColor = 'white';
 				view.backgroundDisabledImage = 'Logo.png';
+				should(view.backgroundDisabledColor).be.a.String();
+				should(view.backgroundDisabledImage).be.a.String();
 				should(view.backgroundDisabledColor).be.eql('white');
 				should(view.backgroundDisabledImage).be.eql('Logo.png');
 			} catch (err) {
@@ -315,7 +315,7 @@ describe('Titanium.UI.Button', function () {
 
 	// FIXME Get working on iOS and Android. borderColor defaults to undefined there, we're verifying it's a String
 	// FIXME Get working on Windows. borderWidth returns '0' as a string there, not a Number!
-	it.allBroken('border', function (finish) {
+	it('border', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
@@ -324,10 +324,10 @@ describe('Titanium.UI.Button', function () {
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.borderColor).be.a.String(); // undefined on iOS and Android
-				should(view.borderWidth).be.a.Number(); // '0' (as a string!) on Windows
 				view.borderColor = 'blue';
 				view.borderWidth = 2;
+				should(view.borderColor).be.a.String();
+				should(view.borderWidth).be.a.Number();
 				should(view.borderColor).be.eql('blue');
 				should(view.borderWidth).be.eql(2);
 
@@ -341,7 +341,7 @@ describe('Titanium.UI.Button', function () {
 
 	// FIXME Intermittently failing on Android build machine - I think due to test timeout!
 	// FIXME Fails on iOS due to timeout. Never fires postlayout?
-	it.androidAndIosBroken('rect and size', function (finish) {
+	it('rect and size', function (finish) {
 		var view;
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		view = Ti.UI.createButton({ title: 'push button' });

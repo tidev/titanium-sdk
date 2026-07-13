@@ -97,7 +97,7 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup.open();
 			});
 
-			it.androidBroken('assign in creation dictionary', finish => {
+			it('assign in creation dictionary', finish => {
 				const winA = Ti.UI.createWindow(),
 					tabA = Ti.UI.createTab({
 						title: 'Tab A',
@@ -153,7 +153,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.activeTintColor).eql('blue');
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('has no accessors', () => { // Windows are created during open
 				should(tabGroup).not.have.accessors('activeTintColor');
 			});
 		});
@@ -202,7 +202,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.barColor).eql('blue');
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('has no accessors', () => { // Windows are created during open
 				should(tabGroup).not.have.accessors('barColor');
 			});
 		});
@@ -305,20 +305,20 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tintColor).eql('blue');
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('has no accessors', () => { // Windows are created during open
 				should(tabGroup).not.have.accessors('tintColor');
 			});
 		});
 
 		describe('.title', () => {
-			it.androidBroken('is a String', () => {
+			it('is a String', () => {
 				tabGroup = Ti.UI.createTabGroup({
 					title: 'My title'
 				});
 				should(tabGroup.title).be.a.String(); // null on Android!
 			});
 
-			it.androidBroken('equals value passed in to creation dictionary', () => {
+			it('equals value passed in to creation dictionary', () => {
 				tabGroup = Ti.UI.createTabGroup({
 					title: 'My title'
 				});
