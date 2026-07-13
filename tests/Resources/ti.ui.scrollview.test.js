@@ -35,15 +35,14 @@ describe('Titanium.UI.ScrollView', function () {
 		should(scrollView.apiName).be.eql('Ti.UI.ScrollView');
 	});
 
-	// FIXME Fails on Android, should default to true, but is undefined
-	it.androidBroken('canCancelEvents', function () {
+	it('canCancelEvents', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.canCancelEvents).be.a.Boolean(); // TODO should default to true
+		should(bar.canCancelEvents).be.a.Boolean();
 	});
 
-	it.androidAndIosBroken('contentHeight', function () {
+	it.iosBroken('contentHeight', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.contentHeight).be.a.String(); // defaults to undefined on Android and iOS
+		should(bar.contentHeight).be.a.String();
 	});
 
 	it('contentOffset', function (finish) {
@@ -115,30 +114,24 @@ describe('Titanium.UI.ScrollView', function () {
 		win.open();
 	});
 
-	it.androidAndIosBroken('contentWidth', function () {
+	it.iosBroken('contentWidth', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.contentWidth).be.a.String(); // defaults to undefined on Android and iOS
+		should(bar.contentWidth).be.a.String();
 	});
 
-	// Intentionally skip on Android, not supported
-	// FIXME Get working on iOS. Defaults to undefined. Is that OK?
-	it.androidMissingAndIosBroken('decelerationRate', function () {
+	it.iosBroken('decelerationRate', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.decelerationRate).be.a.Number(); // defaults to undefined on iOS
+		should(bar.decelerationRate).be.a.Number();
 	});
 
-	// FIXME Get working on IOS
-	// Intentionally skip on Android, property not supported
-	it.androidMissingAndIosBroken('disableBounce', function () {
+	it.iosBroken('disableBounce', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.disableBounce).be.a.Boolean(); // iOS returns undefined, default should be false
+		should(bar.disableBounce).be.a.Boolean();
 	});
 
-	// FIXME Get working on IOS
-	// Intentionally skip on Android, property not supported
-	it.androidMissingAndIosBroken('horizontalBounce', function () {
+	it.iosBroken('horizontalBounce', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.horizontalBounce).be.a.Boolean(); // iOS returns undefined, default should be false
+		should(bar.horizontalBounce).be.a.Boolean();
 	});
 
 	// iOS-only property
@@ -171,11 +164,9 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.refreshControl).be.eql(refreshControl);
 	});
 
-	// Intentionally skip on Android, not supported
-	// FIXME Get working on iOS. Defaults to undefined, is that OK?
-	it.androidMissingAndIosBroken('scrollIndicatorStyle', function () {
+	it.iosBroken('scrollIndicatorStyle', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.scrollIndicatorStyle).be.a.Number(); // defaults to undefined on iOS
+		should(bar.scrollIndicatorStyle).be.a.Number();
 	});
 
 	it('scrollingEnabled', function () {
@@ -191,32 +182,27 @@ describe('Titanium.UI.ScrollView', function () {
 		should.not.exist(bar.scrollType); // undefined by default
 	});
 
-	// FIXME Fix on Android and iOS
-	it.androidAndIosBroken('showHorizontalScrollIndicator', function () {
+	it.iosBroken('showHorizontalScrollIndicator', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.showHorizontalScrollIndicator).be.a.Boolean(); // defaults to undefined on Android, docs say default to false
+		should(bar.showHorizontalScrollIndicator).be.a.Boolean();
 	});
 
-	// FIXME Fix on Android and iOS
-	it.androidAndIosBroken('showVerticalScrollIndicator', function () {
+	it.iosBroken('showVerticalScrollIndicator', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.showVerticalScrollIndicator).be.a.Boolean(); // defaults to undefined on Android, docs say default to false
+		should(bar.showVerticalScrollIndicator).be.a.Boolean();
 	});
 
-	// FIXME Get working on IOS
-	// Intentionally skip on Android, property not supported
-	it.androidMissingAndIosBroken('verticalBounce', function () {
+	it.iosBroken('verticalBounce', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.verticalBounce).be.a.Boolean(); // iOS returns undefined, default should be false
+		should(bar.verticalBounce).be.a.Boolean();
 	});
 
-	// Intentionally skip on Android, not supported
-	it.androidMissing('zoomScale', function () {
+	it('zoomScale', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.zoomScale).be.a.Number();
 	});
 
-	it.androidMissing('#setZoomScale', function (finish) {
+	it('#setZoomScale', function (finish) {
 		win = Ti.UI.createWindow();
 		const bar = Ti.UI.createScrollView({});
 		win.add(bar);
