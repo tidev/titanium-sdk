@@ -51,6 +51,14 @@ properties:
     type: [Array<String>, Array<BarItemType>]
     availability: creation
 
+  - name: font
+    summary: Font to use for the option labels.
+    description: |
+        For information about font values, see the "Fonts" section of <Titanium.UI>.
+    type: Font
+    platforms: [iphone, ipad, android, macos]
+    since: 14.0.0
+
   - name: layout
     summary: Specifies the layout direction such as 'horizontal' or 'vertical'.
     description: |
