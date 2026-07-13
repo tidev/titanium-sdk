@@ -72,6 +72,11 @@ public class TiFileProxy extends KrollProxy
 			pb.clear();
 		} else {
 			path = TiFileHelper2.joinSegments(parts);
+			// An absolute filesystem path (leading "/") should resolve as a
+			// file:// URL, not relative to the appdata-private scheme.
+			if (path != null && path.startsWith("/")) {
+				scheme = "file://";
+			}
 		}
 		if (resolve) {
 			path = resolveUrl(scheme, path);

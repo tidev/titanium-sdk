@@ -884,7 +884,7 @@ describe('Titanium.Filesystem.File', function () {
 			should(file.exists()).be.true(); // FIXME: Fails on Android, but only if run as part of full suite!
 		});
 
-		it.androidBroken('no scheme - absolute path', () => {
+		it('no scheme - absolute path', () => {
 			// FIXME: Failing! Likely because getFile() assumes appdata-private scheme if none given!
 			// Whereas my fix was in TiFileFactory, used internally by webview, database, file.move(), file.copy()
 			const file = Ti.Filesystem.getFile(noSchemeTempAppJS);

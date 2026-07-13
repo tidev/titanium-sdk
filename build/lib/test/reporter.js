@@ -246,7 +246,8 @@ const ANDROID_RUNTIME_PERMISSIONS = [
 	'android.permission.WRITE_CONTACTS',
 	'android.permission.ACCESS_FINE_LOCATION',
 	'android.permission.ACCESS_COARSE_LOCATION',
-	'android.permission.CAMERA'
+	'android.permission.CAMERA',
+	'android.permission.POST_NOTIFICATIONS'
 ];
 
 function grantAndroidRuntimePermissions() {
