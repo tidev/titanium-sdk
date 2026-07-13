@@ -37,11 +37,11 @@ Object.defineProperty(UI, 'semanticColorType', {
 	}
 });
 
-// on Android/iOS < 13, we need to roll our own fetchSemanticColor impl
+// on iOS < 13, we need to roll our own fetchSemanticColor impl
 // on iOS 13+, we have a native version
-if (!isIOS13Plus && !isMACOSXCatalinaPlus) {
+if (!(isIOS13Plus || isMACOSXCatalinaPlus || OS_ANDROID)) {
 	// On iOS < 13, we don't have the theme constants defined, which breaks our tests
-	if (OS_IOS && !isMacOS) {
+	if (!isMacOS) {
 		Object.defineProperty(UI, 'USER_INTERFACE_STYLE_UNSPECIFIED', {
 			value: 0,
 			writable: false
@@ -80,22 +80,7 @@ if (!isIOS13Plus && !isMACOSXCatalinaPlus) {
 		}
 
 		try {
-			if (OS_ANDROID) {
-				// On Android, use custom string references to be handled by "TiColorHelper.java".
-				if (colorset[colorName]) {
-					// Add all theme colors to a single string.
-					// Example: "ti.semantic.color:dark=<ColorString>;light=<ColorString>"
-					const colorArray = [];
-					for (const colorType in colorset[colorName]) {
-						const colorObj = Color.fromSemanticColorsEntry(colorset[colorName][colorType]);
-						colorArray.push(`${colorType}=${colorObj.toRGBAString()}`);
-					}
-					return 'ti.semantic.color:' + colorArray.join(';');
-				} else if (Ti.Android.R.color[colorName]) {
-					// We're referencing a native "res" color entry.
-					return `@color/${colorName}`;
-				}
-			} else if (colorset[colorName]) {
+			if (colorset[colorName]) {
 				// Return the raw color string value from the "semantic.colors.json".
 				// Use the more exact rgba function over 8-char ARGB hex. Hard to convert things like 75% alpha properly.
 				const entry = colorset[colorName][UI.semanticColorType];
