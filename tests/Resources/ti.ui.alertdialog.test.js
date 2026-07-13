@@ -94,10 +94,9 @@ describe('Titanium.UI.AlertDialog', () => {
 
 	describe('.cancel', () => {
 		// FIXME Get working on iOS - defaults to undefined, should be -1
-		// FIXME Get working on Android - defaults to undefined, should be -1
-		it.androidAndIosBroken('is a Number', () => {
+		it.iosBroken('is a Number', () => {
 			const bar = Ti.UI.createAlertDialog({});
-			should(bar.cancel).be.a.Number(); // undefined on iOS and Android
+			should(bar.cancel).be.a.Number();
 			bar.cancel = 1;
 			should(bar.cancel).eql(1);
 		});

@@ -106,13 +106,56 @@ import androidx.core.location.LocationManagerCompat;
  * accuracy, frequency properties or even changing modes are respected and kept but don't actually get applied on the OS until
  * the listener count is greater than 0.
  */
-@Kroll.module(propertyAccessors = { TiC.PROPERTY_ACCURACY })
+@Kroll.module(propertyAccessors = {
+	TiC.PROPERTY_ACCURACY,
+	"activityType",
+	"distanceFilter",
+	"locationServicesAuthorization"
+})
 public class GeolocationModule extends KrollModule implements Handler.Callback, LocationProviderListener
 {
 	@Kroll.constant
 	public static final int ACCURACY_LOW = 0;
 	@Kroll.constant
 	public static final int ACCURACY_HIGH = 1;
+
+	// Activity type constants (mirroring iOS CLActivityType)
+	@Kroll.constant
+	public static final int ACTIVITYTYPE_OTHER = 1;
+	@Kroll.constant
+	public static final int ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION = 2;
+	@Kroll.constant
+	public static final int ACTIVITYTYPE_FITNESS = 3;
+	@Kroll.constant
+	public static final int ACTIVITYTYPE_OTHER_NAVIGATION = 4;
+
+	// Authorization constants (mirroring iOS CLAuthorizationStatus)
+	@Kroll.constant
+	public static final int AUTHORIZATION_UNKNOWN = 0;
+	@Kroll.constant
+	public static final int AUTHORIZATION_RESTRICTED = 1;
+	@Kroll.constant
+	public static final int AUTHORIZATION_DENIED = 2;
+	@Kroll.constant
+	public static final int AUTHORIZATION_ALWAYS = 3;
+	@Kroll.constant
+	public static final int AUTHORIZATION_WHEN_IN_USE = 4;
+
+	// Error codes (mirroring iOS CLError)
+	@Kroll.constant
+	public static final int ERROR_LOCATION_UNKNOWN = 0;
+	@Kroll.constant
+	public static final int ERROR_DENIED = 1;
+	@Kroll.constant
+	public static final int ERROR_NETWORK = 2;
+	@Kroll.constant
+	public static final int ERROR_HEADING_FAILURE = 3;
+	@Kroll.constant
+	public static final int ERROR_REGION_MONITORING_DENIED = 4;
+	@Kroll.constant
+	public static final int ERROR_REGION_MONITORING_FAILURE = 5;
+	@Kroll.constant
+	public static final int ERROR_REGION_MONITORING_DELAYED = 6;
 
 	public TiLocation tiLocation;
 	public AndroidModule androidModule;
@@ -156,6 +199,11 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	public GeolocationModule()
 	{
 		super("geolocation");
+
+		defaultValues.put(TiC.PROPERTY_ACCURACY, ACCURACY_HIGH);
+		defaultValues.put("activityType", ACTIVITYTYPE_OTHER);
+		defaultValues.put("distanceFilter", 0);
+		defaultValues.put("locationServicesAuthorization", AUTHORIZATION_UNKNOWN);
 
 		context = TiApplication.getInstance().getRootOrCurrentActivity();
 

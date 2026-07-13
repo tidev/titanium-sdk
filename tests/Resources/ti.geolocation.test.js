@@ -54,15 +54,15 @@ describe('Titanium.Geolocation', () => {
 			should(Ti.Geolocation).have.constant('ACCURACY_THREE_KILOMETERS').which.is.a.Number();
 		});
 
-		it.androidMissing('.ACTIVITYTYPE_*', () => {
+		it('.ACTIVITYTYPE_*', () => {
 			should(Ti.Geolocation).have.enumeration('Number', [ 'ACTIVITYTYPE_AUTOMOTIVE_NAVIGATION', 'ACTIVITYTYPE_FITNESS', 'ACTIVITYTYPE_OTHER', 'ACTIVITYTYPE_OTHER_NAVIGATION' ]);
 		});
 
-		it.androidMissing('.AUTHORIZATION_*', () => {
+		it('.AUTHORIZATION_*', () => {
 			should(Ti.Geolocation).have.enumeration('Number', [ 'AUTHORIZATION_ALWAYS', 'AUTHORIZATION_DENIED', 'AUTHORIZATION_RESTRICTED', 'AUTHORIZATION_UNKNOWN', 'AUTHORIZATION_WHEN_IN_USE' ]);
 		});
 
-		it.androidMissing('.ERROR_*', () => {
+		it('.ERROR_*', () => {
 			should(Ti.Geolocation).have.enumeration('Number', [ 'ERROR_DENIED', 'ERROR_HEADING_FAILURE', 'ERROR_LOCATION_UNKNOWN', 'ERROR_NETWORK', 'ERROR_REGION_MONITORING_DELAYED', 'ERROR_REGION_MONITORING_DENIED', 'ERROR_REGION_MONITORING_FAILURE' ]);
 		});
 
@@ -97,7 +97,7 @@ describe('Titanium.Geolocation', () => {
 		});
 
 		describe('.accuracy', () => {
-			it.androidBroken('is a Number', () => { // FIXME: defaults to undefined!
+			it('is a Number', () => {
 				should(Ti.Geolocation).have.a.property('accuracy').which.is.a.Number();
 			});
 
@@ -111,7 +111,7 @@ describe('Titanium.Geolocation', () => {
 			});
 		});
 
-		describe.androidBroken('.activityType', () => {
+		describe('.activityType', () => {
 			it('is a Number', () => {
 				should(Ti.Geolocation).have.a.property('activityType').which.is.a.Number();
 			});
@@ -147,8 +147,7 @@ describe('Titanium.Geolocation', () => {
 			});
 		});
 
-		// Intentionally skip for Android, doesn't exist
-		describe.androidMissing('.distanceFilter', () => {
+		describe('.distanceFilter', () => {
 			it('is a Number', () => {
 				should(Ti.Geolocation).have.a.property('distanceFilter').which.is.a.Number();
 			});
@@ -222,7 +221,7 @@ describe('Titanium.Geolocation', () => {
 			}
 		});
 
-		describe.androidMissing('.locationServicesAuthorization', () => {
+		describe('.locationServicesAuthorization', () => {
 			it('is a Number', function () {
 				// Same hang as locationAccuracyAuthorization on the iOS 26
 				// simulator — accessing the property blocks indefinitely on

@@ -31,11 +31,11 @@ describe('Titanium.UI.OptionDialog', () => {
 				dialog = Ti.UI.createOptionDialog({});
 			});
 
-			it.androidBroken('is an Array', () => { // defaults to undefined
+			it('is an Array', () => {
 				should(dialog.buttonNames).be.an.Array();
 			});
 
-			it.androidBroken('is empty', () => { // defaults to undefined
+			it('is empty', () => {
 				should(dialog.buttonNames).be.empty();
 			});
 
@@ -55,11 +55,11 @@ describe('Titanium.UI.OptionDialog', () => {
 				dialog = Ti.UI.createOptionDialog({});
 			});
 
-			it.allBroken('is a Number', () => { // defaults to undefined
+			it('is a Number', () => {
 				should(dialog.cancel).be.a.Number();
 			});
 
-			it.allBroken('defaults to -1', () => { // defaults to undefined
+			it('defaults to -1', () => {
 				should(dialog.cancel).eql(-1);
 			});
 
@@ -137,7 +137,7 @@ describe('Titanium.UI.OptionDialog', () => {
 				});
 			});
 
-			it.androidBroken('is a Number', () => { // defaults to undefined
+			it('is a Number', () => {
 				should(dialog.selectedIndex).be.a.Number();
 			});
 
