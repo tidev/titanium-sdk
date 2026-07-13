@@ -52,8 +52,11 @@ describe('Titanium.UI.ImageView', function () {
 			should(imageView.image).eql('path/to/logo.png');
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with a local file path', finish => {
+		// The ImageView must be added to an open window so the native view is
+		// realized; otherwise the "image" property change is never applied and
+		// the "load" event never fires.
+		it('with a local file path', finish => {
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -64,11 +67,13 @@ describe('Titanium.UI.ImageView', function () {
 				}
 				finish();
 			});
+			win.add(imageView);
 			imageView.image = Ti.Filesystem.resourcesDirectory + 'Logo.png';
+			win.open();
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with a local path with separator', finish => {
+		it('with a local path with separator', finish => {
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -81,11 +86,13 @@ describe('Titanium.UI.ImageView', function () {
 			});
 			// Try appending separator
 			// It's not quite clear if we need separator, but people often do this
+			win.add(imageView);
 			imageView.image = Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator + 'Logo.png';
+			win.open();
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with local path with /', finish => {
+		it('with local path with /', finish => {
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -98,23 +105,27 @@ describe('Titanium.UI.ImageView', function () {
 			});
 			// Try appending '/' for the separator
 			// Technically this is not right on Windows, but people often do this
+			win.add(imageView);
 			imageView.image = Ti.Filesystem.resourcesDirectory + '/Logo.png';
+			win.open();
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with Ti.Filesystem.File.nativePath value', finish => {
+		it('with Ti.Filesystem.File.nativePath value', finish => {
 			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
 					should(imageView.image).be.a.String();
-					should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + 'Logo.png');
+					should(imageView.image).eql(fromFile.nativePath);
 				} catch (err) {
 					return finish(err);
 				}
 				finish();
 			});
+			win.add(imageView);
 			imageView.image = fromFile.nativePath;
+			win.open();
 		});
 
 		it.windows('with ms-appx:// URL', finish => {
@@ -153,10 +164,10 @@ describe('Titanium.UI.ImageView', function () {
 		});
 
 		// Windows: TIMOB-24985
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with Ti.Fielsystem.File', finish => {
+		it('with Ti.Fielsystem.File', finish => {
 			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -168,7 +179,9 @@ describe('Titanium.UI.ImageView', function () {
 				finish();
 			});
 
+			win.add(imageView);
 			imageView.image = fromFile;
+			win.open();
 		});
 
 		function doBlobTest(testName, blob, finish) {
