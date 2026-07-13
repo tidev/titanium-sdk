@@ -122,13 +122,13 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	// FIXME Times out on Android build machine. No idea why... Must be we never get focus event?
-	it.androidBroken('url(local)', function (finish) {
+	it('url(local)', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
 		const webview = Ti.UI.createWebView();
 
-		win.addEventListener('focus', function () {
+		win.addEventListener('open', function () {
 			try {
 				webview.url = 'ti.ui.webview.test.html';
 			} catch (err) {

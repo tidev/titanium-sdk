@@ -290,7 +290,7 @@ describe('Titanium.Media', () => {
 			// This assumes the TiBlob is from a file, but in this case it's not.
 			// MediaModule.java needs to be updated to write to a temp file in this case,
 			// like we do for EmailDialogProxy
-			it.androidBroken('from screenshot', finish => {
+			it.android('from screenshot', finish => {
 				Ti.Media.takeScreenshot(image => {
 					if (image && image.media) {
 						Ti.Media.previewImage({
