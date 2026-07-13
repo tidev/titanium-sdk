@@ -21,7 +21,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -32,9 +31,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
 
-@Kroll.module(propertyAccessors = {
-	TiC.PROPERTY_USER_AGENT
-})
+@Kroll.module
 @Kroll.topLevel({ "Ti", "Titanium" })
 public class TitaniumModule extends KrollModule
 {
@@ -47,10 +44,12 @@ public class TitaniumModule extends KrollModule
 	private static final SparseArray<Timer> activeTimers = new SparseArray<>();
 	private static int lastTimerId = 1;
 
+	private String userAgent;
+
 	public TitaniumModule()
 	{
 		basePath = new Stack<>();
-		defaultValues.put(TiC.PROPERTY_USER_AGENT, computeUserAgent());
+		userAgent = computeUserAgent();
 	}
 
 	private String computeUserAgent()
@@ -62,6 +61,21 @@ public class TitaniumModule extends KrollModule
 		}
 		builder.append(" Titanium/").append(getVersion());
 		return builder.toString();
+	}
+
+	@Kroll.getProperty
+	public String getUserAgent()
+	{
+		if (userAgent == null) {
+			userAgent = computeUserAgent();
+		}
+		return userAgent;
+	}
+
+	@Kroll.setProperty
+	public void setUserAgent(String value)
+	{
+		userAgent = value;
 	}
 
 	@Override

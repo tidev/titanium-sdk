@@ -296,7 +296,7 @@ describe('Titanium.Media', () => {
 						Ti.Media.previewImage({
 							success: () => finish(),
 							error: finish,
-							image
+							image: image.media
 						});
 					} else {
 						finish(new Error('failed to obtain screenshot'));

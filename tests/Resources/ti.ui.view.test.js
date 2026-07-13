@@ -116,7 +116,7 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// Windows supports linear gradient only
-	it.androidAndWindowsMissing('backgroundGradient (radial)', function (finish) {
+	it.windowsMissing('backgroundGradient (radial)', function (finish) {
 		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({
