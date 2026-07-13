@@ -337,6 +337,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_AUTO_TAB_TITLE)) {
 			autoTabTitle = options.getBoolean(TiC.PROPERTY_AUTO_TAB_TITLE);
 		}
+		if (options.containsKeyAndNotNull(TiC.PROPERTY_TITLE)) {
+			setTitle(options.getString(TiC.PROPERTY_TITLE));
+		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_TABS)) {
 			setTabs(options.get(TiC.PROPERTY_TABS));
 		}
