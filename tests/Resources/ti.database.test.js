@@ -39,8 +39,7 @@ describe('Titanium.Database', function () {
 		});
 
 		// FIXME Get working for iOS - gets back John Smith\\u0000'
-		// FIXME Get working on Android, either lastInsertRowId or rowsAffected is starting as 1, not 0
-		it.androidAndIosBroken('copies db from app folder', function () {
+		it.iosBroken('copies db from app folder', function () {
 			// Database name
 			var dbName = 'testDbInstall';
 
@@ -157,8 +156,7 @@ describe('Titanium.Database', function () {
 
 	describe('.open()', () => {
 		// Check if open exists and make sure it does not throw exception
-		// FIXME Get working on Android, either lastInsertRowId or rowsAffected is starting as 1, not 0
-		it.androidAndMacBroken('opens or creates database', function () {
+		it.macBroken('opens or creates database', function () {
 			should(Ti.Database.open).not.be.undefined();
 			should(Ti.Database.open).be.a.Function();
 
