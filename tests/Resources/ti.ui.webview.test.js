@@ -341,8 +341,8 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	// FIXME: temperamental on Android and broken on Windows
-	it.androidAndWindowsBroken('.zoomLevel', function (finish) {
+	// FIXME: broken on Windows
+	it.windowsBroken('.zoomLevel', function (finish) {
 		this.slow(5000);
 		this.timeout(Timeout.DEFAULT);
 
