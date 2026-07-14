@@ -413,9 +413,11 @@ describe('Titanium.UI.WebView', function () {
 	});
 
 	// FIXME: This crashes on device with iOS 13
-	it.iosBroken('should handle file URLs with spaces in path - TIMOB-18765', function (finish) {
+	it('should handle file URLs with spaces in path - TIMOB-18765', function (finish) {
 		// Should handle paths with spaces!
-		const URL = Ti.Filesystem.resourcesDirectory + '/folder with spaces/comingSoon.html';
+		// Avoid a double slash when resourcesDirectory already ends with '/'.
+		const sep = Ti.Filesystem.resourcesDirectory.endsWith('/') ? '' : '/';
+		const URL = Ti.Filesystem.resourcesDirectory + sep + 'folder with spaces/comingSoon.html';
 		const webView = Ti.UI.createWebView({
 			top: 30
 		});
@@ -468,7 +470,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.iosAndWindowsBroken('sslerror', function (finish) {
+	it.iosBroken('sslerror', function (finish) {
 		const url = 'https://expired.badssl.com/';
 
 		win = Ti.UI.createWindow();
@@ -575,7 +577,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.iosAndWindowsBroken('ignoreSslError', function (finish) {
+	it.iosBroken('ignoreSslError', function (finish) {
 		const url = 'https://expired.badssl.com/';
 
 		win = Ti.UI.createWindow();

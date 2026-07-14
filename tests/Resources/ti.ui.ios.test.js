@@ -12,8 +12,8 @@ const should = require('./utilities/assertions');
 
 describe.ios('Titanium.UI.iOS', function () {
 	// --- properties ---
-	it.iosBroken('.appBadge', function () {
-		should(Ti.UI.iOS.appBadge).be.undefined(); // FIXME: Defaults to 0!
+	it('.appBadge', function () {
+		should(Ti.UI.iOS.appBadge).be.a.Number(); // Defaults to 0
 		// TODO Set the value and test it got set
 	});
 

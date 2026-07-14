@@ -787,7 +787,7 @@ describe('Titanium.UI.Window', function () {
 			win.open();
 		});
 
-		it.iosAndWindowsBroken('#toString()', () => {
+		it('#toString()', () => {
 			win = Ti.UI.createWindow();
 			should(win.toString()).be.eql('[object Window]'); // Windows: '[object class TitaniumWindows::UI::Window]', iOS: '[object TiUIWindow]'
 			should(win.apiName).be.a.String();

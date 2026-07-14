@@ -29,7 +29,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME Get working on IOS
-	it.iosBroken('basicBufferStream', function () {
+	it('basicBufferStream', function () {
 		var rstream = null,
 			wstream = null,
 			astream = null,
@@ -152,7 +152,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME Get working on IOS
-	it.iosBroken('asyncRead', function (finish) {
+	it('asyncRead', function (finish) {
 		var sourceBuffer,
 			sourceBlob,
 			// sourceBlobStr,
@@ -224,7 +224,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	it.iosBroken('asyncWrite', function (finish) {
+	it('asyncWrite', function (finish) {
 		var sourceBuffer,
 			dest,
 			bufferStream,
@@ -282,7 +282,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	it.iosBroken('readAll', function (finish) {
+	it('readAll', function (finish) {
 		var sourceBuffer,
 			sourceBlob,
 			sourceBlobStr,
@@ -337,7 +337,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME Get working on IOS. // iOS spits out: *** -[NSConcreteMutableData increaseLengthBy:]: absurd extra length: 18446744073709551526, maximum size: 9223372036854775808 bytes
-	it.iosBroken('writeStream', function (finish) {
+	it('writeStream', function (finish) {
 		var sourceBuffer,
 			sourceBlob,
 			sourceBlobStr,

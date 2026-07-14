@@ -20,22 +20,22 @@ describe('Titanium.UI.EmailDialog', () => {
 	});
 
 	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.FAILED
-	it.iosBroken('FAILED', () => {
+	it.iosMissing('FAILED', () => {
 		should(Ti.UI.EmailDialog).have.constant('FAILED').which.is.a.Number();
 	});
 
 	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.SENT
-	it.iosBroken('SENT', () => {
+	it.iosMissing('SENT', () => {
 		should(Ti.UI.EmailDialog).have.constant('SENT').which.is.a.Number();
 	});
 
 	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.SAVED
-	it.iosBroken('SAVED', () => {
+	it.iosMissing('SAVED', () => {
 		should(Ti.UI.EmailDialog).have.constant('SAVED').which.is.a.Number();
 	});
 
 	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.CANCELLED
-	it.iosBroken('CANCELLED', () => {
+	it.iosMissing('CANCELLED', () => {
 		should(Ti.UI.EmailDialog).have.constant('CANCELLED').which.is.a.Number();
 	});
 

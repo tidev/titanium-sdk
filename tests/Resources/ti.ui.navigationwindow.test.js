@@ -24,7 +24,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 		}
 	});
 
-	it.iosBroken('namespace exists', () => { // should this be defined?
+	it.iosMissing('namespace exists', () => { // should this be defined?
 		should(Ti.UI.NavigationWindow).not.be.undefined();
 	});
 

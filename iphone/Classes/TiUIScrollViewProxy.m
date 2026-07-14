@@ -30,6 +30,18 @@ static NSArray *scrollViewKeySequence;
   [self initializeProperty:@"zoomScale" defaultValue:NUMFLOAT(1.0)];
   [self initializeProperty:@"canCancelEvents" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"scrollingEnabled" defaultValue:NUMBOOL(YES)];
+  // Defaults mirrored from Android ScrollViewProxy to keep property reads consistent.
+  // Use "auto" rather than "" so the iOS dimension parser treats these as auto
+  // (an empty string would be parsed as 0 dip and break Ti.UI.SIZE sizing).
+  [self initializeProperty:@"contentWidth" defaultValue:@"auto"];
+  [self initializeProperty:@"contentHeight" defaultValue:@"auto"];
+  [self initializeProperty:@"decelerationRate" defaultValue:NUMINT(0)];
+  [self initializeProperty:@"disableBounce" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"horizontalBounce" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"verticalBounce" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"scrollIndicatorStyle" defaultValue:NUMINT(0)];
+  [self initializeProperty:@"showHorizontalScrollIndicator" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"showVerticalScrollIndicator" defaultValue:NUMBOOL(NO)];
   [super _initWithProperties:properties];
 }
 

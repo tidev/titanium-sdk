@@ -196,7 +196,7 @@ describe('Titanium.App', () => {
 				should(Ti.App.proximityDetection).be.false();
 			});
 
-			it.iosBroken('can be assigned a Boolean value', () => { // iOS does it async? I don't know
+			it.iosBroken('can be assigned a Boolean value', () => { // iOS simulator doesn't support proximity monitoring
 				Ti.App.proximityDetection = true;
 				should(Ti.App.proximityDetection).be.true();
 				Ti.App.proximityDetection = false;

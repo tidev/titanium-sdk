@@ -25,7 +25,7 @@ describe('Titanium.UI.Slider', function () {
 		}
 	});
 
-	it.iosBroken('Ti.UI.Slider', function () { // should this be defined?
+	it.iosMissing('Ti.UI.Slider', function () { // should this be defined?
 		should(Ti.UI.Slider).not.be.undefined();
 	});
 

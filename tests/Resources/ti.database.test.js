@@ -39,7 +39,7 @@ describe('Titanium.Database', function () {
 		});
 
 		// FIXME Get working for iOS - gets back John Smith\\u0000'
-		it.iosBroken('copies db from app folder', function () {
+		it('copies db from app folder', function () {
 			// Database name
 			var dbName = 'testDbInstall';
 

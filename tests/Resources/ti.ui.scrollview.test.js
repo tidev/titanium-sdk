@@ -40,7 +40,7 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.canCancelEvents).be.a.Boolean();
 	});
 
-	it.iosBroken('contentHeight', function () {
+	it('contentHeight', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.contentHeight).be.a.String();
 	});
@@ -114,22 +114,22 @@ describe('Titanium.UI.ScrollView', function () {
 		win.open();
 	});
 
-	it.iosBroken('contentWidth', function () {
+	it('contentWidth', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.contentWidth).be.a.String();
 	});
 
-	it.iosBroken('decelerationRate', function () {
+	it('decelerationRate', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.decelerationRate).be.a.Number();
 	});
 
-	it.iosBroken('disableBounce', function () {
+	it('disableBounce', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.disableBounce).be.a.Boolean();
 	});
 
-	it.iosBroken('horizontalBounce', function () {
+	it('horizontalBounce', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.horizontalBounce).be.a.Boolean();
 	});
@@ -164,7 +164,7 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.refreshControl).be.eql(refreshControl);
 	});
 
-	it.iosBroken('scrollIndicatorStyle', function () {
+	it('scrollIndicatorStyle', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.scrollIndicatorStyle).be.a.Number();
 	});
@@ -182,17 +182,17 @@ describe('Titanium.UI.ScrollView', function () {
 		should.not.exist(bar.scrollType); // undefined by default
 	});
 
-	it.iosBroken('showHorizontalScrollIndicator', function () {
+	it('showHorizontalScrollIndicator', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.showHorizontalScrollIndicator).be.a.Boolean();
 	});
 
-	it.iosBroken('showVerticalScrollIndicator', function () {
+	it('showVerticalScrollIndicator', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.showVerticalScrollIndicator).be.a.Boolean();
 	});
 
-	it.iosBroken('verticalBounce', function () {
+	it('verticalBounce', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.verticalBounce).be.a.Boolean();
 	});

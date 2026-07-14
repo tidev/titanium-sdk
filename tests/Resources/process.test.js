@@ -16,7 +16,7 @@ describe('process', () => {
 
 	// FIXME: this crashes iOS, and Android gets should wrapping the error and re-throwing an AssertionError
 	// I'm not sure how we can test this...
-	it.androidAndIosBroken('uncaughtException event', finish => {
+	it.iosBroken('uncaughtException event', finish => {
 		const errorMessage = 'KABOOM';
 		process.on('uncaughtException', err => {
 			try {
@@ -39,7 +39,7 @@ describe('process', () => {
 		});
 	});
 
-	// TODO: binding(), chdir(), cpuUsage(), cwd(), disconnect(), dlopen(), emit(), emitWarning(), eventNames(), exit(), on(), umask(), uptime()
+	// TODO: binding(), chdir(), cpuUsage(), cwd(), disconnect(), dlopen(), emit(), emitWarning(), eventNames(), eit(), on(), umask(), uptime()
 
 	describe('.arch', () => {
 		it('is a string', () => {

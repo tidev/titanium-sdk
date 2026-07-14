@@ -726,7 +726,7 @@ describe('Titanium.UI.Layout', function () {
 	// functional test #1053 ScrollViewSize
 	// This is completely wrong. Adding a scrollview to a label?
 	// Really? Skipping
-	it.androidAndIosBroken('scrollViewSize', function (finish) {
+	it.iosBroken('scrollViewSize', function (finish) {
 		var label = Ti.UI.createLabel({
 				color: 'red'
 			}),

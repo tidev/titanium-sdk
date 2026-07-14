@@ -110,7 +110,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	// FIXME Get working on iOS - doesn't throw exception on parsing empty string
 	// FIXME: new V8 changes have prevented exceptions from throwing?
 	// iOS gives: expected [Function] to throw exception
-	it.iosBroken('documentParsing', function () {
+	it('documentParsing', function () {
 		var localSources = testSource,
 			localInvalid = invalidSource;
 		// Parse valid documents
@@ -204,7 +204,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	});
 
 	// FIXME Get working on iOS and Android - tagName is undefined, when expecting 'xml'
-	it.androidAndIosBroken('xmlNodes', function () {
+	it.allBroken('xmlNodes', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			nodesList = doc.getElementsByTagName('nodes'),
 			nodes,
@@ -267,7 +267,7 @@ describe.windowsBroken('Titanium.XML', function () {
 	// FIXME: some functions should throw exception on out-of-bounds error
 	// iOS Gives: expected [Function] to throw exception
 	// Windows Desktop Gives: expected [Function] to throw exception
-	it.iosAndWindowsBroken('xmlCData', function () {
+	it('xmlCData', function () {
 		var xml = Ti.XML.parseString(testSource['cdata.xml']),
 			scriptList = xml.documentElement.getElementsByTagName('script'),
 			nodeCount,

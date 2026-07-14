@@ -32,7 +32,7 @@ describe('Titanium.UI.TableView', function () {
 		}
 	});
 
-	it.iosBroken('Ti.UI.TableView', () => { // should this be defined?
+	it.iosMissing('Ti.UI.TableView', () => { // should this be defined?
 		should(Ti.UI.TableView).not.be.undefined();
 	});
 
@@ -1615,7 +1615,7 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	// FIXME: Unsupported on iOS.
-	it.iosBroken('TableViewRow borderRadius', function () {
+	it('TableViewRow borderRadius', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
@@ -1703,7 +1703,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView headerView & footerView', function () {
+	it('TableView headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
@@ -1743,7 +1743,7 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView + TableViewSection headerView & footerView', function () {
+	it('TableView + TableViewSection headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');

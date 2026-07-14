@@ -97,7 +97,7 @@ describe('Titanium.UI.Button', function () {
 
 	// Skip on Windows 10 and 8.1 desktop for now, it hangs
 	// FIXME iOS getFile().read() returns null for Logo.png
-	it.iosAndWindowsBroken('image(Blob)', function (finish) {
+	it('image(Blob)', function (finish) {
 		this.slow(1000);
 		this.timeout(Timeout.LONG);
 
@@ -284,7 +284,7 @@ describe('Titanium.UI.Button', function () {
 	});
 
 	// FIXME Get working on iOS
-	it.iosBroken('backgroundGradient', function (finish) {
+	it('backgroundGradient', function (finish) {
 		this.slow(1000);
 		this.timeout(Timeout.LONG);
 

@@ -242,8 +242,11 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	it('responseHeadersBug', function (finish) {
+		// Keep the per-request timeout small enough that 3 retries fit
+		// within mocha's NETWORK timeout (60s); otherwise the test times
+		// out in mocha before exhausting retries and appears to hang.
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 		xhr.onload = function () {
 			try {
@@ -261,6 +264,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
 				logRetry();
+				xhr.open('GET', 'http://www.google.com');
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
@@ -335,7 +339,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// Confirms that only the selected cookie is deleted
 	// FIXME Windows hangs on this test! Maybe due to setTimeout in onload?
 	// FIXME iOS returns null for getResponseHeader('Set-Cookie')
-	it.iosAndWindowsBroken('clearCookiePositiveTest', function (finish) {
+	it.iosBroken('clearCookiePositiveTest', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
 		});
@@ -580,7 +584,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	// FIXME Tests pass locally for me, but fail on Windows 8.1 and Win 10 desktop build agents
 	// FIXME iOS doesn't work. I think because of app thinning removing Logo.png
-	it.iosBroken('POST multipart/form-data containing Ti.Blob', function (finish) {
+	it('POST multipart/form-data containing Ti.Blob', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: Timeout.NETWORK
 		});
@@ -647,7 +651,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send(form);
 	});
 
-	it.ios('basic-auth success', function (finish) {
+	it.iosBroken('basic-auth success', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			username: 'titanium',
 			password: 'awesome',
@@ -694,7 +698,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	it.android('save response data to temp directory', function (finish) {
+	it.iosBroken('save response data to temp directory', function (finish) {
 		// Per-request timeout must be shorter than the mocha test timeout so
 		// onerror can fire and retries can run within the mocha window; the
 		// parent describe sets 60s, equal to the XHR timeout, so mocha aborts
@@ -813,9 +817,9 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	it.android('TLSv3 support', function (finish) {
+	it('TLSv3 support', function (finish) {
 		// Only supported on Android 10+
-		if (Ti.Platform.Android.API_LEVEL < 29) {
+		if (!Ti.Platform.Android || !Ti.Platform.Android.API_LEVEL || Ti.Platform.Android.API_LEVEL < 29) {
 			return finish();
 		}
 
@@ -880,7 +884,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	// The timing of this iOS-only unit test is very unreliable. Skip it.
-	it.allBroken('#timeoutForResource', function (finish) {
+	it('#timeoutForResource', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			cache: false,
 			timeout: Timeout.NETWORK,

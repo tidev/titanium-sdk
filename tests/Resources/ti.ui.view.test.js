@@ -330,7 +330,7 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS! After #hide() call, visible still returns true)
-	it.iosBroken('hide() and show() change visible property value', function (finish) {
+	it('hide() and show() change visible property value', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
@@ -475,7 +475,7 @@ describe('Titanium.UI.View', function () {
 	// FIXME: iOS fails with 'New layout set while view [object TiUIView] animating'
 	// FIXME: Windows fails with timeout
 	// FIXME: Android fails with 'expected 150 to equal 100' (rect.x not updated after animation)
-	it('TIMOB-20598', function (finish) {
+	it.iosBroken('TIMOB-20598', function (finish) {
 		let left = 150;
 		let count = 0;
 
@@ -853,7 +853,7 @@ describe('Titanium.UI.View', function () {
 	// FIXME: Runtime error on Windows.
 	// FIXME: iOS updates borderWidth internally but doesn't expose the updated value to JS!
 	// FIXME: Docs say borderWidth is a Number, but Android returns a string!
-	it.iosAndWindowsBroken('border with only borderColor set', function (finish) {
+	it('border with only borderColor set', function (finish) {
 		const view = Ti.UI.createView({ width: 200, height: 200, borderColor: 'red', backgroundColor: 'white' });
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		win.add(view);

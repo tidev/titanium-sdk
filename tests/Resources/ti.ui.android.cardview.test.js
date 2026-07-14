@@ -28,7 +28,7 @@ describe.android('Titanium.UI.Android.CardView', function () {
 		}
 	});
 
-	it.iosBroken('Ti.UI.Android.CardView', () => {
+	it('Ti.UI.Android.CardView', () => {
 		should(Ti.UI.Android.CardView).not.be.undefined();
 	});
 

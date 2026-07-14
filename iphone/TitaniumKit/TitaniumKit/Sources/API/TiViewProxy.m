@@ -378,7 +378,7 @@ static NSArray *touchEventsArray;
         [self setHidden:NO withArgs:arg];
         [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
       },
-      NO);
+      YES);
 }
 
 - (void)hide:(id)arg
@@ -388,7 +388,7 @@ static NSArray *touchEventsArray;
         [self setHidden:YES withArgs:arg];
         [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
       },
-      NO);
+      YES);
 }
 
 - (void)clearMotionEffects:(id)unused

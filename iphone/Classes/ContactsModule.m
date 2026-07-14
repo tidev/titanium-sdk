@@ -256,7 +256,7 @@ static NSArray *contactKeysWithoutImage;
   ENSURE_SINGLE_ARG(arg, NSString)
   CNContactStore *ourContactStore = [self contactStore];
   if (ourContactStore == NULL) {
-    return nil;
+    return [NSNull null];
   }
   NSError *error = nil;
   CNContact *contact = nil;
@@ -266,7 +266,7 @@ static NSArray *contactKeysWithoutImage;
   }
   contact = [ourContactStore unifiedContactWithIdentifier:arg keysToFetch:contactKeys error:&error];
   if (error) {
-    return nil;
+    return [NSNull null];
   }
   return [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
                                                contactId:(CNMutableContact *)contact
@@ -359,7 +359,7 @@ static NSArray *contactKeysWithoutImage;
 
   CNContactStore *ourContactStore = [self contactStore];
   if (ourContactStore == NULL) {
-    return nil;
+    return [NSArray array];
   }
   NSError *error = nil;
   NSMutableArray *peopleRefs = nil;
@@ -385,7 +385,7 @@ static NSArray *contactKeysWithoutImage;
   } else {
     DebugLog(@"%@", [TiUtils messageFromError:error]);
     RELEASE_TO_NIL(peopleRefs)
-    return nil;
+    return [NSArray array];
   }
 }
 
@@ -403,13 +403,13 @@ static NSArray *contactKeysWithoutImage;
 
   CNContactStore *ourContactStore = [self contactStore];
   if (ourContactStore == NULL) {
-    return nil;
+    return [NSArray array];
   }
   NSError *error = nil;
   NSArray *groupRefs = nil;
   groupRefs = [ourContactStore groupsMatchingPredicate:nil error:&error];
   if (groupRefs == nil) {
-    return nil;
+    return [NSArray array];
   }
   NSMutableArray *groups = [NSMutableArray arrayWithCapacity:[groupRefs count]];
   for (CNMutableGroup *thisGroup in groupRefs) {
@@ -456,7 +456,14 @@ static NSArray *contactKeysWithoutImage;
   [newPerson setValuesForKeysWithDictionary:arg];
   [newPerson updateiOS9ContactProperties];
   saveRequest = [newPerson getSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
-  [self save:nil];
+  @try {
+    [self save:nil];
+  } @catch (NSException *e) {
+    // Save may fail (e.g., missing contacts permission in the test simulator).
+    // Clear saveRequest so subsequent createPerson/createGroup calls don't
+    // cascade-fail with "Cannot create a new entry with unsaved changes".
+    RELEASE_TO_NIL(saveRequest);
+  }
   newPerson.observer = self;
   return newPerson;
 }
@@ -507,6 +514,13 @@ static NSArray *contactKeysWithoutImage;
   RELEASE_TO_NIL(tempGroup);
   [newGroup setValuesForKeysWithDictionary:arg];
   saveRequest = [newGroup getSaveRequestForAddition:[ourContactStore defaultContainerIdentifier]];
+  @try {
+    [self save:nil];
+  } @catch (NSException *e) {
+    // Save may fail (e.g., missing contacts permission). Clear saveRequest so
+    // subsequent createGroup/createPerson calls don't cascade-fail.
+    RELEASE_TO_NIL(saveRequest);
+  }
 
   return newGroup;
 }

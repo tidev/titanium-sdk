@@ -212,7 +212,7 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup = Ti.UI.createTabGroup();
 			});
 
-			it.iosBroken('is an Array', () => { // undfined on iOS?
+			it('is an Array', () => { // undfined on iOS?
 				should(tabGroup).have.property('tabs').which.is.an.Array();
 			});
 
@@ -266,11 +266,11 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup = Ti.UI.createTabGroup();
 			});
 
-			it.iosBroken('is a Boolean', () => { // defaults to undefined!
+			it('is a Boolean', () => { // defaults to undefined!
 				should(tabGroup.tabsTranslucent).be.a.Boolean();
 			});
 
-			it.iosBroken('defaults to true', () => { // defaults to undefined!
+			it('defaults to true', () => { // defaults to undefined!
 				should(tabGroup.tabsTranslucent).be.true();
 			});
 

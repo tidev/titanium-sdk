@@ -11,8 +11,8 @@ var should = require('./utilities/assertions');
 
 // FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
 // FIXME: Need to move from AddressBook framework to Contacts
-describe.iosBroken('Titanium.Contacts.Person', function () {
-	it('apiName', function () {
+describe('Titanium.Contacts.Person', function () {
+	it.iosMissing('apiName', function () {
 		should(Ti.Contacts.Person).have.a.readOnlyProperty('apiName').which.is.a.String();
 		should(Ti.Contacts.Person.apiName).be.eql('Ti.Contacts.Person');
 	});

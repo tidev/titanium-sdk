@@ -97,7 +97,7 @@ describe('Titanium.Map', function () {
 	});
 
 	// FIXME get working on iOS, says value is undefined, not a Number
-	it.iosBroken('ANNOTATION_YELLOW', function () {
+	it('ANNOTATION_YELLOW', function () {
 		should(Map).have.constant('ANNOTATION_YELLOW').which.is.a.Number();
 	});
 

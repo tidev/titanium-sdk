@@ -193,7 +193,7 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.titleid).eql('this_is_my_key');
 			});
 
-			it.iosBroken('modifies .title property value', () => {
+			it('modifies .title property value', () => {
 				should(dialog.title).eql('this is my value');
 			});
 

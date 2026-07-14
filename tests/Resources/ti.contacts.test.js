@@ -34,12 +34,12 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME Get working for iOS
-	it.iosBroken('CONTACTS_KIND_ORGANIZATION', () => {
+	it('CONTACTS_KIND_ORGANIZATION', () => {
 		should(Ti.Contacts).have.constant('CONTACTS_KIND_ORGANIZATION').which.is.a.Number();
 	});
 
 	// FIXME Get working for iOS
-	it.iosBroken('CONTACTS_KIND_PERSON', () => {
+	it('CONTACTS_KIND_PERSON', () => {
 		should(Ti.Contacts).have.constant('CONTACTS_KIND_PERSON').which.is.a.Number();
 	});
 
@@ -76,7 +76,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
-	it.iosAndWindowsBroken('getAllGroups()', () => {
+	it('getAllGroups()', () => {
 		var groups,
 			i;
 		should(Ti.Contacts.getAllGroups).be.a.Function();
@@ -150,7 +150,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
-	it.iosAndWindowsBroken('#getPersonByIdentifier()', () => {
+	it('#getPersonByIdentifier()', () => {
 		should(Ti.Contacts.getPersonByIdentifier).be.a.Function();
 		// check for a person by bad identifier
 		const noPerson = Ti.Contacts.getPersonByIdentifier('doesntexist');
