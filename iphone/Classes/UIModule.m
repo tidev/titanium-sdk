@@ -858,11 +858,10 @@ MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparato
   return shortcut;
 }
 
-- (TiProxy *)ShortcutItem
+- (TiUIShortcutItemProxy *)ShortcutItem
 {
   if (shortcutItem == nil) {
     shortcutItem = [[TiUIShortcutItemProxy alloc] init];
-    [self rememberProxy:shortcutItem];
   }
   return shortcutItem;
 }

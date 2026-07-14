@@ -62,7 +62,7 @@
 #endif
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
   TiUIShortcutProxy *shortcut;
-  TiProxy *shortcutItem;
+  TiUIShortcutItemProxy *shortcutItem;
 #endif
 #ifdef USE_TI_UIEMAILDIALOG
   TiProxy *emailDialog;
@@ -326,7 +326,7 @@
 @property (nonatomic, readonly) TiProxy *NavigationWindow;
 #endif
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
-@property (nonatomic, readonly) TiProxy *ShortcutItem;
+@property (nonatomic, readonly) TiUIShortcutItemProxy *ShortcutItem;
 #endif
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING
