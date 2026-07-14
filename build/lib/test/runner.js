@@ -259,6 +259,8 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t<string>Requesting music library permission</string>');
 		content.push('\t\t\t\t<key>NSCameraUsageDescription</key>');
 		content.push('\t\t\t\t<string>Requesting camera permission</string>');
+		content.push('\t\t\t\t<key>NSContactsUsageDescription</key>');
+		content.push('\t\t\t\t<string>Requesting contacts permission</string>');
 		content.push('\t\t\t\t<key>NSMicrophoneUsageDescription</key>');
 		content.push('\t\t\t\t<string>Requesting microphone permission</string>');
 		content.push('\t\t\t\t<key>NSPhotoLibraryUsageDescription</key>');

@@ -12,9 +12,7 @@ var should = require('./utilities/assertions');
 // FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
 // FIXME: Need to move from AddressBook framework to Contacts
 describe.iosBroken('Titanium.Contacts.Person', function () {
-	// Android's Kroll bridge does not expose apiName as a readOnly property
-	// on the constructor function itself (only on instances).
-	it.androidBroken('apiName', function () {
+	it('apiName', function () {
 		should(Ti.Contacts.Person).have.a.readOnlyProperty('apiName').which.is.a.String();
 		should(Ti.Contacts.Person.apiName).be.eql('Ti.Contacts.Person');
 	});
