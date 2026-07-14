@@ -71,6 +71,28 @@
 #endif
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
   RELEASE_TO_NIL(shortcut);
+  RELEASE_TO_NIL(shortcutItem);
+#endif
+#ifdef USE_TI_UIEMAILDIALOG
+  RELEASE_TO_NIL(emailDialog);
+#endif
+#ifdef USE_TI_UILISTVIEW
+  RELEASE_TO_NIL(listView);
+#endif
+#ifdef USE_TI_UITABLEVIEW
+  RELEASE_TO_NIL(tableView);
+#endif
+#ifdef USE_TI_UISLIDER
+  RELEASE_TO_NIL(slider);
+#endif
+#ifdef USE_TI_UISWITCH
+  RELEASE_TO_NIL(switchProxy);
+#endif
+#ifdef USE_TI_UIMASKEDIMAGE
+  RELEASE_TO_NIL(maskedImage);
+#endif
+#if defined(USE_TI_UINAVIGATIONWINDOW)
+  RELEASE_TO_NIL(navigationWindow);
 #endif
   [super dealloc];
 }
@@ -834,6 +856,92 @@ MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparato
     shortcut = [[TiUIShortcutProxy alloc] init];
   }
   return shortcut;
+}
+
+- (TiProxy *)ShortcutItem
+{
+  if (shortcutItem == nil) {
+    shortcutItem = [[TiUIShortcutItemProxy alloc] init];
+    [self rememberProxy:shortcutItem];
+  }
+  return shortcutItem;
+}
+#endif
+
+#ifdef USE_TI_UIEMAILDIALOG
+- (TiProxy *)EmailDialog
+{
+  if (emailDialog == nil) {
+    emailDialog = [[TiUIEmailDialogProxy alloc] init];
+    [self rememberProxy:emailDialog];
+  }
+  return emailDialog;
+}
+#endif
+
+#ifdef USE_TI_UILISTVIEW
+- (TiProxy *)ListView
+{
+  if (listView == nil) {
+    listView = [[TiUIListViewProxy alloc] init];
+    [self rememberProxy:listView];
+  }
+  return listView;
+}
+#endif
+
+#ifdef USE_TI_UITABLEVIEW
+- (TiProxy *)TableView
+{
+  if (tableView == nil) {
+    tableView = [[TiUITableViewProxy alloc] init];
+    [self rememberProxy:tableView];
+  }
+  return tableView;
+}
+#endif
+
+#ifdef USE_TI_UISLIDER
+- (TiProxy *)Slider
+{
+  if (slider == nil) {
+    slider = [[TiUISliderProxy alloc] init];
+    [self rememberProxy:slider];
+  }
+  return slider;
+}
+#endif
+
+#ifdef USE_TI_UISWITCH
+- (TiProxy *)Switch
+{
+  if (switchProxy == nil) {
+    switchProxy = [[TiUISwitchProxy alloc] init];
+    [self rememberProxy:switchProxy];
+  }
+  return switchProxy;
+}
+#endif
+
+#ifdef USE_TI_UIMASKEDIMAGE
+- (TiProxy *)MaskedImage
+{
+  if (maskedImage == nil) {
+    maskedImage = [[TiUIMaskedImageProxy alloc] init];
+    [self rememberProxy:maskedImage];
+  }
+  return maskedImage;
+}
+#endif
+
+#if defined(USE_TI_UINAVIGATIONWINDOW)
+- (TiProxy *)NavigationWindow
+{
+  if (navigationWindow == nil) {
+    navigationWindow = [[TiUINavigationWindowProxy alloc] init];
+    [self rememberProxy:navigationWindow];
+  }
+  return navigationWindow;
 }
 #endif
 
