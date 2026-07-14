@@ -288,16 +288,16 @@ static NSArray *contactKeysWithoutImage;
   ENSURE_SINGLE_ARG(arg, NSString)
   CNContactStore *ourContactStore = [self contactStore];
   if (ourContactStore == NULL) {
-    return nil;
+    return [NSNull null];
   }
   NSError *error = nil;
   NSArray *groups = nil;
   groups = [ourContactStore groupsMatchingPredicate:[CNGroup predicateForGroupsWithIdentifiers:@[ arg ]] error:&error];
   if (!groups) {
-    return nil;
+    return [NSNull null];
   }
   if ([groups count] == 0) {
-    return nil;
+    return [NSNull null];
   }
   return [[[TiContactsGroup alloc] _initWithPageContext:[self executionContext] contactGroup:[groups objectAtIndex:0] module:self] autorelease];
 }
