@@ -26,7 +26,7 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.UIModule;
-import com.google.android.material.R;
+import androidx.appcompat.R;
 
 public class TiUISearchBar extends TiUIView
 {

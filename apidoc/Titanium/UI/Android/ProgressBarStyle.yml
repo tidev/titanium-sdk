@@ -1,0 +1,18 @@
+---
+name: Titanium.UI.Android.ProgressBarStyle
+summary: |
+    A set of constants for the styles used on the `style` property of <Titanium.UI.ProgressBar>.
+extends: Titanium.Proxy
+platforms: [android]
+since: "14.0.0"
+createable: false
+properties:
+  - name: DEFAULT
+    summary: The standard linear progress indicator style. This is the default.
+    type: Number
+    permission: read-only
+
+  - name: WAVY
+    summary: A wavy Material 3 linear progress indicator style.
+    type: Number
+    permission: read-only
