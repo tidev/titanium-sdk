@@ -397,7 +397,7 @@ describe('Titanium.UI.ImageView', function () {
 
 	// iOS Can't read the image from the Blob. Fix how we grab the blob on iOS?
 	// Android crashes for me locally. We should load blobs from multiple files, not the same one multiple times
-	it.iosBroken('images (Blob)', function (finish) {
+	it('images (Blob)', function (finish) {
 		var imageView,
 			error;
 		this.timeout(Timeout.DEFAULT);

@@ -470,7 +470,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.iosBroken('sslerror', function (finish) {
+	it('sslerror', function (finish) {
 		const url = 'https://expired.badssl.com/';
 
 		win = Ti.UI.createWindow();
@@ -555,7 +555,7 @@ describe('Titanium.UI.WebView', function () {
 		win = Ti.UI.createWindow();
 		const webView = Ti.UI.createWebView({
 			url: url,
-			basicAuthentication: { username: 'titanium', password: 'awesome' }
+			basicAuthentication: { username: 'postman', password: 'password' }
 		});
 
 		webView.addEventListener('load', function () {
@@ -577,7 +577,7 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	it.iosBroken('ignoreSslError', function (finish) {
+	it('ignoreSslError', function (finish) {
 		const url = 'https://expired.badssl.com/';
 
 		win = Ti.UI.createWindow();

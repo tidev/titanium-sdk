@@ -24,8 +24,13 @@ const ENDPOINTS = {
 	redirect: `${BASE}/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%2Fmain%2Ftests%2FResources%2Flarge.jpg`,
 	responseHeaders: `${BASE}/response-headers?freeform=titanium%3Dawesome`,
 	headers: `${BASE}/headers`,
-	basicAuthSuccess: `${BASE}/basic-auth/titanium/awesome`,
-	basicAuthFailure: `${BASE}/basic-auth/titanium/wrong`,
+	basicAuthSuccess: `${BASE}/basic-auth`,
+	basicAuthFailure: `${BASE}/basic-auth`,
+	// Fallback endpoints used when the primary basic-auth service is down.
+	// httpbin.org embeds the credentials in the path; postman-echo.com uses
+	// the Authorization header, so the fallback needs its own URL form.
+	basicAuthSuccessFallback: 'https://httpbin.org/basic-auth/titanium/awesome',
+	basicAuthFailureFallback: 'https://httpbin.org/basic-auth/titanium/wrong',
 	largeFileWithRedirect: `${BASE}/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%2Fmain%2Ftests%2FResources%2Flarge.jpg`,
 	cookies: `${BASE}/cookies`,
 	cookiesSet: `${BASE}/cookies/set`,

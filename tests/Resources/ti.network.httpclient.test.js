@@ -26,7 +26,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	});
 
 	// FIXME iOS gives us an ELEMENT_NODE, not DOCUMENT_NODE
-	it.iosBroken('responseXML', function (finish) {
+	it('responseXML', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: Timeout.NETWORK
 		});
@@ -651,10 +651,13 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send(form);
 	});
 
-	it.iosBroken('basic-auth success', function (finish) {
+	it('basic-auth success', function (finish) {
+		let attempts = 3;
+		let usingFallback = false;
+
 		const xhr = Ti.Network.createHTTPClient({
-			username: 'titanium',
-			password: 'awesome',
+			username: 'postman',
+			password: 'password',
 			timeout: Timeout.NETWORK
 		});
 
@@ -667,10 +670,17 @@ describe('Titanium.Network.HTTPClient', function () {
 			finish();
 		};
 
-		let attempts = 3;
 		xhr.onerror = function (e) {
 			if (attempts-- > 0) {
 				logRetry();
+				xhr.send();
+			} else if (!usingFallback) {
+				// Primary basic-auth service is down; fall back to httpbin.org.
+				usingFallback = true;
+				attempts = 3;
+				xhr.username = 'titanium';
+				xhr.password = 'awesome';
+				xhr.open('GET', ENDPOINTS.basicAuthSuccessFallback);
 				xhr.send();
 			} else {
 				// Safely serialize error without circular references from source proxy
@@ -685,7 +695,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it.ios('basic-auth failure', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			username: 'titanium',
+			username: 'postman',
 			password: 'wrong_password',
 			timeout: Timeout.NETWORK
 		});
