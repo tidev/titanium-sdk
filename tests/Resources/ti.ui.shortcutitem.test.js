@@ -25,7 +25,7 @@ describe('Titanium.UI', () => {
 });
 
 describe('Titanium.UI.ShortcutItem', () => {
-	it.iosMissing('namespace exists', () => {
+	it('namespace exists', () => {
 		should(Ti.UI.ShortcutItem).not.be.undefined();
 	});
 

@@ -11,7 +11,7 @@
 const should = require('./utilities/assertions');
 
 describe('Titanium.UI.Switch', function () {
-	it.iosMissing('Ti.UI.Switch', function () { // should this be defined?
+	it('Ti.UI.Switch', function () { // should this be defined?
 		should(Ti.UI.Switch).not.be.undefined();
 	});
 

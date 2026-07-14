@@ -27,7 +27,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 		}
 	});
 
-	it.iosMissing('Ti.UI.MaskedImage', () => { // should this be defined?
+	it('Ti.UI.MaskedImage', () => { // should this be defined?
 		should(Ti.UI.MaskedImage).not.be.undefined();
 	});
 

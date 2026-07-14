@@ -85,7 +85,7 @@ describe('Titanium.UI.ListView', function () {
 		}
 	});
 
-	it.iosMissing('nsamespace exists', () => { // Should this be defined?
+	it('nsamespace exists', () => { // Should this be defined?
 		should(Ti.UI.ListView).not.be.undefined();
 	});
 

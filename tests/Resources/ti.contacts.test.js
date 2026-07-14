@@ -8,7 +8,6 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
-const utilities = require('./utilities/utilities');
 
 // FIXME: Need to move from AddressBook framework to Contacts
 describe.macMissing('Titanium.Contacts', () => {
@@ -102,7 +101,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS and hangs the tests. How can we "click OK" for user? it.iosBroken
-	((utilities.isIOS()) ? it.skip : it)('getGroupByIdentifier()', () => {
+	it('getGroupByIdentifier()', () => {
 		var noGroup;
 		should(Ti.Contacts.getGroupByIdentifier).be.a.Function();
 		noGroup = Ti.Contacts.getGroupByIdentifier('doesntexist');

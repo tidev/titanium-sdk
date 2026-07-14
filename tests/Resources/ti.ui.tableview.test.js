@@ -32,7 +32,7 @@ describe('Titanium.UI.TableView', function () {
 		}
 	});
 
-	it.iosMissing('Ti.UI.TableView', () => { // should this be defined?
+	it('Ti.UI.TableView', () => { // should this be defined?
 		should(Ti.UI.TableView).not.be.undefined();
 	});
 
