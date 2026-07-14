@@ -14,19 +14,28 @@ describe('process', () => {
 		should(process).be.ok();
 	});
 
-	// FIXME: this crashes iOS, and Android gets should wrapping the error and re-throwing an AssertionError
-	// I'm not sure how we can test this...
-	it.iosBroken('uncaughtException event', finish => {
+	// Use setUncaughtExceptionCaptureCallback rather than process.on('uncaughtException')
+	// so that mocha's own uncaughtException listener (registered in Runner#run, which marks
+	// errors as uncaught=true and fails the current test) does not intercept the error.
+	// finish() must be deferred to a clean macrotask: the capture callback runs re-entrantly
+	// deep inside the native JSContext exception handler chain (reportScriptError ->
+	// kTiErrorNotification -> Ti.App 'uncaughtException' -> process polyfill). Calling
+	// mocha's done() synchronously from that stack advances the runner to subsequent tests
+	// inside the exception handler, which corrupts runner state and aborts the entire suite
+	// right after this test.
+	it('uncaughtException event', finish => {
 		const errorMessage = 'KABOOM';
-		process.on('uncaughtException', err => {
+		process.setUncaughtExceptionCaptureCallback(err => {
+			let assertionError = null;
 			try {
-				err.should.be.ok();
+				should(err).be.ok();
 				err.message.should.eql(errorMessage); // note that we can't test it is the exact same error object!
 				// that's because we "re-construct" errors from properties
 			} catch (err2) {
-				return finish(err2);
+				assertionError = err2;
 			}
-			finish();
+			process.setUncaughtExceptionCaptureCallback(null);
+			setTimeout(() => finish(assertionError), 0);
 		});
 		setTimeout(() => {
 			throw new Error(errorMessage);

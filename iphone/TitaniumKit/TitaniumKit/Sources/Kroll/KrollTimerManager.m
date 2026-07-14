@@ -46,12 +46,13 @@
 - (void)timerFired:(NSTimer *_Nonnull)timer
 {
   [self.callback callWithArguments:self.arguments];
-  // handle an uncaught exception
-  JSContext *context = self.callback.context;
-  JSValue *exception = context.exception;
-  if (exception != nil) {
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
-  }
+  // Any exception thrown by the callback is already handled by the JSContext
+  // exception handler installed in ScriptModule.runInThisContext: — it calls
+  // TiExceptionHandler.reportScriptError: which posts kTiErrorNotification,
+  // which fires the "uncaughtException" event. Re-reporting here from
+  // context.exception would fire the event a second time (the exceptionHandler
+  // does not clear context.exception), causing double-invocation of any
+  // uncaughtException listener.
 }
 
 @end
