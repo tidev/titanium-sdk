@@ -18,6 +18,26 @@ describe('Titanium.Network.HTTPClient', function () {
 	function logRetry() { if (VERBOSE_HTTP) { Ti.API.warn('failed, attempting to retry request...'); } }
 	// Safely serialize error without circular references from source proxy
 	function logHttpError(e) { if (VERBOSE_HTTP) { Ti.API.debug('XHR error: ' + JSON.stringify({ code: e.code, message: e.message })); } }
+	// Returns a string description of an XHR error for finish() messages,
+	// without dragging in the circular `source` proxy that `[object Object]`
+	// and default toString() hide.
+	function describeError(e) {
+		const code = e && e.code != null ? e.code : 'n/a';
+		const msg = e && (e.error || e.message) ? (e.error || e.message) : JSON.stringify(e);
+		return `code=${code} message=${msg}`;
+	}
+	// Host-resolution / DNS failures are environmental (the emulator lost
+	// connectivity, or the echo service is down). The Android HTTPClient
+	// now reports these with code -1003 (ERROR_CODE_HOST_NOT_FOUND,
+	// matching iOS NSURLErrorCannotFindHost); fall back to string matching
+	// for older SDK builds and for iOS where the code path differs.
+	function isHostResolutionError(e) {
+		if (e && e.code === -1003) {
+			return true;
+		}
+		const txt = e && (e.error || e.message) ? String(e.error || e.message) : '';
+		return /Unable to resolve host|No address associated with hostname|Could not resolve host|EAI_AGAIN|ENOTFOUND|NSURLErrorCannotFindHost/i.test(txt);
+	}
 
 	it('apiName', function () {
 		const client = Ti.Network.createHTTPClient();
@@ -41,13 +61,16 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 		let attempts = 3;
 		xhr.onerror = function (e) {
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
 				logHttpError(e);
-				finish(new Error('failed to retrieve RSS feed: ' + e)); // Windows fails here. I think we need to update the URL!
+				finish(new Error('failed to retrieve RSS feed: ' + describeError(e)));
 			}
 		};
 
@@ -89,13 +112,16 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 		let attempts = 3;
 		xhr.onerror = function (e) {
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
 				logHttpError(e);
-				finish(new Error('failed to retrieve large image: ' + e));
+				finish(new Error('failed to retrieve large image: ' + describeError(e)));
 			}
 		};
 
@@ -108,6 +134,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			timeout: Timeout.NETWORK
 		});
 		xhr.onload = () => finish();
+		xhr.onerror = e => finish(new Error('TIMOB-23127 POST failed: ' + (e && (e.message || e.error) ? (e.message || e.error) : JSON.stringify(e))));
 
 		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 		xhr.open('POST', ENDPOINTS.post);
@@ -119,6 +146,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			timeout: Timeout.NETWORK
 		});
 		xhr.onload = () => finish();
+		xhr.onerror = e => finish(new Error('TIMOB-23214 GET google.com failed: ' + (e && (e.message || e.error) ? (e.message || e.error) : JSON.stringify(e))));
 
 		xhr.setRequestHeader('Content-Type', 'application/json');
 		xhr.open('GET', 'https://www.google.com/');
@@ -153,7 +181,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		// times out, so done() is never called.
 		this.timeout(Timeout.DEVICE_OPERATION);
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 25000
+			timeout: 15000
 		});
 		xhr.onload = function () {
 			// should(xhr.responseData.length).be.greaterThan(0);
@@ -167,14 +195,16 @@ describe('Titanium.Network.HTTPClient', function () {
 			if (xhr.status === 503) {
 				return finish();
 			}
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
-				const errorInfo = { code: e.code, message: e.message };
 				logHttpError(e);
-				finish(new Error('failed to retrieve redirected large image: ' + JSON.stringify(errorInfo)));
+				finish(new Error('failed to retrieve redirected large image: ' + describeError(e)));
 			}
 		};
 
@@ -184,19 +214,22 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('emptyPOSTSend', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 		xhr.onload = () => finish();
 
 		let attempts = 3;
 		xhr.onerror = function (e) {
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
 				logHttpError(e);
-				finish(new Error('failed to post empty request: ' + e));
+				finish(new Error('failed to post empty request: ' + describeError(e)));
 			}
 		};
 
@@ -206,7 +239,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('responseHeaders', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 30000
+			timeout: 15000
 		});
 		xhr.onload = e => {
 			try {
@@ -223,13 +256,16 @@ describe('Titanium.Network.HTTPClient', function () {
 
 		let attempts = 3;
 		xhr.onerror = e => {
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
 				logHttpError(e);
-				finish(new Error('failed to retrieve headers: ' + e));
+				finish(new Error('failed to retrieve headers: ' + describeError(e)));
 			}
 		};
 		xhr.open('GET', ENDPOINTS.responseHeaders);
@@ -262,14 +298,17 @@ describe('Titanium.Network.HTTPClient', function () {
 
 		let attempts = 3;
 		xhr.onerror = function (e) {
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.open('GET', 'http://www.google.com');
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
 				logHttpError(e);
-				finish(new Error('failed to retrieve headers: ' + e)); // Failing on Windows here, likely need to update test!
+				finish(new Error('failed to retrieve headers: ' + describeError(e)));
 			}
 		};
 		xhr.open('GET', 'http://www.google.com');
@@ -278,7 +317,7 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('requestHeaderMethods', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 		xhr.onload = function (e) {
 			should(e.code).eql(0);
@@ -314,19 +353,22 @@ describe('Titanium.Network.HTTPClient', function () {
 
 	it('sendData', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 		xhr.onload = () => finish();
 
 		let attempts = 3;
 		xhr.onerror = function (e) {
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
 				logHttpError(e);
-				finish(new Error('failed to send data: ' + e));
+				finish(new Error('failed to send data: ' + describeError(e)));
 			}
 		};
 		xhr.open('POST', ENDPOINTS.post);
@@ -344,7 +386,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// clearCookies for the host, then verify /cookies no longer echoes it.
 	it('clearCookiePositiveTest', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 
 		xhr.onload = function () {
@@ -361,7 +403,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			xhr.clearCookies(ENDPOINTS.cookies);
 
 			const xhr2 = Ti.Network.createHTTPClient({
-				timeout: 3e4
+				timeout: 15000
 			});
 			xhr2.onload = function () {
 				try {
@@ -400,7 +442,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		// the same — clearCookies for one host must not wipe another host's
 		// cookies.
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 
 		xhr.onload = function () {
@@ -416,7 +458,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			xhr.clearCookies('http://www.microsoft.com');
 
 			const xhr2 = Ti.Network.createHTTPClient({
-				timeout: 3e4
+				timeout: 15000
 			});
 			xhr2.onload = function () {
 				try {
@@ -437,11 +479,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			xhr2.send();
 		};
 		xhr.onerror = function (e) {
-			try {
-				should(e).should.be.type('undefined');
-			} catch (err) {
-				finish(err);
-			}
+			finish(new Error('clearCookieUnaffectedCheck: onerror should not fire: ' + describeError(e)));
 		};
 		xhr.open('GET', `${ENDPOINTS.cookiesSet}?k1=v1`);
 		xhr.send();
@@ -451,7 +489,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// Windows does not yet support Ti.Network.Cookie
 	it.windowsMissing('setCookieClearCookieWithMultipleHTTPClients', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 		let attempts = 3;
 
@@ -465,7 +503,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 
 			const xhr2 = Ti.Network.createHTTPClient({
-				timeout: 3e4
+				timeout: 15000
 			});
 
 			let attempts2 = 3;
@@ -481,6 +519,9 @@ describe('Titanium.Network.HTTPClient', function () {
 				finish();
 			};
 			xhr2.onerror = function (e) {
+				if (isHostResolutionError(e)) {
+					return finish(new Error('host unreachable: ' + describeError(e)));
+				}
 				if (attempts2-- > 0) {
 					logRetry();
 					xhr2.send();
@@ -492,6 +533,9 @@ describe('Titanium.Network.HTTPClient', function () {
 			xhr2.send();
 		};
 		xhr.onerror = function (e) {
+			if (isHostResolutionError(e)) {
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.send();
@@ -511,7 +555,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// Windows Desktop is timing out here...
 	it('callbackTestForGETMethod', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 		let attempts = 3;
 		let dataStreamFinished = false;
@@ -538,12 +582,15 @@ describe('Titanium.Network.HTTPClient', function () {
 		};
 
 		xhr.onerror = function (e) {
+			if (isHostResolutionError(e)) {
+				logHttpError(e);
+				return finish(new Error('host unreachable: ' + describeError(e)));
+			}
 			if (attempts-- > 0) {
 				logRetry();
 				xhr.abort();
 				xhr.send();
 			} else {
-				// Safely serialize error without circular references from source proxy
 				logHttpError(e);
 				finish(new Error(e.error || this.responseText));
 			}
@@ -556,7 +603,7 @@ describe('Titanium.Network.HTTPClient', function () {
 	// Windows Desktop is timing out here...
 	it('callbackTestForPOSTMethod', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 3e4
+			timeout: 15000
 		});
 		let attempts = 3;
 		let sendStreamFinished = false;
@@ -883,7 +930,7 @@ describe('Titanium.Network.HTTPClient', function () {
 		this.timeout(Timeout.DEVICE_OPERATION);
 		let progressVar = -1;
 		const xhr = Ti.Network.createHTTPClient({
-			timeout: 30000
+			timeout: 15000
 		});
 		xhr.onsendstream = e => {
 			try {

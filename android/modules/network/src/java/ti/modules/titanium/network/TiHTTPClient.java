@@ -28,6 +28,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -87,6 +88,20 @@ public class TiHTTPClient
 	private static final String TAG = "TiHTTPClient";
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
+	// Connect timeout used when the caller never sets one, so DNS/TCP connect
+	// can never hang forever. Read timeout is left at HttpURLConnection's
+	// default (0 = infinite) in that case to preserve long-running downloads.
+	private static final int DEFAULT_CONNECT_TIMEOUT = 60000;
+	// Number of times to retry a GET when the connection fails at the network
+	// level (DNS, connection reset, SSL handshake, etc.) before firing onerror.
+	// Mimics the retry that Chrome's network stack and iOS's NSURLSession do
+	// automatically, which is why a browser can reach a host that
+	// HttpURLConnection's single attempt misses under flaky networking.
+	// POST/PUT/PATCH are not retried (request body is consumed on the first
+	// attempt). SocketTimeoutException is excluded — it has its own error code
+	// and retrying a timeout is unlikely to help within the test window.
+	private static final int CONNECTION_RETRY_COUNT = 1;
+	private static final int CONNECTION_RETRY_DELAY_MS = 2000;
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
 	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
 	private static final String TITANIUM_USER_AGENT =
@@ -264,26 +279,41 @@ public class TiHTTPClient
 			}
 
 			if (is != null) {
-				Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
-				int count = 0;
-				long totalSize = 0;
-				byte[] buf = new byte[8192];
-				Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
+				try {
+					Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
+					int count = 0;
+					long totalSize = 0;
+					byte[] buf = new byte[8192];
+					Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
 
-				while ((count = is.read(buf)) != -1) {
-					if (aborted) {
-						break;
+					while ((count = is.read(buf)) != -1) {
+						if (aborted) {
+							break;
+						}
+						totalSize += count;
+						try {
+							handleEntityData(buf, count, totalSize, contentLength);
+						} catch (IOException e) {
+							Log.e(TAG, "Error handling entity data", e);
+						}
 					}
-					totalSize += count;
+
+					if (totalSize > 0) {
+						finishedReceivingEntityData(totalSize);
+					}
+				} finally {
+					// Closing the input stream returns the underlying socket
+					// to HttpURLConnection's keep-alive pool so the next
+					// request to the same host can reuse it. Without this,
+					// every request opens a new TCP+TLS connection, which
+					// exhausts server-side connection limits and causes the
+					// intermittent "Unable to resolve host" / connection-reset
+					// failures seen under rapid-fire test workloads.
 					try {
-						handleEntityData(buf, count, totalSize, contentLength);
+						is.close();
 					} catch (IOException e) {
-						Log.e(TAG, "Error handling entity data", e);
+						Log.e(TAG, "Error closing input stream", e);
 					}
-				}
-
-				if (totalSize > 0) {
-					finishedReceivingEntityData(totalSize);
 				}
 			}
 		}
@@ -1311,166 +1341,206 @@ public class TiHTTPClient
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
+				int connectionRetriesRemaining = CONNECTION_RETRY_COUNT;
 
-				try {
-					mURL = new URL(url);
-					client = (HttpURLConnection) mURL.openConnection();
-					boolean isPostOrPutOrPatch =
-						method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
-					setUpClient(client, isPostOrPutOrPatch);
+				while (true) {
+					try {
+						mURL = new URL(url);
+						client = (HttpURLConnection) mURL.openConnection();
+						boolean isPostOrPutOrPatch =
+							method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
+						setUpClient(client, isPostOrPutOrPatch);
 
-					if (isPostOrPutOrPatch) {
-						UrlEncodedFormEntity form = null;
+						if (isPostOrPutOrPatch) {
+							UrlEncodedFormEntity form = null;
 
-						if (nvPairs.size() > 0) {
-							try {
-								form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
-
-							} catch (UnsupportedEncodingException e) {
-								Log.e(TAG, "Unsupported encoding: ", e);
-							}
-							//clear nvPairs after form entity is created
-							nvPairs.clear();
-						}
-
-						// calculate content length
-						if (parts.size() > 0 && needMultipart) {
-							for (String name : parts.keySet()) {
-								contentLength += constructFilePart(name, parts.get(name)).length();
-								contentLength += parts.get(name).getContentLength() + 2;
-							}
-							if (form != null) {
-								contentLength += (int) form.getContentLength();
+							if (nvPairs.size() > 0) {
 								try {
-									ByteArrayOutputStream bos =
-										new ByteArrayOutputStream((int) form.getContentLength());
-									form.writeTo(bos);
-									StringBody stringBody = new StringBody(
-										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8);
-									contentLength += constructFilePart("form", stringBody).length();
-									contentLength += form.getContentLength() + 2;
-								} catch (UnsupportedEncodingException e) {
-									Log.e(TAG, "Unsupported encoding: ", e);
-								} catch (IOException e) {
-									Log.e(TAG, "Error converting form to string: ", e);
-								}
-							}
-							contentLength += 6 + boundary.length();
-						} else {
-							if (data instanceof String) {
-								contentLength += ((String) data).getBytes().length;
-							} else if (data instanceof FileEntity) {
-								contentLength += ((FileEntity) data).getContentLength();
-							} else if (form != null) {
-								contentLength += (int) form.getContentLength();
-							}
-						}
-
-						// disable internal buffer
-						client.setFixedLengthStreamingMode(contentLength);
-
-						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
-							public void progress(int progress)
-							{
-								if (contentLength <= 0) {
-									return;
-								}
-								KrollDict data = new KrollDict();
-								double currentProgress = ((double) progress / contentLength);
-								if (currentProgress > 1)
-									currentProgress = 1;
-								data.put("progress", currentProgress);
-								dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
-							}
-						}, contentLength);
-						printWriter = new PrintWriter(outputStream, true);
-
-						if (parts.size() > 0 && needMultipart) {
-
-							for (String name : parts.keySet()) {
-								Log.d(TAG,
-									  "adding part " + name + ", part type: " + parts.get(name).getMimeType()
-										  + ", len: " + parts.get(name).getContentLength(),
-									  Log.DEBUG_MODE);
-								addFilePart(name, parts.get(name));
-							}
-							//clear parts after they have been used
-							parts.clear();
-							if (form != null) {
-								try {
-									ByteArrayOutputStream bos =
-										new ByteArrayOutputStream((int) form.getContentLength());
-									form.writeTo(bos);
-									addFilePart("form", new StringBody(
-										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8));
+									form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
 
 								} catch (UnsupportedEncodingException e) {
 									Log.e(TAG, "Unsupported encoding: ", e);
+								}
+								//clear nvPairs after form entity is created
+								nvPairs.clear();
+							}
 
-								} catch (IOException e) {
-									Log.e(TAG, "Error converting form to string: ", e);
+							// calculate content length
+							if (parts.size() > 0 && needMultipart) {
+								for (String name : parts.keySet()) {
+									contentLength += constructFilePart(name, parts.get(name)).length();
+									contentLength += parts.get(name).getContentLength() + 2;
+								}
+								if (form != null) {
+									contentLength += (int) form.getContentLength();
+									try {
+										ByteArrayOutputStream bos =
+											new ByteArrayOutputStream((int) form.getContentLength());
+										form.writeTo(bos);
+										StringBody stringBody = new StringBody(
+											bos.toString(),
+											"application/x-www-form-urlencoded",
+											StandardCharsets.UTF_8);
+										contentLength += constructFilePart("form", stringBody).length();
+										contentLength += form.getContentLength() + 2;
+									} catch (UnsupportedEncodingException e) {
+										Log.e(TAG, "Unsupported encoding: ", e);
+									} catch (IOException e) {
+										Log.e(TAG, "Error converting form to string: ", e);
+									}
+								}
+								contentLength += 6 + boundary.length();
+							} else {
+								if (data instanceof String) {
+									contentLength += ((String) data).getBytes().length;
+								} else if (data instanceof FileEntity) {
+									contentLength += ((FileEntity) data).getContentLength();
+								} else if (form != null) {
+									contentLength += (int) form.getContentLength();
 								}
 							}
-							completeSendingMultipart();
-						} else {
-							handleURLEncodedData(form);
+
+							// disable internal buffer
+							client.setFixedLengthStreamingMode(contentLength);
+
+							outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
+								public void progress(int progress)
+								{
+									if (contentLength <= 0) {
+										return;
+									}
+									KrollDict data = new KrollDict();
+									double currentProgress = ((double) progress / contentLength);
+									if (currentProgress > 1)
+										currentProgress = 1;
+									data.put("progress", currentProgress);
+									dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
+								}
+							}, contentLength);
+							printWriter = new PrintWriter(outputStream, true);
+
+							if (parts.size() > 0 && needMultipart) {
+
+								for (String name : parts.keySet()) {
+									Log.d(TAG,
+										  "adding part " + name + ", part type: " + parts.get(name).getMimeType()
+											  + ", len: " + parts.get(name).getContentLength(),
+										  Log.DEBUG_MODE);
+									addFilePart(name, parts.get(name));
+								}
+								//clear parts after they have been used
+								parts.clear();
+								if (form != null) {
+									try {
+										ByteArrayOutputStream bos =
+											new ByteArrayOutputStream((int) form.getContentLength());
+										form.writeTo(bos);
+										addFilePart("form", new StringBody(
+											bos.toString(),
+											"application/x-www-form-urlencoded",
+											StandardCharsets.UTF_8));
+
+									} catch (UnsupportedEncodingException e) {
+										Log.e(TAG, "Unsupported encoding: ", e);
+
+									} catch (IOException e) {
+										Log.e(TAG, "Error converting form to string: ", e);
+									}
+								}
+								completeSendingMultipart();
+							} else {
+								handleURLEncodedData(form);
+							}
+							printWriter.close();
 						}
-						printWriter.close();
-					}
 
-					// Fix for https://jira-archive.titaniumsdk.com/TIMOB-23309
-					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
-					// This section of the code handles that.
-					if (autoRedirect) {
-						// Hardcoded to follow a max of 5 redirects
-						for (int i = 0; i < REDIRECTS; i++) {
-							// Checks manually if a redirect is needed
-							int status = client.getResponseCode();
+						// Fix for https://jira-archive.titaniumsdk.com/TIMOB-23309
+						// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
+						// This section of the code handles that.
+						if (autoRedirect) {
+							// Hardcoded to follow a max of 5 redirects
+							for (int i = 0; i < REDIRECTS; i++) {
+								// Checks manually if a redirect is needed
+								int status = client.getResponseCode();
 
-							if (status != HttpURLConnection.HTTP_OK
-								&& (status == HttpURLConnection.HTTP_MOVED_TEMP
-									|| status == HttpURLConnection.HTTP_MOVED_PERM
-									|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
-								redirectedLocation = client.getHeaderField("Location");
-								if (redirectedLocation != null) {
-									client.disconnect();
-									client = (HttpURLConnection) new URL(redirectedLocation).openConnection();
-									// Configure the headers and SSL connection again if required
-									setUpClient(client, isPostOrPutOrPatch);
+								if (status != HttpURLConnection.HTTP_OK
+									&& (status == HttpURLConnection.HTTP_MOVED_TEMP
+										|| status == HttpURLConnection.HTTP_MOVED_PERM
+										|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
+									redirectedLocation = client.getHeaderField("Location");
+									if (redirectedLocation != null) {
+										client.disconnect();
+										client = (HttpURLConnection) new URL(redirectedLocation).openConnection();
+										// Configure the headers and SSL connection again if required
+										setUpClient(client, isPostOrPutOrPatch);
+									} else {
+										// There are no redirected URLs to follow.
+										break;
+									}
 								} else {
-									// There are no redirected URLs to follow.
+									// No more redirects to follow.
 									break;
 								}
-							} else {
-								// No more redirects to follow.
-								break;
 							}
 						}
-					}
-					handleResponse(client);
-				} catch (IOException e) {
-					if (!aborted) {
-						KrollDict data = new KrollDict();
-						int errorCode = TiC.ERROR_CODE_UNKNOWN;
-						if (e instanceof SocketTimeoutException) {
-							errorCode = TiC.ERROR_CODE_TIMEOUT;
-						} else if (getStatus() >= 400) {
-							errorCode = getStatus();
+						handleResponse(client);
+						break; // success — exit retry loop
+					} catch (IOException e) {
+						// Retry once on connection-level failures (DNS, connection
+						// reset, SSL handshake, etc.) for safe methods (GET/HEAD/etc).
+						// POST/PUT/PATCH bodies are consumed on the first attempt,
+						// so a retry would send an empty body — skip those.
+						// SocketTimeoutException is excluded (own error code, unlikely
+						// to help). HTTP 4xx/5xx responses (getStatus() >= 400) are
+						// not connection failures — report them immediately.
+						if (!aborted
+							&& !method.equals("POST") && !method.equals("PUT") && !method.equals("PATCH")
+							&& !(e instanceof SocketTimeoutException)
+							&& getStatus() < 400
+							&& connectionRetriesRemaining-- > 0) {
+							Log.w(TAG, "Connection failed, retrying in " + CONNECTION_RETRY_DELAY_MS
+								+ "ms: " + e.getMessage());
+							if (client != null) {
+								try {
+									client.disconnect();
+								} catch (Exception ex) {
+								}
+								client = null;
+							}
+							try {
+								Thread.sleep(CONNECTION_RETRY_DELAY_MS);
+							} catch (InterruptedException ie) {
+								Thread.currentThread().interrupt();
+								break;
+							}
+							continue;
 						}
-						data.putCodeAndMessage(errorCode, e.getMessage());
-						// Reset requestPending before dispatching onerror so the
-						// JS onerror handler can call send() to retry — otherwise
-						// send() silently no-ops on the pending flag and the test
-						// hangs until its mocha timeout (TIMOB-23372 follow-up).
-						requestPending = false;
-						dispatchCallback(TiC.PROPERTY_ONERROR, data);
-						return;
+						if (!aborted) {
+							KrollDict data = new KrollDict();
+							int errorCode = TiC.ERROR_CODE_UNKNOWN;
+							if (e instanceof SocketTimeoutException) {
+								errorCode = TiC.ERROR_CODE_TIMEOUT;
+							} else if (e instanceof UnknownHostException) {
+								errorCode = TiC.ERROR_CODE_HOST_NOT_FOUND;
+							} else if (getStatus() >= 400) {
+								errorCode = getStatus();
+							}
+							data.putCodeAndMessage(errorCode, e.getMessage());
+							// Reset requestPending before dispatching onerror so the
+							// JS onerror handler can call send() to retry — otherwise
+							// send() silently no-ops on the pending flag and the test
+							// hangs until its mocha timeout (TIMOB-23372 follow-up).
+							requestPending = false;
+							dispatchCallback(TiC.PROPERTY_ONERROR, data);
+							return;
+						}
+					} finally {
+						if (client != null) {
+							client.disconnect();
+						}
 					}
-				} finally {
-					if (client != null) {
-						client.disconnect();
-					}
-				}
+					break; // aborted or interrupted — exit retry loop
+				} // end while
 
 				if (result != null) {
 					Log.d(TAG, "Have result back from request len=" + result.length(), Log.DEBUG_MODE);
@@ -1528,9 +1598,13 @@ public class TiHTTPClient
 				setUpSSL(validatesSecureCertificate(), securedConnection);
 			}
 
+			// Always set a connect timeout so DNS/TCP connect can't hang
+			// forever; use the caller's value when provided, otherwise the
+			// default. Only set read timeout when the caller explicitly
+			// asked for one, so streaming/long-polling still works.
+			client.setConnectTimeout((timeout != -1) ? timeout : DEFAULT_CONNECT_TIMEOUT);
 			if (timeout != -1) {
 				client.setReadTimeout(timeout);
-				client.setConnectTimeout(timeout);
 			}
 
 			if (aborted) {

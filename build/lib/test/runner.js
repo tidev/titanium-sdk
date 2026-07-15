@@ -105,6 +105,9 @@ export async function test(platforms, target, deviceId, deployType, deviceFamily
 		if (target === 'macos') {
 			exec(`osascript "${path.join(__dirname, 'close_modals.scpt')}"`);
 		}
+		if (platforms.includes('android') && (target === undefined || target === 'emulator')) {
+			await restoreAndroidEmulator();
+		}
 	}
 }
 
@@ -366,6 +369,30 @@ async function addTiAppProperties() {
 	return fs.writeFile(tiapp_xml, content.join('\n'));
 }
 
+// Keep the test app networked on the Android emulator: whitelist it from the background-idle firewall, and disable Google Photos so it can't steal foreground (Android blocks a backgrounded app's UID from all networks, which surfaces as "Unable to resolve host" ~45s into a run).
+async function prepareAndroidEmulator() {
+	const commands = [
+		`adb shell dumpsys deviceidle whitelist +${APP_ID}`,
+		'adb shell pm disable-user --user 0 com.google.android.apps.photos'
+	];
+	for (const cmd of commands) {
+		try {
+			await exec(cmd);
+		} catch (e) {
+			console.warn(`[test] (non-fatal) emulator setup step failed: ${cmd}`);
+		}
+	}
+}
+
+// Restore the emulator after a run: re-enable Google Photos so the user gets it back in the launcher.
+async function restoreAndroidEmulator() {
+	try {
+		await exec('adb shell pm enable com.google.android.apps.photos');
+	} catch (e) {
+		console.warn('[test] (non-fatal) emulator restore step failed: adb shell pm enable com.google.android.apps.photos');
+	}
+}
+
 /**
  * @param {string} platform 'android' || 'ios' || 'windows'
  * @param {string} [target] 'emulator' || 'simulator' || 'device' || 'macos'
@@ -389,6 +416,10 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 				target = 'simulator';
 				break;
 		}
+	}
+
+	if (platform === 'android' && target === 'emulator') {
+		await prepareAndroidEmulator();
 	}
 
 	const args = [
