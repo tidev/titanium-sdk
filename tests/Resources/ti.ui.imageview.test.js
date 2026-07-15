@@ -8,11 +8,12 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 const isAndroid = utilities.isAndroid();
 
 describe('Titanium.UI.ImageView', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -51,8 +52,11 @@ describe('Titanium.UI.ImageView', function () {
 			should(imageView.image).eql('path/to/logo.png');
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with a local file path', finish => {
+		// The ImageView must be added to an open window so the native view is
+		// realized; otherwise the "image" property change is never applied and
+		// the "load" event never fires.
+		it('with a local file path', finish => {
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -63,11 +67,13 @@ describe('Titanium.UI.ImageView', function () {
 				}
 				finish();
 			});
+			win.add(imageView);
 			imageView.image = Ti.Filesystem.resourcesDirectory + 'Logo.png';
+			win.open();
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with a local path with separator', finish => {
+		it('with a local path with separator', finish => {
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -80,11 +86,13 @@ describe('Titanium.UI.ImageView', function () {
 			});
 			// Try appending separator
 			// It's not quite clear if we need separator, but people often do this
+			win.add(imageView);
 			imageView.image = Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator + 'Logo.png';
+			win.open();
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with local path with /', finish => {
+		it('with local path with /', finish => {
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -97,23 +105,27 @@ describe('Titanium.UI.ImageView', function () {
 			});
 			// Try appending '/' for the separator
 			// Technically this is not right on Windows, but people often do this
+			win.add(imageView);
 			imageView.image = Ti.Filesystem.resourcesDirectory + '/Logo.png';
+			win.open();
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.androidAndIosBroken('with Ti.Filesystem.File.nativePath value', finish => {
+		it('with Ti.Filesystem.File.nativePath value', finish => {
 			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
 					should(imageView.image).be.a.String();
-					should(imageView.image).eql(Ti.Filesystem.resourcesDirectory + 'Logo.png');
+					should(imageView.image).eql(fromFile.nativePath);
 				} catch (err) {
 					return finish(err);
 				}
 				finish();
 			});
+			win.add(imageView);
 			imageView.image = fromFile.nativePath;
+			win.open();
 		});
 
 		it.windows('with ms-appx:// URL', finish => {
@@ -152,10 +164,10 @@ describe('Titanium.UI.ImageView', function () {
 		});
 
 		// Windows: TIMOB-24985
-		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
-		it.allBroken('with Ti.Fielsystem.File', finish => {
+		it('with Ti.Fielsystem.File', finish => {
 			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 
+			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
 				try {
@@ -167,7 +179,9 @@ describe('Titanium.UI.ImageView', function () {
 				finish();
 			});
 
+			win.add(imageView);
 			imageView.image = fromFile;
+			win.open();
 		});
 
 		function doBlobTest(testName, blob, finish) {
@@ -205,7 +219,7 @@ describe('Titanium.UI.ImageView', function () {
 
 		it.windowsBroken('with redirected URL and autorotate set to true', function (finish) {
 			this.slow(8000);
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView({
@@ -222,7 +236,7 @@ describe('Titanium.UI.ImageView', function () {
 		// The below works on all platforms because this JS file is in the "Resources" directory.
 		it('with root-relative path', function (finish) {
 			this.slow(8000);
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const imageView = Ti.UI.createImageView({
@@ -235,7 +249,7 @@ describe('Titanium.UI.ImageView', function () {
 		});
 
 		it('with image from folder', function (finish) {
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			let loadCount = 0;
 			win = Ti.UI.createWindow();
@@ -256,7 +270,7 @@ describe('Titanium.UI.ImageView', function () {
 
 		it('fires error event for URL pointing at resource that does not exist', function (finish) {
 			// Default timeout for iOS is 20 seconds.
-			this.timeout(21000);
+			this.timeout(Timeout.LONG);
 
 			win = Ti.UI.createWindow();
 			const img = Ti.UI.createImageView({});
@@ -312,7 +326,7 @@ describe('Titanium.UI.ImageView', function () {
 	it.windows('images', function (finish) {
 		var imageView,
 			error;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		imageView = Ti.UI.createImageView({
@@ -349,7 +363,7 @@ describe('Titanium.UI.ImageView', function () {
 	it('images (File)', function (finish) {
 		var imageView,
 			error;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		imageView = Ti.UI.createImageView({
@@ -383,10 +397,10 @@ describe('Titanium.UI.ImageView', function () {
 
 	// iOS Can't read the image from the Blob. Fix how we grab the blob on iOS?
 	// Android crashes for me locally. We should load blobs from multiple files, not the same one multiple times
-	it.androidAndIosBroken('images (Blob)', function (finish) {
+	it('images (Blob)', function (finish) {
 		var imageView,
 			error;
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		imageView = Ti.UI.createImageView({
@@ -460,14 +474,14 @@ describe('Titanium.UI.ImageView', function () {
 	});
 
 	// TIMOB-18684
-	// FIXME Get working on iOS. Times out. never fires postlayout?
-	// FIXME Times out on Android build agent. likely postlayout never fires
-	// FIXME Windows gives bad height value for innerView.size
-	it.allBroken('layoutWithSIZE_and_fixed', function (finish) {
+	// Use a local square image (Logo.png is 150x150) so the test doesn't
+	// depend on a remote URL. With width:100 and height:SIZE the image
+	// scales to height:100, which the assertions verify.
+	it('layoutWithSIZE_and_fixed', function (finish) {
 		var view,
 			innerView;
 		this.slow(1000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 
@@ -477,7 +491,7 @@ describe('Titanium.UI.ImageView', function () {
 			height: Ti.UI.SIZE
 		});
 		innerView = Ti.UI.createImageView({
-			image: 'http://api.randomuser.me/portraits/women/0.jpg',
+			image: '/Logo.png',
 			width: 100,
 			height: Ti.UI.SIZE,
 			top: 0,
@@ -486,7 +500,7 @@ describe('Titanium.UI.ImageView', function () {
 		view.add(innerView);
 		view.addEventListener('postlayout', function () {
 			try {
-				should(innerView.size.height).eql(100); // Windows 10 Phone gives 0
+				should(innerView.size.height).eql(100);
 				should(view.size.height).eql(innerView.size.height);
 				should(view.size.width).eql(innerView.size.width);
 

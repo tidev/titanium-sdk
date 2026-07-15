@@ -14,7 +14,7 @@ let checks = {
 		return false;
 	}
 };
-const originalChecks = Object.keys(checks);
+let reservedChecks = new Set(Object.keys(checks));
 
 module.exports = function (defaults) {
 	if (typeof defaults !== 'undefined' && typeof defaults !== 'object') {
@@ -23,6 +23,7 @@ module.exports = function (defaults) {
 	// Add the ignore filter to the provided defaults object if it isn't already defined in it
 	!defaults.ignore && (defaults.ignore = checks.ignore);
 	checks = defaults;
+	reservedChecks = new Set(Object.keys(checks));
 	module.exports.setupMocha();
 };
 
@@ -66,9 +67,16 @@ module.exports.setupMocha = function (_checks, skipOriginals) {
 				var passed = _checks[_key]();
 				if (arguments.length > 0) {
 					if (passed === 'skip' && notFailed) {
-						func.skip.apply(null, arguments);
+						// Tag the resulting test/suite with the filter name so
+						// the reporter can show WHY it was skipped. `func.skip`
+						// returns the created Test/Suite object synchronously.
+						var result = func.skip.apply(null, arguments);
+						if (result && typeof result === 'object') {
+							result._skipReason = _key;
+						}
+						return result;
 					} else if (passed && notFailed) {
-						func.apply(null, arguments);
+						return func.apply(null, arguments);
 					}
 				} else {
 					return ext(func, passed && notFailed);
@@ -101,20 +109,33 @@ module.exports.setupMocha = function (_checks, skipOriginals) {
 };
 
 /**
- * Add a new filter to the mocha functions. The predefined filters
- * cannot be overwritten, but user-defined ones can.
+ * Add a new filter to the mocha functions. If the name collides with a
+ * reserved filter (any default registered via `module.exports(defaults)`,
+ * or any filter previously registered via `addFilter`/`addFilters`), this
+ * throws. Once a filter is registered, its name is reserved against later
+ * shadowing.
  *
  * @param {String} name      The name of the filter, which will be used in the test
- * @param {Function} filter    The function that will determine whether to run the test
- * @returns {Boolean}
+ * @param {Function} filter  The function that will determine whether to run the test
+ * @throws {Error} when `name` collides with a reserved filter
  */
 module.exports.addFilter = function (name, filter) {
-	if (originalChecks.indexOf(name) > -1) {
-		return false;
+	if (reservedChecks.has(name)) {
+		throw new Error(
+			`mocha-filter: "${name}" is a reserved filter name and cannot be ` +
+			`re-registered via addFilter(). Pick a different name, or call ` +
+			`setupMocha() with a fresh defaults object if you really need to ` +
+			`replace a built-in.`
+		);
 	}
 	checks[name] = filter;
+	reservedChecks.add(name);
 	var obj;
 	module.exports.setupMocha((obj = {}, obj[name] = filter, obj), true);
+};
+
+module.exports.listReservedFilters = function () {
+	return Array.from(reservedChecks);
 };
 
 /**

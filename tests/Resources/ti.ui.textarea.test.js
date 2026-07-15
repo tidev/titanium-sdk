@@ -9,6 +9,7 @@
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 const isCI = Ti.App.Properties.getBool('isCI', false);
@@ -115,6 +116,7 @@ describe('Titanium.UI.TextArea', () => {
 						win.removeEventListener('postlayout', listener);
 						textArea.enableCopy = false;
 						should(textArea.enableCopy).be.false();
+						should(textArea).matchImage('snapshots/textareaEnableCopy.png');
 						finish();
 					} catch (err) {
 						finish(err);
@@ -126,7 +128,7 @@ describe('Titanium.UI.TextArea', () => {
 
 		it('.focused', function (done) {
 			this.slow(2000);
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 			const textarea = Ti.UI.createTextArea({
@@ -373,7 +375,7 @@ describe('Titanium.UI.TextArea', () => {
 
 	// Tests adding and removing a TextArea's focus.
 	it.ios('focus-blur', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		win = Ti.UI.createWindow({ layout: 'vertical' });
 
 		// First TextArea is needed to receive default focus on startup
@@ -416,7 +418,7 @@ describe('Titanium.UI.TextArea', () => {
 			return finish(); // FIXME: skip when we move to official mocha package
 		}
 
-		this.timeout(7500);
+		this.timeout(Timeout.DEFAULT);
 
 		const windowA = Ti.UI.createWindow();
 		const tabA = Ti.UI.createTab({

@@ -290,13 +290,18 @@ describe('Titanium.Media', () => {
 			// This assumes the TiBlob is from a file, but in this case it's not.
 			// MediaModule.java needs to be updated to write to a temp file in this case,
 			// like we do for EmailDialogProxy
+			// Tagged androidBroken: previewImage launches the gallery (Photos) via
+			// ACTION_VIEW, which steals foreground and stays open until the user
+			// dismisses it. The success callback only fires on dismissal, so the test
+			// can't pass headlessly, and worse, leaving Photos in the foreground
+			// pauses the test app and hangs every subsequent test's JS callbacks.
 			it.androidBroken('from screenshot', finish => {
 				Ti.Media.takeScreenshot(image => {
 					if (image && image.media) {
 						Ti.Media.previewImage({
 							success: () => finish(),
 							error: finish,
-							image
+							image: image.media
 						});
 					} else {
 						finish(new Error('failed to obtain screenshot'));

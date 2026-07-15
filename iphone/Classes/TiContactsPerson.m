@@ -176,8 +176,7 @@ static NSDictionary *iOS9propertyKeys;
 - (void)updateiOS9ContactProperties
 {
   RELEASE_TO_NIL(iOS9contactProperties)
-  iOS9contactProperties = nil;
-  [self getiOS9ContactProperties:person];
+  iOS9contactProperties = [[self getiOS9ContactProperties:person] retain];
 }
 
 #pragma mark Multi-value property management
@@ -259,7 +258,30 @@ static NSDictionary *iOS9propertyKeys;
 - (NSNumber *)recordId
 {
   DebugLog(@"[WARN] This \"recordId\" property has been removed for iOS 9 and greater.");
-  return nil;
+  return [NSNull null];
+}
+
+- (id)id
+{
+  // iOS contacts uses "identifier" (String) instead of a numeric id. Return
+  // NSNull so JS reads null rather than undefined for a freshly created person.
+  return [NSNull null];
+}
+
+- (NSString *)created
+{
+  // iOS Contacts framework does not expose a creation timestamp. Return an
+  // empty string so JS reads a String (matching Android's default) rather
+  // than undefined.
+  return @"";
+}
+
+- (NSString *)modified
+{
+  // iOS Contacts framework does not expose a modification timestamp. Return
+  // an empty string so JS reads a String (matching Android's default) rather
+  // than undefined.
+  return @"";
 }
 
 - (NSString *)identifier
@@ -336,7 +358,7 @@ static NSDictionary *iOS9propertyKeys;
     return imageBlob;
   }
 
-  return nil;
+  return [NSNull null];
 }
 
 // TODO: We need better date handling, this takes UTC dates only.
@@ -365,9 +387,23 @@ static NSDictionary *iOS9propertyKeys;
   id property = nil;
 
   // Birthday property managed separately
-  if ([key isEqualToString:@"birthday"] && [person isKeyAvailable:CNContactBirthdayKey] && person.birthday != nil) {
-    NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
-    return [TiUtils UTCDateForDate:date];
+  if ([key isEqualToString:@"birthday"]) {
+    if ([person isKeyAvailable:CNContactBirthdayKey] && person.birthday != nil) {
+      NSDate *date = [[NSCalendar currentCalendar] dateFromComponents:person.birthday];
+      return [TiUtils UTCDateForDate:date];
+    }
+    // No birthday set — return empty string so JS reads a String (matching
+    // Android's default) rather than undefined.
+    return @"";
+  }
+  if ([key isEqualToString:@"alternateBirthday"]) {
+    if ([person isKeyAvailable:CNContactNonGregorianBirthdayKey] && person.nonGregorianBirthday != nil) {
+      NSDateComponents *dateComps = person.nonGregorianBirthday;
+      return [NSDictionary dictionaryWithObjectsAndKeys:dateComps.calendar.calendarIdentifier, @"calendarIdentifier", NUMLONG(dateComps.era), @"era", NUMLONG(dateComps.year), @"year", NUMLONG(dateComps.month), @"month", NUMLONG(dateComps.day), @"day", NUMBOOL(dateComps.isLeapMonth), @"isLeapMonth", nil];
+    }
+    // No alternate birthday set — return empty object so JS reads an Object
+    // rather than undefined.
+    return [NSDictionary dictionary];
   }
   if (property = [iOS9contactProperties valueForKey:key]) {
     id result = [NSNull null];

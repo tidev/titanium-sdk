@@ -167,7 +167,7 @@ describe('Titanium.Filesystem.File', function () {
 		});
 
 		// iOS returns a Date
-		it.iosBroken('returns a Number', function () {
+		it('returns a Number', function () {
 			const file = Ti.Filesystem.getFile('app.js');
 			const create_date = file.createTimestamp();
 			should(create_date).be.a.Number(); // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
@@ -209,7 +209,7 @@ describe('Titanium.Filesystem.File', function () {
 			should(file.modificationTimestamp).be.a.Function();
 		});
 
-		it.iosBroken('returns a Number', function () {
+		it('returns a Number', function () {
 			const file = Ti.Filesystem.getFile('app.js');
 			const mod_date = file.modificationTimestamp();
 			should(mod_date).be.a.Number(); // iOS returns a Date (or maybe a string in iso date format?) Docs say Number
@@ -788,7 +788,7 @@ describe('Titanium.Filesystem.File', function () {
 
 	it.android('externalCacheDirectory read/write', function () {
 		if (!Ti.Filesystem.isExternalStoragePresent()) {
-			this.skip();
+			this.skip('no external storage present');
 			return;
 		}
 		const stringContent = 'My external file content.';
@@ -799,7 +799,7 @@ describe('Titanium.Filesystem.File', function () {
 
 	it.android('externalStorageDirectory read/write', function () {
 		if (!Ti.Filesystem.isExternalStoragePresent()) {
-			this.skip();
+			this.skip('no external storage present');
 			return;
 		}
 		const stringContent = 'My external file content.';
@@ -861,7 +861,7 @@ describe('Titanium.Filesystem.File', function () {
 			should(file.exists()).be.true(); // FIXME: Fails on Android, but only if run as part of full suite!
 		});
 
-		it.androidAndIosBroken('file:// relative path', () => {
+		it('file:// relative path', () => {
 			// FIXME: Android seems to basically forcibly place '/' in front of paths not beginning with '..' or '/'
 			// FIXME: iOS does not seem to try and resolve relative paths for file:// URIs
 			const file = Ti.Filesystem.getFile('file://app.js'); // app.js should be relative to this file...
@@ -869,7 +869,7 @@ describe('Titanium.Filesystem.File', function () {
 			should(file.exists()).be.true();
 		});
 
-		it.androidAndIosBroken('file: relative path', () => {
+		it('file: relative path', () => {
 			// FIXME: iOS does not seem to support file: URIs without file:// (see FilesystemModule.m, line 38)
 			// FIXME: Android ends up calling startsWith on a null String reference (likely TiFileProxy.java, line 73)
 			const file = Ti.Filesystem.getFile('file:app.js');
@@ -877,14 +877,14 @@ describe('Titanium.Filesystem.File', function () {
 			should(file.exists()).be.true();
 		});
 
-		it.iosBroken('file: absolute path', () => {
+		it('file: absolute path', () => {
 			// FIXME: iOS does not seem to support file: URIs without file:// (see FilesystemModule.m, line 38)
 			const file = Ti.Filesystem.getFile(`file:${noSchemeTempAppJS}`);
 			should.exist(file);
 			should(file.exists()).be.true(); // FIXME: Fails on Android, but only if run as part of full suite!
 		});
 
-		it.androidBroken('no scheme - absolute path', () => {
+		it('no scheme - absolute path', () => {
 			// FIXME: Failing! Likely because getFile() assumes appdata-private scheme if none given!
 			// Whereas my fix was in TiFileFactory, used internally by webview, database, file.move(), file.copy()
 			const file = Ti.Filesystem.getFile(noSchemeTempAppJS);
@@ -963,14 +963,14 @@ describe('Titanium.Filesystem.File', function () {
 			should(contentFile.read().text).be.eql('Hello World');
 		});
 
-		it.iosBroken('app:// - absolute path', () => {
+		it('app:// - absolute path', () => {
 			// FIXME: iOS doesn't support app: URIs in getFile!
 			const file = Ti.Filesystem.getFile('app:///app.js');
 			should.exist(file);
 			should(file.exists()).be.true();
 		});
 
-		it.iosBroken('app:// - relative path', () => {
+		it('app:// - relative path', () => {
 			// FIXME: iOS doesn't support app: URIs in getFile!
 			const file = Ti.Filesystem.getFile('app://app.js');
 			should.exist(file);

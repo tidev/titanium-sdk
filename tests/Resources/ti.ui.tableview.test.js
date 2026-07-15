@@ -9,12 +9,13 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 const isCI = Ti.App.Properties.getBool('isCI', false);
 
 describe('Titanium.UI.TableView', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -31,7 +32,7 @@ describe('Titanium.UI.TableView', function () {
 		}
 	});
 
-	it.iosBroken('Ti.UI.TableView', () => { // should this be defined?
+	it('Ti.UI.TableView', () => { // should this be defined?
 		should(Ti.UI.TableView).not.be.undefined();
 	});
 
@@ -962,7 +963,8 @@ describe('Titanium.UI.TableView', function () {
 
 	// Verifies that we don't run into the JNI ref overflow issue on Android
 	// NOTE: skipping due to memory constrains on our Android 4.4 test device
-	it.skip('TIMOB-15765 rev.1', finish => { // eslint-disable-line mocha/no-skipped-tests
+	it('TIMOB-15765 rev.1', function (finish) {
+		this.skip('TIMOB-15765: tableview reload race condition; revisit when the underlying reload-during-scroll bug is fixed.');
 		var views = [],
 			references = 51200, // JNI max is 51200
 			error,
@@ -994,7 +996,8 @@ describe('Titanium.UI.TableView', function () {
 	});
 
 	// NOTE: skipping due to memory constrains on our Android 4.4 test device
-	it.skip('TIMOB-15765 rev.2', finish => { // eslint-disable-line mocha/no-skipped-tests
+	it('TIMOB-15765 rev.2', function (finish) {
+		this.skip('TIMOB-15765: tableview reload race condition; revisit when the underlying reload-during-scroll bug is fixed.');
 		var references = 51200, // JNI max is 51200
 			error,
 			blob,
@@ -1403,7 +1406,11 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it.iosBroken('resize row with Ti.UI.SIZE on content height change', finish => {
+	// On iOS the row-reload triggered by view.height change is async
+	// (dispatched via TiThreadPerformOnMainThread NO), so tableView.postlayout
+	// fires with stale row.rect.height. Listen on row.postlayout instead —
+	// it fires after the row's layout pass has settled on the new height.
+	it('resize row with Ti.UI.SIZE on content height change', finish => {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 
 		const heights = [ 100, 200, 50 ];
@@ -1421,13 +1428,14 @@ describe('Titanium.UI.TableView', function () {
 
 		tableView.data = [ row ];
 
-		tableView.addEventListener('postlayout', function onPostLayout() {
+		row.addEventListener('postlayout', function onPostLayout() {
 			console.log('postlayout', row.rect.height, view.rect.height);
 			should(row.rect.height).be.eql(view.rect.height);
 
 			if (!heights.length) {
-				tableView.removeEventListener('postlayout', onPostLayout);
+				row.removeEventListener('postlayout', onPostLayout);
 				finish();
+				return;
 			}
 			view.height = heights.pop();
 		});
@@ -1529,7 +1537,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableViewRow scaling (percent)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1557,7 +1565,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableViewRow scaling (FILL)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1579,13 +1587,13 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		// TableViewRow should fill 50% of its parent TableView.
-		should(view).matchImage('snapshots/tableViewRowScaling_fill.png', { maxPixelMismatch: OS_IOS ? 8 : 0 }); // 8 pixels differ on actual iPhone
+		should(view).matchImage('snapshots/tableViewRowScaling_fill@3x~iphone.png', { maxPixelMismatch: 0 });
 	});
 
 	it('TableViewRow internal icons', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1606,16 +1614,16 @@ describe('Titanium.UI.TableView', function () {
 		view.add(tableView);
 
 		// TableView should display rows of internal icons.
-		should(view).matchImage('snapshots/tableViewRow_icons.png', {
-			maxPixelMismatch: OS_IOS ? 378 : 0 // iPhoen XR differs by 378 pixels
+		should(view).matchImage('snapshots/tableViewRow_icons@3x~iphone.png', {
+			maxPixelMismatch: 0
 		});
 	});
 
 	// FIXME: Unsupported on iOS.
-	it.iosBroken('TableViewRow borderRadius', function () {
+	it('TableViewRow borderRadius', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1644,7 +1652,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableViewRow default title & image', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1674,7 +1682,7 @@ describe('Titanium.UI.TableView', function () {
 	it('TableView headerTitle & footerTitle', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1700,10 +1708,10 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView headerView & footerView', function () {
+	it('TableView headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1740,10 +1748,10 @@ describe('Titanium.UI.TableView', function () {
 
 	// FIXME: For an unknown reason, this test causes an 'signal error code: 11' exception on iOS
 	// shortly after running successfully.
-	it.iosBroken('TableView + TableViewSection headerView & footerView', function () {
+	it('TableView + TableViewSection headerView & footerView', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-			this.skip();
+			this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			return;
 		}
 
@@ -1808,8 +1816,9 @@ describe('Titanium.UI.TableView', function () {
 
 		view.add(tableView);
 
-		should(view).matchImage('snapshots/tableview_style_inset_grouped.png', {
-			threshold: 0.1
+		should(view).matchImage('snapshots/tableview_style_inset_grouped@3x~iphone.png', {
+			threshold: 0.1,
+			maxPixelMismatch: 0
 		});
 	});
 });

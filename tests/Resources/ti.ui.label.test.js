@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Label', function () {
@@ -57,7 +58,7 @@ describe('Titanium.UI.Label', function () {
 		// Tests if "maxLines" correctly truncates strings with '\n' characters.
 		it('truncates strings with newline characters', function (finish) {
 			this.slow(1000);
-			this.timeout(5000);
+			this.timeout(Timeout.LONG);
 
 			win = Ti.UI.createWindow({
 				layout: 'vertical',
@@ -79,6 +80,7 @@ describe('Titanium.UI.Label', function () {
 				try {
 					// Both labels are expected to be 1 line tall.
 					should(label1.size.height).be.approximately(label2.size.height, 1);
+					should(win).matchImage('snapshots/labelTruncatesNewlines.png');
 				} catch (err) {
 					return finish(err);
 				}
@@ -206,9 +208,9 @@ describe('Titanium.UI.Label', function () {
 
 	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because neither platform fires it for that type (only maybe bubbles up from label)
 	// Can we place the label inside a view?
-	it.androidAndIosBroken('width', function (finish) {
+	it('width', function (finish) {
 		this.slow(1000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({ backgroundColor: '#ddd' });
 
@@ -232,9 +234,9 @@ describe('Titanium.UI.Label', function () {
 
 	// FIXME Can't rely on Ti.UI.Window.postlayout event firing because neither platform fires it for that type (only maybe bubbles up from label)
 	// Can we listen to it on bgView?
-	it.androidAndIosBroken('height', function (finish) {
+	it('height', function (finish) {
 		this.slow(1000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({ backgroundColor: '#eee' });
 
@@ -269,7 +271,7 @@ describe('Titanium.UI.Label', function () {
 	});
 
 	// Intermittent timeout on Android. FIXME Shoudl be using postlayout event, not open
-	it.androidBroken('border (without width/height)', function (finish) {
+	it('border (without width/height)', function (finish) {
 		win = Ti.UI.createWindow();
 		const label = Ti.UI.createLabel({
 			borderWidth: 5,
@@ -331,7 +333,7 @@ describe('Titanium.UI.Label', function () {
 
 	it('animate font color', function (finish) {
 		this.slow(2000);
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		win = Ti.UI.createWindow();
 
 		const label = Ti.UI.createLabel({

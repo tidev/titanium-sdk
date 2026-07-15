@@ -25,7 +25,7 @@ describe('Titanium.UI', () => {
 });
 
 describe('Titanium.UI.ShortcutItem', () => {
-	it.iosBroken('namespace exists', () => {
+	it('namespace exists', () => {
 		should(Ti.UI.ShortcutItem).not.be.undefined();
 	});
 
@@ -82,7 +82,7 @@ describe('Titanium.UI.ShortcutItem', () => {
 		});
 
 		// iOS returns the underlying icon object, not the numeric constant we passed in
-		it.iosBroken('.icon', () => {
+		it.iosMissing('.icon', () => {
 			const icon = OS_ANDROID ? Ti.Android.R.drawable.ic_menu_send : Titanium.UI.iOS.SHORTCUT_ICON_TYPE_SHARE;
 			const shortcut = Ti.UI.createShortcutItem({
 				id: 'test_shortcut',

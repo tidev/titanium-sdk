@@ -9,9 +9,10 @@
 /* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.NavigationWindow', function () {
-	this.timeout(10000);
+	this.timeout(Timeout.DEFAULT);
 
 	let nav;
 	afterEach(done => {
@@ -23,7 +24,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 		}
 	});
 
-	it.iosBroken('namespace exists', () => { // should this be defined?
+	it('namespace exists', () => { // should this be defined?
 		should(Ti.UI.NavigationWindow).not.be.undefined();
 	});
 
@@ -290,7 +291,7 @@ describe('Titanium.UI.NavigationWindow', function () {
 describe('Titanium.UI.Window', function () {
 	let nav;
 
-	this.timeout(10000);
+	this.timeout(Timeout.DEFAULT);
 
 	afterEach(done => {
 		if (nav) {

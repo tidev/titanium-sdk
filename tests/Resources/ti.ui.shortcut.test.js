@@ -41,7 +41,7 @@ describe('Titanium.UI.Shortcut', () => {
 	describe('.items', () => {
 		it('is an Array', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.items).be.an.Array();
@@ -51,7 +51,7 @@ describe('Titanium.UI.Shortcut', () => {
 	describe('.staticItems', () => {
 		it('is an Array', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.staticItems).be.an.Array();
@@ -59,7 +59,7 @@ describe('Titanium.UI.Shortcut', () => {
 
 		it('fetch item id', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			const staticItems = Ti.UI.Shortcut.staticItems;
@@ -71,7 +71,7 @@ describe('Titanium.UI.Shortcut', () => {
 	describe('#removeAll()', () => {
 		it('is a function', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.removeAll).not.be.undefined();
@@ -80,7 +80,7 @@ describe('Titanium.UI.Shortcut', () => {
 
 		it('removes shortcut items', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.items.length).be.aboveOrEqual(0);
@@ -104,7 +104,7 @@ describe('Titanium.UI.Shortcut', () => {
 	describe('#remove()', () => {
 		it('is a function', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.remove).not.be.undefined();
@@ -113,7 +113,7 @@ describe('Titanium.UI.Shortcut', () => {
 
 		it('removes single shortcut item', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.items.length).be.aboveOrEqual(0);
@@ -138,7 +138,7 @@ describe('Titanium.UI.Shortcut', () => {
 	describe('#add()', () => {
 		it('is a function', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.add).not.be.undefined();
@@ -147,7 +147,7 @@ describe('Titanium.UI.Shortcut', () => {
 
 		it('add a single shortcut item', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.items.length).be.aboveOrEqual(0);
@@ -170,7 +170,7 @@ describe('Titanium.UI.Shortcut', () => {
 	describe('#getById()', () => {
 		it('is a function', function () {
 			if (!androidCompatible) {
-				this.skip();
+				this.skip('shortcuts require Android API 25+ (Android 7.1)');
 				return;
 			}
 			should(Ti.UI.Shortcut.getById).not.be.undefined();

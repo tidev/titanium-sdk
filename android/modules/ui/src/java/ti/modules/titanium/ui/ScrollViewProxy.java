@@ -29,7 +29,12 @@ import ti.modules.titanium.ui.widget.TiUIScrollView;
 		TiC.PROPERTY_CONTENT_OFFSET,
 		TiC.PROPERTY_CAN_CANCEL_EVENTS,
 		TiC.PROPERTY_OVER_SCROLL_MODE,
-		TiC.PROPERTY_REFRESH_CONTROL
+		TiC.PROPERTY_REFRESH_CONTROL,
+		"decelerationRate",
+		"disableBounce",
+		"horizontalBounce",
+		"scrollIndicatorStyle",
+		"verticalBounce"
 	})
 public class ScrollViewProxy extends TiViewProxy
 {
@@ -44,6 +49,32 @@ public class ScrollViewProxy extends TiViewProxy
 		offset.put(TiC.EVENT_PROPERTY_X, 0);
 		offset.put(TiC.EVENT_PROPERTY_Y, 0);
 		defaultValues.put(TiC.PROPERTY_CONTENT_OFFSET, offset);
+		defaultValues.put(TiC.PROPERTY_CAN_CANCEL_EVENTS, true);
+		defaultValues.put(TiC.PROPERTY_CONTENT_HEIGHT, "");
+		defaultValues.put(TiC.PROPERTY_CONTENT_WIDTH, "");
+		defaultValues.put(TiC.PROPERTY_SHOW_HORIZONTAL_SCROLL_INDICATOR, false);
+		defaultValues.put(TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR, false);
+		defaultValues.put("decelerationRate", 0);
+		defaultValues.put("disableBounce", false);
+		defaultValues.put("horizontalBounce", false);
+		defaultValues.put("scrollIndicatorStyle", 0);
+		defaultValues.put("verticalBounce", false);
+	}
+
+	@Kroll.getProperty
+	public double getZoomScale()
+	{
+		Object value = getProperty("zoomScale");
+		if (value instanceof Number) {
+			return ((Number) value).doubleValue();
+		}
+		return 1.0;
+	}
+
+	@Kroll.method
+	public void setZoomScale(double scale, @Kroll.argument(optional = true) KrollDict options)
+	{
+		setProperty("zoomScale", scale);
 	}
 
 	@Override

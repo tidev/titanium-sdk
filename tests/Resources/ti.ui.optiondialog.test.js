@@ -31,11 +31,11 @@ describe('Titanium.UI.OptionDialog', () => {
 				dialog = Ti.UI.createOptionDialog({});
 			});
 
-			it.androidBroken('is an Array', () => { // defaults to undefined
+			it('is an Array', () => {
 				should(dialog.buttonNames).be.an.Array();
 			});
 
-			it.androidBroken('is empty', () => { // defaults to undefined
+			it('is empty', () => {
 				should(dialog.buttonNames).be.empty();
 			});
 
@@ -55,11 +55,11 @@ describe('Titanium.UI.OptionDialog', () => {
 				dialog = Ti.UI.createOptionDialog({});
 			});
 
-			it.allBroken('is a Number', () => { // defaults to undefined
+			it('is a Number', () => {
 				should(dialog.cancel).be.a.Number();
 			});
 
-			it.allBroken('defaults to -1', () => { // defaults to undefined
+			it('defaults to -1', () => {
 				should(dialog.cancel).eql(-1);
 			});
 
@@ -101,7 +101,7 @@ describe('Titanium.UI.OptionDialog', () => {
 			});
 		});
 
-		// FIXME Get working on iOS and Android. persistent is defaulting to undefined? Docs say should be true
+		// FIXME Get working on iOS. persistent is defaulting to undefined? Docs say should be true
 		describe('.persistent', () => {
 			let dialog;
 			beforeEach(() => {
@@ -110,11 +110,11 @@ describe('Titanium.UI.OptionDialog', () => {
 				});
 			});
 
-			it.allBroken('is a Boolean', () => { // defaults to undefined
+			it('is a Boolean', () => {
 				should(dialog.persistent).be.a.Boolean();
 			});
 
-			it.allBroken('defaults to true', () => { // defaults to undefined
+			it('defaults to true', () => {
 				should(dialog.persistent).be.true();
 			});
 
@@ -137,7 +137,7 @@ describe('Titanium.UI.OptionDialog', () => {
 				});
 			});
 
-			it.androidBroken('is a Number', () => { // defaults to undefined
+			it('is a Number', () => {
 				should(dialog.selectedIndex).be.a.Number();
 			});
 
@@ -193,7 +193,7 @@ describe('Titanium.UI.OptionDialog', () => {
 				should(dialog.titleid).eql('this_is_my_key');
 			});
 
-			it.iosBroken('modifies .title property value', () => {
+			it('modifies .title property value', () => {
 				should(dialog.title).eql('this is my value');
 			});
 

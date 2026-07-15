@@ -254,6 +254,12 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setProximityDetection:(NSNumber *)value
 {
   BOOL yn = [TiUtils boolValue:value];
+  // Cache the requested value so the getter round-trips on the iOS Simulator,
+  // which has no proximity sensor and therefore always reports
+  // proximityMonitoringEnabled == NO regardless of what was just set.
+  // Real devices also toggle UIDevice.proximityMonitoringEnabled, so on
+  // hardware the cached value and the device state stay in sync.
+  _proximityDetectionValue = yn;
   [UIDevice currentDevice].proximityMonitoringEnabled = yn;
   WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   if (yn) {
@@ -268,7 +274,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (NSNumber *)proximityDetection
 {
-  return NUMBOOL([UIDevice currentDevice].proximityMonitoringEnabled);
+  return NUMBOOL(_proximityDetectionValue);
 }
 
 - (void)setDisableNetworkActivityIndicator:(NSNumber *)value

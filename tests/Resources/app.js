@@ -11,8 +11,36 @@
 
 let failed = false;
 
-function loadTests() {
+function loadTests(mocha, _require) {
+	// Local require wrapper that emits Mocha's 'pre-require' event before
+	// each .test file is loaded, so Mocha records the file path on every
+	// test/suite (test.file). The reporter uses test.file to show WHICH
+	// test file a skipped test came from. The wrapper falls through to
+	// the outer Titanium require for non-.test modules.
+	//
+	// Re-applying the mocha-filter setup after each emit is required:
+	// the BDD interface reassigns global.it/describe/etc. on every
+	// 'pre-require' event (see mocha/lib/interfaces/bdd.js), which
+	// discards the .ios/.android/... filter extensions attached to the
+	// previous global.it. Without this re-apply, `it.ios(...)` blows up
+	// with "it.ios is not a function" in any test file loaded after the
+	// first one.
+	const filter = require('./utilities/mocha-filter');
+	function require(file) {
+		if (typeof file === 'string' && file.endsWith('.test')) {
+			mocha.suite.emit('pre-require', global, file, mocha);
+			filter.setupMocha();
+		}
+		return _require(file);
+	}
+
 	const should = require('./utilities/assertions');
+
+	const { applyRetryPolicy } = require('./utilities/retry-policy');
+
+	beforeEach(function () {
+		applyRetryPolicy(this);
+	});
 
 	// Must test global is available in first app.js explicitly!
 	// (since app.js is treated slightly differently than required files on at least Android)
@@ -307,6 +335,16 @@ function $Reporter(runner) {
 
 	runner.on('fail', function (test, err) {
 		test.err = err;
+		// Mocha throws a Pending error when this.skip() is called at runtime
+		// (e.g. inside a before()/it() hook). Runnable.prototype.skip was
+		// patched above to attach the reason string to test._skipReason.
+		// Fall back to a generic 'runtime this.skip()' label when no reason
+		// was provided.
+		if (err && (err.name === 'Pending' || err.code === 'ERR_MOCHA_PENDING')) {
+			if (!test._skipReason) {
+				test._skipReason = 'runtime this.skip()';
+			}
+		}
 		if (test.type && test.type === 'hook') {
 			// report hook as failiure, the rest of the suite won't execute
 			reportTestEnd(test);
@@ -318,11 +356,35 @@ function $Reporter(runner) {
 	function reportTestEnd(test) {
 		const tdiff = new Date().getTime() - started;
 		const fixedNames = suiteAndTitle(suites, test.title);
+		// Mocha marks skipped tests with state 'pending'; normalize to 'skipped'
+		// so the test reporter counts them under "skipped" instead of "passed".
+		const state = test.state === 'pending' ? 'skipped' : (test.state || 'skipped');
+		// Derive a human-readable skip reason for skipped tests:
+		// - test._skipReason is set by mocha-filter.js when a *Missing/*Broken
+		//   filter triggered the skip, or by the fail handler for runtime
+		//   this.skip() calls.
+		// - For tests inside a pending suite (e.g. describe.allBroken), walk
+		//   up the parent chain to find the closest tagged suite.
+		// - Otherwise default to "explicit it.skip".
+		let skipReason;
+		if (state === 'skipped') {
+			skipReason = test._skipReason;
+			if (!skipReason && test.parent) {
+				let suite = test.parent;
+				while (suite && !skipReason) {
+					skipReason = suite._skipReason;
+					suite = suite.parent;
+				}
+			}
+			skipReason = skipReason || 'explicit it.skip';
+		}
 		const result = {
-			state: test.state || 'skipped',
+			state,
 			duration: tdiff,
 			suite: fixedNames.suite,
 			title: fixedNames.title,
+			skipReason,
+			file: test.file,
 			error: test.err,
 			message: ''
 		};
@@ -390,12 +452,24 @@ const win = Ti.UI.createWindow({
 win.addEventListener('open', function () {
 	setTimeout(function () {
 		const Mocha = require('mocha');
+		// Patch Runnable.prototype.skip to accept an optional reason string.
+		// Mocha 8's this.skip() ignores arguments and always throws a Pending
+		// error with a fixed message; we want this.skip('reason') to attach
+		// the reason to the test so the reporter can show it.
+		const Runnable = require('mocha/lib/runnable');
+		const origSkip = Runnable.prototype.skip;
+		Runnable.prototype.skip = function (reason) {
+			if (typeof reason === 'string' && reason.length > 0) {
+				this._skipReason = reason;
+			}
+			origSkip.call(this);
+		};
 		const mocha = new Mocha({
 			ui: 'bdd',
 			reporter: $Reporter
 		});
 		mocha.suite.emit('pre-require', global, 'app.js', mocha);
-		loadTests();
+		loadTests(mocha, require);
 		// Start executing the test suite.
 		mocha.run(function (_failureCount) {
 			// We've finished executing all tests.

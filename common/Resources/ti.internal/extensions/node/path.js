@@ -396,8 +396,25 @@ function parse(separator, filepath) {
 	}
 	// for win32...
 	if (firstCharCode === BACKWARD_SLASH) {
-		// FIXME: Handle UNC paths like '\\\\host-name\\resource\\file_path'
-		// need to retain '\\\\host-name\\resource\\' as root in that case!
+		// Check for UNC path: \\host-name\share-name\...
+		// Retain \\host-name\share-name\ as root (and dir).
+		if (length > 1 && filepath.charCodeAt(1) === BACKWARD_SLASH) {
+			let i = 2;
+			while (i < length && filepath.charCodeAt(i) !== BACKWARD_SLASH) {
+				i++;
+			}
+			// Only treat as UNC if a share name follows the host backslash.
+			if (i < length && i + 1 < length) {
+				i++;
+				while (i < length && filepath.charCodeAt(i) !== BACKWARD_SLASH) {
+					i++;
+				}
+				const rootEnd = i < length ? i + 1 : i;
+				result.root = filepath.slice(0, rootEnd);
+				result.dir = result.root;
+				return result;
+			}
+		}
 		result.root = '\\';
 		return result;
 	}

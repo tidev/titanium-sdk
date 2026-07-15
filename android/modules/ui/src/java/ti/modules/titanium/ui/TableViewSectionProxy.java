@@ -55,7 +55,7 @@ public class TableViewSectionProxy extends TiViewProxy
 				row = row.clone();
 			}
 
-			row.setParent(this);
+			row.setParentInternal(this);
 			this.rows.add(index, row);
 		}
 	}
@@ -87,7 +87,7 @@ public class TableViewSectionProxy extends TiViewProxy
 				row = row.clone();
 			}
 
-			row.setParent(this);
+			row.setParentInternal(this);
 			this.rows.add(row);
 
 			update();
@@ -235,7 +235,7 @@ public class TableViewSectionProxy extends TiViewProxy
 	{
 		if (row != null && this.rows.contains(row)) {
 			this.rows.remove(row);
-			row.setParent(null);
+			row.setParentInternal(null);
 
 			update();
 		}
@@ -270,8 +270,8 @@ public class TableViewSectionProxy extends TiViewProxy
 		final TableViewRowProxy row = TableViewProxy.processRow(rowObj);
 
 		if (existingRow != null && row != null && existingRow != row) {
-			existingRow.setParent(null);
-			row.setParent(this);
+			existingRow.setParentInternal(null);
+			row.setParentInternal(this);
 			this.rows.set(index, row);
 		}
 	}

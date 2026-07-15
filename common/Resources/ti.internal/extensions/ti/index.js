@@ -2,6 +2,7 @@
 import './ti.activity';
 import './ti.app.properties';
 import './ti.blob';
+import './ti.createproxy';
 import './ti.locale';
 import './ti.network.httpclient';
 import './ui';

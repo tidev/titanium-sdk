@@ -71,6 +71,28 @@
 #endif
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
   RELEASE_TO_NIL(shortcut);
+  RELEASE_TO_NIL(shortcutItem);
+#endif
+#ifdef USE_TI_UIEMAILDIALOG
+  RELEASE_TO_NIL(emailDialog);
+#endif
+#ifdef USE_TI_UILISTVIEW
+  RELEASE_TO_NIL(listView);
+#endif
+#ifdef USE_TI_UITABLEVIEW
+  RELEASE_TO_NIL(tableView);
+#endif
+#ifdef USE_TI_UISLIDER
+  RELEASE_TO_NIL(slider);
+#endif
+#ifdef USE_TI_UISWITCH
+  RELEASE_TO_NIL(switchProxy);
+#endif
+#ifdef USE_TI_UIMASKEDIMAGE
+  RELEASE_TO_NIL(maskedImage);
+#endif
+#if defined(USE_TI_UINAVIGATIONWINDOW)
+  RELEASE_TO_NIL(navigationWindow);
 #endif
   [super dealloc];
 }
@@ -451,12 +473,23 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
               forKey:@"overrideUserInterfaceStyle"
         notification:NO];
   int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+  // Apply to both the window and the root view controller. userInterfaceStyle
+  // reads TiApp.controller.traitCollection.userInterfaceStyle, which only
+  // reflects the override if the controller's own overrideUserInterfaceStyle
+  // is set; setting the window alone doesn't propagate to the controller's
+  // traitCollection on iOS 26.
   TiApp.app.window.overrideUserInterfaceStyle = style;
+  TiApp.controller.overrideUserInterfaceStyle = style;
 }
 
 - (NSNumber *)overrideUserInterfaceStyle
 {
-  NSNumber *style = @(TiApp.controller.overrideUserInterfaceStyle);
+  // Read from the same UIWindow the setter writes to. Reading from
+  // TiApp.controller.overrideUserInterfaceStyle (UIViewController) returned
+  // UNSPECIFIED (0) regardless of what was set on the window, because the
+  // controller and window are separate objects each with their own
+  // overrideUserInterfaceStyle property.
+  NSNumber *style = @(TiApp.app.window.overrideUserInterfaceStyle);
   return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
 }
 
@@ -823,6 +856,91 @@ MAKE_SYSTEM_PROP(TABLE_VIEW_SEPARATOR_STYLE_SINGLE_LINE, UITableViewCellSeparato
     shortcut = [[TiUIShortcutProxy alloc] init];
   }
   return shortcut;
+}
+
+- (TiUIShortcutItemProxy *)ShortcutItem
+{
+  if (shortcutItem == nil) {
+    shortcutItem = [[TiUIShortcutItemProxy alloc] init];
+  }
+  return shortcutItem;
+}
+#endif
+
+#ifdef USE_TI_UIEMAILDIALOG
+- (TiProxy *)EmailDialog
+{
+  if (emailDialog == nil) {
+    emailDialog = [[TiUIEmailDialogProxy alloc] init];
+    [self rememberProxy:emailDialog];
+  }
+  return emailDialog;
+}
+#endif
+
+#ifdef USE_TI_UILISTVIEW
+- (TiProxy *)ListView
+{
+  if (listView == nil) {
+    listView = [[TiUIListViewProxy alloc] init];
+    [self rememberProxy:listView];
+  }
+  return listView;
+}
+#endif
+
+#ifdef USE_TI_UITABLEVIEW
+- (TiProxy *)TableView
+{
+  if (tableView == nil) {
+    tableView = [[TiUITableViewProxy alloc] init];
+    [self rememberProxy:tableView];
+  }
+  return tableView;
+}
+#endif
+
+#ifdef USE_TI_UISLIDER
+- (TiProxy *)Slider
+{
+  if (slider == nil) {
+    slider = [[TiUISliderProxy alloc] init];
+    [self rememberProxy:slider];
+  }
+  return slider;
+}
+#endif
+
+#ifdef USE_TI_UISWITCH
+- (TiProxy *)Switch
+{
+  if (switchProxy == nil) {
+    switchProxy = [[TiUISwitchProxy alloc] init];
+    [self rememberProxy:switchProxy];
+  }
+  return switchProxy;
+}
+#endif
+
+#ifdef USE_TI_UIMASKEDIMAGE
+- (TiProxy *)MaskedImage
+{
+  if (maskedImage == nil) {
+    maskedImage = [[TiUIMaskedImageProxy alloc] init];
+    [self rememberProxy:maskedImage];
+  }
+  return maskedImage;
+}
+#endif
+
+#if defined(USE_TI_UINAVIGATIONWINDOW)
+- (TiProxy *)NavigationWindow
+{
+  if (navigationWindow == nil) {
+    navigationWindow = [[TiUINavigationWindowProxy alloc] init];
+    [self rememberProxy:navigationWindow];
+  }
+  return navigationWindow;
 }
 #endif
 
