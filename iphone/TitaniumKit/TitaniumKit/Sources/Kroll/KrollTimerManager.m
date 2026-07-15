@@ -70,11 +70,21 @@
   self.timers = [NSMapTable strongToWeakObjectsMapTable];
 
   NSUInteger (^setInterval)(JSValue *, double) = ^(JSValue *callback, double interval) {
+    if (![callback isFunction]) {
+      callback.context.exception = [JSValue valueWithNewTypeErrorInContext:callback.context
+                                                               withMessage:@"Callback must be a function"];
+      return (NSUInteger)0;
+    }
     return [self setInterval:interval withCallback:callback shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
 
   NSUInteger (^setTimeout)(JSValue *, double) = ^(JSValue *callback, double interval) {
+    if (![callback isFunction]) {
+      callback.context.exception = [JSValue valueWithNewTypeErrorInContext:callback.context
+                                                               withMessage:@"Callback must be a function"];
+      return (NSUInteger)0;
+    }
     return [self setInterval:interval withCallback:callback shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
