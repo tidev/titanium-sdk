@@ -338,7 +338,7 @@ describe('Titanium.UI.Window', function () {
 			});
 		});
 
-		it.androidAndWindowsBroken('.rect is read-only', finish => {
+		it.windowsBroken('.rect is read-only', finish => {
 			win = Ti.UI.createWindow({
 				backgroundColor: 'green',
 				left: 100,
