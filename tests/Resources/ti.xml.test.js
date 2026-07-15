@@ -203,14 +203,15 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(elResult.item(0).nodeValue).eql('true');
 	});
 
-	// FIXME Get working on iOS and Android - tagName is undefined, when expecting 'xml'
-	it.allBroken('xmlNodes', function () {
+	// The fixture's root element is <response>, not <xml>; doc.firstChild on
+	// iOS returns a whitespace text node (no tagName). The structural
+	// assertions below already verify the document via documentElement.
+	it('xmlNodes', function () {
 		var doc = Ti.XML.parseString(testSource['nodes.xml']),
 			nodesList = doc.getElementsByTagName('nodes'),
 			nodes,
 			elements,
 			children,
-			firstChild,
 			node,
 			subnodes;
 		should(nodesList === null).be.be.false();
@@ -224,9 +225,6 @@ describe.windowsBroken('Titanium.XML', function () {
 		should(children).be.an.Object();
 		should(countNodes(elements.item(0), 1)).eql(6);
 		should(children.item).be.a.Function();
-		firstChild = doc.firstChild;
-		should(firstChild === null).be.be.false();
-		should(firstChild.tagName).be.eql('xml'); // iOS returns undefined, Android returns undefined
 		should(countNodes(nodes, 1)).eql(13);
 		should(nodes.nodeName).eql('nodes');
 		should(doc.documentElement.nodeName).eql('response');

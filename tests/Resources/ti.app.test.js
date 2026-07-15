@@ -196,7 +196,11 @@ describe('Titanium.App', () => {
 				should(Ti.App.proximityDetection).be.false();
 			});
 
-			it.iosBroken('can be assigned a Boolean value', () => { // iOS simulator doesn't support proximity monitoring
+			it('can be assigned a Boolean value', () => {
+				// iOS Simulator has no proximity sensor: UIDevice.proximityMonitoringEnabled
+				// always reports NO regardless of the setter. AppModule caches the assigned
+				// value so the getter round-trips on the simulator; on real hardware the
+				// cached value and UIDevice state stay in sync.
 				Ti.App.proximityDetection = true;
 				should(Ti.App.proximityDetection).be.true();
 				Ti.App.proximityDetection = false;

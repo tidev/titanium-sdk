@@ -1406,7 +1406,11 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it.iosBroken('resize row with Ti.UI.SIZE on content height change', finish => {
+	// On iOS the row-reload triggered by view.height change is async
+	// (dispatched via TiThreadPerformOnMainThread NO), so tableView.postlayout
+	// fires with stale row.rect.height. Listen on row.postlayout instead —
+	// it fires after the row's layout pass has settled on the new height.
+	it('resize row with Ti.UI.SIZE on content height change', finish => {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 
 		const heights = [ 100, 200, 50 ];
@@ -1424,13 +1428,14 @@ describe('Titanium.UI.TableView', function () {
 
 		tableView.data = [ row ];
 
-		tableView.addEventListener('postlayout', function onPostLayout() {
+		row.addEventListener('postlayout', function onPostLayout() {
 			console.log('postlayout', row.rect.height, view.rect.height);
 			should(row.rect.height).be.eql(view.rect.height);
 
 			if (!heights.length) {
-				tableView.removeEventListener('postlayout', onPostLayout);
+				row.removeEventListener('postlayout', onPostLayout);
 				finish();
+				return;
 			}
 			view.height = heights.pop();
 		});

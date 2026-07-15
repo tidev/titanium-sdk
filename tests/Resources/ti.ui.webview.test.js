@@ -32,16 +32,18 @@ describe('Titanium.UI.WebView', function () {
 		}
 	});
 
-	// FIXME: I think we need to tweak the test here. Set URL property after adding the listeners!
-	// iOS works most of the time, but also has some odd failures sometimes. SDK 8+ is reworking this.
-	it.allBroken('loading', function (finish) {
+	// Verify the `loading` property reports Boolean values at each phase of
+	// a navigation. The webview is created WITHOUT a url so its initial
+	// `loading` is false; url is set only after listeners are registered
+	// (per the original FIXME). beforeload fires once the navigation has
+	// started, so `loading` is true there; load fires after completion, so
+	// `loading` is false there.
+	it('loading', function (finish) {
 		this.slow(5000);
 		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
-		const webView = Ti.UI.createWebView({
-			url: 'https://www.google.com'
-		});
+		const webView = Ti.UI.createWebView();
 
 		should(webView.loading).be.a.Boolean();
 		should(webView.loading).be.false();
@@ -51,7 +53,7 @@ describe('Titanium.UI.WebView', function () {
 			if (beforeLoaded === false) {
 				try {
 					should(webView.loading).be.a.Boolean();
-					should(webView.loading).be.false();
+					should(webView.loading).be.true();
 
 					// Use this flag for our test, because "beforeload" also fires for resources
 					// inside the web-page (e.g. scripts), so this particular test may fail due
@@ -75,6 +77,7 @@ describe('Titanium.UI.WebView', function () {
 
 		win.add(webView);
 		win.open();
+		webView.url = 'ti.ui.webview.test.html';
 	});
 
 	it('url', function (finish) {
@@ -163,48 +166,38 @@ describe('Titanium.UI.WebView', function () {
 		win.open();
 	});
 
-	// Skip this on desktop Windows apps because it crashes the app now. - Works fine locally, to investigate EH
-	// FIXME Parity issue! Windows require second argument which is callback function. Other platforms return value sync!
-	// FIXME Android returns null?
-	// FIXME Sometimes times out on iOS. Not really sure why...
-	it.allBroken('evalJS', function (finish) {
+	// iOS WKWebView has no synchronous JavaScript evaluation API (UIWebView's
+	// `stringByEvaluatingJavaScriptFromString:` was removed years ago), and
+	// Android's sync `evalJS` returns null. The async callback variant is the
+	// only contract that works across all platforms, so this test uses it.
+	it('evalJS', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
 
 		const webview = Ti.UI.createWebView();
 
-		let hadError = false;
 		webview.addEventListener('load', function () {
-			if (hadError) {
-				return;
-			}
-
-			if (utilities.isWindows()) { // Windows requires an async callback function
-				webview.evalJS('Ti.API.info("Hello, World!");"WebView.evalJS.TEST";', function (result) {
-					try {
-						should(result).be.eql('WebView.evalJS.TEST');
-					} catch (err) {
-						return finish(err);
-					}
-					finish();
-				});
-			} else { // other platforms return the result as result of function call!
-				const result = webview.evalJS('Ti.API.info("Hello, World!");"WebView.evalJS.TEST";');
+			webview.evalJS('Ti.API.info("Hello, World!");"WebView.evalJS.TEST";', function (result) {
 				try {
-					should(result).be.eql('WebView.evalJS.TEST'); // Android reports null
+					// Android returns the value with extra surrounding quotes
+					// (see the matching FIXME on the async-variant test below).
+					if (utilities.isAndroid()) {
+						should(result).be.eql('"WebView.evalJS.TEST"');
+					} else {
+						should(result).be.eql('WebView.evalJS.TEST');
+					}
 				} catch (err) {
 					return finish(err);
 				}
 				finish();
-			}
+			});
 		});
 		win.addEventListener('focus', function () {
 			try {
 				webview.url = 'ti.ui.webview.test.html';
 			} catch (err) {
-				hadError = true;
-				finish(err);
+				return finish(err);
 			}
 		});
 

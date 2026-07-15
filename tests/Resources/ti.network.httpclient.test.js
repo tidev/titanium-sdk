@@ -336,46 +336,57 @@ describe('Titanium.Network.HTTPClient', function () {
 		});
 	});
 
-	// Confirms that only the selected cookie is deleted
-	// FIXME Windows hangs on this test! Maybe due to setTimeout in onload?
-	// FIXME iOS returns null for getResponseHeader('Set-Cookie')
-	it.iosBroken('clearCookiePositiveTest', function (finish) {
+	// Confirms that clearCookies actually clears cookies for the target
+	// host. Uses postman-echo's cookie API since google.com no longer
+	// reliably sends a Set-Cookie header (and iOS's getResponseHeader
+	// returns null for Set-Cookie on HTTP/2 responses). The semantics:
+	// set a cookie via /cookies/set, verify it's echoed on /cookies,
+	// clearCookies for the host, then verify /cookies no longer echoes it.
+	it('clearCookiePositiveTest', function (finish) {
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: 3e4
 		});
 
-		let cookie_string;
-		function second_cookie_fn() {
+		xhr.onload = function () {
 			try {
-				const second_cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
-				// New Cookie should be different.
-				should(cookie_string).not.be.eql(second_cookie_string);
+				const resp = JSON.parse(this.responseText);
+				should(resp.cookies).have.ownProperty('k1');
+				should(resp.cookies.k1).eql('v1');
 			} catch (err) {
 				return finish(err);
 			}
-			finish();
-		}
-		xhr.onload = function () {
-			cookie_string = this.getResponseHeader('Set-Cookie').split(';')[0];
-			xhr.clearCookies('https://www.google.com');
-			xhr.onload = second_cookie_fn;
-			// Have to do this on delay for Android, or else the open and send get cancelled due to:
-			// [WARN]  TiHTTPClient: (main) [2547,14552] open cancelled, a request is already pending for response.
-			// [WARN]  TiHTTPClient: (main) [1,14553] send cancelled, a request is already pending for response.
-			// FIXME We should file a bug to handle this better! Can't we "queue" up the open/send calls to occur as soon as this callback finishes?
+
+			// Now clear cookies for postman-echo.com and re-request; the
+			// cookie should be gone.
+			xhr.clearCookies(ENDPOINTS.cookies);
+
+			const xhr2 = Ti.Network.createHTTPClient({
+				timeout: 3e4
+			});
+			xhr2.onload = function () {
+				try {
+					const resp2 = JSON.parse(this.responseText);
+					should(resp2.cookies).not.have.ownProperty('k1');
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			};
+			xhr2.onerror = function (e) {
+				finish(new Error(e.error || this.responseText));
+			};
+			// Have to do this on delay for Android, or else the open and
+			// send get cancelled due to: "open cancelled, a request is
+			// already pending for response."
 			setTimeout(function () {
-				xhr.open('GET', 'https://www.google.com');
-				xhr.send();
+				xhr2.open('GET', ENDPOINTS.cookies);
+				xhr2.send();
 			}, 1);
 		};
 		xhr.onerror = function (e) {
-			try {
-				should(e).should.be.type('undefined');
-			} catch (err) {
-				finish(err);
-			}
+			finish(new Error(e.error || this.responseText));
 		};
-		xhr.open('GET', 'https://www.google.com');
+		xhr.open('GET', `${ENDPOINTS.cookiesSet}?k1=v1`);
 		xhr.send();
 	});
 
@@ -708,27 +719,44 @@ describe('Titanium.Network.HTTPClient', function () {
 		xhr.send();
 	});
 
-	it.iosBroken('save response data to temp directory', function (finish) {
-		// Per-request timeout must be shorter than the mocha test timeout so
-		// onerror can fire and retries can run within the mocha window; the
-		// parent describe sets 60s, equal to the XHR timeout, so mocha aborts
-		// before the large.jpg download can complete on slow networks.
+	it('save response data to temp directory', function (finish) {
+		// Verifies that when the caller assigns `xhr.file`, the response body
+		// is written to that file and `responseData.nativePath` points at it.
+		// Setting `xhr.file` is the cross-platform contract: iOS only spills to
+		// disk when a file is supplied (it does not auto-spill large responses
+		// like Android), and Android writes to the supplied file regardless of
+		// size. The legacy `cache/_tmp` substring check was a tautology on
+		// Android (`.includes` returns a boolean, `boolean !== -1` is always
+		// true) and used a stale path literal; assert against tempDirectory
+		// membership instead.
 		this.timeout(Timeout.DEVICE_OPERATION);
+		const destFile = Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory, 'large.jpg');
+		// Clean up any leftover from a previous run so we're sure the file
+		// we see at the end is the one the HTTPClient wrote this time.
+		if (destFile.exists()) {
+			destFile.deleteFile();
+		}
 		const xhr = Ti.Network.createHTTPClient({
 			timeout: Timeout.NETWORK
 		});
+		xhr.file = destFile;
 
 		xhr.onload = function (e) {
 			try {
-				should(e.source.responseData.nativePath).be.a.String();
-				if (e.source.responseData.nativePath.includes('cache/_tmp') !== -1) {
-					finish();
-				} else {
-					finish(new Error('not saving response data to temp directory'));
-				}
+				const nativePath = e.source.responseData.nativePath;
+				should(nativePath).be.a.String();
+				// nativePath may include a `file://` prefix on iOS while
+				// tempDirectory is a plain path (or vice versa), so compare
+				// against the same getFile().nativePath form rather than a
+				// raw indexOf against the directory string.
+				const expectedPath = Ti.Filesystem.getFile(Ti.Filesystem.tempDirectory, 'large.jpg').nativePath;
+				should(nativePath).be.eql(expectedPath);
+				// The file should actually exist on disk.
+				should(destFile.exists()).be.true();
 			} catch (err) {
-				finish(err);
+				return finish(err);
 			}
+			finish();
 		};
 
 		let attempts = 3;

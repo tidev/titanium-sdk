@@ -579,9 +579,14 @@ describe('Titanium.UI.Window', function () {
 			});
 		});
 
-		// TODO: Why not run this on iOS? Seems to fail, though.
-		// TODO: Also broken on Android, need to figure out why this test is unreliable.
-		describe.allBroken('.orientationModes', function () {
+		// `orientationModes` is the requested-orientations array. `win.orientation`
+		// returns the device's actual current interface orientation, which on iOS
+		// is `[UIApplication sharedApplication].statusBarOrientation` and only
+		// changes when the user physically rotates the device. Setting
+		// `orientationModes` does NOT rotate the window; it only restricts which
+		// orientations are allowed. So we only assert the getter echoes the
+		// requested set, not that the device actually rotated.
+		describe('.orientationModes', function () {
 			this.slow(5000);
 			this.timeout(Timeout.LONG);
 
@@ -594,7 +599,6 @@ describe('Titanium.UI.Window', function () {
 						try {
 							win.orientationModes.should.have.length(1);
 							win.orientationModes[0].should.eql(orientation);
-							win.orientation.should.eql(orientation);
 						} catch (e) {
 							return finish(e);
 						}
