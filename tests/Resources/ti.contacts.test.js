@@ -109,8 +109,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
-	// Intentionally skip on Android, these methods don't exist it.androidMissing
-	it.allBroken('Group add/remove', () => {
+	it.iosBroken('Group add/remove', () => {
 		// Look for existing group and remove it first before we try to create dupe (which fails)
 		var allGroups = Ti.Contacts.getAllGroups(),
 			group,
@@ -157,8 +156,7 @@ describe.macMissing('Titanium.Contacts', () => {
 	});
 
 	// FIXME This holds for permission prompt on iOS & Windows and hangs the tests. How can we "click OK" for user?
-	// FIXME Android says "Contacts permissions missing"
-	it.allBroken('Person add/remove', () => {
+	it.iosBroken('Person add/remove', () => {
 		// TODO Remove Arthur first if he already exists!
 
 		// create a person

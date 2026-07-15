@@ -128,7 +128,8 @@ public class PersonProxy extends KrollProxy
 	@Kroll.getProperty
 	public String getIdentifier()
 	{
-		return "";
+		Long id = getId();
+		return id != null ? String.valueOf(id) : "";
 	}
 
 	@Kroll.getProperty

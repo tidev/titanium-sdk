@@ -708,8 +708,21 @@ public class ContactsApiLevel5 extends CommonContactsApi
 			ContentProviderResult[] providerResult =
 				TiApplication.getAppRootOrCurrentActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY,
 																							ops);
-			long id = ContentUris.parseId(providerResult[0].uri);
-			newContact.setProperty(TiC.PROPERTY_ID, id);
+			long newRawContactId = ContentUris.parseId(providerResult[0].uri);
+			// Resolve the aggregated contact ID. getPersonById()/removePerson()
+			// query Contacts.CONTENT_URI (the aggregated contacts table), which
+			// is keyed by Contacts._ID — not the raw contact id we just inserted.
+			long contactId = newRawContactId;
+			Cursor c = TiApplication.getAppRootOrCurrentActivity().getContentResolver().query(
+				ContentUris.withAppendedId(ContactsContract.RawContacts.CONTENT_URI, newRawContactId),
+				new String[] { ContactsContract.RawContacts.CONTACT_ID }, null, null, null);
+			if (c != null) {
+				if (c.moveToFirst() && !c.isNull(0)) {
+					contactId = c.getLong(0);
+				}
+				c.close();
+			}
+			newContact.setProperty(TiC.PROPERTY_ID, contactId);
 
 		} catch (RemoteException e) {
 

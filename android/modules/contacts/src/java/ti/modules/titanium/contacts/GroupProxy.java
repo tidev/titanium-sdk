@@ -57,6 +57,11 @@ public class GroupProxy extends KrollProxy
 		return identifier;
 	}
 
+	void setIdentifier(Object identifier)
+	{
+		this.identifier = identifier;
+	}
+
 	@Kroll.getProperty
 	public Object getRecordId()
 	{
