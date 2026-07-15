@@ -246,7 +246,7 @@ describe('Titanium.UI.ScrollableView', () => {
 	});
 
 	describe('methods', () => {
-		it.androidAndWindowsBroken('#moveX()/#scrollToView()', function (finish) {
+		it('#moveX()/#scrollToView()', function (finish) {
 			var testName = null,
 				nextPageIndex = 0,
 				bar = null;
