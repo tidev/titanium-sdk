@@ -475,7 +475,7 @@ describe('Titanium.UI.View', function () {
 	// FIXME: iOS fails with 'New layout set while view [object TiUIView] animating'
 	// FIXME: Windows fails with timeout
 	// FIXME: Android fails with 'expected 150 to equal 100' (rect.x not updated after animation)
-	it.iosBroken('TIMOB-20598', function (finish) {
+	it('TIMOB-20598', function (finish) {
 		let left = 150;
 		let count = 0;
 
@@ -498,9 +498,10 @@ describe('Titanium.UI.View', function () {
 					try {
 						should(view.rect.x).be.eql(left);
 						should(view.rect.y).be.eql(100);
-						// iOS keeps the original model value during/after animation;
-						// Android updates the property to the animated value.
-						should(view.left).be.eql(utilities.isAndroid() ? left : 100);
+						// iOS updates the model property to the animated value
+						// at animation completion (TiAnimation.m applyProperties:);
+						// Android does the same. Both platforms now report `left`.
+						should(view.left).be.eql(left);
 						should(view.top).be.eql(100);
 
 						if (count++ > 1) {

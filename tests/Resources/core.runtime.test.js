@@ -104,7 +104,7 @@ describe.windowsBroken('Core', () => {
 		});
 
 		describe('Static Method Reference', () => {
-			it.iosBroken('should allow referencing static createProxy method and invoke it', () => {
+			it('should allow referencing static createProxy method and invoke it', () => {
 				// Reference static method.
 				const createBuffer = Ti.createBuffer;
 				should(createBuffer).be.a.Function();

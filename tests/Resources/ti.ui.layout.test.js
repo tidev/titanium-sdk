@@ -1243,7 +1243,7 @@ describe('Titanium.UI.Layout', function () {
 	// innerView.size.height reads 0 at the time the listener fires. The
 	// vertical layout pass for the 10 children hasn't completed measurement
 	// synchronously enough to observe the expected 1200pt height on iOS.
-	it.iosBroken('scrollViewWithLargeVerticalLayoutChild', function (finish) {
+	it('scrollViewWithLargeVerticalLayoutChild', function (finish) {
 		var scrollView = Ti.UI.createScrollView({
 				contentHeight: 'auto',
 				backgroundColor: 'green'
@@ -1273,6 +1273,13 @@ describe('Titanium.UI.Layout', function () {
 		}
 
 		innerView.addEventListener('postlayout', function listener () {
+			// iOS layout queue is asynchronous: the first postlayout fires
+			// before the vertical-layout pass has measured the 10 children,
+			// so innerView.size.height is 0. Wait for a subsequent postlayout
+			// once the measurement has settled (10 * (100 + 20) = 1200).
+			if (innerView.size.height === 0) {
+				return;
+			}
 			innerView.removeEventListener('postlayout', listener);
 
 			try {
