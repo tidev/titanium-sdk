@@ -144,7 +144,7 @@ describe('fs', function () {
 			fs.accessSync(thisFilePath, fs.constants.R_OK);
 		});
 
-		it.allBroken('checks that this file is NOT writable properly', () => {
+		it.iosBroken('checks that this file is NOT writable properly', () => {
 			// FIXME: This isn't throwing an error like we expect!
 			// How can we test this? resourcesDirectory is not supposed to be writable on device, but can be on simulator.
 			// (and this may be platform-specific behavior)
