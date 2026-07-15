@@ -31,4 +31,26 @@ describe('Titanium.UI.Toolbar', function () {
 		should(toolbar.items).be.an.Array();
 		should(toolbar.items.length).eql(2);
 	});
+
+	it.androidMissing('hideSharedBackground', function () {
+		const toolbar = Ti.UI.createToolbar({
+			items: [ Ti.UI.createButton({ title: 'A' }), Ti.UI.createButton({ title: 'B' }) ],
+			hideSharedBackground: true
+		});
+
+		should(toolbar.hideSharedBackground).be.eql(true);
+	});
+
+	it.androidMissing('hideSharedBackground per item', function () {
+		const buttonA = Ti.UI.createButton({ title: 'A', hideSharedBackground: true });
+		const buttonB = Ti.UI.createButton({ title: 'B' });
+		const toolbar = Ti.UI.createToolbar({
+			items: [ buttonA, buttonB ],
+			bottom: 0
+		});
+
+		should(buttonA.hideSharedBackground).be.eql(true);
+		should(buttonB.hideSharedBackground).not.be.eql(true);
+		should(toolbar.items.length).eql(2);
+	});
 });

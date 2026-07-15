@@ -36,7 +36,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   TiThreadPerformOnMainThread(
       ^{
-        [[[TiApp app] controller] shutdownUi:self];
+        [[TiApp app] rebootApp];
       },
       NO);
 }
