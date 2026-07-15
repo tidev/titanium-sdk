@@ -145,9 +145,9 @@ describe.windowsBroken('Titanium.XML', function () {
 
 	// FIXME: dom-parser.js doesn't throw exception when it 'corrects' end tag
 	// iOS gives: expected [Function] to throw exception
-	// Android gives: expected [Function] to throw exception
 	// Windows Desktop gives: expected [Function] to throw exception, stderr gives: [WARN] :   unclosed xml attribute
-	it.allBroken('invalidDocumentParsing', function () {
+	// Android: now throws via strict SAX pre-pass in XMLModule.parse()
+	it.iosBroken('invalidDocumentParsing', function () {
 		var localInvalid = invalidSource;
 		should(function () {
 			Ti.XML.parseString(localInvalid['no_end.xml']);
