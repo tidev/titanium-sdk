@@ -788,6 +788,7 @@ public class TiC
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
 	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMEOUT = "timeout";
+	public static final String PROPERTY_TIMEOUT_FOR_RESOURCE = "timeoutForResource";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TINT = "tint";
 	public static final String PROPERTY_TINT_COLOR = "tintColor";

@@ -137,6 +137,13 @@ public class TiHTTPClient
 	private Thread clientThread;
 	private boolean aborted;
 	private int timeout = -1;
+	// Wall-clock deadline (ms) for the entire resource transfer (connect +
+	// headers + body). Mirrors iOS timeoutForResource. When it elapses the
+	// in-flight request is disconnected and onerror fires with
+	// URL_ERROR_TIMEOUT. -1 means unset (no resource deadline).
+	private int timeoutForResource = -1;
+	private volatile boolean resourceTimedOut = false;
+	private java.util.Timer resourceTimer = null;
 	private boolean autoEncodeUrl = true;
 	private boolean autoRedirect = true;
 	private Uri uri;
@@ -1306,6 +1313,30 @@ public class TiHTTPClient
 
 		clientThread = new Thread(new ClientRunnable(), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
+
+		// Arm a wall-clock resource timeout. When it fires we disconnect the
+		// in-flight client so the IO loop aborts; the catch path maps the
+		// resulting error to URL_ERROR_TIMEOUT. The timer is cancelled in the
+		// ClientRunnable finally block once the request settles.
+		resourceTimedOut = false;
+		if (timeoutForResource > 0 && resourceTimer == null) {
+			resourceTimer = new java.util.Timer("TiHttpClient-resourceTimeout", true);
+			resourceTimer.schedule(new java.util.TimerTask() {
+				@Override
+				public void run()
+				{
+					resourceTimedOut = true;
+					HttpURLConnection c = client;
+					if (c != null) {
+						try {
+							c.disconnect();
+						} catch (Exception ex) {
+						}
+					}
+				}
+			}, timeoutForResource);
+		}
+
 		clientThread.start();
 
 		Log.d(TAG, "Leaving send()", Log.DEBUG_MODE);
@@ -1518,8 +1549,14 @@ public class TiHTTPClient
 						if (!aborted) {
 							KrollDict data = new KrollDict();
 							int errorCode = TiC.ERROR_CODE_UNKNOWN;
-							if (e instanceof SocketTimeoutException) {
-								errorCode = TiC.ERROR_CODE_TIMEOUT;
+							if (resourceTimedOut) {
+								errorCode = android.webkit.WebViewClient.ERROR_TIMEOUT;
+							} else if (e instanceof SocketTimeoutException) {
+								// When a resource deadline is set, a connect/read
+								// SocketTimeout is the resource timeout firing.
+								errorCode = (timeoutForResource > 0)
+									? android.webkit.WebViewClient.ERROR_TIMEOUT
+									: TiC.ERROR_CODE_TIMEOUT;
 							} else if (e instanceof UnknownHostException) {
 								errorCode = TiC.ERROR_CODE_HOST_NOT_FOUND;
 							} else if (getStatus() >= 400) {
@@ -1575,9 +1612,17 @@ public class TiHTTPClient
 				requestPending = false;
 
 				KrollDict data = new KrollDict();
-				data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
+				int code = (getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN;
+				if (resourceTimedOut) {
+					code = android.webkit.WebViewClient.ERROR_TIMEOUT;
+				}
+				data.putCodeAndMessage(code, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);
 			} finally {
+				if (resourceTimer != null) {
+					resourceTimer.cancel();
+					resourceTimer = null;
+				}
 				deleteTmpFiles();
 
 				//Clean up client and clientThread
@@ -1602,9 +1647,13 @@ public class TiHTTPClient
 			// forever; use the caller's value when provided, otherwise the
 			// default. Only set read timeout when the caller explicitly
 			// asked for one, so streaming/long-polling still works.
-			client.setConnectTimeout((timeout != -1) ? timeout : DEFAULT_CONNECT_TIMEOUT);
-			if (timeout != -1) {
-				client.setReadTimeout(timeout);
+			// When timeoutForResource is set, it is a wall-clock deadline for
+			// the entire transfer and overrides the looser per-call timeouts
+			// so a fresh TLS handshake or a stalled read aborts in time.
+			int effectiveTimeout = (timeoutForResource > 0) ? timeoutForResource : timeout;
+			client.setConnectTimeout((effectiveTimeout != -1) ? effectiveTimeout : DEFAULT_CONNECT_TIMEOUT);
+			if (effectiveTimeout != -1) {
+				client.setReadTimeout(effectiveTimeout);
 			}
 
 			if (aborted) {
@@ -1756,6 +1805,11 @@ public class TiHTTPClient
 	public void setTimeout(int millis)
 	{
 		timeout = millis;
+	}
+
+	public void setTimeoutForResource(int millis)
+	{
+		timeoutForResource = millis;
 	}
 
 	protected void setAutoEncodeUrl(boolean value)

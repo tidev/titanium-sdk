@@ -38,7 +38,6 @@ describe('Titanium.Database', function () {
 			should(Ti.Database.install).be.a.Function();
 		});
 
-		// FIXME Get working for iOS - gets back John Smith\\u0000'
 		it('copies db from app folder', function () {
 			// Database name
 			var dbName = 'testDbInstall';
