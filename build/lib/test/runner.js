@@ -105,9 +105,6 @@ export async function test(platforms, target, deviceId, deployType, deviceFamily
 		if (target === 'macos') {
 			exec(`osascript "${path.join(__dirname, 'close_modals.scpt')}"`);
 		}
-		if (platforms.includes('android') && (target === undefined || target === 'emulator')) {
-			await restoreAndroidEmulator();
-		}
 	}
 }
 
@@ -245,6 +242,7 @@ async function addTiAppProperties() {
 		content.push('\t\t\t\t</activity>');
 		content.push('\t\t\t</application>');
 		content.push('\t\t\t<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>');
+		content.push('\t\t\t<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>');
 		content.push('\t\t\t<uses-permission android:name="android.permission.RECORD_AUDIO"/>');
 	};
 	let insertPlistSettings = () => {
@@ -357,10 +355,11 @@ async function addTiAppProperties() {
 				content.push('\t\t</manifest>');
 			}
 
-			// Inject Android services
+			// Inject Android services. foregroundServiceType is required on Android 14+ for
+			// startForeground() to succeed; dataSync matches the FOREGROUND_SERVICE_DATA_SYNC permission.
 			content.push('\t\t<services>');
-			content.push('\t\t\t<service url="ti.android.service.normal.js"/>');
-			content.push('\t\t\t<service url="ti.android.service.interval.js" type="interval"/>');
+			content.push('\t\t\t<service url="ti.android.service.normal.js" android:foregroundServiceType="dataSync"/>');
+			content.push('\t\t\t<service url="ti.android.service.interval.js" type="interval" android:foregroundServiceType="dataSync"/>');
 			content.push('\t\t</services>');
 		} else if (line.indexOf('<manifest') >= 0) {
 			insertManifest();
@@ -369,11 +368,16 @@ async function addTiAppProperties() {
 	return fs.writeFile(tiapp_xml, content.join('\n'));
 }
 
-// Keep the test app networked on the Android emulator: whitelist it from the background-idle firewall, and disable Google Photos so it can't steal foreground (Android blocks a backgrounded app's UID from all networks, which surfaces as "Unable to resolve host" ~45s into a run).
+// Keep the test app networked on the Android emulator: whitelist it from the
+// background-idle firewall. Android blocks a backgrounded app's UID from all
+// networks (not just DNS), which surfaces as "Unable to resolve host" ~45s into
+// a run when a system app steals foreground. The whitelist is also re-applied at
+// app start in reporter.js, because a pre-install entry does not bind to a
+// freshly installed package; this early attempt covers re-runs where the app is
+// already installed.
 async function prepareAndroidEmulator() {
 	const commands = [
-		`adb shell dumpsys deviceidle whitelist +${APP_ID}`,
-		'adb shell pm disable-user --user 0 com.google.android.apps.photos'
+		`adb shell dumpsys deviceidle whitelist +${APP_ID}`
 	];
 	for (const cmd of commands) {
 		try {
@@ -381,15 +385,6 @@ async function prepareAndroidEmulator() {
 		} catch (e) {
 			console.warn(`[test] (non-fatal) emulator setup step failed: ${cmd}`);
 		}
-	}
-}
-
-// Restore the emulator after a run: re-enable Google Photos so the user gets it back in the launcher.
-async function restoreAndroidEmulator() {
-	try {
-		await exec('adb shell pm enable com.google.android.apps.photos');
-	} catch (e) {
-		console.warn('[test] (non-fatal) emulator restore step failed: adb shell pm enable com.google.android.apps.photos');
 	}
 }
 

@@ -258,6 +258,14 @@ function grantAndroidRuntimePermissions() {
 			// Ignore: permission may already be granted, app not yet installed, or multiple devices connected.
 		}
 	}
+	// Whitelist the test app from the background-idle firewall now that it is
+	// installed; a pre-install whitelist entry does not bind to a freshly
+	// installed package, so re-apply at app start.
+	try {
+		spawnSync('adb', [ 'shell', 'dumpsys', 'deviceidle', 'whitelist', `+${APP_ID}` ], { stdio: 'ignore' });
+	} catch {
+		// Ignore: best-effort; missing device or multiple devices connected.
+	}
 }
 
 export async function handleBuild(prc, target, snapshotDir, snapshotPromises) {
