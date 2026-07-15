@@ -47,7 +47,6 @@ describe('Titanium.Blob', function () {
 	// Android is sometimes timing out... Trying an open event now...
 	// TODO: Test is tempermental, skipping for now...
 	it('constructed from image', function (finish) {
-		this.skip('Image blob construction from Ti.Blob to image conversion is unreliable on CI; revisit when CI image fixtures stabilize.');
 		win = Ti.UI.createWindow();
 		const label = Ti.UI.createLabel({ text: 'test' });
 		win.add(label);
