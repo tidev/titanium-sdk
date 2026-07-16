@@ -7,6 +7,7 @@
 
 #import "StreamModule.h"
 #import "TiDataStream.h"
+#import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiBuffer.h>
 #import <TitaniumKit/TiStreamProxy.h>
 
@@ -121,6 +122,7 @@
     TiDataStream *stream = [[[TiDataStream alloc] _initWithPageContext:[self executionContext]] autorelease];
     [stream setData:[obj data]];
     [stream setMode:mode];
+    [stream setStreamApiName:[obj isKindOfClass:[TiBlob class]] ? @"Ti.BlobStream" : @"Ti.BufferStream"];
 
     return stream;
   } else {
