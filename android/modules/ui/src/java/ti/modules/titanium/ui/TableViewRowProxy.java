@@ -319,13 +319,13 @@ public class TableViewRowProxy extends TiViewProxy
 			final TiViewProxy headerProxy = (TiViewProxy) options.get(TiC.PROPERTY_HEADER_VIEW);
 
 			// Set header view parent, so it can be released correctly.
-			headerProxy.setParent(this);
+			headerProxy.setParentInternal(this);
 		}
 		if (options.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 			final TiViewProxy footerProxy = (TiViewProxy) options.get(TiC.PROPERTY_FOOTER_VIEW);
 
 			// Set header view parent, so it can be released correctly.
-			footerProxy.setParent(this);
+			footerProxy.setParentInternal(this);
 		}
 
 		super.handleCreationDict(options);

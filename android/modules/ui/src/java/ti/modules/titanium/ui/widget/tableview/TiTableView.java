@@ -643,7 +643,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 			row.getProperties().put(TiC.PROPERTY_HEADER_TITLE, properties.get(TiC.PROPERTY_HEADER_TITLE));
 			row.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
-			row.setParent(this.proxy);
+			row.setParentInternal(this.proxy);
 
 			this.rows.add(row);
 		}
@@ -662,7 +662,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				if (rows.length == 0 && (section.hasHeader() || section.hasFooter())) {
 					final TableViewRowProxy row = new TableViewRowProxy(true);
 
-					row.setParent(section);
+					row.setParentInternal(section);
 					this.rows.add(row);
 				}
 
@@ -709,7 +709,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 
 			row.getProperties().put(TiC.PROPERTY_FOOTER_TITLE, properties.get(TiC.PROPERTY_FOOTER_TITLE));
 			row.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
-			row.setParent(this.proxy);
+			row.setParentInternal(this.proxy);
 
 			this.rows.add(row);
 		}
