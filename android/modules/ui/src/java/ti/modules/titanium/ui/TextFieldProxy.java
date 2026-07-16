@@ -58,6 +58,7 @@ public class TextFieldProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_ENABLE_COPY, true);
 		defaultValues.put(TiC.PROPERTY_FULLSCREEN, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
+		defaultValues.put(TiC.PROPERTY_PASSWORD_MASK, false);
 	}
 
 	@Override
