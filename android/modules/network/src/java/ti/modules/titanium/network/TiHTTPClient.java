@@ -28,6 +28,7 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -87,6 +88,20 @@ public class TiHTTPClient
 	private static final String TAG = "TiHTTPClient";
 	private static final int DEFAULT_MAX_BUFFER_SIZE = 512 * 1024;
 	private static final String PROPERTY_MAX_BUFFER_SIZE = "ti.android.httpclient.maxbuffersize";
+	// Connect timeout used when the caller never sets one, so DNS/TCP connect
+	// can never hang forever. Read timeout is left at HttpURLConnection's
+	// default (0 = infinite) in that case to preserve long-running downloads.
+	private static final int DEFAULT_CONNECT_TIMEOUT = 60000;
+	// Number of times to retry a GET when the connection fails at the network
+	// level (DNS, connection reset, SSL handshake, etc.) before firing onerror.
+	// Mimics the retry that Chrome's network stack and iOS's NSURLSession do
+	// automatically, which is why a browser can reach a host that
+	// HttpURLConnection's single attempt misses under flaky networking.
+	// POST/PUT/PATCH are not retried (request body is consumed on the first
+	// attempt). SocketTimeoutException is excluded — it has its own error code
+	// and retrying a timeout is unlikely to help within the test window.
+	private static final int CONNECTION_RETRY_COUNT = 1;
+	private static final int CONNECTION_RETRY_DELAY_MS = 2000;
 	private static final int PROTOCOL_DEFAULT_PORT = -1;
 	private static final String TITANIUM_ID_HEADER = "X-Titanium-Id";
 	private static final String TITANIUM_USER_AGENT =
@@ -122,6 +137,13 @@ public class TiHTTPClient
 	private Thread clientThread;
 	private boolean aborted;
 	private int timeout = -1;
+	// Wall-clock deadline (ms) for the entire resource transfer (connect +
+	// headers + body). Mirrors iOS timeoutForResource. When it elapses the
+	// in-flight request is disconnected and onerror fires with
+	// URL_ERROR_TIMEOUT. -1 means unset (no resource deadline).
+	private int timeoutForResource = -1;
+	private volatile boolean resourceTimedOut = false;
+	private java.util.Timer resourceTimer = null;
 	private boolean autoEncodeUrl = true;
 	private boolean autoRedirect = true;
 	private Uri uri;
@@ -129,6 +151,16 @@ public class TiHTTPClient
 	private URL mURL;
 	private String redirectedLocation;
 	private final ArrayList<File> tmpFiles = new ArrayList<>();
+	// Temp file created to spill a large response body when no explicit xhr.file
+	// was set. Tracked so we can delete it on abort() / send() reuse instead of
+	// leaking it until the app's temp dir is purged.
+	private File responseTempFile;
+	// Bytes of the response body for which the last ondatastream callback was
+	// dispatched. Throttles ondatastream to ~1% of contentLength (min 64KB) so a
+	// 13MB download does not flood V8 with ~26K progress events and stall the
+	// UI thread (ANR on Android API 36).
+	private long lastDataStreamTotalSize = 0;
+	private static final long DATA_STREAM_MIN_THROTTLE_BYTES = 64 * 1024;
 	protected SecurityManagerProtocol securityManager;
 	private int tlsVersion = NetworkModule.TLS_DEFAULT;
 
@@ -225,6 +257,14 @@ public class TiHTTPClient
 			}
 			responseData = null;
 			responseText = null;
+			// A previous request may have spilled a large response body to a
+			// temp file. The TiBlob wrapping it has just been nulled above, so
+			// the file is now unreachable — delete it before starting the new
+			// request to avoid accumulating tihttp*.tmp files across reuses.
+			deleteResponseTempFile();
+			// Reset the ondatastream throttle so the first chunk of the new
+			// response fires a 0% progress callback.
+			lastDataStreamTotalSize = 0;
 
 			int status = connection.getResponseCode();
 			// Stream holding the server's response
@@ -246,26 +286,41 @@ public class TiHTTPClient
 			}
 
 			if (is != null) {
-				Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
-				int count = 0;
-				long totalSize = 0;
-				byte[] buf = new byte[8192];
-				Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
+				try {
+					Log.d(TAG, "Content length: " + contentLength, Log.DEBUG_MODE);
+					int count = 0;
+					long totalSize = 0;
+					byte[] buf = new byte[8192];
+					Log.d(TAG, "Available: " + is.available(), Log.DEBUG_MODE);
 
-				while ((count = is.read(buf)) != -1) {
-					if (aborted) {
-						break;
+					while ((count = is.read(buf)) != -1) {
+						if (aborted) {
+							break;
+						}
+						totalSize += count;
+						try {
+							handleEntityData(buf, count, totalSize, contentLength);
+						} catch (IOException e) {
+							Log.e(TAG, "Error handling entity data", e);
+						}
 					}
-					totalSize += count;
+
+					if (totalSize > 0) {
+						finishedReceivingEntityData(totalSize);
+					}
+				} finally {
+					// Closing the input stream returns the underlying socket
+					// to HttpURLConnection's keep-alive pool so the next
+					// request to the same host can reuse it. Without this,
+					// every request opens a new TCP+TLS connection, which
+					// exhausts server-side connection limits and causes the
+					// intermittent "Unable to resolve host" / connection-reset
+					// failures seen under rapid-fire test workloads.
 					try {
-						handleEntityData(buf, count, totalSize, contentLength);
+						is.close();
 					} catch (IOException e) {
-						Log.e(TAG, "Error handling entity data", e);
+						Log.e(TAG, "Error closing input stream", e);
 					}
-				}
-
-				if (totalSize > 0) {
-					finishedReceivingEntityData(totalSize);
 				}
 			}
 		}
@@ -295,6 +350,9 @@ public class TiHTTPClient
 		if (tiFile == null) {
 			outFile = File.createTempFile("tihttp", ".tmp", TiApplication.getInstance().getTiTempDir());
 			tiFile = new TiFile(outFile, outFile.getAbsolutePath(), false);
+			// Track the spill file so we can delete it on abort()/send() reuse
+			// instead of leaking it until the system purges the app temp dir.
+			responseTempFile = outFile;
 		}
 
 		if (dumpResponseOut) {
@@ -342,6 +400,18 @@ public class TiHTTPClient
 
 		responseOut.write(data, 0, size);
 
+		// Throttle ondatastream callbacks to ~1% of contentLength (min 64KB).
+		// Without this, a 13MB download fires ~1600 callbacks (one per 8KB read
+		// buffer) and each is dispatched into V8, stalling the UI thread on
+		// Android API 36 (ANR). The final 100% callback is dispatched in
+		// finishedReceivingEntityData() so the throttle cannot drop it.
+		long threshold = dataStreamThreshold(contentLength);
+		if (contentLength > 0 && totalSize < contentLength
+			&& (totalSize - lastDataStreamTotalSize) < threshold) {
+			return;
+		}
+		lastDataStreamTotalSize = totalSize;
+
 		KrollDict callbackData = new KrollDict();
 		callbackData.put("totalCount", contentLength);
 		callbackData.put("totalSize", totalSize);
@@ -355,6 +425,15 @@ public class TiHTTPClient
 		callbackData.put("progress", progress);
 
 		dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
+	}
+
+	private long dataStreamThreshold(long contentLength)
+	{
+		if (contentLength > 0) {
+			long percent = contentLength / 100;
+			return Math.max(percent, DATA_STREAM_MIN_THROTTLE_BYTES);
+		}
+		return DATA_STREAM_MIN_THROTTLE_BYTES;
 	}
 
 	private void finishedReceivingEntityData(long contentLength) throws IOException
@@ -378,6 +457,19 @@ public class TiHTTPClient
 		}
 		responseOut.close();
 		responseOut = null;
+
+		// Guarantee a final ondatastream with progress=1.0 even when the last
+		// chunk was small enough to be skipped by the throttle. JS relies on
+		// receiving a 100% progress event to consider the download complete.
+		if (contentLength > 0 && lastDataStreamTotalSize < contentLength) {
+			KrollDict callbackData = new KrollDict();
+			callbackData.put("totalCount", contentLength);
+			callbackData.put("totalSize", contentLength);
+			callbackData.put(TiC.PROPERTY_SIZE, 0);
+			callbackData.put("progress", 1.0);
+			dispatchCallback(TiC.PROPERTY_ONDATASTREAM, callbackData);
+			lastDataStreamTotalSize = contentLength;
+		}
 	}
 
 	private interface ProgressListener {
@@ -388,6 +480,8 @@ public class TiHTTPClient
 	{
 		private ProgressListener listener;
 		private int transferred = 0, lastTransferred = 0;
+		private long contentLength = -1;
+		private static final int MIN_THROTTLE_BYTES = 64 * 1024;
 
 		public ProgressOutputStream(OutputStream delegate, ProgressListener listener)
 		{
@@ -395,10 +489,27 @@ public class TiHTTPClient
 			this.listener = listener;
 		}
 
+		public ProgressOutputStream(OutputStream delegate, ProgressListener listener, long contentLength)
+		{
+			this(delegate, listener);
+			this.contentLength = contentLength;
+		}
+
+		private int threshold()
+		{
+			if (contentLength > 0) {
+				long percent = contentLength / 100;
+				return (int) Math.max(percent, MIN_THROTTLE_BYTES);
+			}
+			return MIN_THROTTLE_BYTES;
+		}
+
 		private void fireProgress()
 		{
-			// filter to 512 bytes of granularity
-			if (transferred - lastTransferred >= 512) {
+			// Throttle to ~1% of contentLength (min 64KB) so a large upload
+			// does not dispatch ~26K onsendstream events (one per 512 bytes)
+			// and stall the V8 thread.
+			if (transferred - lastTransferred >= threshold()) {
 				lastTransferred = transferred;
 				listener.progress(transferred);
 			}
@@ -713,6 +824,10 @@ public class TiHTTPClient
 				}
 			} catch (Exception ex) {
 			}
+
+			// The user is no longer interested in the response, so the spill
+			// temp file (if any) can be deleted immediately.
+			deleteResponseTempFile();
 
 			// Fire the disposehandle event if the request is aborted.
 			// And it will dispose the handle of the httpclient in the JS.
@@ -1198,6 +1313,30 @@ public class TiHTTPClient
 
 		clientThread = new Thread(new ClientRunnable(), "TiHttpClient-" + httpClientThreadCounter.incrementAndGet());
 		clientThread.setPriority(Thread.MIN_PRIORITY);
+
+		// Arm a wall-clock resource timeout. When it fires we disconnect the
+		// in-flight client so the IO loop aborts; the catch path maps the
+		// resulting error to URL_ERROR_TIMEOUT. The timer is cancelled in the
+		// ClientRunnable finally block once the request settles.
+		resourceTimedOut = false;
+		if (timeoutForResource > 0 && resourceTimer == null) {
+			resourceTimer = new java.util.Timer("TiHttpClient-resourceTimeout", true);
+			resourceTimer.schedule(new java.util.TimerTask() {
+				@Override
+				public void run()
+				{
+					resourceTimedOut = true;
+					HttpURLConnection c = client;
+					if (c != null) {
+						try {
+							c.disconnect();
+						} catch (Exception ex) {
+						}
+					}
+				}
+			}, timeoutForResource);
+		}
+
 		clientThread.start();
 
 		Log.d(TAG, "Leaving send()", Log.DEBUG_MODE);
@@ -1233,161 +1372,212 @@ public class TiHTTPClient
 				Log.d(TAG, "Preparing to execute request", Log.DEBUG_MODE);
 
 				String result = null;
+				int connectionRetriesRemaining = CONNECTION_RETRY_COUNT;
 
-				try {
-					mURL = new URL(url);
-					client = (HttpURLConnection) mURL.openConnection();
-					boolean isPostOrPutOrPatch =
-						method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
-					setUpClient(client, isPostOrPutOrPatch);
+				while (true) {
+					try {
+						mURL = new URL(url);
+						client = (HttpURLConnection) mURL.openConnection();
+						boolean isPostOrPutOrPatch =
+							method.equals("POST") || method.equals("PUT") || method.equals("PATCH");
+						setUpClient(client, isPostOrPutOrPatch);
 
-					if (isPostOrPutOrPatch) {
-						UrlEncodedFormEntity form = null;
+						if (isPostOrPutOrPatch) {
+							UrlEncodedFormEntity form = null;
 
-						if (nvPairs.size() > 0) {
-							try {
-								form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
-
-							} catch (UnsupportedEncodingException e) {
-								Log.e(TAG, "Unsupported encoding: ", e);
-							}
-							//clear nvPairs after form entity is created
-							nvPairs.clear();
-						}
-
-						// calculate content length
-						if (parts.size() > 0 && needMultipart) {
-							for (String name : parts.keySet()) {
-								contentLength += constructFilePart(name, parts.get(name)).length();
-								contentLength += parts.get(name).getContentLength() + 2;
-							}
-							if (form != null) {
-								contentLength += (int) form.getContentLength();
+							if (nvPairs.size() > 0) {
 								try {
-									ByteArrayOutputStream bos =
-										new ByteArrayOutputStream((int) form.getContentLength());
-									form.writeTo(bos);
-									StringBody stringBody = new StringBody(
-										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8);
-									contentLength += constructFilePart("form", stringBody).length();
-									contentLength += form.getContentLength() + 2;
-								} catch (UnsupportedEncodingException e) {
-									Log.e(TAG, "Unsupported encoding: ", e);
-								} catch (IOException e) {
-									Log.e(TAG, "Error converting form to string: ", e);
-								}
-							}
-							contentLength += 6 + boundary.length();
-						} else {
-							if (data instanceof String) {
-								contentLength += ((String) data).getBytes().length;
-							} else if (data instanceof FileEntity) {
-								contentLength += ((FileEntity) data).getContentLength();
-							} else if (form != null) {
-								contentLength += (int) form.getContentLength();
-							}
-						}
-
-						// disable internal buffer
-						client.setFixedLengthStreamingMode(contentLength);
-
-						outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
-							public void progress(int progress)
-							{
-								if (contentLength <= 0) {
-									return;
-								}
-								KrollDict data = new KrollDict();
-								double currentProgress = ((double) progress / contentLength);
-								if (currentProgress > 1)
-									currentProgress = 1;
-								data.put("progress", currentProgress);
-								dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
-							}
-						});
-						printWriter = new PrintWriter(outputStream, true);
-
-						if (parts.size() > 0 && needMultipart) {
-
-							for (String name : parts.keySet()) {
-								Log.d(TAG,
-									  "adding part " + name + ", part type: " + parts.get(name).getMimeType()
-										  + ", len: " + parts.get(name).getContentLength(),
-									  Log.DEBUG_MODE);
-								addFilePart(name, parts.get(name));
-							}
-							//clear parts after they have been used
-							parts.clear();
-							if (form != null) {
-								try {
-									ByteArrayOutputStream bos =
-										new ByteArrayOutputStream((int) form.getContentLength());
-									form.writeTo(bos);
-									addFilePart("form", new StringBody(
-										bos.toString(), "application/x-www-form-urlencoded", StandardCharsets.UTF_8));
+									form = new UrlEncodedFormEntity(nvPairs, "UTF-8");
 
 								} catch (UnsupportedEncodingException e) {
 									Log.e(TAG, "Unsupported encoding: ", e);
+								}
+								//clear nvPairs after form entity is created
+								nvPairs.clear();
+							}
 
-								} catch (IOException e) {
-									Log.e(TAG, "Error converting form to string: ", e);
+							// calculate content length
+							if (parts.size() > 0 && needMultipart) {
+								for (String name : parts.keySet()) {
+									contentLength += constructFilePart(name, parts.get(name)).length();
+									contentLength += parts.get(name).getContentLength() + 2;
+								}
+								if (form != null) {
+									contentLength += (int) form.getContentLength();
+									try {
+										ByteArrayOutputStream bos =
+											new ByteArrayOutputStream((int) form.getContentLength());
+										form.writeTo(bos);
+										StringBody stringBody = new StringBody(
+											bos.toString(),
+											"application/x-www-form-urlencoded",
+											StandardCharsets.UTF_8);
+										contentLength += constructFilePart("form", stringBody).length();
+										contentLength += form.getContentLength() + 2;
+									} catch (UnsupportedEncodingException e) {
+										Log.e(TAG, "Unsupported encoding: ", e);
+									} catch (IOException e) {
+										Log.e(TAG, "Error converting form to string: ", e);
+									}
+								}
+								contentLength += 6 + boundary.length();
+							} else {
+								if (data instanceof String) {
+									contentLength += ((String) data).getBytes().length;
+								} else if (data instanceof FileEntity) {
+									contentLength += ((FileEntity) data).getContentLength();
+								} else if (form != null) {
+									contentLength += (int) form.getContentLength();
 								}
 							}
-							completeSendingMultipart();
-						} else {
-							handleURLEncodedData(form);
+
+							// disable internal buffer
+							client.setFixedLengthStreamingMode(contentLength);
+
+							outputStream = new ProgressOutputStream(client.getOutputStream(), new ProgressListener() {
+								public void progress(int progress)
+								{
+									if (contentLength <= 0) {
+										return;
+									}
+									KrollDict data = new KrollDict();
+									double currentProgress = ((double) progress / contentLength);
+									if (currentProgress > 1)
+										currentProgress = 1;
+									data.put("progress", currentProgress);
+									dispatchCallback(TiC.PROPERTY_ONSENDSTREAM, data);
+								}
+							}, contentLength);
+							printWriter = new PrintWriter(outputStream, true);
+
+							if (parts.size() > 0 && needMultipart) {
+
+								for (String name : parts.keySet()) {
+									Log.d(TAG,
+										  "adding part " + name + ", part type: " + parts.get(name).getMimeType()
+											  + ", len: " + parts.get(name).getContentLength(),
+										  Log.DEBUG_MODE);
+									addFilePart(name, parts.get(name));
+								}
+								//clear parts after they have been used
+								parts.clear();
+								if (form != null) {
+									try {
+										ByteArrayOutputStream bos =
+											new ByteArrayOutputStream((int) form.getContentLength());
+										form.writeTo(bos);
+										addFilePart("form", new StringBody(
+											bos.toString(),
+											"application/x-www-form-urlencoded",
+											StandardCharsets.UTF_8));
+
+									} catch (UnsupportedEncodingException e) {
+										Log.e(TAG, "Unsupported encoding: ", e);
+
+									} catch (IOException e) {
+										Log.e(TAG, "Error converting form to string: ", e);
+									}
+								}
+								completeSendingMultipart();
+							} else {
+								handleURLEncodedData(form);
+							}
+							printWriter.close();
 						}
-						printWriter.close();
-					}
 
-					// Fix for https://jira-archive.titaniumsdk.com/TIMOB-23309
-					// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
-					// This section of the code handles that.
-					if (autoRedirect) {
-						// Hardcoded to follow a max of 5 redirects
-						for (int i = 0; i < REDIRECTS; i++) {
-							// Checks manually if a redirect is needed
-							int status = client.getResponseCode();
+						// Fix for https://jira-archive.titaniumsdk.com/TIMOB-23309
+						// HttpURLConnection does not follow redirects from HTTPS to HTTP (vice versa).
+						// This section of the code handles that.
+						if (autoRedirect) {
+							// Hardcoded to follow a max of 5 redirects
+							for (int i = 0; i < REDIRECTS; i++) {
+								// Checks manually if a redirect is needed
+								int status = client.getResponseCode();
 
-							if (status != HttpURLConnection.HTTP_OK
-								&& (status == HttpURLConnection.HTTP_MOVED_TEMP
-									|| status == HttpURLConnection.HTTP_MOVED_PERM
-									|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
-								redirectedLocation = client.getHeaderField("Location");
-								if (redirectedLocation != null) {
-									client.disconnect();
-									client = (HttpURLConnection) new URL(redirectedLocation).openConnection();
-									// Configure the headers and SSL connection again if required
-									setUpClient(client, isPostOrPutOrPatch);
+								if (status != HttpURLConnection.HTTP_OK
+									&& (status == HttpURLConnection.HTTP_MOVED_TEMP
+										|| status == HttpURLConnection.HTTP_MOVED_PERM
+										|| status == HttpURLConnection.HTTP_SEE_OTHER)) {
+									redirectedLocation = client.getHeaderField("Location");
+									if (redirectedLocation != null) {
+										client.disconnect();
+										client = (HttpURLConnection) new URL(redirectedLocation).openConnection();
+										// Configure the headers and SSL connection again if required
+										setUpClient(client, isPostOrPutOrPatch);
+									} else {
+										// There are no redirected URLs to follow.
+										break;
+									}
 								} else {
-									// There are no redirected URLs to follow.
+									// No more redirects to follow.
 									break;
 								}
-							} else {
-								// No more redirects to follow.
-								break;
 							}
 						}
-					}
-					handleResponse(client);
-				} catch (IOException e) {
-					if (!aborted) {
-						KrollDict data = new KrollDict();
-						int errorCode = TiC.ERROR_CODE_UNKNOWN;
-						if (e instanceof SocketTimeoutException) {
-							errorCode = TiC.ERROR_CODE_TIMEOUT;
-						} else if (getStatus() >= 400) {
-							errorCode = getStatus();
+						handleResponse(client);
+						break; // success — exit retry loop
+					} catch (IOException e) {
+						// Retry once on connection-level failures (DNS, connection
+						// reset, SSL handshake, etc.) for safe methods (GET/HEAD/etc).
+						// POST/PUT/PATCH bodies are consumed on the first attempt,
+						// so a retry would send an empty body — skip those.
+						// SocketTimeoutException is excluded (own error code, unlikely
+						// to help). HTTP 4xx/5xx responses (getStatus() >= 400) are
+						// not connection failures — report them immediately.
+						if (!aborted
+							&& !method.equals("POST") && !method.equals("PUT") && !method.equals("PATCH")
+							&& !(e instanceof SocketTimeoutException)
+							&& getStatus() < 400
+							&& connectionRetriesRemaining-- > 0) {
+							Log.w(TAG, "Connection failed, retrying in " + CONNECTION_RETRY_DELAY_MS
+								+ "ms: " + e.getMessage());
+							if (client != null) {
+								try {
+									client.disconnect();
+								} catch (Exception ex) {
+								}
+								client = null;
+							}
+							try {
+								Thread.sleep(CONNECTION_RETRY_DELAY_MS);
+							} catch (InterruptedException ie) {
+								Thread.currentThread().interrupt();
+								break;
+							}
+							continue;
 						}
-						data.putCodeAndMessage(errorCode, e.getMessage());
-						dispatchCallback(TiC.PROPERTY_ONERROR, data);
-						return;
+						if (!aborted) {
+							KrollDict data = new KrollDict();
+							int errorCode = TiC.ERROR_CODE_UNKNOWN;
+							if (resourceTimedOut) {
+								errorCode = android.webkit.WebViewClient.ERROR_TIMEOUT;
+							} else if (e instanceof SocketTimeoutException) {
+								// When a resource deadline is set, a connect/read
+								// SocketTimeout is the resource timeout firing.
+								errorCode = (timeoutForResource > 0)
+									? android.webkit.WebViewClient.ERROR_TIMEOUT
+									: TiC.ERROR_CODE_TIMEOUT;
+							} else if (e instanceof UnknownHostException) {
+								errorCode = TiC.ERROR_CODE_HOST_NOT_FOUND;
+							} else if (getStatus() >= 400) {
+								errorCode = getStatus();
+							}
+							data.putCodeAndMessage(errorCode, e.getMessage());
+							// Reset requestPending before dispatching onerror so the
+							// JS onerror handler can call send() to retry — otherwise
+							// send() silently no-ops on the pending flag and the test
+							// hangs until its mocha timeout (TIMOB-23372 follow-up).
+							requestPending = false;
+							dispatchCallback(TiC.PROPERTY_ONERROR, data);
+							return;
+						}
+					} finally {
+						if (client != null) {
+							client.disconnect();
+						}
 					}
-				} finally {
-					if (client != null) {
-						client.disconnect();
-					}
-				}
+					break; // aborted or interrupted — exit retry loop
+				} // end while
 
 				if (result != null) {
 					Log.d(TAG, "Have result back from request len=" + result.length(), Log.DEBUG_MODE);
@@ -1422,9 +1612,17 @@ public class TiHTTPClient
 				requestPending = false;
 
 				KrollDict data = new KrollDict();
-				data.putCodeAndMessage((getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN, msg);
+				int code = (getStatus() >= 400) ? getStatus() : TiC.ERROR_CODE_UNKNOWN;
+				if (resourceTimedOut) {
+					code = android.webkit.WebViewClient.ERROR_TIMEOUT;
+				}
+				data.putCodeAndMessage(code, msg);
 				dispatchCallback(TiC.PROPERTY_ONERROR, data);
 			} finally {
+				if (resourceTimer != null) {
+					resourceTimer.cancel();
+					resourceTimer = null;
+				}
 				deleteTmpFiles();
 
 				//Clean up client and clientThread
@@ -1445,9 +1643,17 @@ public class TiHTTPClient
 				setUpSSL(validatesSecureCertificate(), securedConnection);
 			}
 
-			if (timeout != -1) {
-				client.setReadTimeout(timeout);
-				client.setConnectTimeout(timeout);
+			// Always set a connect timeout so DNS/TCP connect can't hang
+			// forever; use the caller's value when provided, otherwise the
+			// default. Only set read timeout when the caller explicitly
+			// asked for one, so streaming/long-polling still works.
+			// When timeoutForResource is set, it is a wall-clock deadline for
+			// the entire transfer and overrides the looser per-call timeouts
+			// so a fresh TLS handshake or a stalled read aborts in time.
+			int effectiveTimeout = (timeoutForResource > 0) ? timeoutForResource : timeout;
+			client.setConnectTimeout((effectiveTimeout != -1) ? effectiveTimeout : DEFAULT_CONNECT_TIMEOUT);
+			if (effectiveTimeout != -1) {
+				client.setReadTimeout(effectiveTimeout);
 			}
 
 			if (aborted) {
@@ -1566,6 +1772,18 @@ public class TiHTTPClient
 		tmpFiles.clear();
 	}
 
+	private void deleteResponseTempFile()
+	{
+		if (responseTempFile != null) {
+			try {
+				responseTempFile.delete();
+			} catch (Exception e) {
+				Log.w(TAG, "Unable to delete response temp file: " + e.getMessage(), e);
+			}
+			responseTempFile = null;
+		}
+	}
+
 	public String getLocation()
 	{
 		if (redirectedLocation != null) {
@@ -1587,6 +1805,11 @@ public class TiHTTPClient
 	public void setTimeout(int millis)
 	{
 		timeout = millis;
+	}
+
+	public void setTimeoutForResource(int millis)
+	{
+		timeoutForResource = millis;
 	}
 
 	protected void setAutoEncodeUrl(boolean value)
