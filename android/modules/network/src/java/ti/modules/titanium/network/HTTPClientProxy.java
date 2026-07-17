@@ -65,6 +65,10 @@ public class HTTPClientProxy extends KrollProxy
 			client.setTimeout(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT), 0));
 		}
 
+		if (hasProperty(TiC.PROPERTY_TIMEOUT_FOR_RESOURCE)) {
+			client.setTimeoutForResource(TiConvert.toInt(getProperty(TiC.PROPERTY_TIMEOUT_FOR_RESOURCE), 0));
+		}
+
 		if (hasProperty(TiC.PROPERTY_AUTO_REDIRECT)) {
 			client.setAutoRedirect(TiConvert.toBoolean((getProperty(TiC.PROPERTY_AUTO_REDIRECT)), true));
 		}
@@ -185,6 +189,12 @@ public class HTTPClientProxy extends KrollProxy
 	public void setTimeout(int millis)
 	{
 		client.setTimeout(millis);
+	}
+
+	@Kroll.setProperty
+	public void setTimeoutForResource(int millis)
+	{
+		client.setTimeoutForResource(millis);
 	}
 
 	@Kroll.getProperty

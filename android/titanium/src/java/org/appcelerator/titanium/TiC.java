@@ -46,6 +46,9 @@ public class TiC
 	public static final int ERROR_CODE_UNKNOWN = -1;
 	public static final int ERROR_CODE_NO_ERROR = 0;
 	public static final int ERROR_CODE_TIMEOUT = -1001;
+	// Mirrors iOS NSURLErrorCannotFindHost so JS can detect DNS/host-resolution
+	// failures by code on both platforms instead of string-matching messages.
+	public static final int ERROR_CODE_HOST_NOT_FOUND = -1003;
 
 	public static final String EVENT_ADDED_TO_TAB = "addedtotab";
 	public static final String EVENT_ANDROID_BACK = "androidback";
@@ -785,6 +788,7 @@ public class TiC
 	public static final String PROPERTY_TICKER_TEXT = "tickerText";
 	public static final String PROPERTY_TIME = "time";
 	public static final String PROPERTY_TIMEOUT = "timeout";
+	public static final String PROPERTY_TIMEOUT_FOR_RESOURCE = "timeoutForResource";
 	public static final String PROPERTY_TIMESTAMP = "timestamp";
 	public static final String PROPERTY_TINT = "tint";
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
