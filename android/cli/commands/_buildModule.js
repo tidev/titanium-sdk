@@ -525,7 +525,7 @@ export class AndroidModuleBuilder extends Builder {
 		gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 		gradleProperties.push({ key: 'android.builtInKotlin', value: 'false' });
 		gradleProperties.push({ key: 'android.newDsl', value: 'false' });
-		gradleProperties.push({ key: 'org.gradle.daemon.idletimeout', value: '300000' });
+		gradleProperties.push({ key: 'org.gradle.daemon.idletimeout', value: '600000' });
 		gradleProperties.push({
 			key: 'org.gradle.jvmargs',
 			value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
