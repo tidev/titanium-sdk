@@ -23,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -44,11 +45,14 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLifecycle;
+import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -72,7 +76,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
-	private AppCompatActivity activity;
 	private TiViewProxy leftView;
 	private TiViewProxy rightView;
 	private FrameLayout leftFrame;
@@ -80,8 +83,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private int leftWidth;
 	private int rightWidth;
 	private ActionBarDrawerToggle drawerToggle;
-	int id_drawer_open_string;
-	int id_drawer_close_string;
+	private Toolbar drawerToolbar;
+	private static int id_drawer_open_string = 0;
+	private static int id_drawer_close_string = 0;
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -151,9 +155,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			@Override
 			public void onDestroy(Activity activity)
 			{
-				if (layout != null && drawerToggle != null) {
-					layout.removeDrawerListener(drawerToggle);
-				}
+				releaseDrawer();
 			}
 		});
 	}
@@ -204,8 +206,8 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			centerView = layout.findViewById(id_content);
 
 			bottomNavigation.setOnItemSelectedListener(this);
-			this.activity = activity;
 			activity.setLayout(layout);
+
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_LEFT)
 				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_RIGHT)
 				|| proxy.hasPropertyAndNotNull(TiC.PROPERTY_PADDING_BOTTOM)) {
@@ -682,13 +684,17 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 	}
 
-	private void initLeft()
+	/**
+	 * Creates the left drawer frame if not already created.
+	 * @return True if the frame is available for use. False if the layout has not been inflated yet.
+	 */
+	private boolean initLeft()
 	{
 		if (leftFrame != null) {
-			return;
+			return true;
 		}
 		if (layout == null) {
-			return;
+			return false;
 		}
 		leftFrame = new FrameLayout(proxy.getActivity());
 
@@ -702,15 +708,22 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		if (drawerToggle == null) {
 			initDrawerToggle();
 		}
+		// The toolbar's hamburger only drives the left drawer, so it can only be enabled once it exists.
+		updateDrawerIndicator();
+		return true;
 	}
 
-	private void initRight()
+	/**
+	 * Creates the right drawer frame if not already created.
+	 * @return True if the frame is available for use. False if the layout has not been inflated yet.
+	 */
+	private boolean initRight()
 	{
 		if (rightFrame != null) {
-			return;
+			return true;
 		}
 		if (layout == null) {
-			return;
+			return false;
 		}
 		rightFrame = new FrameLayout(proxy.getActivity());
 
@@ -724,6 +737,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		if (drawerToggle == null) {
 			initDrawerToggle();
 		}
+		return true;
 	}
 
 	private void initDrawerToggle()
@@ -741,28 +755,41 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			if (id_drawer_close_string == 0) {
 				id_drawer_close_string = TiRHelper.getResource("string.drawer_layout_close");
 			}
-		} catch (Exception ex) {}
+		} catch (ResourceNotFoundException ex) {
+			Log.e(TAG, "Drawer accessibility strings could not be found: " + ex.getMessage());
+		}
 
-		// Create the ActionBarDrawerToggle without passing toolbar, since it's already set up in TabGroupProxy
-		drawerToggle = new ActionBarDrawerToggle(activity, layout, id_drawer_open_string, id_drawer_close_string) {
+		// Pass the toolbar to the toggle so that it owns the navigation icon and the open/close animation.
+		drawerToolbar = findToolbar(activity);
+		drawerToggle = new ActionBarDrawerToggle(activity, layout, drawerToolbar, id_drawer_open_string,
+			id_drawer_close_string) {
+			// The base class does not look at which drawer moved, so it would animate the hamburger into
+			// the back arrow for the right drawer too. The icon only represents the left drawer, so the
+			// super calls that drive it are skipped for anything else.
 			@Override
 			public void onDrawerClosed(View drawerView)
 			{
-				super.onDrawerClosed(drawerView);
+				if (drawerView == leftFrame) {
+					super.onDrawerClosed(drawerView);
+				}
 				drawerClosedEvent(drawerView);
 			}
 
 			@Override
 			public void onDrawerOpened(View drawerView)
 			{
-				super.onDrawerOpened(drawerView);
+				if (drawerView == leftFrame) {
+					super.onDrawerOpened(drawerView);
+				}
 				drawerOpenedEvent(drawerView);
 			}
 
 			@Override
 			public void onDrawerSlide(View drawerView, float slideOffset)
 			{
-				super.onDrawerSlide(drawerView, slideOffset);
+				if (drawerView == leftFrame) {
+					super.onDrawerSlide(drawerView, slideOffset);
+				}
 				drawerSlideEvent(drawerView, slideOffset);
 			}
 
@@ -775,40 +802,74 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		};
 		layout.addDrawerListener(drawerToggle);
 
-		// Manually set up the navigation click handling
-		if (activity.getSupportActionBar() != null) {
-			// Enable the drawer indicator
-			drawerToggle.setDrawerIndicatorEnabled(true);
+		// The indicator stays off until a left drawer actually exists. See updateDrawerIndicator().
+		drawerToggle.setDrawerIndicatorEnabled(false);
 
-			// Ensure the navigation button is visible
-			activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			activity.getSupportActionBar().setHomeButtonEnabled(true);
-
-			// Find the Toolbar and set the navigation click listener to toggle the drawer
-			Toolbar toolbar = findToolbar(activity);
-			if (toolbar != null) {
-				toolbar.setNavigationOnClickListener(new View.OnClickListener()
+		// ActionBarDrawerToggle installed its own click listener on the toolbar, but the toggle() it calls
+		// is private and hardcoded to GravityCompat.START. That makes it open the left drawer even while
+		// the right one is showing, so the click is handled here instead. The toggle still drives the icon
+		// animation through the drawer listener above; only the click is taken over.
+		if (drawerToolbar != null) {
+			drawerToolbar.setNavigationOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
 				{
-					@Override
-					public void onClick(View v)
-					{
-						if (layout.isDrawerOpen(GravityCompat.START)) {
-							layout.closeDrawer(GravityCompat.START);
-						} else {
-							layout.openDrawer(GravityCompat.START);
-						}
-					}
-				});
-			}
+					onNavigationIconClicked();
+				}
+			});
 		}
 
 		layout.post(new Runnable() {
 			@Override
 			public void run()
 			{
-				drawerToggle.syncState();
+				if (drawerToggle != null) {
+					drawerToggle.syncState();
+				}
 			}
 		});
+	}
+
+	/**
+	 * Handles a tap on the toolbar's navigation icon. Dismisses the right drawer if it is showing,
+	 * since the icon does not represent it, and otherwise toggles the left drawer.
+	 */
+	private void onNavigationIconClicked()
+	{
+		if (layout == null) {
+			return;
+		}
+		if (rightFrame != null && layout.isDrawerOpen(GravityCompat.END)) {
+			layout.closeDrawer(GravityCompat.END);
+			return;
+		}
+		if (leftFrame != null) {
+			toggleLeft();
+		}
+	}
+
+	/**
+	 * Shows the hamburger icon only when there is a left drawer for it to open. A right-only drawer
+	 * leaves the window's existing navigation icon untouched.
+	 */
+	private void updateDrawerIndicator()
+	{
+		if (drawerToggle == null) {
+			return;
+		}
+		final boolean hasLeftDrawer = (leftFrame != null);
+		drawerToggle.setDrawerIndicatorEnabled(hasLeftDrawer);
+
+		Activity currentActivity = proxy.getActivity();
+		if (hasLeftDrawer && currentActivity instanceof AppCompatActivity appCompatActivity) {
+			ActionBar actionBar = appCompatActivity.getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setDisplayHomeAsUpEnabled(true);
+				actionBar.setHomeButtonEnabled(true);
+			}
+		}
+		drawerToggle.syncState();
 	}
 
 	@Override
@@ -822,8 +883,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
 				this.leftView = (TiViewProxy) leftView;
-				this.initLeft();
-				this.leftFrame.addView(getNativeView(this.leftView));
+				if (this.initLeft()) {
+					this.leftFrame.addView(getNativeView(this.leftView));
+				}
 			} else {
 				Log.e(TAG, "invalid type for leftView");
 			}
@@ -835,8 +897,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
 				this.rightView = (TiViewProxy) rightView;
-				this.initRight();
-				this.rightFrame.addView(getNativeView(this.rightView));
+				if (this.initRight()) {
+					this.rightFrame.addView(getNativeView(this.rightView));
+				}
 			} else {
 				Log.e(TAG, "invalid type for rightView");
 			}
@@ -873,6 +936,19 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
 			}
 		}
+		if (layout != null) {
+			if (d.containsKey(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
+				layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_DRAWER_LOCK_MODE)));
+			}
+			if (d.containsKey(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+				layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)),
+					GravityCompat.START);
+			}
+			if (d.containsKey(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+				layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)),
+					GravityCompat.END);
+			}
+		}
 	}
 
 	@Override
@@ -897,7 +973,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
 				newProxy = (TiViewProxy) newValue;
-				initLeft();
+				if (!initLeft()) {
+					return;
+				}
 				this.leftFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
 			} else {
 				Log.e(TAG, "invalid type for leftView");
@@ -906,7 +984,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				this.leftFrame.removeView(this.leftView.getOrCreateView().getNativeView());
 			}
 			this.leftView = newProxy;
-			if (isFirst) {
+			if (isFirst && leftFrame != null) {
 				// set initial width
 				leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
 			}
@@ -928,7 +1006,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
 				newProxy = (TiViewProxy) newValue;
-				initRight();
+				if (!initRight()) {
+					return;
+				}
 				this.rightFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
 			} else {
 				Log.e(TAG, "invalid type for rightView");
@@ -937,7 +1017,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				this.rightFrame.removeView(this.rightView.getOrCreateView().getNativeView());
 			}
 			this.rightView = newProxy;
-			if (isFirst) {
+			if (isFirst && rightFrame != null) {
 				// set initial width
 				rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
 			}
@@ -1012,27 +1092,32 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		return nativeView;
 	}
 
+	/**
+	 * Resolves the Toolbar acting as the activity's ActionBar.
+	 * <p>
+	 * Never searches the view hierarchy for the first Toolbar it can find, since that would happily
+	 * return a Ti.UI.Toolbar belonging to the currently displayed tab window.
+	 * @return The action bar's Toolbar or null if the theme does not provide one.
+	 */
 	private Toolbar findToolbar(AppCompatActivity activity)
 	{
-		ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
-		return findToolbarInViewGroup(decorView);
-	}
-
-	private Toolbar findToolbarInViewGroup(ViewGroup parent)
-	{
-		for (int i = 0; i < parent.getChildCount(); i++) {
-			View child = parent.getChildAt(i);
-			if (child instanceof Toolbar) {
-				return (Toolbar) child;
-			}
-			if (child instanceof ViewGroup) {
-				Toolbar result = findToolbarInViewGroup((ViewGroup) child);
-				if (result != null) {
-					return result;
+		// Prefer the Toolbar the activity was explicitly given via the window's "supportToolbar" property.
+		if (activity instanceof TiBaseActivity tiActivity) {
+			ActivityProxy activityProxy = tiActivity.getActivityProxy();
+			if (activityProxy != null) {
+				Object supportToolbar = activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR);
+				if (supportToolbar instanceof TiToolbarProxy toolbarProxy) {
+					Object toolbarInstance = toolbarProxy.getToolbarInstance();
+					if (toolbarInstance instanceof Toolbar toolbar) {
+						return toolbar;
+					}
 				}
 			}
 		}
-		return null;
+
+		// Otherwise fall back to the Toolbar that AppCompat inflates for a theme provided ActionBar.
+		View actionBarView = activity.findViewById(androidx.appcompat.R.id.action_bar);
+		return (actionBarView instanceof Toolbar toolbar) ? toolbar : null;
 	}
 
 	public void toggleLeft()
@@ -1051,6 +1136,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	{
 		if (layout == null) {
 			return;
+		}
+		// DrawerLayout only auto-closes the opposite drawer for edge drags, not for programmatic opens.
+		if (rightFrame != null && layout.isDrawerOpen(GravityCompat.END)) {
+			layout.closeDrawer(GravityCompat.END);
 		}
 		layout.openDrawer(GravityCompat.START);
 	}
@@ -1079,6 +1168,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	{
 		if (layout == null) {
 			return;
+		}
+		// DrawerLayout only auto-closes the opposite drawer for edge drags, not for programmatic opens.
+		if (leftFrame != null && layout.isDrawerOpen(GravityCompat.START)) {
+			layout.closeDrawer(GravityCompat.START);
 		}
 		layout.openDrawer(GravityCompat.END);
 	}
@@ -1123,55 +1216,101 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		return layout.isDrawerVisible(GravityCompat.END);
 	}
 
+	// Note: These events are namespaced with a "drawer" prefix on purpose. A TabGroup already fires
+	// "open"/"close" for its own window lifecycle, so reusing those names here would make every drawer
+	// interaction look like a TabGroup open/close to existing listeners.
 	private void drawerClosedEvent(View drawerView)
 	{
-		if (proxy.hasListeners(TiC.EVENT_CLOSE)) {
-			KrollDict options = new KrollDict();
-			if (drawerView.equals(leftFrame)) {
-				options.put("drawer", "left");
-			} else if (drawerView.equals(rightFrame)) {
-				options.put("drawer", "right");
-			}
-			proxy.fireEvent(TiC.EVENT_CLOSE, options);
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_CLOSE)) {
+			proxy.fireEvent(TiC.EVENT_DRAWER_CLOSE, createDrawerEvent(drawerView));
 		}
 	}
 
 	private void drawerOpenedEvent(View drawerView)
 	{
-		if (proxy.hasListeners(TiC.EVENT_OPEN)) {
-			KrollDict options = new KrollDict();
-			if (drawerView.equals(leftFrame)) {
-				options.put("drawer", "left");
-			} else if (drawerView.equals(rightFrame)) {
-				options.put("drawer", "right");
-			}
-			proxy.fireEvent(TiC.EVENT_OPEN, options);
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_OPEN)) {
+			proxy.fireEvent(TiC.EVENT_DRAWER_OPEN, createDrawerEvent(drawerView));
 		}
 	}
 
 	private void drawerStateChangedEvent(int state)
 	{
-		if (proxy.hasListeners(TiC.EVENT_CHANGE)) {
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_STATE_CHANGE)) {
 			KrollDict options = new KrollDict();
 			options.put("state", state);
 			options.put("idle", (state == DrawerLayout.STATE_IDLE));
 			options.put("dragging", (state == DrawerLayout.STATE_DRAGGING));
 			options.put("settling", (state == DrawerLayout.STATE_SETTLING));
-			proxy.fireEvent(TiC.EVENT_CHANGE, options);
+			proxy.fireEvent(TiC.EVENT_DRAWER_STATE_CHANGE, options);
 		}
 	}
 
 	private void drawerSlideEvent(View drawerView, float slideOffset)
 	{
-		if (proxy.hasListeners(TiC.EVENT_SLIDE)) {
-			KrollDict options = new KrollDict();
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_SLIDE)) {
+			KrollDict options = createDrawerEvent(drawerView);
 			options.put("offset", slideOffset);
-			if (drawerView.equals(leftFrame)) {
-				options.put("drawer", "left");
-			} else if (drawerView.equals(rightFrame)) {
-				options.put("drawer", "right");
-			}
-			proxy.fireEvent(TiC.EVENT_SLIDE, options);
+			proxy.fireEvent(TiC.EVENT_DRAWER_SLIDE, options);
 		}
+	}
+
+	private KrollDict createDrawerEvent(View drawerView)
+	{
+		KrollDict options = new KrollDict();
+		if (drawerView.equals(leftFrame)) {
+			options.put("drawer", "left");
+		} else if (drawerView.equals(rightFrame)) {
+			options.put("drawer", "right");
+		}
+		return options;
+	}
+
+	/**
+	 * Detaches the drawer from the activity and frees the drawer views. Safe to call more than once,
+	 * since this runs both on activity destroy and on proxy release.
+	 */
+	private void releaseDrawer()
+	{
+		if (drawerToggle != null) {
+			if (layout != null) {
+				layout.removeDrawerListener(drawerToggle);
+			}
+			drawerToggle = null;
+		}
+		if (drawerToolbar != null) {
+			// The toggle installed its own navigation listener on the toolbar. Drop it so the hamburger
+			// does not outlive the drawer it belongs to.
+			drawerToolbar.setNavigationOnClickListener(null);
+			drawerToolbar = null;
+		}
+		if (leftFrame != null) {
+			leftFrame.removeAllViews();
+			leftFrame = null;
+		}
+		if (rightFrame != null) {
+			rightFrame.removeAllViews();
+			rightFrame = null;
+		}
+		if (leftView != null) {
+			leftView.releaseViews();
+			leftView = null;
+		}
+		if (rightView != null) {
+			rightView.releaseViews();
+			rightView = null;
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		releaseDrawer();
+		if (layout != null) {
+			layout.removeAllViews();
+			layout = null;
+		}
+		centerView = null;
+		bottomNavigation = null;
+		super.release();
 	}
 }

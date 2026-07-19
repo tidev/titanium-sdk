@@ -62,7 +62,12 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 		TiC.PROPERTY_SMOOTH_SCROLL_ON_TAB_CLICK,
 		TiC.PROPERTY_INDICATOR_COLOR,
 		TiC.PROPERTY_LEFT_VIEW,
-		TiC.PROPERTY_RIGHT_VIEW
+		TiC.PROPERTY_RIGHT_VIEW,
+		TiC.PROPERTY_LEFT_WIDTH,
+		TiC.PROPERTY_RIGHT_WIDTH,
+		TiC.PROPERTY_DRAWER_LOCK_MODE,
+		TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE,
+		TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE
 	})
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
@@ -827,6 +832,31 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (view instanceof TiUIBottomNavigation bottomNavigation) {
 			bottomNavigation.closeRight();
 		}
+	}
+
+	// Exposed as read-only properties to match Ti.UI.Android.DrawerLayout's existing API.
+	@Kroll.getProperty
+	public boolean getIsLeftOpen()
+	{
+		return (view instanceof TiUIBottomNavigation bottomNavigation) && bottomNavigation.isLeftOpen();
+	}
+
+	@Kroll.getProperty
+	public boolean getIsRightOpen()
+	{
+		return (view instanceof TiUIBottomNavigation bottomNavigation) && bottomNavigation.isRightOpen();
+	}
+
+	@Kroll.getProperty
+	public boolean getIsLeftVisible()
+	{
+		return (view instanceof TiUIBottomNavigation bottomNavigation) && bottomNavigation.isLeftVisible();
+	}
+
+	@Kroll.getProperty
+	public boolean getIsRightVisible()
+	{
+		return (view instanceof TiUIBottomNavigation bottomNavigation) && bottomNavigation.isRightVisible();
 	}
 
 	@Override
