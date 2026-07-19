@@ -28,6 +28,8 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.shape.AbsoluteCornerSize;
+import com.google.android.material.shape.ClampedCornerSize;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -214,14 +216,39 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 						bottomNavigation.setBackground(shapeDrawable);
 					}
 					ShapeAppearanceModel model = shapeDrawable.getShapeAppearanceModel();
-					TiDimension borderRadius = TiConvert.toTiDimension(
-						this.proxy.getProperty(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_LEFT);
-					float radius = (borderRadius != null)
-						? borderRadius.getAsPixels(bottomNavigation)
-						: (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(bottomNavigation);
-					model = model.toBuilder().setAllCorners(CornerFamily.ROUNDED, radius).build();
+					final float defaultRadius
+						= (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(bottomNavigation);
+					final Object radiusValue = this.proxy.getProperty(TiC.PROPERTY_BORDER_RADIUS);
+					final TiDimension borderRadius = TiConvert.toTiDimension(radiusValue, TiDimension.TYPE_LEFT);
+					if ((radiusValue != null) && (borderRadius == null)) {
+						Log.w(TAG, "borderRadius only supports a single value on a floating BottomNavigation.");
+					}
+					float radius = (borderRadius != null) ? borderRadius.getAsPixels(bottomNavigation) : defaultRadius;
+					// Note: Corner sizes must be clamped to half of the tab bar's shortest side. Otherwise the
+					//       corner arcs overlap, self-intersecting the path and rendering jagged corners.
+					model = model.toBuilder()
+						.setAllCorners(CornerFamily.ROUNDED, radius)
+						.setAllCornerSizes(ClampedCornerSize.createFromCornerSize(new AbsoluteCornerSize(radius)))
+						.build();
 					shapeDrawable.setShapeAppearanceModel(model);
+
+					// Clip tab items to the rounded background. Tabs paint their own opaque backgrounds
+					// (see "tabsBackgroundColor"), which would otherwise show through the rounded corners.
+					bottomNavigation.setClipToOutline(true);
+
+					// Keep the horizontal padding in step with the corner radius so that tab items are not
+					// pushed into the rounded corners. The radius is clamped to half of the tab bar's height,
+					// which is only known once laid out.
+					final float requestedRadius = radius;
 					bottomNavigation.setPadding((int) (radius * 0.75), 0, (int) (radius * 0.75), 0);
+					bottomNavigation.addOnLayoutChangeListener(
+						(view, l, t, r, b, oldL, oldT, oldR, oldB) -> {
+							float clampedRadius = Math.min(requestedRadius, (b - t) * 0.5f);
+							int padding = (int) (clampedRadius * 0.75);
+							if (view.getPaddingLeft() != padding) {
+								view.setPadding(padding, 0, padding, 0);
+							}
+						});
 					bottomNavigation.setElevation(
 						(new TiDimension("8dp", TiDimension.TYPE_BOTTOM)).getAsPixels(bottomNavigation));
 					RelativeLayout.LayoutParams params

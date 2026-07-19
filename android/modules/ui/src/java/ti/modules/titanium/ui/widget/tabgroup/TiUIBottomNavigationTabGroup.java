@@ -25,10 +25,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.android.material.shape.AbsoluteCornerSize;
+import com.google.android.material.shape.ClampedCornerSize;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
@@ -55,6 +58,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	private int currentlySelectedIndex = -1;
 	private BottomNavigationView mBottomNavigationView;
 	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
+	// Set true when the tab bar is displayed as a floating toolbar, which draws its own rounded corners.
+	private boolean isFloatingTabBar;
 	// endregion
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -97,6 +102,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			=  ((paddingLeft != null) && (paddingLeft.getValue() > 0))
 			|| ((paddingRight != null) && (paddingRight.getValue() > 0))
 			|| ((paddingBottom != null) && (paddingBottom.getValue() > 0));
+		this.isFloatingTabBar = isFloating;
 
 		// Create the bottom tab navigation view.
 		mBottomNavigationView = new BottomNavigationView(activity);
@@ -122,16 +128,39 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				mBottomNavigationView.setBackground(shapeDrawable);
 			}
 			ShapeAppearanceModel model = shapeDrawable.getShapeAppearanceModel();
-			TiDimension borderRadius = TiConvert.toTiDimension(
-				this.proxy.getProperty(TiC.PROPERTY_BORDER_RADIUS), TiDimension.TYPE_LEFT);
-			float radius = (borderRadius != null)
-				? borderRadius.getAsPixels(mBottomNavigationView)
-				: (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(mBottomNavigationView);
-			// Remove borderRadius from proxy to prevent TiUIView from creating a border wrapper around the ViewPager.
-			this.proxy.setProperty(TiC.PROPERTY_BORDER_RADIUS, null);
-			model = model.toBuilder().setAllCorners(CornerFamily.ROUNDED, radius).build();
+			final float defaultRadius
+				= (new TiDimension("17dp", TiDimension.TYPE_LEFT)).getAsPixels(mBottomNavigationView);
+			final Object radiusValue = this.proxy.getProperty(TiC.PROPERTY_BORDER_RADIUS);
+			final TiDimension borderRadius = TiConvert.toTiDimension(radiusValue, TiDimension.TYPE_LEFT);
+			if ((radiusValue != null) && (borderRadius == null)) {
+				Log.w(TAG, "borderRadius only supports a single value on a floating BottomNavigation.");
+			}
+			float radius = (borderRadius != null) ? borderRadius.getAsPixels(mBottomNavigationView) : defaultRadius;
+			// Note: Corner sizes must be clamped to half of the tab bar's shortest side. Otherwise the
+			//       corner arcs overlap, self-intersecting the path and rendering jagged corners.
+			model = model.toBuilder()
+				.setAllCorners(CornerFamily.ROUNDED, radius)
+				.setAllCornerSizes(ClampedCornerSize.createFromCornerSize(new AbsoluteCornerSize(radius)))
+				.build();
 			shapeDrawable.setShapeAppearanceModel(model);
+
+			// Clip tab items to the rounded background. Tabs paint their own opaque backgrounds
+			// (see "tabsBackgroundColor"), which would otherwise show through the rounded corners.
+			this.mBottomNavigationView.setClipToOutline(true);
+
+			// Keep the horizontal padding in step with the corner radius so that tab items are not
+			// pushed into the rounded corners. The radius is clamped to half of the tab bar's height,
+			// which is only known once laid out.
+			final float requestedRadius = radius;
 			this.mBottomNavigationView.setPadding((int) (radius * 0.75), 0, (int) (radius * 0.75), 0);
+			this.mBottomNavigationView.addOnLayoutChangeListener(
+				(view, l, t, r, b, oldL, oldT, oldR, oldB) -> {
+					float clampedRadius = Math.min(requestedRadius, (b - t) * 0.5f);
+					int padding = (int) (clampedRadius * 0.75);
+					if (view.getPaddingLeft() != padding) {
+						view.setPadding(padding, 0, padding, 0);
+					}
+				});
 			mBottomNavigationView.setElevation(
 				(new TiDimension("8dp", TiDimension.TYPE_BOTTOM)).getAsPixels(mBottomNavigationView));
 			this.mBottomNavigationView.setOnApplyWindowInsetsListener((view, insets) -> {
@@ -185,6 +214,19 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// Set the ViewPager as a native view.
 		setNativeView(this.tabGroupViewPager);
+	}
+
+	@Override
+	protected boolean hasBorder(KrollDict d)
+	{
+		if (this.isFloatingTabBar && d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
+			// A floating tab bar draws its own rounded corners. Ignore "borderRadius" here so that it
+			// does not also wrap the ViewPager in a border view.
+			final KrollDict properties = new KrollDict(d);
+			properties.remove(TiC.PROPERTY_BORDER_RADIUS);
+			return super.hasBorder(properties);
+		}
+		return super.hasBorder(d);
 	}
 
 	/**
