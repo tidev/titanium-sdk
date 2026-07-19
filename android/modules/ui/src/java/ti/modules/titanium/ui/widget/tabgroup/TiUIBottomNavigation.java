@@ -17,12 +17,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
@@ -32,15 +39,20 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiLifecycle;
+import org.appcelerator.titanium.proxy.ActivityProxy;
+import org.appcelerator.titanium.proxy.TiToolbarProxy;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiRHelper;
+import org.appcelerator.titanium.util.TiRHelper.ResourceNotFoundException;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -48,6 +60,7 @@ import java.util.ArrayList;
 
 import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
+import ti.modules.titanium.ui.WindowProxy;
 
 /**
  * TabGroup implementation using BottomNavigationView XML as a controller.
@@ -59,10 +72,20 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private int currentlySelectedIndex = -1;
 	private int lastNightMode = -1;
 	private ArrayList<MenuItem> mMenuItemsArray;
-	private RelativeLayout layout;
+	private DrawerLayout layout;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
+	private TiViewProxy leftView;
+	private TiViewProxy rightView;
+	private FrameLayout leftFrame;
+	private FrameLayout rightFrame;
+	private int leftWidth;
+	private int rightWidth;
+	private ActionBarDrawerToggle drawerToggle;
+	private Toolbar drawerToolbar;
+	private static int id_drawer_open_string = 0;
+	private static int id_drawer_close_string = 0;
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -130,7 +153,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			public void onStop(Activity activity) {}
 
 			@Override
-			public void onDestroy(Activity activity) {}
+			public void onDestroy(Activity activity)
+			{
+				releaseDrawer();
+			}
 		});
 	}
 
@@ -175,7 +201,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			int id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
 
 			LayoutInflater inflater = LayoutInflater.from(activity);
-			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
+			layout = (DrawerLayout) inflater.inflate(id_layout, null, false);
 			bottomNavigation = layout.findViewById(id_bottomNavigation);
 			centerView = layout.findViewById(id_content);
 
@@ -587,6 +613,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		if (tabsArray == null || tabsArray.isEmpty()) {
 			return;
 		}
+		if (tabIndex < 0 || tabIndex >= tabsArray.size()) {
+			return;
+		}
 
 		// unselected event
 		if ((currentlySelectedIndex >= 0) && (tabIndex != currentlySelectedIndex)
@@ -629,11 +658,17 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 
 	public void showHideTabBar(boolean visible)
 	{
+		if (bottomNavigation == null) {
+			return;
+		}
 		super.setTabGroupVisibilityWithAnimation(bottomNavigation, visible);
 	}
 
 	public void setTabGroupVisibility(boolean visible)
 	{
+		if (bottomNavigation == null) {
+			return;
+		}
 		super.setTabGroupVisibility(bottomNavigation, visible);
 	}
 
@@ -647,5 +682,635 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			// Height not available, post it to run after a layout pass.
 			bottomNavigation.post(runnable);
 		}
+	}
+
+	/**
+	 * Creates the left drawer frame if not already created.
+	 * @return True if the frame is available for use. False if the layout has not been inflated yet.
+	 */
+	private boolean initLeft()
+	{
+		if (leftFrame != null) {
+			return true;
+		}
+		if (layout == null) {
+			return false;
+		}
+		leftFrame = new FrameLayout(proxy.getActivity());
+
+		DrawerLayout.LayoutParams frameLayout = new DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.WRAP_CONTENT,
+			DrawerLayout.LayoutParams.MATCH_PARENT);
+		frameLayout.gravity = GravityCompat.START;
+		leftFrame.setLayoutParams(frameLayout);
+
+		layout.addView(leftFrame);
+
+		if (drawerToggle == null) {
+			initDrawerToggle();
+		}
+		// The toolbar's hamburger only drives the left drawer, so it can only be enabled once it exists.
+		updateDrawerIndicator();
+		return true;
+	}
+
+	/**
+	 * Creates the right drawer frame if not already created.
+	 * @return True if the frame is available for use. False if the layout has not been inflated yet.
+	 */
+	private boolean initRight()
+	{
+		if (rightFrame != null) {
+			return true;
+		}
+		if (layout == null) {
+			return false;
+		}
+		rightFrame = new FrameLayout(proxy.getActivity());
+
+		DrawerLayout.LayoutParams frameLayout = new DrawerLayout.LayoutParams(DrawerLayout.LayoutParams.WRAP_CONTENT,
+			DrawerLayout.LayoutParams.MATCH_PARENT);
+		frameLayout.gravity = GravityCompat.END;
+		rightFrame.setLayoutParams(frameLayout);
+
+		layout.addView(rightFrame);
+
+		if (drawerToggle == null) {
+			initDrawerToggle();
+		}
+		return true;
+	}
+
+	private void initDrawerToggle()
+	{
+
+		final AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
+		if (activity == null) {
+			return;
+		}
+
+		try {
+			if (id_drawer_open_string == 0) {
+				id_drawer_open_string = TiRHelper.getResource("string.drawer_layout_open");
+			}
+			if (id_drawer_close_string == 0) {
+				id_drawer_close_string = TiRHelper.getResource("string.drawer_layout_close");
+			}
+		} catch (ResourceNotFoundException ex) {
+			Log.e(TAG, "Drawer accessibility strings could not be found: " + ex.getMessage());
+		}
+
+		// Pass the toolbar to the toggle so that it owns the navigation icon and the open/close animation.
+		drawerToolbar = findToolbar(activity);
+		drawerToggle = new ActionBarDrawerToggle(activity, layout, drawerToolbar, id_drawer_open_string,
+			id_drawer_close_string) {
+			// The base class does not look at which drawer moved, so it would animate the hamburger into
+			// the back arrow for the right drawer too. The icon only represents the left drawer, so the
+			// super calls that drive it are skipped for anything else.
+			@Override
+			public void onDrawerClosed(View drawerView)
+			{
+				if (drawerView == leftFrame) {
+					super.onDrawerClosed(drawerView);
+				}
+				drawerClosedEvent(drawerView);
+			}
+
+			@Override
+			public void onDrawerOpened(View drawerView)
+			{
+				if (drawerView == leftFrame) {
+					super.onDrawerOpened(drawerView);
+				}
+				drawerOpenedEvent(drawerView);
+			}
+
+			@Override
+			public void onDrawerSlide(View drawerView, float slideOffset)
+			{
+				if (drawerView == leftFrame) {
+					super.onDrawerSlide(drawerView, slideOffset);
+				}
+				drawerSlideEvent(drawerView, slideOffset);
+			}
+
+			@Override
+			public void onDrawerStateChanged(int state)
+			{
+				super.onDrawerStateChanged(state);
+				drawerStateChangedEvent(state);
+			}
+		};
+		layout.addDrawerListener(drawerToggle);
+
+		// The indicator stays off until a left drawer actually exists. See updateDrawerIndicator().
+		drawerToggle.setDrawerIndicatorEnabled(false);
+
+		// ActionBarDrawerToggle installed its own click listener on the toolbar, but the toggle() it calls
+		// is private and hardcoded to GravityCompat.START. That makes it open the left drawer even while
+		// the right one is showing, so the click is handled here instead. The toggle still drives the icon
+		// animation through the drawer listener above; only the click is taken over.
+		if (drawerToolbar != null) {
+			drawerToolbar.setNavigationOnClickListener(new View.OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					onNavigationIconClicked();
+				}
+			});
+		}
+
+		layout.post(new Runnable() {
+			@Override
+			public void run()
+			{
+				if (drawerToggle != null) {
+					drawerToggle.syncState();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Handles a tap on the toolbar's navigation icon. Dismisses the right drawer if it is showing,
+	 * since the icon does not represent it, and otherwise toggles the left drawer.
+	 */
+	private void onNavigationIconClicked()
+	{
+		if (layout == null) {
+			return;
+		}
+		if (rightFrame != null && layout.isDrawerOpen(GravityCompat.END)) {
+			layout.closeDrawer(GravityCompat.END);
+			return;
+		}
+		if (leftFrame != null) {
+			toggleLeft();
+		}
+	}
+
+	/**
+	 * Shows the hamburger icon only when there is a left drawer for it to open. A right-only drawer
+	 * leaves the window's existing navigation icon untouched.
+	 */
+	private void updateDrawerIndicator()
+	{
+		if (drawerToggle == null) {
+			return;
+		}
+		final boolean hasLeftDrawer = (leftFrame != null);
+		drawerToggle.setDrawerIndicatorEnabled(hasLeftDrawer);
+
+		Activity currentActivity = proxy.getActivity();
+		if (hasLeftDrawer && currentActivity instanceof AppCompatActivity appCompatActivity) {
+			ActionBar actionBar = appCompatActivity.getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.setDisplayHomeAsUpEnabled(true);
+				actionBar.setHomeButtonEnabled(true);
+			}
+		}
+		drawerToggle.syncState();
+	}
+
+	@Override
+	public void processProperties(KrollDict d)
+	{
+		super.processProperties(d);
+		if (d.containsKey(TiC.PROPERTY_LEFT_VIEW)) {
+			Object leftView = d.get(TiC.PROPERTY_LEFT_VIEW);
+			if (leftView instanceof TiViewProxy) {
+				if (leftView instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				this.leftView = (TiViewProxy) leftView;
+				if (this.initLeft()) {
+					this.leftFrame.addView(getNativeView(this.leftView));
+				}
+			} else {
+				Log.e(TAG, "invalid type for leftView");
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_RIGHT_VIEW)) {
+			Object rightView = d.get(TiC.PROPERTY_RIGHT_VIEW);
+			if (rightView instanceof TiViewProxy) {
+				if (rightView instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				this.rightView = (TiViewProxy) rightView;
+				if (this.initRight()) {
+					this.rightFrame.addView(getNativeView(this.rightView));
+				}
+			} else {
+				Log.e(TAG, "invalid type for rightView");
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_LEFT_WIDTH)) {
+			if (leftFrame != null) {
+				if (d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.LAYOUT_SIZE)) {
+					leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.WRAP_CONTENT;
+				} else if (d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.LAYOUT_FILL)) {
+					leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+				} else if (!d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.SIZE_AUTO)) {
+					leftWidth = getDevicePixels(d.get(TiC.PROPERTY_LEFT_WIDTH));
+					leftFrame.getLayoutParams().width = leftWidth;
+				}
+			}
+		} else {
+			if (leftFrame != null) {
+				leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
+		}
+		if (d.containsKey(TiC.PROPERTY_RIGHT_WIDTH)) {
+			if (rightFrame != null) {
+				if (d.get(TiC.PROPERTY_RIGHT_WIDTH).equals(TiC.LAYOUT_SIZE)) {
+					rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.WRAP_CONTENT;
+				} else if (d.get(TiC.PROPERTY_RIGHT_WIDTH).equals(TiC.LAYOUT_FILL)) {
+					rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+				} else if (!d.get(TiC.PROPERTY_RIGHT_WIDTH).equals(TiC.SIZE_AUTO)) {
+					rightWidth = getDevicePixels(d.get(TiC.PROPERTY_RIGHT_WIDTH));
+					rightFrame.getLayoutParams().width = rightWidth;
+				}
+			}
+		} else {
+			if (rightFrame != null) {
+				rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
+		}
+		if (layout != null) {
+			if (d.containsKey(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
+				layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_DRAWER_LOCK_MODE)));
+			}
+			if (d.containsKey(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+				layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)),
+					GravityCompat.START);
+			}
+			if (d.containsKey(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+				layout.setDrawerLockMode(TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)),
+					GravityCompat.END);
+			}
+		}
+	}
+
+	@Override
+	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+	{
+		super.propertyChanged(key, oldValue, newValue, proxy);
+		if (key.equals(TiC.PROPERTY_LEFT_VIEW)) {
+			if (newValue == null || newValue == this.leftView) {
+				return;
+			}
+			TiViewProxy newProxy = null;
+			int index = 0;
+			boolean isFirst = false;
+			if (this.leftView != null) {
+				index = this.leftFrame.indexOfChild(this.leftView.getOrCreateView().getNativeView());
+			} else {
+				// first left view
+				isFirst = true;
+			}
+			if (newValue instanceof TiViewProxy) {
+				if (newValue instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				newProxy = (TiViewProxy) newValue;
+				if (!initLeft()) {
+					return;
+				}
+				this.leftFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
+			} else {
+				Log.e(TAG, "invalid type for leftView");
+			}
+			if (this.leftView != null) {
+				this.leftFrame.removeView(this.leftView.getOrCreateView().getNativeView());
+			}
+			this.leftView = newProxy;
+			if (isFirst && leftFrame != null) {
+				// set initial width
+				leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
+		} else if (key.equals(TiC.PROPERTY_RIGHT_VIEW)) {
+			if (newValue == null || newValue == this.rightView) {
+				return;
+			}
+			TiViewProxy newProxy = null;
+			int index = 0;
+			boolean isFirst = false;
+			if (this.rightView != null) {
+				index = this.rightFrame.indexOfChild(this.rightView.getOrCreateView().getNativeView());
+			} else {
+				// first left view
+				isFirst = true;
+			}
+			if (newValue instanceof TiViewProxy) {
+				if (newValue instanceof WindowProxy) {
+					throw new IllegalStateException("cannot add window as a child view of other window");
+				}
+				newProxy = (TiViewProxy) newValue;
+				if (!initRight()) {
+					return;
+				}
+				this.rightFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
+			} else {
+				Log.e(TAG, "invalid type for rightView");
+			}
+			if (this.rightView != null) {
+				this.rightFrame.removeView(this.rightView.getOrCreateView().getNativeView());
+			}
+			this.rightView = newProxy;
+			if (isFirst && rightFrame != null) {
+				// set initial width
+				rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
+			}
+		} else if (key.equals(TiC.PROPERTY_LEFT_WIDTH)) {
+			if (leftFrame == null) {
+				return;
+			}
+			initLeft();
+
+			if (newValue.equals(TiC.LAYOUT_SIZE)) {
+				leftWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
+			} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+				leftWidth = DrawerLayout.LayoutParams.MATCH_PARENT;
+			} else if (!newValue.equals(TiC.SIZE_AUTO)) {
+				leftWidth = getDevicePixels(newValue);
+			}
+
+			DrawerLayout.LayoutParams leftFrameLayout =
+				new DrawerLayout.LayoutParams(leftWidth, DrawerLayout.LayoutParams.MATCH_PARENT);
+			leftFrameLayout.gravity = GravityCompat.START;
+			this.leftFrame.setLayoutParams(leftFrameLayout);
+
+		} else if (key.equals(TiC.PROPERTY_RIGHT_WIDTH)) {
+			if (rightFrame == null) {
+				return;
+			}
+			initRight();
+
+			if (newValue.equals(TiC.LAYOUT_SIZE)) {
+				rightWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
+			} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+				rightWidth = DrawerLayout.LayoutParams.MATCH_PARENT;
+			} else if (!newValue.equals(TiC.SIZE_AUTO)) {
+				rightWidth = getDevicePixels(newValue);
+			}
+
+			DrawerLayout.LayoutParams rightFrameLayout =
+				new DrawerLayout.LayoutParams(rightWidth, DrawerLayout.LayoutParams.MATCH_PARENT);
+			rightFrameLayout.gravity = GravityCompat.END;
+			this.rightFrame.setLayoutParams(rightFrameLayout);
+
+		} else if (key.equals(TiC.PROPERTY_DRAWER_LOCK_MODE)) {
+			if (layout != null) {
+				layout.setDrawerLockMode(TiConvert.toInt(newValue));
+			}
+		} else if (key.equals(TiC.PROPERTY_LEFT_DRAWER_LOCK_MODE)) {
+			if (layout != null) {
+				layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.START);
+			}
+		} else if (key.equals(TiC.PROPERTY_RIGHT_DRAWER_LOCK_MODE)) {
+			if (layout != null) {
+				layout.setDrawerLockMode(TiConvert.toInt(newValue), GravityCompat.END);
+			}
+		}
+	}
+
+	private int getDevicePixels(Object value)
+	{
+		TiDimension nativeSize = TiConvert.toTiDimension(TiConvert.toString(value), TiDimension.TYPE_WIDTH);
+		return nativeSize.getAsPixels(layout);
+	}
+
+	private View getNativeView(TiViewProxy viewProxy)
+	{
+		TiUIView view = viewProxy.getOrCreateView();
+		View outerView = view.getOuterView();
+		View nativeView = outerView != null ? outerView : view.getNativeView();
+		ViewGroup parentViewGroup = (ViewGroup) nativeView.getParent();
+		if (parentViewGroup != null) {
+			parentViewGroup.removeView(nativeView);
+		}
+		return nativeView;
+	}
+
+	/**
+	 * Resolves the Toolbar acting as the activity's ActionBar.
+	 * <p>
+	 * Never searches the view hierarchy for the first Toolbar it can find, since that would happily
+	 * return a Ti.UI.Toolbar belonging to the currently displayed tab window.
+	 * @return The action bar's Toolbar or null if the theme does not provide one.
+	 */
+	private Toolbar findToolbar(AppCompatActivity activity)
+	{
+		// Prefer the Toolbar the activity was explicitly given via the window's "supportToolbar" property.
+		if (activity instanceof TiBaseActivity tiActivity) {
+			ActivityProxy activityProxy = tiActivity.getActivityProxy();
+			if (activityProxy != null) {
+				Object supportToolbar = activityProxy.getProperty(TiC.PROPERTY_SUPPORT_TOOLBAR);
+				if (supportToolbar instanceof TiToolbarProxy toolbarProxy) {
+					Object toolbarInstance = toolbarProxy.getToolbarInstance();
+					if (toolbarInstance instanceof Toolbar toolbar) {
+						return toolbar;
+					}
+				}
+			}
+		}
+
+		// Otherwise fall back to the Toolbar that AppCompat inflates for a theme provided ActionBar.
+		View actionBarView = activity.findViewById(androidx.appcompat.R.id.action_bar);
+		return (actionBarView instanceof Toolbar toolbar) ? toolbar : null;
+	}
+
+	public void toggleLeft()
+	{
+		if (layout == null) {
+			return;
+		}
+		if (layout.isDrawerOpen(GravityCompat.START)) {
+			closeLeft();
+		} else {
+			openLeft();
+		}
+	}
+
+	public void openLeft()
+	{
+		if (layout == null) {
+			return;
+		}
+		// DrawerLayout only auto-closes the opposite drawer for edge drags, not for programmatic opens.
+		if (rightFrame != null && layout.isDrawerOpen(GravityCompat.END)) {
+			layout.closeDrawer(GravityCompat.END);
+		}
+		layout.openDrawer(GravityCompat.START);
+	}
+
+	public void closeLeft()
+	{
+		if (layout == null) {
+			return;
+		}
+		layout.closeDrawer(GravityCompat.START);
+	}
+
+	public void toggleRight()
+	{
+		if (layout == null) {
+			return;
+		}
+		if (layout.isDrawerOpen(GravityCompat.END)) {
+			closeRight();
+		} else {
+			openRight();
+		}
+	}
+
+	public void openRight()
+	{
+		if (layout == null) {
+			return;
+		}
+		// DrawerLayout only auto-closes the opposite drawer for edge drags, not for programmatic opens.
+		if (leftFrame != null && layout.isDrawerOpen(GravityCompat.START)) {
+			layout.closeDrawer(GravityCompat.START);
+		}
+		layout.openDrawer(GravityCompat.END);
+	}
+
+	public void closeRight()
+	{
+		if (layout == null) {
+			return;
+		}
+		layout.closeDrawer(GravityCompat.END);
+	}
+
+	public boolean isLeftOpen()
+	{
+		if (layout == null) {
+			return false;
+		}
+		return layout.isDrawerOpen(GravityCompat.START);
+	}
+
+	public boolean isRightOpen()
+	{
+		if (layout == null) {
+			return false;
+		}
+		return layout.isDrawerOpen(GravityCompat.END);
+	}
+
+	public boolean isLeftVisible()
+	{
+		if (layout == null) {
+			return false;
+		}
+		return layout.isDrawerVisible(GravityCompat.START);
+	}
+
+	public boolean isRightVisible()
+	{
+		if (layout == null) {
+			return false;
+		}
+		return layout.isDrawerVisible(GravityCompat.END);
+	}
+
+	// Note: These events are namespaced with a "drawer" prefix on purpose. A TabGroup already fires
+	// "open"/"close" for its own window lifecycle, so reusing those names here would make every drawer
+	// interaction look like a TabGroup open/close to existing listeners.
+	private void drawerClosedEvent(View drawerView)
+	{
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_CLOSE)) {
+			proxy.fireEvent(TiC.EVENT_DRAWER_CLOSE, createDrawerEvent(drawerView));
+		}
+	}
+
+	private void drawerOpenedEvent(View drawerView)
+	{
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_OPEN)) {
+			proxy.fireEvent(TiC.EVENT_DRAWER_OPEN, createDrawerEvent(drawerView));
+		}
+	}
+
+	private void drawerStateChangedEvent(int state)
+	{
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_STATE_CHANGE)) {
+			KrollDict options = new KrollDict();
+			options.put("state", state);
+			options.put("idle", (state == DrawerLayout.STATE_IDLE));
+			options.put("dragging", (state == DrawerLayout.STATE_DRAGGING));
+			options.put("settling", (state == DrawerLayout.STATE_SETTLING));
+			proxy.fireEvent(TiC.EVENT_DRAWER_STATE_CHANGE, options);
+		}
+	}
+
+	private void drawerSlideEvent(View drawerView, float slideOffset)
+	{
+		if (proxy.hasListeners(TiC.EVENT_DRAWER_SLIDE)) {
+			KrollDict options = createDrawerEvent(drawerView);
+			options.put("offset", slideOffset);
+			proxy.fireEvent(TiC.EVENT_DRAWER_SLIDE, options);
+		}
+	}
+
+	private KrollDict createDrawerEvent(View drawerView)
+	{
+		KrollDict options = new KrollDict();
+		if (drawerView.equals(leftFrame)) {
+			options.put("drawer", "left");
+		} else if (drawerView.equals(rightFrame)) {
+			options.put("drawer", "right");
+		}
+		return options;
+	}
+
+	/**
+	 * Detaches the drawer from the activity and frees the drawer views. Safe to call more than once,
+	 * since this runs both on activity destroy and on proxy release.
+	 */
+	private void releaseDrawer()
+	{
+		if (drawerToggle != null) {
+			if (layout != null) {
+				layout.removeDrawerListener(drawerToggle);
+			}
+			drawerToggle = null;
+		}
+		if (drawerToolbar != null) {
+			// The toggle installed its own navigation listener on the toolbar. Drop it so the hamburger
+			// does not outlive the drawer it belongs to.
+			drawerToolbar.setNavigationOnClickListener(null);
+			drawerToolbar = null;
+		}
+		if (leftFrame != null) {
+			leftFrame.removeAllViews();
+			leftFrame = null;
+		}
+		if (rightFrame != null) {
+			rightFrame.removeAllViews();
+			rightFrame = null;
+		}
+		if (leftView != null) {
+			leftView.releaseViews();
+			leftView = null;
+		}
+		if (rightView != null) {
+			rightView.releaseViews();
+			rightView = null;
+		}
+	}
+
+	@Override
+	public void release()
+	{
+		releaseDrawer();
+		if (layout != null) {
+			layout.removeAllViews();
+			layout = null;
+		}
+		centerView = null;
+		bottomNavigation = null;
+		super.release();
 	}
 }
