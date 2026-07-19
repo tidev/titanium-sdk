@@ -540,8 +540,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		if (getActivity() != null) {
 			if (hasPropertyAndNotNull(TiC.PROPERTY_FLAGS)) {
-				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT
-					&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT) {
 					Window window = getActivity().getWindow();
 					WindowInsetsControllerCompat insetsController =
 						WindowCompat.getInsetsController(window, window.getDecorView());

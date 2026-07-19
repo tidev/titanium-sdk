@@ -427,7 +427,20 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				if (orientationEventListener == null || orientation == ORIENTATION_UNKNOWN) {
 					return;
 				}
-				int rotation = getWindowManager().getDefaultDisplay().getRotation();
+				// Convert physical device orientation (degrees) to a Surface rotation constant.
+				// This avoids relying on display rotation which is wrong when orientation-lock is on.
+				// OrientationEventListener 90 = tilted CCW (top-left) = display ROTATION_270.
+				// OrientationEventListener 270 = tilted CW (top-right) = display ROTATION_90.
+				int rotation;
+				if (orientation >= 315 || orientation < 45) {
+					rotation = Surface.ROTATION_0;
+				} else if (orientation >= 45 && orientation < 135) {
+					rotation = Surface.ROTATION_270;
+				} else if (orientation >= 135 && orientation < 225) {
+					rotation = Surface.ROTATION_180;
+				} else {
+					rotation = Surface.ROTATION_90;
+				}
 				if (lastDisplayOrientation != rotation) {
 					imageCapture.setTargetRotation(rotation);
 					lastDisplayOrientation = rotation;

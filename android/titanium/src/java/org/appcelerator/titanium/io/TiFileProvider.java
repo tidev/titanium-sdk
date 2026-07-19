@@ -152,13 +152,6 @@ public class TiFileProvider extends ContentProvider
 						break;
 					}
 					case MediaStore.MediaColumns.DATA: {
-						// Fetch the file system path if it's an external file.
-						// Note: Android 7.0 and above no longer allows direct file access between apps.
-						if (Build.VERSION.SDK_INT < 24) {
-							if (file != null) {
-								nextColumnValue = file.getAbsolutePath();
-							}
-						}
 						break;
 					}
 					case OpenableColumns.SIZE: {

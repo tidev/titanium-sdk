@@ -64,18 +64,13 @@ public class TiProperties
 
 	public Object getPreference(String key)
 	{
-		Object value = null;
-		if (systemProperties != null) {
-			try {
-				value = systemProperties.get(key);
-			} catch (JSONException e) {
-				value = preferences.getAll().get(key);
-			}
+		if (systemProperties != null && systemProperties.has(key)) {
+			return systemProperties.opt(key);
 		}
-		if (value == null) {
-			value = preferences.getAll().get(key);
+		if (preferences.contains(key)) {
+			return preferences.getAll().get(key);
 		}
-		return value;
+		return null;
 	}
 
 	/**
@@ -117,18 +112,15 @@ public class TiProperties
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "getInt called with key:" + key + ", def:" + def);
 		}
-		try {
-			int value = def;
-			if (systemProperties != null) {
-				try {
-					value = systemProperties.getInt(key);
-				} catch (JSONException e) {
-					value = preferences.getInt(key, def);
-				}
-			} else {
-				value = preferences.getInt(key, def);
+		if (systemProperties != null && systemProperties.has(key)) {
+			try {
+				return systemProperties.getInt(key);
+			} catch (JSONException e) {
+				// key exists in tiapp.xml but isn't an int — fall through to prefs
 			}
-			return value;
+		}
+		try {
+			return preferences.getInt(key, def);
 		} catch (ClassCastException cce) {
 			//Value stored as something other than int. Try and convert to int
 			String val = getString(key, "");
@@ -222,18 +214,15 @@ public class TiProperties
 		if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "getBool called with key:" + key + ", def:" + def);
 		}
-		try {
-			boolean value = def;
-			if (systemProperties != null) {
-				try {
-					value = systemProperties.getBoolean(key);
-				} catch (JSONException e) {
-					value = preferences.getBoolean(key, def);
-				}
-			} else {
-				value = preferences.getBoolean(key, def);
+		if (systemProperties != null && systemProperties.has(key)) {
+			try {
+				return systemProperties.getBoolean(key);
+			} catch (JSONException e) {
+				// key exists in tiapp.xml but isn't a boolean — fall through to prefs
 			}
-			return value;
+		}
+		try {
+			return preferences.getBoolean(key, def);
 		} catch (ClassCastException cce) {
 			//Value stored as something other than boolean. Try and convert to boolean
 			String val = getString(key, "");
