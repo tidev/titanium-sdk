@@ -519,15 +519,12 @@ properties:
         the TabGroup with a list of Tabs in a controller at the bottom of the screen. The recommended usage of this
         style is for items count between three and five: (https://material.io/design/components/bottom-navigation.html#usage)
         In Android it is limited to supporting a maximum number of five tabs.
-        You can use paddingLeft, paddingRight, paddingBottom to create a floating bottom navigation. If you want to change the
-        radius or background color you'll need to create `/app/platform/android/res/drawable/titanium_rounded_corners.xml` and set it to
-        ```xml
-        <?xml version="1.0" encoding="UTF-8"?>
-        <shape xmlns:android="http://schemas.android.com/apk/res/android">
-            <solid android:color="#FFFFFF" />
-            <corners android:radius="7dp" />
-        </shape>
-        ```
+        You can use paddingLeft, paddingRight, paddingBottom to create a floating bottom navigation.
+
+        Since 14.0.0 the corner radius of a floating bottom navigation can be changed with <Titanium.UI.View.borderRadius>.
+        It must be set at creation, only accepts a single value and defaults to `17dp`. It has no effect unless one of the
+        padding properties above is set, and is clamped to half of the tab bar's height, so a larger value produces a
+        pill shape. Use <Titanium.UI.TabGroup.tabsBackgroundColor> to change its background color.
 
     availability: creation
     constants: Titanium.UI.Android.TABS_STYLE_*
@@ -693,7 +690,7 @@ properties:
     summary: Programmatically shows / hides the bottom tab group of the tab group.
     description: |
         This method also updates iOS 18+ [Elevated Tab Bar on iPad](https://developer.apple.com/documentation/uikit/elevating-your-ipad-app-with-a-tab-bar-and-sidebar).
-        Notes: Animation effect is applied on iOS <= 17, but will be removed in SDK 13.0.0. 
+        Notes: Animation effect is applied on iOS <= 17, but will be removed in SDK 13.0.0.
     type: Boolean
     default: true
     platforms: [android, iphone, ipad, macos]
