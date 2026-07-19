@@ -148,7 +148,7 @@ public class TiConvert
 
 	public static int toColor(Object value, Context context)
 	{
-		return TiColorHelper.parseColor(toString(value), context);
+		return TiColorHelper.parseColor(value, context);
 	}
 
 	/**
@@ -166,7 +166,7 @@ public class TiConvert
 
 	public static int toColor(HashMap<String, Object> hashMap, String key, Context context)
 	{
-		return toColor(TiConvert.toString(hashMap.get(key)), context);
+		return toColor(hashMap.get(key), context);
 	}
 
 	public static ColorDrawable toColorDrawable(String value)

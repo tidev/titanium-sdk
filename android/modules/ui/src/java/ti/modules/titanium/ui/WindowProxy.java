@@ -16,7 +16,6 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
@@ -317,7 +316,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Handle barColor property.
 		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
-			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)), activity);
+			int colorInt = TiColorHelper.parseColor(getProperty(TiC.PROPERTY_BAR_COLOR), activity);
 			ActionBar actionBar = activity.getSupportActionBar();
 			// Guard for using a theme with actionBar disabled.
 			if (actionBar != null) {
@@ -344,8 +343,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0) {
 				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 			}
 		}
@@ -468,7 +466,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				if (actionBar != null) {
 					// Change to background to the new color.
 					actionBar.setBackgroundDrawable(
-						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value), activity)));
+						new ColorDrawable(TiColorHelper.parseColor(value, activity)));
 				} else {
 					// Log a warning if there is no ActionBar available.
 					Log.w(TAG, "There is no ActionBar available for this Window.");

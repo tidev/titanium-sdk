@@ -43,6 +43,7 @@ static NSArray *tabGroupKeySequence;
 {
   [self initializeProperty:@"allowUserCustomization" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"extendEdges" defaultValue:[NSArray arrayWithObjects:NUMINT(15), nil]];
+  [self initializeProperty:@"lazyLoadingEnabled" defaultValue:NUMBOOL(NO)];
   [super _initWithProperties:properties];
 }
 
@@ -66,6 +67,11 @@ static NSArray *tabGroupKeySequence;
 - (BOOL)canFocusTabs
 {
   return focussed;
+}
+
+- (BOOL)lazyLoadingEnabled
+{
+  return [TiUtils boolValue:[self valueForUndefinedKey:@"lazyLoadingEnabled"] def:NO];
 }
 
 #pragma mark Public APIs
@@ -155,6 +161,9 @@ static NSArray *tabGroupKeySequence;
 
 - (void)windowWillOpen
 {
+  if (![self lazyLoadingEnabled]) {
+    DebugLog(@"[WARN] Ti.UI.TabGroup.lazyLoadingEnabled is currently false by default on iOS, but will default to true starting with SDK 14.0.0.GA. Set lazyLoadingEnabled explicitly to false to preserve the current behavior.");
+  }
   TiUITabGroup *tg = (TiUITabGroup *)self.view;
   [tg open:nil];
   [super windowWillOpen];
@@ -227,9 +236,11 @@ static NSArray *tabGroupKeySequence;
 {
   if ([self viewAttached]) {
     UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
-    UIViewController *parentController = [self windowHoldingController];
-    [parentController addChildViewController:tabController];
-    [tabController didMoveToParentViewController:parentController];
+    if (tabController.parentViewController == nil) {
+      UIViewController *parentController = [self windowHoldingController];
+      [parentController addChildViewController:tabController];
+      [tabController didMoveToParentViewController:parentController];
+    }
     [tabController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
