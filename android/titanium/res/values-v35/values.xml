@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!-- Todo remove windowOptOutEdgeToEdgeEnforcement after implementing Edge-to-edge -->
+	<!--
+		Android 15 (API 35) and higher enforce edge-to-edge for apps targeting API 35+.
+		The system bars are always transparent and "android:statusBarColor"/"android:navigationBarColor"
+		are ignored, so the bars now sit over the window's own background. That means the bar icons
+		must contrast with "android:colorBackground" rather than with "colorPrimaryDark".
+	-->
 	<style name="Base.Theme.Titanium.Light" parent="Theme.MaterialComponents.Light.DarkActionBar">
-		<item name="android:statusBarColor">@android:color/transparent</item>
-		<item name="android:navigationBarColor">@android:color/transparent</item>
+		<!-- Light background behind the bars, so draw the bar icons dark. -->
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="android:windowLightNavigationBar">true</item>
 		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
 	</style>
 
 	<style name="Base.Theme.Titanium.Dark" parent="Theme.MaterialComponents">
-		<item name="android:statusBarColor">@android:color/transparent</item>
-		<item name="android:navigationBarColor">@android:color/transparent</item>
+		<!-- Dark background behind the bars, so leave the bar icons light. -->
+		<item name="android:windowLightStatusBar">false</item>
+		<item name="android:windowLightNavigationBar">false</item>
 		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
 	</style>
 </resources>

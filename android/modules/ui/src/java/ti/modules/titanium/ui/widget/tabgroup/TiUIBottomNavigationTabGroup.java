@@ -15,6 +15,8 @@ import android.os.Build;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.Window;
 
 import androidx.annotation.ColorInt;
@@ -56,6 +58,15 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	private int currentlySelectedIndex = -1;
 	private BottomNavigationView mBottomNavigationView;
 	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
+	// The tab bar's last known rendered height. A hidden tab bar measures zero, so we keep the
+	// last non-zero value in order to restore the content offset when it is shown again.
+	private int lastTabBarHeight;
+	// The bottom offset currently applied to the view pager. Used to avoid re-assigning layout
+	// params with an unchanged value, which would trigger an endless layout pass.
+	private int appliedViewPagerOffset = -1;
+	// Set true if the tab bar is styled as a floating toolbar, in which case it is meant to
+	// overlay the tab content instead of offsetting it.
+	private boolean isFloatingTabBar;
 	// endregion
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -94,6 +105,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			|| ((paddingRight != null) && (paddingRight.getValue() > 0))
 			|| ((paddingBottom != null) && (paddingBottom.getValue() > 0));
 
+		this.isFloatingTabBar = isFloating;
+
 		// Create the bottom tab navigation view.
 		mBottomNavigationView = new BottomNavigationView(activity);
 		mBottomNavigationView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -104,6 +117,16 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			{
 				// Update bottom inset based on tab bar's actual height and position in window.
 				insetsProvider.setBottomBasedOn(view);
+
+				// Remember the tab bar's rendered height for as long as it has one.
+				if (view.getHeight() > 0) {
+					lastTabBarHeight = view.getHeight();
+				}
+
+				// Offset the tab content so that the tab bar does not cover it. This must be done
+				// here rather than in addViews() because the tab bar's height is not known until
+				// it has been laid out at least once.
+				updateViewPagerBottomOffset(view.getVisibility() == View.VISIBLE);
 			}
 		});
 		if (isFloating) {
@@ -150,8 +173,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
 		//       This means the bottom tab bar should overlap/overlay the view pager content.
-		//       The bottom inset is provided via TiInsetsProvider.setBottomBasedOn() which uses
-		//       the actual rendered height of the BottomNavigationView.
+		//       Otherwise the view pager is offset by the tab bar's measured height via
+		//       updateViewPagerBottomOffset(), once the tab bar has been laid out.
 		TiCompositeLayout compositeLayout = (TiCompositeLayout) activity.getLayout();
 		{
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
@@ -365,16 +388,54 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 	public void showHideTabBar(boolean visible)
 	{
-		int height = (mBottomNavigationView != null) ? mBottomNavigationView.getHeight() : 0;
-		super.setTabGroupViewPagerLayout(visible, height, true);
+		super.setTabGroupViewPagerLayout(visible, this.lastTabBarHeight, true);
+		this.appliedViewPagerOffset = visible ? this.lastTabBarHeight : 0;
 		super.setTabGroupVisibilityWithAnimation(mBottomNavigationView, visible);
 	}
 
 	public void setTabGroupVisibility(boolean visible)
 	{
-		int height = (mBottomNavigationView != null) ? mBottomNavigationView.getHeight() : 0;
-		super.setTabGroupViewPagerLayout(visible, height, false);
+		super.setTabGroupViewPagerLayout(visible, this.lastTabBarHeight, false);
+		this.appliedViewPagerOffset = visible ? this.lastTabBarHeight : 0;
 		super.setTabGroupVisibility(mBottomNavigationView, visible);
+	}
+
+	/**
+	 * Offsets the bottom of the tab content so that the tab bar does not overlap it.
+	 * <p>
+	 * Called whenever the tab bar is laid out, since the bar's height is only known at that point.
+	 * @param tabBarVisible Set true if the tab bar is currently shown.
+	 */
+	private void updateViewPagerBottomOffset(boolean tabBarVisible)
+	{
+		// A floating tab bar is meant to overlay the content.
+		if (this.isFloatingTabBar) {
+			return;
+		}
+
+		// Not applicable if Titanium's "extendSafeArea" is true, because the tab bar is
+		// supposed to overlap the content in that case.
+		ViewParent viewParent = this.tabGroupViewPager.getParent();
+		if (!(viewParent instanceof View) || !((View) viewParent).getFitsSystemWindows()) {
+			return;
+		}
+
+		ViewGroup.LayoutParams layoutParams = this.tabGroupViewPager.getLayoutParams();
+		if (!(layoutParams instanceof TiCompositeLayout.LayoutParams)) {
+			return;
+		}
+
+		// Only re-apply when the offset has actually changed. Assigning layout params from
+		// within a layout pass would otherwise cause an endless layout loop.
+		int offset = tabBarVisible ? this.lastTabBarHeight : 0;
+		if (offset == this.appliedViewPagerOffset) {
+			return;
+		}
+		this.appliedViewPagerOffset = offset;
+
+		TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) layoutParams;
+		params.optionBottom = new TiDimension(offset, TiDimension.TYPE_BOTTOM);
+		this.tabGroupViewPager.setLayoutParams(params);
 	}
 
 	@Override
