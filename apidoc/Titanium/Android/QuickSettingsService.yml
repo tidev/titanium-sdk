@@ -6,7 +6,7 @@ description: |
     and event handling of the tile. Usage is similar to default <Titanium.Android.Service> but with the
     addition of some specific attributes and methods. This service is not started from within the application 
     with the help of an Intent, but instead whenever the custom tile is added in the quick settings menu by the
-    user. Applications can have multiple tiles in the quick settigs menu, but a <Titanium.Android.QuickSettingsService>
+    user. Applications can have multiple tiles in the quick settings menu, but a <Titanium.Android.QuickSettingsService>
     corresponds to a single one - you need separate service file for every tile.
 
     To create a service file:
@@ -148,7 +148,7 @@ methods:
         summary: Dictionary containing the options for the dialog.
 
   - name: startActivityAndCollapse
-    summary: Colapses the quick settings menu and starts an activity for the passed Intent.
+    summary: Collapses the quick settings menu and starts an activity for the passed Intent.
     parameters:
       - name: intent
         summary: Intent to be fired.
@@ -175,15 +175,15 @@ events:
   - name: tileadded
     summary: The Tile has been added in the quick menu.
     description: |
-      Dispatched wheneved the user has moved the Tile for this service in the quick settings menu.
+      Dispatched whenever the user has moved the Tile for this service in the quick settings menu.
 
   - name: tileremoved
     summary: The Tile has been removed from the quick menu.
     description: |
-      Dispatched wheneved the user has removed the Tile for this service from the quick settings menu.
+      Dispatched whenever the user has removed the Tile for this service from the quick settings menu.
 
   - name: tiledialogoptionselected
-    summary: An item from the signle choice menu has been selected.
+    summary: An item from the single choice menu has been selected.
     properties:
       - name: itemIndex
         summary: Index of the selected item from the single choice menu in the dialog.

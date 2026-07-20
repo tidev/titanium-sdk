@@ -13,6 +13,7 @@
 #endif
 // By declaring a scrollView protocol, TiUITextWidget can access
 @class TiUIView;
+@class TiColor;
 
 /**
  The protocol for scrolling.
@@ -68,6 +69,10 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   id transformMatrix;
   BOOL childrenInitialized;
   BOOL touchEnabled;
+  BOOL hasStoredBackgroundForSelectionHighlight;
+  NSUInteger backgroundSelectedHighlightTouchCount;
+  TiColor *backgroundSelectedColor;
+  UIColor *backgroundSelectedPreviousBackgroundColor;
 
   unsigned int animationDelayGuard;
   unsigned int animationDelayGuardForLayout;
@@ -82,6 +87,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
   UITapGestureRecognizer *doubleTapRecognizer;
   UITapGestureRecognizer *twoFingerTapRecognizer;
   UIPinchGestureRecognizer *pinchRecognizer;
+  UIRotationGestureRecognizer *rotationRecognizer;
   UISwipeGestureRecognizer *leftSwipeRecognizer;
   UISwipeGestureRecognizer *rightSwipeRecognizer;
   UISwipeGestureRecognizer *upSwipeRecognizer;
@@ -137,6 +143,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 @property (nonatomic, readonly) UITapGestureRecognizer *doubleTapRecognizer;
 @property (nonatomic, readonly) UITapGestureRecognizer *twoFingerTapRecognizer;
 @property (nonatomic, readonly) UIPinchGestureRecognizer *pinchRecognizer;
+@property (nonatomic, readonly) UIRotationGestureRecognizer *rotationRecognizer;
 @property (nonatomic, readonly) UISwipeGestureRecognizer *leftSwipeRecognizer;
 @property (nonatomic, readonly) UISwipeGestureRecognizer *rightSwipeRecognizer;
 @property (nonatomic, readonly) UILongPressGestureRecognizer *longPressRecognizer;

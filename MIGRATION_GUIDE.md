@@ -127,8 +127,8 @@ The following APIs were removed in 9.0.0:
 | `Ti.UI.View#finishLayout()` | Use the `#applyProperties()` method to batch-update layout properties. |
 | `Ti.UI.View#startLayout()` | Use the `#applyProperties()` method to batch-update layout properties. |
 | `Ti.UI.View#updateLayout()` | Use the `#applyProperties()` method to batch-update layout properties. |
-| `Ti.UI.WebView.error.message` | Use the `error` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0. |
-| `Ti.UI.WebView.error.errorCode` | Use the `code` property instead. Removed on ios in 8.0.0. Removed on android in 9.0.0. |
+| `Ti.UI.WebView.error.message` | Use the `error` property instead. Removed on iOS in 8.0.0. Removed on Android in 9.0.0. |
+| `Ti.UI.WebView.error.errorCode` | Use the `code` property instead. Removed on iOS in 8.0.0. Removed on Android in 9.0.0. |
 | `Ti.UI.WebView.onStopBlacklistedUrl` | Use the cross-platform `blacklisturl` event instead. |
 | `Ti.UI.Window.android:back` | Use the `Ti.UI.Window.androidback` event instead. |
 | `Ti.UI.Window.android:camera` | Use the `Ti.UI.Window.androidcamera` event instead. |

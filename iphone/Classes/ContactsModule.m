@@ -448,7 +448,7 @@ static NSArray *contactKeysWithoutImage;
   }
   NSError *error = nil;
   CNMutableContact *newContact = [[CNMutableContact alloc] init];
-  // We dont set observer here because we dont want to be notified when props are being added to a newly created contact.
+  // We don't set observer here because we don't want to be notified when props are being added to a newly created contact.
   TiContactsPerson *newPerson = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
                                                                       contactId:newContact
                                                                          module:self] autorelease];
@@ -563,7 +563,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
     }
     if ([value isKindOfClass:[NSDateComponents class]]) {
       // this part of the code is supposed to work for birthday and alternateBirthday
-      // but iOS9 Beta is giving a null value for these properties in `value`, so only
+      // but iOS 9 Beta is giving a null value for these properties in `value`, so only
       // processing `anniversary` and `other` here.
       //			if ([contactProperty.key isEqualToString:CNContactNonGregorianBirthdayKey]) {
       //				NSDateComponents *dateComps = (NSDateComponents*)value;

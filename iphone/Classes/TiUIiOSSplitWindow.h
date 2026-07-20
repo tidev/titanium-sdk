@@ -23,7 +23,7 @@
   float splitRatioLandscape;
 }
 
-#pragma mark - Titanim Internal Use Only
+#pragma mark - Titanium Internal Use Only
 - (void)setShowMasterInPortrait_:(id)value withObject:(id)animated;
 - (void)setMasterIsOverlayed_:(id)value withObject:(id)animated;
 - (void)initWrappers;

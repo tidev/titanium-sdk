@@ -674,6 +674,12 @@ properties:
     type: Number
     permission: read-only
 
+  - name: STATUS_BAR_LIGHT
+    summary: Sets the color of the status bar to light mode. Needs Android API level 23.
+    type: Number
+    permission: read-only
+    since: "12.7.0"
+
   - name: SWITCH_STYLE_CHECKBOX
     summary: Display a checkbox.
     description: Use with the <Titanium.UI.Switch.style> property.
