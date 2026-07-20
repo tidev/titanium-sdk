@@ -907,6 +907,36 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
 
+  - name: hideKeyboardAccessoryView
+    summary: A Boolean value indicating whether to hide the keyboard accessory bar.
+    description: |
+        When this property is set to `true`, the keyboard accessory bar (the bar with "Previous",
+        "Next" and "Done" buttons that appears above the keyboard when focusing input fields in
+        web content) is hidden. This can be useful when you want to provide your own custom
+        input accessory or simply want a cleaner keyboard appearance.
+
+        Set to `false` (the default) to show the standard keyboard accessory bar.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "13.2.0", ipad: "13.2.0", macos: "13.2.0"}
+
+  - name: autoAdjustScrollViewInsets
+    summary: |
+        Specifies whether or not the web view should automatically adjust its scroll view insets.
+    description: |
+        When the value is `true`, it allows the web view to adjust its scroll view insets in response
+        to the screen areas consumed by the status bar, navigation bar, toolbar and tab bar (safe areas).
+
+        This is useful when displaying a web view that extends under navigation bars or into
+        safe area regions, ensuring content is not obscured.
+
+        The default behavior assumes that this is `false`.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad, macos]
+    since: {iphone: "13.2.0", ipad: "13.2.0", macos: "13.2.0"}
+
   - name: ignoreSslError
     summary: Controls whether to ignore invalid SSL certificates or not.
     description: |

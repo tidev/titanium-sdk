@@ -24,6 +24,7 @@
 
 @interface TiUITabProxy ()
 - (void)openOnUIThread:(NSArray *)args;
+- (BOOL)lazyLoadingEnabled;
 @end
 
 @implementation TiUITabProxy
@@ -44,6 +45,7 @@
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(controller);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(lastTabBarTraitCollection);
   RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
 
   [super _destroy];
@@ -59,13 +61,17 @@
   // since we're special proxy type instead of normal, we force in values
   [self replaceValue:nil forKey:@"title" notification:NO];
   [self replaceValue:nil forKey:@"icon" notification:NO];
-  [self replaceValue:nil forKey:@"badge" notification:NO];
+  [self replaceValue:nil forKey:@"iconInsets" notification:NO];
+  [self replaceValue:nil forKey:@"activeIcon" notification:NO];
   [self replaceValue:NUMBOOL(YES) forKey:@"iconIsMask" notification:NO];
   [self replaceValue:NUMBOOL(YES) forKey:@"activeIconIsMask" notification:NO];
   [self replaceValue:nil forKey:@"titleColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTitleColor" notification:NO];
   [self replaceValue:nil forKey:@"tintColor" notification:NO];
   [self replaceValue:nil forKey:@"activeTintColor" notification:NO];
+  [self replaceValue:nil forKey:@"badge" notification:NO];
+  [self replaceValue:nil forKey:@"badgeColor" notification:NO];
+
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didChangeTraitCollection:)
                                                name:kTiTraitCollectionChanged
@@ -75,7 +81,36 @@
 
 - (void)didChangeTraitCollection:(NSNotification *)info
 {
-  [self updateTabBarItem];
+  __weak TiUITabProxy *weakSelf = self;
+  TiThreadPerformOnMainThread(
+      ^{
+        TiUITabProxy *strongSelf = weakSelf;
+        if (strongSelf == nil) {
+          return;
+        }
+
+        // If a modal is being dismissed, trait collection changes from UIKit
+        // are spurious — the tab bar item doesn't need rebuilding.
+        if (strongSelf->controller.presentedViewController != nil) {
+          return;
+        }
+
+        UITraitCollection *currentTraitCollection = strongSelf->controller.traitCollection;
+        if (currentTraitCollection == nil) {
+          currentTraitCollection = strongSelf->rootWindow.hostingController.traitCollection;
+        }
+        if (currentTraitCollection == nil) {
+          return;
+        }
+        if ((strongSelf->lastTabBarTraitCollection != nil)
+            && ![currentTraitCollection hasDifferentColorAppearanceComparedToTraitCollection:strongSelf->lastTabBarTraitCollection]
+            && (currentTraitCollection.horizontalSizeClass == strongSelf->lastTabBarTraitCollection.horizontalSizeClass)
+            && (currentTraitCollection.verticalSizeClass == strongSelf->lastTabBarTraitCollection.verticalSizeClass)) {
+          return;
+        }
+        [strongSelf updateTabBarItem];
+      },
+      NO); // NO = non-blocking, since this is a notification handler
 }
 
 - (NSString *)apiName
@@ -124,7 +159,9 @@
     [rootWindow setIsManaged:YES];
     [rootWindow setTab:self];
     [rootWindow setParentOrientationController:self];
-    [rootWindow open:nil];
+    if (![self lazyLoadingEnabled]) {
+      [rootWindow open:nil];
+    }
   }
   return [rootWindow hostingController];
 }
@@ -284,6 +321,15 @@
   return tabGroup;
 }
 
+- (BOOL)lazyLoadingEnabled
+{
+  if (![tabGroup isKindOfClass:[TiUITabGroupProxy class]]) {
+    return NO;
+  }
+
+  return [(TiUITabGroupProxy *)tabGroup lazyLoadingEnabled];
+}
+
 - (KrollPromise *)openWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
@@ -435,10 +481,11 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  if (theWindow == rootWindow) {
-    // This is probably too late for the root view controller.
-    // Figure out how to call open before this callback
-    [theWindow open:nil];
+  if ([self lazyLoadingEnabled] && theWindow == rootWindow) {
+    if ([[theWindow closed] boolValue]) {
+      [theWindow windowWillOpen];
+      [theWindow windowDidOpen];
+    }
   } else if ([theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
@@ -524,6 +571,13 @@
     }
   }
 
+  if ([self _hasListeners:@"focus"]) {
+    [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
+  }
+}
+
+- (void)handleDidSelect:(NSDictionary *)event
+{
   if ([self _hasListeners:@"selected"]) {
     [self fireEvent:@"selected" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
   }
@@ -554,6 +608,10 @@
   ENSURE_UI_THREAD_0_ARGS;
 
   UIViewController *rootController = [rootWindow hostingController];
+  UITraitCollection *currentTraitCollection = controller.traitCollection;
+  if (currentTraitCollection == nil) {
+    currentTraitCollection = rootController.traitCollection;
+  }
   id badgeValue = [TiUtils stringValue:[self valueForKey:@"badge"]];
   id badgeColor = [self valueForKey:@"badgeColor"];
   id iconInsets = [self valueForKey:@"iconInsets"];
@@ -577,6 +635,8 @@
     [newItem release];
 
     systemTab = YES;
+    [lastTabBarTraitCollection release];
+    lastTabBarTraitCollection = [currentTraitCollection retain];
     return;
   }
 
@@ -646,19 +706,9 @@
     }
   }
 
-  UITabBarItem *tabBarItem = [controller tabBarItem];
-  if (tabBarItem == nil || systemTab == YES) {
-    // init tab bar item
-    UITabBarItem *newItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
-    [controller setTabBarItem:newItem];
-
-    tabBarItem = [controller tabBarItem];
-  } else {
-    // reuse tab bar item
-    [tabBarItem setTitle:title];
-    [tabBarItem setImage:image];
-    [tabBarItem setSelectedImage:activeImage];
-  }
+  // (re-)init tab bar item
+  UITabBarItem *tabBarItem = [[[UITabBarItem alloc] initWithTitle:title image:image selectedImage:activeImage] autorelease];
+  [controller setTabBarItem:tabBarItem];
 
   // title appearance
   TiColor *titleColor = [TiUtils colorValue:[self valueForKey:@"titleColor"]];
@@ -713,6 +763,9 @@
   [tabBarItem setBadgeValue:badgeValue];
 
   systemTab = NO;
+
+  [lastTabBarTraitCollection release];
+  lastTabBarTraitCollection = [currentTraitCollection retain];
 }
 
 - (UIEdgeInsets)calculateIconInsets:(id)value

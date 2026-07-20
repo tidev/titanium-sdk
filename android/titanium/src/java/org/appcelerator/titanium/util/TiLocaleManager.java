@@ -95,6 +95,11 @@ public class TiLocaleManager
 
 	private static void setLocaleForPreApi33(Locale locale, boolean shouldRestartApp)
 	{
+		// Skip if the requested language is already set.
+		Locale previouseLocale = Locale.getDefault();
+		if (previouseLocale.equals(locale)) {
+			return;
+		}
 		Locale.setDefault(locale);
 
 		Resources resources = TiApplication.getInstance().getBaseContext().getResources();

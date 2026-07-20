@@ -11,6 +11,19 @@
 
 @implementation TiUIAttributedStringProxy
 
++ (TiUIAttributedStringProxy *)fromProperties:(id)arg
+{
+  if ([arg isKindOfClass:[TiUIAttributedStringProxy class]]) {
+    return arg;
+  }
+  if ([arg isKindOfClass:[NSDictionary class]]) {
+    TiUIAttributedStringProxy *asProxy = [[TiUIAttributedStringProxy alloc] init];
+    [asProxy _initWithProperties:arg];
+    return [asProxy autorelease];
+  }
+  return nil;
+}
+
 - (void)_destroy
 {
   RELEASE_TO_NIL(_attributedString)

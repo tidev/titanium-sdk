@@ -171,7 +171,14 @@
 - (UIButton *)button
 {
   if (button == nil) {
+#if TARGET_OS_MACCATALYST
+    // On Mac Catalyst, UIButtonTypeRoundedRect (system button) ignores programmatic styling
+    // (title color, font, size) and doesn't deliver touch events via UIControlEventAllTouchEvents.
+    // Force UIButtonTypeCustom so styling and events work correctly.
+    UIButtonType defaultType = UIButtonTypeCustom;
+#else
     UIButtonType defaultType = [self hasImageProperties] ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
+#endif
     style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
     UIView *btn = [TiButtonUtil buttonWithType:style];
     button = (UIButton *)[btn retain];
@@ -323,10 +330,12 @@
     // Ignored: handled via ButtonConfiguration.attributedString
     return;
   }
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-  [[self button] setAttributedTitle:[arg attributedString] forState:UIControlStateNormal];
-  [(TiViewProxy *)[self proxy] contentsWillChange];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
+  if (attributedStringProxy) {
+    [[self proxy] replaceValue:attributedStringProxy forKey:@"attributedString" notification:NO];
+    [[self button] setAttributedTitle:[attributedStringProxy attributedString] forState:UIControlStateNormal];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+  }
 #endif
 }
 

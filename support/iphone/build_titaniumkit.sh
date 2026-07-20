@@ -119,3 +119,18 @@ xcodebuild -create-xcframework \
 -framework $DEVICE_ARCHIVE_PATH/Products/Library/Frameworks/$FRAMEWORK_NAME.framework $DEVICE_DEBUG_SYMBOLS \
 -framework $MAC_ARCHIVE_PATH/Products/Library/Frameworks/$FRAMEWORK_NAME.framework $MAC_DEBUG_SYMBOLS \
 -output $FRAMEWORK_PATH
+
+#----- Fix Mac Catalyst slice symlinks
+# xcodebuild -create-xcframework doesn't preserve symlinks properly for versioned frameworks
+# We need to manually restore the symlinks in the Mac Catalyst slice
+MAC_CATALYST_SLICE="$FRAMEWORK_PATH/ios-arm64_x86_64-maccatalyst/$FRAMEWORK_NAME.framework"
+if [ -d "$MAC_CATALYST_SLICE/Versions/A" ]; then
+	(
+		cd "$MAC_CATALYST_SLICE"
+		ln -sfn A Versions/Current
+		ln -sfn Versions/Current/Headers Headers
+		ln -sfn Versions/Current/Modules Modules
+		ln -sfn Versions/Current/Resources Resources
+		ln -sfn Versions/Current/$FRAMEWORK_NAME $FRAMEWORK_NAME
+	)
+fi

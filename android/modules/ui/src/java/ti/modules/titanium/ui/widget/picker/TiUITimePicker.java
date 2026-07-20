@@ -6,8 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.picker;
 
-import android.content.res.Resources;
-import android.os.Build;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -26,7 +24,6 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
@@ -77,13 +74,6 @@ public class TiUITimePicker extends TiUIView implements TimePicker.OnTimeChanged
 				useTextField = false;
 			}
 		}
-		if (!useSpinner && (Build.VERSION.SDK_INT == 21)) {
-			// Android 5.0 fails to call onTimeChanged() for clock view. (Android 5.1+ is okay.)
-			// See: https://code.google.com/p/android/issues/detail?id=147657
-			Log.w(TAG, "Ti.UI.Picker cannot show an inlined calendar view on Android 5.0. Using spinner instead.");
-			useSpinner = true;
-		}
-
 		// Create the time picker view.
 		View view = null;
 		if (useTextField) {
@@ -113,29 +103,6 @@ public class TiUITimePicker extends TiUIView implements TimePicker.OnTimeChanged
 			} else {
 				// Create picker with a clock view.
 				timePicker = new TimePicker(proxy.getActivity());
-
-				// Work-around Google bug where onTimeChanged() is not called when tapping AM/PM buttons.
-				// See: https://issuetracker.google.com/issues/36931448
-				if ((Build.VERSION.SDK_INT > 21) && (Build.VERSION.SDK_INT <= 23)) {
-					Resources resources = TiApplication.getInstance().getResources();
-					if (id_am == 0) {
-						id_am = resources.getIdentifier("android:id/am_label", "drawable", "android.widget.TimePicker");
-					}
-					if (id_pm == 0) {
-						id_pm = resources.getIdentifier("android:id/pm_label", "drawable", "android.widget.TimePicker");
-					}
-					View amView = timePicker.findViewById(id_am);
-					View pmView = timePicker.findViewById(id_pm);
-					View.OnClickListener listener = (View v) -> {
-						timePicker.setHour((timePicker.getHour() + 12) % 24);
-					};
-					if (amView != null) {
-						amView.setOnClickListener(listener);
-					}
-					if (pmView != null) {
-						pmView.setOnClickListener(listener);
-					}
-				}
 			}
 			timePicker.setIs24HourView(false);
 			timePicker.setOnTimeChangedListener(this);

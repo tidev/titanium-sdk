@@ -431,8 +431,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				int theme = TiRHelper.getResource("style."
 					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
 				topActivity.setTheme(theme);
-				topActivity.getApplicationContext().setTheme(theme);
 			} catch (Exception e) {
+				Log.w(TAG, "Could not apply theme: " + e.getMessage());
 			}
 		}
 
@@ -538,8 +538,7 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		if (getActivity() != null) {
 			if (hasPropertyAndNotNull(TiC.PROPERTY_FLAGS)) {
-				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT
-					&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT) {
 					getActivity().getWindow().getDecorView()
 						.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 				}
