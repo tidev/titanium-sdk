@@ -1980,6 +1980,50 @@ properties:
     type: [Number,String]
     constants: [Titanium.UI.FILL, Titanium.UI.SIZE]
 
+  - name: maxWidth
+    summary: Maximum width of the View, in platform-specific units.
+    description: |
+        Use this in combination with `width: Ti.UI.FILL` to cap how wide the view may grow.
+        The view will not exceed the `maxWidth` value.
+
+        On Android this is only supported by views without a border, and is ignored by views that
+        measure themselves, such as <Titanium.UI.Label> or <Titanium.UI.Button>.
+    type: Number
+    since: {android: "14.0.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
+
+  - name: maxHeight
+    summary: Maximum height of the View, in platform-specific units.
+    description: |
+        Use this in combination with `height: Ti.UI.FILL` to cap how tall the view may grow.
+        The view will not exceed the `maxHeight` value.
+
+        On Android this is only supported by views without a border, and is ignored by views that
+        measure themselves, such as <Titanium.UI.Label> or <Titanium.UI.Button>.
+    type: Number
+    since: {android: "14.0.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
+
+  - name: minWidth
+    summary: Minimum width of the View, in platform-specific units.
+    description: |
+        Use this in combination with `width: Ti.UI.SIZE` to set a floor for the view's width.
+        The view will not be narrower than the `minWidth` value.
+
+        On Android this is only supported by views without a border, and is ignored by views that
+        measure themselves, such as <Titanium.UI.Label> or <Titanium.UI.Button>.
+    type: Number
+    since: {android: "14.0.0", iphone: "1.3.2", ipad: "1.3.2", macos: "9.2.0"}
+
+  - name: minHeight
+    summary: Minimum height of the View, in platform-specific units.
+    description: |
+        Use this in combination with `height: Ti.UI.SIZE` to set a floor for the view's height.
+        The view will not be shorter than the `minHeight` value.
+
+        On Android this is only supported by views without a border, and is ignored by views that
+        measure themselves, such as <Titanium.UI.Label> or <Titanium.UI.Button>.
+    type: Number
+    since: {android: "14.0.0", iphone: "1.3.2", ipad: "1.3.2", macos: "9.2.0"}
+
   - name: horizontalWrap
     summary: Determines whether the layout has wrapping behavior.
     description: |

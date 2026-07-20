@@ -67,6 +67,11 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
 	private int horizontalLayoutPreviousRight = 0;
+	private int viewMinWidth = -1;
+	private int viewMaxWidth = -1;
+	private int viewMaxHeight = -1;
+	private int viewMinHeight = -1;
+
 	int[] horizontal = new int[2];
 	int[] vertical = new int[2];
 	/**
@@ -538,6 +543,12 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
+		// Apply the "maxWidth"/"maxHeight" constraints to the incoming specs up-front so that children are
+		// measured against the clamped bounds. Clamping only the final measured size would leave children
+		// laid out against the larger bounds, causing them to overflow instead of reflowing.
+		widthMeasureSpec = applyMaxToMeasureSpec(widthMeasureSpec, viewMaxWidth);
+		heightMeasureSpec = applyMaxToMeasureSpec(heightMeasureSpec, viewMaxHeight);
+
 		int childCount = getChildCount();
 		int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
 		int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
@@ -653,6 +664,18 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
+		if (viewMaxWidth != -1 && measuredWidth > viewMaxWidth) {
+			measuredWidth = viewMaxWidth;
+		}
+		if (viewMinWidth != -1 && measuredWidth < viewMinWidth) {
+			measuredWidth = viewMinWidth;
+		}
+		if (viewMaxHeight != -1 && measuredHeight > viewMaxHeight) {
+			measuredHeight = viewMaxHeight;
+		}
+		if (viewMinHeight != -1 && measuredHeight < viewMinHeight) {
+			measuredHeight = viewMinHeight;
+		}
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
 
@@ -1252,6 +1275,65 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			arrangement = LayoutArrangement.VERTICAL;
 		} else {
 			arrangement = LayoutArrangement.DEFAULT;
+		}
+	}
+
+	/**
+	 * Caps a measure spec at the given maximum size, preserving the spec's mode.
+	 * @param measureSpec The spec supplied by the parent view.
+	 * @param maxValue The maximum size in pixels, or -1 for no constraint.
+	 * @return The capped measure spec, or the original spec if no constraint applies.
+	 */
+	private static int applyMaxToMeasureSpec(int measureSpec, int maxValue)
+	{
+		if (maxValue < 0) {
+			return measureSpec;
+		}
+
+		int mode = MeasureSpec.getMode(measureSpec);
+		if (mode == MeasureSpec.UNSPECIFIED) {
+			// Unbounded, such as within a ScrollView. Impose the maximum as an upper bound.
+			return MeasureSpec.makeMeasureSpec(maxValue, MeasureSpec.AT_MOST);
+		}
+		if (MeasureSpec.getSize(measureSpec) > maxValue) {
+			return MeasureSpec.makeMeasureSpec(maxValue, mode);
+		}
+		return measureSpec;
+	}
+
+	/** Sets the maximum width in pixels, or -1 to remove the constraint. */
+	public void setMaxWidth(int value)
+	{
+		if (viewMaxWidth != value) {
+			viewMaxWidth = value;
+			requestLayout();
+		}
+	}
+
+	/** Sets the minimum width in pixels, or -1 to remove the constraint. */
+	public void setMinWidth(int value)
+	{
+		if (viewMinWidth != value) {
+			viewMinWidth = value;
+			requestLayout();
+		}
+	}
+
+	/** Sets the maximum height in pixels, or -1 to remove the constraint. */
+	public void setMaxHeight(int value)
+	{
+		if (viewMaxHeight != value) {
+			viewMaxHeight = value;
+			requestLayout();
+		}
+	}
+
+	/** Sets the minimum height in pixels, or -1 to remove the constraint. */
+	public void setMinHeight(int value)
+	{
+		if (viewMinHeight != value) {
+			viewMinHeight = value;
+			requestLayout();
 		}
 	}
 
