@@ -300,7 +300,11 @@ public class TiFileProxy extends KrollProxy
 
 				if (args[0] instanceof TiBlob) {
 					tbf.write((TiBlob) args[0], append);
-					copyExifData((TiBlob) args[0]);
+					if (!append) {
+						// Appending produces a file that is a concatenation rather than a
+						// single image, so there is nothing meaningful to attach EXIF to.
+						copyExifData((TiBlob) args[0]);
+					}
 				} else if (args[0] instanceof String) {
 					tbf.write((String) args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
@@ -319,18 +323,24 @@ public class TiFileProxy extends KrollProxy
 
 	/**
 	 * Copies the EXIF metadata carried by the given blob onto the file that was just
-	 * written from it. This is a best-effort operation: blobs without EXIF, files that
-	 * are not backed by a real path, and formats that cannot store EXIF are all skipped
-	 * silently. Failures here never invalidate the write itself.
+	 * written from it. This is a best-effort operation: blobs whose bytes already embed
+	 * their own metadata, files that are not backed by a real path, and formats that
+	 * cannot store EXIF are all skipped silently. Failures here never invalidate the
+	 * write itself.
+	 * <p>
+	 * Note that rewriting the metadata is costly. ExifInterface.saveAttributes() copies
+	 * the whole image to a temporary file and then rebuilds it, so this is only worth
+	 * doing for blobs that would otherwise lose their metadata entirely.
 	 * @param blob the blob whose metadata should be preserved.
 	 */
 	private void copyExifData(TiBlob blob)
 	{
-		KrollDict exif = blob.getExif();
-		if ((exif == null) || exif.isEmpty()) {
+		// Checked before reading the metadata, since that parses the image as well.
+		if (!blob.isExifWriteRequired()) {
 			return;
 		}
 
+		KrollDict exif = blob.getExif();
 		File nativeFile = tbf.getNativeFile();
 		if (nativeFile == null) {
 			// Not backed by a real path (such as a content:// file). Nothing to write to.

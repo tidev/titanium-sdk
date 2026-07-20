@@ -68,6 +68,9 @@ public class TiBlob extends KrollProxy
 	// underlying stream and most blobs never ask for it.
 	private KrollDict exifData;
 	private boolean isExifDataLoaded;
+	// Set when the metadata was carried over from another blob rather than read out of
+	// this blob's own bytes, which means it only exists in memory. See inheritExifFrom().
+	private boolean isExifInherited;
 
 	// This handles the memory cache of images.
 	private final TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -611,8 +614,28 @@ public class TiBlob extends KrollProxy
 		{
 			derived.exifData = exif;
 			derived.isExifDataLoaded = true;
+			derived.isExifInherited = true;
 		}
 		return derived;
+	}
+
+	/**
+	 * Determines if this blob's EXIF metadata has to be written out separately in order
+	 * to survive being saved to a file.
+	 * <p>
+	 * This is only true for blobs derived from another image, such as the result of
+	 * {@link #imageAsResized}, because those are re-encoded from a bitmap and their bytes
+	 * carry no metadata of their own. A blob read straight from an image file already has
+	 * its EXIF embedded in its data, and copying that data to a file preserves it, so
+	 * rewriting the metadata afterwards would be redundant.
+	 * @return true if the metadata exists only in memory and must be written explicitly.
+	 */
+	boolean isExifWriteRequired()
+	{
+		synchronized (this)
+		{
+			return this.isExifInherited && (this.exifData != null) && !this.exifData.isEmpty();
+		}
 	}
 
 	private int getImageOrientation()
