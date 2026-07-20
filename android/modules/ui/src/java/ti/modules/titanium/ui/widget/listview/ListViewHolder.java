@@ -26,7 +26,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.PaintDrawable;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -203,20 +202,17 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 							&& properties.containsKeyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 						backgroundDrawable = nativeView.getBackground();
 					}
-					if (backgroundDrawable instanceof TiBackgroundDrawable) {
-						final TiBackgroundDrawable drawable = (TiBackgroundDrawable) backgroundDrawable;
+					if (backgroundDrawable instanceof TiBackgroundDrawable drawable) {
 
 						backgroundDrawable = drawable.getBackground();
 					}
 
 					// Parse background color to determine transparency.
 					int backgroundColor = -1;
-					if (backgroundDrawable instanceof PaintDrawable) {
-						final PaintDrawable drawable = (PaintDrawable) backgroundDrawable;
+					if (backgroundDrawable instanceof PaintDrawable drawable) {
 
 						backgroundColor = drawable.getPaint().getColor();
-					} else if (backgroundDrawable instanceof ColorDrawable) {
-						final ColorDrawable drawable = (ColorDrawable) backgroundDrawable;
+					} else if (backgroundDrawable instanceof ColorDrawable drawable) {
 
 						backgroundColor = drawable.getColor();
 					}
@@ -410,12 +406,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 		if (colorValue.resourceId != 0) {
 
-			// Set title text color.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				title.setTextColor(resources.getColor(colorValue.resourceId, theme));
-			} else {
-				title.setTextColor(resources.getColor(colorValue.resourceId));
-			}
+			title.setTextColor(resources.getColor(colorValue.resourceId, theme));
 
 		} else {
 
@@ -430,12 +421,7 @@ public class ListViewHolder extends TiRecyclerViewHolder<ListItemProxy>
 
 		} else if (backgroundColorValue.resourceId != 0) {
 
-			// Set title background color.
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				title.setBackgroundColor(resources.getColor(backgroundColorValue.resourceId, theme));
-			} else {
-				title.setBackgroundColor(resources.getColor(backgroundColorValue.resourceId));
-			}
+			title.setBackgroundColor(resources.getColor(backgroundColorValue.resourceId, theme));
 
 		} else {
 

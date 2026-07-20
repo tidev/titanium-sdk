@@ -6,7 +6,6 @@
  */
 #import "TiEvaluator.h"
 #import <JavaScriptCore/JavaScriptCore.h>
-#import <pthread.h>
 
 // Macros to make life easier for defining properties with getters/setter accessor methods (which we'll remove in SDK 10.0.0
 
@@ -103,7 +102,7 @@ JSExportAs(fireEvent,
 @interface ObjcProxy : NSObject <ProxyExports> {
   @private
   NSMutableDictionary *_listeners; // new listener map for Obj-C JSC API
-  pthread_rwlock_t _listenerLock;
+  dispatch_queue_t _listenerQueue;
   NSURL *baseURL;
 }
 

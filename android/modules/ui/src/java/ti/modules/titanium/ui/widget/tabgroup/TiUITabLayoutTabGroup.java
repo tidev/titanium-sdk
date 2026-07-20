@@ -291,8 +291,7 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			final LinearLayout tabLayout = getTabLinearLayoutForIndex(index);
 			// Set the TextView textColor.
 			for (int i = 0; i < tabLayout.getChildCount(); i++) {
-				if (tabLayout.getChildAt(i) instanceof TextView) {
-					final TextView textView = (TextView) tabLayout.getChildAt(i);
+				if (tabLayout.getChildAt(i) instanceof TextView textView) {
 
 					//TIMOB-27830: Update text color after layout for change to take effect.
 					tabLayout.addOnLayoutChangeListener(

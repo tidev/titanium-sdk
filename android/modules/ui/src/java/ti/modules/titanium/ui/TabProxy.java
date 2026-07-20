@@ -181,7 +181,7 @@ public class TabProxy extends TiViewProxy
 	{
 		// Windows are lazily opened when the tab is first focused.
 		if (window != null && !windowOpened) {
-			// Need to handle the url window in the JS side.
+			// Need to handle the URL window in the JS side.
 			window.callPropertySync(TiC.PROPERTY_LOAD_URL, null);
 			windowOpened = true;
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
@@ -231,10 +231,9 @@ public class TabProxy extends TiViewProxy
 
 		// Fetch the TabGroup's view. If currently null, then we have to wait for TabGroup activity to be created.
 		TiUIView view = (this.tabGroupProxy != null) ? this.tabGroupProxy.peekView() : null;
-		if (!(view instanceof TiUIAbstractTabGroup)) {
+		if (!(view instanceof TiUIAbstractTabGroup tabGroupView)) {
 			return;
 		}
-		TiUIAbstractTabGroup tabGroupView = (TiUIAbstractTabGroup) view;
 
 		// Update tab.
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {

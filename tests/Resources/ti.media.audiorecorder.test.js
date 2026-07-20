@@ -155,7 +155,7 @@ describe('Titanium.Media.AudioRecorder', () => {
 	});
 
 	it('#start, #pause, #resume, #stop', function (finish) {
-		// skip on older android since it intermittently hangs forever on android 5 emulator
+		// skip on older Android since it intermittently hangs forever on Android 5 emulator
 		if (OS_ANDROID && OS_VERSION_MAJOR < 6) {
 			return finish();
 		}

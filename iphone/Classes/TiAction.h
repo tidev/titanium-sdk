@@ -7,7 +7,7 @@
 
 /**
  The generic action wrapper class for packaging something that you
- want to be executed but simplier than an NSOperation.
+ want to be executed but simpler than an NSOperation.
  @deprecated
  */
 @interface TiAction : NSObject {

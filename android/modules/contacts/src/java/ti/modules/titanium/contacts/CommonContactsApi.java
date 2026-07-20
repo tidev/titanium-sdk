@@ -22,7 +22,6 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.ContactsContract;
 
 public abstract class CommonContactsApi
@@ -37,7 +36,7 @@ public abstract class CommonContactsApi
 			useNew = true;
 
 		} catch (ClassNotFoundException e) {
-			Log.e(TAG, "Unable to load contacts api: " + e.getMessage(), e);
+			Log.e(TAG, "Unable to load Contacts API: " + e.getMessage(), e);
 			useNew = false;
 		}
 
@@ -57,9 +56,6 @@ public abstract class CommonContactsApi
 
 	public boolean hasContactsPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		Context context = TiApplication.getInstance().getApplicationContext();
 		// If READ_CONTACTS is granted, WRITE_CONTACTS is also granted if the permission is included in manifest.
 		if (context != null
@@ -102,7 +98,7 @@ public abstract class CommonContactsApi
 		return proxies;
 	}
 
-	// Happily, these codes are common across api level
+	// Happily, these codes are common across API level
 	protected static String getEmailTextType(int type)
 	{
 		String key = "other";

@@ -28,7 +28,6 @@ import android.graphics.Bitmap;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.text.TextUtils;
 
 @Kroll.proxy(propertyAccessors = { TiC.PROPERTY_URL })
@@ -192,7 +191,7 @@ public class IntentProxy extends KrollProxy
 		// if you have both you _must_ call setDataAndType
 		if (data != null) {
 			Uri dataUri = null;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && data.startsWith("file://")) {
+			if (data.startsWith("file://")) {
 				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 				dataUri = TiFileProvider.createUriFrom(data);
 			} else {
@@ -272,7 +271,7 @@ public class IntentProxy extends KrollProxy
 		if (value instanceof String) {
 			String extraString = (String) value;
 
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && extraString.startsWith("file://")) {
+			if (extraString.startsWith("file://")) {
 				Uri contentUri = TiFileProvider.createUriFrom(extraString);
 				ClipData clipData = ClipData.newRawUri("FILE", contentUri);
 				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -288,7 +287,7 @@ public class IntentProxy extends KrollProxy
 				ArrayList<Uri> imageUris = new ArrayList<>();
 				ClipData clipData = null;
 				for (String s : stringArray) {
-					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && s.startsWith("file://")) {
+					if (s.startsWith("file://")) {
 						Uri contentUri = TiFileProvider.createUriFrom(s);
 						imageUris.add(contentUri);
 						if (clipData == null) {
@@ -300,7 +299,7 @@ public class IntentProxy extends KrollProxy
 						imageUris.add(Uri.parse(s));
 					}
 				}
-				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (clipData != null) {
 					intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 					intent.setClipData(clipData);
 				}
