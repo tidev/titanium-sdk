@@ -73,6 +73,8 @@ import android.view.animation.Animation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 
+import ti.modules.titanium.ui.UIModule;
+
 /**
  * This class is for Titanium View implementations, that correspond with TiViewProxy.
  * A TiUIView is responsible for creating and maintaining a native Android View instance.
@@ -972,6 +974,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			} else {
 				Log.w(TAG, "Setting the 'viewShadowColor' property requires Android P or later");
 			}
+		} else if (key.equals(TiC.PROPERTY_CLIP_MODE)) {
+			setClipMode(TiConvert.toInt(newValue, UIModule.CLIP_MODE_DEFAULT));
 		} else if (Log.isDebugModeEnabled()) {
 			Log.d(TAG, "Unhandled property key: " + key, Log.DEBUG_MODE);
 		}
@@ -1139,6 +1143,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_CLIP_MODE) && !nativeViewNull) {
+			setClipMode(TiConvert.toInt(d.get(TiC.PROPERTY_CLIP_MODE), UIModule.CLIP_MODE_DEFAULT));
+		}
+
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
@@ -1193,6 +1201,65 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 			nativeView.setBackground(background);
 		}
+	}
+
+	private void setClipMode(int clipMode)
+	{
+		final View outerView = getOuterView();
+		if (outerView == null) {
+			return;
+		}
+
+		final boolean clip = clipMode != UIModule.CLIP_MODE_DISABLED;
+
+		// Like on iOS, "clipMode" is set on the view which must not be clipped. On Android every
+		// ViewGroup clips independently, so the whole ancestor chain has to be unclipped before
+		// this view can draw outside of it. Walk the native hierarchy instead of the proxy
+		// hierarchy: it also covers the wrappers which have no proxy of their own, such as the
+		// border wrapper, scroll containers and the activity's content frame.
+		if (outerView.isAttachedToWindow()) {
+			applyClipMode(outerView, clip);
+		} else {
+			// View is not in the hierarchy yet (ie. "clipMode" came from the creation dictionary),
+			// so its parents are still unknown. Apply it as soon as it gets attached.
+			outerView.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+				@Override
+				public void onViewAttachedToWindow(View view)
+				{
+					view.removeOnAttachStateChangeListener(this);
+					applyClipMode(view, clip);
+				}
+
+				@Override
+				public void onViewDetachedFromWindow(View view)
+				{
+				}
+			});
+		}
+	}
+
+	private static void applyClipMode(View view, boolean clip)
+	{
+		if (view instanceof ViewGroup viewGroup) {
+			setClipping(viewGroup, clip);
+		}
+		for (ViewParent parent = view.getParent(); parent instanceof ViewGroup; parent = parent.getParent()) {
+			ViewGroup viewGroup = (ViewGroup) parent;
+			setClipping(viewGroup, clip);
+
+			// Stop at the activity's content frame, which is what a window is hosted in. Everything
+			// above it belongs to the system decor and a window cannot draw outside of it anyway.
+			if (viewGroup.getId() == android.R.id.content) {
+				break;
+			}
+		}
+		view.invalidate();
+	}
+
+	private static void setClipping(ViewGroup viewGroup, boolean clip)
+	{
+		viewGroup.setClipChildren(clip);
+		viewGroup.setClipToPadding(clip);
 	}
 
 	/**
