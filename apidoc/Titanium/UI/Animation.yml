@@ -132,10 +132,12 @@ properties:
     type: Number
 
   - name: rotation
-    summary: Value of the `rotation` property at the end of the animation.
+    summary: Clockwise 2D rotation of the view in degrees at the end of the animation.
+    description: |
+        Ignored if a [transform](Titanium.UI.Animation.transform) is also specified,
+        since the transform matrix rotates the view itself.
     type: Number
-    platforms: [android]
-    since: { android: "12.7.0" }
+    since: { android: "14.0.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0" }
 
   - name: rotationY
     summary: Value of the `rotationY` property at the end of the animation.

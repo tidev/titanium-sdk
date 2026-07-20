@@ -23,7 +23,7 @@
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
-@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity, bounce;
+@synthesize visible, curve, repeat, autoreverse, delay, rotation, transform, transition, dampingRatio, springVelocity, bounce;
 @synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
 - (id)initWithDictionary:(NSDictionary *)properties_ context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
@@ -108,6 +108,7 @@
     SET_POINT_PROP(center, properties);
     SET_COLOR_PROP(backgroundColor, properties);
     SET_COLOR_PROP(color, properties);
+    SET_FLOAT_PROP(rotation, properties);
     SET_ID_PROP(transform, properties);
     SET_INT_PROP(transition, properties);
     SET_PROXY_PROP(view, properties);
@@ -154,6 +155,7 @@
   RELEASE_TO_NIL(repeat);
   RELEASE_TO_NIL(autoreverse);
   RELEASE_TO_NIL(delay);
+  RELEASE_TO_NIL(rotation);
   RELEASE_TO_NIL(transform);
   RELEASE_TO_NIL(transition);
   RELEASE_TO_NIL(callback);
@@ -470,6 +472,13 @@
         }
 
         [self animationStarted:[self description] context:self];
+      }
+
+      // The "rotation" property is shorthand for a transform that only rotates.
+      // An explicit "transform" wins, since the matrix rotates the view itself.
+      if (rotation != nil && transform == nil) {
+        Ti2DMatrix *identity = [[[Ti2DMatrix alloc] init] autorelease];
+        [self setTransform:[identity rotate:[NSArray arrayWithObject:rotation]]];
       }
 
       if (transform != nil) {
