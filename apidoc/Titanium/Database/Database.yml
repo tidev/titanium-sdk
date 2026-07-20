@@ -135,9 +135,22 @@ methods:
         type: String
       - name: flags
         summary: |
-          Optional flag on Android since 13.1.0 to pass open flags. If not specified it will use
-          CREATE_IF_NECESSARY | NO_LOCALIZED_COLLATORS.
+          Bitmask controlling how the database is opened. Android only, since Titanium SDK
+          14.0.0; ignored on all other platforms.
+
+          The given value *replaces* the defaults rather than being combined with them.
+          When omitted, the database is opened with
+          <Titanium.Database.CREATE_IF_NECESSARY> | <Titanium.Database.NO_LOCALIZED_COLLATORS>.
+          So passing <Titanium.Database.OPEN_READONLY> on its own opens the database read-only
+          *without* `NO_LOCALIZED_COLLATORS` — combine the constants explicitly to keep it.
+          Opening a database that does not exist without <Titanium.Database.CREATE_IF_NECESSARY>
+          throws an exception.
         type: Number
+        optional: true
+        constants: [
+            Titanium.Database.CREATE_IF_NECESSARY, Titanium.Database.NO_LOCALIZED_COLLATORS,
+            Titanium.Database.ENABLE_WRITE_AHEAD_LOGGING, Titanium.Database.OPEN_READWRITE,
+            Titanium.Database.OPEN_READONLY ]
     examples:
     - title: Open a Database from Internal Storage (iOS)
       example: |
@@ -224,26 +237,52 @@ properties:
     permission: read-only
 
   - name: CREATE_IF_NECESSARY
-    summary: Constant for database flag.
+    summary: |
+        Open flag for <Titanium.Database.open> requesting that the database file be created
+        if it does not already exist.
     type: Number
     permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
 
   - name: NO_LOCALIZED_COLLATORS
-    summary: Constant for database flag.
+    summary: |
+        Open flag for <Titanium.Database.open> requesting that the database not be
+        rebuilt with the device's current locale collators.
+    description: |
+        Use this when the database ships with the app and must not be modified on open,
+        such as a read-only database on external storage.
     type: Number
     permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
 
   - name: ENABLE_WRITE_AHEAD_LOGGING
-    summary: Constant for database flag.
+    summary: |
+        Open flag for <Titanium.Database.open> enabling SQLite write-ahead logging (WAL).
+    description: |
+        WAL allows readers and a writer to operate concurrently at the cost of additional
+        `-wal` and `-shm` files alongside the database. It cannot be combined with
+        <Titanium.Database.OPEN_READONLY>.
     type: Number
     permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
 
   - name: OPEN_READWRITE
-    summary: Constant for database flag.
+    summary: |
+        Open flag for <Titanium.Database.open> requesting read/write access.
     type: Number
     permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
 
   - name: OPEN_READONLY
-    summary: Constant for database flag.
+    summary: |
+        Open flag for <Titanium.Database.open> requesting read-only access.
+    description: |
+        Any attempt to write to a database opened with this flag throws an exception.
     type: Number
     permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}

@@ -62,6 +62,11 @@ public class DatabaseModule extends KrollModule
 		super();
 	}
 
+	public TiDatabaseProxy open(Object file)
+	{
+		return open(file, null);
+	}
+
 	@Kroll.method
 	public TiDatabaseProxy open(Object file, @Kroll.argument(optional = true) Object flags)
 	{
@@ -109,12 +114,7 @@ public class DatabaseModule extends KrollModule
 				throw new IllegalArgumentException(message);
 			}
 			Log.d(TAG, "Opening database from filesystem: " + absolutePath);
-			int flagValues = SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS;
-			if (flags != null) {
-				flagValues = TiConvert.toInt(flags);
-			}
-			SQLiteDatabase db = SQLiteDatabase.openDatabase(
-				absolutePath, null, flagValues);
+			SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, toOpenFlags(flags));
 			if (db != null) {
 				dbp = new TiDatabaseProxy(db);
 			} else {
@@ -122,7 +122,19 @@ public class DatabaseModule extends KrollModule
 			}
 		} else if (dbName != null) {
 			// We were given a database name only. Open it under app's default database directory.
-			SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null);
+			SQLiteDatabase db;
+			if (flags != null) {
+				// Custom open flags were given. Resolve the name to a path since
+				// Context.openOrCreateDatabase() cannot accept them.
+				File dbFile = TiApplication.getInstance().getDatabasePath(dbName);
+				File dbDirectory = dbFile.getParentFile();
+				if (dbDirectory != null) {
+					dbDirectory.mkdirs();
+				}
+				db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, toOpenFlags(flags));
+			} else {
+				db = TiApplication.getInstance().openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null);
+			}
 			if (db != null) {
 				dbp = new TiDatabaseProxy(dbName, db);
 			} else {
@@ -135,6 +147,20 @@ public class DatabaseModule extends KrollModule
 		// Return a proxy to the opened database.
 		Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
 		return dbp;
+	}
+
+	/**
+	 * Converts the optional "flags" argument of open() to SQLiteDatabase open flags.
+	 * Note that the given flags replace the defaults rather than being OR'd with them.
+	 * @param flags The flags argument given to open(). Can be null.
+	 * @return Returns the flags to pass to SQLiteDatabase.openDatabase().
+	 */
+	private static int toOpenFlags(Object flags)
+	{
+		if (flags == null) {
+			return SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS;
+		}
+		return TiConvert.toInt(flags);
 	}
 
 	@Kroll.method
@@ -153,7 +179,7 @@ public class DatabaseModule extends KrollModule
 		Context ctx = TiApplication.getInstance();
 		for (String dbname : ctx.databaseList()) {
 			if (dbname.equals(name)) {
-				return open(name, null);
+				return open(name);
 			}
 		}
 
@@ -211,7 +237,7 @@ public class DatabaseModule extends KrollModule
 		}
 
 		// Open a connection to the installed database.
-		return open(name, null);
+		return open(name);
 	}
 
 	@Override
