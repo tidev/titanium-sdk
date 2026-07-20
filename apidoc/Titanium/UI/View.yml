@@ -1446,12 +1446,14 @@ properties:
         When set to <Titanium.UI.CLIP_MODE_DEFAULT> or when this property is not set, clipping behavior is inferred.
         See section on Clipping Behavior in <Titanium.UI.View>.
 
-        Android: Has to be on the top-level view.
+        Android: <Titanium.UI.CLIP_MODE_DISABLED> also disables clipping on every parent up to the
+        window, so the view can be drawn outside of its parents' bounds. Parents which use
+        `borderWidth` or `borderRadius` still clip their content.
 
         Defaults to `undefined`. Behaves as if set to <Titanium.UI.CLIP_MODE_DEFAULT>.
     type: Number
     platforms: [android, iphone, ipad, macos]
-    since: {android: "12.7.0", iphone: "3.3.0", ipad: "3.3.0"}
+    since: {android: "14.0.0", iphone: "3.3.0", ipad: "3.3.0"}
 
   - name: elevation
     summary: Base elevation of the view relative to its parent in pixels.
