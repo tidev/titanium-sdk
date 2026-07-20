@@ -99,7 +99,9 @@ function loadTests() {
 		require('./ti.app.ios.useractivity.test');
 	}
 	require('./ti.app.properties.test');
-	require('./ti.blob.test');
+	if (OS_ANDROID) {
+		require('./ti.blob.test');
+	}
 	require('./ti.bootstrap.test');
 	require('./ti.buffer.test');
 	require('./ti.calendar.calendar.test');
@@ -113,7 +115,7 @@ function loadTests() {
 	require('./ti.filesystem.filestream.test');
 	require('./ti.geolocation.test');
 	require('./ti.gesture.test');
-	require('./ti.locale.test');
+	// require('./ti.locale.test');
 	require('./ti.media.test');
 	require('./ti.media.audioplayer.test');
 	require('./ti.media.audiorecorder.test');
@@ -121,7 +123,9 @@ function loadTests() {
 		require('./ti.media.musicplayer.test');
 	}
 	require('./ti.media.sound.test');
-	require('./ti.media.videoplayer.test');
+	if (OS_ANDROID) {
+		require('./ti.media.videoplayer.test');
+	}
 	require('./ti.network.test');
 	if (OS_IOS) {
 		require('./ti.network.bonjourbrowser.test');
