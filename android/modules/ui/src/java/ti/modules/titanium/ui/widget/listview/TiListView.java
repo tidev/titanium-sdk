@@ -711,11 +711,13 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 					.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 				// Handle search query.
 				if (query != null && !alwaysInclude) {
-					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
+					String searchableText;
+					if (caseInsensitive) {
+						searchableText = item.getSearchableTextLower();
+					} else {
+						searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
+					}
 					if (searchableText != null) {
-						if (caseInsensitive) {
-							searchableText = searchableText.toLowerCase();
-						}
 						if (!searchableText.contains(query)) {
 							continue;
 						}

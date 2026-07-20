@@ -26,7 +26,7 @@ describe('Titanium.Buffer', function () {
 	});
 
 	// TODO Add tests for insert/append/fill/copy that use negative offsets/lengths
-	// TODO Add tests for methods/properties and pass in invalid types (i.e. pass in null/undefined/string for Number args)
+	// TODO Add tests for methods/properties and pass in invalid types (e.g. pass in null/undefined/string for Number args)
 
 	describe('.length', function () {
 		it('defaults to 0 when not specified', function () {
@@ -566,7 +566,7 @@ describe('Titanium.Buffer', function () {
 	it('#toString() and #toBlob()', function () {
 		var buffer,
 			blob;
-		// just a simple ascii string
+		// just a simple ASCII string
 		buffer = Ti.createBuffer({
 			length: 12
 		});

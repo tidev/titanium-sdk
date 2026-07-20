@@ -36,7 +36,6 @@ import org.appcelerator.titanium.util.TiActivitySupport;
 import org.appcelerator.titanium.util.TiActivitySupportHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiLocaleManager;
 import org.appcelerator.titanium.util.TiMenuSupport;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiWeakList;
@@ -46,6 +45,7 @@ import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
+import android.Manifest;
 import android.app.Activity;
 
 import androidx.appcompat.app.ActionBar;
@@ -69,6 +69,7 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -107,6 +108,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
 	public boolean keyboardVisible = false;
+
+	Activity.ScreenCaptureCallback screenCaptureCallback = null;
+
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -139,7 +143,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	public static boolean canFinishRoot = true;
 
-	private boolean overridenLayout;
+	private boolean overriddenLayout;
 
 	public static class DialogWrapper
 	{
@@ -633,25 +637,25 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
-	// Record if user has set a content view manually from hyperloop code during require of app.js!
+	// Record if user has set a content view manually from Hyperloop code during require of app.js!
 	@Override
 	public void setContentView(View view)
 	{
-		overridenLayout = true;
+		overriddenLayout = true;
 		super.setContentView(view);
 	}
 
 	@Override
 	public void setContentView(int layoutResID)
 	{
-		overridenLayout = true;
+		overriddenLayout = true;
 		super.setContentView(layoutResID);
 	}
 
 	@Override
 	public void setContentView(View view, LayoutParams params)
 	{
-		overridenLayout = true;
+		overriddenLayout = true;
 		super.setContentView(view, params);
 	}
 
@@ -659,13 +663,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	protected void attachBaseContext(Context newBase)
 	{
 		baseContext = newBase;
-		super.attachBaseContext(TiLocaleManager.getLocalizedContext(newBase));
+		super.attachBaseContext(newBase);
 	}
 
 	@Override
 	/**
 	 * When the activity is created, this method adds it to the activity stack and
-	 * fires a javascript 'create' event.
+	 * fires a JavaScript 'create' event.
 	 * @param savedInstanceState Bundle of saved data.
 	 */
 	protected void onCreate(Bundle savedInstanceState)
@@ -676,6 +680,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		TiApplication tiApp = getTiApp();
 		TiApplication.addToActivityStack(this);
+
+		if (Build.VERSION.SDK_INT >= 34) {
+			screenCaptureCallback = new Activity.ScreenCaptureCallback()
+			{
+				@Override
+				public void onScreenCaptured()
+				{
+					KrollDict kd = new KrollDict();
+					kd.put("source", getWindowProxy());
+					getTiApp().fireAppEvent("screenshotcaptured", kd);
+				}
+			};
+		}
 
 		this.safeAreaMonitor = new TiActivitySafeAreaMonitor(this, tiApp);
 
@@ -829,7 +846,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		tiApp.setCurrentActivity(this, tempCurrentActivity);
 
 		// If user changed the layout during app.js load, keep that
-		if (!overridenLayout) {
+		if (!overriddenLayout) {
 			super.setContentView(layout);
 		}
 
@@ -1444,7 +1461,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	@Override
 	/**
-	 * When this activity pauses, this method sets the current activity to null, fires a javascript 'pause' event,
+	 * When this activity pauses, this method sets the current activity to null, fires a JavaScript 'pause' event,
 	 * and if the activity is finishing, remove all dialogs associated with it.
 	 */
 	protected void onPause()
@@ -1487,7 +1504,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 	@Override
 	/**
-	 * When the activity resumes, this method updates the current activity to this and fires a javascript
+	 * When the activity resumes, this method updates the current activity to this and fires a JavaScript
 	 * 'resume' event.
 	 */
 	protected void onResume()
@@ -1527,7 +1544,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When this activity starts, this method updates the current activity to this if necessary and
-	 * fire javascript 'start' and 'focus' events. Focus events will only fire if
+	 * fire JavaScript 'start' and 'focus' events. Focus events will only fire if
 	 * the activity is not a tab activity.
 	 */
 	protected void onStart()
@@ -1560,11 +1577,17 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		applyNightMode();
+
+		if (Build.VERSION.SDK_INT >= 34 && TiApplication.getInstance().checkCallingOrSelfPermission(
+			Manifest.permission.DETECT_SCREEN_CAPTURE) == PackageManager.PERMISSION_GRANTED
+			&& screenCaptureCallback != null) {
+			registerScreenCaptureCallback(ContextCompat.getMainExecutor(this), screenCaptureCallback);
+		}
 	}
 
 	@Override
 	/**
-	 * When this activity stops, this method fires the javascript 'blur' and 'stop' events. Blur events will only fire
+	 * When this activity stops, this method fires the JavaScript 'blur' and 'stop' events. Blur events will only fire
 	 * if the activity is not a tab activity.
 	 */
 	protected void onStop()
@@ -1585,6 +1608,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 					Log.e(TAG, "Error dispatching lifecycle event: " + t.getMessage(), t);
 				}
 			}
+		}
+		if (Build.VERSION.SDK_INT >= 34 && screenCaptureCallback != null) {
+			unregisterScreenCaptureCallback(screenCaptureCallback);
 		}
 	}
 
@@ -1607,7 +1633,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When a key, touch, or trackball event is dispatched to the activity, this method fires the
-	 * javascript 'userinteraction' event.
+	 * JavaScript 'userinteraction' event.
 	 */
 	public void onUserInteraction()
 	{
@@ -1619,7 +1645,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When the activity is about to go into the background as a result of user choice, this method fires the
-	 * javascript 'userleavehint' event.
+	 * JavaScript 'userleavehint' event.
 	 */
 	protected void onUserLeaveHint()
 	{
@@ -1635,7 +1661,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	@Override
 	/**
 	 * When this activity is destroyed, this method removes it from the activity stack, performs
-	 * clean up, and fires javascript 'destroy' event.
+	 * clean up, and fires JavaScript 'destroy' event.
 	 */
 	protected void onDestroy()
 	{

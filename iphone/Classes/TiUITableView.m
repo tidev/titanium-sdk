@@ -452,17 +452,17 @@
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
-      // TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+      // TIMOB-17373 rowHeight on iOS 8 is -1. Bug??
       [tableview setRowHeight:44];
     }
 
-    BOOL initBackGround = YES;
+    BOOL initBackground = YES;
     id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
     if (style == UITableViewStyleGrouped) {
       // If the style is grouped do not call this method unless a backgroundColor is specified
-      initBackGround = (bgInitValue != nil);
+      initBackground = (bgInitValue != nil);
     }
-    if (initBackGround) {
+    if (initBackground) {
       [self setBackgroundColor:[TiUtils colorValue:bgInitValue] onTable:tableview];
     }
 
@@ -808,7 +808,7 @@
     [self appendRow:row];
     for (TiUITableViewRowProxy *moveRow in addRows) {
       [self appendRow:moveRow];
-      // Removing the temporarly saved proxy.
+      // Removing the temporarily saved proxy.
       [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
     }
     if (![self isSearchStarted]) {
@@ -1581,7 +1581,7 @@
   // called when text starts editing
   [self showSearchScreen:nil];
   searchActivated = YES;
-  // Dont reload here since user started editing but not yet started typing.
+  // Don't reload here since user started editing but not yet started typing.
   // Also if a previous search string exists this reload results in blank cells.
 }
 
@@ -1832,7 +1832,7 @@
     [searchField setDelegate:self];
     [self tableView];
     [self updateSearchView];
-    [self initSearhController];
+    [self initSearchController];
 
     if (searchHidden) {
       // This seems like inconsistent behavior, as much of our 'search hide' logic works out to
@@ -1855,7 +1855,7 @@
   self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
 }
 
-- (void)initSearhController
+- (void)initSearchController
 {
   if (searchController == nil) {
     searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
@@ -2131,7 +2131,7 @@
   TiUITableViewRowProxy *row = [self rowForIndexPath:index];
   [row triggerAttach];
 
-  // the classname for all rows that have the same substainal layout will be the same
+  // the classname for all rows that have the same substantial layout will be the same
   // we reuse them for speed
   UITableViewCell *cell = [ourTableView dequeueReusableCellWithIdentifier:row.tableClass];
 
@@ -2541,10 +2541,8 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }
@@ -2553,10 +2551,8 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }
@@ -2803,12 +2799,18 @@
 
 - (void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   CGRect minimumContentRect = [tableview bounds];
   InsetScrollViewForKeyboard(tableview, keyboardTop, minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 - (void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   if ([tableview isScrollEnabled]) {
     CGRect minimumContentRect = [tableview bounds];
 

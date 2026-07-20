@@ -11,7 +11,7 @@
 
 @protocol TiPlatformDisplayCapsExports <JSExport>
 
-// Properties (and accesors)
+// Properties (and accessors)
 READONLY_PROPERTY(NSString *, density, Density);
 READONLY_PROPERTY(NSNumber *, dpi, Dpi);
 READONLY_PROPERTY(NSNumber *, logicalDensityFactor, LogicalDensityFactor);

@@ -5,17 +5,13 @@
  * See the LICENSE file for more information.
  */
 
-'use strict';
+import appc from 'node-appc';
+import fs from 'fs-extra';
+import path from 'node:path';
 
-const appc = require('node-appc'),
-	fs = require('fs-extra'),
-	path = require('path'),
-	__ = appc.i18n(__dirname).__;
+export const cliVersion = '>=3.2';
 
-exports.cliVersion = '>=3.2';
-
-exports.init = function (logger, config, cli) {
-
+export function init(logger, config, cli) {
 	cli.on('build.post.compile', {
 		priority: 10000,
 		post: function (builder, finished) {
@@ -27,7 +23,7 @@ exports.init = function (logger, config, cli) {
 			// Do not continue if developer did not provide a destination directory.
 			const outputDir = builder.outputDir;
 			if (!outputDir) {
-				logger.error(__('Packaging output directory path cannot be empty.'));
+				logger.error('Packaging output directory path cannot be empty.');
 				return finished();
 			}
 
@@ -52,11 +48,10 @@ exports.init = function (logger, config, cli) {
 				appc.fs.copyFileSync(builder.aabFile, outputFilePath, { logger: logger.debug });
 			}
 
-			logger.info(__('Packaging complete'));
-			logger.info(__('Package location: %s', outputDir.cyan));
+			logger.info('Packaging complete');
+			logger.info(`Package location: ${outputDir.cyan}`);
 
 			finished();
 		}
 	});
-
-};
+}

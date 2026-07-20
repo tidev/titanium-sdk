@@ -106,6 +106,21 @@ public class AttributedStringProxy extends KrollProxy
 	{
 	}
 
+	public static AttributedStringProxy createFromProperties(Object properties)
+	{
+		if (properties instanceof AttributedStringProxy) {
+			return (AttributedStringProxy) properties;
+		}
+		if (properties instanceof HashMap<?, ?>) {
+			AttributedStringProxy proxy = new AttributedStringProxy();
+			KrollDict d = (properties instanceof KrollDict)
+							? (KrollDict) properties : new KrollDict((HashMap<String, Object>) properties);
+			proxy.handleCreationDict(d);
+			return proxy;
+		}
+		return null;
+	}
+
 	@Kroll.method
 	public void addAttribute(Object attr)
 	{

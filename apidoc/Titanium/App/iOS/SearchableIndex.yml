@@ -41,7 +41,7 @@ methods:
         type: Callback<Dictionary>
     platforms: [iphone, ipad, macos]
 
-  - name: deleteAllSearchableItemByDomainIdenifiers
+  - name: deleteAllSearchableItemByDomainIdentifiers
     summary: |
         Removes search items based on an array of domain identifiers.
     parameters:

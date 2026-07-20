@@ -2,6 +2,7 @@
 	"name": "titanium-mobile-android",
 	"title": "Android",
 	"description": "Titanium SDK Android",
+	"type": "module",
 	"keywords": [
 		"tidev",
 		"titanium",
@@ -16,7 +17,7 @@
 		"mode": "release",
 		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
-	"minSDKVersion": "21",
+	"minSDKVersion": "24",
 	"compileSDKVersion": "35",
 	"vendorDependencies": {
 		"android sdk": ">=23.x <=35.x",
@@ -24,7 +25,7 @@
 		"android platform tools": "33.x",
 		"android tools": "<=35.x",
 		"android ndk": ">=r21 <=r22b",
-		"java": ">=11.x"
+		"java": ">=17.x"
 	},
 	"repository": {
 		"type": "git",
