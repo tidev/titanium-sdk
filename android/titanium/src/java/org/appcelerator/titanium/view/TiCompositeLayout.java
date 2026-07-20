@@ -367,9 +367,11 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 	public void resort()
 	{
+		if (needsSort) {
+			return;
+		}
 		setNeedsSort(true);
 		requestLayout();
-		invalidate();
 	}
 
 	public void onChildViewAdded(View parent, View child)
