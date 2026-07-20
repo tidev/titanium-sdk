@@ -466,7 +466,7 @@ properties:
         Use the Label's [link](Titanium.UI.Label.link) event to determine when the user triggers a
         long press (not a click) event on the linked text.
 
-        Use the Label's `linkColor` to change the color (Android only) and your can use `underline: false`
+        Use the Label's `linkColor` to change the color (Android only) and you can use `underline: false`
         to remove the underline from the link.
 
         See <Attribute> for more information.

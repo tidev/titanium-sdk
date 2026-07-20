@@ -492,8 +492,8 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
-		if (d.containsKey("linkColor")) {
-			tv.setLinkTextColor(TiConvert.toColor(d.getString("linkColor"), TiApplication.getAppCurrentActivity()));
+		if (d.containsKey(TiC.PROPERTY_LINK_COLOR)) {
+			tv.setLinkTextColor(TiConvert.toColor(d, TiC.PROPERTY_LINK_COLOR, proxy.getActivity()));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_TEXT_TRANSFORM)) {
@@ -545,6 +545,8 @@ public class TiUILabel extends TiUIView
 			} else {
 				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
+		} else if (key.equals(TiC.PROPERTY_LINK_COLOR)) {
+			tv.setLinkTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			// TODO: reset to default value when property is null
 			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
