@@ -74,6 +74,7 @@ class AndroidBuilder extends Builder {
 
 		this.targets = [ 'emulator', 'device', 'dist-playstore' ];
 		this.appName = null;
+		this.activityAliasCount = 0;
 	}
 
 	config(logger, config, cli) {
@@ -1057,7 +1058,10 @@ class AndroidBuilder extends Builder {
 				this.customAndroidManifest = AndroidManifest.fromXmlString(cli.tiapp.android.manifest);
 
 				// check if we have <activity-alias> nodes
-				this.activityAliasCount = this.customAndroidManifest.xmlDomDocument.getElementsByTagName('application')[0].getElementsByTagName('activity-alias').length;
+				const applicationNode = this.customAndroidManifest.xmlDomDocument.getElementsByTagName('application')[0];
+				if (applicationNode) {
+					this.activityAliasCount = applicationNode.getElementsByTagName('activity-alias').length;
+				}
 			}
 		} catch (ex) {
 			logger.error('Malformed <manifest> definition in the <android> section of the tiapp.xml');
@@ -3708,7 +3712,7 @@ class AndroidBuilder extends Builder {
 			packageName: this.appid,
 			queries: neededManifestSettings.queries,
 			usesPermissions: neededManifestSettings.usesPermissions,
-			skipLauncher: this.activityAliasCount > 0
+			skipLauncher: neededManifestSettings.skipLauncher
 		});
 		const mainManifest = AndroidManifest.fromXmlString(mainManifestContent);
 

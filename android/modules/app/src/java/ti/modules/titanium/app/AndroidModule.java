@@ -74,15 +74,22 @@ public class AndroidModule extends KrollModule
 			String oldPackage = options.getString("from");
 			String newPackage = options.getString("to");
 			String pkgName = TiApplication.getInstance().getPackageName();
+			PackageManager packageManager = TiApplication.getInstance().getPackageManager();
 
-			TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
-				new ComponentName(pkgName, pkgName + "." + oldPackage),
-				PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
-			);
-			TiApplication.getInstance().getPackageManager().setComponentEnabledSetting(
-				new ComponentName(pkgName, pkgName + "." + newPackage),
-				PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
-			);
+			try {
+				// enable the new alias before disabling the old one, otherwise there is a
+				// window where no launcher component is enabled and the icon disappears
+				packageManager.setComponentEnabledSetting(
+					new ComponentName(pkgName, pkgName + "." + newPackage),
+					PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+				);
+				packageManager.setComponentEnabledSetting(
+					new ComponentName(pkgName, pkgName + "." + oldPackage),
+					PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+				);
+			} catch (IllegalArgumentException e) {
+				Log.e(TAG, "Could not change icon, unknown <activity-alias>: " + e.getMessage());
+			}
 		} else {
 			Log.e(TAG, "Parameters missing. Please provide 'from' and 'to'");
 		}

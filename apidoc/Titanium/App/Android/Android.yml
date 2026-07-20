@@ -8,21 +8,6 @@ extends: Titanium.Module
 since: "1.5"
 platforms: [android]
 
-methods:
-  - name: changeIcon
-    summary: Changes the Android app icon at runtime.
-    description: |
-        You have to add `<activity-alias>` nodes for every icon to the tiapp.xml and use `changeIcon()` to switch from one
-        to another. Check the the `Change Android icon at runtime` example for more details. The app has to keep track of
-        the current icon state in order to set the from/to parameters.
-    since: "12.7.0"
-    parameters:
-      - name: from
-        type: String
-        summary: <activity-alias> `android:name` (without leading dot) of the current icon that is going to be deactivated.
-      - name: to
-        type: String
-        summary: <activity-alias> `android:name` (without leading dot) of the icon that is going to be activated.
 properties:
   - name: R
     summary: The `R` namespace for application resources.
@@ -80,6 +65,21 @@ properties:
     since: 3.3.0
 
 methods:
+  - name: changeIcon
+    summary: Changes the Android app icon at runtime.
+    description: |
+        You have to add `<activity-alias>` nodes for every icon to the tiapp.xml and use `changeIcon()` to switch from one
+        to another. Check the `Change Android icon at runtime` example for more details. The app has to keep track of
+        the current icon state in order to set the from/to parameters.
+    since: "14.0.0"
+    parameters:
+      - name: from
+        type: String
+        summary: <activity-alias> `android:name` (without leading dot) of the current icon that is going to be deactivated.
+      - name: to
+        type: String
+        summary: <activity-alias> `android:name` (without leading dot) of the icon that is going to be activated.
+
   - name: clearUserCache
     summary: Clears app data and cache. This will close the app.
     since: 13.1.0
@@ -152,13 +152,13 @@ examples:
           Ti.App.Android.changeIcon({
             from: "default",
             to: "red"
-        	});
+          });
         });
         btn2.addEventListener("click", function() {
           Ti.App.Android.changeIcon({
             from: "red",
             to: "default"
-        	});
+          });
         });
 
         win.add([btn1, btn2]);
