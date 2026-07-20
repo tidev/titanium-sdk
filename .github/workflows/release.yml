@@ -77,17 +77,17 @@ jobs:
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '20.x'
-          java-version: '17'
+          node-version: '24'
+          java-version: '21'
 
   ios:
-    runs-on: macos-15
+    runs-on: macos-26
     name: iOS
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -97,14 +97,14 @@ jobs:
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '20.x'
+          node-version: '24'
 
   package:
-    runs-on: macos-15
+    runs-on: macos-26
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_26.0.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:
@@ -116,8 +116,8 @@ jobs:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '20.x'
-        java-version: '17'
+        node-version: '24'
+        java-version: '21'
         vtag: ${{ env.vtag }}
 
   release:
@@ -135,15 +135,15 @@ jobs:
         ref: ${{ github.event.inputs.branch }}
     - run: echo ${{ env.vtag }}
     - name: Download Linux artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-linux
     - name: Download macOS artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-osx
     - name: Download Windows artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-win32
     - name: Create and push tag

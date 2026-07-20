@@ -291,16 +291,27 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	{
 		super.onPause();
 
-		// Stop video capture if recording.
-		stopVideoCapture();
-
-		// Stop the camera preview so that other apps can use the camera.
-		stopPreview();
-		previewLayout.removeView(preview);
-		cameraLayout.removeView(localOverlayProxy.getOrCreateView().getNativeView());
 		try {
-			camera.release();
-			camera = null;
+			// Stop video capture if recording.
+			stopVideoCapture();
+
+			// Stop the camera preview so that other apps can use the camera.
+			stopPreview();
+			previewLayout.removeView(preview);
+
+			if (localOverlayProxy != null) {
+				TiUIView overlayView = localOverlayProxy.peekView();
+				if (overlayView != null) {
+					View overlayNativeView = overlayView.getNativeView();
+					if (overlayNativeView != null) {
+						cameraLayout.removeView(overlayNativeView);
+					}
+				}
+			}
+			if (camera != null) {
+				camera.release();
+				camera = null;
+			}
 		} catch (Throwable t) {
 			Log.d(TAG, "Camera is not open, unable to release", Log.DEBUG_MODE);
 		}
@@ -313,6 +324,19 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 		if (cameraActivity == this) {
 			cameraActivity = null;
 		}
+
+		// Clear all static references to prevent memory leaks
+		mediaContext = null;
+		callbackContext = null;
+		successCallback = null;
+		errorCallback = null;
+		cancelCallback = null;
+		androidbackCallback = null;
+		overlayProxy = null;
+		camera = null;
+		recorder = null;
+		videoContentUri = null;
+		videoParcelFileDescriptor = null;
 
 		// Destroy this activity.
 		super.onDestroy();

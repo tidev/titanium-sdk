@@ -18,7 +18,7 @@
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
 
-extern NSString *const TI_APPLICATION_DEPLOYTYPE;
+extern NSString *const TI_APPLICATION_DEPLOY_TYPE;
 extern NSString *const TI_APPLICATION_ID;
 extern NSString *const TI_APPLICATION_PUBLISHER;
 extern NSString *const TI_APPLICATION_URL;
@@ -36,7 +36,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   TiThreadPerformOnMainThread(
       ^{
-        [[[TiApp app] controller] shutdownUi:self];
+        [[TiApp app] rebootApp];
       },
       NO);
 }
@@ -74,8 +74,10 @@ extern NSString *const TI_APPLICATION_GUID;
   NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:[appDelegate krollBridge]];
   [nc postNotification:notification];
 
+  /* Reboot via scene-aware method (creates new window, controller, and bridge) */
+  [appDelegate rebootApp];
+
   /* Begin foregrounding simulation */
-  [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
   [appDelegate applicationWillEnterForeground:app];
   [appDelegate applicationDidBecomeActive:app];
   /* End foregrounding simulation */
@@ -577,7 +579,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)deployType
 {
-  return TI_APPLICATION_DEPLOYTYPE;
+  return TI_APPLICATION_DEPLOY_TYPE;
 }
 
 - (id)sessionId

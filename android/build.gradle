@@ -5,16 +5,18 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+apply from: 'untar.gradle'
+
 buildscript {
-	ext.kotlin_version = '1.9.23'
+	ext.kotlin_version = '2.3.0'
 
 	repositories {
 		google()
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:8.8.2'
-		classpath 'com.google.gms:google-services:4.4.1'
+		classpath 'com.android.tools.build:gradle:9.1.0'
+		classpath 'com.google.gms:google-services:4.4.4'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 		classpath 'org.codehaus.groovy:groovy-json:3.0.17'
 	}
@@ -30,9 +32,9 @@ allprojects {
 	project.apply plugin: 'checkstyle'
 	checkstyle {
 		toolVersion = '10.11.0'
-		configFile file("${rootDir}/checkstyle.xml");
-		ignoreFailures false
-		showViolations true
+		configFile = file("${rootDir}/checkstyle.xml");
+		ignoreFailures = false
+		showViolations = true
 	}
 
 	// Include Titanium's Gradle constants in all Gradle sub-projects.

@@ -13,11 +13,20 @@
 #import "TiUtils.h"
 
 #import "TiExceptionHandler.h"
-#include <pthread.h>
 
 static unsigned short KrollContextCount = 0;
 
-static pthread_mutex_t KrollEntryLock;
+static dispatch_queue_t krollEntryQueue;
+static void *krollEntryQueueKey = &krollEntryQueueKey;
+
+static inline void KrollEntryLockPerform(dispatch_block_t block)
+{
+  if (dispatch_get_specific(krollEntryQueueKey) == krollEntryQueueKey) {
+    block(); // Already on this queue — re-entrant call
+  } else {
+    dispatch_sync(krollEntryQueue, block);
+  }
+}
 
 @implementation KrollUnprotectOperation
 
@@ -49,13 +58,16 @@ static pthread_mutex_t KrollEntryLock;
 
 @implementation KrollInvocation
 
-- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(NSCondition *)condition_
+- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(dispatch_semaphore_t)condition_
 {
   if (self = [super init]) {
     target = [target_ retain];
     method = method_;
     obj = [obj_ retain];
-    condition = [condition_ retain];
+    if (condition_) {
+      condition = condition_;
+      dispatch_retain(condition);
+    }
   }
   return self;
 }
@@ -76,34 +88,26 @@ static pthread_mutex_t KrollEntryLock;
 {
   [target release];
   [obj release];
-  [condition release];
+  if (condition) {
+    dispatch_release(condition);
+  }
   [notify release];
   [super dealloc];
 }
 
 - (void)invoke:(KrollContext *)context
 {
-  pthread_mutex_lock(&KrollEntryLock);
-
-  @try {
+  KrollEntryLockPerform(^{
     if (target != nil) {
       [target performSelector:method withObject:obj withObject:context];
     }
-    if (condition != nil) {
-      [condition lock];
-      [condition signal];
-      [condition unlock];
+    if (condition != NULL) {
+      dispatch_semaphore_signal(condition);
     }
     if (notify != nil) {
       [notify performSelector:notifySelector];
     }
-  }
-  @catch (NSException *e) {
-    @throw e;
-  }
-  @finally {
-    pthread_mutex_unlock(&KrollEntryLock);
-  }
+  });
 }
 
 @end
@@ -491,49 +495,49 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (JSValueRef)jsInvokeInContext:(KrollContext *)context exception:(JSValueRef *)exceptionPointer
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  JSStringRef jsCode = JSStringCreateWithCFString((CFStringRef)code);
-  JSStringRef jsURL = NULL;
-  if (sourceURL != nil) {
-    jsURL = JSStringCreateWithUTF8CString([[sourceURL absoluteString] UTF8String]);
-  }
-  JSObjectRef global = JSContextGetGlobalObject([context context]);
+  __block JSValueRef result = NULL;
+  KrollEntryLockPerform(^{
+    JSStringRef jsCode = JSStringCreateWithCFString((CFStringRef)code);
+    JSStringRef jsURL = NULL;
+    if (sourceURL != nil) {
+      jsURL = JSStringCreateWithUTF8CString([[sourceURL absoluteString] UTF8String]);
+    }
+    JSObjectRef global = JSContextGetGlobalObject([context context]);
 
-  JSValueRef result = JSEvaluateScript([context context], jsCode, global, jsURL, (int)startingLineNo, exceptionPointer);
+    result = JSEvaluateScript([context context], jsCode, global, jsURL, (int)startingLineNo, exceptionPointer);
 
-  JSStringRelease(jsCode);
-  if (jsURL != NULL) {
-    JSStringRelease(jsURL);
-  }
-  pthread_mutex_unlock(&KrollEntryLock);
+    JSStringRelease(jsCode);
+    if (jsURL != NULL) {
+      JSStringRelease(jsURL);
+    }
+  });
 
   return result;
 }
 
 - (void)invoke:(KrollContext *)context
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  JSValueRef exception = NULL;
-  [self jsInvokeInContext:context exception:&exception];
+  KrollEntryLockPerform(^{
+    JSValueRef exception = NULL;
+    [self jsInvokeInContext:context exception:&exception];
 
-  if (exception != NULL) {
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
-    pthread_mutex_unlock(&KrollEntryLock);
-  }
-  pthread_mutex_unlock(&KrollEntryLock);
+    if (exception != NULL) {
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
+    }
+  });
 }
 
 - (id)invokeWithResult:(KrollContext *)context
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  JSValueRef exception = NULL;
-  JSValueRef result = [self jsInvokeInContext:context exception:&exception];
+  __block JSValueRef result = NULL;
+  __block JSValueRef exception = NULL;
+  KrollEntryLockPerform(^{
+    result = [self jsInvokeInContext:context exception:&exception];
 
-  if (exception != NULL) {
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
-    pthread_mutex_unlock(&KrollEntryLock);
-  }
-  pthread_mutex_unlock(&KrollEntryLock);
+    if (exception != NULL) {
+      [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inKrollContext:context];
+    }
+  });
 
   return [KrollObject toID:context value:result];
 }
@@ -574,15 +578,15 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 }
 - (void)invoke:(KrollContext *)context
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  if (callbackObject != nil) {
-    [callbackObject triggerEvent:type withObject:eventObject thisObject:thisObject];
-  }
+  KrollEntryLockPerform(^{
+    if (callbackObject != nil) {
+      [callbackObject triggerEvent:type withObject:eventObject thisObject:thisObject];
+    }
 
-  if (callback != nil) {
-    [callback call:[NSArray arrayWithObject:eventObject] thisObject:thisObject];
-  }
-  pthread_mutex_unlock(&KrollEntryLock);
+    if (callback != nil) {
+      [callback call:[NSArray arrayWithObject:eventObject] thisObject:thisObject];
+    }
+  });
 }
 @end
 
@@ -593,10 +597,8 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 + (void)initialize
 {
   if (self == [KrollContext class]) {
-    pthread_mutexattr_t entryLockAttrs;
-    pthread_mutexattr_init(&entryLockAttrs);
-    pthread_mutexattr_settype(&entryLockAttrs, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&KrollEntryLock, &entryLockAttrs);
+    krollEntryQueue = dispatch_queue_create("org.appcelerator.kroll.entry", DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_set_specific(krollEntryQueue, krollEntryQueueKey, krollEntryQueueKey, NULL);
   }
 }
 
@@ -702,15 +704,13 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)invoke:(id)object
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  if ([object isKindOfClass:[NSOperation class]]) {
-    [(NSOperation *)object start];
-    pthread_mutex_unlock(&KrollEntryLock);
-    return;
-  }
-
-  [object invoke:self];
-  pthread_mutex_unlock(&KrollEntryLock);
+  KrollEntryLockPerform(^{
+    if ([object isKindOfClass:[NSOperation class]]) {
+      [(NSOperation *)object start];
+      return;
+    }
+    [object invoke:self];
+  });
 }
 
 - (void)enqueue:(id)obj
@@ -733,7 +733,7 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
   return [eval invokeWithResult:self];
 }
 
-- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_
+- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(dispatch_semaphore_t)condition_
 {
   KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj condition:condition_] autorelease];
   [self invoke:invocation];
@@ -747,16 +747,12 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)invokeBlockOnThread:(void (^)(void))block
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  block();
-  pthread_mutex_unlock(&KrollEntryLock);
+  KrollEntryLockPerform(block);
 }
 
 + (void)invokeBlock:(void (^)(void))block
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  block();
-  pthread_mutex_unlock(&KrollEntryLock);
+  KrollEntryLockPerform(block);
 }
 
 - (void)bindCallback:(NSString *)name callback:(JSObjectCallAsFunctionCallback)fn
@@ -791,103 +787,103 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)main
 {
-  pthread_mutex_lock(&KrollEntryLock);
-  context = JSGlobalContextCreate(NULL);
-  JSObjectRef globalRef = JSContextGetGlobalObject(context);
+  KrollEntryLockPerform(^{
+    context = JSGlobalContextCreate(NULL);
+    JSObjectRef globalRef = JSContextGetGlobalObject(context);
 
-  if (appJsKrollContext == nil) {
-    appJsKrollContext = self;
-    appJsContextRef = context;
-  }
+    if (appJsKrollContext == nil) {
+      appJsKrollContext = self;
+      appJsContextRef = context;
+    }
 
-  // we register an empty kroll string that allows us to pluck out this instance
-  KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
-  JSValueRef krollRef = [KrollObject toValue:self value:kroll];
-  JSStringRef prop = JSStringCreateWithUTF8CString("Kroll");
-  JSObjectSetProperty(context, globalRef, prop, krollRef,
-      kJSPropertyAttributeDontDelete | kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly,
-      NULL);
-  JSObjectRef krollObj = JSValueToObject(context, krollRef, NULL);
-  bool set = JSObjectSetPrivate(krollObj, self);
-  assert(set);
-  [kroll release];
-  JSStringRelease(prop);
+    // we register an empty kroll string that allows us to pluck out this instance
+    KrollObject *kroll = [[KrollObject alloc] initWithTarget:nil context:self];
+    JSValueRef krollRef = [KrollObject toValue:self value:kroll];
+    JSStringRef prop = JSStringCreateWithUTF8CString("Kroll");
+    JSObjectSetProperty(context, globalRef, prop, krollRef,
+        kJSPropertyAttributeDontDelete | kJSPropertyAttributeDontEnum | kJSPropertyAttributeReadOnly,
+        NULL);
+    JSObjectRef krollObj = JSValueToObject(context, krollRef, NULL);
+    bool set = JSObjectSetPrivate(krollObj, self);
+    assert(set);
+    [kroll release];
+    JSStringRelease(prop);
 
-  JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
-  timerManager = [[KrollTimerManager alloc] initInContext:jsContext];
+    JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context];
+    timerManager = [[KrollTimerManager alloc] initInContext:jsContext];
 
-  [self bindCallback:@"L" callback:&LCallback];
-  [self bindCallback:@"alert" callback:&AlertCallback];
+    [self bindCallback:@"L" callback:&LCallback];
+    [self bindCallback:@"alert" callback:&AlertCallback];
 
-  prop = JSStringCreateWithUTF8CString("String");
+    prop = JSStringCreateWithUTF8CString("String");
 
-  // create a special method -- String.format -- that will act as a string formatter
-  JSStringRef formatName = JSStringCreateWithUTF8CString("format");
-  JSValueRef invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
-  JSValueRef stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
-  JSObjectRef stringRef = JSValueToObject(context, stringValueRef, NULL);
-  JSObjectSetProperty(context, stringRef,
-      formatName, invoker,
-      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
-      NULL);
-  JSStringRelease(formatName);
+    // create a special method -- String.format -- that will act as a string formatter
+    JSStringRef formatName = JSStringCreateWithUTF8CString("format");
+    JSValueRef invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatCallback);
+    JSValueRef stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+    JSObjectRef stringRef = JSValueToObject(context, stringValueRef, NULL);
+    JSObjectSetProperty(context, stringRef,
+        formatName, invoker,
+        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
+        NULL);
+    JSStringRelease(formatName);
 
-  // create a special method -- String.formatDate -- that will act as a date formatter
-  formatName = JSStringCreateWithUTF8CString("formatDate");
-  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);
-  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = JSValueToObject(context, stringValueRef, NULL);
-  JSObjectSetProperty(context, stringRef,
-      formatName, invoker,
-      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
-      NULL);
-  JSStringRelease(formatName);
+    // create a special method -- String.formatDate -- that will act as a date formatter
+    formatName = JSStringCreateWithUTF8CString("formatDate");
+    invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatDateCallback);
+    stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+    stringRef = JSValueToObject(context, stringValueRef, NULL);
+    JSObjectSetProperty(context, stringRef,
+        formatName, invoker,
+        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
+        NULL);
+    JSStringRelease(formatName);
 
-  // create a special method -- String.formatTime -- that will act as a time formatter
-  formatName = JSStringCreateWithUTF8CString("formatTime");
-  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatTimeCallback);
-  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = JSValueToObject(context, stringValueRef, NULL);
-  JSObjectSetProperty(context, stringRef,
-      formatName, invoker,
-      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
-      NULL);
-  JSStringRelease(formatName);
+    // create a special method -- String.formatTime -- that will act as a time formatter
+    formatName = JSStringCreateWithUTF8CString("formatTime");
+    invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatTimeCallback);
+    stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+    stringRef = JSValueToObject(context, stringValueRef, NULL);
+    JSObjectSetProperty(context, stringRef,
+        formatName, invoker,
+        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
+        NULL);
+    JSStringRelease(formatName);
 
-  // create a special method -- String.formatDecimal -- that will act as a decimal formatter
-  formatName = JSStringCreateWithUTF8CString("formatDecimal");
-  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatDecimalCallback);
-  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = JSValueToObject(context, stringValueRef, NULL);
-  JSObjectSetProperty(context, stringRef,
-      formatName, invoker,
-      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
-      NULL);
-  JSStringRelease(formatName);
+    // create a special method -- String.formatDecimal -- that will act as a decimal formatter
+    formatName = JSStringCreateWithUTF8CString("formatDecimal");
+    invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatDecimalCallback);
+    stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+    stringRef = JSValueToObject(context, stringValueRef, NULL);
+    JSObjectSetProperty(context, stringRef,
+        formatName, invoker,
+        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
+        NULL);
+    JSStringRelease(formatName);
 
-  // create a special method -- String.formatCurrency -- that will act as a currency formatter
-  formatName = JSStringCreateWithUTF8CString("formatCurrency");
-  invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatCurrencyCallback);
-  stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
-  stringRef = JSValueToObject(context, stringValueRef, NULL);
-  JSObjectSetProperty(context, stringRef,
-      formatName, invoker,
-      kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
-      NULL);
-  JSStringRelease(formatName);
+    // create a special method -- String.formatCurrency -- that will act as a currency formatter
+    formatName = JSStringCreateWithUTF8CString("formatCurrency");
+    invoker = JSObjectMakeFunctionWithCallback(context, formatName, &StringFormatCurrencyCallback);
+    stringValueRef = JSObjectGetProperty(context, globalRef, prop, NULL);
+    stringRef = JSValueToObject(context, stringValueRef, NULL);
+    JSObjectSetProperty(context, stringRef,
+        formatName, invoker,
+        kJSPropertyAttributeReadOnly | kJSPropertyAttributeDontDelete,
+        NULL);
+    JSStringRelease(formatName);
 
-  JSStringRelease(prop);
+    JSStringRelease(prop);
 
-  if (delegate != nil && [delegate respondsToSelector:@selector(willStartNewContext:)]) {
-    [delegate performSelector:@selector(willStartNewContext:) withObject:self];
-  }
+    if (delegate != nil && [delegate respondsToSelector:@selector(willStartNewContext:)]) {
+      [delegate performSelector:@selector(willStartNewContext:) withObject:self];
+    }
 
-  loopCount = 0;
+    loopCount = 0;
 
-  if (delegate != nil && [delegate respondsToSelector:@selector(didStartNewContext:)]) {
-    [delegate performSelector:@selector(didStartNewContext:) withObject:self];
-  }
-  pthread_mutex_unlock(&KrollEntryLock);
+    if (delegate != nil && [delegate respondsToSelector:@selector(didStartNewContext:)]) {
+      [delegate performSelector:@selector(didStartNewContext:) withObject:self];
+    }
+  });
 }
 
 @end

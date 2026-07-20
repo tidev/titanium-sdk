@@ -17,7 +17,7 @@ import bufferEqual from 'buffer-equal';
 import Builder from 'node-titanium-sdk/lib/builder.js';
 import crypto from 'node:crypto';
 import colors from 'colors';
-import { DOMParser } from 'xmldom';
+import { DOMParser } from '@xmldom/xmldom';
 import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';
@@ -29,6 +29,7 @@ import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { Color } from '../../../common/lib/color.js';
 import { ProcessCSSTask } from '../../../cli/lib/tasks/process-css-task.js';
+import { injectSPMPackage } from '../lib/ios/spm.js';
 import { exec, spawn } from 'node:child_process';
 import ti from 'node-titanium-sdk';
 import util from 'node:util';
@@ -45,6 +46,7 @@ const { version } = appc;
 const require = createRequire(import.meta.url);
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
+const SPM_LOG_PREFIX = '[SPM]';
 
 class iOSBuilder extends Builder {
 	constructor() {
@@ -111,6 +113,8 @@ class iOSBuilder extends Builder {
 
 		// object of all used Titanium symbols, used to determine preprocessor statements, e.g. USE_TI_UIWINDOW
 		this.tiSymbols = {};
+		this.moduleSpmDependencies = [];
+		this.hostSpmPackages = [];
 
 		// when true, uses the new build system (Xcode 9+)
 		this.useNewBuildSystem = true;
@@ -186,6 +190,7 @@ class iOSBuilder extends Builder {
 
 		// macros used as preprocessor in project.xcconfig file
 		this.gccDefs = new Map();
+		this.swiftConds = [];
 		this.tiSymbolMacros = null;
 	}
 
@@ -2407,6 +2412,7 @@ class iOSBuilder extends Builder {
 						}, this);
 
 						this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+						this.collectModuleSpmDependencies();
 
 						next();
 					}.bind(this));
@@ -2425,6 +2431,220 @@ class iOSBuilder extends Builder {
 		return moduleId.replace(/[\s-]/g, '_').replace(/_+/g, '_').split(/\./).map(function (s) {
 			return s.substring(0, 1).toUpperCase() + s.substring(1);
 		}).join('');
+	}
+
+	collectModuleSpmDependencies() {
+		this.moduleSpmDependencies = [];
+		this.hostSpmPackages = [];
+
+		const packagesByKey = new Map();
+		const repoTracker = new Map();
+
+		(this.modules || []).forEach(module => {
+			const metadataPath = path.join(module.modulePath, 'metadata.json');
+			let metadata = null;
+
+			if (fs.existsSync(metadataPath)) {
+				try {
+					metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+				} catch (err) {
+					this.logger.warn(`${SPM_LOG_PREFIX} Unable to parse ${path.relative(this.projectDir, metadataPath)} for module ${module.id}: ${err.message}`);
+					return;
+				}
+			}
+
+			const spmInfo = metadata && metadata.spm;
+			if (!spmInfo || !Array.isArray(spmInfo.dependencies) || !spmInfo.dependencies.length) {
+				if (this.moduleHasLegacySpmHook(module)) {
+					this.logger.warn(`${SPM_LOG_PREFIX} Module ${module.id} ships the legacy ti.spm hook. Add an spm.json file and rebuild the module to avoid duplicate Swift packages.`);
+				} else {
+					this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} has no Swift package metadata`);
+				}
+				return;
+			}
+
+			const normalizedDeps = spmInfo.dependencies
+				.map(dep => this.normalizeModuleSpmDependency(module, dep))
+				.filter(Boolean);
+
+			if (!normalizedDeps.length) {
+				this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} declared Swift packages, but none were valid after normalization`);
+				return;
+			}
+
+			this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} contributes ${normalizedDeps.length} Swift package(s)`);
+
+			this.moduleSpmDependencies.push({ module, dependencies: normalizedDeps });
+
+			normalizedDeps.forEach(dep => {
+				const hostProducts = dep.products.filter(product => product.linkage === 'host');
+				if (!hostProducts.length) {
+					this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} embeds Swift package ${dep.repositoryURL} directly; nothing to add to the app`);
+					return;
+				}
+
+				const packageKey = [
+					dep.repositoryURL,
+					dep.requirementKind,
+					dep.requirementMinimumVersion
+				].join('#');
+
+				let pkg = packagesByKey.get(packageKey);
+				if (!pkg) {
+					pkg = {
+						remotePackageReference: dep.remotePackageReference,
+						repositoryURL: dep.repositoryURL,
+						requirementKind: dep.requirementKind,
+						requirementMinimumVersion: dep.requirementMinimumVersion,
+						products: new Map()
+					};
+					packagesByKey.set(packageKey, pkg);
+				}
+
+				hostProducts.forEach(product => {
+					if (!pkg.products.has(product.productName)) {
+						pkg.products.set(product.productName, {
+							productName: product.productName,
+							frameworkName: product.frameworkName
+						});
+					}
+				});
+
+				this.logger.debug(`${SPM_LOG_PREFIX} Module ${module.id} requests host-level product(s) ${hostProducts.map(p => p.productName).join(', ')} from ${dep.repositoryURL}`);
+
+				this.trackSpmVersionRequirement(dep, module, repoTracker);
+			});
+		});
+
+		this.hostSpmPackages = Array.from(packagesByKey.values()).map(pkg => ({
+			remotePackageReference: pkg.remotePackageReference,
+			repositoryURL: pkg.repositoryURL,
+			requirementKind: pkg.requirementKind,
+			requirementMinimumVersion: pkg.requirementMinimumVersion,
+			products: Array.from(pkg.products.values())
+		}));
+
+		if (this.hostSpmPackages.length) {
+			this.logger.info(`${SPM_LOG_PREFIX} Will add ${this.hostSpmPackages.length} Swift package(s) to the app project`);
+			this.hostSpmPackages.forEach(pkg => {
+				this.logger.debug(`${SPM_LOG_PREFIX} Package ${pkg.repositoryURL} (${pkg.requirementKind} ${pkg.requirementMinimumVersion}) products: ${pkg.products.map(p => p.productName).join(', ')}`);
+			});
+		} else {
+			this.logger.debug(`${SPM_LOG_PREFIX} No host-level Swift packages needed for this build`);
+		}
+	}
+
+	trackSpmVersionRequirement(dep, module, tracker) {
+		const repositoryURL = dep.repositoryURL;
+		const existing = tracker.get(repositoryURL);
+
+		if (!existing) {
+			tracker.set(repositoryURL, {
+				requirementKind: dep.requirementKind,
+				requirementMinimumVersion: dep.requirementMinimumVersion,
+				modules: new Set([ module.id ])
+			});
+			return;
+		}
+
+		const matches = existing.requirementKind === dep.requirementKind
+			&& existing.requirementMinimumVersion === dep.requirementMinimumVersion;
+
+		existing.modules.add(module.id);
+
+		if (!matches) {
+			this.logger.warn(`${SPM_LOG_PREFIX} Swift package ${repositoryURL} is requested with conflicting versions by modules: ${Array.from(existing.modules).join(', ')}. Using ${existing.requirementKind} ${existing.requirementMinimumVersion}.`);
+		}
+	}
+
+	normalizeModuleSpmDependency(module, dep) {
+		if (!dep || typeof dep !== 'object') {
+			return null;
+		}
+
+		const repositoryURL = dep.repositoryURL || dep.repositoryUrl;
+		if (!repositoryURL) {
+			this.logger.warn(`${SPM_LOG_PREFIX} Module ${module.id} declares a Swift package without repositoryURL. Skip.`);
+			return null;
+		}
+
+		const requirementKind = dep.requirementKind || (dep.requirement && dep.requirement.kind) || 'upToNextMajorVersion';
+		const requirementMinimumVersion = dep.requirementMinimumVersion || (dep.requirement && (dep.requirement.minimumVersion || dep.requirement.minVersion)) || '1.0.0';
+		const dependencyLinkage = this.normalizeModuleSpmLinkage(dep.linkage);
+
+		const products = Array.isArray(dep.products)
+			? dep.products.map(product => this.normalizeModuleSpmProduct(product, dependencyLinkage)).filter(Boolean)
+			: [];
+
+		if (!products.length) {
+			this.logger.warn(`${SPM_LOG_PREFIX} Module ${module.id} declares Swift package ${repositoryURL} but no valid products. Skip.`);
+			return null;
+		}
+
+		return {
+			remotePackageReference: dep.remotePackageReference || dep.reference || this.generateSpmReferenceFromRepo(repositoryURL),
+			repositoryURL,
+			requirementKind,
+			requirementMinimumVersion,
+			linkage: dependencyLinkage,
+			products
+		};
+	}
+
+	normalizeModuleSpmProduct(product, dependencyLinkage) {
+		if (!product || typeof product !== 'object') {
+			return null;
+		}
+
+		const productName = product.productName || product.name;
+		if (!productName) {
+			return null;
+		}
+
+		return {
+			productName,
+			frameworkName: product.frameworkName || productName,
+			linkage: this.normalizeModuleSpmLinkage(product.linkage || dependencyLinkage)
+		};
+	}
+
+	normalizeModuleSpmLinkage(linkage) {
+		return linkage && typeof linkage === 'string' && linkage.toLowerCase() === 'host' ? 'host' : 'embedded';
+	}
+
+	generateSpmReferenceFromRepo(repositoryURL) {
+		if (!repositoryURL || typeof repositoryURL !== 'string') {
+			return 'TiSPMPackage';
+		}
+
+		const withoutGit = repositoryURL.replace(/\.git$/, '');
+		const segments = withoutGit.split('/');
+		const candidate = segments[segments.length - 1] || withoutGit;
+		const sanitized = candidate.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+		return sanitized || 'TiSPMPackage';
+	}
+
+	moduleHasLegacySpmHook(module) {
+		const hookPath = path.join(module.modulePath, 'hooks', 'ti.spm.js');
+		return fs.existsSync(hookPath);
+	}
+
+	applySwiftPackageDependencies(xcodeProject) {
+		if (!this.hostSpmPackages || !this.hostSpmPackages.length) {
+			this.logger.debug(`${SPM_LOG_PREFIX} No Swift packages to inject into the Xcode project`);
+			return;
+		}
+
+		this.logger.debug(`${SPM_LOG_PREFIX} Injecting ${this.hostSpmPackages.length} Swift package(s) declared by modules`);
+
+		const xobjs = xcodeProject.hash.project.objects;
+
+		this.hostSpmPackages.forEach(pkg => {
+			this.logger.debug(`${SPM_LOG_PREFIX} Injecting ${pkg.repositoryURL} (${pkg.requirementKind} ${pkg.requirementMinimumVersion}) with products ${pkg.products.map(p => p.productName).join(', ')}`);
+			injectSPMPackage(xobjs, pkg, {
+				generateUUID: () => this.generateXcodeUuid(xcodeProject)
+			});
+		});
 	}
 
 	/**
@@ -3270,7 +3490,7 @@ class iOSBuilder extends Builder {
 
 		// If we're building for macOS catalyst, set the "Optimize for Mac" flag
 		let deviceFamily = this.deviceFamilies[this.deviceFamily];
-		if (this.target === 'macos') {
+		if (this.target === 'macos' || this.target === 'dist-macappstore') {
 			deviceFamily = [ ...deviceFamily.split(','), '6' ].join(',');
 		}
 
@@ -3301,31 +3521,26 @@ class iOSBuilder extends Builder {
 				DEAD_CODE_STRIPPING: 'YES',
 				SDKROOT: 'iphoneos',
 				CODE_SIGN_ENTITLEMENTS: '"' + appName + '.entitlements"',
-				FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"Frameworks"' ]
+				FRAMEWORK_SEARCH_PATHS: [ '"$(inherited)"', '"$(PROJECT_DIR)/Frameworks"' ]
 			},
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
-		this.gccDefs.set('DEPLOYTYPE', this.deployType);
 		// set additional build settings
 		if (this.target === 'simulator' || this.target === 'macos') {
-			this.gccDefs.set('__LOG__ID__', this.tiapp.guid);
+			this.gccDefs.set('LOGTOFILE', 1);
+			this.swiftConds.push('LOGTOFILE');
 			this.gccDefs.set('DEBUG', 1);
+			this.swiftConds.push('DEBUG');
 		}
 
 		if (this.enableLaunchScreenStoryboard) {
 			this.gccDefs.set('LAUNCHSCREEN_STORYBOARD', 1);
-		}
-
-		if (this.defaultBackgroundColor) {
-			this.gccDefs.set('DEFAULT_BGCOLOR_RED', this.defaultBackgroundColor.red);
-			this.gccDefs.set('DEFAULT_BGCOLOR_GREEN', this.defaultBackgroundColor.green);
-			this.gccDefs.set('DEFAULT_BGCOLOR_BLUE', this.defaultBackgroundColor.blue);
+			this.swiftConds.push('LAUNCHSCREEN_STORYBOARD');
 		}
 
 		if (this.tiLogServerPort === 0) {
 			this.gccDefs.set('DISABLE_TI_LOG_SERVER', 1);
-		} else {
-			this.gccDefs.set('TI_LOG_SERVER_PORT', this.tiLogServerPort);
+			this.swiftConds.push('DISABLE_TI_LOG_SERVER');
 		}
 
 		if (/device|dist-appstore|dist-adhoc/.test(this.target)) {
@@ -4122,6 +4337,8 @@ class iOSBuilder extends Builder {
 			comment: 'tiverify.xcframework'
 		});
 
+		this.applySwiftPackageDependencies(xcodeProject);
+
 		// run the xcode project hook
 		const hook = this.cli.createHook('build.ios.xcodeproject', this, function (xcodeProject, done) {
 			const contents = xcodeProject.writeSync(),
@@ -4602,22 +4819,37 @@ class iOSBuilder extends Builder {
 		const origSrc = await fs.readFile(srcFile, 'utf8');
 
 		// replace templated values
-		const consts = {
-			__PROJECT_NAME__:     this.tiapp.name,
-			__PROJECT_ID__:       this.tiapp.id,
-			__DEPLOYTYPE__:       this.deployType,
-			__SHOW_ERROR_CONTROLLER__:       this.showErrorController,
-			__APP_ID__:           this.tiapp.id,
-			__APP_PUBLISHER__:    this.tiapp.publisher,
-			__APP_URL__:          this.tiapp.url,
-			__APP_NAME__:         this.tiapp.name,
-			__APP_VERSION__:      this.tiapp.version,
-			__APP_DESCRIPTION__:  this.tiapp.description,
-			__APP_COPYRIGHT__:    this.tiapp.copyright,
-			__APP_GUID__:         this.tiapp.guid,
-			__APP_RESOURCE_DIR__: '',
-			__APP_DEPLOY_TYPE__:  this.buildType
+		let consts = {
+			__PROJECT_NAME__:          this.tiapp.name,
+			__PROJECT_ID__:            this.tiapp.id,
+			__DEPLOY_TYPE__:           this.deployType,
+			__SHOW_ERROR_CONTROLLER__: this.showErrorController,
+			__APP_ID__:                this.tiapp.id,
+			__APP_PUBLISHER__:         this.tiapp.publisher,
+			__APP_URL__:               this.tiapp.url,
+			__APP_NAME__:              this.tiapp.name,
+			__APP_VERSION__:           this.tiapp.version,
+			__APP_DESCRIPTION__:       this.tiapp.description,
+			__APP_COPYRIGHT__:         this.tiapp.copyright,
+			__APP_GUID__:              this.tiapp.guid,
+			__APP_RESOURCE_DIR__:      '',
+			__BUILD_TYPE__:            this.buildType,
+			__LOG_ID__:                this.tiapp.guid,
+			__TI_LOG_SERVER_PORT__:	   this.tiLogServerPort
 		};
+		if (this.defaultBackgroundColor) {
+			Object.assign(consts, {
+				__APP_DEFAULT_BGCOLOR_RED__:   this.defaultBackgroundColor.red,
+				__APP_DEFAULT_BGCOLOR_GREEN__: this.defaultBackgroundColor.green,
+				__APP_DEFAULT_BGCOLOR_BLUE__:  this.defaultBackgroundColor.blue
+			});
+		} else {
+			Object.assign(consts, {
+				__APP_DEFAULT_BGCOLOR_RED__:   0.0,
+				__APP_DEFAULT_BGCOLOR_GREEN__: 0.0,
+				__APP_DEFAULT_BGCOLOR_BLUE__:  0.0
+			});
+		}
 		const contents = origSrc.replace(/(__.+?__)/g, function (match, key) {
 			const s = Object.prototype.hasOwnProperty.call(consts, key) ? consts[key] : key;
 			return typeof s === 'string' ? s.replace(/"/g, '\\"').replace(/\n/g, '\\n') : s;
@@ -4651,7 +4883,8 @@ class iOSBuilder extends Builder {
 				'OTHER_LDFLAGS[sdk=iphonesimulator*]=$(inherited) $(JSCORE_LD_FLAGS)',
 				'OTHER_LDFLAGS[sdk=iphoneos9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
 				'OTHER_LDFLAGS[sdk=iphonesimulator9.*]=$(inherited) -weak_framework Contacts -weak_framework ContactsUI -weak_framework WatchConnectivity -weak_framework CoreSpotlight',
-				'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(function ([ key, value ]) { return key + '=' + value; }).join(' '),
+				'GCC_DEFINITIONS=' + Array.from(this.gccDefs.entries()).map(([ key, value ]) => { return key + '=' + value; }).join(' '),
+				'SWIFT_CONDITIONS=' + this.swiftConds.join(' '),
 				'TI_SYMBOL_MACROS=' + this.tiSymbolMacros,
 				'#include "module"'
 			].join('\n') + '\n';
@@ -5071,6 +5304,14 @@ class iOSBuilder extends Builder {
 		let tries = 0,
 			lastErr = null,
 			done = false;
+
+		if (this.simHandle && this.target !== 'macos' && this.target !== 'dist-macappstore') {
+			args.push('-destination', 'generic/platform=iOS Simulator');
+		} else if (this.target === 'device' || this.target === 'dist-adhoc' || this.target === 'dist-appstore') {
+			args.push('-destination', 'generic/platform=iOS');
+		} else if (this.target === 'macos' || this.target === 'dist-macappstore') {
+			args.push('-destination', 'generic/platform=macOS');
+		}
 
 		this.logger.info('Cleaning Xcode derived data');
 		this.logger.debug(`Invoking: ${('DEVELOPER_DIR=' + this.xcodeEnv.path + ' ' + exe + ' ' + args.join(' ')).cyan}`);
@@ -6857,9 +7098,11 @@ class iOSBuilder extends Builder {
 						next();
 					});
 				}.bind(this), function () {
+					this.createTitaniumKitSymlinks();
 					done();
-				});
+				}.bind(this));
 			} else {
+				this.createTitaniumKitSymlinks();
 				done();
 			}
 		});
@@ -6868,6 +7111,126 @@ class iOSBuilder extends Builder {
 			this.logger.debug('Removing empty directories');
 			appc.subprocess.run('find', [ '.', '-type', 'd', '-empty', '-delete' ], { cwd: this.xcodeAppDir }, next);
 		}.bind(this));
+	}
+
+	createTitaniumKitSymlinks() {
+		// Mac Catalyst requires proper macOS framework bundle structure with symlinks.
+		// This creates symlinks in two locations:
+		// 1. Build directory - for successful compilation
+		// 2. Final app bundle - for App Store validation
+
+		if (this.target !== 'macos' && this.target !== 'dist-macappstore') {
+			// Only needed for Mac Catalyst builds
+			return;
+		}
+
+		const frameworkLocations = [];
+
+		// Location 1: Build directory (ensures successful compilation)
+		const buildFrameworkPath = path.join(
+			this.buildDir,
+			'Frameworks',
+			'TitaniumKit.xcframework',
+			'ios-arm64_x86_64-maccatalyst',
+			'TitaniumKit.framework'
+		);
+		if (fs.existsSync(buildFrameworkPath)) {
+			frameworkLocations.push({
+				path: buildFrameworkPath,
+				description: 'build directory'
+			});
+		}
+
+		// Location 2: Final app bundle (ensures App Store validation)
+		// For macos target, the app is in: build/iphone/build/Products/Debug-maccatalyst/AppName.app
+		// For dist-macappstore: build/iphone/build/Products/Release-maccatalyst/AppName.app
+		const productConfig = this.target === 'dist-macappstore' ? 'Release-maccatalyst' : 'Debug-maccatalyst';
+		const appBundleFrameworkPath = path.join(
+			this.buildDir,
+			'build',
+			'Products',
+			productConfig,
+			this.tiapp.name + '.app',
+			'Contents',
+			'Frameworks',
+			'TitaniumKit.framework'
+		);
+		if (fs.existsSync(appBundleFrameworkPath)) {
+			frameworkLocations.push({
+				path: appBundleFrameworkPath,
+				description: 'app bundle'
+			});
+		}
+
+		// Helper function to ensure a symlink exists with the correct target
+		const ensureSymlink = (linkPath, target) => {
+			try {
+				const stats = fs.lstatSync(linkPath);
+
+				if (stats.isSymbolicLink() && fs.readlinkSync(linkPath) === target) {
+					return false; // Symlink already correct
+				}
+
+				// Remove whatever exists (symlink, directory, or file)
+				if (stats.isDirectory()) {
+					fs.rmSync(linkPath, { recursive: true, force: true });
+				} else {
+					fs.unlinkSync(linkPath);
+				}
+			} catch (err) {
+				if (err.code !== 'ENOENT') {
+					throw err;
+				}
+			}
+
+			fs.symlinkSync(target, linkPath);
+			return true;
+		};
+
+		// Create symlinks in all found locations
+		frameworkLocations.forEach(location => {
+			const frameworkPath = location.path;
+			const versionsPath = path.join(frameworkPath, 'Versions');
+
+			if (!fs.existsSync(versionsPath)) {
+				this.logger.warn(`Versions directory not found in ${location.description}: ${versionsPath}`);
+				return;
+			}
+
+			try {
+				let createdCount = 0;
+
+				// Create Versions/Current -> A symlink
+				const currentLink = path.join(versionsPath, 'Current');
+				if (ensureSymlink(currentLink, 'A')) {
+					this.logger.debug(`Created symlink: Versions/Current -> A in ${location.description}`);
+					createdCount++;
+				}
+
+				// Create root-level symlinks
+				const symlinks = [
+					{ link: 'TitaniumKit', target: 'Versions/Current/TitaniumKit' },
+					{ link: 'Resources', target: 'Versions/Current/Resources' },
+					{ link: 'Headers', target: 'Versions/Current/Headers' },
+					{ link: 'Modules', target: 'Versions/Current/Modules' }
+				];
+
+				symlinks.forEach(item => {
+					const linkPath = path.join(frameworkPath, item.link);
+					if (ensureSymlink(linkPath, item.target)) {
+						createdCount++;
+					}
+				});
+
+				if (createdCount > 0) {
+					this.logger.info(`✓ Created ${createdCount} Mac Catalyst framework symlinks in ${location.description}`);
+				} else {
+					this.logger.debug(`Mac Catalyst symlinks already correct in ${location.description}`);
+				}
+			} catch (err) {
+				this.logger.warn(`Failed to create symlinks in ${location.description}: ${err.message}`);
+			}
+		});
 	}
 
 	optimizeFiles(next) {
@@ -6972,30 +7335,70 @@ class iOSBuilder extends Builder {
 				// here's a list of tasks that Xcode can perform... we use this so we can inject some whitespace and make the xcodebuild output pretty
 				/* eslint-disable security/detect-non-literal-regexp */
 				taskRegExp = new RegExp('^(' + [
+					'AppIntentsSSUTrainixng',
+					'ClangStatCache',
 					'CodeSign',
 					'CompileAssetCatalog',
+					'CompileAssetCatalogVariant',
 					'CompileC',
 					'CompileStoryboard',
+					'ComputePackagePrebuildTargetDependencyGraph',
+					'ComputeTargetDependencyGraph',
+					'Copy',
 					'CopySwiftLibs',
 					'CpHeader',
+					'CreateBuildDescription',
+					'CreateBuildDirectory',
+					'CreateBuildOperation',
+					'CreateBuildRequest',
 					'CreateUniversalBinary',
 					'Ditto',
+					'EmitSwiftModule',
+					'ExecuteExternalTool',
+					'ExtractAppIntentsMetadata',
+					'GatherProvisioningInputs',
+					'GenerateAssetSymbols',
 					'GenerateDSYMFile',
+					'GenerateTAPI',
 					'Ld',
 					'Libtool',
+					'LinkAssetCatalog',
 					'LinkStoryboards',
+					'MkDir',
 					'PBXCp',
 					'PhaseScriptExecution',
+					'PrecompileModule',
+					'Prepare packages',
 					'ProcessInfoPlistFile',
 					'ProcessPCH',
 					'ProcessPCH\\+\\+',
 					'ProcessProductPackaging',
+					'ProcessProductPackagingDER',
+					'ProcessXCFramework',
+					'RegisterExecutionPolicyException',
+					'ScanDependencies',
+					'SendProjectDescription',
+					'SetMode',
+					'SetOwnerAndGroup',
+					'SignatureCollection',
 					'Strip',
 					'Stripping',
+					'SwiftCompile',
+					'SwiftDriver',
+					'SwiftDriver\\\\ Compilation',
+					'SwiftDriver\\\\ Compilation\\\\ Requirements',
+					'SwiftDriverJobDiscovery',
+					'SwiftEmitModule',
+					'SwiftExplicitDependencyGeneratePcm',
+					'SwiftExplicitDependencyCompileModuleFromInterface',
+					'SwiftGeneratePch',
+					'SwiftMergeGeneratedHeaders',
+					'SymLink',
 					'Touch',
 					'Validate',
-					'ValidateEmbeddedBinary'
-				].join('|') + ') ');
+					'ValidateEmbeddedBinary',
+					'WriteAuxiliaryFile'
+				].join('|') + ') ?');
 			/* eslint-enable security/detect-non-literal-regexp */
 			let buffer = '',
 				stopOutputting = false;
@@ -7008,7 +7411,7 @@ class iOSBuilder extends Builder {
 					}
 					if (!stopOutputting) {
 						if (taskRegExp.test(line)) {
-							// add a blank line between tasks to make things easier to read
+							// add a blank line between tasks (as in the original xcodebuild log) to make things easier to read
 							this.logger.trace();
 							this.logger.trace(line.cyan);
 						} else if (line.indexOf('=== BUILD TARGET ') !== -1) {
@@ -7093,6 +7496,9 @@ class iOSBuilder extends Builder {
 				}
 
 				// end of the line
+				// Create Mac Catalyst symlinks in final app bundle
+				this.createTitaniumKitSymlinks();
+
 				done(code);
 			}.bind(this));
 		});
