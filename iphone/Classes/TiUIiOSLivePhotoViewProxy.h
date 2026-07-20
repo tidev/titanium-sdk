@@ -28,7 +28,7 @@
 - (void)setMuted:(id)value;
 
 /**
- *  Returns wheather or not the current playback is muted.
+ *  Returns whether or not the current playback is muted.
  */
 - (NSNumber *)muted;
 

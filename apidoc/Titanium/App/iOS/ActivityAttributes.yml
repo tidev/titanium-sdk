@@ -3,7 +3,7 @@ name: Titanium.App.iOS.ActivityAttributes
 summary: |
     Use this module to communicate with the native iOS 16+ Dynamic Island APIs.
 description: |
-    To properly use these APIs, you need to habe your Widget Extension ready.
+    To properly use these APIs, you need to have your Widget Extension ready.
     You can follow this [sample repository](https://github.com/hansemannn/titanium-widget-kit-sample-app) for an extended example.
 since: "12.0.0"
 platforms: [iphone, ipad]

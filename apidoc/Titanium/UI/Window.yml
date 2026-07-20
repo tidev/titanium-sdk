@@ -155,7 +155,7 @@ description: |
     and "Form sheet" style windows:
 
     * **Page sheet** style windows have a fixed width, equal to the width of the screen
-      in portait mode, and a height equal to the *current* height of the screen. This means
+      in portrait mode, and a height equal to the *current* height of the screen. This means
       that in portrait mode, the window covers the entire screen. In landscape mode,
       the window is centered on the screen horizontally.
 
@@ -269,7 +269,7 @@ description: |
     show the window, then set the newly created TransitionAnimation object to the window's
     <Titanium.UI.Window.transitionAnimation> property.
 
-    In the example below, the windows are closed by rotating them upside down while simulatenously
+    In the example below, the windows are closed by rotating them upside down while simultaneously
     making them transparent:
 
     `app/views/index.xml`:
@@ -462,7 +462,7 @@ description: |
     to use these transition animations, while in older version of Titanium that was required.
 
     See the official Android [Activity Transitions](https://developer.android.com/training/material/animations.html#Transitions)
-    documentation for more information and supported transitons.
+    documentation for more information and supported transitions.
 
     #### Android "root" Windows
 
@@ -546,7 +546,7 @@ methods:
         since: "12.7.0"
         removed: "13.0.0"
         notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
-     
+
   - name: open
     summary: Opens the window.
     parameters:
@@ -606,7 +606,7 @@ methods:
         since: "12.7.0"
         removed: "13.0.0"
         notes: Deprecated in favor of <Titanium.UI.Window.tabBarHidden> property.
-        
+
   - name: showToolbar
     summary: Makes the bottom toolbar visible.
     description: |
@@ -792,7 +792,7 @@ properties:
     description: |
         The behavior of this API on iOS has changed from version 3.2.0. Previous versions
         of the SDK created a custom image view and inserted it as a child of the navigation bar.
-        The titanium sdk now uses the native call to set the background image of the navigation bar.
+        The Titanium SDK now uses the native call to set the background image of the navigation bar.
         You can set it to a 1px transparent png to use a combination of `barColor` and `hideShadow:true`.
     platforms: [iphone, ipad, macos]
     type: String
@@ -1101,7 +1101,7 @@ properties:
   - name: navTintColor
     summary: The tintColor to apply to the navigation bar.
     description: |
-        This property is a direct correspondant of the tintColor property of NavigationBar on iOS.
+        This property is a direct correspondent of the tintColor property of NavigationBar on iOS.
     type: [String, Titanium.UI.Color]
     default: null
     platforms: [iphone, ipad, macos]
@@ -1182,7 +1182,7 @@ properties:
         #### Android Orientation Modes
 
         On Android, orientation behavior is dependent on the Android SDK level
-        of the device itself. Devices running Android 2.3 and above support "sensor portait
+        of the device itself. Devices running Android 2.3 and above support "sensor portrait
         mode" and "sensor landscape mode," in these modes, the device is locked into
         either a portrait or landscape orientation, but can switch between the normal and reverse
         orientations (for example, between PORTRAIT and UPSIDE_PORTRAIT).
@@ -1315,7 +1315,7 @@ properties:
             windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION | Ti.UI.Android.FLAG_TRANSLUCENT_STATUS
         });
 
-        // Set up a safe-area view to be layed out between the system insets.
+        // Set up a safe-area view to be laid out between the system insets.
         // You should use this as a container for child views.
         var safeAreaView = Ti.UI.createView({
             backgroundColor: 'green'
@@ -1352,7 +1352,7 @@ properties:
     availability: creation
     deprecated:
         since: "6.2.0"
-        notes: Deprecated in AppCompat theme. The same behaviour can be achived by using Toolbar.
+        notes: Deprecated in AppCompat theme. The same behaviour can be achieved by using Toolbar.
 
   - name: statusBarStyle
     summary: The status bar style associated with this window.
@@ -1373,6 +1373,12 @@ properties:
     type: [Number]
     platforms: [android]
     since: {android: "12.5.0"}
+
+  - name: navBarColor
+    summary: The color of the navigation bar (bottom bar) for this window.
+    type: [Number]
+    platforms: [android]
+    since: {android: "13.1.0"}
 
   - name: sustainedPerformanceMode
     summary: Maintain a sustainable level of performance.
@@ -1532,7 +1538,7 @@ properties:
   - name: translucent
     summary: Boolean value indicating if the nav bar is translucent.
     platforms: [iphone, ipad, macos]
-    default: true on iOS7 and above, false otherwise.
+    default: true on iOS 7 and above, false otherwise.
     type: Boolean
 
   - name: windowFlags
@@ -1567,7 +1573,7 @@ properties:
   - name: windowSoftInputMode
     summary: |
         Determines whether a window's soft input area (ie software keyboard) is visible
-        as it receives focus and how the window behaves in order to accomodate it while keeping its
+        as it receives focus and how the window behaves in order to accommodate it while keeping its
         contents in view.
     description: |
         In order for this property to take effect on an emulator, its Android Virtual Device (AVD)
@@ -1575,7 +1581,7 @@ properties:
         recommended to test an application on a physical device to understand its true behavior.
 
         This property is capable of representing two settings from the soft input *visibility*
-        constatns and soft input *adjustment* constants
+        constants and soft input *adjustment* constants
         using the [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) operation.
 
         Note that in JavaScript, bitwise OR is achieved using the single pipe operand. See the
@@ -1719,7 +1725,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]
@@ -1735,7 +1741,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]
@@ -1751,7 +1757,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]
@@ -1767,7 +1773,7 @@ properties:
     type: Number
     constants: [ Titanium.UI.Android.TRANSITION_CHANGE_*, Titanium.UI.Android.TRANSITION_NONE ]
     default: |
-        Defaults to android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
+        Defaults to Android platform's [move](https://github.com/android/platform_frameworks_base/blob/lollipop-release/core/res/res/transition/move.xml) transition.
     since: "5.2.0"
     availability: creation
     platforms: [android]

@@ -98,13 +98,13 @@ methods:
 
   - name: sendMessage
     summary: |
-        Sends a message to the apple watch.
+        Sends a message to the Apple Watch.
     description: |
-        Sends a message to the installed watchapp on the apple watch in the foreground. 
+        Sends a message to the installed watch app on the Apple Watch in the foreground. 
     parameters: 
       - name: message
         summary: | 
-            Message to send to apple watch. This property is required and the key of the dictionary 
+            Message to send to the Apple Watch. This property is required and the key of the dictionary 
             needs to be a String.
         type: Dictionary
         optional: false
@@ -120,33 +120,33 @@ methods:
 
   - name: updateApplicationContext
     summary: |
-        Sends an app context update to the apple watch.
+        Sends an app context update to the Apple Watch.
     description: |
-        Sends an app context update to the apple watch. If watchapp is in background during transfer,
-        watchapp will fire the <Titanium.WatchSession.receiveapplicationcontext> event immediately when 
+        Sends an app context update to the Apple Watch. If watch app is in background during transfer,
+        watch app will fire the <Titanium.WatchSession.receiveapplicationcontext> event immediately when 
         it becomes active. Only one app context is stored at any one time. Subsequent updates will simply 
         replace the earlier one sent.
     parameters: 
       - name: params    
-        summary: App context to be updated in apple watch.
+        summary: App context to be updated in the Apple Watch.
         type: Dictionary
 
   - name: transferUserInfo
     summary: |
-        Transfers an user info to the apple watch.
+        Transfers an user info to the Apple Watch.
     description: |
-        Transfers an user info object to the installed watchapp on the apple watch in the background.
+        Transfers an user info object to the installed watch app on the Apple Watch in the background.
         Subsequent transfers are queued. 
     parameters:
       - name: params
-        summary: userInfo to be transferred to apple watch.
+        summary: userInfo to be transferred to the Apple Watch.
         type: Dictionary
 
   - name: transferFile
     summary: |
-        Transfers a file to the apple watch.
+        Transfers a file to the Apple Watch.
     description: |
-        Transfers a file to the installed watchapp on the apple watch in the background. Subsequent
+        Transfers a file to the installed watch app on the Apple Watch in the background. Subsequent
         transfers are queued. 
     parameters: 
       - name: params
@@ -170,26 +170,26 @@ methods:
 
   - name: cancelAllUserInfoTransfers
     summary: |
-        Cancels all incomplete user info and complication transfers to the apple watch.
+        Cancels all incomplete user info and complication transfers to the Apple Watch.
     description: |
-        Cancels all incomplete user info and complication transfers to the apple watch.
+        Cancels all incomplete user info and complication transfers to the Apple Watch.
 
   - name: cancelAllFileTransfers
     summary: |
-        Cancels all incomplete file transfers to the apple watch.
+        Cancels all incomplete file transfers to the Apple Watch.
     description: |
-        Cancels all incomplete file transfers to the apple watch.
+        Cancels all incomplete file transfers to the Apple Watch.
 
   - name: cancelAllTransfers
     summary: |
-        Cancels all incomplete transfers to the apple watch.
+        Cancels all incomplete transfers to the Apple Watch.
     description: |
-        Cancels all incomplete transfers to the apple watch, including user info, complication and file.
+        Cancels all incomplete transfers to the Apple Watch, including user info, complication and file.
 
 events:
   - name: receivemessage
     summary: |
-        App received message from apple watch in foreground. Will be called on startup if the 
+        App received message from Apple Watch in foreground. Will be called on startup if the 
         incoming message caused the receiver to launch.
     properties:
       - name: message
@@ -198,7 +198,7 @@ events:
 
   - name: receiveapplicationcontext
     summary: |
-        App received app context from apple watch. Will be called on startup if an applicationContext is available.
+        App received app context from Apple Watch. Will be called on startup if an applicationContext is available.
     properties:
       - name: applicationContext
         summary: The application Context
@@ -206,7 +206,7 @@ events:
 
   - name: receiveuserinfo
     summary: |
-        App received user info from apple watch in background. Will be called on startup if the user info finished 
+        App received user info from Apple Watch in background. Will be called on startup if the user info finished 
         transferring when the receiver was not running.
     properties:
       - name: userInfo
@@ -215,7 +215,7 @@ events:
 
   - name: receivefile
     summary: |
-        App received file from apple watch in background.
+        App received file from Apple Watch in background.
     properties:
       - name: data
         summary: The downloaded data as a Titanium.Blob object.
@@ -238,20 +238,20 @@ events:
         The watch state has changed.
     properties:
       - name: isPaired
-        summary: If the device is paired with the apple watch.
+        summary: If the device is paired with the Apple Watch.
         type: Boolean
       - name: isReachable
-        summary: If apple watch is currently reachable.
+        summary: If the Apple Watch is currently reachable.
         type: Boolean
       - name: isWatchAppInstalled
-        summary: If the watch app is installed in the apple watch.
+        summary: If the watch app is installed in the Apple Watch.
         type: Boolean
       - name: isComplicationEnabled
-        summary: If the complication is enabled in the apple watch.
+        summary: If the complication is enabled in the Apple Watch.
         type: Boolean
       - name: isActivated
         summary: | 
-            If the apple watch is currently activated. Only available on iOS 9.3
+            If the Apple Watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
       - name: activationState
@@ -266,20 +266,20 @@ events:
         The watch reachability state has changed.
     properties:
       - name: isPaired
-        summary: If the device is paired with the apple watch.
+        summary: If the device is paired with the Apple Watch.
         type: Boolean
       - name: isReachable
-        summary: If apple watch is currently reachable.
+        summary: If the Apple Watch is currently reachable.
         type: Boolean
       - name: isWatchAppInstalled
-        summary: If the watch app is installed in the apple watch.
+        summary: If the watch app is installed in the Apple Watch.
         type: Boolean
       - name: isComplicationEnabled
-        summary: If the complication is enabled in the apple watch.
+        summary: If the complication is enabled in the Apple Watch.
         type: Boolean
       - name: isActivated
         summary: | 
-            If the apple watch is currently activated. Only available on iOS 9.3
+            If the Apple Watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
       - name: activationState
@@ -333,20 +333,20 @@ events:
         This will happen when the selected watch is being changed. 
     properties:
       - name: isPaired
-        summary: If the device is paired with the apple watch.
+        summary: If the device is paired with the Apple Watch.
         type: Boolean
       - name: isReachable
-        summary: If apple watch is currently reachable.
+        summary: If the Apple Watch is currently reachable.
         type: Boolean
       - name: isWatchAppInstalled
-        summary: If the watch app is installed in the apple watch.
+        summary: If the watch app is installed in the Apple Watch.
         type: Boolean
       - name: isComplicationEnabled
-        summary: If the complication is enabled in the apple watch.
+        summary: If the complication is enabled in the Apple Watch.
         type: Boolean
       - name: isActivated
         summary: | 
-            If the apple watch is currently activated. Only available on iOS 9.3
+            If the Apple Watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
       - name: activationState
@@ -364,30 +364,30 @@ events:
         The session can be re-activated for the now selected watch using activateSession.
     properties:
       - name: isPaired
-        summary: If the device is paired with the apple watch.
+        summary: If the device is paired with the Apple Watch.
         type: Boolean
       - name: isReachable
-        summary: If apple watch is currently reachable.
+        summary: If the Apple Watch is currently reachable.
         type: Boolean
       - name: isWatchAppInstalled
-        summary: If the watch app is installed in the apple watch.
+        summary: If the watch app is installed in the Apple Watch.
         type: Boolean
       - name: isComplicationEnabled
-        summary: If the complication is enabled in the apple watch.
+        summary: If the complication is enabled in the Apple Watch.
         type: Boolean
       - name: isActivated
         summary: | 
-            If the apple watch is currently activated. Only available on iOS 9.3
+            If the Apple Watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
       - name: hasContentPending
         summary: | 
-            If the apple watch has currently content pending. Only available on iOS 10.0
+            If the Apple Watch has currently content pending. Only available on iOS 10.0
             and later. See <Titanium.WatchSession.hasContentPending> for more infos.
         type: Boolean
       - name: remainingComplicationUserInfoTransfers
         summary: | 
-            If the apple watch has complication userInfo transfers left. Only available on iOS 10.0
+            If the Apple Watch has complication userInfo transfers left. Only available on iOS 10.0
             and later. See <Titanium.WatchSession.remainingComplicationUserInfoTransfers> for more infos.
         type: Boolean
       - name: activationState
@@ -406,20 +406,20 @@ events:
         with more details. 
     properties:
       - name: isPaired
-        summary: If the device is paired with the apple watch.
+        summary: If the device is paired with the Apple Watch.
         type: Boolean
       - name: isReachable
-        summary: If apple watch is currently reachable.
+        summary: If the Apple Watch is currently reachable.
         type: Boolean
       - name: isWatchAppInstalled
-        summary: If the watch app is installed in the apple watch.
+        summary: If the watch app is installed in the Apple Watch.
         type: Boolean
       - name: isComplicationEnabled
-        summary: If the complication is enabled in the apple watch.
+        summary: If the complication is enabled in the Apple Watch.
         type: Boolean
       - name: isActivated
         summary: | 
-            If the apple watch is currently activated. Only available on iOS 9.3
+            If the Apple Watch is currently activated. Only available on iOS 9.3
             and later. See <Titanium.WatchSession.isActivated> for more infos.
         type: Boolean
       - name: activationState
@@ -437,7 +437,7 @@ name: MessageReply
 summary: Reply message received from watch app.
 properties:
   - name: message 
-    summary: Reply message from watchapp.
+    summary: Reply message from watch app.
     description: Will be undefined if `success` is `false`.
     type: Dictionary
   - name: success

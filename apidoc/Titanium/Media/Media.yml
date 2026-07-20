@@ -743,14 +743,14 @@ properties:
     since: "3.4.2"
 
   - name: AUDIO_SESSION_PORT_BLUETOOTHLE
-    summary: Constant for output on a Bluetooth Low Energy device. This is an output port. This is available on iOS7 and later.
+    summary: Constant for output on a Bluetooth Low Energy device. This is an output port. This is available on iOS 7 and later.
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]
     since: "3.4.2"
 
   - name: AUDIO_SESSION_PORT_CARAUDIO
-    summary: Constant for Input or output via Car Audio. This can be both an input and output port. This is available on iOS7 and later.
+    summary: Constant for Input or output via Car Audio. This can be both an input and output port. This is available on iOS 7 and later.
     type: String
     permission: read-only
     platforms: [iphone, ipad, macos]
@@ -873,28 +873,28 @@ properties:
     since:
         android: "3.2.0"
   - name: CAMERA_AUTHORIZATION_AUTHORIZED
-    summary: Constant specifying that app is authorized to use camera. This is available on iOS7 and later.
+    summary: Constant specifying that app is authorized to use camera. This is available on iOS 7 and later.
     type: Number
     permission: read-only
     exclude-platforms: [android]
     since: "4.0.0"
 
   - name: CAMERA_AUTHORIZATION_DENIED
-    summary: Constant specifying that app is denied usage of camera. This is available on iOS7 and later.
+    summary: Constant specifying that app is denied usage of camera. This is available on iOS 7 and later.
     type: Number
     permission: read-only
     exclude-platforms: [android]
     since: "4.0.0"
 
   - name: CAMERA_AUTHORIZATION_RESTRICTED
-    summary: Constant specifying that app is restricted from using camera. This is available on iOS7 and later.
+    summary: Constant specifying that app is restricted from using camera. This is available on iOS 7 and later.
     type: Number
     permission: read-only
     exclude-platforms: [android]
     since: "4.0.0"
 
   - name: CAMERA_AUTHORIZATION_UNKNOWN
-    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS7 and later.
+    summary: Constant specifying that app is not yet authorized to use camera. This is available on iOS 7 and later.
     type: Number
     permission: read-only
     exclude-platforms: [android]
@@ -908,7 +908,7 @@ properties:
   - name: IMAGE_SCALING_AUTO
     summary: Scales the image depending on how the view container is sized.
     description: |
-        If a [width](Titanium.UI.View.width) and [height](Titanium.UI.View.height) are both conigured on the
+        If a [width](Titanium.UI.View.width) and [height](Titanium.UI.View.height) are both configured on the
         image view, then it will use [IMAGE_SCALING_FILL](Titanium.Media.IMAGE_SCALING_FILL)
         to stretch the image disproportionally to fill the view. Otherwise it will use
         [IMAGE_SCALING_ASPECT_FIT](Titanium.Media.IMAGE_SCALING_ASPECT_FIT) to letterbox/pillarbox the image.
@@ -1476,7 +1476,7 @@ properties:
     since: {android: "6.2.0", iphone: "0.9.0", ipad: "0.9.0"}
 
   - name: VIDEO_REPEAT_MODE_ONE
-    summary: Constant for repeating one video (i.e., the one video will repeat constantly) during playback.
+    summary: Constant for repeating one video (e.g., the one video will repeat constantly) during playback.
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
@@ -1741,7 +1741,7 @@ properties:
         Returns an object of possible `targetImageWidth` and `targetImageHeight` values. The output
         contains a `cameraType` (front or back) and object of width/height values. You have to set
         `targetImageWidth` and `targetImageHeight` if you want to change the camera image output size.
-        Note: depeneding on your phone and camera the values won't be used or can be different.
+        Note: depending on your phone and camera the values won't be used or can be different.
     type: Object
     platforms: [android]
     permission: read-only

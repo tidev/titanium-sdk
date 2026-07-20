@@ -493,7 +493,7 @@ properties:
   - name: tintColor
     summary: The tint-color of the dialog.
     description: |
-        This property is a direct correspondant of the `tintColor` property of
+        This property is a direct correspondent of the `tintColor` property of
         UIView on iOS. For a dialog, it will tint the color of it's buttons.
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [ String, Titanium.UI.Color ]

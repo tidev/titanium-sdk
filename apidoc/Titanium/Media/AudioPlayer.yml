@@ -285,7 +285,7 @@ events:
 
       - name: code
         summary: |
-            Error code. Different between android and iOS.
+            Error code. Different between Android and iOS.
         type: Number
     since: "4.1.0"
 

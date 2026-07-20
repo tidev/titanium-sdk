@@ -78,7 +78,7 @@
 {
   /*
      Why both? sizeThatFits returns the width with line break mode tail truncation and we like to
-     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for
+     have at least enough space to display one word. On the other hand font measurement is unsuitable for
      attributed strings till we move to the new measurement API. Hence take both and return MAX.
      */
   CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
@@ -97,7 +97,7 @@
   CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
   UIControlContentVerticalAlignment alignment = verticalAlign;
   if (alignment == UIControlContentVerticalAlignmentFill) {
-    // IOS7 layout issue fix with attributed string.
+    // iOS 7 layout issue fix with attributed string.
     if (actualLabelSize.height < initialLabelFrame.size.height) {
       alignment = UIControlContentVerticalAlignmentCenter;
     } else {
@@ -151,7 +151,7 @@
 }
 
 #ifndef TI_USE_AUTOLAYOUT
-// FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
+// FIXME: This isn't quite true.  But the brilliant solution wasn't so brilliant, because it screwed with layout in unpredictable ways.
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
 - (void)setCenter:(CGPoint)newCenter
@@ -497,11 +497,13 @@
 - (void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-  [[self label] setAttributedText:[arg attributedString]];
-  [self padLabel];
-  [(TiViewProxy *)[self proxy] contentsWillChange];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
+  if (attributedStringProxy) {
+    [[self proxy] replaceValue:attributedStringProxy forKey:@"attributedString" notification:NO];
+    [[self label] setAttributedText:[attributedStringProxy attributedString]];
+    [self padLabel];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+  }
 #endif
 }
 
