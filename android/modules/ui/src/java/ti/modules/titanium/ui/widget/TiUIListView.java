@@ -249,7 +249,6 @@ public class TiUIListView extends TiUIView
 		}
 
 		if (name.equals(TiC.PROPERTY_SNAPPING)) {
-
 			// Set item snapping.
 			this.listView.setSnapping(TiConvert.toBoolean(value, false));
 		}

@@ -444,7 +444,6 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public void setSnapping(boolean value)
 	{
 		if (value == (this.snapHelper != null)) {
-
 			// Already in the requested state.
 			return;
 		}

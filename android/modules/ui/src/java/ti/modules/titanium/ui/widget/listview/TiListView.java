@@ -849,7 +849,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public void setSnapping(boolean value)
 	{
 		if (value == (this.snapHelper != null)) {
-
 			// Already in the requested state.
 			return;
 		}

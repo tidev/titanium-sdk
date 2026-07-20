@@ -114,7 +114,6 @@ public class TiUITableView extends TiUIView
 		}
 
 		if (name.equals(TiC.PROPERTY_SNAPPING)) {
-
 			// Set row snapping.
 			this.tableView.setSnapping(TiConvert.toBoolean(value, false));
 		}
