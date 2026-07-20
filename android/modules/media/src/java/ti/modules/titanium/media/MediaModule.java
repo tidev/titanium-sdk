@@ -692,6 +692,9 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		if (cameraOptions.containsKeyAndNotNull("galleryFolder")) {
 			imageFolder = cameraOptions.getString("galleryFolder");
+		} else {
+			// Reset. This is static state shared with other capture paths, such as the WebView's file chooser.
+			imageFolder = "";
 		}
 
 		if ((overlay != null) && (overlay instanceof TiViewProxy)) {
@@ -1007,7 +1010,8 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
-				if (!imageFolder.equals("")) {
+				// Note: "RELATIVE_PATH" is only supported by the MediaStore on Android 10 and higher.
+				if ((Build.VERSION.SDK_INT >= 29) && !imageFolder.isEmpty()) {
 					contentValues.put(MediaStore.Images.Media.RELATIVE_PATH,
 						Environment.DIRECTORY_PICTURES + "/" + imageFolder);
 				}
