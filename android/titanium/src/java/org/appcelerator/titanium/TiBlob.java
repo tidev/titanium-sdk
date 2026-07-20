@@ -64,7 +64,10 @@ public class TiBlob extends KrollProxy
 	private int uprightWidth;
 	private int uprightHeight;
 	private Object rotation;
-	private static ExifInterface exifData;
+	// EXIF metadata is parsed on first access, since it requires reading through the
+	// underlying stream and most blobs never ask for it.
+	private KrollDict exifData;
+	private boolean isExifDataLoaded;
 
 	// This handles the memory cache of images.
 	private final TiBlobLruCache mMemoryCache = TiBlobLruCache.getInstance();
@@ -100,10 +103,6 @@ public class TiBlob extends KrollProxy
 	 */
 	public static TiBlob blobFromFile(TiBaseFile file)
 	{
-		try (InputStream stream = file.getInputStream()) {
-			// set exif data from stream if available
-			exifData = new ExifInterface(stream);
-		} catch (Exception ex) {}
 		return blobFromFile(file, TiMimeTypeHelper.getMimeType(file.nativePath()));
 	}
 
@@ -119,11 +118,6 @@ public class TiBlob extends KrollProxy
 		if (mimeType == null) {
 			mimeType = TiMimeTypeHelper.getMimeType(file.nativePath());
 		}
-
-		try (InputStream stream = file.getInputStream()) {
-			// set exif data from stream if available
-			exifData = new ExifInterface(stream);
-		} catch (Exception ex) {}
 
 		TiBlob blob = new TiBlob(TYPE_FILE, file, mimeType);
 		blob.loadBitmapInfo();
@@ -593,6 +587,34 @@ public class TiBlob extends KrollProxy
 		return image;
 	}
 
+	/**
+	 * Carries this blob's EXIF metadata over to a blob derived from its image data, so
+	 * that operations such as resizing or re-compressing do not silently discard the
+	 * camera information of the original photo.
+	 * @param derived the blob created from this blob's image data, may be null.
+	 * @param isUpright true if this image's EXIF orientation was already applied to the
+	 *                  derived pixels. The derived blob is then marked as upright, so it
+	 *                  is not rotated a second time when displayed or saved.
+	 * @return the derived blob that was passed in.
+	 */
+	private TiBlob inheritExifFrom(TiBlob derived, boolean isUpright)
+	{
+		if (derived == null) {
+			return null;
+		}
+
+		KrollDict exif = TiExifHelper.deriveAttributes(getExif());
+		if (isUpright && !exif.isEmpty()) {
+			exif.put(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_NORMAL));
+		}
+		synchronized (derived)
+		{
+			derived.exifData = exif;
+			derived.isExifDataLoaded = true;
+		}
+		return derived;
+	}
+
 	private int getImageOrientation()
 	{
 		int rotation = 0;
@@ -632,7 +654,7 @@ public class TiBlob extends KrollProxy
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
-					return blobFromImage(bitmap);
+					return inheritExifFrom(blobFromImage(bitmap), true);
 				} else {
 					try {
 						mMemoryCache.remove(key);
@@ -655,7 +677,7 @@ public class TiBlob extends KrollProxy
 					mMemoryCache.put(key, imageCropped);
 				} catch (Exception _ex) {}
 			}
-			return blobFromImage(imageCropped);
+			return inheritExifFrom(blobFromImage(imageCropped), true);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
@@ -717,7 +739,7 @@ public class TiBlob extends KrollProxy
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
-					return blobFromImage(bitmap);
+					return inheritExifFrom(blobFromImage(bitmap), true);
 				} else {
 					try {
 						mMemoryCache.remove(key);
@@ -770,7 +792,7 @@ public class TiBlob extends KrollProxy
 					mMemoryCache.put(key, imageResized);
 				} catch (Exception _ex) {}
 			}
-			return blobFromImage(imageResized);
+			return inheritExifFrom(blobFromImage(imageResized), true);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to resize the image. Not enough memory: " + e.getMessage(), e);
@@ -787,19 +809,47 @@ public class TiBlob extends KrollProxy
 		return null;
 	}
 
+	/**
+	 * Returns the EXIF metadata stored in this blob's image data. Attributes that are
+	 * absent from the image are omitted, so the returned dictionary is empty for blobs
+	 * that carry no EXIF (or that are not images at all).
+	 * @return the EXIF attributes, never null.
+	 */
 	@Kroll.getProperty
 	public KrollDict getExif()
 	{
-		KrollDict kd = new KrollDict();
-		String[] attributes = TiExifHelper.attributes;
-		if (exifData != null) {
-			for (int i = 0; i < attributes.length; i++) {
-				String value = exifData.getAttribute(attributes[i]);
-				if (value != null)
-					kd.put(attributes[i], value);
+		synchronized (this)
+		{
+			if (!this.isExifDataLoaded) {
+				this.isExifDataLoaded = true;
+				this.exifData = loadExifData();
 			}
+			return this.exifData;
 		}
-		return kd;
+	}
+
+	private KrollDict loadExifData()
+	{
+		KrollDict exif = new KrollDict();
+		if ((this.mimetype == null) || !this.mimetype.startsWith("image/")) {
+			return exif;
+		}
+
+		try (InputStream stream = getInputStream()) {
+			if (stream == null) {
+				return exif;
+			}
+			ExifInterface exifInterface = new ExifInterface(stream);
+			for (String attribute : TiExifHelper.ATTRIBUTES) {
+				String value = exifInterface.getAttribute(attribute);
+				if (value != null) {
+					exif.put(attribute, value);
+				}
+			}
+		} catch (Exception ex) {
+			Log.d(TAG, "Unable to read EXIF data: " + ex.getMessage());
+		}
+		return exif;
 	}
 
 	@Kroll.method
@@ -822,7 +872,9 @@ public class TiBlob extends KrollProxy
 			bos = new ByteArrayOutputStream();
 			if (img.compress(CompressFormat.JPEG, (int) (quality * 100), bos)) {
 				byte[] data = bos.toByteArray();
-				result = TiBlob.blobFromData(data, "image/jpeg");
+				// Unlike the other image operations, this one does not bake the EXIF
+				// orientation into the pixels, so the original orientation still applies.
+				result = inheritExifFrom(TiBlob.blobFromData(data, "image/jpeg"), false);
 			}
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
@@ -877,7 +929,7 @@ public class TiBlob extends KrollProxy
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
-					return blobFromImage(bitmap);
+					return inheritExifFrom(blobFromImage(bitmap), true);
 				} else {
 					try {
 						mMemoryCache.remove(key);
@@ -921,7 +973,7 @@ public class TiBlob extends KrollProxy
 					mMemoryCache.put(key, imageFinal);
 				} catch (Exception _ex) {}
 			}
-			return blobFromImage(imageFinal);
+			return inheritExifFrom(blobFromImage(imageFinal), true);
 
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
@@ -956,7 +1008,7 @@ public class TiBlob extends KrollProxy
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
-					return blobFromImage(bitmap);
+					return inheritExifFrom(blobFromImage(bitmap), true);
 				} else {
 					try {
 						mMemoryCache.remove(key);
@@ -979,7 +1031,7 @@ public class TiBlob extends KrollProxy
 					mMemoryCache.put(key, imageWithAlpha);
 				} catch (Exception _ex) {}
 			}
-			return blobFromImage(imageWithAlpha);
+			return inheritExifFrom(blobFromImage(imageWithAlpha), true);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with alpha. Not enough memory: " + e.getMessage(), e);
@@ -1019,7 +1071,7 @@ public class TiBlob extends KrollProxy
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
-					return blobFromImage(bitmap);
+					return inheritExifFrom(blobFromImage(bitmap), true);
 				} else {
 					try {
 						mMemoryCache.remove(key);
@@ -1042,7 +1094,7 @@ public class TiBlob extends KrollProxy
 					mMemoryCache.put(key, imageRoundedCorner);
 				} catch (Exception _ex) {}
 			}
-			return blobFromImage(imageRoundedCorner);
+			return inheritExifFrom(blobFromImage(imageRoundedCorner), true);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with rounded corner. Not enough memory: " + e.getMessage(), e);
@@ -1078,7 +1130,7 @@ public class TiBlob extends KrollProxy
 			Bitmap bitmap = mMemoryCache.get(key);
 			if (bitmap != null) {
 				if (!bitmap.isRecycled()) {
-					return blobFromImage(bitmap);
+					return inheritExifFrom(blobFromImage(bitmap), true);
 				} else {
 					try {
 						mMemoryCache.remove(key);
@@ -1101,7 +1153,7 @@ public class TiBlob extends KrollProxy
 					mMemoryCache.put(key, imageWithBorder);
 				} catch (Exception _ex) {}
 			}
-			return blobFromImage(imageWithBorder);
+			return inheritExifFrom(blobFromImage(imageWithBorder), true);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
 			Log.e(TAG, "Unable to get the image with transparent border. Not enough memory: " + e.getMessage(), e);

@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import ti.modules.titanium.stream.FileStreamProxy;
 
 import android.content.ContentResolver;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 
 import androidx.exifinterface.media.ExifInterface;
 
@@ -297,17 +299,8 @@ public class TiFileProxy extends KrollProxy
 				}
 
 				if (args[0] instanceof TiBlob) {
-					ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 					tbf.write((TiBlob) args[0], append);
-					ExifInterface exifData = new ExifInterface(contentResolver
-						.openFileDescriptor(Uri.fromFile(tbf.getNativeFile()), "rw").getFileDescriptor());
-
-					String[] attributes = TiExifHelper.attributes;
-					KrollDict kd = ((TiBlob) args[0]).getExif();
-					for (int i = 0; i < attributes.length; i++) {
-						exifData.setAttribute(attributes[i], kd.getString(attributes[i]));
-					}
-					exifData.saveAttributes();
+					copyExifData((TiBlob) args[0]);
 				} else if (args[0] instanceof String) {
 					tbf.write((String) args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
@@ -322,6 +315,45 @@ public class TiFileProxy extends KrollProxy
 			Log.e(TAG, "IOException encountered", e);
 		}
 		return false;
+	}
+
+	/**
+	 * Copies the EXIF metadata carried by the given blob onto the file that was just
+	 * written from it. This is a best-effort operation: blobs without EXIF, files that
+	 * are not backed by a real path, and formats that cannot store EXIF are all skipped
+	 * silently. Failures here never invalidate the write itself.
+	 * @param blob the blob whose metadata should be preserved.
+	 */
+	private void copyExifData(TiBlob blob)
+	{
+		KrollDict exif = blob.getExif();
+		if ((exif == null) || exif.isEmpty()) {
+			return;
+		}
+
+		File nativeFile = tbf.getNativeFile();
+		if (nativeFile == null) {
+			// Not backed by a real path (such as a content:// file). Nothing to write to.
+			return;
+		}
+
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(Uri.fromFile(nativeFile), "rw")) {
+			if (descriptor == null) {
+				return;
+			}
+			ExifInterface exifData = new ExifInterface(descriptor.getFileDescriptor());
+			for (String attribute : exif.keySet()) {
+				if (TiExifHelper.isWritable(attribute)) {
+					exifData.setAttribute(attribute, exif.getString(attribute));
+				}
+			}
+			exifData.saveAttributes();
+		} catch (Exception e) {
+			// The destination format may not support EXIF (saveAttributes() only handles
+			// JPEG, PNG and WebP). The file contents are already written either way.
+			Log.d(TAG, "Unable to write EXIF data: " + e.getMessage());
+		}
 	}
 
 	@Kroll.method

@@ -151,9 +151,14 @@ properties:
 
   - name: exif
     type: Object
-    summary: In the camera `success` event you will get the EXIF information from the media blob if available.
+    summary: EXIF metadata read from the blob's image data, keyed by EXIF attribute name.
+    description: |
+        Contains only the attributes actually present in the image, so this is an empty
+        dictionary for blobs that carry no EXIF data or that are not images. The same
+        metadata is preserved when the blob is written to a file via
+        <Titanium.Filesystem.File.write>, for formats that support it.
     platforms: [android]
-    since: {android: "13.2.0"}
+    since: {android: "14.0.0"}
     permission: read-only
 
 methods:
