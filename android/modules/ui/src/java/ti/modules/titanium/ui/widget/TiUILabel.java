@@ -492,6 +492,10 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_LINK_COLOR)) {
+			tv.setLinkTextColor(TiConvert.toColor(d, TiC.PROPERTY_LINK_COLOR, proxy.getActivity()));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_TEXT_TRANSFORM)) {
 			String transformName = TiConvert.toString(d, TiC.PROPERTY_TEXT_TRANSFORM);
 			if (transformName.equals("uppercase")) {
@@ -502,6 +506,7 @@ public class TiUILabel extends TiUIView
 				textFilter = TEXT_FILTER_DEFAULT;
 			}
 		}
+
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
@@ -540,6 +545,8 @@ public class TiUILabel extends TiUIView
 			} else {
 				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
+		} else if (key.equals(TiC.PROPERTY_LINK_COLOR)) {
+			tv.setLinkTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			// TODO: reset to default value when property is null
 			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
