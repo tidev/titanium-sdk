@@ -113,6 +113,12 @@ public class TiUITableView extends TiUIView
 			this.tableView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
 		}
 
+		if (name.equals(TiC.PROPERTY_SNAPPING)) {
+
+			// Set row snapping.
+			this.tableView.setSnapping(TiConvert.toBoolean(value, false));
+		}
+
 		if (name.equals(TiC.PROPERTY_SEARCH) || name.equals(TiC.PROPERTY_SEARCH_AS_CHILD)) {
 			final ViewParent parent = getOuterView().getParent();
 			final TiViewProxy parentProxy = getProxy().getParent();
