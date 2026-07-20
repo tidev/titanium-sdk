@@ -2,7 +2,7 @@
   "name": "titanium-mobile",
   "description": "Titanium SDK",
   "type": "module",
-  "version": "13.3.0",
+  "version": "14.0.0",
   "moduleApiVersion": {
     "iphone": "2",
     "android": "4"
@@ -107,7 +107,7 @@
     "ejs": "3.1.10",
     "fields": "0.1.24",
     "fs-extra": "10.0.0",
-    "ioslib": "5.2.0",
+    "ioslib": "5.3.0",
     "liveview": "1.5.6",
     "lodash.merge": "4.6.2",
     "markdown": "0.5.0",

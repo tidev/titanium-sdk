@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewParent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import java.io.BufferedReader;
 import java.io.File;
@@ -94,7 +93,6 @@ public class TiUIWebView extends TiUIView
 		}
 
 		@Override
-		@RequiresApi(23)
 		public ActionMode startActionMode(ActionMode.Callback callback, int type)
 		{
 			if (disableContextMenu) {
@@ -584,7 +582,7 @@ public class TiUIWebView extends TiUIView
 		final Uri finalUri = Uri.parse(getProxy().resolveUrl(null, url));
 
 		// Reconstruct URL, omitting any query parameters.
-		final String finalUrl = finalUri.toString().replace(query, "");
+		final String finalUrl = finalUri.buildUpon().clearQuery().build().toString();
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
 			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
@@ -593,6 +591,9 @@ public class TiUIWebView extends TiUIView
 				InputStream fis = null;
 				try {
 					fis = tiFile.getInputStream();
+					if (fis == null) {
+						throw new IOException("Unable to open input stream for \"" + finalUrl + "\"");
+					}
 					InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
 					BufferedReader breader = new BufferedReader(reader);
 					String line = breader.readLine();

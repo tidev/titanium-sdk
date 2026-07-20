@@ -20,15 +20,15 @@ runs:
       shell: bash
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'npm'
 
     - name: Setup Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
-        distribution: 'adopt'
+        distribution: 'temurin'
         java-version: ${{ inputs.java-version }}
 
     - name: Install dependencies
@@ -36,7 +36,7 @@ runs:
       shell: bash
 
     - name: Cache Gradle packages
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.gradle/caches
@@ -50,7 +50,7 @@ runs:
       shell: bash
 
     - name: Install ccache
-      uses: hendrikmuhs/ccache-action@v1.2
+      uses: hendrikmuhs/ccache-action@v1.2.23
       with:
         create-symlink: true
         key: ${{ runner.os }}-ccache-${{ github.sha }}
@@ -58,7 +58,7 @@ runs:
           ${{ runner.os }}-ccache-
 
     - name: Cache V8
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: dist/android/libv8
         key: libv8-${{ hashFiles('dist/android/libv8/**') }}
@@ -84,7 +84,7 @@ runs:
         dist/tmp/common
       shell: bash
 
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: android-build
         retention-days: 1
