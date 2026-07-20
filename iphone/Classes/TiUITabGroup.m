@@ -43,14 +43,20 @@ DEFINE_EXCEPTIONS
     controller.delegate = self;
     controller.moreNavigationController.delegate = self;
     [TiUtils configureController:controller withObject:self.proxy];
-#if IS_SDK_IOS_15
     if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
       UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
       [appearance configureWithDefaultBackground];
       appearance.backgroundColor = UIColor.clearColor;
       controller.tabBar.scrollEdgeAppearance = appearance;
     }
-#endif
+
+    // force tab bar to bottom position (as before iPadOS 18 and on iPhone)
+    if ([TiUtils isIOSVersionOrGreater:@"18.0"] && [TiUtils isIPad]) {
+      BOOL forceBottomPosition = [TiUtils boolValue:[self.proxy valueForUndefinedKey:@"forceBottomPosition"] def:NO];
+      if (forceBottomPosition) {
+        controller.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+      }
+    }
   }
   return controller;
 }
@@ -97,7 +103,7 @@ DEFINE_EXCEPTIONS
   }
 }
 
-- (void)handleDidShowTab:(TiUITabProxy *)newFocus
+- (void)handleDidShowTab:(TiUITabProxy *)newFocus selected:(BOOL)selected
 {
   // Do nothing if no tabs are being focused or blurred (or the window is opening)
   if (focusedTabProxy == nil && newFocus == nil) {
@@ -156,9 +162,13 @@ DEFINE_EXCEPTIONS
       [self.proxy fireEvent:@"focus" withObject:event];
     }
   }
-  // TIMOB-15187. Dont fire focus of tabs if proxy does not have focus
+  // TIMOB-15187. Don't fire focus of tabs if proxy does not have focus
   if ([(TiUITabGroupProxy *)[self proxy] canFocusTabs]) {
     [focusedTabProxy handleDidFocus:event];
+  }
+
+  if (selected) {
+    [focusedTabProxy handleDidSelect:event];
   }
 }
 
@@ -253,7 +263,7 @@ DEFINE_EXCEPTIONS
     if (allowConfiguration) {
       [self setEditButton:navigationController];
     }
-    // However, under iOS4, we have to manage the appearance/disappearance of the edit button ourselves.
+    // However, under iOS 4, we have to manage the appearance/disappearance of the edit button ourselves.
     else {
       [self removeEditButton:navigationController];
     }
@@ -266,7 +276,7 @@ DEFINE_EXCEPTIONS
   NSUInteger stackHeight = [moreViewControllerStack count];
   if (stackHeight < 2) { // No more faux roots.
     if (focusedTabProxy != nil) {
-      [self handleDidShowTab:nil];
+      [self handleDidShowTab:nil selected:NO];
     }
     // Ensure that the moreController has only top edge extended
     [TiUtils configureController:viewController withObject:[NSDictionary dictionaryWithObject:NUMINT(1) forKey:@"extendEdges"]];
@@ -290,7 +300,7 @@ DEFINE_EXCEPTIONS
 
   if (stackHeight == 2) { // One for the picker, one for the faux root.
     if (tabProxy != focusedTabProxy) {
-      [self handleDidShowTab:tabProxy];
+      [self handleDidShowTab:tabProxy selected:YES];
     }
   }
 
@@ -346,7 +356,7 @@ DEFINE_EXCEPTIONS
     }
   }
 
-  [self handleDidShowTab:shouldPassVC ? (TiUITabProxy *)[(UINavigationController *)viewController delegate] : nil];
+  [self handleDidShowTab:shouldPassVC ? (TiUITabProxy *)[(UINavigationController *)viewController delegate] : nil selected:YES];
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didEndCustomizingViewControllers:(NSArray *)viewControllers changed:(BOOL)changed
@@ -415,13 +425,40 @@ DEFINE_EXCEPTIONS
       }];
 }
 
+#if IS_SDK_IOS_26
+- (void)setBottomAccessoryView_:(id)bottomAccessoryViewProxy
+{
+  if (bottomAccessoryView != nil) {
+    [self.proxy forgetProxy:bottomAccessoryView.proxy];
+    RELEASE_TO_NIL(bottomAccessoryView);
+  }
+
+  if (bottomAccessoryViewProxy == [NSNull null]) {
+    [[self tabController] setBottomAccessory:nil];
+    return;
+  }
+
+  [self.proxy rememberProxy:bottomAccessoryViewProxy];
+
+  bottomAccessoryView = [(TiViewProxy *)bottomAccessoryViewProxy view];
+  [bottomAccessoryView retain];
+
+  UITabAccessory *tabAccessory = [[UITabAccessory alloc] initWithContentView:bottomAccessoryView];
+  [[self tabController] setBottomAccessory:tabAccessory animated:NO];
+}
+
+- (void)setMinimizeBehavior_:(NSNumber *)minimizeBehavior
+{
+  [[self tabController] setTabBarMinimizeBehavior:minimizeBehavior.integerValue];
+}
+#endif
+
 - (void)setTabsBackgroundColor_:(id)value
 {
   TiColor *color = [TiUtils colorValue:value];
   UITabBar *tabBar = [controller tabBar];
   // A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
-#if IS_SDK_IOS_15
   if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
     // Update main tab bar's appearance.
     tabBar.standardAppearance.backgroundColor = [color color];
@@ -435,7 +472,6 @@ DEFINE_EXCEPTIONS
       }
     }
   }
-#endif
 }
 
 - (void)setTabsTintColor_:(id)value
@@ -642,8 +678,7 @@ DEFINE_EXCEPTIONS
       focusedTabProxy = [theActiveTab retain];
     }
 
-    [self tabController].viewControllers = nil;
-    [self tabController].viewControllers = controllers;
+    self.tabController.viewControllers = controllers;
 
     if (focusedTabProxy != nil && ![tabs containsObject:focusedTabProxy]) {
       if (theActiveTab != nil) {
@@ -668,12 +703,12 @@ DEFINE_EXCEPTIONS
 {
   TiThreadPerformOnMainThread(
       ^{
-        [self.tabController willMoveToParentViewController:TiApp.controller.topPresentedController];
-
-        self.tabController.view.frame = self.bounds;
-        [self addSubview:self.tabController.view];
         isTabBarHidden = NO;
-        [TiApp.controller.topPresentedController addChildViewController:self.tabController];
+        UIViewController *parentController = [self.proxy windowHoldingController];
+        [parentController addChildViewController:self.tabController];
+        [self addSubview:self.tabController.view];
+        self.tabController.view.frame = self.bounds;
+        [self.tabController didMoveToParentViewController:parentController];
       },
       NO);
 }

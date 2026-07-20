@@ -38,7 +38,7 @@ describe('Error', function () {
 			// FIXME We should attempt to format the iOS stack to look/feel similar to Android/Node if possible.
 
 			// iOS Has just the stacktrace without a preceding message/type. Also has 'column', 'line', 'sourceURL'
-			// does not have java stack trace
+			// does not have Java stack trace
 			should(ex).not.have.property('nativeStack');
 		}
 	});

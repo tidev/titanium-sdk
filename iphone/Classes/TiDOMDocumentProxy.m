@@ -416,9 +416,9 @@
       [self throwException:@"document/documenttype nodes can not be imported" subreason:nil location:CODELOCATION];
       return nil;
     }
-    GDataXMLNode *resultElemet = [[self document] importNode:[theNodeToImport node] recursive:deep];
+    GDataXMLNode *resultElement = [[self document] importNode:[theNodeToImport node] recursive:deep];
     id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
-    return [self makeNode:resultElemet context:context];
+    return [self makeNode:resultElement context:context];
   }
   return nil;
 }

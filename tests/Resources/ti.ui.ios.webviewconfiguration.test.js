@@ -129,4 +129,4 @@ describe.ios('Titanium.UI.iOS.WebViewConfiguration', function () {
 	});
 });
 
-// TO DO: Add more unit tests for WebViewConfiguration and WebViewDecisionHandlerProxy
+// TODO: Add more unit tests for WebViewConfiguration and WebViewDecisionHandlerProxy

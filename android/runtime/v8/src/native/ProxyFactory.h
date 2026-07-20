@@ -48,7 +48,7 @@ public:
 
 	/**
 	 * Given a jclass, get the name of the class and return it as a Local<Value>
-	 * (using typical java.lang.Names, rather than jni slash separated names)
+	 * (using typical java.lang.Names, rather than JNI slash separated names)
 	 * @param javaClass
 	 */
 	static v8::Local<v8::Value> getJavaClassName(v8::Isolate* isolate, jclass javaClass);

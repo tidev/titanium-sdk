@@ -1,0 +1,105 @@
+name: Android Emulator Test
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  android:
+    if: github.event.review.state == 'approved'
+    name: Titanium SDK Android Tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      USE_CCACHE: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Android SDK setup
+        uses: android-actions/setup-android@v4
+
+      - name: Install Android dependencies
+        run: |
+          yes | sdkmanager --licenses >/dev/null
+
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "emulator" \
+            "system-images;android-35;google_apis;x86_64"
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install ccache
+        uses: hendrikmuhs/ccache-action@v1.2.23
+        with:
+          create-symlink: true
+
+      - name: Install Linux dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y \
+            gperf \
+            libatomic1:i386 \
+            libc6:i386 \
+            libstdc++6:i386
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm",GROUP="kvm",MODE="0666",OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Titanium SDK
+        run: sudo npm i -g titanium && ti sdk install
+
+      - name: Run emulator tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel
+          cores: 2
+
+          emulator-options: >
+            -no-window
+            -gpu swiftshader_indirect
+            -noaudio
+            -no-boot-anim
+            -no-snapshot
+
+          disable-animations: true
+
+          script: |
+            adb devices
+            npm run test:android
+
+      - name: Upload Android JUnit report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-android-report
+          path: junit.android.xml
+          if-no-files-found: warn
