@@ -112,10 +112,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+	/** Min/max size constraints in pixels. -1 means unconstrained. */
 	private int minWidth = -1;
 	private int maxWidth = -1;
 	private int minHeight = -1;
 	private int maxHeight = -1;
+
+	private static final String[] SIZE_CONSTRAINT_KEYS = {
+		TiC.PROPERTY_MAX_WIDTH, TiC.PROPERTY_MIN_WIDTH, TiC.PROPERTY_MAX_HEIGHT, TiC.PROPERTY_MIN_HEIGHT
+	};
 
 	public TiBackgroundDrawable getBackground()
 	{
@@ -789,14 +794,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED)) {
 			setFilterTouchesWhenObscured(TiConvert.toBoolean(newValue, false));
-		} else if (key.equals("maxWidth")) {
-			setMaxWidth(newValue, hasBorder(proxy.getProperties()));
-		} else if (key.equals("minWidth")) {
-			setMinWidth(newValue, hasBorder(proxy.getProperties()));
-		} else if (key.equals("maxHeight")) {
-			setMaxHeight(newValue, hasBorder(proxy.getProperties()));
-		} else if (key.equals("minHeight")) {
-			setMinHeight(newValue, hasBorder(proxy.getProperties()));
+		} else if (key.equals(TiC.PROPERTY_MAX_WIDTH) || key.equals(TiC.PROPERTY_MIN_WIDTH)
+			|| key.equals(TiC.PROPERTY_MAX_HEIGHT) || key.equals(TiC.PROPERTY_MIN_HEIGHT)) {
+			setSizeConstraint(key, newValue, hasBorder(proxy.getProperties()));
+			if (nativeView != null) {
+				nativeView.requestLayout();
+			}
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
@@ -1067,17 +1070,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
 		}
 
-		if (d.containsKey("maxWidth")) {
-			setMaxWidth(d.get("maxWidth"), hasBorder(d));
-		}
-		if (d.containsKey("minWidth")) {
-			setMinWidth(d.get("minWidth"), hasBorder(d));
-		}
-		if (d.containsKey("maxHeight")) {
-			setMaxHeight(d.get("maxHeight"), hasBorder(d));
-		}
-		if (d.containsKey("minHeight")) {
-			setMinHeight(d.get("minHeight"), hasBorder(d));
+		for (String sizeKey : SIZE_CONSTRAINT_KEYS) {
+			if (d.containsKey(sizeKey)) {
+				setSizeConstraint(sizeKey, d.get(sizeKey), hasBorder(d));
+			}
 		}
 		initializeBorder(d, bgColor);
 
@@ -1168,62 +1164,57 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 	}
 
-	private void setMaxWidth(Object value, Boolean hasBorder)
+	/**
+	 * Applies a "maxWidth", "minWidth", "maxHeight" or "minHeight" size constraint to the native view.
+	 * <p>
+	 * Only supported by views backed by a {@link TiCompositeLayout}, which excludes bordered views since
+	 * those are wrapped in a {@link TiBorderWrapperView} that performs its own measuring.
+	 * @param key The Titanium property name being applied. Must be one of the min/max size constants.
+	 * @param value The new value. Accepts any dimension {@link TiConvert} understands, such as 100 or "100dp".
+	 *              A null value clears the constraint.
+	 */
+	private void setSizeConstraint(String key, Object value, boolean hasBorder)
 	{
-		maxWidth = -1;
+		if (hasBorder || !(nativeView instanceof TiCompositeLayout)) {
+			// Bordered views are wrapped in a TiBorderWrapperView that measures independently, and
+			// non-container views (Label, Button, ImageView, etc.) measure themselves.
+			// Neither honors these constraints today.
+			if (value != null) {
+				Log.w(TAG, "The '" + key + "' property is only supported by views without a border");
+			}
+			return;
+		}
+
+		boolean isWidth = TiC.PROPERTY_MAX_WIDTH.equals(key) || TiC.PROPERTY_MIN_WIDTH.equals(key);
+		int pixels = -1;
 		if (value != null) {
-			maxWidth = TiConvert.toTiDimension(TiConvert.toInt(value),
-				TiDimension.TYPE_WIDTH).getAsPixels(nativeView);
+			TiDimension dimension =
+				TiConvert.toTiDimension(value, isWidth ? TiDimension.TYPE_WIDTH : TiDimension.TYPE_HEIGHT);
+			if (dimension != null) {
+				pixels = dimension.getAsPixels(nativeView);
+			}
 		}
 
-		if (!hasBorder) {
-			((TiCompositeLayout) nativeView).setMaxWidth(maxWidth);
-		} else {
-			Log.w(TAG, "You can only use maxWidth for Views without borders");
-		}
-	}
-
-	private void setMinWidth(Object value, Boolean hasBorder)
-	{
-		minWidth = -1;
-		if (value != null) {
-			minWidth = TiConvert.toTiDimension(TiConvert.toInt(value),
-				TiDimension.TYPE_WIDTH).getAsPixels(nativeView);
-		}
-
-		if (!hasBorder) {
-			((TiCompositeLayout) nativeView).setMinWidth(minWidth);
-		} else {
-			Log.w(TAG, "You can only use minWidth for Views without borders");
-		}
-	}
-
-	private void setMaxHeight(Object value, Boolean hasBorder)
-	{
-		maxHeight = -1;
-		if (value != null) {
-			maxHeight = TiConvert.toTiDimension(TiConvert.toInt(value),
-				TiDimension.TYPE_HEIGHT).getAsPixels(nativeView);
-		}
-
-		if (!hasBorder) {
-			((TiCompositeLayout) nativeView).setMaxHeight(maxHeight);
-		} else {
-			Log.w(TAG, "You can only use maxHeight for Views without borders");
-		}
-	}
-	private void setMinHeight(Object value, Boolean hasBorder)
-	{
-		minHeight = -1;
-		if (value != null) {
-			minHeight = TiConvert.toTiDimension(TiConvert.toInt(value),
-				TiDimension.TYPE_HEIGHT).getAsPixels(nativeView);
-		}
-
-		if (!hasBorder) {
-			((TiCompositeLayout) nativeView).setMinHeight(minHeight);
-		} else {
-			Log.w(TAG, "You can only use maxHeight for Views without borders");
+		TiCompositeLayout layout = (TiCompositeLayout) nativeView;
+		switch (key) {
+			case TiC.PROPERTY_MAX_WIDTH:
+				maxWidth = pixels;
+				layout.setMaxWidth(pixels);
+				break;
+			case TiC.PROPERTY_MIN_WIDTH:
+				minWidth = pixels;
+				layout.setMinWidth(pixels);
+				break;
+			case TiC.PROPERTY_MAX_HEIGHT:
+				maxHeight = pixels;
+				layout.setMaxHeight(pixels);
+				break;
+			case TiC.PROPERTY_MIN_HEIGHT:
+				minHeight = pixels;
+				layout.setMinHeight(pixels);
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -1590,7 +1581,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						currentActivity = TiApplication.getAppCurrentActivity();
 					}
 					borderView = new TiBorderWrapperView(currentActivity);
-					//borderView.setMaxWidth(maxWidth);	// TODO fix borderView maxWidth
 					// Create new layout params for the child view since we just want the
 					// wrapper to control the layout
 					LayoutParams params = new LayoutParams();
