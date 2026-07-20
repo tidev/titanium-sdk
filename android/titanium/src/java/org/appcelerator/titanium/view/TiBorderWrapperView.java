@@ -291,6 +291,12 @@ public class TiBorderWrapperView extends FrameLayout
 				this.borderRightWidth = pixelValues[1];
 				this.borderBottomWidth = pixelValues[2];
 				this.borderLeftWidth = pixelValues[3];
+			} else if (pixelValues.length == 3) {
+				// Top, Left+Right, Bottom
+				this.borderTopWidth = pixelValues[0];
+				this.borderLeftWidth = pixelValues[1];
+				this.borderRightWidth = pixelValues[1];
+				this.borderBottomWidth = pixelValues[2];
 			} else if (pixelValues.length >= 2) {
 				// Top+Bottom, Left+Right
 				this.borderTopWidth = pixelValues[0];
@@ -309,8 +315,8 @@ public class TiBorderWrapperView extends FrameLayout
 		} else if (obj instanceof Object) {
 			// Support string formatting for multiple values.
 			if (obj instanceof String) {
-				final String[] values = ((String) obj).split("\\s");
-				if (values != null && values.length > 1) {
+				final String[] values = ((String) obj).trim().split("\\s+");
+				if (values.length > 1) {
 					setBorderWidth(values);
 					return;
 				}

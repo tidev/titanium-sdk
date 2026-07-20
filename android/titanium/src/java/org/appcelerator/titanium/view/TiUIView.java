@@ -438,8 +438,40 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected boolean hasBorder(KrollDict d)
 	{
 		return d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_COLOR)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_WIDTH)
-			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS);
+			|| d.containsKeyAndNotNull(TiC.PROPERTY_BORDER_RADIUS)
+			|| hasNonZeroBorderWidth(d.get(TiC.PROPERTY_BORDER_WIDTH));
+	}
+
+	/**
+	 * Determines if the given "borderWidth" value defines a visible border on at least one side.
+	 * Accepts a single value, a whitespace separated string or an array of per-side values.
+	 * @param value The "borderWidth" property value. Can be null.
+	 * @return Returns true if at least one side has a width greater than zero.
+	 */
+	private static boolean hasNonZeroBorderWidth(Object value)
+	{
+		if (value == null) {
+			return false;
+		}
+
+		if (value instanceof String) {
+			final String[] values = ((String) value).trim().split("\\s+");
+			if (values.length > 1) {
+				return hasNonZeroBorderWidth(values);
+			}
+		}
+
+		if (value instanceof Object[]) {
+			for (Object sideValue : (Object[]) value) {
+				if (hasNonZeroBorderWidth(sideValue)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		final TiDimension width = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+		return (width != null) && (width.getValue() > 0f);
 	}
 
 	protected boolean hasColorState(KrollDict d)

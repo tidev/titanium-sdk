@@ -647,6 +647,8 @@ DEFINE_EXCEPTIONS
     if (needsFillMode) {
       _borderLayer.strokeColor = nil;
       _borderLayer.lineWidth = 0;
+      // CAShapeLayer defaults to an opaque black fill. Stay invisible until a border color is applied.
+      _borderLayer.fillColor = UIColor.clearColor.CGColor;
     } else {
       _borderLayer.fillColor = UIColor.clearColor.CGColor;
       _borderLayer.strokeColor = self.layer.borderColor;
@@ -688,8 +690,7 @@ DEFINE_EXCEPTIONS
 - (void)refreshBorder:(UIColor *)color shouldRefreshWidth:(BOOL)shouldRefreshWidth
 {
   CAShapeLayer *layer = [self borderLayer];
-  BOOL isFillMode = (borderTopWidth > 0 || borderRightWidth > 0 || borderBottomWidth > 0 || borderLeftWidth > 0);
-  isFillMode = isFillMode || ([self borderWidthArrayFromValue:[proxy valueForUndefinedKey:@"borderWidth"]].count > 1);
+  BOOL isFillMode = ([self borderWidthArrayFromValue:[proxy valueForUndefinedKey:@"borderWidth"]].count > 1);
 
   if (layer == self.layer) {
     if (shouldRefreshWidth) {
@@ -697,12 +698,10 @@ DEFINE_EXCEPTIONS
     }
     layer.borderColor = color.CGColor;
   } else if (isFillMode) {
+    // The path already accounts for the per-side widths, so there is no width to refresh here.
     layer.strokeColor = nil;
     layer.lineWidth = 0;
     layer.fillColor = color.CGColor;
-    if (shouldRefreshWidth) {
-      // Nothing to do here; the path accounts for widths
-    }
   } else {
     if (shouldRefreshWidth) {
       layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
@@ -715,38 +714,14 @@ DEFINE_EXCEPTIONS
 {
   NSArray *widthArray = [self borderWidthArrayFromValue:w];
   if (widthArray.count > 1) {
-    if (widthArray.count >= 4) {
-      borderTopWidth = [self radiusFromObject:widthArray[0]];
-      borderRightWidth = [self radiusFromObject:widthArray[1]];
-      borderBottomWidth = [self radiusFromObject:widthArray[2]];
-      borderLeftWidth = [self radiusFromObject:widthArray[3]];
-    } else if (widthArray.count >= 2) {
-      CGFloat v = [self radiusFromObject:widthArray[0]];
-      CGFloat h = [self radiusFromObject:widthArray[1]];
-      borderTopWidth = v;
-      borderBottomWidth = v;
-      borderLeftWidth = h;
-      borderRightWidth = h;
-    } else {
-      CGFloat w = [self radiusFromObject:widthArray[0]];
-      borderTopWidth = w;
-      borderRightWidth = w;
-      borderBottomWidth = w;
-      borderLeftWidth = w;
-    }
-
+    // Per-side widths are rendered by filling the area between the outer and inner path,
+    // which is rebuilt from the proxy value in -borderBezierPathOfView.
     CAShapeLayer *layer = [self borderLayer];
     layer.lineWidth = 0;
-    // fillColor will be set by refreshBorder, but ensure it's initialized
     if (layer == self.layer) {
       layer.borderWidth = 0;
     }
   } else {
-    borderTopWidth = 0;
-    borderRightWidth = 0;
-    borderBottomWidth = 0;
-    borderLeftWidth = 0;
-
     TiDimension theDim = TiDimensionFromObject(w);
     CGFloat borderWidth = 0;
     if (TiDimensionIsDip(theDim)) {
@@ -950,10 +925,10 @@ DEFINE_EXCEPTIONS
 
 - (UIBezierPath *)bezierPathOfSize:(CGSize)size forRadiusArray:(NSArray *)radiusArray
 {
-  CGFloat topLeftRadius;
-  CGFloat bottomLeftRadius;
-  CGFloat topRightRadius;
-  CGFloat bottomRightRadius;
+  CGFloat topLeftRadius = 0;
+  CGFloat bottomLeftRadius = 0;
+  CGFloat topRightRadius = 0;
+  CGFloat bottomRightRadius = 0;
 
   if (radiusArray.count >= 4) {
     topLeftRadius = [self radiusFromObject:radiusArray[0]];
@@ -999,6 +974,12 @@ DEFINE_EXCEPTIONS
     right = [self radiusFromObject:widthArray[1]];
     bottom = [self radiusFromObject:widthArray[2]];
     left = [self radiusFromObject:widthArray[3]];
+  } else if (widthArray.count == 3) {
+    // Top, Left+Right, Bottom
+    top = [self radiusFromObject:widthArray[0]];
+    left = [self radiusFromObject:widthArray[1]];
+    right = left;
+    bottom = [self radiusFromObject:widthArray[2]];
   } else if (widthArray.count >= 2) {
     CGFloat v = [self radiusFromObject:widthArray[0]];
     CGFloat h = [self radiusFromObject:widthArray[1]];
@@ -1104,7 +1085,10 @@ DEFINE_EXCEPTIONS
 {
   NSArray *borderWidthArray = nil;
   if ([value isKindOfClass:[NSString class]]) {
-    borderWidthArray = [(NSString *)value componentsSeparatedByString:@" "];
+    // Collapse runs of whitespace so that "1  2" is read as two values rather than three.
+    NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    NSPredicate *notEmpty = [NSPredicate predicateWithFormat:@"length > 0"];
+    borderWidthArray = [[(NSString *)value componentsSeparatedByCharactersInSet:whitespace] filteredArrayUsingPredicate:notEmpty];
   } else if ([value isKindOfClass:[NSArray class]]) {
     borderWidthArray = value;
   } else if ([value isKindOfClass:[NSNumber class]]) {
