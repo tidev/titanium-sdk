@@ -147,10 +147,10 @@ NSString *JavascriptNameForClass(Class c);
 
 #define ENSURE_TYPE(x, t) ENSURE_CLASS(x, [t class])
 
-//NOTE: these checks can be pulled out of production build type
+// NOTE: these checks can be pulled out of production build type
 
-//Question: Given that some of these silently massage the data during development but not production,
-//Should the data massage either be kept in production or removed in development? --Blain.
+// Question: Given that some of these silently massage the data during development but not production,
+// Should the data massage either be kept in production or removed in development? --Blain.
 
 #define ENSURE_STRING_OR_NIL(x)                        \
   if ([x respondsToSelector:@selector(stringValue)]) { \
@@ -248,7 +248,7 @@ NSString *JavascriptNameForClass(Class c);
     }                                                       \
   }
 
-//Because both NSString and NSNumber respond to intValue, etc, this is a wider net
+// Because both NSString and NSNumber respond to intValue, etc, this is a wider net
 #define ENSURE_METHOD(x, t)                                                                                                                                            \
   if (![x respondsToSelector:@selector(t)]) {                                                                                                                          \
     [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@", OBJTYPE2JS(x), @ #t] location:CODELOCATION]; \
@@ -421,7 +421,7 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
 #define NUMUINTEGER(x) \
   [NSNumber numberWithUnsignedInteger:x]
 
-//MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
+// MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
 enum {
   UITitaniumNativeItemNone = -1,
   UITitaniumNativeItemSpinner = -2,
@@ -501,7 +501,7 @@ enum {
 
 #define TI_VERSION_STR STRING(TI_VERSION)
 
-//#define VERBOSE
+// #define VERBOSE
 
 #ifdef VERBOSE
 #define VerboseLog(...) \

@@ -179,32 +179,32 @@
 - (void)setBool:(id)args
 {
   SETPROP
-      [defaultsObject setBool:[TiUtils boolValue:value]
-                       forKey:key];
+  [defaultsObject setBool:[TiUtils boolValue:value]
+                   forKey:key];
   [defaultsObject synchronize];
 }
 
 - (void)setDouble:(id)args
 {
   SETPROP
-      [defaultsObject setDouble:[TiUtils doubleValue:value]
-                         forKey:key];
+  [defaultsObject setDouble:[TiUtils doubleValue:value]
+                     forKey:key];
   [defaultsObject synchronize];
 }
 
 - (void)setInt:(id)args
 {
   SETPROP
-      [defaultsObject setInteger:[TiUtils intValue:value]
-                          forKey:key];
+  [defaultsObject setInteger:[TiUtils intValue:value]
+                      forKey:key];
   [defaultsObject synchronize];
 }
 
 - (void)setString:(id)args
 {
   SETPROP
-      [defaultsObject setObject:[TiUtils stringValue:value]
-                         forKey:key];
+  [defaultsObject setObject:[TiUtils stringValue:value]
+                     forKey:key];
   [defaultsObject synchronize];
 }
 

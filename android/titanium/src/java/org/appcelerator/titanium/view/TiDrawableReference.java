@@ -199,9 +199,9 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Resolves the url, then creates and returns a TiDrawableReference instance.
+	 * Resolves the URL, then creates and returns a TiDrawableReference instance.
 	 * @param proxy the activity proxy.
-	 * @param url the url to resolve.
+	 * @param url the URL to resolve.
 	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
@@ -222,7 +222,7 @@ public class TiDrawableReference
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
 	 * @param activity the referenced activity.
-	 * @param url the resource's url.
+	 * @param url the resource's URL.
 	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
@@ -272,7 +272,7 @@ public class TiDrawableReference
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
 	 * <p>
 	 * Uses the given proxy to resolve relative paths to an image file, if applicable.
-	 * @param proxy Used to acquire an activty and resolve relative paths if given object is a string path.
+	 * @param proxy Used to acquire an activity and resolve relative paths if given object is a string path.
 	 * @param object Reference to the image to be loaded such as a file, path, blob, etc.
 	 * @return Returns an instance of TiDrawableReference wrapping the given object.
 	 */
@@ -855,7 +855,7 @@ public class TiDrawableReference
 				stream = TiFileHelper.getInstance().openInputStream(url, false);
 
 			} catch (IOException e) {
-				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage());
+				Log.e(TAG, "Problem opening stream with URL " + url + ": " + e.getMessage());
 			}
 
 		} else if (isTypeFile() && file != null) {

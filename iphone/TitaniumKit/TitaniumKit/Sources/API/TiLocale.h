@@ -23,7 +23,7 @@
 
 /**
  Returns the bundle associated with the locale.
- 
+
  Read-only property.
  */
 @property (nonatomic, readwrite, retain) NSBundle *bundle;

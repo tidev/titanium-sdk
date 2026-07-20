@@ -53,7 +53,7 @@
       // we need to download it and save it off into temp file
       NSData *data = [NSData dataWithContentsOfURL:url];
       NSString *ext = [[[url path] lastPathComponent] pathExtension];
-      //ignore this on static analyzer, as commented, it'll be auto-deleted on release
+      // ignore this on static analyzer, as commented, it'll be auto-deleted on release
       TiFile *tempFile = [[TiFile createTempFile:ext] retain]; // file auto-deleted on release
       [data writeToFile:[tempFile path] atomically:YES];
       RELEASE_TO_NIL(url);

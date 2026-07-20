@@ -64,7 +64,7 @@ public class AudioPlayerProxy extends KrollProxy implements OnLifecycleEvent, On
 	{
 		super();
 
-		// TODO - we shouldnt need this as this proxy is created only from the runtime - double check
+		// TODO - we shouldn't need this as this proxy is created only from the runtime - double check
 		// TODO this needs to happen post-set
 		//((TiBaseActivity)getActivity()).addOnLifecycleEventListener(this);
 

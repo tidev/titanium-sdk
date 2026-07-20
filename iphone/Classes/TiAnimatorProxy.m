@@ -74,13 +74,13 @@
 {
   ENSURE_TYPE(args, NSArray);
   NSArray *curBehaviors = [self behaviors];
-  //Remove the old behaviors that no longer exist
+  // Remove the old behaviors that no longer exist
   for (id<TiBehaviorProtocol> theArg in curBehaviors) {
     if (![args containsObject:theArg]) {
       [self removeBehavior:theArg];
     }
   }
-  //Add the new behaviors
+  // Add the new behaviors
   for (id theArg in args) {
     if (![_behaviors containsObject:theArg]) {
       [self addBehavior:theArg];
@@ -153,8 +153,8 @@
             DebugLog(@"[INFO] Animator is already started");
             return;
           }
-          //Need to get the parent view for children since this is the view that provides the animation context.
-          //Right now scrollable View will not work.
+          // Need to get the parent view for children since this is the view that provides the animation context.
+          // Right now scrollable View will not work.
           UIView *refView = [_referenceView parentViewForChild:nil];
           if (refView == nil) {
             refView = [_referenceView view];

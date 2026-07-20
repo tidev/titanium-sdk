@@ -19,6 +19,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
+import android.media.PlaybackParams;
 import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.View;
@@ -263,7 +264,7 @@ public class TiUIVideoView
 			// Url not loaded yet. Do that first.
 			Object urlObj = proxy.getProperty(TiC.PROPERTY_URL);
 			if (urlObj == null) {
-				Log.w(TAG, "play() ignored, no url set.");
+				Log.w(TAG, "play() ignored, no URL set.");
 				return;
 			}
 			getPlayerProxy().fireLoadState(MediaModule.VIDEO_LOAD_STATE_UNKNOWN);
@@ -330,6 +331,13 @@ public class TiUIVideoView
 	@Override
 	public void onPrepared(MediaPlayer mp)
 	{
+
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SPEED)) {
+			PlaybackParams myPlayBackParams = new PlaybackParams();
+			myPlayBackParams.setSpeed(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_SPEED)));
+			mp.setPlaybackParams(myPlayBackParams);
+		}
+
 		getPlayerProxy().onPlaybackReady(mp.getDuration());
 	}
 

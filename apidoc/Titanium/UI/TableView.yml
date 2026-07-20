@@ -22,7 +22,7 @@ description: |
     The simplest approach is to pass dictionaries of `TableViewRow` properties, such as
     [backgroundColor](Titanium.UI.TableViewRow.backgroundColor),
     [color](Titanium.UI.TableViewRow.color), and [title](Titanium.UI.TableViewRow.title), to the
-    [createTableView](Titanium.UI.createTableView) method, which causes the rows to be implictly
+    [createTableView](Titanium.UI.createTableView) method, which causes the rows to be implicitly
     created, added to a single [TableViewSection](Titanium.UI.TableViewSection), and then added to
     the `TableView`. Refer to the "Simple Table View with Basic Rows" example.
 
@@ -453,7 +453,7 @@ events:
     since: { android: "2.1.0", iphone: "2.1.0", ipad: "2.1.0" }
     properties:
       - name: direction
-        summary: Direction of the swipe, either `left` or `right`.
+        summary: Direction of the swipe, either `left`, `right` or `unknown`.
         type: String
 
       - name: index
@@ -694,6 +694,40 @@ events:
             been released by the touch. If `false`, scrolling will stop immediately.
         type: Boolean
     since: '3.0.0'
+
+  - name: editaction
+    summary: Fired when the user interacts with one of the custom edit actions defined by <Titanium.UI.TableViewRow.editActions>.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `row` and `section`, or the `index` to determine the table row that generated
+        the event.
+
+        Note that the `index` property of this event correspond to the list view state
+        before the user action.
+    platforms: [iphone, ipad, macos]
+    since: 12.4.0
+    properties:
+      - name: action
+        summary: The [title](RowActionType.title) as defined in the row action object.
+        type: String
+
+      - name: identifier
+        summary: |
+            The [identifier](RowActionType. identifier) of the row action. Only included in the event
+            if previously defined.
+        type: String
+
+      - name: row
+        summary: The row that fired this event.
+        type: [Titanium.UI.TableViewRow, Dictionary<Titanium.UI.TableViewRow>]
+
+      - name: section
+        summary: The section that fired this event.
+        type: Titanium.UI.TableViewSection
+
+      - name: index
+        summary: The index of the row that fired this event.
+        type: Number
 
 methods:
   - name: appendRow
@@ -1073,6 +1107,12 @@ properties:
     type: [String, Titanium.UI.Color]
     default: transparent on non-iOS platforms, white on the iOS platform
 
+  - name: contentOffset
+    summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    type: Point
+    since: {android: "12.4.0"}
+    platforms: [android]
+
   - name: data
     summary: Rows of the table view.
     type: [Array<Titanium.UI.TableViewRow>, Array<Titanium.UI.TableViewSection>]
@@ -1360,7 +1400,7 @@ properties:
     type: Number
 
   - name: scrollable
-    summary: If `true`, the tableview can be scrolled.
+    summary: If `true`, the table view can be scrolled.
     type: Boolean
     default: true
     since: { android: 7.3.0, iphone: 0.8, ipad: 0.8 }

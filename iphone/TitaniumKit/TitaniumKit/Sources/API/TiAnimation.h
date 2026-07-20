@@ -23,7 +23,7 @@
 
 /**
  Whether or not the animation should transition.
- 
+
  The method is only called if the animation is a transition animation type.
  @param animation The animation this delegate is assigned to.
  @return _YES_ if the animation should transition, _NO_ otherwise.
@@ -57,7 +57,7 @@
 @end
 
 /**
- A type of proxy representing an animation to apply to a view. 
+ A type of proxy representing an animation to apply to a view.
  */
 @interface TiAnimation : TiProxy {
   @private
@@ -139,6 +139,7 @@
 @property (nonatomic, retain, readwrite) TiProxy *view;
 @property (nonatomic, retain, readwrite) NSNumber *dampingRatio;
 @property (nonatomic, retain, readwrite) NSNumber *springVelocity;
+@property (nonatomic, retain, readwrite) NSNumber *bounce;
 
 + (TiAnimation *)animationFromArg:(id)args context:(id<TiEvaluator>)context create:(BOOL)yn;
 

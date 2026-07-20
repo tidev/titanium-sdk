@@ -47,12 +47,12 @@
 {
   BOOL boolValue = [TiUtils boolValue:value];
   BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
-  //TODO: Value checking and exception generation, if necessary.
+  // TODO: Value checking and exception generation, if necessary.
 
   [self replaceValue:value forKey:@"showCancel" notification:NO];
   showsCancelButton = boolValue;
 
-  //ViewAttached gives a false negative when not attached to a window.
+  // ViewAttached gives a false negative when not attached to a window.
   TiThreadPerformOnMainThread(
       ^{
         UISearchBar *search = [self searchBar];

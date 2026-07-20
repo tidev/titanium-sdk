@@ -7,6 +7,7 @@
 package ti.modules.titanium.network;
 
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -110,7 +112,13 @@ public class TiNetworkListener
 			} else {
 				throw new IllegalStateException("Context was not cleaned up from last release.");
 			}
-			context.registerReceiver(receiver, connectivityIntentFilter);
+			if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU
+				&& TiApplication.getInstance().getApplicationInfo().targetSdkVersion > Build.VERSION_CODES.TIRAMISU) {
+				int receiverFlags = Context.RECEIVER_EXPORTED;
+				context.registerReceiver(receiver, connectivityIntentFilter, receiverFlags);
+			} else {
+				context.registerReceiver(receiver, connectivityIntentFilter);
+			}
 			listening = true;
 		} else {
 			Log.w(TAG, "Connectivity listener is already attached");

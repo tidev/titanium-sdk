@@ -132,10 +132,10 @@ methods:
         summary: The localized numeric string.
 
   - name: formatToParts
-    summary: Formats given number to an array of components describing what the formmated string would produce.
+    summary: Formats given number to an array of components describing what the formatted string would produce.
     description: |
       Returns an array of objects providing the "type" and "value" of each component the formatted
-      string would produce. Can be used to fetch localized separator chracters, currency characters,
+      string would produce. Can be used to fetch localized separator characters, currency characters,
       currency symbol positions, etc.
 
       For more detail, see the MDN website about

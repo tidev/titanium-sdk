@@ -9,7 +9,7 @@
 #import "TiBase.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
-//TODO: Move all of Webcolor into TiColor.
+// TODO: Move all of Webcolor into TiColor.
 
 @implementation TiColor
 
@@ -20,7 +20,7 @@
   TiColor *result;
   UIColor *translatedColor = nil;
 
-  if ([name caseInsensitiveCompare:@"default"] != NSOrderedSame) { //Default is allowed nil, while still counting as a color to stop inheritance.
+  if ([name caseInsensitiveCompare:@"default"] != NSOrderedSame) { // Default is allowed nil, while still counting as a color to stop inheritance.
     translatedColor = [Webcolor webColorNamed:name];
     if (translatedColor == nil) {
       return nil;

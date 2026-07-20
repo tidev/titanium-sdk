@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -13,7 +15,6 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUILabel;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -26,6 +27,7 @@ import android.app.Activity;
 		TiC.PROPERTY_HTML,
 		TiC.PROPERTY_TEXT,
 		TiC.PROPERTY_TEXT_ALIGN,
+		TiC.PROPERTY_TEXT_TRANSFORM,
 		TiC.PROPERTY_TEXTID,
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_SHADOW_OFFSET,
@@ -38,7 +40,7 @@ import android.app.Activity;
 		TiC.PROPERTY_MINIMUM_FONT_SIZE,
 		TiC.PROPERTY_BREAK_STRATEGY,
 		TiC.PROPERTY_HYPHENATION_FREQUENCY
-})
+	})
 public class LabelProxy extends TiViewProxy
 {
 	private static final String TAG = "LabelProxy";
@@ -58,6 +60,26 @@ public class LabelProxy extends TiViewProxy
 		KrollDict table = new KrollDict();
 		table.put(TiC.PROPERTY_TEXT, TiC.PROPERTY_TEXTID);
 		return table;
+	}
+
+	@Kroll.getProperty
+	public int getLineCount()
+	{
+		TiUIView v = getOrCreateView();
+		if (v instanceof TiUILabel) {
+			return ((TiUILabel) v).getLineCount();
+		}
+		return 0;
+	}
+
+	@Kroll.getProperty
+	public String getVisibleText()
+	{
+		TiUIView v = getOrCreateView();
+		if (v instanceof TiUILabel) {
+			return ((TiUILabel) v).getVisibleText();
+		}
+		return "";
 	}
 
 	@Override

@@ -14,12 +14,13 @@ import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Size;
+import android.view.OrientationEventListener;
 import android.view.ScaleGestureDetector;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -112,6 +113,8 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	private ProcessCameraProvider cameraProvider;
 	static int targetResolutionWidth = -1;
 	static int targetResolutionHeight = -1;
+	private OrientationEventListener orientationEventListener;
+	private int lastDisplayOrientation = 0;
 
 	public static void takePicture()
 	{
@@ -221,9 +224,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				// Handle the case where the active recording is paused
 			} else if (videoRecordEvent instanceof VideoRecordEvent.Resume) {
 				// Handles the case where the active recording is resumed
-			} else if (videoRecordEvent instanceof VideoRecordEvent.Finalize) {
-				VideoRecordEvent.Finalize finalizeEvent =
-					(VideoRecordEvent.Finalize) videoRecordEvent;
+			} else if (videoRecordEvent instanceof VideoRecordEvent.Finalize finalizeEvent) {
 				// Handles a finalize event for the active recording, checking Finalize.getError()
 				int error = finalizeEvent.getError();
 				if (error != VideoRecordEvent.Finalize.ERROR_NONE) {
@@ -417,6 +418,43 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		int rotation = getWindowManager().getDefaultDisplay().getRotation();
 
 		Activity activity = TiApplication.getAppCurrentActivity();
+
+		orientationEventListener = new OrientationEventListener(activity)
+		{
+			@Override
+			public void onOrientationChanged(int orientation)
+			{
+				if (orientationEventListener == null || orientation == ORIENTATION_UNKNOWN) {
+					return;
+				}
+				// Convert physical device orientation (degrees) to a Surface rotation constant.
+				// This avoids relying on display rotation which is wrong when orientation-lock is on.
+				// OrientationEventListener 90 = tilted CCW (top-left) = display ROTATION_270.
+				// OrientationEventListener 270 = tilted CW (top-right) = display ROTATION_90.
+				int rotation;
+				if (orientation >= 315 || orientation < 45) {
+					rotation = Surface.ROTATION_0;
+				} else if (orientation >= 45 && orientation < 135) {
+					rotation = Surface.ROTATION_270;
+				} else if (orientation >= 135 && orientation < 225) {
+					rotation = Surface.ROTATION_180;
+				} else {
+					rotation = Surface.ROTATION_90;
+				}
+				if (lastDisplayOrientation != rotation) {
+					imageCapture.setTargetRotation(rotation);
+					lastDisplayOrientation = rotation;
+				}
+
+			}
+		};
+		if (orientationEventListener.canDetectOrientation()) {
+			orientationEventListener.enable();
+		} else {
+			orientationEventListener.disable();
+			orientationEventListener = null;
+		}
+
 		ListenableFuture cameraProviderFuture = ProcessCameraProvider.getInstance(activity);
 		cameraProviderFuture.addListener(() -> {
 			try {
@@ -493,8 +531,13 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					}
 
 					if (targetResolutionWidth != -1 && targetResolutionHeight != -1) {
-						imageCaptureBuilder.setTargetResolution(
-							new Size(targetResolutionWidth, targetResolutionHeight));
+						if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) {
+							imageCaptureBuilder.setTargetResolution(
+								new Size(targetResolutionWidth, targetResolutionHeight));
+						} else {
+							imageCaptureBuilder.setTargetResolution(
+								new Size(targetResolutionHeight, targetResolutionWidth));
+						}
 					}
 
 					imageCapture = imageCaptureBuilder.build();
@@ -573,6 +616,11 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 		if (camera != null) {
 			camera = null;
 		}
+		if (orientationEventListener != null) {
+			orientationEventListener.disable();
+			orientationEventListener = null;
+		}
+
 		// Destroy this activity.
 		super.onDestroy();
 	}
@@ -581,6 +629,10 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public void finish()
 	{
 		overlayProxy = null;
+		if (orientationEventListener != null) {
+			orientationEventListener.disable();
+			orientationEventListener = null;
+		}
 		super.finish();
 	}
 
@@ -627,9 +679,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 
 	private boolean hasAudioRecorderPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
 		return (status == PackageManager.PERMISSION_GRANTED);
 	}

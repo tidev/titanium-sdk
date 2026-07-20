@@ -17,7 +17,7 @@
 READONLY_PROPERTY(bool, hidden, Hidden);
 READONLY_PROPERTY(NSString *, id, Id);
 READONLY_PROPERTY(NSString *, name, Name);
-//READONLY_PROPERTY(BOOL, selected, Selected); // not implemented on iOS
+// READONLY_PROPERTY(BOOL, selected, Selected); // not implemented on iOS
 READONLY_PROPERTY(NSString *, sourceIdentifier, SourceIdentifier);
 READONLY_PROPERTY(NSString *, sourceTitle, SourceTitle);
 READONLY_PROPERTY(EKSourceType, sourceType, SourceType);

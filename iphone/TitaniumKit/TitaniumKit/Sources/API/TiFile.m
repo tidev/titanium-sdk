@@ -80,7 +80,7 @@
   if (![fm fileExistsAtPath:tempDir]) {
     [fm createDirectoryAtPath:tempDir withIntermediateDirectories:YES attributes:nil error:&error];
     if (error != nil) {
-      //TODO: ?
+      // TODO: ?
       return nil;
     }
   }
@@ -96,7 +96,7 @@
   [[NSData data] writeToFile:resultPath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
 
   if (error != nil) {
-    //TODO: ?
+    // TODO: ?
     return nil;
   }
 

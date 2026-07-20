@@ -6,31 +6,6 @@
  */
 package ti.modules.titanium.ui;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.TimeZone;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
-import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.R;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.TiDimension;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.util.TiUIHelper;
-import org.appcelerator.titanium.view.TiUIView;
-
-import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
-import ti.modules.titanium.ui.widget.picker.TiUIPlainDropDownPicker;
-import ti.modules.titanium.ui.widget.picker.TiUIPlainPicker;
-import ti.modules.titanium.ui.widget.picker.TiUIPlainSpinnerPicker;
-import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
@@ -55,6 +30,31 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.google.android.material.R;
+
+import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiUIView;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import ti.modules.titanium.ui.widget.picker.TiUIDatePicker;
+import ti.modules.titanium.ui.widget.picker.TiUIPlainDropDownPicker;
+import ti.modules.titanium.ui.widget.picker.TiUIPlainPicker;
+import ti.modules.titanium.ui.widget.picker.TiUIPlainSpinnerPicker;
+import ti.modules.titanium.ui.widget.picker.TiUITimePicker;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -66,13 +66,13 @@ import com.google.android.material.timepicker.TimeFormat;
 		TiC.PROPERTY_MAX_DATE,
 		TiC.PROPERTY_SELECTION_OPENS,
 		TiC.PROPERTY_VALUE
-})
+	})
 public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChangedListener
 {
 	private static final String TAG = "PickerProxy";
-	private int type = UIModule.PICKER_TYPE_PLAIN;
 	private final ArrayList<PickerColumnProxy> columnList = new ArrayList<>();
 	private final ArrayList<Integer> selectedRows = new ArrayList<>();
+	private int type = UIModule.PICKER_TYPE_PLAIN;
 	private boolean useSpinner = false;
 	private boolean canFireColumnEvents = true;
 
@@ -81,6 +81,26 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		super();
 		defaultValues.put(TiC.PROPERTY_CALENDAR_VIEW_SHOWN, false);
 		defaultValues.put(TiC.PROPERTY_DATE_PICKER_STYLE, UIModule.DATE_PICKER_STYLE_AUTOMATIC);
+	}
+
+	/**
+	 * Trim hour, minute, second and millisecond from the date
+	 *
+	 * @param inDate input date
+	 * @return return the trimmed date
+	 */
+	private static Date createDateWithoutTime(Date inDate)
+	{
+		if (inDate == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+		cal.setTime(inDate);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
 	}
 
 	@Override
@@ -187,17 +207,20 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		editText.setSingleLine();
 		editText.setMaxLines(1);
 		editText.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-		editText.setKeyListener(new BaseKeyListener() {
+		editText.setKeyListener(new BaseKeyListener()
+		{
 			@Override
 			public int getInputType()
 			{
 				return InputType.TYPE_NULL;
 			}
+
 			@Override
 			public boolean backspace(View view, Editable content, int keyCode, KeyEvent event)
 			{
 				return false;
 			}
+
 			@Override
 			public boolean forwardDelete(View view, Editable content, int keyCode, KeyEvent event)
 			{
@@ -492,10 +515,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	{
 		// Fetch top-most activity in app.
 		Activity activity = TiApplication.getAppCurrentActivity();
-		if (!(activity instanceof AppCompatActivity)) {
+		if (!(activity instanceof AppCompatActivity appCompatActivity)) {
 			return;
 		}
-		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
 
 		// Fetch optional dictionary of settings from 1st argument.
 		HashMap settings;
@@ -635,25 +657,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		picker.show(appCompatActivity.getSupportFragmentManager(), picker.toString());
 	}
 
-	/**
-	 * Trim hour, minute, second and millisecond from the date
-	 * @param inDate input date
-	 * @return return the trimmed date
-	 */
-	private static Date createDateWithoutTime(Date inDate)
-	{
-		if (inDate == null) {
-			return null;
-		}
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-		cal.setTime(inDate);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		return cal.getTime();
-	}
-
 	// This is meant to be a kind of "static" method, in the sense that
 	// it doesn't use any state except for context.  It's a quick hit way
 	// of getting a date dialog up, in other words.
@@ -662,10 +665,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	{
 		// Fetch top-most activity in app.
 		Activity activity = TiApplication.getAppCurrentActivity();
-		if (!(activity instanceof AppCompatActivity)) {
+		if (!(activity instanceof AppCompatActivity appCompatActivity)) {
 			return;
 		}
-		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
 
 		// Fetch optional dictionary of settings from 1st argument.
 		HashMap settings;

@@ -32,10 +32,9 @@ typedef enum {
   CGGradientRef cachedGradient;
 
   CFMutableArrayRef colorValues;
-  CGFloat *colorOffsets; //A -1 indicates a lack of entry.
+  CGFloat *colorOffsets; // A -1 indicates a lack of entry.
   NSUInteger arraySize;
   int offsetsDefined;
-  @private
 }
 
 @property (nonatomic, readwrite, assign) BOOL backfillStart;

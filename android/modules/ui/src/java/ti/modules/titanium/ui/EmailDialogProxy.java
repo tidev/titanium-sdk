@@ -6,17 +6,21 @@
  */
 package ti.modules.titanium.ui;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.text.Html;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiApplication.ActivityTransitionListener;
 import org.appcelerator.titanium.TiBlob;
+import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
@@ -29,14 +33,11 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import ti.modules.titanium.filesystem.FileProxy;
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
-import android.text.Html;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -46,11 +47,9 @@ import android.text.Html;
 		"messageBody",
 		"subject",
 		"toRecipients"
-})
+	})
 public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionListener
 {
-
-	private static final String TAG = "EmailDialogProxy";
 
 	@Kroll.constant
 	public static final int CANCELLED = 0;
@@ -60,7 +59,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	public static final int SENT = 2;
 	@Kroll.constant
 	public static final int FAILED = 3;
-
+	private static final String TAG = "EmailDialogProxy";
 	private ArrayList<Object> attachments;
 	private String privateDataDirectoryPath = null;
 
@@ -103,9 +102,9 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 		} else {
 			// silently ignore?
 			Log.d(TAG,
-				  "addAttachment for type " + attachment.getClass().getName()
-					  + " ignored. Only files and blobs may be attached.",
-				  Log.DEBUG_MODE);
+				"addAttachment for type " + attachment.getClass().getName()
+					+ " ignored. Only files and blobs may be attached.",
+				Log.DEBUG_MODE);
 		}
 	}
 
@@ -149,7 +148,8 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 			TiActivitySupport activitySupport = (TiActivitySupport) activity;
 			final int code = activitySupport.getUniqueResultCode();
 
-			activitySupport.launchActivityForResult(choosingIntent, code, new TiActivityResultHandler() {
+			activitySupport.launchActivityForResult(choosingIntent, code, new TiActivityResultHandler()
+			{
 				@Override
 				public void onResult(Activity activity, int requestCode, int resultCode, Intent data)
 				{
@@ -303,8 +303,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 
 	private Uri getAttachmentUri(Object attachment)
 	{
-		if (attachment instanceof FileProxy) {
-			FileProxy fileProxy = (FileProxy) attachment;
+		if (attachment instanceof FileProxy fileProxy) {
 			if (fileProxy.isFile()) {
 				File file = getAttachableFileFrom(fileProxy);
 				if (file != null) {
@@ -390,8 +389,7 @@ public class EmailDialogProxy extends TiViewProxy implements ActivityTransitionL
 	private void putAddressExtra(Intent intent, String extraType, String ourkey)
 	{
 		Object testprop = this.getProperty(ourkey);
-		if (testprop instanceof Object[]) {
-			Object[] oaddrs = (Object[]) testprop;
+		if (testprop instanceof Object[] oaddrs) {
 			int len = oaddrs.length;
 			String[] addrs = new String[len];
 			for (int i = 0; i < len; i++) {

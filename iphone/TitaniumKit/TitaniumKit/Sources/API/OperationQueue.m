@@ -49,7 +49,7 @@ OperationQueue *sharedQueue = nil;
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
   @try {
-    //The nice thing about performSelector is that providing extra arguments is quite safe.
+    // The nice thing about performSelector is that providing extra arguments is quite safe.
     id result = [target performSelector:selector withObject:arg];
 
     if (afterTarget != nil && after != nil) {

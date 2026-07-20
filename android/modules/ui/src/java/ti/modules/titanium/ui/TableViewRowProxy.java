@@ -234,7 +234,7 @@ public class TableViewRowProxy extends TiViewProxy
 	/**
 	 * Override getRect() to amend dimensions.
 	 *
-	 * @return Dictinary of view dimensions.
+	 * @return Dictionary of view dimensions.
 	 */
 	@Override
 	public KrollDict getRect()
@@ -255,8 +255,7 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		final TiViewProxy parent = getParent();
 
-		if (parent instanceof TableViewSectionProxy) {
-			final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+		if (parent instanceof TableViewSectionProxy section) {
 
 			return section.getRowIndex(this);
 		}

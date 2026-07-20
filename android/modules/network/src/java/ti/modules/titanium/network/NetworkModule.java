@@ -212,6 +212,9 @@ public class NetworkModule extends KrollModule
 				case ConnectivityManager.TYPE_MOBILE:
 					type = NetworkModule.NETWORK_MOBILE;
 					break;
+				case ConnectivityManager.TYPE_ETHERNET:
+					type = NetworkModule.NETWORK_LAN;
+					break;
 				default:
 					type = NetworkModule.NETWORK_UNKNOWN;
 			}

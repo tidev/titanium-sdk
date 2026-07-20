@@ -55,7 +55,7 @@ public class CollatorProxy extends KrollProxy
 			options = new KrollDict();
 		}
 
-		// Determine the collatior setting we need to use.
+		// Determine the collator setting we need to use.
 		int strengthId;
 		int decompositionId = Collator.CANONICAL_DECOMPOSITION;
 		this.isStrippingAccents = false;

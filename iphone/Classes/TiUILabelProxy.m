@@ -86,6 +86,23 @@ USE_VIEW_FOR_CONTENT_HEIGHT
   return NUMINTEGER([[(TiUILabel *)[self view] label] lineBreakMode]);
 }
 
+- (NSNumber *)lineCount
+{
+  UILabel *label = [(TiUILabel *)[self view] label];
+
+  CGSize maxSize = CGSizeMake(label.frame.size.width, MAXFLOAT);
+  NSString *text = label.text ?: @"";
+  CGFloat textHeight = [text boundingRectWithSize:maxSize
+                                          options:NSStringDrawingUsesLineFragmentOrigin
+                                       attributes:@{ NSFontAttributeName : label.font }
+                                          context:nil]
+                           .size.height;
+  CGFloat lineHeight = label.font.lineHeight;
+  NSNumber *lineCount = NUMINT(ceil(textHeight / lineHeight));
+
+  return lineCount;
+}
+
 @end
 
 #endif

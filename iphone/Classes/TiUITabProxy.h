@@ -17,7 +17,7 @@
   UINavigationController *controller;
   TiWindowProxy *rootWindow;
   TiWindowProxy *current;
-  //This is an assign only property. TabGroup retains instances of tab.
+  // This is an assign only property. TabGroup retains instances of tab.
   TiUITabGroupProxy *tabGroup;
 
   NSMutableArray *controllerStack;
@@ -28,8 +28,11 @@
   BOOL hasFocus;
   BOOL iconOriginal;
   BOOL activeIconOriginal;
+  UITraitCollection *lastTabBarTraitCollection;
 
   id<TiOrientationController> parentOrientationController;
+
+  UIPanGestureRecognizer *fullWidthBackGestureRecognizer;
 }
 
 - (void)setTabGroup:(TiUITabGroupProxy *)proxy;
@@ -49,6 +52,7 @@
 - (void)handleDidBlur:(NSDictionary *)event;
 - (void)handleWillFocus;
 - (void)handleDidFocus:(NSDictionary *)event;
+- (void)handleDidSelect:(NSDictionary *)event;
 - (void)handleWillShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (void)handleDidShowViewController:(UIViewController *)viewController animated:(BOOL)animated;
 - (void)updateTabBarItem;

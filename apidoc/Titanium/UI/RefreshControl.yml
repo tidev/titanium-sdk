@@ -55,6 +55,21 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
+  - name: offset
+    summary: Offset of the refresh control view.
+    type: RefreshControlOffset
+    platforms: [android]
+    since: { android: "12.7.0" }
+    availability: creation
+
+  - name: backgroundColor
+    summary: The background color for the refresh control, as a color name or hex triplet.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, macos]
+    since: { iphone: "12.4.0", ipad: "12.4.0", macos: "12.4.0" }
+
 events:
   - name: refreshstart
     summary: |
@@ -138,3 +153,13 @@ examples:
 
         $.index.open();
         ```
+---
+name: RefreshControlOffset
+summary: Offset of the refresh control view.
+properties:
+  - name: start
+    summary: The offset from the top of this view at which the progress spinner should appear.
+    type: Number
+  - name: end
+    summary: The offset from the top of this view at which the progress spinner should come to rest after a successful swipe gesture.
+    type: Number

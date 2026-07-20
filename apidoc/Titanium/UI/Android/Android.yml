@@ -29,6 +29,11 @@ methods:
         type: String
     since: { android: "12.0.0" }
 
+  - name: moveToBackground
+    summary: Moves the app to the background
+    platforms: [android]
+    since: { android: "12.4.0" }
+
   - name: hideSoftKeyboard
     summary: |
         Hides the soft keyboard.
@@ -669,6 +674,12 @@ properties:
     type: Number
     permission: read-only
 
+  - name: STATUS_BAR_LIGHT
+    summary: Sets the color of the status bar to light mode. Needs Android API level 23.
+    type: Number
+    permission: read-only
+    since: "12.7.0"
+
   - name: SWITCH_STYLE_CHECKBOX
     summary: Display a checkbox.
     description: Use with the <Titanium.UI.Switch.style> property.
@@ -956,6 +967,34 @@ properties:
     permission: read-only
     platforms: [android]
     since: "12.1.0"
+
+  - name: WEBVIEW_SCROLLBARS_DEFAULT
+    summary: Show horizontal and vertical scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_VERTICAL
+    summary: Hide vertical scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL
+    summary: Hide horizontal scrollbar in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
+
+  - name: WEBVIEW_SCROLLBARS_HIDE_ALL
+    summary: Hide all scrollbars in a Ti.UI.WebView.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: "12.3.0"
 
 examples:
   - title: Android Preferences Example

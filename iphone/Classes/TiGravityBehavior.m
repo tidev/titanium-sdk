@@ -61,7 +61,7 @@
 
 - (void)updateItems
 {
-  //Update params for reinitialization
+  // Update params for reinitialization
   _angle = [_gravityBehavior angle];
   _magnitude = [_gravityBehavior magnitude];
   _vector = [_gravityBehavior gravityDirection];

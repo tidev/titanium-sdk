@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -15,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -46,7 +47,7 @@ import android.app.Activity;
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_RETURN_KEY_TYPE,
 		TiC.PROPERTY_PADDING
-})
+	})
 public class TextFieldProxy extends TiViewProxy
 {
 	public TextFieldProxy()

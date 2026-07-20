@@ -16,7 +16,7 @@
 #define INCH_IN_CM 2.54
 #define INCH_IN_MM 25.4
 
-//Not a class for speed reasons, like LayoutConstraint.
+// Not a class for speed reasons, like LayoutConstraint.
 
 typedef enum {
   TiDimensionTypeUndefined,
@@ -33,8 +33,8 @@ typedef enum {
 struct TiDimension {
   TiDimensionType type;
   CGFloat value;
-  //If type is TiDimensionTypeDip, value is a Dip constant,
-  //If type is TiDimensionTypePercent, value ranges from 0 (0%) to 1.0 (100%)
+  // If type is TiDimensionTypeDip, value is a Dip constant,
+  // If type is TiDimensionTypePercent, value ranges from 0 (0%) to 1.0 (100%)
 };
 
 typedef struct TiDimension TiDimension;
@@ -144,7 +144,7 @@ TI_INLINE CGFloat TiDimensionCalculateMargins(TiDimension dimension1, TiDimensio
   return boundingValue - (TiDimensionCalculateValue(dimension1, boundingValue) + TiDimensionCalculateValue(dimension2, boundingValue));
 }
 
-//TODO: Do these ALL have to be TI_INLINE?
+// TODO: Do these ALL have to be TI_INLINE?
 TI_INLINE CGRect TiDimensionLayerContentCenter(TiDimension top, TiDimension left, TiDimension bottom, TiDimension right, CGSize imageSize)
 {
   CGRect result;

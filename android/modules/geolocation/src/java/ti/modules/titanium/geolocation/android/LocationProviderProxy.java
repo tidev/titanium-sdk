@@ -181,7 +181,7 @@ public class LocationProviderProxy extends KrollProxy implements LocationListene
 		if (property == null) {
 			Log.e(TAG, "No name found for location provider");
 
-			return ""; // this shouldnt be possible
+			return ""; // this shouldn't be possible
 		}
 
 		return (String) property;
