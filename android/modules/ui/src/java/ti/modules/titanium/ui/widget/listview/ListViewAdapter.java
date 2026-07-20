@@ -128,9 +128,8 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 		super.onViewRecycled(holder);
 
 		TiViewProxy view = holder.getProxy();
-		if (view instanceof ListItemProxy) {
+		if (view instanceof ListItemProxy item) {
 			// Add item to recycle list so that it's child proxies/views can be re-used by another item.
-			ListItemProxy item = (ListItemProxy) view;
 			if (item.hasChildren() && (item.getHolder() == holder)) {
 				LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
 				if (recyclableItems == null) {

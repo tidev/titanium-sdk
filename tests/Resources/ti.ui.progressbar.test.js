@@ -79,7 +79,7 @@ describe('Titanium.UI.ProgressBar', () => {
 			});
 		});
 
-		// FIXME: Add android support for the font property
+		// FIXME: Add Android support for the font property
 		describe.ios('.font', () => {
 			beforeEach(() => {
 				bar = Ti.UI.createProgressBar({

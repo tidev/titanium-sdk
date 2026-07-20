@@ -22,6 +22,7 @@
   NSMutableDictionary *theAttributes;
 
   BOOL isTabBarHidden;
+  TiUIView *bottomAccessoryView;
 }
 
 - (UITabBarController *)tabController;

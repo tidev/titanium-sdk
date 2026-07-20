@@ -47,13 +47,13 @@ public class PickerRowProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty
-	public String getColor()
+	public Object getColor()
 	{
-		return (String) getProperty(TiC.PROPERTY_COLOR);
+		return getProperty(TiC.PROPERTY_COLOR);
 	}
 
 	@Kroll.setProperty
-	public void setColor(String color)
+	public void setColor(Object color)
 	{
 		setPropertyAndFire(TiC.PROPERTY_COLOR, color);
 		onRowChanged();

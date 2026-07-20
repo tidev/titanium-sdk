@@ -12,7 +12,7 @@
 //
 // this is a re-implementation (sort of) of the UIImageView object used for
 // displaying animated images.  The UIImageView object sucks and is very
-// problemmatic and we try and solve it here.
+// problematic and we try and solve it here.
 //
 
 @interface TiUIImageView : TiUIView <ImageLoaderDelegate, TiProxyDelegate> {
