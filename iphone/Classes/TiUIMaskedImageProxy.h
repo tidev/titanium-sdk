@@ -9,8 +9,6 @@
 #import <TitaniumKit/TiViewProxy.h>
 
 @interface TiUIMaskedImageProxy : TiViewProxy {
-
-  @private
 }
 
 @end

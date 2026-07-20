@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.app;
 
+import static android.content.Context.ACTIVITY_SERVICE;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollRuntime;
@@ -18,6 +20,7 @@ import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.RProxy;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -83,6 +86,13 @@ public class AndroidModule extends KrollModule
 		} else {
 			Log.e(TAG, "Parameters missing. Please provide 'from' and 'to'");
 		}
+	}
+
+	@Kroll.method
+	public Boolean clearUserCache()
+	{
+		return ((ActivityManager) TiApplication.getInstance()
+			.getSystemService(ACTIVITY_SERVICE)).clearApplicationUserData();
 	}
 
 	@Kroll.getProperty

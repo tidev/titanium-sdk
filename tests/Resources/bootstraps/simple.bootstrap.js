@@ -8,7 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 
-// Note: This script's file name must end with "*.bootstrap.js" to be auto-loaded by Titainum.
+// Note: This script's file name must end with "*.bootstrap.js" to be auto-loaded by Titanium.
 
 // Log that this bootstrap was automatically loaded on startup.
 Ti.API.info('"simple.bootstrap.js" has been required-in.');

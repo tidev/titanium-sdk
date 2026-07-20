@@ -13,12 +13,13 @@
 #import "TiUtils.h"
 #import <JavaScriptCore/JavaScriptCore.h>
 #include <libkern/OSAtomic.h>
+#include <pthread.h>
 
 extern JSStringRef kTiStringLength;
 
 /** Event lifecycle, a documentation.
 
- The event structures are designed to be threadsafe, yet don't have a lock.
+ The event structures are designed to be thread-safe, yet don't have a lock.
  How is this so? The trick is the lifecycle and atomic transactions on pendingEvents:
 
  Creation:
@@ -32,7 +33,7 @@ extern JSStringRef kTiStringLength;
  EventProcess:
         Event is immutable during processing
         cancelBubble is mutable, but blindly set during processing, thus no race
-        Once done processing, the pendingEvents is atomically decrimented.
+        Once done processing, the pendingEvents is atomically decremented.
         Once pendingEvents reaches 0, we are certain that no other threads are using
         this event. During this time, the event is again mutable for purposes of
         propagation- caching and then fireEvent.

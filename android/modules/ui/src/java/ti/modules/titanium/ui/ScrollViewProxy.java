@@ -80,15 +80,23 @@ public class ScrollViewProxy extends TiViewProxy
 	}
 
 	@Kroll.method
-	public void scrollToBottom()
+	public void scrollToBottom(@Kroll.argument(optional = true) HashMap args)
 	{
-		handleScrollToBottom();
+		boolean animated = false;
+		if (args != null) {
+			animated = TiConvert.toBoolean(args.get("animated"), false);
+		}
+		handleScrollToBottom(animated);
 	}
 
 	@Kroll.method
-	public void scrollToTop()
+	public void scrollToTop(@Kroll.argument(optional = true) HashMap args)
 	{
-		handleScrollToTop();
+		boolean animated = false;
+		if (args != null) {
+			animated = TiConvert.toBoolean(args.get("animated"), false);
+		}
+		handleScrollToTop(animated);
 	}
 
 	public void handleScrollTo(int x, int y, boolean smoothScroll)
@@ -96,14 +104,14 @@ public class ScrollViewProxy extends TiViewProxy
 		getScrollView().scrollTo(x, y, smoothScroll);
 	}
 
-	public void handleScrollToBottom()
+	public void handleScrollToBottom(boolean animated)
 	{
-		getScrollView().scrollToBottom();
+		getScrollView().scrollToBottom(animated);
 	}
 
-	public void handleScrollToTop()
+	public void handleScrollToTop(boolean animated)
 	{
-		getScrollView().scrollToTop();
+		getScrollView().scrollToTop(animated);
 	}
 
 	@Override

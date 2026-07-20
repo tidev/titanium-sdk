@@ -39,6 +39,7 @@
 
 // Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 - (void)viewWillAppear:(BOOL)animated;
+- (void)viewSafeAreaInsetsDidChange;
 - (void)viewWillDisappear:(BOOL)animated;
 - (void)viewDidAppear:(BOOL)animated;
 - (void)viewDidDisappear:(BOOL)animated;

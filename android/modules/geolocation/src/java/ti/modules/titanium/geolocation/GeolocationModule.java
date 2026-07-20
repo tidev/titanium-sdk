@@ -503,10 +503,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@Kroll.method
 	public boolean hasLocationPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
 		Context context = TiApplication.getInstance();
 		int result = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
 		result &= context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);

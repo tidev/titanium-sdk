@@ -224,7 +224,7 @@ extern NSString *const TI_APPLICATION_GUID;
     // activity Type by default
     activityType = CLActivityTypeOther;
 
-    // pauseLocationupdateAutomatically by default NO
+    // pauseLocationUpdateAutomatically by default NO
     pauseLocationUpdateAutomatically = NO;
 
     // Set the default based on if the user has defined a background location mode
@@ -275,7 +275,7 @@ extern NSString *const TI_APPLICATION_GUID;
         [locationManager requestWhenInUseAuthorization];
       } else {
         NSLog(@"[ERROR] If you are only using geolocation-services *when in use*, you only need to specify the %@ key in your tiapp.xml", kTiGeolocationUsageDescriptionWhenInUse);
-        NSLog(@"[ERROR] If you are *always*  using geolocation-servcies, you need to specify the following three keys in your tiapp.xml:\n  * %@\n  * %@\n  * %@", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
+        NSLog(@"[ERROR] If you are *always* using geolocation-services, you need to specify the following three keys in your tiapp.xml:\n  * %@\n  * %@\n  * %@", kTiGeolocationUsageDescriptionWhenInUse, kTiGeolocationUsageDescriptionAlways, kTiGeolocationUsageDescriptionAlwaysAndWhenInUse);
       }
     }
 
@@ -1071,7 +1071,7 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
   BOOL requestedStatusMatchesActualStatus = status == requestedAuthorizationStatus;
 
-  // The new callback for android parity used inside Ti.Geolocation.requestLocationPermissions()
+  // The new callback for Android parity used inside Ti.Geolocation.requestLocationPermissions()
   if (authorizationPromise != nil && status != kCLAuthorizationStatusNotDetermined) {
     int code = 0;
     NSString *errorStr = nil;
