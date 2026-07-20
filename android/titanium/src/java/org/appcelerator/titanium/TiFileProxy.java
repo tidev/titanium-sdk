@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,17 +15,24 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiExifHelper;
 import org.appcelerator.titanium.util.TiFileHelper2;
 import org.appcelerator.titanium.util.TiUrl;
 
 import ti.modules.titanium.stream.FileStreamProxy;
+
+import android.content.ContentResolver;
 import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+
+import androidx.exifinterface.media.ExifInterface;
 
 @Kroll.proxy
 public class TiFileProxy extends KrollProxy
@@ -292,6 +300,11 @@ public class TiFileProxy extends KrollProxy
 
 				if (args[0] instanceof TiBlob) {
 					tbf.write((TiBlob) args[0], append);
+					if (!append) {
+						// Appending produces a file that is a concatenation rather than a
+						// single image, so there is nothing meaningful to attach EXIF to.
+						copyExifData((TiBlob) args[0]);
+					}
 				} else if (args[0] instanceof String) {
 					tbf.write((String) args[0], append);
 				} else if (args[0] instanceof TiFileProxy) {
@@ -306,6 +319,51 @@ public class TiFileProxy extends KrollProxy
 			Log.e(TAG, "IOException encountered", e);
 		}
 		return false;
+	}
+
+	/**
+	 * Copies the EXIF metadata carried by the given blob onto the file that was just
+	 * written from it. This is a best-effort operation: blobs whose bytes already embed
+	 * their own metadata, files that are not backed by a real path, and formats that
+	 * cannot store EXIF are all skipped silently. Failures here never invalidate the
+	 * write itself.
+	 * <p>
+	 * Note that rewriting the metadata is costly. ExifInterface.saveAttributes() copies
+	 * the whole image to a temporary file and then rebuilds it, so this is only worth
+	 * doing for blobs that would otherwise lose their metadata entirely.
+	 * @param blob the blob whose metadata should be preserved.
+	 */
+	private void copyExifData(TiBlob blob)
+	{
+		// Checked before reading the metadata, since that parses the image as well.
+		if (!blob.isExifWriteRequired()) {
+			return;
+		}
+
+		KrollDict exif = blob.getExif();
+		File nativeFile = tbf.getNativeFile();
+		if (nativeFile == null) {
+			// Not backed by a real path (such as a content:// file). Nothing to write to.
+			return;
+		}
+
+		ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
+		try (ParcelFileDescriptor descriptor = contentResolver.openFileDescriptor(Uri.fromFile(nativeFile), "rw")) {
+			if (descriptor == null) {
+				return;
+			}
+			ExifInterface exifData = new ExifInterface(descriptor.getFileDescriptor());
+			for (String attribute : exif.keySet()) {
+				if (TiExifHelper.isWritable(attribute)) {
+					exifData.setAttribute(attribute, exif.getString(attribute));
+				}
+			}
+			exifData.saveAttributes();
+		} catch (Exception e) {
+			// The destination format may not support EXIF (saveAttributes() only handles
+			// JPEG, PNG and WebP). The file contents are already written either way.
+			Log.d(TAG, "Unable to write EXIF data: " + e.getMessage());
+		}
 	}
 
 	@Kroll.method
