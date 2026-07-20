@@ -1,8 +1,6 @@
-'use strict';
-
-const fs = require('fs-extra');
-const path = require('path');
-const jsanalyze = require('node-titanium-sdk/lib/jsanalyze');
+import fs from 'fs-extra';
+import path from 'node:path';
+import jsanalyze from 'node-titanium-sdk/lib/jsanalyze.js';
 
 // RegExps used to match against files
 const FILENAME_REGEXP = /^(.*)\.(\w+)$/;
@@ -19,7 +17,7 @@ const ANDROID_SPLASH_REGEXP = /^(images[/|\\](high|medium|low|res-[^/]+)[/|\\])?
  * @param {Array<Map>} maps maps to merge
  * @returns {Map}
  */
-function mergeMaps(maps) {
+export function mergeMaps(maps) {
 	const merged = new Map();
 	if (maps.length !== 0) {
 		return maps.reduce((combined, list) => {
@@ -45,20 +43,20 @@ class FileInfo {
 	}
 }
 
-class Result {
+export class Result {
 	constructor() {
-		this.appIcons = new Map(); // ios specific
-		this.cssFiles = new Map(); // css files to be processed (minified optionally)
-		this.jsFiles = new Map(); // js files to be processed (transpiled/sourcemapped/minified/etc)
+		this.appIcons = new Map(); // iOS specific
+		this.cssFiles = new Map(); // CSS files to be processed (minified optionally)
+		this.jsFiles = new Map(); // JS files to be processed (transpiled/sourcemapped/minified/etc)
 		this.launchImages = new Map(); // Used to create an asset catalog for launch images on iOS, used for splash screen(s) on Android
-		this.launchLogos = new Map(); // ios specific
+		this.launchLogos = new Map(); // iOS specific
 		this.imageAssets = new Map(); // used for asset catalogs and app thinning on iOS, used for drawables on Android
 		this.resourcesToCopy = new Map(); // "plain" files to copy to the app
-		this.htmlJsFiles = new Set(); // used internally to track js files we shouldn't process (basically move from jsFiles to resourcesToCopy bucket)
+		this.htmlJsFiles = new Set(); // used internally to track JS files we shouldn't process (basically move from jsFiles to resourcesToCopy bucket)
 	}
 
 	/**
-	 * If a js file is references by HTML, don't minify/transpile/etc, treat like any resource we just copy over as-is
+	 * If a JS file is references by HTML, don't minify/transpile/etc, treat like any resource we just copy over as-is
 	 */
 	dontProcessJsFilesReferencedFromHTML() {
 		for (const file of this.htmlJsFiles.keys()) {
@@ -93,7 +91,7 @@ class Result {
 	}
 }
 
-class Walker {
+export class Walker {
 	/**
 	 *
 	 * @param {object} [options] options
@@ -204,7 +202,7 @@ class Walker {
 	}
 }
 
-class Categorizer {
+export class Categorizer {
 	/**
 	 * @param {object} options options
 	 * @param {string} options.tiappIcon tiapp icon filename
@@ -273,7 +271,7 @@ class Categorizer {
 					}
 					if (this.excludeAssestsDir !== null) {
 						let testPath = this.excludeAssestsDir;
-						const checkRegEx = new RegExp(`${testPath}`);
+						const checkRegEx = new RegExp(`${testPath}`); // eslint-disable-line security/detect-non-literal-regexp
 						if (!relPath.match(checkRegEx)) {
 							results.imageAssets.set(relPath, info);
 							return;
@@ -297,10 +295,10 @@ class Categorizer {
 				} else if (this.platform === 'ios') {
 					// if the image is the LaunchLogo.png, then let that pass so we can use it
 					// in the LaunchScreen.storyboard
-					const m = info.name.match(LAUNCH_LOGO_REGEXP);
+					const m = relPath.match(LAUNCH_LOGO_REGEXP);
 					if (m) {
-						info.scale = m[1];
-						info.device = m[2];
+						info.scale = m[1]?.replace(/@|x/g, '');
+						info.device = m[2]?.replace('~', '');
 						results.launchLogos.set(relPath, info);
 						return;
 					}
@@ -312,7 +310,7 @@ class Categorizer {
 					if (this.useAppThinning && !relPath.match(BUNDLE_FILE_REGEXP)) {
 						if (this.excludeAssestsDir !== null) {
 							let testPath = this.excludeAssestsDir;
-							const checkRegEx = new RegExp(`${testPath}`);
+							const checkRegEx = new RegExp(`${testPath}`); // eslint-disable-line security/detect-non-literal-regexp
 							if (!relPath.match(checkRegEx)) {
 								results.imageAssets.set(relPath, info);
 								return;
@@ -339,10 +337,3 @@ class Categorizer {
 		}
 	}
 }
-
-module.exports = {
-	Walker,
-	Result,
-	Categorizer,
-	mergeMaps,
-};

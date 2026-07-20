@@ -5,15 +5,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
+import util from 'node:util';
+import child_process from 'node:child_process';
+import fs from 'fs-extra';
+import path from 'node:path';
+import ejs from 'ejs';
+import { generateBootstrap } from './genBootstrap.js';
+import { fileURLToPath } from 'node:url';
 
-const util = require('util');
-const exec = util.promisify(require('child_process').exec); // eslint-disable-line security/detect-child-process
-const fs = require('fs-extra');
-const path = require('path');
-const ejs = require('ejs');
-const generateBootstrap = require('./genBootstrap');
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const exec = util.promisify(child_process.exec);
 const runtimeV8DirPath = path.join(__dirname, '..', 'runtime', 'v8');
 
 // Determine if we're running on a Windows machine.
@@ -60,13 +61,13 @@ async function gperf(workingDirPath, inputFilePath, outputFilePath) {
  * @param {string} outputDir directory to place the generated 'ti.kernel.js' file
  */
 async function generateTiKernel(outputDir) {
-	const Builder = require('../../build/lib/builder');
-	const Android = require('../../build/lib/android');
+	const { Builder } = await import('../../build/lib/builder.js');
+	const { AndroidBuilder } = await import('../../build/lib/android.js');
 	const options = { };
 	const builder = new Builder(options, [ 'android' ]);
 	await builder.ensureGitHash();
-	const android = new Android({
-		sdkVersion: require('../../package.json').version,
+	const android = new AndroidBuilder({
+		sdkVersion: fs.readJsonSync(path.join(__dirname, '../../package.json')).version,
 		gitHash: options.gitHash,
 		timestamp: options.timestamp
 	});
@@ -181,18 +182,12 @@ async function generateSourceCode() {
 	return replaceFileIfDifferent(tempFilePath, headerFilePath);
 }
 
-/** Executes the pre-build step. */
-async function main() {
+if (import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(import.meta.url)) {
 	console.log('Running Titanium "prebuild.js" script.');
-	// Generate C/C++ source files with JS files embedded in them and from gperf templates.
-	return generateSourceCode();
-}
 
-if (require.main === module) {
-	main()
-		.then(() => process.exit(0))
-		.catch((err) => {
-			console.error(err);
-			process.exit(1);
-		});
+	// Generate C/C++ source files with JS files embedded in them and from gperf templates.
+	generateSourceCode().catch(err => {
+		console.error(err);
+		process.exit(1);
+	});
 }
