@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -69,7 +69,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     }
 
     if (type == -1) {
-      //TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
+      // TODO: this is not the way to abstract pickers, note the cast I had to add to the following line
       picker = (UIControl *)[[UIPickerView alloc] initWithFrame:CGRectMake(0, 0, width, height)];
       ((UIPickerView *)picker).delegate = self;
       ((UIPickerView *)picker).dataSource = self;
@@ -79,7 +79,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
       [(UIDatePicker *)picker setDatePickerMode:type];
       [picker addTarget:self action:@selector(valueChanged:) forControlEvents:UIControlEventValueChanged];
     }
-    [picker setBackgroundColor:[TiUtils isIOSVersionOrGreater:@"13.0"] ? UIColor.systemBackgroundColor : UIColor.whiteColor];
+    [picker setBackgroundColor:UIColor.systemBackgroundColor];
 
     [self addSubview:picker];
   }
@@ -119,11 +119,11 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)reloadColumn:(id)column
 {
-  //TODO: DatePicker checking should have been done long before the main thread.
+  // TODO: DatePicker checking should have been done long before the main thread.
   if ([self isDatePicker]) {
     return;
   }
-  //Because the other logic checking and massaging is done in the proxy, we can jump to the chase.
+  // Because the other logic checking and massaging is done in the proxy, we can jump to the chase.
   [(UIPickerView *)[self picker] reloadAllComponents];
 }
 
@@ -135,7 +135,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 - (TiProxy *)selectedRowForColumn:(NSInteger)column
 {
   if ([self isDatePicker]) {
-    //FIXME
+    // FIXME
     return nil;
   }
   NSInteger row = [(UIPickerView *)picker selectedRowInComponent:column];
@@ -174,7 +174,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
-#if IS_SDK_IOS_13_4
 - (void)setDatePickerStyle_:(id)style
 {
   if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
@@ -186,7 +185,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
     [(UIDatePicker *)picker setPreferredDatePickerStyle:[TiUtils intValue:style]];
   }
 }
-#endif
 
 // We're order-dependent on type being set first, so we need to make sure that anything that relies
 // on whether or not this is a date picker needs to be set AFTER the initial configuration.
@@ -227,17 +225,24 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
+- (void)setOverrideUserInterfaceStyle_:(id)args
+{
+  ENSURE_SINGLE_ARG(args, NSNumber);
+  if (picker != nil) {
+    int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
+    ((UIDatePicker *)[self picker]).overrideUserInterfaceStyle = style;
+  }
+}
+
 - (void)setDateTimeColor_:(id)value
 {
   // Guard date picker and iOS 14+ date picker style
   if (![self isDatePicker] || [TiUtils isMacOS]) {
     return;
   }
-#if IS_SDK_IOS_13_4
   if (((UIDatePicker *)[self picker]).preferredDatePickerStyle != UIDatePickerStyleWheels) {
     return;
   }
-#endif
 
   [[self proxy] replaceValue:value
                       forKey:@"dateTimeColor"
@@ -255,7 +260,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   }
 }
 
-//TODO: minute interval
+// TODO: minute interval
 
 - (void)setValue_:(id)date
 {
@@ -335,7 +340,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 // returns width of column and height of row for each component.
 - (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component
 {
-  //TODO: add blain's super duper width algorithm
+  // TODO: add blain's super duper width algorithm
   NSArray *theColumns = [self columns];
   if (component >= [theColumns count]) {
     return 0;
@@ -380,10 +385,10 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
   TiUIPickerRowProxy *rowproxy = [proxy rowAt:row];
   CGRect frame = CGRectMake(0.0, 0.0, [self pickerView:pickerView widthForComponent:component] - 20, [self pickerView:pickerView rowHeightForComponent:component]);
 
-  //Get the View
+  // Get the View
   UIView *theView = [rowproxy viewWithFrame:frame reusingView:view];
 
-  //Configure Accessibility
+  // Configure Accessibility
   theView.isAccessibilityElement = YES;
   theView.accessibilityLabel = [TiUtils stringValue:[rowproxy valueForUndefinedKey:@"accessibilityLabel"]];
   theView.accessibilityValue = [TiUtils stringValue:[rowproxy valueForUndefinedKey:@"accessibilityValue"]];

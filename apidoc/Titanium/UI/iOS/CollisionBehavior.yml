@@ -36,7 +36,6 @@ properties:
     description: The `treatReferenceAsBoundary` property needs to be set to `true` to use this property.
     type: Padding
     default: All insets are zero.
-    osver: {ios: {min: "7.0"}}
 
   - name: treatReferenceAsBoundary
     summary: Use the animator's reference view as the boundary.
@@ -185,7 +184,6 @@ name: BoundaryIdentifier
 summary: Dictionary to specify a boundary identifier for <Titanium.UI.iOS.CollisionBehavior.addBoundary>.
 platforms: [iphone, ipad, macos]
 since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
-osver: {ios: {min: "7.0"}}
 properties:
   - name: identifier
     summary: Arbitrary identifier for the boundary

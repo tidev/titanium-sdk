@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -12,11 +12,22 @@
 #import "UIImage+Resize.h"
 #import <CommonCrypto/CommonDigest.h>
 
-//#define DEBUG_IMAGE_CACHE
+// #define DEBUG_IMAGE_CACHE
 
 #ifdef DEBUG_IMAGE_CACHE
 #import <mach/mach.h>
 #endif
+
+static void *lockQueueKey = &lockQueueKey;
+
+static inline void ImageLoaderQueuePerform(dispatch_queue_t queue, dispatch_block_t block)
+{
+  if (dispatch_get_specific(lockQueueKey) == lockQueueKey) {
+    block();
+  } else {
+    dispatch_sync(queue, block);
+  }
+}
 
 @interface ImageCacheEntry : NSObject {
   UIImage *fullImage;
@@ -159,7 +170,7 @@
     return recentlyResizedImage;
   }
 
-  //TODO: Tweak quality depending on how large the result will be.
+  // TODO: Tweak quality depending on how large the result will be.
   CGInterpolationQuality quality = kCGInterpolationDefault;
 
   [self setRecentlyResizedImage:[UIImageResize
@@ -319,26 +330,28 @@ DEFINE_EXCEPTIONS
 - (id)init
 {
   if (self = [super init]) {
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveMemoryWarning:)
                                                  name:UIApplicationDidReceiveMemoryWarningNotification
                                                object:nil];
-    lock = [[NSRecursiveLock alloc] init];
+    lockQueue = dispatch_queue_create("ti.imageloader", DISPATCH_QUEUE_SERIAL);
+    dispatch_queue_set_specific(lockQueue, lockQueueKey, lockQueueKey, NULL);
   }
   return self;
 }
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationDidReceiveMemoryWarningNotification
                                                 object:nil];
   RELEASE_TO_NIL(cache);
   RELEASE_TO_NIL(queue);
   RELEASE_TO_NIL(timeout);
-  RELEASE_TO_NIL(lock);
+  dispatch_release(lockQueue);
+  lockQueue = nil;
   [super dealloc];
 }
 
@@ -440,7 +453,7 @@ DEFINE_EXCEPTIONS
       NSDate *currentTimeStamp = [[[NSFileManager defaultManager] attributesOfItemAtPath:result.localPath error:&error] objectForKey:NSFileModificationDate];
 
       if (![currentTimeStamp isEqualToDate:result.lastModified]) {
-        //We should remove the cached image as the local file backing cached image has changed.
+        // We should remove the cached image as the local file backing cached image has changed.
         [self purge:url];
         result = nil;
       }
@@ -463,12 +476,12 @@ DEFINE_EXCEPTIONS
       NSString *imageArg = nil;
       if (range.location != NSNotFound) {
         if ([TiUtils isMacOS]) {
-          imageArg = [path substringFromIndex:range.location + 24]; //Contents/Resources/ for mac
+          imageArg = [path substringFromIndex:range.location + 24]; // Contents/Resources/ for mac
         } else {
           imageArg = [path substringFromIndex:range.location + 5];
         }
       }
-      //remove suffixes.
+      // remove suffixes.
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@3x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"@2x" withString:@""];
       imageArg = [imageArg stringByReplacingOccurrencesOfString:@"~iphone" withString:@""];
@@ -624,12 +637,12 @@ DEFINE_EXCEPTIONS
   // if have a queue and it's suspend, just throw our request
   // in the timeout queue until we're resumed
   if (queue != nil && [queue isSuspended]) {
-    [lock lock];
-    if (timeout == nil) {
-      timeout = [[NSMutableArray alloc] initWithCapacity:4];
-    }
-    [timeout addObject:request];
-    [lock unlock];
+    ImageLoaderQueuePerform(lockQueue, ^{
+      if (timeout == nil) {
+        timeout = [[NSMutableArray alloc] initWithCapacity:4];
+      }
+      [timeout addObject:request];
+    });
     return request;
   }
 
@@ -640,45 +653,44 @@ DEFINE_EXCEPTIONS
 
 - (void)suspend
 {
-  [lock lock];
-  if (queue != nil) {
-    [queue setSuspended:YES];
-  }
-  [lock unlock];
+  ImageLoaderQueuePerform(lockQueue, ^{
+    if (queue != nil) {
+      [queue setSuspended:YES];
+    }
+  });
 }
 
 - (void)cancel
 {
-  //NOTE: this should only be called on suspend
-  //to cause the queue to be stopped
-  [lock lock];
-  if (queue != nil) {
-    [queue cancelAllOperations];
-  }
-  [lock unlock];
+  // NOTE: this should only be called on suspend
+  // to cause the queue to be stopped
+  ImageLoaderQueuePerform(lockQueue, ^{
+    if (queue != nil) {
+      [queue cancelAllOperations];
+    }
+  });
 }
 
 - (void)resume
 {
-  [lock lock];
-
-  if (queue != nil) {
-    [queue setSuspended:NO];
-  }
-
-  if (timeout != nil) {
-    for (ImageLoaderRequest *request in timeout) {
-      if ([request cancelled]) {
-        if ([[request delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
-          [[request delegate] performSelector:@selector(imageLoadCancelled:) withObject:request];
-        }
-      } else {
-        [self doImageLoader:request];
-      }
+  ImageLoaderQueuePerform(lockQueue, ^{
+    if (queue != nil) {
+      [queue setSuspended:NO];
     }
-    [timeout removeAllObjects];
-  }
-  [lock unlock];
+
+    if (timeout != nil) {
+      for (ImageLoaderRequest *request in timeout) {
+        if ([request cancelled]) {
+          if ([[request delegate] respondsToSelector:@selector(imageLoadCancelled:)]) {
+            [[request delegate] performSelector:@selector(imageLoadCancelled:) withObject:request];
+          }
+        } else {
+          [self doImageLoader:request];
+        }
+      }
+      [timeout removeAllObjects];
+    }
+  });
 }
 
 #pragma mark Delegates

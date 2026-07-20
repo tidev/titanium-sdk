@@ -18,7 +18,6 @@ description: |
 platforms: [iphone]
 since: "5.1.0"
 extends: Titanium.Proxy
-osver: {ios: {min: "9.0"}}
 properties:
   - name: title
     summary: The title of the action.

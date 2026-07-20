@@ -253,10 +253,12 @@
         GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
         GCC_WARN_UNUSED_FUNCTION = YES;
         GCC_WARN_UNUSED_VARIABLE = YES;
-        IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+        IPHONEOS_DEPLOYMENT_TARGET = 13.0;
         MTL_ENABLE_DEBUG_INFO = YES;
         ONLY_ACTIVE_ARCH = NO;
         SDKROOT = iphoneos;
+        SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+        SUPPORTS_MACCATALYST = YES;
         SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
         SWIFT_OPTIMIZATION_LEVEL = "-Onone";
         TARGETED_DEVICE_FAMILY = "1,2";
@@ -313,9 +315,11 @@
         GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
         GCC_WARN_UNUSED_FUNCTION = YES;
         GCC_WARN_UNUSED_VARIABLE = YES;
-        IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+        IPHONEOS_DEPLOYMENT_TARGET = 13.0;
         MTL_ENABLE_DEBUG_INFO = NO;
         SDKROOT = iphoneos;
+        SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+        SUPPORTS_MACCATALYST = YES;
         SWIFT_COMPILATION_MODE = wholemodule;
         SWIFT_OPTIMIZATION_LEVEL = "-O";
         TARGETED_DEVICE_FAMILY = "1,2";
@@ -351,7 +355,7 @@
         GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
         INFOPLIST_FILE = Info.plist;
         INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-        IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+        IPHONEOS_DEPLOYMENT_TARGET = 13.0;
         LD_RUNPATH_SEARCH_PATHS = (
           "$(inherited)",
           "@executable_path/Frameworks",
@@ -369,6 +373,8 @@
         PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.<%- moduleName %>;
         PRODUCT_NAME = "$(TARGET_NAME)";
         SKIP_INSTALL = YES;
+        SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+        SUPPORTS_MACCATALYST = YES;
         SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Titanium";
         SWIFT_OPTIMIZATION_LEVEL = "-Onone";
         SWIFT_VERSION = 5.0;
@@ -400,7 +406,7 @@
         GCC_PREPROCESSOR_DEFINITIONS = "TI_VERSION=$(TI_VERSION)";
         INFOPLIST_FILE = Info.plist;
         INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-        IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+        IPHONEOS_DEPLOYMENT_TARGET = 13.0;
         LD_RUNPATH_SEARCH_PATHS = (
           "$(inherited)",
           "@executable_path/Frameworks",
@@ -415,6 +421,8 @@
         PRODUCT_BUNDLE_IDENTIFIER = com.appcelerator.<%- moduleName %>;
         PRODUCT_NAME = "$(TARGET_NAME)";
         SKIP_INSTALL = YES;
+        SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+        SUPPORTS_MACCATALYST = YES;
         SWIFT_INCLUDE_PATHS = "$(SRCROOT)/Titanium";
         SWIFT_VERSION = 5.0;
         VALID_ARCHS = "$(ARCHS_STANDARD)";

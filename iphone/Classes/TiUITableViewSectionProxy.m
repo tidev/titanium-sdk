@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -104,8 +104,8 @@
 
 - (TiUITableViewRowProxy *)rowAtIndex:(NSUInteger)index
 {
-  //Because rowAtIndex is used internally, with an int, it can't be used by the Javascript.
-  //The javascript passes in an NSArray pointer, not an index. And things blow up.
+  // Because rowAtIndex is used internally, with an int, it can't be used by the Javascript.
+  // The JavaScript passes in an NSArray pointer, not an index. And things blow up.
   return [rows objectAtIndex:index];
 }
 

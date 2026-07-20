@@ -103,15 +103,6 @@ properties:
     type: Titanium.UI.View
     since: "3.2.0"
 
-  - name: height
-    summary: Height of the popover.
-    deprecated:
-        since: "3.4.2"
-        notes: This property is deprecated. Set the height on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
-        removed: "9.0.0"
-    type: [Number, String]
-    exclude-platforms: [macos]
-
   - name: passthroughViews
     summary: Passthrough views to use when the popover is shown.
     description: |
@@ -119,14 +110,6 @@ properties:
         interacting with these view, the popover will not be dismissed.
     type: Array<Titanium.UI.View>
 
-  - name: width
-    summary: Width of the popover.
-    deprecated:
-        since: "3.4.2"
-        notes: This property is deprecated. Set the width on the [Titanium.UI.iPad.Popover.contentView](Titanium.UI.iPad.Popover.contentView) property instead.
-        removed: "9.0.0"
-    exclude-platforms: [macos]
-    type: [Number, String]
 
 examples:
   - title: Simple Popover with a Title and Right Button

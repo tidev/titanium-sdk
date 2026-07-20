@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -15,7 +15,6 @@ public interface ITiAppInfo {
 	String getCopyright();
 	String getDescription();
 	String getIcon();
-	boolean isAnalyticsEnabled();
 	String getGUID();
 	boolean isFullscreen();
 	String getDeployType();

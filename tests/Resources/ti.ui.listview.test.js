@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -1071,6 +1071,65 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
+	it('scrolling event', finish => {
+		const listView = Ti.UI.createListView({
+			continuousUpdate: true,
+			templates: {
+				test: {
+					childTemplates: [ {
+						type: 'Ti.UI.View',
+						childTemplates: [ {
+							type: 'Ti.UI.Label',
+							bindId: 'label',
+							properties: {
+								color: 'black',
+								bindId: 'label'
+							}
+						} ],
+						properties: {
+							width: Ti.UI.FILL,
+							height: 100,
+							cardUseCompatPadding: true,
+							backgroundColor: 'white',
+						}
+					} ]
+				}
+			},
+			defaultItemTemplate: 'test'
+		});
+		const section = Ti.UI.createListSection();
+		const items = [];
+
+		for (let i = 0; i < 100; i++) {
+			items.push({
+				label: { text: 'item ' + i },
+				template: 'test'
+			});
+		}
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'gray'
+		});
+
+		section.setItems(items);
+		listView.sections = [ section ];
+
+		let count = 0;
+		listView.addEventListener('scrolling', () => {
+			count++;
+		});
+		listView.addEventListener('scrollend', () => {
+			if (count > 50) {
+				finish();
+			}
+		});
+		setTimeout(() => {
+			listView.scrollToItem(0, 99);
+		}, 1000);
+		win.add(listView);
+		win.open();
+	});
+
 	it.android('listView with Ti.UI.Android.CardView', finish => {
 		const listView = Ti.UI.createListView({
 			templates: {
@@ -1125,7 +1184,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem scaling (percent)', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1162,7 +1221,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem scaling (FILL)', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1199,7 +1258,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem accessoryType', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1235,7 +1294,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListViewItem borderRadius', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1272,7 +1331,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListItem default template layout', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1306,7 +1365,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListItem template property', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1360,7 +1419,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListView header & footer', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1389,7 +1448,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it('ListView + ListSection header & footer', function () {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			this.skip();
 			return;
@@ -1423,7 +1482,7 @@ describe('Titanium.UI.ListView', function () {
 	});
 
 	it.ios('All text should show if ListView.style is .INSET_GROUPED ', () => {
-		// FIXME: Does not honour scale correctly on macOS: https://jira.appcelerator.org/browse/TIMOB-28261
+		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
 			return;
 		}

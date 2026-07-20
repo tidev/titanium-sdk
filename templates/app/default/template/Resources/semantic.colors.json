@@ -1,6 +1,10 @@
 {
+  "backgroundColor": {
+    "light": "#ffffff",
+    "dark": "#000000"
+  },
   "textColor": {
-    "dark": "#ffffff",
-    "light": "#000000"
+    "light": "#000000",
+    "dark": "#ffffff"
   }
 }

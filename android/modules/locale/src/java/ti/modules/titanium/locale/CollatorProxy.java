@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -55,7 +55,7 @@ public class CollatorProxy extends KrollProxy
 			options = new KrollDict();
 		}
 
-		// Determine the collatior setting we need to use.
+		// Determine the collator setting we need to use.
 		int strengthId;
 		int decompositionId = Collator.CANONICAL_DECOMPOSITION;
 		this.isStrippingAccents = false;

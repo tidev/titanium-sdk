@@ -21,7 +21,7 @@
 /**
  * Node's lib/internal/util/types.js modified for Axway Titanium
  *
- * @see https://github.com/nodejs/node/blob/master/lib/internal/util/types.js
+ * @see https://github.com/nodejs/node/blob/main/lib/internal/util/types.js
  */
 
 import { isBuffer, uncurryThis } from '../util';

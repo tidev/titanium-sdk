@@ -42,6 +42,7 @@
 	</ios>
 	<android xmlns:android="http://schemas.android.com/apk/res/android">
 		<manifest android:versionCode="1">
+			<application android:icon="@mipmap/ic_launcher" />
 		</manifest>
 	</android>
 	<modules>

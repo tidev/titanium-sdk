@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -442,7 +442,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     newrow.row = rowProxy.row;
     newrow.parent = newrow.section;
 
-    //We now need to disconnect the old row proxy.
+    // We now need to disconnect the old row proxy.
     rowProxy.section = nil;
     rowProxy.parent = nil;
     rowProxy.table = nil;
@@ -503,10 +503,10 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:row animation:anim type:TiUITableViewActionDeleteRow] autorelease];
     [table dispatchAction:action];
   } else {
-    //No table, we have to do the data update ourselves.
+    // No table, we have to do the data update ourselves.
     // If we don't handle it, the row gets dropped on the ground,
     // but if we create the tableview, there's this horrible issue where
-    // the uitableview isn't fully formed, it gets this message to do an action,
+    // the UITableView isn't fully formed, it gets this message to do an action,
     // and ends up throwing an exception because we're out of bounds.
     [section remove:row];
   }
@@ -558,7 +558,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     }
 
     // Configure the new row
-    [newSection rememberProxy:newrow]; //If we wait until the main thread, it'll be too late!
+    [newSection rememberProxy:newrow]; // If we wait until the main thread, it'll be too late!
     newrow.section = newSection;
     newrow.parent = newSection;
     newrow.row = row.row; // HACK: Used to determine the row we're being placed before in the old section
@@ -566,7 +566,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     // Configure the action
     actionType = TiUITableViewActionInsertSectionBefore;
   } else {
-    [section rememberProxy:newrow]; //If we wait until the main thread, it'll be too late!
+    [section rememberProxy:newrow]; // If we wait until the main thread, it'll be too late!
     newrow.section = section;
     // TODO: Should we be updating every row after this one...?
     newrow.row = row.row == 0 ? 0 : row.row;
@@ -577,8 +577,8 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:newrow animation:anim type:actionType] autorelease];
     [table dispatchAction:action];
   } else {
-    //No table, we have to do the data update ourselves.
-    //TODO: Implement. Better yet, refactor.
+    // No table, we have to do the data update ourselves.
+    // TODO: Implement. Better yet, refactor.
     DebugLog(@"[WARN] Table view was not in place before insertRowBefore was called.");
   }
 }
@@ -626,7 +626,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     }
 
     // Configure the new row
-    [newSection rememberProxy:newrow]; //If we wait until the main thread, it'll be too late!
+    [newSection rememberProxy:newrow]; // If we wait until the main thread, it'll be too late!
     newrow.section = newSection;
     newrow.parent = newSection;
     newrow.row = row.row + 1; // HACK: Used to determine the row we're being placed after in the previous section; will be set to 0 later
@@ -634,7 +634,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     // Configure the action
     actionType = TiUITableViewActionInsertSectionAfter;
   } else {
-    [section rememberProxy:newrow]; //If we wait until the main thread, it'll be too late!
+    [section rememberProxy:newrow]; // If we wait until the main thread, it'll be too late!
     newrow.section = section;
     // TODO: Should we be updating every row index of the rows which appear after this row...?
     newrow.row = row.row + 1;
@@ -645,8 +645,8 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:newrow animation:anim type:actionType] autorelease];
     [table dispatchAction:action];
   } else {
-    //No table, we have to do the data update ourselves.
-    //TODO: Implement. Better yet, refactor.
+    // No table, we have to do the data update ourselves.
+    // TODO: Implement. Better yet, refactor.
     DebugLog(@"[WARN] Table view was not in place before insertRowAfter was called.");
   }
 }
@@ -689,11 +689,11 @@ USE_VIEW_FOR_CONTENT_HEIGHT
     row.parent = section;
 
     if (table != nil) {
-      [section rememberProxy:row]; //If we wait until the main thread, it'll be too late!
+      [section rememberProxy:row]; // If we wait until the main thread, it'll be too late!
       TiUITableViewAction *action = [[[TiUITableViewAction alloc] initWithObject:row animation:anim type:actionType] autorelease];
       [table dispatchAction:action];
     } else {
-      //No table, we have to do the data update ourselves.
+      // No table, we have to do the data update ourselves.
       [section add:row];
     }
   }
@@ -767,8 +767,8 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 - (NSArray *)data
 {
   __block NSArray *curSections = nil;
-  //TIMOB-9890. Ensure data is retrieved off of the main
-  //thread to ensure any pending operations are completed
+  // TIMOB-9890. Ensure data is retrieved off of the main
+  // thread to ensure any pending operations are completed
   TiThreadPerformOnMainThread(
       ^{
         curSections = [sections copy];
@@ -828,7 +828,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 {
   ENSURE_TYPE_OR_NIL(newSections, NSArray);
 
-  //Step 1: Sanity check. This might be optional.
+  // Step 1: Sanity check. This might be optional.
   Class sectionClass = [TiUITableViewSectionProxy class];
   int sectionIndex = 0;
   for (TiUITableViewSectionProxy *section in newSections) {
@@ -841,13 +841,13 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     sectionIndex++;
   }
 
-  //Step 2: Prepare the sections for entry. Only things that will not affect
+  // Step 2: Prepare the sections for entry. Only things that will not affect
   //	sections already in the table view.
   for (TiUITableViewSectionProxy *section in newSections) {
     [self rememberSection:section];
   }
 
-  //Step 3: Apply on main thread.
+  // Step 3: Apply on main thread.
   TiThreadPerformOnMainThread(
       ^{
         NSArray *oldSections = sections;
@@ -891,7 +891,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 }
 
 - (NSNumber *)sectionCount
-{ //TODO: Shouldn't this be in the main thread, too?
+{ // TODO: Shouldn't this be in the main thread, too?
   return NUMUINTEGER((sections != nil) ? sections.count : 0);
 }
 
@@ -914,7 +914,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 
 - (void)appendSection:(id)args
 {
-  //Step one: sanity
+  // Step one: sanity
   NSUInteger argCount = [args count];
   if (argCount < 1) {
     [self throwException:TiExceptionNotEnoughArguments
@@ -922,7 +922,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
                 location:CODELOCATION];
   }
 
-  //Step two: Prepare
+  // Step two: Prepare
   id appendum = [args objectAtIndex:0];
   TiUITableViewSectionProxy *section = nil;
   NSMutableArray *sectionArray = nil;
@@ -954,7 +954,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
     options = [args objectAtIndex:1];
   }
 
-  //Step three: Main thread
+  // Step three: Main thread
   TiThreadPerformOnMainThread(
       ^{
         BOOL falseFirstSection = [sections count] == 0;
@@ -967,7 +967,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
           }
           [sections addObjectsFromArray:sectionArray];
         } else {
-          //A nil array means a single section.
+          // A nil array means a single section.
           [section setSection:sectionRange.location];
           [sections addObject:section];
         }
@@ -983,7 +983,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
               }
               if (!falseFirstSection) {
                 [ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
-              } else { //UITableView doesn't know we had 0 sections.
+              } else { // UITableView doesn't know we had 0 sections.
                 [ourTable beginUpdates];
                 [ourTable deleteSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
                 [ourTable insertSections:[NSIndexSet indexSetWithIndexesInRange:sectionRange] withRowAnimation:ourAnimation];
@@ -997,7 +997,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
 
 - (void)deleteSection:(id)args
 {
-  //Step one: sanity
+  // Step one: sanity
   NSUInteger argCount = [args count];
   if (argCount < 1) {
     [self throwException:TiExceptionNotEnoughArguments
@@ -1027,7 +1027,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
               UITableViewRowAnimation ourAnimation = [TiUITableViewAction animationStyleForProperties:options];
               TiUITableView *ourView = (TiUITableView *)[self view];
               UITableView *ourTable = [ourView tableView];
-              if ([sections count] == 0) { //UITableView can't handle 0 sections.
+              if ([sections count] == 0) { // UITableView can't handle 0 sections.
                 [ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
               } else {
                 [ourTable deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:ourAnimation];
@@ -1054,7 +1054,7 @@ DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
               TiUITableView *ourView = (TiUITableView *)[self view];
               UITableView *ourTable = [ourView tableView];
               [section setTable:ourView];
-              if (oldSectionCount == 0) { //UITableView doesn't know we have 0 sections.
+              if (oldSectionCount == 0) { // UITableView doesn't know we have 0 sections.
                 [ourTable reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:ourAnimation];
               } else {
                 [ourTable insertSections:[NSIndexSet indexSetWithIndex:boundSectionIndex] withRowAnimation:ourAnimation];

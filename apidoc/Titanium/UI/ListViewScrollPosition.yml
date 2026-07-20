@@ -6,7 +6,7 @@ summary: |
     `deleteSectionAt`, `insertSectionAt` and `replaceSectionAt` methods.
 extends: Titanium.Proxy
 platforms: [android, iphone, ipad, macos]
-since: {android: "10.2.0", iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
+since: 11.1.0
 excludes:
     properties: [bubbleParent]
     methods: [addEventListener, applyProperties, fireEvent, removeEventListener]

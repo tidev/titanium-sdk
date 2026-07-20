@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -57,11 +57,9 @@ public final class ReferenceTable
 		Object obj = getReference(key);
 		// If it's an V8Object, set the ptr to 0, because the proxy is dead on C++ side
 		// This *should* prevent the native code from trying to reconstruct the proxy for any reason
-		if (obj instanceof KrollProxySupport) {
-			KrollProxySupport proxy = (KrollProxySupport) obj;
+		if (obj instanceof KrollProxySupport proxy) {
 			KrollObject ko = proxy.getKrollObject();
-			if (ko instanceof V8Object) {
-				V8Object v8 = (V8Object) ko;
+			if (ko instanceof V8Object v8) {
 				v8.setPointer(0);
 			}
 		}

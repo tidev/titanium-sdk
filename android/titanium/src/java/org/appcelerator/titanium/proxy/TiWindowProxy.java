@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -51,6 +51,7 @@ import android.view.ViewParent;
 	TiC.PROPERTY_ON_BACK,
 	TiC.PROPERTY_TITLE,
 	TiC.PROPERTY_TITLEID,
+	TiC.PROPERTY_TITLE_ATTRIBUTES,
 	TiC.PROPERTY_WINDOW_SOFT_INPUT_MODE
 })
 public abstract class TiWindowProxy extends TiViewProxy
@@ -479,7 +480,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 			paddingBottom = bottomDimension.getAsDefault(contentView);
 		}
 
-		// Return the result via a titanium "ViewPadding" dictionary.
+		// Return the result via a Titanium "ViewPadding" dictionary.
 		KrollDict dictionary = new KrollDict();
 		dictionary.put(TiC.PROPERTY_LEFT, paddingLeft);
 		dictionary.put(TiC.PROPERTY_TOP, paddingTop);
@@ -524,6 +525,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	protected void fillIntent(Activity activity, Intent intent)
 	{
+		boolean accessibilityHidden = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ACCESSIBILITY_HIDDEN), false);
+		intent.putExtra(TiC.PROPERTY_ACCESSIBILITY_HIDDEN, accessibilityHidden);
+
 		int windowFlags = 0;
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
 			windowFlags = TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS), 0);
@@ -533,6 +537,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (hasProperty(TiC.PROPERTY_FULLSCREEN)) {
 			boolean flagVal = TiConvert.toBoolean(getProperty(TiC.PROPERTY_FULLSCREEN), false);
 			if (flagVal) {
+				intent.putExtra(TiC.PROPERTY_FULLSCREEN, flagVal);
 				windowFlags = windowFlags | WindowManager.LayoutParams.FLAG_FULLSCREEN;
 			}
 		}
@@ -566,6 +571,9 @@ public abstract class TiWindowProxy extends TiViewProxy
 			// We're opening child activity from Titanium root activity. Have it exit out of app by default.
 			// Note: If launched via startActivityForResult(), then root activity won't be the task's root.
 			intent.putExtra(TiC.INTENT_PROPERTY_FINISH_ROOT, true);
+
+			// Set default value on first window proxy also if not already set above.
+			setProperty(TiC.PROPERTY_EXIT_ON_CLOSE, true);
 		}
 
 		// Set the theme property

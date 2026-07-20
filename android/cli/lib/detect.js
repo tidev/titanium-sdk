@@ -11,13 +11,9 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
-const android = require('node-titanium-sdk/lib/android'),
-	ADB = require('node-titanium-sdk/lib/adb'),
-	EmulatorManager = require('node-titanium-sdk/lib/emulator'),
-	appc = require('node-appc'),
-	__ = appc.i18n(__dirname).__;
+import { detect } from 'node-titanium-sdk/lib/android.js';
+import ADB from 'node-titanium-sdk/lib/adb.js';
+import EmulatorManager from 'node-titanium-sdk/lib/emulator.js';
 
 /**
  * Detects current Android environment.
@@ -26,16 +22,16 @@ const android = require('node-titanium-sdk/lib/android'),
  * @param {Object} opts - Detection options; currently only 'bypassCache'
  * @param {Function} finished - Callback when detection is finished
  */
-exports.detect = android.detect;
+export { detect };
 
 /**
  * Detects connected Android emulators.
  * @param {Object} config - The CLI config object
  * @param {Object} [opts] - Detection options
- * @param {String} [opts.type] - The type of emulator to load (avd, genymotion); defaults to all
+ * @param {String} [opts.type] - The type of emulator to load (AVD, genymotion); defaults to all
  * @param {Function} finished - Callback when detection is finished
  */
-exports.detectEmulators = function detectEmulators(config, opts, finished) {
+export function detectEmulators(config, opts, finished) {
 	if (opts && typeof opts === 'function') {
 		finished = opts;
 		opts = {};
@@ -48,14 +44,14 @@ exports.detectEmulators = function detectEmulators(config, opts, finished) {
 			finished(null, emus);
 		}
 	});
-};
+}
 
 /**
  * Detects connected Android devices.
  * @param {Object} config - The CLI config object
  * @param {Function} finished - Callback when detection is finished
  */
-exports.detectDevices = function detectDevices(config, finished) {
+export function detectDevices(config, finished) {
 	new ADB(config).devices(function (err, devices) {
 		if (err) {
 			return finished(err);
@@ -64,8 +60,8 @@ exports.detectDevices = function detectDevices(config, finished) {
 		finished(null, devices.filter(function (d) {
 			return !d.emulator;
 		}).map(function (d) {
-			d.name = d.model || d.manufacturer || d.name || (d.release ? __('Android %s Device', d.release) : __('Android Device'));
+			d.name = d.model || d.manufacturer || d.name || (d.release ? `Android ${d.release} Device` : 'Android Device');
 			return d;
 		}));
 	});
-};
+}

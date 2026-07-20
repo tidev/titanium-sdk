@@ -86,7 +86,7 @@ Studio 3.2.3 includes the following enhancements:
   * Display ACS OAuth keys and secrets in the tiapp.xml GUI overview tab
   * Support Alloy data binding attributes in content assist
 
-For more information, see the [Release Notes](https://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Studio_Release_Notes).
+For more information, see the [Release Notes](https://titaniumsdk.com/api/).
 
 <a name="features"></a>
 
@@ -109,7 +109,7 @@ Use the ActionBar's `subtitle` property to set the subtitle of the ActionBar.
 ### Cloud Module
 
 The ti.cloud module included with this release exposes the ACS
-[push_notification/subscription/update.json](https://docs.appcelerator.com/cloud/latest/#!/api/PushNotifications-method-subscription_update)
+[push_notification/subscription/update.json](https://titaniumsdk.com/api/)
 method as the `updateSubscription` method.
 
 <a name="ios"></a>
@@ -123,7 +123,7 @@ The following features are available only for the iOS platform:
 #### Low Memory Warning Event
 
 Monitor the
-[Titanium.App.memorywarning](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App-event-memorywarning)
+[Titanium.App.memorywarning](https://titaniumsdk.com/api/)
 event to receive a warning from the operating system about low memory availability.
 
 As part of the low memoy warning from the OS, Titanium applications will automatically clean up
@@ -135,7 +135,7 @@ would not know when this occurred.
 #### ScrollView Deceleration Rate
 
 Use the ScrollView's
-[decelerationRate](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ScrollView-property-decelerationRate)
+[decelerationRate](https://titaniumsdk.com/api/)
 property to control the rate of deceleration when the user releases their finger to stop scrolling.
 This property accepts a floating point number, and the
 `Titanium.UI.iOS.SCROLL_DECELERATION_RATE_NORMAL` and
@@ -147,7 +147,7 @@ points for the deceleration rate.
 #### ScrollView Scroll Event
 
 ScrollView's
-[scroll](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ScrollView-event-scroll)
+[scroll](https://titaniumsdk.com/api/)
 event now returns two additional fields:
 
   * `curZoomScale`: float value indicating the current zoom level
@@ -166,13 +166,13 @@ The ti.map module included with this release contains a bug fix for iOS
 
 The following properties were added to the View class:
 
-   * [compassEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-compassEnabled): Enable/disable the compass on the map
-   * [maxZoomLevel](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-maxZoomLevel): Returns max zoom level of the map
-   * [minZoomLevel](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-minZoomLevel): Returns min zoom level of the map
+   * [compassEnabled](https://titaniumsdk.com/api/): Enable/disable the compass on the map
+   * [maxZoomLevel](https://titaniumsdk.com/api/): Returns max zoom level of the map
+   * [minZoomLevel](https://titaniumsdk.com/api/): Returns min zoom level of the map
 
 **Map Region Object**
 
-The following properties were added to the [Map Region object](https://docs.appcelerator.com/titanium/latest/#!/api/MapRegionTypev2) to modify the camera
+The following properties were added to the [Map Region object](https://titaniumsdk.com/api/) to modify the camera
 view of the map region:
 
    * `bearing`: Direction that the camera is pointing, in degrees clockwise from north
@@ -183,8 +183,8 @@ view of the map region:
 
 The following APIs were added to the View class to support capturing an image of the map view:
 
-   * [onsnapshotready](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-event-onsnapshotready) event: Fired when the snapshot is ready
-   * [snapshot()](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-method-snapshot) method: Takes a snapshot of the map
+   * [onsnapshotready](https://titaniumsdk.com/api/) event: Fired when the snapshot is ready
+   * [snapshot()](https://titaniumsdk.com/api/) method: Takes a snapshot of the map
 
 
 <a name="issues"></a>

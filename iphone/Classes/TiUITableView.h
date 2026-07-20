@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -17,7 +17,7 @@
 #endif
 @class TiGradientLayer;
 
-// Overloads hilighting to send touchbegin/touchend events
+// Overloads highlighting to send touchbegin/touchend events
 @interface TiUITableViewCell : UITableViewCell {
   TiUITableViewRowProxy *proxy;
   TiGradientLayer *gradientLayer;

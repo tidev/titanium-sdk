@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -150,7 +150,7 @@ public class TiBaseService extends Service
 		/**
 		 * Called just before the JavaScript runtime is terminated.
 		 * <p>
-		 * Stops the service since the JavaScript file binded to it can no longer control it.
+		 * Stops the service since the JavaScript file bound to it can no longer control it.
 		 * @param runtime The runtime instance that is about to be terminated/disposed.
 		 */
 		@Override

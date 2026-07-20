@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -11,7 +11,7 @@
 
 @protocol TiPlatformDisplayCapsExports <JSExport>
 
-// Properties (and accesors)
+// Properties (and accessors)
 READONLY_PROPERTY(NSString *, density, Density);
 READONLY_PROPERTY(NSNumber *, dpi, Dpi);
 READONLY_PROPERTY(NSNumber *, logicalDensityFactor, LogicalDensityFactor);

@@ -1,11 +1,12 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.android.notificationmanager;
 
+import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiApplication;
@@ -14,7 +15,7 @@ import org.appcelerator.kroll.common.Log;
 
 import ti.modules.titanium.android.AndroidModule;
 
-import android.annotation.TargetApi;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -84,6 +85,7 @@ public class NotificationManagerModule extends KrollModule
 		return notificationManager;
 	}
 
+	@androidx.annotation.RequiresApi(26)
 	public static boolean useDefaultChannel()
 	{
 		// use default channel if we are targeting API 26+
@@ -106,7 +108,7 @@ public class NotificationManagerModule extends KrollModule
 		return useDefaultChannel;
 	}
 
-	@TargetApi(26)
+	@androidx.annotation.RequiresApi(26)
 	@Kroll.method
 	public NotificationChannelProxy createNotificationChannel(Object[] args)
 	{
@@ -117,6 +119,34 @@ public class NotificationManagerModule extends KrollModule
 			getManager().createNotificationChannel(notificationChannelProxy.getNotificationChannel());
 		}
 		return notificationChannelProxy;
+	}
+
+	@androidx.annotation.RequiresApi(26)
+	@Kroll.getProperty
+	public KrollDict[] getNotificationChannels()
+	{
+		KrollDict[] output = new KrollDict[0];
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			output = new KrollDict[getManager().getNotificationChannels().size()];
+			int i = 0;
+			for (NotificationChannel channel : getManager().getNotificationChannels()) {
+				KrollDict kd = new KrollDict();
+				kd.put("id", channel.getId());
+				kd.put("name", channel.getName());
+				output[i] = kd;
+				i++;
+			}
+		}
+		return output;
+	}
+
+	@androidx.annotation.RequiresApi(26)
+	@Kroll.method
+	public void deleteNotificationChannel(String notificationId)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			getManager().deleteNotificationChannel(notificationId);
+		}
 	}
 
 	@Kroll.method
@@ -131,6 +161,7 @@ public class NotificationManagerModule extends KrollModule
 		getManager().cancelAll();
 	}
 
+	@SuppressLint("InvalidWakeLockTag")
 	@Kroll.method
 	public void notify(int id, NotificationProxy notificationProxy)
 	{

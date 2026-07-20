@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -392,7 +392,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			// FIXME: Why can't we just track some boolean flag for this?
 			if (currentPositionCallback.size() == 0) {
 				HashMap<String, LocationProviderProxy> locationProviders = simpleLocationProviders;
-				// FIXME: why does this differ from how we enable in getCurrentPostion()?
+				// FIXME: why does this differ from how we enable in getCurrentPosition()?
 				if (getManualMode()) {
 					locationProviders = androidModule.manualLocationProviders;
 				}
@@ -503,10 +503,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	@Kroll.method
 	public boolean hasLocationPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
 		Context context = TiApplication.getInstance();
 		int result = context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
 		result &= context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -990,6 +986,30 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		}
 
 		return event;
+	}
+
+	@Kroll.getProperty
+	public int getHeadingTime()
+	{
+		return tiCompass.headingTime;
+	}
+
+	@Kroll.setProperty
+	public void setHeadingTime(int value)
+	{
+		tiCompass.headingTime = value;
+	}
+
+	@Kroll.getProperty
+	public int getHeadingFilter()
+	{
+		return tiCompass.headingFilter;
+	}
+
+	@Kroll.setProperty
+	public void getHeadingFilter(int value)
+	{
+		tiCompass.headingFilter = value;
 	}
 
 	/**

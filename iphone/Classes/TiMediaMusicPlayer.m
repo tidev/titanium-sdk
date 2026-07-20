@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -17,7 +17,7 @@
 // Has to happen on main thread or notifications screw up
 - (void)initializePlayer
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc addObserver:self selector:@selector(stateDidChange:) name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
   [nc addObserver:self selector:@selector(playingDidChange:) name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
@@ -30,7 +30,7 @@
 {
   if (self = [super _initWithPageContext:context]) {
     player = player_;
-    WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserver:self selector:@selector(stateDidChange:) name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
     [nc addObserver:self selector:@selector(playingDidChange:) name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
@@ -43,7 +43,7 @@
 
 - (void)dealloc
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc removeObserver:self name:MPMusicPlayerControllerPlaybackStateDidChangeNotification object:player];
   [nc removeObserver:self name:MPMusicPlayerControllerNowPlayingItemDidChangeNotification object:player];
@@ -129,7 +129,7 @@
   [player beginSeekingForward];
 }
 
-- (void)seekBackward:(id)unusued
+- (void)seekBackward:(id)unused
 {
   [player beginSeekingBackward];
 }
@@ -252,7 +252,7 @@
 // TODO: Change to KrollCallback properties for faster response times?
 - (void)stateDidChange:(NSNotification *)note
 {
-  if ([self _hasListeners:@"stateChange"]) { //TODO: Deprecate old event.
+  if ([self _hasListeners:@"stateChange"]) { // TODO: Deprecate old event.
     [self fireEvent:@"stateChange"];
   }
   if ([self _hasListeners:@"statechange"]) {
@@ -262,7 +262,7 @@
 
 - (void)playingDidChange:(NSNotification *)note
 {
-  if ([self _hasListeners:@"playingChange"]) { //TODO: Deprecate old event.
+  if ([self _hasListeners:@"playingChange"]) { // TODO: Deprecate old event.
     [self fireEvent:@"playingChange"];
   }
   if ([self _hasListeners:@"playingchange"]) {
@@ -272,7 +272,7 @@
 
 - (void)volumeDidChange:(NSNotification *)note
 {
-  if ([self _hasListeners:@"volumeChange"]) { //TODO: Deprecate old event.
+  if ([self _hasListeners:@"volumeChange"]) { // TODO: Deprecate old event.
     [self fireEvent:@"volumeChange"];
   }
   if ([self _hasListeners:@"volumechange"]) {

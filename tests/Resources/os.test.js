@@ -1,12 +1,11 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env node, titanium, mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');
@@ -235,7 +234,7 @@ describe('os', function () {
 			userInfo.should.be.an.Object();
 			userInfo.should.have.a.property('uid').which.eql(-1);
 			userInfo.should.have.a.property('gid').which.eql(-1);
-			userInfo.should.have.a.property('username').which.is.a.String(); // "iPhone 7 Plus" on ios Simulator, "android-build" on android emulator
+			userInfo.should.have.a.property('username').which.is.a.String(); // "iPhone 7 Plus" on iOS Simulator, "android-build" on Android emulator
 			userInfo.should.have.a.property('homedir').which.eql(os.homedir());
 			userInfo.should.have.a.property('shell').which.eql(null);
 		});

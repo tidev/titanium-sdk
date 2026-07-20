@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
@@ -7,8 +7,8 @@
 
 // Extracts a "*.tar" file using the same parameters as the ant <untar/> task.
 // Used by our prebuild step to extract our "libv8-*.tar.bz2" file.
-task untar() {
-	// Throw an error if required gradle property has not been set.
+tasks.register('untar') {
+	// Throw an error if required Gradle property has not been set.
 	if (!project.hasProperty('src')) {
 		throw new InvalidUserDataException('You must set a "src" property.')
 	}
@@ -27,10 +27,10 @@ task untar() {
 
 	// Use "ant" to extract the given tarball.
 	ant.untar(
-		compression: project.properties.compression,
-		overwrite: project.properties.overwrite,
-		src: project.properties.src,
-		dest: project.properties.dest)
+			compression: project.properties.compression,
+			overwrite: project.properties.overwrite,
+			src: project.properties.src,
+			dest: project.properties.dest)
 }
 
 defaultTasks 'untar'

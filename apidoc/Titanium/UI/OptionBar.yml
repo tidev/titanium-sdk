@@ -3,6 +3,10 @@ name: Titanium.UI.OptionBar
 
 summary: A bar of selectable buttons where only 1 can be selected at a time.
 description: |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./optionbar_android.png) |  |
+
     This is a view which shows a list of options where only 1 option is selectable by the user.
 
     On iOS, this displays a
@@ -55,6 +59,30 @@ properties:
     type: String
     default: horizontal
     availability: creation
+
+  - name: selectedBackgroundColor
+    summary: Background color of the selected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
+
+  - name: selectedTextColor
+    summary: Text color of the selected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
+
+  - name: selectedBorderColor
+    summary: Border color of the selected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
+
+  - name: color
+    summary: Text color of the unselected button
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: { android: "12.4.0"}
 
 examples:
   - title: Text-Only Buttons

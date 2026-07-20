@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -60,14 +60,15 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private boolean needsSort;
 	protected LayoutArrangement arrangement;
 
-	// Used by horizonal arrangement calculations
+	// Used by horizontal arrangement calculations
 	private int horizontalLayoutTopBuffer = 0;
 	private int horizontalLayoutCurrentLeft = 0;
 	private int horizontalLayoutLineHeight = 0;
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
-	private int horiztonalLayoutPreviousRight = 0;
-
+	private int horizontalLayoutPreviousRight = 0;
+	int[] horizontal = new int[2];
+	int[] vertical = new int[2];
 	/**
 	 * Custom pixel width to be used by child views when calculating percentage based lengths/positions.
 	 * Set to a negative value if child should be relative to the parent view.
@@ -121,7 +122,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 */
 	public TiCompositeLayout(Context context, LayoutArrangement arrangement)
 	{
-		this(context, LayoutArrangement.DEFAULT, null, null);
+		this(context, arrangement, null, null);
 	}
 
 	public TiCompositeLayout(Context context, AttributeSet set)
@@ -251,7 +252,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 	/**
 	 * Configures this layout to size and position child views that use a percentage based
-	 * width/height and top/bottom/left/right/center properties reatlive to this parent
+	 * width/height and top/bottom/left/right/center properties relative to this parent
 	 * layout's width and height.
 	 * <p>
 	 * This is the default setting.
@@ -555,28 +556,40 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		int horizontalRowWidth = 0;
 		int horizontalRowHeight = 0;
 
+		// Hoist loop-invariant custom fill size checks.
+		boolean hasCustomFillWidth = (this.childFillWidth >= 0);
+		boolean hasCustomFillHeight = (this.childFillHeight >= 0);
+
 		for (int i = 0; i < childCount; i++) {
 			// Apply a width and height to the next child view owned by this layout.
 			View child = getChildAt(i);
+
+			// Compute padding once per child: used in both constrainChild and size accumulation.
+			int widthPadding = 0;
+			int heightPadding = 0;
 			if (child.getVisibility() != View.GONE) {
 				// Calculate remaining height to fill. (Only applicable to horizontal/vertical layouts.)
 				int hRemain = isDefaultArrangement() ? h : (h - maxHeight);
 
 				// If a custom fill size was provided, then use it instead of the remaining size.
 				// Note: ScrollViews set this to size of container unless "contentWidth" is set.
-				int wRemainForChild = (this.childFillWidth >= 0) ? this.childFillWidth : wRemain;
-				int hRemainForChild = (this.childFillHeight >= 0) ? this.childFillHeight : hRemain;
+				int wRemainForChild = hasCustomFillWidth ? this.childFillWidth : wRemain;
+				int hRemainForChild = hasCustomFillHeight ? this.childFillHeight : hRemain;
+
+				widthPadding = getViewWidthPadding(child, w);
+				heightPadding = getViewHeightPadding(child, h);
 
 				// Constrain the child view to this view's bounds.
-				constrainChild(child, w, wMode, h, hMode, wRemainForChild, hRemainForChild);
+				constrainChild(child, w, wMode, h, hMode, wRemainForChild, hRemainForChild, widthPadding,
+							   heightPadding);
 			}
 
-			// Fetch the child view's new measurements, minus the padding.
+			// Fetch the child view's new measurements, plus the padding.
 			int childWidth = 0;
 			int childHeight = 0;
 			if (child.getVisibility() != View.GONE) {
-				childWidth = child.getMeasuredWidth() + getViewWidthPadding(child, w);
-				childHeight = child.getMeasuredHeight() + getViewHeightPadding(child, h);
+				childWidth = child.getMeasuredWidth() + widthPadding;
+				childHeight = child.getMeasuredHeight() + heightPadding;
 			}
 
 			if (isHorizontalArrangement()) {
@@ -644,7 +657,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	}
 
 	protected void constrainChild(View child, int width, int wMode, int height, int hMode, int remainWidth,
-								  int remainHeight)
+								  int remainHeight, int widthPadding, int heightPadding)
 	{
 		// Floor arguments to valid values.
 		if (remainWidth < 0) {
@@ -666,7 +679,6 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		// Determine the width that should be applied to the child view.
 		// Note: If "optionWidth" and "autoFillsWidth" are null, then default to auto-size behavior.
 		int childDimension = LayoutParams.WRAP_CONTENT;
-		int widthPadding = getViewWidthPadding(child, width);
 		if (p.optionWidth != null) {
 			// Fetch the view's configured width.
 			wMode = MeasureSpec.EXACTLY;
@@ -707,7 +719,6 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		// Determine the height that should be applied to the child view.
 		// Note: If "optionHeight" and "autoFillsHeight" are null, then default to auto-size behavior.
 		childDimension = LayoutParams.WRAP_CONTENT;
-		int heightPadding = getViewHeightPadding(child, height);
 		if (p.optionHeight != null) {
 			// Fetch the view's configured height.
 			hMode = MeasureSpec.EXACTLY;
@@ -851,13 +862,10 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 				}
 			}
 			setNeedsSort(false);
+			// viewSorter is not needed after this. It's a source of
+			// memory leaks if it retains the views it's holding.
+			viewSorter.clear();
 		}
-		// viewSorter is not needed after this. It's a source of
-		// memory leaks if it retains the views it's holding.
-		viewSorter.clear();
-
-		int[] horizontal = new int[2];
-		int[] vertical = new int[2];
 
 		int currentHeight = 0; // Used by vertical arrangement calcs
 
@@ -877,8 +885,10 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 						horizontalLayoutLineHeight = 0;
 						horizontalLayoutTopBuffer = 0;
 						horizontalLayoutLastIndexBeforeWrap = 0;
-						horiztonalLayoutPreviousRight = 0;
-						updateRowForHorizontalWrap(right, i);
+						horizontalLayoutPreviousRight = 0;
+						if (count > 1) {
+							updateRowForHorizontalWrap(right, i);
+						}
 					}
 					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom,
 													horizontal, vertical, i);
@@ -1004,19 +1014,19 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 		TiDimension optionLeft = params.optionLeft;
 		TiDimension optionRight = params.optionRight;
-		int left = horizontalLayoutCurrentLeft + horiztonalLayoutPreviousRight;
+		int left = horizontalLayoutCurrentLeft + horizontalLayoutPreviousRight;
 		int optionLeftValue = 0;
 		if (optionLeft != null) {
 			optionLeftValue = optionLeft.getAsPixels(this);
 			left += optionLeftValue;
 		}
-		horiztonalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
+		horizontalLayoutPreviousRight = (optionRight == null) ? 0 : optionRight.getAsPixels(this);
 
 		// If it's fill width with horizontal wrap, just take up remaining
 		// space.
 		int right = left + measuredWidth;
 
-		if (enableHorizontalWrap && ((right + horiztonalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
+		if (enableHorizontalWrap && ((right + horizontalLayoutPreviousRight) > layoutRight || left >= layoutRight)) {
 			// Too long for the current "line" that it's on. Need to move it
 			// down.
 			left = optionLeftValue;
@@ -1056,6 +1066,12 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 	private void updateRowForHorizontalWrap(int maxRight, int currentIndex)
 	{
+		// Nothing to scan if we're past the last child.
+		if (currentIndex >= getChildCount()) {
+			horizontalLayoutLastIndexBeforeWrap = getChildCount() - 1;
+			return;
+		}
+
 		int rowWidth = 0;
 		int rowHeight = 0;
 		int i = 0;

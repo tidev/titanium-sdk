@@ -5,15 +5,13 @@
 
 
 // open a single window
-var win = Ti.UI.createWindow({
-	backgroundColor:'white'
-});
-var label = Ti.UI.createLabel();
+const win = Ti.UI.createWindow();
+const label = Ti.UI.createLabel();
 win.add(label);
 win.open();
 
 // TODO: write your module tests here
-var <%- moduleNameJSSafe %> = require('<%- moduleId %>');
+import <%- moduleNameJSSafe %>  from '<%- moduleId %>';
 Ti.API.info("module is => " + <%- moduleNameJSSafe %>);
 
 label.text = <%- moduleNameJSSafe %>.example();
@@ -22,7 +20,7 @@ Ti.API.info("module exampleProp is => " + <%- moduleNameJSSafe %>.exampleProp);
 <%- moduleNameJSSafe %>.exampleProp = "This is a test value";
 
 if (Ti.Platform.name == "android") {
-	var proxy = <%- moduleNameJSSafe %>.createExample({
+	const proxy = <%- moduleNameJSSafe %>.createExample({
 		message: "Creating an example Proxy",
 		backgroundColor: "red",
 		width: 100,
@@ -36,4 +34,3 @@ if (Ti.Platform.name == "android") {
 	proxy.printMessage("Hello world!");
 	win.add(proxy);
 }
-

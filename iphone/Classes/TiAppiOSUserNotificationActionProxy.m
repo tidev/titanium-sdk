@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -45,7 +45,7 @@
       options |= UNNotificationActionOptionAuthenticationRequired;
     }
 
-    // Important: The UNNoticationAction class is creation-only, so the manual setters are only
+    // Important: The UNNotificationAction class is creation-only, so the manual setters are only
     // for the iOS < 10 UIUserNotificationAction
     if (behavior && [TiUtils intValue:behavior def:UIUserNotificationActionBehaviorDefault] == UIUserNotificationActionBehaviorTextInput) {
       _notificationAction = [[UNTextInputNotificationAction actionWithIdentifier:identifier

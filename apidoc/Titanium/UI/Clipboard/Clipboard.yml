@@ -81,7 +81,6 @@ methods:
 
   - name: hasURLs
     summary: Indicates whether any URLs are stored in the clipboard.
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
     returns:
@@ -89,7 +88,6 @@ methods:
 
   - name: hasImages
     summary: Indicates whether any images are stored in the clipboard.
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
     returns:
@@ -97,7 +95,6 @@ methods:
 
   - name: hasColors
     summary: Indicates whether any colors are stored in the clipboard.
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "6.0.0", ipad: "6.0.0", macos: "9.2.0"}
     returns:
@@ -144,7 +141,6 @@ methods:
         summary: |
             An array of key-value items to add to the clipboard. The key must a valid mime-type
             matching the mime-type of the value.
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "5.5.0", ipad: "5.5.0", macos: "9.2.0"}
 
@@ -156,7 +152,6 @@ methods:
         reported by iOS; and values are the underlying object/data.
     returns:
         - type: Array<Dictionary>
-    osver: {ios: {min: "10.0"}}
     platforms: [iphone, ipad, macos]
     since: {iphone: "5.5.0", ipad: "5.5.0", macos: "9.2.0"}
 

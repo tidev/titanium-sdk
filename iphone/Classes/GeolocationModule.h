@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -46,7 +46,7 @@ CONSTANT(NSNumber *, AUTHORIZATION_RESTRICTED);
 CONSTANT(NSNumber *, AUTHORIZATION_UNKNOWN);
 CONSTANT(NSNumber *, AUTHORIZATION_WHEN_IN_USE);
 
-//Accuracy Authorization to use location
+// Accuracy Authorization to use location
 CONSTANT(NSNumber *, ACCURACY_AUTHORIZATION_FULL);
 CONSTANT(NSNumber *, ACCURACY_AUTHORIZATION_REDUCED);
 
@@ -69,9 +69,7 @@ READONLY_PROPERTY(bool, hasCompass, HasCompass);
 PROPERTY(CLLocationDegrees, headingFilter, HeadingFilter);
 READONLY_PROPERTY(NSString *, lastGeolocation, LastGeolocation);
 READONLY_PROPERTY(CLAuthorizationStatus, locationServicesAuthorization, LocationServicesAuthorization);
-#if IS_SDK_IOS_14
 READONLY_PROPERTY(CLAccuracyAuthorization, locationAccuracyAuthorization, AccuracyAuthorization);
-#endif
 READONLY_PROPERTY(bool, locationServicesEnabled, LocationServicesEnabled);
 PROPERTY(bool, pauseLocationUpdateAutomatically, PauseLocationUpdateAutomatically);
 PROPERTY(bool, showBackgroundLocationIndicator, ShowBackgroundLocationIndicator);
@@ -96,12 +94,10 @@ JSExportAs(reverseGeocoder,
            : (double)longitude withCallback
            : (JSValue *)callback);
 
-#if IS_SDK_IOS_14
 JSExportAs(requestTemporaryFullAccuracyAuthorization,
            -(void)requestTemporaryFullAccuracyAuthorization
            : (NSString *)purposeString withCallback
            : (JSValue *)callback);
-#endif
 @end
 
 @interface GeolocationModule : ObjcModule <GeolocationExports, CLLocationManagerDelegate> {
