@@ -428,6 +428,13 @@
   return ([searchController isActive] && searchResultIndexes);
 }
 
+// Rows are filtered either by an active searchView or by the searchText property.
+// In both cases the table displays a single, flattened section of search results.
+- (BOOL)isFiltering
+{
+  return ([self isSearchStarted] || (self.searchString.length > 0 && searchResultIndexes));
+}
+
 - (UITableView *)tableView
 {
   if (tableview == nil) {
@@ -1122,7 +1129,7 @@
       break;
     }
 
-    BOOL viaSearch = [searchController isActive];
+    BOOL viaSearch = [self isFiltering];
     UITableView *theTableView = [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     CGPoint pointInView = [recognizer locationInView:self];
@@ -1163,7 +1170,7 @@
 
 - (void)recognizedTap:(UITapGestureRecognizer *)recognizer
 {
-  BOOL viaSearch = [searchController isActive];
+  BOOL viaSearch = [self isFiltering];
   UITableView *theTableView = [self tableView];
   CGPoint point = [recognizer locationInView:theTableView];
   CGPoint pointInView = [recognizer locationInView:self];
@@ -1227,7 +1234,7 @@
     CGPoint point = [recognizer locationInView:ourTableView];
     NSIndexPath *indexPath = [ourTableView indexPathForRowAtPoint:point];
 
-    BOOL search = [searchController isActive];
+    BOOL search = [self isFiltering];
 
     if (indexPath == nil) {
       // indexPath will also be nil if you click the header of the first section. TableView Bug??
@@ -2107,7 +2114,7 @@
 #pragma mark Datasource
 
 #define RETURN_IF_SEARCH_TABLE_VIEW(result) \
-  if ([searchController isActive]) {        \
+  if ([self isFiltering]) {                 \
     return result;                          \
   }
 
@@ -2118,7 +2125,7 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-  if ([self isSearchStarted] || self.searchString.length > 0) {
+  if ([self isFiltering]) {
     int rowCount = 0;
     for (NSIndexSet *thisSet in searchResultIndexes) {
       rowCount += [thisSet count];
@@ -2136,7 +2143,7 @@
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted] || self.searchString.length > 0) {
+  if ([self isFiltering]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2180,7 +2187,7 @@
     ourTableView.backgroundColor = [UIColor whiteColor];
   }
 
-  if ([self isSearchStarted]) {
+  if ([self isFiltering]) {
     return 1;
   }
   // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
@@ -2577,7 +2584,7 @@
   if ((!allowsSelectionSet || ![ourTableView allowsSelection]) && !editing) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
-  if ([searchController isActive]) {
+  if ([self isFiltering]) {
     search = YES;
   }
   [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"click"];
@@ -2592,7 +2599,7 @@
 - (void)tableView:(UITableView *)ourTableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isFiltering]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2644,7 +2651,7 @@
   if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
-  if ([searchController isActive]) {
+  if ([self isFiltering]) {
     search = YES;
   }
   [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:search name:@"click"];
@@ -2704,7 +2711,7 @@
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted] || self.searchString.length > 0) {
+  if ([self isFiltering]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
