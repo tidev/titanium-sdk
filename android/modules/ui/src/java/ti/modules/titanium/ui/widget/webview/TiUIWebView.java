@@ -58,6 +58,7 @@ public class TiUIWebView extends TiUIView
 	private boolean bindingCodeInjected = false;
 	private boolean isLocalHTML = false;
 	private boolean disableContextMenu = false;
+	private boolean loading = false;
 	private final HashMap<String, String> extraHeaders = new HashMap<>();
 	private float zoomLevel = TiApplication.getInstance().getResources().getDisplayMetrics().density;
 	private float initScale = zoomLevel;
@@ -1057,6 +1058,19 @@ public class TiUIWebView extends TiUIView
 	{
 		WebView webView = getWebView();
 		return (webView != null) ? webView.getProgress() : 0;
+	}
+
+	// Tracks whether a navigation is in progress, driven by the WebViewClient's
+	// onPageStarted/onPageFinished/onReceivedError callbacks. Exposed to JS as
+	// the read-only "loading" property.
+	public boolean isLoading()
+	{
+		return loading;
+	}
+
+	public void setLoading(boolean loading)
+	{
+		this.loading = loading;
 	}
 
 	@Override
