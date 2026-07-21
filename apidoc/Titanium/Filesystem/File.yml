@@ -412,7 +412,7 @@ properties:
     description: |
         iOS platform-note: Prior to Titanium SDK 7.0.0, this method returned the
         path of the parent directory as a String. Since Titanium SDK 7.0.0 it
-        returnes a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
+        returns a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
     type: Titanium.Filesystem.File
     permission: read-only
     platforms: [android]
@@ -440,7 +440,7 @@ properties:
         versions 5.0.1 and later, but is safe to set on earlier versions.
 
         Note that setting this property to `false` will also prevent the
-        file identified by this object from being backed up to iTunes.
+        file identified by this object from being backed up to iCloud.
     default: true
     type: Boolean
     platforms: [iphone,ipad, macos]

@@ -54,9 +54,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   NSMutableArray<NSNumber *> *filteredIndices;
 
   UIView *_pullViewWrapper;
-  CGFloat pullThreshhold;
+  CGFloat pullThreshold;
 
   BOOL pullActive;
+  BOOL snapping;
   CGPoint tapPoint;
   BOOL editing;
   BOOL pruneSections;
@@ -346,7 +347,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
           [[self tableView] setTableFooterView:footerView];
           [((TiUIListViewProxy *)[self proxy]) contentsWillChange];
         } else if (sender == _pullViewProxy) {
-          pullThreshhold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
+          pullThreshold = ([_pullViewProxy view].frame.origin.y - _pullViewWrapper.bounds.size.height);
         }
       },
       NO);
@@ -862,6 +863,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)setShowVerticalScrollIndicator_:(id)value
 {
   [self.tableView setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+}
+
+- (void)setSnapping_:(id)value
+{
+  snapping = [TiUtils boolValue:value def:NO];
 }
 
 - (void)setAllowsSelection_:(id)value
@@ -1991,10 +1997,10 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   if ([self.proxy _hasListeners:@"pull"]) {
     if ((_pullViewProxy != nil) && ([scrollView isTracking])) {
-      if ((scrollView.contentOffset.y < pullThreshhold) && !pullActive) {
+      if ((scrollView.contentOffset.y < pullThreshold) && !pullActive) {
         pullActive = YES;
         [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
-      } else if ((scrollView.contentOffset.y > pullThreshhold) && (pullActive)) {
+      } else if ((scrollView.contentOffset.y > pullThreshold) && (pullActive)) {
         pullActive = NO;
         [self.proxy fireEvent:@"pull" withObject:[NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(pullActive), @"active", nil] withSource:self.proxy propagate:NO reportSuccess:NO errorCode:0 message:nil];
       }
@@ -2117,8 +2123,38 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 }
 
+// Mirrors Android's LinearSnapHelper by aligning the item nearest the centre of
+// the viewport with that centre once the scroll comes to rest.
+- (void)snapTargetContentOffset:(inout CGPoint *)targetContentOffset
+{
+  UITableView *table = [self tableView];
+  UIEdgeInsets inset = table.adjustedContentInset;
+  CGFloat viewportHeight = table.bounds.size.height - inset.top - inset.bottom;
+
+  if (viewportHeight <= 0 || table.contentSize.height <= 0) {
+    return;
+  }
+
+  CGFloat proposedCenter = targetContentOffset->y + inset.top + (viewportHeight / 2.0);
+  NSIndexPath *indexPath = [table indexPathForRowAtPoint:CGPointMake(CGRectGetMidX(table.bounds), proposedCenter)];
+
+  // No row under the resting centre, ie. a header or footer. Leave the offset alone.
+  if (indexPath == nil) {
+    return;
+  }
+
+  CGFloat snapped = CGRectGetMidY([table rectForRowAtIndexPath:indexPath]) - (viewportHeight / 2.0) - inset.top;
+  CGFloat maxOffset = MAX(-inset.top, table.contentSize.height - viewportHeight - inset.top);
+
+  targetContentOffset->y = MIN(MAX(snapped, -inset.top), maxOffset);
+}
+
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
+  if (snapping) {
+    [self snapTargetContentOffset:targetContentOffset];
+  }
+
   if ([[self proxy] _hasListeners:@"scrolling"]) {
     NSString *direction = @"unknown";
 
@@ -2356,12 +2392,18 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   CGRect minimumContentRect = [_tableView bounds];
   InsetScrollViewForKeyboard(_tableView, keyboardTop, minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 - (void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   if ([_tableView isScrollEnabled]) {
     CGRect minimumContentRect = [_tableView bounds];
 
@@ -2629,10 +2671,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }
@@ -2641,10 +2681,8 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }

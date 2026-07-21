@@ -3,10 +3,10 @@
  * It provides a common interface for handling colors and converting to necessary string forms.
  */
 
-const HEX_3_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])$/i; // i.e. #0F3
-const HEX_4_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])$/i; // i.e. #0F38
-const HEX_6_REGEX = /^#?([a-f\d]){6}$/i; // i.e. #00FF33
-const HEX_8_REGEX = /^#?([a-f\d]){8}$/i; // i.e. #00FF3388
+const HEX_3_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])$/i; // e.g. #0F3
+const HEX_4_REGEX = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])$/i; // e.g. #0F38
+const HEX_6_REGEX = /^#?([a-f\d]){6}$/i; // e.g. #00FF33
+const HEX_8_REGEX = /^#?([a-f\d]){8}$/i; // e.g. #00FF3388
 
 /**
  * @param {number} integer in range of 0-255

@@ -833,6 +833,30 @@ properties:
     permission: read-only
     since: "3.2.3"
 
+  - name: SCROLL_VIEW_EDGE_EFFECT_STYLE_AUTOMATIC
+    summary: |
+        Use with <Titanium.UI.ScrollView.edgeEffect> to apply the system default edge effect style.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.1.0"
+    permission: read-only
+
+  - name: SCROLL_VIEW_EDGE_EFFECT_STYLE_HARD
+    summary: |
+        Use with <Titanium.UI.ScrollView.edgeEffect> to apply a scroll edge effect with a hard cutoff and dividing line.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.1.0"
+    permission: read-only
+
+  - name: SCROLL_VIEW_EDGE_EFFECT_STYLE_SOFT
+    summary: |
+        Use with <Titanium.UI.ScrollView.edgeEffect> to apply a soft-edged scroll edge effect.
+    type: Number
+    osver: { ios: { min: "26.0" } }
+    since: "13.1.0"
+    permission: read-only
+
   - name: KEYBOARD_DISMISS_MODE_NONE
     summary: |
         Use with <Titanium.UI.ScrollView.keyboardDismissMode> to control keyboard dismiss mode.

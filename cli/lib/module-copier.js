@@ -4,7 +4,7 @@ import path from 'node:path';
 
 /**
  * Reads of the node_modules on disk, and then produces a Set of paths to copy that match the
- * criteria. Will always ignore development dependencies, titanium native modules (denoted by
+ * criteria. Will always ignore development dependencies, Titanium native modules (denoted by
  * titanium.type in package.json being native-modules), and optionally peer and optional
  * dependencies
  *
@@ -98,7 +98,7 @@ async function getDirectoriesToCopy(tree, projectPath, includeOptional, includeP
 }
 
 /**
- * Filters the children property to exclude development dependencies, titanium native modules,
+ * Filters the children property to exclude development dependencies, Titanium native modules,
  * and optionally peer or optional dependencies.
  *
  * @param {Object} children The children property from a @npmcli/arborist Node

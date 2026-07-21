@@ -794,7 +794,7 @@ class FrameworkInspector {
 				if (libInfo.SupportedPlatformVariant === MAC_CATALYST_PLATFORM_VARIANT) {
 					supportedPlatforms.add(MAC_CATALYST_PLATFORM_VARIANT);
 				} else {
-					// ios device and sim
+					// iOS device and sim
 					libInfo.SupportedArchitectures.forEach(a => archs.add(a));
 					supportedPlatforms.add(libInfo.SupportedPlatform); // should always be 'ios'
 				}
@@ -957,7 +957,7 @@ class FrameworkInfo {
 	 * Platform filter string used in xcode build file entries.
 	 *
 	 * Returns `ios` for frameworks that support iOS only, `maccatalyst` for
-	 * MacOS only frameworks, and `undefined` if both platforms are supported
+	 * macOS only frameworks, and `undefined` if both platforms are supported
 	 * or if there is no info about supported platforms.
 	 *
 	 * @return {string|undefined}

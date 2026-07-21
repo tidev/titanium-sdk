@@ -8,7 +8,7 @@ const MAX_SIMULTANEOUS_FILES = 256;
 const limit = pLimit(MAX_SIMULTANEOUS_FILES);
 
 /**
- * Task that takes input CSS files and optionally minifes them before copying to destination.
+ * Task that takes input CSS files and optionally minifies them before copying to destination.
  */
 export class ProcessCSSTask extends IncrementalFileTask {
 
@@ -165,7 +165,7 @@ export class ProcessCSSTask extends IncrementalFileTask {
 	async handleDeletedFile(filePathAndName) {
 		this.logger.info(`DELETED ${filePathAndName}`);
 		// FIXME: If the file is deleted, how do we know the destination path to remove?
-		// Either we need to track the src -> dest map ourselevs, or appc-tasks needs to supply the last output state so we can find the matching file somehow
+		// Either we need to track the src -> dest map ourselves, or appc-tasks needs to supply the last output state so we can find the matching file somehow
 		// i.e. same sha/size?
 		const relativePathKey = this.resolveRelativePath(filePathAndName);
 		const info = this.files.get(relativePathKey);
@@ -226,7 +226,7 @@ export class ProcessCSSTask extends IncrementalFileTask {
 	/**
 	 * Loads data from the previous task run.
 	 *
-	 * @return {Boolean} True if the data was sucessfully loaded, false if not.
+	 * @return {Boolean} True if the data was successfully loaded, false if not.
 	 */
 	async loadTaskData() {
 		try {

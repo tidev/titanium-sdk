@@ -257,10 +257,16 @@
     return;
   }
 
+  // Snapshot the mutable launchOptions to prevent mutation issues
+  // between event creation and event processing on the run loop.
+  NSDictionary *launchOptions = [[info userInfo] copy];
+
   [self fireEvent:@"handleurl"
        withObject:@{
-         @"launchOptions" : [info userInfo]
+         @"launchOptions" : launchOptions
        }];
+
+  [launchOptions release];
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
@@ -794,7 +800,7 @@
     [content setThreadIdentifier:threadIdentifier];
   }
 
-  // Construct a new notiication request using our content and trigger (e.g. date or location)
+  // Construct a new notification request using our content and trigger (e.g. date or location)
   UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
                                                                         content:content
                                                                         trigger:trigger];
@@ -821,7 +827,7 @@
 
  @param userInfo User info dictionary to assign to the notification content
  @param content Notification content, can either be UNMutableNotificationContent or UILocalNotification
- @param notificationIdentifier The unique idenitifer for a notification.
+ @param notificationIdentifier The unique identifier for a notification.
  */
 - (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString *)notificationIdentifier
 {
@@ -977,7 +983,7 @@
   if ([handlerIdentifier rangeOfString:@"Session"].location != NSNotFound) {
     [[TiApp app] performCompletionHandlerForBackgroundTransferWithKey:handlerIdentifier];
   } else {
-    [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData removeAfterExecution:NO];
+    [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData];
   }
 }
 

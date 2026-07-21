@@ -627,10 +627,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasCameraPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
 		TiApplication app = TiApplication.getInstance();
 		int status = app.checkSelfPermission(Manifest.permission.CAMERA);
 		if (status != PackageManager.PERMISSION_GRANTED) {
@@ -648,9 +644,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	@Kroll.method
 	public boolean hasAudioRecorderPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
 		return (status == PackageManager.PERMISSION_GRANTED);
 	}
@@ -664,7 +657,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			int status_img = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES);
 			int status_vid = TiApplication.getInstance().checkSelfPermission(Manifest.permission.READ_MEDIA_VIDEO);
 			return (status_img == PackageManager.PERMISSION_GRANTED && status_vid == PackageManager.PERMISSION_GRANTED);
-		} else if (Build.VERSION.SDK_INT < 23 || Build.VERSION.SDK_INT >= 29) {
+		} else if (Build.VERSION.SDK_INT >= 29) {
 			// We don't have to request permission on versions older than Android 6.0 or Android 10/11
 			return true;
 		}
@@ -901,7 +894,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
-			ensureExternalPublicMediaDirectoryExists();
+
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -1005,7 +998,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (Build.VERSION.SDK_INT >= 29) {
 				contentValues.put(MediaStore.MediaColumns.DATE_TAKEN, unixTime);
 			}
-			ensureExternalPublicMediaDirectoryExists();
+
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
@@ -1039,20 +1032,6 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 		// Generate file name.
 		return normalizedAppName + "_" + (new SimpleDateFormat("yyyyMMdd_HHmmssSSS")).format(new Date());
-	}
-
-	private static void ensureExternalPublicMediaDirectoryExists()
-	{
-		// Work-around bug on Android 5.x and below where saving a file to gallery via MediaStore insert()
-		// will fail if its directory on external storage doesn't exist yet. Create it if needed.
-		// Bug Report: https://issuetracker.google.com/issues/37002888
-		if (Build.VERSION.SDK_INT < 23) {
-			File externalDir = Environment.getExternalStorageDirectory();
-			if (externalDir != null) {
-				File cameraDir = new File(externalDir, "DCIM/Camera");
-				cameraDir.mkdirs();
-			}
-		}
 	}
 
 	@Kroll.setProperty

@@ -4,14 +4,14 @@ import { program } from 'commander';
 import fs from 'fs-extra';
 import path from 'node:path';
 import IOS from './lib/ios.js';
-import Builder from './lib/builder.js';
+import { Builder } from './lib/builder.js';
 import { i18n } from 'node-titanium-sdk';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
 
-program.parse(process.argv);
+program.allowExcessArguments().parse(process.argv);
 
 const projectDir = program.args[0];
 const targetBuildDir = program.args[1];
@@ -63,7 +63,11 @@ async function generateBundle(outputDir) {
 
 async function main(tmpBundleDir) {
 	await fs.emptyDir(tmpBundleDir);
-	await generateBundle(appDir); // run rollup/babel to generate single bundled ti.main.js in app
+	// Build bundles outside the .app to avoid wiping the executable via fs.emptyDir.
+	await generateBundle(tmpBundleDir); // run rollup/babel to generate bundled ti.main.js/ti.kernel.js
+	await fs.copy(path.join(tmpBundleDir, 'ti.main.js'), path.join(appDir, 'ti.main.js'));
+	await fs.copy(path.join(tmpBundleDir, 'ti.kernel.js'), path.join(appDir, 'ti.kernel.js'));
+
 	console.log(`Removing temp dir used for bundling: ${tmpBundleDir}`);
 	await fs.remove(tmpBundleDir); // remove tmp location
 	console.log(`Copying xcode resources: ${xcodeProjectResources} -> ${appDir}`);

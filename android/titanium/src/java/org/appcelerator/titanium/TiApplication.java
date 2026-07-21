@@ -74,6 +74,8 @@ public abstract class TiApplication extends Application implements KrollApplicat
 
 	protected static TiApplication tiApp = null;
 
+	private static final Pattern UNIT_PATTERN = Pattern.compile("system|px|dp|dip|mm|cm|in");
+
 	public static final String DEPLOY_TYPE_DEVELOPMENT = "development";
 	public static final String DEPLOY_TYPE_TEST = "test";
 	public static final String DEPLOY_TYPE_PRODUCTION = "production";
@@ -357,16 +359,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		super.onCreate();
 		Log.d(TAG, "Application onCreate", Log.DEBUG_MODE);
 
-		// Reference to android run-time exception handler to delegate exceptions properly.
+		// Reference to Android run-time exception handler to delegate exceptions properly.
 		nativeExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();
 
-		// handle uncaught java exceptions
+		// handle uncaught Java exceptions
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(Thread t, Throwable e)
 			{
 
-				// obtain java stack trace
+				// obtain Java stack trace
 				String javaStack = null;
 				StackTraceElement[] frames = e.getCause() != null ? e.getCause().getStackTrace() : e.getStackTrace();
 				if (frames != null && frames.length > 0) {
@@ -814,9 +816,7 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	{
 		if (defaultUnit == null) {
 			defaultUnit = getAppProperties().getString(PROPERTY_DEFAULT_UNIT, SYSTEM_UNIT);
-			// Check to make sure default unit is valid, otherwise use system
-			Pattern unitPattern = Pattern.compile("system|px|dp|dip|mm|cm|in");
-			Matcher m = unitPattern.matcher(defaultUnit);
+			Matcher m = UNIT_PATTERN.matcher(defaultUnit);
 			if (!m.matches()) {
 				defaultUnit = SYSTEM_UNIT;
 			}

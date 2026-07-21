@@ -169,7 +169,7 @@ public class TiUILabel extends TiUIView
 				MaterialTextView textView = (MaterialTextView) this;
 				Object text = textView.getText();
 
-				//For html texts, we will manually detect url clicks.
+				// For HTML texts, we will manually detect url clicks.
 				if (text instanceof SpannedString) {
 					SpannedString spanned = (SpannedString) text;
 					Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
@@ -343,10 +343,10 @@ public class TiUILabel extends TiUIView
 			boolean hasProperty = false;
 			if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
 				hasProperty = true;
-				Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-				if (attributedString instanceof AttributedStringProxy) {
-					newText = AttributedStringProxy.toSpannable(((AttributedStringProxy) attributedString),
-																TiApplication.getAppCurrentActivity());
+				Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+				AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+				if (proxy != null) {
+					newText = AttributedStringProxy.toSpannable(proxy, TiApplication.getAppCurrentActivity());
 				}
 			}
 			if ((newText == null) && d.containsKey(TiC.PROPERTY_HTML)) {
@@ -515,9 +515,9 @@ public class TiUILabel extends TiUIView
 			|| key.equals(TiC.PROPERTY_TITLE)) {
 			CharSequence newText = null;
 			if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-				if (newValue instanceof AttributedStringProxy) {
-					newText = AttributedStringProxy.toSpannable((AttributedStringProxy) newValue,
-																TiApplication.getAppCurrentActivity());
+				AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+				if (asProxy != null) {
+					newText = AttributedStringProxy.toSpannable(asProxy, TiApplication.getAppCurrentActivity());
 				}
 				if (newText == null) {
 					newText = "";

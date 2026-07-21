@@ -202,7 +202,7 @@
     BOOL reset = NO;
     if (rowCount < 0) {
       // since we start off at one, we need to include ours by
-      // calling reset and then after calcuating the count we
+      // calling reset and then after calculating the count we
       // need to advance again (below)
       [results reset];
       reset = YES;

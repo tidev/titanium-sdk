@@ -37,7 +37,7 @@ export class ProcessDrawablesTask extends CopyResourcesTask {
 			if (parts.length > 3) {
 				warningMessages.push('- Files cannot be put into subdirectories.');
 				// retain subdirs under the res-<dpi> folder to be mangled into the destination filename
-				// i.e. take images/res-mdpi/logos/app.png and store logos/app, which below will become logos_app.png
+				// e.g. take images/res-mdpi/logos/app.png and store logos/app, which below will become logos_app.png
 				base = parts.slice(2, parts.length - 1).join(path.sep) + path.sep + base;
 			}
 			const destFilename = `${base}.${info.ext}`;

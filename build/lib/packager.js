@@ -263,8 +263,11 @@ export class Packager {
 			subDirs[iosIndex] = 'iphone';
 		}
 		await Promise.all(subDirs.map(d => fs.emptyDir(path.join(modulesDir, d))));
-		// Now download/extract/copy the modules
-		await Promise.all(modules.map(m => this.handleModule(m)));
+		// Copying multiple module trees into the same destination in parallel races on shared parent
+		// directories and can leave the package in a partially copied state.
+		for (const module of modules) {
+			await this.handleModule(module);
+		}
 
 		// Need to wipe directories of multi-platform modules for platforms we don't need!
 		// i.e. modules/iphone on win32 builds (there because of hyperloop)

@@ -19,17 +19,17 @@ export async function run(logger, config, cli, finished) {
 	try {
 		const projectDir = cli.argv['project-dir'];
 
-		// On Windows, stop gradle daemon to make it release its file locks so that they can be deleted.
+		// On Windows, stop Gradle daemon to make it release its file locks so that they can be deleted.
 		if (process.platform === 'win32') {
 			try {
 				const gradlew = new GradleWrapper(path.join(projectDir, 'build'));
 				gradlew.logger = logger;
 				if (await gradlew.hasWrapperFiles()) {
-					logger.debug('Stopping gradle daemon.');
+					logger.debug('Stopping Gradle daemon.');
 					await gradlew.stopDaemon();
 				}
 			} catch (err) {
-				logger.error(`Failed to stop gradle daemon. Reason:\n${err}`);
+				logger.error(`Failed to stop Gradle daemon. Reason:\n${err}`);
 			}
 		}
 

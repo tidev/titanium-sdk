@@ -3,7 +3,6 @@
 // requires
 const debug = require('debug')('dangerfile');
 const fs = require('fs-extra');
-const eslint = require('@seadub/danger-plugin-eslint').default;
 const junit = require('@seadub/danger-plugin-junit').default;
 const dependencies = require('@seadub/danger-plugin-dependencies').default;
 const load = require('@commitlint/load').default;
@@ -243,7 +242,7 @@ async function updateMilestone() {
 		// Typically this is because:
 		// - The milestone got out of date once we did some branch/version bumping
 		// - The milestone was set wrong
-		// - The milestone is for a future version on a maintenance branch (i.e. 8.1.1 on 8_1_X branch where we haven't released 8.1.0 yet)
+		// - The milestone is for a future version on a maintenance branch (e.g. 8.1.1 on 8_1_X branch where we haven't released 8.1.0 yet)
 		warn(`This PR has milestone set to ${github.pr.milestone.title}, but the version defined in package.json is ${packageJSON.version}
 Please either:
 - Update the milestone on the PR
@@ -324,7 +323,6 @@ async function main() {
 		checkMergeable(),
 		checkPRisApproved(),
 		updateMilestone(),
-		eslint(),
 		dependencies({ type: 'npm' }),
 		checkForTestRunFailures()
 	]);

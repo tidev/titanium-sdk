@@ -184,7 +184,7 @@ export class CopyResourcesTask extends IncrementalFileTask {
 		const info = this.files.get(file);
 		// NOTE: That we used to fire a build.platform.copyResource for each file
 		// - but that ultimately iOS never did fire it
-		// - we don't use it for hyperloop anymore so no need for Android to do so
+		// - we don't use it for Hyperloop anymore so no need for Android to do so
 		return this.copyFile(info);
 	}
 

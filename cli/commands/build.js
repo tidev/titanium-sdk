@@ -210,7 +210,7 @@ export function config(logger, config, cli) {
 										tiFile = path.join(dir, tiXml);
 									}
 
-									// Found the xml file, break the loop
+									// Found the XML file, break the loop
 									if (fs.existsSync(tiFile)) {
 										isFound = true;
 										return true;
@@ -237,6 +237,10 @@ export function config(logger, config, cli) {
 				callback(null, conf);
 			});
 		})(function (err, result) {
+			if (err) {
+				console.error(err);
+				process.exit(1);
+			}
 			finished(result);
 		});
 	};

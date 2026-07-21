@@ -9,10 +9,10 @@ package ti.modules.titanium.ui.widget.tabgroup;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -32,11 +32,12 @@ import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
+import org.appcelerator.titanium.TiLifecycle;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import org.appcelerator.titanium.proxy.TiWindowProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiIconDrawable;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -49,18 +50,16 @@ import ti.modules.titanium.ui.TabGroupProxy;
 import ti.modules.titanium.ui.TabProxy;
 
 /**
- * TabGroup implementation using BottomNavigationView as a controller.
+ * TabGroup implementation using BottomNavigationView XML as a controller.
  */
 public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements BottomNavigationView.OnItemSelectedListener
 {
 
 	protected final static String TAG = "TiUIBottomNavigation";
-	static int id_layout = 0;
-	static int id_content = 0;
-	static int id_bottomNavigation = 0;
 	private int currentlySelectedIndex = -1;
-	private ArrayList<MenuItem> mMenuItemsArray = new ArrayList<MenuItem>();
-	private RelativeLayout layout = null;
+	private int lastNightMode = -1;
+	private ArrayList<MenuItem> mMenuItemsArray;
+	private RelativeLayout layout;
 	private FrameLayout centerView;
 	private BottomNavigationView bottomNavigation;
 	private ArrayList<Object> tabsArray = new ArrayList<Object>();
@@ -68,6 +67,71 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
 		super(proxy, activity);
+
+		activity.addOnLifecycleEventListener(new TiLifecycle.OnLifecycleEvent()
+		{
+			@Override
+			public void onCreate(Activity activity, Bundle savedInstanceState) {}
+
+			@Override
+			public void onStart(Activity activity) {}
+
+			@Override
+			public void onResume(Activity activity)
+			{
+				if (centerView == null || tabsArray == null || tabsArray.isEmpty()) {
+					return;
+				}
+
+				int currentNightMode = activity.getResources().getConfiguration().uiMode
+					& android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+
+				if (currentNightMode == lastNightMode) {
+					return;
+				}
+				lastNightMode = currentNightMode;
+
+				// Always update activity context on all tab window proxies so they
+				// re-resolve theme colors on the next mode switch.
+				for (Object tab : tabsArray) {
+					Object windowProp = ((TabProxy) tab).getProperty(TiC.PROPERTY_WINDOW);
+					if (windowProp instanceof TiWindowProxy windowProxy) {
+						((TabProxy) tab).setActivity(activity);
+						windowProxy.setActivity(activity);
+						windowProxy.getOrCreateView();
+					}
+				}
+
+				// Skip view rebuild on first run — just prime the proxies.
+				if (lastNightMode == -1) {
+					return;
+				}
+
+				// Rebuild the visible tab content.
+				if (currentlySelectedIndex >= 0 && currentlySelectedIndex < tabsArray.size()) {
+					Object windowProp = ((TabProxy) tabsArray.get(currentlySelectedIndex))
+						.getProperty(TiC.PROPERTY_WINDOW);
+					if (windowProp instanceof TiWindowProxy windowProxy) {
+						centerView.removeAllViews();
+						TiUIView view = windowProxy.getOrCreateView();
+						if (view != null) {
+							centerView.addView(view.getOuterView());
+						}
+					}
+				}
+
+				updateIconTint();
+			}
+
+			@Override
+			public void onPause(Activity activity) {}
+
+			@Override
+			public void onStop(Activity activity) {}
+
+			@Override
+			public void onDestroy(Activity activity) {}
+		});
 	}
 
 	// Overriding addTab method to provide a proper guard for trying to add more tabs than the limit
@@ -104,16 +168,13 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	public void addViews(TiBaseActivity activity)
 	{
 		mMenuItemsArray = new ArrayList<>();
-		if (tabsArray == null) {
-			tabsArray = new ArrayList<Object>();
-		}
 
 		try {
-			id_layout = TiRHelper.getResource("layout.titanium_ui_bottom_navigation");
-			id_content = TiRHelper.getResource("id.bottomNavBar_content");
-			id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
+			int id_layout = TiRHelper.getResource("layout.titanium_ui_bottom_navigation");
+			int id_content = TiRHelper.getResource("id.bottomNavBar_content");
+			int id_bottomNavigation = TiRHelper.getResource("id.bottomNavBar");
 
-			LayoutInflater inflater = LayoutInflater.from(TiApplication.getAppRootOrCurrentActivity());
+			LayoutInflater inflater = LayoutInflater.from(activity);
 			layout = (RelativeLayout) inflater.inflate(id_layout, null, false);
 			bottomNavigation = layout.findViewById(id_bottomNavigation);
 			centerView = layout.findViewById(id_content);
@@ -308,7 +369,8 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			TiViewProxy tabProxy = ((TabProxy) tabsArray.get(index));
 			boolean hasTouchFeedback = TiConvert.toBoolean(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK), true);
 			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
-			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
+			if (hasTouchFeedback && (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)
+				|| hasTouchFeedbackColor)) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
 				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
@@ -322,15 +384,21 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			}
 
 			if (!hasTouchFeedback) {
-				Drawable drawable = new RippleDrawable(ColorStateList.valueOf(Color.TRANSPARENT), null, null);
-				this.bottomNavigation.getChildAt(0).setBackground(drawable);
+				// Don't clear background - only remove the ripple wrapping.
+				// Apply state drawable background if custom tab colors are defined.
+				if (hasCustomBackground(tabProxy)) {
+					BottomNavigationMenuView bottomMenuView =
+						((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
+					Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
+					bottomMenuView.getChildAt(index).setBackground(drawable);
+				}
 			}
 
 			if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BACKGROUND_COLOR)) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.bottomNavigation.getChildAt(0));
 				bottomMenuView.getChildAt(index).setBackgroundColor(TiConvert.toColor(
-					tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), TiApplication.getAppRootOrCurrentActivity()
+					tabProxy.getProperty(TiC.PROPERTY_BACKGROUND_COLOR), tabProxy.getActivity()
 				));
 			}
 		} catch (Exception e) {
@@ -530,14 +598,21 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 		currentlySelectedIndex = tabIndex;
 
+		if (bottomNavigation != null && bottomNavigation.getMenu() != null) {
+			if (tabIndex < bottomNavigation.getMenu().size()) {
+				bottomNavigation.getMenu().getItem(tabIndex).setChecked(true);
+			}
+		}
+
 		TabProxy tp = ((TabProxy) tabsArray.get(tabIndex));
 		if (tp != null) {
-			TiUITab abstractTab = new TiUITab(tp);
-
-			centerView.removeAllViews();
-			TiUIView view = abstractTab.getWindowProxy().getOrCreateView();
-			if (view != null) {
-				centerView.addView(view.getOuterView());
+			Object windowProp = tp.getProperty(TiC.PROPERTY_WINDOW);
+			if (windowProp instanceof TiWindowProxy windowProxy) {
+				centerView.removeAllViews();
+				TiUIView view = windowProxy.getOrCreateView();
+				if (view != null) {
+					centerView.addView(view.getOuterView());
+				}
 			}
 		}
 		updateIconTint();

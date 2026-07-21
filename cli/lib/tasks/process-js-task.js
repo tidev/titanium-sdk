@@ -52,7 +52,7 @@ export class ProcessJsTask extends IncrementalFileTask {
 			deploytype: this.builder.deployType,
 			target: this.builder.target,
 			Ti: {
-				version: this.builder.titaniumSdkVersion, // use the shortened version number, i.e. 9.1.0
+				version: this.builder.titaniumSdkVersion, // use the shortened version number, e.g. 9.1.0
 				// TODO: Do these work?
 				// buildHash: ti.manifest.githash,
 				// buildDate: ti.manifest.timestamp,

@@ -86,6 +86,23 @@ properties:
     default: true
     platforms: [iphone, ipad, macos]
 
+  - name: hideSharedBackground
+    summary: If `true`, each toolbar item is rendered in its own separate visual container.
+    description: |
+        On iOS 26 and later, UIToolbar uses the "Liquid Glass" design and automatically
+        groups adjacent items into shared glass backgrounds. Setting this property to `true`
+        prevents this grouping, giving each item its own separate glass container.
+
+        For finer control, individual toolbar items (buttons, labels, etc.) can set the
+        `hideSharedBackground` property to `true` to separate only those specific items, while
+        leaving others grouped.
+
+        This property has no effect on iOS versions prior to 26.0.
+    type: Boolean
+    default: false
+    platforms: [iphone, ipad]
+    since: "14.0.0"
+
   - name: contentInsetEndWithActions
     summary: Returns the margin after the toolbar's content when there are action buttons.
     type: Number
@@ -149,7 +166,7 @@ methods:
     platforms: [android]
 
   - name: dismissPopupMenus
-    summary: Collapses expandend ActionViews and hides overflow menu
+    summary: Collapses expanded ActionViews and hides overflow menu
     platforms: [android]
 
   - name: getContentInsetEnd

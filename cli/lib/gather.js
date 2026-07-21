@@ -45,18 +45,18 @@ class FileInfo {
 
 export class Result {
 	constructor() {
-		this.appIcons = new Map(); // ios specific
-		this.cssFiles = new Map(); // css files to be processed (minified optionally)
-		this.jsFiles = new Map(); // js files to be processed (transpiled/sourcemapped/minified/etc)
+		this.appIcons = new Map(); // iOS specific
+		this.cssFiles = new Map(); // CSS files to be processed (minified optionally)
+		this.jsFiles = new Map(); // JS files to be processed (transpiled/sourcemapped/minified/etc)
 		this.launchImages = new Map(); // Used to create an asset catalog for launch images on iOS, used for splash screen(s) on Android
-		this.launchLogos = new Map(); // ios specific
+		this.launchLogos = new Map(); // iOS specific
 		this.imageAssets = new Map(); // used for asset catalogs and app thinning on iOS, used for drawables on Android
 		this.resourcesToCopy = new Map(); // "plain" files to copy to the app
-		this.htmlJsFiles = new Set(); // used internally to track js files we shouldn't process (basically move from jsFiles to resourcesToCopy bucket)
+		this.htmlJsFiles = new Set(); // used internally to track JS files we shouldn't process (basically move from jsFiles to resourcesToCopy bucket)
 	}
 
 	/**
-	 * If a js file is references by HTML, don't minify/transpile/etc, treat like any resource we just copy over as-is
+	 * If a JS file is references by HTML, don't minify/transpile/etc, treat like any resource we just copy over as-is
 	 */
 	dontProcessJsFilesReferencedFromHTML() {
 		for (const file of this.htmlJsFiles.keys()) {
@@ -295,10 +295,10 @@ export class Categorizer {
 				} else if (this.platform === 'ios') {
 					// if the image is the LaunchLogo.png, then let that pass so we can use it
 					// in the LaunchScreen.storyboard
-					const m = info.name.match(LAUNCH_LOGO_REGEXP);
+					const m = relPath.match(LAUNCH_LOGO_REGEXP);
 					if (m) {
-						info.scale = m[1];
-						info.device = m[2];
+						info.scale = m[1]?.replace(/@|x/g, '');
+						info.device = m[2]?.replace('~', '');
 						results.launchLogos.set(relPath, info);
 						return;
 					}

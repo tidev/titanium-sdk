@@ -61,7 +61,7 @@ export class IOS {
 
 		return new Promise((resolve, reject) => {
 			const buildScript = path.join(ROOT_DIR, 'support/iphone/build_titaniumkit.sh');
-			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ], { stdio: 'inherit' });
+			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash, '-d' ], { stdio: 'inherit' });
 			child.on('error', reject);
 			child.on('close', code => {
 				if (code) {
@@ -104,7 +104,7 @@ export class IOS {
 			await fs.ensureDir(path.join(DEST_IOS, 'include', libDir));
 			const libFiles = await fs.readdir(fullLibDir);
 			for (const libFile of libFiles) {
-				if (libFile.endsWith('.h') && libFile !== 'APSUtility.h') { // for whatever reason APSUtility.h seems not to get copied as part of framework?
+				if (libFile.endsWith('.h')) {
 					await fs.move(path.join(DEST_IOS, 'include', libFile), path.join(DEST_IOS, 'include', libDir, libFile));
 				}
 			}

@@ -109,7 +109,7 @@ methods:
         Returns a string, localized according to the current system locale using the appropriate 
         `/i18n/LANG/strings.xml` localization file.
     description: |
-        This method is functionaly identical to its alias <Global.L>. For example, 
+        This method is functionally identical to its alias <Global.L>. For example, 
         `Ti.Locale.getString('thisKey', 'missing key')` produces the same result as 
         `L('thisKey', 'missing key')`.
         

@@ -72,7 +72,7 @@
   return YES;
 }
 
-- (void)setHighlighting:(BOOL)isHiglighted
+- (void)setHighlighting:(BOOL)isHighlighted
 {
 #ifndef TI_USE_AUTOLAYOUT
   for (TiUIView *thisView in [viewGroupWrapper subviews])
@@ -81,7 +81,7 @@
 #endif
   {
     if ([thisView respondsToSelector:@selector(setHighlighted:)]) {
-      [(id)thisView setHighlighted:isHiglighted];
+      [(id)thisView setHighlighted:isHighlighted];
     }
   }
 }
@@ -102,8 +102,8 @@
   } else {
     // If the bounds are smaller than the image size render it in an imageView and get the image of the view.
     // Should be pretty inexpensive since it happens rarely. TIMOB-9166
-    CGSize unstrechedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
-    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstrechedSize, bounds.size)) {
+    CGSize unstretchedSize = (backgroundImageUnstretchedCache != nil) ? [backgroundImageUnstretchedCache size] : CGSizeZero;
+    if (backgroundImageUnstretchedCache == nil || !CGSizeEqualToSize(unstretchedSize, bounds.size)) {
       UIImageView *theView = [[UIImageView alloc] initWithFrame:bounds];
       [theView setImage:backgroundImageCache];
       UIGraphicsBeginImageContextWithOptions(bounds.size, [theView.layer isOpaque], 0.0);
@@ -171,7 +171,14 @@
 - (UIButton *)button
 {
   if (button == nil) {
+#if TARGET_OS_MACCATALYST
+    // On Mac Catalyst, UIButtonTypeRoundedRect (system button) ignores programmatic styling
+    // (title color, font, size) and doesn't deliver touch events via UIControlEventAllTouchEvents.
+    // Force UIButtonTypeCustom so styling and events work correctly.
+    UIButtonType defaultType = UIButtonTypeCustom;
+#else
     UIButtonType defaultType = [self hasImageProperties] ? UIButtonTypeCustom : UIButtonTypeRoundedRect;
+#endif
     style = [TiUtils intValue:[self.proxy valueForKey:@"style"] def:defaultType];
     UIView *btn = [TiButtonUtil buttonWithType:style];
     button = (UIButton *)[btn retain];
@@ -323,10 +330,12 @@
     // Ignored: handled via ButtonConfiguration.attributedString
     return;
   }
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-  [[self button] setAttributedTitle:[arg attributedString] forState:UIControlStateNormal];
-  [(TiViewProxy *)[self proxy] contentsWillChange];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
+  if (attributedStringProxy) {
+    [[self proxy] replaceValue:attributedStringProxy forKey:@"attributedString" notification:NO];
+    [[self button] setAttributedTitle:[attributedStringProxy attributedString] forState:UIControlStateNormal];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+  }
 #endif
 }
 

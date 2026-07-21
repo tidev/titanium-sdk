@@ -14,7 +14,6 @@ import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -428,7 +427,20 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				if (orientationEventListener == null || orientation == ORIENTATION_UNKNOWN) {
 					return;
 				}
-				int rotation = getWindowManager().getDefaultDisplay().getRotation();
+				// Convert physical device orientation (degrees) to a Surface rotation constant.
+				// This avoids relying on display rotation which is wrong when orientation-lock is on.
+				// OrientationEventListener 90 = tilted CCW (top-left) = display ROTATION_270.
+				// OrientationEventListener 270 = tilted CW (top-right) = display ROTATION_90.
+				int rotation;
+				if (orientation >= 315 || orientation < 45) {
+					rotation = Surface.ROTATION_0;
+				} else if (orientation >= 45 && orientation < 135) {
+					rotation = Surface.ROTATION_270;
+				} else if (orientation >= 135 && orientation < 225) {
+					rotation = Surface.ROTATION_180;
+				} else {
+					rotation = Surface.ROTATION_90;
+				}
 				if (lastDisplayOrientation != rotation) {
 					imageCapture.setTargetRotation(rotation);
 					lastDisplayOrientation = rotation;
@@ -667,9 +679,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 
 	private boolean hasAudioRecorderPermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		int status = TiApplication.getInstance().checkSelfPermission(Manifest.permission.RECORD_AUDIO);
 		return (status == PackageManager.PERMISSION_GRANTED);
 	}

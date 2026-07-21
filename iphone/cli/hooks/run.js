@@ -71,7 +71,7 @@ export function init(logger, config, cli) {
 					line = m[4].trim();
 				}
 
-				// ignore logs from cli ignoreLog
+				// ignore logs from CLI ignoreLog
 				if (typeof ignoreLog === 'string') {
 					if (line.includes(ignoreLog)) {
 						return;

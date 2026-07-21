@@ -7,7 +7,7 @@
 import ansiEscapes from 'ansi-escapes';
 import wrapAnsi from 'wrap-ansi';
 
-// Based on https://github.com/sindresorhus/log-update/blob/master/index.js
+// Based on https://github.com/sindresorhus/log-update/blob/main/index.js
 
 const originalWrite = Symbol('webpackbarWrite');
 
