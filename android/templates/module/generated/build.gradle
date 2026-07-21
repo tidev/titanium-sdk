@@ -1,8 +1,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+
 <% for(var i=0; i<plugins.length; i++) {%>
 apply plugin: '<%= plugins[i] %>'
 <% } %>
@@ -134,9 +133,6 @@ android {
 		sourceCompatibility JavaVersion.VERSION_17
 		targetCompatibility JavaVersion.VERSION_17
 	}
-	kotlinOptions {
-		jvmTarget = "17"
-	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
 	packagingOptions {
@@ -209,7 +205,6 @@ dependencies {
 	def krollAptJarPath = '<%- krollAptJarPath.replace(/\\/g, '\\\\') %>'
 	annotationProcessor(files(krollAptJarPath))
 	compileOnly(files(krollAptJarPath))
-	kapt(files(krollAptJarPath))
 
 	// Reference this module's local JAR file dependencies.
 	implementation(project.fileTree(dir: "${projectDir}/../../lib", include: ['*.jar']))
