@@ -23,17 +23,22 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListItemProxy>
 {
 	private static final String TAG = "ListViewAdapter";
-
+	private boolean flatLayout = false;
 	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
 
-	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
+	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models, boolean flatLayout)
 	{
 		super(context, models);
 
 		// Obtain TableViewHolder layout identifier.
 		try {
 			if (this.id_holder == 0) {
-				this.id_holder = TiRHelper.getResource("layout.titanium_ui_listview_holder");
+				this.flatLayout = flatLayout;
+				if (!flatLayout) {
+					this.id_holder = TiRHelper.getResource("layout.titanium_ui_listview_holder");
+				} else {
+					this.id_holder = TiRHelper.getResource("layout.titanium_ui_listview_flat_holder");
+				}
 			}
 		} catch (TiRHelper.ResourceNotFoundException e) {
 			Log.e(TAG, "Could not load 'layout.titanium_ui_listview_holder'.");
@@ -113,7 +118,7 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 	{
 		// Create new TableViewHolder instance.
 		final ConstraintLayout layout = (ConstraintLayout) inflater.inflate(id_holder, null);
-		return new ListViewHolder(parent.getContext(), layout);
+		return new ListViewHolder(parent.getContext(), layout, flatLayout);
 	}
 
 	/**
