@@ -6,7 +6,7 @@ on:
       branch:
         description: The branch to release from
         required: true
-        default: master
+        default: main
       release-type:
         description: The type of release to perform
         required: true
@@ -31,7 +31,7 @@ jobs:
       vtag: ${{ steps.vtag.outputs.vtag }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
@@ -63,61 +63,61 @@ jobs:
             console.log(`${process.env.vtag} does not exist so continuing`)
 
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '20.x'
-          java-version: '17'
+          node-version: '24'
+          java-version: '21'
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-26
     name: iOS
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '20.x'
+          node-version: '24'
 
   package:
-    runs-on: macos-13
+    runs-on: macos-26
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '20.x'
-        java-version: '17'
+        node-version: '24'
+        java-version: '21'
         vtag: ${{ env.vtag }}
 
   release:
@@ -129,21 +129,21 @@ jobs:
       vtag: ${{ needs.validate.outputs.vtag }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
     - run: echo ${{ env.vtag }}
     - name: Download Linux artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-linux
-    - name: Download MacOS artifact
-      uses: actions/download-artifact@v4
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-osx
     - name: Download Windows artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-win32
     - name: Create and push tag

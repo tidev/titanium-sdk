@@ -10,6 +10,7 @@
 #import "TiUIWebViewProxy.h"
 #import "TiUIiOSWebViewConfigurationProxy.h"
 #import "TiUIiOSWebViewDecisionHandlerProxy.h"
+#import "TiWebView.h"
 
 #import <TitaniumKit/Mimetypes.h>
 #import <TitaniumKit/SBJSON.h>
@@ -82,7 +83,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
     _willHandleTouches = [TiUtils boolValue:[[self proxy] valueForKey:@"willHandleTouches"] def:YES];
 
-    _webView = [[WKWebView alloc] initWithFrame:[self bounds] configuration:config];
+    _webView = [[TiWebView alloc] initWithFrame:[self bounds] configuration:config];
 #if TARGET_OS_SIMULATOR && __IPHONE_OS_VERSION_MAX_ALLOWED >= 160400
     if (@available(iOS 16.4, *)) {
       _webView.inspectable = YES;
@@ -389,6 +390,27 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [[self proxy] replaceValue:value forKey:@"keyboardDisplayRequiresUserAction" notification:NO];
 }
 
+- (void)setHideKeyboardAccessoryView_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  [[self proxy] replaceValue:value forKey:@"hideKeyboardAccessoryView" notification:NO];
+  [[self webView] setHideInputAccessoryView:[TiUtils boolValue:value def:NO]];
+}
+
+- (void)setAutoAdjustScrollViewInsets_:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+
+  [[self proxy] replaceValue:value forKey:@"autoAdjustScrollViewInsets" notification:NO];
+
+  if ([TiUtils boolValue:value def:NO]) {
+    [[[self webView] scrollView] setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAlways];
+  } else {
+    [[[self webView] scrollView] setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+  }
+}
+
 - (void)reload
 {
   if (_webView == nil) {
@@ -532,6 +554,18 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   return [[[WKUserScript alloc] initWithSource:source
                                  injectionTime:WKUserScriptInjectionTimeAtDocumentEnd
                               forMainFrameOnly:YES] autorelease];
+}
+
+- (WKUserScript *)userScriptForMessageHandlerParity
+{
+  NSString *tisdkScript = @"window.tisdk={ \
+      emit:function(handlerName, payload){ \
+        window.webkit.messageHandlers[handlerName].postMessage(JSON.parse(payload)); \
+      } \
+     }; \
+    ";
+
+  return [[[WKUserScript alloc] initWithSource:tisdkScript injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO] autorelease];
 }
 
 - (WKUserScript *)userScriptTitaniumJSEvaluationFromString:(NSString *)string
@@ -746,7 +780,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       html = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
     }
     if (html != nil) {
-      // Because local HTML may rely on JS that's stored in the app: schema, we must kee the url in the app: format.
+      // Because local HTML may rely on JS that's stored in the app: schema, we must kee the URL in the app: format.
       [[self webView] loadHTMLString:html baseURL:baseURL];
     } else {
       NSLog(@"[WARN] couldn't load URL: %@", url);
@@ -900,7 +934,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   [self _cleanupLoadingIndicator];
   [(TiUIWebViewProxy *)[self proxy] refreshHTMLContent];
 
-  // TO DO: Once TIMOB-26915 done, remove this
+  // TODO: Once TIMOB-26915 done, remove this
   __block BOOL finishedEvaluation = NO;
   [_webView.configuration.websiteDataStore.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> *cookies) {
     for (NSHTTPCookie *cookie in cookies) {
@@ -1080,7 +1114,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
 
   if ([allowedURLSchemes containsObject:navigationAction.request.URL.scheme]) {
     if ([[UIApplication sharedApplication] canOpenURL:navigationAction.request.URL]) {
-      // Event to return url to Titanium in order to handle OAuth and more
+      // Event to return URL to Titanium in order to handle OAuth and more
       if ([[self proxy] _hasListeners:@"handleurl"]) {
         TiThreadPerformOnMainThread(
             ^{
@@ -1108,7 +1142,7 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     BOOL valid = !ignoreNextRequest;
     if ([scheme hasPrefix:@"http"]) {
       // UIWebViewNavigationTypeOther means we are either in a META redirect
-      // or it is a js request from within the page
+      // or it is a JS request from within the page
       valid = valid && (navigationAction.navigationType != WKNavigationTypeOther);
     }
     if (valid) {

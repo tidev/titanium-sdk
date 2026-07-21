@@ -37,7 +37,9 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
@@ -62,6 +64,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final List<KrollDict> selectedRows = new ArrayList<>();
 
 	private boolean hasLaidOutChildren = false;
+	private SnapHelper snapHelper;
 	private SelectionTracker tracker;
 	private boolean isScrolling = false;
 	private int scrollOffsetX = 0;
@@ -221,8 +224,8 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 							@Override
 							public boolean inSelectionHotspot(@NonNull MotionEvent e)
 							{
-								if (holder.getProxy() instanceof TableViewRowProxy) {
-									final TableViewRowProxy row = (TableViewRowProxy) holder.getProxy();
+								if (holder.getProxy() != null) {
+									final TableViewRowProxy row = holder.getProxy();
 
 									// Prevent selection of placeholders.
 									return !row.isPlaceholder();
@@ -248,6 +251,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
 		}
+		setSnapping(properties.optBoolean(TiC.PROPERTY_SNAPPING, false));
 		if (editing && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -342,7 +346,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		if (firstVisibleView != null) {
 			final TableViewHolder firstVisibleHolder =
 				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
-			final TableViewRowProxy firstVisibleProxy = (TableViewRowProxy) firstVisibleHolder.getProxy();
+			final TableViewRowProxy firstVisibleProxy = firstVisibleHolder.getProxy();
 			int firstVisibleIndex = -1;
 			if (firstVisibleProxy != null) {
 				firstVisibleIndex = firstVisibleProxy.getIndexInSection();
@@ -430,6 +434,27 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public TiNestedRecyclerView getRecyclerView()
 	{
 		return this.recyclerView;
+	}
+
+	/**
+	 * Enable or disable snapping of rows to the nearest position after a scroll.
+	 *
+	 * @param value Set true to snap rows into place.
+	 */
+	public void setSnapping(boolean value)
+	{
+		if (value == (this.snapHelper != null)) {
+			// Already in the requested state.
+			return;
+		}
+
+		if (value) {
+			this.snapHelper = new LinearSnapHelper();
+			this.snapHelper.attachToRecyclerView(this.recyclerView);
+		} else {
+			this.snapHelper.attachToRecyclerView(null);
+			this.snapHelper = null;
+		}
 	}
 
 	/**
@@ -534,7 +559,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				(TableViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
 			// Obtain first visible table row proxy.
-			return (TableViewRowProxy) firstVisibleHolder.getProxy();
+			return firstVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -556,7 +581,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 				(TableViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible table row proxy.
-			return (TableViewRowProxy) lastVisibleHolder.getProxy();
+			return lastVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -655,8 +680,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		for (final Object entry : this.proxy.getData()) {
 
 			int filteredIndex = 0;
-			if (entry instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy section = (TableViewSectionProxy) entry;
+			if (entry instanceof TableViewSectionProxy section) {
 				final TableViewRowProxy[] rows = section.getRows();
 
 				// Add placeholder item for TableViewSection header/footer.

@@ -17,7 +17,7 @@
 #endif
 @class TiGradientLayer;
 
-// Overloads hilighting to send touchbegin/touchend events
+// Overloads highlighting to send touchbegin/touchend events
 @interface TiUITableViewCell : UITableViewCell {
   TiUITableViewRowProxy *proxy;
   TiGradientLayer *gradientLayer;
@@ -51,6 +51,7 @@
   BOOL animateHide;
   BOOL editable;
   BOOL moveable;
+  BOOL snapping;
   NSMutableArray *sectionIndex;
   NSMutableDictionary *sectionIndexMap;
   TiDimension rowHeight;

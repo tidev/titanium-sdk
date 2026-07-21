@@ -452,17 +452,17 @@
     if (TiDimensionIsDip(rowHeight)) {
       [tableview setRowHeight:rowHeight.value];
     } else {
-      // TIMOB-17373 rowHeight on iOS8 is -1. Bug??
+      // TIMOB-17373 rowHeight on iOS 8 is -1. Bug??
       [tableview setRowHeight:44];
     }
 
-    BOOL initBackGround = YES;
+    BOOL initBackground = YES;
     id bgInitValue = [[self proxy] valueForKey:@"backgroundColor"];
     if (style == UITableViewStyleGrouped) {
       // If the style is grouped do not call this method unless a backgroundColor is specified
-      initBackGround = (bgInitValue != nil);
+      initBackground = (bgInitValue != nil);
     }
-    if (initBackGround) {
+    if (initBackground) {
       [self setBackgroundColor:[TiUtils colorValue:bgInitValue] onTable:tableview];
     }
 
@@ -808,7 +808,7 @@
     [self appendRow:row];
     for (TiUITableViewRowProxy *moveRow in addRows) {
       [self appendRow:moveRow];
-      // Removing the temporarly saved proxy.
+      // Removing the temporarily saved proxy.
       [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
     }
     if (![self isSearchStarted]) {
@@ -1581,7 +1581,7 @@
   // called when text starts editing
   [self showSearchScreen:nil];
   searchActivated = YES;
-  // Dont reload here since user started editing but not yet started typing.
+  // Don't reload here since user started editing but not yet started typing.
   // Also if a previous search string exists this reload results in blank cells.
 }
 
@@ -1589,7 +1589,10 @@
 {
   // Finished editing, always dismiss search controller.
   // Only one search controller can be active at a time.
-  [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
+  //
+  // NOTE: removing this for now as it breaks the search button. Needed for multiple TableView searches in one Window
+  // https://github.com/tidev/titanium-sdk/issues/13246
+  // [self performSelector:@selector(dismissSearchController) withObject:nil afterDelay:.2];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar
@@ -1829,7 +1832,7 @@
     [searchField setDelegate:self];
     [self tableView];
     [self updateSearchView];
-    [self initSearhController];
+    [self initSearchController];
 
     if (searchHidden) {
       // This seems like inconsistent behavior, as much of our 'search hide' logic works out to
@@ -1843,7 +1846,6 @@
   }
 }
 
-#if IS_SDK_IOS_15
 - (void)setSectionHeaderTopPadding_:(id)value
 {
   if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
@@ -1852,9 +1854,8 @@
 
   self.tableView.sectionHeaderTopPadding = [TiUtils floatValue:value def:UITableViewAutomaticDimension];
 }
-#endif
 
-- (void)initSearhController
+- (void)initSearchController
 {
   if (searchController == nil) {
     searchController = [[UISearchController alloc] initWithSearchResultsController:nil];
@@ -1900,6 +1901,11 @@
 - (void)setShowVerticalScrollIndicator_:(id)value
 {
   [[self tableView] setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+}
+
+- (void)setSnapping_:(id)value
+{
+  snapping = [TiUtils boolValue:value def:NO];
 }
 
 - (void)setSearchHidden_:(id)hide
@@ -2130,7 +2136,7 @@
   TiUITableViewRowProxy *row = [self rowForIndexPath:index];
   [row triggerAttach];
 
-  // the classname for all rows that have the same substainal layout will be the same
+  // the classname for all rows that have the same substantial layout will be the same
   // we reuse them for speed
   UITableViewCell *cell = [ourTableView dequeueReusableCellWithIdentifier:row.tableClass];
 
@@ -2540,10 +2546,8 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }
@@ -2552,10 +2556,8 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
-
-  CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-  CGFloat height = keyboardEndFrame.origin.y - mainScreenBounds.size.height < 0 ? keyboardEndFrame.origin.y - convertedOrigin.y : keyboardEndFrame.origin.y;
+  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
 }
@@ -2802,12 +2804,18 @@
 
 - (void)keyboardDidShowAtHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   CGRect minimumContentRect = [tableview bounds];
   InsetScrollViewForKeyboard(tableview, keyboardTop, minimumContentRect.size.height + minimumContentRect.origin.y);
 }
 
 - (void)scrollToShowView:(TiUIView *)firstResponderView withKeyboardHeight:(CGFloat)keyboardTop
 {
+  if ([searchController isActive]) {
+    return;
+  }
   if ([tableview isScrollEnabled]) {
     CGRect minimumContentRect = [tableview bounds];
 
@@ -2908,6 +2916,39 @@
   }
   if ([self.proxy _hasListeners:@"dragstart"]) {
     [self.proxy fireEvent:@"dragstart" withObject:nil];
+  }
+}
+
+// Mirrors Android's LinearSnapHelper by aligning the row nearest the centre of
+// the viewport with that centre once the scroll comes to rest.
+- (void)snapTargetContentOffset:(inout CGPoint *)targetContentOffset
+{
+  UITableView *table = [self tableView];
+  UIEdgeInsets inset = table.adjustedContentInset;
+  CGFloat viewportHeight = table.bounds.size.height - inset.top - inset.bottom;
+
+  if (viewportHeight <= 0 || table.contentSize.height <= 0) {
+    return;
+  }
+
+  CGFloat proposedCenter = targetContentOffset->y + inset.top + (viewportHeight / 2.0);
+  NSIndexPath *indexPath = [table indexPathForRowAtPoint:CGPointMake(CGRectGetMidX(table.bounds), proposedCenter)];
+
+  // No row under the resting centre, ie. a header or footer. Leave the offset alone.
+  if (indexPath == nil) {
+    return;
+  }
+
+  CGFloat snapped = CGRectGetMidY([table rectForRowAtIndexPath:indexPath]) - (viewportHeight / 2.0) - inset.top;
+  CGFloat maxOffset = MAX(-inset.top, table.contentSize.height - viewportHeight - inset.top);
+
+  targetContentOffset->y = MIN(MAX(snapped, -inset.top), maxOffset);
+}
+
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
+{
+  if (snapping) {
+    [self snapTargetContentOffset:targetContentOffset];
   }
 }
 

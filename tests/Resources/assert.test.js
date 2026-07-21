@@ -11,8 +11,8 @@ const should = require('./utilities/assertions'); // eslint-disable-line no-unus
 let assert;
 
 // possible test cases:
-// https://github.com/nodejs/node/blob/master/test/parallel/test-assert-deep.js
-// https://github.com/nodejs/node/blob/master/test/parallel/test-assert.js
+// https://github.com/nodejs/node/blob/main/test/parallel/test-assert-deep.js
+// https://github.com/nodejs/node/blob/main/test/parallel/test-assert.js
 
 describe('assert', function () {
 	it('should be required as core module', function () {

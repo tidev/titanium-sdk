@@ -263,7 +263,7 @@
 {
   CGFloat result = [[self sliderView] sizeThatFits:CGSizeZero].height;
 
-  // IOS7 DP3 sizeThatFits always returns zero for regular slider
+  // iOS 7 DP3 sizeThatFits always returns zero for regular slider
   if (result == 0) {
     result = 30.0;
   }
@@ -304,7 +304,7 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 {
   // APPLE BUG: Sometimes in a double-click our 'UIControlEventTouchUpInside' event is fired more than once.  This is
   // ALWAYS indicated by a sub-0.1s difference between the clicks, and results in an additional fire of the event.
-  // We have to track the PREVIOUS (not current) inverval and prevent these ugly misfires!
+  // We have to track the PREVIOUS (not current) interval and prevent these ugly misfires!
 
   NSDate *now = [[NSDate alloc] init];
   NSTimeInterval currentTimeInterval = [now timeIntervalSinceDate:lastTouchUp];

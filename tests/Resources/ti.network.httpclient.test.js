@@ -85,7 +85,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/Resources/large.jpg');
+		xhr.open('GET', 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/Resources/large.jpg');
 		xhr.send();
 	});
 
@@ -151,7 +151,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'http://mockbin.org/redirect/301?to=https%3A%2F%2Fraw.githubusercontent.com%2Fappcelerator%2Ftitanium_mobile%2Fmaster%2Ftests%2FResources%2Flarge.jpg');
+		xhr.open('GET', 'https://httpbin.org/redirect-to?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftidev%2Ftitanium-sdk%main%2Ftests%2FResources%2Flarge.jpg');
 		xhr.send();
 	});
 
@@ -480,7 +480,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/remote/test-pdf.pdf');
+		xhr.open('GET', 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/remote/test-pdf.pdf');
 		xhr.send();
 	});
 
@@ -653,7 +653,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			}
 		};
 
-		xhr.open('GET', 'https://raw.githubusercontent.com/appcelerator/titanium_mobile/master/tests/Resources/large.jpg');
+		xhr.open('GET', 'https://raw.githubusercontent.com/tidev/titanium-sdk/main/tests/Resources/large.jpg');
 		xhr.send();
 	});
 
@@ -675,7 +675,7 @@ describe('Titanium.Network.HTTPClient', function () {
 					}
 					return finish();
 				}
-				finish(new Error('invalid json response!\n\n' + JSON.stringify(response, null, 1)));
+				finish(new Error('invalid JSON response!\n\n' + JSON.stringify(response, null, 1)));
 			} catch (err) {
 				finish(err);
 			}
@@ -746,7 +746,7 @@ describe('Titanium.Network.HTTPClient', function () {
 				const html = e.source.responseText;
 				try {
 					// should(html).match(/id="protocol_tls1_3">(\s*<span\s+title="RFC 8446"\s*>\s*)?(<font color=green>)?Yes/);
-					should(html).match(/id="protocol_tls1_3">(<font color=green>)?Yes/);
+					should(html).match(/TLS 1.3/);
 				} catch (err) {
 					return finish(err);
 				}
@@ -755,7 +755,7 @@ describe('Titanium.Network.HTTPClient', function () {
 			onerror: _e => finish(new Error('Could not determine TLSv3 support.')),
 			timeout: 8000
 		});
-		client.open('GET', 'https://clienttest.ssllabs.com/ssltest/viewMyClient.html');
+		client.open('GET', 'https://www.howsmyssl.com/a/check');
 		client.send();
 	});
 

@@ -66,7 +66,9 @@ Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTempl
 	EscapableHandleScope scope(isolate);
 
 	const int argc = args.Length();
-	Local<Value>* argv = new Local<Value>[argc];
+	const int stackLimit = 8;
+	Local<Value> stackBuf[stackLimit];
+	Local<Value>* argv = (argc <= stackLimit) ? stackBuf : new Local<Value>[argc];
 	for (int i = 0; i < argc; ++i) {
 		argv[i] = args[i];
 	}
@@ -79,12 +81,13 @@ Local<Value> V8Util::newInstanceFromConstructorTemplate(Persistent<FunctionTempl
 	Local<Function> function;
 	MaybeLocal<Function> maybeFunction = t.Get(isolate)->GetFunction(context);
 	if (!maybeFunction.ToLocal(&function)) {
+		if (argv != stackBuf) delete[] argv;
 		V8Util::fatalException(isolate, tryCatch);
 		return scope.Escape(Undefined(isolate));
 	}
 
 	MaybeLocal<Object> maybeInstance = function->NewInstance(context, argc, argv);
-	delete[] argv;
+	if (argv != stackBuf) delete[] argv;
 	if (!maybeInstance.ToLocal(&instance)) {
 		V8Util::fatalException(isolate, tryCatch);
 		return scope.Escape(Undefined(isolate));
@@ -173,14 +176,14 @@ void V8Util::openJSErrorDialog(Isolate* isolate, TryCatch &tryCatch)
 	Local<Value> jsStack;
 	Local<Value> javaStack;
 
-	// obtain javascript and java stack traces
+	// obtain JavaScript and Java stack traces
 	if (exception->IsObject()) {
 		Local<Object> error = exception.As<Object>();
 		jsStack = error->Get(context, STRING_NEW(isolate, "stack")).FromMaybe(Undefined(isolate).As<Value>());
 		javaStack = error->Get(context, STRING_NEW(isolate, "nativeStack")).FromMaybe(Undefined(isolate).As<Value>());
 	}
 
-	// javascript stack trace not provided? obtain current javascript stack trace
+	// JavaScript stack trace not provided? obtain current JavaScript stack trace
 	if (jsStack.IsEmpty() || jsStack->IsNullOrUndefined()) {
 		Local<StackTrace> frames = message->GetStackTrace();
 		if (frames.IsEmpty() || !frames->GetFrameCount()) {

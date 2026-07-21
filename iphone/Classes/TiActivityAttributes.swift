@@ -6,6 +6,7 @@
  */
 
 #if canImport(ActivityKit)
+#if !targetEnvironment(macCatalyst)
 import Foundation
 import ActivityKit
 
@@ -15,4 +16,5 @@ public struct TiActivityAttributes: ActivityAttributes {
     var value: [String: String]
   }
 }
+#endif
 #endif

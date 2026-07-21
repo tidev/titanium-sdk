@@ -61,7 +61,7 @@ methods:
         `Resources` directory, **not** to the current context. This is a known issue
         that will be addressed in a future release.
 
-        On iOS9, if app thinning is enabled, and the file of interest is an image file
+        On iOS 9, if app thinning is enabled, and the file of interest is an image file
         that was bundled with the app (not downloaded during runtime), this will not return
         the image file since it is already allocated inside the assets catalog. Please
         use [getAsset](Titanium.Filesystem.getAsset) instead for this case.

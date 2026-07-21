@@ -35,7 +35,9 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
@@ -53,6 +55,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final ItemTouchHelper itemTouchHelper;
 
 	private boolean hasLaidOutChildren = false;
+	private SnapHelper snapHelper = null;
 	private SelectionTracker tracker = null;
 	private boolean isScrolling = false;
 	private boolean continuousUpdate = false;
@@ -261,8 +264,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 							@Override
 							public boolean inSelectionHotspot(@NonNull MotionEvent e)
 							{
-								if (holder.getProxy() instanceof ListItemProxy) {
-									final ListItemProxy item = (ListItemProxy) holder.getProxy();
+								if (holder.getProxy() != null) {
+									final ListItemProxy item = holder.getProxy();
 
 									// Prevent selection of placeholders.
 									return !item.isPlaceholder();
@@ -291,6 +294,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
 		}
+		setSnapping(properties.optBoolean(TiC.PROPERTY_SNAPPING, false));
 		if ((editing || !requiresEditingToMove) && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -320,9 +324,8 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 									continue;
 								}
 
-								if (item.getParent() instanceof ListSectionProxy) {
+								if (item.getParent() instanceof ListSectionProxy section) {
 									final KrollDict selectedItem = new KrollDict();
-									final ListSectionProxy section = (ListSectionProxy) item.getParent();
 
 									selectedItem.put(TiC.PROPERTY_ITEM_INDEX, item.getIndexInSection());
 									selectedItem.put(TiC.PROPERTY_SECTION, section);
@@ -390,8 +393,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 			// Obtain first visible section proxy.
 			final TiViewProxy firstVisibleParentProxy = firstVisibleProxy.getParent();
-			if (firstVisibleParentProxy instanceof ListSectionProxy) {
-				final ListSectionProxy firstVisibleSection = (ListSectionProxy) firstVisibleParentProxy;
+			if (firstVisibleParentProxy instanceof ListSectionProxy firstVisibleSection) {
 				payload.put(TiC.PROPERTY_FIRST_VISIBLE_SECTION, firstVisibleSection);
 
 				// Obtain first visible section index.
@@ -567,7 +569,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(firstVisibleView);
 
 			// Obtain first visible list item proxy.
-			return (ListItemProxy) firstVisibleHolder.getProxy();
+			return firstVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -601,7 +603,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				(ListViewHolder) recyclerView.getChildViewHolder(lastVisibleView);
 
 			// Obtain last visible list item proxy.
-			return (ListItemProxy) lastVisibleHolder.getProxy();
+			return lastVisibleHolder.getProxy();
 		}
 
 		return null;
@@ -713,11 +715,13 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 					.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
 				// Handle search query.
 				if (query != null && !alwaysInclude) {
-					String searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
+					String searchableText;
+					if (caseInsensitive) {
+						searchableText = item.getSearchableTextLower();
+					} else {
+						searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
+					}
 					if (searchableText != null) {
-						if (caseInsensitive) {
-							searchableText = searchableText.toLowerCase();
-						}
 						if (!searchableText.contains(query)) {
 							continue;
 						}
@@ -835,6 +839,27 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public void setContinousUpdate(boolean value)
 	{
 		continuousUpdate = value;
+	}
+
+	/**
+	 * Enable or disable snapping of items to the nearest position after a scroll.
+	 *
+	 * @param value Set true to snap items into place.
+	 */
+	public void setSnapping(boolean value)
+	{
+		if (value == (this.snapHelper != null)) {
+			// Already in the requested state.
+			return;
+		}
+
+		if (value) {
+			this.snapHelper = new LinearSnapHelper();
+			this.snapHelper.attachToRecyclerView(this.recyclerView);
+		} else {
+			this.snapHelper.attachToRecyclerView(null);
+			this.snapHelper = null;
+		}
 	}
 
 	public void setForceUpdates(boolean value)
