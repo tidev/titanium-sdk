@@ -915,7 +915,7 @@ class AndroidBuilder extends Builder {
 				this.minifyCSS = true;
 				this.allowDebugging = false;
 				this.allowProfiling = false;
-				this.proguard = false;
+				this.proguard = true;
 				break;
 
 			case 'test':
@@ -1026,12 +1026,9 @@ class AndroidBuilder extends Builder {
 		}
 
 		// check that the proguard config exists
-		const proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
-		if (this.proguard && !fs.existsSync(proguardConfigFile)) {
-			logger.error('Missing ProGuard configuration file');
-			logger.error(`ProGuard settings must go in the file "${proguardConfigFile}"`);
-			logger.error('For example configurations, visit http://proguard.sourceforge.net/index.html#manual/examples.html\n');
-			process.exit(1);
+		const localProguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
+		if (this.proguard && fs.existsSync(localProguardConfigFile)) {
+			this.proguardConfigFile = localProguardConfigFile;
 		}
 
 		// map SDK versions to SDK targets instead of by id
@@ -2424,7 +2421,9 @@ class AndroidBuilder extends Builder {
 			libDependencyStrings: this.libDependencyStrings,
 			mavenRepositoryUrls: this.mavenRepositoryUrls,
 			ndkAbiArray: this.abis,
-			proguardFilePaths: this.proguardConfigFile ? [ this.proguardConfigFile ] : null,
+			proguardFilePaths: this.proguardConfigFile
+				? [ path.join(this.templatesDir, 'titanium.proguard.cfg'), this.proguardConfigFile ]
+				: null,
 			tiSdkAndroidDir: this.platformPath
 		});
 		await fs.writeFile(path.join(this.buildAppDir, 'build.gradle'), buildGradleContent);
