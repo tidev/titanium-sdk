@@ -222,33 +222,6 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 		return new V8Promise();
 	}
 
-	/**
-	 * Called from C++ (V8Runtime::FireUnhandledRejections) when an unhandled promise rejection is detected.
-	 * Fires the global.onunhandledrejection event on the JavaScript side.
-	 * @param reason The string representation of the rejection reason.
-	 */
-	public void dispatchUnhandledRejection(String reason)
-	{
-		if (isDisposed()) {
-			return;
-		}
-
-		String escapedReason = reason.replace("\\", "\\\\").replace("'", "\\'")
-			.replace("\n", "\\n").replace("\r", "\\n");
-
-		String jsCode = "(function(){"
-			+ "if(typeof global.onunhandledrejection==='function'){"
-			+ "var e={type:'unhandledrejection',"
-			+ "reason:" + (reason != null ? "new Error('" + escapedReason + "')" : "undefined") + ","
-			+ "promise:null,defaultPrevented:false,cancelable:false,"
-			+ "preventDefault:function(){this.defaultPrevented=true;}};"
-			+ "global.onunhandledrejection(e);"
-			+ "if(!e.defaultPrevented){console.error('Unhandled promise rejection:','" + escapedReason + "');}"
-			+ "}else{console.error('Unhandled promise rejection:','" + escapedReason + "');}"
-			+ "})()";
-		doEvalString(jsCode, "ti://unhandledrejection");
-	}
-
 	// JNI method prototypes
 	private native void nativeInit(JSDebugger jsDebugger, boolean DBG, boolean profilerEnabled);
 

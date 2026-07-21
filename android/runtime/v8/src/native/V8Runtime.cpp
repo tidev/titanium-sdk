@@ -200,13 +200,44 @@ void V8Runtime::PromiseRejectCallback(PromiseRejectMessage message)
 		// A handler was attached to a previously rejected promise.
 		// Remove it from the pending vector — no event should fire.
 		for (auto it = pendingRejections.begin(); it != pendingRejections.end(); ++it) {
-			if (it->IsEmpty() || it->Get(isolate) == promise) {
+			if (*it == promise) {
 				pendingRejections.erase(it);
 				break;
 			}
 		}
 	}
 	// kPromiseRejectAfterResolved and kPromiseResolveAfterResolved are ignored.
+}
+
+// Builds a human readable string for a rejection reason, used when the
+// rejection goes unhandled and we have to log it ourselves.
+static Local<String> rejectionReasonToString(Local<Context> context, Local<Value> reason)
+{
+	Isolate* isolate = context->GetIsolate();
+	EscapableHandleScope scope(isolate);
+
+	if (reason->IsObject()) {
+		// For Error objects the stack is the most useful representation, fall back to the message.
+		Local<Object> reasonObject = reason.As<Object>();
+		Local<Value> stack;
+		if (reasonObject->Get(context, STRING_NEW(isolate, "stack")).ToLocal(&stack) && !stack->IsUndefined()) {
+			return scope.Escape(stack->ToString(context).FromMaybe(STRING_NEW(isolate, "Unknown error")));
+		}
+		Local<Value> message;
+		if (reasonObject->Get(context, STRING_NEW(isolate, "message")).ToLocal(&message) && !message->IsUndefined()) {
+			return scope.Escape(message->ToString(context).FromMaybe(STRING_NEW(isolate, "Unknown error")));
+		}
+	}
+
+	return scope.Escape(reason->ToString(context).FromMaybe(STRING_NEW(isolate, "Unknown error")));
+}
+
+// Implements event.preventDefault() on the event object handed to global.onunhandledrejection.
+static void PreventDefaultCallback(const FunctionCallbackInfo<Value>& args)
+{
+	Isolate* isolate = args.GetIsolate();
+	Local<Context> context = isolate->GetCurrentContext();
+	args.This()->Set(context, STRING_NEW(isolate, "defaultPrevented"), v8::True(isolate));
 }
 
 void V8Runtime::FireUnhandledRejections(void* data)
@@ -218,18 +249,32 @@ void V8Runtime::FireUnhandledRejections(void* data)
 	}
 
 	HandleScope handleScope(isolate);
-	Local<Context> context = isolate->GetCurrentContext();
-	JNIEnv *env = JNIUtil::getJNIEnv();
-	if (!env) {
+	Local<Context> context = V8Runtime::GlobalContext();
+	if (context.IsEmpty()) {
 		microtaskEnqueued = false;
 		return;
 	}
+	Context::Scope contextScope(context);
 
 	// Process all pending unhandled rejections.
-	// Move the vector out first since the callback may trigger new rejections.
+	// Move the vector out first since the handler may trigger new rejections.
 	std::vector<v8::Global<Promise>> rejections;
 	rejections.swap(pendingRejections);
 	microtaskEnqueued = false;
+
+	Local<Object> global = context->Global();
+
+	// kroll.dispatchUnhandledRejection() fans the event out to internal SDK listeners and to
+	// global.onunhandledrejection. Fall back to the public slot if the kernel hasn't booted yet.
+	Local<Value> handler;
+	Local<Object> kroll = V8Runtime::Global(); // despite the name, this returns global.kroll
+	if (kroll.IsEmpty()
+		|| !kroll->Get(context, STRING_NEW(isolate, "dispatchUnhandledRejection")).ToLocal(&handler)
+		|| !handler->IsFunction()) {
+		if (!global->Get(context, STRING_NEW(isolate, "onunhandledrejection")).ToLocal(&handler)) {
+			handler = Undefined(isolate);
+		}
+	}
 
 	for (auto& globalPromise : rejections) {
 		if (globalPromise.IsEmpty()) {
@@ -237,53 +282,50 @@ void V8Runtime::FireUnhandledRejections(void* data)
 		}
 
 		Local<Promise> promise = globalPromise.Get(isolate);
-		if (promise.IsEmpty()) {
+		if (promise.IsEmpty() || promise->State() != Promise::kRejected) {
 			continue;
 		}
 
-		// Extract the rejection reason.
 		Local<Value> reason = promise->Result();
-		Local<String> reasonStr;
-		if (reason->IsObject()) {
-			// For Error objects, try to get a useful string representation.
-			MaybeLocal<Value> maybeMessage = reason.As<Object>()->Get(
-				context, STRING_NEW(isolate, "message"));
-			MaybeLocal<Value> maybeStack = reason.As<Object>()->Get(
-				context, STRING_NEW(isolate, "stack"));
-			if (!maybeStack.IsEmpty() && !maybeStack.ToLocalChecked()->IsUndefined()) {
-				reasonStr = maybeStack.ToLocalChecked()->ToString(context).FromMaybe(
-					STRING_NEW(isolate, "Unknown error"));
-			} else if (!maybeMessage.IsEmpty() && !maybeMessage.ToLocalChecked()->IsUndefined()) {
-				reasonStr = maybeMessage.ToLocalChecked()->ToString(context).FromMaybe(
-					STRING_NEW(isolate, "Unknown error"));
-			} else {
-				reasonStr = reason->ToString(context).FromMaybe(
-					STRING_NEW(isolate, "Unknown error"));
+		bool defaultPrevented = false;
+
+		if (handler->IsFunction()) {
+			// Hand the handler a PromiseRejectionEvent-shaped object carrying the
+			// real reason value and the promise itself.
+			Local<Object> event = Object::New(isolate);
+			event->Set(context, STRING_NEW(isolate, "type"), STRING_NEW(isolate, "unhandledrejection"));
+			event->Set(context, STRING_NEW(isolate, "reason"), reason);
+			event->Set(context, STRING_NEW(isolate, "promise"), promise);
+			event->Set(context, STRING_NEW(isolate, "defaultPrevented"), v8::False(isolate));
+			event->Set(context, STRING_NEW(isolate, "cancelable"), v8::True(isolate));
+
+			Local<Function> preventDefault;
+			if (Function::New(context, PreventDefaultCallback).ToLocal(&preventDefault)) {
+				event->Set(context, STRING_NEW(isolate, "preventDefault"), preventDefault);
 			}
-		} else if (!reason->IsUndefined()) {
-			reasonStr = reason->ToString(context).FromMaybe(
-				STRING_NEW(isolate, "Unknown error"));
-		} else {
-			reasonStr = STRING_NEW(isolate, "undefined");
+
+			TryCatch tryCatch(isolate);
+			Local<Value> args[] = { event };
+			handler.As<Function>()->Call(context, global, 1, args);
+
+			if (tryCatch.HasCaught()) {
+				// A throwing handler must not swallow the rejection it was told about.
+				V8Util::reportException(isolate, tryCatch, false);
+			} else {
+				Local<Value> prevented;
+				if (event->Get(context, STRING_NEW(isolate, "defaultPrevented")).ToLocal(&prevented)) {
+					defaultPrevented = prevented->BooleanValue(isolate);
+				}
+			}
 		}
 
-		// Convert to Java strings.
-		jstring jReason = TypeConverter::jsValueToJavaString(isolate, env, reasonStr);
-
-		// Call Java dispatchUnhandledRejection() on the V8Runtime instance.
-		env->CallVoidMethod(
-			V8Runtime::javaInstance,
-			JNIUtil::v8RuntimeDispatchUnhandledRejectionMethod,
-			jReason);
-		env->DeleteLocalRef(jReason);
-
-		if (env->ExceptionCheck()) {
-			env->ExceptionDescribe();
-			env->ExceptionClear();
+		if (!defaultPrevented) {
+			String::Utf8Value utf8Reason(isolate, rejectionReasonToString(context, reason));
+			LOGE(TAG, "Unhandled promise rejection: %s", *utf8Reason);
 		}
 	}
 
-	// Global<Promise> unique_ptrs in 'rejections' auto-release when it goes out of scope.
+	// The Global<Promise> handles in 'rejections' release when the vector goes out of scope.
 }
 
 } // namespace titanium

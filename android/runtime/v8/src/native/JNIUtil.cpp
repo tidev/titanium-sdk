@@ -49,7 +49,6 @@ jclass JNIUtil::stackTraceElementClass = NULL;
 jclass JNIUtil::v8PromiseClass = NULL;
 jclass JNIUtil::v8ObjectClass = NULL;
 jclass JNIUtil::v8FunctionClass = NULL;
-jclass JNIUtil::v8RuntimeClass = NULL;
 jclass JNIUtil::krollRuntimeClass = NULL;
 jclass JNIUtil::krollInvocationClass = NULL;
 jclass JNIUtil::krollExceptionClass = NULL;
@@ -120,8 +119,6 @@ jmethodID JNIUtil::krollAssetHelperReadAssetMethod = NULL;
 jmethodID JNIUtil::krollLoggingLogWithDefaultLoggerMethod = NULL;
 
 jmethodID JNIUtil::krollRuntimeDispatchExceptionMethod = NULL;
-
-jmethodID JNIUtil::v8RuntimeDispatchUnhandledRejectionMethod = NULL;
 
 jmethodID JNIUtil::getJSPropertiesMethod = NULL;
 
@@ -339,7 +336,6 @@ void JNIUtil::initCache()
 	v8PromiseClass = findClass("org/appcelerator/kroll/runtime/v8/V8Promise");
 	v8ObjectClass = findClass("org/appcelerator/kroll/runtime/v8/V8Object");
 	v8FunctionClass = findClass("org/appcelerator/kroll/runtime/v8/V8Function");
-	v8RuntimeClass = findClass("org/appcelerator/kroll/runtime/v8/V8Runtime");
 	krollRuntimeClass = findClass("org/appcelerator/kroll/KrollRuntime");
 	krollInvocationClass = findClass("org/appcelerator/kroll/KrollInvocation");
 	krollObjectClass = findClass("org/appcelerator/kroll/KrollObject");
@@ -419,10 +415,6 @@ void JNIUtil::initCache()
 		"([[Ljava/lang/Object;)V", false);
 
 	krollRuntimeDispatchExceptionMethod = getMethodID(krollRuntimeClass, "dispatchException", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)V",true);
-
-	// V8Runtime methods
-	v8RuntimeDispatchUnhandledRejectionMethod = getMethodID(v8RuntimeClass, "dispatchUnhandledRejection", "(Ljava/lang/String;)V", false);
-
 	krollAssetHelperReadAssetMethod = getMethodID(krollAssetHelperClass, "readAssetBytes", "(Ljava/lang/String;)[B", true);
 
 	krollLoggingLogWithDefaultLoggerMethod = getMethodID(krollLoggingClass, "logWithDefaultLogger", "(ILjava/lang/String;)V", true);

@@ -80,10 +80,25 @@ function bootstrap(global, kroll) {
 	function startup() {
 		global.global = global; // hang the global object off itself
 		global.kroll = kroll; // hang our special under the hood kroll object off the global
-		// Web-standard handler for unhandled promise rejections.
-		// Assign a function to global.onunhandledrejection to receive rejection events.
-		// If no handler is set, rejections are logged to console.error automatically.
+		// Web-standard handler for unhandled promise rejections. This slot belongs to app code:
+		// assign a function to global.onunhandledrejection to receive rejection events.
+		// If nothing prevents the default, the rejection is logged by the runtime.
 		global.onunhandledrejection = null;
+		// Internal listeners let SDK code (i.e. the node process shim) observe rejections
+		// without occupying the public slot above, so neither can clobber the other.
+		// The runtime calls kroll.dispatchUnhandledRejection(), never global.onunhandledrejection directly.
+		const unhandledRejectionListeners = [];
+		kroll.addUnhandledRejectionListener = function (listener) {
+			unhandledRejectionListeners.push(listener);
+		};
+		kroll.dispatchUnhandledRejection = function (event) {
+			for (const listener of unhandledRejectionListeners) {
+				listener(event);
+			}
+			if (typeof global.onunhandledrejection === 'function') {
+				global.onunhandledrejection(event);
+			}
+		};
 		if (OS_ANDROID) {
 			kroll.ScopeVars = ScopeVars;
 			// external module bootstrap.js expects to call kroll.NativeModule.require directly to load in their own source
