@@ -296,8 +296,8 @@ export class ProcessJsTask extends IncrementalFileTask {
 		});
 
 		let newContents;
-		if (this.builder.useWebpack && !isFileFromCommonFolder) {
-			// Webpack already did all the work, just copy the file's content
+		if (this.builder.useBundler && !isFileFromCommonFolder) {
+			// A JS bundler already transformed the file, just copy its content.
 			newContents = source;
 			this.logger.debug(`Copying ${from.cyan} => ${to.cyan}`);
 		} else {
