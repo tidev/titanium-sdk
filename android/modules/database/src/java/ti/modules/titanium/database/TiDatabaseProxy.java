@@ -41,6 +41,7 @@ public class TiDatabaseProxy extends KrollProxy
 	private static final String TAG = "TiDB";
 
 	private Thread thread;
+	private QueryExecutor queryExecutor;
 	private final Lock dbLock = new ReentrantLock(true); // use a "fair" lock
 	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 	private final AtomicBoolean executingQueue = new AtomicBoolean(false);
@@ -61,32 +62,8 @@ public class TiDatabaseProxy extends KrollProxy
 		if (this.thread == null) {
 
 			// Query execution thread.
-			this.thread = new Thread(new Runnable() {
-				@Override
-				public void run()
-				{
-					try {
-
-						// Query execution loop.
-						while (true) {
-
-							// Obtain query and execute.
-							// NOTE: This will block until a query is available.
-							queue.take().run();
-
-							// Queue empty? Send notify event.
-							if (queue.isEmpty()) {
-								synchronized (executingQueue)
-								{
-									executingQueue.set(false);
-									executingQueue.notify();
-								}
-							}
-						}
-					} catch (InterruptedException e) {
-					}
-				}
-			});
+			this.queryExecutor = new QueryExecutor(queue, executingQueue);
+			this.thread = new Thread(this.queryExecutor);
 			this.thread.start();
 		}
 
@@ -147,6 +124,10 @@ public class TiDatabaseProxy extends KrollProxy
 		}
 
 		// Abort query queue execution.
+		if (queryExecutor != null) {
+			queryExecutor.shutdown();
+			queryExecutor = null;
+		}
 		if (thread != null) {
 			thread.interrupt();
 			thread = null;
@@ -506,6 +487,55 @@ public class TiDatabaseProxy extends KrollProxy
 				map.put("results", partialResults.toArray());
 			}
 			return map;
+		}
+	}
+
+	/**
+	 * Static inner class for query execution thread.
+	 * Uses static to avoid holding an implicit reference to the outer TiDatabaseProxy instance,
+	 * which would prevent garbage collection of the proxy and its associated database resources.
+	 */
+	private static class QueryExecutor implements Runnable
+	{
+		private final BlockingQueue<Runnable> queue;
+		private final AtomicBoolean executingQueue;
+		private volatile boolean running;
+
+		QueryExecutor(BlockingQueue<Runnable> queue, AtomicBoolean executingQueue)
+		{
+			this.queue = queue;
+			this.executingQueue = executingQueue;
+			this.running = true;
+		}
+
+		@Override
+		public void run()
+		{
+			try {
+				// Query execution loop.
+				while (running) {
+
+					// Obtain query and execute.
+					// NOTE: This will block until a query is available.
+					queue.take().run();
+
+					// Queue empty? Send notify event.
+					if (queue.isEmpty()) {
+						synchronized (executingQueue)
+						{
+							executingQueue.set(false);
+							executingQueue.notify();
+						}
+					}
+				}
+			} catch (InterruptedException e) {
+				// Thread was interrupted during shutdown.
+			}
+		}
+
+		void shutdown()
+		{
+			running = false;
 		}
 	}
 }
