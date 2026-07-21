@@ -330,7 +330,7 @@ public class TiUIButton extends TiUIView
 
 		// Update button's image/icon.
 		if (drawable != null) {
-			boolean imageIsMask = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_IMAGE_IS_MASK), false);
+			boolean imageIsMask = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_IMAGE_IS_MASK), true);
 			int colorValue = this.defaultColor;
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				colorValue = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR), proxy.getActivity());
