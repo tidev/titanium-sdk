@@ -2421,7 +2421,9 @@ class AndroidBuilder extends Builder {
 			libDependencyStrings: this.libDependencyStrings,
 			mavenRepositoryUrls: this.mavenRepositoryUrls,
 			ndkAbiArray: this.abis,
-			proguardFilePaths: this.proguardConfigFile ? [ this.proguardConfigFile ] : null,
+			proguardFilePaths: this.proguardConfigFile
+				? [ path.join(this.templatesDir, 'titanium.proguard.cfg'), this.proguardConfigFile ]
+				: null,
 			tiSdkAndroidDir: this.platformPath
 		});
 		await fs.writeFile(path.join(this.buildAppDir, 'build.gradle'), buildGradleContent);
