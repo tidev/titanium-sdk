@@ -13,7 +13,6 @@ import ejs from 'ejs';
 import child_process from 'node:child_process';
 import fs from 'fs-extra';
 import path from 'node:path';
-import request from 'request-promise-native';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -175,27 +174,27 @@ async function createSnapshot() {
 			console.log('Attempting to request snapshot...');
 			const snapshotUrl = 'https://v8-snapshot.titaniumsdk.com/gen';
 			const packageJsonData = await loadPackageJson();
-			const requestOptions = {
-				body: {
-					v8: packageJsonData.v8.version,
-					script: rollupFileContent
-				},
-				json: true,
-				resolveWithFullResponse: true,
-				timeout: 60 * 1000 * 5
-			};
+			const requestBody = JSON.stringify({
+				v8: packageJsonData.v8.version,
+				script: rollupFileContent
+			});
 
 			const MAX_ATTEMPTS = 20; // Time-out after two minutes.
 			let attempts;
 			for (attempts = 1; attempts <= MAX_ATTEMPTS; attempts++) {
-				const response = await request.post(snapshotUrl, requestOptions);
+				const response = await fetch(snapshotUrl, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: requestBody,
+					signal: AbortSignal.timeout(60 * 1000 * 5)
+				});
 
-				if (response.statusCode === 200) {
+				if (response.status === 200) {
 					console.log('Writing snapshot...');
-					await fs.writeFile(v8SnapshotHeaderFilePath, response.body);
+					await fs.writeFile(v8SnapshotHeaderFilePath, await response.text());
 					wasSuccessful = true;
 					break;
-				} else if (response.statusCode === 202) {
+				} else if (response.status === 202) {
 
 					// Snapshot server is still building. We need to retry later.
 					console.log('Waiting for snapshot generation...');
