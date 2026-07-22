@@ -19,6 +19,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
+import android.util.TypedValue;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.transition.ChangeBounds;
@@ -90,6 +91,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private int barColor = -1;
 
 	private WeakReference<TiBaseActivity> windowActivity;
+	// Saved position insets (px) for heavyweight windows, where left/right/top/bottom
+	// properties are otherwise stripped and never applied to the Activity window.
+	private int savedLeft = 0;
+	private int savedTop = 0;
+	private int savedRight = 0;
+	private int savedBottom = 0;
 
 	public WindowProxy()
 	{
@@ -116,6 +123,40 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		return v;
 	}
 
+	@Kroll.getProperty
+	public KrollDict getRect()
+	{
+		// Heavyweight windows fill the screen and don't have a proxy view, so
+		// the inherited TiViewProxy.getRect() returns zeros. Report the intended
+		// position from the saved left/top insets and the actual window size.
+		KrollDict rect = new KrollDict();
+		View decorView = null;
+		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
+		if (activity != null) {
+			decorView = activity.getWindow().getDecorView();
+		}
+		TiDimension xDim = new TiDimension(savedLeft, TiDimension.TYPE_LEFT, TypedValue.COMPLEX_UNIT_DIP);
+		TiDimension yDim = new TiDimension(savedTop, TiDimension.TYPE_TOP, TypedValue.COMPLEX_UNIT_DIP);
+		if (decorView != null && decorView.getWidth() > 0) {
+			TiDimension wDim = new TiDimension(decorView.getWidth(), TiDimension.TYPE_WIDTH);
+			TiDimension hDim = new TiDimension(decorView.getHeight(), TiDimension.TYPE_HEIGHT);
+			rect.put(TiC.PROPERTY_WIDTH, wDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_HEIGHT, hDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_X, xDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_Y, yDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_X_ABSOLUTE, xDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_Y_ABSOLUTE, yDim.getAsDefault(decorView));
+		} else {
+			rect.put(TiC.PROPERTY_WIDTH, 0);
+			rect.put(TiC.PROPERTY_HEIGHT, 0);
+			rect.put(TiC.PROPERTY_X, (double) savedLeft);
+			rect.put(TiC.PROPERTY_Y, (double) savedTop);
+			rect.put(TiC.PROPERTY_X_ABSOLUTE, (double) savedLeft);
+			rect.put(TiC.PROPERTY_Y_ABSOLUTE, (double) savedTop);
+		}
+		return rect;
+	}
+
 	@Override
 	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
@@ -135,6 +176,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+		// Save them before stripping so getRect() can report the intended position.
+		savedLeft = TiConvert.toInt(getProperty(TiC.PROPERTY_LEFT), 0);
+		savedTop = TiConvert.toInt(getProperty(TiC.PROPERTY_TOP), 0);
+		savedRight = TiConvert.toInt(getProperty(TiC.PROPERTY_RIGHT), 0);
+		savedBottom = TiConvert.toInt(getProperty(TiC.PROPERTY_BOTTOM), 0);
 		properties.remove(TiC.PROPERTY_TOP);
 		properties.remove(TiC.PROPERTY_BOTTOM);
 		properties.remove(TiC.PROPERTY_LEFT);
