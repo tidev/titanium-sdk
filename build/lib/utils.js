@@ -5,8 +5,9 @@ import os from 'node:os';
 import childProcess from 'node:child_process';
 import { glob } from 'glob';
 import appc from 'node-appc';
-import request from 'request';
 import ssri from 'ssri';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -86,70 +87,60 @@ export async function copyAndModifyFiles(srcFolder, destFolder, files, substitut
  * @param {boolean} [options.progress=true] show progress bar/spinner
  * @returns {Promise<string>}
  */
-function download(url, destination, options = { progress: true }) {
-	return new Promise((resolve, reject) => {
-		console.log('Downloading %s', url);
+async function download(url, destination, options = { progress: true }) {
+	console.log('Downloading %s', url);
 
-		const tempStream = fs.createWriteStream(destination);
-		const req = request({ url: url });
+	const response = await fetch(url);
+	if (response.status >= 400) {
+		// something went wrong, abort
+		console.log();
+		const err = util.format('Request for %s failed with HTTP status code %s %s', url, response.status, response.statusText);
+		console.error(new Error(err));
+		throw err;
+	}
 
-		req.pipe(tempStream);
+	const contentLength = response.headers.get('content-length');
+	const body = Readable.fromWeb(response.body);
+	let bar;
+	let spinner;
+	let total;
+	if (options.progress) {
+		if (contentLength) {
+			// we know how big the file is, display the progress bar
+			total = parseInt(contentLength);
+			bar = new appc.progress('  :paddedPercent [:bar] :etas', {
+				complete: '='.cyan,
+				incomplete: '.'.grey,
+				width: 40,
+				total: total
+			});
 
-		req.on('error', function (err) {
-			fs.existsSync(destination) && fs.unlinkSync(destination);
-			console.log();
-			console.error('Failed to download: %s %s', url, err.toString());
-			reject(err);
-		});
+			body.on('data', buffer => bar.tick(buffer.length)); // increase progress bar
+		} else {
+			// we don't know how big the file is, display a spinner
+			spinner = new appc.busyindicator();
+			spinner.start();
+		}
+	}
 
-		req.on('response', function (req) {
-			if (req.statusCode >= 400) {
-				// something went wrong, abort
-				console.log();
-				const err = util.format('Request for %s failed with HTTP status code %s %s', url, req.statusCode, req.statusMessage);
-				console.error(new Error(err));
-				return reject(err);
-			} else if (req.headers['content-length']) {
-				// we know how big the file is, display the progress bar
-				let bar;
-				let total;
-				if (options.progress) {
-					total = parseInt(req.headers['content-length']);
-					bar = new appc.progress('  :paddedPercent [:bar] :etas', {
-						complete: '='.cyan,
-						incomplete: '.'.grey,
-						width: 40,
-						total: total
-					});
+	try {
+		await pipeline(body, fs.createWriteStream(destination));
+	} catch (err) {
+		fs.existsSync(destination) && fs.unlinkSync(destination);
+		console.log();
+		console.error('Failed to download: %s %s', url, err.toString());
+		throw err;
+	}
 
-					req.on('data', buffer => bar.tick(buffer.length)); // increase progress bar
-				}
-
-				tempStream.on('close', () => { // all done
-					if (bar) {
-						bar.tick(total);
-						console.log('\n');
-					}
-					resolve(destination);
-				});
-			} else {
-				// we don't know how big the file is, display a spinner
-				let spinner;
-				if (options.progress) {
-					spinner = new appc.busyindicator();
-					spinner.start();
-				}
-
-				tempStream.on('close', () => { // all done
-					if (spinner) {
-						spinner.stop();
-						console.log();
-					}
-					resolve(destination);
-				});
-			}
-		});
-	});
+	// all done
+	if (bar) {
+		bar.tick(total);
+		console.log('\n');
+	} else if (spinner) {
+		spinner.stop();
+		console.log();
+	}
+	return destination;
 }
 
 /**
