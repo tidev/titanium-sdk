@@ -43,9 +43,9 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 	public AssetCryptImpl()
 	{
 		try {
-			System.loadLibrary("ti.cloak");
+			System.loadLibrary("<%- cryptLib %>");
 		} catch (Exception e) {
-			Log.e(TAG, "Could not load 'ti.cloak' library");
+			Log.e(TAG, "Could not load '<%- cryptLib %>' library");
 		}
 	}
 
@@ -81,7 +81,7 @@ public class AssetCryptImpl implements KrollAssetHelper.AssetCrypt
 		}
 		try {
 			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(ti.cloak.Binding.getKey(salt), "AES"), new IvParameterSpec(salt));
+			cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(<%- cryptLib %>.Binding.getKey(salt), "AES"), new IvParameterSpec(salt));
 			return new CipherInputStream(KrollAssetHelper.getAssetManager().open(path), cipher);
 		} catch (Exception e) {
 			Log.e(TAG, "Could not decrypt '" + path + "'");
