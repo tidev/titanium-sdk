@@ -36,6 +36,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
@@ -52,6 +53,8 @@ public class TiUIMaskedImage extends TiUIView
 	 * Set to null when view's release() method has been called.
 	 */
 	private TiUIMaskedImage.MaskedDrawable maskedDrawable;
+	private int imageLoadToken;
+	private int maskLoadToken;
 
 	public TiUIMaskedImage(final TiViewProxy proxy)
 	{
@@ -223,14 +226,24 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateImageDrawableWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			Drawable drawable = null;
-			if (value != null) {
-				drawable = loadDrawableFrom(value);
-				if (drawable == null) {
-					Log.w(TAG, "Failed to load image.");
-				}
+			if (value == null) {
+				this.maskedDrawable.setImageDrawable(null);
+				return;
 			}
-			this.maskedDrawable.setImageDrawable(drawable);
+			// Load the image off the main thread since it may involve file I/O and bitmap decoding.
+			final int token = ++this.imageLoadToken;
+			TiLoadImageManager.getInstance().load(
+				() -> loadDrawableFrom(value),
+				(Drawable drawable) -> {
+					// Drop the result if the "image" property changed again while loading.
+					if ((token != this.imageLoadToken) || (this.maskedDrawable == null)) {
+						return;
+					}
+					if (drawable == null) {
+						Log.w(TAG, "Failed to load image.");
+					}
+					this.maskedDrawable.setImageDrawable(drawable);
+				});
 		}
 	}
 
@@ -241,14 +254,24 @@ public class TiUIMaskedImage extends TiUIView
 	private void updateMaskDrawableWith(Object value)
 	{
 		if (this.maskedDrawable != null) {
-			Drawable drawable = null;
-			if (value != null) {
-				drawable = loadDrawableFrom(value);
-				if (drawable == null) {
-					Log.w(TAG, "Failed to load mask.");
-				}
+			if (value == null) {
+				this.maskedDrawable.setMaskDrawable(null);
+				return;
 			}
-			this.maskedDrawable.setMaskDrawable(drawable);
+			// Load the mask off the main thread since it may involve file I/O and bitmap decoding.
+			final int token = ++this.maskLoadToken;
+			TiLoadImageManager.getInstance().load(
+				() -> loadDrawableFrom(value),
+				(Drawable drawable) -> {
+					// Drop the result if the "mask" property changed again while loading.
+					if ((token != this.maskLoadToken) || (this.maskedDrawable == null)) {
+						return;
+					}
+					if (drawable == null) {
+						Log.w(TAG, "Failed to load mask.");
+					}
+					this.maskedDrawable.setMaskDrawable(drawable);
+				});
 		}
 	}
 

@@ -41,6 +41,7 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiMimeTypeHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
@@ -56,6 +57,7 @@ public class TiUIWebView extends TiUIView
 	private TiWebViewClient client;
 	private TiWebChromeClient chromeClient;
 	private boolean bindingCodeInjected = false;
+	private int urlLoadToken;
 	private boolean isLocalHTML = false;
 	private boolean disableContextMenu = false;
 	private final HashMap<String, String> extraHeaders = new HashMap<>();
@@ -585,61 +587,59 @@ public class TiUIWebView extends TiUIView
 		final String finalUrl = finalUri.buildUpon().clearQuery().build().toString();
 
 		if (TiFileFactory.isLocalScheme(finalUrl) && mightBeHtml(finalUrl)) {
-			TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
+			final TiBaseFile tiFile = TiFileFactory.createTitaniumFile(finalUrl, false);
 			if (tiFile != null) {
-				StringBuilder out = new StringBuilder();
-				InputStream fis = null;
-				try {
-					fis = tiFile.getInputStream();
-					if (fis == null) {
-						throw new IOException("Unable to open input stream for \"" + finalUrl + "\"");
-					}
-					InputStreamReader reader = new InputStreamReader(fis, StandardCharsets.UTF_8);
-					BufferedReader breader = new BufferedReader(reader);
-					String line = breader.readLine();
-					while (line != null) {
-						if (!bindingCodeInjected) {
-							int pos = line.indexOf("<html");
-							if (pos >= 0) {
-								int posEnd = line.indexOf(">", pos);
-								if (posEnd > pos) {
-									out.append(line.substring(pos, posEnd + 1));
-									out.append(TiWebViewBinding.SCRIPT_TAG_INJECTION_CODE);
-									if ((posEnd + 1) < line.length()) {
-										out.append(line.substring(posEnd + 1));
-									}
-									out.append("\n");
-									bindingCodeInjected = true;
-									line = breader.readLine();
-									continue;
-								}
+				// Read the file off the main thread to avoid blocking the UI.
+				// Binding code injection is handled by setHtmlInternal() on the main thread.
+				final int token = ++this.urlLoadToken;
+				TiLoadImageManager.getInstance().load(
+					() -> readTextFrom(tiFile, finalUrl),
+					(String html) -> {
+						// Drop the result if another URL was set while reading.
+						if (token != this.urlLoadToken) {
+							return;
+						}
+						if (html != null) {
+							String baseUrl = tiFile.nativePath();
+							if (baseUrl == null) {
+								baseUrl = finalUrl;
 							}
+							setHtmlInternal(html, baseUrl + query, "text/html");
+						} else {
+							Log.e(TAG, "Problem reading from " + url + ". Will let WebView try loading it directly.");
+							loadUrlDirectly(finalUrl + query);
 						}
-						out.append(line);
-						out.append("\n");
-						line = breader.readLine();
-					}
-					String baseUrl = tiFile.nativePath();
-					if (baseUrl == null) {
-						baseUrl = finalUrl;
-					}
-					setHtmlInternal(out.toString(), baseUrl + query, "text/html");
-					return;
-				} catch (IOException ioe) {
-					Log.e(TAG,
-						  "Problem reading from " + url + ": " + ioe.getMessage()
-							  + ". Will let WebView try loading it directly.",
-						  ioe);
-				} finally {
-					if (fis != null) {
-						try {
-							fis.close();
-						} catch (IOException e) {
-							Log.w(TAG, "Problem closing stream: " + e.getMessage(), e);
-						}
-					}
-				}
+					});
+				return;
 			}
+		}
+
+		loadUrlDirectly(finalUrl + query);
+	}
+
+	private String readTextFrom(TiBaseFile tiFile, String finalUrl) throws IOException
+	{
+		try (InputStream fis = tiFile.getInputStream()) {
+			if (fis == null) {
+				throw new IOException("Unable to open input stream for \"" + finalUrl + "\"");
+			}
+			StringBuilder out = new StringBuilder();
+			BufferedReader breader = new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8));
+			String line = breader.readLine();
+			while (line != null) {
+				out.append(line);
+				out.append("\n");
+				line = breader.readLine();
+			}
+			return out.toString();
+		}
+	}
+
+	private void loadUrlDirectly(String url)
+	{
+		WebView webView = getWebView();
+		if (webView == null) {
+			return;
 		}
 
 		Log.d(TAG, "WebView will load " + url + " directly without code injection.", Log.DEBUG_MODE);
@@ -651,9 +651,9 @@ public class TiUIWebView extends TiUIView
 		}
 		isLocalHTML = false;
 		if (extraHeaders.size() > 0) {
-			webView.loadUrl(finalUrl + query, extraHeaders);
+			webView.loadUrl(url, extraHeaders);
 		} else {
-			webView.loadUrl(finalUrl + query);
+			webView.loadUrl(url);
 		}
 	}
 

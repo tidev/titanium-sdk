@@ -16,8 +16,10 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import android.graphics.drawable.Drawable;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiToolbarStyleHandler;
@@ -238,8 +240,20 @@ public class TiToolbar extends TiUIView
 	public void setLogo(Object object)
 	{
 		logo = object;
-		TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-		((MaterialToolbar) getNativeView()).setLogo(tiDrawableReference.getDrawable());
+		if (object == null) {
+			((MaterialToolbar) getNativeView()).setLogo(null);
+			return;
+		}
+		// Load the image off the main thread since it may involve file I/O and bitmap decoding.
+		TiLoadImageManager.getInstance().load(
+			() -> TiDrawableReference.fromObject(proxy, object).getDrawable(),
+			(Drawable drawable) -> {
+				// Drop the result if the "logo" property changed again while loading.
+				MaterialToolbar toolbarView = (MaterialToolbar) getNativeView();
+				if ((toolbarView != null) && (this.logo == object)) {
+					toolbarView.setLogo(drawable);
+				}
+			});
 	}
 
 	/**
@@ -261,8 +275,15 @@ public class TiToolbar extends TiUIView
 		if (object instanceof Number) {
 			this.toolbar.setNavigationIcon(TiConvert.toInt(object));
 		} else if (object != null) {
-			TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-			this.toolbar.setNavigationIcon(tiDrawableReference.getDrawable());
+			// Load the image off the main thread since it may involve file I/O and bitmap decoding.
+			TiLoadImageManager.getInstance().load(
+				() -> TiDrawableReference.fromObject(proxy, object).getDrawable(),
+				(Drawable drawable) -> {
+					// Drop the result if the "navigationIcon" property changed again while loading.
+					if (this.navigationIcon == object) {
+						this.toolbar.setNavigationIcon(drawable);
+					}
+				});
 		} else {
 			this.toolbar.setNavigationIcon(null);
 		}
@@ -285,8 +306,15 @@ public class TiToolbar extends TiUIView
 	{
 		this.overflowMenuIcon = object;
 		if (object != null) {
-			TiDrawableReference tiDrawableReference = TiDrawableReference.fromObject(proxy, object);
-			this.toolbar.setOverflowIcon(tiDrawableReference.getDrawable());
+			// Load the image off the main thread since it may involve file I/O and bitmap decoding.
+			TiLoadImageManager.getInstance().load(
+				() -> TiDrawableReference.fromObject(proxy, object).getDrawable(),
+				(Drawable drawable) -> {
+					// Drop the result if the "overflowIcon" property changed again while loading.
+					if (this.overflowMenuIcon == object) {
+						this.toolbar.setOverflowIcon(drawable);
+					}
+				});
 		} else {
 			this.toolbar.setOverflowIcon(null);
 		}

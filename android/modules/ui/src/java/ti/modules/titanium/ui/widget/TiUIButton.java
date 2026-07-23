@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -43,6 +44,7 @@ public class TiUIButton extends TiUIView
 	private static final float DEFAULT_SHADOW_RADIUS = 1f;
 
 	private int defaultColor;
+	private int imageLoadToken;
 	private ColorStateList defaultRippleColor;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -320,11 +322,28 @@ public class TiUIButton extends TiUIView
 			return;
 		}
 
-		// Fetch the image.
-		Drawable drawable = null;
-		Object imageObject = this.proxy.getProperty(TiC.PROPERTY_IMAGE);
-		if (imageObject != null) {
-			drawable = TiUIHelper.getResourceDrawable(imageObject);
+		// Fetch the image off the main thread since it may involve file I/O and bitmap decoding.
+		final int token = ++this.imageLoadToken;
+		final Object imageObject = this.proxy.getProperty(TiC.PROPERTY_IMAGE);
+		if (imageObject == null) {
+			applyButtonImage(null);
+			return;
+		}
+		TiLoadImageManager.getInstance().load(
+			() -> TiUIHelper.getResourceDrawable(imageObject),
+			(Drawable drawable) -> {
+				// Drop the result if the "image" property changed or proxy was released while loading.
+				if ((token == this.imageLoadToken) && (this.proxy != null)) {
+					applyButtonImage(drawable);
+				}
+			});
+	}
+
+	private void applyButtonImage(Drawable drawable)
+	{
+		AppCompatButton button = (AppCompatButton) getNativeView();
+		if (button == null) {
+			return;
 		}
 
 		// Update button's image/icon.

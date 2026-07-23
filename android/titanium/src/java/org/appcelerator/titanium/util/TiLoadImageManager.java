@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.appcelerator.kroll.common.Log;
@@ -14,6 +15,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Manages the asynchronous opening of InputStreams from URIs so that
@@ -24,6 +26,10 @@ public class TiLoadImageManager
 	public interface Listener {
 		void onLoadImageFinished(@NonNull TiDrawableReference drawableRef, @NonNull TiImageInfo imageInfo);
 		void onLoadImageFailed(@NonNull TiDrawableReference drawableRef);
+	}
+
+	public interface AsyncListener<T> {
+		void onResult(@Nullable T result);
 	}
 
 	private static final String TAG = "TiLoadImageManager";
@@ -45,6 +51,24 @@ public class TiLoadImageManager
 	{
 		handler = new Handler(Looper.getMainLooper());
 		threadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+	}
+
+	/**
+	 * Runs the given task on this manager's background thread pool and delivers its
+	 * result to the given listener on the main UI thread. Delivers null if the task throws.
+	 */
+	public <T> void load(@NonNull Callable<T> task, @NonNull AsyncListener<T> listener)
+	{
+		this.threadPool.execute(() -> {
+			T result = null;
+			try {
+				result = task.call();
+			} catch (Exception ex) {
+				Log.e(TAG, "Exception loading resource: " + ex.getLocalizedMessage());
+			}
+			final T finalResult = result;
+			handler.post(() -> listener.onResult(finalResult));
+		});
 	}
 
 	public void load(TiDrawableReference drawableRef, TiLoadImageManager.Listener listener)

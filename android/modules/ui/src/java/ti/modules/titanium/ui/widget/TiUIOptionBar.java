@@ -22,6 +22,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
@@ -168,23 +169,19 @@ public class TiUIOptionBar extends TiUIView
 				// Fetch the optional "accessibilityLabel" property.
 				String accessibilityLabel = TiConvert.toString(hashMap.get(TiC.PROPERTY_ACCESSIBILITY_LABEL), null);
 
-				// Fetch the optional "image" property and load it as a drawable.
-				Drawable imageDrawable = null;
+				// Fetch the optional "image" property. It is loaded asynchronously by addButton().
 				Object imageObject = hashMap.get(TiC.PROPERTY_IMAGE);
-				if (imageObject != null) {
-					imageDrawable = TiUIHelper.getResourceDrawable(imageObject);
-				}
 
 				// Fetch the optional "enabled" flag.
 				boolean isEnabled = TiConvert.toBoolean(hashMap.get(TiC.PROPERTY_ENABLED), true);
 
 				// Add the button.
-				addButton(title, accessibilityLabel, imageDrawable, isEnabled);
+				addButton(title, accessibilityLabel, imageObject, isEnabled);
 			}
 		}
 	}
 
-	private void addButton(String title, String accessibilityLabel, Drawable imageDrawable, boolean isEnabled)
+	private void addButton(String title, String accessibilityLabel, Object imageObject, boolean isEnabled)
 	{
 		// Fetch the button group view.
 		MaterialButtonToggleGroup buttonGroup = getButtonGroup();
@@ -200,7 +197,7 @@ public class TiUIOptionBar extends TiUIView
 		// Create a button with given settings and add it to view group.
 		Context context = buttonGroup.getContext();
 		int attributeId = com.google.android.material.R.attr.materialButtonOutlinedStyle;
-		if (title.isEmpty() && (imageDrawable != null)) {
+		if (title.isEmpty() && (imageObject != null)) {
 			context = new ContextThemeWrapper(context, R.style.Widget_Titanium_OutlinedButton_IconOnly);
 			attributeId = com.google.android.material.R.attr.materialButtonToggleGroupStyle;
 		}
@@ -262,8 +259,15 @@ public class TiUIOptionBar extends TiUIView
 		if ((accessibilityLabel != null) && !accessibilityLabel.isEmpty()) {
 			button.setContentDescription(accessibilityLabel);
 		}
-		if (imageDrawable != null) {
-			button.setIcon(imageDrawable);
+		if (imageObject != null) {
+			// Load the image off the main thread since it may involve file I/O and bitmap decoding.
+			TiLoadImageManager.getInstance().load(
+				() -> TiUIHelper.getResourceDrawable(imageObject),
+				(Drawable imageDrawable) -> {
+					if (imageDrawable != null) {
+						button.setIcon(imageDrawable);
+					}
+				});
 		}
 		if (buttonGroup.getOrientation() != MaterialButtonToggleGroup.HORIZONTAL) {
 			button.setInsetTop(0);
