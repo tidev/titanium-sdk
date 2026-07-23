@@ -46,9 +46,9 @@ android {
 	ndkVersion = project.ext.tiNdkVersion
 	namespace = 'org.appcelerator.titanium'
 	defaultConfig {
-		compileSdkVersion 35
+		compileSdkVersion 36
 		minSdkVersion 24
-		targetSdkVersion 35
+		targetSdkVersion 36
 		versionName tiBuildVersionString
 		versionCode tiBuildVersionCode
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())

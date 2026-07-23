@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -539,8 +541,12 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		if (getActivity() != null) {
 			if (hasPropertyAndNotNull(TiC.PROPERTY_FLAGS)) {
 				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT) {
-					getActivity().getWindow().getDecorView()
-						.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+					Window window = getActivity().getWindow();
+					WindowInsetsControllerCompat insetsController =
+						WindowCompat.getInsetsController(window, window.getDecorView());
+					if (insetsController != null) {
+						insetsController.setAppearanceLightStatusBars(true);
+					}
 				}
 			}
 			if (hasPropertyAndNotNull(TiC.PROPERTY_STATUS_BAR_COLOR)) {

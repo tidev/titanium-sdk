@@ -1373,6 +1373,11 @@ properties:
     type: [Number]
     platforms: [android]
     since: {android: "12.5.0"}
+    description: |
+        Starting with Android 16 (target SDK 36), the status bar is always transparent as part of
+        edge-to-edge enforcement, and `statusBarColor` is ignored by the system. On Android 16+,
+        the status bar area will show the window's `backgroundColor` instead. Use `backgroundColor`
+        to control the color behind the status bar on Android 16+.
 
   - name: navBarColor
     summary: The color of the navigation bar (bottom bar) for this window.

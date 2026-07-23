@@ -33,7 +33,9 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.core.app.ActivityOptionsCompat;
@@ -380,7 +382,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		// Attempt to change the activity's orientation setting.
 		// Note: A semi-transparent activity cannot be assigned a fixed orientation. Will throw an exception.
+		// Note: Android 16 (API 36) ignores fixed orientation on large screens (>600dp) for apps targeting API 36.
 		try {
+			if (Build.VERSION.SDK_INT >= 36 && isFixedOrientation(activityOrientationMode)) {
+				Configuration config = activity.getResources().getConfiguration();
+				int smallestScreenWidthDp = config.smallestScreenWidthDp;
+				if (smallestScreenWidthDp > 600) {
+					Log.w(TAG, "Fixed orientation is not supported on large screens (smallest width: "
+						+ smallestScreenWidthDp + "dp). Orientation request will be ignored on Android 16+.");
+				}
+			}
 			activity.setRequestedOrientation(activityOrientationMode);
 		} catch (Exception ex) {
 			Log.e(TAG, ex.getMessage());
@@ -588,6 +599,12 @@ public abstract class TiWindowProxy extends TiViewProxy
 				}
 			}
 		}
+
+		// Pass status bar color to activity intent so it can be applied before super.onCreate().
+		if (hasProperty(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+			intent.putExtra(TiC.PROPERTY_STATUS_BAR_COLOR,
+				TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)));
+		}
 	}
 
 	@Kroll.getProperty
@@ -689,5 +706,21 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		// Don't do activity transition.
 		return false;
+	}
+
+	/**
+	 * Checks if the given orientation mode locks to a single orientation (not sensor/user/unspecified).
+	 * Used to detect orientation restrictions on Android 16+ large screen devices.
+	 */
+	private boolean isFixedOrientation(int orientationMode)
+	{
+		return orientationMode == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
 	}
 }
