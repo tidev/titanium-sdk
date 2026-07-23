@@ -17,13 +17,16 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
+import android.graphics.drawable.Drawable;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 public class TiUIFloatingActionButton extends TiUIView
 {
 	private static final String TAG = "TiUIFloatingActionButton";
+	private Object imageObject;
 	FloatingActionButton fab;
 
 	public TiUIFloatingActionButton(TiViewProxy proxy)
@@ -87,11 +90,19 @@ public class TiUIFloatingActionButton extends TiUIView
 
 	private void setImage(Object obj)
 	{
+		this.imageObject = obj;
 		if (obj == null) {
 			fab.setImageDrawable(null);
 		} else {
-			TiDrawableReference source = TiDrawableReference.fromObject(getProxy(), obj);
-			fab.setImageDrawable(source.getDrawable());
+			// Load the image off the main thread since it may involve file I/O and bitmap decoding.
+			TiLoadImageManager.getInstance().load(
+				() -> TiDrawableReference.fromObject(getProxy(), obj).getDrawable(),
+				(Drawable drawable) -> {
+					// Drop the result if the "image" property changed again while loading.
+					if (this.imageObject == obj) {
+						fab.setImageDrawable(drawable);
+					}
+				});
 		}
 	}
 

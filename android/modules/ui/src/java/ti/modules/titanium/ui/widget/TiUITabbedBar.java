@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
@@ -46,6 +47,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	private ArrayList<MenuItem> bottomNavigationMenuItems = new ArrayList<>();
 	private int bottomNavigationIndex = -1;
 	private boolean skipClickEvent = false;
+	private int dataSetToken;
 
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
@@ -206,6 +208,9 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 
 	private void parseDataSet()
 	{
+		// Invalidates any still-loading icon results from a previous data set.
+		++this.dataSetToken;
+
 		Object[] labels = ((Object[]) getProxy().getProperty(TiC.PROPERTY_LABELS));
 		if (labels == null || labels.length == 0) {
 			return;
@@ -232,26 +237,50 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 			HashMap item = ((HashMap) labels[i]);
 			// The proxy has an "image" property
 			if (item.containsKey(TiC.PROPERTY_IMAGE)) {
-				// Try to load a drawable from the property
-				Drawable drawable =
-					TiDrawableReference.fromObject(getProxy(), item.get(TiC.PROPERTY_IMAGE)).getDrawable();
-				// If a drawable is successfully loaded add it as an icon and proceed to the next item.
-				if (drawable != null) {
-					addItem(drawable);
-					continue;
-				}
-				// If drawable was not loaded successfully try to fallback to a title.
-				// If we have a title - use it.
-				if (item.containsKey(TiC.PROPERTY_TITLE)) {
-					addItem(item.get(TiC.PROPERTY_TITLE));
-					continue;
-				}
-				// Otherwise add an empty button (parity with iOS)
-				addItem(null);
+				// Add the item now to preserve item order, showing the title (if any) until the
+				// icon is loaded off the main thread. If loading fails the title remains,
+				// or an empty button when there is no title (parity with iOS).
+				addItem(item.get(TiC.PROPERTY_TITLE));
+				final Object imageObject = item.get(TiC.PROPERTY_IMAGE);
+				final int index = i;
+				final int token = this.dataSetToken;
+				TiLoadImageManager.getInstance().load(
+					() -> TiDrawableReference.fromObject(getProxy(), imageObject).getDrawable(),
+					(Drawable drawable) -> {
+						// Drop the result if loading failed or the data set was rebuilt.
+						if ((drawable != null) && (token == this.dataSetToken)) {
+							setItemIcon(index, drawable);
+						}
+					});
+				continue;
 			}
 			if (item.containsKey(TiC.PROPERTY_TITLE)) {
 				addItem(item.get(TiC.PROPERTY_TITLE));
 			}
+		}
+	}
+
+	private void setItemIcon(int index, Drawable drawable)
+	{
+		switch (this.style) {
+			case AndroidModule.TABS_STYLE_DEFAULT:
+				TabLayout.Tab tab = (this.tabLayout != null) ? this.tabLayout.getTabAt(index) : null;
+				if (tab != null) {
+					tab.setText(null);
+					tab.setIcon(drawable);
+					TiUITabLayoutTabGroup.scaleIconToFit(tab);
+					if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+						setTintColor(tab, TiC.PROPERTY_TINT_COLOR);
+					}
+				}
+				break;
+			case AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION:
+				if (index < this.bottomNavigationMenuItems.size()) {
+					MenuItem menuItem = this.bottomNavigationMenuItems.get(index);
+					menuItem.setTitle(null);
+					menuItem.setIcon(drawable);
+				}
+				break;
 		}
 	}
 

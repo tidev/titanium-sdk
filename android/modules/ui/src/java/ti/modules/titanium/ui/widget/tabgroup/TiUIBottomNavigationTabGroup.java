@@ -35,6 +35,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -486,9 +487,18 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			return;
 		}
 
-		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
-		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
-		updateIconTint();
+		// Load the icon off the main thread since it may involve file I/O and bitmap decoding.
+		final Object iconProperty = tabProxy.getProperty(TiC.PROPERTY_ICON);
+		TiLoadImageManager.getInstance().load(
+			() -> TiUIHelper.getResourceDrawable(iconProperty),
+			(Drawable drawable) -> {
+				// Drop the result if the tab was removed/changed while loading.
+				if ((index >= this.tabs.size()) || (this.tabs.get(index).getProxy() != tabProxy)) {
+					return;
+				}
+				this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
+				updateIconTint();
+			});
 	}
 
 	@Override
