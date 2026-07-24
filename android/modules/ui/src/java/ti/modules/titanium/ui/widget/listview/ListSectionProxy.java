@@ -79,7 +79,7 @@ public class ListSectionProxy extends TiViewProxy
 			final ListItemProxy item = this.items.get(index);
 
 			// Remove item.
-			item.setParent(null);
+			item.setParentInternal(null);
 			this.items.remove(item);
 		}
 
@@ -297,14 +297,14 @@ public class ListSectionProxy extends TiViewProxy
 			// Create ListItem from ListItemData.
 			final ListItemProxy item = new ListItemProxy();
 
-			item.setParent(this);
+			item.setParentInternal(this);
 			item.handleCreationDataItem(new KrollDict((HashMap) object));
 
 			return item;
 
 		} else if (object instanceof ListItemProxy item) {
 
-			item.setParent(this);
+			item.setParentInternal(this);
 			return item;
 		}
 
@@ -357,7 +357,7 @@ public class ListSectionProxy extends TiViewProxy
 			if (value instanceof TiViewProxy view) {
 
 				view.setActivity(getActivity());
-				view.setParent(this);
+				view.setParentInternal(this);
 			}
 		}
 	}
@@ -402,7 +402,7 @@ public class ListSectionProxy extends TiViewProxy
 	private void removeAllItems()
 	{
 		for (final ListItemProxy item : this.items) {
-			item.setParent(null);
+			item.setParentInternal(null);
 		}
 		this.items.clear();
 	}

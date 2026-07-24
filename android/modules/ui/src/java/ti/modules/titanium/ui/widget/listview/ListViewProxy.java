@@ -127,7 +127,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			for (final Object o : (Object[]) sections) {
 				if (o instanceof ListSectionProxy section) {
 
-					section.setParent(this);
+					section.setParentInternal(this);
 					this.sections.add(section);
 				}
 			}
@@ -138,7 +138,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		} else if (sections instanceof ListSectionProxy section) {
 
 			// Append ListSection.
-			section.setParent(this);
+			section.setParentInternal(this);
 			this.sections.add(section);
 
 			// Notify ListView of new section.
@@ -302,7 +302,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		if (section != null) {
 
 			// Remove section from list.
-			section.setParent(null);
+			section.setParentInternal(null);
 			this.sections.remove(section);
 
 			// Notify ListView of removed section.
@@ -581,7 +581,7 @@ public class ListViewProxy extends RecyclerViewProxy
 				if (o instanceof ListSectionProxy section) {
 
 					// Add section.
-					section.setParent(this);
+					section.setParentInternal(this);
 					this.sections.add(section);
 				}
 			}
@@ -706,7 +706,7 @@ public class ListViewProxy extends RecyclerViewProxy
 					if (o instanceof ListSectionProxy section) {
 
 						// Inset ListSection.
-						section.setParent(this);
+						section.setParentInternal(this);
 						this.sections.add(rawIndex, section);
 					}
 				}
@@ -717,7 +717,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			} else if (sections instanceof ListSectionProxy section) {
 
 				// Insert ListSection.
-				section.setParent(this);
+				section.setParentInternal(this);
 				this.sections.add(rawIndex, section);
 
 				// Notify ListView of new section.
@@ -793,8 +793,8 @@ public class ListViewProxy extends RecyclerViewProxy
 		if (rawIndex > -1) {
 
 			// Replace section.
-			previousSection.setParent(null);
-			section.setParent(this);
+			previousSection.setParentInternal(null);
+			section.setParentInternal(this);
 			this.sections.remove(rawIndex);
 			this.sections.add(rawIndex, section);
 
