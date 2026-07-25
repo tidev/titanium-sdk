@@ -241,6 +241,9 @@
 
 - (void)pauseAllTimers
 {
+  if (self.paused) {
+    return;
+  }
   self.paused = YES;
   NSDate *now = [NSDate date];
   NSArray<NSNumber *> *keys = [self.timers allKeys];
@@ -262,6 +265,9 @@
 
 - (void)resumeAllTimers
 {
+  if (!self.paused) {
+    return;
+  }
   self.paused = NO;
   NSArray<NSNumber *> *identifiers = [self.targets allKeys];
   for (NSNumber *timerIdentifier in identifiers) {
