@@ -1437,18 +1437,27 @@
   return height;
 }
 
+- (void)updateDimmingViewFrame
+{
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    // Keep the search bar itself uncovered, otherwise the dimming view also dims
+    // the search field and its cancel button.
+    CGFloat dimmingViewTopMargin = self.safeAreaInsets.top + searchController.searchBar.frame.size.height;
+    CGFloat dimmingViewHeight = self.frame.size.height - dimmingViewTopMargin;
+
+    [dimmingView setFrame:CGRectMake(0, dimmingViewTopMargin, self.frame.size.width, dimmingViewHeight)];
+  }
+}
+
 - (void)updateSearchControllerFrames
 {
   if (![searchController isActive]) {
     return;
   }
-  if (isSearchBarInNavigation) {
-    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-  } else {
-    CGFloat dimmingViewTopMargin = searchController.searchBar.frame.size.height + searchController.view.safeAreaInsets.top;
-    CGFloat dimmingViewHeight = self.frame.size.height - searchController.searchBar.frame.size.height;
-
-    [dimmingView setFrame:CGRectMake(0, dimmingViewTopMargin, self.frame.size.width, dimmingViewHeight)];
+  [self updateDimmingViewFrame];
+  if (!isSearchBarInNavigation) {
     CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
     UIView *searchSuperView = [searchController.view superview];
@@ -2524,7 +2533,7 @@
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  [self updateDimmingViewFrame];
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];
