@@ -170,7 +170,7 @@ export class Packager {
 
 		// Include the 'ti.cloak' and 'ti.crypt' encryption modules
 		await unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
-		return unzip(path.join(ROOT_DIR, 'support', 'ti.crypt.zip'), path.join(this.zipSDKDir, 'node_modules'));
+		await unzip(path.join(ROOT_DIR, 'support', 'ti.crypt.zip'), path.join(this.zipSDKDir, 'node_modules'));
 	}
 
 	/**
