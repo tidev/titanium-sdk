@@ -605,6 +605,15 @@ public abstract class TiWindowProxy extends TiViewProxy
 			intent.putExtra(TiC.PROPERTY_STATUS_BAR_COLOR,
 				TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)));
 		}
+
+		// Pass "navBarHidden" to the activity intent so the ActionBar can be hidden during
+		// activity creation, before the first frame is drawn.
+		if (hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
+			boolean navBarHidden = TiConvert.toBoolean(getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN), false);
+			if (navBarHidden) {
+				intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, true);
+			}
+		}
 	}
 
 	@Kroll.getProperty

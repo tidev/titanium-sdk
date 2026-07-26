@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.InsetDrawable;
 import android.view.View;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -29,13 +30,20 @@ public class ActionBarProxy extends KrollProxy
 	private static final String TAG = "ActionBarProxy";
 	private static final String ACTION_BAR_NOT_AVAILABLE_MESSAGE = "ActionBar is not enabled";
 
+	private final AppCompatActivity activity;
 	private final Toolbar toolbar;
 	private boolean showTitleEnabled = true;
 
 	public ActionBarProxy(AppCompatActivity activity)
 	{
 		super();
+		this.activity = activity;
 		toolbar = findActionBarToolbar(activity);
+	}
+
+	private ActionBar getSupportActionBar()
+	{
+		return (activity != null) ? activity.getSupportActionBar() : null;
 	}
 
 	private Toolbar findActionBarToolbar(AppCompatActivity activity)
@@ -202,7 +210,12 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void show()
 	{
-		if (toolbar != null) {
+		// Show via ActionBar so the decor's ActionBarContainer becomes visible again,
+		// not just the Toolbar child within it.
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.show();
+		} else if (toolbar != null) {
 			toolbar.setVisibility(View.VISIBLE);
 		} else {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
@@ -212,7 +225,13 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void hide()
 	{
-		if (toolbar != null) {
+		// Hide via ActionBar so the decor's ActionBarContainer is hidden as a whole.
+		// Hiding only the Toolbar child leaves the container behind as a transparent
+		// bar-height strip that still casts its elevation shadow.
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.hide();
+		} else if (toolbar != null) {
 			toolbar.setVisibility(View.GONE);
 		} else {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
@@ -222,6 +241,10 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.getProperty
 	public boolean getVisible()
 	{
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			return actionBar.isShowing();
+		}
 		if (this.toolbar == null) {
 			return false;
 		}

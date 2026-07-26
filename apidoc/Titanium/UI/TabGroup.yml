@@ -400,6 +400,19 @@ properties:
     default: null
     platforms: [iphone,ipad, macos]
 
+  - name: navBarHidden
+    summary: Hides the action bar (`true`) or shows the action bar (`false`).
+    description: |
+        Must be set at creation time. The action bar is hidden before the tab group's activity
+        draws its first frame, unlike calling `hide()` on
+        [ActionBar](Titanium.Android.ActionBar) from the tab group's `open` event, which can
+        cause the action bar to flash briefly.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "14.0.0"}
+    availability: creation
+
   - name: editButtonTitle
     summary: Title for the edit button on the **More** tab.
     type: String

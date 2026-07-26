@@ -561,6 +561,16 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 
 		setFullscreen(fullscreen);
 
+		// Hide the ActionBar during activity creation if the window requested it via
+		// "navBarHidden". Doing this here, before the first frame is drawn, avoids the
+		// ActionBar briefly flashing when it is only hidden from the JS "open" event.
+		if (getIntentBoolean(TiC.PROPERTY_NAV_BAR_HIDDEN, false)) {
+			ActionBar actionBar = getSupportActionBar();
+			if (actionBar != null) {
+				actionBar.hide();
+			}
+		}
+
 		// Add additional window flags to better handle fullscreen support on devices with notches.
 		{
 			int allWindowFlags = windowFlags | getWindow().getAttributes().flags;
