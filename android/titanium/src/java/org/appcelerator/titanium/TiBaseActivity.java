@@ -1517,6 +1517,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				}
 			}
 		}
+		if (this.window != null) {
+			this.window.onWindowFocusChange(hasFocus);
+		}
 		super.onWindowFocusChanged(hasFocus);
 	}
 
