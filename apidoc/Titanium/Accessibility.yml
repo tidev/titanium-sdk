@@ -1,0 +1,29 @@
+---
+name: Titanium.Accessibility
+summary: A set of accessibility-related methods.
+description: |
+    Offers global accessibility features including `announce` and `focus` methods.
+    Available strictly on iOS (for Android, use inline properties on views, or `accessibilityLiveRegion`).
+extends: Titanium.Module
+since: "13.2.0"
+platforms: [iphone, ipad, macos]
+
+methods:
+  - name: announce
+    summary: Announces a text message to VoiceOver.
+    description: |
+        Posts `UIAccessibilityAnnouncementNotification` so VoiceOver reads the message aloud.
+    parameters:
+      - name: message
+        summary: The message to be announced.
+        type: String
+
+  - name: focus
+    summary: Requests assistive technologies to shift focus to a specific element.
+    description: |
+        Posts `UIAccessibilityLayoutChangedNotification` targeting the native view corresponding
+        to the given Titanium view proxy.
+    parameters:
+      - name: view
+        summary: The Titanium view proxy to focus.
+        type: Titanium.UI.View

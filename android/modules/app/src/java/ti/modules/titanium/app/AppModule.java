@@ -30,8 +30,10 @@ import android.view.accessibility.AccessibilityManager;
 
 import org.appcelerator.titanium.util.TiSession;
 
+import androidx.annotation.NonNull;
+
 @Kroll.module
-public class AppModule extends KrollModule implements SensorEventListener
+public class AppModule extends KrollModule implements SensorEventListener, TiApplication.ConfigurationChangedListener
 {
 	private static final String TAG = "AppModule";
 
@@ -46,6 +48,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 	private boolean proximityDetection = false;
 	private boolean proximityState;
 	private int proximityEventListenerCount = 0;
+	private float currentFontScale = -1.0f;
 
 	public AppModule()
 	{
@@ -53,10 +56,17 @@ public class AppModule extends KrollModule implements SensorEventListener
 
 		TiApplication.getInstance().addAppEventProxy(this);
 		appInfo = TiApplication.getInstance().getAppInfo();
+
+		TiApplication.addConfigurationChangeListener(this);
+		android.content.res.Configuration config = TiApplication.getInstance().getResources().getConfiguration();
+		if (config != null) {
+			currentFontScale = config.fontScale;
+		}
 	}
 
 	public void onDestroy()
 	{
+		TiApplication.removeConfigurationChangedListener(this);
 		TiApplication.getInstance().removeAppEventProxy(this);
 	}
 
@@ -323,5 +333,16 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getApiName()
 	{
 		return "Ti.App";
+	}
+
+	@Override
+	public void onConfigurationChanged(@NonNull android.content.res.Configuration newConfig)
+	{
+		if (currentFontScale != newConfig.fontScale) {
+			currentFontScale = newConfig.fontScale;
+			KrollDict data = new KrollDict();
+			data.put("value", currentFontScale);
+			fireEvent("fontScaleChanged", data);
+		}
 	}
 }

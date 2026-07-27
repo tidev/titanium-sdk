@@ -95,6 +95,7 @@ android {
 			java.srcDirs = [
 					'src/java',
 					"${projectDir}/../modules/accelerometer/src/java",
+					"${projectDir}/../modules/accessibility/src/java",
 					"${projectDir}/../modules/android/src/java",
 					"${projectDir}/../modules/app/src/java",
 					"${projectDir}/../modules/calendar/src/java",
