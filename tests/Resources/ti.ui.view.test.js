@@ -1445,4 +1445,109 @@ describe('Titanium.UI.View', function () {
 		win.add(rgbView);
 		win.open();
 	});
+
+	describe.android('min/max size constraints', () => {
+		it('maxWidth caps a FILL width', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: 100,
+				backgroundColor: 'blue'
+			});
+
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.rect.width).be.approximately(100, 1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.add(view);
+			win.open();
+		});
+
+		it('maxHeight caps a FILL height', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: 50,
+				height: Ti.UI.FILL,
+				maxHeight: 100,
+				backgroundColor: 'blue'
+			});
+
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.rect.height).be.approximately(100, 1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.add(view);
+			win.open();
+		});
+
+		it('minWidth/minHeight raise a SIZE view', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE,
+				minWidth: 120,
+				minHeight: 80,
+				backgroundColor: 'blue'
+			});
+
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.rect.width).be.approximately(120, 1);
+					should(view.rect.height).be.approximately(80, 1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.add(view);
+			win.open();
+		});
+
+		it('accepts a string dimension', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: '100dp',
+				backgroundColor: 'blue'
+			});
+
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					should(view.rect.width).be.approximately(100, 1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.add(view);
+			win.open();
+		});
+
+		// The constraints are unsupported on self-measuring views, but must never crash. Guards
+		// against the ClassCastException from casting nativeView to TiCompositeLayout.
+		it('is ignored without crashing on a Label', () => {
+			const label = Ti.UI.createLabel({ text: 'hello', maxWidth: 50, minHeight: 10 });
+			should(label.maxWidth).eql(50);
+		});
+
+		// Bordered views are wrapped in a TiBorderWrapperView, which does not honor the constraints.
+		it('is ignored without crashing on a bordered view', () => {
+			const view = Ti.UI.createView({ borderWidth: 2, borderColor: 'red', maxWidth: 50 });
+			should(view.maxWidth).eql(50);
+		});
+	});
 });

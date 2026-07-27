@@ -179,8 +179,9 @@ CGSize SizeConstraintViewWithSizeAddingResizing(LayoutConstraint *constraint, NS
   // when you use negative top, you get into a situation where you get smaller
   // then intended sizes when using auto.  this allows you to set a floor for
   // the height/width so that it won't be smaller than specified - defaults to 0
-  height = MAX(constraint->minimumHeight, height);
-  width = MAX(constraint->minimumWidth, width);
+  // The same clamp applies the "maxWidth"/"maxHeight" ceiling, which is unconstrained by default.
+  height = TiLayoutClampHeight(constraint, height);
+  width = TiLayoutClampWidth(constraint, width);
 
   if ((resultResizing != NULL) && [autoSizer respondsToSelector:@selector(verifyAutoresizing:)]) {
     *resultResizing = [autoSizer verifyAutoresizing:*resultResizing];

@@ -98,11 +98,40 @@ typedef struct LayoutConstraint {
   CGFloat minimumHeight;
   CGFloat minimumWidth;
 
+  // A maximum of 0 means "unconstrained". Relying on 0 rather than a negative sentinel keeps
+  // the zero-initialized struct unconstrained by default, since nothing initializes it explicitly.
+  CGFloat maximumHeight;
+  CGFloat maximumWidth;
+
 } LayoutConstraint;
 
 TI_INLINE BOOL TiLayoutFlagsHasHorizontalWrap(LayoutConstraint *constraint)
 {
   return constraint->layoutFlags.horizontalWrap;
+}
+
+/**
+ Clamps a computed width to the constraint's "minWidth"/"maxWidth" bounds.
+ When the two conflict the minimum wins, matching CSS and the Android implementation.
+ */
+TI_INLINE CGFloat TiLayoutClampWidth(LayoutConstraint *constraint, CGFloat width)
+{
+  if (constraint->maximumWidth > 0) {
+    width = MIN(constraint->maximumWidth, width);
+  }
+  return MAX(constraint->minimumWidth, width);
+}
+
+/**
+ Clamps a computed height to the constraint's "minHeight"/"maxHeight" bounds.
+ When the two conflict the minimum wins, matching CSS and the Android implementation.
+ */
+TI_INLINE CGFloat TiLayoutClampHeight(LayoutConstraint *constraint, CGFloat height)
+{
+  if (constraint->maximumHeight > 0) {
+    height = MIN(constraint->maximumHeight, height);
+  }
+  return MAX(constraint->minimumHeight, height);
 }
 
 @class TiUIView;
