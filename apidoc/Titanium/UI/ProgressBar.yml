@@ -73,6 +73,16 @@ properties:
     summary: Minimum value of the progress bar.
     type: Number
 
+  - name: showStopIndicator
+    summary: Determines whether the Material 3 stop indicator dot is shown at the end of the track.
+    description: |
+        Material 3 themes render a small dot (the "stop indicator") at the trailing end of the
+        progress bar track. Set this to `false` to hide it.
+    type: Boolean
+    default: true
+    platforms: [android]
+    since: "14.0.0"
+
   - name: style
     summary: Style of the progress bar.
     description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).

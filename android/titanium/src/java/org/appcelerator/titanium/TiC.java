@@ -739,6 +739,7 @@ public class TiC
 	public static final String PROPERTY_SHOW_PAGING_CONTROL = "showPagingControl";
 	public static final String PROPERTY_SHOW_PROGRESS = "showProgress";
 	public static final String PROPERTY_SHOW_SELECTION_CHECK = "showSelectionCheck";
+	public static final String PROPERTY_SHOW_STOP_INDICATOR = "showStopIndicator";
 	public static final String PROPERTY_SISTER = "sister";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SNAPPING = "snapping";

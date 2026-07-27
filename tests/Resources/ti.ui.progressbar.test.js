@@ -14,8 +14,20 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.ProgressBar', () => {
 	let bar;
-	afterEach(() => {
+	let win;
+	afterEach(done => { // fires after every test in sub-suites too...
 		bar = null;
+		if (win && !win.closed) {
+			win.addEventListener('close', function listener () {
+				win.removeEventListener('close', listener);
+				win = null;
+				done();
+			});
+			win.close();
+		} else {
+			win = null;
+			done();
+		}
 	});
 
 	describe('properties', () => {
@@ -174,6 +186,34 @@ describe('Titanium.UI.ProgressBar', () => {
 			});
 		});
 
+		describe.android('.showStopIndicator', () => {
+			it('is a Boolean', () => {
+				bar = Ti.UI.createProgressBar();
+				should(bar).have.property('showStopIndicator').which.is.a.Boolean();
+			});
+
+			it('defaults to true', () => {
+				bar = Ti.UI.createProgressBar();
+				should(bar.showStopIndicator).be.true();
+			});
+
+			it('can be initialized false', () => {
+				bar = Ti.UI.createProgressBar({ showStopIndicator: false });
+				should(bar.showStopIndicator).be.false();
+			});
+
+			it('can be set false', () => {
+				bar = Ti.UI.createProgressBar();
+				bar.showStopIndicator = false;
+				should(bar.showStopIndicator).be.false();
+			});
+
+			it('has no accessors', () => {
+				bar = Ti.UI.createProgressBar();
+				should(bar).not.have.accessors('showStopIndicator');
+			});
+		});
+
 		describe.ios('.style', () => {
 			beforeEach(() => {
 				bar = Ti.UI.createProgressBar({ style: Ti.UI.iOS.ProgressBarStyle.BAR });
@@ -264,6 +304,40 @@ describe('Titanium.UI.ProgressBar', () => {
 			it('has no accessors', () => {
 				should(bar).not.have.accessors('value');
 			});
+		});
+	});
+
+	describe('rendering', () => {
+		it('renders with a non-zero min range', finish => {
+			win = Ti.UI.createWindow();
+			bar = Ti.UI.createProgressBar({ min: 50, max: 100, value: 75 });
+			win.add(bar);
+			win.addEventListener('open', function openListener () {
+				win.removeEventListener('open', openListener);
+				try {
+					bar.value = 100;
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
+
+		it('renders with an empty min/max range', finish => {
+			win = Ti.UI.createWindow();
+			bar = Ti.UI.createProgressBar({ min: 0, max: 0, value: 0 });
+			win.add(bar);
+			win.addEventListener('open', function openListener () {
+				win.removeEventListener('open', openListener);
+				try {
+					bar.value = 1;
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
 		});
 	});
 });
