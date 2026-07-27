@@ -23,6 +23,8 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
+import java.lang.ref.WeakReference;
+
 @SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, TiC.PROPERTY_CUSTOM_VIEW })
 public class ActionBarProxy extends KrollProxy
@@ -30,19 +32,27 @@ public class ActionBarProxy extends KrollProxy
 	private static final String TAG = "ActionBarProxy";
 	private static final String ACTION_BAR_NOT_AVAILABLE_MESSAGE = "ActionBar is not enabled";
 
-	private final AppCompatActivity activity;
-	private final Toolbar toolbar;
+	// Weak references so a proxy kept alive by JS cannot leak a destroyed activity
+	// or its view hierarchy (the toolbar's context is the activity).
+	private final WeakReference<AppCompatActivity> activityRef;
+	private final WeakReference<Toolbar> toolbarRef;
 	private boolean showTitleEnabled = true;
 
 	public ActionBarProxy(AppCompatActivity activity)
 	{
 		super();
-		this.activity = activity;
-		toolbar = findActionBarToolbar(activity);
+		this.activityRef = new WeakReference<>(activity);
+		this.toolbarRef = new WeakReference<>(findActionBarToolbar(activity));
+	}
+
+	private Toolbar getToolbar()
+	{
+		return this.toolbarRef.get();
 	}
 
 	private ActionBar getSupportActionBar()
 	{
+		AppCompatActivity activity = this.activityRef.get();
 		return (activity != null) ? activity.getSupportActionBar() : null;
 	}
 
@@ -69,6 +79,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setNavigationIcon(getHomeAsUpIcon(showHomeAsUp));
 		} else {
@@ -78,6 +89,7 @@ public class ActionBarProxy extends KrollProxy
 
 	private Drawable getHomeAsUpIcon(boolean showHomeAsUp)
 	{
+		Toolbar toolbar = getToolbar();
 		if (!showHomeAsUp || toolbar == null) {
 			return null;
 		}
@@ -91,22 +103,24 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setHomeAsUpIndicator(Object icon)
 	{
-		if (this.toolbar == null) {
+		Toolbar toolbar = getToolbar();
+		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 			return;
 		}
 		if (icon instanceof Number) {
-			this.toolbar.setNavigationIcon(TiConvert.toInt(icon));
+			toolbar.setNavigationIcon(TiConvert.toInt(icon));
 		} else if (icon != null) {
-			this.toolbar.setNavigationIcon(TiUIHelper.getResourceDrawable(icon));
+			toolbar.setNavigationIcon(TiUIHelper.getResourceDrawable(icon));
 		} else {
-			this.toolbar.setNavigationIcon(null);
+			toolbar.setNavigationIcon(null);
 		}
 	}
 
 	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setNavigationIcon(homeButtonEnabled ? getHomeAsUpIcon(true) : null);
 		} else {
@@ -117,6 +131,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setBackgroundImage(String url)
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 			return;
@@ -137,6 +152,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void setDisplayShowHomeEnabled(boolean show)
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			if (show) {
 				toolbar.setNavigationIcon(getHomeAsUpIcon(true));
@@ -149,6 +165,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void setDisplayShowTitleEnabled(boolean show)
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setTitle(show ? toolbar.getTitle() : "");
 			showTitleEnabled = show;
@@ -158,6 +175,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.getProperty
 	public String getSubtitle()
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			return null;
 		}
@@ -168,6 +186,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setSubtitle(String subTitle)
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setSubtitle(subTitle);
 		} else {
@@ -178,6 +197,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.getProperty
 	public String getTitle()
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			return null;
 		}
@@ -188,6 +208,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setTitle(String title)
 	{
+		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setTitle(title);
 		} else {
@@ -213,6 +234,7 @@ public class ActionBarProxy extends KrollProxy
 		// Show via ActionBar so the decor's ActionBarContainer becomes visible again,
 		// not just the Toolbar child within it.
 		ActionBar actionBar = getSupportActionBar();
+		Toolbar toolbar = getToolbar();
 		if (actionBar != null) {
 			actionBar.show();
 		} else if (toolbar != null) {
@@ -229,6 +251,7 @@ public class ActionBarProxy extends KrollProxy
 		// Hiding only the Toolbar child leaves the container behind as a transparent
 		// bar-height strip that still casts its elevation shadow.
 		ActionBar actionBar = getSupportActionBar();
+		Toolbar toolbar = getToolbar();
 		if (actionBar != null) {
 			actionBar.hide();
 		} else if (toolbar != null) {
@@ -245,10 +268,11 @@ public class ActionBarProxy extends KrollProxy
 		if (actionBar != null) {
 			return actionBar.isShowing();
 		}
-		if (this.toolbar == null) {
+		Toolbar toolbar = getToolbar();
+		if (toolbar == null) {
 			return false;
 		}
-		return this.toolbar.getVisibility() == View.VISIBLE;
+		return toolbar.getVisibility() == View.VISIBLE;
 	}
 
 	@Kroll.setProperty
@@ -264,7 +288,8 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setLogo(Object image)
 	{
-		if (this.toolbar == null) {
+		Toolbar toolbar = getToolbar();
+		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 			return;
 		}
@@ -277,32 +302,34 @@ public class ActionBarProxy extends KrollProxy
 			}
 			logo.setBounds(0, 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight());
 			InsetDrawable insetLogo = new InsetDrawable(logo, 24, 0, 14, 0);
-			this.toolbar.setContentInsetsRelative(0, 0);
-			this.toolbar.setLogo(insetLogo);
+			toolbar.setContentInsetsRelative(0, 0);
+			toolbar.setLogo(insetLogo);
 		} else {
-			this.toolbar.setLogo(null);
+			toolbar.setLogo(null);
 		}
 	}
 
 	@Kroll.setProperty
 	public void setIcon(Object image)
 	{
-		if (this.toolbar == null) {
+		Toolbar toolbar = getToolbar();
+		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
 			return;
 		}
 		if (image instanceof Number) {
-			this.toolbar.setNavigationIcon(TiConvert.toInt(image));
+			toolbar.setNavigationIcon(TiConvert.toInt(image));
 		} else if (image != null) {
-			this.toolbar.setNavigationIcon(TiUIHelper.getResourceDrawable(image));
+			toolbar.setNavigationIcon(TiUIHelper.getResourceDrawable(image));
 		} else {
-			this.toolbar.setNavigationIcon(null);
+			toolbar.setNavigationIcon(null);
 		}
 	}
 
 	@Override
 	public void onPropertyChanged(String name, Object value)
 	{
+		Toolbar toolbar = getToolbar();
 		if (TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
 			if (toolbar != null) {
 				toolbar.setNavigationIcon(getHomeAsUpIcon(true));
