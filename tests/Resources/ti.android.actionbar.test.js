@@ -8,10 +8,11 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe.android('Titanium.Android.ActionBar', function () {
 	let win;
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	beforeEach(() => {
 		win = Ti.UI.createWindow();

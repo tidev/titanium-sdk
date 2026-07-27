@@ -7,11 +7,13 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	Timeout = require('./utilities/timeouts'),
+	{ ENDPOINTS } = require('./utilities/endpoints');
 
 describe('Titanium.Network.Socket.TCP', function () {
 	var socket;
-	this.timeout(6e4);
+	this.timeout(Timeout.NETWORK);
 
 	afterEach(function () {
 		if (socket && socket.state == Ti.Network.Socket.CONNECTED) { // eslint-disable-line eqeqeq
@@ -77,7 +79,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 	it('#connect() and receive data', function (finish) {
 		var buffer = '';
 		socket = Ti.Network.Socket.createTCP({
-			host: 'www.httpbin.org', port: 80,
+			host: ENDPOINTS.tcpHost, port: 80,
 			timeout: 20000,
 			connected: function (e) {
 				// receive callback
@@ -101,7 +103,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 				// send GET request
 				should(socket.write).not.be.null();
 				should(socket.write).be.a.Function();
-				socket.write(Ti.createBuffer({ value: 'GET /anything?q=SUCCESS HTTP/1.1\r\nHost: www.httpbin.org\r\nConnection: close\r\n\r\n' }));
+				socket.write(Ti.createBuffer({ value: `GET ${ENDPOINTS.tcpRequestPath}?q=SUCCESS HTTP/1.1\r\nHost: ${ENDPOINTS.tcpHost}\r\nConnection: close\r\n\r\n` }));
 			},
 			error: function (e) {
 				finish(e);
@@ -141,7 +143,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 	it('#connect(), #write(), #pump() async', function (finish) {
 		var buffer = '';
 		socket = Ti.Network.Socket.createTCP({
-			host: 'www.httpbin.org',
+			host: ENDPOINTS.tcpHost,
 			port: 80,
 			timeout: 20000,
 			connected: function (e) {
@@ -152,7 +154,7 @@ describe('Titanium.Network.Socket.TCP', function () {
 				// send GET request
 				should(socket.write).not.be.null();
 				should(socket.write).be.a.Function();
-				socket.write(Ti.createBuffer({ value: 'GET /anything?q=SUCCESS HTTP/1.1\r\nHost: www.httpbin.org\r\nConnection: close\r\n\r\n' }), function (evt) {
+				socket.write(Ti.createBuffer({ value: `GET ${ENDPOINTS.tcpRequestPath}?q=SUCCESS HTTP/1.1\r\nHost: ${ENDPOINTS.tcpHost}\r\nConnection: close\r\n\r\n` }), function (evt) {
 					evt.success.should.be.true();
 
 					Ti.Stream.pump(e.socket, function (e) {

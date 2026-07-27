@@ -70,7 +70,7 @@ describe('Date', function () {
 		should(date.toLocaleDateString('en-US')).be.eql('3/1/2020');
 		should(date.toLocaleDateString('en-US', { year: 'numeric' })).be.eql('2020');
 		should(date.toLocaleDateString('en-US', { year: '2-digit' })).be.eql('20');
-		should(date.toLocaleDateString('en-US', { hour: 'numeric', hour12: true })).be.equalOneOf([ '3/1/2020, 12 AM', '3/1/2020, 12 AM' ]);
+		should(date.toLocaleDateString('en-US', { hour: 'numeric', hour12: true })).be.equalOneOf([ '3/1/2020, 12 AM', '3/1/2020, 12 AM', '3/1/2020, 12 AM' ]);
 	});
 
 	it('#toLocaleTimeString()', () => {

@@ -57,6 +57,7 @@ public class TiWebViewClient extends WebViewClient
 			return;
 		}
 		webView.changeProxyUrl(url);
+		webView.setLoading(false);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
 		proxy.fireEvent(TiC.EVENT_LOAD, data);
@@ -91,9 +92,15 @@ public class TiWebViewClient extends WebViewClient
 		if (proxy == null) {
 			return;
 		}
+		webView.setLoading(true);
 		KrollDict data = new KrollDict();
 		data.put("url", url);
-		proxy.fireEvent("beforeload", data);
+		// Fire synchronously so the JS listener observes the "loading" property
+		// as true while onPageStarted is still on the stack. An async fireEvent
+		// would be queued to the JS thread, and for fast (local) pages
+		// onPageFinished runs first and resets loading to false before the
+		// listener executes. Matches iOS, which delivers beforeload synchronously.
+		proxy.fireSyncEvent("beforeload", data);
 	}
 
 	@Override
@@ -104,6 +111,7 @@ public class TiWebViewClient extends WebViewClient
 		if (proxy == null) {
 			return;
 		}
+		webView.setLoading(false);
 		KrollDict data = new KrollDict();
 		data.put("url", failingUrl);
 		data.putCodeAndMessage(errorCode, description);

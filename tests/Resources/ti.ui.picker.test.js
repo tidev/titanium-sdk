@@ -8,12 +8,13 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.Picker', function () {
 	const fruit = [ 'Bananas', 'Strawberries', 'Mangos', 'Grapes' ];
 	const color = [ 'red', 'green', 'blue', 'orange', 'red', 'green', 'blue', 'orange' ];
 
-	this.timeout(10000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -43,7 +44,8 @@ describe('Titanium.UI.Picker', function () {
 				backgroundColor: '#000'
 			});
 			win.add(picker);
-			win.addEventListener('open', function () {
+			win.addEventListener('postlayout', function listener () {
+				win.removeEventListener('postlayout', listener);
 				try {
 					should(picker.value).be.eql(date);
 				} catch (err) {

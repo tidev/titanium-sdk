@@ -635,7 +635,22 @@ function checkError(actual, expected, message) {
 			keys.unshift('name', 'message'); // we want to compare name and message, but they're not set as enumerable on Error
 		}
 		for (const key of keys) {
-			if (!deepEqual(actual[key], expected[key], STRICTNESS.Strict)) {
+			const expectedVal = expected[key];
+			// Node.js: when the expected property is a RegExp, test it against the
+			// stringified actual value rather than comparing by deep equality.
+			if (util.types.isRegExp(expectedVal)) {
+				if (expectedVal.test(String(actual[key]))) {
+					continue;
+				}
+				throwError({
+					actual,
+					expected,
+					message: message || `The input did not match the regular expression ${expectedVal.toString()} for property "${key}".`,
+					operator: 'throws'
+				});
+				return false;
+			}
+			if (!deepEqual(actual[key], expectedVal, STRICTNESS.Strict)) {
 				if (!message) {
 					// generate a meaningful message! Cheat by treating like equality check of values
 					// then steal the message it generated

@@ -11,10 +11,11 @@
 /* eslint promise/no-callback-in-promise: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.Window', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -57,7 +58,7 @@ describe('Titanium.UI.Window', function () {
 		});
 
 		it.ios('.extendSafeArea', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			// TODO: Add more unit tests related to top, bottom, left, right margins of win.safeAreaView.
 			win = Ti.UI.createWindow({
 				backgroundColor: 'gray',
@@ -281,7 +282,7 @@ describe('Titanium.UI.Window', function () {
 					try {
 						should(rootWindow.leftNavButton).be.an.Object();
 						should(rootWindow.rightNavButton).be.an.Object();
-						should(win).matchImage('snapshots/navButton_left_defaultColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
+						should(win).matchImage('snapshots/navButton_left_defaultColor_right_greenColor@3x~iphone.png', { maxPixelMismatch: 0 });
 					} catch (e) {
 						return finish(e);
 					}
@@ -328,7 +329,7 @@ describe('Titanium.UI.Window', function () {
 					try {
 						should(rootWindow.leftNavButton).be.an.Object();
 						should(rootWindow.rightNavButton).be.an.Object();
-						should(win).matchImage('snapshots/navButton_left_redColor_right_greenColor.png', { maxPixelMismatch: OS_IOS ? 27 : 0 }); // iphone XR differs by 27 pixels
+						should(win).matchImage('snapshots/navButton_left_redColor_right_greenColor@3x~iphone.png', { maxPixelMismatch: 0 });
 					} catch (e) {
 						return finish(e);
 					}
@@ -337,7 +338,7 @@ describe('Titanium.UI.Window', function () {
 			});
 		});
 
-		it.androidAndWindowsBroken('.rect is read-only', finish => {
+		it.windowsBroken('.rect is read-only', finish => {
 			win = Ti.UI.createWindow({
 				backgroundColor: 'green',
 				left: 100,
@@ -578,11 +579,16 @@ describe('Titanium.UI.Window', function () {
 			});
 		});
 
-		// TODO: Why not run this on iOS? Seems to fail, though.
-		// TODO: Also broken on Android, need to figure out why this test is unreliable.
-		describe.allBroken('.orientationModes', function () {
+		// `orientationModes` is the requested-orientations array. `win.orientation`
+		// returns the device's actual current interface orientation, which on iOS
+		// is `[UIApplication sharedApplication].statusBarOrientation` and only
+		// changes when the user physically rotates the device. Setting
+		// `orientationModes` does NOT rotate the window; it only restricts which
+		// orientations are allowed. So we only assert the getter echoes the
+		// requested set, not that the device actually rotated.
+		describe('.orientationModes', function () {
 			this.slow(5000);
-			this.timeout(20000);
+			this.timeout(Timeout.LONG);
 
 			function doOrientationModeTest(orientation, finish) {
 				win = Ti.UI.createWindow({
@@ -593,7 +599,6 @@ describe('Titanium.UI.Window', function () {
 						try {
 							win.orientationModes.should.have.length(1);
 							win.orientationModes[0].should.eql(orientation);
-							win.orientation.should.eql(orientation);
 						} catch (e) {
 							return finish(e);
 						}
@@ -622,7 +627,7 @@ describe('Titanium.UI.Window', function () {
 		// Labels from parent window will move to child window's label positions during open animation.
 		it.android('#addSharedElement()', function (finish) {
 			this.slow(5000);
-			this.timeout(10000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow({
 				backgroundColor: 'blue'
@@ -764,7 +769,7 @@ describe('Titanium.UI.Window', function () {
 
 		it('#remove(View)', function (finish) {
 			this.slow(1000);
-			this.timeout(20000);
+			this.timeout(Timeout.LONG);
 
 			win = Ti.UI.createWindow({
 				backgroundColor: 'gray'
@@ -786,7 +791,7 @@ describe('Titanium.UI.Window', function () {
 			win.open();
 		});
 
-		it.iosAndWindowsBroken('#toString()', () => {
+		it('#toString()', () => {
 			win = Ti.UI.createWindow();
 			should(win.toString()).be.eql('[object Window]'); // Windows: '[object class TitaniumWindows::UI::Window]', iOS: '[object TiUIWindow]'
 			should(win.apiName).be.a.String();
@@ -795,7 +800,7 @@ describe('Titanium.UI.Window', function () {
 	});
 
 	describe('events', function () {
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		// FIXME https://jira-archive.titaniumsdk.com/TIMOB-23640
 		it.windowsDesktopBroken('postlayout event gets fired', function (finish) {
@@ -884,7 +889,7 @@ describe('Titanium.UI.Window', function () {
 	// What you should not see is a crash
 	it('should_not_crash', function (finish) {
 		this.slow(5000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		const win1 = Ti.UI.createWindow();
 		win1.open();
@@ -904,7 +909,7 @@ describe('Titanium.UI.Window', function () {
 
 	it('window_close_order_1', function (finish) {
 		this.slow(5000);
-		this.timeout(30000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 		const win2 = Ti.UI.createWindow({ backgroundColor: 'blue' });
@@ -931,7 +936,7 @@ describe('Titanium.UI.Window', function () {
 
 	it('window_close_order_2', function (finish) {
 		this.slow(5000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 		const win2 = Ti.UI.createWindow({ backgroundColor: 'blue' });
@@ -958,7 +963,7 @@ describe('Titanium.UI.Window', function () {
 	// TIMOB-20600
 	it('TIMOB-20600', function (finish) {
 		this.slow(5000);
-		this.timeout(30000);
+		this.timeout(Timeout.LONG);
 
 		win = Ti.UI.createWindow({ backgroundColor: 'green' });
 		const win2 = Ti.UI.createWindow({ backgroundColor: 'blue' });
@@ -990,7 +995,7 @@ describe('Titanium.UI.Window', function () {
 
 	it('window_navigation', function (finish) {
 		this.slow(5000);
-		this.timeout(30000);
+		this.timeout(Timeout.LONG);
 		let rootWindowFocus = 0;
 		let rootWindowBlur = 0;
 		let rootWindowOpen = 0;
@@ -1082,7 +1087,7 @@ describe('Titanium.UI.Window', function () {
 	// Verify that Titanium handles the issue and avoids a crash.
 	it.android('TIMOB-26157', function (finish) {
 		this.slow(1000);
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: 'rgba(0,0,255,128)',
@@ -1132,7 +1137,7 @@ describe('Titanium.UI.Window', function () {
 
 	describe.android('activity transitions', function () {
 		this.slow(5000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		function doTransitionTest(windowSettings, finish) {
 			windowSettings.title = 'Child Window';

@@ -9,6 +9,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 const path = require('path');
@@ -143,7 +144,7 @@ describe('fs', function () {
 			fs.accessSync(thisFilePath, fs.constants.R_OK);
 		});
 
-		it.allBroken('checks that this file is NOT writable properly', () => {
+		it.iosBroken('checks that this file is NOT writable properly', () => {
 			// FIXME: This isn't throwing an error like we expect!
 			// How can we test this? resourcesDirectory is not supposed to be writable on device, but can be on simulator.
 			// (and this may be platform-specific behavior)
@@ -190,7 +191,7 @@ describe('fs', function () {
 
 		it('copies file asynchronously to destination', function (finished) {
 			this.slow(2000);
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			const dest = path.join(Ti.Filesystem.tempDirectory, 'fs.addontest.js');
 			// ensure file doesn't already exist
@@ -1508,7 +1509,7 @@ describe('fs', function () {
 	});
 
 	describe('#chownSync()', () => {
-		it.allBroken('is a function', () => should(fs.chownSync).be.a.Function());
+		it('is a function', () => should(fs.chownSync).be.a.Function());
 	});
 
 	describe('#fdatasync()', () => {

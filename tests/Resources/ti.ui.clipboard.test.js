@@ -14,7 +14,6 @@ const should = require('./utilities/assertions');
 
 describe('Titanium.UI.Clipboard', () => {
 	let win = null;
-	const waitTime = 1500;
 
 	beforeEach(() => {
 		if (win === null) {
@@ -64,13 +63,11 @@ describe('Titanium.UI.Clipboard', () => {
 			});
 
 			it('clears \'text\' data type', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					Ti.UI.Clipboard.text = 'clearData';
-					should(Ti.UI.Clipboard.hasText()).be.true();
-					Ti.UI.Clipboard.clearData('text');
-					should(Ti.UI.Clipboard.hasText()).be.false();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				Ti.UI.Clipboard.text = 'clearData';
+				should(Ti.UI.Clipboard.hasText()).be.true();
+				Ti.UI.Clipboard.clearData('text');
+				should(Ti.UI.Clipboard.hasText()).be.false();
 			});
 
 			// TODO: Try clearing only specific mime types on iOS!
@@ -90,13 +87,11 @@ describe('Titanium.UI.Clipboard', () => {
 			});
 
 			it('makes hasText() return false after being called', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					Ti.UI.Clipboard.text = 'clearText';
-					should(Ti.UI.Clipboard.hasText()).be.true();
-					Ti.UI.Clipboard.clearText();
-					should(Ti.UI.Clipboard.hasText()).be.false();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				Ti.UI.Clipboard.text = 'clearText';
+				should(Ti.UI.Clipboard.hasText()).be.true();
+				Ti.UI.Clipboard.clearText();
+				should(Ti.UI.Clipboard.hasText()).be.false();
 			});
 		});
 
@@ -114,23 +109,19 @@ describe('Titanium.UI.Clipboard', () => {
 			});
 
 			it.android('returns null for non-text data type on Android', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					Ti.UI.Clipboard.text = 'hi';
-					should(Ti.UI.Clipboard.getData('color')).be.null();
-					should(Ti.UI.Clipboard.getData('url')).be.null();
-					should(Ti.UI.Clipboard.getData('image')).be.null();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				Ti.UI.Clipboard.text = 'hi';
+				should(Ti.UI.Clipboard.getData('color')).be.null();
+				should(Ti.UI.Clipboard.getData('url')).be.null();
+				should(Ti.UI.Clipboard.getData('image')).be.null();
 			});
 
 			it('returns \'text\' data type', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					Ti.UI.Clipboard.setData('text', 'white');
-					should(Ti.UI.Clipboard.hasText()).be.true();
-					should(Ti.UI.Clipboard.getData('text')).eql('white');
-					should(Ti.UI.Clipboard.getData('text/plain')).eql('white');
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				Ti.UI.Clipboard.setData('text', 'white');
+				should(Ti.UI.Clipboard.hasText()).be.true();
+				should(Ti.UI.Clipboard.getData('text')).eql('white');
+				should(Ti.UI.Clipboard.getData('text/plain')).eql('white');
 			});
 
 			it.ios('returns \'url\' data type', () => {
@@ -176,30 +167,24 @@ describe('Titanium.UI.Clipboard', () => {
 			});
 
 			it('returns given string after setText()', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					// should(Ti.UI.Clipboard.text).eql(''); // FIXME: undefined on iOS
-					Ti.UI.Clipboard.text = 'setText';
-					should(Ti.UI.Clipboard.text).eql('setText');
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				// should(Ti.UI.Clipboard.text).eql(''); // FIXME: undefined on iOS
+				Ti.UI.Clipboard.text = 'setText';
+				should(Ti.UI.Clipboard.text).eql('setText');
 			});
 
 			it('returns given string after setData(\'text\')', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					// should(Ti.UI.Clipboard.text).eql(''); // FIXME: undefined on iOS
-					Ti.UI.Clipboard.setData('text', 'setData');
-					should(Ti.UI.Clipboard.text).eql('setData');
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				// should(Ti.UI.Clipboard.text).eql(''); // FIXME: undefined on iOS
+				Ti.UI.Clipboard.setData('text', 'setData');
+				should(Ti.UI.Clipboard.text).eql('setData');
 			});
 
 			it('returns given string after setData(\'text/plain\')', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					// should(Ti.UI.Clipboard.text).eql(''); // FIXME: undefined on iOS
-					Ti.UI.Clipboard.setData('text/plain', 'setData');
-					should(Ti.UI.Clipboard.text).eql('setData');
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				// should(Ti.UI.Clipboard.text).eql(''); // FIXME: undefined on iOS
+				Ti.UI.Clipboard.setData('text/plain', 'setData');
+				should(Ti.UI.Clipboard.text).eql('setData');
 			});
 
 			it.ios('returns given string after setData(\'public.plain-text\')', () => {
@@ -221,21 +206,17 @@ describe('Titanium.UI.Clipboard', () => {
 			});
 
 			it('returns true after setting named color data', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasColors()).be.false();
-					Ti.UI.Clipboard.setData('color', 'white');
-					should(Ti.UI.Clipboard.hasColors()).be.true();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasColors()).be.false();
+				Ti.UI.Clipboard.setData('color', 'white');
+				should(Ti.UI.Clipboard.hasColors()).be.true();
 			});
 
 			it('returns true after setting 3-digit hex color data', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasColors()).be.false();
-					Ti.UI.Clipboard.setData('color', '#0FF');
-					should(Ti.UI.Clipboard.hasColors()).be.true();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasColors()).be.false();
+				Ti.UI.Clipboard.setData('color', '#0FF');
+				should(Ti.UI.Clipboard.hasColors()).be.true();
 			});
 
 			// TODO: Test with Ti.UI.Color obj, rgb/rgba, 6-digit hex, 8-digit hex
@@ -247,45 +228,39 @@ describe('Titanium.UI.Clipboard', () => {
 			});
 
 			it('returns false with empty clipboard', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasData()).be.false();
-					should(Ti.UI.Clipboard.hasData('text')).be.false();
-					should(Ti.UI.Clipboard.hasData('text/plain')).be.false();
-					should(Ti.UI.Clipboard.hasData('color')).be.false();
-					should(Ti.UI.Clipboard.hasData('image')).be.false();
-					should(Ti.UI.Clipboard.hasData('url')).be.false();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasData()).be.false();
+				should(Ti.UI.Clipboard.hasData('text')).be.false();
+				should(Ti.UI.Clipboard.hasData('text/plain')).be.false();
+				should(Ti.UI.Clipboard.hasData('color')).be.false();
+				should(Ti.UI.Clipboard.hasData('image')).be.false();
+				should(Ti.UI.Clipboard.hasData('url')).be.false();
 			});
 
 			it('assumes text mimeType with no argument', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasData()).be.false();
-					should(Ti.UI.Clipboard.hasData('text')).be.false();
-					should(Ti.UI.Clipboard.hasData('text/plain')).be.false();
-					Ti.UI.Clipboard.text = 'hello there';
-					should(Ti.UI.Clipboard.hasData()).be.true();
-					should(Ti.UI.Clipboard.hasData('text')).be.true();
-					should(Ti.UI.Clipboard.hasData('text/plain')).be.true();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasData()).be.false();
+				should(Ti.UI.Clipboard.hasData('text')).be.false();
+				should(Ti.UI.Clipboard.hasData('text/plain')).be.false();
+				Ti.UI.Clipboard.text = 'hello there';
+				should(Ti.UI.Clipboard.hasData()).be.true();
+				should(Ti.UI.Clipboard.hasData('text')).be.true();
+				should(Ti.UI.Clipboard.hasData('text/plain')).be.true();
 			});
 
 			it('returns false for other mimeTypes', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasData()).be.false();
-					should(Ti.UI.Clipboard.hasData('color')).be.false();
-					should(Ti.UI.Clipboard.hasData('image')).be.false();
-					should(Ti.UI.Clipboard.hasData('url')).be.false();
-					Ti.UI.Clipboard.text = 'hello there';
-					should(Ti.UI.Clipboard.hasData()).be.true();
-					should(Ti.UI.Clipboard.hasData('text')).be.true();
-					should(Ti.UI.Clipboard.hasData('text/plain')).be.true();
-					should(Ti.UI.Clipboard.hasData('color')).be.false();
-					should(Ti.UI.Clipboard.hasData('image')).be.false();
-					should(Ti.UI.Clipboard.hasData('url')).be.false();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasData()).be.false();
+				should(Ti.UI.Clipboard.hasData('color')).be.false();
+				should(Ti.UI.Clipboard.hasData('image')).be.false();
+				should(Ti.UI.Clipboard.hasData('url')).be.false();
+				Ti.UI.Clipboard.text = 'hello there';
+				should(Ti.UI.Clipboard.hasData()).be.true();
+				should(Ti.UI.Clipboard.hasData('text')).be.true();
+				should(Ti.UI.Clipboard.hasData('text/plain')).be.true();
+				should(Ti.UI.Clipboard.hasData('color')).be.false();
+				should(Ti.UI.Clipboard.hasData('image')).be.false();
+				should(Ti.UI.Clipboard.hasData('url')).be.false();
 			});
 		});
 
@@ -327,30 +302,24 @@ describe('Titanium.UI.Clipboard', () => {
 			});
 
 			it('returns true after setText()', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasText()).be.false();
-					Ti.UI.Clipboard.text = 'I set it!';
-					should(Ti.UI.Clipboard.hasText()).be.true();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasText()).be.false();
+				Ti.UI.Clipboard.text = 'I set it!';
+				should(Ti.UI.Clipboard.hasText()).be.true();
 			});
 
 			it('returns true after setData(\'text\', value)', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasText()).be.false();
-					Ti.UI.Clipboard.setData('text', 'I set it!');
-					should(Ti.UI.Clipboard.hasText()).be.true();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasText()).be.false();
+				Ti.UI.Clipboard.setData('text', 'I set it!');
+				should(Ti.UI.Clipboard.hasText()).be.true();
 			});
 
 			it('returns true after setData(\'text/plain\', value)', () => {
-				setTimeout(function () {
-					Ti.UI.Clipboard.clearData(); // delete all data
-					should(Ti.UI.Clipboard.hasText()).be.false();
-					Ti.UI.Clipboard.setData('text/plain', 'I set it!');
-					should(Ti.UI.Clipboard.hasText()).be.true();
-				}, waitTime);
+				Ti.UI.Clipboard.clearData(); // delete all data
+				should(Ti.UI.Clipboard.hasText()).be.false();
+				Ti.UI.Clipboard.setData('text/plain', 'I set it!');
+				should(Ti.UI.Clipboard.hasText()).be.true();
 			});
 
 			it.ios('returns true after setData(\'public.plain-text\', value)', () => {
@@ -362,11 +331,9 @@ describe('Titanium.UI.Clipboard', () => {
 
 			it('returns false after setData(\'color\', value)', () => {
 				Ti.UI.Clipboard.clearData(); // delete all data
-				setTimeout(function () {
-					// should(Ti.UI.Clipboard.hasText()).be.false();	// true?
-					Ti.UI.Clipboard.setData('color', 'blue');
-					// should(Ti.UI.Clipboard.hasText()).be.false();	// true?
-				}, waitTime);
+				// should(Ti.UI.Clipboard.hasText()).be.false();	// true?
+				Ti.UI.Clipboard.setData('color', 'blue');
+				// should(Ti.UI.Clipboard.hasText()).be.false();	// true?
 			});
 		});
 
@@ -488,13 +455,11 @@ describe('Titanium.UI.Clipboard', () => {
 
 	describe('examples', () => {
 		it('Copy Text to the Clipboard', () => {
-			setTimeout(function () {
-				Ti.UI.Clipboard.clearText();
-				should.not.exist(Ti.UI.Clipboard.getText());
-				Ti.UI.Clipboard.setText('hello');
-				should(Ti.UI.Clipboard.hasText()).be.true();
-				should(Ti.UI.Clipboard.text).eql('hello');
-			}, waitTime);
+			Ti.UI.Clipboard.clearText();
+			should.not.exist(Ti.UI.Clipboard.getText());
+			Ti.UI.Clipboard.setText('hello');
+			should(Ti.UI.Clipboard.hasText()).be.true();
+			should(Ti.UI.Clipboard.text).eql('hello');
 		});
 
 		it.ios('Use of named clipboard in iOS', () => {

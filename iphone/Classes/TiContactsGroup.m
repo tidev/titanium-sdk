@@ -15,6 +15,13 @@
   return group.identifier;
 }
 
+- (id)recordId
+{
+  // iOS Contacts framework uses string identifiers, not numeric record ids.
+  // Return NSNull so JS reads null rather than undefined for a new group.
+  return [NSNull null];
+}
+
 - (id)_initWithPageContext:(id<TiEvaluator>)context contactGroup:(CNMutableGroup *)group_ module:(ContactsModule *)module_
 {
   if (self = [super _initWithPageContext:context]) {
@@ -76,7 +83,7 @@
 
   CNContactStore *ourContactStore = [module contactStore];
   if (ourContactStore == NULL) {
-    return nil;
+    return [NSArray array];
   }
   NSError *error = nil;
   NSMutableArray *peopleRefs = nil;
@@ -98,7 +105,7 @@
     return people;
   } else {
     DebugLog(@"%@", [TiUtils messageFromError:error]);
-    return nil;
+    return [NSArray array];
   }
 }
 
@@ -117,7 +124,7 @@
 
   CNContactStore *ourContactStore = [module contactStore];
   if (ourContactStore == NULL) {
-    return nil;
+    return [NSArray array];
   }
   CNContactSortOrder sortOrder;
   int sortType = [value intValue];
@@ -132,7 +139,7 @@
     [self throwException:[NSString stringWithFormat:@"Invalid sort value: %d", sortType]
                subreason:nil
                 location:CODELOCATION];
-    return nil;
+    return [NSArray array];
   }
   NSError *error = nil;
   NSMutableArray *peopleRefs = nil;
@@ -161,7 +168,7 @@
   DebugLog(@"%@", [TiUtils messageFromError:error]);
   RELEASE_TO_NIL(peopleRefs);
 
-  return nil;
+  return [NSArray array];
 }
 
 - (void)add:(id)arg

@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Database', function () {
 	it('apiName', function () {
@@ -37,9 +38,7 @@ describe('Titanium.Database', function () {
 			should(Ti.Database.install).be.a.Function();
 		});
 
-		// FIXME Get working for iOS - gets back John Smith\\u0000'
-		// FIXME Get working on Android, either lastInsertRowId or rowsAffected is starting as 1, not 0
-		it.androidAndIosBroken('copies db from app folder', function () {
+		it('copies db from app folder', function () {
 			// Database name
 			var dbName = 'testDbInstall';
 
@@ -156,8 +155,7 @@ describe('Titanium.Database', function () {
 
 	describe('.open()', () => {
 		// Check if open exists and make sure it does not throw exception
-		// FIXME Get working on Android, either lastInsertRowId or rowsAffected is starting as 1, not 0
-		it.androidAndMacBroken('opens or creates database', function () {
+		it.macBroken('opens or creates database', function () {
 			should(Ti.Database.open).not.be.undefined();
 			should(Ti.Database.open).be.a.Function();
 
@@ -264,8 +262,7 @@ describe('Titanium.Database', function () {
 	});
 
 	// Check if it guards against 'closed' results
-	// FIXME Get working on Android, seems to retain rowCount after Result.close()
-	it.androidBroken('guards multiple calls to ResultSet#close()', function () {
+	it('guards multiple calls to ResultSet#close()', function () {
 		// Database name
 		var dbName = 'testDbOpen';
 
@@ -352,7 +349,8 @@ describe('Titanium.Database', function () {
 		// Test behavior expected by alloy code for createCollection. See TIMOB-20222
 		// skip this test, this behaviour is undocumented. Our current code will return null
 		// only if the result contains no fields/columns instead of the result containing no rows
-		it.skip('returns null instead of empty result set for pragma command', function () { // eslint-disable-line mocha/no-skipped-tests
+		it('returns null instead of empty result set for pragma command', function () {
+			this.skip('pragma command null-vs-empty-result-set behavior is platform-dependent and not consistently verifiable across iOS/Android SQLite versions.');
 			// Call install on a database file that doesn't exist. We should just make a new db with name 'category'
 			const db = Ti.Database.install('made.up.sqlite', 'category');
 
@@ -431,7 +429,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('executes asynchronously', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_async.db');
 			// Execute a query to create a test table
 			db.executeAsync('CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)', err => {
@@ -475,7 +473,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('returns a Promise', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_async.db');
 			// Execute a query to create a test table
 			const result = db.executeAsync('CREATE TABLE IF NOT EXISTS testTable (text TEXT, number INTEGER)');
@@ -549,7 +547,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('executes synchronously', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_all.db');
 
 			// FIXME: There's no way to send in binding parameters, you have to bake them into the query string with this API
@@ -625,7 +623,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('executes asynchronously', function (finish) { // eslint-disable-line mocha/no-identical-title
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_all.db');
 
 			const queries = [
@@ -671,7 +669,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('returns Promise', function (finish) { // eslint-disable-line mocha/no-identical-title
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const db = Ti.Database.open('execute_all.db');
 
 			const queries = [
@@ -798,7 +796,7 @@ describe('Titanium.Database', function () {
 		});
 
 		it('handles being closed mid-query', function (finish) {
-			this.timeout(30000);
+			this.timeout(Timeout.LONG);
 			this.slow(2000);
 			const db = Ti.Database.open('execute_all_async.db');
 			const queries = [
@@ -864,7 +862,7 @@ describe('Titanium.Database', function () {
 		// Try to get the db object to get GC'd while we're running queries!
 		// Note that I can't really think of any better way to try and test this scenario
 		it('does not allow DB to be GC\'d', function (finish) {
-			this.timeout(120000); // 2 minutes
+			this.timeout(Timeout.NETWORK); // 2 minutes
 			this.slow(20000); // 20 sec
 			// note that we call a fucntion that has a db instance scope to it and not referenced elsewhere,
 			// not explicitly closed, not referenced in the async callback

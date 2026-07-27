@@ -78,8 +78,7 @@ describe('Titanium', () => {
 				should(Ti).have.property('userAgent').which.is.a.String();
 			});
 
-			// FIXME File a ticket in JIRA. Updating V8 fixes the property read/write issues, but exposes bug in that we set userAgent as read-only on Android and it shouldn't be
-			it.androidBroken('can be assigned a String value', () => {
+			it('can be assigned a String value', () => {
 				const save = Ti.userAgent;
 				Ti.userAgent = 'Titanium_Mocha_Test';
 				should(Ti.userAgent).be.eql('Titanium_Mocha_Test');
@@ -87,7 +86,7 @@ describe('Titanium', () => {
 				should(Ti.userAgent).be.eql(save);
 			});
 
-			it.androidBroken('has no accessors', () => { // Cannot read property '_hasJavaListener' of undefined
+			it('has no accessors', () => { // Cannot read property '_hasJavaListener' of undefined
 				should(Ti).not.have.accessors('userAgent');
 			});
 		});
@@ -98,7 +97,11 @@ describe('Titanium', () => {
 
 		it('#removeEventListener()', () => should(Ti.removeEventListener).be.a.Function());
 
-		// FIXME Get working on IOS/Android!
+		// FIXME Get working on IOS!
+		// Dynamic property setting via applyProperties() on the top-level Ti module
+		// does not propagate back to the JS proxy object (the native setProperty()
+		// updates the proxy's dict, but V8 doesn't expose arbitrary dict keys as JS
+		// properties on a module proxy). Requires deep V8 named-property handling.
 		it.androidAndIosBroken('#applyProperties()', function () {
 			should(Ti.applyProperties).be.a.Function();
 			Ti.mocha_test = undefined;

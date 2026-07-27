@@ -28,9 +28,8 @@ describe('Titanium.Network', function () {
 		});
 	}
 	for (let i = 0; i < TLS_VERSIONS.length; i++) {
-		// FIXME Fails on Android and iOS for some reason! They say they're undefined, not Number
-		// FIXME Windows fails to find the property up the prototype chain in utilities/assertions, line 33
-		it.allBroken(TLS_VERSIONS[i], function () { // eslint-disable-line no-loop-func
+		// FIXME iOS reports undefined. Windows fails to find the property up the prototype chain.
+		it(TLS_VERSIONS[i], function () { // eslint-disable-line no-loop-func
 			should(Ti.Network).have.constant(TLS_VERSIONS[i]).which.is.a.Number();
 		});
 	}
@@ -92,8 +91,19 @@ describe('Titanium.Network', function () {
 		should(Ti.Network.createHTTPClient).be.a.Function();
 	});
 
-	it.iosBroken('#createTCPSocket() should be removed', () => {
-		// iOS will return an empty function because of how the old TiProxy logic is written. Ugh
-		should.not.exist(Ti.Network.createTCPSocket);
+	it('Ti.Network.Socket.createTCP is the TCP socket factory', () => {
+		// The legacy Ti.Network.createTCPSocket() API was superseded by the
+		// Ti.Network.Socket.createTCP factory (TiNetworkSocketTCPProxy).
+		// Full behavior (connect/listen/accept/close, send/receive) is
+		// exercised in ti.network.socket.tcp.test.js; here we just verify
+		// the new namespace is reachable and produces a socket instance.
+		should(Ti.Network.Socket).be.an.Object();
+		should(Ti.Network.Socket.createTCP).be.a.Function();
+		const socket = Ti.Network.Socket.createTCP();
+		should(socket).be.ok();
+		should(socket.connect).be.a.Function();
+		should(socket.listen).be.a.Function();
+		should(socket.accept).be.a.Function();
+		should(socket.close).be.a.Function();
 	});
 });

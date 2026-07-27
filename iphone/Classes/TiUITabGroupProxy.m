@@ -44,6 +44,11 @@ static NSArray *tabGroupKeySequence;
   [self initializeProperty:@"allowUserCustomization" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"extendEdges" defaultValue:[NSArray arrayWithObjects:NUMINT(15), nil]];
   [self initializeProperty:@"lazyLoadingEnabled" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"tabsTranslucent" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"tabs" defaultValue:[NSMutableArray array]];
+  if (tabs == nil) {
+    tabs = [[NSMutableArray alloc] initWithCapacity:4];
+  }
   [super _initWithProperties:properties];
 }
 
