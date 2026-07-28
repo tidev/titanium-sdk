@@ -3328,7 +3328,28 @@ class iOSBuilder extends Builder {
 		const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
 		const contents = fs.readFileSync(srcFile).toString();
 
-		xcodeProject.hash = xcodeParser.parse(contents);
+		// Parsing the template pbxproj is non-trivial (~50-200ms) and the source only changes
+		// when the SDK itself does. Cache the parsed tree on disk keyed by a hash of the source.
+		const pbxprojCacheDir = path.join(this.buildDir, 'incremental', 'xcode-project');
+		const pbxprojCacheFile = path.join(pbxprojCacheDir, 'template-parsed.json');
+		const pbxprojHashFile = path.join(pbxprojCacheDir, 'template-src.sha1');
+		const srcHash = this.hash(contents);
+		let parsed;
+		if (fs.existsSync(pbxprojHashFile) && fs.existsSync(pbxprojCacheFile)
+			&& fs.readFileSync(pbxprojHashFile, 'utf8') === srcHash) {
+			this.logger.trace(`Reusing cached parsed pbxproj from ${pbxprojCacheFile.cyan}`);
+			parsed = JSON.parse(fs.readFileSync(pbxprojCacheFile, 'utf8'));
+		} else {
+			parsed = xcodeParser.parse(contents);
+			try {
+				fs.ensureDirSync(pbxprojCacheDir);
+				fs.writeFileSync(pbxprojCacheFile, JSON.stringify(parsed));
+				fs.writeFileSync(pbxprojHashFile, srcHash);
+			} catch (e) {
+				this.logger.trace(`Unable to persist pbxproj cache: ${e.message}`);
+			}
+		}
+		xcodeProject.hash = parsed;
 		const xobjs = xcodeProject.hash.project.objects;
 
 		if (appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
@@ -5003,15 +5024,34 @@ class iOSBuilder extends Builder {
 						return null;
 					}
 
-					let contents = fs.readFileSync(srcFile),
-						changed = false;
 					const rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
-						destExists = fs.existsSync(destFile),
-						existingContent = destExists && fs.readFileSync(destFile),
-						srcHash = this.hash(contents),
-						srcMtime = JSON.parse(JSON.stringify(srcStat.mtime));
+						srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+						prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
+						destExists = fs.existsSync(destFile);
 
 					this.unmarkBuildDirFile(destFile);
+
+					// Fast path: if stat (size+mtime) matches the previous build and dest still exists,
+					// the source can't have changed, so reuse the cached fingerprint and skip read/hash/write.
+					// Skipped for appFiles (rendered through ejs each build) and once a Frameworks bulk
+					// copy has already run this build (the dest may have been replaced with fresh content).
+					if (
+						!appFiles[filename]
+						&& destExists
+						&& !nameChanged
+						&& prev
+						&& prev.size === srcStat.size
+						&& prev.mtime === srcMtime
+						&& !(dir === 'Frameworks' && !copyFrameworks)
+					) {
+						this.currentBuildManifest.files[rel] = prev;
+						return null;
+					}
+
+					let contents = fs.readFileSync(srcFile),
+						changed = false;
+					const existingContent = destExists && fs.readFileSync(destFile),
+						srcHash = this.hash(contents);
 
 					this.currentBuildManifest.files[rel] = {
 						hash: srcHash,
@@ -5033,9 +5073,7 @@ class iOSBuilder extends Builder {
 					}
 
 					if (extRegExp.test(srcFile)) {
-						// look up the file to see if the original source changed
-						const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
-						if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
+						if (destExists && !nameChanged && prev && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
 							// the original hasn't changed, so let's assume that there's nothing to do
 							return null;
 						}
@@ -5859,21 +5897,13 @@ class iOSBuilder extends Builder {
 		const imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 		const imageSets = {};
+		const namespaceDirs = new Set();
 		for (let [ file, info ] of imageAssets) {
 			const directories = file.split('/');
 			let newPath = '';
 			for (let i = 0; i < directories.length - 1; i++) {
 				newPath = newPath + '/' + directories[i];
-
-				await this.writeAssetContentsFile(path.join(assetCatalog, newPath, 'Contents.json'), {
-					info: {
-						version: 1,
-						author: 'xcode'
-					},
-					properties: {
-						'provides-namespace': true
-					},
-				});
+				namespaceDirs.add(newPath);
 			}
 
 			const match = file.match(imageNameRegExp);
@@ -5915,16 +5945,23 @@ class iOSBuilder extends Builder {
 			resourcesToCopy.get(file).isImage = true;
 		}
 
-		// finally create all the Content.json files
-		return Promise.all(Object.keys(imageSets).map(async set => {
-			return this.writeAssetContentsFile(path.join(assetCatalog, set, 'Contents.json'), {
+		// finally write all the Contents.json files in parallel: the per-namespace markers
+		// (deduped above via namespaceDirs) and the imageset manifests.
+		const namespaceContents = {
+			info: { version: 1, author: 'xcode' },
+			properties: { 'provides-namespace': true }
+		};
+		const writes = [];
+		for (const dir of namespaceDirs) {
+			writes.push(this.writeAssetContentsFile(path.join(assetCatalog, dir, 'Contents.json'), namespaceContents));
+		}
+		for (const set of Object.keys(imageSets)) {
+			writes.push(this.writeAssetContentsFile(path.join(assetCatalog, set, 'Contents.json'), {
 				images: imageSets[set].images,
-				info: {
-					version: 1,
-					author: 'xcode'
-				}
-			});
-		}));
+				info: { version: 1, author: 'xcode' }
+			}));
+		}
+		return Promise.all(writes);
 	}
 
 	/**
@@ -6156,7 +6193,6 @@ class iOSBuilder extends Builder {
 			}
 		};
 		const flattenIcons = []; // icons with alpha channel to "flatten" with white bg
-		// FIXME: Do these in parallel
 		// This goes through the app icons and tries to:
 		// validate it matches one of the ones we need
 		// its height/width matches what we need
@@ -6167,21 +6203,26 @@ class iOSBuilder extends Builder {
 		// if usable, we expand out into appIconSet and remove from lookup map (this is how we keep track of what's missing)
 		// if we don't need to flatten, we add to resources to copy (after chnaging dest to iconset asset catalog)
 		// if we do need to flatten we eventually merge over top white bg
-		appIcons.forEach((info, filename) => {
+
+		// Read + parse all candidate icons in parallel; the subsequent validation/categorization
+		// mutates shared state (lookup, appIconSet, flattenIcons, resourcesToCopy) so it stays serial.
+		const iconCandidates = [];
+		for (const [ filename, info ] of appIcons) {
 			if (!info.tag) {
 				// probably appicon.png, we don't care so skip it
-				return;
+				continue;
 			}
-
 			if (!lookup[info.tag]) {
-				// we don't care about this image
 				this.logger.debug(`Unsupported app icon ${info.src.replace(this.projectDir + '/', '').cyan}, skipping`);
-				return;
+				continue;
 			}
-
-			const contents = fs.readFileSync(info.src);
-			const pngInfo = appc.image.pngInfo(contents);
-
+			iconCandidates.push({ filename, info });
+		}
+		const iconReads = await Promise.all(iconCandidates.map(async ({ filename, info }) => {
+			const contents = await fs.readFile(info.src);
+			return { filename, info, contents, pngInfo: appc.image.pngInfo(contents) };
+		}));
+		iconReads.forEach(({ filename, info, contents, pngInfo }) => {
 			// check that the app icon is square
 			if (pngInfo.width !== pngInfo.height) {
 				this.logger.warn(`Skipping app icon ${
@@ -6441,13 +6482,35 @@ class iOSBuilder extends Builder {
 			let changed = false;
 			const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['LaunchLogo.png'];
 
-			if (launchLogo) {
-				// sanity check that LaunchLogo is usable
-				const stat = fs.statSync(launchLogo.src),
-					mtime = JSON.parse(JSON.stringify(stat.mtime)),
-					launchLogoContents = fs.readFileSync(launchLogo.src),
-					hash = this.hash(launchLogoContents);
+			// Run all up-front I/O in parallel: the LaunchLogo source stat+read (if present) and
+			// the existsSync probe for every destination we may have to generate. The categorization
+			// step below stays synchronous over the resolved results.
+			const lookupEntries = Object.keys(lookup).map(name => ({
+				name,
+				spec: lookup[name],
+				filename: name + '.png',
+				dest: path.join(assetCatalogDir, name + '.png')
+			}));
+			const [ launchLogoData, ...destExists ] = await Promise.all([
+				launchLogo
+					? (async () => {
+						const [ stat, launchLogoContents ] = await Promise.all([
+							fs.stat(launchLogo.src),
+							fs.readFile(launchLogo.src)
+						]);
+						return {
+							stat,
+							launchLogoContents,
+							mtime: JSON.parse(JSON.stringify(stat.mtime)),
+							hash: this.hash(launchLogoContents)
+						};
+					})()
+					: Promise.resolve(null),
+				...lookupEntries.map(entry => fs.pathExists(entry.dest))
+			]);
 
+			if (launchLogoData) {
+				const { stat, launchLogoContents, mtime, hash } = launchLogoData;
 				changed = !prev || prev.size !== stat.size || prev.mtime !== mtime || prev.hash !== hash;
 
 				this.currentBuildManifest.files['LaunchLogo.png'] = {
@@ -6474,11 +6537,9 @@ class iOSBuilder extends Builder {
 			let logged = false;
 
 			// build the list of images to be generated
-			Object.keys(lookup).forEach(name => {
-				const spec = lookup[name],
-					filename = name + '.png',
-					dest = path.join(assetCatalogDir, filename),
-					desc = `${name} - Used for ${spec.idiom} - size: ${spec.size}x${spec.size}`;
+			lookupEntries.forEach((entry, idx) => {
+				const { spec, filename, dest } = entry;
+				const desc = `${entry.name} - Used for ${spec.idiom} - size: ${spec.size}x${spec.size}`;
 
 				images.push({
 					idiom: spec.idiom,
@@ -6489,7 +6550,7 @@ class iOSBuilder extends Builder {
 				this.unmarkBuildDirFile(dest);
 
 				// if the source image hasn't changed, then don't need to regenerate the missing launch logos
-				if (!changed && fs.existsSync(dest)) {
+				if (!changed && destExists[idx]) {
 					this.logger.trace(`Found generated ${spec.size}x${spec.size} launch logo: ${dest.cyan}`);
 					return;
 				}
@@ -6602,14 +6663,34 @@ class iOSBuilder extends Builder {
 			return [];
 		}
 
-		const missingIcons = [];
-		Object.keys(lookup).forEach(key => {
+		// Read every previously-generated icon (if any) in parallel before deciding which still
+		// need to be regenerated. When the default icon changed we can't trust any cached output,
+		// so skip the disk checks entirely.
+		const candidates = Object.keys(lookup).map(key => {
 			const filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png';
-			const dest = path.join(appIconSetDir, filename);
+			return {
+				meta: lookup[key],
+				filename,
+				dest: path.join(appIconSetDir, filename)
+			};
+		});
+		const existingInfo = await Promise.all(candidates.map(async ({ dest }) => {
+			if (defaultIconChanged || !(await fs.pathExists(dest))) {
+				return null;
+			}
+			try {
+				const contents = await fs.readFile(dest);
+				return appc.image.pngInfo(contents);
+			} catch {
+				return null;
+			}
+		}));
+
+		const missingIcons = [];
+		candidates.forEach(({ meta, filename, dest }, idx) => {
 			this.unmarkBuildDirFile(dest);
 
 			// inject images into the app icon set
-			const meta = lookup[key];
 			meta.idioms.forEach(function (idiom) {
 				appIconSet.images.push({
 					size:     meta.width + 'x' + meta.height,
@@ -6622,15 +6703,11 @@ class iOSBuilder extends Builder {
 			// check if the icon was previously resized
 			const width = meta.width * meta.scale;
 			const height = meta.height * meta.scale;
-			if (!defaultIconChanged && fs.existsSync(dest)) {
-				const contents = fs.readFileSync(dest),
-					pngInfo = appc.image.pngInfo(contents);
-
-				if (pngInfo.width === width && pngInfo.height === height) {
-					this.logger.trace(`Found generated ${width}x${height} app icon: ${dest.cyan}`);
-					// icon looks good, no need to generate it!
-					return;
-				}
+			const pngInfo = existingInfo[idx];
+			if (pngInfo && pngInfo.width === width && pngInfo.height === height) {
+				this.logger.trace(`Found generated ${width}x${height} app icon: ${dest.cyan}`);
+				// icon looks good, no need to generate it!
+				return;
 			}
 
 			missingIcons.push({
