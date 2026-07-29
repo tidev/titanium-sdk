@@ -1,15 +1,67 @@
 /*
  * install.js: Titanium iOS CLI install hook
  *
+ * Installs and launches device builds via `xcrun devicectl` (CoreDevice).
+ * The legacy MobileDevice.framework path (ioslib/node-ios-device) is gone:
+ * iOS 17+ devices connect exclusively through CoreDevice/RemoteXPC and are
+ * invisible to the old API, even over USB.
+ *
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
 import appc from 'node-appc';
 import async from 'async';
-import ioslib from 'ioslib';
+import { execFile, spawn } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 export const cliVersion = '>=3.2';
+
+const EXEC_LIMIT = { maxBuffer: 10 * 1024 * 1024 };
+
+function listDevices(callback) {
+	const jsonFile = path.join(os.tmpdir(), `ti-devicectl-${process.pid}.json`);
+	execFile('xcrun', [ 'devicectl', 'list', 'devices', '--json-output', jsonFile ], EXEC_LIMIT, function (err, stdout, stderr) {
+		let devices = [];
+		if (err) {
+			return callback(new appc.exception('Failed to list devices via devicectl', (stderr || stdout || '').trim().split('\n')));
+		}
+		try {
+			devices = JSON.parse(fs.readFileSync(jsonFile, 'utf8')).result.devices;
+		} catch (e) {
+			return callback(new appc.exception(`Failed to parse devicectl output: ${e.message}`));
+		} finally {
+			try {
+				fs.unlinkSync(jsonFile);
+			} catch (e) {
+				// ignore
+			}
+		}
+		callback(null, devices);
+	});
+}
+
+function getLockState(deviceId, callback) {
+	const jsonFile = path.join(os.tmpdir(), `ti-devicectl-lock-${process.pid}.json`);
+	execFile('xcrun', [ 'devicectl', 'device', 'info', 'lockState', '--timeout', '20', '--device', deviceId, '--json-output', jsonFile ], EXEC_LIMIT, function (err) {
+		let locked = null; // null = unknown, e.g. device unreachable
+		if (!err) {
+			try {
+				locked = !!JSON.parse(fs.readFileSync(jsonFile, 'utf8')).result.passcodeRequired;
+			} catch (e) {
+				// leave unknown
+			}
+		}
+		try {
+			fs.unlinkSync(jsonFile);
+		} catch (e) {
+			// ignore
+		}
+		callback(locked);
+	});
+}
 
 export function init(logger, config, cli) {
 	cli.addHook('build.post.compile', {
@@ -24,38 +76,49 @@ export function init(logger, config, cli) {
 				return finished();
 			}
 
-			ioslib.device.detect({ bypassCache: true }, function (err, results) {
-				const devices = {};
-				if (!err) {
-					results.devices.forEach(function (device) {
-						if (device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
-							devices[device.udid] = device;
-						}
-					});
+			listDevices(function (err, deviceList) {
+				if (err) {
+					return finished(err);
 				}
 
-				const udids = Object.keys(devices),
-					levels = logger.getLevels(),
-					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i'), // eslint-disable-line security/detect-non-literal-regexp
-					handles = {};
+				// paired is enough: CoreDevice establishes the tunnel on demand,
+				// even when the device currently reports tunnelState "disconnected"
+				const targets = deviceList.filter(d => d.hardwareProperties
+					&& d.hardwareProperties.reality === 'physical'
+					&& d.hardwareProperties.platform === 'iOS'
+					&& d.connectionProperties
+					&& d.connectionProperties.pairingState === 'paired'
+					&& (!builder.deviceId || builder.deviceId === 'all'
+						|| d.hardwareProperties.udid === builder.deviceId
+						|| d.identifier === builder.deviceId));
+
+				if (!targets.length) {
+					logger.warn('No connected iOS devices found, skipping install');
+					return finished();
+				}
+
+				const levels = logger.getLevels(),
+					logLevelRE = new RegExp('^(\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\\[\\d+m)?(.*)', 'i'), // eslint-disable-line security/detect-non-literal-regexp
+					children = {};
 				let startLog = false,
-					runningCount = 0,
-					installCount = 0;
+					runningCount = 0;
 
-				function quit(force, udid) {
-					runningCount--;
-
-					if (udid && handles[udid]) {
-						handles[udid].stop();
-						delete handles[udid];
-					} else if (force) {
-						Object.keys(handles).forEach(function (udid) {
-							handles[udid].stop();
-							delete handles[udid];
+				function quit(udid) {
+					if (udid) {
+						if (children[udid]) {
+							children[udid].kill();
+							delete children[udid];
+						}
+						runningCount--;
+					} else {
+						Object.keys(children).forEach(function (u) {
+							children[u].kill();
+							delete children[u];
 						});
+						runningCount = 0;
 					}
 
-					if (force || runningCount <= 0) {
+					if (runningCount <= 0) {
 						if (startLog) {
 							const endLogTxt = 'End application log';
 							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
@@ -64,117 +127,125 @@ export function init(logger, config, cli) {
 					}
 				}
 
-				// install the app for the specified device or "all" devices
-				async.eachSeries(udids, function (udid, next) {
-					const device = devices[udid];
-					let lastLogger = 'debug';
+				function launchApp(device) {
+					const name = device.deviceProperties.name;
+					let waitLogged = false;
 
-					logger.info(`Installing app on device: ${device.name.cyan}`);
+					runningCount++;
 
-					const handle = handles[udid] = ioslib.device
-						.install(udid, builder.xcodeAppDir, {
-							appName: builder.tiapp.name,
-							logPort: builder.tiLogServerPort
-						})
-						.on('installed', function () {
-							logger.info(`App successfully installed on device: ${device.name.cyan}`);
-							if (++installCount === udids.length && !startLog) {
-								setTimeout(function () {
-									if (process.env.STUDIO_VERSION) {
-										logger.log('Please manually launch the application'.magenta + '\n');
-									} else {
-										logger.log('Please manually launch the application or press CTRL-C to quit'.magenta + '\n');
-									}
-								}, 50);
+					function attempt() {
+						let lastLogger = 'debug',
+							remainder = '';
+
+						logger.info(`Launching app on device: ${name.cyan}`);
+
+						const child = spawn('xcrun', [
+							'devicectl', 'device', 'process', 'launch',
+							'--console', '--terminate-existing',
+							'--device', device.identifier,
+							builder.tiapp.id
+						]);
+						children[device.identifier] = child;
+
+						function processLine(line) {
+							if (!line.trim()) {
+								return;
 							}
-							cli.emit('build.post.install', builder, next);
-						})
-						.on('app-started', function () {
-							runningCount++;
-						})
-						.on('log', function (msg) {
-							let skipLine = false;
-
-							if (!handles[udid].logStarted) {
-								if (msg.indexOf('{') === 0) {
-									try {
-										const headers = JSON.parse(msg);
-										if (headers.appId !== builder.tiapp.id) {
-											logger.error(`Another Titanium app "${headers.appId}" is currently running and using the log server port ${builder.tiLogServerPort}`);
-											logger.error('Stop the running Titanium app, then rebuild this app');
-											logger.error('-or-');
-											logger.error('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml');
-											handle.stop();
-
-											if (--runningCount <= 0) {
-												logger.log();
-												process.exit(1);
-											}
-										}
-									} catch (e) {
-										// squeltch
-									}
-									skipLine = true;
-								}
-								handles[udid].logStarted = true;
-							}
-
 							if (!startLog) {
 								const startLogTxt = 'Start application log';
 								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 								startLog = true;
 							}
-
-							if (skipLine) {
-								return;
-							}
-
-							let m = msg.match(logLevelRE);
+							let m = line.match(logLevelRE);
 							if (m) {
-								let line = m[0].trim();
-								m = line.match(logLevelRE);
-								if (m) {
-									lastLogger = m[2].toLowerCase();
-									line = m[4].trim();
-								}
-								if (levels.indexOf(lastLogger) === -1) {
-									// unknown log level
-									logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
-								} else {
-									logger[lastLogger](line);
-								}
-							} else if (levels.indexOf(lastLogger) === -1) {
-								logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
-							} else {
-								logger[lastLogger](msg);
+								lastLogger = m[2].toLowerCase();
+								line = m[4].trim();
 							}
-						})
-						.on('app-quit', function () { quit(false, udid); })
-						.on('disconnect', function () { quit(false, udid); })
-						.on('error', function (err) {
-							err = err.message || err.toString();
-							let details;
-							if (err.indexOf('0xe8008017') !== -1) {
-								details = 'Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.';
-							} else if (err.indexOf('0xe8008019') !== -1) {
-								details = 'Chances are there is a signing issue. Clean the project and try building the project again.';
-							} else if (err.indexOf('0xe800007f') !== -1) {
-								details = 'Try reconnecting your device and try again.';
-							} else if (err.indexOf('0xe8008016') !== -1) {
-								details = 'Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.; or your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.';
-							} else if (err.indexOf('0xe800001a') !== -1) {
-								details = 'Failed to transfer app to device. Check if your devices is registered in your provisioning profile.';
+							if (levels.indexOf(lastLogger) === -1) {
+								logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 							} else {
-								details = 'For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.';
+								logger[lastLogger](line);
 							}
-							next(new appc.exception(err, details));
+						}
+
+						function onData(data) {
+							const lines = (remainder + data.toString()).split('\n');
+							remainder = lines.pop();
+							lines.forEach(processLine);
+						}
+
+						child.stdout.on('data', onData);
+						child.stderr.on('data', onData);
+
+						child.on('exit', function (code) {
+							delete children[device.identifier];
+
+							if (code && !startLog) {
+								// launch failed before any log output, check if the device is simply locked
+								return getLockState(device.identifier, function (locked) {
+									if (locked) {
+										waitForUnlock();
+									} else {
+										logger.warn(`Failed to launch app on "${name}"`);
+										logger.log('Please manually launch the application'.magenta + '\n');
+										quit(device.identifier);
+									}
+								});
+							}
+							quit(device.identifier);
 						});
-				}, finished);
+					}
+
+					function waitForUnlock() {
+						if (!waitLogged) {
+							waitLogged = true;
+							logger.info(`Device "${name.cyan}" is locked, the app will launch as soon as it is unlocked (press CTRL-C to quit)`);
+						}
+						getLockState(device.identifier, function (locked) {
+							if (locked === true) {
+								setTimeout(waitForUnlock, 3000);
+							} else {
+								attempt();
+							}
+						});
+					}
+
+					// check the lock state first so we don't burn a guaranteed-to-fail launch attempt
+					getLockState(device.identifier, function (locked) {
+						if (locked === true) {
+							waitForUnlock();
+						} else {
+							attempt();
+						}
+					});
+				}
 
 				// listen for ctrl-c
 				process.on('SIGINT', function () {
 					logger.log();
-					quit(true);
+					quit();
+				});
+
+				async.eachSeries(targets, function (device, next) {
+					const name = device.deviceProperties.name;
+					logger.info(`Installing app on device: ${name.cyan}`);
+					execFile('xcrun', [ 'devicectl', 'device', 'install', 'app', '--timeout', '90', '--device', device.identifier, builder.xcodeAppDir ], EXEC_LIMIT, function (err, stdout, stderr) {
+						if (err) {
+							return next(new appc.exception(`Failed to install app on "${name}"`, (stderr || stdout || '').trim().split('\n')));
+						}
+						logger.info(`App successfully installed on device: ${name.cyan}`);
+						cli.emit('build.post.install', builder, function () {
+							launchApp(device);
+							next();
+						});
+					});
+				}, function (err) {
+					if (!err) {
+						logger.log('Streaming application log, press CTRL-C to quit'.magenta + '\n');
+					}
+					// the attached console children keep the process alive until
+					// the app quits or the user hits ctrl-c, like the old log relay
+					finished(err);
 				});
 			});
 		}
