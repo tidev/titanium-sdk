@@ -8,8 +8,6 @@ package ti.modules.titanium.ui.widget;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -26,7 +24,6 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -298,20 +295,6 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 	{
 		// The Material 3 "MaterialSwitch" widget requires a Material 3 theme defining "materialSwitchStyle".
 		// Material 2 themes (such as "Theme.Titanium.DayNight") do not define it and must use "SwitchMaterial".
-		// Note: We cannot resolve the attribute from activity.getTheme() since setTheme() merges the given
-		// theme on top of the manifest's Material 3 default theme, which would always define the attribute.
-		// So, resolve the attribute from a cleanly built instance of the activity's assigned theme instead.
-		TypedValue typedValue = new TypedValue();
-		if (activity instanceof TiBaseActivity) {
-			int themeResId = ((TiBaseActivity) activity).getAppliedThemeResId();
-			if (themeResId != 0) {
-				Resources.Theme theme = activity.getResources().newTheme();
-				theme.applyStyle(themeResId, true);
-				return theme.resolveAttribute(
-					com.google.android.material.R.attr.materialSwitchStyle, typedValue, true);
-			}
-		}
-		return activity.getTheme().resolveAttribute(
-			com.google.android.material.R.attr.materialSwitchStyle, typedValue, true);
+		return TiUIHelper.isUsingMaterial3Theme(activity);
 	}
 }

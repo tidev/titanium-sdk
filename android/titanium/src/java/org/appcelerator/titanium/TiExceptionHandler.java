@@ -202,7 +202,9 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			String errorMessage = error.getString(ERROR_MESSAGE);
 			errorMessage = (errorMessage != null) ? errorMessage : "";
 			if (errorMessage.contains("theme to inherit from Theme.MaterialComponents")
-				|| errorMessage.contains("theme to be Theme.MaterialComponents")) {
+				|| errorMessage.contains("theme to be Theme.MaterialComponents")
+				|| errorMessage.contains("theme to inherit from Theme.Material3")
+				|| errorMessage.contains("theme to be Theme.Material3")) {
 				dialogShowing = false;
 				showMaterialThemeErrorDialog(activity);
 				return;
@@ -276,8 +278,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.Theme_Titanium_Dialog_Error);
 		builder.setTitle("Developer Error");
 		builder.setMessage(
-			"As of Titanium 10.0.0, a custom theme applied to the app or activity window must derive "
-				+ "from 'Theme.MaterialComponents'.");
+			"A custom theme applied to the app or activity window must derive "
+				+ "from 'Theme.Material3' or 'Theme.MaterialComponents'.");
 		builder.create().show();
 	}
 
