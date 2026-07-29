@@ -3354,7 +3354,7 @@ class AndroidBuilder extends Builder {
 		this.logger.info(`Generating theme file: ${xmlFileName.cyan}`);
 
 		// Set default theme to be used in "AndroidManifest.xml" and style resources.
-		let defaultAppThemeName = 'Theme.Titanium.DayNight.Solid';
+		let defaultAppThemeName = 'Theme.Titanium.Material3.DayNight.Solid';
 		if (this.tiapp.fullscreen || this.tiapp['statusbar-hidden']) {
 			defaultAppThemeName += '.Fullscreen';
 		} else if (this.tiapp['navbar-hidden']) {
