@@ -391,11 +391,8 @@ class iOSBuilder extends Builder {
 				supportedVersions: this.packageJson.vendorDependencies.xcode
 			}, function (err, iosInfo) {
 				if (err) {
-					// this is bad and probably because we don't have a compatible
-					// node-ios-device binary for the current version of node
-					//
-					// ideally we'd failout, but we can't... the Titanium CLI doesn't
-					// allow the config() call to return an error. my bad design. :(
+					// this is bad, but the Titanium CLI doesn't allow the config()
+					// call to return an error, so degrade to an empty result
 					iosInfo = {
 						certs: {
 							keychains: {}
