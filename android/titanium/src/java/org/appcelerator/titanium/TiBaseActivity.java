@@ -51,6 +51,7 @@ import android.app.Activity;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -1088,6 +1089,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	 */
 	protected void handleBackNavigation()
 	{
+		// If the soft keyboard is showing, back must only dismiss it. This matches the legacy
+		// back-key behavior where the IME consumed KEYCODE_BACK before it reached the activity.
+		// With "enableOnBackInvokedCallback" enabled, some IMEs do not register their own back
+		// callback on this window's dispatcher, which would otherwise route the back gesture
+		// here while the keyboard is still open.
+		View decorView = getWindow().getDecorView();
+		WindowInsetsCompat rootInsets = ViewCompat.getRootWindowInsets(decorView);
+		if ((rootInsets != null) && rootInsets.isVisible(WindowInsetsCompat.Type.ime())) {
+			WindowCompat.getInsetsController(getWindow(), decorView)
+				.hide(WindowInsetsCompat.Type.ime());
+			return;
+		}
+
 		// Notify all listener that the back button was pressed.
 		synchronized (interceptOnBackPressedListeners.synchronizedList())
 		{
