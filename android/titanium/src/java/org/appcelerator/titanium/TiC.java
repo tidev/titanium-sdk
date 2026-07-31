@@ -739,7 +739,6 @@ public class TiC
 	public static final String PROPERTY_SHOW_PAGING_CONTROL = "showPagingControl";
 	public static final String PROPERTY_SHOW_PROGRESS = "showProgress";
 	public static final String PROPERTY_SHOW_SELECTION_CHECK = "showSelectionCheck";
-	public static final String PROPERTY_SHOW_STOP_INDICATOR = "showStopIndicator";
 	public static final String PROPERTY_SISTER = "sister";
 	public static final String PROPERTY_SIZE = "size";
 	public static final String PROPERTY_SNAPPING = "snapping";
@@ -758,6 +757,7 @@ public class TiC
 	public static final String PROPERTY_STATE = "state";
 	public static final String PROPERTY_STATUS = "status";
 	public static final String PROPERTY_STOP = "stop";
+	public static final String PROPERTY_STOP_INDICATOR = "stopIndicator";
 	public static final String PROPERTY_STREET = "street";
 	public static final String PROPERTY_STREET1 = "street1";
 	public static final String PROPERTY_STYLE = "style";
@@ -808,6 +808,7 @@ public class TiC
 	public static final String PROPERTY_TOOLBAR = "toolbar";
 	public static final String PROPERTY_TOOLBAR_ENABLED = "toolbarEnabled";
 	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
+	public static final String PROPERTY_TRACK_THICKNESS = "trackThickness";
 	public static final String PROPERTY_TRACK_TINT_COLOR = "trackTintColor";
 	public static final String PROPERTY_TRANSFORM = "transform";
 	public static final String PROPERTY_TRANSLATION_X = "translationX";

@@ -186,31 +186,63 @@ describe('Titanium.UI.ProgressBar', () => {
 			});
 		});
 
-		describe.android('.showStopIndicator', () => {
-			it('is a Boolean', () => {
-				bar = Ti.UI.createProgressBar();
-				should(bar).have.property('showStopIndicator').which.is.a.Boolean();
-			});
-
+		describe.android('.stopIndicator', () => {
 			it('defaults to true', () => {
 				bar = Ti.UI.createProgressBar();
-				should(bar.showStopIndicator).be.true();
+				should(bar.stopIndicator).be.true();
 			});
 
 			it('can be initialized false', () => {
-				bar = Ti.UI.createProgressBar({ showStopIndicator: false });
-				should(bar.showStopIndicator).be.false();
+				bar = Ti.UI.createProgressBar({ stopIndicator: false });
+				should(bar.stopIndicator).be.false();
 			});
 
 			it('can be set false', () => {
 				bar = Ti.UI.createProgressBar();
-				bar.showStopIndicator = false;
-				should(bar.showStopIndicator).be.false();
+				bar.stopIndicator = false;
+				should(bar.stopIndicator).be.false();
+			});
+
+			it('can be initialized with an object', () => {
+				bar = Ti.UI.createProgressBar({ stopIndicator: { enabled: true, size: 12 } });
+				should(bar.stopIndicator).be.an.Object();
+				should(bar.stopIndicator.enabled).be.true();
+				should(bar.stopIndicator.size).eql(12);
+			});
+
+			it('can be set to an object', () => {
+				bar = Ti.UI.createProgressBar();
+				bar.stopIndicator = { enabled: false };
+				should(bar.stopIndicator).be.an.Object();
+				should(bar.stopIndicator.enabled).be.false();
 			});
 
 			it('has no accessors', () => {
 				bar = Ti.UI.createProgressBar();
-				should(bar).not.have.accessors('showStopIndicator');
+				should(bar).not.have.accessors('stopIndicator');
+			});
+		});
+
+		describe.android('.trackThickness', () => {
+			it('can be initialized', () => {
+				bar = Ti.UI.createProgressBar({ trackThickness: 10 });
+				should(bar.trackThickness).eql(10);
+			});
+
+			it('can be set', () => {
+				bar = Ti.UI.createProgressBar();
+				bar.trackThickness = 10;
+				should(bar.trackThickness).eql(10);
+			});
+
+			it('accepts a String with unit suffix', () => {
+				bar = Ti.UI.createProgressBar({ trackThickness: '8dp' });
+				should(bar.trackThickness).eql('8dp');
+			});
+
+			it('has no accessors', () => {
+				bar = Ti.UI.createProgressBar();
+				should(bar).not.have.accessors('trackThickness');
 			});
 		});
 

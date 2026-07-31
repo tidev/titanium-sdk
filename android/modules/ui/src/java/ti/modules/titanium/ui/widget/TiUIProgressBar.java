@@ -11,9 +11,11 @@ import android.view.Gravity;
 import android.widget.LinearLayout;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textview.MaterialTextView;
+import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
@@ -74,8 +76,13 @@ public class TiUIProgressBar extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR)) {
 			this.progress.setTrackColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR, activity));
 		}
-		if (d.containsKey(TiC.PROPERTY_SHOW_STOP_INDICATOR)) {
-			handleSetShowStopIndicator(TiConvert.toBoolean(d, TiC.PROPERTY_SHOW_STOP_INDICATOR, true));
+		// Apply the track thickness before the stop indicator since Material clamps
+		// the stop indicator size to the track thickness when it is set.
+		if (d.containsKey(TiC.PROPERTY_TRACK_THICKNESS)) {
+			handleSetTrackThickness(d.get(TiC.PROPERTY_TRACK_THICKNESS));
+		}
+		if (d.containsKey(TiC.PROPERTY_STOP_INDICATOR)) {
+			handleSetStopIndicator(d.get(TiC.PROPERTY_STOP_INDICATOR));
 		}
 		updateProgress();
 	}
@@ -103,8 +110,12 @@ public class TiUIProgressBar extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
 			// TODO: reset to default value when property is null
 			this.progress.setTrackColor(TiConvert.toColor(newValue, proxy.getActivity()));
-		} else if (key.equals(TiC.PROPERTY_SHOW_STOP_INDICATOR)) {
-			handleSetShowStopIndicator(TiConvert.toBoolean(newValue, true));
+		} else if (key.equals(TiC.PROPERTY_TRACK_THICKNESS)) {
+			handleSetTrackThickness(newValue);
+			// Re-apply the stop indicator so its size is re-clamped to the new thickness.
+			handleSetStopIndicator(proxy.getProperty(TiC.PROPERTY_STOP_INDICATOR));
+		} else if (key.equals(TiC.PROPERTY_STOP_INDICATOR)) {
+			handleSetStopIndicator(newValue);
 		}
 	}
 
@@ -164,8 +175,31 @@ public class TiUIProgressBar extends TiUIView
 		label.setTextColor(color);
 	}
 
-	private void handleSetShowStopIndicator(boolean show)
+	private void handleSetStopIndicator(Object value)
 	{
-		progress.setTrackStopIndicatorSize(show ? defaultStopIndicatorSize : 0);
+		boolean enabled;
+		int size = defaultStopIndicatorSize;
+		if (value instanceof HashMap) {
+			KrollDict options = new KrollDict((HashMap<String, Object>) value);
+			enabled = TiConvert.toBoolean(options, TiC.PROPERTY_ENABLED, true);
+			if (options.containsKeyAndNotNull(TiC.PROPERTY_SIZE)) {
+				TiDimension dimension =
+					TiConvert.toTiDimension(options.get(TiC.PROPERTY_SIZE), TiDimension.TYPE_WIDTH);
+				if (dimension != null) {
+					size = dimension.getAsPixels(progress);
+				}
+			}
+		} else {
+			enabled = TiConvert.toBoolean(value, true);
+		}
+		progress.setTrackStopIndicatorSize(enabled ? size : 0);
+	}
+
+	private void handleSetTrackThickness(Object value)
+	{
+		TiDimension dimension = TiConvert.toTiDimension(value, TiDimension.TYPE_HEIGHT);
+		if (dimension != null) {
+			progress.setTrackThickness(dimension.getAsPixels(progress));
+		}
 	}
 }
