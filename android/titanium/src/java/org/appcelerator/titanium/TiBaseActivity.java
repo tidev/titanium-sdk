@@ -1117,30 +1117,34 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		// Let the window proxy handle the back event first, if configured.
-		if (this.window != null) {
-			boolean hasBackEventHandler = false;
+		// Let the proxies handle the back event first, if configured.
+		boolean hasBackEventHandler = false;
 
-			// Fire an "androidback" event if a listener exists.
-			if (this.window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
-				this.window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+		// Fire an "androidback" event if a listener exists. Check the activity proxy first,
+		// like the legacy KEYCODE_BACK dispatch in dispatchKeyEvent() did, since a TabGroup
+		// adds this event to its activity proxy. Otherwise let the window proxy handle it.
+		if ((this.activityProxy != null) && this.activityProxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			this.activityProxy.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+			hasBackEventHandler = true;
+		} else if ((this.window != null) && this.window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			this.window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+			hasBackEventHandler = true;
+		}
+
+		// Invoke the window's "onBack" property's callback if assigned.
+		if ((this.window != null) && this.window.hasProperty(TiC.PROPERTY_ON_BACK)
+			&& (this.activityProxy != null)) {
+			Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
+			if (value instanceof KrollFunction onBackCallback) {
+				onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 				hasBackEventHandler = true;
 			}
+		}
 
-			// Invoke the "onBack" property's callback if assigned.
-			if (this.window.hasProperty(TiC.PROPERTY_ON_BACK) && (this.activityProxy != null)) {
-				Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
-				if (value instanceof KrollFunction onBackCallback) {
-					onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
-					hasBackEventHandler = true;
-				}
-			}
-
-			// Do not allow the system to handle back press if window proxy has an event handler.
-			// In this case, the JS code must explicity close() or finish() the activity window itself.
-			if (hasBackEventHandler) {
-				return;
-			}
+		// Do not allow the system to handle back press if a proxy has an event handler.
+		// In this case, the JS code must explicity close() or finish() the activity window itself.
+		if (hasBackEventHandler) {
+			return;
 		}
 
 		// Handle app exit ourselves since the above window proxy did not handle the back event.
