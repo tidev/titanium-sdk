@@ -16,6 +16,7 @@ import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiActivityWindow;
 import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
@@ -165,6 +166,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 			});
 		}
 
+		// A close is already in flight. "opened" stays true until the activity is destroyed, so a
+		// 2nd close() call would otherwise re-run the close logic against half-torn-down state.
+		// (For example, this window is already removed from TiActivityWindows and would mistake
+		// itself for the last open window and suspend the app via the "exitOnClose" handling below.)
+		if (closePromise != null) {
+			return closePromise;
+		}
+
 		// FIXME: Can we "cancel" the open() promise if it's not finished?
 		closePromise = KrollPromise.create((promise) -> {
 			KrollDict options = null;
@@ -230,6 +239,13 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		// Only applies to an open window that is the last one left.
 		if (!opened || (TiActivityWindows.getWindowCount() > 1)) {
+			return false;
+		}
+
+		// Does not apply if this window is no longer in the collection, such as a close already
+		// in flight or a native back-out. The remaining window count then refers to OTHER open
+		// windows, so this window must not mistake itself for the last one.
+		if ((this instanceof TiActivityWindow activityWindow) && !TiActivityWindows.hasWindow(activityWindow)) {
 			return false;
 		}
 
