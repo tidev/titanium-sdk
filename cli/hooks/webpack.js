@@ -73,7 +73,7 @@ export function init(logger, config, cli) {
 				return;
 			}
 
-			builder.useWebpack = true;
+			builder.useBundler = true;
 
 			const badgedLogger = createWebpackLogger(logger);
 			const webpackService = new WebpackService({
