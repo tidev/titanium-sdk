@@ -123,7 +123,7 @@
     "temp": "0.9.4",
     "wrap-ansi": "9.0.2",
     "xcode": "3.0.1",
-    "yauzl": "3.2.0"
+    "yauzl": "3.4.0"
   },
   "devDependencies": {
     "@commitlint/cli": "20.1.0",
@@ -154,8 +154,11 @@
     "ssri": "8.0.1",
     "stream-splitter": "0.3.2",
     "strip-ansi": "7.1.2",
-    "titanium": "8.1.5",
+    "titanium": "9.0.0",
     "titanium-docgen": "5.0.0"
+  },
+  "overrides": {
+    "yauzl": "3.4.0"
   },
   "repository": {
     "type": "git",
