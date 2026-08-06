@@ -607,7 +607,7 @@
       row.parent = section;
     }
   }
-  if (![self isSearchStarted]) {
+  if (![self isFiltering]) {
     [self reloadDataFromCount:oldCount toCount:newCount animation:animation];
   }
 }
@@ -698,7 +698,8 @@
 
 - (void)refreshSearchControllerUsingReload:(BOOL)reloadSearch
 {
-  if ([searchController isActive]) {
+  // Filtering via the searchText property must also recompute its results when the data changes.
+  if ([searchController isActive] || [self isFiltering]) {
     [self updateSearchResultIndexes];
 
     // Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
@@ -729,7 +730,7 @@
   switch (action.type) {
   case TiUITableViewActionRowReload: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
@@ -738,14 +739,14 @@
   case TiUITableViewActionUpdateRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self updateRow:row];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
     break;
   }
   case TiUITableViewActionSectionReload: {
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       TiUITableViewSectionProxy *section = action.obj;
       NSIndexSet *path = [NSIndexSet indexSetWithIndex:section.section];
       [tableview reloadSections:path withRowAnimation:action.animation];
@@ -762,7 +763,7 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
 
@@ -806,7 +807,7 @@
         [addRows addObject:moveRow];
         [moveRow release];
       }
-      if (![self isSearchStarted]) {
+      if (![self isFiltering]) {
         [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
       }
     }
@@ -818,7 +819,7 @@
       // Removing the temporarily saved proxy.
       [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
     }
 
@@ -837,7 +838,7 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
 
@@ -874,7 +875,7 @@
       [moveRow release];
     }
     // 1st stage of update: Remove all those nasty old rows.
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
     }
 
@@ -884,7 +885,7 @@
     for (TiUITableViewRowProxy *moveRow in addRows) {
       [self appendRow:moveRow];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
     }
     break;
@@ -892,7 +893,7 @@
   case TiUITableViewActionDeleteRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self deleteRow:row];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
@@ -906,7 +907,7 @@
   case TiUITableViewActionAppendRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self appendRow:action.obj];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
@@ -916,7 +917,7 @@
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [sections addObject:row.section];
     [self appendRow:action.obj];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count] - 1] withRowAnimation:action.animation];
     }
     break;
@@ -1370,6 +1371,13 @@
       }
       cellIndex++;
     }
+  }
+
+  // Drop leftover index sets when the section count has shrunk, so the
+  // filtered row count doesn't include rows of sections that no longer exist.
+  NSUInteger sectionCount = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
+  while ([searchResultIndexes count] > sectionCount) {
+    [searchResultIndexes removeLastObject];
   }
 }
 
