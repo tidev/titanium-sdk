@@ -1,6 +1,8 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
+// Runs the "kroll-apt" annotation processor over Kotlin sources. (Built-in Kotlin has no kapt support.)
+apply plugin: 'com.android.legacy-kapt'
 
 <% for(var i=0; i<plugins.length; i++) {%>
 apply plugin: '<%= plugins[i] %>'
@@ -96,6 +98,11 @@ android {
 				'src/main/java',
 				"${projectDir}/../../src",
 				"${buildDir}/ti-generated/java"
+			]
+			// Kotlin source code directories. (Built-in Kotlin does not compile *.kt files from "java.srcDirs".)
+			kotlin.srcDirs = [
+				'src/main/kotlin',
+				"${projectDir}/../../src"
 			]
 			// C/C++ source code directories.
 			jni.srcDirs = [
@@ -205,6 +212,7 @@ dependencies {
 	def krollAptJarPath = '<%- krollAptJarPath.replace(/\\/g, '\\\\') %>'
 	annotationProcessor(files(krollAptJarPath))
 	compileOnly(files(krollAptJarPath))
+	kapt(files(krollAptJarPath))
 
 	// Reference this module's local JAR file dependencies.
 	implementation(project.fileTree(dir: "${projectDir}/../../lib", include: ['*.jar']))
