@@ -37,7 +37,7 @@ import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import util from 'node:util';
 import { createRequire } from 'node:module';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadPackageJson } from '../../../cli/lib/pkginfo.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -936,6 +936,14 @@ class AndroidBuilder extends Builder {
 				this.allowProfiling = true;
 				this.proguard = false;
 		}
+
+		// Select the JavaScript asset encryption module. Apps can opt in to the
+		// open source 'ti.crypt' module via <encryption>ti.crypt</encryption> in
+		// the tiapp.xml, any other (or no) value falls back to 'ti.cloak'.
+		if (cli.tiapp.encryption && cli.tiapp.encryption !== 'ti.crypt' && cli.tiapp.encryption !== 'ti.cloak') {
+			logger.warn(`Unknown <encryption> value "${cli.tiapp.encryption}" in tiapp.xml, falling back to "ti.cloak"`);
+		}
+		this.encryptionModule = cli.tiapp.encryption === 'ti.crypt' ? 'ti.crypt' : 'ti.cloak';
 
 		if (cli.tiapp.properties['ti.android.compilejs']) {
 			logger.warn(`The ${
@@ -1864,6 +1872,14 @@ class AndroidBuilder extends Builder {
 			return true;
 		}
 
+		// if the encryption module changed, then we need to recompile the Java files and rewrite the jniLibs
+		if (this.encryptJS && this.encryptionModule !== manifest.encryptionModule) {
+			this.logger.info('Forcing rebuild: JavaScript encryption module changed');
+			this.logger.info(`  Was: ${manifest.encryptionModule}`);
+			this.logger.info(`  Now: ${this.encryptionModule}`);
+			return true;
+		}
+
 		// check if the Titanium SDK paths are different
 		if (this.platformPath !== manifest.platformPath) {
 			this.logger.info('Forcing rebuild: Titanium SDK path changed since last build');
@@ -2161,8 +2177,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// Add a reference to the core Titanium library.
-		const tiMavenRepoUrl = 'file://' + path.join(this.platformPath, 'm2repository').replace(/\\/g, '/');
-		this.mavenRepositoryUrls.push(encodeURI(tiMavenRepoUrl));
+		this.mavenRepositoryUrls.push(pathToFileURL(path.join(this.platformPath, 'm2repository')).href);
 		this.libDependencyStrings.push(`org.appcelerator:titanium:${this.titaniumSdkVersion}`);
 
 		// Process all Titanium modules referenced by the Titanium project.
@@ -2198,8 +2213,7 @@ class AndroidBuilder extends Builder {
 			if (repositoryDirPath && dependencyString) {
 				// Referenced module has a Maven repository.
 				// This supports dependency management to avoid library version conflicts.
-				const url = 'file://' + repositoryDirPath.replace(/\\/g, '/');
-				this.mavenRepositoryUrls.push(encodeURI(url));
+				this.mavenRepositoryUrls.push(pathToFileURL(repositoryDirPath).href);
 				this.libDependencyStrings.push(dependencyString);
 			} else {
 				// Module directory only contains JARs/AARs. (This is our legacy module distribution.)
@@ -2864,7 +2878,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// ti.cloak's default export is jacked... there's nested default exports
-		let { default: Cloak } = await import('ti.cloak');
+		let { default: Cloak } = await import(this.encryptionModule);
 		while (Cloak && typeof Cloak === 'object') {
 			Cloak = Cloak.default;
 		}
@@ -2876,7 +2890,7 @@ class AndroidBuilder extends Builder {
 			throw new Error('Could not load encryption library!');
 		}
 
-		this.logger.info('Encrypting JavaScript assets...');
+		this.logger.info(`Encrypting JavaScript assets with '${this.encryptionModule}'...`);
 
 		// NOTE: maintain 'build.android.titaniumprep' hook for remote encryption policy.
 		const hook = this.cli.createHook('build.android.titaniumprep', this, async function (exe, args, opts, next) {
@@ -2907,7 +2921,8 @@ class AndroidBuilder extends Builder {
 						{
 							appid: this.appid,
 							assets: this.jsFilesToEncrypt.map(f => f.replace(/\\/g, '/')),
-							salt: cloak.salt
+							salt: cloak.salt,
+							cryptLib: this.encryptionModule
 						}
 					)
 				);
@@ -3875,6 +3890,7 @@ class AndroidBuilder extends Builder {
 				navbarHidden: this.tiapp['navbar-hidden'],
 				skipJSMinification: !!this.cli.argv['skip-js-minify'],
 				encryptJS: this.encryptJS,
+				encryptionModule: this.encryptionModule,
 				minSDK: this.minSDK,
 				targetSDK: this.targetSDK,
 				propertiesHash: this.propertiesHash,

@@ -24,6 +24,7 @@
 
 @interface TiUITabProxy ()
 - (void)openOnUIThread:(NSArray *)args;
+- (BOOL)lazyLoadingEnabled;
 @end
 
 @implementation TiUITabProxy
@@ -158,7 +159,9 @@
     [rootWindow setIsManaged:YES];
     [rootWindow setTab:self];
     [rootWindow setParentOrientationController:self];
-    [rootWindow open:nil];
+    if (![self lazyLoadingEnabled]) {
+      [rootWindow open:nil];
+    }
   }
   return [rootWindow hostingController];
 }
@@ -318,6 +321,15 @@
   return tabGroup;
 }
 
+- (BOOL)lazyLoadingEnabled
+{
+  if (![tabGroup isKindOfClass:[TiUITabGroupProxy class]]) {
+    return NO;
+  }
+
+  return [(TiUITabGroupProxy *)tabGroup lazyLoadingEnabled];
+}
+
 - (KrollPromise *)openWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
@@ -469,10 +481,11 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  if (theWindow == rootWindow) {
-    // This is probably too late for the root view controller.
-    // Figure out how to call open before this callback
-    [theWindow open:nil];
+  if ([self lazyLoadingEnabled] && theWindow == rootWindow) {
+    if ([[theWindow closed] boolValue]) {
+      [theWindow windowWillOpen];
+      [theWindow windowDidOpen];
+    }
   } else if ([theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];

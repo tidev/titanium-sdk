@@ -173,7 +173,6 @@ methods:
         optional: true
     returns:
       - type: Titanium.Buffer
-      - type: void
 
   - name: write
     summary: Asynchronously writes data from a buffer to an [IOStream](Titanium.IOStream).

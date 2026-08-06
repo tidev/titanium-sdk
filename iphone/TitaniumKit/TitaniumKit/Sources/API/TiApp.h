@@ -294,4 +294,13 @@
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key;
 - (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo;
 
+/**
+ Re-initializes the UI and JS runtime against the existing UIWindowScene.
+
+ Used by LiveView (<Ti.App._restart>) to perform a hot restart of the application
+ without leaving the scene session. Tears down the old window, controller, and
+ KrollBridge, then creates fresh ones against the first connected UIWindowScene.
+ */
+- (void)rebootApp;
+
 @end

@@ -400,6 +400,19 @@ properties:
     default: null
     platforms: [iphone,ipad, macos]
 
+  - name: navBarHidden
+    summary: Hides the action bar (`true`) or shows the action bar (`false`).
+    description: |
+        Must be set at creation time. The action bar is hidden before the tab group's activity
+        draws its first frame, unlike calling `hide()` on
+        [ActionBar](Titanium.Android.ActionBar) from the tab group's `open` event, which can
+        cause the action bar to flash briefly.
+    type: Boolean
+    default: false
+    platforms: [android]
+    since: {android: "14.0.0"}
+    availability: creation
+
   - name: editButtonTitle
     summary: Title for the edit button on the **More** tab.
     type: String
@@ -427,6 +440,18 @@ properties:
     osver: {ios: {min: "18.0"}}
     platforms: [ipad]
     since: 13.1.0
+
+  - name: lazyLoadingEnabled
+    summary: Lazily opens each tab's root window only when that tab becomes active/selected.
+    description: |
+        When set to `true`, iOS opens a tab's root <Titanium.UI.Window> only when that tab is shown.
+        When set to `false`, iOS preserves the legacy behavior and opens all tabs root window during tab group initialization.
+        Defaults to `false` for compatibility, but will default to `true` starting with SDK `14.0.0.GA`.
+    type: Boolean
+    default: false
+    availability: creation
+    platforms: [iphone, ipad, macos]
+    since: 13.3.0
 
   - name: swipeable
     summary: |
@@ -491,6 +516,11 @@ properties:
     type: [Number]
     platforms: [android]
     since: {android: "12.7.0"}
+    description: |
+        Starting with Android 16 (target SDK 36), the status bar is always transparent as part of
+        edge-to-edge enforcement, and `statusBarColor` is ignored by the system. On Android 16+,
+        the status bar area will show the TabGroup's `backgroundColor` instead. Use `backgroundColor`
+        to control the color behind the status bar on Android 16+.
 
   - name: style
     summary: Property defining which style for the TabGroup to be used.

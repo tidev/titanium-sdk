@@ -1252,6 +1252,35 @@ extern void UIColorFlushCache(void);
   return kjsBridge;
 }
 
+- (void)rebootApp
+{
+  UIWindowScene *windowScene = nil;
+  for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+    if ([scene isKindOfClass:[UIWindowScene class]]) {
+      windowScene = (UIWindowScene *)scene;
+      break;
+    }
+  }
+
+  if (windowScene == nil) {
+    NSLog(@"[ERROR] LiveView restart failed: no UIWindowScene found");
+    return;
+  }
+
+  // Release old window and create a new one with the existing scene
+  RELEASE_TO_NIL(window);
+  window = [[UIWindow alloc] initWithWindowScene:windowScene];
+
+  // Release old bridge so boot creates a fresh one
+  RELEASE_TO_NIL(kjsBridge);
+
+  // Initialize controller with the new window
+  [self initController];
+
+  // Boot the fresh JS runtime
+  [self boot];
+}
+
 #pragma mark UIWindowSceneDelegate
 
 - (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
