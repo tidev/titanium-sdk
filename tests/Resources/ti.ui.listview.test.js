@@ -169,6 +169,18 @@ describe('Titanium.UI.ListView', function () {
 			should(listView.fastScroll).be.false();
 		});
 
+		it('.snapping', () => {
+			const listView = Ti.UI.createListView({ snapping: true });
+			should(listView.snapping).be.true();
+			listView.snapping = !listView.snapping;
+			should(listView.snapping).be.false();
+		});
+
+		it('.snapping (default)', () => {
+			const listView = Ti.UI.createListView();
+			should(listView.snapping).be.false();
+		});
+
 		/**
 		 * Validate ListSection header and footer properties.
 		 */

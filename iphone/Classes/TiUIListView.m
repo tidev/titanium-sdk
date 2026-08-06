@@ -57,6 +57,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   CGFloat pullThreshold;
 
   BOOL pullActive;
+  BOOL snapping;
   CGPoint tapPoint;
   BOOL editing;
   BOOL pruneSections;
@@ -862,6 +863,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 - (void)setShowVerticalScrollIndicator_:(id)value
 {
   [self.tableView setShowsVerticalScrollIndicator:[TiUtils boolValue:value]];
+}
+
+- (void)setSnapping_:(id)value
+{
+  snapping = [TiUtils boolValue:value def:NO];
 }
 
 - (void)setAllowsSelection_:(id)value
@@ -2117,8 +2123,38 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 }
 
+// Mirrors Android's LinearSnapHelper by aligning the item nearest the centre of
+// the viewport with that centre once the scroll comes to rest.
+- (void)snapTargetContentOffset:(inout CGPoint *)targetContentOffset
+{
+  UITableView *table = [self tableView];
+  UIEdgeInsets inset = table.adjustedContentInset;
+  CGFloat viewportHeight = table.bounds.size.height - inset.top - inset.bottom;
+
+  if (viewportHeight <= 0 || table.contentSize.height <= 0) {
+    return;
+  }
+
+  CGFloat proposedCenter = targetContentOffset->y + inset.top + (viewportHeight / 2.0);
+  NSIndexPath *indexPath = [table indexPathForRowAtPoint:CGPointMake(CGRectGetMidX(table.bounds), proposedCenter)];
+
+  // No row under the resting centre, ie. a header or footer. Leave the offset alone.
+  if (indexPath == nil) {
+    return;
+  }
+
+  CGFloat snapped = CGRectGetMidY([table rectForRowAtIndexPath:indexPath]) - (viewportHeight / 2.0) - inset.top;
+  CGFloat maxOffset = MAX(-inset.top, table.contentSize.height - viewportHeight - inset.top);
+
+  targetContentOffset->y = MIN(MAX(snapped, -inset.top), maxOffset);
+}
+
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset
 {
+  if (snapping) {
+    [self snapTargetContentOffset:targetContentOffset];
+  }
+
   if ([[self proxy] _hasListeners:@"scrolling"]) {
     NSString *direction = @"unknown";
 
