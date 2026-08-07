@@ -503,6 +503,9 @@ public class TableViewProxy extends RecyclerViewProxy
 	// clang-format on
 	{
 		for (final TableViewSectionProxy section : this.sections) {
+			for (TableViewRowProxy row : section.getRows()) {
+				row.setParent(null);
+			}
 			section.releaseViews();
 			section.setParent(null);
 		}
@@ -537,7 +540,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// Allow updating rows after iteration.
 		shouldUpdate = true;
-		update();
+		update(true);
 	}
 
 	/**
