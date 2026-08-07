@@ -18,6 +18,11 @@ static void TiUncaughtExceptionHandler(NSException *exception);
 static void TiSignalHandler(int signal);
 
 static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
+// Reentrancy guard: a JS exception thrown while firing the "uncaughtException"
+// event (or while showing the error) re-enters reportScriptError:, which posts
+// kTiErrorNotification again, which fires the listener again, which throws
+// again — unbounded recursion until the stack overflows. Bail out instead.
+static BOOL TiIsHandlingScriptError = NO;
 
 @implementation TiExceptionHandler
 
@@ -72,13 +77,26 @@ static NSUncaughtExceptionHandler *prevUncaughtExceptionHandler = NULL;
 
 - (void)reportScriptError:(TiScriptError *)scriptError
 {
-  DebugLog(@"[ERROR] %@", scriptError);
-
-  id<TiExceptionHandlerDelegate> currentDelegate = _delegate;
-  if (currentDelegate == nil) {
-    currentDelegate = self;
+  if (TiIsHandlingScriptError) {
+    // A script error occurred while we were already handling one. Logging it
+    // via the normal path would re-enter the uncaughtException listener (which
+    // is likely the source of this second error) and recurse until the stack
+    // overflows. Log it inline and bail.
+    NSLog(@"[ERROR] TiExceptionHandler: script error raised while already handling one (suppressed to avoid recursion): %@", scriptError.message);
+    return;
   }
-  [currentDelegate handleScriptError:scriptError];
+  TiIsHandlingScriptError = YES;
+  @try {
+    DebugLog(@"[ERROR] %@", scriptError);
+
+    id<TiExceptionHandlerDelegate> currentDelegate = _delegate;
+    if (currentDelegate == nil) {
+      currentDelegate = self;
+    }
+    [currentDelegate handleScriptError:scriptError];
+  } @finally {
+    TiIsHandlingScriptError = NO;
+  }
 }
 
 - (void)reportScriptError:(JSValueRef)errorRef inKrollContext:(KrollContext *)krollContext

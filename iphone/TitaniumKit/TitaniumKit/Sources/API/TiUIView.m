@@ -674,6 +674,14 @@ DEFINE_EXCEPTIONS
     }
     layer.strokeColor = color.CGColor;
   }
+  // Mirror the implicit min-1 borderWidth back to the proxy so JS reads
+  // borderWidth === '1' when only borderColor was set.
+  if (shouldRefreshWidth && self.proxy != nil) {
+    id currentWidth = [self.proxy valueForUndefinedKey:@"borderWidth"];
+    if (currentWidth == nil || [currentWidth isKindOfClass:[NSNull class]]) {
+      [self.proxy replaceValue:@"1" forKey:@"borderWidth" notification:NO];
+    }
+  }
 }
 
 - (void)setBorderWidth_:(id)w
