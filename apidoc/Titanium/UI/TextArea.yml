@@ -500,8 +500,8 @@ properties:
     summary: Determines whether this text area can be scrolled.
     type: Boolean
     default: true
-    since: { iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
-    platforms: [iphone, ipad, macos]
+    since: { android: "14.0.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
+    platforms: [android, iphone, ipad, macos]
 
   - name: selection
     summary: Returns the currently selected text of the text area.
