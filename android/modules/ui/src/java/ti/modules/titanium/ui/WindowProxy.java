@@ -19,6 +19,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
+import android.util.TypedValue;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.transition.ChangeBounds;
@@ -40,6 +41,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
@@ -90,6 +94,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private int barColor = -1;
 
 	private WeakReference<TiBaseActivity> windowActivity;
+	// Saved position insets (px) for heavyweight windows, where left/right/top/bottom
+	// properties are otherwise stripped and never applied to the Activity window.
+	private int savedLeft = 0;
+	private int savedTop = 0;
+	private int savedRight = 0;
+	private int savedBottom = 0;
 
 	public WindowProxy()
 	{
@@ -116,6 +126,40 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		return v;
 	}
 
+	@Kroll.getProperty
+	public KrollDict getRect()
+	{
+		// Heavyweight windows fill the screen and don't have a proxy view, so
+		// the inherited TiViewProxy.getRect() returns zeros. Report the intended
+		// position from the saved left/top insets and the actual window size.
+		KrollDict rect = new KrollDict();
+		View decorView = null;
+		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
+		if (activity != null) {
+			decorView = activity.getWindow().getDecorView();
+		}
+		TiDimension xDim = new TiDimension(savedLeft, TiDimension.TYPE_LEFT, TypedValue.COMPLEX_UNIT_DIP);
+		TiDimension yDim = new TiDimension(savedTop, TiDimension.TYPE_TOP, TypedValue.COMPLEX_UNIT_DIP);
+		if (decorView != null && decorView.getWidth() > 0) {
+			TiDimension wDim = new TiDimension(decorView.getWidth(), TiDimension.TYPE_WIDTH);
+			TiDimension hDim = new TiDimension(decorView.getHeight(), TiDimension.TYPE_HEIGHT);
+			rect.put(TiC.PROPERTY_WIDTH, wDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_HEIGHT, hDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_X, xDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_Y, yDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_X_ABSOLUTE, xDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_Y_ABSOLUTE, yDim.getAsDefault(decorView));
+		} else {
+			rect.put(TiC.PROPERTY_WIDTH, 0);
+			rect.put(TiC.PROPERTY_HEIGHT, 0);
+			rect.put(TiC.PROPERTY_X, (double) savedLeft);
+			rect.put(TiC.PROPERTY_Y, (double) savedTop);
+			rect.put(TiC.PROPERTY_X_ABSOLUTE, (double) savedLeft);
+			rect.put(TiC.PROPERTY_Y_ABSOLUTE, (double) savedTop);
+		}
+		return rect;
+	}
+
 	@Override
 	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
 	{
@@ -135,6 +179,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+		// Save them before stripping so getRect() can report the intended position.
+		savedLeft = TiConvert.toInt(getProperty(TiC.PROPERTY_LEFT), 0);
+		savedTop = TiConvert.toInt(getProperty(TiC.PROPERTY_TOP), 0);
+		savedRight = TiConvert.toInt(getProperty(TiC.PROPERTY_RIGHT), 0);
+		savedBottom = TiConvert.toInt(getProperty(TiC.PROPERTY_BOTTOM), 0);
 		properties.remove(TiC.PROPERTY_TOP);
 		properties.remove(TiC.PROPERTY_BOTTOM);
 		properties.remove(TiC.PROPERTY_LEFT);
@@ -339,12 +388,28 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
-			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
+			int flags = TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS));
+			WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(win, win.getDecorView());
+			if (insetsController != null) {
+				insetsController.setAppearanceLightStatusBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+				insetsController.setAppearanceLightNavigationBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+				if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
+					insetsController.hide(WindowInsetsCompat.Type.systemBars());
+					insetsController.setSystemBarsBehavior(
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+				}
+			}
 		}
 
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
 			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0) {
-				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(win, win.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(true);
+				}
 			}
 		}
 
@@ -493,7 +558,22 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (name.equals(TiC.PROPERTY_UI_FLAGS)) {
 			if (windowActivity != null && windowActivity.get() != null) {
 				AppCompatActivity activity = windowActivity.get();
-				activity.getWindow().getDecorView().setSystemUiVisibility(TiConvert.toInt(value));
+				Window window = activity.getWindow();
+				int flags = TiConvert.toInt(value);
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(window, window.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+					insetsController.setAppearanceLightNavigationBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+					if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0
+						|| (flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+						insetsController.hide(WindowInsetsCompat.Type.systemBars());
+						insetsController.setSystemBarsBehavior(
+							WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+					}
+				}
 			}
 		}
 
