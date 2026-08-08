@@ -41,6 +41,9 @@ export function init(logger, config, cli) {
 				}
 
 				const levels = logger.getLevels(),
+					// strips the NSLog preamble ("2026-08-08 10:15:06.643 AppName[123:456] ..."),
+					// same treatment as the simulator log file tail in run.js
+					trimRE = new RegExp('^.*' + builder.tiapp.name + '\\[[^\\]]+\\]\\s*', 'g'), // eslint-disable-line security/detect-non-literal-regexp
 					logLevelRE = new RegExp('^(\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\\[\\d+m)?(.*)', 'i'), // eslint-disable-line security/detect-non-literal-regexp
 					handles = {};
 				let startLog = false,
@@ -93,6 +96,7 @@ export function init(logger, config, cli) {
 								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 								startLog = true;
 							}
+							line = line.replace(trimRE, '');
 							const m = line.match(logLevelRE);
 							if (m) {
 								lastLogger = m[2].toLowerCase();
