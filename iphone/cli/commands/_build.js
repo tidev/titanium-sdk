@@ -47,6 +47,10 @@ const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$');
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 const SPM_LOG_PREFIX = '[SPM]';
 
+// Icon Composer documents (.icon) are only understood by the asset catalog compiler
+// shipped with Xcode 26 and newer
+const ICON_COMPOSER_MIN_XCODE_VER = '26.0.0';
+
 class iOSBuilder extends Builder {
 	constructor() {
 		super({
@@ -1906,6 +1910,12 @@ class iOSBuilder extends Builder {
 			// add the iOS specific default icon to the list of icons
 			this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
 
+			// the Icon Composer documents that, when present, replace the generated app icon set
+			this.defaultIconComposerIcons = [
+				path.join(this.projectDir, 'DefaultIcon-ios.icon'),
+				path.join(this.projectDir, 'DefaultIcon.icon')
+			];
+
 			// manually inject the build profile settings
 			switch (this.deployType) {
 				case 'production':
@@ -3705,6 +3715,41 @@ class iOSBuilder extends Builder {
 
 			return true;
 		}, this);
+
+		// if we have an Icon Composer app icon, add it to the project so `actool` compiles it
+		if (this.findIconComposerIcon()) {
+			const fileRefUuid = this.generateXcodeUuid(xcodeProject),
+				buildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+			// add the file reference
+			xobjs.PBXFileReference[fileRefUuid] = {
+				isa: 'PBXFileReference',
+				lastKnownFileType: 'folder.iconcomposer.icon',
+				path: 'AppIcon.icon',
+				sourceTree: '"<group>"'
+			};
+			xobjs.PBXFileReference[fileRefUuid + '_comment'] = 'AppIcon.icon';
+
+			// add the build file
+			xobjs.PBXBuildFile[buildFileUuid] = {
+				isa: 'PBXBuildFile',
+				fileRef: fileRefUuid,
+				fileRef_comment: 'AppIcon.icon'
+			};
+			xobjs.PBXBuildFile[buildFileUuid + '_comment'] = 'AppIcon.icon in Resources';
+
+			// add to the resources build phase
+			resourcesBuildPhase.files.push({
+				value: buildFileUuid,
+				comment: 'AppIcon.icon in Resources'
+			});
+
+			// add to resouces group
+			resourcesGroup.children.push({
+				value: fileRefUuid,
+				comment: 'AppIcon.icon'
+			});
+		}
 
 		// add the native libraries to the project
 		if (this.nativeLibModules.length) {
@@ -6056,26 +6101,186 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
+	 * Finds the Icon Composer document (`.icon`) to use for the app icon, if the project has one.
+	 * `actool` renders every app icon size and appearance from these documents, so when one is
+	 * found we skip generating the `AppIcon.appiconset` altogether.
+	 *
+	 * @returns {String|null} The path to the Icon Composer document or `null` if there isn't a usable one
+	 */
+	findIconComposerIcon() {
+		if (this.iconComposerIcon !== undefined) {
+			return this.iconComposerIcon;
+		}
+
+		const icon = (this.defaultIconComposerIcons || []).find(dir => fs.existsSync(dir) && fs.statSync(dir).isDirectory());
+
+		if (icon && appc.version.lt(this.xcodeEnv.version, ICON_COMPOSER_MIN_XCODE_VER)) {
+			this.logger.warn(`Ignoring ${
+				icon.replace(this.projectDir + '/', '')
+			} because Icon Composer icons require Xcode ${ICON_COMPOSER_MIN_XCODE_VER} or newer, but Xcode ${
+				this.xcodeEnv.version
+			} is selected`);
+			this.iconComposerIcon = null;
+		} else {
+			this.iconComposerIcon = icon || null;
+		}
+
+		return this.iconComposerIcon;
+	}
+
+	/**
+	 * Computes a hash of every file in an Icon Composer document so we can tell when it has changed.
+	 *
+	 * @param {String} dir The path to the Icon Composer document
+	 * @returns {String} A hash of the document's contents
+	 */
+	hashIconComposerIcon(dir) {
+		const hash = crypto.createHash('md5');
+
+		(function walk(dir, prefix) {
+			for (const name of fs.readdirSync(dir).sort()) {
+				const file = path.join(dir, name);
+				const rel = prefix ? prefix + '/' + name : name;
+				if (fs.statSync(file).isDirectory()) {
+					walk(file, rel);
+				} else {
+					hash.update(rel);
+					hash.update(fs.readFileSync(file));
+				}
+			}
+		}(dir, ''));
+
+		return hash.digest('hex');
+	}
+
+	/**
+	 * Copies an Icon Composer document into the build directory as `AppIcon.icon` where `actool`
+	 * picks it up. Any app icon set left over from a previous build is removed so the asset catalog
+	 * compiler is never handed two assets named "AppIcon".
+	 *
+	 * Launch logos are still plain images, so when the project doesn't have a `DefaultIcon.png` we
+	 * render one from the Icon Composer document and use that as the source image instead.
+	 *
+	 * @param {String} src The path to the Icon Composer document
+	 * @returns {Promise<void>}
+	 */
+	async copyIconComposerIcon(src) {
+		this.logger.info(`Using Icon Composer app icon ${src.replace(this.projectDir + '/', '').cyan}`);
+
+		const dest = path.join(this.buildDir, 'AppIcon.icon');
+		const hash = this.hashIconComposerIcon(src);
+		const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['AppIcon.icon'];
+		const changed = !prev || prev.hash !== hash || !fs.existsSync(dest);
+
+		this.currentBuildManifest.files['AppIcon.icon'] = { hash };
+
+		if (changed) {
+			await fs.remove(dest);
+			this.copyDirSync(src, dest, { forceCopy: true });
+
+			if (!this.forceRebuild) {
+				this.logger.info(`Forcing rebuild: ${src.replace(this.projectDir + '/', '')} changed since last build`);
+				this.forceRebuild = true;
+			}
+		} else {
+			this.logger.trace(`No change, skipping ${dest.cyan}`);
+		}
+
+		this.unmarkBuildDirFiles(dest);
+
+		// an app icon set generated by a previous build would collide with the Icon Composer document
+		const appIconSetDir = path.join(this.buildDir, 'Assets.xcassets', 'AppIcon.appiconset');
+		if (await fs.exists(appIconSetDir)) {
+			this.logger.debug(`Removing ${appIconSetDir.cyan}`);
+			await fs.remove(appIconSetDir);
+		}
+
+		// the launch logos are generated by resizing a PNG, so make sure there's one to resize
+		if (!this.defaultIcons.some(icon => fs.existsSync(icon))) {
+			const rendered = path.join(this.buildDir, 'DefaultIcon.png');
+
+			if (changed || !fs.existsSync(rendered)) {
+				await this.renderIconComposerIcon(dest, rendered);
+			}
+
+			if (fs.existsSync(rendered)) {
+				this.unmarkBuildDirFile(rendered);
+				this.defaultIcons.push(rendered);
+			}
+		}
+	}
+
+	/**
+	 * Renders an Icon Composer document to a 1024x1024 PNG using the `ictool` binary that ships
+	 * inside Icon Composer.app.
+	 *
+	 * @param {String} src The path to the Icon Composer document
+	 * @param {String} dest The path to write the rendered PNG to
+	 * @returns {Promise<void>}
+	 */
+	async renderIconComposerIcon(src, dest) {
+		const ictool = path.join(this.xcodeEnv.xcodeapp, 'Contents', 'Applications', 'Icon Composer.app', 'Contents', 'Executables', 'ictool');
+
+		if (!fs.existsSync(ictool)) {
+			this.logger.warn(`Unable to find ${ictool}`);
+			this.logger.warn(`Launch logos will not be generated from ${path.basename(src)}`);
+			return;
+		}
+
+		this.logger.debug(`Rendering ${src.cyan} => ${dest.cyan}`);
+
+		const code = await new Promise(resolve => {
+			const child = spawn(ictool, [
+				src,
+				'--export-image',
+				'--output-file', dest,
+				'--platform', 'iOS',
+				'--rendition', 'Default',
+				'--width', '1024',
+				'--height', '1024',
+				'--scale', '1'
+			]);
+			child.on('error', () => resolve(1));
+			child.on('close', resolve);
+		});
+
+		if (code !== 0 || !fs.existsSync(dest)) {
+			this.logger.warn(`Failed to render ${path.basename(src)}`);
+			this.logger.warn('Launch logos will not be generated from it');
+		}
+	}
+
+	/**
 	 * This may modify the list of resources to copy!
 	 * @param {Map.<String,FileInfo>} appIcons app icons to handle
 	 * @param {Map.<String,FileInfo>} launchLogos launch logos to process
 	 * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle
 	 */
 	async createAppIconSet(appIcons, launchLogos, resourcesToCopy) {
-		this.logger.info('Creating app icon set');
+		const iconComposerIcon = this.findIconComposerIcon();
+
+		if (iconComposerIcon) {
+			await this.copyIconComposerIcon(iconComposerIcon);
+		} else {
+			this.logger.info('Creating app icon set');
+		}
 
 		// check for default icon
 		let defaultIconChanged = false;
 		let defaultIconHasAlpha = false;
 		const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
 		const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
+		// when an Icon Composer document supplies the app icon, the default icon is only used as the
+		// source image for the launch logos, which are never flattened against a white background
+		const flattenDefaultIcon = !iconComposerIcon;
 
 		if (defaultIcon) {
 			const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
 				defaultIconContents = fs.readFileSync(defaultIcon),
 				defaultIconInfo = appc.image.pngInfo(defaultIconContents),
-				defaultIconExists = !defaultIconInfo.alpha || fs.existsSync(flattenedDefaultIconDest),
-				defaultIconStat = defaultIconExists && fs.statSync(defaultIconInfo.alpha ? flattenedDefaultIconDest : defaultIcon),
+				flattenedDefaultIcon = defaultIconInfo.alpha && flattenDefaultIcon,
+				defaultIconExists = !flattenedDefaultIcon || fs.existsSync(flattenedDefaultIconDest),
+				defaultIconStat = defaultIconExists && fs.statSync(flattenedDefaultIcon ? flattenedDefaultIconDest : defaultIcon),
 				defaultIconMtime = defaultIconExists && JSON.parse(JSON.stringify(defaultIconStat.mtime)),
 				defaultIconHash = this.hash(defaultIconContents);
 
@@ -6094,6 +6299,16 @@ class iOSBuilder extends Builder {
 				mtime: defaultIconMtime,
 				size: defaultIconStat.size
 			};
+		}
+
+		// the Icon Composer document already covers every app icon size and appearance, so the
+		// only images left to produce are the launch logos
+		if (iconComposerIcon) {
+			const missingLaunchLogos = await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged);
+			if (!missingLaunchLogos.length) {
+				return;
+			}
+			return util.promisify(this.generateAppIcons).bind(this)(missingLaunchLogos);
 		}
 
 		// The original list of icons we may need (we trim this down as we match them)
