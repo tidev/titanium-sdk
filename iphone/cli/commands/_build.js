@@ -13,7 +13,6 @@
 
 import appc from 'node-appc';
 import async from 'async';
-import bufferEqual from 'buffer-equal';
 import Builder from 'node-titanium-sdk/lib/builder.js';
 import crypto from 'node:crypto';
 import colors from 'colors';
@@ -5040,7 +5039,7 @@ class iOSBuilder extends Builder {
 						contents = this._scrubiOSSourceFile(contents.toString());
 						changed = contents !== existingContent.toString();
 					} else {
-						changed = !destExists || !bufferEqual(contents, existingContent);
+						changed = !destExists || !contents.equals(existingContent);
 						if (!changed) {
 							return null;
 						}
