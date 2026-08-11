@@ -140,6 +140,22 @@ public abstract class TiWindowProxy extends TiViewProxy
 		return openPromise;
 	}
 
+	/**
+	 * Settles an open operation that cannot reach {@link #handlePostOpen()}.
+	 * @param error reason the window could not be opened
+	 */
+	protected void handleOpenFailure(Throwable error)
+	{
+		opening = false;
+		if (waitingForOpen != null && waitingForOpen.get() == this) {
+			waitingForOpen = null;
+		}
+		if (openPromise != null) {
+			openPromise.reject(error);
+			openPromise = null;
+		}
+	}
+
 	@Kroll.getProperty(name = "closed")
 	public boolean isClosed()
 	{
