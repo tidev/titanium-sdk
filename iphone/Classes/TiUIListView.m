@@ -2758,9 +2758,13 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
   if ([view isKindOfClass:[TiUIView class]]) {
     TiViewProxy *viewProxy = (TiViewProxy *)[(TiUIView *)view proxy];
-    id bindId = [viewProxy valueForKey:@"bindId"];
-    if (bindId != nil) {
-      return viewProxy;
+    // Views with `touchEnabled: false` do not receive touches, so the tap is
+    // attributed to their parent instead. Matches Android's itemclick behavior.
+    if ([TiUtils boolValue:[viewProxy valueForKey:@"touchEnabled"] def:YES]) {
+      id bindId = [viewProxy valueForKey:@"bindId"];
+      if (bindId != nil) {
+        return viewProxy;
+      }
     }
   }
   return nil;
