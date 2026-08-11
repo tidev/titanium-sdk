@@ -29,6 +29,7 @@ import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { Color } from '../../../common/lib/color.js';
 import { ProcessCSSTask } from '../../../cli/lib/tasks/process-css-task.js';
 import { injectSPMPackage } from '../lib/ios/spm.js';
+import { hashIconComposerDocument, isIconComposerDocument } from '../lib/icon-composer.js';
 import { exec, spawn } from 'node:child_process';
 import ti from 'node-titanium-sdk';
 import util from 'node:util';
@@ -3673,6 +3674,47 @@ class iOSBuilder extends Builder {
 			}
 		}
 
+		/**
+		 * Adds a folder that lives in the build directory to the resources build phase and the
+		 * resources group, so Xcode copies or compiles it into the app.
+		 *
+		 * @param {String} name The folder's name, relative to the generated Xcode project
+		 * @param {String} fileType The Xcode file type, e.g. `wrapper.plug-in`
+		 */
+		const addResourceFolder = (name, fileType) => {
+			const fileRefUuid = this.generateXcodeUuid(xcodeProject),
+				buildFileUuid = this.generateXcodeUuid(xcodeProject);
+
+			// add the file reference
+			xobjs.PBXFileReference[fileRefUuid] = {
+				isa: 'PBXFileReference',
+				lastKnownFileType: fileType,
+				path: name,
+				sourceTree: '"<group>"'
+			};
+			xobjs.PBXFileReference[fileRefUuid + '_comment'] = name;
+
+			// add the build file
+			xobjs.PBXBuildFile[buildFileUuid] = {
+				isa: 'PBXBuildFile',
+				fileRef: fileRefUuid,
+				fileRef_comment: name
+			};
+			xobjs.PBXBuildFile[buildFileUuid + '_comment'] = `${name} in Resources`;
+
+			// add the resources build phase
+			resourcesBuildPhase.files.push({
+				value: buildFileUuid,
+				comment: `${name} in Resources`
+			});
+
+			// add to resouces group
+			resourcesGroup.children.push({
+				value: fileRefUuid,
+				comment: name
+			});
+		};
+
 		// if we have a Settings.bundle, add it to the project
 		[ 'ios', 'iphone' ].some(function (name) {
 			const settingsBundleDir = path.join(this.projectDir, 'platform', name, 'Settings.bundle');
@@ -3680,75 +3722,14 @@ class iOSBuilder extends Builder {
 				return false;
 			}
 
-			const fileRefUuid = this.generateXcodeUuid(xcodeProject),
-				buildFileUuid = this.generateXcodeUuid(xcodeProject);
-
-			// add the file reference
-			xobjs.PBXFileReference[fileRefUuid] = {
-				isa: 'PBXFileReference',
-				lastKnownFileType: 'wrapper.plug-in',
-				path: 'Settings.bundle',
-				sourceTree: '"<group>"'
-			};
-			xobjs.PBXFileReference[fileRefUuid + '_comment'] = 'Settings.bundle';
-
-			// add the build file
-			xobjs.PBXBuildFile[buildFileUuid] = {
-				isa: 'PBXBuildFile',
-				fileRef: fileRefUuid,
-				fileRef_comment: 'Settings.bundle'
-			};
-			xobjs.PBXBuildFile[buildFileUuid + '_comment'] = 'Settings.bundle in Resources';
-
-			// add the resources build phase
-			resourcesBuildPhase.files.push({
-				value: buildFileUuid,
-				comment: 'Settings.bundle in Resources'
-			});
-
-			// add to resouces group
-			resourcesGroup.children.push({
-				value: fileRefUuid,
-				comment: 'Settings.bundle'
-			});
+			addResourceFolder('Settings.bundle', 'wrapper.plug-in');
 
 			return true;
 		}, this);
 
 		// if we have an Icon Composer app icon, add it to the project so `actool` compiles it
-		const iconComposerIcon = this.findIconComposerIcon();
-		if (iconComposerIcon) {
-			const fileRefUuid = this.generateXcodeUuid(xcodeProject),
-				buildFileUuid = this.generateXcodeUuid(xcodeProject);
-
-			// add the file reference
-			xobjs.PBXFileReference[fileRefUuid] = {
-				isa: 'PBXFileReference',
-				lastKnownFileType: 'folder.iconcomposer.icon',
-				path: 'AppIcon.icon',
-				sourceTree: '"<group>"'
-			};
-			xobjs.PBXFileReference[fileRefUuid + '_comment'] = 'AppIcon.icon';
-
-			// add the build file
-			xobjs.PBXBuildFile[buildFileUuid] = {
-				isa: 'PBXBuildFile',
-				fileRef: fileRefUuid,
-				fileRef_comment: 'AppIcon.icon'
-			};
-			xobjs.PBXBuildFile[buildFileUuid + '_comment'] = 'AppIcon.icon in Resources';
-
-			// add to the resources build phase
-			resourcesBuildPhase.files.push({
-				value: buildFileUuid,
-				comment: 'AppIcon.icon in Resources'
-			});
-
-			// add to resouces group
-			resourcesGroup.children.push({
-				value: fileRefUuid,
-				comment: 'AppIcon.icon'
-			});
+		if (this.findIconComposerIcon()) {
+			addResourceFolder('AppIcon.icon', 'folder.iconcomposer.icon');
 		}
 
 		// add the native libraries to the project
@@ -6117,43 +6098,26 @@ class iOSBuilder extends Builder {
 		this.iconComposerIcon = null;
 
 		// Icon Composer documents are directories, so a stray file of the same name is not one
-		if (fs.statSync(icon, { throwIfNoEntry: false })?.isDirectory()) {
+		if (isIconComposerDocument(icon)) {
 			if (appc.version.lt(this.xcodeEnv.version, ICON_COMPOSER_MIN_XCODE_VER)) {
 				this.logger.warn(`Ignoring ${
 					icon.replace(this.projectDir + '/', '')
 				} because Icon Composer icons require Xcode ${ICON_COMPOSER_MIN_XCODE_VER} or newer, but Xcode ${
 					this.xcodeEnv.version
 				} is selected`);
+				// the app icons have to come from PNGs on this Xcode, and generateAppIcons() will
+				// fail later on if the project stopped shipping them when it adopted the document
+				if (!this.defaultIcons.some(defaultIcon => fs.existsSync(defaultIcon))) {
+					this.logger.warn(`This build needs a "${
+						this.defaultIcons.map(defaultIcon => path.basename(defaultIcon)).join('" or "')
+					}" in the root of the project, or it will fail with missing app icons`);
+				}
 			} else {
 				this.iconComposerIcon = icon;
 			}
 		}
 
 		return this.iconComposerIcon;
-	}
-
-	/**
-	 * Computes a hash of every file in an Icon Composer document so we can tell when it has changed.
-	 *
-	 * @param {String} dir The path to the Icon Composer document
-	 * @returns {String} A hash of the document's contents
-	 */
-	hashIconComposerIcon(dir) {
-		const hashes = [];
-
-		(function walk(dir, prefix) {
-			for (const name of fs.readdirSync(dir).sort()) {
-				const file = path.join(dir, name);
-				const rel = prefix ? prefix + '/' + name : name;
-				if (fs.statSync(file).isDirectory()) {
-					walk.call(this, file, rel);
-				} else {
-					hashes.push(rel + ':' + this.hash(fs.readFileSync(file)));
-				}
-			}
-		}).call(this, dir, '');
-
-		return this.hash(hashes.join(','));
 	}
 
 	/**
@@ -6171,11 +6135,9 @@ class iOSBuilder extends Builder {
 		this.logger.info(`Using Icon Composer app icon ${src.replace(this.projectDir + '/', '').cyan}`);
 
 		const dest = path.join(this.buildDir, 'AppIcon.icon');
-		const hash = this.hashIconComposerIcon(src);
+		const hash = hashIconComposerDocument(src, this.hash);
 		const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['AppIcon.icon'];
 		const changed = !prev || prev.hash !== hash || !fs.existsSync(dest);
-
-		this.currentBuildManifest.files['AppIcon.icon'] = { hash };
 
 		if (changed) {
 			await fs.remove(dest);
@@ -6198,23 +6160,34 @@ class iOSBuilder extends Builder {
 			await fs.remove(appIconSetDir);
 		}
 
-		// the launch logos are generated by resizing a PNG, so make sure there's one to resize
-		if (!this.defaultIcons.some(icon => fs.existsSync(icon))) {
-			const rendered = path.join(this.buildDir, 'DefaultIcon.png');
-			const alreadyRendered = fs.existsSync(rendered);
+		// the launch logos are generated by resizing a PNG, so make sure there's one to resize.
+		// there's nothing to resize for if the launch screen storyboard is switched off, and
+		// `processLaunchLogos()` would bail immediately anyway, so don't pay for the render
+		let rendered = true;
+		if (this.enableLaunchScreenStoryboard
+			&& this.defaultLaunchScreenStoryboard
+			&& !this.defaultIcons.some(icon => fs.existsSync(icon))) {
+			const renderDest = path.join(this.buildDir, 'DefaultIcon.png');
 
-			if (!changed && alreadyRendered) {
+			if (!changed && fs.existsSync(renderDest)) {
 				// rendering shells out to `ictool`, so only pay for it when the document is new or
 				// has changed -- an unchanged document keeps the rendering from the previous build
-				this.logger.trace(`No change, skipping ${rendered.cyan}`);
+				this.logger.trace(`No change, skipping ${renderDest.cyan}`);
 			} else {
-				await this.renderIconComposerIcon(dest, rendered);
+				rendered = await this.renderIconComposerIcon(dest, renderDest);
 			}
 
-			if (fs.existsSync(rendered)) {
-				this.unmarkBuildDirFile(rendered);
-				this.defaultIcons.push(rendered);
+			if (fs.existsSync(renderDest)) {
+				this.unmarkBuildDirFile(renderDest);
+				this.defaultIcons.push(renderDest);
 			}
+		}
+
+		// only remember this document once everything derived from it succeeded, otherwise a failed
+		// render would be cached forever: the next build would see an unchanged hash and an existing
+		// rendering, skip the retry, and silently keep resizing launch logos from the stale image
+		if (rendered) {
+			this.currentBuildManifest.files['AppIcon.icon'] = { hash };
 		}
 	}
 
@@ -6224,7 +6197,7 @@ class iOSBuilder extends Builder {
 	 *
 	 * @param {String} src The path to the Icon Composer document
 	 * @param {String} dest The path to write the rendered PNG to
-	 * @returns {Promise<void>}
+	 * @returns {Promise<Boolean>} `true` if the document was rendered
 	 */
 	async renderIconComposerIcon(src, dest) {
 		const ictool = path.join(this.xcodeEnv.xcodeapp, 'Contents', 'Applications', 'Icon Composer.app', 'Contents', 'Executables', 'ictool');
@@ -6232,7 +6205,7 @@ class iOSBuilder extends Builder {
 		if (!fs.existsSync(ictool)) {
 			this.logger.warn(`Unable to find ${ictool}`);
 			this.logger.warn(`Launch logos will not be generated from ${path.basename(src)}`);
-			return;
+			return false;
 		}
 
 		this.logger.debug(`Rendering ${src.cyan} => ${dest.cyan}`);
@@ -6255,7 +6228,10 @@ class iOSBuilder extends Builder {
 		if (code !== 0 || !fs.existsSync(dest)) {
 			this.logger.warn(`Failed to render ${path.basename(src)}`);
 			this.logger.warn('Launch logos will not be generated from it');
+			return false;
 		}
+
+		return true;
 	}
 
 	/**
@@ -6278,17 +6254,16 @@ class iOSBuilder extends Builder {
 		let defaultIconHasAlpha = false;
 		const defaultIcon = this.defaultIcons.find(icon => fs.existsSync(icon));
 		const flattenedDefaultIconDest = path.join(this.buildDir, 'DefaultIcon.png');
-		// when an Icon Composer document supplies the app icon, the default icon is only used as the
-		// source image for the launch logos, which are never flattened against a white background
-		const flattenDefaultIcon = !iconComposerIcon;
 
 		if (defaultIcon) {
 			const defaultIconPrev = this.previousBuildManifest.files && this.previousBuildManifest.files['DefaultIcon.png'],
 				defaultIconContents = fs.readFileSync(defaultIcon),
 				defaultIconInfo = appc.image.pngInfo(defaultIconContents),
-				flattenedDefaultIcon = defaultIconInfo.alpha && flattenDefaultIcon,
-				defaultIconExists = !flattenedDefaultIcon || fs.existsSync(flattenedDefaultIconDest),
-				defaultIconStat = defaultIconExists && fs.statSync(flattenedDefaultIcon ? flattenedDefaultIconDest : defaultIcon),
+				// an Icon Composer document supplies the app icons, so nothing flattens the default
+				// icon in that case and the source file is what the manifest should describe
+				flattensDefaultIcon = defaultIconInfo.alpha && !iconComposerIcon,
+				defaultIconExists = !flattensDefaultIcon || fs.existsSync(flattenedDefaultIconDest),
+				defaultIconStat = defaultIconExists && fs.statSync(flattensDefaultIcon ? flattenedDefaultIconDest : defaultIcon),
 				defaultIconMtime = defaultIconExists && JSON.parse(JSON.stringify(defaultIconStat.mtime)),
 				defaultIconHash = this.hash(defaultIconContents);
 
@@ -6309,14 +6284,43 @@ class iOSBuilder extends Builder {
 			};
 		}
 
+		// shared by the Icon Composer path and the app icon set path below
+		const boundGenerateAppIcons = util.promisify(this.generateAppIcons).bind(this);
+
 		// the Icon Composer document already covers every app icon size and appearance, so the
 		// only images left to produce are the launch logos
 		if (iconComposerIcon) {
+			// per-density icons can't be combined with an Icon Composer document, since `actool`
+			// renders every appearance from the document -- say so rather than dropping them silently
+			const ignored = [ ...appIcons.values() ]
+				.filter(info => info.tag)
+				.map(info => info.src.replace(this.projectDir + '/', ''))
+				.sort();
+			if (ignored.length) {
+				this.logger.warn(`Ignoring ${ignored.length} app icon${ignored.length === 1 ? '' : 's'} because ${
+					iconComposerIcon.replace(this.projectDir + '/', '')
+				} supplies every icon size and appearance:`);
+				ignored.forEach(name => this.logger.warn(`  ${name}`));
+			}
+
+			// the app icon set path flattens an alpha channel against white before resizing, and the
+			// launch logos inherit that. it can't be reused here: that flatten is gated on missing
+			// *app* icons, which stop being missing once generated, whereas rewriting the flattened
+			// file changes its mtime, so a launch-logo-only gate would regenerate and reflatten on
+			// every build forever. launch logos are composited over the storyboard background rather
+			// than a white one, so keeping the alpha channel is also the better rendering
+			if (defaultIcon && defaultIconHasAlpha && this.xcodeTargetOS !== 'maccatalyst') {
+				this.logger.warn(`The default icon "${
+					defaultIcon.replace(this.projectDir + '/', '')
+				}" contains an alpha channel, which is kept when generating launch logos`);
+			}
+
 			const missingLaunchLogos = await this.processLaunchLogos(launchLogos, resourcesToCopy, defaultIcon, defaultIconChanged);
 			if (!missingLaunchLogos.length) {
 				return;
 			}
-			return util.promisify(this.generateAppIcons).bind(this)(missingLaunchLogos);
+
+			return boundGenerateAppIcons(missingLaunchLogos);
 		}
 
 		// The original list of icons we may need (we trim this down as we match them)
@@ -6509,8 +6513,6 @@ class iOSBuilder extends Builder {
 			return;
 		}
 
-		// Turn callback API to promise...
-		const boundGenerateAppIcons = util.promisify(this.generateAppIcons).bind(this);
 		if (!defaultIcon) {
 			// we're going to fail, but we let generateAppIcons() do the dirty work
 			return boundGenerateAppIcons(missingIcons);
