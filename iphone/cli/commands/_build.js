@@ -13,7 +13,6 @@
 
 import appc from 'node-appc';
 import async from 'async';
-import bufferEqual from 'buffer-equal';
 import Builder from 'node-titanium-sdk/lib/builder.js';
 import crypto from 'node:crypto';
 import colors from 'colors';
@@ -391,11 +390,8 @@ class iOSBuilder extends Builder {
 				supportedVersions: this.packageJson.vendorDependencies.xcode
 			}, function (err, iosInfo) {
 				if (err) {
-					// this is bad and probably because we don't have a compatible
-					// node-ios-device binary for the current version of node
-					//
-					// ideally we'd failout, but we can't... the Titanium CLI doesn't
-					// allow the config() call to return an error. my bad design. :(
+					// this is bad, but the Titanium CLI doesn't allow the config()
+					// call to return an error, so degrade to an empty result
 					iosInfo = {
 						certs: {
 							keychains: {}
@@ -5043,7 +5039,7 @@ class iOSBuilder extends Builder {
 						contents = this._scrubiOSSourceFile(contents.toString());
 						changed = contents !== existingContent.toString();
 					} else {
-						changed = !destExists || !bufferEqual(contents, existingContent);
+						changed = !destExists || !contents.equals(existingContent);
 						if (!changed) {
 							return null;
 						}
