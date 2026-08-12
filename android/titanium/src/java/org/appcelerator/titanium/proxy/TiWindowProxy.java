@@ -68,6 +68,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 	protected boolean opened, opening;
 	protected boolean isFocused;
+	private ActionBarProxy actionBarProxy;
 	protected int[] orientationModes = null;
 	protected TiViewProxy tabGroup;
 	protected TiViewProxy tab;
@@ -195,6 +196,10 @@ public abstract class TiWindowProxy extends TiViewProxy
 		KrollDict data = null;
 		if (activityIsFinishing) {
 			releaseViews();
+			if (actionBarProxy != null) {
+				actionBarProxy.release();
+				actionBarProxy = null;
+			}
 		} else {
 			// If the activity is forced to destroy by Android OS due to lack of memory or
 			// enabling "Don't keep activities" (TIMOB-12939), we will not release the
@@ -219,6 +224,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public void addProxyWaitingForActivity(KrollProxy waitingProxy)
 	{
 		proxiesWaitingForActivity.add(new WeakReference<>(waitingProxy));
+	}
+
+	public ActionBarProxy getActionBarProxy()
+	{
+		return actionBarProxy;
+	}
+
+	public void setActionBarProxy(ActionBarProxy proxy)
+	{
+		actionBarProxy = proxy;
 	}
 
 	protected void releaseViewsForActivityForcedToDestroy()
