@@ -937,6 +937,14 @@ class AndroidBuilder extends Builder {
 				this.proguard = false;
 		}
 
+		// Select the JavaScript asset encryption module. Apps can opt in to the
+		// open source 'ti.crypt' module via <encryption>ti.crypt</encryption> in
+		// the tiapp.xml, any other (or no) value falls back to 'ti.cloak'.
+		if (cli.tiapp.encryption && cli.tiapp.encryption !== 'ti.crypt' && cli.tiapp.encryption !== 'ti.cloak') {
+			logger.warn(`Unknown <encryption> value "${cli.tiapp.encryption}" in tiapp.xml, falling back to "ti.cloak"`);
+		}
+		this.encryptionModule = cli.tiapp.encryption === 'ti.crypt' ? 'ti.crypt' : 'ti.cloak';
+
 		if (cli.tiapp.properties['ti.android.compilejs']) {
 			logger.warn(`The ${
 				'ti.android.compilejs'.cyan
@@ -1861,6 +1869,14 @@ class AndroidBuilder extends Builder {
 			this.logger.info('Forcing rebuild: JavaScript encryption flag changed');
 			this.logger.info(`  Was: ${manifest.encryptJS}`);
 			this.logger.info(`  Now: ${this.encryptJS}`);
+			return true;
+		}
+
+		// if the encryption module changed, then we need to recompile the Java files and rewrite the jniLibs
+		if (this.encryptJS && this.encryptionModule !== manifest.encryptionModule) {
+			this.logger.info('Forcing rebuild: JavaScript encryption module changed');
+			this.logger.info(`  Was: ${manifest.encryptionModule}`);
+			this.logger.info(`  Now: ${this.encryptionModule}`);
 			return true;
 		}
 
@@ -2864,7 +2880,7 @@ class AndroidBuilder extends Builder {
 		}
 
 		// ti.cloak's default export is jacked... there's nested default exports
-		let { default: Cloak } = await import('ti.cloak');
+		let { default: Cloak } = await import(this.encryptionModule);
 		while (Cloak && typeof Cloak === 'object') {
 			Cloak = Cloak.default;
 		}
@@ -2876,7 +2892,7 @@ class AndroidBuilder extends Builder {
 			throw new Error('Could not load encryption library!');
 		}
 
-		this.logger.info('Encrypting JavaScript assets...');
+		this.logger.info(`Encrypting JavaScript assets with '${this.encryptionModule}'...`);
 
 		// NOTE: maintain 'build.android.titaniumprep' hook for remote encryption policy.
 		const hook = this.cli.createHook('build.android.titaniumprep', this, async function (exe, args, opts, next) {
@@ -2907,7 +2923,8 @@ class AndroidBuilder extends Builder {
 						{
 							appid: this.appid,
 							assets: this.jsFilesToEncrypt.map(f => f.replace(/\\/g, '/')),
-							salt: cloak.salt
+							salt: cloak.salt,
+							cryptLib: this.encryptionModule
 						}
 					)
 				);
@@ -3875,6 +3892,7 @@ class AndroidBuilder extends Builder {
 				navbarHidden: this.tiapp['navbar-hidden'],
 				skipJSMinification: !!this.cli.argv['skip-js-minify'],
 				encryptJS: this.encryptJS,
+				encryptionModule: this.encryptionModule,
 				minSDK: this.minSDK,
 				targetSDK: this.targetSDK,
 				propertiesHash: this.propertiesHash,
