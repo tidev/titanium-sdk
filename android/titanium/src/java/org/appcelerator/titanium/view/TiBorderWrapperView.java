@@ -10,9 +10,11 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiConvert;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Outline;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -38,6 +40,7 @@ public class TiBorderWrapperView extends FrameLayout
 	private int backgroundColor = Color.TRANSPARENT;
 	private final float[] radius = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	private float borderWidth = 0;
+	private float[] dashed = null;
 	private int alpha = -1;
 	private Paint paint;
 	private Rect bounds;
@@ -74,6 +77,7 @@ public class TiBorderWrapperView extends FrameLayout
 		}
 	}
 
+	@SuppressLint("DrawAllocation")
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
@@ -81,6 +85,7 @@ public class TiBorderWrapperView extends FrameLayout
 
 		int maxPadding = (int) Math.min(bounds.right / 2, bounds.bottom / 2);
 		int padding = (int) Math.min(borderWidth, maxPadding);
+		float halfPadding = padding * 0.5f;
 		RectF innerRect =
 			new RectF(bounds.left + padding, bounds.top + padding, bounds.right - padding, bounds.bottom - padding);
 		RectF outerRect = new RectF(bounds);
@@ -114,7 +119,18 @@ public class TiBorderWrapperView extends FrameLayout
 			}
 		} else {
 			outerPath.addRect(outerRect, Direction.CW);
-			outerPath.addRect(innerRect, Direction.CCW);
+			innerRect = new RectF(bounds.left + halfPadding, bounds.top + halfPadding,
+				bounds.right - halfPadding, bounds.bottom - halfPadding);
+			paint.setStyle(Paint.Style.STROKE);
+			paint.setStrokeWidth(borderWidth);
+
+			if (dashed != null) {
+				try {
+					paint.setPathEffect(new DashPathEffect(dashed, 0f));
+				} catch (Exception ex) {
+					Log.e(TAG, "dashed needs to have at least two values");
+				}
+			}
 			canvas.drawPath(outerPath, paint);
 			canvas.clipRect(innerRect);
 		}
@@ -148,6 +164,10 @@ public class TiBorderWrapperView extends FrameLayout
 	public void setBgColor(int color)
 	{
 		this.backgroundColor = color;
+	}
+	public void setDashed(float[] value)
+	{
+		this.dashed = value;
 	}
 
 	public boolean hasRadius()
