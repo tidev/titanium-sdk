@@ -56,16 +56,18 @@
   return [resultDict objectForKey:NSFileImmutable];
 }
 
-- (NSDate *)createTimestamp
+- (NSNumber *)createTimestamp
 {
   DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.createTimestamp", @"7.3.0", @"12.4.0", @"Filesystem.File.createdAt()");
-  return [NSDate new];
+  NSDate *date = [self createdAt:nil];
+  return NUMDOUBLE([date timeIntervalSince1970] * 1000.0);
 }
 
-- (NSDate *)createTimestamp:(id)unused
+- (NSNumber *)createTimestamp:(id)unused
 {
   DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.createTimestamp()", @"7.3.0", @"12.4.0", @"Filesystem.File.createdAt()");
-  return [NSDate new];
+  NSDate *date = [self createdAt:nil];
+  return NUMDOUBLE([date timeIntervalSince1970] * 1000.0);
 }
 
 - (NSDate *)createdAt:(id)unused
@@ -83,16 +85,18 @@
   return result;
 }
 
-- (NSDate *)modificationTimestamp
+- (NSNumber *)modificationTimestamp
 {
   DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.modificationTimestamp", @"7.3.0", @"12.4.0", @"Filesystem.File.modifiedAt()");
-  return [NSDate new];
+  NSDate *date = [self modifiedAt:nil];
+  return NUMDOUBLE([date timeIntervalSince1970] * 1000.0);
 }
 
-- (NSDate *)modificationTimestamp:(id)unused
+- (NSNumber *)modificationTimestamp:(id)unused
 {
   DEPRECATED_REPLACED_REMOVED(@"Filesystem.File.modificationTimestamp()", @"7.3.0", @"12.4.0", @"Filesystem.File.modifiedAt()");
-  return [NSDate new];
+  NSDate *date = [self modifiedAt:nil];
+  return NUMDOUBLE([date timeIntervalSince1970] * 1000.0);
 }
 
 - (NSDate *)modifiedAt:(id)unused

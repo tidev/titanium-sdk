@@ -143,7 +143,7 @@ describe('Intl.NumberFormat', () => {
 	describe('#formatToParts()', () => {
 		before(function () {
 			if (OS_IOS && (OS_VERSION_MAJOR < 13)) {
-				this.skip();
+				this.skip('iOS < 13 does not support Intl.NumberFormat.formatToParts');
 			}
 		});
 

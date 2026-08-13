@@ -10,6 +10,7 @@
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.ScrollableView', () => {
 
@@ -69,7 +70,7 @@ describe('Titanium.UI.ScrollableView', () => {
 			});
 
 			it('lifecycle', function (finish) {
-				this.timeout(5000);
+				this.timeout(Timeout.DEFAULT);
 
 				win = Ti.UI.createWindow();
 				win.addEventListener('open', () => {
@@ -142,7 +143,7 @@ describe('Titanium.UI.ScrollableView', () => {
 			});
 
 			it('lifecycle', function (finish) {
-				this.timeout(5000);
+				this.timeout(Timeout.DEFAULT);
 
 				win = Ti.UI.createWindow();
 				win.addEventListener('open', () => {
@@ -171,7 +172,7 @@ describe('Titanium.UI.ScrollableView', () => {
 			if (OS_VERSION_MAJOR < 14) {
 				return finish();
 			}
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			const view1 = Ti.UI.createView({ id: 'view1', backgroundColor: '#836' });
 			const view2 = Ti.UI.createView({ id: 'view2', backgroundColor: '#246' });
@@ -245,12 +246,12 @@ describe('Titanium.UI.ScrollableView', () => {
 	});
 
 	describe('methods', () => {
-		it.androidAndWindowsBroken('#moveX()/#scrollToView()', function (finish) {
+		it('#moveX()/#scrollToView()', function (finish) {
 			var testName = null,
 				nextPageIndex = 0,
 				bar = null;
 			this.slow(5000);
-			this.timeout(20000);
+			this.timeout(Timeout.LONG);
 			function doNextTest() {
 				try {
 					if (!testName) {
@@ -303,7 +304,7 @@ describe('Titanium.UI.ScrollableView', () => {
 			if (OS_VERSION_MAJOR < 14) {
 				return finish();
 			}
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			const view1 = Ti.UI.createView({ id: 'view1', backgroundColor: '#836' });
 			const view2 = Ti.UI.createView({ id: 'view2', backgroundColor: '#246' });

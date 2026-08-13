@@ -9,13 +9,14 @@
 /* eslint mocha/no-identical-title: "off" */
 /* eslint promise/no-callback-in-promise: "off" */
 'use strict';
-const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
+const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts'); // eslint-disable-line no-unused-vars
 const utilities = require('./utilities/utilities');
 
 const isCI = Ti.App.Properties.getBool('isCI', false);
 
 describe('Titanium.UI.TabGroup', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let tabGroup;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -96,7 +97,7 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup.open();
 			});
 
-			it.androidBroken('assign in creation dictionary', finish => {
+			it('assign in creation dictionary', finish => {
 				const winA = Ti.UI.createWindow(),
 					tabA = Ti.UI.createTab({
 						title: 'Tab A',
@@ -152,7 +153,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.activeTintColor).eql('blue');
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('has no accessors', () => { // Windows are created during open
 				should(tabGroup).not.have.accessors('activeTintColor');
 			});
 		});
@@ -201,7 +202,7 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.barColor).eql('blue');
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('has no accessors', () => { // Windows are created during open
 				should(tabGroup).not.have.accessors('barColor');
 			});
 		});
@@ -211,7 +212,7 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup = Ti.UI.createTabGroup();
 			});
 
-			it.iosBroken('is an Array', () => { // undfined on iOS?
+			it('is an Array', () => { // undfined on iOS?
 				should(tabGroup).have.property('tabs').which.is.an.Array();
 			});
 
@@ -265,11 +266,11 @@ describe('Titanium.UI.TabGroup', function () {
 				tabGroup = Ti.UI.createTabGroup();
 			});
 
-			it.iosBroken('is a Boolean', () => { // defaults to undefined!
+			it('is a Boolean', () => { // defaults to undefined!
 				should(tabGroup.tabsTranslucent).be.a.Boolean();
 			});
 
-			it.iosBroken('defaults to true', () => { // defaults to undefined!
+			it('defaults to true', () => { // defaults to undefined!
 				should(tabGroup.tabsTranslucent).be.true();
 			});
 
@@ -304,20 +305,20 @@ describe('Titanium.UI.TabGroup', function () {
 				should(tabGroup.tintColor).eql('blue');
 			});
 
-			it.androidBroken('has no accessors', () => { // Windows are created during open
+			it('has no accessors', () => { // Windows are created during open
 				should(tabGroup).not.have.accessors('tintColor');
 			});
 		});
 
 		describe('.title', () => {
-			it.androidBroken('is a String', () => {
+			it('is a String', () => {
 				tabGroup = Ti.UI.createTabGroup({
 					title: 'My title'
 				});
 				should(tabGroup.title).be.a.String(); // null on Android!
 			});
 
-			it.androidBroken('equals value passed in to creation dictionary', () => {
+			it('equals value passed in to creation dictionary', () => {
 				tabGroup = Ti.UI.createTabGroup({
 					title: 'My title'
 				});
@@ -359,7 +360,7 @@ describe('Titanium.UI.TabGroup', function () {
 					title: 'Tab B',
 					window: winB
 				});
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			tabGroup = Ti.UI.createTabGroup();
 
 			// does windows fire this event?
@@ -492,7 +493,7 @@ describe('Titanium.UI.TabGroup', function () {
 		}
 
 		this.slow(5000);
-		this.timeout(15000);
+		this.timeout(Timeout.LONG);
 
 		const map = require('ti.map');
 		const mapView = map.createView({ top: 0, height: '80%' });
@@ -515,7 +516,7 @@ describe('Titanium.UI.TabGroup', function () {
 	});
 
 	describe('events', function () {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 
 		// FIXME Windows doesn't fire open/close events
 		it.windowsMissing('close', finish => {
@@ -616,7 +617,7 @@ describe('Titanium.UI.TabGroup', function () {
 	});
 
 	it('icon-only tabs - default style', finish => {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		tabGroup = Ti.UI.createTabGroup({
 			tabs: [
 				Ti.UI.createTab({
@@ -634,7 +635,7 @@ describe('Titanium.UI.TabGroup', function () {
 	});
 
 	it.android('icon-only tabs - android bottom style', finish => {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		tabGroup = Ti.UI.createTabGroup({
 			style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
 			tabs: [
@@ -653,7 +654,7 @@ describe('Titanium.UI.TabGroup', function () {
 	});
 
 	it.android('icon-only tabs - android bottom style (experimental layout)', finish => {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		tabGroup = Ti.UI.createTabGroup({
 			style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
 			experimental: true,
@@ -676,7 +677,7 @@ describe('Titanium.UI.TabGroup', function () {
 	// makes it look like a floating toolbar with rounded corners.
 	describe('floating tab bar', () => {
 		it.android('extendSafeArea - false', finish => {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			tabGroup = Ti.UI.createTabGroup({
 				extendSafeArea: false,
 				paddingLeft: 15,
@@ -699,7 +700,7 @@ describe('Titanium.UI.TabGroup', function () {
 		});
 
 		it.android('extendSafeArea - true', finish => {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			tabGroup = Ti.UI.createTabGroup({
 				extendSafeArea: true,
 				windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_STATUS | Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION,
@@ -725,7 +726,7 @@ describe('Titanium.UI.TabGroup', function () {
 
 	describe('floating tab bar (experimental layout)', () => {
 		it.android('extendSafeArea - false (experimental layout)', finish => {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			tabGroup = Ti.UI.createTabGroup({
 				extendSafeArea: false,
 				paddingLeft: 15,
@@ -749,7 +750,7 @@ describe('Titanium.UI.TabGroup', function () {
 		});
 
 		it.android('extendSafeArea - true (experimental layout)', finish => {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			tabGroup = Ti.UI.createTabGroup({
 				extendSafeArea: true,
 				windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_STATUS | Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION,

@@ -45,6 +45,7 @@ public class TiResultSetProxy extends KrollProxy
 		if (rs != null && !rs.isClosed()) {
 			Log.d(TAG, "Closing database cursor", Log.DEBUG_MODE);
 			rs.close();
+			rs = null;
 		} else {
 			Log.w(TAG, "Calling close on a closed cursor.", Log.DEBUG_MODE);
 		}

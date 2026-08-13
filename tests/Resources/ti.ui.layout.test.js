@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 function createWindow(_args) {
@@ -17,7 +18,7 @@ function createWindow(_args) {
 }
 
 describe('Titanium.UI.Layout', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -723,9 +724,14 @@ describe('Titanium.UI.Layout', function () {
 	});
 
 	// functional test #1053 ScrollViewSize
-	// This is completely wrong. Adding a scrollview to a label?
-	// Really? Skipping
-	it.androidAndIosBroken('scrollViewSize', function (finish) {
+	// Skip on iOS: the test asserts label2.size.height != 0, but label2 is
+	// never added to the window hierarchy (only label, scrollView2, and view
+	// are added to win), so iOS reports size 0 for label2. The test's
+	// expected-value comments also note iOS returns 22 for an empty label
+	// while the original assertions expected 0. The test's view hierarchy
+	// setup is questionable enough that fixing it would change what the
+	// test is verifying.
+	it.iosBroken('scrollViewSize', function (finish) {
 		var label = Ti.UI.createLabel({
 				color: 'red'
 			}),
@@ -760,29 +766,17 @@ describe('Titanium.UI.Layout', function () {
 			width: 200,
 			height: 200
 		});
-		// var scrollView3 = Titanium.UI.createScrollView({
-		//	contentHeight: 'auto',
-		//	contentWidth: 'auto',
-		//	showVerticalScrollIndicator: true,
-		//	showHorizontalScrollIndicator: true
-		// });
 		win.addEventListener('postlayout', function listener () {
 			win.removeEventListener('postlayout', listener);
 
 			try {
-				// LABEL HAS SIZE AUTO BEHAVIOR.
-				// SCROLLVIEW HAS FILL BEHAVIOR
-				// LABEL will have 0 size (no text)
-				// LABEL2 will have non 0 size (has text/pins)
 				should(label.size).not.be.undefined();
 				should(label2.size).not.be.undefined();
 				should(scrollView.size).not.be.undefined();
 				should(scrollView2.size).not.be.undefined();
 				if (utilities.isIPhone()) {
-					// Android does not return 0 height even when there is no text
 					should(label.size.width).eql(0);
-					should(label.size.height).eql(0); // iOS returns 22 here!
-					// Adding a scroll view to a label does not work in android: TIMOB-7817
+					should(label.size.height).eql(0);
 					should(scrollView.size.width).eql(0);
 					should(scrollView.size.height).eql(0);
 					should(label2.size.height).not.be.eql(0);
@@ -792,12 +786,6 @@ describe('Titanium.UI.Layout', function () {
 					should(label2.size.width).eql(scrollView2.size.width);
 					should(label2.size.height).eql(scrollView2.size.height);
 				}
-				// This is not working yet due to TIMOB-5303
-				// valueOf(testRun, scrollView3.size.height).shouldNotBe(0);
-				// valueOf(testRun, scrollView3.size.width).shouldNotBe(0);
-				//
-				// valueOf(testRun, view.size.width).shouldBe(scrollView3.size.width);
-				// valueOf(testRun, view.size.height).shouldBe(scrollView3.size.height);
 
 				finish();
 			} catch (e) {
@@ -1251,7 +1239,11 @@ describe('Titanium.UI.Layout', function () {
 	});
 
 	// TIMOB-8891
-	it.iosBroken('scrollViewWithLargeVerticalLayoutChild', function (finish) {
+	// iOS layout queue is asynchronous: even listening on innerView.postlayout,
+	// innerView.size.height reads 0 at the time the listener fires. The
+	// vertical layout pass for the 10 children hasn't completed measurement
+	// synchronously enough to observe the expected 1200pt height on iOS.
+	it('scrollViewWithLargeVerticalLayoutChild', function (finish) {
 		var scrollView = Ti.UI.createScrollView({
 				contentHeight: 'auto',
 				backgroundColor: 'green'
@@ -1280,11 +1272,18 @@ describe('Titanium.UI.Layout', function () {
 			}));
 		}
 
-		scrollView.addEventListener('postlayout', function listener () {
-			scrollView.removeEventListener('postlayout', listener);
+		innerView.addEventListener('postlayout', function listener () {
+			// iOS layout queue is asynchronous: the first postlayout fires
+			// before the vertical-layout pass has measured the 10 children,
+			// so innerView.size.height is 0. Wait for a subsequent postlayout
+			// once the measurement has settled (10 * (100 + 20) = 1200).
+			if (innerView.size.height === 0) {
+				return;
+			}
+			innerView.removeEventListener('postlayout', listener);
 
 			try {
-				should(innerView.size.height).be.approximately(1200, 5); // FIXME iOS gives "expected 0 to equal 1200"
+				should(innerView.size.height).be.approximately(1200, 5);
 				should(innerView.size.width).eql(scrollView.size.width);
 
 				finish();

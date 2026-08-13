@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe.ios('Titanium.UI.iOS', function () {
 	it('#createSplitWindow()', function () {
@@ -29,7 +30,7 @@ describe.ios('Titanium.UI.iOS', function () {
 	// Verify view controller hierarchy is set up correctly. (Used to crash in 10.0.0. See: TIMOB-28497)
 	it('view controller hierarchy', function (finish) {
 		this.slow(2000);
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		const splitWindow = Ti.UI.iOS.createSplitWindow({
 			detailView: Ti.UI.createNavigationWindow({
 				window: Ti.UI.createWindow({ title: 'Detail View' }),

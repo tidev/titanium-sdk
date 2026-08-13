@@ -515,8 +515,7 @@ describe('path', function () {
 			result.should.have.property('name').which.eql('');
 		});
 
-		// FIXME: Our implementation drops trailing separators on UNC roots
-		it.allBroken('handles full UNC style path on win32', function () {
+		it('handles full UNC style path on win32', function () {
 			const result = path.win32.parse('\\\\host-name\\share-name\\file_path');
 			result.should.have.property('root').which.eql('\\\\host-name\\share-name\\');
 			result.should.have.property('dir').which.eql('\\\\host-name\\share-name\\');

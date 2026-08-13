@@ -8,7 +8,8 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	Timeout = require('./utilities/timeouts');
 
 describe.ios('Titanium.App.iOS', function () {
 
@@ -128,7 +129,7 @@ describe.ios('Titanium.App.iOS', function () {
 			finish();
 		}
 
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 
 		should(Ti.App.iOS.createUserDefaults).be.a.Function();
 
