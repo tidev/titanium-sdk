@@ -37,7 +37,9 @@
 				<false/>
 				<key>UIStatusBarStyle</key>
 				<string>UIStatusBarStyleDefault</string>
-				<!-- <key>CFBundleVersion</key><string>1</string> -->
+				<!-- use this key for incremental TestFlight builds with the same version number
+				<key>CFBundleVersion</key><string>1</string>
+				-->
 			</dict>
 		</plist>
 	</ios>
