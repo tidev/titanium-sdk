@@ -92,6 +92,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	/** Set true to allow text to be copied via context menu, Ctrl+C, etc. */
 	private boolean isCopyEnabled = true;
 
+	/** Set true to allow the content to be scrolled. Set false to disable scrolling. */
+	private boolean isScrollable = true;
+
 	/** Creates a new EditText view. */
 	public TiUIEditText(Context context)
 	{
@@ -215,6 +218,32 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	public void setIsCopyEnabled(boolean value)
 	{
 		this.isCopyEnabled = value;
+	}
+
+	/**
+	 * Determines if the content can be scrolled. Can be changed via setScrollable() method.
+	 * @return Returns true if scrolling is enabled, which is the default. Returns false if disabled.
+	 */
+	public boolean isScrollable()
+	{
+		return this.isScrollable;
+	}
+
+	/**
+	 * Enables or disables the ability to scroll the content within this EditText.
+	 * When disabled, the content cannot be scrolled by the user via touch gestures.
+	 * @param value Set true to enable scrolling. Set false to disable scrolling.
+	 */
+	public void setScrollable(boolean value)
+	{
+		this.isScrollable = value;
+
+		// Stop any active nested scroll if scrolling is being disabled.
+		if (!value && this.scrollAxisDirection != ViewCompat.SCROLL_AXIS_NONE) {
+			stopNestedScroll();
+			this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
+			this.isDragging = false;
+		}
 	}
 
 	/**
@@ -365,16 +394,16 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 				// Note: There is a bug in EditText where canScrollHorizontally() will return
 				//       true when it's not scrollable for "center" or "right" aligned text.
 				boolean isVertical = ((getInputType() & EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0);
-				boolean isScrollable;
+				boolean canScroll;
 				if (isVertical) {
-					isScrollable = canScrollVertically(1) || canScrollVertically(-1);
+					canScroll = canScrollVertically(1) || canScrollVertically(-1);
 				} else {
-					isScrollable = canScrollHorizontally(1) || canScrollHorizontally(-1);
+					canScroll = canScrollHorizontally(1) || canScrollHorizontally(-1);
 				}
 
-				// Start nested scrolling if the EditText is scrollable.
+				// Start nested scrolling if the property is enabled and the EditText content overflows.
 				this.isDragging = false;
-				if (isScrollable) {
+				if (this.isScrollable && canScroll) {
 					if (isVertical) {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_VERTICAL;
 					} else {
@@ -449,6 +478,17 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					// This is needed to calculate nested scroll distances.
 					this.lastRawTouchX = (int) event.getRawX();
 					this.lastRawTouchY = (int) event.getRawY();
+				}
+
+				// If scrolling is disabled, block the EditText's internal scroll on drag gestures.
+				if (!this.isScrollable && !wasHandled) {
+					int deltaX = (int) event.getRawX() - this.startRawTouchX;
+					int deltaY = (int) event.getRawY() - this.startRawTouchY;
+					if ((Math.abs(deltaX) > this.minDragStartDistance)
+						|| (Math.abs(deltaY) > this.minDragStartDistance)) {
+						// Consume the move event to prevent EditText's internal scrolling.
+						return true;
+					}
 				}
 
 				// Let the EditText handle the event if the parent wasn't scrolled via the above.
