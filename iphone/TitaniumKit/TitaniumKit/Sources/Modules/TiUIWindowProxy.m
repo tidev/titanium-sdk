@@ -1118,16 +1118,19 @@
     edgeInsets = [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
   }
 
-  [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
-    @"left" : NUMFLOAT(edgeInsets.left),
-    @"bottom" : NUMFLOAT(edgeInsets.bottom),
-    @"right" : NUMFLOAT(edgeInsets.right) }
-          forKey:@"safeAreaPadding"];
-
   BOOL safeAreaInsetsChanged = !UIEdgeInsetsEqualToEdgeInsets(edgeInsets, oldSafeAreaInsets);
   oldSafeAreaInsets = edgeInsets;
 
   if (self.shouldExtendSafeArea) {
+    // Only report the safe-area insets as padding when the window extends
+    // under the safe area. When extendSafeArea is false the content is laid
+    // out within the safe area already, so no additional padding is needed
+    // and safeAreaPadding must stay zero.
+    [self setValue:@{ @"top" : NUMFLOAT(edgeInsets.top),
+      @"left" : NUMFLOAT(edgeInsets.left),
+      @"bottom" : NUMFLOAT(edgeInsets.bottom),
+      @"right" : NUMFLOAT(edgeInsets.right) }
+            forKey:@"safeAreaPadding"];
     return safeAreaInsetsChanged;
   }
 
@@ -1198,6 +1201,18 @@
   }
   edgeInsets.top = safeAreaInset.top;
   edgeInsets.bottom = safeAreaInset.bottom;
+  // The child controller's view safeAreaInsets report a zero bottom inset when
+  // edgesForExtendedLayout excludes the bottom edge (the Titanium default when
+  // "extendEdges" is unset). The home-indicator area is still part of the
+  // screen's safe area, so fall back to the enclosing UINavigationController's
+  // view safeAreaInsets, which extends under the home indicator by default.
+  UINavigationController *navController = [self.tab controller];
+  if (navController != nil && navController.view != nil) {
+    CGFloat navBottom = navController.view.safeAreaInsets.bottom;
+    if (navBottom > edgeInsets.bottom) {
+      edgeInsets.bottom = navBottom;
+    }
+  }
   return edgeInsets;
 }
 
