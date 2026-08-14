@@ -37,6 +37,7 @@
 				<false/>
 				<key>UIStatusBarStyle</key>
 				<string>UIStatusBarStyleDefault</string>
+				<!-- <key>CFBundleVersion</key><string>1</string> -->
 			</dict>
 		</plist>
 	</ios>
