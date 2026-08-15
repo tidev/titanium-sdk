@@ -38,7 +38,8 @@
 				<key>UIStatusBarStyle</key>
 				<string>UIStatusBarStyleLightContent</string>
 				<!-- use this key for incremental TestFlight builds with the same version number
-				<key>CFBundleVersion</key><string>1</string>
+				<key>CFBundleVersion</key>
+				<string>1</string>
 				-->
 			</dict>
 		</plist>
