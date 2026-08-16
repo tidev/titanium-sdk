@@ -141,6 +141,168 @@ describe('Titanium.UI.ScrollView', function () {
 	});
 
 	// iOS-only property
+	it.ios('contentInsets', function () {
+		const scrollView = Ti.UI.createScrollView({});
+		should(scrollView).have.property('contentInsets');
+		scrollView.contentInsets = { top: 10, left: 20, bottom: 30, right: 40 };
+		should(scrollView.contentInsets).be.an.Object();
+		should(scrollView.contentInsets.top).eql(10);
+		should(scrollView.contentInsets.left).eql(20);
+		should(scrollView.contentInsets.bottom).eql(30);
+		should(scrollView.contentInsets.right).eql(40);
+	});
+
+	it.ios('contentInsets with animation options', function (finish) {
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL
+		});
+		const content = Ti.UI.createView({
+			height: 2000,
+			width: Ti.UI.FILL
+		});
+		scrollView.add(content);
+		win.add(scrollView);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				scrollView.contentInsets = {
+					top: 10,
+					left: 10,
+					bottom: 10,
+					right: 10,
+					animated: true,
+					duration: 100
+				};
+				should(scrollView.contentInsets).be.an.Object();
+				should(scrollView.contentInsets.top).eql(10);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
+	it.ios('verticalScrollIndicatorInsets', function () {
+		const scrollView = Ti.UI.createScrollView({});
+		should(scrollView).have.property('verticalScrollIndicatorInsets');
+		scrollView.verticalScrollIndicatorInsets = { top: 10, left: 15, bottom: 20, right: 25 };
+		should(scrollView.verticalScrollIndicatorInsets).be.an.Object();
+		should(scrollView.verticalScrollIndicatorInsets.top).eql(10);
+		should(scrollView.verticalScrollIndicatorInsets.left).eql(15);
+		should(scrollView.verticalScrollIndicatorInsets.bottom).eql(20);
+		should(scrollView.verticalScrollIndicatorInsets.right).eql(25);
+	});
+
+	it.ios('verticalScrollIndicatorInsets with animation options', function (finish) {
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL
+		});
+		const content = Ti.UI.createView({
+			height: 2000,
+			width: Ti.UI.FILL
+		});
+		scrollView.add(content);
+		win.add(scrollView);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				scrollView.verticalScrollIndicatorInsets = {
+					top: 10,
+					left: 10,
+					bottom: 10,
+					right: 10,
+					animated: true,
+					duration: 100
+				};
+				should(scrollView.verticalScrollIndicatorInsets).be.an.Object();
+				should(scrollView.verticalScrollIndicatorInsets.top).eql(10);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
+	it.ios('horizontalScrollIndicatorInsets', function () {
+		const scrollView = Ti.UI.createScrollView({});
+		should(scrollView).have.property('horizontalScrollIndicatorInsets');
+		scrollView.horizontalScrollIndicatorInsets = { top: 5, left: 15, bottom: 25, right: 35 };
+		should(scrollView.horizontalScrollIndicatorInsets).be.an.Object();
+		should(scrollView.horizontalScrollIndicatorInsets.top).eql(5);
+		should(scrollView.horizontalScrollIndicatorInsets.left).eql(15);
+		should(scrollView.horizontalScrollIndicatorInsets.bottom).eql(25);
+		should(scrollView.horizontalScrollIndicatorInsets.right).eql(35);
+	});
+
+	it.ios('scrollIndicatorColor', function (finish) {
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL
+		});
+		const content = Ti.UI.createView({
+			height: 2000,
+			width: Ti.UI.FILL
+		});
+		scrollView.add(content);
+		win.add(scrollView);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				scrollView.scrollIndicatorColor = '#ff0000';
+				should(scrollView.scrollIndicatorColor).be.a.String();
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
+	it.ios('horizontalScrollIndicatorInsets with animation options', function (finish) {
+		win = Ti.UI.createWindow();
+		const scrollView = Ti.UI.createScrollView({
+			layout: 'vertical',
+			width: Ti.UI.FILL,
+			height: Ti.UI.FILL
+		});
+		const content = Ti.UI.createView({
+			height: 2000,
+			width: Ti.UI.FILL
+		});
+		scrollView.add(content);
+		win.add(scrollView);
+		win.addEventListener('postlayout', function listener(e) {
+			win.removeEventListener(e.type, listener);
+			try {
+				scrollView.horizontalScrollIndicatorInsets = {
+					top: 5,
+					left: 5,
+					bottom: 5,
+					right: 5,
+					animated: true,
+					duration: 100
+				};
+				should(scrollView.horizontalScrollIndicatorInsets).be.an.Object();
+				should(scrollView.horizontalScrollIndicatorInsets.top).eql(5);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
+	// iOS-only property
 	it.ios('maxZoomScale', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.maxZoomScale).be.a.Number();
