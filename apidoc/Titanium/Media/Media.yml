@@ -2031,6 +2031,21 @@ properties:
     type: Boolean
     default: false
 
+  - name: galleryFolder
+    summary: Name of the folder under the gallery's `Pictures` directory to save captured photos to.
+    description: |
+        This property is only used when <Titanium.Media.CameraOptionsType.saveToPhotoGallery> is `true`.
+        When set, captured photos are stored under `Pictures/<galleryFolder>` instead of `Pictures`.
+
+        Only photos are affected. Captured videos are always saved to the gallery's `Movies` directory.
+
+        Requires Android 10 (API level 29) or higher. On older versions this property is ignored and
+        photos are saved directly to `Pictures`.
+    type: String
+    platforms: [android]
+    default: Photos are saved directly to the gallery's `Pictures` directory.
+    since: { android: "14.0.0" }
+
   - name: allowEditing
     summary: Specifies if the media should be editable after capture/selection.
     type: Boolean
