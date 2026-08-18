@@ -34,6 +34,7 @@ import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.ImageViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.drawable.VectorDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -660,7 +661,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		if (imageSources.size() == 1) {
 			TiDrawableReference imageref = imageSources.get(0);
-
+			if (imageref.getDrawable() instanceof VectorDrawable) {
+				view.setBackground(imageref.getDrawable());
+				return;
+			}
 			// Check if the image is cached in memory
 			var key = imageref.getKey();
 			Bitmap bitmap = TiImageCache.getBitmap(key);
