@@ -481,8 +481,11 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
 
   // Now make an ArrayBuffer with the copied bytes
   JSContext *context = JSContext.currentContext;
-  JSValueRef *exception;
-  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+  JSValueRef exception = NULL;
+  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, &exception);
+  if (exception) {
+    return [JSValue valueWithJSValueRef:exception inContext:context];
+  }
   return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
 }
 
@@ -499,8 +502,8 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
         [theData getBytes:arrayBytes length:len];
 
         // Now make an ArrayBuffer with the copied bytes
-        JSValueRef *exception;
-        JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+        JSValueRef exception = NULL;
+        JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, &exception);
         if (exception) {
           [promise reject:@[ [JSValue valueWithJSValueRef:exception inContext:context] ]];
         } else {
