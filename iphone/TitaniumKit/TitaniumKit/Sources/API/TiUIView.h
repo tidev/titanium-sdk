@@ -279,6 +279,15 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 - (void)setAccessibilityHint_:(id)accessibilityHint;
 - (void)setAccessibilityHidden_:(id)accessibilityHidden;
 
+// Modern accessibility APIs (React Native / native iOS parity)
+// Titanium's property replay system guarantees these setters are re-invoked
+// on view realization, proxy transfer, and property rebind — no global pipeline needed.
+- (void)setAccessibilityRole_:(id)role;
+- (void)setAccessibilityState_:(id)state;
+- (void)setAccessibilityGroup_:(id)group;
+- (void)setAccessibilityActions_:(id)actions;
+- (void)setAccessibilityLiveRegion_:(id)liveRegion;
+
 /**
  Whether or not a view not normally picked up by the Titanium view hierarchy (such as wrapped iOS UIViews) was touched.
  @return _YES_ if the view contains specialized content (such as a system view) which should register as a touch for this view, _NO_ otherwise.
