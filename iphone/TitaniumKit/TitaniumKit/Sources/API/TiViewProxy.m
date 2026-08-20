@@ -504,6 +504,10 @@ LAYOUTPROPERTIES_SETTER(setHeight, height, TiDimensionFromObject, [self willChan
 LAYOUTPROPERTIES_SETTER(setMinWidth, minimumWidth, TiFixedValueRuleFromObject, [self willChangeSize])
 LAYOUTPROPERTIES_SETTER(setMinHeight, minimumHeight, TiFixedValueRuleFromObject, [self willChangeSize])
 
+// A maximum of 0 means "unconstrained", so TiFixedValueRuleFromObject's default of 0 is correct here.
+LAYOUTPROPERTIES_SETTER(setMaxWidth, maximumWidth, TiFixedValueRuleFromObject, [self willChangeSize])
+LAYOUTPROPERTIES_SETTER(setMaxHeight, maximumHeight, TiFixedValueRuleFromObject, [self willChangeSize])
+
 LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self willChangeLayout])
 
 // Special handling to try and avoid Apple's detection of private API 'layout'
@@ -2562,6 +2566,17 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         verticalLayoutBoundary += bounds.size.height;
       }
     }
+
+    // Apply the child's "minHeight"/"maxHeight" to its sandbox so following siblings stack against the
+    // clamped size. SizeConstraintViewWithSizeAddingResizing() clamps the child's frame, but without this
+    // the layout boundary still advances by the unclamped height, overlapping or gapping the next sibling.
+    LayoutConstraint *childLayout = [child layoutProperties];
+    if ((childLayout->minimumHeight > 0) || (childLayout->maximumHeight > 0)) {
+      CGFloat contentHeight = bounds.size.height - offsetV;
+      CGFloat delta = TiLayoutClampHeight(childLayout, contentHeight) - contentHeight;
+      bounds.size.height += delta;
+      verticalLayoutBoundary += delta;
+    }
   } else if (TiLayoutRuleIsHorizontal(layoutProperties.layoutStyle)) {
     BOOL horizontalWrap = TiLayoutFlagsHasHorizontalWrap(&layoutProperties);
     BOOL followsFillBehavior = TiDimensionIsAutoFill([child defaultAutoWidthBehavior:nil]);
@@ -2745,6 +2760,24 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         bounds.size.width = desiredWidth;
         horizontalLayoutBoundary += bounds.size.width;
       }
+    }
+
+    // Apply the child's "minWidth"/"maxWidth" to its sandbox, mirroring the vertical case above.
+    LayoutConstraint *childLayout = [child layoutProperties];
+    if ((childLayout->minimumWidth > 0) || (childLayout->maximumWidth > 0)) {
+      CGFloat contentWidth = bounds.size.width - offsetH;
+      CGFloat delta = TiLayoutClampWidth(childLayout, contentWidth) - contentWidth;
+      bounds.size.width += delta;
+      // Only shift the boundary when this child advanced it. A wrapping child resets it to zero,
+      // in which case the next row starts at the origin regardless of this child's width.
+      if (horizontalLayoutBoundary > 0) {
+        horizontalLayoutBoundary += delta;
+      }
+    }
+    // Keep the row height in step so a clamped child does not distort the row it sits in.
+    if ((childLayout->minimumHeight > 0) || (childLayout->maximumHeight > 0)) {
+      CGFloat contentHeight = bounds.size.height - offsetV;
+      bounds.size.height = TiLayoutClampHeight(childLayout, contentHeight) + offsetV;
     }
   }
 
