@@ -24,6 +24,7 @@ import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -529,9 +530,22 @@ public class TiUIScrollableView extends TiUIView
 			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
 		}
 
-		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
-		if (recyclerView != null) {
-			recyclerView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+		mPager.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
+
+		if (d.containsKey("leftAdjust")) {
+			int finalPaddingLeftFirst = TiConvert.toInt(d.get("leftAdjust"), 0);
+			mPager.setPageTransformer(false, new ViewPager.PageTransformer()
+			{
+				@Override
+				public void transformPage(@NonNull View page, float position)
+				{
+					if (mPager.getCurrentItem() == 0) {
+						page.setTranslationX(finalPaddingLeftFirst);
+					} else {
+						page.setTranslationX(0);
+					}
+				}
+			});
 		}
 	}
 
