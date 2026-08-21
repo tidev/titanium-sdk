@@ -1,0 +1,66 @@
+---
+name: Titanium.UI.Android.RadioButtons
+summary: An radio button group component.
+description: |
+    | Android |
+    | ------- |
+    | ![Android](./radiobuttons_android.png) |
+
+    Allows you to create a native Android radio button group.
+platforms: [android]
+extends: Titanium.UI.View
+since: "12.7.0"
+excludes:
+    events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
+             singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
+    methods: [add, animate, convertPointToView, remove, removeAllChildren, toImage, insertAt, replaceAt]
+    properties: [accessibilityHidden, accessibilityHint, accessibilityLabel, accessibilityValue,
+                 anchorPoint, animatedCenter, backgroundDisabledColor, backgroundDisabledImage,
+                 backgroundFocusedColor, backgroundFocusedImage, backgroundGradient,
+                 backgroundImage, backgroundLeftCap, backgroundRepeat, backgroundSelectedColor,
+                 backgroundSelectedImage, backgroundTopCap, borderColor, borderRadius, borderWidth, center,
+                 children, clipMode, focusable, height, horizontalWrap, keepScreenOn, layout, opacity, overrideCurrentAnimation,
+                 pullBackgroundColor, rect, size, softKeyboardOnFocus, touchEnabled, touchFeedback, transform,
+                 viewShadowColor, viewShadowOffset, viewShadowRadius, width, zIndex]
+
+events:
+  - name: click
+    summary: Fired when a button is clicked.
+    properties:
+      - name: index
+        summary: Index of the clicked item.
+        type: Number
+
+properties:
+  - name: index
+    summary: Index of the currently selected item.
+    type: Number
+
+  - name: labels
+    summary: Array of labels for the radio buttons.
+    description: |
+        Each item in the array will be one radio button in the group.
+    type: [Array<String>]
+
+  - name: tintColor
+    summary: Defines the color of the radio circles.
+    type: [String, Titanium.UI.Color]
+
+  - name: color
+    summary: Defines the color of the labels
+    type: [String, Titanium.UI.Color]
+
+examples:
+  - title: Simple radio group with 3 radio buttons.
+    example: |
+        ``` js
+        const win = Ti.UI.createWindow({});
+        const radioButtons = Ti.UI.Android.createRadioButtons({
+        	labels: ["option 1", "option 2", "option 3"],
+        	top: 10,
+        	left: 10,
+        	selectedIndex: 1
+        })
+        win.add(radioButtons);
+        win.open();
+        ```
