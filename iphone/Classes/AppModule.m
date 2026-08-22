@@ -20,12 +20,8 @@
 
 extern NSString *const TI_APPLICATION_DEPLOY_TYPE;
 extern NSString *const TI_APPLICATION_ID;
-extern NSString *const TI_APPLICATION_PUBLISHER;
-extern NSString *const TI_APPLICATION_URL;
 extern NSString *const TI_APPLICATION_NAME;
 extern NSString *const TI_APPLICATION_VERSION;
-extern NSString *const TI_APPLICATION_DESCRIPTION;
-extern NSString *const TI_APPLICATION_COPYRIGHT;
 extern NSString *const TI_APPLICATION_GUID;
 
 @implementation AppModule
@@ -538,29 +534,38 @@ extern NSString *const TI_APPLICATION_GUID;
   return TI_APPLICATION_VERSION;
 }
 
+// TODO: remove in 14.2.0
 - (id)publisher
 {
-  return TI_APPLICATION_PUBLISHER;
+  NSLog(@"[WARN] Ti.App.publisher has been deprecated in 14.0.0 and always returns an empty string. The <publisher/> element in tiapp.xml is no longer used.");
+  return @"";
 }
 
+// TODO: remove in 14.2.0
 - (id)description
 {
-  return TI_APPLICATION_DESCRIPTION;
+  NSLog(@"[WARN] Ti.App.description has been deprecated in 14.0.0 and always returns an empty string. The <description/> element in tiapp.xml is no longer used.");
+  return @"";
 }
 
+// TODO: remove in 14.2.0
 - (id)copyright
 {
-  return TI_APPLICATION_COPYRIGHT;
+  NSLog(@"[WARN] Ti.App.copyright has been deprecated in 14.0.0 and always returns an empty string. The <copyright/> element in tiapp.xml is no longer used.");
+  return @"";
 }
 
+// TODO: remove in 14.2.0
 - (id)uRL
 {
-  return TI_APPLICATION_URL;
+  return [self url];
 }
 
+// TODO: remove in 14.2.0
 - (id)url
 {
-  return TI_APPLICATION_URL;
+  NSLog(@"[WARN] Ti.App.url has been deprecated in 14.0.0 and always returns an empty string. The <url/> element in tiapp.xml is no longer used.");
+  return @"";
 }
 
 - (id)gUID

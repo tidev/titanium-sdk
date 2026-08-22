@@ -497,9 +497,13 @@ properties:
     permission: read-only
 
   - name: copyright
-    summary: Application copyright statement, determined by `tiapp.xml`.
+    summary: Application copyright statement.
+    description: Always returns an empty string. The `<copyright/>` element in `tiapp.xml` is no longer used.
     type: String
     permission: read-only
+    deprecated:
+      since: "14.0.0"
+      notes: This property always returns an empty string.
 
   - name: currentService
     summary: A reference to the current background service running when the application is placed in the background.
@@ -519,9 +523,13 @@ properties:
     permission: read-only
 
   - name: description
-    summary: Application description, determined by `tiapp.xml`.
+    summary: Application description.
+    description: Always returns an empty string. The `<description/>` element in `tiapp.xml` is no longer used.
     type: String
     permission: read-only
+    deprecated:
+      since: "14.0.0"
+      notes: This property always returns an empty string.
 
   - name: guid
     summary: Application globally-unique ID, determined by `tiapp.xml`.
@@ -605,9 +613,13 @@ properties:
     since: {iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
   - name: publisher
-    summary: Application publisher, from `tiapp.xml`.
+    summary: Application publisher.
+    description: Always returns an empty string. The `<publisher/>` element in `tiapp.xml` is no longer used.
     type: String
     permission: read-only
+    deprecated:
+      since: "14.0.0"
+      notes: This property always returns an empty string.
 
   - name: sessionId
     summary: Unique session identifier for the current continuous run of the application.
@@ -615,9 +627,13 @@ properties:
     permission: read-only
 
   - name: url
-    summary: Application URL, from `tiapp.xml`.
+    summary: Application URL.
+    description: Always returns an empty string. The `<url/>` element in `tiapp.xml` is no longer used.
     type: String
     permission: read-only
+    deprecated:
+      since: "14.0.0"
+      notes: This property always returns an empty string.
 
   - name: version
     summary: Application version, from `tiapp.xml`.

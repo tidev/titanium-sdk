@@ -65,6 +65,10 @@ describe('Titanium.App', () => {
 			it('has no getter', () => {
 				should(Ti.App).not.have.a.getter('copyright');
 			});
+
+			it('is an empty string (deprecated)', () => {
+				should(Ti.App.copyright).eql('');
+			});
 		});
 
 		describe('.deployType', () => {
@@ -84,6 +88,10 @@ describe('Titanium.App', () => {
 
 			it('has no getter', () => {
 				should(Ti.App).not.have.a.getter('description');
+			});
+
+			it('is an empty string (deprecated)', () => {
+				should(Ti.App.description).eql('');
 			});
 		});
 
@@ -225,6 +233,10 @@ describe('Titanium.App', () => {
 			it('has no getter', () => {
 				should(Ti.App).not.have.a.getter('publisher');
 			});
+
+			it('is an empty string (deprecated)', () => {
+				should(Ti.App.publisher).eql('');
+			});
 		});
 
 		// describe('.sessionId', () => {
@@ -244,6 +256,10 @@ describe('Titanium.App', () => {
 
 			it('has no getter', () => {
 				should(Ti.App).not.have.a.getter('url');
+			});
+
+			it('is an empty string (deprecated)', () => {
+				should(Ti.App.url).eql('');
 			});
 		});
 

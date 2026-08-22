@@ -56,14 +56,12 @@ export class ProcessJsTask extends IncrementalFileTask {
 				// buildHash: ti.manifest.githash,
 				// buildDate: ti.manifest.timestamp,
 				App: {
-					copyright: this.builder.cli.tiapp.copyright,
+					// copyright/description/publisher/url are deprecated and intentionally not
+					// inlined, so access hits the runtime getter and its deprecation warning
 					deployType: this.builder.deployType,
-					description: this.builder.cli.tiapp.description,
 					guid: this.builder.cli.tiapp.guid,
 					id: this.builder.cli.tiapp.id,
 					name: this.builder.cli.tiapp.name,
-					publisher: this.builder.cli.tiapp.publisher,
-					url: this.builder.cli.tiapp.url,
 					version: this.builder.cli.tiapp.version,
 				},
 				Platform: {

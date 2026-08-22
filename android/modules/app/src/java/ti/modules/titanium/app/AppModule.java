@@ -84,34 +84,47 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return appInfo.getVersion();
 	}
 
+	// TODO: remove in 14.2.0
 	@Kroll.getProperty
 	public String getPublisher()
 	{
-		return appInfo.getPublisher();
+		Log.w(TAG, "Ti.App.publisher has been deprecated in 14.0.0 and always returns an empty string."
+			+ " The <publisher/> element in tiapp.xml is no longer used.");
+		return "";
 	}
 
+	// TODO: remove in 14.2.0
 	@Kroll.getProperty
 	public String getUrl()
 	{
-		return appInfo.getUrl();
+		Log.w(TAG, "Ti.App.url has been deprecated in 14.0.0 and always returns an empty string."
+			+ " The <url/> element in tiapp.xml is no longer used.");
+		return "";
 	}
 
+	// TODO: remove in 14.2.0
 	@Kroll.method
 	public String getURL()
 	{
 		return getUrl();
 	}
 
+	// TODO: remove in 14.2.0
 	@Kroll.getProperty
 	public String getDescription()
 	{
-		return appInfo.getDescription();
+		Log.w(TAG, "Ti.App.description has been deprecated in 14.0.0 and always returns an empty string."
+			+ " The <description/> element in tiapp.xml is no longer used.");
+		return "";
 	}
 
+	// TODO: remove in 14.2.0
 	@Kroll.getProperty
 	public String getCopyright()
 	{
-		return appInfo.getCopyright();
+		Log.w(TAG, "Ti.App.copyright has been deprecated in 14.0.0 and always returns an empty string."
+			+ " The <copyright/> element in tiapp.xml is no longer used.");
+		return "";
 	}
 
 	@Kroll.getProperty

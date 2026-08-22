@@ -33,19 +33,19 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 	}
 
 	public String getPublisher() {
-		return "<%- tiapp.publisher %>";
+		return "<%- tiapp.publisher || '' %>";
 	}
 
 	public String getUrl() {
-		return "<%- tiapp.url %>";
+		return "<%- tiapp.url || '' %>";
 	}
 
 	public String getCopyright() {
-		return "<%- tiapp.copyright %>";
+		return "<%- tiapp.copyright || '' %>";
 	}
 
 	public String getDescription() {
-		return "<%- tiapp.description.replace(/\"/g, '\\"') %>";
+		return "<%- (tiapp.description || '').replace(/\"/g, '\\"') %>";
 	}
 
 	public String getIcon() {
