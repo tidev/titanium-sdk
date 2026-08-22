@@ -1,8 +1,9 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+// Runs the "kroll-apt" annotation processor over Kotlin sources. (Built-in Kotlin has no kapt support.)
+apply plugin: 'com.android.legacy-kapt'
+
 <% for(var i=0; i<plugins.length; i++) {%>
 apply plugin: '<%= plugins[i] %>'
 <% } %>
@@ -98,6 +99,11 @@ android {
 				"${projectDir}/../../src",
 				"${buildDir}/ti-generated/java"
 			]
+			// Kotlin source code directories. (Built-in Kotlin does not compile *.kt files from "java.srcDirs".)
+			kotlin.srcDirs = [
+				'src/main/kotlin',
+				"${projectDir}/../../src"
+			]
 			// C/C++ source code directories.
 			jni.srcDirs = [
 				"${projectDir}/../../jni",
@@ -133,9 +139,6 @@ android {
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_17
 		targetCompatibility JavaVersion.VERSION_17
-	}
-	kotlinOptions {
-		jvmTarget = "17"
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
