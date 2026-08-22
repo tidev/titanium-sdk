@@ -8,6 +8,7 @@
 import path from 'node:path';
 import ti from 'node-titanium-sdk';
 import appc from 'node-appc';
+import { loadPlugins } from '../lib/load-plugins.js';
 
 export const cliVersion = '>=3.2.1';
 export const desc = 'get and set tiapp.xml settings';
@@ -53,7 +54,7 @@ export function config(logger, config) {
 	};
 }
 
-export function validate(logger, config, cli) {
+export async function validate(logger, config, cli) {
 	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
 	// Validate the key, if it exists
@@ -65,9 +66,7 @@ export function validate(logger, config, cli) {
 		}
 	}
 
-	return function (finished) {
-		ti.loadPlugins(null, config, cli, cli.argv['project-dir'], finished, cli.argv.output !== 'report' || cli.argv._.length, false);
-	};
+	await loadPlugins(null, config, cli, cli.argv.output !== 'report' || cli.argv._.length, false);
 }
 
 export function run(logger, config, cli, finished) {

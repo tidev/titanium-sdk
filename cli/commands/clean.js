@@ -14,6 +14,9 @@ import async from 'async';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import fields from 'fields';
 import { fileURLToPath } from 'node:url';
+import { validateModuleManifest } from '../lib/validate-module-manifest.js';
+import { validatePlatformOptions } from '../lib/validate-platform-options.js';
+import { loadPlugins } from '../lib/load-plugins.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -173,24 +176,12 @@ export function config(logger, config, cli) {
 	};
 }
 
-export function validate(logger, config, cli) {
+export async function validate(logger, config, cli) {
 	// Determine if the project is an app or a module, run appropriate clean command
 	if (cli.argv.type === 'module') {
-
-		// make sure the module manifest is sane
-		ti.validateModuleManifest(logger, cli, cli.manifest);
-
-		return function (finished) {
-			logger.log.init(function () {
-				const result = ti.validatePlatformOptions(logger, config, cli, 'cleanModule');
-				if (result && typeof result === 'function') {
-					result(finished);
-				} else {
-					finished(result);
-				}
-			});
-		};
-
+		validateModuleManifest(logger, cli, cli.manifest);
+		await logger.log.init();
+		await validatePlatformOptions(logger, config, cli, 'cleanModule');
 	} else {
 		let platforms = cli.argv.platforms || cli.argv.platform;
 		if (platforms) {
@@ -217,11 +208,7 @@ export function validate(logger, config, cli) {
 
 		ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
-		return function (finished) {
-			ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
-				finished();
-			});
-		};
+		await loadPlugins(logger, config, cli);
 	}
 }
 

@@ -13,6 +13,11 @@ import sprintf from 'sprintf';
 import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { validatePlatformOptions } from '../lib/validate-platform-options.js';
+import { validateModuleManifest } from '../lib/validate-module-manifest.js';
+import { sdkManifest } from '../lib/sdk-manifest.js';
+import { resolvePlatform } from '../lib/resolve-platform.js';
+import { loadPlugins } from '../lib/load-plugins.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -154,7 +159,7 @@ export function config(logger, config, cli) {
 									// if they didn't explicitly set --platform and we have a platform in the manifest,
 									// then just use that and skip the platform prompting
 									if (!cli.argv.platform && manifest.platform) {
-										cli.argv.platform = ti.resolvePlatform(manifest.platform);
+										cli.argv.platform = resolvePlatform(manifest.platform);
 										conf.options.platform.required = false;
 									}
 
@@ -246,56 +251,37 @@ export function config(logger, config, cli) {
 	};
 }
 
-export function validate(logger, config, cli) {
-	// Determine if the project is an app or a module, run appropriate build command
-	if (cli.argv.type === 'module') {
-
-		// make sure the module manifest is sane
-		ti.validateModuleManifest(logger, cli, cli.manifest);
-
-		return function (finished) {
-			logger.log.init(function () {
-				const result = ti.validatePlatformOptions(logger, config, cli, 'buildModule');
-				if (result && typeof result === 'function') {
-					result(finished);
-				} else {
-					finished(result);
-				}
-			});
-		};
-
-	} else {
-
-		ti.validatePlatform(logger, cli, 'platform');
-
-		// since we need validate() to be async, we return a function in which the cli
-		// will immediately call
-		return function (finished) {
-			logger.log.init(function () {
-				function next(result) {
-					if (result !== false) {
-						// no error, load the tiapp.xml plugins
-						ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
-							finished(result);
-						});
-					} else {
-						finished(result);
-					}
-				}
-
-				// loads the platform specific bulid command and runs its validate() function
-				const result = ti.validatePlatformOptions(logger, config, cli, 'build');
-				if (result && typeof result === 'function') {
-					result(next);
-				} else {
-					next(result);
-				}
-			});
-		};
+function validatePlatform(logger, cli, name) {
+	const platform = name ? cli.argv[name] : cli.argv;
+	const p = cli.argv[name] = resolvePlatform(platform);
+	if (!p || sdkManifest.platforms.indexOf(p) === -1) {
+		logger.banner();
+		logger.error(`Invalid platform "${platform}"\n`);
+		appc.string.suggest(platform, ti.targetPlatforms, logger.log);
+		logger.log(`Available platforms for SDK version ${cli.sdk && cli.sdk.name || sdkManifest.version}:`);
+		for (const p of ti.targetPlatforms) {
+			logger.log(`    ${p.cyan}`);
+		}
+		logger.log();
+		process.exit(1);
 	}
 }
 
-export async function run(logger, config, cli, finished) {
+export async function validate(logger, config, cli) {
+	// Determine if the project is an app or a module, run appropriate build command
+	if (cli.argv.type === 'module') {
+		validateModuleManifest(logger, cli, cli.manifest);
+		await logger.log.init();
+		await validatePlatformOptions(logger, config, cli, 'buildModule');
+	} else {
+		validatePlatform(logger, cli, 'platform');
+		await logger.log.init();
+		await validatePlatformOptions(logger, config, cli, 'build');
+		await loadPlugins(logger, config, cli);
+	}
+}
+
+export async function run(logger, config, cli) {
 	const buildFile = cli.argv.type === 'module' ? '_buildModule.js' : '_build.js';
 	const platform = ti.resolvePlatform(cli.argv.platform);
 	const buildModule = pathToFileURL(path.join(__dirname, '..', '..', platform, 'cli', 'commands', buildFile));
@@ -306,36 +292,31 @@ export async function run(logger, config, cli, finished) {
 		process.exit(1);
 	}
 
-	let counter = 0;
 	const { run } = await import(buildModule);
+	let delta;
 
-	run(logger, config, cli, function (err) { // eslint-disable-line security/detect-non-literal-require
-		if (!counter++) {
-			const delta = appc.time.prettyDiff(cli.startTime, Date.now());
-			if (err) {
-				logger.error(`An error occurred during build after ${delta}`);
-				if (err instanceof appc.exception) {
-					err.dump(logger.error);
-				} else if (err !== true) {
-					(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
-						logger.error(msg);
-					});
-				}
-				logger.log();
-				logger.log.end();
-				process.exit(1);
-			} else {
-				// eventually all platforms will just show how long the build took since they
-				// are responsible for showing the own logging
-				if (platform !== 'iphone' || cli.argv['build-only']) {
-					logger.info(`Project built successfully in ${delta.cyan}\n`);
-				}
-				logger.log.end();
-			}
-
-			finished();
+	try {
+		await run(logger, config, cli);
+		delta = appc.time.prettyDiff(cli.startTime, Date.now());
+		// eventually all platforms will just show how long the build took since they
+		// are responsible for showing the own logging
+		if (platform !== 'iphone' || cli.argv['build-only']) {
+			logger.info(`Project built successfully in ${delta.cyan}\n`);
 		}
-	});
+		logger.log.end();
+	} catch (err) {
+		logger.error(`An error occurred during build${delta ? ` after ${delta}` : ''}`);
+		if (err instanceof appc.exception) {
+			err.dump(logger.error);
+		} else if (err !== true) {
+			(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+				logger.error(msg);
+			});
+		}
+		logger.log();
+		logger.log.end();
+		process.exit(1);
+	}
 }
 
 /**
@@ -400,7 +381,7 @@ function patchLogger(logger, cli) {
 		logger.padLevels = padLevels;
 	};
 
-	logger.log.init = function (callback) {
+	logger.log.init = async () => {
 		var platform = ti.resolvePlatform(cli.argv.platform),
 			buildDir = path.join(cli.argv['project-dir'], 'build');
 
@@ -423,37 +404,35 @@ function patchLogger(logger, cli) {
 			return appc.string.rpad(s, 27);
 		}
 
-		cli.env.getOSInfo(function (osInfo) {
-			logger.log([
-				new Date().toLocaleString(),
-				'',
-				styleHeading('Operating System'),
-				'  ' + rpad('Name')            + ' = ' + styleValue(osInfo.os),
-				'  ' + rpad('Version')         + ' = ' + styleValue(osInfo.osver),
-				'  ' + rpad('Architecture')    + ' = ' + styleValue(osInfo.ostype),
-				'  ' + rpad('# CPUs')          + ' = ' + styleValue(osInfo.oscpu),
-				'  ' + rpad('Memory')          + ' = ' + styleValue((osInfo.memory / 1024 / 1024 / 1024).toFixed(1) + 'GB'),
-				'',
-				styleHeading('Node.js'),
-				'  ' + rpad('Node.js Version') + ' = ' + styleValue(osInfo.node),
-				'  ' + rpad('npm Version')     + ' = ' + styleValue(osInfo.npm),
-				'',
-				styleHeading('Titanium CLI'),
-				'  ' + rpad('CLI Version')     + ' = ' + styleValue(cli.version),
-				'',
-				styleHeading('Titanium SDK'),
-				'  ' + rpad('SDK Version')     + ' = ' + styleValue(cli.argv.sdk),
-				'  ' + rpad('SDK Path')        + ' = ' + styleValue(cli.sdk.path),
-				'  ' + rpad('Target Platform') + ' = ' + styleValue(ti.resolvePlatform(cli.argv.platform)),
-				'',
-				styleHeading('Command'),
-				'  ' + styleValue(process.argv.join(' ')),
-				''
-			].join('\n'));
+		const osInfo = await cli.env.getOSInfo();
+		logger.log([
+			new Date().toLocaleString(),
+			'',
+			styleHeading('Operating System'),
+			'  ' + rpad('Name')            + ' = ' + styleValue(osInfo.os),
+			'  ' + rpad('Version')         + ' = ' + styleValue(osInfo.osver),
+			'  ' + rpad('Architecture')    + ' = ' + styleValue(osInfo.ostype),
+			'  ' + rpad('# CPUs')          + ' = ' + styleValue(osInfo.oscpu),
+			'  ' + rpad('Memory')          + ' = ' + styleValue((osInfo.memory / 1024 / 1024 / 1024).toFixed(1) + 'GB'),
+			'',
+			styleHeading('Node.js'),
+			'  ' + rpad('Node.js Version') + ' = ' + styleValue(osInfo.node),
+			'  ' + rpad('npm Version')     + ' = ' + styleValue(osInfo.npm),
+			'',
+			styleHeading('Titanium CLI'),
+			'  ' + rpad('CLI Version')     + ' = ' + styleValue(cli.version),
+			'',
+			styleHeading('Titanium SDK'),
+			'  ' + rpad('SDK Version')     + ' = ' + styleValue(cli.argv.sdk),
+			'  ' + rpad('SDK Path')        + ' = ' + styleValue(cli.sdk.path),
+			'  ' + rpad('Target Platform') + ' = ' + styleValue(ti.resolvePlatform(cli.argv.platform)),
+			'',
+			styleHeading('Command'),
+			'  ' + styleValue(process.argv.join(' ')),
+			''
+		].join('\n'));
 
-			logger.log.flush();
-			callback();
-		});
+		logger.log.flush();
 	};
 
 	logger.log.flush = function () {
