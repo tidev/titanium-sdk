@@ -154,6 +154,30 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	@Kroll.constant
 	public static final String AUTOFILL_TYPE_CARD_EXPIRATION_YEAR = View.AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR;
 
+	// Text style constants (mirroring iOS UIFontTextStyle string values)
+	@Kroll.constant
+	public static final String TEXT_STYLE_HEADLINE = "UIFontTextStyleHeadline";
+	@Kroll.constant
+	public static final String TEXT_STYLE_SUBHEADLINE = "UIFontTextStyleSubheadline";
+	@Kroll.constant
+	public static final String TEXT_STYLE_BODY = "UIFontTextStyleBody";
+	@Kroll.constant
+	public static final String TEXT_STYLE_FOOTNOTE = "UIFontTextStyleFootnote";
+	@Kroll.constant
+	public static final String TEXT_STYLE_CAPTION1 = "UIFontTextStyleCaption1";
+	@Kroll.constant
+	public static final String TEXT_STYLE_CAPTION2 = "UIFontTextStyleCaption2";
+	@Kroll.constant
+	public static final String TEXT_STYLE_CALLOUT = "UIFontTextStyleCallout";
+	@Kroll.constant
+	public static final String TEXT_STYLE_TITLE1 = "UIFontTextStyleTitle1";
+	@Kroll.constant
+	public static final String TEXT_STYLE_TITLE2 = "UIFontTextStyleTitle2";
+	@Kroll.constant
+	public static final String TEXT_STYLE_TITLE3 = "UIFontTextStyleTitle3";
+	@Kroll.constant
+	public static final String TEXT_STYLE_LARGE_TITLE = "UIFontTextStyleLargeTitle";
+
 	@Kroll.constant
 	public static final int BLEND_MODE_NORMAL = 0;
 	@Kroll.constant
