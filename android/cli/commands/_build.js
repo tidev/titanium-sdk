@@ -2163,6 +2163,33 @@ class AndroidBuilder extends Builder {
 		await fs.writeFile(path.join(projectDirPath, 'build.gradle'), buildGradleContent);
 	}
 
+	async fetchMergeModuleMavenRepositoriesSetting() {
+		// Determines if Maven repository URLs defined by modules should be added to the app project.
+		// This is enabled by default. App developers can opt out via the below "tiapp.xml" setting:
+		//   <android><merge-module-maven-repositories>false</merge-module-maven-repositories></android>
+		// Note: Must be read from the XML directly since the tiapp parser only reads known <android/> tags.
+		try {
+			const fileContent = await fs.readFile(path.join(this.projectDir, 'tiapp.xml'), 'utf8');
+			const xmlDoc = new DOMParser().parseFromString(fileContent, 'text/xml');
+			let settingValue = null;
+			appc.xml.forEachElement(xmlDoc.documentElement, (node) => {
+				if (node.tagName === 'android') {
+					appc.xml.forEachElement(node, (childNode) => {
+						if (childNode.tagName === 'merge-module-maven-repositories') {
+							settingValue = appc.xml.getValue(childNode);
+						}
+					});
+				}
+			});
+			if (settingValue !== null) {
+				return String(settingValue).trim().toLowerCase() !== 'false';
+			}
+		} catch (err) {
+			this.logger.warn(`Failed to read "merge-module-maven-repositories" setting from "tiapp.xml" file. Reason:\n${err}`);
+		}
+		return true;
+	}
+
 	async processLibraries() {
 		this.logger.info('Processing libraries');
 
@@ -2179,6 +2206,9 @@ class AndroidBuilder extends Builder {
 		// Add a reference to the core Titanium library.
 		this.mavenRepositoryUrls.push(pathToFileURL(path.join(this.platformPath, 'm2repository')).href);
 		this.libDependencyStrings.push(`org.appcelerator:titanium:${this.titaniumSdkVersion}`);
+
+		// Check if the app developer opted out of adding module defined Maven repositories to the app project.
+		const isModuleRepoMergeEnabled = await this.fetchMergeModuleMavenRepositoriesSetting();
 
 		// Process all Titanium modules referenced by the Titanium project.
 		for (const nextModule of this.modules) {
@@ -2215,6 +2245,33 @@ class AndroidBuilder extends Builder {
 				// This supports dependency management to avoid library version conflicts.
 				this.mavenRepositoryUrls.push(pathToFileURL(repositoryDirPath).href);
 				this.libDependencyStrings.push(dependencyString);
+
+				// Add the module's custom Maven repository URLs (if any) to the app project so that the
+				// module's remote dependencies can be resolved without the app developer having to
+				// declare these repositories in the app's "platform/android/build.gradle" file manually.
+				const mavenReposFilePath = path.join(nextModule.modulePath, 'ti.maven.repos.json');
+				if (!isModuleRepoMergeEnabled) {
+					if (await fs.exists(mavenReposFilePath)) {
+						this.logger.info(
+							`Skipping Maven repositories from module "${nextModule.manifest.moduleid}". `
+							+ `Was disabled via "merge-module-maven-repositories" setting in "tiapp.xml" file.`);
+					}
+				} else if (await fs.exists(mavenReposFilePath)) {
+					try {
+						const repoUrls = JSON.parse(await fs.readFile(mavenReposFilePath, 'utf8'));
+						if (Array.isArray(repoUrls)) {
+							for (const repoUrl of repoUrls) {
+								if ((typeof repoUrl === 'string') && /^https?:\/\//.test(repoUrl)
+									&& !this.mavenRepositoryUrls.includes(repoUrl)) {
+									this.logger.info(`Adding Maven repository from module "${nextModule.manifest.moduleid}": ${repoUrl.cyan}`);
+									this.mavenRepositoryUrls.push(repoUrl);
+								}
+							}
+						}
+					} catch (err) {
+						this.logger.warn(`Failed to read Maven repository list from module "${nextModule.manifest.moduleid}". Reason:\n${err}`);
+					}
+				}
 			} else {
 				// Module directory only contains JARs/AARs. (This is our legacy module distribution.)
 				// We must create a Gradle library project and copy the module's files to it.
