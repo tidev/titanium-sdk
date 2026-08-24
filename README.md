@@ -34,6 +34,7 @@ see the [LICENSE](LICENSE) file for specific details.
   - [Getting Started](#getting-started)
 - [Alloy](#alloy)
   - [Example](#example-1)
+- [Swift Package Manager Support (iOS)](#swift-package-manager-support-ios)
 - [Getting Help](#getting-help)
   - [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
   - [Slack / Developer Community](#slack--developer-community)
@@ -188,6 +189,30 @@ Window: {
   backgroundColor: 'green'
 }
 ```
+
+## Swift Package Manager Support (iOS)
+
+Since Titanium SDK 13.1.0, native iOS modules can declare [Swift Package Manager](https://www.swift.org/documentation/package-manager/) dependencies
+via an `spm.json` file placed next to the module `manifest`. When building an app, the Titanium CLI automatically injects packages
+declared with `"linkage": "host"` into the generated Xcode project, while `"linkage": "embedded"` (the default) keeps the package
+inside the module binary. Example:
+
+```json
+{
+  "dependencies": [
+    {
+      "repositoryURL": "https://github.com/parse-community/Parse-SDK-iOS-OSX",
+      "requirementKind": "upToNextMajorVersion",
+      "requirementMinimumVersion": "5.1.1",
+      "products": [
+        { "productName": "ParseObjC", "linkage": "host" }
+      ]
+    }
+  ]
+}
+```
+
+See the [iOS Module Swift Package Manager Support guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/iOS_Module_Development_Guide/iOS_Module_Swift_Package_Manager.html) for all available options.
 
 ## Getting Help
 
