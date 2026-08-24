@@ -1195,22 +1195,6 @@ public abstract class TiViewProxy extends KrollProxy
 	public void setParent(TiViewProxy parent)
 	{
 		if (parent == null) {
-			if (this.parent != null) {
-				TiViewProxy currentParent = this.parent.get();
-				if (currentParent != null) {
-					currentParent.remove(this);
-					return;
-				}
-			}
-			this.parent = null;
-			return;
-		}
-		setParentInternal(parent);
-	}
-
-	public void setParentInternal(TiViewProxy parent)
-	{
-		if (parent == null) {
 			this.parent = null;
 			return;
 		}
