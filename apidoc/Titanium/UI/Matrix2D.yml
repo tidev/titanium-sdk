@@ -75,8 +75,8 @@ methods:
         or two are specified.
 
         *   `rotate(angle)`. The standard `rotate` method.
-        *   `rotate(fromAngle, toAngle)`. Android only. Used for specifying rotation
-            animations.
+        *   `rotate(fromAngle, toAngle)`. Used for specifying rotation animations.
+            Android and, as of Titanium SDK 14.0.0, iOS.
 
         In both cases, a positive value specifies clockwise rotation and a negative value
         specifies counter-clockwise rotation.
@@ -94,8 +94,8 @@ methods:
         Note that if you specify a rotation matrix as the `transform` property of an
         animation, the animation animates the view from its current rotation to the
         rotation represented by the matrix by its shortest path. So to rotate a view
-        in a complete circle, the easiest method is to chain together three animations,
-        rotating 120 degrees each time.
+        in a complete circle, use `rotate(fromAngle, toAngle)` instead, for example
+        `rotate(0, 360)`.
 
         For the purposes of animation, it should be noted that the rotation angle is
         normalized to the range -180 <= angle < 180. In other
@@ -103,28 +103,34 @@ methods:
         except when determining which direction an animation rotates. 179 degrees rotates
         rotate clockwise, but 180 degrees is normalized to -180, so rotates counter-clockwise.
 
-        #### rotate(angle, toAngle) -- Android Only
+        #### rotate(angle, toAngle)
 
-        This is an Android-specific method used for creating rotation animations.
+        This method is used for creating rotation animations. It is supported on Android and,
+        as of Titanium SDK 14.0.0, on iOS.
         Returns a `Matrix2D` object that represents a rotation from `angle` to `toAngle`.
 
         Angles are specified in degrees. Positive values represent clockwise rotation, and negative values
         represent counter-clockwise rotation. Values are not normalized, so for example an
         angle of 720 degrees represents two complete clockwise revolutions.
 
-        The resulting object cannot be expressed as an affine transform, but can be used with the
-        <Titanium.UI.Animation.transform> property to specify a rotation animation.
+        On Android, the resulting object cannot be expressed as an affine transform. On iOS, the
+        resulting matrix expresses the final (`toAngle`) transform and additionally carries the
+        starting angle. In both cases the object can be used with the
+        <Titanium.UI.Animation.transform> property to specify a rotation animation that follows
+        the full angular path, for example `rotate(0, 360)` for a complete clockwise revolution.
     returns:
         type: Titanium.UI.Matrix2D
     parameters:
       - name: angle
         summary: |
-            Angle to rotate to, in degrees. On Android, if `toAngle` is specified, this specifies
+            Angle to rotate to, in degrees. If `toAngle` is specified, this specifies
             the starting angle for a rotation animation.
         type: Number
 
       - name: toAngle
-        summary: Ending angle for a rotation animation, in degrees. Android only.
+        summary: |
+            Ending angle for a rotation animation, in degrees.
+            Supported on iOS since Titanium SDK 14.0.0.
         type: Number
         optional: true
 

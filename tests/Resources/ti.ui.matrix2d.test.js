@@ -64,6 +64,21 @@ describe('Titanium.UI.Matrix2D', function () {
 		should(matrix1.rotate(-0)).be.an.Object();
 	});
 
+	it('#rotate(fromAngle, toAngle)', function () {
+		var matrix1 = Ti.UI.createMatrix2D();
+		should(matrix1.rotate(0, 360)).be.an.Object();
+		should(matrix1.rotate(90, -90)).be.an.Object();
+		should(matrix1.rotate(-360, 720)).be.an.Object();
+		if (utilities.isIOS()) {
+			// The resulting matrix expresses the final ("toAngle") transform.
+			var rotated = matrix1.rotate(0, 90);
+			should(rotated.a).be.approximately(0, 0.0001);
+			should(rotated.b).be.approximately(1, 0.0001);
+			should(rotated.c).be.approximately(-1, 0.0001);
+			should(rotated.d).be.approximately(0, 0.0001);
+		}
+	});
+
 	it('#scale()', function () {
 		var matrix1 = Ti.UI.createMatrix2D();
 		should(matrix1.scale(50, 50)).be.an.Object();
