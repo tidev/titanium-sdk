@@ -140,6 +140,14 @@ android {
 		sourceCompatibility JavaVersion.VERSION_17
 		targetCompatibility JavaVersion.VERSION_17
 	}
+	// Keep Kotlin bytecode aligned with the Java 17 "compileOptions" above,
+	// independent of the JDK used to run the build. (Built-in Kotlin replacement
+	// for the old "kotlinOptions { jvmTarget }" DSL.)
+	kotlin {
+		compilerOptions {
+			jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+		}
+	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
 	packagingOptions {
