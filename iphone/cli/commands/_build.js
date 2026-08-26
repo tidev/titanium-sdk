@@ -3317,6 +3317,39 @@ class iOSBuilder extends Builder {
 		}
 	}
 
+	/**
+	 * Parses the template pbxproj, caching the parsed tree on disk keyed by a hash of the
+	 * source. Parsing is non-trivial (~50-200ms) and the source only changes when the SDK
+	 * itself does, so subsequent builds reuse the cached tree.
+	 *
+	 * @param {String} contents - The template pbxproj source.
+	 * @returns {Object} the parsed pbxproj tree
+	 */
+	loadOrParsePbxproj(contents) {
+		const cacheDir = path.join(this.buildDir, 'incremental', 'xcode-project');
+		const cacheFile = path.join(cacheDir, 'template-parsed.json');
+		const hashFile = path.join(cacheDir, 'template-src.sha1');
+		const srcHash = this.hash(contents);
+		let parsed;
+		if (fs.existsSync(hashFile) && fs.existsSync(cacheFile)
+			&& fs.readFileSync(hashFile, 'utf8') === srcHash) {
+			this.logger.trace(`Reusing cached parsed pbxproj from ${cacheFile.cyan}`);
+			parsed = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+		} else {
+			parsed = xcodeParser.parse(contents);
+			try {
+				fs.ensureDirSync(cacheDir);
+				fs.writeFileSync(cacheFile, JSON.stringify(parsed));
+				fs.writeFileSync(hashFile, srcHash);
+			} catch (e) {
+				this.logger.trace(`Unable to persist pbxproj cache: ${e.message}`);
+			}
+		}
+		// don't let removeFiles() delete the cache at the end of the build
+		this.unmarkBuildDirFiles(cacheDir);
+		return parsed;
+	}
+
 	// FIXME: Make async and not use callback!
 	createXcodeProject(next) {
 		this.logger.info('Creating Xcode project');
@@ -3328,30 +3361,7 @@ class iOSBuilder extends Builder {
 		const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
 		const contents = fs.readFileSync(srcFile).toString();
 
-		// Parsing the template pbxproj is non-trivial (~50-200ms) and the source only changes
-		// when the SDK itself does. Cache the parsed tree on disk keyed by a hash of the source.
-		const pbxprojCacheDir = path.join(this.buildDir, 'incremental', 'xcode-project');
-		const pbxprojCacheFile = path.join(pbxprojCacheDir, 'template-parsed.json');
-		const pbxprojHashFile = path.join(pbxprojCacheDir, 'template-src.sha1');
-		const srcHash = this.hash(contents);
-		let parsed;
-		if (fs.existsSync(pbxprojHashFile) && fs.existsSync(pbxprojCacheFile)
-			&& fs.readFileSync(pbxprojHashFile, 'utf8') === srcHash) {
-			this.logger.trace(`Reusing cached parsed pbxproj from ${pbxprojCacheFile.cyan}`);
-			parsed = JSON.parse(fs.readFileSync(pbxprojCacheFile, 'utf8'));
-		} else {
-			parsed = xcodeParser.parse(contents);
-			try {
-				fs.ensureDirSync(pbxprojCacheDir);
-				fs.writeFileSync(pbxprojCacheFile, JSON.stringify(parsed));
-				fs.writeFileSync(pbxprojHashFile, srcHash);
-			} catch (e) {
-				this.logger.trace(`Unable to persist pbxproj cache: ${e.message}`);
-			}
-		}
-		// don't let removeFiles() delete the cache at the end of the build
-		this.unmarkBuildDirFiles(pbxprojCacheDir);
-		xcodeProject.hash = parsed;
+		xcodeProject.hash = this.loadOrParsePbxproj(contents);
 		const xobjs = xcodeProject.hash.project.objects;
 
 		if (appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
@@ -4992,6 +5002,15 @@ class iOSBuilder extends Builder {
 		return contents;
 	}
 
+	/**
+	 * serializes a file's mtime the way it is stored in the build manifest
+	 * @param {fs.Stats} stat file stats
+	 * @returns {string} the serialized mtime
+	 */
+	serializeMtime(stat) {
+		return JSON.parse(JSON.stringify(stat.mtime));
+	}
+
 	copyTitaniumiOSFiles() {
 		this.logger.info('Copying Titanium iOS files');
 
@@ -5027,25 +5046,20 @@ class iOSBuilder extends Builder {
 					}
 
 					const rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
-						srcMtime = JSON.parse(JSON.stringify(srcStat.mtime)),
+						srcMtime = this.serializeMtime(srcStat),
 						prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
 						destExists = fs.existsSync(destFile);
 
 					this.unmarkBuildDirFile(destFile);
 
-					// Fast path: if stat (size+mtime) matches the previous build and dest still exists,
+					// dest is only reusable if it still exists, the app name didn't change, we have a
+					// previous fingerprint, and no Frameworks bulk copy has replaced it this build
+					const canReuseDest = destExists && !nameChanged && prev && !(dir === 'Frameworks' && !copyFrameworks);
+
+					// Fast path: if stat (size+mtime) matches the previous build and dest is reusable,
 					// the source can't have changed, so reuse the cached fingerprint and skip read/hash/write.
-					// Skipped for appFiles (rendered through ejs each build) and once a Frameworks bulk
-					// copy has already run this build (the dest may have been replaced with fresh content).
-					if (
-						!appFiles[filename]
-						&& destExists
-						&& !nameChanged
-						&& prev
-						&& prev.size === srcStat.size
-						&& prev.mtime === srcMtime
-						&& !(dir === 'Frameworks' && !copyFrameworks)
-					) {
+					// Skipped for appFiles (rendered through ejs each build).
+					if (!appFiles[filename] && canReuseDest && prev.size === srcStat.size && prev.mtime === srcMtime) {
 						this.currentBuildManifest.files[rel] = prev;
 						return null;
 					}
@@ -5075,7 +5089,7 @@ class iOSBuilder extends Builder {
 					}
 
 					if (extRegExp.test(srcFile)) {
-						if (destExists && !nameChanged && prev && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
+						if (canReuseDest && prev.hash === srcHash) {
 							// the original hasn't changed, so let's assume that there's nothing to do
 							return null;
 						}
@@ -6221,8 +6235,8 @@ class iOSBuilder extends Builder {
 			iconCandidates.push({ filename, info });
 		}
 		const iconReads = await Promise.all(iconCandidates.map(async ({ filename, info }) => {
-			const contents = await fs.readFile(info.src);
-			return { filename, info, contents, pngInfo: appc.image.pngInfo(contents) };
+			const { contents, pngInfo } = await this.readPngInfo(info.src);
+			return { filename, info, contents, pngInfo };
 		}));
 		iconReads.forEach(({ filename, info, contents, pngInfo }) => {
 			// check that the app icon is square
@@ -6503,7 +6517,7 @@ class iOSBuilder extends Builder {
 						return {
 							stat,
 							launchLogoContents,
-							mtime: JSON.parse(JSON.stringify(stat.mtime)),
+							mtime: this.serializeMtime(stat),
 							hash: this.hash(launchLogoContents)
 						};
 					})()
@@ -6650,6 +6664,16 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
+	 * reads a PNG file and parses its metadata
+	 * @param {string} file filepath to the PNG file
+	 * @returns {Promise<object>} the file contents and parsed png info
+	 */
+	async readPngInfo(file) {
+		const contents = await fs.readFile(file);
+		return { contents, pngInfo: appc.image.pngInfo(contents) };
+	}
+
+	/**
 	 * write the app icon set, and gather up missing icons we should try to generate
 	 * @param {object} lookup icons we don't have
 	 * @param {string} appIconSetDir filepath to dir we're writing our app icon set
@@ -6676,13 +6700,12 @@ class iOSBuilder extends Builder {
 				dest: path.join(appIconSetDir, filename)
 			};
 		});
-		const existingInfo = await Promise.all(candidates.map(async ({ dest }) => {
+		const reusableIconInfo = await Promise.all(candidates.map(async ({ dest }) => {
 			if (defaultIconChanged || !(await fs.pathExists(dest))) {
 				return null;
 			}
 			try {
-				const contents = await fs.readFile(dest);
-				return appc.image.pngInfo(contents);
+				return (await this.readPngInfo(dest)).pngInfo;
 			} catch {
 				return null;
 			}
@@ -6705,7 +6728,7 @@ class iOSBuilder extends Builder {
 			// check if the icon was previously resized
 			const width = meta.width * meta.scale;
 			const height = meta.height * meta.scale;
-			const pngInfo = existingInfo[idx];
+			const pngInfo = reusableIconInfo[idx];
 			if (pngInfo && pngInfo.width === width && pngInfo.height === height) {
 				this.logger.trace(`Found generated ${width}x${height} app icon: ${dest.cyan}`);
 				// icon looks good, no need to generate it!
