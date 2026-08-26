@@ -3349,6 +3349,8 @@ class iOSBuilder extends Builder {
 				this.logger.trace(`Unable to persist pbxproj cache: ${e.message}`);
 			}
 		}
+		// don't let removeFiles() delete the cache at the end of the build
+		this.unmarkBuildDirFiles(pbxprojCacheDir);
 		xcodeProject.hash = parsed;
 		const xobjs = xcodeProject.hash.project.objects;
 
