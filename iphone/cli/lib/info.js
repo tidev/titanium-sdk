@@ -277,7 +277,7 @@ export function render(logger, config, rpad, styleHeading, styleValue, styleBad)
 		logger.log(devices.map(function (device) {
 			return '  ' + device.name.cyan + '\n' + [
 				'  ' + rpad('  UDID')             + ' = ' + styleValue(device.udid),
-				'  ' + rpad('  Type')             + ' = ' + styleValue(device.deviceClass + ' (' + device.deviceColor + ')'),
+				'  ' + rpad('  Type')             + ' = ' + styleValue(device.deviceClass + (device.marketingName ? ' (' + device.marketingName + ')' : '')),
 				'  ' + rpad('  iOS Version')      + ' = ' + styleValue(device.productVersion),
 				'  ' + rpad('  CPU Architecture') + ' = ' + styleValue(device.cpuArchitecture)
 			].join('\n');

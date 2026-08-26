@@ -1098,6 +1098,20 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.scrollable).be.be.true();
 	});
 
+	it('snapping', () => {
+		const tableView = Ti.UI.createTableView({ snapping: true });
+
+		should(tableView.snapping).be.true();
+		tableView.snapping = !tableView.snapping;
+		should(tableView.snapping).be.false();
+	});
+
+	it('snapping (default)', () => {
+		const tableView = Ti.UI.createTableView();
+
+		should(tableView.snapping).be.false();
+	});
+
 	it('separatorStyle', () => {
 		const section = Ti.UI.createTableViewSection();
 
