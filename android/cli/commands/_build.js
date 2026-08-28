@@ -2256,7 +2256,7 @@ class AndroidBuilder extends Builder {
 							`Skipping Maven repositories from module "${nextModule.manifest.moduleid}". `
 							+ `Was disabled via "merge-module-maven-repositories" setting in "tiapp.xml" file.`);
 					}
-				} else if (await fs.exists(mavenReposFilePath)) {
+				} else if (fs.existsSync(mavenReposFilePath)) {
 					try {
 						const repoUrls = JSON.parse(await fs.readFile(mavenReposFilePath, 'utf8'));
 						if (Array.isArray(repoUrls)) {
