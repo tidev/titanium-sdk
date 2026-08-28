@@ -6,6 +6,8 @@ name: Regen Docs
 # merged pull request, so a direct push to main is not missed.
 on:
   workflow_dispatch:
+  pull_request:
+    paths: ['apidoc/**']
   push:
     branches: [main]
     paths: ['apidoc/**']
@@ -31,8 +33,11 @@ jobs:
 
   # The dispatch itself lives in titanium-www so the payload shape is defined
   # once for all 17 source repos instead of copied into each.
+  #
+  # Skipped on pull_request: a proposed change gets linted, not published.
   notify:
     needs: lint
+    if: github.event_name != 'pull_request'
     uses: tidev/titanium-www/.github/workflows/notify-api-docs.yml@main
     secrets:
       dispatch-token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
