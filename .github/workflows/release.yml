@@ -183,3 +183,9 @@ jobs:
         event-type: regen-builds
         repository: tidev/downloads-www
         token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+    - name: Regen Builds (titanium-www)
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        event-type: regen-builds
+        repository: tidev/titanium-www
+        token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
