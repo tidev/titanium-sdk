@@ -2251,7 +2251,7 @@ class AndroidBuilder extends Builder {
 				// declare these repositories in the app's "platform/android/build.gradle" file manually.
 				const mavenReposFilePath = path.join(nextModule.modulePath, 'ti.maven.repos.json');
 				if (!isModuleRepoMergeEnabled) {
-					if (await fs.exists(mavenReposFilePath)) {
+					if (fs.existsSync(mavenReposFilePath)) {
 						this.logger.info(
 							`Skipping Maven repositories from module "${nextModule.manifest.moduleid}". `
 							+ `Was disabled via "merge-module-maven-repositories" setting in "tiapp.xml" file.`);
