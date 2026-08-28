@@ -722,7 +722,7 @@ export class AndroidModuleBuilder extends Builder {
 		// The app build system uses this to add the module's repositories (such as jitpack) to the
 		// app project so its remote dependencies can be resolved without manual app-side changes.
 		const mavenReposFilePath = path.join(this.buildModuleDir, 'build', 'outputs', 'ti.maven.repos.json');
-		if (await fs.exists(mavenReposFilePath)) {
+		if (fs.existsSync(mavenReposFilePath)) {
 			dest.append(fs.createReadStream(mavenReposFilePath), { name: path.join(moduleFolder, 'ti.maven.repos.json') });
 		}
 
