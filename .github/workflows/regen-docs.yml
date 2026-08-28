@@ -34,9 +34,14 @@ jobs:
   # The dispatch itself lives in titanium-www so the payload shape is defined
   # once for all 17 source repos instead of copied into each.
   #
+  # Deliberately independent of the lint job. Gating the dispatch on it means an
+  # unrelated tooling problem stops the docs updating and nothing says so --
+  # ti.coremotion cannot run `npm ci` at all today because its lockfile is out of
+  # sync with its package.json. Genuinely malformed apidoc still cannot ship: the
+  # compile in titanium-www fails on it and commits nothing.
+  #
   # Skipped on pull_request: a proposed change gets linted, not published.
   notify:
-    needs: lint
     if: github.event_name != 'pull_request'
     uses: tidev/titanium-www/.github/workflows/notify-api-docs.yml@main
     secrets:
