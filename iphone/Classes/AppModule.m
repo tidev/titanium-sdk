@@ -534,34 +534,34 @@ extern NSString *const TI_APPLICATION_GUID;
   return TI_APPLICATION_VERSION;
 }
 
-// TODO: remove in 14.2.0
+// TODO: remove in 15.0.0
 - (id)publisher
 {
   NSLog(@"[WARN] Ti.App.publisher has been deprecated in 14.0.0 and always returns an empty string. The <publisher/> element in tiapp.xml is no longer used.");
   return @"";
 }
 
-// TODO: remove in 14.2.0
+// TODO: remove in 15.0.0
 - (id)description
 {
   NSLog(@"[WARN] Ti.App.description has been deprecated in 14.0.0 and always returns an empty string. The <description/> element in tiapp.xml is no longer used.");
   return @"";
 }
 
-// TODO: remove in 14.2.0
+// TODO: remove in 15.0.0
 - (id)copyright
 {
   NSLog(@"[WARN] Ti.App.copyright has been deprecated in 14.0.0 and always returns an empty string. The <copyright/> element in tiapp.xml is no longer used.");
   return @"";
 }
 
-// TODO: remove in 14.2.0
+// TODO: remove in 15.0.0
 - (id)uRL
 {
   return [self url];
 }
 
-// TODO: remove in 14.2.0
+// TODO: remove in 15.0.0
 - (id)url
 {
   NSLog(@"[WARN] Ti.App.url has been deprecated in 14.0.0 and always returns an empty string. The <url/> element in tiapp.xml is no longer used.");

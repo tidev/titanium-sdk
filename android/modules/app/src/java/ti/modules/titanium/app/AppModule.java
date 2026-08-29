@@ -84,7 +84,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return appInfo.getVersion();
 	}
 
-	// TODO: remove in 14.2.0
+	// TODO: remove in 15.0.0
 	@Kroll.getProperty
 	public String getPublisher()
 	{
@@ -93,7 +93,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return "";
 	}
 
-	// TODO: remove in 14.2.0
+	// TODO: remove in 15.0.0
 	@Kroll.getProperty
 	public String getUrl()
 	{
@@ -102,14 +102,14 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return "";
 	}
 
-	// TODO: remove in 14.2.0
+	// TODO: remove in 15.0.0
 	@Kroll.method
 	public String getURL()
 	{
 		return getUrl();
 	}
 
-	// TODO: remove in 14.2.0
+	// TODO: remove in 15.0.0
 	@Kroll.getProperty
 	public String getDescription()
 	{
@@ -118,7 +118,7 @@ public class AppModule extends KrollModule implements SensorEventListener
 		return "";
 	}
 
-	// TODO: remove in 14.2.0
+	// TODO: remove in 15.0.0
 	@Kroll.getProperty
 	public String getCopyright()
 	{
