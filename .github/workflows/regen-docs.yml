@@ -15,21 +15,26 @@ on:
     types: [published]
 
 jobs:
-  lint:
+  regen:
     # Keeps forks from dispatching at the tidev sites.
     if: github.repository_owner == 'tidev'
     runs-on: ubuntu-latest
     name: Lint
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - name: Setup node
+        uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: '26'
           cache: npm
 
-      - run: npm ci
-      - run: npm run lint:docs
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint:docs
 
   # titaniumsdk.com. The dispatch lives in titanium-www so the payload shape is
   # defined once for all 17 source repos instead of copied into each.
@@ -58,7 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify titanium-docs (legacy)
     steps:
-      - uses: peter-evans/repository-dispatch@v3
+      - name: Repository dispatch
+        uses: peter-evans/repository-dispatch@v3
         with:
           event-type: regen-api-docs
           repository: tidev/titanium-docs
