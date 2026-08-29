@@ -27,7 +27,7 @@ import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import util from 'node:util';
 import semver from 'semver';
 import { spawn } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const version = appc.version;
 
@@ -607,7 +607,7 @@ export class AndroidModuleBuilder extends Builder {
 			moduleMinSdkVersion: this.manifest.minsdk,
 			moduleArchitectures: this.manifest.architectures.split(' '),
 			tiBindingsJsonPath: path.join(this.platformPath, 'titanium.bindings.json'),
-			tiMavenUrl: encodeURI('file://' + path.join(this.platformPath, 'm2repository').replace(/\\/g, '/')),
+			tiMavenUrl: pathToFileURL(path.join(this.platformPath, 'm2repository')).href,
 			tiSdkModuleTemplateDir: this.moduleTemplateDir,
 			tiSdkVersion: this.titaniumSdkVersion
 		});
