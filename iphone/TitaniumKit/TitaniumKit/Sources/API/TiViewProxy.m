@@ -951,31 +951,36 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   CGFloat offset2 = TiDimensionCalculateValue(layoutProperties.top, size.height)
       + TiDimensionCalculateValue(layoutProperties.bottom, size.height);
 
-  CGFloat result = offset;
+  CGFloat width = 0.0;
 
   if (TiDimensionIsDip(layoutProperties.width) || TiDimensionIsPercent(layoutProperties.width)) {
-    result += TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
+    width = TiDimensionCalculateValue(layoutProperties.width, suggestedWidth);
   } else if (TiDimensionIsAutoFill(layoutProperties.width) || (TiDimensionIsAuto(layoutProperties.width) && followsFillBehavior)) {
     recheckForFill = YES;
-    result += [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+    width = [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
   } else if (TiDimensionIsUndefined(layoutProperties.width)) {
     if (!TiDimensionIsUndefined(layoutProperties.left) && !TiDimensionIsUndefined(layoutProperties.centerX)) {
-      result += 2 * (TiDimensionCalculateValue(layoutProperties.centerX, suggestedWidth) - TiDimensionCalculateValue(layoutProperties.left, suggestedWidth));
+      width = 2 * (TiDimensionCalculateValue(layoutProperties.centerX, suggestedWidth) - TiDimensionCalculateValue(layoutProperties.left, suggestedWidth));
     } else if (!TiDimensionIsUndefined(layoutProperties.left) && !TiDimensionIsUndefined(layoutProperties.right)) {
-      result += TiDimensionCalculateMargins(layoutProperties.left, layoutProperties.right, suggestedWidth);
+      width = TiDimensionCalculateMargins(layoutProperties.left, layoutProperties.right, suggestedWidth);
     } else if (!TiDimensionIsUndefined(layoutProperties.centerX) && !TiDimensionIsUndefined(layoutProperties.right)) {
-      result += 2 * (size.width - TiDimensionCalculateValue(layoutProperties.right, suggestedWidth) - TiDimensionCalculateValue(layoutProperties.centerX, suggestedWidth));
+      width = 2 * (size.width - TiDimensionCalculateValue(layoutProperties.right, suggestedWidth) - TiDimensionCalculateValue(layoutProperties.centerX, suggestedWidth));
     } else {
       recheckForFill = followsFillBehavior;
-      result += [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+      width = [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
     }
   } else {
-    result += [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
+    width = [self autoWidthForSize:CGSizeMake(size.width - offset, size.height - offset2)];
   }
-  if (recheckForFill && (result < suggestedWidth)) {
-    result = suggestedWidth;
+  if (recheckForFill && (width + offset < suggestedWidth)) {
+    width = suggestedWidth - offset;
   }
-  return result;
+  // Report the "minWidth"/"maxWidth"-clamped width so that parents size themselves, and derive
+  // heights, from the width this view will actually be laid out with.
+  if ((layoutProperties.minimumWidth > 0) || (layoutProperties.maximumWidth > 0)) {
+    width = TiLayoutClampWidth(&layoutProperties, width);
+  }
+  return offset + width;
 }
 #endif
 
@@ -995,31 +1000,35 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   CGFloat offset2 = TiDimensionCalculateValue(layoutProperties.top, suggestedHeight)
       + TiDimensionCalculateValue(layoutProperties.bottom, suggestedHeight);
 
-  CGFloat result = offset2;
+  CGFloat height = 0.0;
 
   if (TiDimensionIsDip(layoutProperties.height) || TiDimensionIsPercent(layoutProperties.height)) {
-    result += TiDimensionCalculateValue(layoutProperties.height, suggestedHeight);
+    height = TiDimensionCalculateValue(layoutProperties.height, suggestedHeight);
   } else if (TiDimensionIsAutoFill(layoutProperties.height) || (TiDimensionIsAuto(layoutProperties.height) && followsFillBehavior)) {
     recheckForFill = YES;
-    result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
+    height = [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
   } else if (TiDimensionIsUndefined(layoutProperties.height)) {
     if (!TiDimensionIsUndefined(layoutProperties.top) && !TiDimensionIsUndefined(layoutProperties.centerY)) {
-      result += 2 * (TiDimensionCalculateValue(layoutProperties.centerY, suggestedHeight) - TiDimensionCalculateValue(layoutProperties.top, suggestedHeight));
+      height = 2 * (TiDimensionCalculateValue(layoutProperties.centerY, suggestedHeight) - TiDimensionCalculateValue(layoutProperties.top, suggestedHeight));
     } else if (!TiDimensionIsUndefined(layoutProperties.top) && !TiDimensionIsUndefined(layoutProperties.bottom)) {
-      result += TiDimensionCalculateMargins(layoutProperties.top, layoutProperties.bottom, suggestedHeight);
+      height = TiDimensionCalculateMargins(layoutProperties.top, layoutProperties.bottom, suggestedHeight);
     } else if (!TiDimensionIsUndefined(layoutProperties.centerY) && !TiDimensionIsUndefined(layoutProperties.bottom)) {
-      result += 2 * (suggestedHeight - TiDimensionCalculateValue(layoutProperties.bottom, suggestedHeight) - TiDimensionCalculateValue(layoutProperties.centerY, suggestedHeight));
+      height = 2 * (suggestedHeight - TiDimensionCalculateValue(layoutProperties.bottom, suggestedHeight) - TiDimensionCalculateValue(layoutProperties.centerY, suggestedHeight));
     } else {
       recheckForFill = followsFillBehavior;
-      result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
+      height = [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
     }
   } else {
-    result += [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
+    height = [self autoHeightForSize:CGSizeMake(desiredWidth - offset, size.height - offset2)];
   }
-  if (recheckForFill && (result < suggestedHeight)) {
-    result = suggestedHeight;
+  if (recheckForFill && (height + offset2 < suggestedHeight)) {
+    height = suggestedHeight - offset2;
   }
-  return result;
+  // Report the "minHeight"/"maxHeight"-clamped height, mirroring minimumParentWidthForSize:.
+  if ((layoutProperties.minimumHeight > 0) || (layoutProperties.maximumHeight > 0)) {
+    height = TiLayoutClampHeight(&layoutProperties, height);
+  }
+  return offset2 + height;
 }
 #endif
 
@@ -2570,6 +2579,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     // Apply the child's "minHeight"/"maxHeight" to its sandbox so following siblings stack against the
     // clamped size. SizeConstraintViewWithSizeAddingResizing() clamps the child's frame, but without this
     // the layout boundary still advances by the unclamped height, overlapping or gapping the next sibling.
+    // (The width is already clamped via minimumParentWidthForSize:, so autoHeightForSize: above measured
+    // against the width the child will actually get.)
     LayoutConstraint *childLayout = [child layoutProperties];
     if ((childLayout->minimumHeight > 0) || (childLayout->maximumHeight > 0)) {
       CGFloat contentHeight = bounds.size.height - offsetV;
@@ -2623,6 +2634,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       } else if (TiDimensionIsAutoFill(constraint)) {
         followsFillBehavior = YES;
       }
+    }
+    // Clamp to the child's "minWidth"/"maxWidth" before deciding whether it fits on the current row.
+    LayoutConstraint *childLayout = [child layoutProperties];
+    BOOL childHasWidthConstraint = (childLayout->minimumWidth > 0) || (childLayout->maximumWidth > 0);
+    if (childHasWidthConstraint) {
+      desiredWidth = TiLayoutClampWidth(childLayout, desiredWidth - offsetH) + offsetH;
     }
     CGFloat desiredHeight;
     BOOL childIsFixedHeight = TiDimensionIsPercent([child layoutProperties]->height) || TiDimensionIsDip([child layoutProperties]->height);
@@ -2762,9 +2779,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
 
-    // Apply the child's "minWidth"/"maxWidth" to its sandbox, mirroring the vertical case above.
-    LayoutConstraint *childLayout = [child layoutProperties];
-    if ((childLayout->minimumWidth > 0) || (childLayout->maximumWidth > 0)) {
+    // Apply the child's "minWidth"/"maxWidth" to its sandbox, mirroring the vertical case above. This also
+    // covers the FILL branches, which assign the bounding width regardless of the clamped desiredWidth.
+    if (childHasWidthConstraint) {
       CGFloat contentWidth = bounds.size.width - offsetH;
       CGFloat delta = TiLayoutClampWidth(childLayout, contentWidth) - contentWidth;
       bounds.size.width += delta;

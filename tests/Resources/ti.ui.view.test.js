@@ -1446,7 +1446,19 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	describe.android('min/max size constraints', () => {
+	describe('min/max size constraints', () => {
+		function afterLayout(assertions, finish) {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					assertions();
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+		}
+
 		it('maxWidth caps a FILL width', finish => {
 			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 			const view = Ti.UI.createView({
@@ -1456,15 +1468,7 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'blue'
 			});
 
-			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
-				win.removeEventListener('postlayout', postlayout); // only run once
-				try {
-					should(view.rect.width).be.approximately(100, 1);
-				} catch (err) {
-					return finish(err);
-				}
-				finish();
-			});
+			afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
 			win.add(view);
 			win.open();
 		});
@@ -1478,15 +1482,7 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'blue'
 			});
 
-			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
-				win.removeEventListener('postlayout', postlayout); // only run once
-				try {
-					should(view.rect.height).be.approximately(100, 1);
-				} catch (err) {
-					return finish(err);
-				}
-				finish();
-			});
+			afterLayout(() => should(view.rect.height).be.approximately(100, 1), finish);
 			win.add(view);
 			win.open();
 		});
@@ -1501,21 +1497,30 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'blue'
 			});
 
-			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
-				win.removeEventListener('postlayout', postlayout); // only run once
-				try {
-					should(view.rect.width).be.approximately(120, 1);
-					should(view.rect.height).be.approximately(80, 1);
-				} catch (err) {
-					return finish(err);
-				}
-				finish();
-			});
+			afterLayout(() => {
+				should(view.rect.width).be.approximately(120, 1);
+				should(view.rect.height).be.approximately(80, 1);
+			}, finish);
 			win.add(view);
 			win.open();
 		});
 
-		it('accepts a string dimension', finish => {
+		it('minWidth wins over a smaller maxWidth', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				minWidth: 150,
+				maxWidth: 100,
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => should(view.rect.width).be.approximately(150, 1), finish);
+			win.add(view);
+			win.open();
+		});
+
+		it.android('accepts a string dimension', finish => {
 			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 			const view = Ti.UI.createView({
 				width: Ti.UI.FILL,
@@ -1524,30 +1529,97 @@ describe('Titanium.UI.View', function () {
 				backgroundColor: 'blue'
 			});
 
-			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
-				win.removeEventListener('postlayout', postlayout); // only run once
-				try {
-					should(view.rect.width).be.approximately(100, 1);
-				} catch (err) {
-					return finish(err);
-				}
-				finish();
+			afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
+			win.add(view);
+			win.open();
+		});
+
+		it.android('accepts a percentage relative to the parent', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const parent = Ti.UI.createView({ width: 200, height: 200 });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: '50%',
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
+			parent.add(view);
+			win.add(parent);
+			win.open();
+		});
+
+		it('is honored by a bordered view', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: Ti.UI.SIZE,
+				maxWidth: 100,
+				minHeight: 80,
+				borderRadius: 8,
+				borderWidth: 2,
+				borderColor: 'red',
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => {
+				should(view.rect.width).be.approximately(100, 1);
+				should(view.rect.height).be.approximately(80, 1);
+			}, finish);
+			win.add(view);
+			win.open();
+		});
+
+		it.android('is honored when a border is added later', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: 100,
+				backgroundColor: 'blue'
+			});
+
+			win.addEventListener('open', () => {
+				afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
+				view.borderRadius = 8;
 			});
 			win.add(view);
 			win.open();
 		});
 
-		// The constraints are unsupported on self-measuring views, but must never crash. Guards
-		// against the ClassCastException from casting nativeView to TiCompositeLayout.
+		it('reflows wrapping content to the capped width', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const single = Ti.UI.createLabel({ text: 'ok', width: Ti.UI.SIZE, height: Ti.UI.SIZE, top: 0 });
+			const bubble = Ti.UI.createView({
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE,
+				maxWidth: 120,
+				top: 50,
+				backgroundColor: 'blue'
+			});
+			const label = Ti.UI.createLabel({
+				text: 'This text is long enough that it must wrap onto several lines within the capped width.',
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE
+			});
+			bubble.add(label);
+
+			afterLayout(() => {
+				should(bubble.rect.width).be.approximately(120, 1);
+				// The bubble must grow to hold the wrapped label instead of keeping a single-line height.
+				should(bubble.rect.height).be.above(single.rect.height * 2);
+				should(label.rect.height).be.approximately(bubble.rect.height, 1);
+			}, finish);
+			win.add(single);
+			win.add(bubble);
+			win.open();
+		});
+
+		// The constraints are unsupported on self-measuring views without a border, but must never crash.
 		it('is ignored without crashing on a Label', () => {
 			const label = Ti.UI.createLabel({ text: 'hello', maxWidth: 50, minHeight: 10 });
 			should(label.maxWidth).eql(50);
-		});
-
-		// Bordered views are wrapped in a TiBorderWrapperView, which does not honor the constraints.
-		it('is ignored without crashing on a bordered view', () => {
-			const view = Ti.UI.createView({ borderWidth: 2, borderColor: 'red', maxWidth: 50 });
-			should(view.maxWidth).eql(50);
 		});
 	});
 });
