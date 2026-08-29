@@ -476,9 +476,20 @@
 
       // The "rotation" property is shorthand for a transform that only rotates.
       // An explicit "transform" wins, since the matrix rotates the view itself.
+      // (A reverse animation carries both: the view's previous matrix and the previous rotation value.)
+      BOOL appliesRotation = (rotation != nil) && (transform == nil || [self isReverse]);
       if (rotation != nil && transform == nil) {
         Ti2DMatrix *identity = [[[Ti2DMatrix alloc] init] autorelease];
         [self setTransform:[identity rotate:[NSArray arrayWithObject:rotation]]];
+      }
+      if (appliesRotation) {
+        // Keep the proxy's "rotation" property in sync with the animated value, as Android does
+        // when its animation completes. The reverse animation restores the previous value.
+        TiProxy *proxy = [(TiUIView *)view_ proxy];
+        if (reverseAnimation != nil) {
+          [reverseAnimation setRotation:NUMFLOAT([TiUtils floatValue:[proxy valueForKey:@"rotation"] def:0])];
+        }
+        [proxy replaceValue:rotation forKey:@"rotation" notification:NO];
       }
 
       if (transform != nil) {

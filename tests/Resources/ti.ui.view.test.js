@@ -805,6 +805,8 @@ describe('Titanium.UI.View', function () {
 					// Rotating must not move the view's layout position.
 					should(view.rect.x).be.eql(100);
 					should(view.rect.y).be.eql(100);
+					// The animated value is written back to the view's property.
+					should(view.rotation).be.eql(90);
 				} catch (err) {
 					return finish(err);
 				}
