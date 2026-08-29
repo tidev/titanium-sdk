@@ -64,7 +64,7 @@ jobs:
     name: Notify titanium-docs (legacy)
     steps:
       - name: Repository dispatch
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           event-type: regen-api-docs
           repository: tidev/titanium-docs
