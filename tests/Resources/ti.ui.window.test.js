@@ -725,6 +725,19 @@ describe('Titanium.UI.Window', function () {
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
+
+			it.android('called twice before first close finishes resolves both Promises', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff',
+					exitOnClose: false
+				});
+
+				win.open().then(() => {
+					const first = win.close();
+					const second = win.close();
+					return Promise.all([ first, second ]).then(() => finish());
+				}).catch(e => finish(e));
+			});
 		});
 
 		describe('#open()', () => {

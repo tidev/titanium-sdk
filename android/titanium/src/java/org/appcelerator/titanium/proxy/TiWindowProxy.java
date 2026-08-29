@@ -16,6 +16,8 @@ import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiActivityWindow;
+import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -33,8 +35,12 @@ import org.appcelerator.titanium.view.TiUIView;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
@@ -160,6 +166,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 			});
 		}
 
+		// A close is already in flight. "opened" stays true until the activity is destroyed, so a
+		// 2nd close() call would otherwise re-run the close logic against half-torn-down state.
+		// (For example, this window is already removed from TiActivityWindows and would mistake
+		// itself for the last open window and suspend the app via the "exitOnClose" handling below.)
+		if (closePromise != null) {
+			return closePromise;
+		}
+
 		// FIXME: Can we "cancel" the open() promise if it's not finished?
 		closePromise = KrollPromise.create((promise) -> {
 			KrollDict options = null;
@@ -178,10 +192,68 @@ public abstract class TiWindowProxy extends TiViewProxy
 				options = new KrollDict();
 			}
 
+			// If this is the last Titanium window and "exitOnClose" is explicitly false, then suspend
+			// the app to the background instead of closing, like onBackPressed() does for the Back
+			// button. Closing would resurface the root splash activity with no content left to show.
+			// Note: The decision must be deferred so that a window opened in the same JS tick
+			//       (flows that close this window and immediately open another one) still
+			//       closes this window normally.
+			if (shouldSuspendToBackgroundOnClose()) {
+				final KrollDict finalOptions = options;
+				new Handler(Looper.getMainLooper()).post(() -> {
+					if (shouldSuspendToBackgroundOnClose()) {
+						Activity activity = getActivity();
+						if (activity == null) {
+							activity = TiApplication.getAppRootOrCurrentActivity();
+						}
+						if (activity != null) {
+							activity.moveTaskToBack(true);
+						}
+						// The window is intentionally left open. Resolve so callers won't hang.
+						promise.resolve(null);
+						closePromise = null;
+					} else {
+						handleClose(finalOptions);
+					}
+				});
+				return;
+			}
+
 			handleClose(options);
 			// FIXME: Maybe fire the close event here and set opened to false as well, rather than leaving to subclasses?
 		});
 		return closePromise;
+	}
+
+	private boolean shouldSuspendToBackgroundOnClose()
+	{
+		// Never suspend while root activity is not allowed to exit. (Typically during a LiveView restart.)
+		if (!TiBaseActivity.canFinishRoot) {
+			return false;
+		}
+
+		// Does not apply to windows managed by a tab group or navigation window.
+		if ((this.tab != null) || (this.navigationWindow != null)) {
+			return false;
+		}
+
+		// Only applies to an open window that is the last one left.
+		if (!opened || (TiActivityWindows.getWindowCount() > 1)) {
+			return false;
+		}
+
+		// Does not apply if this window is no longer in the collection, such as a close already
+		// in flight or a native back-out. The remaining window count then refers to OTHER open
+		// windows, so this window must not mistake itself for the last one.
+		if ((this instanceof TiActivityWindow activityWindow) && !TiActivityWindows.hasWindow(activityWindow)) {
+			return false;
+		}
+
+		// Only applies if "exitOnClose" was explicitly set false.
+		if (!hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			return false;
+		}
+		return !TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true);
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -380,7 +452,16 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		// Attempt to change the activity's orientation setting.
 		// Note: A semi-transparent activity cannot be assigned a fixed orientation. Will throw an exception.
+		// Note: Android 16 (API 36) ignores fixed orientation on large screens (>600dp) for apps targeting API 36.
 		try {
+			if (Build.VERSION.SDK_INT >= 36 && isFixedOrientation(activityOrientationMode)) {
+				Configuration config = activity.getResources().getConfiguration();
+				int smallestScreenWidthDp = config.smallestScreenWidthDp;
+				if (smallestScreenWidthDp > 600) {
+					Log.w(TAG, "Fixed orientation is not supported on large screens (smallest width: "
+						+ smallestScreenWidthDp + "dp). Orientation request will be ignored on Android 16+.");
+				}
+			}
 			activity.setRequestedOrientation(activityOrientationMode);
 		} catch (Exception ex) {
 			Log.e(TAG, ex.getMessage());
@@ -588,6 +669,21 @@ public abstract class TiWindowProxy extends TiViewProxy
 				}
 			}
 		}
+
+		// Pass status bar color to activity intent so it can be applied before super.onCreate().
+		if (hasProperty(TiC.PROPERTY_STATUS_BAR_COLOR)) {
+			intent.putExtra(TiC.PROPERTY_STATUS_BAR_COLOR,
+				TiConvert.toString(getProperty(TiC.PROPERTY_STATUS_BAR_COLOR)));
+		}
+
+		// Pass "navBarHidden" to the activity intent so the ActionBar can be hidden during
+		// activity creation, before the first frame is drawn.
+		if (hasProperty(TiC.PROPERTY_NAV_BAR_HIDDEN)) {
+			boolean navBarHidden = TiConvert.toBoolean(getProperty(TiC.PROPERTY_NAV_BAR_HIDDEN), false);
+			if (navBarHidden) {
+				intent.putExtra(TiC.PROPERTY_NAV_BAR_HIDDEN, true);
+			}
+		}
 	}
 
 	@Kroll.getProperty
@@ -689,5 +785,21 @@ public abstract class TiWindowProxy extends TiViewProxy
 
 		// Don't do activity transition.
 		return false;
+	}
+
+	/**
+	 * Checks if the given orientation mode locks to a single orientation (not sensor/user/unspecified).
+	 * Used to detect orientation restrictions on Android 16+ large screen devices.
+	 */
+	private boolean isFixedOrientation(int orientationMode)
+	{
+		return orientationMode == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
 	}
 }
