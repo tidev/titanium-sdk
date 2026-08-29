@@ -538,9 +538,9 @@ public class TiC
 	public static final String PROPERTY_LETTER_SPACING = "letterSpacing";
 	public static final String PROPERTY_LINES = "lines";
 	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
-	public static final String PROPERTY_LINK_COLOR = "linkColor";
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
 	public static final String PROPERTY_LIGHT_COLOR = "lightColor";
+	public static final String PROPERTY_LINK_COLOR = "linkColor";
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 	public static final String PROPERTY_LOOPING = "looping";
 	public static final String PROPERTY_LED_ARGB = "ledARGB";
