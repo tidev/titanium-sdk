@@ -16,10 +16,8 @@ on:
 
 jobs:
   regen:
-    # Keeps forks from dispatching at the tidev sites.
-    if: github.repository_owner == 'tidev'
     runs-on: ubuntu-latest
-    name: Trigger Regen
+    name: Lint
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -44,10 +42,12 @@ jobs:
   # ti.coremotion cannot run `npm ci` at all today because its lockfile is out of
   # sync with its package.json. Genuinely malformed apidoc still cannot ship: the
   # compile in titanium-www fails on it and commits nothing.
-  #
-  # Skipped on pull_request: a proposed change gets linted, not published.
   notify:
-    if: github.event_name != 'pull_request'
+    # Skipped on pull_request: a proposed change gets linted, not published.
+    # Skipped in forks: they hold no dispatch token, so this would only ever
+    # produce a failing run. The allowlist in titanium-www is the actual
+    # boundary -- a fork's payload names the fork, which is not on it.
+    if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
     uses: tidev/titanium-www/.github/workflows/notify-api-docs.yml@main
     secrets:
       dispatch-token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
@@ -59,7 +59,11 @@ jobs:
   #
   # Delete this job once titaniumsdk.com is served from titanium-www (TI-52).
   notify-legacy:
-    if: github.event_name != 'pull_request'
+    # Skipped on pull_request: a proposed change gets linted, not published.
+    # Skipped in forks: they hold no dispatch token, so this would only ever
+    # produce a failing run. The allowlist in titanium-www is the actual
+    # boundary -- a fork's payload names the fork, which is not on it.
+    if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
     runs-on: ubuntu-latest
     name: Notify titanium-docs (legacy)
     steps:
