@@ -19,7 +19,7 @@ jobs:
     # Keeps forks from dispatching at the tidev sites.
     if: github.repository_owner == 'tidev'
     runs-on: ubuntu-latest
-    name: Lint
+    name: Trigger Regen
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
