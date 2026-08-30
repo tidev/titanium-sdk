@@ -48,7 +48,7 @@ jobs:
     # produce a failing run. The allowlist in titanium-www is the actual
     # boundary -- a fork's payload names the fork, which is not on it.
     if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
-    uses: tidev/titanium-www/.github/workflows/notify-api-docs.yml@main
+    uses: tidev/titaniumsdk.com/.github/workflows/notify-api-docs.yml@main
     secrets:
       dispatch-token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
 
