@@ -34,34 +34,35 @@ jobs:
       - name: Lint
         run: npm run lint:docs
 
-  # titaniumsdk.com. The dispatch lives in titanium-www so the payload shape is
+  # titaniumsdk.com. The dispatch lives in titaniumsdk.com so the payload shape is
   # defined once for all 17 source repos instead of copied into each.
   #
   # Deliberately independent of the lint job. Gating the dispatch on it means an
   # unrelated tooling problem stops the docs updating and nothing says so --
   # ti.coremotion cannot run `npm ci` at all today because its lockfile is out of
   # sync with its package.json. Genuinely malformed apidoc still cannot ship: the
-  # compile in titanium-www fails on it and commits nothing.
+  # compile in titaniumsdk.com fails on it and commits nothing.
   notify:
+    name: Notify titaniumsdk.com
     # Skipped on pull_request: a proposed change gets linted, not published.
     # Skipped in forks: they hold no dispatch token, so this would only ever
-    # produce a failing run. The allowlist in titanium-www is the actual
+    # produce a failing run. The allowlist in titaniumsdk.com is the actual
     # boundary -- a fork's payload names the fork, which is not on it.
     if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
-    uses: tidev/titanium-www/.github/workflows/notify-api-docs.yml@main
+    uses: tidev/titaniumsdk.com/.github/workflows/notify-api-docs.yml@main
     secrets:
       dispatch-token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
 
   # The old pipeline, kept running alongside the new one so the site currently
   # being served stays current while the replacement is proven. It carries no
   # payload because titanium-docs does not read one -- it rebuilds every source
-  # repo on any dispatch, which is the inefficiency titanium-www replaces.
+  # repo on any dispatch, which is the inefficiency titaniumsdk.com replaces.
   #
-  # Delete this job once titaniumsdk.com is served from titanium-www (TI-52).
+  # Delete this job once titaniumsdk.com is served from titaniumsdk.com (TI-52).
   notify-legacy:
     # Skipped on pull_request: a proposed change gets linted, not published.
     # Skipped in forks: they hold no dispatch token, so this would only ever
-    # produce a failing run. The allowlist in titanium-www is the actual
+    # produce a failing run. The allowlist in titaniumsdk.com is the actual
     # boundary -- a fork's payload names the fork, which is not on it.
     if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
     runs-on: ubuntu-latest
