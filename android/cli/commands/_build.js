@@ -2163,7 +2163,7 @@ class AndroidBuilder extends Builder {
 		await fs.writeFile(path.join(projectDirPath, 'build.gradle'), buildGradleContent);
 	}
 
-	async fetchMergeModuleMavenRepositoriesSetting() {
+	async shouldMergeModuleMavenRepositories() {
 		// Determines if Maven repository URLs defined by modules should be added to the app project.
 		// This is enabled by default. App developers can opt out via the below "tiapp.xml" setting:
 		//   <android><merge-module-maven-repositories>false</merge-module-maven-repositories></android>
@@ -2185,7 +2185,8 @@ class AndroidBuilder extends Builder {
 				return String(settingValue).trim().toLowerCase() !== 'false';
 			}
 		} catch (err) {
-			this.logger.warn(`Failed to read "merge-module-maven-repositories" setting from "tiapp.xml" file. Reason:\n${err}`);
+			this.logger.error(`Failed to read "merge-module-maven-repositories" setting from "tiapp.xml" file. Reason:\n${err}`);
+			throw err;
 		}
 		return true;
 	}
@@ -2208,7 +2209,7 @@ class AndroidBuilder extends Builder {
 		this.libDependencyStrings.push(`org.appcelerator:titanium:${this.titaniumSdkVersion}`);
 
 		// Check if the app developer opted out of adding module defined Maven repositories to the app project.
-		const isModuleRepoMergeEnabled = await this.fetchMergeModuleMavenRepositoriesSetting();
+		const isModuleRepoMergeEnabled = await this.shouldMergeModuleMavenRepositories();
 
 		// Process all Titanium modules referenced by the Titanium project.
 		for (const nextModule of this.modules) {
