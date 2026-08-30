@@ -718,6 +718,14 @@ export class AndroidModuleBuilder extends Builder {
 			dest.append(fs.createReadStream(filePath), { name: zipEntryName });
 		});
 
+		// Add module's custom Maven repository list JSON file to the archive if it exists.
+		// The app build system uses this to add the module's repositories (such as jitpack) to the
+		// app project so its remote dependencies can be resolved without manual app-side changes.
+		const mavenReposFilePath = path.join(this.buildModuleDir, 'build', 'outputs', 'ti.maven.repos.json');
+		if (fs.existsSync(mavenReposFilePath)) {
+			dest.append(fs.createReadStream(mavenReposFilePath), { name: path.join(moduleFolder, 'ti.maven.repos.json') });
+		}
+
 		// Add module's proxy binding JSON file to archive.
 		// Needed by the app build system when generating the "TiApplication" derived class to inject
 		// this module's classes into the KrollRuntime and to invoke module's onAppCreate() if defined.
