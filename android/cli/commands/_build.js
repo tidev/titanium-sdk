@@ -17,7 +17,7 @@ import { detect as androidDetect } from '../lib/detect.js';
 import { AndroidManifest } from '../lib/android-manifest.js';
 import appc from 'node-appc';
 import async from 'async';
-import Builder from 'node-titanium-sdk/lib/builder.js';
+import { Builder } from '../../../cli/lib/builder.js';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { ProcessDrawablesTask } from '../lib/process-drawables-task.js';
@@ -860,8 +860,8 @@ class AndroidBuilder extends Builder {
 		}.bind(this);
 	}
 
-	validate(logger, config, cli) {
-		super.validate(logger, config, cli);
+	async validate(logger, config, cli) {
+		await super.validate(logger, config, cli);
 
 		this.target = cli.argv.target;
 		this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
@@ -1498,118 +1498,118 @@ class AndroidBuilder extends Builder {
 			}
 		}
 
-		return function (callback) {
-			this.validateTiModules('android', this.deployType, function validateTiModulesCallback(err, modules) {
-				// Create a copy of the given modules found in "tiapp.xml", excluding modules that we no longer support.
-				const blacklistedModuleNames = [ 'com.soasta.touchtest' ];
-				this.modules = modules.found.filter((module) => {
-					const isBlackListed = blacklistedModuleNames.includes(module.id);
-					if (isBlackListed) {
-						this.logger.warn(`Skipping unsupported module "${module.id.cyan}"`);
-					}
-					return !isBlackListed;
-				});
-
-				for (const module of this.modules) {
-					// Flag object as either a native JAR/AAR module or a scripted CommonJS module for fast if-checks later.
-					module.native = (module.platform.indexOf('commonjs') < 0);
-
-					// For native modules, verify they are built with API version 2.0 or higher.
-					if (module.native && (~~module.manifest.apiversion < 2)) {
-						this.logger.error(`The "apiversion" for "${module.manifest.moduleid.cyan}" in the module manifest is less than version 2.`);
-						this.logger.error('The module was likely built against a Titanium SDK 1.8.0.1 or older.');
-						this.logger.error('Please use a version of the module that has "apiversion" 2 or greater');
-						this.logger.log();
-						process.exit(1);
-					}
-
-					// For CommonJS modules, verify we can find the main script to be loaded by require() method.
-					if (!module.native) {
-						// Look for legacy "<module.id>.js" script file first.
-						let jsFilePath = path.join(module.modulePath, module.id + '.js');
-						if (!fs.existsSync(jsFilePath)) {
-							// Check if require API can find the script.
-							jsFilePath = require.resolve(module.modulePath);
-							if (!fs.existsSync(jsFilePath)) {
-								this.logger.error(
-									`Module "${
-										module.id
-									}" ${
-										module.manifest.version ? `v${module.manifest.version}` : 'latest'
-									} is missing main file: ${
-										module.id
-									}.js, package.json with "main" entry, index.js, or index.json\n`
-								);
-								process.exit(1);
-							}
-						}
-					} else {
-						// Limit application build ABI to that of provided native modules.
-						this.abis = this.abis.filter(abi => {
-							if (!module.manifest.architectures.includes(abi)) {
-								this.logger.warn(`Module ${
-									module.id.cyan
-								} does not contain ${
-									abi.cyan
-								} ABI. Application will build without ${
-									abi.cyan
-								} ABI support!`);
-								return false;
-							}
-							return true;
-						});
-					}
-
-					// scan the module for any CLI hooks
-					cli.scanHooks(path.join(module.modulePath, 'hooks'));
-				}
-
-				// check for any missing module dependencies
-				let hasAddedModule = false;
-				for (const module of this.modules) {
-					if (!module.native) {
-						continue;
-					}
-
-					const timoduleXmlFile = path.join(module.modulePath, 'timodule.xml');
-					const timodule = fs.existsSync(timoduleXmlFile) ? new tiappxml(timoduleXmlFile) : undefined;
-
-					if (timodule && Array.isArray(timodule.modules)) {
-						for (let dependency of timodule.modules) {
-							if (!dependency.platform || /^android$/.test(dependency.platform)) {
-								const isMissing = !this.modules.some(function (mod) {
-									return mod.native && (mod.id === dependency.id);
-								});
-								if (isMissing) {
-									// attempt to include missing dependency
-									dependency.depended = module;
-									this.cli.tiapp.modules.push({
-										id: dependency.id,
-										version: dependency.version,
-										platform: [ 'android' ],
-										deployType: [ this.deployType ]
-									});
-									hasAddedModule = true;
-								}
-							}
-						}
-					}
-				}
-
-				// Re-validate if a module dependency was added to the modules array.
-				if (hasAddedModule) {
-					return this.validateTiModules('android', this.deployType, validateTiModulesCallback.bind(this));
-				}
-
-				callback();
-			}.bind(this));
-		}.bind(this);
+		const modules = await this.validateTiModules('android', this.deployType);
+		return this.finalizeTiModules(modules, cli);
 	}
 
-	async run(logger, config, cli, finished) {
+	async finalizeTiModules(modules, cli) {
+		// Create a copy of the given modules found in "tiapp.xml", excluding modules that we no longer support.
+		const blacklistedModuleNames = [ 'com.soasta.touchtest' ];
+		this.modules = modules.found.filter((module) => {
+			const isBlackListed = blacklistedModuleNames.includes(module.id);
+			if (isBlackListed) {
+				this.logger.warn(`Skipping unsupported module "${module.id.cyan}"`);
+			}
+			return !isBlackListed;
+		});
+
+		for (const module of this.modules) {
+			// Flag object as either a native JAR/AAR module or a scripted CommonJS module for fast if-checks later.
+			module.native = (module.platform.indexOf('commonjs') < 0);
+
+			// For native modules, verify they are built with API version 2.0 or higher.
+			if (module.native && (~~module.manifest.apiversion < 2)) {
+				this.logger.error(`The "apiversion" for "${module.manifest.moduleid.cyan}" in the module manifest is less than version 2.`);
+				this.logger.error('The module was likely built against a Titanium SDK 1.8.0.1 or older.');
+				this.logger.error('Please use a version of the module that has "apiversion" 2 or greater');
+				this.logger.log();
+				process.exit(1);
+			}
+
+			// For CommonJS modules, verify we can find the main script to be loaded by require() method.
+			if (!module.native) {
+				// Look for legacy "<module.id>.js" script file first.
+				let jsFilePath = path.join(module.modulePath, module.id + '.js');
+				if (!fs.existsSync(jsFilePath)) {
+					// Check if require API can find the script.
+					jsFilePath = require.resolve(module.modulePath);
+					if (!fs.existsSync(jsFilePath)) {
+						this.logger.error(
+							`Module "${
+								module.id
+							}" ${
+								module.manifest.version ? `v${module.manifest.version}` : 'latest'
+							} is missing main file: ${
+								module.id
+							}.js, package.json with "main" entry, index.js, or index.json\n`
+						);
+						process.exit(1);
+					}
+				}
+			} else {
+				// Limit application build ABI to that of provided native modules.
+				this.abis = this.abis.filter(abi => {
+					if (!module.manifest.architectures.includes(abi)) {
+						this.logger.warn(`Module ${
+							module.id.cyan
+						} does not contain ${
+							abi.cyan
+						} ABI. Application will build without ${
+							abi.cyan
+						} ABI support!`);
+						return false;
+					}
+					return true;
+				});
+			}
+
+			// scan the module for any CLI hooks
+			await cli.scanHooks(path.join(module.modulePath, 'hooks'));
+		}
+
+		// check for any missing module dependencies
+		let hasAddedModule = false;
+		for (const module of this.modules) {
+			if (!module.native) {
+				continue;
+			}
+
+			const timoduleXmlFile = path.join(module.modulePath, 'timodule.xml');
+			const timodule = fs.existsSync(timoduleXmlFile) ? new tiappxml(timoduleXmlFile) : undefined;
+
+			if (timodule && Array.isArray(timodule.modules)) {
+				for (let dependency of timodule.modules) {
+					if (!dependency.platform || /^android$/.test(dependency.platform)) {
+						const isMissing = !this.modules.some(function (mod) {
+							return mod.native && (mod.id === dependency.id);
+						});
+						if (isMissing) {
+							// attempt to include missing dependency
+							dependency.depended = module;
+							this.cli.tiapp.modules.push({
+								id: dependency.id,
+								version: dependency.version,
+								platform: [ 'android' ],
+								deployType: [ this.deployType ]
+							});
+							hasAddedModule = true;
+						}
+					}
+				}
+			}
+		}
+
+		// Re-validate if a module dependency was added to the modules array.
+		if (hasAddedModule) {
+			const modules = await this.validateTiModules('android', this.deployType);
+			return this.finalizeTiModules(modules, cli);
+		}
+	}
+
+	async run(logger, config, cli) {
 		try {
 			// Call the base builder's run() method.
-			super.run(logger, config, cli, finished);
+			await super.run(logger, config, cli);
 
 			// Notify plugins that we're about to begin.
 			await cli.emit('build.pre.construct', this);
@@ -1662,11 +1662,6 @@ class AndroidBuilder extends Builder {
 				this.logger.error('Build failed. Reason: Unknown');
 			}
 			process.exit(1);
-		}
-
-		// We're done. Invoke optional callback if provided.
-		if (finished) {
-			finished();
 		}
 	}
 
