@@ -288,10 +288,12 @@
   return [[[NSString alloc] initWithBytes:([[src data] bytes] + position) length:length encoding:encoding] autorelease];
 }
 
-- (NSNumber *)getNativeByteOrder
+- (NSNumber *)nativeByteOrder
 {
   return NUMLONG(CFByteOrderGetCurrent());
 }
+
+GETTER_IMPL(NSNumber *, nativeByteOrder, NativeByteOrder);
 
 // Public API : Properties
 
