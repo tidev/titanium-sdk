@@ -274,6 +274,28 @@ publishing {
 	}
 }
 
+// Writes the module's custom Maven repository URLs (such as jitpack) to a JSON file after publishing.
+// This file gets bundled into the module zip so that the app build system can add these repositories
+// to the app project automatically, without the app developer having to declare them by hand.
+tasks.register('writeTiMavenRepositories') {
+	def outputFile = file("${buildDir}/outputs/ti.maven.repos.json")
+	outputs.file(outputFile)
+	doLast {
+		// Exclude repositories the app build system already provides by default.
+		def defaultUrls = [
+			'https://dl.google.com/dl/android/maven2',
+			'https://repo.maven.apache.org/maven2'
+		]
+		def urls = project.repositories.withType(MavenArtifactRepository)
+			.collect { it.url.toString().replaceAll('/+$', '') }
+			.findAll { url -> url.startsWith('http') && !defaultUrls.contains(url) }
+			.unique()
+		outputFile.parentFile.mkdirs()
+		outputFile.text = groovy.json.JsonOutput.toJson(urls)
+	}
+}
+tasks.named('publish') { finalizedBy 'writeTiMavenRepositories' }
+
 // Load the module developer's optional "build.gradle" file from "<module>/android" directory.
 // This Gradle file is expected to provide the module's "dependencies".
 def moduleBuildGradlePath = "${projectDir}/../../build.gradle"

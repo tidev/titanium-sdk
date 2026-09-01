@@ -13,7 +13,7 @@
 
 import appc from 'node-appc';
 import async from 'async';
-import Builder from 'node-titanium-sdk/lib/builder.js';
+import { Builder } from '../../../cli/lib/builder.js';
 import crypto from 'node:crypto';
 import colors from 'colors';
 import { DOMParser } from '@xmldom/xmldom';
@@ -32,7 +32,6 @@ import { injectSPMPackage } from '../lib/ios/spm.js';
 import { hashIconComposerDocument, isIconComposerDocument } from '../lib/icon-composer.js';
 import { exec, spawn } from 'node:child_process';
 import ti from 'node-titanium-sdk';
-import util from 'node:util';
 import xcode from 'xcode';
 import xcodeParser from 'xcode/lib/parser/pbxproj.js';
 import plist from 'simple-plist';
@@ -41,7 +40,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const { cyan } = colors;
-const { parallel, series } = appc.async;
+const { parallel } = appc.async;
 const { version } = appc;
 const require = createRequire(import.meta.url);
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
@@ -1893,100 +1892,103 @@ class iOSBuilder extends Builder {
 	 *
 	 * @returns {Function} A function to be called async which returns the actual configuration.
 	 */
-	validate(logger, config, cli) {
-		super.validate(logger, config, cli);
+	async validate(logger, config, cli) {
+		await super.validate(logger, config, cli);
 
-		return function (callback) {
-			this.target = cli.argv.target;
-			this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
-			this.buildType = cli.argv['build-type'] || '';
-			this.provisioningProfileUUID = cli.argv['pp-uuid'];
-			if (this.provisioningProfileUUID) {
-				this.provisioningProfile = this.findProvisioningProfile(this.target, this.provisioningProfileUUID);
-			}
+		this.target = cli.argv.target;
+		this.deployType = !/^dist-/.test(this.target) && cli.argv['deploy-type'] ? cli.argv['deploy-type'] : this.deployTypes[this.target];
+		this.buildType = cli.argv['build-type'] || '';
+		this.provisioningProfileUUID = cli.argv['pp-uuid'];
+		if (this.provisioningProfileUUID) {
+			this.provisioningProfile = this.findProvisioningProfile(this.target, this.provisioningProfileUUID);
+		}
 
-			// add the iOS specific default icon to the list of icons
-			this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
+		// add the iOS specific default icon to the list of icons
+		this.defaultIcons.unshift(path.join(this.projectDir, 'DefaultIcon-ios.png'));
 
-			// the Icon Composer document that, when present, replaces the generated app icon set.
-			// this is iOS-only -- Android has its own concept of layered icons -- so it is named
-			// after the platform rather than sharing the cross-platform `DefaultIcon.png` name
-			this.defaultIconComposerIcon = path.join(this.projectDir, 'DefaultIcon-ios.icon');
+		// the Icon Composer document that, when present, replaces the generated app icon set.
+		// this is iOS-only -- Android has its own concept of layered icons -- so it is named
+		// after the platform rather than sharing the cross-platform `DefaultIcon.png` name
+		this.defaultIconComposerIcon = path.join(this.projectDir, 'DefaultIcon-ios.icon');
 
-			// manually inject the build profile settings
-			switch (this.deployType) {
-				case 'production':
-					this.showErrorController = false;
-					this.minifyJS = true;
-					this.encryptJS = true;
-					this.minifyCSS = true;
-					this.allowDebugging = false;
-					this.allowProfiling = false;
-					this.includeAllTiModules = false;
-					break;
-
-				case 'test':
-					this.showErrorController = true;
-					this.minifyJS = true;
-					this.encryptJS = true;
-					this.minifyCSS = true;
-					this.allowDebugging = true;
-					this.allowProfiling = true;
-					this.includeAllTiModules = false;
-					break;
-
-				case 'development':
-				default:
-					this.showErrorController = true;
-					this.minifyJS = false;
-					this.encryptJS = false;
-					this.minifyCSS = false;
-					this.allowDebugging = true;
-					this.allowProfiling = true;
-					this.includeAllTiModules = true;
-			}
-
-			if (cli.argv['skip-js-minify']) {
-				this.minifyJS = false;
-			}
-			if (cli.argv['hide-error-controller']) {
+		// manually inject the build profile settings
+		switch (this.deployType) {
+			case 'production':
 				this.showErrorController = false;
-			}
+				this.minifyJS = true;
+				this.encryptJS = true;
+				this.minifyCSS = true;
+				this.allowDebugging = false;
+				this.allowProfiling = false;
+				this.includeAllTiModules = false;
+				break;
 
-			// this may have already been called in an option validate() callback
-			this.initTiappSettings();
+			case 'test':
+				this.showErrorController = true;
+				this.minifyJS = true;
+				this.encryptJS = true;
+				this.minifyCSS = true;
+				this.allowDebugging = true;
+				this.allowProfiling = true;
+				this.includeAllTiModules = false;
+				break;
 
-			// Do we write out process.env into a file in the app to use?
-			this.writeEnvVars = this.deployType !== 'production';
+			case 'development':
+			default:
+				this.showErrorController = true;
+				this.minifyJS = false;
+				this.encryptJS = false;
+				this.minifyCSS = false;
+				this.allowDebugging = true;
+				this.allowProfiling = true;
+				this.includeAllTiModules = true;
+		}
 
-			// Transpilation details
-			this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
-			// this.minSupportedIosSdk holds the target iOS version to transpile down to
-			// If they're passing flag to do source-mapping, that overrides everything, so turn it on
-			if (cli.argv['source-maps']) {
-				this.sourceMaps = true;
-				// if they haven't, respect the tiapp.xml value if set one way or the other
-			} else if (Object.prototype.hasOwnProperty.call(cli.tiapp, 'source-maps')) { // they've explicitly set a value in tiapp.xml
-				this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
-			} else { // otherwise turn on by default for non-production builds
-				this.sourceMaps = this.deployType !== 'production';
-			}
+		if (cli.argv['skip-js-minify']) {
+			this.minifyJS = false;
+		}
+		if (cli.argv['hide-error-controller']) {
+			this.showErrorController = false;
+		}
 
-			// check for blacklisted files in the Resources directory
-			[	path.join(this.projectDir, 'Resources'),
-				path.join(this.projectDir, 'Resources', 'iphone'),
-				path.join(this.projectDir, 'Resources', 'ios')
-			].forEach(function (dir) {
-				fs.existsSync(dir) && fs.readdirSync(dir).forEach(function (filename) {
-					const lcaseFilename = filename.toLowerCase(),
-						isDir = fs.statSync(path.join(dir, filename)).isDirectory();
+		// this may have already been called in an option validate() callback
+		this.initTiappSettings();
+
+		// Do we write out process.env into a file in the app to use?
+		this.writeEnvVars = this.deployType !== 'production';
+
+		// Transpilation details
+		this.transpile = cli.tiapp['transpile'] !== false; // Transpiling is an opt-out process now
+		// this.minSupportedIosSdk holds the target iOS version to transpile down to
+		// If they're passing flag to do source-mapping, that overrides everything, so turn it on
+		if (cli.argv['source-maps']) {
+			this.sourceMaps = true;
+			// if they haven't, respect the tiapp.xml value if set one way or the other
+		} else if (Object.prototype.hasOwnProperty.call(cli.tiapp, 'source-maps')) { // they've explicitly set a value in tiapp.xml
+			this.sourceMaps = cli.tiapp['source-maps'] === true; // respect the tiapp.xml value
+		} else { // otherwise turn on by default for non-production builds
+			this.sourceMaps = this.deployType !== 'production';
+		}
+
+		// check for blacklisted files in the Resources directory
+		const resourceDirectories = [
+			path.join(this.projectDir, 'Resources'),
+			path.join(this.projectDir, 'Resources', 'iphone'),
+			path.join(this.projectDir, 'Resources', 'ios')
+		];
+
+		for (const dir of resourceDirectories) {
+			if (fs.existsSync(dir)) {
+				for (const filename of fs.readdirSync(dir)) {
+					const lcaseFilename = filename.toLowerCase();
+					const isDir = fs.statSync(path.join(dir, filename)).isDirectory();
 
 					// if we have a platform resource dir, then this will not be copied and we should be ok
-					if (ti.allPlatformNames.indexOf(lcaseFilename) !== -1) {
-						return;
+					if (ti.allPlatformNames.includes(lcaseFilename)) {
+						continue;
 					}
 
-					if (this.blacklistDirectories.indexOf(lcaseFilename) !== -1) {
+					if (this.blacklistDirectories.includes(lcaseFilename)) {
 						if (isDir) {
 							logger.error('Found blacklisted directory in the Resources directory.');
 							logger.error(`The directory "${filename}" is a reserved directory.`);
@@ -1997,7 +1999,9 @@ class iOSBuilder extends Builder {
 							logger.error('You must rename this file to something else.\n');
 						}
 						process.exit(1);
-					} else if (this.graylistDirectories.indexOf(lcaseFilename) !== -1) {
+					}
+
+					if (this.graylistDirectories.includes(lcaseFilename)) {
 						if (isDir) {
 							logger.warn('Found graylisted directory in the Resources directory.');
 							logger.warn(`The directory "${filename}" is potentially a reserved directory.`);
@@ -2010,141 +2014,135 @@ class iOSBuilder extends Builder {
 							logger.warn('It is highly recommended you rename this file to something else.');
 						}
 					}
-				}, this);
-			}, this);
-
-			// if in the prepare phase and doing a device/dist build...
-			if (cli.argv.target !== 'simulator' && cli.argv.target !== 'macos') {
-				// make sure they have Apple's WWDR cert installed
-				if (!this.iosInfo.certs.wwdr) {
-					logger.error('WWDR Intermediate Certificate not found\n');
-					logger.log(`Download and install the certificate from ${
-						'https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer'.cyan
-					}\n`);
-					process.exit(1);
-				}
-
-				// validate keychain
-				const keychain = cli.argv.keychain ? appc.fs.resolvePath(cli.argv.keychain) : null;
-				if (keychain && !fs.existsSync(keychain)) {
-					logger.error(`Unable to find keychain "${keychain}"\n`);
-					logger.log('Available keychains:');
-					Object.keys(this.iosInfo.certs.keychains).forEach(function (kc) {
-						logger.log('    ' + kc.cyan);
-					});
-					logger.log();
-					appc.string.suggest(keychain, Object.keys(this.iosInfo.certs.keychains), logger.log);
-					process.exit(1);
 				}
 			}
+		}
 
-			if (cli.argv.target !== 'dist-appstore') {
-				const tool = [];
-				this.allowDebugging && tool.push('debug');
-				this.allowProfiling && tool.push('profiler');
-				tool.forEach(function (type) {
-					if (cli.argv[type + '-host']) {
-						if (typeof cli.argv[type + '-host'] === 'number') {
-							logger.error(`Invalid ${type} host "${cli.argv[type + '-host']}"\n`);
-							logger.log(`The ${type} host must be in the format "host:port".\n`);
-							process.exit(1);
-						}
+		// if in the prepare phase and doing a device/dist build...
+		if (cli.argv.target !== 'simulator' && cli.argv.target !== 'macos') {
+			// make sure they have Apple's WWDR cert installed
+			if (!this.iosInfo.certs.wwdr) {
+				logger.error('WWDR Intermediate Certificate not found\n');
+				logger.log(`Download and install the certificate from ${
+					'https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer'.cyan
+				}\n`);
+				process.exit(1);
+			}
 
-						const parts = cli.argv[type + '-host'].split(':');
-
-						if ((cli.argv.target === 'simulator' && parts.length < 2) || (cli.argv.target !== 'simulator' && parts.length < 4)) {
-							logger.error(`Invalid ${type} host "${cli.argv[type + '-host']}"\n`);
-							if (cli.argv.target === 'simulator') {
-								logger.log(`The ${type} host must be in the format "host:port".\n`);
-							} else {
-								logger.log(`The ${type} host must be in the format "host:port:airkey:hosts".\n`);
-							}
-							process.exit(1);
-						}
-
-						if (parts.length > 1 && parts[1]) {
-							const port = parseInt(parts[1]);
-							if (isNaN(port) || port < 1 || port > 65535) {
-								logger.error(`Invalid ${type} host "${cli.argv[type + '-host']}"\n`);
-								logger.log('The port must be a valid integer between 1 and 65535.\n');
-								process.exit(1);
-							}
-						}
-					}
+			// validate keychain
+			const keychain = cli.argv.keychain ? appc.fs.resolvePath(cli.argv.keychain) : null;
+			if (keychain && !fs.existsSync(keychain)) {
+				logger.error(`Unable to find keychain "${keychain}"\n`);
+				logger.log('Available keychains:');
+				Object.keys(this.iosInfo.certs.keychains).forEach(function (kc) {
+					logger.log('    ' + kc.cyan);
 				});
+				logger.log();
+				appc.string.suggest(keychain, Object.keys(this.iosInfo.certs.keychains), logger.log);
+				process.exit(1);
+			}
+		}
+
+		if (cli.argv.target !== 'dist-appstore') {
+			const tool = [];
+			this.allowDebugging && tool.push('debug');
+			this.allowProfiling && tool.push('profiler');
+			for (const type of tool) {
+				if (cli.argv[`${type}-host`]) {
+					if (typeof cli.argv[`${type}-host`] === 'number') {
+						logger.error(`Invalid ${type} host "${cli.argv[`${type}-host`]}"\n`);
+						logger.log(`The ${type} host must be in the format "host:port".\n`);
+						process.exit(1);
+					}
+
+					const parts = cli.argv[`${type}-host`].split(':');
+
+					if ((cli.argv.target === 'simulator' && parts.length < 2) || (cli.argv.target !== 'simulator' && parts.length < 4)) {
+						logger.error(`Invalid ${type} host "${cli.argv[`${type}-host`]}"\n`);
+						if (cli.argv.target === 'simulator') {
+							logger.log(`The ${type} host must be in the format "host:port".\n`);
+						} else {
+							logger.log(`The ${type} host must be in the format "host:port:airkey:hosts".\n`);
+						}
+						process.exit(1);
+					}
+
+					if (parts.length > 1 && parts[1]) {
+						const port = parseInt(parts[1]);
+						if (isNaN(port) || port < 1 || port > 65535) {
+							logger.error(`Invalid ${type} host "${cli.argv[`${type}-host`]}"\n`);
+							logger.log('The port must be a valid integer between 1 and 65535.\n');
+							process.exit(1);
+						}
+					}
+				}
+			}
+		}
+
+		try {
+			// select iOS version
+			this.iosSdkVersion = cli.argv['ios-version'] || null;
+			this.xcodeEnv = null;
+
+			const xcodeInfo = this.iosInfo.xcode;
+			const sortXcodeIds = (a, b) => {
+				// prioritize selected xcode
+				if (xcodeInfo[a].selected) {
+					return -1;
+				}
+				if (xcodeInfo[b].selected) {
+					return 1;
+				}
+				// newest to oldest
+				return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+			};
+			const sortedXcodeIds = Object.keys(xcodeInfo).sort(sortXcodeIds);
+
+			if (this.iosSdkVersion) {
+				// find the Xcode for this version
+				for (const ver of sortedXcodeIds) {
+					if (xcodeInfo[ver].sdks.includes(this.iosSdkVersion)) {
+						this.xcodeEnv = xcodeInfo[ver];
+						break;
+					}
+				}
+
+				if (!this.xcodeEnv) {
+					// this should not be possible, but you never know
+					logger.error(`Unable to find any Xcode installations that support iOS SDK ${this.iosSdkVersion}\n`);
+					process.exit(1);
+				}
+
+			} else { // device, simulator, dist-appstore, dist-adhoc
+				const supportedXcodeIds = sortedXcodeIds.filter(id => xcodeInfo[id].supported);
+				selectXcode:
+				for (const id of supportedXcodeIds) {
+					for (const ver of xcodeInfo[id].sdks.sort().reverse()) {
+						if (appc.version.gte(ver, this.minIosVersion)) {
+							this.iosSdkVersion = ver;
+							this.xcodeEnv = xcodeInfo[id];
+							break selectXcode;
+						}
+					}
+				}
+
+				if (!this.iosSdkVersion) {
+					logger.error('Unable to find any Xcode installations with a supported iOS SDK.');
+					logger.error('Please install the latest Xcode and point xcode-select to it.\n');
+					process.exit(1);
+				}
 			}
 
-			series(this, [
-				function selectIosVersion() {
-					this.iosSdkVersion = cli.argv['ios-version'] || null;
-					this.xcodeEnv = null;
+			// select device
+			if (!cli.argv.target.startsWith('dist') && cli.argv.target !== 'macos') {
+				// no --device-id or doing a build-only sim build, so pick a device
 
-					const xcodeInfo = this.iosInfo.xcode;
-
-					function sortXcodeIds(a, b) {
-						// prioritize selected xcode
-						if (xcodeInfo[a].selected) {
-							return -1;
-						}
-						if (xcodeInfo[b].selected) {
-							return 1;
-						}
-						// newest to oldest
-						return appc.version.gt(xcodeInfo[a].version, xcodeInfo[b].version) ? -1 : appc.version.lt(xcodeInfo[a].version, xcodeInfo[b].version) ? 1 : 0;
+				if (cli.argv.target === 'device') {
+					if (!cli.argv['build-only'] && !cli.argv['device-id'] && this.iosInfo.devices.length) {
+						cli.argv['device-id'] = this.iosInfo.devices[0].udid;
 					}
-
-					const sortedXcodeIds = Object.keys(xcodeInfo).sort(sortXcodeIds);
-					if (this.iosSdkVersion) {
-						// find the Xcode for this version
-						sortedXcodeIds.some(function (ver) {
-							if (xcodeInfo[ver].sdks.includes(this.iosSdkVersion)) {
-								this.xcodeEnv = xcodeInfo[ver];
-								return true;
-							}
-							return false;
-						}, this);
-
-						if (!this.xcodeEnv) {
-							// this should not be possible, but you never know
-							logger.error(`Unable to find any Xcode installations that support iOS SDK ${this.iosSdkVersion}\n`);
-							process.exit(1);
-						}
-
-					} else { // device, simulator, dist-appstore, dist-adhoc
-						sortedXcodeIds
-							.filter(id => xcodeInfo[id].supported)
-							.some(function (id) {
-								return xcodeInfo[id].sdks.sort().reverse().some(function (ver) {
-									if (appc.version.gte(ver, this.minIosVersion)) {
-										this.iosSdkVersion = ver;
-										this.xcodeEnv = xcodeInfo[id];
-										return true;
-									}
-									return false;
-								}, this);
-							}, this);
-
-						if (!this.iosSdkVersion) {
-							logger.error('Unable to find any Xcode installations with a supported iOS SDK.');
-							logger.error('Please install the latest Xcode and point xcode-select to it.\n');
-							process.exit(1);
-						}
-					}
-				},
-
-				function selectDevice(next) {
-					if (cli.argv.target.startsWith('dist') || cli.argv.target === 'macos') {
-						return next();
-					}
-
-					// no --device-id or doing a build-only sim build, so pick a device
-
-					if (cli.argv.target === 'device') {
-						if (!cli.argv['build-only'] && !cli.argv['device-id'] && this.iosInfo.devices.length) {
-							cli.argv['device-id'] = this.iosInfo.devices[0].udid;
-						}
-						return next();
-					}
+				} else {
+					// simulator
 
 					// if we found a watch app and --watch-device-id was set, but --launch-watch-app was not, then set it
 					if (this.hasWatchAppV2orNewer && cli.argv['watch-device-id'] && !cli.argv['launch-watch-app-only']) {
@@ -2161,276 +2159,263 @@ class iOSBuilder extends Builder {
 					}
 
 					// target is simulator
-					ioslib.simulator.findSimulators({
-						// env
-						xcodeSelect:            config.get('osx.executables.xcodeSelect'),
-						security:               config.get('osx.executables.security'),
-						// provisioning
-						profileDir:             config.get('ios.profileDir'),
-						// xcode
-						searchPath:             config.get('paths.xcode'),
-						minIosVersion:          this.minIosVersion,
-						supportedVersions:      this.packageJson.vendorDependencies.xcode,
-						// find params
-						appBeingInstalled:      true,
-						simHandleOrUDID:        cli.argv['device-id'],
-						iosVersion:             this.iosSdkVersion,
-						simType:                this.deviceFamily === 'ipad' ? 'ipad' : 'iphone',
-						simVersion:             this.iosSdkVersion,
-						watchAppBeingInstalled: this.hasWatchAppV2orNewer && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
-						watchHandleOrUDID:      cli.argv['watch-device-id'],
-						watchMinOSVersion:      this.watchMinOSVersion,
-						logger: function (msg) {
-							logger.trace(('[ioslib] ' + msg).grey);
-						}
-					}, function (err, simHandle, watchSimHandle, selectedXcode) {
-						if (err) {
-							return next(err);
-						}
-
-						this.simHandle = simHandle;
-						this.watchSimHandle = watchSimHandle;
-						this.xcodeEnv = selectedXcode;
-
-						// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
-						const m = this.simHandle.model.match(/^(iPad|iPhone)([\d]+)/);
-						this.simOnlyActiveArch = !!(m && (m[1] === 'iPad' && parseInt(m[2]) >= 4) || (m[1] === 'iPhone' && parseInt(m[2]) >= 6));
-
-						if (!this.iosSdkVersion) {
-							const sdks = selectedXcode.sdks.sort();
-							this.iosSdkVersion = sdks[sdks.length - 1];
-						}
-
-						next();
-					}.bind(this));
-				},
-
-				function checkEULA() {
-					if (!this.xcodeEnv.eulaAccepted) {
-						logger.error(`Xcode ${
-							this.xcodeEnv.version
-						} end-user license agreement has not been accepted.`);
-						logger.error(`Please launch "${
-							this.xcodeEnv.xcodeapp
-						}" or run "sudo xcodebuild -license" to accept the license.\n`);
-						process.exit(1);
-					}
-				},
-
-				function validateTeamId() {
-					this.teamId = this.tiapp.ios['team-id'];
-					if (!this.teamId && this.provisioningProfile) {
-						if (this.provisioningProfile.team.length === 1) {
-							// only one team, so choose this over the appPrefix
-							this.teamId = this.provisioningProfile.team[0];
-						} else {
-							// we have multiple teams and we don't know which one to pick, so prefer the appPrefix
-							this.teamId = this.provisioningProfile.appPrefix;
-
-							// if the appPrefix is not in the list of teams, then we need to fail and force the user
-							// to manually specify their team id
-							if (this.provisioningProfile.team.length && this.provisioningProfile.team.indexOf(this.teamId) === -1) {
-								logger.log('Available teams:');
-								this.provisioningProfile.team.forEach(function (id) {
-									logger.log('  ' + id.cyan);
-								});
-								logger.log();
-								logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
-								logger.log('    <ios>'.grey);
-								logger.log('        <team-id>TEAM ID</team-id>'.magenta);
-								logger.log('    </ios>'.grey);
-								logger.log('</ti:app>'.grey);
-								logger.log();
-								process.exit(1);
+					const { simHandle, watchSimHandle, selectedXcode } = await new Promise((resolve, reject) => {
+						ioslib.simulator.findSimulators({
+							// env
+							xcodeSelect:            config.get('osx.executables.xcodeSelect'),
+							security:               config.get('osx.executables.security'),
+							// provisioning
+							profileDir:             config.get('ios.profileDir'),
+							// xcode
+							searchPath:             config.get('paths.xcode'),
+							minIosVersion:          this.minIosVersion,
+							supportedVersions:      this.packageJson.vendorDependencies.xcode,
+							// find params
+							appBeingInstalled:      true,
+							simHandleOrUDID:        cli.argv['device-id'],
+							iosVersion:             this.iosSdkVersion,
+							simType:                this.deviceFamily === 'ipad' ? 'ipad' : 'iphone',
+							simVersion:             this.iosSdkVersion,
+							watchAppBeingInstalled: this.hasWatchAppV2orNewer && (cli.argv['launch-watch-app'] || cli.argv['launch-watch-app-only']),
+							watchHandleOrUDID:      cli.argv['watch-device-id'],
+							watchMinOSVersion:      this.watchMinOSVersion,
+							logger: function (msg) {
+								logger.trace(('[ioslib] ' + msg).grey);
 							}
-						}
-					}
-				},
-
-				function toSymlinkOrNotToSymlink() {
-					this.symlinkLibrariesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'];
-					this.symlinkFilesOnCopy = false;
-				},
-
-				function determineMinIosVer() {
-					// figure out the min-ios-ver that this app is going to support
-					let defaultMinIosVersion = this.packageJson.minIosVersion;
-
-					this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosVersion;
-
-					if (version.lt(this.minIosVer, defaultMinIosVersion)) {
-						logger.warn(`The <min-ios-ver> of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version ${defaultMinIosVersion}`);
-						logger.warn(`Consider bumping the <min-ios-ver> to at least ${defaultMinIosVersion}`);
-						this.minIosVer = defaultMinIosVersion;
-					} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
-						logger.error(`The <min-ios-ver> of the iOS section in the tiapp.xml is set to ${
-							version.format(this.minIosVer, 2)
-						} and is greater than the specified iOS version ${
-							version.format(this.iosSdkVersion, 2)
-						}`);
-						logger.error(`Either rerun with --ios-version ${
-							version.format(this.minIosVer, 2)
-						} or set the <min-ios-ver> to ${
-							version.format(this.iosSdkVersion, 2)
-						}.\n`);
-						process.exit(1);
-					}
-				},
-
-				function validateDevice() {
-					// check the min-ios-ver for the device we're installing to
-					if (this.target === 'device') {
-						this.getDeviceInfo().devices.forEach(function (device) {
-							if (device.udid !== 'all' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
-								logger.error(`This app does not support the device "${device.name}"\n`);
-								logger.log(`The device is running iOS ${
-									device.productVersion.cyan
-								}, however the app's the minimum iOS version is set to ${
-									version.format(this.minIosVer, 2, 3).cyan
-								}`);
-								logger.log(`In order to install this app on this device, lower the ${
-									'<min-ios-ver>'.cyan
-								} to ${
-									version.format(device.productVersion, 2, 2).cyan
-								} in the tiapp.xml:`);
-								logger.log();
-								logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
-								logger.log('    <ios>'.grey);
-								logger.log(('        <min-ios-ver>' + version.format(device.productVersion, 2, 2) + '</min-ios-ver>').magenta);
-								logger.log('    </ios>'.grey);
-								logger.log('</ti:app>'.grey);
-								logger.log();
-								process.exit(0);
-							}
-						}, this);
-					}
-				},
-
-				function validateModules(next) {
-					this.validateTiModules([ 'ios', 'iphone' ], this.deployType, function (err, modules) {
-						this.modules = modules.found;
-
-						this.commonJsModules = [];
-						this.nativeLibModules = [];
-						this.legacyModules = new Set();
-
-						const nativeHashes = [];
-
-						modules.found.forEach(function (module) {
-							if (module.platform.indexOf('commonjs') !== -1) {
-								module.native = false;
-
-								// look for legacy module.id.js first
-								let libFile = path.join(module.modulePath, module.id + '.js');
-								module.libFile = fs.existsSync(libFile) ? libFile : null;
-								// If no legacy file, let require.resolve get the main script
-								if (!module.libFile) {
-									libFile = require.resolve(module.modulePath);
-									if (fs.existsSync(libFile)) {
-										module.libFile = libFile;
-									}
-
-									if (!module.libFile) {
-										this.logger.error(`Module "${
-											module.id
-										}" (${
-											module.manifest.version || 'latest'
-										}) is missing main file: ${
-											module.id + '.js'
-										}, package.json with "main" entry, index.js, or index.json\n`);
-										process.exit(1);
-									}
-								}
-
-								this.commonJsModules.push(module);
+						}, (err, simHandle, watchSimHandle, selectedXcode) => {
+							if (err) {
+								reject(err);
 							} else {
-								module.native = true;
-								const frameworkName = this.scrubbedModuleId(module.id) + '.framework';
-								const xcFrameworkOfLib = module.id + '.xcframework';
-								const xcFrameworkOfFramework = this.scrubbedModuleId(module.id) + '.xcframework';
-
-								module.isFramework = false;
-
-								// Try to load native module as static library (Obj-C)
-								if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
-									module.libName = 'lib' + module.id.toLowerCase() + '.a';
-									module.libFile = path.join(module.modulePath, module.libName);
-									module.isFramework = false;
-
-									// For Obj-C static libraries, use the .a library or hashing
-									this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
-									nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
-									// Try to load native module as framework (Swift)
-								} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
-									module.libName = frameworkName;
-									module.libFile = path.join(module.modulePath, module.libName);
-									module.isFramework = true;
-
-									// For Swift frameworks, use the binary inside the .framework for hashing
-									this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
-									nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
-								} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
-									module.libName = xcFrameworkOfLib;
-									module.libFile = path.join(module.modulePath, module.libName);
-									module.isFramework = true;
-
-									const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
-									for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
-										if (libInfo.SupportedPlatformVariant === undefined) {
-											// Device library is used for hash calculation.
-											// TODO: Probably we want to add other varient's library as well.
-											nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier,  'lib' + module.id.toLowerCase() + '.a'))));
-										} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
-											this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
-										}
-									}
-								} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
-									module.libName = xcFrameworkOfFramework;
-									module.libFile = path.join(module.modulePath, module.libName);
-									module.isFramework = true;
-
-									const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
-									const scrubbedModuleId = this.scrubbedModuleId(module.id);
-									for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
-										if (libInfo.SupportedPlatformVariant === undefined) {
-											// Device library is used for hash calculation.
-											// TODO: Probably we want to add other varient's library as well.
-											nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier, scrubbedModuleId + '.framework', scrubbedModuleId))));
-										} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
-											this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
-										}
-									}
-								} else {
-									this.logger.error(`Module ${
-										module.id.cyan
-									} (${
-										(module.manifest.version || 'latest').cyan
-									}) is missing library or framework file.\n`);
-									this.logger.error('Please validate that your module has been packaged correctly and try it again.');
-									process.exit(1);
-								}
-
-								this.nativeLibModules.push(module);
+								resolve({ simHandle, watchSimHandle, selectedXcode });
 							}
+						});
+					});
 
-							// scan the module for any CLI hooks
-							cli.scanHooks(path.join(module.modulePath, 'hooks'));
-						}, this);
+					this.simHandle = simHandle;
+					this.watchSimHandle = watchSimHandle;
+					this.xcodeEnv = selectedXcode;
 
-						this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
-						this.collectModuleSpmDependencies();
+					// only build active arch simulator is 64-bit (iPhone 5s or newer, iPhone 5 and older are not 64-bit)
+					const m = this.simHandle.model.match(/^(iPad|iPhone)([\d]+)/);
+					this.simOnlyActiveArch = !!(m && (m[1] === 'iPad' && parseInt(m[2]) >= 4) || (m[1] === 'iPhone' && parseInt(m[2]) >= 6));
 
-						next();
-					}.bind(this));
+					if (!this.iosSdkVersion) {
+						const sdks = selectedXcode.sdks.sort();
+						this.iosSdkVersion = sdks[sdks.length - 1];
+					}
 				}
-			], function (err) {
-				if (err) {
-					logger.error((err.message || err.toString()) + '\n');
-					process.exit(1);
+			}
+
+			// check EULA
+			if (!this.xcodeEnv.eulaAccepted) {
+				logger.error(`Xcode ${
+					this.xcodeEnv.version
+				} end-user license agreement has not been accepted.`);
+				logger.error(`Please launch "${
+					this.xcodeEnv.xcodeapp
+				}" or run "sudo xcodebuild -license" to accept the license.\n`);
+				process.exit(1);
+			}
+
+			// validate team id
+			this.teamId = this.tiapp.ios['team-id'];
+			if (!this.teamId && this.provisioningProfile) {
+				if (this.provisioningProfile.team.length === 1) {
+					// only one team, so choose this over the appPrefix
+					this.teamId = this.provisioningProfile.team[0];
+				} else {
+					// we have multiple teams and we don't know which one to pick, so prefer the appPrefix
+					this.teamId = this.provisioningProfile.appPrefix;
+
+					// if the appPrefix is not in the list of teams, then we need to fail and force the user
+					// to manually specify their team id
+					if (this.provisioningProfile.team.length && this.provisioningProfile.team.indexOf(this.teamId) === -1) {
+						logger.log('Available teams:');
+						this.provisioningProfile.team.forEach(function (id) {
+							logger.log('  ' + id.cyan);
+						});
+						logger.log();
+						logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log('        <team-id>TEAM ID</team-id>'.magenta);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
+						logger.log();
+						process.exit(1);
+					}
 				}
-				callback();
-			});
-		}.bind(this); // end of function returned by validate()
+			}
+
+			// determine if we should symlink resources
+			this.symlinkLibrariesOnCopy = config.get('ios.symlinkResources', true) && !cli.argv['force-copy'];
+			this.symlinkFilesOnCopy = false;
+
+			// figure out the min-ios-ver that this app is going to support
+			let defaultMinIosVersion = this.packageJson.minIosVersion;
+
+			this.minIosVer = this.tiapp.ios['min-ios-ver'] || defaultMinIosVersion;
+
+			if (version.lt(this.minIosVer, defaultMinIosVersion)) {
+				logger.warn(`The <min-ios-ver> of the iOS section in the tiapp.xml is lower than the recommended minimum iOS version ${defaultMinIosVersion}`);
+				logger.warn(`Consider bumping the <min-ios-ver> to at least ${defaultMinIosVersion}`);
+				this.minIosVer = defaultMinIosVersion;
+			} else if (version.gt(this.minIosVer, this.iosSdkVersion)) {
+				logger.error(`The <min-ios-ver> of the iOS section in the tiapp.xml is set to ${
+					version.format(this.minIosVer, 2)
+				} and is greater than the specified iOS version ${
+					version.format(this.iosSdkVersion, 2)
+				}`);
+				logger.error(`Either rerun with --ios-version ${
+					version.format(this.minIosVer, 2)
+				} or set the <min-ios-ver> to ${
+					version.format(this.iosSdkVersion, 2)
+				}.\n`);
+				process.exit(1);
+			}
+
+			// check the min-ios-ver for the device we're installing to
+			if (this.target === 'device') {
+				const { devices } = this.getDeviceInfo();
+				for (const device of devices) {
+					if (device.udid !== 'all' && (cli.argv['device-id'] === 'all' || cli.argv['device-id'] === device.udid) && version.lt(device.productVersion, this.minIosVer)) {
+						logger.error(`This app does not support the device "${device.name}"\n`);
+						logger.log(`The device is running iOS ${
+							device.productVersion.cyan
+						}, however the app's the minimum iOS version is set to ${
+							version.format(this.minIosVer, 2, 3).cyan
+						}`);
+						logger.log(`In order to install this app on this device, lower the ${
+							'<min-ios-ver>'.cyan
+						} to ${
+							version.format(device.productVersion, 2, 2).cyan
+						} in the tiapp.xml:`);
+						logger.log();
+						logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+						logger.log('    <ios>'.grey);
+						logger.log(('        <min-ios-ver>' + version.format(device.productVersion, 2, 2) + '</min-ios-ver>').magenta);
+						logger.log('    </ios>'.grey);
+						logger.log('</ti:app>'.grey);
+						logger.log();
+						process.exit(0);
+					}
+				}
+			}
+
+			// validate modules
+			const modules = await this.validateTiModules([ 'ios', 'iphone' ], this.deployType);
+			this.modules = modules.found;
+			this.commonJsModules = [];
+			this.nativeLibModules = [];
+			this.legacyModules = new Set();
+
+			const nativeHashes = [];
+			for (const module of modules.found) {
+				if (module.platform.includes('commonjs')) {
+					module.native = false;
+
+					// look for legacy module.id.js first
+					let libFile = path.join(module.modulePath, `${module.id}.js`);
+					module.libFile = fs.existsSync(libFile) ? libFile : null;
+					// If no legacy file, let require.resolve get the main script
+					if (!module.libFile) {
+						libFile = require.resolve(module.modulePath);
+						if (fs.existsSync(libFile)) {
+							module.libFile = libFile;
+						}
+
+						if (!module.libFile) {
+							this.logger.error(`Module "${
+								module.id
+							}" (${
+								module.manifest.version || 'latest'
+							}) is missing main file: ${
+								`${module.id}.js`
+							}, package.json with "main" entry, index.js, or index.json\n`);
+							process.exit(1);
+						}
+					}
+
+					this.commonJsModules.push(module);
+				} else {
+					module.native = true;
+					const frameworkName = `${this.scrubbedModuleId(module.id)}.framework`;
+					const xcFrameworkOfLib = `${module.id}.xcframework`;
+					const xcFrameworkOfFramework = `${this.scrubbedModuleId(module.id)}.xcframework`;
+
+					module.isFramework = false;
+
+					// Try to load native module as static library (Obj-C)
+					if (fs.existsSync(path.join(module.modulePath, 'lib' + module.id.toLowerCase() + '.a'))) {
+						module.libName = 'lib' + module.id.toLowerCase() + '.a';
+						module.libFile = path.join(module.modulePath, module.libName);
+						module.isFramework = false;
+
+						// For Obj-C static libraries, use the .a library or hashing
+						this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
+						nativeHashes.push(module.hash = this.hash(fs.readFileSync(module.libFile)));
+						// Try to load native module as framework (Swift)
+					} else if (fs.existsSync(path.join(module.modulePath, frameworkName))) {
+						module.libName = frameworkName;
+						module.libFile = path.join(module.modulePath, module.libName);
+						module.isFramework = true;
+
+						// For Swift frameworks, use the binary inside the .framework for hashing
+						this.legacyModules.add(module.id); // Record that this won't support macOS or arm64 sim!
+						nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, this.scrubbedModuleId(module.id)))));
+					} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfLib))) {
+						module.libName = xcFrameworkOfLib;
+						module.libFile = path.join(module.modulePath, module.libName);
+						module.isFramework = true;
+
+						const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+						for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+							if (libInfo.SupportedPlatformVariant === undefined) {
+								// Device library is used for hash calculation.
+								// TODO: Probably we want to add other varient's library as well.
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier,  'lib' + module.id.toLowerCase() + '.a'))));
+							} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+								this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+							}
+						}
+					} else if (fs.existsSync(path.join(module.modulePath, xcFrameworkOfFramework))) {
+						module.libName = xcFrameworkOfFramework;
+						module.libFile = path.join(module.modulePath, module.libName);
+						module.isFramework = true;
+
+						const xcFrameworkInfo = plist.readFileSync(path.join(module.libFile, 'Info.plist'));
+						const scrubbedModuleId = this.scrubbedModuleId(module.id);
+						for (const libInfo of xcFrameworkInfo.AvailableLibraries) {
+							if (libInfo.SupportedPlatformVariant === undefined) {
+								// Device library is used for hash calculation.
+								// TODO: Probably we want to add other varient's library as well.
+								nativeHashes.push(module.hash = this.hash(fs.readFileSync(path.join(module.libFile, libInfo.LibraryIdentifier, scrubbedModuleId + '.framework', scrubbedModuleId))));
+							} else if (libInfo.SupportedPlatformVariant === 'simulator' && !libInfo.SupportedArchitectures.includes('arm64')) {
+								this.legacyModules.add(module.id);// Record that this won't support arm64 sim!
+							}
+						}
+					} else {
+						this.logger.error(`Module ${
+							module.id.cyan
+						} (${
+							(module.manifest.version || 'latest').cyan
+						}) is missing library or framework file.\n`);
+						this.logger.error('Please validate that your module has been packaged correctly and try it again.');
+						process.exit(1);
+					}
+
+					this.nativeLibModules.push(module);
+				}
+
+				// scan the module for any CLI hooks
+				await cli.scanHooks(path.join(module.modulePath, 'hooks'));
+			}
+
+			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
+			this.collectModuleSpmDependencies();
+		} catch (err) {
+			logger.error((err.message || err.toString()) + '\n');
+			process.exit(1);
+		}
 	}
 
 	scrubbedModuleId(moduleId) {
@@ -2661,9 +2646,9 @@ class iOSBuilder extends Builder {
 	 * @param {Object} cli - The Titanium CLI instance.
 	 * @param {Function} finished - A function to call when the build has finished or errored.
 	 */
-	async run(logger, config, cli, finished) {
+	async run(logger, config, cli) {
 		try {
-			super.run(logger, config, cli);
+			await super.run(logger, config, cli);
 
 			// force the platform to "ios" just in case it was "iphone" so that plugins can reference it
 			cli.argv.platform = 'ios';
@@ -2808,11 +2793,6 @@ class iOSBuilder extends Builder {
 				this.logger.error('Build failed. Reason: Unknown');
 			}
 			process.exit(1);
-		}
-
-		// We're done. Invoke optional callback if provided.
-		if (finished) {
-			finished();
 		}
 	}
 
@@ -3323,6 +3303,39 @@ class iOSBuilder extends Builder {
 		}
 	}
 
+	/**
+	 * Parses the template pbxproj, caching the parsed tree on disk keyed by a hash of the
+	 * source. Parsing is non-trivial (~50-200ms) and the source only changes when the SDK
+	 * itself does, so subsequent builds reuse the cached tree.
+	 *
+	 * @param {String} contents - The template pbxproj source.
+	 * @returns {Object} the parsed pbxproj tree
+	 */
+	loadOrParsePbxproj(contents) {
+		const cacheDir = path.join(this.buildDir, 'incremental', 'xcode-project');
+		const cacheFile = path.join(cacheDir, 'template-parsed.json');
+		const hashFile = path.join(cacheDir, 'template-src.sha1');
+		const srcHash = this.hash(contents);
+		let parsed;
+		if (fs.existsSync(hashFile) && fs.existsSync(cacheFile)
+			&& fs.readFileSync(hashFile, 'utf8') === srcHash) {
+			this.logger.trace(`Reusing cached parsed pbxproj from ${cacheFile.cyan}`);
+			parsed = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+		} else {
+			parsed = xcodeParser.parse(contents);
+			try {
+				fs.ensureDirSync(cacheDir);
+				fs.writeFileSync(cacheFile, JSON.stringify(parsed));
+				fs.writeFileSync(hashFile, srcHash);
+			} catch (e) {
+				this.logger.trace(`Unable to persist pbxproj cache: ${e.message}`);
+			}
+		}
+		// don't let removeFiles() delete the cache at the end of the build
+		this.unmarkBuildDirFiles(cacheDir);
+		return parsed;
+	}
+
 	// FIXME: Make async and not use callback!
 	createXcodeProject(next) {
 		this.logger.info('Creating Xcode project');
@@ -3334,7 +3347,7 @@ class iOSBuilder extends Builder {
 		const relPathRegExp = /\.\.\/(Classes|Resources|headers|lib)/;
 		const contents = fs.readFileSync(srcFile).toString();
 
-		xcodeProject.hash = xcodeParser.parse(contents);
+		xcodeProject.hash = this.loadOrParsePbxproj(contents);
 		const xobjs = xcodeProject.hash.project.objects;
 
 		if (appc.version.lt(this.xcodeEnv.version, '7.0.0')) {
@@ -4991,6 +5004,15 @@ class iOSBuilder extends Builder {
 		return contents;
 	}
 
+	/**
+	 * serializes a file's mtime the way it is stored in the build manifest
+	 * @param {fs.Stats} stat file stats
+	 * @returns {string} the serialized mtime
+	 */
+	serializeMtime(stat) {
+		return JSON.parse(JSON.stringify(stat.mtime));
+	}
+
 	copyTitaniumiOSFiles() {
 		this.logger.info('Copying Titanium iOS files');
 
@@ -5025,15 +5047,29 @@ class iOSBuilder extends Builder {
 						return null;
 					}
 
-					let contents = fs.readFileSync(srcFile),
-						changed = false;
 					const rel = srcFile.replace(path.dirname(this.titaniumSdkPath) + '/', ''),
-						destExists = fs.existsSync(destFile),
-						existingContent = destExists && fs.readFileSync(destFile),
-						srcHash = this.hash(contents),
-						srcMtime = JSON.parse(JSON.stringify(srcStat.mtime));
+						srcMtime = this.serializeMtime(srcStat),
+						prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel],
+						destExists = fs.existsSync(destFile);
 
 					this.unmarkBuildDirFile(destFile);
+
+					// dest is only reusable if it still exists, the app name didn't change, we have a
+					// previous fingerprint, and no Frameworks bulk copy has replaced it this build
+					const canReuseDest = destExists && !nameChanged && prev && !(dir === 'Frameworks' && !copyFrameworks);
+
+					// Fast path: if stat (size+mtime) matches the previous build and dest is reusable,
+					// the source can't have changed, so reuse the cached fingerprint and skip read/hash/write.
+					// Skipped for appFiles (rendered through ejs each build).
+					if (!appFiles[filename] && canReuseDest && prev.size === srcStat.size && prev.mtime === srcMtime) {
+						this.currentBuildManifest.files[rel] = prev;
+						return null;
+					}
+
+					let contents = fs.readFileSync(srcFile),
+						changed = false;
+					const existingContent = destExists && fs.readFileSync(destFile),
+						srcHash = this.hash(contents);
 
 					this.currentBuildManifest.files[rel] = {
 						hash: srcHash,
@@ -5055,9 +5091,7 @@ class iOSBuilder extends Builder {
 					}
 
 					if (extRegExp.test(srcFile)) {
-						// look up the file to see if the original source changed
-						const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[rel];
-						if (destExists && !nameChanged && prev && prev.size === srcStat.size && prev.mtime === srcMtime && prev.hash === srcHash && !(dir === 'Frameworks' && !copyFrameworks)) {
+						if (canReuseDest && prev.hash === srcHash) {
 							// the original hasn't changed, so let's assume that there's nothing to do
 							return null;
 						}
@@ -5881,21 +5915,13 @@ class iOSBuilder extends Builder {
 		const imageNameRegExp = /^(.*?)(-dark)?(@[23]x)?(~iphone|~ipad)?\.(png|jpg)$/;
 
 		const imageSets = {};
+		const namespaceDirs = new Set();
 		for (let [ file, info ] of imageAssets) {
 			const directories = file.split('/');
 			let newPath = '';
 			for (let i = 0; i < directories.length - 1; i++) {
 				newPath = newPath + '/' + directories[i];
-
-				await this.writeAssetContentsFile(path.join(assetCatalog, newPath, 'Contents.json'), {
-					info: {
-						version: 1,
-						author: 'xcode'
-					},
-					properties: {
-						'provides-namespace': true
-					},
-				});
+				namespaceDirs.add(newPath);
 			}
 
 			const match = file.match(imageNameRegExp);
@@ -5937,16 +5963,23 @@ class iOSBuilder extends Builder {
 			resourcesToCopy.get(file).isImage = true;
 		}
 
-		// finally create all the Content.json files
-		return Promise.all(Object.keys(imageSets).map(async set => {
-			return this.writeAssetContentsFile(path.join(assetCatalog, set, 'Contents.json'), {
+		// finally write all the Contents.json files in parallel: the per-namespace markers
+		// (deduped above via namespaceDirs) and the imageset manifests.
+		const namespaceContents = {
+			info: { version: 1, author: 'xcode' },
+			properties: { 'provides-namespace': true }
+		};
+		const writes = [];
+		for (const dir of namespaceDirs) {
+			writes.push(this.writeAssetContentsFile(path.join(assetCatalog, dir, 'Contents.json'), namespaceContents));
+		}
+		for (const set of Object.keys(imageSets)) {
+			writes.push(this.writeAssetContentsFile(path.join(assetCatalog, set, 'Contents.json'), {
 				images: imageSets[set].images,
-				info: {
-					version: 1,
-					author: 'xcode'
-				}
-			});
-		}));
+				info: { version: 1, author: 'xcode' }
+			}));
+		}
+		return Promise.all(writes);
 	}
 
 	/**
@@ -6281,9 +6314,6 @@ class iOSBuilder extends Builder {
 			};
 		}
 
-		// shared by the Icon Composer path and the app icon set path below
-		const boundGenerateAppIcons = util.promisify(this.generateAppIcons).bind(this);
-
 		// the Icon Composer document already covers every app icon size and appearance, so the
 		// only images left to produce are the launch logos
 		if (iconComposerIcon) {
@@ -6317,7 +6347,7 @@ class iOSBuilder extends Builder {
 				return;
 			}
 
-			return boundGenerateAppIcons(missingLaunchLogos);
+			return this.generateAppIcons(missingLaunchLogos);
 		}
 
 		// The original list of icons we may need (we trim this down as we match them)
@@ -6379,7 +6409,6 @@ class iOSBuilder extends Builder {
 			}
 		};
 		const flattenIcons = []; // icons with alpha channel to "flatten" with white bg
-		// FIXME: Do these in parallel
 		// This goes through the app icons and tries to:
 		// validate it matches one of the ones we need
 		// its height/width matches what we need
@@ -6390,21 +6419,26 @@ class iOSBuilder extends Builder {
 		// if usable, we expand out into appIconSet and remove from lookup map (this is how we keep track of what's missing)
 		// if we don't need to flatten, we add to resources to copy (after chnaging dest to iconset asset catalog)
 		// if we do need to flatten we eventually merge over top white bg
-		appIcons.forEach((info, filename) => {
+
+		// Read + parse all candidate icons in parallel; the subsequent validation/categorization
+		// mutates shared state (lookup, appIconSet, flattenIcons, resourcesToCopy) so it stays serial.
+		const iconCandidates = [];
+		for (const [ filename, info ] of appIcons) {
 			if (!info.tag) {
 				// probably appicon.png, we don't care so skip it
-				return;
+				continue;
 			}
-
 			if (!lookup[info.tag]) {
-				// we don't care about this image
 				this.logger.debug(`Unsupported app icon ${info.src.replace(this.projectDir + '/', '').cyan}, skipping`);
-				return;
+				continue;
 			}
-
-			const contents = fs.readFileSync(info.src);
-			const pngInfo = appc.image.pngInfo(contents);
-
+			iconCandidates.push({ filename, info });
+		}
+		const iconReads = await Promise.all(iconCandidates.map(async ({ filename, info }) => {
+			const { contents, pngInfo } = await this.readPngInfo(info.src);
+			return { filename, info, contents, pngInfo };
+		}));
+		iconReads.forEach(({ filename, info, contents, pngInfo }) => {
 			// check that the app icon is square
 			if (pngInfo.width !== pngInfo.height) {
 				this.logger.warn(`Skipping app icon ${
@@ -6512,14 +6546,14 @@ class iOSBuilder extends Builder {
 
 		if (!defaultIcon) {
 			// we're going to fail, but we let generateAppIcons() do the dirty work
-			return boundGenerateAppIcons(missingIcons);
+			return this.generateAppIcons(missingIcons);
 		}
 
 		if (!defaultIconChanged) {
 			// we have missing icons, but the default icon hasn't changed
 			// call generateAppIcons() and have it deal with determining if the icons need
 			// to be generated or if it needs to error out
-			return boundGenerateAppIcons(missingIcons);
+			return this.generateAppIcons(missingIcons);
 		}
 
 		if (!this.forceRebuild) {
@@ -6529,7 +6563,7 @@ class iOSBuilder extends Builder {
 			this.forceRebuild = true;
 		}
 
-		return boundGenerateAppIcons(missingIcons);
+		return this.generateAppIcons(missingIcons);
 	}
 
 	/**
@@ -6662,13 +6696,35 @@ class iOSBuilder extends Builder {
 			let changed = false;
 			const prev = this.previousBuildManifest.files && this.previousBuildManifest.files['LaunchLogo.png'];
 
-			if (launchLogo) {
-				// sanity check that LaunchLogo is usable
-				const stat = fs.statSync(launchLogo.src),
-					mtime = JSON.parse(JSON.stringify(stat.mtime)),
-					launchLogoContents = fs.readFileSync(launchLogo.src),
-					hash = this.hash(launchLogoContents);
+			// Run all up-front I/O in parallel: the LaunchLogo source stat+read (if present) and
+			// the existsSync probe for every destination we may have to generate. The categorization
+			// step below stays synchronous over the resolved results.
+			const lookupEntries = Object.keys(lookup).map(name => ({
+				name,
+				spec: lookup[name],
+				filename: name + '.png',
+				dest: path.join(assetCatalogDir, name + '.png')
+			}));
+			const [ launchLogoData, ...destExists ] = await Promise.all([
+				launchLogo
+					? (async () => {
+						const [ stat, launchLogoContents ] = await Promise.all([
+							fs.stat(launchLogo.src),
+							fs.readFile(launchLogo.src)
+						]);
+						return {
+							stat,
+							launchLogoContents,
+							mtime: this.serializeMtime(stat),
+							hash: this.hash(launchLogoContents)
+						};
+					})()
+					: Promise.resolve(null),
+				...lookupEntries.map(entry => fs.pathExists(entry.dest))
+			]);
 
+			if (launchLogoData) {
+				const { stat, launchLogoContents, mtime, hash } = launchLogoData;
 				changed = !prev || prev.size !== stat.size || prev.mtime !== mtime || prev.hash !== hash;
 
 				this.currentBuildManifest.files['LaunchLogo.png'] = {
@@ -6695,11 +6751,9 @@ class iOSBuilder extends Builder {
 			let logged = false;
 
 			// build the list of images to be generated
-			Object.keys(lookup).forEach(name => {
-				const spec = lookup[name],
-					filename = name + '.png',
-					dest = path.join(assetCatalogDir, filename),
-					desc = `${name} - Used for ${spec.idiom} - size: ${spec.size}x${spec.size}`;
+			lookupEntries.forEach((entry, idx) => {
+				const { spec, filename, dest } = entry;
+				const desc = `${entry.name} - Used for ${spec.idiom} - size: ${spec.size}x${spec.size}`;
 
 				images.push({
 					idiom: spec.idiom,
@@ -6710,7 +6764,7 @@ class iOSBuilder extends Builder {
 				this.unmarkBuildDirFile(dest);
 
 				// if the source image hasn't changed, then don't need to regenerate the missing launch logos
-				if (!changed && fs.existsSync(dest)) {
+				if (!changed && destExists[idx]) {
 					this.logger.trace(`Found generated ${spec.size}x${spec.size} launch logo: ${dest.cyan}`);
 					return;
 				}
@@ -6808,6 +6862,16 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
+	 * reads a PNG file and parses its metadata
+	 * @param {string} file filepath to the PNG file
+	 * @returns {Promise<object>} the file contents and parsed png info
+	 */
+	async readPngInfo(file) {
+		const contents = await fs.readFile(file);
+		return { contents, pngInfo: appc.image.pngInfo(contents) };
+	}
+
+	/**
 	 * write the app icon set, and gather up missing icons we should try to generate
 	 * @param {object} lookup icons we don't have
 	 * @param {string} appIconSetDir filepath to dir we're writing our app icon set
@@ -6823,14 +6887,33 @@ class iOSBuilder extends Builder {
 			return [];
 		}
 
-		const missingIcons = [];
-		Object.keys(lookup).forEach(key => {
+		// Read every previously-generated icon (if any) in parallel before deciding which still
+		// need to be regenerated. When the default icon changed we can't trust any cached output,
+		// so skip the disk checks entirely.
+		const candidates = Object.keys(lookup).map(key => {
 			const filename = this.tiapp.icon.replace(/\.png$/, '') + key + '.png';
-			const dest = path.join(appIconSetDir, filename);
+			return {
+				meta: lookup[key],
+				filename,
+				dest: path.join(appIconSetDir, filename)
+			};
+		});
+		const reusableIconInfo = await Promise.all(candidates.map(async ({ dest }) => {
+			if (defaultIconChanged || !(await fs.pathExists(dest))) {
+				return null;
+			}
+			try {
+				return (await this.readPngInfo(dest)).pngInfo;
+			} catch {
+				return null;
+			}
+		}));
+
+		const missingIcons = [];
+		candidates.forEach(({ meta, filename, dest }, idx) => {
 			this.unmarkBuildDirFile(dest);
 
 			// inject images into the app icon set
-			const meta = lookup[key];
 			meta.idioms.forEach(function (idiom) {
 				appIconSet.images.push({
 					size:     meta.width + 'x' + meta.height,
@@ -6843,15 +6926,11 @@ class iOSBuilder extends Builder {
 			// check if the icon was previously resized
 			const width = meta.width * meta.scale;
 			const height = meta.height * meta.scale;
-			if (!defaultIconChanged && fs.existsSync(dest)) {
-				const contents = fs.readFileSync(dest),
-					pngInfo = appc.image.pngInfo(contents);
-
-				if (pngInfo.width === width && pngInfo.height === height) {
-					this.logger.trace(`Found generated ${width}x${height} app icon: ${dest.cyan}`);
-					// icon looks good, no need to generate it!
-					return;
-				}
+			const pngInfo = reusableIconInfo[idx];
+			if (pngInfo && pngInfo.width === width && pngInfo.height === height) {
+				this.logger.trace(`Found generated ${width}x${height} app icon: ${dest.cyan}`);
+				// icon looks good, no need to generate it!
+				return;
 			}
 
 			missingIcons.push({
