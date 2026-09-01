@@ -61,17 +61,8 @@ async function gperf(workingDirPath, inputFilePath, outputFilePath) {
  * @param {string} outputDir directory to place the generated 'ti.kernel.js' file
  */
 async function generateTiKernel(outputDir) {
-	const { Builder } = await import('../../build/lib/builder.js');
-	const { AndroidBuilder } = await import('../../build/lib/android.js');
-	const options = { };
-	const builder = new Builder(options, [ 'android' ]);
-	await builder.ensureGitHash();
-	const android = new AndroidBuilder({
-		sdkVersion: fs.readJsonSync(path.join(__dirname, '../../package.json')).version,
-		gitHash: options.gitHash,
-		timestamp: options.timestamp
-	});
-
+	const { createBuildersFromEnv } = await import('../../build/lib/android.js');
+	const { builder, android } = await createBuildersFromEnv();
 	return builder.generateKernelBundle('android', android.babelOptions(), outputDir);
 }
 

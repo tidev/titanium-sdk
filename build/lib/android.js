@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'fs-extra';
 import { copyFile, copyFiles, copyAndModifyFile, globCopy } from './utils.js';
+import { Builder } from './builder.js';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
@@ -11,6 +12,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '..', '..');
 const TITANIUM_ANDROID_PATH = path.join(ROOT_DIR, 'android');
 const DIST_ANDROID_PATH = path.join(ROOT_DIR, 'dist', 'android');
+const DIST_COMMON_ANDROID_PATH = path.join(ROOT_DIR, 'dist', 'tmp', 'common', 'android');
+const TI_ASSETS_PATH = path.join(TITANIUM_ANDROID_PATH, 'titanium', 'build', 'outputs', 'ti-assets');
 const GRADLEW_FILE_PATH = path.join(TITANIUM_ANDROID_PATH, isWindows ? 'gradlew.bat' : 'gradlew');
 // On CI server, use plain output to avoid nasty progress bars filling up logs
 // But on local dev, use the nice UI
@@ -82,6 +85,11 @@ export class AndroidBuilder {
 		process.env.TI_SDK_BUILD_TIMESTAMP = this.timestamp;
 		process.env.TI_SDK_VERSION_TAG = this.versionTag;
 		await this.runGradleTask(':titanium:assembleRelease');
+
+		// The gradle build above transpiled/bundled "ti.main.js" (it's needed to generate the V8 snapshot).
+		// Copy it to where the packager expects it. (The "ti.kernel.js" bundle is baked into C++ and not shipped.)
+		await fs.emptyDir(DIST_COMMON_ANDROID_PATH);
+		await copyFile(path.join(TI_ASSETS_PATH, 'Resources'), DIST_COMMON_ANDROID_PATH, 'ti.main.js');
 	}
 
 	async package(packager) {
@@ -258,6 +266,26 @@ async function createLocalPropertiesFile(sdkPath) {
 		'sdk.dir=' + sdkPath.replace(/\\/g, '\\\\')
 	];
 	await fs.writeFile(filePath, fileLines.join('\n') + '\n');
+}
+
+/**
+ * Creates the Builder/AndroidBuilder pair used by the scripts that gradle runs during the build
+ * ("libv8-services.js" and "prebuild.js") to bundle the common JS files.
+ *
+ * Prefers the version/git hash/timestamp the SDK build scripts passed down via environment variables so the
+ * bundles gradle produces are identical to the rest of the SDK build. When run outside of the SDK build scripts
+ * (ex: invoking gradle directly), they're derived the same way "scons build" derives them.
+ * @returns {Promise<{ builder: Builder, android: AndroidBuilder }>}
+ */
+export async function createBuildersFromEnv() {
+	const options = {
+		sdkVersion: process.env.TI_SDK_BUILD_VERSION || fs.readJsonSync(path.join(ROOT_DIR, 'package.json')).version,
+		gitHash: process.env.TI_SDK_BUILD_GIT_HASH,
+		timestamp: process.env.TI_SDK_BUILD_TIMESTAMP
+	};
+	const builder = new Builder(options, [ 'android' ]);
+	await builder.ensureGitHash(); // fills in options.gitHash if not set
+	return { builder, android: new AndroidBuilder(options) };
 }
 
 export default AndroidBuilder;
