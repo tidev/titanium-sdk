@@ -15,7 +15,7 @@ import { detect as androidDetect } from '../lib/detect.js';
 import { AndroidManifest } from '../lib/android-manifest.js';
 import appc from 'node-appc';
 import archiver from 'archiver';
-import Builder from 'node-titanium-sdk/lib/builder.js';
+import { Builder } from '../../../cli/lib/builder.js';
 import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';
@@ -194,126 +194,119 @@ export class AndroidModuleBuilder extends Builder {
 		this.logger.info('\nMigration completed! Building module...');
 	}
 
-	validate(logger, config, cli) {
+	async validate(logger, config, cli) {
 		super.config(logger, config, cli);
-		super.validate(logger, config, cli);
+		await super.validate(logger, config, cli);
 
-		return function (finished) {
-			this.projectDir = cli.argv['project-dir'];
-			this.buildOnly = cli.argv['build-only'];
-			this.target = cli.argv['target'];
-			this.deviceId = cli.argv['device-id'];
-			this.skipBuild = cli.argv['$_'].includes('--skip-build');
+		this.projectDir = cli.argv['project-dir'];
+		this.buildOnly = cli.argv['build-only'];
+		this.target = cli.argv['target'];
+		this.deviceId = cli.argv['device-id'];
+		this.skipBuild = cli.argv['$_'].includes('--skip-build');
 
-			this.cli = cli;
-			this.logger = logger;
-			fields.setup({ colors: cli.argv.colors });
+		this.cli = cli;
+		this.logger = logger;
+		fields.setup({ colors: cli.argv.colors });
 
-			this.manifest = this.cli.manifest;
+		// cli.manifest is the module's "manifest" file, loaded by the --project-dir
+		// option's callback in cli/commands/build.js
+		this.manifest = cli.manifest;
 
-			// detect Android environment
-			androidDetect(config, { packageJson: this.packageJson }, function (androidInfo) {
-				this.androidInfo = androidInfo;
+		// detect Android environment
+		this.androidInfo = await new Promise((resolve) => {
+			androidDetect(config, { packageJson: this.packageJson }, resolve);
+		});
 
-				const targetSDKMap = {
+		const targetSDKMap = {
+			// placeholder for Gradle to use
+			[this.compileSdkVersion]: {
+				sdk: this.compileSdkVersion
+			}
+		};
+		for (const id of Object.keys(this.androidInfo.targets)) {
+			const t = this.androidInfo.targets[id];
+			if (t.type === 'platform') {
+				targetSDKMap[t.id.replace('android-', '')] = t;
+			}
+		}
 
-					// placeholder for Gradle to use
-					[this.compileSdkVersion]: {
-						sdk: this.compileSdkVersion
-					}
-				};
-				Object.keys(this.androidInfo.targets).forEach(function (id) {
-					var t = this.androidInfo.targets[id];
-					if (t.type === 'platform') {
-						targetSDKMap[t.id.replace('android-', '')] = t;
-					}
-				}, this);
+		// check the Android SDK we require to build exists
+		this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
 
-				// check the Android SDK we require to build exists
-				this.androidCompileSDK = targetSDKMap[this.compileSdkVersion];
+		// if no target SDK, then default to most recent supported/installed
+		if (!this.targetSDK) {
+			this.targetSDK = this.maxSupportedApiLevel;
+		}
+		this.androidTargetSDK = targetSDKMap[this.targetSDK];
 
-				// if no target SDK, then default to most recent supported/installed
-				if (!this.targetSDK) {
-					this.targetSDK = this.maxSupportedApiLevel;
-				}
-				this.androidTargetSDK = targetSDKMap[this.targetSDK];
+		if (!this.androidTargetSDK) {
+			this.androidTargetSDK = {
+				sdk: this.targetSDK
+			};
+		}
 
-				if (!this.androidTargetSDK) {
-					this.androidTargetSDK = {
-						sdk: this.targetSDK
-					};
-				}
+		if (this.targetSDK < this.minSDK) {
+			logger.error(`Target Android SDK version must be ${this.minSDK} or newer\n`);
+			process.exit(1);
+		}
 
-				if (this.targetSDK < this.minSDK) {
-					logger.error(`Target Android SDK version must be ${this.minSDK} or newer\n`);
-					process.exit(1);
-				}
+		if (this.maxSDK && this.maxSDK < this.targetSDK) {
+			logger.error(`Maximum Android SDK version must be greater than or equal to the target SDK ${
+				this.targetSDK
+			}, but is currently set to ${
+				this.maxSDK
+			}\n`);
+			process.exit(1);
+		}
 
-				if (this.maxSDK && this.maxSDK < this.targetSDK) {
-					logger.error(`Maximum Android SDK version must be greater than or equal to the target SDK ${
-						this.targetSDK
-					}, but is currently set to ${
-						this.maxSDK
-					}\n`);
-					process.exit(1);
-				}
+		if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
+			// print warning that version this.targetSDK is not tested
+			logger.warn(`Building with Android SDK ${
+				String(this.targetSDK).cyan
+			} which hasn't been tested against Titanium SDK ${
+				this.titaniumSdkVersion
+			}`);
+		}
 
-				if (this.maxSupportedApiLevel && this.targetSDK > this.maxSupportedApiLevel) {
-					// print warning that version this.targetSDK is not tested
-					logger.warn(`Building with Android SDK ${
-						String(this.targetSDK).cyan
-					} which hasn't been tested against Titanium SDK ${
-						this.titaniumSdkVersion
-					}`);
-				}
+		// get javac params
+		this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
 
-				// get javac params
-				this.javacMaxMemory = config.get('android.javac.maxMemory', '3072M');
+		// TODO remove in the next SDK
+		if (cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value) {
+			logger.error('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory\n');
+			this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'].value;
+		}
 
-				// TODO remove in the next SDK
-				if (cli.timodule.properties['android.javac.maxmemory'] && cli.timodule.properties['android.javac.maxmemory'].value) {
-					logger.error('android.javac.maxmemory is deprecated and will be removed in the next version. Please use android.javac.maxMemory\n');
-					this.javacMaxMemory = cli.timodule.properties['android.javac.maxmemory'].value;
-				}
+		if (cli.timodule.properties['android.javac.maxMemory'] && cli.timodule.properties['android.javac.maxMemory'].value) {
+			this.javacMaxMemory = cli.timodule.properties['android.javac.maxMemory'].value;
+		}
 
-				if (cli.timodule.properties['android.javac.maxMemory'] && cli.timodule.properties['android.javac.maxMemory'].value) {
-					this.javacMaxMemory = cli.timodule.properties['android.javac.maxMemory'].value;
-				}
-
-				// detect JDK
-				appc.jdk.detect(config, null, function (jdkInfo) {
-					if (!jdkInfo.version) {
-						logger.error('Unable to locate the Java Development Kit\n');
-						logger.log(`You can specify the location by setting the ${'JAVA_HOME'.cyan} environment variable.\n`);
-						process.exit(1);
-					}
-
-					if (!version.satisfies(jdkInfo.version, this.packageJson.vendorDependencies.java)) {
-						logger.error(`JDK version ${
-							jdkInfo.version
-						} detected, but only version ${
-							this.packageJson.vendorDependencies.java
-						} is supported\n`);
-						process.exit(1);
-					}
-
-					this.jdkInfo = jdkInfo;
-
-					finished();
-				}.bind(this));
-			}.bind(this));
-		}.bind(this);
+		// detect JDK
+		this.jdkInfo = await new Promise((resolve) => {
+			appc.jdk.detect(config, null, resolve);
+		});
+		if (!this.jdkInfo.version) {
+			logger.error('Unable to locate the Java Development Kit\n');
+			logger.log(`You can specify the location by setting the ${'JAVA_HOME'.cyan} environment variable.\n`);
+			process.exit(1);
+		}
+		if (!version.satisfies(this.jdkInfo.version, this.packageJson.vendorDependencies.java)) {
+			logger.error(`JDK version ${
+				this.jdkInfo.version
+			} detected, but only version ${
+				this.packageJson.vendorDependencies.java
+			} is supported\n`);
+			process.exit(1);
+		}
 	}
 
-	async run(logger, config, cli, finished) {
+	async run(logger, config, cli) {
 		try {
 			// Call the base builder's run() method.
-			super.run(logger, config, cli, finished);
+			await super.run(logger, config, cli);
 
 			// Notify plugins that we're about to begin.
-			await new Promise((resolve) => {
-				cli.emit('build.module.pre.construct', this, resolve);
-			});
+			await cli.emit('build.module.pre.construct', this);
 
 			// Update module's config files, if necessary.
 			await this.migrate();
@@ -329,9 +322,7 @@ export class AndroidModuleBuilder extends Builder {
 				await this.cleanup();
 
 				// Notify plugins that we're prepping to compile.
-				await new Promise((resolve) => {
-					cli.emit('build.module.pre.compile', this, resolve);
-				});
+				await cli.emit('build.module.pre.compile', this);
 
 				// Update module files such as "manifest" if needed.
 				await this.updateModuleFiles();
@@ -343,16 +334,12 @@ export class AndroidModuleBuilder extends Builder {
 				// Build the library and output it to "dist" directory.
 				await this.buildModuleProject();
 				// Notify plugins that the build is done.
-				await new Promise((resolve) => {
-					cli.emit('build.module.post.compile', this, resolve);
-				});
+				await cli.emit('build.module.post.compile', this);
 			}
 
 			await this.packageZip();
 
-			await new Promise((resolve) => {
-				cli.emit('build.module.finalize', this, resolve);
-			});
+			await cli.emit('build.module.finalize', this);
 
 			// Run the built module via "example" project.
 			await this.runModule(cli);
@@ -366,18 +353,7 @@ export class AndroidModuleBuilder extends Builder {
 			} else {
 				this.logger.error('Build failed. Reason: Unknown');
 			}
-
-			// Exit out with an error.
-			if (finished) {
-				finished(err);
-			} else {
-				process.exit(1);
-			}
-		}
-
-		// We're done. Invoke optional callback if provided.
-		if (finished) {
-			finished();
+			process.exit(1);
 		}
 	}
 
@@ -950,7 +926,7 @@ export class AndroidModuleBuilder extends Builder {
 		await util.promisify(appc.zip.unzip)(this.moduleZipPath, tmpProjectDir, null);
 
 		// Emit hook so modules can also alter project before launch
-		await new Promise(resolve => cli.emit('create.module.app.finalize', [ this, tmpProjectDir ], resolve));
+		await cli.emit('create.module.app.finalize', [ this, tmpProjectDir ]);
 
 		// Run the temp app.
 		this.logger.debug(`Running example project... ${tmpDir.cyan}`);
