@@ -80,9 +80,18 @@ function bootstrapGlobals(global, Titanium) {
 	// Below this is where generated global bindings go
 	// ----
 <% globals.forEach(global => { -%>
+<% if (global.name === 'setTimeout' || global.name === 'setInterval') { -%>
+	global.<%- global.name %> = function(...args) {
+		if (typeof args[0] !== 'function') {
+			throw new TypeError('Callback must be a function');
+		}
+		return <%- global.delegate %>.<%- global.method %>.apply(<%- global.delegate %>, args);
+	};
+<% } else { -%>
 	global.<%- global.name %> = function(...args) {
 		return <%- global.delegate %>.<%- global.method %>.apply(<%- global.delegate %>, args);
 	};
+<% } -%>
 <% }); -%>
 }
 exports.bootstrapGlobals = bootstrapGlobals;
