@@ -30,7 +30,8 @@ import java.lang.annotation.Target;
 @Documented
 // Note: The nested annotations below use CLASS retention (not SOURCE) so that Gradle can find annotated classes
 //       in compiled class files. This is required for the "kroll-apt" annotation processor to be incremental.
-//       They're still stripped from the final app by R8 and are never accessed at runtime.
+//       They're never accessed at runtime and R8 strips them from the app. Since this annotation library never
+//       ships with the app, "titanium/consumer-rules.pro" tells R8 to ignore these missing classes.
 public @interface Kroll {
 	String DEFAULT_NAME = "__default_name__";
 	final class DEFAULT

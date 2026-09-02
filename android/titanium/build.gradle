@@ -66,6 +66,8 @@ android {
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())
 		buildConfigField('String', 'VERSION_NAME', '"' + tiBuildVersionString + '"')
 		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
+		// Ships ProGuard/R8 rules inside the AAR so they're applied to any app that enables code shrinking.
+		consumerProguardFiles 'consumer-rules.pro'
 		// Note: The build timestamp is intentionally NOT a "BuildConfig" field. See "generateTiBuildInfo" task below.
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		javaCompileOptions {

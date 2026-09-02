@@ -774,6 +774,10 @@ public class KrollJSONGenerator extends AbstractProcessor
 		// Flag that JSON bindings/properties have changed since last write, unless the below says otherwise.
 		this.hasPropertiesChanged = true;
 
+		// Sort the bindings tree so the JSON/C++ we generate is identical no matter what order the compiler handed us
+		// the proxy classes in. (Differs between full and incremental compiles.) Needed by the change detection below.
+		this.properties = (Map<Object, Object>) JSONUtils.toDeterministicCopy(this.properties);
+
 		// Generate a JSON string from the "properties" dictionary.
 		String jsonString = JSONValue.toJSONString(this.properties);
 		if (jsonString == null) {
