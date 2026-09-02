@@ -401,6 +401,13 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					canScroll = canScrollHorizontally(1) || canScrollHorizontally(-1);
 				}
 
+				// Remember where the gesture started in screen coordinates.
+				// Used for nested scroll distances and for the drag threshold when scrolling is disabled.
+				this.startRawTouchX = (int) event.getRawX();
+				this.startRawTouchY = (int) event.getRawY();
+				this.lastRawTouchX = this.startRawTouchX;
+				this.lastRawTouchY = this.startRawTouchY;
+
 				// Start nested scrolling if the property is enabled and the EditText content overflows.
 				this.isDragging = false;
 				if (this.isScrollable && canScroll) {
@@ -409,10 +416,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					} else {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_HORIZONTAL;
 					}
-					this.startRawTouchX = (int) event.getRawX();
-					this.startRawTouchY = (int) event.getRawY();
-					this.lastRawTouchX = this.startRawTouchX;
-					this.lastRawTouchY = this.startRawTouchY;
 					boolean wasStarted = startNestedScroll(this.scrollAxisDirection);
 					if (!wasStarted) {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
