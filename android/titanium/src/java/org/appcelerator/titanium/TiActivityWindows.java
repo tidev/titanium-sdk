@@ -82,6 +82,11 @@ public final class TiActivityWindows
 		return (windowMap.get(windowId) != null);
 	}
 
+	public static boolean hasWindow(TiActivityWindow window)
+	{
+		return (window != null) && windowMap.containsValue(window);
+	}
+
 	public static int getWindowCount()
 	{
 		return windowMap.size();

@@ -34,6 +34,7 @@ see the [LICENSE](LICENSE) file for specific details.
   - [Getting Started](#getting-started)
 - [Alloy](#alloy)
   - [Example](#example-1)
+- [Swift Package Manager Support (iOS)](#swift-package-manager-support-ios)
 - [Getting Help](#getting-help)
   - [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
   - [Slack / Developer Community](#slack--developer-community)
@@ -62,7 +63,7 @@ today and benefit from 1:1 sessions with the core team, exclusive modules, merch
 
 Learn more about sponsoring TiDev, the organization behind the Titanium SDK, [here](https://github.com/sponsors/tidev) 🚀.
 
-<!-- sponsors --><a href="https://github.com/phobeous"><img src="https:&#x2F;&#x2F;github.com&#x2F;phobeous.png" width="60px" alt="User avatar: Rodrigo Farfán" /></a><a href="https://github.com/dlewis23"><img src="https:&#x2F;&#x2F;github.com&#x2F;dlewis23.png" width="60px" alt="User avatar: dlewis23" /></a><a href="https://github.com/dethier1958"><img src="https:&#x2F;&#x2F;github.com&#x2F;dethier1958.png" width="60px" alt="User avatar: Daniel Ethier" /></a><a href="https://github.com/desarrollogotit"><img src="https:&#x2F;&#x2F;github.com&#x2F;desarrollogotit.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/Rearmachine"><img src="https:&#x2F;&#x2F;github.com&#x2F;Rearmachine.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/alexlarocca"><img src="https:&#x2F;&#x2F;github.com&#x2F;alexlarocca.png" width="60px" alt="User avatar: Alessandro La Rocca" /></a><a href="https://github.com/reshopper"><img src="https:&#x2F;&#x2F;github.com&#x2F;reshopper.png" width="60px" alt="User avatar: Reshopper" /></a><a href="https://github.com/designbymind"><img src="https:&#x2F;&#x2F;github.com&#x2F;designbymind.png" width="60px" alt="User avatar: Jason David Miller" /></a><a href="https://github.com/greatschism"><img src="https:&#x2F;&#x2F;github.com&#x2F;greatschism.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/mighty-office"><img src="https:&#x2F;&#x2F;github.com&#x2F;mighty-office.png" width="60px" alt="User avatar: Mighty GmbH" /></a><a href="https://github.com/korelogic"><img src="https:&#x2F;&#x2F;github.com&#x2F;korelogic.png" width="60px" alt="User avatar: Korelogic Limited" /></a><a href="https://github.com/eddyinet"><img src="https:&#x2F;&#x2F;github.com&#x2F;eddyinet.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/mediabug51"><img src="https:&#x2F;&#x2F;github.com&#x2F;mediabug51.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/victorpl"><img src="https:&#x2F;&#x2F;github.com&#x2F;victorpl.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/PatrickMounteney"><img src="https:&#x2F;&#x2F;github.com&#x2F;PatrickMounteney.png" width="60px" alt="User avatar: Patrick Mounteney" /></a><a href="https://github.com/lambus-platform"><img src="https:&#x2F;&#x2F;github.com&#x2F;lambus-platform.png" width="60px" alt="User avatar: Lambus" /></a><a href="https://github.com/emptybox"><img src="https:&#x2F;&#x2F;github.com&#x2F;emptybox.png" width="60px" alt="User avatar: Vaughn Dabney" /></a><a href="https://github.com/Whatslively"><img src="https:&#x2F;&#x2F;github.com&#x2F;Whatslively.png" width="60px" alt="User avatar: Whatslively" /></a><a href="https://github.com/JeremyFlight"><img src="https:&#x2F;&#x2F;github.com&#x2F;JeremyFlight.png" width="60px" alt="User avatar: Jeremy Flight" /></a><a href="https://github.com/Alpine-Software"><img src="https:&#x2F;&#x2F;github.com&#x2F;Alpine-Software.png" width="60px" alt="User avatar: Alpine Software" /></a><a href="https://github.com/elusu"><img src="https:&#x2F;&#x2F;github.com&#x2F;elusu.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/UniqueSchools"><img src="https:&#x2F;&#x2F;github.com&#x2F;UniqueSchools.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/aking80"><img src="https:&#x2F;&#x2F;github.com&#x2F;aking80.png" width="60px" alt="User avatar: Aaron King" /></a><!-- sponsors -->
+<!-- sponsors --><a href="https://github.com/phobeous"><img src="https:&#x2F;&#x2F;github.com&#x2F;phobeous.png" width="60px" alt="User avatar: Rodrigo Farfán" /></a><a href="https://github.com/dlewis23"><img src="https:&#x2F;&#x2F;github.com&#x2F;dlewis23.png" width="60px" alt="User avatar: dlewis23" /></a><a href="https://github.com/dethier1958"><img src="https:&#x2F;&#x2F;github.com&#x2F;dethier1958.png" width="60px" alt="User avatar: Daniel Ethier" /></a><a href="https://github.com/desarrollogotit"><img src="https:&#x2F;&#x2F;github.com&#x2F;desarrollogotit.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/Rearmachine"><img src="https:&#x2F;&#x2F;github.com&#x2F;Rearmachine.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/alexlarocca"><img src="https:&#x2F;&#x2F;github.com&#x2F;alexlarocca.png" width="60px" alt="User avatar: Alessandro La Rocca" /></a><a href="https://github.com/designbymind"><img src="https:&#x2F;&#x2F;github.com&#x2F;designbymind.png" width="60px" alt="User avatar: Jason David Miller" /></a><a href="https://github.com/greatschism"><img src="https:&#x2F;&#x2F;github.com&#x2F;greatschism.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/mighty-office"><img src="https:&#x2F;&#x2F;github.com&#x2F;mighty-office.png" width="60px" alt="User avatar: Mighty GmbH" /></a><a href="https://github.com/eddyinet"><img src="https:&#x2F;&#x2F;github.com&#x2F;eddyinet.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/mediabug51"><img src="https:&#x2F;&#x2F;github.com&#x2F;mediabug51.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/victorpl"><img src="https:&#x2F;&#x2F;github.com&#x2F;victorpl.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/PatrickMounteney"><img src="https:&#x2F;&#x2F;github.com&#x2F;PatrickMounteney.png" width="60px" alt="User avatar: Patrick Mounteney" /></a><a href="https://github.com/lambus-platform"><img src="https:&#x2F;&#x2F;github.com&#x2F;lambus-platform.png" width="60px" alt="User avatar: Lambus" /></a><a href="https://github.com/emptybox"><img src="https:&#x2F;&#x2F;github.com&#x2F;emptybox.png" width="60px" alt="User avatar: Vaughn Dabney" /></a><a href="https://github.com/Whatslively"><img src="https:&#x2F;&#x2F;github.com&#x2F;Whatslively.png" width="60px" alt="User avatar: Whatslively" /></a><a href="https://github.com/JeremyFlight"><img src="https:&#x2F;&#x2F;github.com&#x2F;JeremyFlight.png" width="60px" alt="User avatar: Jeremy Flight" /></a><a href="https://github.com/Alpine-Software"><img src="https:&#x2F;&#x2F;github.com&#x2F;Alpine-Software.png" width="60px" alt="User avatar: Alpine Software" /></a><a href="https://github.com/UniqueSchools"><img src="https:&#x2F;&#x2F;github.com&#x2F;UniqueSchools.png" width="60px" alt="User avatar: " /></a><a href="https://github.com/aking80"><img src="https:&#x2F;&#x2F;github.com&#x2F;aking80.png" width="60px" alt="User avatar: Aaron King" /></a><a href="https://github.com/internetliquid"><img src="https:&#x2F;&#x2F;github.com&#x2F;internetliquid.png" width="60px" alt="User avatar: Internet Liquid LLC" /></a><a href="https://github.com/Max87ZA"><img src="https:&#x2F;&#x2F;github.com&#x2F;Max87ZA.png" width="60px" alt="User avatar: " /></a><!-- sponsors -->
 
 ## Features
 
@@ -188,6 +189,30 @@ Window: {
   backgroundColor: 'green'
 }
 ```
+
+## Swift Package Manager Support (iOS)
+
+Since Titanium SDK 13.1.0, native iOS modules can declare [Swift Package Manager](https://www.swift.org/documentation/package-manager/) dependencies
+via an `spm.json` file placed next to the module `manifest`. When building an app, the Titanium CLI automatically injects packages
+declared with `"linkage": "host"` into the generated Xcode project, while `"linkage": "embedded"` (the default) keeps the package
+inside the module binary. Example:
+
+```json
+{
+  "dependencies": [
+    {
+      "repositoryURL": "https://github.com/parse-community/Parse-SDK-iOS-OSX",
+      "requirementKind": "upToNextMajorVersion",
+      "requirementMinimumVersion": "5.1.1",
+      "products": [
+        { "productName": "ParseObjC", "linkage": "host" }
+      ]
+    }
+  ]
+}
+```
+
+See the [iOS Module Swift Package Manager Support guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/iOS_Module_Development_Guide/iOS_Module_Swift_Package_Manager.html) for all available options.
 
 ## Getting Help
 

@@ -248,6 +248,11 @@ public class TiUIListView extends TiUIView
 			this.listView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
 		}
 
+		if (name.equals(TiC.PROPERTY_SNAPPING)) {
+			// Set item snapping.
+			this.listView.setSnapping(TiConvert.toBoolean(value, false));
+		}
+
 		if (name.equals(TiC.PROPERTY_HEADER_TITLE)
 			|| name.equals(TiC.PROPERTY_HEADER_VIEW)
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
