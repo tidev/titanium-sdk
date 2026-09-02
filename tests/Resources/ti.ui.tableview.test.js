@@ -1090,6 +1090,53 @@ describe('Titanium.UI.TableView', function () {
 		finish();
 	});
 
+	it.android('re-assign same rows and sections keeps proxies and click bubbling', finish => {
+		const rows = [
+			Ti.UI.createTableViewRow({ title: 'Row 0' }),
+			Ti.UI.createTableViewRow({ title: 'Row 1' })
+		];
+		const section = Ti.UI.createTableViewSection({ headerTitle: 'Section' });
+		section.add(Ti.UI.createTableViewRow({ title: 'Section row' }));
+		const tableView = Ti.UI.createTableView({ data: rows });
+		let clickCount = 0;
+
+		tableView.addEventListener('click', () => {
+			clickCount++;
+		});
+
+		win = Ti.UI.createWindow();
+		win.addEventListener('focus', () => {
+			try {
+				// Re-assigning the same rows must keep the row proxies, not clone them,
+				// otherwise their event listeners would be lost. (See issue #13508)
+				tableView.data = rows;
+				should(tableView.sections[0].rows[0]).be.eql(rows[0]);
+				should(tableView.sections[0].rows[1]).be.eql(rows[1]);
+				should(rows[0].parent).be.eql(tableView.sections[0]);
+
+				// A click on the row must still bubble up to the table.
+				rows[0].fireEvent('click', { bubbles: true });
+				should(clickCount).be.eql(1);
+
+				// Re-assigning the same section must keep its rows parented to the section.
+				tableView.data = [ section ];
+				tableView.data = [ section ];
+				should(tableView.sections[0]).be.eql(section);
+				should(section.parent).be.eql(tableView);
+				should(section.rows[0].parent).be.eql(section);
+
+				section.rows[0].fireEvent('click', { bubbles: true });
+				should(clickCount).be.eql(2);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
 	it('scrollable', () => {
 		const tableView = Ti.UI.createTableView({ scrollable: false });
 
