@@ -1628,11 +1628,15 @@
 
 - (void)setSearchText_:(id)args
 {
-  TiViewProxy *searchView = [self.proxy valueForKey:@"searchView"];
-  if (!IS_NULL_OR_NIL(searchView)) {
-    DebugLog(@"Can not use searchText with searchView. Ignoring call.");
+  id search = [self.proxy valueForKey:@"search"];
+  if (searchField != nil || !IS_NULL_OR_NIL(search)) {
+    DebugLog(@"Can not use searchText together with the search property. Ignoring call.");
     return;
   }
+  // Make sure the table exists before computing results: creating it runs
+  // updateSearchView, which resets the result indexes and would otherwise
+  // discard a searchText applied before the table (e.g. from the creation dictionary).
+  [self tableView];
   self.searchString = [TiUtils stringValue:args];
   [self updateSearchResultIndexes];
   [tableview reloadData];

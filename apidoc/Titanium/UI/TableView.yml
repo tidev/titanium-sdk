@@ -1260,10 +1260,15 @@ properties:
   - name: searchText
     summary: The string to use as the search parameter.
     description: |
-        Provides a generic search API for the TableView. It will show all TableViewRows with the
-        searchText in the title. This property can not be used when the
-        [searchView](Titanium.UI.TableView.searchView) property is set. Used in conjunction with
-        the [title](Titanium.UI.TableViewRow.title) property of the TableViewRow.
+        Provides a generic search API for the TableView without a search bar. Only rows whose
+        [filterAttribute](Titanium.UI.TableView.filterAttribute) (the
+        [title](Titanium.UI.TableViewRow.title) by default) contains the given text are shown.
+        The [filterCaseInsensitive](Titanium.UI.TableView.filterCaseInsensitive),
+        [filterAnchored](Titanium.UI.TableView.filterAnchored) and
+        [filterAlwaysInclude](Titanium.UI.TableViewRow.filterAlwaysInclude) properties are honored.
+        Set it to an empty string or `null` to show all rows again.
+
+        This property can not be used when the [search](Titanium.UI.TableView.search) property is set.
     type: String
     platforms: [android, iphone, ipad, macos]
     since: 14.0.0
