@@ -63,7 +63,7 @@
     "test:android": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && npm run test:integration -- android --sdk-version $npm_package_version",
     "test:android:onlyFailed": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && npm run test:integration -- android --sdk-version $npm_package_version --only-failed",
     "test:android:trace": "npm run cleanbuild:android -- --skip-zip --no-docs --symlink && npm run test:integration -- android --sdk-version $npm_package_version --log-level trace",
-    "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha **/cli/tests/test-*.js build/**/test-*.js",
+    "test:cli": "JUNIT_REPORT_PATH=junit.cli.report.xml nyc mocha cli/tests/test-*.js **/cli/tests/test-*.js build/**/test-*.js",
     "test:ios": "npm run test:iphone",
     "test:ios:onlyFailed": "npm run test:iphone:onlyFailed",
     "test:ios:trace": "npm run test:iphone:trace",
@@ -106,7 +106,7 @@
     "ejs": "3.1.10",
     "fields": "0.1.24",
     "fs-extra": "11.4.0",
-    "ioslib": "5.3.0",
+    "ioslib": "6.0.1",
     "liveview": "1.5.6",
     "lodash.merge": "4.6.2",
     "markdown": "0.5.0",
@@ -151,7 +151,7 @@
     "ssri": "13.0.1",
     "stream-splitter": "0.3.2",
     "strip-ansi": "7.2.0",
-    "titanium": "9.0.0",
+    "titanium": "^9.1.0",
     "titanium-docgen": "5.0.0"
   },
   "overrides": {
@@ -162,7 +162,7 @@
     "url": "git://github.com/tidev/titanium_mobile.git"
   },
   "vendorDependencies": {
-    "node": ">=20.18.1"
+    "node": ">=22.19.0"
   },
   "nyc": {
     "exclude": [
@@ -174,5 +174,9 @@
       "text"
     ]
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "allowScripts": {
+    "core-js@3.50.0": true,
+    "fsevents@2.3.3": true
+  }
 }
