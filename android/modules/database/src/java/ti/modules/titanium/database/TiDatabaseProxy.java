@@ -25,12 +25,14 @@ import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 
+import java.lang.ref.WeakReference;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -62,7 +64,7 @@ public class TiDatabaseProxy extends KrollProxy
 		if (this.thread == null) {
 
 			// Query execution thread.
-			this.queryExecutor = new QueryExecutor(queue, executingQueue);
+			this.queryExecutor = new QueryExecutor(this);
 			this.thread = new Thread(this.queryExecutor);
 			this.thread.start();
 		}
@@ -491,21 +493,27 @@ public class TiDatabaseProxy extends KrollProxy
 	}
 
 	/**
-	 * Static inner class for query execution thread.
-	 * Uses static to avoid holding an implicit reference to the outer TiDatabaseProxy instance,
-	 * which would prevent garbage collection of the proxy and its associated database resources.
+	 * Query execution thread runnable.
+	 * <p>
+	 * This is a static class holding only a weak reference to its TiDatabaseProxy so that the thread does not
+	 * keep the proxy and its open database alive. If the proxy is garbage collected without having been
+	 * closed, the thread notices while idle and exits on its own instead of blocking forever.
 	 */
 	private static class QueryExecutor implements Runnable
 	{
+		/** Seconds to wait for a query before checking if the owning proxy has been garbage collected. */
+		private static final long IDLE_CHECK_INTERVAL_SECONDS = 10;
+
+		private final WeakReference<TiDatabaseProxy> proxyRef;
 		private final BlockingQueue<Runnable> queue;
 		private final AtomicBoolean executingQueue;
-		private volatile boolean running;
+		private volatile boolean running = true;
 
-		QueryExecutor(BlockingQueue<Runnable> queue, AtomicBoolean executingQueue)
+		QueryExecutor(TiDatabaseProxy proxy)
 		{
-			this.queue = queue;
-			this.executingQueue = executingQueue;
-			this.running = true;
+			this.proxyRef = new WeakReference<>(proxy);
+			this.queue = proxy.queue;
+			this.executingQueue = proxy.executingQueue;
 		}
 
 		@Override
@@ -516,8 +524,16 @@ public class TiDatabaseProxy extends KrollProxy
 				while (running) {
 
 					// Obtain query and execute.
-					// NOTE: This will block until a query is available.
-					queue.take().run();
+					// NOTE: This will block until a query is available or the idle check interval elapses.
+					final Runnable query = queue.poll(IDLE_CHECK_INTERVAL_SECONDS, TimeUnit.SECONDS);
+					if (query == null) {
+						if (proxyRef.get() == null) {
+							// Proxy was garbage collected without being closed. Nothing can queue queries anymore.
+							break;
+						}
+						continue;
+					}
+					query.run();
 
 					// Queue empty? Send notify event.
 					if (queue.isEmpty()) {

@@ -205,7 +205,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			path = getStringFrom(cursor, 1);
 		}
 
-		if (path != null && !path.equals("")) {
+		if (path != null && !path.equals("") && successCallback != null) {
 			TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(path, false));
 			KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
 			successCallback.callAsync(callbackContext, response);
@@ -230,6 +230,10 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				if (error != VideoRecordEvent.Finalize.ERROR_NONE) {
 					// error
 					Log.e(TAG, "Error saving video file");
+					return;
+				}
+				if (successCallback == null) {
+					// Activity was destroyed before the recording finished.
 					return;
 				}
 				Uri uri = finalizeEvent.getOutputResults().getOutputUri();
