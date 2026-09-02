@@ -29,6 +29,7 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
@@ -60,9 +61,9 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	private static KrollDict currentError = null;
 	private static Handler mainHandler;
 
-	// Strong reference to the listener watching for the theme change which recreates the dialog's activity.
+	// Strong reference to the listener watching for the dialog's host activity being destroyed.
 	// Needed because the activity only holds a weak reference to it.
-	private static TiBaseActivity.ConfigurationChangedListener themeChangeListener;
+	private static TiLifecycle.OnLifecycleEvent hostActivityListener;
 
 	public static final String ERROR_TITLE = "title";
 	public static final String ERROR_MESSAGE = "message";
@@ -209,8 +210,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 	 * one dialog from being shown at a time. Must be called for every way the dialog can go away, or else
 	 * all later errors would be queued up forever and never shown.
 	 * @param handledByUser Set true if the user closed the dialog via one of its buttons. Set false if the
-	 *                      dialog was destroyed without a user decision, such as when its activity is
-	 *                      recreated by a light/dark theme change, in which case it is shown again.
+	 *                      dialog was destroyed without a user decision, such as when its activity was
+	 *                      destroyed by a light/dark theme change or closed, in which case it is shown again.
 	 */
 	private static void onDialogClosed(boolean handledByUser)
 	{
@@ -218,7 +219,7 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 		currentError = null;
 
 		// Release the closed dialog's listener so it doesn't keep its activity alive.
-		themeChangeListener = null;
+		hostActivityListener = null;
 
 		// Re-show the same error if the dialog was destroyed before the user could act on it.
 		// Note: We leave the "dialogShowing" flag set until then so that a queued error can't interleave.
@@ -244,8 +245,8 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 
 	/**
 	 * Shows the given error again once an activity is able to host a dialog, retrying a limited number of
-	 * times. Needed because a dialog cannot outlive its activity, and the activity is recreated when the
-	 * OS switches between its light/dark theme, which destroys the dialog while it is still relevant.
+	 * times. Needed because a dialog cannot outlive its activity, which can be destroyed while the dialog is
+	 * still relevant, such as when the OS switches between its light/dark theme or the app closes a window.
 	 * @param error The error to be shown again.
 	 * @param attemptsRemaining Max number of times to check for an activity before giving up.
 	 */
@@ -390,24 +391,48 @@ public class TiExceptionHandler implements Handler.Callback, KrollExceptionHandl
 			}
 		});
 
-		// Dismiss the dialog ourselves when a light/dark theme change is about to recreate its activity.
+		// Dismiss the dialog ourselves when its host activity is destroyed, which happens when a light/dark
+		// theme change recreates the activity or when the app closes the window.
 		// Note: A destroyed activity leaks its dialog's window without invoking the dialog's dismiss
 		//       listener, which would leave the error unshown and block all later errors from displaying.
-		//       We're notified here before the activity recreates itself, letting us show the error again.
+		//       Dismissing it here makes the error get shown again in the next available activity.
 		if (activity instanceof TiBaseActivity) {
 			final Dialog shownDialog = dialog;
-			themeChangeListener = new TiBaseActivity.ConfigurationChangedListener() {
+			hostActivityListener = new TiLifecycle.OnLifecycleEvent() {
 				@Override
-				public void onConfigurationChanged(TiBaseActivity changedActivity, Configuration newConfig)
+				public void onCreate(Activity activity, Bundle savedInstanceState)
 				{
-					boolean isNowDarkMode = (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK)
-						== Configuration.UI_MODE_NIGHT_YES;
-					if ((isNowDarkMode != isDarkMode) && shownDialog.isShowing()) {
+				}
+
+				@Override
+				public void onStart(Activity activity)
+				{
+				}
+
+				@Override
+				public void onResume(Activity activity)
+				{
+				}
+
+				@Override
+				public void onPause(Activity activity)
+				{
+				}
+
+				@Override
+				public void onStop(Activity activity)
+				{
+				}
+
+				@Override
+				public void onDestroy(Activity activity)
+				{
+					if (shownDialog.isShowing()) {
 						shownDialog.dismiss();
 					}
 				}
 			};
-			((TiBaseActivity) activity).addConfigurationChangedListener(themeChangeListener);
+			((TiBaseActivity) activity).addOnLifecycleEventListener(hostActivityListener);
 		}
 
 		// Check if the activity is finishing to avoid WindowLeaked error

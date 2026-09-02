@@ -829,7 +829,7 @@ examples:
 
   - title: BottomNavigation Material3 example
     example: |
-        Create a BottomNavigation TabGroup with a Material3 theme using the new layout.
+        Create a BottomNavigation TabGroup with a Material 3 dynamic color theme using the new layout.
 
         ``` js
         const win1 = Ti.UI.createWindow();
@@ -853,7 +853,7 @@ examples:
 
         const bottomNav = Ti.UI.createTabGroup({
         	tabs: [tab1, tab2],
-        	theme: "Theme.Titanium.Material3.DayNight",
+        	theme: "Theme.Titanium.Material3.DynamicColors.DayNight",
         	experimental: true,
         	style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION
         });

@@ -31,4 +31,16 @@
 		<item name="android:windowLightNavigationBar">false</item>
 		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
 	</style>
+
+	<style name="Base.Theme.Titanium.Material3.DynamicColors.Light" parent="Theme.Material3.DynamicColors.Light">
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="android:windowLightNavigationBar">true</item>
+		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+	</style>
+
+	<style name="Base.Theme.Titanium.Material3.DynamicColors.Dark" parent="Theme.Material3.DynamicColors.Dark">
+		<item name="android:windowLightStatusBar">false</item>
+		<item name="android:windowLightNavigationBar">false</item>
+		<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+	</style>
 </resources>
