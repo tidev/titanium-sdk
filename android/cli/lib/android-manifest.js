@@ -687,7 +687,7 @@ export class AndroidManifest {
  * @private
  */
 function createManifestXmlDomDocument() {
-	const xmlDomDocument = (new DOMParser()).parseFromString('<manifest/>');
+	const xmlDomDocument = (new DOMParser()).parseFromString('<manifest/>', 'text/xml');
 	xmlDomDocument.documentElement.setAttribute('xmlns:android', 'http://schemas.android.com/apk/res/android');
 	xmlDomDocument.documentElement.setAttribute('xmlns:tools', 'http://schemas.android.com/tools');
 	return xmlDomDocument;
