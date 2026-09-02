@@ -422,7 +422,10 @@ static void *TiUITabWindowBackgroundContext = &TiUITabWindowBackgroundContext;
 // once, so a backgroundColor assigned after the window is shown still lands.
 - (void)applyWindowBackgroundColor
 {
-  if (tabGroup == nil || observedWindowView == nil) {
+  // The controller view is shared by every tab, so only the focused tab may
+  // paint it; a hidden tab's window changing colour must not repaint the strip
+  // under the visible one. handleDidFocus re-applies once this tab takes over.
+  if (!hasFocus || tabGroup == nil || observedWindowView == nil) {
     return;
   }
   TiUITabGroup *tabGroupView = (TiUITabGroup *)[tabGroup view];
@@ -641,6 +644,7 @@ static void *TiUITabWindowBackgroundContext = &TiUITabWindowBackgroundContext;
       }
     }
   }
+  [self applyWindowBackgroundColor];
 
   if ([self _hasListeners:@"focus"]) {
     [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
