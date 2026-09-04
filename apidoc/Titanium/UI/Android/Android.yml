@@ -57,11 +57,11 @@ methods:
 
   - name: getColorResource
     summary: |
-        Returns a <Ti.Color> instance for a color defined by the system or user resources (colors.xml)
+        Returns a <Titanium.UI.Color> instance for a color defined by the system or user resources (colors.xml)
     description: |
         This method allows converting a known color resource id or short name to an actual color instance.
 
-        The resource id values can be accessed via <Titanium.Android.R.color> and <Titanium.App.Android.R.color> properties.
+        The resource id values can be accessed via <Titanium.Android.R.color> and `Titanium.App.Android.R.color` properties.
 
         See the official Android Developer documentation for
         the [R.color](https://developer.android.com/reference/android/R.color) constants.

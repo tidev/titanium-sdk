@@ -134,7 +134,7 @@ properties:
         Indicates that the system should present the alert using the standard
         alert style.
     description: |
-        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        Use with <Titanium.UI.createAlertDialog> to specify
         the alert dialog severity on macOS Catalyst.
     type: Number
     since: "12.0.0"
@@ -146,7 +146,7 @@ properties:
         Indicates that the system should present the alert using the
         critical, or caution, style.
     description: |
-        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        Use with <Titanium.UI.createAlertDialog> to specify
         the alert dialog severity on macOS Catalyst.
     type: Number
     since: "12.0.0"
