@@ -48,7 +48,7 @@ public class TiUITab extends TiUIView
 		windowProxy.setActivity(tabGroupActivity);
 
 		// Assign parent so events bubble up correctly.
-		windowProxy.setParent(proxy);
+		windowProxy.setParentInternal(proxy);
 
 		return windowProxy.getOrCreateView().getOuterView();
 	}

@@ -179,7 +179,7 @@ public class TableViewProxy extends RecyclerViewProxy
 					row.getProperties().optString(TiC.PROPERTY_HEADER_TITLE,
 						row.getProperties().getString(TiC.PROPERTY_HEADER)));
 
-				section.setParent(this);
+				section.setParentInternal(this);
 				this.sections.add(section);
 			}
 
@@ -220,7 +220,7 @@ public class TableViewProxy extends RecyclerViewProxy
 				final TableViewSectionProxy section = processSection(o);
 
 				if (section != null) {
-					section.setParent(this);
+					section.setParentInternal(this);
 					this.sections.add(section);
 				}
 			}
@@ -230,7 +230,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			if (section != null) {
 
 				// Append TableViewSection.
-				section.setParent(this);
+				section.setParentInternal(this);
 				this.sections.add(section);
 			}
 		}
@@ -402,7 +402,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		if (section != null) {
 			this.sections.remove(section);
-			section.setParent(null);
+			section.setParentInternal(null);
 
 			update();
 		}
@@ -505,7 +505,7 @@ public class TableViewProxy extends RecyclerViewProxy
 	{
 		for (final TableViewSectionProxy section : this.sections) {
 			section.releaseViews();
-			section.setParent(null);
+			section.setParentInternal(null);
 		}
 		this.sections.clear();
 
@@ -722,7 +722,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		final TableViewSectionProxy section = processSection(sectionObj);
 
 		if (index > -1 && index <= this.sections.size()) {
-			section.setParent(this);
+			section.setParentInternal(this);
 			this.sections.add(index + 1, section);
 
 			// Notify TableView of update.
@@ -744,7 +744,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		final TableViewSectionProxy section = processSection(sectionObj);
 
 		if (index > -1 && index <= this.sections.size()) {
-			section.setParent(this);
+			section.setParentInternal(this);
 			this.sections.add(index, section);
 
 			// Notify TableView of update.
@@ -1070,7 +1070,7 @@ public class TableViewProxy extends RecyclerViewProxy
 							  @Kroll.argument(optional = true) KrollDict animation)
 	{
 		if (index > -1 && index <= this.sections.size()) {
-			section.setParent(this);
+			section.setParentInternal(this);
 			this.sections.set(index, section);
 
 			// Notify TableView of update.

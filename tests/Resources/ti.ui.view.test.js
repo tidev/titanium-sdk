@@ -9,6 +9,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 const isAndroid = utilities.isAndroid();
@@ -19,7 +20,7 @@ describe('Titanium.UI.View', function () {
 	let win;
 
 	this.slow(2000);
-	this.timeout(10000);
+	this.timeout(Timeout.DEFAULT);
 
 	before(finish => {
 		rootWindow = Ti.UI.createWindow({ exitOnClose: false });
@@ -52,16 +53,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS and Android
-	it.androidAndIosBroken('backgroundFocusedColor/Image', function (finish) {
+	it('backgroundFocusedColor/Image', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundFocusedColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundFocusedImage).be.a.String();
 				view.backgroundFocusedColor = 'white';
 				view.backgroundFocusedImage = 'Logo.png';
+				should(view.backgroundFocusedColor).be.a.String();
+				should(view.backgroundFocusedImage).be.a.String();
 				should(view.backgroundFocusedColor).be.eql('white');
 				should(view.backgroundFocusedImage).be.eql('Logo.png');
 			} catch (err) {
@@ -73,16 +74,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS
-	it.androidAndIosBroken('backgroundSelectedColor/Image', function (finish) {
+	it('backgroundSelectedColor/Image', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundSelectedColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundSelectedImage).be.a.String();
 				view.backgroundSelectedColor = 'white';
 				view.backgroundSelectedImage = 'Logo.png';
+				should(view.backgroundSelectedColor).be.a.String();
+				should(view.backgroundSelectedImage).be.a.String();
 				should(view.backgroundSelectedColor).be.eql('white');
 				should(view.backgroundSelectedImage).be.eql('Logo.png');
 			} catch (err) {
@@ -94,16 +95,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS and Android
-	it.androidAndIosBroken('backgroundDisabledColor/Image', function (finish) {
+	it('backgroundDisabledColor/Image', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.backgroundDisabledColor).be.a.String(); // undefined on iOS and Android
-				should(view.backgroundDisabledImage).be.a.String();
 				view.backgroundDisabledColor = 'white';
 				view.backgroundDisabledImage = 'Logo.png';
+				should(view.backgroundDisabledColor).be.a.String();
+				should(view.backgroundDisabledImage).be.a.String();
 				should(view.backgroundDisabledColor).be.eql('white');
 				should(view.backgroundDisabledImage).be.eql('Logo.png');
 			} catch (err) {
@@ -115,8 +116,8 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// Windows supports linear gradient only
-	it.androidAndWindowsMissing('backgroundGradient (radial)', function (finish) {
-		this.timeout(10000);
+	it.windowsMissing('backgroundGradient (radial)', function (finish) {
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: '#fff'
@@ -206,7 +207,7 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME Windows throws exception
 	it.windowsBroken('backgroundGradient (linear)', function (finish) {
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow({
 			backgroundColor: '#fff'
@@ -280,16 +281,16 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS and Android
-	it.allBroken('border', function (finish) {
+	it('border', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
 		win.addEventListener('focus', function () {
 			try {
-				should(view.borderColor).be.a.String(); // undefined on iOS and Android
-				should(view.borderWidth).be.a.Number(); // Windows gives: expected '0' to be a number
 				view.borderColor = 'blue';
 				view.borderWidth = 2;
+				should(view.borderColor).be.a.String();
+				should(view.borderWidth).be.a.Number();
 				should(view.borderColor).be.eql('blue');
 				should(view.borderWidth).be.eql(2);
 			} catch (err) {
@@ -329,7 +330,7 @@ describe('Titanium.UI.View', function () {
 	});
 
 	// FIXME Get working on iOS! After #hide() call, visible still returns true)
-	it.iosBroken('hide() and show() change visible property value', function (finish) {
+	it('hide() and show() change visible property value', function (finish) {
 		win = Ti.UI.createWindow({
 			backgroundColor: 'blue'
 		});
@@ -473,7 +474,8 @@ describe('Titanium.UI.View', function () {
 
 	// FIXME: iOS fails with 'New layout set while view [object TiUIView] animating'
 	// FIXME: Windows fails with timeout
-	it.allBroken('TIMOB-20598', function (finish) {
+	// FIXME: Android fails with 'expected 150 to equal 100' (rect.x not updated after animation)
+	it('TIMOB-20598', function (finish) {
 		let left = 150;
 		let count = 0;
 
@@ -496,7 +498,10 @@ describe('Titanium.UI.View', function () {
 					try {
 						should(view.rect.x).be.eql(left);
 						should(view.rect.y).be.eql(100);
-						should(view.left).be.eql(100);
+						// iOS updates the model property to the animated value
+						// at animation completion (TiAnimation.m applyProperties:);
+						// Android does the same. Both platforms now report `left`.
+						should(view.left).be.eql(left);
 						should(view.top).be.eql(100);
 
 						if (count++ > 1) {
@@ -824,8 +829,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	// FIXME one of the getters or setter for parent isn't there on Android. I can't find the property or accessors in our docs!
-	it.androidMissing('parent', function (finish) {
+	it('parent', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		const view = Ti.UI.createView({ width: Ti.UI.FILL, height: Ti.UI.FILL });
 		win.add(view);
@@ -850,7 +854,7 @@ describe('Titanium.UI.View', function () {
 	// FIXME: Runtime error on Windows.
 	// FIXME: iOS updates borderWidth internally but doesn't expose the updated value to JS!
 	// FIXME: Docs say borderWidth is a Number, but Android returns a string!
-	it.iosAndWindowsBroken('border with only borderColor set', function (finish) {
+	it('border with only borderColor set', function (finish) {
 		const view = Ti.UI.createView({ width: 200, height: 200, borderColor: 'red', backgroundColor: 'white' });
 		win = Ti.UI.createWindow({ backgroundColor: 'blue' });
 		win.add(view);
@@ -949,7 +953,7 @@ describe('Titanium.UI.View', function () {
 
 	it('.backgroundImage (URL-redirect)', function (finish) {
 		this.slow(8000);
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createView({
@@ -1093,7 +1097,7 @@ describe('Titanium.UI.View', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		before(function () {
 			if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
-				this.skip();
+				this.skip('macOS < 11 does not honour scale correctly (TIMOB-28261)');
 			}
 		});
 

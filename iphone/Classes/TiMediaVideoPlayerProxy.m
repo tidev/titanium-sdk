@@ -110,6 +110,8 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)removeNotificationObserver
 {
+  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+
   if ([self observationInfo]) {
     [self removeObserver:self forKeyPath:@"url"];
   }
@@ -117,6 +119,9 @@ NSArray *moviePlayerKeys = nil;
   [movie removeObserver:self forKeyPath:@"player.status"];
   [movie removeObserver:self forKeyPath:@"player.currentItem.presentationSize"];
   [movie removeObserver:self forKeyPath:@"player.timeControlStatus"];
+
+  [nc removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+  [nc removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
 }
 
 - (void)configurePlayer
@@ -188,9 +193,11 @@ NSArray *moviePlayerKeys = nil;
 - (void)windowWillClose
 {
   [super windowWillClose];
-  [[movie player] pause];
-  if ([self viewAttached]) {
-    [(TiMediaVideoPlayer *)self.view setMovie:nil];
+  if (movie != nil) {
+    [[movie player] pause];
+    if ([self viewAttached]) {
+      [(TiMediaVideoPlayer *)self.view setMovie:nil];
+    }
   }
 }
 

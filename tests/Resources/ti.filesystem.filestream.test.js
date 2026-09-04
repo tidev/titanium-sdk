@@ -9,6 +9,7 @@
 'use strict';
 
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Filesystem.FileStream', function () {
 	before(function () {
@@ -164,7 +165,7 @@ describe('Titanium.Filesystem.FileStream', function () {
 	});
 
 	it('fileStreamPumpTest', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		var pumpInputFile = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, 'stream_test_in.txt');
 		should(pumpInputFile).be.an.Object();
 		should(pumpInputFile.open).be.a.Function();

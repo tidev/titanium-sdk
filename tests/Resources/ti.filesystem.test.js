@@ -29,8 +29,7 @@ describe('Titanium.Filesystem', () => {
 		should(Ti.Filesystem).have.constant('MODE_WRITE').which.is.a.Number();
 	});
 
-	// Android doesn't support Ti.Filesystem.applicationDirectory
-	it.androidMissing('.applicationDirectory', () => {
+	it('.applicationDirectory', () => {
 		should(Ti.Filesystem).have.readOnlyProperty('applicationDirectory').which.is.a.String();
 	});
 
@@ -48,7 +47,7 @@ describe('Titanium.Filesystem', () => {
 
 	// On Windows Runtime, applicationSupportDirectory may return null if app doesn't have permission
 	// although it should not throw exception
-	it.androidMissing('.applicationSupportDirectory', () => {
+	it('.applicationSupportDirectory', () => {
 		should(Ti.Filesystem.applicationSupportDirectory).not.be.undefined();
 		should(Ti.Filesystem).have.a.readOnlyProperty('applicationSupportDirectory').which.is.a.String();
 	});

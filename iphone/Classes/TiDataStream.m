@@ -9,7 +9,7 @@
 #import <TitaniumKit/TiUtils.h>
 
 @implementation TiDataStream
-@synthesize data, mode;
+@synthesize data, mode, streamApiName;
 
 #pragma mark Internals
 
@@ -19,6 +19,7 @@
     data = nil;
     mode = TI_READ;
     position = 0;
+    streamApiName = @"Ti.IOStream";
   }
   return self;
 }
@@ -26,7 +27,13 @@
 - (void)dealloc
 {
   RELEASE_TO_NIL(data);
+  RELEASE_TO_NIL(streamApiName);
   [super dealloc];
+}
+
+- (NSString *)apiName
+{
+  return streamApiName;
 }
 
 #pragma mark I/O Stream implementation
@@ -120,9 +127,12 @@
   // even with immutable data (i.e. blob) if the user has specified WRITE or APPEND, they're OK with digging their own grave.
   NSMutableData *mutableData = (NSMutableData *)data;
   if (mode & TI_WRITE) {
-    NSUInteger overflow = length - ([data length] - position);
-    if (overflow > 0) {
-      [mutableData increaseLengthBy:overflow];
+    // Compute overflow as signed so a negative result (data already has
+    // enough room) doesn't wrap to a huge NSUInteger and crash
+    // increaseLengthBy: with an absurd length.
+    NSInteger signedOverflow = (NSInteger)position + length - (NSInteger)[data length];
+    if (signedOverflow > 0) {
+      [mutableData increaseLengthBy:(NSUInteger)signedOverflow];
     }
 
     void *bytes = [mutableData mutableBytes];

@@ -9,6 +9,7 @@
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.TextField', () => {
@@ -113,8 +114,8 @@ describe('Titanium.UI.TextField', () => {
 		});
 
 		// FIXME Intermittently failing on Android on build machine, I think due to test timeout
-		it.androidBroken('.height', function (finish) {
-			this.timeout(5000);
+		it('.height', function (finish) {
+			this.timeout(Timeout.DEFAULT);
 			const textField = Ti.UI.createTextField({
 				value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ullamcorper massa, eget tempor sapien. Phasellus nisi metus, tempus a magna nec, ultricies rutrum lacus. Aliquam sit amet augue suscipit, dignissim tellus eu, consectetur elit. Praesent ligula velit, blandit vel urna sit amet, suscipit euismod nunc.',
 				width: Ti.UI.SIZE,
@@ -145,7 +146,7 @@ describe('Titanium.UI.TextField', () => {
 		});
 
 		it.android('android padding (visual check)', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const textField = Ti.UI.createTextField({
 				value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ullamcorper massa, eget tempor sapien. Phasellus nisi metus, tempus a magna nec, ultricies rutrum lacus. Aliquam sit amet augue suscipit, dignissim tellus eu, consectetur elit. Praesent ligula velit, blandit vel urna sit amet, suscipit euismod nunc.',
 				width: 100,
@@ -182,7 +183,7 @@ describe('Titanium.UI.TextField', () => {
 		});
 
 		it.android('backgroundColor', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const textField = Ti.UI.createTextField({
 				value: 'test',
 				width: 100,
@@ -332,7 +333,7 @@ describe('Titanium.UI.TextField', () => {
 		});
 
 		// FIXME Defaults to undefined on Android. Docs say default is false
-		it.androidBroken('.passwordMask', function () {
+		it('.passwordMask', function () {
 			const text = 'this is some text',
 				textField = Ti.UI.createTextField({
 					value: text
@@ -459,7 +460,7 @@ describe('Titanium.UI.TextField', () => {
 		// suppressReturn
 
 		it('.width', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const textField = Ti.UI.createTextField({
 				value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec ullamcorper massa, eget tempor sapien. Phasellus nisi metus, tempus a magna nec, ultricies rutrum lacus. Aliquam sit amet augue suscipit, dignissim tellus eu, consectetur elit. Praesent ligula velit, blandit vel urna sit amet, suscipit euismod nunc.',
 				width: Ti.UI.SIZE
@@ -504,7 +505,7 @@ describe('Titanium.UI.TextField', () => {
 		});
 
 		it('#setSelection', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			const textField = Ti.UI.createTextField({
 				value: 'Lorem ipsum dolor sit amet.',
 				width: Ti.UI.SIZE
@@ -533,7 +534,7 @@ describe('Titanium.UI.TextField', () => {
 	describe('events', () => {
 		// TextField should not receive change event after setting value.
 		it.ios('change event should not fire after setting textField value', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const textField = Ti.UI.createTextField({
@@ -554,7 +555,7 @@ describe('Titanium.UI.TextField', () => {
 
 		// Tests adding and removing a TextField's focus.
 		it.ios('focus-blur', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 			win = Ti.UI.createWindow({ layout: 'vertical' });
 
 			// First TextField is needed to receive default focus on startup
@@ -591,7 +592,7 @@ describe('Titanium.UI.TextField', () => {
 
 		// TextField must not receive focus by default upon opening a window.
 		it('focus-win-open', function (finish) {
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const textField = Ti.UI.createTextField();
@@ -611,8 +612,8 @@ describe('Titanium.UI.TextField', () => {
 		// The "focus" and "blur" events are not supposed to bubble up the view hierarchy.
 		// Windows ticket TIMOB-26177
 		// Android intermittently fails (but quite often)
-		it.androidAndWindowsBroken('focus-blur-bubbles', function (finish) {
-			this.timeout(5000);
+		it('focus-blur-bubbles', function (finish) {
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow();
 			const textField = Ti.UI.createTextField();
