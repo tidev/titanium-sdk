@@ -23,6 +23,7 @@
     "build:local": "node ./build/scons build && node ./build/scons package --skip-zip && node ./build/scons install",
     "build:android": "npm run build -- android",
     "build:changelog": "conventional-changelog -n changelog/config.js -i CHANGELOG.md -s -p angular",
+    "build:release-note": "node changelog/release-note.js",
     "build:docs": "docgen apidoc -o ./dist",
     "build:ios": "npm run build -- ios",
     "clean": "node ./build/scons clean",
@@ -159,7 +160,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/tidev/titanium_mobile.git"
+    "url": "git+https://github.com/tidev/titanium-sdk.git"
   },
   "vendorDependencies": {
     "node": ">=22.19.0"

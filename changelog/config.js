@@ -39,6 +39,26 @@ function prettifiedScope(rawScope) {
 }
 
 /**
+ * Orders refs like `13_9_X` and `13_10_X` by their numbers rather than as text,
+ * where `13_10_X` would sort before `13_9_X` and pick the wrong previous release.
+ *
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+function compareRefs(a, b) {
+	const parts = ref => (ref.match(/\d+/g) || []).map(Number);
+	const [x, y] = [ parts(a), parts(b) ];
+	for (let i = 0; i < Math.max(x.length, y.length); i++) {
+		const d = (x[i] || 0) - (y[i] || 0);
+		if (d !== 0) {
+			return d;
+		}
+	}
+	return 0;
+}
+
+/**
  * Try to determine what branch or tag to compare against for determining the commit list and compare url
  *
  * @param {string} version current version
@@ -59,11 +79,40 @@ function guessPreviousBranch(version) {
 		}
 
 		// major version
-		// try and find latest maintenance branch of previous major version by asking for git branches with a pattern
-		const output = execSync(`git branch --list ${major - 1}_*_X`, { encoding: 'utf8' });
-		const lines = output.split(/\r?\n/).map(l => l.trim()).filter(l => l).sort();
-		const latestBranch = lines[lines.length - 1];
-		return latestBranch;
+		// Find the newest maintenance branch of the previous major. `git branch`
+		// alone lists only local branches, so on a CI checkout — which has the
+		// one branch it was told to fetch — this found nothing and returned
+		// undefined, and the changelog run died on `git log undefined...HEAD`.
+		// Remote branches and tags are both consulted, and a tag is always
+		// present even when no maintenance branch was ever cut.
+		// Tags before branches, deliberately. A branch found this way is often
+		// only a remote ref — `git branch --all` reports `remotes/origin/13_4_X`,
+		// and neither that nor the bare `13_4_X` resolves in `git log` on a CI
+		// checkout, nor reads correctly in a compare URL. A tag resolves
+		// wherever it has been fetched and is already what the URL wants.
+		//
+		// This does change what a major is compared against: the previous
+		// major's last GA rather than its maintenance branch tip. Commits made
+		// on that branch after its final release now appear in the new major's
+		// notes, where before they were excluded.
+		const candidates = [
+			`git tag --list "${major - 1}_*_GA"`,
+			`git branch --list "${major - 1}_*_X"`
+		];
+		for (const command of candidates) {
+			const output = execSync(command, { encoding: 'utf8' });
+			const lines = output
+				.split(/\r?\n/)
+				.map(l => l.trim().replace(/^\*\s*/, '').replace(/^remotes\/[^/]+\//, ''))
+				.filter(l => l && !l.includes('->'))
+				.sort(compareRefs);
+			if (lines.length) {
+				return lines[lines.length - 1];
+			}
+		}
+		throw new Error(
+			`cannot find a previous release to compare ${version} against: no ${major - 1}_*_X branch and no ${major - 1}_*_GA tag`
+		);
 	}
 
 	// e.g. 8.2.1, 1.2.3, 7.5.2
