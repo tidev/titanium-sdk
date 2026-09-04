@@ -18,12 +18,21 @@ describe('Titanium.UI.TabGroup', function () {
 	this.timeout(5000);
 
 	let tabGroup;
+	let ownerWindow;
 	afterEach(done => { // fires after every test in sub-suites too...
-		if (tabGroup && !tabGroup.closed) {
-			tabGroup.close().then(() => done()).catch(_e => done());
-		} else {
+		const closeOwner = () => {
 			tabGroup = null;
-			done();
+			if (ownerWindow && !ownerWindow.closed) {
+				ownerWindow.close().then(done).catch(done);
+			} else {
+				done();
+			}
+			ownerWindow = null;
+		};
+		if (tabGroup && !tabGroup.closed) {
+			tabGroup.close().then(closeOwner).catch(closeOwner);
+		} else {
+			closeOwner();
 		}
 	});
 
@@ -482,6 +491,67 @@ describe('Titanium.UI.TabGroup', function () {
 					// eslint-disable-next-line promise/no-nesting
 					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
 				}).catch(e => finish(e));
+			});
+
+			it.android('rejects when its owner activity is finishing', function (finish) {
+				this.timeout(10000);
+				let settled = false;
+				const complete = err => {
+					if (!settled) {
+						settled = true;
+						finish(err);
+					}
+				};
+				ownerWindow = Ti.UI.createWindow();
+				ownerWindow.open().then(() => {
+					const tab = Ti.UI.createTab({
+						title: 'Tab',
+						window: Ti.UI.createWindow()
+					});
+					tabGroup = Ti.UI.createTabGroup();
+					tabGroup.addTab(tab);
+					ownerWindow.activity.finish();
+
+					const timeout = setTimeout(() => complete(new Error('Expected #open() to settle')), 7000);
+					tabGroup.open().then(() => {
+						clearTimeout(timeout);
+						complete(new Error('Expected #open() to reject for a finishing owner activity'));
+					}).catch(err => {
+						clearTimeout(timeout);
+						try {
+							should(err.message).containEql('finishing');
+							should(tabGroup.closed).be.true();
+							complete();
+						} catch (err) {
+							complete(err);
+						}
+					});
+				}).catch(complete);
+			});
+
+			it.android('settles both promises and can reopen when close immediately follows open', function (finish) {
+				this.timeout(10000);
+				ownerWindow = Ti.UI.createWindow();
+				ownerWindow.open().then(() => {
+					const tab = Ti.UI.createTab({ title: 'Tab', window: Ti.UI.createWindow() });
+					tabGroup = Ti.UI.createTabGroup();
+					tabGroup.addTab(tab);
+					const openPromise = tabGroup.open();
+					const closePromise = tabGroup.close();
+					Promise.allSettled([ openPromise, closePromise ]).then(results => {
+						should(results[0].status).eql('rejected');
+						should(results[1].status).eql('fulfilled');
+						should(tabGroup.closed).be.true();
+						return tabGroup.open();
+					}).then(() => {
+						try {
+							should(tabGroup.closed).be.false();
+							finish();
+						} catch (err) {
+							finish(err);
+						}
+					}).catch(finish);
+				}).catch(finish);
 			});
 		});
 	});
