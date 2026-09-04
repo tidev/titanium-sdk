@@ -47,6 +47,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -119,11 +120,49 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		TiUIView v = new TiView(this);
+		TiUIView v = new TiView(this) {
+			@Override
+			public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+			{
+				super.propertyChanged(key, oldValue, newValue, proxy);
+				if (TiC.PROPERTY_BACKGROUND_COLOR.equals(key)) {
+					applyContentFrameBackgroundColor(newValue);
+				}
+			}
+		};
 		v.getLayoutParams().autoFillsHeight = true;
 		v.getLayoutParams().autoFillsWidth = true;
 		setView(v);
 		return v;
+	}
+
+	/**
+	 * Applies the window's backgroundColor to the activity's content frame.
+	 * <p>
+	 * TiBaseActivity.onCreate() does the same when the activity is created. The content frame
+	 * is the view TiEdgeToEdgeHelper pads for the system bar insets, so its background is what
+	 * shows beneath the status and navigation bars. The window's own view only covers the inset
+	 * area, so a later color change must be mirrored here or the bars keep the old color.
+	 * @param value The new backgroundColor value. Null clears the content frame's background.
+	 */
+	private void applyContentFrameBackgroundColor(Object value)
+	{
+		if (windowActivity == null) {
+			return;
+		}
+		AppCompatActivity activity = windowActivity.get();
+		if (activity == null) {
+			return;
+		}
+		View content = activity.findViewById(android.R.id.content);
+		if (content == null) {
+			return;
+		}
+		if (value != null) {
+			content.setBackgroundColor(TiConvert.toColor(value, activity));
+		} else {
+			content.setBackground(null);
+		}
 	}
 
 	@Kroll.getProperty
