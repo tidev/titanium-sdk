@@ -540,6 +540,7 @@ public class TiC
 	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
 	public static final String PROPERTY_LIGHT_COLOR = "lightColor";
+	public static final String PROPERTY_LINK_COLOR = "linkColor";
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 	public static final String PROPERTY_LOOPING = "looping";
 	public static final String PROPERTY_LED_ARGB = "ledARGB";
@@ -815,6 +816,7 @@ public class TiC
 	public static final String PROPERTY_TRANSLUCENT = "translucent";
 	public static final String PROPERTY_TRUE_HEADING = "trueHeading";
 	public static final String PROPERTY_TYPE = "type";
+	public static final String PROPERTY_UNDERLINE = "underline";
 	public static final String PROPERTY_UPDATE_CURRENT_INTENT = "updateCurrentIntent";
 	public static final String PROPERTY_URI = "uri";
 	public static final String PROPERTY_URL = "url";
