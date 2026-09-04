@@ -42,6 +42,9 @@ public class TiBorderWrapperView extends FrameLayout
 	private Paint paint;
 	private Rect bounds;
 	private ViewOutlineProvider viewOutlineProvider;
+	/** Min/max size constraints applied while measuring, or null if none. Owned by the TiUIView. */
+	private TiSizeConstraints sizeConstraints;
+
 	public TiBorderWrapperView(Context context)
 	{
 		super(context);
@@ -71,6 +74,55 @@ public class TiBorderWrapperView extends FrameLayout
 
 		for (int i = 0; i < this.radius.length; i++) {
 			this.radius[i] = 0;
+		}
+	}
+
+	/**
+	 * Sets the min/max size constraints applied while measuring.
+	 * @param constraints The constraints to apply, or null to remove them.
+	 */
+	public void setSizeConstraints(TiSizeConstraints constraints)
+	{
+		if (this.sizeConstraints != constraints) {
+			this.sizeConstraints = constraints;
+			requestLayout();
+		}
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+	{
+		if ((this.sizeConstraints == null) || this.sizeConstraints.isEmpty()) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			return;
+		}
+
+		// Clamp the specs first so the wrapped view is measured against the constrained bounds and reflows.
+		super.onMeasure(this.sizeConstraints.applyToWidthSpec(this, widthMeasureSpec),
+						this.sizeConstraints.applyToHeightSpec(this, heightMeasureSpec));
+
+		int width = this.sizeConstraints.clampWidth(this, widthMeasureSpec, getMeasuredWidth());
+		int height = this.sizeConstraints.clampHeight(this, heightMeasureSpec, getMeasuredHeight());
+		if ((width == getMeasuredWidth()) && (height == getMeasuredHeight())) {
+			return;
+		}
+		setMeasuredDimension(width, height);
+
+		// FrameLayout has already sized its MATCH_PARENT children to the unclamped size. Re-measure them
+		// against the final size so the wrapped view fills the wrapper.
+		int contentWidth = Math.max(width - getPaddingLeft() - getPaddingRight(), 0);
+		int contentHeight = Math.max(height - getPaddingTop() - getPaddingBottom(), 0);
+		for (int i = 0; i < getChildCount(); i++) {
+			View child = getChildAt(i);
+			if (child.getVisibility() == GONE) {
+				continue;
+			}
+			LayoutParams params = (LayoutParams) child.getLayoutParams();
+			int childWidth = (params.width == LayoutParams.MATCH_PARENT) ? contentWidth : child.getMeasuredWidth();
+			int childHeight =
+				(params.height == LayoutParams.MATCH_PARENT) ? contentHeight : child.getMeasuredHeight();
+			child.measure(MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY),
+						  MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY));
 		}
 	}
 
