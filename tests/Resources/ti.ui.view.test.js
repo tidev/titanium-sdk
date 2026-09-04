@@ -786,6 +786,38 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	it('animate (rotation)', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			width: 100, height: 100,
+			left: 100, top: 100
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				rotation: 90,
+				duration: 500
+			});
+
+			animation.addEventListener('complete', () => {
+				try {
+					// Rotating must not move the view's layout position.
+					should(view.rect.x).be.eql(100);
+					should(view.rect.y).be.eql(100);
+					// The animated value is written back to the view's property.
+					should(view.rotation).be.eql(90);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			view.animate(animation);
+		});
+		win.open();
+	});
+
 	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });
