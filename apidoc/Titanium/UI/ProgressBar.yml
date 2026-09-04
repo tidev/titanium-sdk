@@ -63,6 +63,18 @@ properties:
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", android: "8.0.0"}
 
+  - name: trackThickness
+    summary: Thickness of the progress bar track.
+    description: |
+        Can be either a number (interpreted in the app's default unit) or a string with a
+        unit suffix, for example `"8dp"`. The Material 3 theme default is `4dp`.
+
+        This also defines the maximum size of the stop indicator dot
+        (see <Titanium.UI.ProgressBar.stopIndicator>), which cannot be larger than the track.
+    type: [Number, String]
+    platforms: [android]
+    since: "14.0.0"
+
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: [String, Titanium.UI.Color]
@@ -72,6 +84,25 @@ properties:
   - name: min
     summary: Minimum value of the progress bar.
     type: Number
+
+  - name: stopIndicator
+    summary: Shows, hides or configures the Material 3 stop indicator dot at the end of the track.
+    description: |
+        Material 3 themes render a small dot (the "stop indicator") at the trailing end of the
+        progress bar track. Set this to `false` to hide it or `true` to show it with its default
+        size. Alternatively, pass a <StopIndicatorOptions> dictionary to also set a custom size:
+
+        ``` js
+        progressBar.stopIndicator = { enabled: true, size: 12 };
+        ```
+
+        Note that the stop indicator cannot be larger than the track: Material clamps its size
+        to the track thickness (`4dp` by default). To show a larger stop indicator, increase
+        <Titanium.UI.ProgressBar.trackThickness> as well.
+    type: [Boolean, StopIndicatorOptions]
+    default: true
+    platforms: [android]
+    since: "14.0.0"
 
   - name: style
     summary: Style of the progress bar.
@@ -149,3 +180,23 @@ examples:
             style: Titanium.UI.iOS.ProgressBarStyle.PLAIN
         }
         ```
+---
+name: StopIndicatorOptions
+summary: Dictionary of options for the <Titanium.UI.ProgressBar.stopIndicator> property.
+platforms: [android]
+since: "14.0.0"
+properties:
+  - name: enabled
+    summary: Determines whether the stop indicator is shown.
+    type: Boolean
+    default: true
+
+  - name: size
+    summary: Custom size of the stop indicator. If not set, the default size is used.
+    description: |
+        Can be either a number (interpreted in the app's default unit) or a string with a
+        unit suffix, for example `"4dp"`.
+
+        The size is clamped to the track thickness, so values larger than
+        <Titanium.UI.ProgressBar.trackThickness> (`4dp` by default) have no visible effect.
+    type: [Number, String]
