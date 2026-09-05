@@ -5,10 +5,15 @@
  * See the LICENSE file for more information.
  */
 
-import path from 'node:path';
+import { join } from 'node:path';
 import ti from 'node-titanium-sdk';
 import appc from 'node-appc';
 import { loadPlugins } from '../lib/load-plugins.js';
+import { commonOptions } from '../lib/common-options.js';
+import { validateProjectDir } from '../lib/validate-project-dir.js';
+import { platformAliases, resolvePlatform } from '../lib/resolve-platform.js';
+import { existsSync } from 'node:fs';
+import { sdkManifest } from '../lib/sdk-manifest.js';
 
 export const cliVersion = '>=9.1.0';
 export const desc = 'get and set tiapp.xml settings';
@@ -40,7 +45,7 @@ export function config(logger, config) {
 				desc: 'the name of the project template to use',
 				default: 'default'
 			}
-		}, ti.commonOptions(logger, config)),
+		}, commonOptions(logger, config)),
 		args: [
 			{
 				name: 'key',
@@ -55,7 +60,7 @@ export function config(logger, config) {
 }
 
 export async function validate(logger, config, cli) {
-	ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
+	validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
 	// Validate the key, if it exists
 	if (cli.argv._.length > 0) {
@@ -69,209 +74,204 @@ export async function validate(logger, config, cli) {
 	await loadPlugins(null, config, cli, cli.argv.output !== 'report' || cli.argv._.length, false);
 }
 
-export function run(logger, config, cli, finished) {
-	var projectDir = cli.argv['project-dir'],
-		tiappPath = path.join(projectDir, 'tiapp.xml'),
-		tiapp = new ti.tiappxml(tiappPath),
-		output = cli.argv.output,
-		key,
-		value,
-		result = {},
-		args = cli.argv._,
-		n,
-		p,
-		maxlen,
-		sdkPath = cli.sdk.path,
-		templateDir,
-		propsList = [ 'sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'guid' ],
-		deploymentTargets = tiapp['deployment-targets'];
+const propsList = ['sdk-version', 'id', 'name', 'version', 'publisher', 'url', 'description', 'copyright', 'icon', 'guid'];
 
-	args.length === 0 && output === 'report' && logger.banner();
+function printProjectInfo(logger, cli, tiapp) {
+	const { output } = cli.argv;
 
-	switch (args.length) {
-		case 0:
-			if (output === 'json') {
+	if (output === 'json') {
+		// Store the deployment targets
+		const result = new ti.tiappxml();
+		result['deployment-targets'] = { ...tiapp['deployment-targets'] };
 
-				// Store the deployment targets
-				result =  new ti.tiappxml();
-				result['deployment-targets'] = {};
-				for (p in deploymentTargets) {
-					result['deployment-targets'][p] = deploymentTargets[p];
-				}
+		// Copy all of the other properties in and print the results
+		for (const key of propsList) {
+			result[key] = tiapp[key];
+		}
+		logger.log(result.toString('pretty-json'));
+		return;
+	}
 
-				// Copy all of the other properties in and print the results
-				propsList.forEach(function (p) {
-					result[p] = tiapp[p];
-				});
-				logger.log(result.toString('pretty-json'));
+	// Print the deployment targets
+	const deploymentTargets = tiapp['deployment-targets'] || {};
+	logger.log('Deployment Targets:');
+	let maxlen = Object.keys(deploymentTargets).reduce((a, b) => Math.max(a, b.length), 0);
+	for (const target of Object.keys(deploymentTargets)) {
+		logger.log(`  ${target.padEnd(maxlen)} = ${String(deploymentTargets[target]).cyan}`);
+	}
+	logger.log();
 
-			} else {
+	// Print the other properties
+	logger.log('Project Properties:');
+	maxlen = propsList.reduce((a, b) => Math.max(a, b.length), 0);
+	for (const key of propsList) {
+		logger.log(`  ${key.padEnd(maxlen)} = ${String(tiapp[key] || 'not specified').cyan}`);
+	}
+	logger.log();
+}
 
-				// Print the deployment targets
-				logger.log('Deployment Targets:');
-				maxlen = Object.keys(deploymentTargets).reduce(function (a, b) {
-					return Math.max(a, b.length);
-				}, 0);
-				for (p in tiapp['deployment-targets']) {
-					logger.log(`  ${appc.string.rpad(p, maxlen)} = ${(deploymentTargets[p] + '').cyan}`);
-				}
-				logger.log();
+function getProjectKey(logger, cli, tiapp) {
+	const { output } = cli.argv;
+	const key = cli.argv._[0];
 
-				// Print the other properties
-				logger.log('Project Properties:');
-				maxlen = propsList.reduce(function (a, b) {
-					return Math.max(a, b.length);
-				}, 0);
-				propsList.forEach(function (key) {
-					logger.log(`  ${appc.string.rpad(key, maxlen)} = ${String(tiapp[key] || 'not specified').cyan}`);
-				});
-				logger.log();
+	if (key === 'deployment-targets') {
+		const deploymentTargets = tiapp['deployment-targets'] || {};
+		if (output === 'json') {
+			logger.log(JSON.stringify({
+				'deployment-targets': deploymentTargets
+			}));
+		} else if (output === 'text') {
+			logger.log(Object.keys(deploymentTargets).map(target => `${target}=${deploymentTargets[target]}`).join(','));
+		} else {
+			logger.log('Deployment Targets:');
+			const maxlen = Object.keys(deploymentTargets).reduce((a, b) => Math.max(a, b.length), 0);
+			logger.log(Object.keys(deploymentTargets).map(target => `  ${target.padEnd(maxlen)} = ${String(deploymentTargets[target]).cyan}`).join('\n'));
+			logger.log();
+		}
+		return;
+	}
+
+	if (propsList.includes(key)) {
+		if (output === 'json') {
+			logger.log(JSON.stringify(tiapp[key] || ''));
+		} else {
+			logger.log(tiapp[key]);
+		}
+		return;
+	}
+
+	if (output === 'json') {
+		logger.log('null');
+	} else {
+		logger.error(`${key} is not a valid entry name\n`);
+	}
+	process.exit(1);
+}
+
+function setProjectKey(logger, cli, tiapp) {
+	const [key, value] = cli.argv._;
+	const projectDir = cli.argv['project-dir'];
+	const sdkPath = cli.sdk.path;
+
+	switch (key) {
+		case 'deployment-targets':
+			const result = {};
+			const deploymentTargets = value?.split(',') || [];
+
+			for (const platform of sdkManifest.platforms) {
+				result[platform] = false;
 			}
-			break;
 
-		case 1:
-			key = args[0];
-			if (key === 'deployment-targets') {
-				if (output === 'json') {
-					result = {
-						'deployment-targets': {}
-					};
-					for (p in deploymentTargets) {
-						result['deployment-targets'][p] = deploymentTargets[p];
-					}
-					logger.log(JSON.stringify(result));
-				} else if (output === 'text') {
-					result = [];
-					for (p in deploymentTargets) {
-						result.push(p + '=' + deploymentTargets[p]);
-					}
-					logger.log(result.join(','));
-				} else {
-					// Print the deployment targets
-					logger.log('Deployment Targets:');
-					maxlen = Object.keys(deploymentTargets).reduce(function (a, b) {
-						return Math.max(a, b.length);
-					}, 0);
-					for (p in tiapp['deployment-targets']) {
-						logger.log(`  ${appc.string.rpad(p, maxlen)} = ${(deploymentTargets[p] + '').cyan}`);
+			for (const [alias, platform] of Object.entries(platformAliases)) {
+				if (alias !== 'ios' && sdkManifest.platforms.includes(platform)) {
+					result[alias] = false;
+				}
+			}
+
+			// Validate the platforms and override the tiapp.xml setting to true
+			for (const target of deploymentTargets) {
+				if (!Object.hasOwn(result, target)) {
+					logger.error(`Unsupported deployment target "${target}"\n`);
+					logger.log('Available deployment targets are:');
+					for (const target of Object.keys(result).sort()) {
+						logger.log(`    ${target.cyan}`);
 					}
 					logger.log();
+					process.exit(1);
 				}
-			} else if (~propsList.indexOf(key)) {
-				if (output === 'json') {
-					logger.log(JSON.stringify(tiapp[key] || ''));
-				} else {
-					logger.log(tiapp[key]);
-				}
-			} else {
-				if (output === 'json') {
-					logger.log('null');
-				} else {
-					logger.error(`${key} is not a valid entry name\n`);
-				}
+			}
+
+			for (const target of deploymentTargets) {
+				result[target] = true;
+			}
+
+			// Update the tiapp.xml
+			tiapp['deployment-targets'] = result;
+
+			// Non-destructively copy over files from <sdk>/templates/app/<template>/template
+			const templateDir = join(sdkPath, 'templates', 'app', cli.argv.template, 'template');
+			if (!existsSync(templateDir)) {
+				logger.error(`Unknown project template ${cli.argv.template}\n`);
 				process.exit(1);
 			}
-			break;
 
-		case 2:
-			key = args[0];
-			switch (key) {
-				case 'deployment-targets':
+			let numCopied = appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
+				logger: logger.log,
+				ignoreHiddenFiles: true
+			});
 
-					// Get list of platforms from ti manifest and set to false (default value)
-					result = {};
-
-					// add ipad and blackberry to list of platforms
-					[ 'ipad', 'blackberry' ].concat(ti.availablePlatforms).forEach(function (p) {
-						result[p] = false;
-					});
-
-					// Validate the platforms and override the tiapp.xml setting to true
-					value = args[1].split(',');
-					value.forEach(function (p) {
-						if (!Object.prototype.hasOwnProperty.call(result, p)) {
-							logger.error(`Unsupported deployment target "${p}"\n`);
-							logger.log('Available deployment targets are:');
-							Object.keys(result).sort().forEach(function (p) {
-								logger.log('    ' + p.cyan);
-							});
-							logger.log();
-							process.exit(1);
-						}
-					});
-
-					for (p = 0; p < value.length; p++) {
-						result[value[p]] = true;
-					}
-
-					// Update the tiapp.xml
-					tiapp['deployment-targets'] = result;
-
-					// Non-destructively copy over files from <sdk>/templates/app/<template>/template
-					templateDir = path.join(sdkPath, 'templates', 'app', cli.argv.template, 'template');
-					if (!appc.fs.exists(templateDir)) {
-						logger.error(`Unknown project template ${cli.argv.template}\n`);
-						process.exit(1);
-					}
-
-					n = appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
+			// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
+			for (const target of deploymentTargets) {
+				const templateDir = join(sdkPath, resolvePlatform(target), 'templates', 'app', cli.argv.template, 'template');
+				if (existsSync(templateDir)) {
+					numCopied += appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
 						logger: logger.log,
 						ignoreHiddenFiles: true
 					});
-
-					// Non-destructively copy over files from <sdk>/<each platform>/templates/app/<template>/
-					for (p = 0; p < value.length; p++) {
-						if (value[p]) {
-							templateDir = path.join(sdkPath, ti.resolvePlatform(value[p]), 'templates', 'app', cli.argv.template, 'template');
-							if (appc.fs.exists(templateDir)) {
-								n += appc.fs.nonDestructiveCopyDirSyncRecursive(templateDir, projectDir, {
-									logger: logger.log,
-									ignoreHiddenFiles: true
-								});
-							}
-						}
-					}
-					value = value.join(', ');
-					n && logger.log();
-					break;
-				case 'sdk-version':
-					value = args[1];
-					if (value === 'latest') {
-						value = Object.keys(cli.env.sdks).sort().reverse()[0];
-					}
-					if (!(value in cli.env.sdks)) {
-						logger.error(`Unknown SDK ${value}\n`);
-						process.exit(1);
-					}
-					tiapp['sdk-version'] = value;
-					break;
-				case 'id':
-					value = args[1];
-					if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(value)) {
-						logger.error(`Invalid project ID ${value}\n`);
-						process.exit(1);
-					}
-					tiapp['id'] = value;
-					break;
-				case 'name':
-				case 'version':
-				case 'publisher':
-				case 'url':
-				case 'description':
-				case 'copyright':
-				case 'icon':
-				case 'guid':
-					tiapp[key] = value = args[1] || '';
-					break;
-				default:
-					logger.error('Invalid tiapp.xml key "' + key + '"');
-					break;
+				}
 			}
-			logger.log('tiapp.xml saving is currently not supported');
-			// logger.log(`${(key + '').cyan} was successfully set to ${(value + '').cyan}\n`);
-			// tiapp.save(tiappPath);
+			if (numCopied > 0) {
+				logger.log();
+			}
+			break;
+
+		case 'sdk-version':
+			let sdkVersion = value;
+			if (sdkVersion === 'latest') {
+				sdkVersion = Object.keys(cli.env.sdks).sort().reverse()[0];
+			}
+			if (!Object.hasOwn(cli.env.sdks, sdkVersion)) {
+				logger.error(`Unknown SDK ${sdkVersion}\n`);
+				process.exit(1);
+			}
+			tiapp['sdk-version'] = sdkVersion;
+			break;
+		case 'id':
+			const projectId = value || '';
+			if (!/^([a-z_]{1}[a-z0-9_]*(\.[a-z_]{1}[a-z0-9_]*)*)$/.test(projectId)) {
+				logger.error(`Invalid project ID ${projectId}\n`);
+				process.exit(1);
+			}
+			tiapp['id'] = projectId;
+			break;
+		case 'name':
+		case 'version':
+		case 'publisher':
+		case 'url':
+		case 'description':
+		case 'copyright':
+		case 'icon':
+		case 'guid':
+			tiapp[key] = value || '';
+			break;
+		default:
+			logger.error(`Invalid tiapp.xml key "${key}"`);
 			break;
 	}
+	logger.log('tiapp.xml saving is currently not supported');
+	// logger.log(`${(key + '').cyan} was successfully set to ${(value + '').cyan}\n`);
+	// tiapp.save(tiappPath);
+}
 
-	finished();
+export async function run(logger, _config, cli) {
+	const {
+		output,
+		_: args
+	} = cli.argv;
+	const tiapp = new ti.tiappxml(join(cli.argv['project-dir'], 'tiapp.xml'));
+
+	if (args.length === 0 && output === 'report') {
+		logger.banner();
+	}
+
+	if (args.length === 0) {
+		printProjectInfo(logger, cli, tiapp);
+	} else if (args.length === 1) {
+		getProjectKey(logger, cli, tiapp);
+	} else if (args.length === 2) {
+		setProjectKey(logger, cli, tiapp);
+	} else {
+		logger.error(`Invalid number of arguments\n`);
+		process.exit(1);
+	}
 }

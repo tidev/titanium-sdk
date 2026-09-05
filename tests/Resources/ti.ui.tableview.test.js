@@ -1090,6 +1090,53 @@ describe('Titanium.UI.TableView', function () {
 		finish();
 	});
 
+	it('.searchText', finish => {
+		// Set searchText in the creation dictionary together with data, so the
+		// filter has to survive whichever property is applied first.
+		const tableView = Ti.UI.createTableView({
+			data: [
+				{ title: 'Apple' },
+				{ title: 'Banana' },
+				{ title: 'Potatoes', filterAlwaysInclude: true }
+			],
+			searchText: 'an'
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+				should(tableView.searchText).be.eql('an');
+
+				// Filtering must not alter the underlying data.
+				should(tableView.sectionCount).be.eql(1);
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Change the filter after the table is shown.
+				tableView.searchText = 'p';
+				should(tableView.searchText).be.eql('p');
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Data changes while filtering must be picked up without errors.
+				tableView.appendRow({ title: 'Pear' });
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				// An empty string clears the filter.
+				tableView.searchText = '';
+				should(tableView.searchText).be.eql('');
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
 	it('scrollable', () => {
 		const tableView = Ti.UI.createTableView({ scrollable: false });
 
