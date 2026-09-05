@@ -87,7 +87,7 @@ function generateChangelog() {
 			],
 			// stderr inherited so warnings stay visible as they happen, and
 			// stay out of the note on the stdout path.
-			{ cwd: repoRoot, stdio: [ 'ignore', 'pipe', 'inherit' ] }
+			{ cwd: repoRoot, env: { ...process.env, TI_RELEASE_CHANNEL: channel }, stdio: [ 'ignore', 'pipe', 'inherit' ] }
 		);
 		const chunks = [];
 

@@ -338,6 +338,12 @@ export default {
 				context.isMajor = !context.isPatch && semver.minor(context.version) === 0;
 			}
 
+			// The identifier `ti sdk install` takes: version and channel, e.g.
+			// `14.0.0.GA`. release-notes.js passes the channel it was asked for;
+			// reaching here without one means `npm run build:changelog`, which
+			// only ever describes a GA release.
+			context.sdkVersion = `${context.version}.${process.env.TI_RELEASE_CHANNEL || 'GA'}`;
+
 			// Set End of Support date based on whether this is mjaor or minor/patch.
 			// Major means EoS 12 months from now for last major line.
 			// Minor/Patch means EoS 6 months from now for last minor
