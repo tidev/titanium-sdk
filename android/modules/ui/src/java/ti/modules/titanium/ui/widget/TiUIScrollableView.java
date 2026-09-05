@@ -17,6 +17,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
+import org.appcelerator.titanium.TiDimension;
 
 import ti.modules.titanium.ui.ScrollableViewProxy;
 import ti.modules.titanium.ui.widget.listview.ListItemProxy;
@@ -513,24 +514,24 @@ public class TiUIScrollableView extends TiUIView
 		int paddingTop = mPager.getPaddingTop();
 		int paddingBottom = mPager.getPaddingBottom();
 
-		if (d.containsKey(TiC.PROPERTY_LEFT)) {
-			paddingLeft = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT), 0);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_RIGHT)) {
-			paddingRight = TiConvert.toInt(d.get(TiC.PROPERTY_RIGHT), 0);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_TOP)) {
-			paddingTop = TiConvert.toInt(d.get(TiC.PROPERTY_TOP), 0);
-		}
-
-		if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
-			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
-		}
-
 		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
 		if (recyclerView != null) {
+			if (d.containsKey(TiC.PROPERTY_LEFT)) {
+				paddingLeft = TiConvert.toTiDimension(d.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT)
+					.getAsPixels(recyclerView);
+			}
+			if (d.containsKey(TiC.PROPERTY_RIGHT)) {
+				paddingRight = TiConvert.toTiDimension(d.get(TiC.PROPERTY_RIGHT), TiDimension.TYPE_RIGHT)
+					.getAsPixels(recyclerView);
+			}
+			if (d.containsKey(TiC.PROPERTY_TOP)) {
+				paddingTop = TiConvert.toTiDimension(d.get(TiC.PROPERTY_TOP), TiDimension.TYPE_TOP)
+					.getAsPixels(recyclerView);
+			}
+			if (d.containsKey(TiC.PROPERTY_BOTTOM)) {
+				paddingBottom = TiConvert.toTiDimension(d.get(TiC.PROPERTY_BOTTOM), TiDimension.TYPE_BOTTOM)
+					.getAsPixels(recyclerView);
+			}
 			recyclerView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 		}
 	}
