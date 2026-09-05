@@ -393,6 +393,7 @@ public class TiC
 	public static final String PROPERTY_CROP_RECT = "cropRect";
 	public static final String PROPERTY_CURRENT_PAGE = "currentPage";
 	public static final String PROPERTY_CURVE = "curve";
+	public static final String PROPERTY_DASHED = "dashed";
 	public static final String PROPERTY_DATA = "data";
 	public static final String PROPERTY_DATE = "date";
 	public static final String PROPERTY_DATE_PICKER_STYLE = "datePickerStyle";
