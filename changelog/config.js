@@ -191,6 +191,19 @@ export default {
 				breaking = true;
 			});
 
+			// A breaking change announced in the header rather than a footer, as
+			// in `[Breaking change] Android: Ti.UI.Color parity`. The parser only
+			// looks for note keywords in footers — it already matches them without
+			// regard to case — so a header says nothing to it at any casing, and
+			// the commit reaches here with no note, no type and no subject.
+			// Recover what the author meant and let the subject stand on its own
+			// under the heading, which supplies the `[Breaking change]` part.
+			const breakingHeader = /^\s*\[breaking[ -]?changes?\]:?\s*/i;
+			if (typeof commit.header === 'string' && breakingHeader.test(commit.header)) {
+				commit.subject = commit.header.replace(breakingHeader, '');
+				breaking = true;
+			}
+
 			// ensure scope is lowercase
 			if (typeof commit.scope === 'string') {
 				if (commit.scope === '*') {
@@ -268,20 +281,22 @@ export default {
 				const commits = communityContributions.get(commit.authorName) || [];
 				commits.push(commit);
 				communityContributions.set(commit.authorName, commits);
-				// We may have a commit that community provided that we wanted to massage for community credits but not include in the overall listing
-				if (discard) {
-					return;
-				}
 			}
 
 			// was this a breaking change? We have a special place for that!
 			if (breaking) {
 				breakingChanges.push(commit);
-				// it may have been a refactoring or other change we don't normally list,
-				// so don't include whatever random category it was
-				if (discard) {
-					return;
-				}
+			}
+
+			// Both sections above hold their own reference to the commit, so all
+			// `discard` decides is whether it *also* belongs in the normal type
+			// listings — it may have been a refactoring or other change we don't
+			// normally list, or one we wanted to massage for community credits
+			// only. Each block used to check it and return, which meant a
+			// community author's breaking change stopped at the credits and never
+			// reached the breaking section.
+			if (discard) {
+				return;
 			}
 
 			return commit;
