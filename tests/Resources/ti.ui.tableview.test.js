@@ -1131,6 +1131,12 @@ describe('Titanium.UI.TableView', function () {
 				return finish(err);
 			}
 			finish();
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
 	it('.searchText', finish => {
 		// Set searchText in the creation dictionary together with data, so the
 		// filter has to survive whichever property is applied first.
