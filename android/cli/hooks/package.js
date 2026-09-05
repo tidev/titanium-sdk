@@ -48,6 +48,16 @@ export function init(logger, config, cli) {
 				appc.fs.copyFileSync(builder.aabFile, outputFilePath, { logger: logger.debug });
 			}
 
+			// Copy R8 obfuscation mapping file to destination, if available.
+			// Needed to retrace obfuscated crash stack traces. Can be uploaded to the Play Store.
+			if (builder.mappingFile && fs.existsSync(builder.mappingFile)) {
+				const outputFilePath = path.join(outputDir, builder.tiapp.name + '-mapping.txt');
+				if (fs.existsSync(outputFilePath)) {
+					fs.unlinkSync(outputFilePath);
+				}
+				appc.fs.copyFileSync(builder.mappingFile, outputFilePath, { logger: logger.debug });
+			}
+
 			logger.info('Packaging complete');
 			logger.info(`Package location: ${outputDir.cyan}`);
 
