@@ -27,6 +27,7 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiAnimationBuilder;
 import org.appcelerator.titanium.util.TiAnimationBuilder.TiMatrixAnimation;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutParams;
 
@@ -112,6 +113,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+	private int backgroundImageLoadToken;
 
 	public TiBackgroundDrawable getBackground()
 	{
@@ -1485,12 +1487,45 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				applyCustomBackground(false);
 			}
 			if (background != null) {
-				Drawable bgDrawable = TiUIHelper.buildBackgroundDrawable(
-					bg, TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false), bgColor, bgSelected,
-					bgSelectedColor, bgDisabled, bgDisabledColor, bgFocused, bgFocusedColor, gradientDrawable,
-					proxy.getActivity());
-
-				background.setBackgroundDrawable(bgDrawable);
+				final boolean tileImage = TiConvert.toBoolean(d, TiC.PROPERTY_BACKGROUND_REPEAT, false);
+				final Activity activity = proxy.getActivity();
+				final boolean hasImageFile
+					= (bg != null) || (bgSelected != null) || (bgFocused != null) || (bgDisabled != null);
+				if (!hasImageFile) {
+					// Colors and gradients involve no file I/O. Apply them immediately to avoid flicker.
+					background.setBackgroundDrawable(TiUIHelper.buildBackgroundDrawable(
+						bg, tileImage, bgColor, bgSelected, bgSelectedColor, bgDisabled, bgDisabledColor,
+						bgFocused, bgFocusedColor, gradientDrawable, activity));
+				} else {
+					// Image files must be read and decoded. Do it off the main thread to avoid blocking the UI.
+					final String fBg = bg;
+					final String fBgColor = bgColor;
+					final String fBgSelected = bgSelected;
+					final String fBgSelectedColor = bgSelectedColor;
+					final String fBgDisabled = bgDisabled;
+					final String fBgDisabledColor = bgDisabledColor;
+					final String fBgFocused = bgFocused;
+					final String fBgFocusedColor = bgFocusedColor;
+					final Drawable fGradientDrawable = gradientDrawable;
+					final TiBackgroundDrawable targetBackground = background;
+					final int token = ++this.backgroundImageLoadToken;
+					TiLoadImageManager.getInstance().load(
+						() -> TiUIHelper.buildBackgroundDrawable(
+							fBg, tileImage, fBgColor, fBgSelected, fBgSelectedColor, fBgDisabled,
+							fBgDisabledColor, fBgFocused, fBgFocusedColor, fGradientDrawable, activity),
+						(Drawable bgDrawable) -> {
+							// Drop the result if the background was changed/removed while loading.
+							if ((bgDrawable == null) || (token != this.backgroundImageLoadToken)
+								|| (this.background != targetBackground)) {
+								return;
+							}
+							targetBackground.setBackgroundDrawable(bgDrawable);
+							View outerView = getOuterView();
+							if (outerView != null) {
+								outerView.postInvalidate();
+							}
+						});
+				}
 			}
 		}
 	}
