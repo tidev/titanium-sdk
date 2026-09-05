@@ -7,8 +7,6 @@
 
 package org.appcelerator.titanium.view;
 
-import java.lang.reflect.Field;
-
 import org.appcelerator.kroll.common.Log;
 
 import android.graphics.Color;
@@ -30,15 +28,8 @@ public class TiBackgroundColorWrapper
 {
 	private static final String TAG = TiBackgroundColorWrapper.class.getSimpleName();
 
-	private static final String COLOR_DRAWABLE_STATE_VAR = "mState";
-	private static final String COLOR_DRAWABLE_USE_COLOR_VAR = "mUseColor";
 	private static final String ERR_BACKGROUND_COLOR = "Unable to determine the current background color."
 													   + " Transparent will be returned as the color value.";
-
-	// ColorDrawable reflection
-	private static Field cdBackgroundStateField = null;
-	private static Field cdBackgroundStateColorField = null;
-	private static boolean cdBackgroundReflectionReady = false;
 
 	private final View view;
 
@@ -137,31 +128,6 @@ public class TiBackgroundColorWrapper
 
 		Log.w(TAG, ERR_BACKGROUND_COLOR);
 		return Color.TRANSPARENT;
-	}
-
-	private void initColorDrawableReflection(ColorDrawable colorDrawable)
-	{
-		cdBackgroundReflectionReady = true;
-
-		Class<ColorDrawable> cdClass = ColorDrawable.class;
-
-		try {
-			cdBackgroundStateField = cdClass.getDeclaredField(COLOR_DRAWABLE_STATE_VAR);
-			cdBackgroundStateField.setAccessible(true);
-		} catch (Exception e) {
-			Log.e(TAG, "Reflection failed while trying to determine background color of view.", e);
-			cdBackgroundStateField = null;
-			return;
-		}
-
-		try {
-			cdBackgroundStateColorField =
-				cdBackgroundStateField.getType().getDeclaredField(COLOR_DRAWABLE_USE_COLOR_VAR);
-			cdBackgroundStateColorField.setAccessible(true);
-		} catch (Exception e) {
-			Log.e(TAG, "Reflection failed while trying to determine background color of view.", e);
-			cdBackgroundStateColorField = null;
-		}
 	}
 
 	public void setBackgroundColor(int value)
