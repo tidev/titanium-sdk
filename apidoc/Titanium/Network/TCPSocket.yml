@@ -74,7 +74,7 @@ events:
         type: Number
 properties:
   - name: hostName
-    summary: the host name to connect to.  Must be <Titanium.Network.INADDR_ANY> or an identifier for the local device in order to listen
+    summary: the host name to connect to.  Must be `"INADDR_ANY"` or an identifier for the local device in order to listen
     type: String
   - name: isValid
     summary: whether or not the socket is valid
@@ -88,4 +88,4 @@ properties:
   - name: stripTerminator
     summary: strip terminating null character when sending string data; default is false
     type: Boolean
-description: Sockets are nontrivial; it is recommended that anyone using them be familiar with the basics of BSD sockets.  All sockets use TCP connections, and are asynchronous for read operations, so your program should be ready to receive 'read' events at any point.  Socket references cannot be transferred to socket objects, and vice-versa - socket references are an internal mechanism which is used only to determine which sockets to send data to and read data from.  For listening sockets, it is highly recommended that you use the <Titanium.Network.INADDR_ANY> constant as the host name.  If a window containing a socket is closed, the socket MUST be closed also unless you intend to continue to receive data, otherwise the socket will consume resources (and potentially cause conflicts with opening the window again, if a listener) until the program is restarted.  Be aware of the differences between the listen() and connect() functions; attempting to use one when you mean the other may result in errors, unpredictable behavior, or both.
+description: Sockets are nontrivial; it is recommended that anyone using them be familiar with the basics of BSD sockets.  All sockets use TCP connections, and are asynchronous for read operations, so your program should be ready to receive 'read' events at any point.  Socket references cannot be transferred to socket objects, and vice-versa - socket references are an internal mechanism which is used only to determine which sockets to send data to and read data from.  For listening sockets, it is highly recommended that you use the string `"INADDR_ANY"` as the host name.  If a window containing a socket is closed, the socket MUST be closed also unless you intend to continue to receive data, otherwise the socket will consume resources (and potentially cause conflicts with opening the window again, if a listener) until the program is restarted.  Be aware of the differences between the listen() and connect() functions; attempting to use one when you mean the other may result in errors, unpredictable behavior, or both.
