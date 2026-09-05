@@ -243,7 +243,7 @@ jobs:
       - name: Generate the release note
         run: |
           VERSION="${vtag%.GA}"
-          node changelog/release-note.js \
+          node changelog/release-notes.js \
             --channel GA \
             --out "titaniumsdk.com/registry/sdk/${VERSION}/release-notes.md"
 

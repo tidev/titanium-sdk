@@ -6,7 +6,7 @@ import semver from 'semver';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageJSON = fs.readJSONSync(path.join(__dirname, '../package.json'));
-const previousBranch = guessPreviousBranch(packageJSON.version);
+const previous = previousRelease(packageJSON.version);
 
 function groupBy(list, keyGetter) {
 	const map = new Map();
@@ -39,86 +39,66 @@ function prettifiedScope(rawScope) {
 }
 
 /**
- * Orders refs like `13_9_X` and `13_10_X` by their numbers rather than as text,
- * where `13_10_X` would sort before `13_9_X` and pick the wrong previous release.
+ * The release these notes are measured from: the newest GA release older than
+ * the one being cut.
  *
- * @param {string} a
- * @param {string} b
- * @returns {number}
+ * Every release is tagged `<major>_<minor>_<patch>_GA`, so the tags are the
+ * record of what actually shipped. This used to guess at a maintenance branch
+ * instead, which failed two ways: a bare name like `14_0_X` does not resolve on
+ * a CI checkout, where the branch exists only as `origin/14_0_X`, and a branch
+ * tip is not a release.
+ *
+ * Picking by version rather than by reachability keeps maintenance releases
+ * right — cutting 13.4.2 compares against 13.4.1 even though 14.0.0 has already
+ * shipped from main — and needs no knowledge of how the branches are laid out.
+ *
+ * @param {string} version the version being released
+ * @returns {{ tag: string, sha: string }} the tag and the commit it points at
  */
-function compareRefs(a, b) {
-	const parts = ref => (ref.match(/\d+/g) || []).map(Number);
-	const [x, y] = [ parts(a), parts(b) ];
-	for (let i = 0; i < Math.max(x.length, y.length); i++) {
-		const d = (x[i] || 0) - (y[i] || 0);
-		if (d !== 0) {
-			return d;
-		}
+function previousRelease(version) {
+	const released = execSync('git tag --list "*_GA"', { encoding: 'utf8' })
+		.split(/\r?\n/)
+		// `1_8_0_1_GA` is the one four-part tag in the repo's history. Dropping
+		// what does not parse also drops it, and it predates anything we would
+		// ever compare against.
+		.map(line => /^(\d+)_(\d+)_(\d+)_GA$/.exec(line.trim()))
+		.filter(Boolean)
+		.map(([ tag, major, minor, patch ]) => ({ tag, version: `${major}.${minor}.${patch}` }))
+		.filter(release => semver.lt(release.version, version))
+		.sort((a, b) => semver.compare(a.version, b.version));
+
+	const previous = released[released.length - 1];
+	if (!previous) {
+		throw new Error(`cannot find a GA release older than ${version} to generate notes from`);
 	}
-	return 0;
-}
 
-/**
- * Try to determine what branch or tag to compare against for determining the commit list and compare url
- *
- * @param {string} version current version
- * @returns {string}
- */
-function guessPreviousBranch(version) {
-	const result = version.match(/(\d+)\.(\d+)\.(\d+)/);
-	const major = parseInt(result[1], 10);
-	const minor = parseInt(result[2], 10);
-	const patch = parseInt(result[3], 10);
-	if (patch === 0) {
-		// new major or minor version...
+	// The commit, not the tag. `from` is handed to `git log`, and a sha resolves
+	// without depending on which refs a checkout happens to have fetched.
+	const sha = execSync(`git rev-list -n 1 ${previous.tag}`, { encoding: 'utf8' }).trim();
 
-		// new minor version
-		if (minor !== 0) { // if 8.1.0, 6.5.0, 7.8.0, etc
-			// return previous minor version's maintenance branch
-			return `${major}_${minor - 1}_X`; // return 8_0_X, 6_4_X, 7_7_X respectively
-		}
-
-		// major version
-		// Find the newest maintenance branch of the previous major. `git branch`
-		// alone lists only local branches, so on a CI checkout — which has the
-		// one branch it was told to fetch — this found nothing and returned
-		// undefined, and the changelog run died on `git log undefined...HEAD`.
-		// Remote branches and tags are both consulted, and a tag is always
-		// present even when no maintenance branch was ever cut.
-		// Tags before branches, deliberately. A branch found this way is often
-		// only a remote ref — `git branch --all` reports `remotes/origin/13_4_X`,
-		// and neither that nor the bare `13_4_X` resolves in `git log` on a CI
-		// checkout, nor reads correctly in a compare URL. A tag resolves
-		// wherever it has been fetched and is already what the URL wants.
-		//
-		// This does change what a major is compared against: the previous
-		// major's last GA rather than its maintenance branch tip. Commits made
-		// on that branch after its final release now appear in the new major's
-		// notes, where before they were excluded.
-		const candidates = [
-			`git tag --list "${major - 1}_*_GA"`,
-			`git branch --list "${major - 1}_*_X"`
-		];
-		for (const command of candidates) {
-			const output = execSync(command, { encoding: 'utf8' });
-			const lines = output
-				.split(/\r?\n/)
-				.map(l => l.trim().replace(/^\*\s*/, '').replace(/^remotes\/[^/]+\//, ''))
-				.filter(l => l && !l.includes('->'))
-				.sort(compareRefs);
-			if (lines.length) {
-				return lines[lines.length - 1];
-			}
-		}
+	// A tag fetched with `--depth` is grafted with no history behind it, so it
+	// shares no ancestor with HEAD and the symmetric difference below degenerates
+	// to every commit in the repository. That does not fail — it quietly yields a
+	// release note spanning the whole project, so check for it here.
+	let mergeBase = '';
+	try {
+		mergeBase = execSync(`git merge-base ${sha} HEAD`, {
+			encoding: 'utf8',
+			stdio: [ 'ignore', 'pipe', 'ignore' ]
+		}).trim();
+	} catch {
+		// exit 1 is "no common ancestor"; a broken git would have thrown above
+	}
+	if (!mergeBase) {
 		throw new Error(
-			`cannot find a previous release to compare ${version} against: no ${major - 1}_*_X branch and no ${major - 1}_*_GA tag`
+			`${previous.tag} (${sha.slice(0, 10)}) shares no history with HEAD, so the range would be `
+			+ 'the entire repository rather than one release.\n'
+			+ 'A shallow clone does this; `git fetch --unshallow --tags` repairs it. release-notes.js\n'
+			+ 'runs that itself, so reaching this through it means the fetch was skipped or failed.'
 		);
 	}
 
-	// e.g. 8.2.1, 1.2.3, 7.5.2
-	return `${major}_${minor}_${patch - 1}_GA`; // try 8_2_0, 1_2_2, 7_5_1?
-	// Maybe we can try and confirm the tag actually exists? Because we've been awful about tagging and tag names...
-	// ideally it should be like "v1.2.3", but we're doing like '8_1_1_GA' so far
+	return { tag: previous.tag, sha };
 }
 
 function urlToVersion(url) {
@@ -173,7 +153,7 @@ function getFilteredShaListing(from) {
 	return new Set(stdout.split(/\r?\n/));
 }
 
-const filteredCommitSHAs = getFilteredShaListing(previousBranch);
+const filteredCommitSHAs = getFilteredShaListing(previous.sha);
 
 export default {
 	gitRawCommitsOpts: {
@@ -182,7 +162,7 @@ export default {
 		// merges: false, // --no-merges
 		// NOTE: This does a 9_0_X..HEAD comparison, but we need a 9_0_X...HEAD comparison with cherry-picks removed
 		// We do that above by getting the hashes of that subset and then skip anythign this collects that don't fall into that set
-		from: previousBranch,
+		from: previous.sha,
 		// We override to include authorName and authorEmail!
 		format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae'
 	},
@@ -309,7 +289,7 @@ export default {
 		finalizeContext: function (context) {
 			// Control how the version compare link is generated
 			context.linkCompare = true;
-			context.previousTag = previousBranch;
+			context.previousTag = previous.tag;
 			context.currentTag = packageJSON.version;
 
 			// Here we hack the generated commitGroups which sorted commits by type (feature, bug fix, etc)
