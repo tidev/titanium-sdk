@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget;
 
 import android.app.Activity;
+import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -18,6 +19,8 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
+
+import ti.modules.titanium.ui.android.ProgressBarStyleModule;
 
 public class TiUIProgressBar extends TiUIView
 {
@@ -72,6 +75,9 @@ public class TiUIProgressBar extends TiUIView
 		if (d.containsKey(TiC.PROPERTY_TRACK_TINT_COLOR)) {
 			this.progress.setTrackColor(TiConvert.toColor(d, TiC.PROPERTY_TRACK_TINT_COLOR, activity));
 		}
+		if (d.containsKey(TiC.PROPERTY_STYLE)) {
+			handleSetStyle(TiConvert.toInt(d, TiC.PROPERTY_STYLE));
+		}
 		updateProgress();
 	}
 
@@ -98,6 +104,10 @@ public class TiUIProgressBar extends TiUIView
 		} else if (key.equals(TiC.PROPERTY_TRACK_TINT_COLOR)) {
 			// TODO: reset to default value when property is null
 			this.progress.setTrackColor(TiConvert.toColor(newValue, proxy.getActivity()));
+		} else if (key.equals(TiC.PROPERTY_STYLE)) {
+			handleSetStyle(TiConvert.toInt(newValue));
+		} else if (key.equals(TiC.PROPERTY_ANIMATED)) {
+			handleSetStyle(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_STYLE)));
 		}
 	}
 
@@ -151,5 +161,24 @@ public class TiUIProgressBar extends TiUIView
 	protected void handleSetMessageColor(int color)
 	{
 		label.setTextColor(color);
+	}
+
+	private void handleSetStyle(int style)
+	{
+		boolean isAnimated = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ANIMATED), true);
+
+		if (style == ProgressBarStyleModule.WAVY) {
+			DisplayMetrics dm = proxy.getActivity().getResources().getDisplayMetrics();
+			int amplitudeDp = 3;
+			int wavelengthDp = 16;
+			int speedDp = isAnimated ? 1 : 0;
+			progress.setWaveAmplitude((int) (amplitudeDp * dm.density + 0.5f));
+			progress.setWavelength((int) (wavelengthDp * dm.density + 0.5f));
+			progress.setWaveSpeed((int) (speedDp * dm.density + 0.5f));
+		} else {
+			progress.setWaveAmplitude(0);
+			progress.setWavelength(0);
+			progress.setWaveSpeed(0);
+		}
 	}
 }

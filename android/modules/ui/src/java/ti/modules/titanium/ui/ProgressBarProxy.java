@@ -25,6 +25,7 @@ import ti.modules.titanium.ui.widget.TiUIProgressBar;
 		TiC.PROPERTY_COLOR,
 		TiC.PROPERTY_TINT_COLOR,
 		TiC.PROPERTY_TRACK_TINT_COLOR,
+		TiC.PROPERTY_STYLE,
 	})
 public class ProgressBarProxy extends TiViewProxy
 {

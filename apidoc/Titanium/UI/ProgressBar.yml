@@ -75,9 +75,13 @@ properties:
 
   - name: style
     summary: Style of the progress bar.
-    description: For iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
+    description: |
+        On iOS, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.iOS.ProgressBarStyle).
+
+        On Android, progress bar styles are constants defined in [ProgressBarStyle](Titanium.UI.Android.ProgressBarStyle).
     type: Number
-    platforms: [iphone,ipad, macos]
+    platforms: [iphone, ipad, macos, android]
+    since: {android: "14.0.0"}
 
   - name: value
     summary: Current value of the progress bar.

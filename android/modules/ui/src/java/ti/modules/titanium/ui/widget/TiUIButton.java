@@ -60,19 +60,19 @@ public class TiUIButton extends TiUIView
 		styleId = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_STYLE), styleId);
 		switch (styleId) {
 			case UIModule.BUTTON_STYLE_OPTION_POSITIVE:
-				styleId = R.attr.buttonBarPositiveButtonStyle;
+				styleId = androidx.appcompat.R.attr.buttonBarPositiveButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_OPTION_NEGATIVE:
-				styleId = R.attr.buttonBarNegativeButtonStyle;
+				styleId = androidx.appcompat.R.attr.buttonBarNegativeButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_OPTION_NEUTRAL:
-				styleId = R.attr.buttonBarNeutralButtonStyle;
+				styleId = androidx.appcompat.R.attr.buttonBarNeutralButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_OUTLINED:
 				styleId = R.attr.materialButtonOutlinedStyle;
 				break;
 			case UIModule.BUTTON_STYLE_TEXT:
-				styleId = R.attr.borderlessButtonStyle;
+				styleId = androidx.appcompat.R.attr.borderlessButtonStyle;
 				break;
 			case UIModule.BUTTON_STYLE_FILLED:
 			default:
