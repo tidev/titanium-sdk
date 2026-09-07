@@ -504,11 +504,6 @@ export class AndroidModuleBuilder extends Builder {
 			value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`
 		});
 
-		// Kotlin KAPT compatibility for JDK16
-		// NOTE: This parameter is removed in JDK17 and will prevent modules from compiling.
-		// https://youtrack.jetbrains.com/issue/KT-45545
-		gradleProperties.push({ key: 'org.gradle.jvmargs', value: '--illegal-access=permit' });
-
 		await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 		// Create a "local.properties" file providing a path to the Android SDK directory.
@@ -566,6 +561,7 @@ export class AndroidModuleBuilder extends Builder {
 		let buildGradleContent = await fs.readFile(path.join(this.moduleTemplateDir, 'build.gradle'));
 		buildGradleContent = ejs.render(buildGradleContent.toString(), {
 			compileSdkVersion: this.compileSdkVersion,
+			consumerRulesFilePath: path.join(this.platformDir, 'android', 'consumer-rules.pro'),
 			plugins: (this.manifest.plugins?.split(',') ?? []).filter(plugin => plugin !== ''),
 			krollAptJarPath: path.join(this.platformPath, 'kroll-apt.jar'),
 			minSdkVersion: this.minSupportedApiLevel,
