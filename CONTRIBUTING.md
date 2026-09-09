@@ -152,7 +152,7 @@ A few expectations beyond "it works":
   the other, either implement both or open an issue for the missing side and link it from
   your pull request. Splitting the work is fine; leaving it undocumented is not.
 - **Support the versions we support.** Check the minimum OS versions the SDK currently
-  targets rather than assuming the latest.
+  targets rather than assuming the latest. Where necessary use version guards for newer features.
 - **Add tests.** See [Tests](#tests).
 - **Update the API docs** if you changed anything public. See
   [API documentation](#api-documentation).
