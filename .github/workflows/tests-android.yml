@@ -50,6 +50,22 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache V8
+        uses: actions/cache@v5
+        with:
+          path: dist/android/libv8
+          key: libv8-${{ hashFiles('android/package.json') }}
+
       - name: Install ccache
         uses: hendrikmuhs/ccache-action@v1.2.23
         with:
@@ -95,6 +111,14 @@ jobs:
           script: |
             adb devices
             npm run test:android
+
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        if: always()
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
 
       - name: Upload Android JUnit report
         if: always()

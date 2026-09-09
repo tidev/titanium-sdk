@@ -25,7 +25,19 @@ if (tiBuildVersionString == null) {
 }
 def tiBuildHashString = System.env.TI_SDK_BUILD_GIT_HASH
 if (tiBuildHashString == null) {
-	tiBuildHashString = 'HEAD'
+	// Not invoked via the SDK build scripts. Fetch the git hash the same way they do.
+	try {
+		tiBuildHashString = providers.exec {
+			commandLine = ['git', 'rev-parse', '--short=10', '--no-color', 'HEAD']
+			workingDir = rootDir
+			ignoreExitValue = true
+		}.standardOutput.asText.get().trim()
+	} catch (Exception ex) {
+		tiBuildHashString = ''
+	}
+	if (tiBuildHashString.isEmpty()) {
+		tiBuildHashString = 'HEAD'
+	}
 }
 def tiBuildTimeString = System.env.TI_SDK_BUILD_TIMESTAMP
 if (tiBuildTimeString == null) {
@@ -54,7 +66,9 @@ android {
 		buildConfigField('int', 'VERSION_CODE', tiBuildVersionCode.toString())
 		buildConfigField('String', 'VERSION_NAME', '"' + tiBuildVersionString + '"')
 		buildConfigField('String', 'TI_BUILD_HASH_STRING', '"' + tiBuildHashString + '"')
-		buildConfigField('String', 'TI_BUILD_TIME_STRING', '"' + tiBuildTimeString + '"')
+		// Ships ProGuard/R8 rules inside the AAR so they're applied to any app that enables code shrinking.
+		consumerProguardFiles 'consumer-rules.pro'
+		// Note: The build timestamp is intentionally NOT a "BuildConfig" field. See "generateTiBuildInfo" task below.
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		javaCompileOptions {
 			annotationProcessorOptions {
@@ -125,23 +139,58 @@ android {
 	}
 }
 
+// Generates an asset file providing the SDK build timestamp, which "TiApplication" reads at runtime.
+// This is intentionally not a "BuildConfig" field: a constant that changes on every build would invalidate
+// the whole Java compile (and everything downstream of it) on every build, even when nothing changed.
+abstract class GenerateTiBuildInfoTask extends DefaultTask {
+	@Input
+	abstract Property<String> getBuildTime()
+
+	@OutputDirectory
+	abstract DirectoryProperty getOutputDir()
+
+	@TaskAction
+	void generate() {
+		def file = outputDir.file('ti-build-info.properties').get().asFile
+		file.parentFile.mkdirs()
+		file.text = "buildTime=${buildTime.get()}\n"
+	}
+}
+def generateTiBuildInfo = tasks.register('generateTiBuildInfo', GenerateTiBuildInfoTask) {
+	buildTime = tiBuildTimeString
+	outputDir = layout.buildDirectory.dir('generated/ti-build-info')
+}
+androidComponents {
+	onVariants(selector().all()) { variant ->
+		variant.sources.assets?.addGeneratedSourceDirectory(generateTiBuildInfo, { it.outputDir })
+	}
+}
+
+def v8PackageJson = new JsonSlurper().parse(file("${projectDir}/../package.json"))
+def v8InstallDirPath = "${projectDir}/../../dist/android/libv8/${v8PackageJson.v8.version}/${v8PackageJson.v8.mode}"
+
 // Download/install the V8 library referenced in our "package.json", if not already done.
+// Note: The script writes a "libv8.integrity" marker file once the library is installed. It's this task's only
+//       output so that gradle can skip the (slow to start up) node process entirely once it has been installed.
 tasks.register('updateLibraryThenExit', Exec) {
 	executable = 'node'
 	workingDir = projectDir
 	args = ['libv8-services.js', 'update-library']
+	inputs.property 'v8.version', v8PackageJson.v8.version
+	inputs.property 'v8.mode', v8PackageJson.v8.mode
+	inputs.property 'v8.integrity', v8PackageJson.v8.integrity
+	outputs.file "${v8InstallDirPath}/libv8.integrity"
 }
 
 // Downloads/extracts V8 library and creates a cmake file for it. To be executed before C/C++ "build" or "clean".
 tasks.register('updateV8Library') {
 	dependsOn tasks.named('updateLibraryThenExit')
-	def packageJson = new JsonSlurper().parse(file("${projectDir}/../package.json"))
+	def packageJson = v8PackageJson
 	def v8MakeFilePath = "${projectDir}/../runtime/v8/src/ndk-modules/libv8/V8Settings.cmake"
 	inputs.property 'v8.version', packageJson.v8.version
 	inputs.property 'v8.mode', packageJson.v8.mode
 	inputs.property 'v8.integrity', packageJson.v8.integrity
 	outputs.file v8MakeFilePath
-	outputs.files fileTree("${projectDir}/../../dist/android/libv8/${packageJson.v8.version}/${packageJson.v8.mode}")
 	doLast {
 		// Generate a "V8Settings.cmake" file providing V8 library information via variables.
 		// This file is referenced by our "./runtime/v8/src/ndk-modules/libv8/CMakeLists.txt" file.
@@ -180,20 +229,28 @@ tasks.register('checkstyleChanged', Checkstyle) {
 
 // Performs a transpile/polyfill/rollup of our "titanium_mobile/common/Resources" directory tree's JS files,
 // takes a V8 snapshot of rolled-up files, and then generates a C++ header file of that snapshot to be compiled-in.
-// Note: This supports incremental builds. Only executes when JS files change or snapshot output file is missing.
-
-tasks.register('createV8Snapshot', Exec) {
+// Note: This supports incremental builds. Only executes when the below inputs change or the outputs are missing.
+tasks.register('snapshotTiCommonFiles', Exec) {
+	dependsOn tasks.named('updateV8Library') // Needs V8's "mksnapshot" tool.
 	executable = 'node'
 	workingDir = projectDir
 	args = ['libv8-services.js', 'create-snapshot']
-}
-
-tasks.register('snapshotTiCommonFiles') {
-	dependsOn tasks.named('createV8Snapshot')
 	inputs.dir "${projectDir}/../../common/Resources"
-	inputs.file "${projectDir}/../../build/lib/builder.js"
-	inputs.file "${projectDir}/../../build/lib/android.js"
+	inputs.files(
+		"${projectDir}/../../build/lib/builder.js",
+		"${projectDir}/../../build/lib/android.js",
+		"${projectDir}/../../package.json",       // SDK version and "core-js" polyfill version.
+		"${projectDir}/../../package-lock.json",  // Transpiler/bundler versions.
+		"${projectDir}/../package.json",          // V8 version.
+		"${projectDir}/libv8-services.js",
+		"${projectDir}/V8Snapshots.h.ejs"
+	)
+	inputs.property 'ti.version', tiBuildVersionString
+	inputs.property 'ti.buildHash', tiBuildHashString
+	// Note: The build timestamp is intentionally not an input. It would make this task run on every build,
+	//       and nothing under "common/Resources" references "Ti.buildDate".
 	outputs.file "${projectDir}/../runtime/v8/generated/V8Snapshots.h"
+	outputs.file "${projectDir}/build/outputs/ti-assets/Resources/ti.main.js"
 }
 
 // Runs our "prebuild.js" script before the C/C++ compile, but after Java compile. (Mid-build script?)

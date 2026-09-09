@@ -98,7 +98,7 @@ export class Builder {
 		}
 
 		this.options = options;
-		this.options.timestamp = timestamp();
+		this.options.timestamp = options.timestamp || timestamp();
 		this.options.onlyFailedTests = options.onlyFailed || false;
 		this.options.versionTag = options.versionTag || options.sdkVersion;
 	}
@@ -205,7 +205,12 @@ export class Builder {
 		for (const item of this.platforms) {
 			const { default: Platform } = await import(`./${item}.js`);
 			const platform = new Platform(this.options);
-			await this.transpile(item, platform.babelOptions());
+			// The Android gradle build bundles the common JS itself (it needs "ti.main.js" for its V8 snapshot and
+			// bakes "ti.kernel.js" into C++) and then copies "ti.main.js" to "dist/tmp/common/android".
+			// So, don't bundle it a 2nd time here. (This used to take ~10 seconds per bundle.)
+			if (item !== 'android') {
+				await this.transpile(item, platform.babelOptions());
+			}
 			await platform.build();
 		}
 	}

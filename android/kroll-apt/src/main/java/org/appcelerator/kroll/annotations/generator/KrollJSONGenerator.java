@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,6 +114,18 @@ public class KrollJSONGenerator extends AbstractProcessor
 	protected boolean isTitaniumSdk = true;
 	protected boolean initialized = false;
 	private boolean hasPropertiesChanged = true;
+
+	@Override
+	public Set<String> getSupportedOptions()
+	{
+		// Declare this processor as "aggregating" so that Gradle can compile Java incrementally.
+		// Gradle disables incremental compilation for the whole project if any annotation processor isn't
+		// incremental. Requires the "META-INF/gradle/incremental.annotation.processors" resource to list us as
+		// "dynamic" and the @Kroll annotations to have CLASS retention (Gradle finds annotated files via class files).
+		Set<String> options = new HashSet<>(super.getSupportedOptions());
+		options.add("org.gradle.annotation.processing.aggregating");
+		return options;
+	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
@@ -760,6 +773,10 @@ public class KrollJSONGenerator extends AbstractProcessor
 	{
 		// Flag that JSON bindings/properties have changed since last write, unless the below says otherwise.
 		this.hasPropertiesChanged = true;
+
+		// Sort the bindings tree so the JSON/C++ we generate is identical no matter what order the compiler handed us
+		// the proxy classes in. (Differs between full and incremental compiles.) Needed by the change detection below.
+		this.properties = (Map<Object, Object>) JSONUtils.toDeterministicCopy(this.properties);
 
 		// Generate a JSON string from the "properties" dictionary.
 		String jsonString = JSONValue.toJSONString(this.properties);
