@@ -60,8 +60,9 @@ A bug report is only actionable if someone else can reproduce it. Before you fil
 Leaving sections of the form blank tends to get an issue closed or moved to Discussions,
 not because we're strict but because there is nothing to act on.
 
-**Security issues are different.** Do not open a public issue. Email
-[security@tidev.io](mailto:security@tidev.io) instead.
+**Security issues are different.** Do not open a public issue. See
+[SECURITY.md](SECURITY.md), or email [security@tidev.io](mailto:security@tidev.io)
+directly.
 
 ## Signing the CLA
 
@@ -78,14 +79,19 @@ that your employer allows you to sign it.
 
 ## Setting up a development environment
 
-You need everything required to build Titanium apps, plus a few extras:
+You need everything required to build Titanium apps, plus a JDK. Gradle downloads the
+Android NDK itself, so you don't need to install one.
 
-| Requirement | Notes |
-| --- | --- |
-| Node.js | 22.19.0 or newer. CI builds on Node 24. |
-| Xcode | For iOS. CI builds with Xcode 26.2. |
-| Android SDK | Set `ANDROID_SDK`, or pass `--android-sdk` to the build. |
-| JDK | For Android. CI builds with Java 21. |
+Rather than pin versions that go stale here, take them from the two places that have to be
+right for the build to work:
+
+- **Node.js** — the floor is `vendorDependencies.node` in
+  [`package.json`](package.json).
+- **Xcode, JDK and Node** — the versions CI builds against are in
+  [`.github/workflows/build.yml`](.github/workflows/build.yml). Matching them is the
+  surest way to reproduce a CI failure locally.
+
+Set `ANDROID_SDK` to your Android SDK directory, or pass `--android-sdk` to the build.
 
 Fork [tidev/titanium-sdk](https://github.com/tidev/titanium-sdk), then clone your fork and
 add the upstream repository as a second remote:
@@ -130,6 +136,22 @@ for you. To install one by hand, unzip it and copy the versioned folder from
 `mobilesdk/<os>/` into your SDK directory — `~/Library/Application Support/Titanium` on
 macOS, `%ProgramData%\Titanium` on Windows. Renaming that folder to something like
 `14.0.0.my-fix` makes it easier to pick out later.
+
+### Using a pre-built SDK instead
+
+You don't have to build from source to test a change that's already on a branch. Every
+active branch gets CI builds, published at
+**<https://downloads.titaniumsdk.com/builds>** and installable through the CLI:
+
+```bash
+ti sdk --branches                     # list branches that have builds
+ti sdk --branch 13_4_X                # list that branch's builds
+ti sdk install latest --branch main   # install the newest build from a branch
+ti sdk install <build_name> --branch main   # install one specific build
+```
+
+Builds expire after about 90 days, and they exist per branch — a pull request from a fork
+won't have one, so reviewing those still means building from source.
 
 ### Where things live
 
@@ -261,7 +283,10 @@ Common types are `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `ci` and `ch
 scope is usually `android`, `ios`, `cli`, `apidoc` or `all`. If you'd rather be prompted,
 `npm run commit` walks you through it.
 
-Keep the history clean — squash the noise out of your branch before asking for a review.
+Keep the history clean — squash the noise out of your branch *before* asking for a review.
+Once a review has started, please don't squash or force-push: add new commits instead. It
+lets the reviewer read just what changed since they last looked, rather than re-reading the
+whole diff. We squash on merge anyway, so nothing you add is left in the history.
 
 ## Opening a pull request
 
@@ -320,9 +345,11 @@ git fetch upstream pull/1234/head:pr-1234
 git checkout pr-1234
 ```
 
-Build the SDK from that branch, run whatever reproduction the issue describes, and confirm
-it behaves as the pull request claims. Building one of your own apps against it is even
-better — it catches things a minimal test case won't.
+Build the SDK from that branch — or, if the branch lives in this repo rather than a fork,
+grab its [CI build](#using-a-pre-built-sdk-instead) and skip the compile. Then run whatever
+reproduction the issue describes, and confirm it behaves as the pull request claims.
+Building one of your own apps against it is even better — it catches things a minimal test
+case won't.
 
 Then comment on the pull request. "Tested on Android 15, the crash is gone" is worth a lot.
 If it fails, include the steps you ran, the SDK and OS versions, and the full error.

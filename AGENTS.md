@@ -26,4 +26,4 @@ Follow Conventional Commits (`feat:`, `fix(scope):`, `chore:`); `commitlint` enf
 - keep history squashed/clean per `CONTRIBUTING.md`.
 
 ## Security & Configuration Tips
-Use Node.js `>=22.19.0` (`package.json` `vendorDependencies`). For Android builds, ensure `ANDROID_SDK` is set or pass SDK paths via build command arguments.
+Use the Node.js version required by `package.json` (`vendorDependencies.node`). For Android builds, ensure `ANDROID_SDK` is set or pass SDK paths via build command arguments.
