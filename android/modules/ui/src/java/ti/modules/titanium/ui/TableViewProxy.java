@@ -504,6 +504,9 @@ public class TableViewProxy extends RecyclerViewProxy
 	// clang-format on
 	{
 		for (final TableViewSectionProxy section : this.sections) {
+			for (TableViewRowProxy row : section.getRows()) {
+				row.setParent(null);
+			}
 			section.releaseViews();
 			section.setParent(null);
 		}
@@ -531,6 +534,12 @@ public class TableViewProxy extends RecyclerViewProxy
 
 			} else if (d instanceof TableViewSectionProxy section) {
 
+				// Rows of a re-assigned section were unparented above. Restore them so the rows
+				// can still find their section and table for events and property updates.
+				for (TableViewRowProxy row : section.getRows()) {
+					row.setParent(section);
+				}
+
 				// Handle TableViewSection.
 				appendSection(section, null);
 			}
@@ -538,7 +547,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// Allow updating rows after iteration.
 		shouldUpdate = true;
-		update();
+		update(true);
 	}
 
 	/**
