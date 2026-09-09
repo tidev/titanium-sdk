@@ -3569,8 +3569,22 @@ class iOSBuilder extends Builder {
 			}
 		}
 
-		// this path is required to properly build for production
-		const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
+		// Since Xcode 14.3, the archive action fails with "BuildProductsPath couldn't be opened" when
+		// <intermediates root>/ArchiveIntermediates/<scheme>/BuildProductsPath does not exist. Because
+		// we override SYMROOT/OBJROOT, Xcode never creates it, so a build phase creates it for us.
+		// The intermediates root depends on the user's Xcode "Derived Data" location setting
+		// (Xcode > Settings > Locations > Advanced), so create every known variant:
+		//   - Default (Unique/Shared):        <buildDir>/DerivedData/Build/Intermediates.noindex
+		//   - Custom, relative to workspace:   <buildDir>/build/Intermediates.noindex
+		//   - Legacy (determined by targets):  OBJROOT, i.e. <buildDir>/build/Intermediates
+		// See https://github.com/tidev/titanium-sdk/issues/13792
+		const archiveIntermediatesSubpath = path.join('ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
+		const buildProductsPaths = [
+			path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', archiveIntermediatesSubpath),
+			path.join(this.buildDir, 'build', 'Intermediates.noindex', archiveIntermediatesSubpath),
+			path.join(this.buildDir, 'build', 'Intermediates', archiveIntermediatesSubpath)
+		];
+		const mkdirBuildProductsPaths = '/bin/mkdir -p ' + buildProductsPaths.map(p => `\\"${p}\\"`).join(' ');
 
 		// add the post-compile build phase for dist-appstore builds
 		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
@@ -3595,7 +3609,7 @@ class iOSBuilder extends Builder {
 				outputPaths: [],
 				runOnlyForDeploymentPostprocessing: 0,
 				shellPath: '/bin/sh',
-				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
+				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\" && ${mkdirBuildProductsPaths}"`,
 				showEnvVarsInLog: 0
 			};
 			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -3627,7 +3641,7 @@ class iOSBuilder extends Builder {
 				outputPaths: [],
 				runOnlyForDeploymentPostprocessing: 0,
 				shellPath: '/bin/sh',
-				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
+				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && ${mkdirBuildProductsPaths}"`,
 				showEnvVarsInLog: 0
 			};
 			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
