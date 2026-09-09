@@ -1314,6 +1314,36 @@ public class TiUIHelper
 	}
 
 	/**
+	 * Determines if the given context has been assigned a "Theme.Material3" derived theme.
+	 * <p>
+	 * Note that an activity's getTheme() cannot be used to check this, because setTheme() merges the
+	 * given theme on top of the manifest's Material 3 default theme, which would cause Material 3
+	 * attributes to always resolve. So, for Titanium activities, this method resolves the attribute
+	 * from a cleanly built instance of the theme last assigned to the activity instead.
+	 * @param context Reference to the context such as an Activity or Application object to inspect. Can be null.
+	 * @return Returns true if assigned a Material 3 theme. Returns false if not or argument is null.
+	 */
+	public static boolean isUsingMaterial3Theme(Context context)
+	{
+		if (context == null) {
+			return false;
+		}
+
+		TypedValue typedValue = new TypedValue();
+		if (context instanceof TiBaseActivity) {
+			int themeResId = ((TiBaseActivity) context).getAppliedThemeResId();
+			if (themeResId != 0) {
+				Resources.Theme theme = context.getResources().newTheme();
+				theme.applyStyle(themeResId, true);
+				return theme.resolveAttribute(
+					com.google.android.material.R.attr.isMaterial3Theme, typedValue, true);
+			}
+		}
+		return context.getTheme().resolveAttribute(
+			com.google.android.material.R.attr.isMaterial3Theme, typedValue, true);
+	}
+
+	/**
 	 * Determines if given context has theme attribute "titaniumIsSolidTheme" set to "true".
 	 * Attribute is used by our "Theme.Titanium.*.Solid" themes to shade top/bottom TabGroup tabs appropriately.
 	 * @param context Reference to the context such as an Activity or Application object to inspect. Can be null.

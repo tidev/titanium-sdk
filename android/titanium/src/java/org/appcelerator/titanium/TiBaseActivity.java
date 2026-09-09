@@ -116,6 +116,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActionBarStyleHandler actionBarStyleHandler;
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
+	private int appliedThemeResId = 0;
 	public boolean keyboardVisible = false;
 
 	Activity.ScreenCaptureCallback screenCaptureCallback = null;
@@ -311,6 +312,25 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public void removeConfigurationChangedListener(ConfigurationChangedListener listener)
 	{
 		configChangedListeners.remove(listener);
+	}
+
+	@Override
+	public void setTheme(int resId)
+	{
+		super.setTheme(resId);
+		this.appliedThemeResId = resId;
+	}
+
+	/**
+	 * Gets the resource ID of the theme last applied to this activity via setTheme().
+	 * The activity's getTheme() merges all themes ever applied to it, which makes it unsuitable
+	 * for checking if an attribute is defined by the currently assigned theme. This ID can be
+	 * used to inspect the assigned theme's attributes in isolation.
+	 * @return The applied theme's resource ID. Returns 0 if a theme has not been applied yet.
+	 */
+	public int getAppliedThemeResId()
+	{
+		return this.appliedThemeResId;
 	}
 
 	protected boolean getIntentBoolean(String property, boolean defaultValue)
