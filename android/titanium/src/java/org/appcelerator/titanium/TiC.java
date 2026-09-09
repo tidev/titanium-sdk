@@ -570,6 +570,8 @@ public class TiC
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";
+	public static final String PROPERTY_MAX_WIDTH = "maxWidth";
+	public static final String PROPERTY_MAX_HEIGHT = "maxHeight";
 	public static final String PROPERTY_MEDIA = "media";
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
 	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
@@ -585,6 +587,8 @@ public class TiC
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
 	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
+	public static final String PROPERTY_MIN_WIDTH = "minWidth";
+	public static final String PROPERTY_MIN_HEIGHT = "minHeight";
 	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MIXED_CONTENT_MODE = "mixedContentMode";
