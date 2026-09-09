@@ -688,6 +688,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   float val = ([TiUtils intValue:arg] * M_PI) / 180.0;
   [self view].transform = CGAffineTransformMakeRotation(val);
+  // Record the value so that reading "rotation" reflects what was set, as it does on Android.
+  [self replaceValue:arg forKey:@"rotation" notification:NO];
 }
 
 - (TiBlob *)toImage:(id)args
