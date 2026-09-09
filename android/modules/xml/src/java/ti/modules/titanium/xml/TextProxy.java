@@ -70,6 +70,12 @@ public class TextProxy extends CharacterDataProxy
 		return this.text.getNodeValue();
 	}
 
+	@Kroll.getProperty
+	public String getText()
+	{
+		return this.text.getNodeValue();
+	}
+
 	@Override
 	public String getApiName()
 	{
