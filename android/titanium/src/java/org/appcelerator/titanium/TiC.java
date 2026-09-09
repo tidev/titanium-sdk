@@ -72,6 +72,10 @@ public class TiC
 	public static final String EVENT_DOUBLE_TAP = "doubletap";
 	public static final String EVENT_DRAGSTART = "dragstart";
 	public static final String EVENT_DRAGEND = "dragend";
+	public static final String EVENT_DRAWER_CLOSE = "drawerclose";
+	public static final String EVENT_DRAWER_OPEN = "draweropen";
+	public static final String EVENT_DRAWER_SLIDE = "drawerslide";
+	public static final String EVENT_DRAWER_STATE_CHANGE = "drawerstatechange";
 	public static final String EVENT_DURATION_AVAILABLE = "durationavailable";
 	public static final String EVENT_ERROR = "error";
 	public static final String EVENT_EXPAND = "expand";
