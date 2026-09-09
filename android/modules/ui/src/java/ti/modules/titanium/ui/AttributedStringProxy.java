@@ -309,11 +309,14 @@ public class AttributedStringProxy extends KrollProxy
 											spannableText.setSpan(urlColorSpan, range[0], range[0] + range[1],
 													Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
+											final boolean isUnderlined =
+												TiConvert.toBoolean(attr.getProperty(TiC.PROPERTY_UNDERLINE), true);
 											final UnderlineColorSpan[] underlineSpans = spannableText.getSpans(
 												range[0], range[0] + range[1], UnderlineColorSpan.class);
-											if (underlineSpans.length > 0) {
 
-												// Disable link underline, allow override with our underline color.
+											// Disable the link's own underline when it was explicitly turned off,
+											// or when an underline color span is already overriding it.
+											if (!isUnderlined || underlineSpans.length > 0) {
 												urlColorSpan.setUnderline(false);
 											}
 										}
