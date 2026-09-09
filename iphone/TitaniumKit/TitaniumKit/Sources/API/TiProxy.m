@@ -403,11 +403,18 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   RELEASE_TO_NIL(baseURL);
   RELEASE_TO_NIL(krollDescription);
   if ((void *)modelDelegate != self) {
+    // modelDelegate is typically a UIView subclass that must be released on the
+    // main thread. When _destroy is called from a JSC GC finalizer on a background
+    // thread (which holds the JSC lock), a synchronous dispatch to the main queue
+    // deadlocks if the main thread is also waiting for the JSC lock. Capture the
+    // delegate in a local and dispatch async so we never block.
+    id delegate = modelDelegate;
+    modelDelegate = nil;
     TiThreadPerformOnMainThread(
         ^{
-          RELEASE_TO_NIL(modelDelegate);
+          [delegate release];
         },
-        YES);
+        NO);
   }
   pageContext = nil;
   pageKrollObject = nil;
@@ -1189,7 +1196,16 @@ DEFINE_EXCEPTIONS
     id temp = [self valueForUndefinedKey:@"id"];
     NSString *cn = nil;
     if (temp == nil || ![temp isKindOfClass:[NSString class]]) {
-      cn = NSStringFromClass([self class]);
+      // Prefer the last segment of apiName (e.g. "Window" from "Ti.UI.Window")
+      // over the Objective-C class name so toString yields "[object Window]"
+      // matching Android/Windows.
+      NSString *api = [self apiName];
+      NSString *last = [api componentsSeparatedByString:@"."].lastObject;
+      if (last.length > 0) {
+        cn = last;
+      } else {
+        cn = NSStringFromClass([self class]);
+      }
     } else {
       cn = temp;
     }

@@ -378,7 +378,7 @@ static NSArray *touchEventsArray;
         [self setHidden:NO withArgs:arg];
         [self replaceValue:NUMBOOL(YES) forKey:@"visible" notification:YES];
       },
-      NO);
+      YES);
 }
 
 - (void)hide:(id)arg
@@ -388,7 +388,7 @@ static NSArray *touchEventsArray;
         [self setHidden:YES withArgs:arg];
         [self replaceValue:NUMBOOL(NO) forKey:@"visible" notification:YES];
       },
-      NO);
+      YES);
 }
 
 - (void)clearMotionEffects:(id)unused
@@ -1506,10 +1506,24 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)dealloc
 {
   //	RELEASE_TO_NIL(pendingAdds);
-  // Note: destroyQueue and childrenQueue are released in _destroy,
-  // which is called by [super dealloc] via TiProxy. Releasing them
-  // here would cause use-after-free since _destroy still needs them.
   RELEASE_TO_NIL(barButtonItem);
+  // Run _destroy while the queues are still alive so detachView can nil
+  // view.proxy and release the view. Releasing the queues first would
+  // trip _destroy's !destroyQueue guard and skip detachView (zombie proxy).
+  // Releasing them in _destroy instead breaks post-_destroy accessor
+  // calls (e.g. a delayed parent.remove -> windowWillClose -> [self
+  // children] -> dispatch_sync(childrenQueue) on a queue we just freed).
+  // [super dealloc] (TiProxy) calls _destroy again, but the !destroyQueue
+  // guard makes that second call a no-op.
+  [self _destroy];
+  if (childrenQueue) {
+    dispatch_release(childrenQueue);
+    childrenQueue = nil;
+  }
+  if (destroyQueue) {
+    dispatch_release(destroyQueue);
+    destroyQueue = nil;
+  }
   [super dealloc];
 }
 
@@ -1619,12 +1633,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
   });
-
-  // Safe to release after dispatch_sync returns — the queues are no longer needed.
-  dispatch_release(childrenQueue);
-  childrenQueue = nil;
-  dispatch_release(destroyQueue);
-  destroyQueue = nil;
 }
 
 - (void)destroy
