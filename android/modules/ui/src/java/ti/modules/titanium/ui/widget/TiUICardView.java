@@ -170,9 +170,7 @@ public class TiUICardView extends TiUIView
 		}
 
 		if (d.containsKey(TiC.PROPERTY_BORDER_WIDTH)) {
-			TiDimension tiDimension =
-				TiConvert.toTiDimension(TiConvert.toString(d.get(TiC.PROPERTY_BORDER_WIDTH)), TiDimension.TYPE_WIDTH);
-			cardview.setStrokeWidth(tiDimension.getAsPixels(cardview));
+			cardview.setStrokeWidth(toStrokeWidthPixels(d.get(TiC.PROPERTY_BORDER_WIDTH)));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_USE_COMPAT_PADDING)) {
@@ -296,8 +294,7 @@ public class TiUICardView extends TiUIView
 			setRadius(newValue);
 			cardview.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_BORDER_WIDTH)) {
-			TiDimension tiDimension = TiConvert.toTiDimension(TiConvert.toString(newValue), TiDimension.TYPE_WIDTH);
-			cardview.setStrokeWidth(tiDimension.getAsPixels(cardview));
+			cardview.setStrokeWidth(toStrokeWidthPixels(newValue));
 		} else if (key.equals(TiC.PROPERTY_ELEVATION)) {
 			cardview.setCardElevation(TiConvert.toFloat(newValue));
 			cardview.requestLayout();
@@ -404,6 +401,40 @@ public class TiUICardView extends TiUIView
 		// This prevents "TiUIView" class from handling the border.
 		// We apply border properties to CardView ourselves via its stroke methods.
 		return false;
+	}
+
+	/**
+	 * Converts a "borderWidth" value to the stroke width in pixels. MaterialCardView only supports a single
+	 * stroke width, so for the array or whitespace separated string form (see Titanium.UI.View.borderWidth)
+	 * the first value is used.
+	 * @param value The "borderWidth" property value. Can be a number, string or array.
+	 * @return Returns the stroke width in pixels. Returns 0 if the value is invalid.
+	 */
+	private int toStrokeWidthPixels(Object value)
+	{
+		if (value instanceof String) {
+			final String[] values = ((String) value).trim().split("\\s+");
+			if (values.length > 1) {
+				value = values;
+			}
+		}
+		if (value instanceof Object[]) {
+			final Object[] values = (Object[]) value;
+			if (values.length == 0) {
+				return 0;
+			}
+			if (values.length > 1) {
+				Log.w(TAG, "CardView only supports a single borderWidth. Using the first value.");
+			}
+			value = values[0];
+		}
+
+		final TiDimension tiDimension = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
+		if (tiDimension == null) {
+			Log.w(TAG, "Invalid value specified for borderWidth.");
+			return 0;
+		}
+		return tiDimension.getAsPixels(getNativeView());
 	}
 
 	private void setRadius(Object borderRadius)

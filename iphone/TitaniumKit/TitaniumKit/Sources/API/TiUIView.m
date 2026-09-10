@@ -624,6 +624,23 @@ DEFINE_EXCEPTIONS
   [rect setRect:r];
 }
 
+- (CGColorRef)borderColorFromProxy
+{
+  TiColor *borderColor = [TiUtils colorValue:[proxy valueForUndefinedKey:@"borderColor"]];
+  return borderColor.color.CGColor;
+}
+
+- (void)switchBorderLayerToFillMode
+{
+  // Per-side widths are drawn by filling the area between the outer and inner path (see -borderBezierPathOfView),
+  // so the stroke is disabled and the border color moves to the fill. A CAShapeLayer defaults to an opaque black
+  // fill, so stay invisible when no border color has been set yet.
+  CGColorRef borderColor = [self borderColorFromProxy];
+  _borderLayer.strokeColor = nil;
+  _borderLayer.lineWidth = 0;
+  _borderLayer.fillColor = (borderColor != nil) ? borderColor : UIColor.clearColor.CGColor;
+}
+
 - (CAShapeLayer *)borderLayer
 {
   NSArray *radiusArray = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
@@ -633,37 +650,43 @@ DEFINE_EXCEPTIONS
 
   if (!needsCustomLayer && _borderLayer != self.layer) {
     self.layer.mask = nil;
-    self.layer.borderColor = _borderLayer.strokeColor;
-    self.layer.borderWidth = _borderLayer.lineWidth / 2;
+    if (_borderLayer.strokeColor != nil) {
+      // Stroke mode: carry color and width over to the view layer.
+      self.layer.borderColor = _borderLayer.strokeColor;
+      self.layer.borderWidth = _borderLayer.lineWidth / 2;
+    } else {
+      // Fill mode has no stroke, so restore the color from the proxy. The caller applies the new width.
+      self.layer.borderColor = [self borderColorFromProxy];
+      self.layer.borderWidth = 0;
+    }
     [_borderLayer removeFromSuperlayer];
     RELEASE_TO_NIL(_borderLayer);
     _borderLayer = (CAShapeLayer *)self.layer;
   } else if (needsCustomLayer && (!_borderLayer || _borderLayer == self.layer)) {
+    CGColorRef borderColor = self.layer.borderColor;
+    CGFloat borderWidth = self.layer.borderWidth;
     _borderLayer = [[CAShapeLayer alloc] init];
     [self.layer addSublayer:_borderLayer];
     self.layer.borderColor = nil;
     self.layer.borderWidth = 0;
 
     if (needsFillMode) {
-      _borderLayer.strokeColor = nil;
-      _borderLayer.lineWidth = 0;
-      // CAShapeLayer defaults to an opaque black fill. Stay invisible until a border color is applied.
-      _borderLayer.fillColor = UIColor.clearColor.CGColor;
+      [self switchBorderLayerToFillMode];
     } else {
       _borderLayer.fillColor = UIColor.clearColor.CGColor;
-      _borderLayer.strokeColor = self.layer.borderColor;
-      _borderLayer.lineWidth = self.layer.borderWidth * 2;
+      _borderLayer.strokeColor = borderColor;
+      _borderLayer.lineWidth = borderWidth * 2;
     }
   } else if (needsCustomLayer && _borderLayer != self.layer) {
-    // Transition between fill and stroke mode on existing custom layer
+    // Transition between fill and stroke mode on the existing custom layer.
     if (needsFillMode) {
-      _borderLayer.strokeColor = nil;
-      _borderLayer.lineWidth = 0;
+      if (_borderLayer.strokeColor != nil) {
+        [self switchBorderLayerToFillMode];
+      }
     } else if (_borderLayer.strokeColor == nil) {
       // Coming from fill mode; read border color/width from proxy since self.layer values may be nil
       _borderLayer.fillColor = UIColor.clearColor.CGColor;
-      TiColor *borderColor = [TiUtils colorValue:[proxy valueForUndefinedKey:@"borderColor"]];
-      _borderLayer.strokeColor = borderColor.color.CGColor;
+      _borderLayer.strokeColor = [self borderColorFromProxy];
       id w = [proxy valueForUndefinedKey:@"borderWidth"];
       TiDimension theDim = TiDimensionFromObject(w);
       if (TiDimensionIsDip(theDim)) {
