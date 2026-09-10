@@ -292,6 +292,34 @@ describe('Titanium.UI.Label', function () {
 		win.open();
 	});
 
+	it.ios('does not deadlock when a window opens while setting HTML', function (finish) {
+		this.timeout(5000);
+
+		win = Ti.UI.createWindow();
+		const label = Ti.UI.createLabel({
+			text: 'This is a Label'
+		});
+		const button = Ti.UI.createButton();
+		const nextWindow = Ti.UI.createWindow();
+
+		button.addEventListener('click', function () {
+			nextWindow.open();
+			label.html = '<b>Dummy HTML</b><br/>The label was updated.';
+		});
+		nextWindow.addEventListener('open', function () {
+			nextWindow.close();
+		});
+		nextWindow.addEventListener('close', function () {
+			finish();
+		});
+		win.addEventListener('open', function listener() {
+			win.removeEventListener('open', listener);
+			setTimeout(() => button.fireEvent('click'), 100);
+		});
+		win.add([ label, button ]);
+		win.open();
+	});
+
 	describe.ios('.minimumFontSize', () => {
 		it('is a Number', () => {
 			const label = Ti.UI.createLabel({

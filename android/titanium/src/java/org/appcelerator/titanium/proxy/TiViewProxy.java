@@ -1191,13 +1191,13 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 	}
 
+	@Kroll.setProperty
 	public void setParent(TiViewProxy parent)
 	{
 		if (parent == null) {
 			this.parent = null;
 			return;
 		}
-
 		this.parent = new WeakReference<TiViewProxy>(parent);
 	}
 

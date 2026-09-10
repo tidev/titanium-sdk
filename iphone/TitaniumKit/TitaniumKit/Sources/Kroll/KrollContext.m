@@ -13,18 +13,21 @@
 #import "TiUtils.h"
 
 #import "TiExceptionHandler.h"
+#include <pthread.h>
 
 static unsigned short KrollContextCount = 0;
 
-static dispatch_queue_t krollEntryQueue;
-static void *krollEntryQueueKey = &krollEntryQueueKey;
+static pthread_mutex_t KrollEntryLock;
 
+// Nested main run loops can re-enter Kroll on the owning thread under a different
+// dispatch queue identity, so Kroll entry must be recursive by thread.
 static inline void KrollEntryLockPerform(dispatch_block_t block)
 {
-  if (dispatch_get_specific(krollEntryQueueKey) == krollEntryQueueKey) {
-    block(); // Already on this queue — re-entrant call
-  } else {
-    dispatch_sync(krollEntryQueue, block);
+  pthread_mutex_lock(&KrollEntryLock);
+  @try {
+    block();
+  } @finally {
+    pthread_mutex_unlock(&KrollEntryLock);
   }
 }
 
@@ -597,8 +600,11 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 + (void)initialize
 {
   if (self == [KrollContext class]) {
-    krollEntryQueue = dispatch_queue_create("org.appcelerator.kroll.entry", DISPATCH_QUEUE_SERIAL);
-    dispatch_queue_set_specific(krollEntryQueue, krollEntryQueueKey, krollEntryQueueKey, NULL);
+    pthread_mutexattr_t entryLockAttrs;
+    pthread_mutexattr_init(&entryLockAttrs);
+    pthread_mutexattr_settype(&entryLockAttrs, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&KrollEntryLock, &entryLockAttrs);
+    pthread_mutexattr_destroy(&entryLockAttrs);
   }
 }
 

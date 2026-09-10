@@ -1,13 +1,15 @@
 buildscript {
-	ext.kotlin_version = '2.3.0'
+	ext.kotlin_version = '2.3.21'
 
 	repositories {
 		google()
 		mavenCentral()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:9.1.0'
-		classpath 'com.google.gms:google-services:4.4.4'
+		classpath 'com.android.tools.build:gradle:9.2.1'
+		// Provides the "com.android.legacy-kapt" plugin used to run annotation processors over Kotlin sources.
+		classpath 'com.android.tools.build:gradle-kotlin:9.2.1'
+		classpath 'com.google.gms:google-services:4.5.0'
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 		<% for (let i = 0; i < classpaths.length; i++) {%>
 		classpath '<%= classpaths[i] %>'
