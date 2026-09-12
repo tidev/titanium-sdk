@@ -1532,6 +1532,37 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
+	it.ios('row with height 0 takes no space', function (finish) {
+		if (isCI && utilities.isMacOS()) { // FIXME: see row#rect above
+			return finish();
+		}
+
+		win = Ti.UI.createWindow();
+
+		const tableView = Ti.UI.createTableView();
+		const hiddenRow = Ti.UI.createTableViewRow({
+			height: 0,
+			title: 'hidden'
+		});
+		const visibleRow = Ti.UI.createTableViewRow({
+			title: 'visible'
+		});
+
+		tableView.data = [ hiddenRow, visibleRow ];
+
+		hiddenRow.addEventListener('postlayout', () => {
+			try {
+				should(hiddenRow.rect.height).be.eql(0);
+			} catch (e) {
+				return finish(e);
+			}
+			finish();
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
 	it('rows with vertical or horizontal layout', finish => {
 		win = Ti.UI.createWindow();
 

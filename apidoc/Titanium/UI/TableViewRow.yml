@@ -39,6 +39,10 @@ description: |
     The `top`, `left` and other positional parameters are not used for their usual purposes, because
     the table view row is automatically positioned by its parent.
 
+    On iOS, setting `height` to `0` collapses the row so it takes up no space in the table. A row
+    that is not given a `height` still falls back to the table's [rowHeight](Titanium.UI.TableView.rowHeight),
+    and the table's [minRowHeight](Titanium.UI.TableView.minRowHeight) is still applied to a `0` height.
+
     On Android, these properties are used to position the content (title) inside the row. For example,
     setting `top` to 20 moves the title down from the top of the row.
 
