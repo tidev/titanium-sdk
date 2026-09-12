@@ -49,9 +49,7 @@ public class ListItemProxy extends TiViewProxy
 	private final HashMap<String, Object> childProperties = new HashMap<>();
 	private final List<String> ignoredTemplateKeys = new ArrayList<>();
 
-	public int index;
-
-	private int filteredIndex = -1;
+	private ListItemEntry entry;
 	private ListViewHolder holder;
 	private KrollDict template;
 	private String templateId;
@@ -96,20 +94,35 @@ public class ListItemProxy extends TiViewProxy
 		}
 
 		// Apply template defined properties to this ListItem.
-		final KrollDict templateProperties = this.template.getKrollDict(TiC.PROPERTY_PROPERTIES);
-		if (templateProperties != null) {
-			for (KrollDict.Entry<String, Object> entry : templateProperties.entrySet()) {
-				if (!this.ignoredTemplateKeys.contains(entry.getKey())) {
-					setProperty(entry.getKey(), entry.getValue());
-				}
-			}
-		}
+		applyTemplateProperties();
 
 		// Generate all child proxies from template and create all views.
 		if (!hasChildren()) {
 			generateViewFromTemplate(this, this.template);
 		}
 		return new ItemView(this);
+	}
+
+	/**
+	 * Apply the template's "properties" to this item, except the ones the item defines itself.
+	 * Synced to the JS object as one batch.
+	 */
+	private void applyTemplateProperties()
+	{
+		final KrollDict templateProperties = this.template.getKrollDict(TiC.PROPERTY_PROPERTIES);
+		if (templateProperties == null) {
+			return;
+		}
+		beginPropertyBatch();
+		try {
+			for (KrollDict.Entry<String, Object> entry : templateProperties.entrySet()) {
+				if (!this.ignoredTemplateKeys.contains(entry.getKey())) {
+					setProperty(entry.getKey(), entry.getValue());
+				}
+			}
+		} finally {
+			endPropertyBatch();
+		}
 	}
 
 	/**
@@ -403,7 +416,8 @@ public class ListItemProxy extends TiViewProxy
 		final Object[] childTemplates = (Object[]) template.get(TiC.PROPERTY_CHILD_TEMPLATES);
 
 		// Update all child proxies.
-		var excludeKeys = new TreeSet<String>();
+		final TreeSet<String> excludeKeys = new TreeSet<>();
+		final KrollDict changes = new KrollDict();
 		for (int index = 0; index < proxies.length; index++) {
 			// Fetch child's template.
 			KrollDict childTemplate = null;
@@ -419,51 +433,37 @@ public class ListItemProxy extends TiViewProxy
 			// Fetch child's assigned configuration.
 			TiViewProxy tiProxy = null;
 			String bindId = null;
-			KrollDict events = null;
 			if (childTemplate != null) {
 				tiProxy = (TiViewProxy) childTemplate.get("tiProxy");
 				bindId = childTemplate.getString(TiC.PROPERTY_BIND_ID);
-				events = childTemplate.getKrollDict(TiC.PROPERTY_EVENTS);
 			}
 
-			// Fetch child's properties.
-			TiViewProxy proxy = proxies[index];
-			final KrollDict properties = new KrollDict();
-			if (tiProxy != null) {
-				properties.putAll(tiProxy.getProperties());
-			}
-			final Object childPropertiesObj = this.childProperties.get(bindId);
-			if (childPropertiesObj instanceof HashMap) {
-				properties.putAll((HashMap) childPropertiesObj);
-			}
+			// Fetch child's properties. Item specific properties override the template's defaults.
+			final TiViewProxy proxy = proxies[index];
+			final KrollDict templateProperties = (tiProxy != null) ? tiProxy.getProperties() : null;
+			final Object itemPropertiesObject = this.childProperties.get(bindId);
+			final HashMap<String, Object> itemProperties =
+				(itemPropertiesObject instanceof HashMap) ? (HashMap<String, Object>) itemPropertiesObject : null;
 
-			// Assign properties to child proxy.
+			// Collect all changed properties, then apply them to the child as a single batch.
+			// This sends one message to the JS runtime per child instead of one per property.
 			excludeKeys.clear();
-			for (var entry : properties.entrySet()) {
-				// Skip property if in exclusion set. We do this for localized properties.
-				if (excludeKeys.contains(entry.getKey())) {
-					continue;
-				}
-
-				// Skip copying property if value isn't changing. (This drastically improves performance.)
-				if (!proxy.shouldFireChange(proxy.getProperty(entry.getKey()), entry.getValue())) {
-					continue;
-				}
-
-				// Do special handling for localized properties, such as "textid" or "titleid".
-				// Returned "pair" provides property key/value that should be changed, such as "text" or "title".
-				if (proxy.isLocaleProperty(entry.getKey())) {
-					var pair = proxy.updateLocaleProperty(entry.getKey(), TiConvert.toString(entry.getValue()));
-					if (pair != null) {
-						excludeKeys.add(pair.first);
-						proxy.setProperty(entry.getKey(), entry.getValue());
-						proxy.firePropertyChanged(pair.first, proxy.getProperty(pair.first), pair.second);
+			changes.clear();
+			if (templateProperties != null) {
+				for (var entry : templateProperties.entrySet()) {
+					if ((itemProperties != null) && itemProperties.containsKey(entry.getKey())) {
 						continue;
 					}
+					collectChildProperty(proxy, entry.getKey(), entry.getValue(), changes, excludeKeys);
 				}
-
-				// Update property value and invoke onPropetyChanged() callback.
-				proxy.setPropertyAndFire(entry.getKey(), entry.getValue());
+			}
+			if (itemProperties != null) {
+				for (var entry : itemProperties.entrySet()) {
+					collectChildProperty(proxy, entry.getKey(), entry.getValue(), changes, excludeKeys);
+				}
+			}
+			if (!changes.isEmpty()) {
+				proxy.setPropertiesAndFire(changes);
 			}
 
 			// Add child's binding ID to main dictionary.
@@ -474,6 +474,39 @@ public class ListItemProxy extends TiViewProxy
 			// Update child's children. (This is recursive.)
 			copyChildPropertiesTo(proxy.getChildren(), childTemplate);
 		}
+	}
+
+	/**
+	 * Adds the given property to the "changes" batch if its value differs from the child's current one.
+	 * Localized properties such as "textid" are applied immediately since they update a different property.
+	 */
+	private static void collectChildProperty(
+		TiViewProxy proxy, String key, Object value, KrollDict changes, TreeSet<String> excludeKeys)
+	{
+		// Skip property if in exclusion set. We do this for localized properties.
+		if (excludeKeys.contains(key)) {
+			return;
+		}
+
+		// Skip copying property if value isn't changing. (This drastically improves performance.)
+		if (!proxy.shouldFireChange(proxy.getProperty(key), value)) {
+			return;
+		}
+
+		// Do special handling for localized properties, such as "textid" or "titleid".
+		// Returned "pair" provides property key/value that should be changed, such as "text" or "title".
+		if (proxy.isLocaleProperty(key)) {
+			var pair = proxy.updateLocaleProperty(key, TiConvert.toString(value));
+			if (pair != null) {
+				excludeKeys.add(pair.first);
+				changes.remove(pair.first);
+				proxy.setProperty(key, value);
+				proxy.firePropertyChanged(pair.first, proxy.getProperty(pair.first), pair.second);
+				return;
+			}
+		}
+
+		changes.put(key, value);
 	}
 
 	@Override
@@ -510,17 +543,27 @@ public class ListItemProxy extends TiViewProxy
 	 */
 	public int getFilteredIndex()
 	{
-		return this.filteredIndex;
+		return (this.entry != null) ? this.entry.getFilteredIndex() : -1;
 	}
 
 	/**
-	 * Set filtered index of row in section.
+	 * Get the lightweight section entry that owns this item, if any.
 	 *
-	 * @param index Filtered index to set.
+	 * @return ListItemEntry or null if the item has not been added to a section.
 	 */
-	public void setFilteredIndex(int index)
+	public ListItemEntry getEntry()
 	{
-		this.filteredIndex = index;
+		return this.entry;
+	}
+
+	/**
+	 * Set the lightweight section entry that owns this item.
+	 *
+	 * @param entry ListItemEntry to set.
+	 */
+	public void setEntry(ListItemEntry entry)
+	{
+		this.entry = entry;
 	}
 
 	/**
@@ -552,9 +595,9 @@ public class ListItemProxy extends TiViewProxy
 	{
 		final TiViewProxy parent = getParent();
 
-		if (parent instanceof ListSectionProxy section) {
+		if ((this.entry != null) && (parent instanceof ListSectionProxy section)) {
 
-			return section.getListItemIndex(this);
+			return section.getListItemIndex(this.entry);
 		}
 
 		return -1;
@@ -657,8 +700,13 @@ public class ListItemProxy extends TiViewProxy
 		// Set item template.
 		this.templateId = options.getString(TiC.PROPERTY_TEMPLATE);
 
-		// Process item properties.
-		handleCreationDict(properties);
+		// Process item properties. Sync them to the JS object as one batch.
+		beginPropertyBatch();
+		try {
+			handleCreationDict(properties);
+		} finally {
+			endPropertyBatch();
+		}
 	}
 
 	/**
