@@ -393,7 +393,7 @@
   if (TiDimensionIsDip(maxRowHeight)) {
     height = MIN(maxRowHeight.value, height);
   }
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 // Allows use of scrollsToTop property on a table.
@@ -2746,7 +2746,7 @@
   CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
   CGFloat height = [row rowHeight:width];
   height = [self tableRowHeight:height];
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section
