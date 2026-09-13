@@ -65,6 +65,7 @@ import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.graphics.Insets;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -551,6 +552,37 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 	}
 
+	/**
+	 * Applies the theme's "android:windowLightStatusBar" and "android:windowLightNavigationBar"
+	 * attributes to the window's system bar appearance.
+	 * <p>
+	 * The OS only applies these via legacy "systemUiVisibility" flags, which are ignored once the
+	 * WindowInsetsController has been used. With edge-to-edge, a light theme could then end up with
+	 * light icons over a light background (seen with bottom navigation TabGroups on Android 15+).
+	 * Called before the Window/TabGroup proxy's windowCreated() so its properties still win.
+	 */
+	protected void applyThemeSystemBarAppearance()
+	{
+		// Note: Attribute IDs must be in ascending order.
+		final TypedArray typedArray = getTheme().obtainStyledAttributes(new int[] {
+			android.R.attr.windowLightStatusBar,
+			android.R.attr.windowLightNavigationBar
+		});
+		try {
+			final Window window = getWindow();
+			final WindowInsetsControllerCompat insetsController = WindowCompat
+				.getInsetsController(window, window.getDecorView());
+			if (typedArray.hasValue(0)) {
+				insetsController.setAppearanceLightStatusBars(typedArray.getBoolean(0, false));
+			}
+			if (typedArray.hasValue(1)) {
+				insetsController.setAppearanceLightNavigationBars(typedArray.getBoolean(1, false));
+			}
+		} finally {
+			typedArray.recycle();
+		}
+	}
+
 	// Subclasses can override to handle post-creation (but pre-message fire) logic
 	protected void windowCreated(Bundle savedInstanceState)
 	{
@@ -640,6 +672,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			Log.d(TAG, "windowSoftInputMode: " + softInputMode, Log.DEBUG_MODE);
 			getWindow().setSoftInputMode(softInputMode);
 		}
+
+		// Apply the theme's light/dark system bar icon settings before the proxy can override them.
+		applyThemeSystemBarAppearance();
 
 		// If this activity was created by a Window/TabGroup proxy, then give it this activity's reference.
 		int windowId = getIntentInt(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID);
