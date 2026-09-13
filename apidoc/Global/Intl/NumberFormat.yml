@@ -216,7 +216,7 @@ properties:
 
       *    `'decimal'` Formats as a floating point value such as `'-1,234.5'`.
       *    `'currency'` Formats value as a currency such as `'$100'`.
-           You must also set the <Global.Intl.NumberFormat.NumberFormatOptions.currency> option
+           You must also set the <NumberFormatOptions.currency> option
            when using this style or else an exception will be thrown.
       *    `'percent'` Multiplies value by 100 and formats as a percentage.
            For example, a value of `1.0` will be formatted as `'100%'`.
@@ -237,7 +237,7 @@ properties:
     type: String
     summary: Set to the ISO 4217 currency code to use when formatting with the currency style.
     description: |
-      If the <Global.Intl.NumberFormat.NumberFormatOptions.style> option is set to `'currency'`,
+      If the <NumberFormatOptions.style> option is set to `'currency'`,
       then you must also set this `currency` option to an
       [ISO 4217](https://www.currency-iso.org/en/home/tables/table-a1.html) currency code
       such as `'USD'` for US dollars or `'EUR'` for euros.
@@ -247,7 +247,7 @@ properties:
     default: "symbol"
     summary: Indicates how the currency symbol or name should be shown.
     description: |
-      This option is only applicable if <Global.Intl.NumberFormat.NumberFormatOptions.style>
+      This option is only applicable if <NumberFormatOptions.style>
       is set to `'currency'`.
 
       This option can be set to one of the following:

@@ -1510,7 +1510,7 @@ methods:
 ---
 name: fs.Dirent
 summary: |
-    A representation of a directory entry, which can be a file or a subdirectory within the directory, as returned by reading from an <fs.Dir>.
+    A representation of a directory entry, which can be a file or a subdirectory within the directory, as returned by <fs.readdir>.
     The directory entry is a combination of the file name and file type pairs.
 
     **NOTE:** Titanium does not currently implement this type.
@@ -1648,7 +1648,7 @@ properties:
 ---
 name: fs.rm.options
 # TODO: extends: fs.rmDir.options and add force property (but then I think new doc site won't show inherited properties nicely)
-summary: options for <fs.rm> and <fs.rmSync> methods
+summary: options for the <fs.rmSync> method
 since: '8.3.0'
 properties:
   - name: force
@@ -1680,7 +1680,7 @@ properties:
 
 ---
 name: fs.rmDir.options
-summary: options for <fs.rmDir> and <fs.rmDirSync> methods
+summary: options for the <fs.rmdir> method
 since: '8.3.0'
 properties:
   - name: maxRetries
