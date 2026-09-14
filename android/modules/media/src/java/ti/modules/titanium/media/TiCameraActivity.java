@@ -81,6 +81,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	public static KrollObject callbackContext;
 	public static KrollFunction successCallback, errorCallback, cancelCallback, androidbackCallback;
 	public static boolean saveToPhotoGallery = false;
+	public static String galleryFolder = "";
 	public static int whichCamera = MediaModule.CAMERA_REAR;
 	public static int cameraFlashMode = MediaModule.CAMERA_FLASH_OFF;
 	public static boolean autohide = true;
@@ -825,7 +826,7 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 			try {
 				// Write the captured image to file.
 				ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
-				Uri contentUri = MediaModule.createExternalPictureContentUri(saveToPhotoGallery);
+				Uri contentUri = MediaModule.createExternalPictureContentUri(saveToPhotoGallery, galleryFolder);
 				try (OutputStream stream = new BufferedOutputStream(contentResolver.openOutputStream(contentUri))) {
 					stream.write(data);
 					stream.flush();

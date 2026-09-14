@@ -2044,6 +2044,8 @@ properties:
         When set, captured photos are stored under `Pictures/<galleryFolder>` instead of `Pictures`.
 
         Only photos are affected. Captured videos are always saved to the gallery's `Movies` directory.
+        Nested folders such as `MyApp/Camera` are supported. Leading and trailing slashes are removed
+        and values containing `.` or `..` path segments are ignored.
 
         Requires Android 10 (API level 29) or higher. On older versions this property is ignored and
         photos are saved directly to `Pictures`.

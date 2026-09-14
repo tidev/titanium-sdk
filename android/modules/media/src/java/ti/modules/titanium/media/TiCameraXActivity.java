@@ -89,6 +89,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	public static KrollFunction recordingCallback;
 	public static String mediaType = MediaModule.MEDIA_TYPE_PHOTO;
 	public static boolean saveToPhotoGallery = false;
+	public static String galleryFolder = "";
 	public static boolean allowZoom = false;
 	public static boolean torchEnabled = false;
 	public static int videoMaximumDuration = 0;
@@ -128,6 +129,10 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 			ContentValues contentValues = new ContentValues();
 			contentValues.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
 			contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, imageName);
+			String relativePath = MediaModule.getPicturesRelativePath(galleryFolder);
+			if (relativePath != null) {
+				contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath);
+			}
 			outputFileOptions = new ImageCapture.OutputFileOptions.Builder(contentResolver,
 				MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues).build();
 
