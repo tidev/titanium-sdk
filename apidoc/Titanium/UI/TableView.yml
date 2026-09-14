@@ -1257,6 +1257,22 @@ properties:
     platforms: [android, iphone, ipad, macos]
     since: { android: "6.2.0", iphone: "3.2.0", ipad: "3.2.0" }
 
+  - name: searchText
+    summary: The string to use as the search parameter.
+    description: |
+        Provides a generic search API for the TableView without a search bar. Only rows whose
+        [filterAttribute](Titanium.UI.TableView.filterAttribute) (the
+        [title](Titanium.UI.TableViewRow.title) by default) contains the given text are shown.
+        The [filterCaseInsensitive](Titanium.UI.TableView.filterCaseInsensitive),
+        [filterAnchored](Titanium.UI.TableView.filterAnchored) and
+        [filterAlwaysInclude](Titanium.UI.TableViewRow.filterAlwaysInclude) properties are honored.
+        Set it to an empty string or `null` to show all rows again.
+
+        This property can not be used when the [search](Titanium.UI.TableView.search) property is set.
+    type: String
+    platforms: [android, iphone, ipad, macos]
+    since: 14.0.0
+
   - name: hideSearchOnSelection
     summary: Determines whether the search field should hide on completion.
     description: |
@@ -1613,6 +1629,21 @@ properties:
     type: Boolean
     default: true
     platforms: [iphone, ipad, macos]
+
+  - name: snapping
+    summary: Determines whether rows snap into place when scrolling stops.
+    description: |
+        When set to `true`, the row closest to the centre of the view is aligned with that
+        centre once a scroll comes to rest, rather than the table stopping at an arbitrary
+        offset. This is most useful when every row fills the visible area.
+
+        On Android this is backed by a
+        [LinearSnapHelper](https://developer.android.com/reference/androidx/recyclerview/widget/LinearSnapHelper).
+        On iOS the equivalent behaviour is applied while the scroll decelerates. Snapping is
+        skipped when the resting position falls on a header or footer rather than a row.
+    type: Boolean
+    default: false
+    since: "14.0.0"
 
   - name: style
     summary: |

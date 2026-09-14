@@ -2,7 +2,6 @@ import { IncrementalFileTask } from 'appc-tasks';
 import crypto from 'node:crypto';
 import fs from 'fs-extra';
 import jsanalyze from 'node-titanium-sdk/lib/jsanalyze.js';
-import nodeify from 'nodeify';
 import path from 'node:path';
 import pLimit from 'p-limit';
 import { promisify } from 'node:util';
@@ -212,17 +211,15 @@ export class ProcessJsTask extends IncrementalFileTask {
 				return done();
 			}
 
-			nodeify(this.transformAndCopy(source, from, to), (e) => {
-				if (e) {
-					// if we have a nicely formatted pointer to syntax error from babel, print it!
-					if (e.codeFrame) {
-						this.logger.error(e.codeFrame);
-					}
-					done(e);
-				}
-
+			this.transformAndCopy(source, from, to).then(() => {
 				this.data.contentHashes[from] = currentHash;
-				return done();
+				done();
+			}, (e) => {
+				// if we have a nicely formatted pointer to syntax error from babel, print it!
+				if (e.codeFrame) {
+					this.logger.error(e.codeFrame);
+				}
+				done(e);
 			});
 		});
 

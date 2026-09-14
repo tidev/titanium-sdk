@@ -810,6 +810,7 @@ USE_VIEW_FOR_CONTENT_HEIGHT
 }
 
 DEFINE_DEF_PROP(scrollsToTop, [NSNumber numberWithBool:YES]);
+DEFINE_DEF_BOOL_PROP(snapping, NO);
 
 #pragma mark Section management
 

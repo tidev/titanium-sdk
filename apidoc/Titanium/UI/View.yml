@@ -969,7 +969,7 @@ methods:
 
   - name: clearMotionEffects
     summary: Removes all previously added motion effects.
-    description: Use this method together with <Titanium.UI.horizontalMotionEffect> and <Titanium.UI.verticalMotionEffect>.
+    description: Use this method together with <Titanium.UI.View.horizontalMotionEffect> and <Titanium.UI.View.verticalMotionEffect>.
     since: "8.2.0"
     platforms: [iphone, ipad, macos]
 
@@ -1528,7 +1528,7 @@ properties:
     summary: Adds a horizontal parallax effect to the view
     description: |
         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
-        To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
+        To clear all motion effects, use the <Titanium.UI.View.clearMotionEffects> method.
     type: MinMaxOptions
     platforms: [iphone, ipad, macos]
     since: "7.3.0"
@@ -1922,7 +1922,7 @@ properties:
     summary: Adds a vertical parallax effect to the view
     description: |
         Note that the parallax effect only happens by tilting the device so results can not be seen on Simulator.
-        To clear all motion effects, use the <Titanium.UI.clearMotionEffects> method.
+        To clear all motion effects, use the <Titanium.UI.View.clearMotionEffects> method.
     type: MinMaxOptions
     platforms: [iphone, ipad, macos]
     since: "7.3.0"

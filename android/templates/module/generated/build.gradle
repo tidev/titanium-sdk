@@ -1,8 +1,9 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+// Runs the "kroll-apt" annotation processor over Kotlin sources. (Built-in Kotlin has no kapt support.)
+apply plugin: 'com.android.legacy-kapt'
+
 <% for(var i=0; i<plugins.length; i++) {%>
 apply plugin: '<%= plugins[i] %>'
 <% } %>
@@ -98,6 +99,11 @@ android {
 				"${projectDir}/../../src",
 				"${buildDir}/ti-generated/java"
 			]
+			// Kotlin source code directories. (Built-in Kotlin does not compile *.kt files from "java.srcDirs".)
+			kotlin.srcDirs = [
+				'src/main/kotlin',
+				"${projectDir}/../../src"
+			]
 			// C/C++ source code directories.
 			jni.srcDirs = [
 				"${projectDir}/../../jni",
@@ -134,14 +140,20 @@ android {
 		sourceCompatibility JavaVersion.VERSION_17
 		targetCompatibility JavaVersion.VERSION_17
 	}
-	kotlinOptions {
-		jvmTarget = "17"
-	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
 	packagingOptions {
 		exclude '/lib/**/libc++_shared.so'
 		exclude '/lib/**/libkroll-v8.so'
+	}
+}
+
+// Keep Kotlin bytecode aligned with the Java 17 "compileOptions" above, independent of the JDK running the build.
+// This is AGP's built-in Kotlin replacement for the old "android.kotlinOptions { jvmTarget }" DSL.
+// Note: This is a project-level extension, not part of the "android" block.
+kotlin {
+	compilerOptions {
+		jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 	}
 }
 
@@ -262,6 +274,28 @@ publishing {
 		}
 	}
 }
+
+// Writes the module's custom Maven repository URLs (such as jitpack) to a JSON file after publishing.
+// This file gets bundled into the module zip so that the app build system can add these repositories
+// to the app project automatically, without the app developer having to declare them by hand.
+tasks.register('writeTiMavenRepositories') {
+	def outputFile = file("${buildDir}/outputs/ti.maven.repos.json")
+	outputs.file(outputFile)
+	doLast {
+		// Exclude repositories the app build system already provides by default.
+		def defaultUrls = [
+			'https://dl.google.com/dl/android/maven2',
+			'https://repo.maven.apache.org/maven2'
+		]
+		def urls = project.repositories.withType(MavenArtifactRepository)
+			.collect { it.url.toString().replaceAll('/+$', '') }
+			.findAll { url -> url.startsWith('http') && !defaultUrls.contains(url) }
+			.unique()
+		outputFile.parentFile.mkdirs()
+		outputFile.text = groovy.json.JsonOutput.toJson(urls)
+	}
+}
+tasks.named('publish') { finalizedBy 'writeTiMavenRepositories' }
 
 // Load the module developer's optional "build.gradle" file from "<module>/android" directory.
 // This Gradle file is expected to provide the module's "dependencies".

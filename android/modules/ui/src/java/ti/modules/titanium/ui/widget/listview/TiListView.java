@@ -35,7 +35,9 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import ti.modules.titanium.ui.widget.TiSwipeRefreshLayout;
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar.OnSearchChangeListener;
@@ -53,6 +55,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	private final ItemTouchHelper itemTouchHelper;
 
 	private boolean hasLaidOutChildren = false;
+	private SnapHelper snapHelper = null;
 	private SelectionTracker tracker = null;
 	private boolean isScrolling = false;
 	private boolean continuousUpdate = false;
@@ -291,6 +294,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
 		}
+		setSnapping(properties.optBoolean(TiC.PROPERTY_SNAPPING, false));
 		if ((editing || !requiresEditingToMove) && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -835,6 +839,27 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public void setContinousUpdate(boolean value)
 	{
 		continuousUpdate = value;
+	}
+
+	/**
+	 * Enable or disable snapping of items to the nearest position after a scroll.
+	 *
+	 * @param value Set true to snap items into place.
+	 */
+	public void setSnapping(boolean value)
+	{
+		if (value == (this.snapHelper != null)) {
+			// Already in the requested state.
+			return;
+		}
+
+		if (value) {
+			this.snapHelper = new LinearSnapHelper();
+			this.snapHelper.attachToRecyclerView(this.recyclerView);
+		} else {
+			this.snapHelper.attachToRecyclerView(null);
+			this.snapHelper = null;
+		}
 	}
 
 	public void setForceUpdates(boolean value)
