@@ -937,13 +937,14 @@ class AndroidBuilder extends Builder {
 				this.proguard = false;
 		}
 
-		// Select the JavaScript asset encryption module. Apps can opt in to the
-		// open source 'ti.crypt' module via <encryption>ti.crypt</encryption> in
-		// the tiapp.xml, any other (or no) value falls back to 'ti.cloak'.
+		// Select the JavaScript asset encryption module. The open source 'ti.crypt'
+		// module is the default. Apps can opt in to the closed source 'ti.cloak'
+		// module via <encryption>ti.cloak</encryption> in the tiapp.xml, any other
+		// (or no) value falls back to 'ti.crypt'.
 		if (cli.tiapp.encryption && cli.tiapp.encryption !== 'ti.crypt' && cli.tiapp.encryption !== 'ti.cloak') {
-			logger.warn(`Unknown <encryption> value "${cli.tiapp.encryption}" in tiapp.xml, falling back to "ti.cloak"`);
+			logger.warn(`Unknown <encryption> value "${cli.tiapp.encryption}" in tiapp.xml, falling back to "ti.crypt"`);
 		}
-		this.encryptionModule = cli.tiapp.encryption === 'ti.crypt' ? 'ti.crypt' : 'ti.cloak';
+		this.encryptionModule = cli.tiapp.encryption === 'ti.cloak' ? 'ti.cloak' : 'ti.crypt';
 
 		if (cli.tiapp.properties['ti.android.compilejs']) {
 			logger.warn(`The ${
