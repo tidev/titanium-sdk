@@ -1370,10 +1370,35 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public void applyNightMode()
 	{
 		int mode = AppCompatDelegate.getDefaultNightMode();
-		if (this.inForeground && (mode != this.lastNightMode)) {
-			this.lastNightMode = mode;
+		if (!this.inForeground || (mode == this.lastNightMode)) {
+			return;
+		}
+		this.lastNightMode = mode;
+
+		// Different mode ids can resolve to the theme already shown, such as FOLLOW_SYSTEM
+		// replacing UNSPECIFIED, or YES while the system is dark. Only recreate on a real change.
+		int nightFlags = resolveNightModeFlags(mode);
+		if ((nightFlags == Configuration.UI_MODE_NIGHT_UNDEFINED)
+			|| (nightFlags != (this.lastUIModeFlags & Configuration.UI_MODE_NIGHT_MASK))) {
 			this.updateActivity();
 		}
+	}
+
+	private int resolveNightModeFlags(int mode)
+	{
+		switch (mode) {
+			case AppCompatDelegate.MODE_NIGHT_YES:
+				return Configuration.UI_MODE_NIGHT_YES;
+			case AppCompatDelegate.MODE_NIGHT_NO:
+				return Configuration.UI_MODE_NIGHT_NO;
+			case AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM:
+			case AppCompatDelegate.MODE_NIGHT_UNSPECIFIED:
+				// Same source AppCompat reads to resolve these two modes.
+				return getApplicationContext().getResources().getConfiguration().uiMode
+					& Configuration.UI_MODE_NIGHT_MASK;
+		}
+		// Time and battery based modes can only be resolved by AppCompat, so treat them as a change.
+		return Configuration.UI_MODE_NIGHT_UNDEFINED;
 	}
 
 	@Override

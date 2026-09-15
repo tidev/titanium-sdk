@@ -253,28 +253,31 @@ describe('Titanium.UI', function () {
 		}
 	});
 
-	// What went wrong here was a spurious activity recreation, so asserting on the getter
-	// proves nothing: it returns the expected value whether or not the activity was torn
-	// down. This watches the activity itself instead.
-	it.android('.overrideUserInterfaceStyle does not recreate the activity when unchanged', function (finish) {
+	// The getter returns the expected value whether or not the activity was torn down,
+	// so this watches onDestroy, which TiBaseActivity dispatches to the proxy synchronously.
+	it.android('.overrideUserInterfaceStyle does not recreate the activity when the theme does not change', function (finish) {
 		const activity = Ti.Android.currentActivity;
-		activity.nightModeProbe = 'set';
+		const systemStyle = Ti.UI.userInterfaceStyle;
+		let done = false;
 
-		// Self-check: if the marker cannot survive on its own, this probe cannot tell a
-		// recreation from a fresh proxy, and the assertion below would pass for the wrong
-		// reason. Skip rather than report a false success.
-		if (Ti.Android.currentActivity.nightModeProbe !== 'set') {
-			this.skip();
-			return;
-		}
+		activity.onDestroy = () => {
+			activity.onDestroy = null;
+			done = true;
+			finish(new Error('Activity was recreated'));
+		};
 
-		// Assigning the documented default must not change the mode, and therefore must
-		// not tear the activity down.
+		// None of these change the theme on screen: the default, the style the system
+		// already shows, and the default again.
+		Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED;
+		Ti.UI.overrideUserInterfaceStyle = systemStyle;
 		Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED;
 
 		setTimeout(function () {
+			if (done) {
+				return;
+			}
+			activity.onDestroy = null;
 			try {
-				should(Ti.Android.currentActivity.nightModeProbe).eql('set');
 				should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED);
 				finish();
 			} catch (err) {
