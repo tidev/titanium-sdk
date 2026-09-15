@@ -6,10 +6,11 @@
  */
 package org.appcelerator.kroll.runtime.v8;
 
+import android.util.LongSparseArray;
+
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollProxySupport;
 import org.appcelerator.kroll.KrollObject;
@@ -23,7 +24,7 @@ public final class ReferenceTable
 	 * A simple Map used to hold strong/weak reference to the Java objects we have paired/wrapped in native
 	 * titanium::Proxy/JavaObject instances.
 	 */
-	private static final HashMap<Long, Object> references = new HashMap<>(1024);
+	private static final LongSparseArray<Object> references = new LongSparseArray<>(1024);
 
 	/**
 	 * Incrementing key, used to generate new keys when a new strong reference is created. FIXME Handle "wrapping" the
