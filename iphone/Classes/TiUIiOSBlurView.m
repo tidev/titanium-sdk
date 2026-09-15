@@ -20,14 +20,37 @@
     [blurView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [blurView setContentMode:[self contentModeForBlurView]];
 
-    // Let the Titanium view handle touch/click events and not the blur view itself.
-    // UIVisualEffectView can intercept touches and prevent TiUIView gesture handling.
+    // Let the Titanium view handle touch/click events by default. Interactive glass effects
+    // opt into hit-testing in setGlassEffect_: so UIKit can animate the glass response.
     [blurView setUserInteractionEnabled:NO];
 
     [self addSubview:blurView];
   }
 
   return blurView;
+}
+
+- (BOOL)touchedContentViewWithEvent:(UIEvent *)event
+{
+#if IS_SDK_IOS_26
+  if (@available(iOS 26.0, *)) {
+    UIVisualEffectView *effectView = blurView;
+
+    if (effectView != nil && effectView.userInteractionEnabled) {
+      // UIKit owns touches for interactive glass, but Titanium still needs to process them
+      // through its normal raw touch pipeline.
+      for (UITouch *touch in [event allTouches]) {
+        UIView *touchView = touch.view;
+
+        if (touchView == effectView || [touchView isDescendantOfView:effectView]) {
+          return YES;
+        }
+      }
+    }
+  }
+#endif
+
+  return [super touchedContentViewWithEvent:event];
 }
 
 #pragma mark Cleanup
@@ -49,7 +72,9 @@
     return;
   }
 
-  [[self blurView] setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
+  UIVisualEffectView *effectView = [self blurView];
+  [effectView setUserInteractionEnabled:NO];
+  [effectView setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
   [[self proxy] replaceValue:value forKey:@"effect" notification:NO];
 }
 
@@ -67,7 +92,9 @@
     glassEffect.interactive = isInteractive;
     glassEffect.tintColor = tintColor.color;
 
-    [[self blurView] setEffect:glassEffect];
+    UIVisualEffectView *effectView = [self blurView];
+    [effectView setUserInteractionEnabled:isInteractive];
+    [effectView setEffect:glassEffect];
     [[self proxy] replaceValue:value forKey:@"glassEffect" notification:NO];
   }
 }
