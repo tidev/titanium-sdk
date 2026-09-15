@@ -124,6 +124,25 @@ public class TiEdgeToEdgeHelper
 			if (isResizingForSoftInput(window)) {
 				int imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
 				bottom = Math.max(bottom, basePaddingBottom + imeBottom);
+				if (imeBottom > 0) {
+					// The keyboard has been fully handled by resizing the content frame above,
+					// so descendants must not apply a bottom inset a second time. Consume the
+					// IME inset and cap the bottom of the bar insets, because when the keyboard
+					// is open the navigation bar inset expands to the keyboard's height, and
+					// Material's BottomNavigationView pads itself by the system window insets.
+					// It would otherwise grow by the keyboard's height, leaving a large gap
+					// between the tab bar and the keyboard. Left/top/right are kept so views
+					// like TabLayout can still inset themselves from the status bar.
+					Insets nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+					Insets caption = insets.getInsets(WindowInsetsCompat.Type.captionBar());
+					insets = new WindowInsetsCompat.Builder(insets)
+						.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE)
+						.setInsets(WindowInsetsCompat.Type.navigationBars(),
+							Insets.of(nav.left, nav.top, nav.right, 0))
+						.setInsets(WindowInsetsCompat.Type.captionBar(),
+							Insets.of(caption.left, caption.top, caption.right, 0))
+						.build();
+				}
 			}
 
 			v.setPadding(left, top, right, bottom);

@@ -51,6 +51,7 @@ import android.app.Activity;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -1088,6 +1089,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	 */
 	protected void handleBackNavigation()
 	{
+		// If the soft keyboard is showing, back must only dismiss it. This matches the legacy
+		// back-key behavior where the IME consumed KEYCODE_BACK before it reached the activity.
+		// With "enableOnBackInvokedCallback" enabled, some IMEs do not register their own back
+		// callback on this window's dispatcher, which would otherwise route the back gesture
+		// here while the keyboard is still open.
+		View decorView = getWindow().getDecorView();
+		WindowInsetsCompat rootInsets = ViewCompat.getRootWindowInsets(decorView);
+		if ((rootInsets != null) && rootInsets.isVisible(WindowInsetsCompat.Type.ime())) {
+			WindowCompat.getInsetsController(getWindow(), decorView)
+				.hide(WindowInsetsCompat.Type.ime());
+			return;
+		}
+
 		// Notify all listener that the back button was pressed.
 		synchronized (interceptOnBackPressedListeners.synchronizedList())
 		{
@@ -1103,30 +1117,34 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		// Let the window proxy handle the back event first, if configured.
-		if (this.window != null) {
-			boolean hasBackEventHandler = false;
+		// Let the proxies handle the back event first, if configured.
+		boolean hasBackEventHandler = false;
 
-			// Fire an "androidback" event if a listener exists.
-			if (this.window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
-				this.window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+		// Fire an "androidback" event if a listener exists. Check the activity proxy first,
+		// like the legacy KEYCODE_BACK dispatch in dispatchKeyEvent() did, since a TabGroup
+		// adds this event to its activity proxy. Otherwise let the window proxy handle it.
+		if ((this.activityProxy != null) && this.activityProxy.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			this.activityProxy.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+			hasBackEventHandler = true;
+		} else if ((this.window != null) && this.window.hasListeners(TiC.EVENT_ANDROID_BACK)) {
+			this.window.fireEvent(TiC.EVENT_ANDROID_BACK, null);
+			hasBackEventHandler = true;
+		}
+
+		// Invoke the window's "onBack" property's callback if assigned.
+		if ((this.window != null) && this.window.hasProperty(TiC.PROPERTY_ON_BACK)
+			&& (this.activityProxy != null)) {
+			Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
+			if (value instanceof KrollFunction onBackCallback) {
+				onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
 				hasBackEventHandler = true;
 			}
+		}
 
-			// Invoke the "onBack" property's callback if assigned.
-			if (this.window.hasProperty(TiC.PROPERTY_ON_BACK) && (this.activityProxy != null)) {
-				Object value = this.window.getProperty(TiC.PROPERTY_ON_BACK);
-				if (value instanceof KrollFunction onBackCallback) {
-					onBackCallback.callAsync(activityProxy.getKrollObject(), new Object[] {});
-					hasBackEventHandler = true;
-				}
-			}
-
-			// Do not allow the system to handle back press if window proxy has an event handler.
-			// In this case, the JS code must explicity close() or finish() the activity window itself.
-			if (hasBackEventHandler) {
-				return;
-			}
+		// Do not allow the system to handle back press if a proxy has an event handler.
+		// In this case, the JS code must explicity close() or finish() the activity window itself.
+		if (hasBackEventHandler) {
+			return;
 		}
 
 		// Handle app exit ourselves since the above window proxy did not handle the back event.

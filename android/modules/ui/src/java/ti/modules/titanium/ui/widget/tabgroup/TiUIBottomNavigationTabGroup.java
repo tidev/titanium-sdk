@@ -435,7 +435,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) layoutParams;
 		params.optionBottom = new TiDimension(offset, TiDimension.TYPE_BOTTOM);
-		this.tabGroupViewPager.setLayoutParams(params);
+		// This runs from the tab bar's onLayoutChange, i.e. during a layout pass, where
+		// setLayoutParams() would trigger a "requestLayout() improperly called" second pass.
+		// Post it so the layout request runs after the current pass has finished.
+		this.tabGroupViewPager.post(() -> this.tabGroupViewPager.setLayoutParams(params));
 	}
 
 	@Override
