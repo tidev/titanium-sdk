@@ -235,6 +235,8 @@ enum {
 #ifndef TI_USE_AUTOLAYOUT
 - (void)setMinWidth:(id)value;
 - (void)setMinHeight:(id)value;
+- (void)setMaxWidth:(id)value;
+- (void)setMaxHeight:(id)value;
 - (void)setCenter:(id)value;
 #endif
 - (NSMutableDictionary *)center;

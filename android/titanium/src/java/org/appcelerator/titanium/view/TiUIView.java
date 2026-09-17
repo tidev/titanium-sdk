@@ -112,6 +112,15 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected LayoutParams layoutParams;
 	protected TiAnimationBuilder animBuilder;
 	protected TiBackgroundDrawable background;
+	/**
+	 * The "minWidth"/"maxWidth"/"minHeight"/"maxHeight" constraints, or null if none were set.
+	 * Handed to the outermost native view via {@link #applySizeConstraints()}.
+	 */
+	private TiSizeConstraints sizeConstraints;
+
+	private static final String[] SIZE_CONSTRAINT_KEYS = {
+		TiC.PROPERTY_MAX_WIDTH, TiC.PROPERTY_MIN_WIDTH, TiC.PROPERTY_MAX_HEIGHT, TiC.PROPERTY_MIN_HEIGHT
+	};
 
 	public TiBackgroundDrawable getBackground()
 	{
@@ -334,6 +343,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		this.nativeView = view;
+		applySizeConstraints();
 		boolean clickable = true;
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
@@ -785,6 +795,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			doSetClickable(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED)) {
 			setFilterTouchesWhenObscured(TiConvert.toBoolean(newValue, false));
+		} else if (key.equals(TiC.PROPERTY_MAX_WIDTH) || key.equals(TiC.PROPERTY_MIN_WIDTH)
+			|| key.equals(TiC.PROPERTY_MAX_HEIGHT) || key.equals(TiC.PROPERTY_MIN_HEIGHT)) {
+			setSizeConstraint(key, newValue);
 		} else if (key.equals(TiC.PROPERTY_VISIBLE)) {
 			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
@@ -1057,6 +1070,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		initializeBorder(d, bgColor);
 
+		// Must follow initializeBorder() since the constraints are applied to the border wrapper when present.
+		for (String sizeKey : SIZE_CONSTRAINT_KEYS) {
+			if (d.containsKey(sizeKey)) {
+				setSizeConstraint(sizeKey, d.get(sizeKey));
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_OPACITY) && !nativeViewNull) {
 			setOpacity(TiConvert.toFloat(d, TiC.PROPERTY_OPACITY, 1f));
 		}
@@ -1142,6 +1162,63 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
+	}
+
+	/**
+	 * Applies a "maxWidth", "minWidth", "maxHeight" or "minHeight" size constraint to the native view.
+	 * <p>
+	 * Only supported by views measured by a {@link TiCompositeLayout} or a {@link TiBorderWrapperView}.
+	 * Non-container views without a border (Label, Button, ImageView, etc.) measure themselves and ignore it.
+	 * @param key The Titanium property name being applied. Must be one of the min/max size constants.
+	 * @param value The new value. Accepts any dimension {@link TiConvert} understands, such as 100, "100dp"
+	 *              or "50%". A null value clears the constraint.
+	 */
+	private void setSizeConstraint(String key, Object value)
+	{
+		TiDimension dimension = null;
+		if (value != null) {
+			boolean isWidth = TiC.PROPERTY_MAX_WIDTH.equals(key) || TiC.PROPERTY_MIN_WIDTH.equals(key);
+			dimension = TiConvert.toTiDimension(value, isWidth ? TiDimension.TYPE_WIDTH : TiDimension.TYPE_HEIGHT);
+		}
+
+		if (this.sizeConstraints == null) {
+			if (dimension == null) {
+				return;
+			}
+			this.sizeConstraints = new TiSizeConstraints();
+		}
+		this.sizeConstraints.set(key, dimension);
+
+		if (!applySizeConstraints() && (dimension != null)) {
+			Log.w(TAG, "The '" + key + "' property is not supported by " + proxy.getApiName());
+		} else {
+			View outerView = getOuterView();
+			if (outerView != null) {
+				outerView.requestLayout();
+			}
+		}
+	}
+
+	/**
+	 * Hands the min/max size constraints to the outermost native view, which is the view the parent
+	 * layout measures. Called again whenever that view changes, such as when a border wrapper is added.
+	 * @return true if the outer view honors the constraints, false if it ignores them.
+	 */
+	private boolean applySizeConstraints()
+	{
+		if (this.borderView != null) {
+			this.borderView.setSizeConstraints(this.sizeConstraints);
+			if (nativeView instanceof TiCompositeLayout) {
+				// The wrapper enforces the constraints and hands the wrapped layout the clamped size.
+				((TiCompositeLayout) nativeView).setSizeConstraints(null);
+			}
+			return true;
+		}
+		if (nativeView instanceof TiCompositeLayout) {
+			((TiCompositeLayout) nativeView).setSizeConstraints(this.sizeConstraints);
+			return true;
+		}
+		return false;
 	}
 
 	private void setAnchor(HashMap point)
@@ -1529,6 +1606,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 						savedParent.addView(borderView, childIndex, getLayoutParams());
 					}
 					borderView.setVisibility(this.visibility);
+					applySizeConstraints();
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
