@@ -1271,13 +1271,59 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 + (CGRect)contentFrame:(BOOL)window
 {
   double height = 0;
-  if (window && !UIApplication.sharedApplication.isStatusBarHidden) {
-    CGRect statusFrame = UIApplication.sharedApplication.statusBarFrame;
+  if (window && ![TiUtils isStatusBarHidden]) {
+    CGRect statusFrame = [TiUtils statusBarFrame];
     height = statusFrame.size.height;
   }
 
-  CGRect f = UIApplication.sharedApplication.keyWindow.frame;
+  UIWindow *appWindow = [TiApp app].window ?: UIApplication.sharedApplication.keyWindow;
+  CGRect f = appWindow.frame;
   return CGRectMake(f.origin.x, height, f.size.width, f.size.height);
+}
+
++ (UIWindowScene *)windowScene
+{
+  UIWindowScene *scene = [TiApp app].window.windowScene;
+  if (scene != nil) {
+    return scene;
+  }
+  for (UIScene *connectedScene in UIApplication.sharedApplication.connectedScenes) {
+    if ([connectedScene isKindOfClass:[UIWindowScene class]]) {
+      return (UIWindowScene *)connectedScene;
+    }
+  }
+  return nil;
+}
+
++ (UIInterfaceOrientation)interfaceOrientation
+{
+  UIWindowScene *scene = [TiUtils windowScene];
+  if (scene == nil) {
+    return UIInterfaceOrientationUnknown;
+  }
+  return scene.interfaceOrientation;
+}
+
++ (CGRect)statusBarFrame
+{
+  UIStatusBarManager *statusBarManager = [TiUtils windowScene].statusBarManager;
+  if (statusBarManager == nil || statusBarManager.isStatusBarHidden) {
+    return CGRectZero;
+  }
+  return statusBarManager.statusBarFrame;
+}
+
++ (BOOL)isStatusBarHidden
+{
+  UIStatusBarManager *statusBarManager = [TiUtils windowScene].statusBarManager;
+  return statusBarManager == nil || statusBarManager.isStatusBarHidden;
+}
+
++ (NSTimeInterval)orientationAnimationDuration
+{
+  // UIKit used to report 0.3s on iPhone and 0.4s on iPad for
+  // -[UIApplication statusBarOrientationAnimationDuration].
+  return [TiUtils isIPad] ? 0.4 : 0.3;
 }
 
 + (CGFloat)sizeValue:(id)value

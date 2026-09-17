@@ -190,7 +190,7 @@
   theHost = hostView;
 
   if (defaultImageView != nil) {
-    [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    [self rotateDefaultImageViewToOrientation:[TiUtils interfaceOrientation]];
     [theHost addSubview:defaultImageView];
   }
   [rootView becomeFirstResponder];
@@ -1005,8 +1005,8 @@
 
 - (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification
 {
-  if ((![TiUtils isIPad]) && ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+  if ((![TiUtils isIPad]) && ([TiUtils interfaceOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
+    CGRect statusBarFrame = [TiUtils statusBarFrame];
     if (statusBarFrame.size.height == 0) {
       return;
     }
@@ -1192,21 +1192,54 @@
     }
   }
 
-  if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
+  UIInterfaceOrientation currentOrientation = [TiUtils interfaceOrientation];
+  if (currentOrientation != UIInterfaceOrientationUnknown && currentOrientation != target) {
     forcingRotation = YES;
     if ([TiSharedConfig defaultConfig].debugEnabled) {
-      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
+      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, currentOrientation);
     }
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
-    [self rotateHostingViewToOrientation:target
-                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    if (@available(iOS 16.0, *)) {
+      [self requestSceneRotationToOrientation:target];
+    } else {
+      [self rotateHostingViewToOrientation:target
+                           fromOrientation:currentOrientation];
+    }
     forcingRotation = NO;
 #endif
   } else {
     [self resetTransformAndForceLayout:NO];
   }
+}
+
+- (void)requestSceneRotationToOrientation:(UIInterfaceOrientation)newOrientation API_AVAILABLE(ios(16.0))
+{
+  // Make sure any previously applied legacy transform is gone, UIKit handles the rotation itself.
+  [self resetTransformAndForceLayout:NO];
+
+  // Ask UIKit to re-query -supportedInterfaceOrientations on this controller (and any presented ones).
+  [self setNeedsUpdateOfSupportedInterfaceOrientations];
+  UIViewController *presented = [self presentedViewController];
+  while (presented != nil) {
+    [presented setNeedsUpdateOfSupportedInterfaceOrientations];
+    presented = [presented presentedViewController];
+  }
+
+#if !TARGET_OS_MACCATALYST
+  UIWindowScene *scene = [TiUtils windowScene];
+  if (scene == nil) {
+    return;
+  }
+  UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:(UIInterfaceOrientationMask)(1 << newOrientation)];
+  [scene requestGeometryUpdate:preferences
+                  errorHandler:^(NSError *_Nonnull error) {
+                    DebugLog(@"[WARN] Could not rotate to orientation %d: %@", (int)newOrientation, [error localizedDescription]);
+                  }];
+  [preferences release];
+#endif
+  [self updateOrientationHistory:newOrientation];
 }
 
 - (void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
@@ -1447,7 +1480,7 @@
       [thisWindow viewDidAppear:animated];
     }
     forcingRotation = NO;
-    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[TiUtils orientationAnimationDuration]];
 
     [[containedWindows lastObject] gainFocus];
   }

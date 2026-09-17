@@ -526,6 +526,47 @@ typedef enum {
 
 + (CGRect)contentFrame:(BOOL)window;
 
+/**
+ Returns the window scene that hosts the application's primary window, falling back
+ to the first connected window scene.
+
+ @return The active `UIWindowScene`, or `nil` if none is connected yet.
+ */
++ (UIWindowScene *)windowScene;
+
+/**
+ Returns the current interface orientation of the application's window scene.
+
+ Replaces the deprecated `UIApplication.statusBarOrientation`, which is a no-op
+ on iOS 27 and later.
+
+ @return The current interface orientation, or `UIInterfaceOrientationUnknown` if no scene is connected.
+ */
++ (UIInterfaceOrientation)interfaceOrientation;
+
+/**
+ Returns the frame of the status bar of the application's window scene.
+
+ Replaces the deprecated `UIApplication.statusBarFrame`.
+
+ @return The status bar frame, or `CGRectZero` if the status bar is hidden or no scene is connected.
+ */
++ (CGRect)statusBarFrame;
+
+/**
+ Whether or not the status bar of the application's window scene is hidden.
+
+ Replaces the deprecated `UIApplication.isStatusBarHidden`.
+ */
++ (BOOL)isStatusBarHidden;
+
+/**
+ The duration of an interface orientation change animation.
+
+ Replaces the deprecated `UIApplication.statusBarOrientationAnimationDuration`.
+ */
++ (NSTimeInterval)orientationAnimationDuration;
+
 + (CGFloat)sizeValue:(id)value;
 
 + (WebFont *)fontValue:(id)value;

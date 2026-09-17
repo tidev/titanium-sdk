@@ -6,6 +6,7 @@
  */
 #import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
+#import "TiUtils.h"
 
 @implementation TiUIWindow
 
@@ -36,7 +37,7 @@
   if ([windowProxy respondsToSelector:@selector(updateNavBar)]) {
     [windowProxy performSelector:@selector(updateNavBar)
                       withObject:nil
-                      afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+                      afterDelay:[TiUtils orientationAnimationDuration]];
   }
 }
 
