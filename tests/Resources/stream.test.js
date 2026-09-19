@@ -34,8 +34,7 @@ describe('stream', function () {
 		});
 	});
 
-	// TODO: Add PassThrough!
-	describe.allBroken('.PassThrough', () => {
+	describe('.PassThrough', () => {
 		it('is a function', () => {
 			stream.PassThrough.should.be.a.Function(); // constructor
 		});

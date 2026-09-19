@@ -793,11 +793,9 @@ DEFINE_EXCEPTIONS
     }
 
     if (IS_AUTOSIZE(width) || (IS_UNDEFINED(width) && IS_AUTOSIZE(_defaultWidth))) {
-      [self addConstraints:TI_CONSTR(TI_STRING(@"H:[self(0@20)]"), viewsDict)]; // should try to be 0 width with a very low priority
       [superview addConstraints:TI_CONSTR(TI_STRING(@"H:[self(<=superview)]"), viewsDict)];
     }
     if (IS_AUTOSIZE(height) || (IS_UNDEFINED(height) && IS_AUTOSIZE(_defaultHeight))) {
-      [self addConstraints:TI_CONSTR(TI_STRING(@"V:[self(0@20)]"), viewsDict)]; // should try to be 0 height with a very low priority
       [superview addConstraints:TI_CONSTR(TI_STRING(@"V:[self(<=superview)]"), viewsDict)];
     }
   }

@@ -51,6 +51,26 @@ READWRITE_IMPL(NSString *, userAgent, UserAgent);
   return @"Ti";
 }
 
+- (void)applyProperties:(id)args
+{
+  ENSURE_SINGLE_ARG_OR_NIL(args, NSDictionary);
+  // ObjcProxy (our base class) stores custom properties on the JS object rather
+  // than via KVC, so mirror _initWithPageContext:args: and assign each key on
+  // the JS "this" value. KVC's setValuesForKeysWithDictionary: would throw for
+  // keys that aren't native accessors (e.g. arbitrary user-defined keys).
+  JSContext *context = JSContext.currentContext;
+  if (context == nil) {
+    return;
+  }
+  JSValue *selfValue = [self JSValueInContext:context];
+  if (selfValue == nil) {
+    return;
+  }
+  for (NSString *key in args) {
+    selfValue[key] = args[key];
+  }
+}
+
 - (JSValue *)createBuffer:(id)arg
 {
   ENSURE_SINGLE_ARG_OR_NIL(arg, NSDictionary);

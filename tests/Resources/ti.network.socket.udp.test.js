@@ -7,7 +7,8 @@
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
 'use strict';
-var should = require('./utilities/assertions');
+var should = require('./utilities/assertions'),
+	Timeout = require('./utilities/timeouts');
 
 describe.windows('Titanium.Network.Socket', function () {
 
@@ -25,7 +26,7 @@ describe.windows('Titanium.Network.Socket', function () {
 });
 
 describe.windows('Titanium.Network.Socket.UDP', function () {
-	this.timeout(6e4);
+	this.timeout(Timeout.NETWORK);
 
 	it('#start(Integer)', function (finish) {
 		var socket = Ti.Network.Socket.createUDP({

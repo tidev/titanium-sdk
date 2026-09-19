@@ -256,20 +256,38 @@ process.setUncaughtExceptionCaptureCallback = (fn) => {
 	uncaughtExceptionCallback = fn;
 };
 
-Ti.App.addEventListener('uncaughtException', function (event) {
-	// Create an Error instance that wraps the data from the event
-	// ideally we'd just forward along the original Error!
-	const error = new Error(event.message);
-	error.stack = event.backtrace;
-	error.fileName = event.sourceName;
-	error.lineNumber = event.line;
-	error.columnNumber = event.lineOffset;
-	if (process.hasUncaughtExceptionCaptureCallback()) {
-		return uncaughtExceptionCallback(error);
-	}
-	// otherwise forward the event!
-	process.emit('uncaughtException', error);
-});
+// The native side can deliver a single uncaught exception to this listener more
+// than once — the kTiErrorNotification reaches the AppModule observer along a
+// path that re-fires the "uncaughtException" Ti.App event for the same error. A
+// second delivery would either re-invoke the capture callback or, once the
+// callback has cleared itself, fall through to process.emit('uncaughtException'),
+// which mocha treats as a test failure. Deduplicate by remembering the most
+// recent error so only the first delivery is acted on; the key is cleared on the
+// next macrotask so genuinely new errors are still surfaced.
+let lastUncaughtErrorKey = null;
+if (!globalThis.__tiUncaughtExceptionListenerRegistered) {
+	globalThis.__tiUncaughtExceptionListenerRegistered = true;
+	Ti.App.addEventListener('uncaughtException', function (event) {
+		// Create an Error instance that wraps the data from the event
+		// ideally we'd just forward along the original Error!
+		const error = new Error(event.message);
+		error.stack = event.backtrace;
+		error.fileName = event.sourceName;
+		error.lineNumber = event.line;
+		error.columnNumber = event.lineOffset;
+		const dedupKey = event.message + '\n' + (event.backtrace || '');
+		if (dedupKey === lastUncaughtErrorKey) {
+			return;
+		}
+		lastUncaughtErrorKey = dedupKey;
+		setTimeout(() => { lastUncaughtErrorKey = null; }, 0);
+		if (process.hasUncaughtExceptionCaptureCallback()) {
+			return uncaughtExceptionCallback(error);
+		}
+		// otherwise forward the event!
+		process.emit('uncaughtException', error);
+	});
+}
 
 export default process;
 

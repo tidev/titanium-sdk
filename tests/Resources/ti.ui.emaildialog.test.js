@@ -9,7 +9,6 @@
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
-const utilities = require('./utilities/utilities');
 
 describe('Titanium.UI.EmailDialog', () => {
 	it('.apiName', () => {
@@ -20,23 +19,23 @@ describe('Titanium.UI.EmailDialog', () => {
 		should(emailDialog.apiName).be.eql('Ti.UI.EmailDialog');
 	});
 
-	// FIXME constant may hang on instances for iOS and Android? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.FAILED
-	((utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('FAILED', () => {
+	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.FAILED
+	it('FAILED', () => {
 		should(Ti.UI.EmailDialog).have.constant('FAILED').which.is.a.Number();
 	});
 
-	// FIXME constant may hang on instances for iOS and Android? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.SENT
-	((utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('SENT', () => {
+	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.SENT
+	it('SENT', () => {
 		should(Ti.UI.EmailDialog).have.constant('SENT').which.is.a.Number();
 	});
 
-	// FIXME constant may hang on instances for iOS and Android? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.SAVED
-	((utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('SAVED', () => {
+	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.SAVED
+	it('SAVED', () => {
 		should(Ti.UI.EmailDialog).have.constant('SAVED').which.is.a.Number();
 	});
 
-	// FIXME constant may hang on instances for iOS and Android? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.CANCELLED
-	((utilities.isIOS() || utilities.isAndroid()) ? it.skip : it)('CANCELLED', () => {
+	// FIXME constant may hang on instances for iOS? But I think we should enforce being able to reference them as Ti.UI.EmailDialog.CANCELLED
+	it('CANCELLED', () => {
 		should(Ti.UI.EmailDialog).have.constant('CANCELLED').which.is.a.Number();
 	});
 

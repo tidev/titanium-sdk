@@ -8,10 +8,11 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Blob', function () {
 	this.slow(2000);
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...
@@ -45,7 +46,7 @@ describe('Titanium.Blob', function () {
 	// Windows also crashes if we uncomment this now, I think closing the window (or failing the test) in the blob callback is causing Desktop crash
 	// Android is sometimes timing out... Trying an open event now...
 	// TODO: Test is tempermental, skipping for now...
-	it.skip('constructed from image', function (finish) { // eslint-disable-line mocha/no-skipped-tests
+	it('constructed from image', function (finish) {
 		win = Ti.UI.createWindow();
 		const label = Ti.UI.createLabel({ text: 'test' });
 		win.add(label);
@@ -551,7 +552,7 @@ describe('Titanium.Blob', function () {
 	// Canvas: trying to draw too large(211527936bytes) bitmap.
 	// it breaks on older Android devices with an OutOfMemory Error on calling imageAsResized
 	it.androidBroken('resize very large image', function (finish) {
-		this.timeout(15000);
+		this.timeout(Timeout.DEFAULT);
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
 		const img = Ti.UI.createImageView();
 

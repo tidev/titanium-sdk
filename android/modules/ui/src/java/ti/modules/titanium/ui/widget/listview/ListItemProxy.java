@@ -799,12 +799,12 @@ public class ListItemProxy extends TiViewProxy
 		if (name.equals(TiC.PROPERTY_HEADER_VIEW) && value instanceof TiViewProxy headerProxy) {
 
 			// Set header view parent, so it can be released correctly.
-			headerProxy.setParent(this);
+			headerProxy.setParentInternal(this);
 		}
 		if (name.equals(TiC.PROPERTY_FOOTER_VIEW) && value instanceof TiViewProxy footerProxy) {
 
 			// Set footer view parent, so it can be released correctly.
-			footerProxy.setParent(this);
+			footerProxy.setParentInternal(this);
 		}
 
 		if (name.equals(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {

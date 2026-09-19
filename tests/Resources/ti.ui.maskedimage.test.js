@@ -9,6 +9,7 @@
 'use strict';
 
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	let win;
@@ -26,7 +27,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 		}
 	});
 
-	it.iosBroken('Ti.UI.MaskedImage', () => { // should this be defined?
+	it('Ti.UI.MaskedImage', () => { // should this be defined?
 		should(Ti.UI.MaskedImage).not.be.undefined();
 	});
 
@@ -45,7 +46,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	});
 
 	it('.tint', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.LONG);
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createMaskedImage({
 			mask: '/Logo.png',
@@ -56,6 +57,11 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 		}));
 		win.addEventListener('postlayout', function listener () {
 			win.removeEventListener('postlayout', listener);
+			try {
+				should(win).matchImage('snapshots/maskedImageTint.png');
+			} catch (err) {
+				return finish(err);
+			}
 			// Assume MaskedImage has rendered successfully by this point.
 			finish();
 		});
@@ -63,7 +69,7 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 	});
 
 	it('.image', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.LONG);
 		win = Ti.UI.createWindow();
 		win.add(Ti.UI.createMaskedImage({
 			mask: '/Logo.png',
@@ -74,6 +80,11 @@ describe.windowsMissing('Titanium.UI.MaskedImage', function () {
 		}));
 		win.addEventListener('postlayout', function listener () {
 			win.removeEventListener('postlayout', listener);
+			try {
+				should(win).matchImage('snapshots/maskedImageImage.png');
+			} catch (err) {
+				return finish(err);
+			}
 			// Assume MaskedImage has rendered successfully by this point.
 			finish();
 		});

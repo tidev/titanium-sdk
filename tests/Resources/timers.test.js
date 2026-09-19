@@ -47,7 +47,7 @@ describe('Timers', function () {
 			}, 1, 2, '3', { name: 'four' });
 		});
 
-		it.allBroken('if callback is not a function TypeError is thrown', () => {
+		it('if callback is not a function TypeError is thrown', () => {
 			should.throws(() => {
 				setTimeout(1, 100);
 			}, TypeError);
@@ -119,7 +119,7 @@ describe('Timers', function () {
 			}, 10, 2, '3', { name: 'four' });
 		});
 
-		it.allBroken('if callback is not a function TypeError is thrown', () => {
+		it('if callback is not a function TypeError is thrown', () => {
 			should.throws(() => {
 				setInterval(1, 100);
 			}, TypeError);

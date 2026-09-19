@@ -50,6 +50,18 @@ void ${className}::bindProxy(Local<Object> exports, Local<Context> context)
 
 	Local<FunctionTemplate> pt = getProxyTemplate(isolate);
 
+	<#if !isModule>
+	// Expose the proxy's full API name as a read-only property on the
+	// constructor function itself so that `Ti.Module.Proxy.apiName`
+	// resolves to "Ti.Module.Proxy" without requiring an instance.
+	// Note: Must be set on the FunctionTemplate before calling GetFunction(),
+	// because the constructor Function only supports Set(context, key, value),
+	// which cannot assign the ReadOnly/DontDelete attributes.
+	pt->Set(NEW_SYMBOL(isolate, "apiName"),
+		STRING_NEW(isolate, "Ti.${proxyAttrs.fullAPIName}"),
+		static_cast<v8::PropertyAttribute>(v8::ReadOnly | v8::DontDelete));
+	</#if>
+
 	v8::TryCatch tryCatch(isolate);
 	Local<Function> constructor;
 	MaybeLocal<Function> maybeConstructor = pt->GetFunction(context);

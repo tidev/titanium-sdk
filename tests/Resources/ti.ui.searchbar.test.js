@@ -9,6 +9,7 @@
 /* eslint mocha/no-identical-title: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.SearchBar', () => {
 	let win;
@@ -124,7 +125,7 @@ describe('Titanium.UI.SearchBar', () => {
 
 		it('.focused', function (done) {
 			this.slow(1000);
-			this.timeout(5000);
+			this.timeout(Timeout.DEFAULT);
 
 			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 			const searchbar = Ti.UI.createSearchBar({
@@ -189,7 +190,7 @@ describe('Titanium.UI.SearchBar', () => {
 			});
 
 			it('change dynamically', function (finish) {
-				this.timeout(5000);
+				this.timeout(Timeout.DEFAULT);
 
 				const OLD_HINT_TEXT = 'Old Hint Text';
 				const NEW_HINT_TEXT = 'New Hint Text';
@@ -420,7 +421,7 @@ describe('Titanium.UI.SearchBar', () => {
 	});
 
 	// FIXME Intermittently fails on Android?
-	it.androidBroken('TableView', function (finish) {
+	it('TableView', function (finish) {
 		var sb = Ti.UI.createSearchBar({
 				barColor: 'blue',
 				height: 44
@@ -446,7 +447,7 @@ describe('Titanium.UI.SearchBar', () => {
 	});
 
 	// FIXME this seems to hard-crash Android. No stacktrace, no errors from logcat. File a JIRA?
-	it.androidBroken('ListView', function (finish) {
+	it('ListView', function (finish) {
 		var sb = Ti.UI.createSearchBar({
 				barColor: 'blue',
 				height: 44
@@ -475,7 +476,7 @@ describe('Titanium.UI.SearchBar', () => {
 	});
 
 	// FIXME this seems to hard-crash Android. No stacktrace, no errors from logcat. File a JIRA?
-	it.androidBroken('TIMOB-9745,TIMOB-7020', function (finish) {
+	it('TIMOB-9745,TIMOB-7020', function (finish) {
 		var data = [ {
 				title: 'Row 1',
 				color: 'red'

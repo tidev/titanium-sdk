@@ -8,12 +8,13 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 var should = require('./utilities/assertions'),
-	Map = require('ti.map');
+	Map = require('ti.map'),
+	Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Map', function () {
 	let win;
 
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	afterEach(function (done) {
 		if (win) {
@@ -96,7 +97,7 @@ describe('Titanium.Map', function () {
 	});
 
 	// FIXME get working on iOS, says value is undefined, not a Number
-	it.iosBroken('ANNOTATION_YELLOW', function () {
+	it('ANNOTATION_YELLOW', function () {
 		should(Map).have.constant('ANNOTATION_YELLOW').which.is.a.Number();
 	});
 
@@ -201,7 +202,8 @@ describe('Titanium.Map', function () {
 
 	// Intentional skip, constant only for Android
 	// NOTE: Skipping. ti.playservices.isGooglePlayServicesAvailable() should be used instead!
-	it.skip('#isGooglePlayServicesAvailable()', function () { // eslint-disable-line mocha/no-skipped-tests
+	it('#isGooglePlayServicesAvailable()', function () {
+		this.skip('Google Play Services availability depends on the emulator image; skipped to avoid false negatives on images without Play Services.');
 		var value;
 		should(Map.isGooglePlayServicesAvailable).be.a.Function();
 

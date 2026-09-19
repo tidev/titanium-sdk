@@ -22,7 +22,7 @@ describe('Titanium.Platform', () => {
 			// may be undefined on iOS sim!
 			before(function () {
 				if (IOS_SIM || OS_MACOS) {
-					this.skip();
+					this.skip('iOS sim / macOS: address may be undefined');
 				}
 			});
 
@@ -175,7 +175,7 @@ describe('Titanium.Platform', () => {
 			// may be undefined on iOS sim!
 			before(function () {
 				if (IOS_SIM || OS_MACOS) {
-					this.skip();
+					this.skip('iOS sim / macOS: netmask may be undefined');
 				}
 			});
 

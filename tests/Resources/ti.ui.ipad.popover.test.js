@@ -8,9 +8,10 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe.ipad('Titanium.UI.iPad.Popover', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	let win;
 	afterEach(done => { // fires after every test in sub-suites too...

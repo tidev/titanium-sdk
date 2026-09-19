@@ -8,6 +8,7 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.Stream', function () {
 	before(function () {
@@ -28,7 +29,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME Get working on IOS
-	it.iosBroken('basicBufferStream', function () {
+	it('basicBufferStream', function () {
 		var rstream = null,
 			wstream = null,
 			astream = null,
@@ -151,7 +152,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME Get working on IOS
-	it.iosBroken('asyncRead', function (finish) {
+	it('asyncRead', function (finish) {
 		var sourceBuffer,
 			sourceBlob,
 			// sourceBlobStr,
@@ -162,7 +163,7 @@ describe('Titanium.Stream', function () {
 			blobStream,
 			blobStr,
 			finished = false;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -223,14 +224,14 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	it.iosBroken('asyncWrite', function (finish) {
+	it('asyncWrite', function (finish) {
 		var sourceBuffer,
 			dest,
 			bufferStream,
 			offset = 10,
 			length = 20,
 			finished = false;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -281,7 +282,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME this test crashes ios! Fix the test or open a JIRA!
-	it.iosBroken('readAll', function (finish) {
+	it('readAll', function (finish) {
 		var sourceBuffer,
 			sourceBlob,
 			sourceBlobStr,
@@ -290,7 +291,7 @@ describe('Titanium.Stream', function () {
 			i,
 			blobStream,
 			dest;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -336,7 +337,7 @@ describe('Titanium.Stream', function () {
 	});
 
 	// FIXME Get working on IOS. // iOS spits out: *** -[NSConcreteMutableData increaseLengthBy:]: absurd extra length: 18446744073709551526, maximum size: 9223372036854775808 bytes
-	it.iosBroken('writeStream', function (finish) {
+	it('writeStream', function (finish) {
 		var sourceBuffer,
 			sourceBlob,
 			sourceBlobStr,
@@ -346,7 +347,7 @@ describe('Titanium.Stream', function () {
 			i,
 			destStream2,
 			bufferStream;
-		this.timeout(1e4);
+		this.timeout(Timeout.DEFAULT);
 		// This stuff has to be copied into each asynch test because it lives
 		// in a different 'this' context
 		sourceBuffer = Ti.createBuffer({
@@ -409,7 +410,7 @@ describe('Titanium.Stream', function () {
 			bufferStream,
 			blobStream;
 
-		this.timeout(10000);
+		this.timeout(Timeout.DEFAULT);
 
 		// Used as a function for handling comparison
 		function handler(e) {

@@ -533,9 +533,9 @@ describe('util', () => {
 						+ '  foo: \'bar\',\n'
 						+ '  foobar: 1,\n'
 						+ '  func: <ref *1> [Function: func] {\n'
-						+ '    [prototype]: func { [constructor]: [Circular *1] },\n'
+						+ '    [length]: 0,\n'
 						+ '    [name]: \'func\',\n'
-						+ '    [length]: 0\n'
+						+ '    [prototype]: func { [constructor]: [Circular *1] }\n'
 						+ '  }\n'
 						+ '}'
 					);
@@ -1312,7 +1312,7 @@ describe('util', () => {
 				util.types.isArgumentsObject([]).should.be.false();
 			});
 
-			it.allBroken('should return false for object with Symbol.toStringTag of "Arguments"', () => {
+			it('should return false for object with Symbol.toStringTag of "Arguments"', () => {
 				util.types.isArgumentsObject({ [Symbol.toStringTag]: 'Arguments' }).should.be.false();
 			});
 		});

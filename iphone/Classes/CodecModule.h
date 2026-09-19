@@ -42,7 +42,10 @@ CONSTANT(NSString *, TYPE_DOUBLE);
 - (NSNumber *)decodeNumber:(JSValue *)args;
 - (NSNumber *)encodeString:(JSValue *)args;
 - (NSString *)decodeString:(JSValue *)args;
-- (NSNumber *)getNativeByteOrder;
+
+// Properties
+@property (readonly) NSNumber *nativeByteOrder;
+GETTER(NSNumber *, NativeByteOrder);
 
 @end
 

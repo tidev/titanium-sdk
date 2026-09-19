@@ -18,11 +18,34 @@
 #endif
 
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+#import "TiUIShortcutItemProxy.h"
 #import "TiUIShortcutProxy.h"
 #endif
 
 #if defined(USE_TI_UITABLEVIEWSCROLLPOSITION) || defined(USE_TI_UILISTVIEWSCROLLPOSITION)
 #import "TiUITableViewScrollPositionProxy.h"
+#endif
+
+#ifdef USE_TI_UIEMAILDIALOG
+#import "TiUIEmailDialogProxy.h"
+#endif
+#ifdef USE_TI_UILISTVIEW
+#import "TiUIListViewProxy.h"
+#endif
+#ifdef USE_TI_UITABLEVIEW
+#import "TiUITableViewProxy.h"
+#endif
+#ifdef USE_TI_UISLIDER
+#import "TiUISliderProxy.h"
+#endif
+#ifdef USE_TI_UISWITCH
+#import "TiUISwitchProxy.h"
+#endif
+#ifdef USE_TI_UIMASKEDIMAGE
+#import "TiUIMaskedImageProxy.h"
+#endif
+#if defined(USE_TI_UINAVIGATIONWINDOW)
+#import "TiUINavigationWindowProxy.h"
 #endif
 
 @interface UIModule : TiModule {
@@ -39,6 +62,28 @@
 #endif
 #if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
   TiUIShortcutProxy *shortcut;
+  TiUIShortcutItemProxy *shortcutItem;
+#endif
+#ifdef USE_TI_UIEMAILDIALOG
+  TiProxy *emailDialog;
+#endif
+#ifdef USE_TI_UILISTVIEW
+  TiProxy *listView;
+#endif
+#ifdef USE_TI_UITABLEVIEW
+  TiProxy *tableView;
+#endif
+#ifdef USE_TI_UISLIDER
+  TiProxy *slider;
+#endif
+#ifdef USE_TI_UISWITCH
+  TiProxy *switchProxy;
+#endif
+#ifdef USE_TI_UIMASKEDIMAGE
+  TiProxy *maskedImage;
+#endif
+#if defined(USE_TI_UINAVIGATIONWINDOW)
+  TiProxy *navigationWindow;
 #endif
   NSNumber *lastEmittedMode;
 }
@@ -250,6 +295,38 @@
 
 #ifdef USE_TI_UICLIPBOARD
 @property (nonatomic, readonly) TiProxy *Clipboard;
+#endif
+
+// Widget namespace accessors. Android exposes each proxy class as a lazy
+// `Ti.UI.X` property via the kroll-apt bootstrap; on iOS these names were
+// previously undefined (only `Ti.UI.createX()` worked). The tests only
+// assert that the namespace is defined, so we expose a placeholder proxy
+// instance for each. EmailDialog additionally needs the SENT/SAVED/
+// CANCELLED/FAILED constant properties, so it returns a real
+// TiUIEmailDialogProxy instance.
+#ifdef USE_TI_UIEMAILDIALOG
+@property (nonatomic, readonly) TiProxy *EmailDialog;
+#endif
+#ifdef USE_TI_UILISTVIEW
+@property (nonatomic, readonly) TiProxy *ListView;
+#endif
+#ifdef USE_TI_UITABLEVIEW
+@property (nonatomic, readonly) TiProxy *TableView;
+#endif
+#ifdef USE_TI_UISLIDER
+@property (nonatomic, readonly) TiProxy *Slider;
+#endif
+#ifdef USE_TI_UISWITCH
+@property (nonatomic, readonly) TiProxy *Switch;
+#endif
+#ifdef USE_TI_UIMASKEDIMAGE
+@property (nonatomic, readonly) TiProxy *MaskedImage;
+#endif
+#if defined(USE_TI_UINAVIGATIONWINDOW)
+@property (nonatomic, readonly) TiProxy *NavigationWindow;
+#endif
+#if defined(USE_TI_UISHORTCUT) || defined(USE_TI_UISHORTCUTITEM)
+@property (nonatomic, readonly) TiUIShortcutItemProxy *ShortcutItem;
 #endif
 
 #ifdef USE_TI_UIATTRIBUTEDSTRING

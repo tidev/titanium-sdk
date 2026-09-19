@@ -34,7 +34,7 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 
 	it('.name', function () {
 		if (!isSupported) {
-			this.skip();
+			this.skip('DocumentViewer requires iOS or macOS 11+');
 			return;
 		}
 		documentViewer.annotation = 'annotation';
@@ -43,7 +43,7 @@ describe.ios('Titanium.UI.iOS.DocumentViewer', () => {
 
 	it('.annotation', function () {
 		if (!isSupported) {
-			this.skip();
+			this.skip('DocumentViewer requires iOS or macOS 11+');
 			return;
 		}
 

@@ -118,11 +118,19 @@ function Transform(options) {
 }
 util.inherits(Transform, Duplex);
 
+function PassThrough(options) {
+	if (!(this instanceof PassThrough)) {
+		return new PassThrough(options);
+	}
+	Transform.call(this, options);
+}
+util.inherits(PassThrough, Transform);
+
 Stream.Stream = Stream; // legacy compat
 Stream.Transform = Transform;
 Stream.Readable = Readable;
 Stream.Writable = Writable;
 Stream.Duplex = Duplex;
-// Stream.PassThrough = PassThrough;
+Stream.PassThrough = PassThrough;
 
 export default Stream;

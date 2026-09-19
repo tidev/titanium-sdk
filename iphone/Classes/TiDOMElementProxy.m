@@ -675,8 +675,10 @@
       [[newChild node] setShouldFreeXMLNode:NO];
       return newChild;
     } else {
-      // Child pointer modified
-      [[newChild node] setShouldFreeXMLNode:YES];
+      // Child pointer modified — happens when libxml2 merges text nodes;
+      // in that case xmlAddChild has already freed oldNodePtr, so the
+      // wrapper must not free it again on dealloc.
+      [[newChild node] setShouldFreeXMLNode:NO];
       if (oldNodePtr != NULL) {
         [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
       }

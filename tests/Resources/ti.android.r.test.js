@@ -1639,7 +1639,7 @@ describe.android('Titanium.Android.R', () => {
 			// Only supported on Android API 11+
 			before(function () {
 				if (Ti.Platform.Android.API_LEVEL < 11) {
-					this.skip();
+					this.skip('Android API < 11 not supported');
 				}
 			});
 

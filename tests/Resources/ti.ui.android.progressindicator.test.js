@@ -8,9 +8,10 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe.android('Titanium.UI.Android.ProgressIndicator', function () {
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	it('apiName', () => {
 		const progressIndicator = Ti.UI.Android.createProgressIndicator();

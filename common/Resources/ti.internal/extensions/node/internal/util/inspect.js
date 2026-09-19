@@ -896,6 +896,12 @@ function getFunctionBase(value, constructor, tag) {
 
 function formatError(err, constructor, tag, ctx) {
 	let stack = err.stack || ErrorPrototype.toString.call(err);
+	// On some runtimes (e.g. Android V8) err.stack may not be a string
+	// (e.g. a non-Error object thrown as an error, or a customized stack getter).
+	// Coerce to string so the string operations below are safe.
+	if (typeof stack !== 'string') {
+		stack = String(stack);
+	}
 	// try to normalize JavaScriptCore stack to match v8
 	if (isIos) {
 		const lines = stack.split('\n');

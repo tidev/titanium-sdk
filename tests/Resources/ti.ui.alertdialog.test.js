@@ -37,7 +37,7 @@ describe('Titanium.UI.AlertDialog', () => {
 
 	describe('.titleid', () => {
 		// FIXME titleid doesn't seem to set title on iOS?
-		it.iosBroken('is a String', () => {
+		it('is a String', () => {
 			const bar = Ti.UI.createAlertDialog({
 				titleid: 'this_is_my_key'
 			});
@@ -78,10 +78,9 @@ describe('Titanium.UI.AlertDialog', () => {
 
 	describe('.buttonNames', () => {
 		// FIXME Get working on iOS - defaults to undefined, should be ['OK']
-		// FIXME Get working on Android - defaults to undefined, should be ['OK']
-		it.androidAndIosBroken('is a string[]', () => {
+		it('is a string[]', () => {
 			const bar = Ti.UI.createAlertDialog({});
-			should(bar.buttonNames).be.an.Array(); // undefined on iOS and Android
+			should(bar.buttonNames).be.an.Array();
 			should(bar.buttonNames).be.empty();
 			bar.buttonNames = [ 'this', 'other' ];
 			should(bar.buttonNames.length).eql(2);
@@ -95,10 +94,9 @@ describe('Titanium.UI.AlertDialog', () => {
 
 	describe('.cancel', () => {
 		// FIXME Get working on iOS - defaults to undefined, should be -1
-		// FIXME Get working on Android - defaults to undefined, should be -1
-		it.androidAndIosBroken('is a Number', () => {
+		it('is a Number', () => {
 			const bar = Ti.UI.createAlertDialog({});
-			should(bar.cancel).be.a.Number(); // undefined on iOS and Android
+			should(bar.cancel).be.a.Number();
 			bar.cancel = 1;
 			should(bar.cancel).eql(1);
 		});

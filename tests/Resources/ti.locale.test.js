@@ -90,7 +90,7 @@ describe('Titanium.Locale', () => {
 
 		// FIXME Get working on iOS
 		// FIXME Get working properly cross-platform. JPY gives us ¥ on Windows and Android, JP¥ on iOS. CNY gives us ¥ on Windows, CN¥ on Android
-		it.androidAndIosBroken('#getCurrencySymbol(String)', () => {
+		it('#getCurrencySymbol(String)', () => {
 			should(Ti.Locale.getCurrencySymbol).be.a.Function();
 			should(Ti.Locale.getCurrencySymbol('USD')).eql('$');
 			should(Ti.Locale.getCurrencySymbol('JPY')).eql('¥'); // 'JP¥' on iOS
@@ -152,7 +152,7 @@ describe('Titanium.Locale', () => {
 			// ...and this one is now using ja strings, but langauge value is en-US!
 			// FIXME iOS seems to ignore position info on the format string.
 			// We're trying to force the 1st argument into the second slot, and vice versa here. iOS handles the %2$s syntax, but ignores position
-			it.iosAndWindowsBroken('usage with String.format()', () => {
+			it('usage with String.format()', () => {
 				var i18nMissingMsg = '<no translation available>';
 				var string1 = 'You say ' + Ti.Locale.getString('signoff', i18nMissingMsg) + ' and I say ' + Ti.Locale.getString('greeting', i18nMissingMsg) + '!';
 				var string2 = String.format(L('phrase'), L('greeting', i18nMissingMsg), L('signoff', i18nMissingMsg));
@@ -289,7 +289,7 @@ describe('Titanium.Locale', () => {
 			});
 
 			// FIXME Get working on iOS, setLangauge doesn't seem to affect currentLocale
-			it.iosBroken('changes .currentLocale', () => {
+			it('changes .currentLocale', () => {
 				Ti.Locale.language = 'en-GB';
 				should(Ti.Locale.currentLocale).eql('en-GB'); // iOS returns 'en-US'
 				Ti.Locale.language = 'fr';

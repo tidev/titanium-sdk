@@ -9,10 +9,11 @@
 /* eslint no-unused-expressions: "off" */
 'use strict';
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe('Titanium.UI.ScrollView', function () {
 	let win;
-	this.timeout(5000);
+	this.timeout(Timeout.DEFAULT);
 
 	afterEach(done => { // fires after every test in sub-suites too...
 		if (win && !win.closed) {
@@ -34,15 +35,14 @@ describe('Titanium.UI.ScrollView', function () {
 		should(scrollView.apiName).be.eql('Ti.UI.ScrollView');
 	});
 
-	// FIXME Fails on Android, should default to true, but is undefined
-	it.androidBroken('canCancelEvents', function () {
+	it('canCancelEvents', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.canCancelEvents).be.a.Boolean(); // TODO should default to true
+		should(bar.canCancelEvents).be.a.Boolean();
 	});
 
-	it.androidAndIosBroken('contentHeight', function () {
+	it('contentHeight', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.contentHeight).be.a.String(); // defaults to undefined on Android and iOS
+		should(bar.contentHeight).be.a.String();
 	});
 
 	it('contentOffset', function (finish) {
@@ -114,30 +114,24 @@ describe('Titanium.UI.ScrollView', function () {
 		win.open();
 	});
 
-	it.androidAndIosBroken('contentWidth', function () {
+	it('contentWidth', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.contentWidth).be.a.String(); // defaults to undefined on Android and iOS
+		should(bar.contentWidth).be.a.String();
 	});
 
-	// Intentionally skip on Android, not supported
-	// FIXME Get working on iOS. Defaults to undefined. Is that OK?
-	it.androidMissingAndIosBroken('decelerationRate', function () {
+	it('decelerationRate', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.decelerationRate).be.a.Number(); // defaults to undefined on iOS
+		should(bar.decelerationRate).be.a.Number();
 	});
 
-	// FIXME Get working on IOS
-	// Intentionally skip on Android, property not supported
-	it.androidMissingAndIosBroken('disableBounce', function () {
+	it('disableBounce', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.disableBounce).be.a.Boolean(); // iOS returns undefined, default should be false
+		should(bar.disableBounce).be.a.Boolean();
 	});
 
-	// FIXME Get working on IOS
-	// Intentionally skip on Android, property not supported
-	it.androidMissingAndIosBroken('horizontalBounce', function () {
+	it('horizontalBounce', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.horizontalBounce).be.a.Boolean(); // iOS returns undefined, default should be false
+		should(bar.horizontalBounce).be.a.Boolean();
 	});
 
 	// iOS-only property
@@ -170,11 +164,9 @@ describe('Titanium.UI.ScrollView', function () {
 		should(bar.refreshControl).be.eql(refreshControl);
 	});
 
-	// Intentionally skip on Android, not supported
-	// FIXME Get working on iOS. Defaults to undefined, is that OK?
-	it.androidMissingAndIosBroken('scrollIndicatorStyle', function () {
+	it('scrollIndicatorStyle', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.scrollIndicatorStyle).be.a.Number(); // defaults to undefined on iOS
+		should(bar.scrollIndicatorStyle).be.a.Number();
 	});
 
 	it('scrollingEnabled', function () {
@@ -190,32 +182,27 @@ describe('Titanium.UI.ScrollView', function () {
 		should.not.exist(bar.scrollType); // undefined by default
 	});
 
-	// FIXME Fix on Android and iOS
-	it.androidAndIosBroken('showHorizontalScrollIndicator', function () {
+	it('showHorizontalScrollIndicator', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.showHorizontalScrollIndicator).be.a.Boolean(); // defaults to undefined on Android, docs say default to false
+		should(bar.showHorizontalScrollIndicator).be.a.Boolean();
 	});
 
-	// FIXME Fix on Android and iOS
-	it.androidAndIosBroken('showVerticalScrollIndicator', function () {
+	it('showVerticalScrollIndicator', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.showVerticalScrollIndicator).be.a.Boolean(); // defaults to undefined on Android, docs say default to false
+		should(bar.showVerticalScrollIndicator).be.a.Boolean();
 	});
 
-	// FIXME Get working on IOS
-	// Intentionally skip on Android, property not supported
-	it.androidMissingAndIosBroken('verticalBounce', function () {
+	it('verticalBounce', function () {
 		const bar = Ti.UI.createScrollView({});
-		should(bar.verticalBounce).be.a.Boolean(); // iOS returns undefined, default should be false
+		should(bar.verticalBounce).be.a.Boolean();
 	});
 
-	// Intentionally skip on Android, not supported
-	it.androidMissing('zoomScale', function () {
+	it('zoomScale', function () {
 		const bar = Ti.UI.createScrollView({});
 		should(bar.zoomScale).be.a.Number();
 	});
 
-	it.androidMissing('#setZoomScale', function (finish) {
+	it('#setZoomScale', function (finish) {
 		win = Ti.UI.createWindow();
 		const bar = Ti.UI.createScrollView({});
 		win.add(bar);
@@ -266,7 +253,7 @@ describe('Titanium.UI.ScrollView', function () {
 	// Verify ScrollView shrinks width/height-wise to just fit its contents.
 	it('Ti.UI.SIZE', function (finish) {
 		this.slow(5000);
-		this.timeout(20000);
+		this.timeout(Timeout.LONG);
 		win = Ti.UI.createWindow();
 		const scrollView = Ti.UI.createScrollView({
 			layout: 'vertical',
@@ -281,6 +268,7 @@ describe('Titanium.UI.ScrollView', function () {
 			try {
 				should(scrollView.size.width < (win.size.width / 2)).be.be.true();
 				should(scrollView.size.height < (win.size.height / 2)).be.be.true();
+				should(scrollView).matchImage('snapshots/scrollViewSize.png');
 			} catch (err) {
 				return finish(err);
 			}

@@ -10,6 +10,7 @@
 'use strict';
 
 const should = require('./utilities/assertions');
+const Timeout = require('./utilities/timeouts');
 
 describe.android('Titanium.Android', () => {
 	describe('properties', () => {
@@ -1510,7 +1511,7 @@ describe.android('Titanium.Android', () => {
 	});
 
 	it('newintent', function (finish) {
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 		const launchIntent = Ti.App.Android.launchIntent;
 		const newIntent = Ti.Android.createIntent({
 			action: Ti.Android.ACTION_VIEW,
@@ -1559,7 +1560,7 @@ describe.android('Titanium.Android', () => {
 		let wasOnStopCalled = false;
 		let wasOnDestroyCalled = false;
 
-		this.timeout(5000);
+		this.timeout(Timeout.DEFAULT);
 
 		const win = Ti.UI.createWindow();
 		win.activity.onCreate = () => {

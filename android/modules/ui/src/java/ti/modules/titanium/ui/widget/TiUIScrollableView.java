@@ -102,6 +102,13 @@ public class TiUIScrollableView extends TiUIView
 			public void onPageScrollStateChanged(int scrollState)
 			{
 				switch (scrollState) {
+					case ViewPager2.SCROLL_STATE_SETTLING: {
+						// Programmatic smooth scroll (moveNext/movePrevious/scrollToView).
+						// Latch isScrolling so SCROLL_STATE_IDLE fires scrollend even
+						// when onPageScrolled never samples a non-zero offset (short/fast scrolls).
+						this.isScrolling = true;
+						break;
+					}
 					case ViewPager2.SCROLL_STATE_DRAGGING: {
 						if (!this.isDragging && !getViews().isEmpty()) {
 							// This is the start of a touch/drag event by the end-user. Fire a "dragstart" event.

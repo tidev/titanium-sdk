@@ -123,7 +123,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	{
 		for (final TiViewProxy view : this.views) {
 			view.releaseViews();
-			view.setParent(null);
+			view.setParentInternal(null);
 		}
 		this.views.clear();
 
@@ -156,7 +156,7 @@ public class ScrollableViewProxy extends TiViewProxy
 				if (nextObject instanceof TiViewProxy view) {
 					if (!this.views.contains(view)) {
 						view.setActivity(getActivity());
-						view.setParent(this);
+						view.setParentInternal(this);
 						this.views.add(view);
 					}
 				}
@@ -168,7 +168,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		for (TiViewProxy oldView : oldViewList) {
 			if (!this.views.contains(oldView)) {
 				oldView.releaseViews();
-				oldView.setParent(null);
+				oldView.setParentInternal(null);
 			}
 		}
 
@@ -193,7 +193,7 @@ public class ScrollableViewProxy extends TiViewProxy
 
 		// Add given view to collection.
 		view.setActivity(getActivity());
-		view.setParent(this);
+		view.setParentInternal(this);
 		this.views.add(view);
 
 		// Notify native scrollable view about the added child view.
@@ -209,7 +209,7 @@ public class ScrollableViewProxy extends TiViewProxy
 
 			if (!this.views.contains(view)) {
 				view.setActivity(getActivity());
-				view.setParent(this);
+				view.setParentInternal(this);
 				this.views.add(insertIndex, view);
 			}
 
