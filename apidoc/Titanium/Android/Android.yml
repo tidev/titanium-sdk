@@ -39,6 +39,40 @@ description: |
     [Android Broadcast Intents and Receivers guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Platform_API_Deep_Dives/Android_API_Deep_Dives/Android_Broadcast_Intents_and_Receivers.html)
     and [Titanium.Android.BroadcastReceiver API reference](Titanium.Android.BroadcastReceiver).
 
+    #### Code Optimization
+
+    Since Release 14.0.0, production builds (`ti build -p android --target dist-playstore`) run
+    Google's [R8](https://developer.android.com/build/shrink-code) code optimizer, which removes
+    unused Java classes, obfuscates class and method names and optimizes the remaining code.
+    An obfuscation `<AppName>-mapping.txt` file is written next to the built `*.apk` and `*.aab`
+    files. Upload it to the Play Console (or keep it) to retrace obfuscated crash stack traces.
+    Development and test builds are never optimized.
+
+    The Titanium SDK provides the R8 keep rules its runtime needs. An app can add its own rules
+    (for example for a library it accesses via reflection) in a `platform/android/proguard.cfg`
+    file within the project. Native modules can bundle their rules in a
+    `platform/android/consumer-rules.pro` file, which is packaged into the module's AAR and
+    applied automatically to any app using the module.
+
+    The following `tiapp.xml` properties control this feature:
+
+    ``` xml
+    <property name="android.optimization" type="bool">true</property>
+    <property name="android.optimization.stripUnusedApis" type="bool">false</property>
+    <property name="android.optimization.shrinkResources" type="bool">false</property>
+    ```
+
+    *    `android.optimization`: Enables or disables R8 code optimization for production builds.
+         Defaults to `true`. Set to `false` to build an unoptimized app.
+    *    `android.optimization.stripUnusedApis`: When `true`, only the Titanium SDK modules accessed
+         by the app's JavaScript code (such as `Ti.UI` or `Ti.Media`) are kept, allowing R8 to remove
+         unused SDK modules such as `Ti.Calendar` or `Ti.Contacts` from the app. Defaults to `false`.
+         Titanium APIs accessed dynamically (for example via `Ti[name]`) cannot be detected by the
+         build and must be kept via the app's `platform/android/proguard.cfg` file.
+    *    `android.optimization.shrinkResources`: When `true`, unused Android resources of libraries
+         (such as Material or AppCompat) are removed from the app. The app's own resources are always
+         kept since Titanium looks them up by name at runtime. Defaults to `false`.
+
     #### Intents
 
     Intents are message objects that specify actions to perform which can start either activities,
