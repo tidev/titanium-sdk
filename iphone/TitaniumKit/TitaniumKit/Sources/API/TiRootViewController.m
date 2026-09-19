@@ -13,6 +13,23 @@
 #import "TiUtils.h"
 #import "TiViewController.h"
 
+// Maps a single interface orientation to its UIInterfaceOrientationMask counterpart.
+static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation orientation)
+{
+  switch (orientation) {
+  case UIInterfaceOrientationPortrait:
+    return UIInterfaceOrientationMaskPortrait;
+  case UIInterfaceOrientationPortraitUpsideDown:
+    return UIInterfaceOrientationMaskPortraitUpsideDown;
+  case UIInterfaceOrientationLandscapeLeft:
+    return UIInterfaceOrientationMaskLandscapeLeft;
+  case UIInterfaceOrientationLandscapeRight:
+    return UIInterfaceOrientationMaskLandscapeRight;
+  default:
+    return UIInterfaceOrientationMaskPortrait;
+  }
+}
+
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {
   @private
@@ -1212,7 +1229,7 @@
   if (scene == nil) {
     return;
   }
-  UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:(1 << target)];
+  UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:TiMaskForOrientation(target)];
   [scene requestGeometryUpdateWithPreferences:preferences
                                  errorHandler:^(NSError *error) {
                                    DebugLog(@"[WARN] Could not rotate to orientation %d: %@", target, error.localizedDescription);
