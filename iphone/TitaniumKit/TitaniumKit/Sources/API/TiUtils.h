@@ -78,10 +78,6 @@ typedef enum {
 #define TI_ORIENTATION_ALLOWED(flag, bit) (flag & (1 << bit))
 #define TI_ORIENTATION_SET(flag, bit) (flag |= (1 << bit))
 
-// Duration of the interface orientation change animation. Replaces the deprecated
-// -[UIApplication statusBarOrientationAnimationDuration], which always returned 0.3 seconds.
-#define TI_ORIENTATION_ANIMATION_DURATION 0.3
-
 @protocol VolumeSupport <NSObject>
 @required
 - (void)setVolume:(float)volume;

@@ -1477,7 +1477,9 @@
       [thisWindow viewDidAppear:animated];
     }
     forcingRotation = NO;
-    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:TI_ORIENTATION_ANIMATION_DURATION];
+    // 0.3s is the duration of the rotation animation, formerly reported by the deprecated
+    // -[UIApplication statusBarOrientationAnimationDuration].
+    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:0.3];
 
     [[containedWindows lastObject] gainFocus];
   }
