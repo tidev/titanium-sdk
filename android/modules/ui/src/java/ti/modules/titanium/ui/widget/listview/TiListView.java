@@ -48,13 +48,14 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 	private final ListViewAdapter adapter;
 	private final DividerItemDecoration decoration;
-	private final List<ListItemProxy> items = new ArrayList<>(128);
+	private final List<ListItemEntry> items = new ArrayList<>(128);
 	private final ListViewProxy proxy;
 	private final TiNestedRecyclerView recyclerView;
 	private final List<KrollDict> selectedItems = new ArrayList<>();
 	private final ItemTouchHelper itemTouchHelper;
 
 	private boolean hasLaidOutChildren = false;
+	private boolean hasPopulatedItems = false;
 	private SnapHelper snapHelper = null;
 	private SelectionTracker tracker = null;
 	private boolean isScrolling = false;
@@ -229,7 +230,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				@Override
 				public int getPosition(@NonNull Object key)
 				{
-					return items.indexOf(key);
+					return (key instanceof ListItemEntry entry) ? getAdapterIndex(entry) : -1;
 				}
 			},
 			new ItemDetailsLookup()
@@ -315,26 +316,27 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 						selectedItems.clear();
 
 						if (tracker.hasSelection()) {
-							final Iterator<ListItemProxy> i = tracker.getSelection().iterator();
+							final Iterator<ListItemEntry> i = tracker.getSelection().iterator();
 
 							while (i.hasNext()) {
-								final ListItemProxy item = i.next();
+								final ListItemEntry item = i.next();
 
 								if (item.isPlaceholder()) {
 									continue;
 								}
 
-								if (item.getParent() instanceof ListSectionProxy section) {
+								final ListSectionProxy section = item.getSection();
+								if (section != null) {
 									final KrollDict selectedItem = new KrollDict();
 
-									selectedItem.put(TiC.PROPERTY_ITEM_INDEX, item.getIndexInSection());
+									selectedItem.put(TiC.PROPERTY_ITEM_INDEX, section.getListItemIndex(item));
 									selectedItem.put(TiC.PROPERTY_SECTION, section);
 									selectedItem.put(TiC.PROPERTY_SECTION_INDEX, proxy.getIndexOfSection(section));
 
 									selectedItems.add(selectedItem);
 
 									if (!allowsMultipleSelection) {
-										item.fireEvent(TiC.EVENT_CLICK, null);
+										item.getProxy().fireEvent(TiC.EVENT_CLICK, null);
 										break;
 									}
 								}
@@ -458,22 +460,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
-	 * Obtain row for specified index.
-	 *
-	 * @param index Index of row.
-	 * @return TableViewRowProxy
-	 */
-	public ListItemProxy getRowByIndex(int index)
-	{
-		for (ListItemProxy item : this.items) {
-			if (item.index == index) {
-				return item;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Get selected items.
 	 *
 	 * @return List of selected items.
@@ -516,19 +502,23 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	}
 
 	/**
-	 * Obtain adapter index from list item index.
+	 * Obtains adapter index from entry reference.
 	 *
-	 * @param index List item index.
-	 * @return Integer of adapter index.
+	 * @param entry The entry to search for by reference. Can be null.
+	 * @return Returns the adapter index position of the given entry. Returns -1 if not in the list.
 	 */
-	public int getAdapterIndex(int index)
+	public int getAdapterIndex(ListItemEntry entry)
 	{
-		for (ListItemProxy item : this.items) {
-			if (item.index == index) {
-				return this.items.indexOf(item);
-			}
+		if (entry == null) {
+			return -1;
 		}
-		return -1;
+
+		// Use cached index when still valid. Falls back to a linear search otherwise.
+		final int index = entry.getAdapterIndex();
+		if ((index >= 0) && (index < this.items.size()) && (this.items.get(index) == entry)) {
+			return index;
+		}
+		return this.items.indexOf(entry);
 	}
 
 	/**
@@ -539,18 +529,29 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public int getAdapterIndex(ListItemProxy itemProxy)
 	{
-		return this.items.indexOf(itemProxy);
+		return (itemProxy != null) ? getAdapterIndex(itemProxy.getEntry()) : -1;
 	}
 
 	/**
-	 * Obtain item from adapter index.
+	 * Obtain entry from adapter index without creating its item proxy.
+	 *
+	 * @param index List item adapter index.
+	 * @return Entry at specified adapter index.
+	 */
+	public ListItemEntry getAdapterEntry(int index)
+	{
+		return this.items.get(index);
+	}
+
+	/**
+	 * Obtain item from adapter index, creating its proxy if the row was never displayed.
 	 *
 	 * @param index List item adapter index.
 	 * @return Item at specified adapter index.
 	 */
 	public ListItemProxy getAdapterItem(int index)
 	{
-		return this.items.get(index);
+		return this.items.get(index).getProxy();
 	}
 
 	/**
@@ -624,10 +625,14 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	 */
 	public void release()
 	{
-		for (ListItemProxy item : this.items) {
-			item.releaseViews();
+		for (ListItemEntry entry : this.items) {
+			final ListItemProxy item = entry.peekProxy();
+			if (item != null) {
+				item.releaseViews();
+			}
 		}
 		this.items.clear();
+		this.hasPopulatedItems = false;
 	}
 
 	/**
@@ -675,7 +680,6 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		final KrollDict properties = this.proxy.getProperties();
 		int filterResultsCount = 0;
 		final boolean firstUpdate = this.items.size() == 0;
-		int index = 0;
 
 		final boolean hasHeader = properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
 			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW);
@@ -700,29 +704,24 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			item.getProperties().put(TiC.PROPERTY_HEADER_VIEW, properties.get(TiC.PROPERTY_HEADER_VIEW));
 
 			item.setParent(this.proxy);
-			this.items.add(item);
+			addEntry(new ListItemEntry(item));
 		}
 
 		// Iterate through sections.
 		for (final ListSectionProxy section : this.proxy.getSections()) {
 			final KrollDict sectionProperties = section.getProperties();
-			final List<ListItemProxy> sectionItems = section.getListItems();
+			final List<ListItemEntry> sectionItems = section.getEntries();
 
 			int filteredIndex = 0;
-			for (final ListItemProxy item : sectionItems) {
+			for (final ListItemEntry item : sectionItems) {
 
-				boolean alwaysInclude = item.getProperties()
-					.optBoolean(TiC.PROPERTY_FILTER_ALWAYS_INCLUDE, false);
-				// Handle search query.
-				if (query != null && !alwaysInclude) {
-					String searchableText;
-					if (caseInsensitive) {
-						searchableText = item.getSearchableTextLower();
-					} else {
-						searchableText = item.getProperties().optString(TiC.PROPERTY_SEARCHABLE_TEXT, null);
-					}
+				// Handle search query. Reads from the raw data item, no proxy is created here.
+				if (query != null && !item.isFilterAlwaysInclude()) {
+					final String searchableText =
+						caseInsensitive ? item.getSearchableTextLower() : item.getSearchableText();
 					if (searchableText != null) {
 						if (!searchableText.contains(query)) {
+							item.setAdapterIndex(-1);
 							continue;
 						}
 					}
@@ -732,8 +731,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.setFilteredIndex(query != null ? filteredIndex++ : -1);
 
 				// Add item.
-				item.index = index++;
-				this.items.add(item);
+				addEntry(item);
 			}
 			filterResultsCount += filteredIndex;
 
@@ -759,8 +757,9 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW,
 					sectionProperties.get(TiC.PROPERTY_FOOTER_VIEW));
 
-				item.setParent(section);
-				this.items.add(item);
+				final ListItemEntry entry = new ListItemEntry(item);
+				entry.setSection(section);
+				addEntry(entry);
 			}
 		}
 
@@ -772,7 +771,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 			item.getProperties().put(TiC.PROPERTY_FOOTER_VIEW, properties.get(TiC.PROPERTY_FOOTER_VIEW));
 
 			item.setParent(this.proxy);
-			this.items.add(item);
+			addEntry(new ListItemEntry(item));
 		}
 
 		// If filtered and no results, fire `noresult` event.
@@ -784,6 +783,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 
 		// Notify adapter of changes on UI thread.
 		this.adapter.update(this.items, force);
+		this.hasPopulatedItems = true;
 
 		// FIXME: This is not an ideal workaround for an issue where recycled rows that were in focus
 		//        lose their focus when the data set changes. There are improvements to be made here.
@@ -817,13 +817,13 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 					final boolean requiresEditingToMove =
 						properties.optBoolean(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE, true);
 
-					for (final ListItemProxy item : items) {
+					for (final ListItemEntry item : items) {
 
 						// Re-select previously selected items.
 						// This can occur when the theme is changed.
 						if (item.isSelected()) {
 							if (!editing || requiresEditingToMove) {
-								item.setSelected(false);
+								item.getProxy().setSelected(false);
 								continue;
 							}
 							tracker.select(item);
@@ -834,6 +834,264 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 				recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
 			}
 		});
+	}
+
+	/**
+	 * Append entry to the flat adapter list and cache its adapter position on it.
+	 */
+	private void addEntry(ListItemEntry entry)
+	{
+		entry.setAdapterIndex(this.items.size());
+		this.items.add(entry);
+	}
+
+	/**
+	 * Refresh the cached adapter position of all entries from the given position onward.
+	 */
+	private void renumberFrom(int position)
+	{
+		for (int i = Math.max(position, 0); i < this.items.size(); i++) {
+			this.items.get(i).setAdapterIndex(i);
+		}
+	}
+
+	/**
+	 * Determine if a section mutation can be applied to the adapter without rebuilding all items.
+	 * Search filtering decides per row whether it is shown, so it always requires a rebuild.
+	 */
+	private boolean canUpdateIncrementally(ListSectionProxy section)
+	{
+		if (!this.hasPopulatedItems || (section == null)) {
+			return false;
+		}
+		final KrollDict properties = this.proxy.getProperties();
+		if (properties.optString(TiC.PROPERTY_SEARCH_TEXT, this.filterQuery) != null) {
+			return false;
+		}
+		return this.proxy.getIndexOfSection(section) >= 0;
+	}
+
+	private static boolean hasHeaderOrFooter(ListSectionProxy section)
+	{
+		final KrollDict properties = section.getProperties();
+		return properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_TITLE)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_HEADER_VIEW)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_TITLE)
+			|| properties.containsKeyAndNotNull(TiC.PROPERTY_FOOTER_VIEW);
+	}
+
+	/**
+	 * Determine the adapter position where the first row of the given section goes.
+	 * Only valid while not filtering, where every section's rows are contiguous.
+	 */
+	private int getSectionStartPosition(ListSectionProxy section)
+	{
+		int position = 0;
+
+		// Skip the ListView's own header placeholder if present.
+		if (!this.items.isEmpty()) {
+			final ListItemEntry first = this.items.get(0);
+			if (first.isPlaceholder() && (first.getSection() == null)) {
+				position = 1;
+			}
+		}
+
+		for (final ListSectionProxy nextSection : this.proxy.getSections()) {
+			if (nextSection == section) {
+				return position;
+			}
+			final int itemCount = nextSection.getItemCount();
+			if (itemCount > 0) {
+				position += itemCount;
+			} else if (hasHeaderOrFooter(nextSection)) {
+				position += 1;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Verify that the given entries sit contiguously in the adapter starting at the given position.
+	 */
+	private boolean isContiguousAt(List<ListItemEntry> entries, int position)
+	{
+		if ((position < 0) || (position + entries.size() > this.items.size())) {
+			return false;
+		}
+		for (int i = 0; i < entries.size(); i++) {
+			if (this.items.get(position + i) != entries.get(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Apply an insertion of "count" rows at section index "index" to the adapter.
+	 * The section has already been updated.
+	 *
+	 * @return Returns true if applied. Returns false if the caller must do a full update() instead.
+	 */
+	public boolean insertSectionItems(ListSectionProxy section, int index, int count)
+	{
+		if (!canUpdateIncrementally(section) || (count <= 0)) {
+			return false;
+		}
+		final List<ListItemEntry> entries = section.getEntries();
+		final int newCount = entries.size();
+		final int oldCount = newCount - count;
+		if ((index < 0) || (oldCount < 0) || (index > oldCount)) {
+			return false;
+		}
+
+		// An empty section with a header/footer shows a placeholder row that must be replaced.
+		if ((oldCount == 0) && hasHeaderOrFooter(section)) {
+			return false;
+		}
+
+		// Determine adapter position from the neighbouring rows that are already in the adapter.
+		int position;
+		if (index + count < newCount) {
+			position = getAdapterIndex(entries.get(index + count));
+		} else if (index > 0) {
+			position = getAdapterIndex(entries.get(index - 1));
+			position = (position >= 0) ? position + 1 : -1;
+		} else {
+			position = getSectionStartPosition(section);
+		}
+		if ((position < 0) || (position > this.items.size())) {
+			return false;
+		}
+
+		final List<ListItemEntry> inserted = new ArrayList<>(entries.subList(index, index + count));
+		this.items.addAll(position, inserted);
+		renumberFrom(position);
+		this.adapter.insertModels(position, inserted);
+
+		// Section headers/footers are drawn by the first/last row. Re-bind rows that lost that role.
+		if ((oldCount > 0) && hasHeaderOrFooter(section)) {
+			if (index == 0) {
+				this.adapter.refreshModel(position + count);
+			}
+			if (index == oldCount) {
+				this.adapter.refreshModel(position - 1);
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Apply a deletion of the given rows, formerly at section index "index", to the adapter.
+	 * The section has already been updated.
+	 *
+	 * @return Returns true if applied. Returns false if the caller must do a full update() instead.
+	 */
+	public boolean deleteSectionItems(ListSectionProxy section, int index, List<ListItemEntry> removedEntries)
+	{
+		if (!canUpdateIncrementally(section) || (removedEntries == null) || removedEntries.isEmpty()) {
+			return false;
+		}
+		final int count = removedEntries.size();
+		final int newCount = section.getItemCount();
+
+		// An empty section with a header/footer needs a placeholder row instead.
+		if ((newCount == 0) && hasHeaderOrFooter(section)) {
+			return false;
+		}
+
+		final int position = getAdapterIndex(removedEntries.get(0));
+		if (!isContiguousAt(removedEntries, position)) {
+			return false;
+		}
+
+		this.items.subList(position, position + count).clear();
+		for (final ListItemEntry entry : removedEntries) {
+			entry.setAdapterIndex(-1);
+		}
+		renumberFrom(position);
+		this.adapter.removeModels(position, count);
+
+		// Section headers/footers are drawn by the first/last row. Re-bind rows that gained that role.
+		if ((newCount > 0) && hasHeaderOrFooter(section)) {
+			if (index == 0) {
+				this.adapter.refreshModel(position);
+			}
+			if (index == newCount) {
+				this.adapter.refreshModel(position - 1);
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Apply the replacement of one row to the adapter. The section has already been updated.
+	 *
+	 * @return Returns true if applied. Returns false if the caller must do a full update() instead.
+	 */
+	public boolean replaceSectionItem(ListSectionProxy section, ListItemEntry previousEntry, ListItemEntry newEntry)
+	{
+		if (!canUpdateIncrementally(section) || (previousEntry == null) || (newEntry == null)) {
+			return false;
+		}
+		if (previousEntry == newEntry) {
+			return true;
+		}
+		final int position = getAdapterIndex(previousEntry);
+		if (position < 0) {
+			return false;
+		}
+
+		this.items.set(position, newEntry);
+		previousEntry.setAdapterIndex(-1);
+		newEntry.setAdapterIndex(position);
+		this.adapter.replaceModel(position, newEntry);
+		return true;
+	}
+
+	/**
+	 * Apply the replacement of all rows of a section to the adapter. The section has already been updated.
+	 *
+	 * @return Returns true if applied. Returns false if the caller must do a full update() instead.
+	 */
+	public boolean setSectionItems(ListSectionProxy section, List<ListItemEntry> previousEntries)
+	{
+		if (!canUpdateIncrementally(section) || (previousEntries == null)) {
+			return false;
+		}
+		final List<ListItemEntry> newEntries = section.getEntries();
+
+		// Switching between rows and the empty-section placeholder requires a rebuild.
+		if (hasHeaderOrFooter(section) && (previousEntries.isEmpty() != newEntries.isEmpty())) {
+			return false;
+		}
+
+		int position;
+		if (!previousEntries.isEmpty()) {
+			position = getAdapterIndex(previousEntries.get(0));
+			if (!isContiguousAt(previousEntries, position)) {
+				return false;
+			}
+		} else {
+			position = getSectionStartPosition(section);
+			if ((position < 0) || (position > this.items.size())) {
+				return false;
+			}
+		}
+
+		if (!previousEntries.isEmpty()) {
+			this.items.subList(position, position + previousEntries.size()).clear();
+			for (final ListItemEntry entry : previousEntries) {
+				entry.setAdapterIndex(-1);
+			}
+			this.adapter.removeModels(position, previousEntries.size());
+		}
+		if (!newEntries.isEmpty()) {
+			final List<ListItemEntry> inserted = new ArrayList<>(newEntries);
+			this.items.addAll(position, inserted);
+			this.adapter.insertModels(position, inserted);
+		}
+		renumberFrom(position);
+		return true;
 	}
 
 	public void setContinousUpdate(boolean value)
