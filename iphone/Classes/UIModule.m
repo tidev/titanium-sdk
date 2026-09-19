@@ -228,17 +228,10 @@ MAKE_SYSTEM_PROP(BUTTON_STYLE_OPTION_NEUTRAL, UIBarButtonItemStylePlain);
 MAKE_SYSTEM_PROP(SELECTION_STYLE_NONE, UITableViewCellSelectionStyleNone);
 MAKE_SYSTEM_PROP(SELECTION_STYLE_DEFAULT, UITableViewCellSelectionStyleDefault);
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 MAKE_SYSTEM_PROP(SWITCH_STYLE_SLIDER, UISwitchStyleSliding);
 MAKE_SYSTEM_PROP(SWITCH_STYLE_CHECKBOX, UISwitchStyleCheckbox);
 MAKE_SYSTEM_PROP(SWITCH_STYLE_TOGGLE_BUTTON, UISwitchStyleCheckbox);
 MAKE_SYSTEM_PROP(SWITCH_STYLE_CHIP, UISwitchStyleCheckbox);
-#else
-MAKE_SYSTEM_PROP(SWITCH_STYLE_SLIDER, 1);
-MAKE_SYSTEM_PROP(SWITCH_STYLE_CHECKBOX, 2);
-MAKE_SYSTEM_PROP(SWITCH_STYLE_TOGGLE_BUTTON, 3);
-MAKE_SYSTEM_PROP(SWITCH_STYLE_CHIP, 4);
-#endif
 
 MAKE_SYSTEM_PROP(URL_ERROR_AUTHENTICATION, NSURLErrorUserAuthenticationRequired);
 MAKE_SYSTEM_PROP(URL_ERROR_BAD_URL, NSURLErrorBadURL);
@@ -263,8 +256,8 @@ MAKE_SYSTEM_PROP(AUTOLINK_SHIPMENT_TRACKING_NUMBER, UIDataDetectorTypeShipmentTr
 MAKE_SYSTEM_PROP(AUTOLINK_FLIGHT_NUMBER, UIDataDetectorTypeFlightNumber);
 MAKE_SYSTEM_PROP(AUTOLINK_LOOKUP_SUGGESTION, UIDataDetectorTypeLookupSuggestion);
 
-MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_MONEY, UIDataDetectorTypeMoney, @"16.0");
-MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_PHYSICAL_VALUE, UIDataDetectorTypePhysicalValue, @"16.0");
+MAKE_SYSTEM_PROP(AUTOLINK_MONEY, UIDataDetectorTypeMoney);
+MAKE_SYSTEM_PROP(AUTOLINK_PHYSICAL_VALUE, UIDataDetectorTypePhysicalValue);
 
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT, UITableViewCellStyleDefault);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS, UITableViewCellStyleValue1);
@@ -326,41 +319,10 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 #ifdef USE_TI_UIPICKER
 
-- (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
-{
-  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
-    return @(-1);
-  }
-
-  return @(UIDatePickerStyleAutomatic);
-}
-
-- (NSNumber *)DATE_PICKER_STYLE_WHEELS
-{
-  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
-    return @(-1);
-  }
-
-  return @(UIDatePickerStyleWheels);
-}
-
-- (NSNumber *)DATE_PICKER_STYLE_COMPACT
-{
-  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
-    return @(-1);
-  }
-
-  return @(UIDatePickerStyleCompact);
-}
-
-- (NSNumber *)DATE_PICKER_STYLE_INLINE
-{
-  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
-    return @(-1);
-  }
-
-  return @(UIDatePickerStyleInline);
-}
+MAKE_SYSTEM_PROP(DATE_PICKER_STYLE_AUTOMATIC, UIDatePickerStyleAutomatic);
+MAKE_SYSTEM_PROP(DATE_PICKER_STYLE_WHEELS, UIDatePickerStyleWheels);
+MAKE_SYSTEM_PROP(DATE_PICKER_STYLE_COMPACT, UIDatePickerStyleCompact);
+MAKE_SYSTEM_PROP(DATE_PICKER_STYLE_INLINE, UIDatePickerStyleInline);
 
 #endif // USE_TI_UIPICKER
 

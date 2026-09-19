@@ -1172,15 +1172,11 @@ extern void UIColorFlushCache(void);
   }
   ENSURE_UI_THREAD(showDetailedModalError, error);
 
-  if (@available(iOS 13, *)) {
-    TiErrorController *errorVC = [[TiErrorController alloc] initWithScriptError:error];
-    TiErrorNavigationController *nav = [[[TiErrorNavigationController alloc] initWithRootViewController:errorVC] autorelease];
-    RELEASE_TO_NIL(errorVC);
+  TiErrorController *errorVC = [[TiErrorController alloc] initWithScriptError:error];
+  TiErrorNavigationController *nav = [[[TiErrorNavigationController alloc] initWithRootViewController:errorVC] autorelease];
+  RELEASE_TO_NIL(errorVC);
 
-    [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
-  } else {
-    [self showModalError:error.description];
-  }
+  [[[self controller] topPresentedController] presentViewController:nav animated:YES completion:nil];
 }
 
 - (void)showModalController:(UIViewController *)modalController animated:(BOOL)animated

@@ -167,9 +167,7 @@ static NSDictionary *TI_filterableItemProperties;
                                                      nil];
 
     TI_itemProperties[@"dateAdded"] = MPMediaItemPropertyDateAdded;
-    if ([TiUtils isIOSVersionOrGreater:@"10.3"]) {
-      TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
-    }
+    TI_itemProperties[@"playbackStoreID"] = MPMediaItemPropertyPlaybackStoreID;
   }
 
   return TI_itemProperties;
@@ -1070,7 +1068,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
   ENSURE_UI_THREAD(openPhotoGallery, args);
 
   NSArray *types = (NSArray *)[args objectForKey:@"mediaTypes"];
-  if ([TiUtils isIOSVersionOrGreater:@"14.0"] && [TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO]) {
+  if ([TiUtils boolValue:[args objectForKey:@"allowMultiple"] def:NO]) {
     [self showPHPicker:args];
   } else {
     [self showPicker:args
@@ -1959,22 +1957,6 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
 #endif
   [self sendPickerCancel];
 }
-
-#pragma mark UIAdaptivePresentationControllerDelegate
-
-#if IS_SDK_IOS_13
-- (void)presentationControllerDidDismiss:(UIPresentationController *)presentationController
-{
-#if defined(USE_TI_MEDIASHOWCAMERA) || defined(USE_TI_MEDIAOPENPHOTOGALLERY) || defined(USE_TI_MEDIASTARTVIDEOEDITING)
-#if defined(USE_TI_MEDIAOPENPHOTOGALLERY)
-  [self closeModalPicker:picker ?: _phPicker];
-#else
-  [self closeModalPicker:picker];
-#endif
-  [self sendPickerCancel];
-#endif
-}
-#endif
 
 #pragma mark UIImagePickerControllerDelegate
 

@@ -162,41 +162,10 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 
 #ifdef USE_TI_UIPICKER
 
-- (NSNumber *)DATE_PICKER_STYLE_AUTOMATIC
-{
-  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_AUTOMATIC", @"10.0.1", @"UI.DATE_PICKER_STYLE_AUTOMATIC");
-  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
-    return @(-1);
-  }
-  return @(UIDatePickerStyleAutomatic);
-}
-
-- (NSNumber *)DATE_PICKER_STYLE_WHEELS
-{
-  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_WHEELS", @"10.0.1", @"UI.DATE_PICKER_STYLE_WHEELS");
-  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
-    return @(-1);
-  }
-  return @(UIDatePickerStyleWheels);
-}
-
-- (NSNumber *)DATE_PICKER_STYLE_COMPACT
-{
-  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_COMPACT", @"10.0.1", @"UI.DATE_PICKER_STYLE_COMPACT");
-  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
-    return @(-1);
-  }
-  return @(UIDatePickerStyleCompact);
-}
-
-- (NSNumber *)DATE_PICKER_STYLE_INLINE
-{
-  DEPRECATED_REPLACED(@"UI.iOS.DATE_PICKER_STYLE_INLINE", @"10.0.1", @"UI.DATE_PICKER_STYLE_INLINE");
-  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
-    return @(-1);
-  }
-  return @(UIDatePickerStyleInline);
-}
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DATE_PICKER_STYLE_AUTOMATIC, UIDatePickerStyleAutomatic, @"UI.iOS.DATE_PICKER_STYLE_AUTOMATIC", @"10.0.1", @"UI.DATE_PICKER_STYLE_AUTOMATIC");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DATE_PICKER_STYLE_WHEELS, UIDatePickerStyleWheels, @"UI.iOS.DATE_PICKER_STYLE_WHEELS", @"10.0.1", @"UI.DATE_PICKER_STYLE_WHEELS");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DATE_PICKER_STYLE_COMPACT, UIDatePickerStyleCompact, @"UI.iOS.DATE_PICKER_STYLE_COMPACT", @"10.0.1", @"UI.DATE_PICKER_STYLE_COMPACT");
+MAKE_SYSTEM_PROP_DEPRECATED_REPLACED(DATE_PICKER_STYLE_INLINE, UIDatePickerStyleInline, @"UI.iOS.DATE_PICKER_STYLE_INLINE", @"10.0.1", @"UI.DATE_PICKER_STYLE_INLINE");
 
 #endif
 
@@ -288,23 +257,8 @@ MAKE_SYSTEM_PROP(ROW_ACTION_STYLE_NORMAL, UIContextualActionStyleNormal);
 }
 #endif
 
-- (NSNumber *)ALERT_SEVERITY_DEFAULT
-{
-  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
-    return @(-1);
-  }
-
-  return @(UIAlertControllerSeverityDefault);
-}
-
-- (NSNumber *)ALERT_SEVERITY_CRITICAL
-{
-  if (![TiUtils isIOSVersionOrGreater:@"16.0"]) {
-    return @(-1);
-  }
-
-  return @(UIAlertControllerSeverityCritical);
-}
+MAKE_SYSTEM_PROP(ALERT_SEVERITY_DEFAULT, UIAlertControllerSeverityDefault);
+MAKE_SYSTEM_PROP(ALERT_SEVERITY_CRITICAL, UIAlertControllerSeverityCritical);
 
 #ifdef USE_TI_UIIOSANIMATIONSTYLE
 - (TiUIiOSAnimationStyleProxy *)AnimationStyle

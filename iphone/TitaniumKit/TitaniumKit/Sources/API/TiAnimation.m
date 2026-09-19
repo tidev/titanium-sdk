@@ -640,8 +640,7 @@
     };
 
     if (dampingRatio != nil || springVelocity != nil) {
-#ifdef __IPHONE_17_0
-      if ([TiUtils isIOSVersionOrGreater:@"17.0"] && bounce != nil) {
+      if (bounce != nil) {
         [UIView animateWithSpringDuration:animationDuration
                                    bounce:[bounce floatValue]
                     initialSpringVelocity:[springVelocity floatValue]
@@ -650,7 +649,6 @@
                                animations:animation
                                completion:complete];
       } else {
-#endif
         [UIView animateWithDuration:animationDuration
                               delay:([delay doubleValue] / 1000)
              usingSpringWithDamping:[dampingRatio floatValue]
@@ -658,9 +656,7 @@
                             options:options
                          animations:animation
                          completion:complete];
-#ifdef __IPHONE_17_0
       }
-#endif
     } else {
       [UIView animateWithDuration:animationDuration
                             delay:([delay doubleValue] / 1000)

@@ -10,7 +10,6 @@ import SwiftUI
 
 // MARK: View controller
 
-@available(iOS 13.0, *)
 public class TiErrorViewController : UIViewController {
   let error: TiScriptError
   
@@ -57,7 +56,6 @@ public class TiErrorViewController : UIViewController {
 
 // MARK: SwiftUI
 
-@available(iOS 13.0, *)
 struct ErrorView : View {
   var error: ErrorModel
   
@@ -100,7 +98,6 @@ struct ErrorView : View {
   }
 }
 
-@available(iOS 13, *)
 struct ErrorTraitView: View {
   var trait: ErrorTrait
   var body: some View {
@@ -140,7 +137,6 @@ struct ErrorTrait {
   var stack: [StackEntry]
 }
 
-@available(iOS 13, *)
 struct StackView: View {
   var stack: [StackEntry]
   
@@ -172,7 +168,6 @@ struct StackEntry: Hashable {
   var source: String
 }
 
-@available(iOS 13.0, *)
 struct ErrorModel {
   var name: String
   var message: String
@@ -234,7 +229,6 @@ struct ErrorModel {
   }
 }
 
-@available(iOS 13.0, *)
 struct ErrorView_Previews: PreviewProvider {
   static var previews: some View {
     let error = TiScriptError(dictionary: [
@@ -280,7 +274,6 @@ fileprivate enum MaterialUI {
                                    alpha: 1)
 }
 
-@available(iOS 13, *)
 class ErrorTheme {
   static var error: UIColor {
     return UIColor { (traitCollection: UITraitCollection) -> UIColor in

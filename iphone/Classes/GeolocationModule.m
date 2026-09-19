@@ -855,11 +855,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 - (void)requestTemporaryFullAccuracyAuthorization:(NSString *)purposeKey withCallback:(JSValue *)callback
 {
-  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
-    NSMutableDictionary *propertiesDict = [TiUtils dictionaryWithCode:1 message:@"Supported on iOS 14+"];
-    [callback callWithArguments:@[ propertiesDict ]];
-    return;
-  }
   NSDictionary *descriptionDict = [[NSBundle mainBundle] objectForInfoDictionaryKey:kTiGeolocationTemporaryUsageDescriptionDictionary];
   if (!descriptionDict || ![descriptionDict valueForKey:purposeKey]) {
     DebugLog(@"[WARN] Add %@ key with purpose key %@ in info.plist", kTiGeolocationTemporaryUsageDescriptionDictionary, purposeKey);
@@ -882,10 +877,6 @@ MAKE_SYSTEM_PROP(ACTIVITYTYPE_OTHER_NAVIGATION, CLActivityTypeOtherNavigation);
 
 - (CLAccuracyAuthorization)locationAccuracyAuthorization
 {
-  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
-    DebugLog(@"[ERROR] This property is available on iOS 14 and above.");
-    return -1;
-  }
   return [[self locationPermissionManager] accuracyAuthorization];
 }
 

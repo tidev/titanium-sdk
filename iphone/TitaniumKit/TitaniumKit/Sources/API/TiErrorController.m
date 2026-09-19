@@ -67,15 +67,13 @@
   self.navigationItem.title = NSLocalizedString(@"Application Error", nil);
   self.navigationController.navigationBar.titleTextAttributes = @{ NSForegroundColorAttributeName : errorColor };
 
-  if (@available(iOS 13.0, *)) {
-    if (scriptError != nil) {
-      TiErrorViewController *errorVC = [[TiErrorViewController alloc] initWithError:scriptError];
-      [self addChildViewController:errorVC];
-      [self.view addSubview:errorVC.view];
-      [errorVC didMoveToParentViewController:self];
-      [errorVC release];
-      return;
-    }
+  if (scriptError != nil) {
+    TiErrorViewController *errorVC = [[TiErrorViewController alloc] initWithError:scriptError];
+    [self addChildViewController:errorVC];
+    [self.view addSubview:errorVC.view];
+    [errorVC didMoveToParentViewController:self];
+    [errorVC release];
+    return;
   }
 
   [self.view setBackgroundColor:UIColor.whiteColor];

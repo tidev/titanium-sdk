@@ -176,10 +176,6 @@ USE_PROXY_FOR_VERIFY_AUTORESIZING
 
 - (void)setDatePickerStyle_:(id)style
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.4"]) {
-    DebugLog(@"setDatePickerStyle is only supported on iOS 13.4 and above");
-    return;
-  }
   UIControl *picker = [self picker];
   if ([self isDatePicker]) {
     [(UIDatePicker *)picker setPreferredDatePickerStyle:[TiUtils intValue:style]];

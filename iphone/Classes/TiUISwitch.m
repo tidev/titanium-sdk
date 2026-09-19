@@ -33,11 +33,9 @@
     animated = YES;
     firstInit = YES;
     switchView = [[UISwitch alloc] init];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
-    if ([TiUtils isMacOS] && [TiUtils isIOSVersionOrGreater:@"14.0"]) {
+    if ([TiUtils isMacOS]) {
       switchView.preferredStyle = [TiUtils intValue:[[self proxy] valueForKey:@"style"] def:UISwitchStyleAutomatic];
     }
-#endif
     [switchView addTarget:self
                    action:@selector(switchChanged:)
          forControlEvents:UIControlEventValueChanged];

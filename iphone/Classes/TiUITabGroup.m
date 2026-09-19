@@ -43,12 +43,10 @@ DEFINE_EXCEPTIONS
     controller.delegate = self;
     controller.moreNavigationController.delegate = self;
     [TiUtils configureController:controller withObject:self.proxy];
-    if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
-      UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
-      [appearance configureWithDefaultBackground];
-      appearance.backgroundColor = UIColor.clearColor;
-      controller.tabBar.scrollEdgeAppearance = appearance;
-    }
+    UITabBarAppearance *appearance = controller.tabBar.standardAppearance;
+    [appearance configureWithDefaultBackground];
+    appearance.backgroundColor = UIColor.clearColor;
+    controller.tabBar.scrollEdgeAppearance = appearance;
 
     // force tab bar to bottom position (as before iPadOS 18 and on iPhone)
     if ([TiUtils isIOSVersionOrGreater:@"18.0"] && [TiUtils isIPad]) {
@@ -459,17 +457,15 @@ DEFINE_EXCEPTIONS
   UITabBar *tabBar = [controller tabBar];
   // A nil tintColor is fine, too.
   [tabBar setBarTintColor:[color color]];
-  if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
-    // Update main tab bar's appearance.
-    tabBar.standardAppearance.backgroundColor = [color color];
-    tabBar.scrollEdgeAppearance.backgroundColor = [color color];
+  // Update main tab bar's appearance.
+  tabBar.standardAppearance.backgroundColor = [color color];
+  tabBar.scrollEdgeAppearance.backgroundColor = [color color];
 
-    // We must also update each tab in case they override main tab bar's appearance.
-    id tabs = [[self proxy] valueForKey:@"tabs"];
-    if ([tabs isKindOfClass:[NSArray class]]) {
-      for (TiUITabProxy *tabProxy in (NSArray *)tabs) {
-        [tabProxy updateTabBarItem];
-      }
+  // We must also update each tab in case they override main tab bar's appearance.
+  id tabs = [[self proxy] valueForKey:@"tabs"];
+  if ([tabs isKindOfClass:[NSArray class]]) {
+    for (TiUITabProxy *tabProxy in (NSArray *)tabs) {
+      [tabProxy updateTabBarItem];
     }
   }
 }

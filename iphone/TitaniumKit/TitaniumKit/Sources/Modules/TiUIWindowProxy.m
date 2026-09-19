@@ -984,14 +984,10 @@
           UIColor *tintColor = [[TiUtils colorValue:@"tintColor" properties:properties] color];
           [ourNC.toolbar setBarTintColor:barColor];
           [ourNC.toolbar setTintColor:tintColor];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 150000
-          if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
-            UIToolbarAppearance *appearance = ourNC.toolbar.standardAppearance;
-            [appearance configureWithDefaultBackground];
-            appearance.backgroundColor = barColor;
-            ourNC.toolbar.scrollEdgeAppearance = appearance;
-          }
-#endif
+          UIToolbarAppearance *appearance = ourNC.toolbar.standardAppearance;
+          [appearance configureWithDefaultBackground];
+          appearance.backgroundColor = barColor;
+          ourNC.toolbar.scrollEdgeAppearance = appearance;
           [array release];
         }
       },

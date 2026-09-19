@@ -677,20 +677,16 @@ DEFINE_EXCEPTIONS
   BOOL animated = [TiUtils boolValue:@"animated" properties:args def:NO];
   KrollCallback *callback = [args valueForKey:@"callback"];
 
-  if (@available(iOS 17.0, *)) {
-    TiSymbolEffectManager *symbolEffectManager = [[TiSymbolEffectManager alloc] initWithConfiguration:args];
+  TiSymbolEffectManager *symbolEffectManager = [[TiSymbolEffectManager alloc] initWithConfiguration:args];
 
-    [imageView addSymbolEffect:symbolEffectManager.symbolEffect
-                       options:symbolEffectManager.symbolEffectOptions
-                      animated:animated
-                    completion:^(UISymbolEffectCompletionContext *_Nonnull context) {
-                      if (callback != nil) {
-                        [callback call:@[ @{@"finished" : @(context.isFinished)} ] thisObject:self.proxy];
-                      }
-                    }];
-  } else {
-    NSLog(@"[ERROR] The \"addSymbolEffect\" API is only available on iOS 17+");
-  }
+  [imageView addSymbolEffect:symbolEffectManager.symbolEffect
+                     options:symbolEffectManager.symbolEffectOptions
+                    animated:animated
+                  completion:^(UISymbolEffectCompletionContext *_Nonnull context) {
+                    if (callback != nil) {
+                      [callback call:@[ @{@"finished" : @(context.isFinished)} ] thisObject:self.proxy];
+                    }
+                  }];
 }
 
 - (void)setImage_:(id)arg

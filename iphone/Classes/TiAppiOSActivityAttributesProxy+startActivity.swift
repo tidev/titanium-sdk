@@ -26,14 +26,12 @@ extension TiAppiOSActivityAttributesProxy {
     let contentState = TiActivityAttributes.Status(value: params)
 
     do {
-      if #available(iOS 16.1, *) {
-        _ = try Activity<TiActivityAttributes>.request(attributes: attributes, contentState: contentState)
-      }
+      _ = try Activity<TiActivityAttributes>.request(attributes: attributes, contentState: contentState)
     } catch let error {
       NSLog("[ERROR] Cannot start activity: \(error.localizedDescription)")
     }
 #else
-    NSLog("[ERROR] Cannot call \"startActivity\" on iOS < 16.1. Please add a guard to prevent this error log!")
+    NSLog("[ERROR] Cannot call \"startActivity\": ActivityKit is not available on this platform!")
 #endif
   }
 }

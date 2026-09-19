@@ -384,16 +384,11 @@ extern NSString *const TI_APPLICATION_GUID;
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
   [nc addObserver:self selector:@selector(didTakeScreenshot:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
-#ifdef __IPHONE_16_4
   // Ensure that the JSContext is debuggable during development
-  if (@available(iOS 16.4, *)) {
-    BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
-
-    if (!isProduction) {
-      JSGlobalContextSetInspectable([[(KrollBridge *)TiApp.app.krollBridge krollContext] context], YES);
-    }
+  BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
+  if (!isProduction) {
+    JSGlobalContextSetInspectable([[(KrollBridge *)TiApp.app.krollBridge krollContext] context], YES);
   }
-#endif
 
   [super startup];
 }

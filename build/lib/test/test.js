@@ -309,8 +309,8 @@ async function addTiAppProperties() {
 
 		content.push(line);
 		if (line.indexOf('<ios>') >= 0) {
-			// force minimum ios sdk version of 13.0
-			content.push('\t\t<min-ios-ver>13.0</min-ios-ver>');
+			// force minimum ios sdk version of 17.0
+			content.push('\t\t<min-ios-ver>17.0</min-ios-ver>');
 		} else if (line.indexOf('<dict>') >= 0) {
 			// Insert iOS plist settings after the first <dict> element.
 			if (insertPlistSettings) {

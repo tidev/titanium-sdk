@@ -126,10 +126,6 @@
 // a temporary file.
 - (NSURL *)_toURL:(NSString *)object proxy:(TiProxy *)proxy
 {
-  if (![TiUtils isIOSVersionOrGreater:@"11.2"]) {
-    return [TiUtils toURL:object proxy:proxy];
-  }
-
   // Reference the old URL and file basename
   NSURL *fileURL = [TiUtils toURL:object proxy:self];
   NSString *fileName = [[fileURL absoluteString] lastPathComponent];

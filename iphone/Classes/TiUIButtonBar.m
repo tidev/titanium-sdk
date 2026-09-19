@@ -124,11 +124,6 @@
 {
   UIColor *color = [[TiUtils colorValue:value] color];
 
-  if ([TiUtils isIOSVersionLower:@"13.0"]) {
-    [[self segmentedControl] setTintColor:color];
-    return;
-  }
-
   UIColor *newColor = [self reverseColorOf:color];
   [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateNormal];
   [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : newColor } forState:UIControlStateSelected];

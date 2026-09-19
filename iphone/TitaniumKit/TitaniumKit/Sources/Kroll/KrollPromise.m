@@ -1,6 +1,5 @@
 #import "KrollPromise.h"
 #import "KrollObject.h"
-#import "TiExceptionHandler.h"
 
 @implementation KrollPromise
 
@@ -12,49 +11,23 @@
       // we call to generate a Promise will crash complaining about the Promise constructor not being an object!
       return self;
     }
-    if (@available(iOS 13, *)) {
-      // Use iOS 13 APIs.
-      JSObjectRef resolve;
-      JSObjectRef reject;
-      JSValueRef exception = NULL;
-      JSObjectRef promiseRef = JSObjectMakeDeferredPromise(context.JSGlobalContextRef, &resolve, &reject, &exception);
-      if (exception) {
-        // report exception
-        JSValue *error = [JSValue valueWithJSValueRef:exception inContext:context];
-        [context setException:error];
-        _JSValue = [[JSValue valueWithUndefinedInContext:context] retain];
-        resolveFunc = [[JSValue valueWithUndefinedInContext:context] retain];
-        rejectFunc = [[JSValue valueWithUndefinedInContext:context] retain];
-        return self; // all bets are off!
-      }
-
-      _JSValue = [[JSValue valueWithJSValueRef:promiseRef inContext:context] retain];
-      resolveFunc = [[JSValue valueWithJSValueRef:resolve inContext:context] retain];
-      rejectFunc = [[JSValue valueWithJSValueRef:reject inContext:context] retain];
-    } else {
-      // For older iOS versions, create promise via below JS since there is no native API.
-      const NSString *JS_FUNCTION_NAME = @"_createKrollPromiseHandler";
-      JSValue *createPromiseHandler = context[JS_FUNCTION_NAME];
-      if (createPromiseHandler.isUndefined) {
-        [context evaluateScript:@"function _createKrollPromiseHandler() {"
-                                 "   const handler = {};"
-                                 "   handler.promise = new Promise((resolve, reject) => {"
-                                 "      handler.resolve = resolve;"
-                                 "      handler.reject = reject;"
-                                 "   });"
-                                 "   return handler;"
-                                 "}"];
-        createPromiseHandler = context[JS_FUNCTION_NAME];
-      }
-      JSValue *exception = context.exception;
-      if (exception != nil) {
-        [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
-      }
-      JSValue *handler = [createPromiseHandler callWithArguments:nil];
-      _JSValue = [handler[@"promise"] retain];
-      resolveFunc = [handler[@"resolve"] retain];
-      rejectFunc = [handler[@"reject"] retain];
+    JSObjectRef resolve;
+    JSObjectRef reject;
+    JSValueRef exception = NULL;
+    JSObjectRef promiseRef = JSObjectMakeDeferredPromise(context.JSGlobalContextRef, &resolve, &reject, &exception);
+    if (exception) {
+      // report exception
+      JSValue *error = [JSValue valueWithJSValueRef:exception inContext:context];
+      [context setException:error];
+      _JSValue = [[JSValue valueWithUndefinedInContext:context] retain];
+      resolveFunc = [[JSValue valueWithUndefinedInContext:context] retain];
+      rejectFunc = [[JSValue valueWithUndefinedInContext:context] retain];
+      return self; // all bets are off!
     }
+
+    _JSValue = [[JSValue valueWithJSValueRef:promiseRef inContext:context] retain];
+    resolveFunc = [[JSValue valueWithJSValueRef:resolve inContext:context] retain];
+    rejectFunc = [[JSValue valueWithJSValueRef:reject inContext:context] retain];
   }
   return self;
 }

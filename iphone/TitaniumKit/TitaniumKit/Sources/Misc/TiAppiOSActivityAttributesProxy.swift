@@ -13,7 +13,6 @@ import ActivityKit
 public class TiAppiOSActivityAttributesProxy : TiProxy {
 
   @objc(startActivity:)
-  @available(iOS 16.1, *)
   func startActivity(args: [Any]) {
     guard let params = args.first as? [String: String] else {
       fatalError("Missing required parameters")

@@ -238,16 +238,9 @@ GETTER_IMPL(TiCalendarCalendar *, defaultCalendar, DefaultCalendar);
       ^() {
         EKEventStore *ourstore = [self store];
 
-        if (@available(iOS 17.0, *)) {
-          [ourstore requestFullAccessToEventsWithCompletion:^(BOOL granted, NSError *error) {
-            [self requestCalendarAccessCompletion:callback isGranted:granted withError:error];
-          }];
-        } else {
-          [ourstore requestAccessToEntityType:EKEntityTypeEvent
-                                   completion:^(BOOL granted, NSError *error) {
-                                     [self requestCalendarAccessCompletion:callback isGranted:granted withError:error];
-                                   }];
-        }
+        [ourstore requestFullAccessToEventsWithCompletion:^(BOOL granted, NSError *error) {
+          [self requestCalendarAccessCompletion:callback isGranted:granted withError:error];
+        }];
       },
       NO);
 }

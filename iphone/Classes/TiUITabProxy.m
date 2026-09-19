@@ -720,33 +720,24 @@
     activeTitleColor = [TiUtils colorValue:[tabGroup valueForKey:@"activeTitleColor"]];
   }
   if ((titleColor != nil) || (activeTitleColor != nil)) {
-    if ([TiUtils isIOSVersionOrGreater:@"15.0"]) {
-      UITabBarAppearance *appearance = UITabBarAppearance.new;
-      if (titleColor != nil) {
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
-        appearance.inlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
-        appearance.compactInlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
-      }
-      if (activeTitleColor != nil) {
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
-        appearance.inlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
-        appearance.compactInlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
-      }
-      TiColor *backgroundColor = [TiUtils colorValue:[tabGroup valueForKey:@"tabsBackgroundColor"]];
-      if (backgroundColor != nil) {
-        appearance.backgroundColor = [backgroundColor color];
-      }
-      tabBarItem.standardAppearance = appearance;
-      tabBarItem.scrollEdgeAppearance = appearance;
-      [appearance release];
-    } else {
-      if (titleColor != nil) {
-        [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[titleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateNormal];
-      }
-      if (activeTitleColor != nil) {
-        [tabBarItem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys:[activeTitleColor color], NSForegroundColorAttributeName, nil] forState:UIControlStateSelected];
-      }
+    UITabBarAppearance *appearance = UITabBarAppearance.new;
+    if (titleColor != nil) {
+      appearance.stackedLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+      appearance.inlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
+      appearance.compactInlineLayoutAppearance.normal.titleTextAttributes = @{ NSForegroundColorAttributeName : [titleColor color] };
     }
+    if (activeTitleColor != nil) {
+      appearance.stackedLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+      appearance.inlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+      appearance.compactInlineLayoutAppearance.selected.titleTextAttributes = @{ NSForegroundColorAttributeName : [activeTitleColor color] };
+    }
+    TiColor *backgroundColor = [TiUtils colorValue:[tabGroup valueForKey:@"tabsBackgroundColor"]];
+    if (backgroundColor != nil) {
+      appearance.backgroundColor = [backgroundColor color];
+    }
+    tabBarItem.standardAppearance = appearance;
+    tabBarItem.scrollEdgeAppearance = appearance;
+    [appearance release];
   }
 
   // icon insets

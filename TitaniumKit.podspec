@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.author       = 'TiDev'
 
   s.platform     = :ios
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '17.0'
 
   s.source       = { :git => "https://github.com/tidev/titanium_mobile.git" }
 

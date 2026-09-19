@@ -134,27 +134,20 @@
 
 - (void)setFont:(id)font
 {
-  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
-    NSLog(@"[ERROR] Setting \"font\" on the buttonConfiguration is only supported on iOS 15+");
-    return;
-  }
-
   WebFont *f = [TiUtils fontValue:font def:nil];
   if (f == nil) {
     return;
   }
 
-  if (@available(iOS 15.0, *)) {
-    UIFont *uiFont = [f font];
-    _configuration.titleTextAttributesTransformer = ^NSDictionary<NSAttributedStringKey, id> *_Nonnull(NSDictionary<NSAttributedStringKey, id> *_Nonnull textAttributes)
-    {
-      NSMutableDictionary *attrs = [textAttributes mutableCopy];
-      if (uiFont != nil) {
-        attrs[NSFontAttributeName] = uiFont;
-      }
-      return [attrs copy];
-    };
-  }
+  UIFont *uiFont = [f font];
+  _configuration.titleTextAttributesTransformer = ^NSDictionary<NSAttributedStringKey, id> *_Nonnull(NSDictionary<NSAttributedStringKey, id> *_Nonnull textAttributes)
+  {
+    NSMutableDictionary *attrs = [textAttributes mutableCopy];
+    if (uiFont != nil) {
+      attrs[NSFontAttributeName] = uiFont;
+    }
+    return [attrs copy];
+  };
 }
 
 - (void)setAttributedString:(id)arg
@@ -169,11 +162,6 @@
 
 - (void)setTextAlign:(id)align
 {
-  if (![TiUtils isIOSVersionOrGreater:@"15.0"]) {
-    NSLog(@"[ERROR] Setting \"textAlign\" on the buttonConfiguration is only supported on iOS 15+");
-    return;
-  }
-
   UIButtonConfigurationTitleAlignment alignment = UIButtonConfigurationTitleAlignmentAutomatic;
 
   NSTextAlignment ta = [TiUtils textAlignmentValue:align];

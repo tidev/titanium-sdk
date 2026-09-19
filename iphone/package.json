@@ -13,7 +13,7 @@
 	],
 	"version": "__VERSION__",
 	"author": "TiDev, Inc. <npm@tidev.io>",
-	"minIosVersion": "15.0",
+	"minIosVersion": "17.0",
 	"minWatchosVersion": "8.0",
 	"vendorDependencies": {
 		"xcode": ">=15.0 <=26.x",

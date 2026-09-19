@@ -684,11 +684,6 @@ static NSInteger const ScrollableSubviewTag = 100;
 
 - (void)setPreferredIndicatorImage_:(id)args
 {
-  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
-    DebugLog(@"[WARN] Supported on iOS 14.0+");
-    return;
-  }
-
   if (showPageControl) {
     [[self pagecontrol] setPreferredIndicatorImage:[TiUtils toImage:args proxy:self.proxy]];
   }

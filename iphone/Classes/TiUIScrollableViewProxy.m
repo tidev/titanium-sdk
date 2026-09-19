@@ -367,10 +367,6 @@
 
 - (void)setIndicatorImageForPage:(id)args
 {
-  if (![TiUtils isIOSVersionOrGreater:@"14.0"]) {
-    DebugLog(@"[WARN] Supported on iOS 14.0+");
-    return;
-  }
   ENSURE_ARRAY(args);
   ENSURE_ARG_COUNT(args, 2);
   ENSURE_TYPE(args[1], NSNumber)

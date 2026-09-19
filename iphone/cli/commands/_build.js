@@ -4266,25 +4266,8 @@ class iOSBuilder extends Builder {
 			this.logger.trace('No extensions to add');
 		}
 
-		// if any extensions contain a watch app, we must force the min iOS deployment target to 8.2
 		if (this.hasWatchAppV2orNewer) {
 			// TODO: Make sure the version of Xcode can support this version of watch app
-
-			let once = 0;
-			const iosDeploymentTarget = this.hasWatchAppV2orNewer ? '9.0' : '8.2';
-
-			xobjs.XCConfigurationList[pbxProject.buildConfigurationList].buildConfigurations.forEach(function (buildConf) {
-				const buildSettings = xobjs.XCBuildConfiguration[buildConf.value].buildSettings;
-				if (buildSettings.IPHONEOS_DEPLOYMENT_TARGET && appc.version.lt(buildSettings.IPHONEOS_DEPLOYMENT_TARGET, iosDeploymentTarget)) {
-					once++ === 0 && this.logger.warn(`WatchKit App detected, changing minimum iOS deployment target from ${
-						buildSettings.IPHONEOS_DEPLOYMENT_TARGET
-					} to ${
-						iosDeploymentTarget
-					}`);
-					buildSettings.IPHONEOS_DEPLOYMENT_TARGET = iosDeploymentTarget;
-				}
-			}, this);
-
 			this.hasWatchApp = true;
 		}
 
