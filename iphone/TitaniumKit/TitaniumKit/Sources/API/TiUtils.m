@@ -233,6 +233,45 @@ static NSDictionary *sizeMap = nil;
   return [UIDevice.currentDevice.systemVersion compare:version options:NSNumericSearch] == NSOrderedAscending;
 }
 
++ (UIWindowScene *)windowScene
+{
+  UIWindowScene *scene = [[TiApp app] window].windowScene;
+  if (scene != nil) {
+    return scene;
+  }
+  UIWindowScene *fallback = nil;
+  for (UIScene *connectedScene in UIApplication.sharedApplication.connectedScenes) {
+    if (![connectedScene isKindOfClass:[UIWindowScene class]]) {
+      continue;
+    }
+    if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+      return (UIWindowScene *)connectedScene;
+    }
+    if (fallback == nil) {
+      fallback = (UIWindowScene *)connectedScene;
+    }
+  }
+  return fallback;
+}
+
++ (UIInterfaceOrientation)interfaceOrientation
+{
+  UIWindowScene *scene = [TiUtils windowScene];
+  if (scene == nil) {
+    return UIInterfaceOrientationUnknown;
+  }
+#if !TARGET_OS_MACCATALYST
+  if (@available(iOS 16.0, *)) {
+    return scene.effectiveGeometry.interfaceOrientation;
+  }
+#endif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  // Deprecated since iOS 26 in favor of effectiveGeometry.interfaceOrientation, but iOS 15 has no alternative.
+  return scene.interfaceOrientation;
+#pragma clang diagnostic pop
+}
+
 + (BOOL)isIPad
 {
   return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;

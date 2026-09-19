@@ -36,7 +36,7 @@
   if ([windowProxy respondsToSelector:@selector(updateNavBar)]) {
     [windowProxy performSelector:@selector(updateNavBar)
                       withObject:nil
-                      afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+                      afterDelay:TI_ORIENTATION_ANIMATION_DURATION];
   }
 }
 

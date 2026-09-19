@@ -76,7 +76,7 @@
     }
 
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    if (UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
+    if (UIInterfaceOrientationIsLandscape([TiUtils interfaceOrientation])) {
       screenSize = CGSizeMake(screenSize.height, screenSize.width);
     }
 
@@ -110,7 +110,7 @@
 {
   [super layoutSubviews];
   [self initWrappers];
-  [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientation]];
 }
 
 - (void)layoutSubviewsForOrientation:(UIInterfaceOrientation)orientation
@@ -193,7 +193,7 @@
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
   [super frameSizeChanged:frame bounds:bounds];
-  [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientation]];
 }
 
 - (void)setShowMasterInPortrait_:(id)value withObject:(id)animated
@@ -205,7 +205,7 @@
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
 
-  UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
       void (^animation)() = ^{
@@ -227,7 +227,7 @@
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
 
-  UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
       void (^animation)() = ^{
@@ -295,7 +295,7 @@
 
   if ((newValue >= 0.25) && (newValue <= 0.5) && newValue != splitRatioPortrait) {
     splitRatioPortrait = newValue;
-    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
     if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
       [self layoutSubviewsForOrientation:curOrientation];
     }
@@ -311,7 +311,7 @@
 
   if ((newValue >= 0.25) && (newValue <= 0.5) && newValue != splitRatioLandscape) {
     splitRatioLandscape = newValue;
-    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
     if (viewsInitialized && UIInterfaceOrientationIsLandscape(curOrientation)) {
       [self layoutSubviewsForOrientation:curOrientation];
     }

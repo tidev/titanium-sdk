@@ -190,7 +190,7 @@
   theHost = hostView;
 
   if (defaultImageView != nil) {
-    [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    [self rotateDefaultImageViewToOrientation:[TiUtils interfaceOrientation]];
     [theHost addSubview:defaultImageView];
   }
   [rootView becomeFirstResponder];
@@ -1005,8 +1005,8 @@
 
 - (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification
 {
-  if ((![TiUtils isIPad]) && ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+  if ((![TiUtils isIPad]) && ([TiUtils interfaceOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
+    CGRect statusBarFrame = [TiUtils windowScene].statusBarManager.statusBarFrame;
     if (statusBarFrame.size.height == 0) {
       return;
     }
@@ -1192,16 +1192,48 @@
     }
   }
 
-  if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
+  UIInterfaceOrientation current = [TiUtils interfaceOrientation];
+
+#if !TARGET_OS_MACCATALYST
+  if (@available(iOS 16.0, *)) {
+    // Let UIKit re-evaluate -supportedInterfaceOrientations. If the current orientation is still
+    // allowed there is nothing to force: UIKit rotates on its own once the device is turned.
+    [self setNeedsUpdateOfSupportedInterfaceOrientations];
+
+    if (current == UIInterfaceOrientationUnknown || [self shouldRotateToInterfaceOrientation:current checkModal:NO]) {
+      [self resetTransformAndForceLayout:NO];
+      return;
+    }
+
+    if ([TiSharedConfig defaultConfig].debugEnabled) {
+      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
+    }
+
+    UIWindowScene *scene = [TiUtils windowScene];
+    if (scene == nil) {
+      return;
+    }
+    UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:(1 << target)];
+    [scene requestGeometryUpdateWithPreferences:preferences
+                                   errorHandler:^(NSError *error) {
+                                     DebugLog(@"[WARN] Could not rotate to orientation %d: %@", target, error.localizedDescription);
+                                   }];
+    [preferences release];
+    return;
+  }
+#endif
+
+  // iOS 15: no scene geometry API, so rotate the hosting view manually.
+  if (current != target) {
     forcingRotation = YES;
     if ([TiSharedConfig defaultConfig].debugEnabled) {
-      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
+      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
     }
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
     [self rotateHostingViewToOrientation:target
-                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                         fromOrientation:current];
     forcingRotation = NO;
 #endif
   } else {
@@ -1447,7 +1479,7 @@
       [thisWindow viewDidAppear:animated];
     }
     forcingRotation = NO;
-    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:TI_ORIENTATION_ANIMATION_DURATION];
 
     [[containedWindows lastObject] gainFocus];
   }
@@ -1467,9 +1499,21 @@
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
     [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
-  UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
-  [self updateOrientationHistory:interfaceOrientation];
-  [self rotateDefaultImageViewToOrientation:interfaceOrientation];
+  UIDeviceOrientation currentDeviceOrientation = [[UIDevice currentDevice] orientation];
+  if (UIDeviceOrientationIsValidInterfaceOrientation(currentDeviceOrientation)) {
+    UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)currentDeviceOrientation;
+    [self updateOrientationHistory:interfaceOrientation];
+    [self rotateDefaultImageViewToOrientation:interfaceOrientation];
+  }
+  // The device orientation is not necessarily the orientation we end up in (e.g. a forced rotation
+  // while the device lies flat), so record the resulting interface orientation once the transition is done.
+  [coordinator animateAlongsideTransition:nil
+                               completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+                                 UIInterfaceOrientation resultingOrientation = [TiUtils interfaceOrientation];
+                                 if (resultingOrientation != UIInterfaceOrientationUnknown) {
+                                   [self updateOrientationHistory:resultingOrientation];
+                                 }
+                               }];
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 

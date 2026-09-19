@@ -78,6 +78,10 @@ typedef enum {
 #define TI_ORIENTATION_ALLOWED(flag, bit) (flag & (1 << bit))
 #define TI_ORIENTATION_SET(flag, bit) (flag |= (1 << bit))
 
+// Duration of the interface orientation change animation. Replaces the deprecated
+// -[UIApplication statusBarOrientationAnimationDuration], which always returned 0.3 seconds.
+#define TI_ORIENTATION_ANIMATION_DURATION 0.3
+
 @protocol VolumeSupport <NSObject>
 @required
 - (void)setVolume:(float)volume;
@@ -675,6 +679,24 @@ typedef enum {
  @return _YES_ if the current OS version is equal to or greater than the specified version, _NO_ otherwise.
  */
 + (BOOL)isIOSVersionOrGreater:(NSString *)version;
+
+/**
+ Returns the window scene that hosts the application's primary window. Falls back to the
+ first connected window scene when the primary window is not attached to a scene yet.
+
+ @return The application's window scene, or _nil_ if no window scene is connected.
+ */
++ (UIWindowScene *)windowScene;
+
+/**
+ Returns the current interface orientation of the application's window scene.
+
+ This replaces `-[UIApplication statusBarOrientation]`, which is deprecated and a no-op
+ (always returns `UIInterfaceOrientationUnknown`) on iOS 27 and later.
+
+ @return The current interface orientation, or `UIInterfaceOrientationUnknown` if no window scene is connected.
+ */
++ (UIInterfaceOrientation)interfaceOrientation;
 
 /**
  Whether or not the current OS version is lower than the specified version.

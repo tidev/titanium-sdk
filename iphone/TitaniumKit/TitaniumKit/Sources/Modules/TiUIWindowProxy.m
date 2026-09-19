@@ -256,7 +256,7 @@
 {
   [self performSelector:@selector(updateStatusBarView)
              withObject:nil
-             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+             afterDelay:TI_ORIENTATION_ANIMATION_DURATION];
 
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
@@ -1160,7 +1160,7 @@
   if ([self.tabGroup isKindOfClass:[TiWindowProxy class]]) {
     windowProxy = (TiWindowProxy *)self.tabGroup;
   }
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientation];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
     if (windowProxy.isMasterWindow) {
       edgeInsets.left = safeAreaInset.left;
@@ -1185,7 +1185,7 @@
   if ([self.tab isKindOfClass:[TiWindowProxy class]]) {
     windowProxy = (TiWindowProxy *)self.tab;
   }
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientation];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
     if (windowProxy.isMasterWindow) {
       edgeInsets.left = safeAreaInset.left;
