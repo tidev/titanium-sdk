@@ -1195,35 +1195,32 @@
   UIInterfaceOrientation current = [TiUtils interfaceOrientation];
 
 #if !TARGET_OS_MACCATALYST
-  if (@available(iOS 16.0, *)) {
-    // Let UIKit re-evaluate -supportedInterfaceOrientations. If the current orientation is still
-    // allowed there is nothing to force: UIKit rotates on its own once the device is turned.
-    [self setNeedsUpdateOfSupportedInterfaceOrientations];
+  // Let UIKit re-evaluate -supportedInterfaceOrientations. If the current orientation is still
+  // allowed there is nothing to force: UIKit rotates on its own once the device is turned.
+  [self setNeedsUpdateOfSupportedInterfaceOrientations];
 
-    if (current == UIInterfaceOrientationUnknown || [self shouldRotateToInterfaceOrientation:current checkModal:NO]) {
-      [self resetTransformAndForceLayout:NO];
-      return;
-    }
-
-    if ([TiSharedConfig defaultConfig].debugEnabled) {
-      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
-    }
-
-    UIWindowScene *scene = [TiUtils windowScene];
-    if (scene == nil) {
-      return;
-    }
-    UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:(1 << target)];
-    [scene requestGeometryUpdateWithPreferences:preferences
-                                   errorHandler:^(NSError *error) {
-                                     DebugLog(@"[WARN] Could not rotate to orientation %d: %@", target, error.localizedDescription);
-                                   }];
-    [preferences release];
+  if (current == UIInterfaceOrientationUnknown || [self shouldRotateToInterfaceOrientation:current checkModal:NO]) {
+    [self resetTransformAndForceLayout:NO];
     return;
   }
-#endif
 
-  // iOS 15: no scene geometry API, so rotate the hosting view manually.
+  if ([TiSharedConfig defaultConfig].debugEnabled) {
+    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
+  }
+
+  UIWindowScene *scene = [TiUtils windowScene];
+  if (scene == nil) {
+    return;
+  }
+  UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:(1 << target)];
+  [scene requestGeometryUpdateWithPreferences:preferences
+                                 errorHandler:^(NSError *error) {
+                                   DebugLog(@"[WARN] Could not rotate to orientation %d: %@", target, error.localizedDescription);
+                                 }];
+  [preferences release];
+  return;
+#else
+  // Mac Catalyst has no scene geometry API, so rotate the hosting view manually.
   if (current != target) {
     forcingRotation = YES;
     if ([TiSharedConfig defaultConfig].debugEnabled) {
@@ -1239,6 +1236,7 @@
   } else {
     [self resetTransformAndForceLayout:NO];
   }
+#endif
 }
 
 - (void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation

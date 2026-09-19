@@ -254,9 +254,17 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  [self performSelector:@selector(updateStatusBarView)
-             withObject:nil
-             afterDelay:TI_ORIENTATION_ANIMATION_DURATION];
+  // The status bar and navigation bar bounds are only final once the rotation animation has finished.
+  if (coordinator != nil) {
+    [coordinator animateAlongsideTransition:nil
+                                 completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+                                   [self updateStatusBarView];
+                                   [self updateNavBar];
+                                 }];
+  } else {
+    [self updateStatusBarView];
+    [self updateNavBar];
+  }
 
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];

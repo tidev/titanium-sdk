@@ -261,15 +261,14 @@ static NSDictionary *sizeMap = nil;
     return UIInterfaceOrientationUnknown;
   }
 #if !TARGET_OS_MACCATALYST
-  if (@available(iOS 16.0, *)) {
-    return scene.effectiveGeometry.interfaceOrientation;
-  }
-#endif
+  return scene.effectiveGeometry.interfaceOrientation;
+#else
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  // Deprecated since iOS 26 in favor of effectiveGeometry.interfaceOrientation, but iOS 15 has no alternative.
+  // Deprecated since iOS 26 in favor of effectiveGeometry.interfaceOrientation, which is not available on Mac Catalyst.
   return scene.interfaceOrientation;
 #pragma clang diagnostic pop
+#endif
 }
 
 + (BOOL)isIPad
