@@ -94,7 +94,7 @@ public class TiUIDialog extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_BUTTON_NAMES) || d.containsKey(TiC.PROPERTY_OK)) {
 			buttonText = resolveButtonText(
-				d.getStringArray(TiC.PROPERTY_BUTTON_NAMES), d.containsKey(TiC.PROPERTY_OK), d.get(TiC.PROPERTY_OK));
+				d.get(TiC.PROPERTY_BUTTON_NAMES), d.containsKey(TiC.PROPERTY_OK), d.get(TiC.PROPERTY_OK));
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_ANDROID_VIEW)) {
 			processView((TiViewProxy) proxy.getProperty(TiC.PROPERTY_ANDROID_VIEW));
@@ -150,13 +150,15 @@ public class TiUIDialog extends TiUIView
 	}
 
 	// "buttonNames" defaults to an empty array (see AlertDialogProxy), so only
-	// a non-empty array may replace the "ok" button.
-	private static String[] resolveButtonText(String[] buttonNames, boolean hasOk, Object ok)
+	// a non-empty array may replace the "ok" button. A null or non-array value
+	// is treated as an empty array.
+	private static String[] resolveButtonText(Object buttonNames, boolean hasOk, Object ok)
 	{
-		if ((buttonNames.length == 0) && hasOk) {
+		String[] names = TiConvert.toStringArray((buttonNames instanceof Object[]) ? (Object[]) buttonNames : null);
+		if ((names.length == 0) && hasOk) {
 			return new String[] { TiConvert.toString(ok) };
 		}
-		return buttonNames;
+		return names;
 	}
 
 	private boolean hasButtonNames()
@@ -253,9 +255,8 @@ public class TiUIDialog extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_BUTTON_NAMES)) {
 			dismissDialog();
-			String[] buttonNames = TiConvert.toStringArray((newValue instanceof Object[]) ? (Object[]) newValue : null);
 			processButtons(resolveButtonText(
-				buttonNames, proxy.hasProperty(TiC.PROPERTY_OK), proxy.getProperty(TiC.PROPERTY_OK)));
+				newValue, proxy.hasProperty(TiC.PROPERTY_OK), proxy.getProperty(TiC.PROPERTY_OK)));
 		} else if (key.equals(TiC.PROPERTY_OK) && !hasButtonNames()) {
 			dismissDialog();
 			processButtons(new String[] { TiConvert.toString(newValue) });
