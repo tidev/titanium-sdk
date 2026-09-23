@@ -311,7 +311,7 @@ extern void UIColorFlushCache(void);
       UIUserInterfaceIdiom imageIdiom;
 
       UIImage *defaultImage = [controller defaultImageForOrientation:
-                                              (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
+                                              (UIDeviceOrientation)[TiUtils interfaceOrientation]
                                                 resultingOrientation:&imageOrientation
                                                                idiom:&imageIdiom];
       [(UIImageView *)splashScreenView setImage:defaultImage];
