@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -45,6 +45,7 @@ public class TiC
 	 */
 	public static final int ERROR_CODE_UNKNOWN = -1;
 	public static final int ERROR_CODE_NO_ERROR = 0;
+	public static final int ERROR_CODE_TIMEOUT = -1001;
 
 	public static final String EVENT_ADDED_TO_TAB = "addedtotab";
 	public static final String EVENT_ANDROID_BACK = "androidback";
@@ -79,6 +80,7 @@ public class TiC
 	public static final String EVENT_SELECTED = "selected";
 	public static final String EVENT_UNSELECTED = "unselected";
 	public static final String EVENT_KEY_PRESSED = "keypressed";
+	public static final String EVENT_KEYBOARD_FRAME_CHANGED = "keyboardframechanged";
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_ITEM_CLICK = "itemclick";
 	public static final String EVENT_ITEMS_SELECTED = "itemsselected";
@@ -142,6 +144,8 @@ public class TiC
 	public static final String EVENT_PROPERTY_TAB = "tab";
 	public static final String EVENT_PROPERTY_THUMB_OFFSET = "thumbOffset";
 	public static final String EVENT_PROPERTY_THUMB_SIZE = "thumbSize";
+	public static final String PROPERTY_THUMB_COLOR = "thumbColor";
+	public static final String PROPERTY_ON_THUMB_COLOR = "onThumbColor";
 	public static final String EVENT_PROPERTY_TYPE = "type";
 	public static final String EVENT_PROPERTY_VELOCITY = "velocity";
 	public static final String EVENT_PROPERTY_X = "x";
@@ -157,6 +161,7 @@ public class TiC
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_RESUMED = "resumed";
 	public static final String EVENT_RETURN = "return";
+	public static final String EVENT_ROTATE = "rotate";
 	public static final String EVENT_ROWS_SELECTED = "rowsselected";
 	public static final String EVENT_SCROLL = "scroll";
 	public static final String EVENT_SCROLLEND = "scrollend";
@@ -228,6 +233,7 @@ public class TiC
 	public static final String PROPERTY_ACCESSIBILITY_HINT = "accessibilityHint";
 	public static final String PROPERTY_ACCESSIBILITY_LABEL = "accessibilityLabel";
 	public static final String PROPERTY_ACCESSIBILITY_VALUE = "accessibilityValue";
+	public static final String PROPERTY_ACCESSIBILITY_DISABLE_LONG = "accessibilityDisableLongPress";
 	public static final String PROPERTY_ACCESSORY_TYPE = "accessoryType";
 	public static final String PROPERTY_ACTION = "action";
 	public static final String PROPERTY_ACTION_VIEW = "actionView";
@@ -292,7 +298,9 @@ public class TiC
 	public static final String PROPERTY_BACKGROUND_SELECTED_COLOR = "backgroundSelectedColor";
 	public static final String PROPERTY_BACKGROUND_SELECTED_IMAGE = "backgroundSelectedImage";
 	public static final String PROPERTY_BADGE = "badge";
-	public static final String PROPERTY_BADGE_COLOR = "badgeColor";
+	public static final String PROPERTY_BADGE_COLOR = "badgeColor"; // DEPRECATED: Superseded by PROPERTY_BADGE_BACKGROUND_COLOR.
+	public static final String PROPERTY_BADGE_BACKGROUND_COLOR = "badgeBackgroundColor";
+	public static final String PROPERTY_BADGE_TEXT_COLOR = "badgeTextColor";
 	public static final String PROPERTY_TARGET_ITEM_INDEX = "targetItemIndex";
 	public static final String PROPERTY_TARGET_SECTION = "targetSection";
 	public static final String PROPERTY_TARGET_SECTION_INDEX = "targetSectionIndex";
@@ -300,6 +308,7 @@ public class TiC
 	public static final String PROPERTY_TOUCH_FEEDBACK_COLOR = "touchFeedbackColor";
 	public static final String PROPERTY_TRANSITION_NAME = "transitionName";
 	public static final String PROPERTY_BAR_COLOR = "barColor";
+	public static final String PROPERTY_STATUS_BAR_COLOR = "statusBarColor";
 	public static final String PROPERTY_BASE_URL = "baseUrl";
 	public static final String PROPERTY_BASE_URL_WEBVIEW = "baseURL";
 	public static final String PROPERTY_BIG_TEXT = "bigText";
@@ -317,6 +326,7 @@ public class TiC
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
 	public static final String PROPERTY_BROTHER = "brother";
+	public static final String PROPERTY_BREAK_STRATEGY = "breakStrategy";
 	public static final String PROPERTY_BUTTON = "button";
 	public static final String PROPERTY_BUBBLE_PARENT = "bubbleParent";
 	public static final String PROPERTY_BUBBLES = "bubbles";
@@ -458,6 +468,7 @@ public class TiC
 	public static final String PROPERTY_FRAGMENT_ONLY = "fragmentOnly";
 	public static final String PROPERTY_HIDDEN_BEHAVIOR = "hiddenBehavior";
 	public static final String PROPERTY_HIDES_BACK_BUTTON = "hidesBackButton";
+	public static final String PROPERTY_HYPHENATION_FREQUENCY = "hyphenationFrequency";
 	public static final String PROPERTY_FREQUENCY = "frequency";
 	public static final String PROPERTY_FRIEND = "friend";
 	public static final String PROPERTY_FROM = "from";
@@ -523,6 +534,8 @@ public class TiC
 	public static final String PROPERTY_LAYOUT = "layout";
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
 	public static final String PROPERTY_LEFT_DRAWER_LOCK_MODE = "leftDrawerLockMode";
+
+	public static final String PROPERTY_LETTER_SPACING = "letterSpacing";
 	public static final String PROPERTY_LINES = "lines";
 	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
@@ -553,6 +566,7 @@ public class TiC
 	public static final String PROPERTY_MAX_AGE = "maxAge";
 	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 	public static final String PROPERTY_MAX_ELEVATION = "maxElevation";
+	public static final String PROPERTY_MAX_IMAGES = "maxImages";
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";
@@ -582,8 +596,11 @@ public class TiC
 	public static final String PROPERTY_MOVEABLE = "moveable";
 	public static final String PROPERTY_MOVING = "moving";
 	public static final String PROPERTY_MULTIPLY = "multiply";
+	public static final String PROPERTY_MULTIPLE_WINDOWS = "multipleWindows";
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
+	public static final String PROPERTY_NAV_BAR_COLOR = "navBarColor";
+	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
 	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";
@@ -603,6 +620,7 @@ public class TiC
 	public static final String PROPERTY_ON_RESTART = "onRestart";
 	public static final String PROPERTY_ON_PAUSE = "onPause";
 	public static final String PROPERTY_ON_STOP = "onStop";
+	public static final String PROPERTY_ON_TINT_COLOR = "onTintColor";
 	public static final String PROPERTY_TLS_VERSION = "tlsVersion";
 	public static final String PROPERTY_ON_DESTROY = "onDestroy";
 	public static final String PROPERTY_ON_CREATE_WINDOW = "onCreateWindow";
@@ -632,6 +650,7 @@ public class TiC
 	public static final String PROPERTY_PASSWORD = "password";
 	public static final String PROPERTY_PASSWORD_MASK = "passwordMask";
 	public static final String PROPERTY_PATH = "path";
+	public static final String PROPERTY_PATH_ONLY = "pathOnly";
 	public static final String PROPERTY_PERSISTENT = "persistent";
 	public static final String PROPERTY_PHONE = "phone";
 	public static final String PROPERTY_PIN_IMAGE = "pinImage";
@@ -685,6 +704,7 @@ public class TiC
 	public static final String PROPERTY_SCROLL_ENABLED = "scrollEnabled";
 	public static final String PROPERTY_SCROLL_TYPE = "scrollType";
 	public static final String PROPERTY_SCROLLABLE = "scrollable";
+	public static final String PROPERTY_SCROLLBARS = "scrollbars";
 	public static final String PROPERTY_SEARCH = "search";
 	public static final String PROPERTY_SEARCH_AS_CHILD = "searchAsChild";
 	public static final String PROPERTY_SEARCH_TEXT = "searchText";
@@ -721,6 +741,7 @@ public class TiC
 	public static final String PROPERTY_SHOW_SELECTION_CHECK = "showSelectionCheck";
 	public static final String PROPERTY_SISTER = "sister";
 	public static final String PROPERTY_SIZE = "size";
+	public static final String PROPERTY_SNAPPING = "snapping";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";
@@ -749,13 +770,16 @@ public class TiC
 	public static final String PROPERTY_SUPPORT_TOOLBAR = "supportToolbar";
 	public static final String PROPERTY_TABS = "tabs";
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
+	public static final String PROPERTY_TAB_BAR_VISIBLE = "tabBarVisible";
 	public static final String PROPERTY_TABS_BACKGROUND_COLOR = "tabsBackgroundColor";
 	public static final String PROPERTY_TABS_BACKGROUND_SELECTED_COLOR = "tabsBackgroundSelectedColor";
+	public static final String PROPERTY_TAB_MODE = "tabMode";
 	public static final String PROPERTY_TAG = "tag";
 	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_TEMPLATES = "templates";
 	public static final String PROPERTY_TEXT = "text";
 	public static final String PROPERTY_TEXT_COLOR = "textColor";
+	public static final String PROPERTY_TEXT_TRANSFORM = "textTransform";
 	public static final String PROPERTY_TEXTID = "textid";
 	public static final String PROPERTY_THEME = "theme";
 	public static final String PROPERTY_TEXT_ALIGN = "textAlign";
@@ -767,6 +791,7 @@ public class TiC
 	public static final String PROPERTY_TINT = "tint";
 	public static final String PROPERTY_TINT_COLOR = "tintColor";
 	public static final String PROPERTY_TITLE = "title";
+	public static final String PROPERTY_TITLE_ATTRIBUTES = "titleAttributes";
 	public static final String PROPERTY_TITLE_COLOR = "titleColor";
 	public static final String PROPERTY_TITLE_CONDENSED = "titleCondensed";
 	public static final String PROPERTY_TITLEID = "titleid";
@@ -847,6 +872,8 @@ public class TiC
 	public static final String PROPERTY_JOBTITLE = "jobTitle";
 	public static final String PROPERTY_DEPARTMENT = "department";
 	public static final String PROPERTY_FIXED_SIZE = "fixedSize";
+	public static final String PROPERTY_UI_FLAGS = "uiFlags";
+	public static final String PROPERTY_LAYER_TYPE = "layerType";
 
 	public static final String SIZE_AUTO = "auto";
 	public static final String URL_APP_PREFIX = "app://";

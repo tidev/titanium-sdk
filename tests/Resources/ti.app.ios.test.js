@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -51,7 +51,7 @@ describe.ios('Titanium.App.iOS', function () {
 		should(searchableIndex).be.an.Object();
 		should(searchableIndex.apiName).eql('Ti.App.iOS.SearchableIndex');
 		should(searchableIndex.addToDefaultSearchableIndex).be.a.Function();
-		should(searchableIndex.deleteAllSearchableItemByDomainIdenifiers).be.a.Function();
+		should(searchableIndex.deleteAllSearchableItemByDomainIdentifiers).be.a.Function();
 		should(searchableIndex.deleteAllSearchableItems).be.a.Function();
 		should(searchableIndex.deleteAllSearchableItems).be.a.Function();
 		should(searchableIndex.deleteSearchableItemsByIdentifiers).be.a.Function();

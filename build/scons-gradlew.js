@@ -1,8 +1,12 @@
 #!/usr/bin/env node
-'use strict';
 
-const version = require('../package.json').version;
-const program = require('commander');
+import { program } from 'commander';
+import fs from 'fs-extra';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
 
 const argsIndex = process.argv.indexOf('--args');
 const mainArgs = (argsIndex >= 0) ? process.argv.slice(0, argsIndex) : process.argv;
@@ -14,8 +18,8 @@ program
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
 	.option('-s, --android-sdk [path]', 'Explicitly set the path to the Android SDK used for building')
 	.option('--args [arguments...]', 'Arguments to be passed to gradlew tool (Must be set last)')
-	.action((task, options, _command) => {
-		const AndroidBuilder = require('./lib/android');
+	.action(async (task, options, _command) => {
+		const { AndroidBuilder } = await import('./lib/android.js');
 		new AndroidBuilder(options).runGradleTask(task, gradlewArgs)
 			.then(() => process.exit(0))
 			.catch(err => {

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -52,7 +52,7 @@
     } else {
       tempOffsets = NULL;
     }
-    //TODO: Between these extremes, we should do intelligent gradient computation.
+    // TODO: Between these extremes, we should do intelligent gradient computation.
 
     cachedGradient = CGGradientCreateWithColors(rgb, colorValues, tempOffsets);
 
@@ -189,7 +189,7 @@
     }
 
     CGColorSpaceRef colorspace = CGColorGetColorSpace([thisColor CGColor]);
-    if (CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelMonochrome) //Colorize this! Where's Ted Turner?
+    if (CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelMonochrome) // Colorize this! Where's Ted Turner?
     {
       const CGFloat *components = CGColorGetComponents([thisColor CGColor]);
       thisColor = [UIColor colorWithRed:components[0]

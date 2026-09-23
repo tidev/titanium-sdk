@@ -42,7 +42,7 @@ This release coincides with the General Availability Release of BlackBerry 10 wi
 
 The Titanium SDK supports features of the BlackBerry 10.0.9.x NDK.  You can use newer versions of the BlackBerry 10 NDK to develop and build BlackBerry Titanium applications, but the new features are not available in the Titanium SDK.
 
-Refer to [Installing the BlackBerry NDK](https://docs.appcelerator.com/titanium/latest/#!/guide/Installing_the_BlackBerry_NDK) for information on getting started with BlackBerry 10 development.
+Refer to [Installing the BlackBerry NDK](https://titaniumsdk.com/api/) for information on getting started with BlackBerry 10 development.
 
 <a name="android4_3"></a>
 
@@ -61,7 +61,7 @@ This release includes preliminary support for iOS 7 beta and Xcode 5 Developer P
 
 This release coincides with the release of Alloy 1.2.0, which now supports dynamic styling, creating ListView objects in markup with data binding enabled, and the Tizen platform.
 
-  * [Dynamic Styles guide](https://docs.appcelerator.com/titanium/latest/#!/guide/Dynamic_Styles)
+  * [Dynamic Styles guide](https://titaniumsdk.com/api/)
   * [Dynamic Styling Sample](https://github.com/tidev/alloy/tree/master/test/apps/advanced/dynamic_styling)
   * [ListView Sample](https://github.com/tidev/alloy/tree/master/test/apps/ui/listview)
   * [ListView with Data Binding Sample](https://github.com/tidev/alloy/tree/master/test/apps/models/binding_listview)
@@ -138,9 +138,9 @@ Previously, the map would not re-center itself, causing the info window to appea
 
 As of this Release, the Titanium SDK and Appcelerator Cloud Services use Google Cloud Messaging (GCM) as the default protocol to support push notifications for the Android platform.  To use GCM, create a Google API project to obtain a **Google API key** and **GCM sender ID**, then supply this information to the **Manage ACS** console.  For the client application, use the `Titanium.CloudPush` module to receive the push notifications.
 
-For instructions on setting up GCM on the server side, see the "Configure Your App For Enabling Push Notifications" subsection under the "Push Notifications" section of the [ACS: Android SDK guide](https://docs.appcelerator.com/cloud/latest/#!/guide/android).
+For instructions on setting up GCM on the server side, see the "Configure Your App For Enabling Push Notifications" subsection under the "Push Notifications" section of the [ACS: Android SDK guide](https://titaniumsdk.com/api/).
 
-For instructions on configuring the client application to receive push notifications, see [Titanium.CloudPush](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.CloudPush).
+For instructions on configuring the client application to receive push notifications, see [Titanium.CloudPush](https://titaniumsdk.com/api/).
 
 <a name="push_api"></a>
 
@@ -150,31 +150,31 @@ As of this Release, the Cloud module supports subscribing, unsubscribing and sen
 
 The following methods rely on the device token to send, subscribe or unsubscribe from push notifications:
 
-  * [Cloud.PushNotifications.notifyTokens](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.PushNotifications-method-notifyTokens)
-  * [Cloud.PushNotifications.subscribeToken](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.PushNotifications-method-subscribeToken)
-  * [Cloud.PushNotifications.unsubscribeToken](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Cloud.PushNotifications-method-unsubscribeToken)
+  * [Cloud.PushNotifications.notifyTokens](https://titaniumsdk.com/api/)
+  * [Cloud.PushNotifications.subscribeToken](https://titaniumsdk.com/api/)
+  * [Cloud.PushNotifications.unsubscribeToken](https://titaniumsdk.com/api/)
 
 To retrieve your device token:
 
-  * For Android, use the [CloudPush module](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.CloudPush).
+  * For Android, use the [CloudPush module](https://titaniumsdk.com/api/).
 
-  * For iOS, use the [Titanium.Network.registerForPushNotifications](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network-method-registerForPushNotifications) method.
+  * For iOS, use the [Titanium.Network.registerForPushNotifications](https://titaniumsdk.com/api/) method.
 
 <a name="animate"></a>
 
 ### Android Activity Animations
 
-Heavyweight windows support animated transitions when you open or close them.  In the parameter dictionary you pass to the Window's `open` or `close` method, set the [activityEnterAnimation](https://docs.appcelerator.com/titanium/latest/#!/api/openWindowParams-property-activityEnterAnimation) and [activityExitAnimation](https://docs.appcelerator.com/titanium/latest/#!/api/openWindowParams-property-activityExitAnimation) keys to animation resources. `activityEnterAnimation` sets the animation you want to run on the incoming activity, while `activityExitAnimation` sets the animation you want to run on the outgoing activity.
+Heavyweight windows support animated transitions when you open or close them.  In the parameter dictionary you pass to the Window's `open` or `close` method, set the [activityEnterAnimation](https://titaniumsdk.com/api/) keys to animation resources. `activityEnterAnimation` sets the animation you want to run on the incoming activity, while `activityExitAnimation` sets the animation you want to run on the outgoing activity.
 
 Animation resources are available through the R object. Use either `Titanium.Android.R` for built-in resources or `Titanium.App.Android.R` for resources that you package in your application.
 
-For more information, see the "Heavyweight Window Transitions in Android" section in the [Titanium.UI.Window API Reference guide](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window).
+For more information, see the "Heavyweight Window Transitions in Android" section in the [Titanium.UI.Window API Reference guide](https://titaniumsdk.com/api/).
 
 <a name="mapcenter"></a>
 
 ### iOS Center Offset for Map Annotations
 
-As of this Release, you can apply an (x, y) offset to a map annotation by specifying its [centerOffset property](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Map.Annotation-property-centerOffset).  This property is only for the iOS platform.
+As of this Release, you can apply an (x, y) offset to a map annotation by specifying its [centerOffset property](https://titaniumsdk.com/api/).  This property is only for the iOS platform.
 
 <a name="retrieve"></a>
 
@@ -182,8 +182,8 @@ As of this Release, you can apply an (x, y) offset to a map annotation by specif
 
 This release introduces two new read-only properties to retrieve the last Titanium.Analytics event and Titanium.Geolocation location:
 
-  * [Titanium.Analytics.lastEvent](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Analytics-property-lastEvent)
-  * [Titanium.Geolocation.lastGeolocation](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-property-lastGeolocation)
+  * [Titanium.Analytics.lastEvent](https://titaniumsdk.com/api/)
+  * [Titanium.Geolocation.lastGeolocation](https://titaniumsdk.com/api/)
 
 <a name="known"></a>
 
@@ -222,7 +222,7 @@ Alloy 1.2.1 GA is expected to be released next week with the fix fully tested.
 
 ## Fixed Issues and Enhancements
 
-  * [Full list of issues that were addressed in Release 3.1.2](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=15324)
+  * Full list of issues that were addressed in Release 3.1.2
 
 <a name="android_dev_option"></a>
 

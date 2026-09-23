@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -97,7 +97,7 @@
 
 #ifdef USE_TI_UIACTIVITYINDICATOR
   // TIMOB-17572: Attempt to resume activity indicator animation to reuse cell
-  // Use this workaroud until iOS is smart enough to retain the animation state itself
+  // Use this workaround until iOS is smart enough to retain the animation state itself
   if (self.subviews.firstObject != nil) {
     UIView *container = self.subviews.firstObject;
     [[container subviews] enumerateObjectsUsingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
@@ -141,7 +141,7 @@
   }
 }
 
-//TIMOB-17373. Workaround for separators disappearing on iOS7 and above
+// TIMOB-17373. Workaround for separators disappearing on iOS 7 and above
 - (void)ensureVisibleSelectorWithTableView:(UITableView *)tableView
 {
   if ([self selectedOrHighlighted]) {
@@ -177,7 +177,7 @@
 
   if (currentGradient == nil) {
     [gradientLayer removeFromSuperlayer];
-    //Because there's the chance that the other state still has the gradient, let's keep it around.
+    // Because there's the chance that the other state still has the gradient, let's keep it around.
     return;
   }
 
@@ -320,7 +320,7 @@
   if (same) {
     same = [self compareDataItemValue:@"height" withItem:otherItem];
   }
-  //These properties are applied in willDisplayCell. So force reload.
+  // These properties are applied in willDisplayCell. So force reload.
   if (same) {
     same = [self compareDataItemValue:@"backgroundColor" withItem:otherItem];
   }
@@ -335,7 +335,7 @@
 
 - (void)configureCellBackground
 {
-  //Ensure that we store the default backgroundColor
+  // Ensure that we store the default backgroundColor
   if ([_initialValues objectForKey:@"backgroundColor"] == nil) {
     id initialValue = nil;
     if (_templateStyle == TiUIListItemTemplateStyleCustom) {
@@ -360,7 +360,7 @@
   }
   self.backgroundColor = color;
 
-  //Ensure that we store the backgroundImage
+  // Ensure that we store the backgroundImage
   if ([_initialValues objectForKey:@"backgroundImage"] == nil) {
     id initialValue = nil;
     if (_templateStyle == TiUIListItemTemplateStyleCustom) {
@@ -374,7 +374,7 @@
   }
   UIImage *bgImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:backgroundImage proxy:_proxy] withLeftCap:TiDimensionAuto topCap:TiDimensionAuto];
   if (bgImage != nil) {
-    //Set the backgroundView to ImageView and set its backgroundColor to bgColor
+    // Set the backgroundView to ImageView and set its backgroundColor to bgColor
     if ([self.backgroundView isKindOfClass:[UIImageView class]]) {
       [(UIImageView *)self.backgroundView setImage:bgImage];
       [(UIImageView *)self.backgroundView setBackgroundColor:[UIColor clearColor]];
@@ -559,17 +559,17 @@
   }
   [self setBackgroundSelectedGradient_:selectedBackgroundGradientValue];
 
-  id selectedbackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
-  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
+  id selectedBackgroundColorValue = [properties objectForKey:@"backgroundSelectedColor"];
+  if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+    selectedBackgroundColorValue = [_proxy valueForKey:@"backgroundSelectedColor"];
   }
-  if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-    selectedbackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
+  if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+    selectedBackgroundColorValue = [properties valueForKey:@"selectedBackgroundColor"];
 
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
+    if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+      selectedBackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundColor"];
     }
-    if (!IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
+    if (!IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
       DEPRECATED_REPLACED(@"selectedBackgroundColor", @"10.0.0", @"backgroundSelectedColor");
     }
   }
@@ -581,15 +581,15 @@
   if (IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
     selectedBackgroundImageValue = [properties valueForKey:@"selectedBackgroundImage"];
 
-    if (IS_NULL_OR_NIL(selectedbackgroundColorValue)) {
-      selectedbackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
+    if (IS_NULL_OR_NIL(selectedBackgroundColorValue)) {
+      selectedBackgroundColorValue = [_proxy valueForKey:@"selectedBackgroundImage"];
     }
     if (!IS_NULL_OR_NIL(selectedBackgroundImageValue)) {
       DEPRECATED_REPLACED(@"selectedBackgroundImage", @"10.0.0", @"backgroundSelectedImage");
     }
   }
 
-  [self applyBackgroundWithSelectedColor:selectedbackgroundColorValue selectedImage:selectedBackgroundImageValue];
+  [self applyBackgroundWithSelectedColor:selectedBackgroundColorValue selectedImage:selectedBackgroundImageValue];
   [_resetKeys enumerateObjectsUsingBlock:^(NSString *keyPath, BOOL *stop) {
     id value = [_initialValues objectForKey:keyPath];
     [self setValue:(value != [NSNull null] ? value : nil) forKeyPath:keyPath];

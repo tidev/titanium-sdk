@@ -191,17 +191,17 @@ properties:
     type: String
 
   - name: root
-    summary: Root filesystem path, i.e. `'/'` or `'C:\\'`. Ignored if `pathObject.dir` is provided
+    summary: Root filesystem path, e.g. `'/'` or `'C:\\'`. Ignored if `pathObject.dir` is provided
     type: String
 
   - name: base
-    summary: file basename, i.e. `'file.txt'`
+    summary: file basename, e.g. `'file.txt'`
     type: String
 
   - name: name
-    summary: file basename without the extension, i.e. `'file'`. Ignored if `pathObject.base` exists
+    summary: file basename without the extension, e.g. `'file'`. Ignored if `pathObject.base` exists
     type: String
 
   - name: ext
-    summary: file extension, i.e. `'.txt'`. Ignored if `pathObject.base` exists
+    summary: file extension, e.g. `'.txt'`. Ignored if `pathObject.base` exists
     type: String

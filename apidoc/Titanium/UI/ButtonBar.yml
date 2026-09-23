@@ -13,7 +13,7 @@ description: |
     Use the <Titanium.UI.createButtonBar> method or **`<ButtonBar>`** Alloy element to create a button bar.
 
     The [TabbedBar](Titanium.UI.iOS.TabbedBar) control is a button bar where the
-    last selected button mantains a pressed or selected state. The following discussion
+    last selected button maintains a pressed or selected state. The following discussion
     applies to both button bar and tabbed bar.
 extends: Titanium.UI.View
 since: {android: "10.0.0", iphone: "0.8", ipad: "0.8", macos: "9.2.0"}

@@ -1,6 +1,6 @@
 package org.appcelerator.kroll.annotations;
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * 		{@link constant @Kroll.constant}, {@link property @Kroll.property}, {@link getProperty @Kroll.getProperty}, {@link setProperty @Kroll.setProperty}
  * </li>
  * <li>For injecting values into your proxy/module, see: {@link inject @Kroll.inject}</li>
- * <li>For binding a proxy or a proxy method into it's own top level object (i.e. "Titanium" or "setTimeout"), see: {@link topLevel @Kroll.topLevel}</li>
+ * <li>For binding a proxy or a proxy method into it's own top level object (e.g. "Titanium" or "setTimeout"), see: {@link topLevel @Kroll.topLevel}</li>
  * </ul>
  * @author Marshall Culpepper
  */
@@ -244,7 +244,7 @@ public @interface Kroll {
 		boolean set() default true;
 		/**
 		 * The name of this property in the API.<br>
-		 * @default The property's name in java source
+		 * @default The property's name in Java source
 		 */
 		String name() default DEFAULT_NAME;
 	}

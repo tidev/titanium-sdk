@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -13,8 +13,8 @@
   UIButton *button;
 
 #ifndef TI_USE_AUTOLAYOUT
-  //In the rare case where the button is treated as a view group, we must have
-  //an empty wrapper for -[parentViewForChild:]
+  // In the rare case where the button is treated as a view group, we must have
+  // an empty wrapper for -[parentViewForChild:]
   UIView *viewGroupWrapper;
 #endif
   UIImage *backgroundImageCache;

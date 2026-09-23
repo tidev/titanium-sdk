@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -38,9 +38,9 @@
 @property (nonatomic, readonly) TiProxy *tabGroup;
 @property (nonatomic) BOOL isMasterWindow;
 @property (nonatomic) BOOL isDetailWindow;
-@property (nonatomic) BOOL safeAreaInsetsUpdated;
+@property (nonatomic) BOOL pendingSafeAreaUpdate;
 
-- (void)processForSafeArea;
+- (BOOL)processForSafeArea;
 - (UIViewController *)windowHoldingController;
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation;
 

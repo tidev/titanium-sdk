@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -130,7 +130,7 @@
 
 - (NSNumber *)isActivated
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
   }
   return NUMBOOL(NO);
@@ -156,7 +156,7 @@
 
 - (NSNumber *)activationState
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return [NSNumber numberWithInteger:[[self watchSession] activationState]];
   }
 
@@ -164,7 +164,7 @@
   return nil;
 }
 
-//copy of most recent app context sent to watch
+// copy of most recent app context sent to watch
 - (NSDictionary *)recentApplicationContext
 {
   if ([WCSession isSupported]) {
@@ -210,7 +210,7 @@
 #endif
       }];
 }
-//sent to watch so that it can update its state when it wakes
+// sent to watch so that it can update its state when it wakes
 - (void)updateApplicationContext:(id)value
 {
   if (![WCSession isSupported]) {
@@ -230,7 +230,7 @@
   }
 }
 
-//sent in background
+// sent in background
 - (void)transferUserInfo:(id)value
 {
   if (![WCSession isSupported]) {
@@ -243,10 +243,10 @@
   }
   ENSURE_SINGLE_ARG(value, NSDictionary)
 
-      [[self watchSession] transferUserInfo:value];
+  [[self watchSession] transferUserInfo:value];
 }
 
-//sent in background
+// sent in background
 - (void)transferFile:(id)value
 {
   if (![WCSession isSupported]) {
@@ -280,7 +280,7 @@
   }
   ENSURE_SINGLE_ARG(value, NSDictionary)
 
-      [[self watchSession] transferCurrentComplicationUserInfo:value];
+  [[self watchSession] transferCurrentComplicationUserInfo:value];
 }
 
 - (void)cancelAllUserInfoTransfers:(id)value
@@ -330,7 +330,7 @@
     [self fireEvent:@"receivemessage" withObject:@{ @"message" : message }];
   }
 }
-//these are context updates received right after [watchSession activateSession]
+// these are context updates received right after [watchSession activateSession]
 - (void)session:(nonnull WCSession *)session didReceiveApplicationContext:(nonnull NSDictionary<NSString *, id> *)applicationContext
 {
   if ([self _hasListeners:@"receiveapplicationcontext"]) {
@@ -448,25 +448,16 @@
 
 - (NSNumber *)ACTIVATION_STATE_NOT_ACTIVATED
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    return nil;
-  }
   return NUMINTEGER(WCSessionActivationStateNotActivated);
 }
 
 - (NSNumber *)ACTIVATION_STATE_INACTIVE
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    return nil;
-  }
   return NUMINTEGER(WCSessionActivationStateInactive);
 }
 
 - (NSNumber *)ACTIVATION_STATE_ACTIVATED
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    return nil;
-  }
   return NUMINTEGER(WCSessionActivationStateActivated);
 }
 
@@ -481,10 +472,8 @@
     @"isComplicationEnabled" : [self isComplicationEnabled]
   }];
 
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    [dict setObject:[self isActivated] forKey:@"isActivated"];
-    [dict setObject:[self activationState] forKey:@"activationState"];
-  }
+  [dict setObject:[self isActivated] forKey:@"isActivated"];
+  [dict setObject:[self activationState] forKey:@"activationState"];
 
   [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
   [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];

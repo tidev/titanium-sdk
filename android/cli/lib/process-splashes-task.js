@@ -1,12 +1,12 @@
-const path = require('path');
-const CopyResourcesTask = require('../../../cli/lib/tasks/copy-resources-task');
+import path from 'node:path';
+import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js';
 
 const drawableDpiRegExp = /^(high|medium|low)$/;
 
 /**
  * Task that copies Android splash screens into the app.
  */
-class ProcessSplashesTask extends CopyResourcesTask {
+export class ProcessSplashesTask extends CopyResourcesTask {
 
 	/**
 	 * Constructs a new processing task.
@@ -43,5 +43,3 @@ class ProcessSplashesTask extends CopyResourcesTask {
 		super(options);
 	}
 }
-
-module.exports = ProcessSplashesTask;

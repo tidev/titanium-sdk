@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -17,6 +17,7 @@ import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiRootActivity;
+import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
@@ -43,8 +44,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 @Kroll.module
 public class UIModule extends KrollModule implements TiApplication.ConfigurationChangedListener
@@ -443,7 +447,58 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	@Kroll.constant
 	public static final int USER_INTERFACE_STYLE_UNSPECIFIED = Configuration.UI_MODE_NIGHT_UNDEFINED;
 
+	@Kroll.constant
+	public static final int BREAK_SIMPLE = 0;
+	@Kroll.constant
+	public static final int BREAK_HIGH_QUALITY = 1;
+	@Kroll.constant
+	public static final int BREAK_BALANCED = 2;
+
+	@Kroll.constant
+	public static final int HYPHEN_NONE = 0;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL = 1;
+	@Kroll.constant
+	public static final int HYPHEN_FULL = 2;
+	@Kroll.constant
+	public static final int HYPHEN_NORMAL_FAST = 3;
+	@Kroll.constant
+	public static final int HYPHEN_FULL_FAST = 4;
+
 	protected static final int MSG_LAST_ID = KrollProxy.MSG_LAST_ID + 101;
+
+	// Accessed from both the runtime thread (ColorProxy creation) and the UI thread (configuration
+	// changes), so it must be synchronized. Keys are weakly held so proxies can be garbage collected.
+	protected static final Map<UIStyleChangedListener, Object> uiStyleChangedListeners
+		= Collections.synchronizedMap(new WeakHashMap<>());
+
+	public interface UIStyleChangedListener {
+		void onUserInterfaceStyleChanged(int styleId);
+	}
+
+	public static void addUIStyleChangedListener(UIStyleChangedListener a)
+	{
+		uiStyleChangedListeners.put(a, null);
+	}
+
+	public static void removeUIStyleChangedListener(UIStyleChangedListener a)
+	{
+		uiStyleChangedListeners.remove(a);
+	}
+
+	public static void notifyUIStyleChangedListeners(int styleId)
+	{
+		// Snapshot the listeners under lock, then notify outside of it to avoid holding the
+		// monitor across callbacks and to prevent ConcurrentModificationException.
+		UIStyleChangedListener[] listeners;
+		synchronized (uiStyleChangedListeners)
+		{
+			listeners = uiStyleChangedListeners.keySet().toArray(new UIStyleChangedListener[0]);
+		}
+		for (UIStyleChangedListener listener : listeners) {
+			listener.onUserInterfaceStyleChanged(styleId);
+		}
+	}
 
 	public UIModule()
 	{
@@ -465,12 +520,12 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	}
 
 	@Kroll.setProperty(runOnUiThread = true)
-	public void setBackgroundColor(String color)
+	public void setBackgroundColor(Object color)
 	{
 		doSetBackgroundColor(color);
 	}
 
-	protected void doSetBackgroundColor(String color)
+	protected void doSetBackgroundColor(Object color)
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
@@ -606,6 +661,17 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 		return getUserInterfaceStyle(TiApplication.getInstance().getResources().getConfiguration());
 	}
 
+	@Kroll.method
+	public ColorProxy fetchSemanticColor(Object value)
+	{
+		if (value instanceof ColorProxy) {
+			return (ColorProxy) value;
+		} else if (value instanceof String) {
+			return TiColorHelper.getColorProxy(value);
+		}
+		return null;
+	}
+
 	@Kroll.getProperty
 	public int statusBarHeight()
 	{
@@ -691,6 +757,7 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 		KrollDict event = new KrollDict();
 		event.put(TiC.PROPERTY_VALUE, lastEmittedStyle);
 		fireEvent(TiC.EVENT_USER_INTERFACE_STYLE, event);
+		notifyUIStyleChangedListeners(lastEmittedStyle);
 
 	}
 }

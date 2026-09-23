@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -19,6 +19,10 @@
 
     [blurView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [blurView setContentMode:[self contentModeForBlurView]];
+
+    // Let the Titanium view handle touch/click events and not the blur view itself.
+    // UIVisualEffectView can intercept touches and prevent TiUIView gesture handling.
+    [blurView setUserInteractionEnabled:NO];
 
     [self addSubview:blurView];
   }
@@ -47,6 +51,39 @@
 
   [[self blurView] setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
   [[self proxy] replaceValue:value forKey:@"effect" notification:NO];
+}
+
+#if IS_SDK_IOS_26
+- (void)setGlassEffect_:(id)value
+{
+  ENSURE_TYPE_OR_NIL(value, NSDictionary);
+
+  BOOL isInteractive = [TiUtils boolValue:@"interactive" properties:value def:NO];
+  TiColor *tintColor = [TiUtils colorValue:@"tintColor" properties:value def:nil];
+  UIGlassEffectStyle style = [TiUtils intValue:@"style" properties:value def:UIGlassEffectStyleRegular];
+
+  if (@available(iOS 26.0, *)) {
+    UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
+    glassEffect.interactive = isInteractive;
+    glassEffect.tintColor = tintColor.color;
+
+    [[self blurView] setEffect:glassEffect];
+    [[self proxy] replaceValue:value forKey:@"glassEffect" notification:NO];
+  }
+}
+#endif
+
+- (void)setBorderRadius_:(NSNumber *)borderRadius
+{
+#if IS_SDK_IOS_26
+  // The UICornerConfiguration is necessary to use the iOS 26+ glass effect API
+  if (@available(iOS 26.0, *)) {
+    blurView.cornerConfiguration = [UICornerConfiguration configurationWithRadius:[UICornerRadius fixedRadius:borderRadius.floatValue]];
+    return;
+  }
+#endif
+
+  [super setBorderRadius_:borderRadius];
 }
 
 - (void)setWidth_:(id)width_
@@ -91,7 +128,7 @@
 - (CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
   if (autoWidth > 0) {
-    //If height is DIP returned a scaled autowidth to maintain aspect ratio
+    // If height is DIP returned a scaled autowidth to maintain aspect ratio
     if (TiDimensionIsDip(height) && autoHeight > 0) {
       return roundf(autoWidth * height.value / autoHeight);
     }

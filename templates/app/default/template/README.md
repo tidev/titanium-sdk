@@ -1,4 +1,4 @@
-# Welcome to your TiDev Titanium Mobile Project
+# Welcome to your Titanium SDK Project
 
 This is a blank project.  Start by editing your application's app.js to
 make your first mobile project using Titanium.

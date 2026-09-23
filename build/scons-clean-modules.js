@@ -1,11 +1,10 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
+import { program } from 'commander';
+import { cleanupModules, sdkInstallDir } from './lib/utils.js';
 
 program.parse(process.argv);
 
-const { cleanupModules, sdkInstallDir } = require('./lib/utils');
 const sdkRootDir = sdkInstallDir();
 cleanupModules(sdkRootDir).then(() => process.exit(0))
 	.catch(e => {

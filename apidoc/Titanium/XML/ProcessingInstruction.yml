@@ -11,7 +11,7 @@ properties:
   - name: data
     summary: >
         Retrieve the content of this processing instruction. This from the first non white space character
-        after the target to the character immediatly preceding the ?>. When setting a processing instruction,
+        after the target to the character immediately preceding the ?>. When setting a processing instruction,
         a DOMException may be thrown on an invalid instruction.
     type: String
   - name: target

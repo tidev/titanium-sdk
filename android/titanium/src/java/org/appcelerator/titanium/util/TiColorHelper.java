@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.proxy.ColorProxy;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,6 +56,26 @@ public class TiColorHelper
 	 * @param value the color value to convert. For example, "red".
 	 * @return the RGB/RGBA representation (int) of the color.
 	 */
+
+	public static int parseColor(Object value)
+	{
+		return parseColor(value, null);
+	}
+
+	public static int parseColor(Object value, Context context)
+	{
+		if (value == null) {
+			return Color.TRANSPARENT;
+		}
+		if (value instanceof String) {
+			return parseColor((String) value, context);
+		} else if (value instanceof ColorProxy) {
+			return parseColor(((ColorProxy) value).getName(), context);
+		}
+		Log.w(TAG, ".parseColor(). Unsupported argument type: " + value.getClass().getName());
+		return Color.TRANSPARENT;
+	}
+
 	public static int parseColor(String value)
 	{
 		return parseColor(value, null);
@@ -108,17 +129,15 @@ public class TiColorHelper
 				Math.round(Float.valueOf(m.group(2)) * 255f), Math.round(Float.valueOf(m.group(3)) * 255f));
 		}
 
+		if (context == null) {
+			context = getDefaultContext();
+		}
 		// Check if this a "semantic.colors.json" generated string from our common "ti.ui.js" script.
 		// Example: "ti.semantic.color:dark=<ColorString>;light=<ColorString>"
 		final String TI_SEMANTIC_COLOR_PREFIX = "ti.semantic.color:";
 		if (value.startsWith(TI_SEMANTIC_COLOR_PREFIX)) {
 			String themePrefix = "light=";
-			Configuration config;
-			if (context != null) {
-				config = context.getResources().getConfiguration();
-			} else {
-				config = TiApplication.getInstance().getResources().getConfiguration();
-			}
+			Configuration config = context.getResources().getConfiguration();
 			if ((config.uiMode & Configuration.UI_MODE_NIGHT_YES) != 0) {
 				themePrefix = "dark=";
 			}
@@ -197,8 +216,7 @@ public class TiColorHelper
 		// Note: Resources.getIdentifier() won't accept leading '?'. We must replace it.
 		TiApplication app = TiApplication.getInstance();
 		if (context == null) {
-			Context activity = app.getCurrentActivity();
-			context = activity != null ? activity : app;
+			context = getDefaultContext();
 		}
 		if (colorName.startsWith("?")) {
 			colorName = "@" + colorName.substring(1);
@@ -244,6 +262,29 @@ public class TiColorHelper
 		return 0;
 	}
 
+	public static ColorProxy getColorProxy(Object idOrName)
+	{
+		try {
+			// Color by resource id
+			if (idOrName instanceof Number) {
+				int colorResId = ((Number) idOrName).intValue();
+				Context context = getDefaultContext();
+				@ColorInt int packedColorInt = ContextCompat.getColor(context, colorResId);
+				String colorName = context.getResources().getResourceEntryName(colorResId);
+				return new ColorProxy(packedColorInt, colorName);
+			}
+			// Color by name
+			String colorName = idOrName.toString();
+			if (TiColorHelper.hasColorResource(colorName)) {
+				@ColorInt int packedColorInt = getColorResource(colorName);
+				return new ColorProxy(packedColorInt, colorName);
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return null;
+	}
+
 	public static boolean isColor(TypedValue typedValue)
 	{
 		if (typedValue != null) {
@@ -253,6 +294,19 @@ public class TiColorHelper
 			}
 		}
 		return false;
+	}
+
+	@NonNull
+	private static Context getDefaultContext()
+	{
+		// Favor an Activity context (needed for theme-based color resolution), falling back to the
+		// application context so this never returns null.
+		TiApplication tiApp = TiApplication.getInstance();
+		Context context = tiApp.getCurrentActivity();
+		if (context == null) {
+			context = tiApp.getRootActivity();
+		}
+		return context != null ? context : tiApp;
 	}
 
 	private static void buildColorTable()

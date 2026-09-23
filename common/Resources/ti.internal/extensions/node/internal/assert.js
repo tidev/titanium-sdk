@@ -21,7 +21,7 @@
 /**
  * Node's lib/internal/assert.js modified for Axway Titanium
  *
- * @see https://github.com/nodejs/node/blob/master/lib/internal/assert.js
+ * @see https://github.com/nodejs/node/blob/main/lib/internal/assert.js
  */
 
 import { codes } from './errors';

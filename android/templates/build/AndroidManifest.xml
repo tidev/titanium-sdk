@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	package="<%- packageName %>"
 	android:versionCode="1">
 
 <% if (usesPermissions) { for (const nextPermission of usesPermissions) { %>
@@ -27,6 +26,7 @@
 		android:icon="<%- appIcon %>"
 		android:label="<%- appLabel %>"
 		android:name="<%- classname %>Application"
+		android:enableOnBackInvokedCallback="false"
 		android:usesCleartextTraffic="true"
 		android:theme="@style/Theme.Titanium.App">
 

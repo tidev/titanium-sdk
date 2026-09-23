@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -263,10 +263,8 @@ MAKE_SYSTEM_PROP(AUTOLINK_SHIPMENT_TRACKING_NUMBER, UIDataDetectorTypeShipmentTr
 MAKE_SYSTEM_PROP(AUTOLINK_FLIGHT_NUMBER, UIDataDetectorTypeFlightNumber);
 MAKE_SYSTEM_PROP(AUTOLINK_LOOKUP_SUGGESTION, UIDataDetectorTypeLookupSuggestion);
 
-#if IS_SDK_IOS_16
 MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_MONEY, UIDataDetectorTypeMoney, @"16.0");
 MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_PHYSICAL_VALUE, UIDataDetectorTypePhysicalValue, @"16.0");
-#endif
 
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT, UITableViewCellStyleDefault);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS, UITableViewCellStyleValue1);
@@ -394,12 +392,12 @@ MAKE_SYSTEM_PROP(UNKNOWN, UIDeviceOrientationUnknown);
 MAKE_SYSTEM_PROP(FACE_UP, UIDeviceOrientationFaceUp);
 MAKE_SYSTEM_PROP(FACE_DOWN, UIDeviceOrientationFaceDown);
 
-MAKE_SYSTEM_PROP(EXTEND_EDGE_NONE, 0); //UIRectEdgeNone
-MAKE_SYSTEM_PROP(EXTEND_EDGE_TOP, 1); //UIRectEdgeTop
-MAKE_SYSTEM_PROP(EXTEND_EDGE_LEFT, 2); //UIEdgeRectLeft
-MAKE_SYSTEM_PROP(EXTEND_EDGE_BOTTOM, 4); //UIEdgeRectBottom
-MAKE_SYSTEM_PROP(EXTEND_EDGE_RIGHT, 8); //UIEdgeRectRight
-MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
+MAKE_SYSTEM_PROP(EXTEND_EDGE_NONE, 0); // UIRectEdgeNone
+MAKE_SYSTEM_PROP(EXTEND_EDGE_TOP, 1); // UIRectEdgeTop
+MAKE_SYSTEM_PROP(EXTEND_EDGE_LEFT, 2); // UIEdgeRectLeft
+MAKE_SYSTEM_PROP(EXTEND_EDGE_BOTTOM, 4); // UIEdgeRectBottom
+MAKE_SYSTEM_PROP(EXTEND_EDGE_RIGHT, 8); // UIEdgeRectRight
+MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 
 - (NSString *)TEXT_STYLE_HEADLINE
 {
@@ -449,9 +447,9 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 - (void)setOverrideUserInterfaceStyle:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)
-      [self replaceValue:args
-                  forKey:@"overrideUserInterfaceStyle"
-            notification:NO];
+  [self replaceValue:args
+              forKey:@"overrideUserInterfaceStyle"
+        notification:NO];
   int style = [TiUtils intValue:args def:UIUserInterfaceStyleUnspecified];
   TiApp.app.window.overrideUserInterfaceStyle = style;
 }
@@ -640,7 +638,7 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); //UIEdgeRectAll
 
   float result = 0.0;
   if (convertFromValue != nil && convertToUnits != nil) {
-    //Convert to DIP first
+    // Convert to DIP first
     TiDimension fromVal = TiDimensionFromObject(convertFromValue);
 
     if (TiDimensionIsDip(fromVal)) {

@@ -235,4 +235,3 @@ typedef enum {
  * - #PLDatabaseErrorVendorErrorKey - The native database error code.
  * - #PLDatabaseErrorVendorStringKey - The native database error string.
  */
-

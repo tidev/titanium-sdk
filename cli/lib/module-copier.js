@@ -1,14 +1,10 @@
-'use strict';
-
-const { Arborist } = require('@npmcli/arborist');
-const fs = require('fs-extra');
-const path = require('path');
-
-const copier = {};
+import { Arborist } from '@npmcli/arborist';
+import fs from 'fs-extra';
+import path from 'node:path';
 
 /**
  * Reads of the node_modules on disk, and then produces a Set of paths to copy that match the
- * criteria. Will always ignore development dependencies, titanium native modules (denoted by
+ * criteria. Will always ignore development dependencies, Titanium native modules (denoted by
  * titanium.type in package.json being native-modules), and optionally peer and optional
  * dependencies
  *
@@ -18,7 +14,7 @@ const copier = {};
  * @param {boolean} [options.includePeers=true] whether to include peer dependencies when gathering
  * @returns {Promise<Set<string>>} A Promise that resolves on completion
  */
-copier.gather = async function (projectPath, options = { includeOptional: true, includePeers: true }) {
+export async function gather(projectPath, options = { includeOptional: true, includePeers: true }) {
 	if (projectPath === null || projectPath === undefined) {
 		throw new Error('projectPath must be defined.');
 	}
@@ -31,7 +27,7 @@ copier.gather = async function (projectPath, options = { includeOptional: true, 
 	const directoriesToBeCopied = await getDirectoriesToCopy(tree, projectPath, options.includeOptional, options.includePeers, projectPath);
 
 	return new Set(directoriesToBeCopied); // de-duplicate
-};
+}
 
 /**
  * Given a path, traverse its node_modules and determine the directories to copy across, then copy
@@ -44,7 +40,7 @@ copier.gather = async function (projectPath, options = { includeOptional: true, 
  * @param {boolean} [options.includePeers=true] whether to include peer dependencies when gathering
  * @returns {Promise<void>} A Promise that resolves on completion
  */
-copier.execute = async function (projectPath, targetPath, options = { includeOptional: true, includePeers: true }) {
+export async function execute(projectPath, targetPath, options = { includeOptional: true, includePeers: true }) {
 	if (projectPath === null || projectPath === undefined) {
 		throw new Error('projectPath must be defined.');
 	}
@@ -56,7 +52,7 @@ copier.execute = async function (projectPath, targetPath, options = { includeOpt
 	projectPath = path.resolve(projectPath);
 	targetPath = path.resolve(targetPath);
 
-	const dirSet = await copier.gather(projectPath, options);
+	const dirSet = await gather(projectPath, options);
 	// back to Array so we can #map()
 	const deDuplicated = Array.from(dirSet);
 
@@ -66,7 +62,7 @@ copier.execute = async function (projectPath, targetPath, options = { includeOpt
 		const destPath = path.join(targetPath, relativePath);
 		return fs.copy(directory, destPath, { overwrite: true }); // TODO: Allow incremental copying! Maybe use gulp/vinyl?
 	}));
-};
+}
 
 /**
  * Walks a tree from @npmcli/arborist, gathering the required paths to copy from node_modules
@@ -77,8 +73,7 @@ copier.execute = async function (projectPath, targetPath, options = { includeOpt
  * @param {boolean} includePeers Whether to include peer dependencies
  * @returns {Promise<string[]>} An array of directory paths to copy
  */
-async function getDirectoriesToCopy (tree, projectPath, includeOptional, includePeers) {
-
+async function getDirectoriesToCopy(tree, projectPath, includeOptional, includePeers) {
 	const children = await gatherChildren(tree.children, includeOptional, includePeers);
 	if (children.size === 0) {
 		if (tree.path === projectPath) {
@@ -103,7 +98,7 @@ async function getDirectoriesToCopy (tree, projectPath, includeOptional, include
 }
 
 /**
- * Filters the children property to exclude development dependencies, titanium native modules,
+ * Filters the children property to exclude development dependencies, Titanium native modules,
  * and optionally peer or optional dependencies.
  *
  * @param {Object} children The children property from a @npmcli/arborist Node
@@ -141,5 +136,3 @@ async function gatherChildren (children, includeOptional, includePeers) {
 
 	return filteredChildren;
 }
-
-module.exports = copier;

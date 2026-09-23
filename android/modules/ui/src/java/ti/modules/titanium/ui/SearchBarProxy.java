@@ -1,10 +1,6 @@
-/**
- * TiDev Titanium Mobile
- * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
- * Licensed under the terms of the Apache Public License
- * Please see the LICENSE included with this distribution for details.
- */
 package ti.modules.titanium.ui;
+
+import android.app.Activity;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -14,7 +10,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchbar.TiUISearchBar;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -30,7 +25,7 @@ import android.app.Activity;
 		TiC.PROPERTY_PROMPT,
 		TiC.PROPERTY_PROMPT_ID,
 		TiC.PROPERTY_VALUE
-})
+	})
 public class SearchBarProxy extends TiViewProxy
 {
 	public SearchBarProxy()

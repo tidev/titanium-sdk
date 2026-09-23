@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -76,7 +76,7 @@
     }
 
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    if (UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation])) {
+    if (UIInterfaceOrientationIsLandscape([TiUtils interfaceOrientation])) {
       screenSize = CGSizeMake(screenSize.height, screenSize.width);
     }
 
@@ -110,7 +110,7 @@
 {
   [super layoutSubviews];
   [self initWrappers];
-  [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientation]];
 }
 
 - (void)layoutSubviewsForOrientation:(UIInterfaceOrientation)orientation
@@ -133,8 +133,8 @@
     if (showMasterInPortrait) {
       if (masterIsOverlayed) {
         /*
-                 * Detail occupies visible area. Master on top.
-                 */
+         * Detail occupies visible area. Master on top.
+         */
         detailSize = CGSizeMake(refSize.width, refSize.height);
         masterSize = CGSizeMake(masterWidth, refSize.height);
         masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
@@ -143,8 +143,8 @@
         detailCenter = CGPointMake(detailSize.width / 2, detailSize.height / 2);
       } else {
         /*
-                 * Side by side. Master+Detail occupy visible area
-                 */
+         * Side by side. Master+Detail occupy visible area
+         */
         masterSize = CGSizeMake(masterWidth, refSize.height);
         masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
         masterCenter = CGPointMake(masterSize.width / 2, masterSize.height / 2);
@@ -155,8 +155,8 @@
 
     } else {
       /*
-             * Side by side. Detail in visible area. Master off screen to left.
-             */
+       * Side by side. Detail in visible area. Master off screen to left.
+       */
       detailSize = CGSizeMake(refSize.width, refSize.height);
       masterSize = CGSizeMake(masterWidth, refSize.height);
       masterRect = CGRectMake(0, 0, masterSize.width, masterSize.height);
@@ -166,8 +166,8 @@
     }
   } else {
     /*
-         * Side by side. Master+Detail occupy visible area
-         */
+     * Side by side. Master+Detail occupy visible area
+     */
     CGFloat masterWidth = roundf(splitRatioLandscape * refSize.width);
     detailSize = CGSizeMake(refSize.width - masterWidth, refSize.height);
     masterSize = CGSizeMake(masterWidth, refSize.height);
@@ -193,7 +193,7 @@
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
   [super frameSizeChanged:frame bounds:bounds];
-  [self layoutSubviewsForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientation]];
 }
 
 - (void)setShowMasterInPortrait_:(id)value withObject:(id)animated
@@ -205,7 +205,7 @@
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
 
-  UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
       void (^animation)() = ^{
@@ -227,7 +227,7 @@
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
 
-  UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
       void (^animation)() = ^{
@@ -295,7 +295,7 @@
 
   if ((newValue >= 0.25) && (newValue <= 0.5) && newValue != splitRatioPortrait) {
     splitRatioPortrait = newValue;
-    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
     if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
       [self layoutSubviewsForOrientation:curOrientation];
     }
@@ -311,7 +311,7 @@
 
   if ((newValue >= 0.25) && (newValue <= 0.5) && newValue != splitRatioLandscape) {
     splitRatioLandscape = newValue;
-    UIInterfaceOrientation curOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
     if (viewsInitialized && UIInterfaceOrientationIsLandscape(curOrientation)) {
       [self layoutSubviewsForOrientation:curOrientation];
     }

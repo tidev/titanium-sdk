@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -98,9 +98,9 @@
     for (TiViewProxy *thisProxy in value) {
       ENSURE_CLASS(thisProxy, proxyClass);
       if (![thisProxy supportsNavBarPositioning]) {
-        //TODO: This is an exception that should have been raised long ago.
+        // TODO: This is an exception that should have been raised long ago.
         DebugLog(@"[ERROR] %@ does not support being in a toolbar!", thisProxy);
-        //continue;
+        // continue;
       }
       if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)]) {
         [(id<TiToolbarButton>)thisProxy setToolbar:(id<TiToolbar>)self.proxy];
@@ -109,6 +109,20 @@
       [result addObject:[thisProxy barButtonItem]];
       [thisProxy windowDidOpen];
     }
+
+#if IS_SDK_IOS_26
+    BOOL toolbarSeparated = [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"hideSharedBackground"] def:NO];
+    for (NSUInteger i = 0; i < result.count; i++) {
+      UIBarButtonItem *item = result[i];
+      TiViewProxy *proxy = value[i];
+      BOOL itemSeparated = [TiUtils boolValue:[proxy valueForUndefinedKey:@"hideSharedBackground"] def:NO];
+      if (toolbarSeparated || itemSeparated) {
+        if (@available(iOS 26.0, *)) {
+          item.hidesSharedBackground = YES;
+        }
+      }
+    }
+#endif
     [[self toolBar] setItems:result];
   } else {
     UIToolbar *toolbar = [self toolBar];

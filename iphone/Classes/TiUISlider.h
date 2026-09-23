@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -25,7 +25,7 @@
 
 /**
  * Internal method used to trigger the value-change from the proxy instead.
- * This is required in order to handle complex arguments, e.g. number and 
+ * This is required in order to handle complex arguments, e.g. number and
  * animated-flag in one command.
  */
 - (void)_setValue:(id)value;

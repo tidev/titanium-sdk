@@ -42,7 +42,7 @@ description: |
     ```
 
     Static shortcuts can be translated in the `i18n/<language>/app.xml` file. Dynamic shortcuts can be translated by using the
-    methods described [in the Wiki](https://wiki.appcelerator.org/display/guides2/Internationalization).
+    methods described in the Wiki.
 
     To use this feature make sure you have a 3D Touch compatible device running iOS 9 or later. To
     check for the feature, use the <Titanium.UI.iOS.forceTouchSupported> property.
@@ -284,7 +284,7 @@ properties:
   - name: title
     summary: The title of the application shortcut.
     description: |
-        The title can be localized, see [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        The title can be localized, see here
         for more infos. 
     type: String
     optional: false
@@ -292,7 +292,7 @@ properties:
   - name: subtitle
     summary: The subtitle displayed on the application shortcut.
     description: |
-        The subtitle can be localized, see [here](https://wiki.appcelerator.org/display/guides2/Internationalization)
+        The subtitle can be localized, see here
         for more infos. 
     type: String
     optional: true

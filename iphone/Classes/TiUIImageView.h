@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -12,7 +12,7 @@
 //
 // this is a re-implementation (sort of) of the UIImageView object used for
 // displaying animated images.  The UIImageView object sucks and is very
-// problemmatic and we try and solve it here.
+// problematic and we try and solve it here.
 //
 
 @interface TiUIImageView : TiUIView <ImageLoaderDelegate, TiProxyDelegate> {
@@ -45,6 +45,7 @@
 - (void)resume;
 
 - (void)setImage_:(id)arg;
+- (void)addSymbolEffect:(NSDictionary *)args;
 
 @end
 

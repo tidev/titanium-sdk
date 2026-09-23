@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -652,6 +652,26 @@ describe('Titanium.UI.TabGroup', function () {
 		tabGroup.open();
 	});
 
+	it.android('icon-only tabs - android bottom style (experimental layout)', finish => {
+		this.timeout(5000);
+		tabGroup = Ti.UI.createTabGroup({
+			style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+			experimental: true,
+			tabs: [
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 1' })
+				}),
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 2' })
+				}),
+			]
+		});
+		tabGroup.addEventListener('open', () => finish());
+		tabGroup.open();
+	});
+
 	// Android only feature where setting the "padding*" properties on the bottom tab bar style
 	// makes it look like a floating toolbar with rounded corners.
 	describe('floating tab bar', () => {
@@ -686,6 +706,57 @@ describe('Titanium.UI.TabGroup', function () {
 				paddingLeft: 15,
 				paddingRight: 15,
 				paddingBottom: 15,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
+	});
+
+	describe('floating tab bar (experimental layout)', () => {
+		it.android('extendSafeArea - false (experimental layout)', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: false,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				experimental: true,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
+
+		it.android('extendSafeArea - true (experimental layout)', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: true,
+				windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_STATUS | Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				experimental: true,
 				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
 				tabs: [
 					Ti.UI.createTab({

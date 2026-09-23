@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -47,12 +47,12 @@
 {
   BOOL boolValue = [TiUtils boolValue:value];
   BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
-  //TODO: Value checking and exception generation, if necessary.
+  // TODO: Value checking and exception generation, if necessary.
 
   [self replaceValue:value forKey:@"showCancel" notification:NO];
   showsCancelButton = boolValue;
 
-  //ViewAttached gives a false negative when not attached to a window.
+  // ViewAttached gives a false negative when not attached to a window.
   TiThreadPerformOnMainThread(
       ^{
         UISearchBar *search = [self searchBar];

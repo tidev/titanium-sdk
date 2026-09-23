@@ -1,11 +1,10 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
+import { program } from 'commander';
+import { cleanNonGaSDKs } from './lib/utils.js';
 
 program.parse(process.argv);
 
-const { cleanNonGaSDKs } = require('./lib/utils');
 cleanNonGaSDKs().then(() => process.exit(0))
 	.catch(e => {
 		console.error(e);

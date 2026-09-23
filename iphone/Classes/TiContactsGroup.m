@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -186,7 +186,7 @@
                 location:CODELOCATION];
   }
 
-// Ignore static analylzer warning here
+// Ignore static analyzer warning here
 // This is to release the saverequest in TiContactsPerson.m line 965 in (CNSaveRequest*)getSaveRequestForAddition
 #ifndef __clang_analyzer__
   RELEASE_TO_NIL(saveRequest);
@@ -222,7 +222,7 @@
 #endif
 }
 
-//For iOS9 deleting contact
+// For iOS 9 deleting contact
 #ifndef __clang_analyzer__
 - (CNSaveRequest *)getSaveRequestForDeletion
 {

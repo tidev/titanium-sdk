@@ -1,11 +1,9 @@
-'use strict';
+import ejs from 'ejs';
+import fs from 'fs-extra';
+import path from 'node:path';
+import { spawn } from 'node:child_process';
 
-const ejs = require('ejs');
-const fs = require('fs-extra');
-const path = require('path');
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
-
-module.exports = templateHookDir => (logger, config, cli) => {
+export function templateHookDir(logger, config, cli) {
 	const templatePath = path.resolve(templateHookDir, '..', 'template');
 	cli.on('create.post.app', async (creator, next) => {
 		const projectName = cli.argv.name;
@@ -23,7 +21,7 @@ module.exports = templateHookDir => (logger, config, cli) => {
 		}
 		next();
 	});
-};
+}
 
 async function copyGitIgnore(templatePath, projectPath) {
 	const sourcePath = path.resolve(templatePath, '.gitignore');
@@ -41,11 +39,12 @@ async function updatePackageJson(projectPath, data) {
 }
 
 async function renderReadme(projectPath, data) {
-	const isAppcCli = !!process.env.APPC_ENV;
-	const buildCmd = isAppcCli ? 'appc run' : 'ti build';
 	const readmePath = path.join(projectPath, 'README.md');
 	const readmeTemplate = await fs.readFile(readmePath, 'utf-8');
-	const readmeContent = ejs.render(readmeTemplate, { buildCmd, ...data });
+	const readmeContent = ejs.render(readmeTemplate, {
+		buildCmd: 'ti build',
+		...data
+	});
 	return fs.writeFile(readmePath, readmeContent);
 }
 

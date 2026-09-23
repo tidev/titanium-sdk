@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -9,6 +9,7 @@ package ti.modules.titanium.calendar;
 
 import java.util.ArrayList;
 
+import android.annotation.SuppressLint;
 import android.provider.CalendarContract;
 
 import org.appcelerator.kroll.KrollDict;
@@ -126,6 +127,7 @@ public class CalendarModule extends KrollModule
 		return CalendarProxy.hasCalendarPermissions();
 	}
 
+	@SuppressLint("NewApi")
 	@Kroll.method
 	public KrollPromise<KrollDict> requestCalendarPermissions(
 		@Kroll.argument(optional = true) final KrollFunction permissionCallback)

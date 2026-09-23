@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-'use strict';
 
-const path = require('path');
-const glob = require('glob');
-const yaml = require('js-yaml');
-const fs = require('fs-extra');
-const promisify = require('util').promisify;
-const semver = require('semver');
-const chalk = require('chalk');
+import path from 'node:path';
+import { glob } from 'glob';
+import yaml from 'js-yaml';
+import fs from 'fs-extra';
+import semver from 'semver';
+import chalk from 'chalk';
+import { fileURLToPath } from 'node:url';
 
 // TODO: Extract common code for parsing and visiting all yml apidocs
 // The code between this and removals is nearly identical
@@ -137,8 +136,9 @@ function compareUnremoved(a, b) {
  * @returns {object[]}
  */
 async function main() {
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	const apidocs = path.join(__dirname, '../apidoc');
-	const files = await promisify(glob)(`${apidocs}/**/*.yml`);
+	const files = await glob(`${apidocs}/**/*.yml`);
 	const arr = await Promise.all(files.map(f => checkFile(f)));
 	const flattened = [].concat(...arr);
 	// Sort by deprecated.since oldest to newest

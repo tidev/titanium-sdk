@@ -1,31 +1,34 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.ui.widget.tabgroup;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
 
 import androidx.annotation.ColorInt;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.shape.CornerFamily;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -50,12 +53,20 @@ import ti.modules.titanium.ui.TabProxy;
 public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implements MenuItem.OnMenuItemClickListener
 {
 	// region private fields
-	private int mBottomNavigationHeightValue;
 	// BottomNavigationView lacks anything similar to onTabUnselected method of TabLayout.OnTabSelectedListener.
 	// We track the previously selected item index manually to mimic the behavior in order to keep parity across styles.
 	private int currentlySelectedIndex = -1;
 	private BottomNavigationView mBottomNavigationView;
 	private final ArrayList<MenuItem> mMenuItemsArray = new ArrayList<>();
+	// The tab bar's last known rendered height. A hidden tab bar measures zero, so we keep the
+	// last non-zero value in order to restore the content offset when it is shown again.
+	private int lastTabBarHeight;
+	// The bottom offset currently applied to the view pager. Used to avoid re-assigning layout
+	// params with an unchanged value, which would trigger an endless layout pass.
+	private int appliedViewPagerOffset = -1;
+	// Set true if the tab bar is styled as a floating toolbar, in which case it is meant to
+	// overlay the tab content instead of offsetting it.
+	private boolean isFloatingTabBar;
 	// endregion
 
 	public TiUIBottomNavigationTabGroup(TabGroupProxy proxy, TiBaseActivity activity)
@@ -82,11 +93,6 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public void addViews(TiBaseActivity activity)
 	{
-		// Manually calculate the proper position of the BottomNavigationView.
-		int resourceID = activity.getResources().getIdentifier("design_bottom_navigation_height", "dimen",
-															   activity.getPackageName());
-		this.mBottomNavigationHeightValue = activity.getResources().getDimensionPixelSize(resourceID);
-
 		// Fetch padding properties. If at least 1 property is non-zero, then show a floating tab bar.
 		final TiDimension paddingLeft = TiConvert.toTiDimension(
 			this.proxy.getProperty(TiC.PROPERTY_PADDING_LEFT), TiDimension.TYPE_LEFT);
@@ -99,6 +105,8 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 			|| ((paddingRight != null) && (paddingRight.getValue() > 0))
 			|| ((paddingBottom != null) && (paddingBottom.getValue() > 0));
 
+		this.isFloatingTabBar = isFloating;
+
 		// Create the bottom tab navigation view.
 		mBottomNavigationView = new BottomNavigationView(activity);
 		mBottomNavigationView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -107,8 +115,18 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 				View view, int left, int top, int right, int bottom,
 				int oldLeft, int oldTop, int oldRight, int oldBottom)
 			{
-				// Update bottom inset based on tab bar's height and position in window.
+				// Update bottom inset based on tab bar's actual height and position in window.
 				insetsProvider.setBottomBasedOn(view);
+
+				// Remember the tab bar's rendered height for as long as it has one.
+				if (view.getHeight() > 0) {
+					lastTabBarHeight = view.getHeight();
+				}
+
+				// Offset the tab content so that the tab bar does not cover it. This must be done
+				// here rather than in addViews() because the tab bar's height is not known until
+				// it has been laid out at least once.
+				updateViewPagerBottomOffset(view.getVisibility() == View.VISIBLE);
 			}
 		});
 		if (isFloating) {
@@ -155,14 +173,13 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		// Add tab bar and view pager to the root Titanium view.
 		// Note: If getFitsSystemWindows() returns false, then Titanium window's "extendSafeArea" is set true.
 		//       This means the bottom tab bar should overlap/overlay the view pager content.
+		//       Otherwise the view pager is offset by the tab bar's measured height via
+		//       updateViewPagerBottomOffset(), once the tab bar has been laid out.
 		TiCompositeLayout compositeLayout = (TiCompositeLayout) activity.getLayout();
 		{
 			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
 			params.autoFillsWidth = true;
 			params.autoFillsHeight = true;
-			if (compositeLayout.getFitsSystemWindows() && !isFloating) {
-				params.optionBottom = new TiDimension(mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			}
 			compositeLayout.addView(this.tabGroupViewPager, params);
 		}
 		{
@@ -190,23 +207,19 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	public void disableTabNavigation(boolean disable)
 	{
 		super.disableTabNavigation(disable);
+		setEnabled();
+	}
 
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		ViewParent viewParent = this.tabGroupViewPager.getParent();
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(disable ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-			this.tabGroupViewPager.setLayoutParams(params);
+	/**
+	 * Enable or disable tabs click event.
+	 */
+	@Override
+	public void setEnabled()
+	{
+		Menu menu = this.mBottomNavigationView.getMenu();
+		for (int i = 0; i < menu.size(); i++) {
+			menu.getItem(i).setEnabled(!tabsDisabled);
 		}
-
-		// Show/hide the tab bar.
-		this.mBottomNavigationView.setVisibility(disable ? View.GONE : View.VISIBLE);
-		this.mBottomNavigationView.requestLayout();
-
-		// Update top inset. (Will remove bottom inset if tab bar is "gone".)
-		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@Override
@@ -230,14 +243,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		final int shiftMode = proxy.getProperties().optInt(TiC.PROPERTY_SHIFT_MODE, 1);
 		switch (shiftMode) {
 			case 0:
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_LABELED);
 				break;
 			case 1:
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_AUTO);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_AUTO);
 				break;
 			case 2:
 				// NOTE: Undocumented for now, will create new property that has parity with iOS.
-				this.mBottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_UNLABELED);
+				this.mBottomNavigationView.setLabelVisibilityMode(NavigationBarView.LABEL_VISIBILITY_UNLABELED);
 				break;
 		}
 	}
@@ -304,8 +317,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	{
 		// Update tab bar's background color.
 		Drawable drawable = mBottomNavigationView.getBackground();
-		if (drawable instanceof MaterialShapeDrawable) {
-			MaterialShapeDrawable shapeDrawable = (MaterialShapeDrawable) drawable;
+		if (drawable instanceof MaterialShapeDrawable shapeDrawable) {
 			shapeDrawable.setFillColor(ColorStateList.valueOf(colorInt));
 			shapeDrawable.setElevation(0); // Drawable will tint the fill color if elevation is non-zero.
 		} else {
@@ -316,16 +328,14 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		if (isUsingSolidTitaniumTheme() && (Build.VERSION.SDK_INT >= 27)) {
 			Activity activity = (this.proxy != null) ? this.proxy.getActivity() : null;
 			Window window = (activity != null) ? activity.getWindow() : null;
-			View decorView = (window != null) ? window.getDecorView() : null;
-			if ((window != null) && (decorView != null)) {
-				int uiFlags = decorView.getSystemUiVisibility();
-				if (ColorUtils.calculateLuminance(colorInt) > 0.5) {
-					uiFlags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-				} else {
-					uiFlags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-				}
-				decorView.setSystemUiVisibility(uiFlags);
+			if (window != null) {
 				window.setNavigationBarColor(colorInt);
+				WindowInsetsControllerCompat insetsController =
+					WindowCompat.getInsetsController(window, window.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightNavigationBars(
+						ColorUtils.calculateLuminance(colorInt) > 0.5);
+				}
 			}
 		}
 	}
@@ -336,16 +346,28 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		try {
 			// BottomNavigationMenuView rebuilds itself after adding a new item, so we need to reset the colors each time.
 			TiViewProxy tabProxy = tabs.get(index).getProxy();
-			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy)) {
+			boolean hasTouchFeedbackColor = tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR);
+			if (hasCustomBackground(tabProxy) || hasCustomIconTint(tabProxy) || hasTouchFeedbackColor) {
 				BottomNavigationMenuView bottomMenuView =
 					((BottomNavigationMenuView) this.mBottomNavigationView.getChildAt(0));
 				Drawable drawable = createBackgroundDrawableForState(tabProxy, android.R.attr.state_checked);
-				drawable = new RippleDrawable(createRippleColorStateListFrom(getActiveColor(tabProxy)), drawable, null);
+				int color = getActiveColor(tabProxy);
+				if (hasTouchFeedbackColor) {
+					color = TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR),
+						tabProxy.getActivity());
+				}
+				drawable = new RippleDrawable(createRippleColorStateListFrom(color), drawable, null);
 				bottomMenuView.getChildAt(index).setBackground(drawable);
 			}
 		} catch (Exception e) {
 			Log.w(TAG, WARNING_LAYOUT_MESSAGE);
 		}
+	}
+
+	@Override
+	public void updateActiveIndicatorColor(int color)
+	{
+
 	}
 
 	@Override
@@ -364,33 +386,71 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 		this.mBottomNavigationView.getMenu().getItem(index).setTitle(title);
 	}
 
-	public void setTabBarVisible(boolean visible)
+	public void showHideTabBar(boolean visible)
 	{
+		super.setTabGroupViewPagerLayout(visible, this.lastTabBarHeight, true);
+		this.appliedViewPagerOffset = visible ? this.lastTabBarHeight : 0;
+		super.setTabGroupVisibilityWithAnimation(mBottomNavigationView, visible);
+	}
+
+	public void setTabGroupVisibility(boolean visible)
+	{
+		super.setTabGroupViewPagerLayout(visible, this.lastTabBarHeight, false);
+		this.appliedViewPagerOffset = visible ? this.lastTabBarHeight : 0;
+		super.setTabGroupVisibility(mBottomNavigationView, visible);
+	}
+
+	/**
+	 * Offsets the bottom of the tab content so that the tab bar does not overlap it.
+	 * <p>
+	 * Called whenever the tab bar is laid out, since the bar's height is only known at that point.
+	 * @param tabBarVisible Set true if the tab bar is currently shown.
+	 */
+	private void updateViewPagerBottomOffset(boolean tabBarVisible)
+	{
+		// A floating tab bar is meant to overlay the content.
+		if (this.isFloatingTabBar) {
+			return;
+		}
+
+		// Not applicable if Titanium's "extendSafeArea" is true, because the tab bar is
+		// supposed to overlap the content in that case.
 		ViewParent viewParent = this.tabGroupViewPager.getParent();
-
-		// Resize the view pager (the tab's content) to compensate for shown/hidden tab bar.
-		// Not applicable if Titanium "extendSafeArea" is true, because tab bar overlaps content in this case.
-		if ((viewParent instanceof View) && ((View) viewParent).getFitsSystemWindows()) {
-			TiCompositeLayout.LayoutParams params = new TiCompositeLayout.LayoutParams();
-			params.autoFillsWidth = true;
-			params.optionBottom = new TiDimension(!visible ? 0 : mBottomNavigationHeightValue, TiDimension.TYPE_BOTTOM);
-
-			// make it a bit slower when moving up again so it won't show the background
-			int duration = !visible ? 200 : 400;
-			LayoutTransition lt = new LayoutTransition();
-			lt.enableTransitionType(LayoutTransition.CHANGING);
-			lt.setDuration(duration);
-			this.tabGroupViewPager.setLayoutTransition(lt);
-			this.tabGroupViewPager.setLayoutParams(params);
+		if (!(viewParent instanceof View) || !((View) viewParent).getFitsSystemWindows()) {
+			return;
 		}
 
-		if (visible) {
-			this.mBottomNavigationView.animate().translationY(0f).setDuration(200);
+		ViewGroup.LayoutParams layoutParams = this.tabGroupViewPager.getLayoutParams();
+		if (!(layoutParams instanceof TiCompositeLayout.LayoutParams)) {
+			return;
+		}
+
+		// Only re-apply when the offset has actually changed. Assigning layout params from
+		// within a layout pass would otherwise cause an endless layout loop.
+		int offset = tabBarVisible ? this.lastTabBarHeight : 0;
+		if (offset == this.appliedViewPagerOffset) {
+			return;
+		}
+		this.appliedViewPagerOffset = offset;
+
+		TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) layoutParams;
+		params.optionBottom = new TiDimension(offset, TiDimension.TYPE_BOTTOM);
+		// This runs from the tab bar's onLayoutChange, i.e. during a layout pass, where
+		// setLayoutParams() would trigger a "requestLayout() improperly called" second pass.
+		// Post it so the layout request runs after the current pass has finished.
+		this.tabGroupViewPager.post(() -> this.tabGroupViewPager.setLayoutParams(params));
+	}
+
+	@Override
+	public void onViewSizeAvailable(Runnable runnable)
+	{
+		if (mBottomNavigationView.getHeight() > 0) {
+			// Height is already available, run immediately.
+			runnable.run();
 		} else {
-			this.mBottomNavigationView.animate().translationY(mBottomNavigationView.getHeight()).setDuration(200);
+			// Height not available, post it to run after a layout pass.
+			mBottomNavigationView.post(runnable);
 		}
-
-		this.insetsProvider.setBottomBasedOn(this.mBottomNavigationView);
 	}
 
 	@SuppressLint("RestrictedApi")
@@ -435,10 +495,23 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		// TODO: reset to default value when property is null
 		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_COLOR)) {
+			Log.w(TAG, "badgeColor is deprecated.  Use badgeBackgroundColor instead.");
 			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
 			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
 			badgeDrawable.setBackgroundColor(
 				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_BACKGROUND_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBackgroundColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_BACKGROUND_COLOR), tabProxy.getActivity()));
+		}
+		if (tabProxy.hasPropertyAndNotNull(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
+			int menuItemId = this.mBottomNavigationView.getMenu().getItem(index).getItemId();
+			BadgeDrawable badgeDrawable = this.mBottomNavigationView.getOrCreateBadge(menuItemId);
+			badgeDrawable.setBadgeTextColor(
+				TiConvert.toColor(tabProxy.getProperty(TiC.PROPERTY_BADGE_TEXT_COLOR), tabProxy.getActivity()));
 		}
 	}
 
@@ -474,6 +547,7 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 
 		final Drawable drawable = TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON));
 		this.mBottomNavigationView.getMenu().getItem(index).setIcon(drawable);
+		updateIconTint();
 	}
 
 	@Override
@@ -495,6 +569,10 @@ public class TiUIBottomNavigationTabGroup extends TiUIAbstractTabGroup implement
 	@Override
 	public boolean onMenuItemClick(MenuItem item)
 	{
+		if (tabsDisabled) {
+			return true;
+		}
+
 		// The controller has changed its selected item.
 		int index = this.mMenuItemsArray.indexOf(item);
 		// Guard for clicking on the currently selected tab.

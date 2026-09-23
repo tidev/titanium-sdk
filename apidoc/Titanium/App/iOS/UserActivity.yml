@@ -105,7 +105,7 @@ properties:
 
   - name: needsSave
     summary: |
-        Set to true everytime you have updated the user activity and need the changes to be saved before handing it off to another device.
+        Set to true every time you have updated the user activity and need the changes to be saved before handing it off to another device.
     type: Boolean
 
   - name: requiredUserInfoKeys
@@ -172,7 +172,7 @@ methods:
     summary: |
         Deletes user activities created by your app that have the specified persistent identifiers.
     description: |
-        The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deteting the 
+        The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deleting the 
         user activities. Listen and wait for this event to fired to ensure that the system deletes 
         the activities (or marks them for deletion).
     parameters:
@@ -184,7 +184,7 @@ methods:
   - name: deleteAllSavedUserActivities
     summary: Deletes all user activities created by your app.
     description: |
-        The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deteting the 
+        The <Titanium.App.iOS.UserActivity.useractivitydeleted> event is fired after deleting the 
         user activities. Listen and wait for this event to fired to ensure that the system deletes 
         the activities (or marks them for deletion).
     since: "7.4.0"
@@ -194,7 +194,7 @@ events:
     summary: |
         Fired if the activity context needs to be saved before being continued on another device.
 
-        To fire the event, set the UserActiviy object's `needsSave ` property to `true`.
+        To fire the event, set the UserActivity object's `needsSave ` property to `true`.
 
         The receiver should update the activity with current activity state.
 
@@ -217,7 +217,7 @@ events:
         type: Dictionary
     deprecated:
         since: "5.2.0"
-        notes: Set the property `needsSave` to true everytime you update current activity state instead.
+        notes: Set the property `needsSave` to true every time you update current activity state instead.
 
   - name: useractivitywascontinued
     summary: |

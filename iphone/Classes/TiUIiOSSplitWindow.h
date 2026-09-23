@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,7 +23,7 @@
   float splitRatioLandscape;
 }
 
-#pragma mark - Titanim Internal Use Only
+#pragma mark - Titanium Internal Use Only
 - (void)setShowMasterInPortrait_:(id)value withObject:(id)animated;
 - (void)setMasterIsOverlayed_:(id)value withObject:(id)animated;
 - (void)initWrappers;

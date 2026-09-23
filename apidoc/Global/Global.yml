@@ -11,7 +11,7 @@ description: |
 
     #### console
 
-    Titanium provides [console](Global.Console) support familiar to many javascript developers
+    Titanium provides [console](Global.Console) support familiar to many JavaScript developers
     for logging at the toplevel, in addition to the [Titanium](Titanium.API) logging facilities.
 
     #### Timers

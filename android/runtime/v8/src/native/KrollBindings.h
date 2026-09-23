@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -79,7 +79,7 @@ public:
 
 	/**
 	 * The JS callback. Used when we call kroll.externalBinding('name') in JS code.
-	 * This looks up 'external' bindings specifically (i.e. it won't look at the natives/titanium proxies)
+	 * This looks up 'external' bindings specifically (e.g. it won't look at the natives/titanium proxies)
 	 *
 	 * @param args Function arguments
 	 */

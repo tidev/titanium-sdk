@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -18,7 +18,7 @@
 #import <UIKit/UILocalNotification.h>
 #import <unistd.h>
 
-extern NSString *const TI_APPLICATION_DEPLOYTYPE;
+extern NSString *const TI_APPLICATION_DEPLOY_TYPE;
 extern NSString *const TI_APPLICATION_ID;
 extern NSString *const TI_APPLICATION_PUBLISHER;
 extern NSString *const TI_APPLICATION_URL;
@@ -30,13 +30,11 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @implementation AppModule
 
-#if defined(DEBUG) || defined(DEVELOPER)
-
 - (void)_restart:(id)unused
 {
   TiThreadPerformOnMainThread(
       ^{
-        [[[TiApp app] controller] shutdownUi:self];
+        [[TiApp app] rebootApp];
       },
       NO);
 }
@@ -74,14 +72,14 @@ extern NSString *const TI_APPLICATION_GUID;
   NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:[appDelegate krollBridge]];
   [nc postNotification:notification];
 
+  /* Reboot via scene-aware method (creates new window, controller, and bridge) */
+  [appDelegate rebootApp];
+
   /* Begin foregrounding simulation */
-  [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
   [appDelegate applicationWillEnterForeground:app];
   [appDelegate applicationDidBecomeActive:app];
   /* End foregrounding simulation */
 }
-
-#endif
 
 - (void)dealloc
 {
@@ -154,11 +152,11 @@ extern NSString *const TI_APPLICATION_GUID;
   BOOL needsScanning;
   do {
     needsScanning = NO;
-    for (entry in l) //The fast iteration is blindly fast when l is nil or count.
+    for (entry in l) // The fast iteration is blindly fast when l is nil or count.
     {
-      if ([listener isEqual:[entry listener]]) //NSNumber does the right thing with this too.
+      if ([listener isEqual:[entry listener]]) // NSNumber does the right thing with this too.
       {
-        [l removeObject:entry]; //It's safe to modify the array as long as you break right after.
+        [l removeObject:entry]; // It's safe to modify the array as long as you break right after.
         needsScanning = [l count] > 0;
         break;
       }
@@ -201,7 +199,7 @@ extern NSString *const TI_APPLICATION_GUID;
       }
       [eventObject setValue:type forKey:@"type"];
       // since this is cross context, we need to force into a JSON so the data can serialize
-      // we first force to string json, then we convert the string JSON back to a dictionary to
+      // we first force to string JSON, then we convert the string JSON back to a dictionary to
       // eliminate any native things like functions, native objects, etc.
       NSString *json_ = [TiUtils jsonStringify:eventObject];
       id jsonObject = [TiUtils jsonParse:json_ error:nil];
@@ -253,7 +251,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   BOOL yn = [TiUtils boolValue:value];
   [UIDevice currentDevice].proximityMonitoringEnabled = yn;
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   if (yn) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(proximityDetectionChanged:)
@@ -287,7 +285,7 @@ extern NSString *const TI_APPLICATION_GUID;
   }
 }
 
-//To fire the keyboard frame change event.
+// To fire the keyboard frame change event.
 - (void)keyboardFrameChanged:(NSNotification *)notification
 {
   if (![self _hasListeners:@"keyboardframechanged"]) {
@@ -304,6 +302,13 @@ extern NSString *const TI_APPLICATION_GUID;
                                       nil];
 
   [self fireEvent:@"keyboardframechanged" withObject:event];
+}
+
+- (void)didTakeScreenshot:(NSNotification *)info
+{
+  if ([self _hasListeners:@"screenshotcaptured"]) {
+    [self fireEvent:@"screenshotcaptured" withObject:nil];
+  }
 }
 
 - (void)timeChanged:(NSNotification *)notiication
@@ -370,7 +375,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (void)startup
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
@@ -378,7 +383,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
   [nc addObserver:self selector:@selector(keyboardFrameChanged:) name:UIKeyboardWillChangeFrameNotification object:nil];
   [nc addObserver:self selector:@selector(timeChanged:) name:UIApplicationSignificantTimeChangeNotification object:nil];
-
+  [nc addObserver:self selector:@selector(didTakeScreenshot:) name:UIApplicationUserDidTakeScreenshotNotification object:nil];
 #ifdef __IPHONE_16_4
   // Ensure that the JSContext is debuggable during development
   if (@available(iOS 16.4, *)) {
@@ -397,7 +402,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   // make sure we force any changes made on shutdown
   [[NSUserDefaults standardUserDefaults] synchronize];
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super shutdown:sender];
 }
@@ -570,17 +575,12 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)deployType
 {
-  return TI_APPLICATION_DEPLOYTYPE;
+  return TI_APPLICATION_DEPLOY_TYPE;
 }
 
 - (id)sessionId
 {
   return [[TiApp app] sessionId];
-}
-
-- (id)analytics
-{
-  return @(NO);
 }
 
 - (NSNumber *)keyboardVisible
@@ -591,9 +591,9 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setForceSplashAsSnapshot:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)
-      [self replaceValue:args
-                  forKey:@"forceSplashAsSnapshot"
-            notification:NO];
+  [self replaceValue:args
+              forKey:@"forceSplashAsSnapshot"
+        notification:NO];
   BOOL flag = [TiUtils boolValue:args def:NO];
   [[TiApp app] setForceSplashAsSnapshot:flag];
 }

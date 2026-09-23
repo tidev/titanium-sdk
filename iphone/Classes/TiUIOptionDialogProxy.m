@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -83,7 +83,7 @@
   }
 
   int curIndex = 0;
-  //Configure the Buttons
+  // Configure the Buttons
   for (id btn in options) {
     NSString *btnName = [TiUtils stringValue:btn];
     if (!IS_NULL_OR_NIL(btnName)) {
@@ -114,7 +114,7 @@
          ** This block commented out since it seems to have no effect on the alert controller.
          ** If you read the modalPresentationStyle after setting the value, it still shows UIModalPresentationPopover
          ** However not configuring the UIPopoverPresentationController seems to do the trick.
-         ** This hack in place to conserve current behavior. Should revisit when iOS7 is dropped so that
+         ** This hack in place to conserve current behavior. Should revisit when iOS 7 is dropped so that
          ** option dialogs are always presented in UIModalPresentationPopover
          if (isPopover) {
          alertController.modalPresentationStyle = UIModalPresentationCurrentContext;
@@ -122,7 +122,7 @@
          }
          */
   }
-  /*See Comment above. Remove if condition to see difference in behavior on iOS8*/
+  /* See Comment above. Remove if condition to see difference in behavior on iOS 8 */
   if (!isPopover) {
     UIPopoverPresentationController *presentationController = alertController.popoverPresentationController;
     presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
@@ -200,7 +200,7 @@
     }
   }
 
-  //Fell through.
+  // Fell through.
   UIViewController *presentingController = [alertController presentingViewController];
   popoverPresentationController.permittedArrowDirections = 0;
   popoverPresentationController.sourceView = [presentingController view];
@@ -210,7 +210,7 @@
 
 - (void)popoverPresentationController:(UIPopoverPresentationController *)popoverPresentationController willRepositionPopoverToRect:(inout CGRect *)rect inView:(inout UIView **)view
 {
-  //This will never be called when using bar button item
+  // This will never be called when using bar button item
   BOOL canUseDialogRect = !CGRectEqualToRect(CGRectZero, dialogRect);
   UIView *theSourceView = *view;
   BOOL shouldUseViewBounds = ([theSourceView isKindOfClass:[UIToolbar class]] || [theSourceView isKindOfClass:[UITabBar class]]);

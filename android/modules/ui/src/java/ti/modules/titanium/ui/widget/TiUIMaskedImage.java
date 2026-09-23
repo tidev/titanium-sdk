@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -125,13 +125,13 @@ public class TiUIMaskedImage extends TiUIView
 	}
 
 	/**
-	 * Called when one of the proxy's properies have changed.
+	 * Called when one of the proxy's properties have changed.
 	 * <p>
 	 * Expected to be called on the main UI thread.
 	 * @param key The unique name of the property.
 	 * @param oldValue The property's previous value. Can be null.
 	 * @param newValue The property's new value. Can be null.
-	 * @param proxy The proxy that own's the property. Expected to be "MaskedImageProxy".
+	 * @param proxy The proxy that owns the property. Expected to be "MaskedImageProxy".
 	 */
 	@Override
 	public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
@@ -1295,7 +1295,7 @@ public class TiUIMaskedImage extends TiUIView
 				Drawable imageDrawable = getMaskedDrawable().getImageDrawable();
 				Bitmap imageBitmap = getBitmapFrom(imageDrawable);
 				if (imageBitmap != null) {
-					// Draw the image drawable's bitmap ourselves with given blend mode. (Most optmized.)
+					// Draw the image drawable's bitmap ourselves with given blend mode. (Most optimized.)
 					bufferedCanvas.drawBitmap(imageBitmap, null, targetBounds, bufferedPaint);
 				} else if (imageDrawable != null) {
 					// Draw the image via its drawable with given blend mode. (Least optimized.)
@@ -1395,8 +1395,7 @@ public class TiUIMaskedImage extends TiUIView
 			TiApplication application = TiApplication.getInstance();
 			if (application != null) {
 				Object object = application.getSystemService(Context.WINDOW_SERVICE);
-				if (object instanceof WindowManager) {
-					WindowManager windowManager = (WindowManager) object;
+				if (object instanceof WindowManager windowManager) {
 					Display display = windowManager.getDefaultDisplay();
 					if (display != null) {
 						DisplayMetrics metrics = new DisplayMetrics();

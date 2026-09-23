@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -46,7 +46,7 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.title).eql('this is my value'); // fails on iOS, gives undefined
 			bar.titleid = 'other text';
 			should(bar.titleid).eql('other text');
-			should(bar.title).eql('this is my value'); // retains old value if key not found: https://jira.appcelerator.org/browse/TIMOB-23498
+			should(bar.title).eql('this is my value'); // retains old value if key not found: https://jira-archive.titaniumsdk.com/TIMOB-23498
 		});
 
 		it('has no accessors', () => {

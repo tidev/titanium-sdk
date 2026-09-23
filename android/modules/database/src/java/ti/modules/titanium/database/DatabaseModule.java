@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -59,8 +59,7 @@ public class DatabaseModule extends KrollModule
 		if (file instanceof TiFileProxy) {
 			// We were given a file proxy. Fetch its file object.
 			dbTiBaseFile = ((TiFileProxy) file).getBaseFile();
-		} else if (file instanceof String) {
-			String fileString = (String) file;
+		} else if (file instanceof String fileString) {
 			if (fileString.startsWith(File.separator)) {
 				// Assume we were given an absolute file system path.
 				dbTiBaseFile = TiFileFactory.createTitaniumFile(fileString, false);
@@ -73,7 +72,7 @@ public class DatabaseModule extends KrollModule
 					throw new IllegalArgumentException("Ti.Database.open() was given invalid URL: " + fileString);
 				}
 			} else {
-				// Assume we were given a databas file name only. (This is the most common case.)
+				// Assume we were given a database file name only. (This is the most common case.)
 				dbName = fileString;
 			}
 		} else if (file != null) {
@@ -144,7 +143,7 @@ public class DatabaseModule extends KrollModule
 
 		// Fetch a path to the source database file. This is the file to be copied/installed.
 		// Throw an exception if the source database was not found.
-		Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
+		Log.d(TAG, "database URL is = " + url, Log.DEBUG_MODE);
 		String resolveUrl = url;
 		if (invocation != null) {
 			TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
@@ -178,7 +177,7 @@ public class DatabaseModule extends KrollModule
 
 		// Set up the destination path that the source database file will be copied to.
 		File dbPath = ctx.getDatabasePath(name);
-		Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
+		Log.d(TAG, "database path is = " + dbPath, Log.DEBUG_MODE);
 
 		// Create the destination directory tree if it doesn't exist.
 		dbPath.getParentFile().mkdirs();

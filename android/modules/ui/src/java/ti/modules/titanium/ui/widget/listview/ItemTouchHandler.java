@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -118,13 +118,17 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	 */
 	private boolean canSwipe(TiViewProxy holderProxy)
 	{
+		// Obtain default edit value from RecyclerView proxy.
 		String editProperty = TiC.PROPERTY_EDITABLE;
+		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(editProperty, false);
+
+		if (holderProxy == null) {
+			return defaultValue;
+		}
+
 		if (holderProxy instanceof ListItemProxy) {
 			editProperty = TiC.PROPERTY_CAN_EDIT;
 		}
-
-		// Obtain default edit value from RecyclerView proxy.
-		final boolean defaultValue = this.recyclerViewProxy.getProperties().optBoolean(editProperty, false);
 
 		// Obtain edit value from current holder proxy.
 		return holderProxy.getProperties().optBoolean(editProperty, defaultValue);
@@ -202,6 +206,9 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 	{
 		final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
 		final TiViewProxy holderProxy = holder.getProxy();
+		if (holderProxy == null) {
+			return 0;
+		}
 
 		if ((isEditing() || isMoving()) && canMove(holderProxy)) {
 			return ItemTouchHelper.UP | ItemTouchHelper.DOWN;
@@ -342,6 +349,10 @@ public class ItemTouchHandler extends ItemTouchHelper.SimpleCallback
 		final TiRecyclerViewHolder holder = (TiRecyclerViewHolder) viewHolder;
 		final TiViewProxy holderProxy = holder.getProxy();
 		final View view = holder.itemView;
+
+		if (holderProxy == null) {
+			return;
+		}
 
 		if (!isEditing() && !isMoving()) {
 

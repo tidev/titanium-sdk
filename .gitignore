@@ -32,6 +32,7 @@ npm-debug.log
 /android/.idea/
 
 # Build dirs
+/build/lib/test/out.txt
 /dist
 /tmp
 
