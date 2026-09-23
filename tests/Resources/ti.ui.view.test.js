@@ -1330,6 +1330,147 @@ describe('Titanium.UI.View', function () {
 		});
 	});
 
+	describe('borderWidth per side', function () {
+		beforeEach(() => {
+			win = Ti.UI.createWindow({ backgroundColor: 'blue' });
+		});
+
+		function openAndVerify(view, verify, finish) {
+			win.addEventListener('postlayout', function postlayout() {
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					verify();
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.add(view);
+			win.open();
+		}
+
+		it('4 values in String', finish => {
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderColor: 'red',
+				borderWidth: '2 6 12 20',
+				backgroundColor: 'yellow'
+			});
+			openAndVerify(view, () => {
+				should(view.borderWidth).be.a.String();
+				should(view.borderWidth).eql('2 6 12 20');
+			}, finish);
+		});
+
+		it('4 values in Array', finish => {
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderColor: 'red',
+				borderWidth: [ 2, 6, '12dp', '20' ],
+				backgroundColor: 'yellow'
+			});
+			openAndVerify(view, () => {
+				should(view.borderWidth).be.an.Array();
+				should(view.borderWidth.length).eql(4);
+				should(view.borderWidth).eql([ 2, 6, '12dp', '20' ]);
+			}, finish);
+		});
+
+		it('3 values in String', finish => {
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderColor: 'red',
+				borderWidth: '2 10 20',
+				backgroundColor: 'yellow'
+			});
+			openAndVerify(view, () => {
+				should(view.borderWidth).be.a.String();
+				should(view.borderWidth).eql('2 10 20');
+			}, finish);
+		});
+
+		it('2 values in Array', finish => {
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderColor: 'red',
+				borderWidth: [ 4, 16 ],
+				backgroundColor: 'yellow'
+			});
+			openAndVerify(view, () => {
+				should(view.borderWidth).be.an.Array();
+				should(view.borderWidth.length).eql(2);
+				should(view.borderWidth).eql([ 4, 16 ]);
+			}, finish);
+		});
+
+		it('per side values combined with borderRadius', finish => {
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderColor: 'red',
+				borderWidth: '2 6 12 20',
+				borderRadius: '20 0 20 0',
+				backgroundColor: 'yellow'
+			});
+			openAndVerify(view, () => {
+				should(view.borderWidth).eql('2 6 12 20');
+				should(view.borderRadius).eql('20 0 20 0');
+			}, finish);
+		});
+
+		it('per side values without borderColor', finish => {
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderWidth: [ 6, 12 ],
+				backgroundColor: 'yellow'
+			});
+			openAndVerify(view, () => {
+				should(view.borderWidth).eql([ 6, 12 ]);
+			}, finish);
+		});
+
+		it('switch between single value and per side values post layout', finish => {
+			const view = Ti.UI.createView({
+				width: '60px',
+				height: '60px',
+				borderColor: 'red',
+				borderWidth: 4,
+				backgroundColor: 'yellow'
+			});
+			openAndVerify(view, () => {
+				// single value -> per side (String)
+				view.borderWidth = '2 6 12 20';
+				should(view.borderWidth).eql('2 6 12 20');
+
+				// per side (String) -> per side (Array)
+				view.borderWidth = [ 10, 2 ];
+				should(view.borderWidth).eql([ 10, 2 ]);
+
+				// per side -> single value
+				view.borderWidth = 8;
+				should(view.borderWidth).eql(8);
+
+				// single value -> per side with a per corner radius
+				view.borderRadius = [ 16, 0 ];
+				view.borderWidth = '4 12';
+				should(view.borderWidth).eql('4 12');
+
+				// back to single value while keeping the per corner radius
+				view.borderWidth = 3;
+				should(view.borderWidth).eql(3);
+
+				// color changes must still apply after the mode switches
+				view.borderColor = 'green';
+				should(view.borderColor).eql('green');
+			}, finish);
+		});
+	});
+
 	it.android('.touchFeedback', finish => {
 		win = Ti.UI.createWindow({ layout: 'horizontal' });
 		win.add(Ti.UI.createLabel({
