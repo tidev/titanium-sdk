@@ -232,30 +232,29 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					Log.e(TAG, "Error saving video file");
 					return;
 				}
-				if (successCallback == null) {
-					// Activity was destroyed before the recording finished.
-					return;
-				}
-				Uri uri = finalizeEvent.getOutputResults().getOutputUri();
+				// successCallback is null when no callback was given or the activity was already destroyed.
+				if (successCallback != null) {
+					Uri uri = finalizeEvent.getOutputResults().getOutputUri();
 
-				if (uri.toString().startsWith("content://")) {
-					String[] columns = {
-						MediaStore.Video.VideoColumns.TITLE,
-						MediaStore.Video.VideoColumns.DATA
-					};
-					String[] selectionArgs = { mediaTitle };
-					createFile(
-						MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-						columns,
-						MediaStore.Video.VideoColumns.TITLE + " = ? ",
-						selectionArgs
-					);
-				} else {
-					// normal file
-					File file = new File(uri.getPath());
-					TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
-					KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
-					successCallback.callAsync(callbackContext, response);
+					if (uri.toString().startsWith("content://")) {
+						String[] columns = {
+							MediaStore.Video.VideoColumns.TITLE,
+							MediaStore.Video.VideoColumns.DATA
+						};
+						String[] selectionArgs = { mediaTitle };
+						createFile(
+							MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+							columns,
+							MediaStore.Video.VideoColumns.TITLE + " = ? ",
+							selectionArgs
+						);
+					} else {
+						// normal file
+						File file = new File(uri.getPath());
+						TiBlob blob = TiBlob.blobFromFile(TiFileFactory.createTitaniumFile(file.getPath(), false));
+						KrollDict response = MediaModule.createDictForImage(blob, blob.getMimeType());
+						successCallback.callAsync(callbackContext, response);
+					}
 				}
 
 				if (cameraActivity != null && autohide) {
@@ -606,36 +605,34 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	@Override
 	protected void onDestroy()
 	{
-		// Release our camera activity reference.
-		if (cameraActivity == this) {
-			cameraActivity = null;
-		}
-		if (recording != null) {
-			recording.close();
-			recording = null;
-		}
-		if (pendingRecording != null) {
-			pendingRecording = null;
-		}
-		if (camera != null) {
-			camera = null;
-		}
 		if (orientationEventListener != null) {
 			orientationEventListener.disable();
 			orientationEventListener = null;
 		}
 
-		// Clear all static references to prevent memory leaks
-		callbackContext = null;
-		successCallback = null;
-		errorCallback = null;
-		cancelCallback = null;
-		androidbackCallback = null;
-		openCallback = null;
-		recordingCallback = null;
-		overlayProxy = null;
-		imageCapture = null;
-		videoCapture = null;
+		// Only clear the shared static state if this is still the active camera activity.
+		// When a new camera activity is started while this one is finishing, Android destroys this
+		// instance after the new one has already resumed and taken over the static fields.
+		if (cameraActivity == this) {
+			cameraActivity = null;
+			if (recording != null) {
+				recording.close();
+				recording = null;
+			}
+			pendingRecording = null;
+			camera = null;
+			imageCapture = null;
+
+			// Clear all static references to prevent memory leaks
+			callbackContext = null;
+			successCallback = null;
+			errorCallback = null;
+			cancelCallback = null;
+			androidbackCallback = null;
+			openCallback = null;
+			recordingCallback = null;
+			overlayProxy = null;
+		}
 
 		// Destroy this activity.
 		super.onDestroy();
