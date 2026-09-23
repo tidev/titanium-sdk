@@ -56,6 +56,7 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	protected IntentProxy intentProxy;
 	protected DecorViewProxy savedDecorViewProxy;
 	protected ActionBarProxy actionBarProxy;
+	private boolean isActionBarProxyBorrowed;
 
 	private KrollFunction resultCallback;
 
@@ -289,9 +290,31 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 	{
 		AppCompatActivity activity = (AppCompatActivity) getWrappedActivity();
 		if (actionBarProxy == null && activity != null) {
-			actionBarProxy = new ActionBarProxy(activity);
+			TiWindowProxy window = getWindow();
+			if (window == null) {
+				actionBarProxy = new ActionBarProxy(activity);
+				isActionBarProxyBorrowed = false;
+			} else {
+				actionBarProxy = window.getActionBarProxy();
+				if (actionBarProxy == null) {
+					actionBarProxy = new ActionBarProxy(activity);
+					window.setActionBarProxy(actionBarProxy);
+				}
+				isActionBarProxyBorrowed = true;
+			}
 		}
 		return actionBarProxy;
+	}
+
+	public void restoreActionBar()
+	{
+		TiWindowProxy window = getWindow();
+		if (window == null || window.getActionBarProxy() == null) {
+			return;
+		}
+		actionBarProxy = window.getActionBarProxy();
+		isActionBarProxyBorrowed = true;
+		actionBarProxy.rebind((AppCompatActivity) getWrappedActivity());
 	}
 
 	@Kroll.method
@@ -370,8 +393,11 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 			intentProxy = null;
 		}
 		if (actionBarProxy != null) {
-			actionBarProxy.release();
+			if (!isActionBarProxyBorrowed) {
+				actionBarProxy.release();
+			}
 			actionBarProxy = null;
+			isActionBarProxyBorrowed = false;
 		}
 	}
 
