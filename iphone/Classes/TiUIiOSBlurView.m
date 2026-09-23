@@ -32,23 +32,16 @@
 
 - (BOOL)touchedContentViewWithEvent:(UIEvent *)event
 {
-#if IS_SDK_IOS_26
-  if (@available(iOS 26.0, *)) {
-    UIVisualEffectView *effectView = blurView;
-
-    if (effectView != nil && effectView.userInteractionEnabled) {
-      // UIKit owns touches for interactive glass, but Titanium still needs to process them
-      // through its normal raw touch pipeline.
-      for (UITouch *touch in [event allTouches]) {
-        UIView *touchView = touch.view;
-
-        if (touchView == effectView || [touchView isDescendantOfView:effectView]) {
-          return YES;
-        }
+  // Interactive glass effects enable user interaction on the effect view, so UIKit hit-tests
+  // it instead of this view. Titanium still needs to process those touches through its
+  // normal raw touch pipeline.
+  if (blurView != nil && blurView.userInteractionEnabled) {
+    for (UITouch *touch in [event allTouches]) {
+      if ([touch.view isDescendantOfView:blurView]) {
+        return YES;
       }
     }
   }
-#endif
 
   return [super touchedContentViewWithEvent:event];
 }
