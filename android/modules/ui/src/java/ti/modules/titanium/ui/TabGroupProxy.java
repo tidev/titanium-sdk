@@ -26,6 +26,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -47,6 +48,7 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CancellationException;
 
 import ti.modules.titanium.ui.android.AndroidModule;
 import ti.modules.titanium.ui.widget.tabgroup.TiUIAbstractTabGroup;
@@ -67,6 +69,7 @@ import ti.modules.titanium.ui.widget.tabgroup.TiUITabLayoutTabGroup;
 public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 {
 	private static final String TAG = "TabGroupProxy";
+	private static final int OPEN_ACTIVITY_RECREATION_RETRIES = 50;
 	private static final String PROPERTY_POST_TAB_GROUP_CREATED = "postTabGroupCreated";
 	private static final int MSG_FIRST_ID = TiWindowProxy.MSG_LAST_ID + 1;
 	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
@@ -84,6 +87,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	private boolean autoTabTitle = false;
 	private boolean isTabBarVisible = true;
 	private boolean isTabGroupEnabled = true;
+	private final Handler mainHandler = new Handler(Looper.getMainLooper());
+	private Runnable pendingOpenActivityRetry;
+	private Runnable pendingStartActivityRetry;
+	private long openGeneration;
+	private WeakReference<Activity> pendingOpenOwnerActivity = new WeakReference<>(null);
+	private WeakReference<TiWindowProxy> pendingOpenOwnerWindow = new WeakReference<>(null);
+	private int pendingOpenOwnerWindowId = TiActivityWindows.INVALID_WINDOW_ID;
 
 	public TabGroupProxy()
 	{
@@ -96,6 +106,20 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	public int getTabIndex(TabProxy tabProxy)
 	{
 		return tabs.indexOf(tabProxy);
+	}
+
+	@Override
+	@Kroll.method
+	public KrollPromise<Void> open(@Kroll.argument(optional = true) Object arg)
+	{
+		if (!opened && !opening) {
+			openGeneration++;
+			Activity owner = getActivity();
+			pendingOpenOwnerActivity = new WeakReference<>(owner);
+			pendingOpenOwnerWindow = new WeakReference<>(getOwnerWindow(owner));
+			pendingOpenOwnerWindowId = getActivityWindowId(owner);
+		}
+		return super.open(arg);
 	}
 
 	@Kroll.method
@@ -390,11 +414,164 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		// Don't open if app is closing or closed
-		Activity topActivity = getActivity();
-		if (topActivity == null || topActivity.isFinishing() || topActivity.isDestroyed()) {
+		long generation = openGeneration;
+		Activity activity = pendingOpenOwnerActivity.get();
+		if (activity == null) {
+			activity = getActivity();
+		}
+		if (activity != null && activity.isFinishing()) {
+			handleOpenFailure(new IllegalStateException("TabGroup owner activity is finishing."));
 			return;
 		}
+
+		if (activity == null) {
+			handleOpenFailure(new IllegalStateException("No owner activity is available to open the TabGroup."));
+			return;
+		} else if (activity.isDestroyed() || activity.isChangingConfigurations()) {
+			if (!activity.isChangingConfigurations()) {
+				handleOpenFailure(new IllegalStateException("TabGroup owner activity was destroyed."));
+				return;
+			}
+			TiWindowProxy ownerWindow = getPendingOwnerWindow(activity);
+			int ownerWindowId = getPendingOwnerWindowId(activity);
+			Activity replacement = TiApplication.getAppCurrentActivity();
+			if (!isReplacementActivity(replacement, activity, ownerWindow, ownerWindowId)) {
+				waitForReplacementActivity(activity, ownerWindow, ownerWindowId, options, generation);
+				return;
+			}
+			activity = replacement;
+		}
+
+		openTabGroupWhenReady(activity, options, generation);
+	}
+
+	private boolean isActivityUsable(Activity activity)
+	{
+		return activity != null && !activity.isFinishing() && !activity.isDestroyed()
+			&& !activity.isChangingConfigurations();
+	}
+
+	private TiWindowProxy getOwnerWindow(Activity activity)
+	{
+		return activity instanceof TiBaseActivity ? ((TiBaseActivity) activity).getWindowProxy() : null;
+	}
+
+	private int getActivityWindowId(Activity activity)
+	{
+		Intent intent = activity != null ? activity.getIntent() : null;
+		return intent != null
+			? intent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID)
+			: TiActivityWindows.INVALID_WINDOW_ID;
+	}
+
+	private TiWindowProxy getPendingOwnerWindow(Activity activity)
+	{
+		TiWindowProxy ownerWindow = pendingOpenOwnerWindow.get();
+		return ownerWindow != null ? ownerWindow : getOwnerWindow(activity);
+	}
+
+	private int getPendingOwnerWindowId(Activity activity)
+	{
+		return pendingOpenOwnerWindowId != TiActivityWindows.INVALID_WINDOW_ID
+			? pendingOpenOwnerWindowId
+			: getActivityWindowId(activity);
+	}
+
+	private void clearPendingOpenOwner()
+	{
+		pendingOpenOwnerActivity.clear();
+		pendingOpenOwnerWindow.clear();
+		pendingOpenOwnerWindowId = TiActivityWindows.INVALID_WINDOW_ID;
+	}
+
+	private boolean isCurrentOpen(long generation)
+	{
+		return opening && generation == openGeneration;
+	}
+
+	@Override
+	protected void handleOpenFailure(Throwable error)
+	{
+		clearPendingOpenCallbacks();
+		clearPendingOpenOwner();
+		TiActivityWindows.removeWindow(this);
+		super.handleOpenFailure(error);
+	}
+
+	private boolean isReplacementActivity(
+		Activity candidate, Activity previous, TiWindowProxy ownerWindow, int ownerWindowId)
+	{
+		if (!isActivityUsable(candidate) || candidate == previous) {
+			return false;
+		}
+		if (ownerWindowId != TiActivityWindows.INVALID_WINDOW_ID) {
+			return getActivityWindowId(candidate) == ownerWindowId;
+		}
+		if (ownerWindow != null) {
+			return candidate instanceof TiBaseActivity
+				&& ((TiBaseActivity) candidate).getWindowProxy() == ownerWindow;
+		}
+		return previous instanceof TiRootActivity && candidate.getClass().equals(previous.getClass());
+	}
+
+	private void waitForReplacementActivity(
+		Activity previous, TiWindowProxy ownerWindow, int ownerWindowId, KrollDict options, long generation)
+	{
+		clearPendingOpenActivityRetry();
+		pendingOpenActivityRetry =
+			() -> waitForReplacementActivity(previous, ownerWindow, ownerWindowId, options, generation, 0);
+		mainHandler.post(pendingOpenActivityRetry);
+	}
+
+	private void waitForReplacementActivity(
+		Activity previous, TiWindowProxy ownerWindow, int ownerWindowId, KrollDict options, long generation,
+		int attempt)
+	{
+		pendingOpenActivityRetry = null;
+		if (!isCurrentOpen(generation)) {
+			return;
+		}
+		Activity current = TiApplication.getAppCurrentActivity();
+		if (isReplacementActivity(current, previous, ownerWindow, ownerWindowId)) {
+			openTabGroupWhenReady(current, options, generation);
+			return;
+		}
+		if (attempt >= OPEN_ACTIVITY_RECREATION_RETRIES) {
+			handleOpenFailure(new IllegalStateException("Timed out waiting for the recreated owner activity."));
+			return;
+		}
+		pendingOpenActivityRetry = () ->
+			waitForReplacementActivity(previous, ownerWindow, ownerWindowId, options, generation, attempt + 1);
+		mainHandler.postDelayed(pendingOpenActivityRetry, 100);
+	}
+
+	private void clearPendingOpenActivityRetry()
+	{
+		if (pendingOpenActivityRetry != null) {
+			mainHandler.removeCallbacks(pendingOpenActivityRetry);
+			pendingOpenActivityRetry = null;
+		}
+	}
+
+	private void clearPendingOpenCallbacks()
+	{
+		clearPendingOpenActivityRetry();
+		if (pendingStartActivityRetry != null) {
+			mainHandler.removeCallbacks(pendingStartActivityRetry);
+			pendingStartActivityRetry = null;
+		}
+	}
+
+	private void openTabGroupWhenReady(Activity activity, KrollDict options, long generation)
+	{
+		if (!isCurrentOpen(generation)) {
+			return;
+		}
+		if (!isActivityUsable(activity)) {
+			recoverFromActivityRecreationOrFail(activity, options, generation);
+			return;
+		}
+		final Activity topActivity = activity;
 
 		/**
 		 * Only applicable on Android 12 or Android 13.
@@ -406,24 +583,52 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			Window window = topActivity.getWindow();
 			View decorView = window != null ? window.getDecorView() : null;
 			if (decorView == null) {
+				handleOpenFailure(new IllegalStateException("TabGroup owner activity has no decor view."));
 				return;
 			}
 
 			if (decorView.getDisplay() == null) {
 				TiSafeDisplay.getDisplaySafely(decorView, isDisplayAvailable -> {
-					// Display may not be available in very very rare cases,
-					// but we open it since it's now in try-catch.
-					openTabGroup(topActivity, options);
+					if (!isCurrentOpen(generation)) {
+						return;
+					}
+					if (isDisplayAvailable && isActivityUsable(topActivity)) {
+						openTabGroup(topActivity, options, generation);
+					} else {
+						recoverFromActivityRecreationOrFail(topActivity, options, generation);
+					}
 				});
 				return;
 			}
 		}
 
-		openTabGroup(topActivity, options);
+		openTabGroup(topActivity, options, generation);
 	}
 
-	private void openTabGroup(Activity topActivity, KrollDict options)
+	private void recoverFromActivityRecreationOrFail(Activity previous, KrollDict options, long generation)
 	{
+		if (!isCurrentOpen(generation)) {
+			return;
+		}
+		if (previous != null && !previous.isFinishing() && previous.isChangingConfigurations()) {
+			TiWindowProxy ownerWindow = getPendingOwnerWindow(previous);
+			int ownerWindowId = getPendingOwnerWindowId(previous);
+			Activity replacement = TiApplication.getAppCurrentActivity();
+			if (isReplacementActivity(replacement, previous, ownerWindow, ownerWindowId)) {
+				openTabGroupWhenReady(replacement, options, generation);
+			} else {
+				waitForReplacementActivity(previous, ownerWindow, ownerWindowId, options, generation);
+			}
+			return;
+		}
+		handleOpenFailure(new IllegalStateException("TabGroup owner activity is no longer available."));
+	}
+
+	private void openTabGroup(Activity topActivity, KrollDict options, long generation)
+	{
+		if (!isCurrentOpen(generation)) {
+			return;
+		}
 		// set theme for XML layout
 		if (hasProperty(TiC.PROPERTY_STYLE)
 			&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
@@ -468,13 +673,24 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 			// Last attempt to open the TabGroup (without any animation this time) as reported here:
 			// https://issuetracker.google.com/issues/293645024
 			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-			new Handler(Looper.getMainLooper()).postDelayed(() -> {
+			pendingStartActivityRetry = () -> {
+				pendingStartActivityRetry = null;
+				if (!isCurrentOpen(generation)) {
+					return;
+				}
+				if (!isActivityUsable(topActivity)) {
+					TiActivityWindows.removeWindow(this);
+					recoverFromActivityRecreationOrFail(topActivity, options, generation);
+					return;
+				}
 				try {
 					topActivity.startActivity(intent);
 				} catch (Exception ex) {
-					throw new RuntimeException("TabGroup failed to open: " + ex);
+					TiActivityWindows.removeWindow(this);
+					handleOpenFailure(new RuntimeException("TabGroup failed to open.", ex));
 				}
-			}, 500); // Just a hypothetical delay.
+			};
+			mainHandler.postDelayed(pendingStartActivityRetry, 500); // Just a hypothetical delay.
 		}
 	}
 
@@ -586,6 +802,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handlePostOpen()
 	{
+		clearPendingOpenCallbacks();
+		clearPendingOpenOwner();
 		super.handlePostOpen();
 
 		if (view == null) {
@@ -624,7 +842,16 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	protected void handleClose(@NonNull KrollDict options)
 	{
 		Log.d(TAG, "handleClose: " + options, Log.DEBUG_MODE);
-
+		clearPendingOpenCallbacks();
+		boolean cancelledOpen = opening && !opened;
+		if (cancelledOpen) {
+			handleOpenFailure(new CancellationException("TabGroup open was cancelled by close()."));
+			if (closePromise != null) {
+				closePromise.resolve(null);
+				closePromise = null;
+			}
+		}
+		clearPendingOpenOwner();
 		// Remove this TabGroup proxy from the active/open collection.
 		// Note: If the activity's onCreate() can't find this proxy, then it'll automatically destroy itself.
 		//       This is needed in case the proxy's close() method was called before the activity was created.
@@ -634,6 +861,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		modelListener = null;
 		releaseViews();
 		view = null;
+		if (cancelledOpen) {
+			return;
+		}
 
 		// Destroy this proxy's activity.
 		AppCompatActivity activity = (tabGroupActivity != null) ? tabGroupActivity.get() : null;
