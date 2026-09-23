@@ -29,6 +29,9 @@
   BOOL iconOriginal;
   BOOL activeIconOriginal;
   UITraitCollection *lastTabBarTraitCollection;
+  // The visible window's view, observed so the tab group keeps matching its
+  // background colour instead of copying it once.
+  UIView *observedWindowView;
 
   id<TiOrientationController> parentOrientationController;
 
