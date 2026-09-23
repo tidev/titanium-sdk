@@ -208,7 +208,7 @@ function loadTests() {
 	require('./ti.xml.test');
 	// Modules
 	require('./ti.map.test');
-	require('./ti.modulesdk920.test');
+	require('./ti.modulesdk1341.test');
 	if (OS_ANDROID) {
 		require('./ti.playservices.test');
 	}

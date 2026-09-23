@@ -9,7 +9,7 @@
 'use strict';
 const should = require('./utilities/assertions');
 
-describe('Module Built with SDK 9.2.0', function () {
+describe('Module Built with SDK 13.4.1', function () {
 	const MAX_INT32 = 2147483647;
 	const MIN_INT32 = -2147483648;
 	const DICTIONARY_TEST_DATA = {
@@ -33,7 +33,7 @@ describe('Module Built with SDK 9.2.0', function () {
 	let tiModule;
 
 	it('require', () => {
-		tiModule = require('ti.modulesdk920');
+		tiModule = require('ti.modulesdk1341');
 		should(tiModule).not.be.undefined();
 		should(tiModule).be.an.Object();
 	});
@@ -248,7 +248,7 @@ describe('Module Built with SDK 9.2.0', function () {
 	});
 
 	it('Resource File', () => {
-		const jsonData = require('./ti.modulesdk920/test.json');
+		const jsonData = require('./ti.modulesdk1341/test.json');
 		should(jsonData.foo).be.eql('bar');
 	});
 });
