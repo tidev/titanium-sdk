@@ -1411,6 +1411,72 @@ describe('Titanium.UI.View', function () {
 		should(view2.filterTouchesWhenObscured).be.true();
 	});
 
+	it.android('horizontal layout with first child hidden after layout', finish => {
+		win = Ti.UI.createWindow({ layout: 'horizontal' });
+		const first = Ti.UI.createView({
+			left: 0,
+			width: 100,
+			height: 50,
+			hiddenBehavior: Ti.UI.HIDDEN_BEHAVIOR_GONE
+		});
+		const second = Ti.UI.createView({ left: 0, width: 50, height: 50 });
+		win.add([ first, second ]);
+
+		let hidden = false;
+		win.addEventListener('postlayout', function listener() {
+			try {
+				if (!hidden) {
+					should(second.rect.x).be.eql(100);
+					hidden = true;
+					first.visible = false;
+					return;
+				}
+				if (second.rect.x !== 0) {
+					return; // Wait for the next layout pass.
+				}
+				win.removeEventListener('postlayout', listener);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
+	it.android('.breakpoints', finish => {
+		win = Ti.UI.createWindow();
+		const view = Ti.UI.createView({
+			width: 100,
+			visible: false,
+			breakpoints: [
+				{ minWidth: 0, properties: { visible: true } },
+				{ minWidth: 0, properties: { width: 200 } },
+				{ minWidth: 100000, properties: { width: 300 } }
+			]
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			try {
+				// Matching breakpoints are applied in order. Non-matching ones are ignored.
+				should(view.visible).be.true();
+				should(view.width).be.eql(200);
+
+				// Replacing the breakpoints restores the original values.
+				view.breakpoints = [ { maxWidth: 0, properties: { visible: true } } ];
+				should(view.visible).be.false();
+				should(view.width).be.eql(100);
+
+				view.breakpoints = null;
+				should(view.visible).be.false();
+				should(view.width).be.eql(100);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
 	it('rgba fallback', finish => {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {
