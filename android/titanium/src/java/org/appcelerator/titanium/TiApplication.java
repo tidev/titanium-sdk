@@ -206,6 +206,14 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	// Moves an already tracked activity to the top of the stack, so getCurrentActivity() returns it.
+	public static void moveToTopOfActivityStack(Activity activity)
+	{
+		if ((activity != null) && activityStack.remove(activity)) {
+			activityStack.add(new WeakReference<>(activity));
+		}
+	}
+
 	// Calls finish on the list of activities in the stack. This should only be called when we want to terminate the
 	// application (typically when the root activity is destroyed)
 	public static void terminateActivityStack()
