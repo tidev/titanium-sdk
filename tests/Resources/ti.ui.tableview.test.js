@@ -1532,7 +1532,7 @@ describe('Titanium.UI.TableView', function () {
 		win.open();
 	});
 
-	it.ios('row with height 0 takes no space', function (finish) {
+	it('row with height 0 takes no space', function (finish) {
 		if (isCI && utilities.isMacOS()) { // FIXME: see row#rect above
 			return finish();
 		}
@@ -1540,19 +1540,20 @@ describe('Titanium.UI.TableView', function () {
 		win = Ti.UI.createWindow();
 
 		const tableView = Ti.UI.createTableView();
-		const hiddenRow = Ti.UI.createTableViewRow({
-			height: 0,
-			title: 'hidden'
-		});
-		const visibleRow = Ti.UI.createTableViewRow({
-			title: 'visible'
-		});
+		const hiddenRow = Ti.UI.createTableViewRow({ height: 0 });
+		hiddenRow.add(Ti.UI.createLabel({ text: 'hidden', left: 16 }));
+		const visibleRow = Ti.UI.createTableViewRow({ height: 40 });
+		visibleRow.add(Ti.UI.createLabel({ text: 'visible', left: 16 }));
 
 		tableView.data = [ hiddenRow, visibleRow ];
 
-		hiddenRow.addEventListener('postlayout', () => {
+		visibleRow.addEventListener('postlayout', function onPostLayout() {
+			visibleRow.removeEventListener('postlayout', onPostLayout);
 			try {
 				should(hiddenRow.rect.height).be.eql(0);
+				// The collapsed row must not push the next row down.
+				should(visibleRow.rect.y).be.eql(0);
+				should(visibleRow.rect.height).be.eql(40);
 			} catch (e) {
 				return finish(e);
 			}
