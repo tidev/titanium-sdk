@@ -22,6 +22,7 @@ import fields from 'fields';
 import fs from 'fs-extra';
 import ioslib from 'ioslib';
 import moment from 'moment';
+import os from 'node:os';
 import path from 'node:path';
 import { PNG } from 'pngjs';
 import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js';
@@ -133,6 +134,11 @@ class iOSBuilder extends Builder {
 
 		// cache of provisioning profiles
 		this.provisioningProfileLookup = {};
+
+		// whether or not the ARM64 architecture should be excluded from the build
+		// this applies if third party modules are not built for ARM64 but the target
+		// is ARM64 (like modern Simulators or Apple Silicon)
+		this.excludeARM64 = false;
 
 		// list of all extensions (including watch apps)
 		this.extensions = [];
@@ -2410,6 +2416,15 @@ class iOSBuilder extends Builder {
 				await cli.scanHooks(path.join(module.modulePath, 'hooks'));
 			}
 
+			// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+			if (this.target === 'simulator' && this.legacyModules.size > 0 && appc.version.gte(this.xcodeEnv.version, '12.0.0')) {
+				if (process.arch === 'arm64') {
+					throw new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`);
+				}
+				this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
+				this.excludeARM64 = true;
+			}
+
 			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 			this.collectModuleSpmDependencies();
 		} catch (err) {
@@ -3544,6 +3559,11 @@ class iOSBuilder extends Builder {
 			},
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
+		// scope to the simulator SDK so device builds started from the generated Xcode project keep arm64
+		if (this.excludeARM64 && this.deployType !== 'production') {
+			buildSettings['"EXCLUDED_ARCHS[sdk=iphonesimulator*]"'] = 'arm64';
+		}
+
 		// set additional build settings
 		if (this.target === 'simulator' || this.target === 'macos') {
 			this.gccDefs.set('LOGTOFILE', 1);
@@ -3569,8 +3589,22 @@ class iOSBuilder extends Builder {
 			}
 		}
 
-		// this path is required to properly build for production
-		const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
+		// Since Xcode 14.3, the archive action fails with "BuildProductsPath couldn't be opened" when
+		// <intermediates root>/ArchiveIntermediates/<scheme>/BuildProductsPath does not exist. Because
+		// we override SYMROOT/OBJROOT, Xcode never creates it, so a build phase creates it for us.
+		// The intermediates root depends on the user's Xcode "Derived Data" location setting
+		// (Xcode > Settings > Locations > Advanced), so create every known variant:
+		//   - Default (Unique/Shared):        <buildDir>/DerivedData/Build/Intermediates.noindex
+		//   - Custom, relative to workspace:   <buildDir>/build/Intermediates.noindex
+		//   - Legacy (determined by targets):  OBJROOT, i.e. <buildDir>/build/Intermediates
+		// See https://github.com/tidev/titanium-sdk/issues/13792
+		const archiveIntermediatesSubpath = path.join('ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
+		const buildProductsPaths = [
+			path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', archiveIntermediatesSubpath),
+			path.join(this.buildDir, 'build', 'Intermediates.noindex', archiveIntermediatesSubpath),
+			path.join(this.buildDir, 'build', 'Intermediates', archiveIntermediatesSubpath)
+		];
+		const mkdirBuildProductsPaths = '/bin/mkdir -p ' + buildProductsPaths.map(p => `\\"${p}\\"`).join(' ');
 
 		// add the post-compile build phase for dist-appstore builds
 		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
@@ -3595,7 +3629,7 @@ class iOSBuilder extends Builder {
 				outputPaths: [],
 				runOnlyForDeploymentPostprocessing: 0,
 				shellPath: '/bin/sh',
-				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
+				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\" && ${mkdirBuildProductsPaths}"`,
 				showEnvVarsInLog: 0
 			};
 			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -3627,7 +3661,7 @@ class iOSBuilder extends Builder {
 				outputPaths: [],
 				runOnlyForDeploymentPostprocessing: 0,
 				shellPath: '/bin/sh',
-				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
+				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && ${mkdirBuildProductsPaths}"`,
 				showEnvVarsInLog: 0
 			};
 			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -5190,6 +5224,16 @@ class iOSBuilder extends Builder {
 			path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 			path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 		);
+
+		// For non-production builds, be able to open the generated Xcode project
+		if (this.deployType !== 'production') {
+			copyAndReplaceFile.call(
+				this,
+				path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'WorkspaceSettings.xcsettings'),
+				path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'xcuserdata', `${os.userInfo().username}.xcuserdatad`, 'WorkspaceSettings.xcsettings')
+			);
+		}
+
 		copyAndReplaceFile.call(
 			this,
 			path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),

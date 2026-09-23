@@ -91,7 +91,9 @@
   // If there is a separator, then it's included as part of the row height as the system, so remove the pixel for it
   // from our cell size
   if ([[[proxy table] tableView] separatorStyle] == UITableViewCellSeparatorStyleSingleLine) {
-    height -= 1;
+    // Clamp so a collapsed (height:0) row does not go negative, which would
+    // otherwise trigger spurious row reloads in triggerUpdateIfHeightChanged.
+    height = MAX(height - 1, 0);
   }
 
   return CGSizeMake(width, height);
@@ -393,7 +395,7 @@
   if (TiDimensionIsDip(maxRowHeight)) {
     height = MIN(maxRowHeight.value, height);
   }
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 // Allows use of scrollsToTop property on a table.
@@ -2746,7 +2748,7 @@
   CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
   CGFloat height = [row rowHeight:width];
   height = [self tableRowHeight:height];
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section

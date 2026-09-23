@@ -328,7 +328,9 @@ Titanium SDK is an open source project. Titanium SDK wouldn't be where it is now
 
 ### New Features, Improvements, Bug Fixes and Documentation
 
-Source code contributions are always welcome!
+Source code contributions are always welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for how to
+set up a development environment, the coding standards we enforce, and how to get a pull request
+reviewed and merged.
 
 To protect the interests of the Titanium SDK contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 
