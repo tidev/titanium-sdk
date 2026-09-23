@@ -30,7 +30,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.util.SimpleElementVisitor6;
+import javax.lang.model.util.SimpleElementVisitor9;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -352,7 +352,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 	}
 
 	protected class BindingVisitor
-		extends SimpleElementVisitor6<Object, Object> implements KrollVisitor<AnnotationMirror>
+		extends SimpleElementVisitor9<Object, Object> implements KrollVisitor<AnnotationMirror>
 	{
 		@Override
 		public String visitExecutable(ExecutableElement e, Object p)

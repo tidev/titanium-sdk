@@ -1090,6 +1090,53 @@ describe('Titanium.UI.TableView', function () {
 		finish();
 	});
 
+	it('.searchText', finish => {
+		// Set searchText in the creation dictionary together with data, so the
+		// filter has to survive whichever property is applied first.
+		const tableView = Ti.UI.createTableView({
+			data: [
+				{ title: 'Apple' },
+				{ title: 'Banana' },
+				{ title: 'Potatoes', filterAlwaysInclude: true }
+			],
+			searchText: 'an'
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+				should(tableView.searchText).be.eql('an');
+
+				// Filtering must not alter the underlying data.
+				should(tableView.sectionCount).be.eql(1);
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Change the filter after the table is shown.
+				tableView.searchText = 'p';
+				should(tableView.searchText).be.eql('p');
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Data changes while filtering must be picked up without errors.
+				tableView.appendRow({ title: 'Pear' });
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				// An empty string clears the filter.
+				tableView.searchText = '';
+				should(tableView.searchText).be.eql('');
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
 	it('scrollable', () => {
 		const tableView = Ti.UI.createTableView({ scrollable: false });
 
@@ -1475,6 +1522,38 @@ describe('Titanium.UI.TableView', function () {
 		row.addEventListener('postlayout', () => {
 			try {
 				should(row.rect.height).be.eql(150);
+			} catch (e) {
+				return finish(e);
+			}
+			finish();
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('row with height 0 takes no space', function (finish) {
+		if (isCI && utilities.isMacOS()) { // FIXME: see row#rect above
+			return finish();
+		}
+
+		win = Ti.UI.createWindow();
+
+		const tableView = Ti.UI.createTableView();
+		const hiddenRow = Ti.UI.createTableViewRow({ height: 0 });
+		hiddenRow.add(Ti.UI.createLabel({ text: 'hidden', left: 16 }));
+		const visibleRow = Ti.UI.createTableViewRow({ height: 40 });
+		visibleRow.add(Ti.UI.createLabel({ text: 'visible', left: 16 }));
+
+		tableView.data = [ hiddenRow, visibleRow ];
+
+		visibleRow.addEventListener('postlayout', function onPostLayout() {
+			visibleRow.removeEventListener('postlayout', onPostLayout);
+			try {
+				should(hiddenRow.rect.height).be.eql(0);
+				// The collapsed row must not push the next row down.
+				should(visibleRow.rect.y).be.eql(0);
+				should(visibleRow.rect.height).be.eql(40);
 			} catch (e) {
 				return finish(e);
 			}

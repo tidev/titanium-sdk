@@ -144,7 +144,7 @@ methods:
       If you pass both - only `message` will be shown.
     parameters:
       - name: options
-        type: showParams
+        type: QuickSettingsServiceShowParams
         summary: Dictionary containing the options for the dialog.
 
   - name: startActivityAndCollapse
@@ -237,7 +237,7 @@ examples:
         </ti:app>
         ```
 ---
-name: showParams
+name: QuickSettingsServiceShowParams
 summary: Dictionary of options for the <Titanium.Android.QuickSettingsService.showDialog> method.
 
 properties:

@@ -23,6 +23,9 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiToolbarStyleHandler;
 import org.appcelerator.titanium.view.TiUIView;
 
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
 public class TiToolbar extends TiUIView
 {
 	//region private primitive fields
@@ -172,9 +175,11 @@ public class TiToolbar extends TiUIView
 		toolbar.setFitsSystemWindows(true);
 
 		// Set flags so that the current window will allow drawing behind the status bar.
-		int flags = decorView.getSystemUiVisibility();
-		flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-		decorView.setSystemUiVisibility(flags);
+		WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, decorView);
+		if (insetsController != null) {
+			insetsController.setSystemBarsBehavior(
+				WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+		}
 		window.setStatusBarColor(Color.TRANSPARENT);
 
 		// Request window to re-fit its views.

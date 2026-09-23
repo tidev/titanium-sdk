@@ -91,7 +91,9 @@
   // If there is a separator, then it's included as part of the row height as the system, so remove the pixel for it
   // from our cell size
   if ([[[proxy table] tableView] separatorStyle] == UITableViewCellSeparatorStyleSingleLine) {
-    height -= 1;
+    // Clamp so a collapsed (height:0) row does not go negative, which would
+    // otherwise trigger spurious row reloads in triggerUpdateIfHeightChanged.
+    height = MAX(height - 1, 0);
   }
 
   return CGSizeMake(width, height);
@@ -393,7 +395,7 @@
   if (TiDimensionIsDip(maxRowHeight)) {
     height = MIN(maxRowHeight.value, height);
   }
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 // Allows use of scrollsToTop property on a table.
@@ -426,6 +428,13 @@
 - (BOOL)isSearchStarted
 {
   return ([searchController isActive] && searchResultIndexes);
+}
+
+// Rows are filtered either by an active searchView or by the searchText property.
+// In both cases the table displays a single, flattened section of search results.
+- (BOOL)isFiltering
+{
+  return ([self isSearchStarted] || (self.searchString.length > 0 && searchResultIndexes));
 }
 
 - (UITableView *)tableView
@@ -600,7 +609,7 @@
       row.parent = section;
     }
   }
-  if (![self isSearchStarted]) {
+  if (![self isFiltering]) {
     [self reloadDataFromCount:oldCount toCount:newCount animation:animation];
   }
 }
@@ -691,7 +700,8 @@
 
 - (void)refreshSearchControllerUsingReload:(BOOL)reloadSearch
 {
-  if ([searchController isActive]) {
+  // Filtering via the searchText property must also recompute its results when the data changes.
+  if ([searchController isActive] || [self isFiltering]) {
     [self updateSearchResultIndexes];
 
     // Because -[UITableView reloadData] queues on the main runloop, we need to sync the search
@@ -722,7 +732,7 @@
   switch (action.type) {
   case TiUITableViewActionRowReload: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
@@ -731,14 +741,14 @@
   case TiUITableViewActionUpdateRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self updateRow:row];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview reloadRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
     break;
   }
   case TiUITableViewActionSectionReload: {
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       TiUITableViewSectionProxy *section = action.obj;
       NSIndexSet *path = [NSIndexSet indexSetWithIndex:section.section];
       [tableview reloadSections:path withRowAnimation:action.animation];
@@ -755,7 +765,7 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
 
@@ -799,7 +809,7 @@
         [addRows addObject:moveRow];
         [moveRow release];
       }
-      if (![self isSearchStarted]) {
+      if (![self isFiltering]) {
         [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
       }
     }
@@ -811,7 +821,7 @@
       // Removing the temporarily saved proxy.
       [(TiUITableViewProxy *)[self proxy] forgetProxy:moveRow];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
     }
 
@@ -830,7 +840,7 @@
     if (action.animation == UITableViewRowAnimationNone) {
       [UIView setAnimationsEnabled:NO];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
 
@@ -867,7 +877,7 @@
       [moveRow release];
     }
     // 1st stage of update: Remove all those nasty old rows.
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview deleteRowsAtIndexPaths:removeRows withRowAnimation:UITableViewRowAnimationNone];
     }
 
@@ -877,7 +887,7 @@
     for (TiUITableViewRowProxy *moveRow in addRows) {
       [self appendRow:moveRow];
     }
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertSections:[NSIndexSet indexSetWithIndex:newSectionIndex] withRowAnimation:action.animation];
     }
     break;
@@ -885,7 +895,7 @@
   case TiUITableViewActionDeleteRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self deleteRow:row];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview deleteRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
@@ -899,7 +909,7 @@
   case TiUITableViewActionAppendRow: {
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [self appendRow:action.obj];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       NSIndexPath *path = [NSIndexPath indexPathForRow:row.row inSection:row.section.section];
       [tableview insertRowsAtIndexPaths:[NSArray arrayWithObject:path] withRowAnimation:action.animation];
     }
@@ -909,7 +919,7 @@
     TiUITableViewRowProxy *row = (TiUITableViewRowProxy *)action.obj;
     [sections addObject:row.section];
     [self appendRow:action.obj];
-    if (![self isSearchStarted]) {
+    if (![self isFiltering]) {
       [tableview insertSections:[NSIndexSet indexSetWithIndex:[sections count] - 1] withRowAnimation:action.animation];
     }
     break;
@@ -1122,7 +1132,7 @@
       break;
     }
 
-    BOOL viaSearch = [searchController isActive];
+    BOOL viaSearch = [self isFiltering];
     UITableView *theTableView = [self tableView];
     CGPoint point = [recognizer locationInView:theTableView];
     CGPoint pointInView = [recognizer locationInView:self];
@@ -1163,7 +1173,7 @@
 
 - (void)recognizedTap:(UITapGestureRecognizer *)recognizer
 {
-  BOOL viaSearch = [searchController isActive];
+  BOOL viaSearch = [self isFiltering];
   UITableView *theTableView = [self tableView];
   CGPoint point = [recognizer locationInView:theTableView];
   CGPoint pointInView = [recognizer locationInView:self];
@@ -1227,7 +1237,7 @@
     CGPoint point = [recognizer locationInView:ourTableView];
     NSIndexPath *indexPath = [ourTableView indexPathForRowAtPoint:point];
 
-    BOOL search = [searchController isActive];
+    BOOL search = [self isFiltering];
 
     if (indexPath == nil) {
       // indexPath will also be nil if you click the header of the first section. TableView Bug??
@@ -1364,6 +1374,13 @@
       cellIndex++;
     }
   }
+
+  // Drop leftover index sets when the section count has shrunk, so the
+  // filtered row count doesn't include rows of sections that no longer exist.
+  NSUInteger sectionCount = [(TiUITableViewProxy *)[self proxy] sectionCount].unsignedIntegerValue;
+  while ([searchResultIndexes count] > sectionCount) {
+    [searchResultIndexes removeLastObject];
+  }
 }
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
@@ -1437,18 +1454,27 @@
   return height;
 }
 
+- (void)updateDimmingViewFrame
+{
+  if (isSearchBarInNavigation) {
+    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  } else {
+    // Keep the search bar itself uncovered, otherwise the dimming view also dims
+    // the search field and its cancel button.
+    CGFloat dimmingViewTopMargin = self.safeAreaInsets.top + searchController.searchBar.frame.size.height;
+    CGFloat dimmingViewHeight = self.frame.size.height - dimmingViewTopMargin;
+
+    [dimmingView setFrame:CGRectMake(0, dimmingViewTopMargin, self.frame.size.width, dimmingViewHeight)];
+  }
+}
+
 - (void)updateSearchControllerFrames
 {
   if (![searchController isActive]) {
     return;
   }
-  if (isSearchBarInNavigation) {
-    dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
-  } else {
-    CGFloat dimmingViewTopMargin = searchController.searchBar.frame.size.height + searchController.view.safeAreaInsets.top;
-    CGFloat dimmingViewHeight = self.frame.size.height - searchController.searchBar.frame.size.height;
-
-    [dimmingView setFrame:CGRectMake(0, dimmingViewTopMargin, self.frame.size.width, dimmingViewHeight)];
+  [self updateDimmingViewFrame];
+  if (!isSearchBarInNavigation) {
     CGPoint convertedOrigin = [self.superview convertPoint:self.frame.origin toView:searchControllerPresenter.view];
 
     UIView *searchSuperView = [searchController.view superview];
@@ -1600,6 +1626,22 @@
   // called when keyboard search button pressed
   [searchBar resignFirstResponder];
   [self makeRootViewFirstResponder];
+}
+
+- (void)setSearchText_:(id)args
+{
+  id search = [self.proxy valueForKey:@"search"];
+  if (searchField != nil || !IS_NULL_OR_NIL(search)) {
+    DebugLog(@"Can not use searchText together with the search property. Ignoring call.");
+    return;
+  }
+  // Make sure the table exists before computing results: creating it runs
+  // updateSearchView, which resets the result indexes and would otherwise
+  // discard a searchText applied before the table (e.g. from the creation dictionary).
+  [self tableView];
+  self.searchString = [TiUtils stringValue:args];
+  [self updateSearchResultIndexes];
+  [tableview reloadData];
 }
 
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText
@@ -2100,7 +2142,7 @@
 #pragma mark Datasource
 
 #define RETURN_IF_SEARCH_TABLE_VIEW(result) \
-  if ([searchController isActive]) {        \
+  if ([self isFiltering]) {                 \
     return result;                          \
   }
 
@@ -2111,7 +2153,7 @@
 
 - (NSInteger)tableView:(UITableView *)table numberOfRowsInSection:(NSInteger)section
 {
-  if ([self isSearchStarted]) {
+  if ([self isFiltering]) {
     int rowCount = 0;
     for (NSIndexSet *thisSet in searchResultIndexes) {
       rowCount += [thisSet count];
@@ -2129,7 +2171,7 @@
 - (UITableViewCell *)tableView:(UITableView *)ourTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted]) {
+  if ([self isFiltering]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2173,7 +2215,7 @@
     ourTableView.backgroundColor = [UIColor whiteColor];
   }
 
-  if ([self isSearchStarted]) {
+  if ([self isFiltering]) {
     return 1;
   }
   // One quirk of UITableView is that it really hates having 0 sections. Instead, supply 1 section, no rows.
@@ -2524,7 +2566,7 @@
 
 - (void)showDimmingView
 {
-  dimmingView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+  [self updateDimmingViewFrame];
   if (!dimmingView.superview) {
     [self addSubview:dimmingView];
     [self bringSubviewToFront:dimmingView];
@@ -2570,7 +2612,7 @@
   if ((!allowsSelectionSet || ![ourTableView allowsSelection]) && !editing) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
-  if ([searchController isActive]) {
+  if ([self isFiltering]) {
     search = YES;
   }
   [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:NO search:search name:@"click"];
@@ -2585,7 +2627,7 @@
 - (void)tableView:(UITableView *)ourTableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([searchController isActive] && searchResultIndexes) {
+  if ([self isFiltering]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2637,7 +2679,7 @@
   if (!allowsSelectionSet || ![ourTableView allowsSelection]) {
     [ourTableView deselectRowAtIndexPath:indexPath animated:YES];
   }
-  if ([searchController isActive]) {
+  if ([self isFiltering]) {
     search = YES;
   }
   [self triggerActionForIndexPath:indexPath fromPath:nil tableView:ourTableView wasAccessory:YES search:search name:@"click"];
@@ -2697,7 +2739,7 @@
 - (CGFloat)tableView:(UITableView *)ourTableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
   NSIndexPath *index = indexPath;
-  if ([self isSearchStarted]) {
+  if ([self isFiltering]) {
     index = [self indexPathFromSearchIndex:[indexPath row]];
   }
 
@@ -2706,7 +2748,7 @@
   CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
   CGFloat height = [row rowHeight:width];
   height = [self tableRowHeight:height];
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section

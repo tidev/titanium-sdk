@@ -996,6 +996,17 @@ public class TiCameraActivity extends TiBaseActivity implements SurfaceHolder.Ca
 	@Override
 	public void onBackPressed()
 	{
+		handleCameraBack();
+	}
+
+	@Override
+	protected void handleBackNavigation()
+	{
+		handleCameraBack();
+	}
+
+	private void handleCameraBack()
+	{
 		if (androidbackCallback != null) {
 			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(-1, "User pressed androidback");

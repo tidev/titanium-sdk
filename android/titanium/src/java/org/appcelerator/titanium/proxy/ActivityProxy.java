@@ -25,6 +25,9 @@ import org.appcelerator.titanium.util.TiActivitySupportHelper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.os.Build;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -206,11 +209,36 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		Activity activity = getWrappedActivity();
 		if (activity != null) {
 			try {
+				// Warn if trying to lock orientation on Android 16+ large screen devices.
+				if (Build.VERSION.SDK_INT >= 36 && isFixedOrientation(orientation)) {
+					Configuration config = activity.getResources().getConfiguration();
+					int smallestScreenWidthDp = config.smallestScreenWidthDp;
+					if (smallestScreenWidthDp > 600) {
+						Log.w(TAG, "Fixed orientation is not supported on large screens (smallest width: "
+							+ smallestScreenWidthDp + "dp). Orientation request will be ignored on Android 16+.");
+					}
+				}
 				activity.setRequestedOrientation(orientation);
 			} catch (Exception ex) {
 				Log.e(TAG, ex.getMessage());
 			}
 		}
+	}
+
+	/**
+	 * Checks if the given orientation mode locks to a single orientation (not sensor/user/unspecified).
+	 * Used to detect orientation restrictions on Android 16+ large screen devices.
+	 */
+	private boolean isFixedOrientation(int orientationMode)
+	{
+		return orientationMode == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+			|| orientationMode == ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
 	}
 
 	@Kroll.method

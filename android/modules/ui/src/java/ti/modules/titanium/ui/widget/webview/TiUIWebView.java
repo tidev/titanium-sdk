@@ -7,6 +7,7 @@
 package ti.modules.titanium.ui.widget.webview;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.FeatureInfo;
 import android.graphics.Color;
@@ -21,6 +22,8 @@ import android.view.ViewParent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import androidx.annotation.StringRes;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -188,6 +191,14 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent ev)
 		{
+			// The WebView hands every MotionEvent straight to Chromium regardless of isClickable() or
+			// isEnabled(), so the base class' touchEnabled handling has no effect on the page content.
+			// Refuse the event here so neither the page nor the Titanium click/swipe events see it,
+			// and the parent view can forward it to the views underneath instead.
+			if ((proxy != null) && !TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true)) {
+				return false;
+			}
+
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
@@ -290,6 +301,19 @@ public class TiUIWebView extends TiUIView
 			// silence unnecessary internal logs...
 		}
 		webView.setVerticalScrollbarOverlay(true);
+
+		// Chromium derives env(safe-area-inset-*) from the window insets this view receives,
+		// regardless of where the view sits on screen. Unless the window extends into the safe
+		// area, TiEdgeToEdgeHelper already keeps content clear of the system bars and display
+		// cutout, so the page would otherwise pad itself a second time.
+		boolean extendSafeArea = false;
+		Intent intent = (proxy.getActivity() != null) ? proxy.getActivity().getIntent() : null;
+		if (intent != null) {
+			extendSafeArea = intent.getBooleanExtra(TiC.PROPERTY_EXTEND_SAFE_AREA, false);
+		}
+		if (!extendSafeArea) {
+			ViewCompat.setOnApplyWindowInsetsListener(webView, (v, insets) -> WindowInsetsCompat.CONSUMED);
+		}
 
 		boolean multipleWindows = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_MULTIPLE_WINDOWS), false);
 		WebSettings settings = webView.getSettings();
