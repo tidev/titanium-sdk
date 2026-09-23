@@ -2417,7 +2417,7 @@ class iOSBuilder extends Builder {
 			}
 
 			// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
-			if (this.legacyModules.size > 0 && appc.version.gte(this.xcodeEnv.version, '12.0.0')) {
+			if (this.target === 'simulator' && this.legacyModules.size > 0 && appc.version.gte(this.xcodeEnv.version, '12.0.0')) {
 				if (process.arch === 'arm64') {
 					throw new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`);
 				}
@@ -3559,8 +3559,9 @@ class iOSBuilder extends Builder {
 			},
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
+		// scope to the simulator SDK so device builds started from the generated Xcode project keep arm64
 		if (this.excludeARM64 && this.deployType !== 'production') {
-			buildSettings['EXCLUDED_ARCHS'] = 'arm64';
+			buildSettings['"EXCLUDED_ARCHS[sdk=iphonesimulator*]"'] = 'arm64';
 		}
 
 		// set additional build settings
