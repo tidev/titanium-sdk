@@ -1110,9 +1110,9 @@ describe('Titanium.UI.TableView', function () {
 				// Re-assigning the same rows must keep the row proxies, not clone them,
 				// otherwise their event listeners would be lost. (See issue #13508)
 				tableView.data = rows;
-				should(tableView.sections[0].rows[0]).be.eql(rows[0]);
-				should(tableView.sections[0].rows[1]).be.eql(rows[1]);
-				should(rows[0].parent).be.eql(tableView.sections[0]);
+				should(tableView.sections[0].rows[0]).be.equal(rows[0]);
+				should(tableView.sections[0].rows[1]).be.equal(rows[1]);
+				should(rows[0].parent).be.equal(tableView.sections[0]);
 
 				// A click on the row must still bubble up to the table.
 				rows[0].fireEvent('click', { bubbles: true });
@@ -1121,9 +1121,9 @@ describe('Titanium.UI.TableView', function () {
 				// Re-assigning the same section must keep its rows parented to the section.
 				tableView.data = [ section ];
 				tableView.data = [ section ];
-				should(tableView.sections[0]).be.eql(section);
-				should(section.parent).be.eql(tableView);
-				should(section.rows[0].parent).be.eql(section);
+				should(tableView.sections[0]).be.equal(section);
+				should(section.parent).be.equal(tableView);
+				should(section.rows[0].parent).be.equal(section);
 
 				section.rows[0].fireEvent('click', { bubbles: true });
 				should(clickCount).be.eql(2);
