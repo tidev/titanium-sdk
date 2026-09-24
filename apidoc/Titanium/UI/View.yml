@@ -1429,11 +1429,12 @@ properties:
         To remove a hidden view from the layout, set
         [hiddenBehavior](Titanium.UI.View.hiddenBehavior) to <Titanium.UI.HIDDEN_BEHAVIOR_GONE>.
 
-        Android 16 and later ignore the orientation lock of apps on large screens. Use this property
-        to adapt a layout to the window size instead.
+        Android 16 and later ignore the orientation lock of apps on large screens. iPadOS 26 and
+        later ignore it for apps that support multitasking. Use this property to adapt a layout to
+        the window size instead.
     type: Array<ViewBreakpoint>
-    platforms: [android]
-    since: {android: "14.0.0"}
+    platforms: [android, iphone, ipad, macos]
+    since: "14.0.0"
 
   - name: bottom
     summary: View's bottom position, in platform-specific units.
@@ -1545,8 +1546,8 @@ properties:
         Defaults to Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE.
     type: Number
     constants: [Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE, Titanium.UI.HIDDEN_BEHAVIOR_GONE]
-    platforms: [android]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "6.1.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
 
   - name: horizontalMotionEffect
     summary: Adds a horizontal parallax effect to the view
@@ -2176,27 +2177,27 @@ properties:
 ---
 name: ViewBreakpoint
 summary: A size range and the view properties that apply inside it. See <Titanium.UI.View.breakpoints>.
-platforms: [android]
-since: {android: "14.0.0"}
+platforms: [android, iphone, ipad, macos]
+since: "14.0.0"
 properties:
   - name: minWidth
     type: Number
-    summary: Smallest window width in dp for which this entry matches.
+    summary: Smallest window width in dp (points on iOS) for which this entry matches.
     optional: true
 
   - name: maxWidth
     type: Number
-    summary: Largest window width in dp for which this entry matches.
+    summary: Largest window width in dp (points on iOS) for which this entry matches.
     optional: true
 
   - name: minHeight
     type: Number
-    summary: Smallest window height in dp for which this entry matches.
+    summary: Smallest window height in dp (points on iOS) for which this entry matches.
     optional: true
 
   - name: maxHeight
     type: Number
-    summary: Largest window height in dp for which this entry matches.
+    summary: Largest window height in dp (points on iOS) for which this entry matches.
     optional: true
 
   - name: properties

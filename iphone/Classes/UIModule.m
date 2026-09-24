@@ -14,6 +14,7 @@
 #import <TitaniumKit/Ti3DMatrix.h>
 #import <TitaniumKit/TiDimension.h>
 #import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiViewProxy.h>
 
 #ifdef USE_TI_UIANIMATION
 #import <TitaniumKit/TiAnimation.h>
@@ -270,6 +271,9 @@ MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT, UITableViewCellStyleDefault);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS, UITableViewCellStyleValue1);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_CONTACTS, UITableViewCellStyleValue2);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SUBTITLE, UITableViewCellStyleSubtitle);
+
+MAKE_SYSTEM_PROP(HIDDEN_BEHAVIOR_INVISIBLE, TiHiddenBehaviorInvisible);
+MAKE_SYSTEM_PROP(HIDDEN_BEHAVIOR_GONE, TiHiddenBehaviorGone);
 
 MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_NONE, UITableViewCellAccessoryNone);
 MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_CHECKMARK, UITableViewCellAccessoryCheckmark);

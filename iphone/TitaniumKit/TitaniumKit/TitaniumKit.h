@@ -32,6 +32,7 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/Ti3DMatrix.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
+#import <TitaniumKit/TiBreakpointHandler.h>
 #import <TitaniumKit/TiColor.h>
 #import <TitaniumKit/TiComplexValue.h>
 #import <TitaniumKit/TiDefines.h>

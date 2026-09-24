@@ -1443,7 +1443,7 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
-	it.android('.breakpoints', finish => {
+	it('.breakpoints', finish => {
 		win = Ti.UI.createWindow();
 		const view = Ti.UI.createView({
 			width: 100,
