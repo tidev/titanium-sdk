@@ -78,6 +78,42 @@ properties:
     type: Callback
     permission: write-only
 
+methods:
+  - name: addMenuItem
+    summary: Adds a menu item from the passed creation options.
+    since: "12.7.0"
+    parameters:
+      - name: options
+        summary: |
+            Creation options. Supported options are
+            [itemId](Titanium.Android.MenuItem.itemId),
+            [title](Titanium.Android.MenuItem.title) and
+            [showAsAction](Titanium.Android.MenuItem.showAsAction).
+        type: Object
+
+  - name: clearMenu
+    summary: Removes all menu items
+    since: "12.7.0"
+
+  - name: removeMenuItem
+    summary: Removes the menu item with the provided `itemId`.
+    since: "12.7.0"
+    parameters:
+      - name: itemId
+        summary: |
+            The itemId of the menu item
+        type: Number
+
+events:
+  - name: click
+    summary: Fired when the user clicks a menu item.
+    since: "12.7.0"
+    properties:
+      - name: itemId
+        summary: |
+            itemId of the clicked menu item
+        type: Number
+
 examples:
   - title: Simple setup
     example: |
@@ -85,36 +121,35 @@ examples:
 
         ``` js
         const win = Ti.UI.createWindow({
-        	theme: "Theme.Titanium.DayNight.NoTitleBar"
+          theme: "Theme.Titanium.DayNight.NoTitleBar"
         });
 
         const centerView = Ti.UI.createView({
-        	layout: "vertical",
-        	height: Ti.UI.SIZE
+          layout: "vertical",
+          height: Ti.UI.SIZE
         });
 
         for (let i = 0; i < 40; ++i) {
-        	let lbl = Ti.UI.createLabel({
-        		text: "test " + i,
-        		height: 40
-        	});
-        	centerView.add(lbl);
+          let lbl = Ti.UI.createLabel({
+            text: "test " + i,
+            height: 40
+          });
+          centerView.add(lbl);
         }
 
         const collapsingToolbar = Ti.UI.Android.createCollapseToolbar({
-        	contentScrimColor: "#333",
-        	top: 0,
-        	image: "default.png",
-        	title: "Collapsing toolbar"
+          contentScrimColor: "#333",
+          top: 0,
+          image: "default.png",
+          title: "Collapsing toolbar",
+          contentView: centerView
         });
 
-
         win.addEventListener('open', function() {
-        	collapsingToolbar.contentView = centerView;
-        	collapsingToolbar.onHomeIconItemSelected = function() {
-        		alert("click click");
-        	};
-        	collapsingToolbar.displayHomeAsUp = true;
+          collapsingToolbar.onHomeIconItemSelected = function() {
+            alert("click click");
+          };
+          collapsingToolbar.displayHomeAsUp = true;
         });
 
         win.add(collapsingToolbar);
@@ -122,19 +157,43 @@ examples:
         ```
   - title: Alloy example
     example: |
-        ``` js
+        ``` xml
         <Alloy>
-        	<Window>
-
-        		<CollapseToolbar platform="android">
-
-        			<ContentView>
-        				<View backgroundColor="red" height="Ti.UI.SIZE">
-        					<Label>test</Label>
-        				</View>
-        			</ContentView>
-        		</CollapseToolbar>
-
-        	</Window>
+          <Window>
+            <CollapseToolbar platform="android">
+              <ContentView>
+                <View backgroundColor="red" height="Ti.UI.SIZE">
+                  <Label>test</Label>
+                </View>
+              </ContentView>
+            </CollapseToolbar>
+          </Window>
         </Alloy>
+        ```
+  - title: Menu example
+    example: |
+        ``` js
+        const win = Ti.UI.createWindow({
+          theme: "Theme.Titanium.DayNight.NoTitleBar"
+        });
+
+        const collapsingToolbar = Ti.UI.Android.createCollapseToolbar({
+          contentScrimColor: "#333",
+          top: 0,
+          title: "Collapsing toolbar",
+        });
+
+
+        win.addEventListener('open', function() {
+          collapsingToolbar.addEventListener("click", function(e) {
+            alert(e.itemId + " clicked");
+          });
+          collapsingToolbar.addMenuItem({
+            title: "Menu item",
+            showAsAction: Ti.Android.SHOW_AS_ACTION_NEVER
+          });
+        });
+
+        win.add(collapsingToolbar);
+        win.open();
         ```
