@@ -156,6 +156,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private final AtomicBoolean bTransformPending = new AtomicBoolean();
 
 	private TiAnimationBuilder tiBuilder;
+	private TiBreakpointHandler breakpointHandler;
 	/**
 	 * Constructs a TiUIView object with the associated proxy.
 	 * @param proxy the associated proxy.
@@ -961,6 +962,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		} else if (key.equals(TiC.PROPERTY_HIDDEN_BEHAVIOR)) {
 			hiddenBehavior = TiConvert.toInt(newValue, View.INVISIBLE);
+		} else if (key.equals(TiC.PROPERTY_BREAKPOINTS)) {
+			setBreakpoints(newValue);
 		} else if (key.equals(TiC.PROPERTY_VIEW_SHADOW_COLOR)) {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
 				if (nativeView != null) {
@@ -1142,6 +1145,22 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		if (!nativeViewNull && d.containsKeyAndNotNull(TiC.PROPERTY_TRANSITION_NAME)) {
 			ViewCompat.setTransitionName(nativeView, d.getString(TiC.PROPERTY_TRANSITION_NAME));
 		}
+
+		// Must be applied last since breakpoints override the properties handled above.
+		if (!nativeViewNull && d.containsKey(TiC.PROPERTY_BREAKPOINTS)) {
+			setBreakpoints(d.get(TiC.PROPERTY_BREAKPOINTS));
+		}
+	}
+
+	private void setBreakpoints(Object value)
+	{
+		if (breakpointHandler == null) {
+			if (value == null || proxy == null) {
+				return;
+			}
+			breakpointHandler = new TiBreakpointHandler(proxy);
+		}
+		breakpointHandler.setBreakpoints(value);
 	}
 
 	private void setAnchor(HashMap point)
@@ -1339,6 +1358,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
 		}
 		releaseLongPressMotionEvent();
+		if (breakpointHandler != null) {
+			breakpointHandler.release();
+			breakpointHandler = null;
+		}
 		View nv = getNativeView();
 		if (nv != null) {
 			if (nv instanceof ViewGroup) {

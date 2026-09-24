@@ -124,6 +124,8 @@
 		DB15FCD11F0A87C100A82C45 /* NSData+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCCF1F0A87C100A82C45 /* NSData+Additions.m */; };
 		DB15FCEF1F0A885600A82C45 /* OperationQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCED1F0A885600A82C45 /* OperationQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FCF01F0A885600A82C45 /* OperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCEE1F0A885600A82C45 /* OperationQueue.m */; };
+		38E9CA9F6E70A85B57F076AC /* TiBreakpointHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 02C7CBFAE1BC849FA79FBCC0 /* TiBreakpointHandler.h */; };
+		851DAF78D572490E1401DDB6 /* TiBreakpointHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0BE6DA7B204D91B8AF6B5147 /* TiBreakpointHandler.m */; };
 		DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCF51F0A889100A82C45 /* TiLayoutQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		DB15FCF81F0A889100A82C45 /* TiLayoutQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = DB15FCF61F0A889100A82C45 /* TiLayoutQueue.m */; };
 		DB15FCFB1F0A88B100A82C45 /* TiLocale.h in Headers */ = {isa = PBXBuildFile; fileRef = DB15FCF91F0A88B100A82C45 /* TiLocale.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -292,6 +294,8 @@
 		DB15FCCF1F0A87C100A82C45 /* NSData+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Additions.m"; sourceTree = "<group>"; };
 		DB15FCED1F0A885600A82C45 /* OperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationQueue.h; sourceTree = "<group>"; };
 		DB15FCEE1F0A885600A82C45 /* OperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OperationQueue.m; sourceTree = "<group>"; };
+		02C7CBFAE1BC849FA79FBCC0 /* TiBreakpointHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiBreakpointHandler.h; sourceTree = "<group>"; };
+		0BE6DA7B204D91B8AF6B5147 /* TiBreakpointHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiBreakpointHandler.m; sourceTree = "<group>"; };
 		DB15FCF51F0A889100A82C45 /* TiLayoutQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLayoutQueue.h; sourceTree = "<group>"; };
 		DB15FCF61F0A889100A82C45 /* TiLayoutQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLayoutQueue.m; sourceTree = "<group>"; };
 		DB15FCF91F0A88B100A82C45 /* TiLocale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLocale.h; sourceTree = "<group>"; };
@@ -513,6 +517,8 @@
 				DB15FC6E1F0A84FD00A82C45 /* TiBlob.m */,
 				DB15FC611F0A84E000A82C45 /* TiBuffer.h */,
 				DB15FC621F0A84E000A82C45 /* TiBuffer.m */,
+				02C7CBFAE1BC849FA79FBCC0 /* TiBreakpointHandler.h */,
+				0BE6DA7B204D91B8AF6B5147 /* TiBreakpointHandler.m */,
 				DB15FC431F0A838E00A82C45 /* TiColor.h */,
 				DB15FC441F0A838E00A82C45 /* TiColor.m */,
 				DB15FD1E1F0A8A5E00A82C45 /* TiComplexValue.h */,
@@ -717,6 +723,7 @@
 				DB15FC391F0A833100A82C45 /* KrollMethod.h in Headers */,
 				4A175276218B64E70094C7B6 /* KrollTimerManager.h in Headers */,
 				DB258CD21F09757E000D0D8D /* TitaniumKit.h in Headers */,
+				38E9CA9F6E70A85B57F076AC /* TiBreakpointHandler.h in Headers */,
 				DB15FCF71F0A889100A82C45 /* TiLayoutQueue.h in Headers */,
 				DB15FCCC1F0A87A400A82C45 /* TiErrorController.h in Headers */,
 				B7385F52246593BF007DB1F2 /* ScriptModule.h in Headers */,
@@ -888,6 +895,7 @@
 				DB15FC541F0A849D00A82C45 /* TiBindingRunLoop.m in Sources */,
 				DB15FCFC1F0A88B100A82C45 /* TiLocale.m in Sources */,
 				B7385F5524659F83007DB1F2 /* AssetsModule.m in Sources */,
+				851DAF78D572490E1401DDB6 /* TiBreakpointHandler.m in Sources */,
 				DB15FCF81F0A889100A82C45 /* TiLayoutQueue.m in Sources */,
 				DB15FBF11F0A80E400A82C45 /* TiThreading.m in Sources */,
 				DB15FC821F0A855F00A82C45 /* UIImage+Resize.m in Sources */,

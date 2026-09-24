@@ -1081,6 +1081,19 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   forceLayout = NO;
   [super viewDidLayoutSubviews];
   [self adjustFrameForUpSideDownOrientation:nil];
+  // Catches size changes without a transition, e.g. the first layout.
+  [self notifyWindowSizeChanged:[[self hostingView] bounds].size];
+}
+
+- (void)notifyWindowSizeChanged:(CGSize)size
+{
+  if (CGSizeEqualToSize(size, lastNotifiedWindowSize)) {
+    return;
+  }
+  lastNotifiedWindowSize = size;
+  [[NSNotificationCenter defaultCenter] postNotificationName:kTiWindowSizeChanged
+                                                      object:self
+                                                    userInfo:@{ @"size" : [NSValue valueWithCGSize:size] }];
 }
 
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
@@ -1516,6 +1529,7 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
     [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
+  [self notifyWindowSizeChanged:size];
   UIDeviceOrientation currentDeviceOrientation = [[UIDevice currentDevice] orientation];
   if (UIDeviceOrientationIsValidInterfaceOrientation(currentDeviceOrientation)) {
     UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)currentDeviceOrientation;

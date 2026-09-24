@@ -1411,6 +1411,31 @@ properties:
     type: Number
     default: 0
 
+  - name: breakpoints
+    summary: Property values that apply only when the window size is inside a given range.
+    description: |
+        Works like CSS media queries. Each entry has optional `minWidth`, `maxWidth`, `minHeight`
+        and `maxHeight` values in dp and a `properties` dictionary. The ranges include their limits.
+        Titanium compares the ranges with the size of the app window, not the size of the display.
+        In split-screen mode or in a desktop window, the window is smaller than the display.
+
+        When the window size changes, the `properties` of all matching entries apply to the view in
+        array order. If two entries set the same property, the last entry wins. When an entry stops
+        matching, the view gets back its original value.
+
+        If you set a property from JavaScript while an entry changes it, your value becomes the new
+        original value. The breakpoint value applies again the next time the matching entries change.
+
+        To remove a hidden view from the layout, set
+        [hiddenBehavior](Titanium.UI.View.hiddenBehavior) to <Titanium.UI.HIDDEN_BEHAVIOR_GONE>.
+
+        Android 16 and later ignore the orientation lock of apps on large screens. iPadOS 26 and
+        later ignore it for apps that support multitasking. Use this property to adapt a layout to
+        the window size instead.
+    type: Array<ViewBreakpoint>
+    platforms: [android, iphone, ipad, macos]
+    since: "14.0.0"
+
   - name: bottom
     summary: View's bottom position, in platform-specific units.
     description: |
@@ -1521,8 +1546,8 @@ properties:
         Defaults to Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE.
     type: Number
     constants: [Titanium.UI.HIDDEN_BEHAVIOR_INVISIBLE, Titanium.UI.HIDDEN_BEHAVIOR_GONE]
-    platforms: [android]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "6.1.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
 
   - name: horizontalMotionEffect
     summary: Adds a horizontal parallax effect to the view
@@ -2038,6 +2063,27 @@ examples:
         </Alloy>
         ```
 
+  - title: Breakpoints Example
+    example: |
+        Show a sidebar only when the window is at least 600dp wide. Make it wider at 840dp.
+
+        ``` js
+        const window = Ti.UI.createWindow();
+        const sidebar = Ti.UI.createView({
+            left: 0,
+            width: 240,
+            backgroundColor: 'gray',
+            visible: false,
+            hiddenBehavior: Ti.UI.HIDDEN_BEHAVIOR_GONE,
+            breakpoints: [
+                { minWidth: 600, properties: { visible: true } },
+                { minWidth: 840, properties: { width: 320 } }
+            ]
+        });
+        window.add(sidebar);
+        window.open();
+        ```
+
 ---
 name: Point
 summary: A pair of coordinates used to describe the location of a <Titanium.UI.View>.
@@ -2127,6 +2173,37 @@ properties:
         For a radial gradient, the offset ranges between [startRadius](Gradient.startRadius)
         and [endRadius](Gradient.endRadius).
     type: Number
+
+---
+name: ViewBreakpoint
+summary: A size range and the view properties that apply inside it. See <Titanium.UI.View.breakpoints>.
+platforms: [android, iphone, ipad, macos]
+since: "14.0.0"
+properties:
+  - name: minWidth
+    type: Number
+    summary: Smallest window width in dp (points on iOS) for which this entry matches.
+    optional: true
+
+  - name: maxWidth
+    type: Number
+    summary: Largest window width in dp (points on iOS) for which this entry matches.
+    optional: true
+
+  - name: minHeight
+    type: Number
+    summary: Smallest window height in dp (points on iOS) for which this entry matches.
+    optional: true
+
+  - name: maxHeight
+    type: Number
+    summary: Largest window height in dp (points on iOS) for which this entry matches.
+    optional: true
+
+  - name: properties
+    type: Dictionary<Titanium.UI.View>
+    summary: The view properties to apply while this entry matches.
+    optional: false
 
 ---
 name: MinMaxOptions
