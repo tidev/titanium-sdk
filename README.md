@@ -34,6 +34,7 @@ see the [LICENSE](LICENSE) file for specific details.
   - [Getting Started](#getting-started)
 - [Alloy](#alloy)
   - [Example](#example-1)
+- [Swift Package Manager Support (iOS)](#swift-package-manager-support-ios)
 - [Getting Help](#getting-help)
   - [Official Documentation, Tutorials and Videos](#official-documentation-tutorials-and-videos)
   - [Slack / Developer Community](#slack--developer-community)
@@ -189,6 +190,30 @@ Window: {
 }
 ```
 
+## Swift Package Manager Support (iOS)
+
+Since Titanium SDK 13.1.0, native iOS modules can declare [Swift Package Manager](https://www.swift.org/documentation/package-manager/) dependencies
+via an `spm.json` file placed next to the module `manifest`. When building an app, the Titanium CLI automatically injects packages
+declared with `"linkage": "host"` into the generated Xcode project, while `"linkage": "embedded"` (the default) keeps the package
+inside the module binary. Example:
+
+```json
+{
+  "dependencies": [
+    {
+      "repositoryURL": "https://github.com/parse-community/Parse-SDK-iOS-OSX",
+      "requirementKind": "upToNextMajorVersion",
+      "requirementMinimumVersion": "5.1.1",
+      "products": [
+        { "productName": "ParseObjC", "linkage": "host" }
+      ]
+    }
+  ]
+}
+```
+
+See the [iOS Module Swift Package Manager Support guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Extending_Titanium_Mobile/iOS_Module_Development_Guide/iOS_Module_Swift_Package_Manager.html) for all available options.
+
 ## Getting Help
 
 There are a number of ways to get help with Titanium SDK.
@@ -303,7 +328,9 @@ Titanium SDK is an open source project. Titanium SDK wouldn't be where it is now
 
 ### New Features, Improvements, Bug Fixes and Documentation
 
-Source code contributions are always welcome!
+Source code contributions are always welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for how to
+set up a development environment, the coding standards we enforce, and how to get a pull request
+reviewed and merged.
 
 To protect the interests of the Titanium SDK contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 

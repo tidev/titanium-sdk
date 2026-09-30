@@ -594,7 +594,24 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	 */
 	public boolean isFiltered()
 	{
-		return this.filterQuery != null && !this.filterQuery.isEmpty();
+		final String query = getEffectiveFilterQuery();
+		return query != null && !query.isEmpty();
+	}
+
+	/**
+	 * Determine the query rows are filtered by.
+	 * The `searchText` property takes precedence over the search view's query;
+	 * an empty `searchText` is treated as unset so it does not mask the search view.
+	 *
+	 * @return Query string, or null when not filtering.
+	 */
+	private String getEffectiveFilterQuery()
+	{
+		final String searchText = this.proxy.getProperties().optString(TiC.PROPERTY_SEARCH_TEXT, null);
+		if (searchText != null && !searchText.isEmpty()) {
+			return searchText;
+		}
+		return this.filterQuery;
 	}
 
 	/**
@@ -654,7 +671,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		int filterResultsCount = 0;
 		int index = 0;
 
-		String query = this.filterQuery;
+		String query = getEffectiveFilterQuery();
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
 		}
