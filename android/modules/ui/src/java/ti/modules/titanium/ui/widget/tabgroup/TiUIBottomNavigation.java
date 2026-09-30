@@ -88,6 +88,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	private Toolbar drawerToolbar;
 	private static int id_drawer_open_string = 0;
 	private static int id_drawer_close_string = 0;
+	private DrawerLayout.DrawerListener drawerEventListener;
 
 	public TiUIBottomNavigation(TabGroupProxy proxy, TiBaseActivity activity)
 	{
@@ -704,12 +705,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		leftFrame.setLayoutParams(frameLayout);
 
 		layout.addView(leftFrame);
+		initDrawerEventListener();
 
-		if (drawerToggle == null) {
-			initDrawerToggle();
-		}
-		// The toolbar's hamburger only drives the left drawer, so it can only be enabled once it exists.
-		updateDrawerIndicator();
+		// The toolbar's hamburger only drives the left drawer, so the toggle is only created once it exists.
+		initDrawerToggle();
 		return true;
 	}
 
@@ -733,16 +732,76 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		rightFrame.setLayoutParams(frameLayout);
 
 		layout.addView(rightFrame);
-
-		if (drawerToggle == null) {
-			initDrawerToggle();
-		}
+		initDrawerEventListener();
 		return true;
 	}
 
+	/**
+	 * Registers the listener that fires the drawer events. It is independent of the toolbar toggle,
+	 * which only exists for a left drawer. Created lazily since addViews() runs from the super constructor,
+	 * before this class' field initializers.
+	 */
+	private void initDrawerEventListener()
+	{
+		if (layout == null || drawerEventListener != null) {
+			return;
+		}
+		drawerEventListener = new DrawerLayout.SimpleDrawerListener()
+		{
+			@Override
+			public void onDrawerClosed(View drawerView)
+			{
+				drawerClosedEvent(drawerView);
+			}
+
+			@Override
+			public void onDrawerOpened(View drawerView)
+			{
+				drawerOpenedEvent(drawerView);
+			}
+
+			@Override
+			public void onDrawerSlide(View drawerView, float slideOffset)
+			{
+				drawerSlideEvent(drawerView, slideOffset);
+			}
+
+			@Override
+			public void onDrawerStateChanged(int state)
+			{
+				drawerStateChangedEvent(state);
+			}
+		};
+		layout.addDrawerListener(drawerEventListener);
+	}
+
+	/**
+	 * Schedules the creation of the ActionBarDrawerToggle that binds the toolbar's hamburger to the left drawer.
+	 * <p>
+	 * The toggle is created in a posted runnable on purpose. When this runs from the creation dictionary,
+	 * the activity is still inside onCreate() and TiBaseActivity applies the "supportToolbar" property at
+	 * the very end of it. AppCompat then installs its own navigation click listener on that toolbar, which
+	 * would replace the one the toggle installs. Posting moves the toggle creation behind that step.
+	 */
 	private void initDrawerToggle()
 	{
+		if (layout == null || drawerToggle != null) {
+			return;
+		}
+		layout.post(new Runnable() {
+			@Override
+			public void run()
+			{
+				createDrawerToggle();
+			}
+		});
+	}
 
+	private void createDrawerToggle()
+	{
+		if (layout == null || leftFrame == null || drawerToggle != null) {
+			return;
+		}
 		final AppCompatActivity activity = (AppCompatActivity) proxy.getActivity();
 		if (activity == null) {
 			return;
@@ -772,7 +831,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (drawerView == leftFrame) {
 					super.onDrawerClosed(drawerView);
 				}
-				drawerClosedEvent(drawerView);
 			}
 
 			@Override
@@ -781,7 +839,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (drawerView == leftFrame) {
 					super.onDrawerOpened(drawerView);
 				}
-				drawerOpenedEvent(drawerView);
 			}
 
 			@Override
@@ -790,20 +847,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (drawerView == leftFrame) {
 					super.onDrawerSlide(drawerView, slideOffset);
 				}
-				drawerSlideEvent(drawerView, slideOffset);
-			}
-
-			@Override
-			public void onDrawerStateChanged(int state)
-			{
-				super.onDrawerStateChanged(state);
-				drawerStateChangedEvent(state);
 			}
 		};
 		layout.addDrawerListener(drawerToggle);
-
-		// The indicator stays off until a left drawer actually exists. See updateDrawerIndicator().
-		drawerToggle.setDrawerIndicatorEnabled(false);
 
 		// ActionBarDrawerToggle installed its own click listener on the toolbar, but the toggle() it calls
 		// is private and hardcoded to GravityCompat.START. That makes it open the left drawer even while
@@ -820,15 +866,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			});
 		}
 
-		layout.post(new Runnable() {
-			@Override
-			public void run()
-			{
-				if (drawerToggle != null) {
-					drawerToggle.syncState();
-				}
-			}
-		});
+		ActionBar actionBar = activity.getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setHomeButtonEnabled(true);
+		}
+		drawerToggle.syncState();
 	}
 
 	/**
@@ -849,29 +892,6 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 		}
 	}
 
-	/**
-	 * Shows the hamburger icon only when there is a left drawer for it to open. A right-only drawer
-	 * leaves the window's existing navigation icon untouched.
-	 */
-	private void updateDrawerIndicator()
-	{
-		if (drawerToggle == null) {
-			return;
-		}
-		final boolean hasLeftDrawer = (leftFrame != null);
-		drawerToggle.setDrawerIndicatorEnabled(hasLeftDrawer);
-
-		Activity currentActivity = proxy.getActivity();
-		if (hasLeftDrawer && currentActivity instanceof AppCompatActivity appCompatActivity) {
-			ActionBar actionBar = appCompatActivity.getSupportActionBar();
-			if (actionBar != null) {
-				actionBar.setDisplayHomeAsUpEnabled(true);
-				actionBar.setHomeButtonEnabled(true);
-			}
-		}
-		drawerToggle.syncState();
-	}
-
 	@Override
 	public void processProperties(KrollDict d)
 	{
@@ -882,8 +902,8 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (leftView instanceof WindowProxy) {
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
-				this.leftView = (TiViewProxy) leftView;
 				if (this.initLeft()) {
+					this.leftView = (TiViewProxy) leftView;
 					this.leftFrame.addView(getNativeView(this.leftView));
 				}
 			} else {
@@ -896,15 +916,15 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (rightView instanceof WindowProxy) {
 					throw new IllegalStateException("cannot add window as a child view of other window");
 				}
-				this.rightView = (TiViewProxy) rightView;
 				if (this.initRight()) {
+					this.rightView = (TiViewProxy) rightView;
 					this.rightFrame.addView(getNativeView(this.rightView));
 				}
 			} else {
 				Log.e(TAG, "invalid type for rightView");
 			}
 		}
-		if (d.containsKey(TiC.PROPERTY_LEFT_WIDTH)) {
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_LEFT_WIDTH)) {
 			if (leftFrame != null) {
 				if (d.get(TiC.PROPERTY_LEFT_WIDTH).equals(TiC.LAYOUT_SIZE)) {
 					leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.WRAP_CONTENT;
@@ -920,7 +940,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				leftFrame.getLayoutParams().width = DrawerLayout.LayoutParams.MATCH_PARENT;
 			}
 		}
-		if (d.containsKey(TiC.PROPERTY_RIGHT_WIDTH)) {
+		if (d.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_WIDTH)) {
 			if (rightFrame != null) {
 				if (d.get(TiC.PROPERTY_RIGHT_WIDTH).equals(TiC.LAYOUT_SIZE)) {
 					rightFrame.getLayoutParams().width = DrawerLayout.LayoutParams.WRAP_CONTENT;
@@ -963,7 +983,7 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			int index = 0;
 			boolean isFirst = false;
 			if (this.leftView != null) {
-				index = this.leftFrame.indexOfChild(this.leftView.getOrCreateView().getNativeView());
+				index = this.leftFrame.indexOfChild(this.leftView.getOrCreateView().getOuterView());
 			} else {
 				// first left view
 				isFirst = true;
@@ -976,12 +996,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (!initLeft()) {
 					return;
 				}
-				this.leftFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
+				this.leftFrame.addView(getNativeView(newProxy), index);
 			} else {
 				Log.e(TAG, "invalid type for leftView");
 			}
 			if (this.leftView != null) {
-				this.leftFrame.removeView(this.leftView.getOrCreateView().getNativeView());
+				this.leftFrame.removeView(this.leftView.getOrCreateView().getOuterView());
 			}
 			this.leftView = newProxy;
 			if (isFirst && leftFrame != null) {
@@ -996,9 +1016,9 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			int index = 0;
 			boolean isFirst = false;
 			if (this.rightView != null) {
-				index = this.rightFrame.indexOfChild(this.rightView.getOrCreateView().getNativeView());
+				index = this.rightFrame.indexOfChild(this.rightView.getOrCreateView().getOuterView());
 			} else {
-				// first left view
+				// first right view
 				isFirst = true;
 			}
 			if (newValue instanceof TiViewProxy) {
@@ -1009,12 +1029,12 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 				if (!initRight()) {
 					return;
 				}
-				this.rightFrame.addView(newProxy.getOrCreateView().getOuterView(), index);
+				this.rightFrame.addView(getNativeView(newProxy), index);
 			} else {
 				Log.e(TAG, "invalid type for rightView");
 			}
 			if (this.rightView != null) {
-				this.rightFrame.removeView(this.rightView.getOrCreateView().getNativeView());
+				this.rightFrame.removeView(this.rightView.getOrCreateView().getOuterView());
 			}
 			this.rightView = newProxy;
 			if (isFirst && rightFrame != null) {
@@ -1025,12 +1045,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			if (leftFrame == null) {
 				return;
 			}
-			initLeft();
-
-			if (newValue.equals(TiC.LAYOUT_SIZE)) {
-				leftWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
-			} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+			if (newValue == null || newValue.equals(TiC.LAYOUT_FILL)) {
 				leftWidth = DrawerLayout.LayoutParams.MATCH_PARENT;
+			} else if (newValue.equals(TiC.LAYOUT_SIZE)) {
+				leftWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
 			} else if (!newValue.equals(TiC.SIZE_AUTO)) {
 				leftWidth = getDevicePixels(newValue);
 			}
@@ -1044,12 +1062,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 			if (rightFrame == null) {
 				return;
 			}
-			initRight();
-
-			if (newValue.equals(TiC.LAYOUT_SIZE)) {
-				rightWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
-			} else if (newValue.equals(TiC.LAYOUT_FILL)) {
+			if (newValue == null || newValue.equals(TiC.LAYOUT_FILL)) {
 				rightWidth = DrawerLayout.LayoutParams.MATCH_PARENT;
+			} else if (newValue.equals(TiC.LAYOUT_SIZE)) {
+				rightWidth = DrawerLayout.LayoutParams.WRAP_CONTENT;
 			} else if (!newValue.equals(TiC.SIZE_AUTO)) {
 				rightWidth = getDevicePixels(newValue);
 			}
@@ -1306,6 +1322,10 @@ public class TiUIBottomNavigation extends TiUIAbstractTabGroup implements Bottom
 	{
 		releaseDrawer();
 		if (layout != null) {
+			if (drawerEventListener != null) {
+				layout.removeDrawerListener(drawerEventListener);
+				drawerEventListener = null;
+			}
 			layout.removeAllViews();
 			layout = null;
 		}
