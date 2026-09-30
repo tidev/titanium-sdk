@@ -600,6 +600,7 @@ public class TiC
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
 	public static final String PROPERTY_NAV_BAR_COLOR = "navBarColor";
+	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
 	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";
@@ -740,6 +741,7 @@ public class TiC
 	public static final String PROPERTY_SHOW_SELECTION_CHECK = "showSelectionCheck";
 	public static final String PROPERTY_SISTER = "sister";
 	public static final String PROPERTY_SIZE = "size";
+	public static final String PROPERTY_SNAPPING = "snapping";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";

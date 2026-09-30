@@ -41,9 +41,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -116,11 +120,49 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		TiUIView v = new TiView(this);
+		TiUIView v = new TiView(this) {
+			@Override
+			public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+			{
+				super.propertyChanged(key, oldValue, newValue, proxy);
+				if (TiC.PROPERTY_BACKGROUND_COLOR.equals(key)) {
+					applyContentFrameBackgroundColor(newValue);
+				}
+			}
+		};
 		v.getLayoutParams().autoFillsHeight = true;
 		v.getLayoutParams().autoFillsWidth = true;
 		setView(v);
 		return v;
+	}
+
+	/**
+	 * Applies the window's backgroundColor to the activity's content frame.
+	 * <p>
+	 * TiBaseActivity.onCreate() does the same when the activity is created. The content frame
+	 * is the view TiEdgeToEdgeHelper pads for the system bar insets, so its background is what
+	 * shows beneath the status and navigation bars. The window's own view only covers the inset
+	 * area, so a later color change must be mirrored here or the bars keep the old color.
+	 * @param value The new backgroundColor value. Null clears the content frame's background.
+	 */
+	private void applyContentFrameBackgroundColor(Object value)
+	{
+		if (windowActivity == null) {
+			return;
+		}
+		AppCompatActivity activity = windowActivity.get();
+		if (activity == null) {
+			return;
+		}
+		View content = activity.findViewById(android.R.id.content);
+		if (content == null) {
+			return;
+		}
+		if (value != null) {
+			content.setBackgroundColor(TiConvert.toColor(value, activity));
+		} else {
+			content.setBackground(null);
+		}
 	}
 
 	@Kroll.getProperty
@@ -385,12 +427,28 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
-			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
+			int flags = TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS));
+			WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(win, win.getDecorView());
+			if (insetsController != null) {
+				insetsController.setAppearanceLightStatusBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+				insetsController.setAppearanceLightNavigationBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+				if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
+					insetsController.hide(WindowInsetsCompat.Type.systemBars());
+					insetsController.setSystemBarsBehavior(
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+				}
+			}
 		}
 
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
 			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0) {
-				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(win, win.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(true);
+				}
 			}
 		}
 
@@ -539,7 +597,22 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		if (name.equals(TiC.PROPERTY_UI_FLAGS)) {
 			if (windowActivity != null && windowActivity.get() != null) {
 				AppCompatActivity activity = windowActivity.get();
-				activity.getWindow().getDecorView().setSystemUiVisibility(TiConvert.toInt(value));
+				Window window = activity.getWindow();
+				int flags = TiConvert.toInt(value);
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(window, window.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+					insetsController.setAppearanceLightNavigationBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+					if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0
+						|| (flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+						insetsController.hide(WindowInsetsCompat.Type.systemBars());
+						insetsController.setSystemBarsBehavior(
+							WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+					}
+				}
 			}
 		}
 
