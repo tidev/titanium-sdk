@@ -231,10 +231,14 @@ methods:
       type: Promise<HeadingResponse>
 
   - name: getCurrentPosition
-    summary: Retrieves the last known location from the device.
+    summary: Retrieves the current location from the device.
     description: |
-        On Android, the radios are not turned on to update the location, and a cached
-        location is used.
+        On Android, a cached location is returned immediately if it is less than 30 seconds old.
+        Otherwise a single fresh fix is requested, through the Google Play Services fused location
+        provider when available or the platform location manager otherwise, using the priority
+        selected by <Titanium.Geolocation.accuracy>. The request gives up after 30 seconds, in
+        which case the callback receives an error and the Promise is rejected, so the call
+        always completes.
 
         On iOS the radios **may** be used if the location is too "old".
     parameters:
