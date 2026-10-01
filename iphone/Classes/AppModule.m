@@ -379,7 +379,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
+  [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:[self _host]];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(errored:) name:kTiErrorNotification object:nil];
 
@@ -392,7 +392,7 @@ extern NSString *const TI_APPLICATION_GUID;
     BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
 
     if (!isProduction) {
-      JSGlobalContextSetInspectable([[(KrollBridge *)TiApp.app.krollBridge krollContext] context], YES);
+      JSGlobalContextSetInspectable([[(KrollBridge *)[self owningInstance].krollBridge krollContext] context], YES);
     }
   }
 #endif
@@ -506,7 +506,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (NSDictionary *)arguments
 {
-  return [[TiApp app] launchOptions];
+  return [[self owningInstance] launchOptions];
 }
 
 - (id)getArguments:(id)args
@@ -582,7 +582,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)sessionId
 {
-  return [[TiApp app] sessionId];
+  return [[self owningInstance] sessionId];
 }
 
 - (NSNumber *)keyboardVisible

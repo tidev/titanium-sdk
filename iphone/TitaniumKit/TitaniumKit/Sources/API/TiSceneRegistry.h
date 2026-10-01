@@ -10,6 +10,9 @@
 @class TiApp;
 @class TiSceneProxy;
 @class UIWindow;
+@class KrollPromise;
+
+FOUNDATION_EXPORT NSString *const kTiSceneRequestActivityType;
 
 /**
  * Central registry for managing all active TiApp scene instances.
@@ -29,8 +32,8 @@
   NSMutableDictionary *_sceneNames;
   NSString *_primarySceneUUID;
   NSMutableDictionary<NSString *, TiSceneProxy *> *_sceneProxyMap;
-  NSMutableArray<NSDictionary *> *_pendingSceneCallbacks;
-  NSInteger _pendingSceneRequestCount;
+  NSMutableDictionary<NSString *, NSDictionary *> *_pendingSceneRequests;
+  NSMutableArray<NSString *> *_sceneOrder;
 }
 
 + (instancetype)sharedRegistry;
@@ -140,25 +143,13 @@
  */
 - (TiSceneProxy *)ensureSceneProxyForUUID:(NSString *)sceneUUID tiApp:(TiApp *)tiApp;
 
-#pragma mark - Pending requestScene Callback Queue
+#pragma mark - Scene activation requests
 
-/**
- * Enqueue a pending requestScene callback descriptor.
- * The descriptor is an NSDictionary with keys onComplete, onError, configurationName.
- * Values are retained KrollCallback* / NSString* (or NSNull if absent).
- */
-- (void)enqueuePendingSceneCallback:(NSDictionary *)pending;
-
-/**
- * Dequeue and return the head of the pending-callback queue, decrementing
- * the outstanding-request counter. Returns nil if the queue is empty.
- */
-- (NSDictionary *)dequeuePendingSceneCallback;
-
-/**
- * The number of outstanding requestScene requests that have not yet been
- * matched to a connecting scene or an error.
- */
-- (NSInteger)pendingSceneRequestCount;
+- (NSString *)registerSceneRequest:(KrollPromise *)promise owner:(TiApp *)owner;
+- (void)completeSceneRequest:(NSString *)requestId scene:(TiSceneProxy *)scene;
+- (void)rejectSceneRequest:(NSString *)requestId message:(NSString *)message;
+- (void)cancelSceneRequestsForOwner:(TiApp *)owner;
+- (NSUInteger)pendingSceneRequestCount;
+- (BOOL)hasActiveScenes;
 
 @end

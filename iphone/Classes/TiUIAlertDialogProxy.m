@@ -104,7 +104,7 @@ static BOOL alertShowing = NO;
   ENSURE_UI_THREAD_1_ARG(unused);
   [self rememberSelf];
 
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:[self owningTiApp]];
   NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
   if (buttonNames == nil || (id)buttonNames == [NSNull null]) {
     buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];

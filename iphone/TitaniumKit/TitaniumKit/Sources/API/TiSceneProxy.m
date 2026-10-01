@@ -15,14 +15,27 @@
 @implementation TiSceneProxy
 
 @synthesize sceneUUID = _sceneUUID;
-@synthesize tiApp = _tiApp;
+- (NSString *)apiName
+{
+  return @"Ti.App.iOS.SceneProxy";
+}
+
+- (TiApp *)tiApp
+{
+  return [[TiSceneRegistry sharedRegistry] sceneForUUID:_sceneUUID];
+}
+
+- (void)dealloc
+{
+  [_sceneUUID release];
+  [super dealloc];
+}
 
 - (instancetype)initWithSceneUUID:(NSString *)sceneUUID tiApp:(TiApp *)tiApp
 {
   self = [super init];
   if (self) {
     _sceneUUID = [sceneUUID copy];
-    _tiApp = tiApp;
   }
   return self;
 }
@@ -50,7 +63,7 @@
 {
   TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
   TiApp *primary = [registry primaryScene];
-  return NUMBOOL([primary isEqual:_tiApp]);
+  return NUMBOOL([primary isEqual:self.tiApp]);
 }
 
 - (id)isActive
@@ -73,7 +86,7 @@
   // last touched, giving a reliable focus indicator in all multitasking modes.
   if (@available(iOS 13.0, *)) {
     UIWindow *lastActive = [TiWindow lastActiveWindow];
-    UIWindow *myWindow = [_tiApp window];
+    UIWindow *myWindow = [self.tiApp window];
     if (lastActive != nil && myWindow != nil && lastActive == myWindow) {
       return NUMBOOL(YES);
     }
@@ -83,21 +96,14 @@
 
 - (id)window
 {
-  if (_tiApp != nil && [_tiApp controller] != nil) {
-    // The root view controller's proxy is the root window for this scene
-    id rootProxy = [[_tiApp controller] proxy];
-    if ([rootProxy isKindOfClass:[TiWindowProxy class]]) {
-      return rootProxy;
-    }
-  }
-  return [NSNull null];
+  return [[self.tiApp controller] rootWindowProxy] ?: (id)[NSNull null];
 }
 
 - (id)traitCollection
 {
   if (@available(iOS 13.0, *)) {
-    if (_tiApp != nil && [_tiApp window] != nil) {
-      UIWindowScene *windowScene = [[_tiApp window] windowScene];
+    if (self.tiApp != nil && [self.tiApp window] != nil) {
+      UIWindowScene *windowScene = [[self.tiApp window] windowScene];
       if (windowScene != nil) {
         UITraitCollection *traits = [windowScene traitCollection];
         return @{

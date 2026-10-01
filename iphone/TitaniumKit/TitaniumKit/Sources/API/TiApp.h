@@ -14,7 +14,7 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 
 /**
- TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
+ TiApp owns either application-wide callbacks or one scene and its JavaScript runtime.
  */
 @interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate, UIWindowSceneDelegate> {
   UIWindow *window;
@@ -45,6 +45,7 @@
   NSMutableDictionary<NSString *, NSOrderedSet<id> *> *_queuedApplicationSelectors;
   NSMutableSet<id> *_applicationDelegates;
 
+  NSMutableArray *_queuedNotificationBlocks;
   BOOL appBooted;
 
   NSString *sessionId;
@@ -132,6 +133,9 @@
  Returns singleton instance of TiApp application object.
  */
 + (TiApp *)app NS_SWIFT_NAME(sharedApp());
+
+/** The process-wide UIApplication delegate, independent of scene focus. */
++ (TiApp *)applicationInstance;
 
 /**
  * Returns a read-only dictionary from tiapp.xml properties

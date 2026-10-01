@@ -192,6 +192,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   [super boot:callback url:url_ preload:preload_];
   context = [[KrollContext alloc] init];
   context.delegate = self;
+  [self retain]; // Keep the delegate alive even if shutdown precedes asynchronous startup.
   [context start];
 }
 
@@ -324,8 +325,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
     Class cls = NSClassFromString(@"Hyperloop");
     [cls performSelector:@selector(willStartNewContext:bridge:) withObject:kroll withObject:self];
   }
-
-  [self retain]; // Hold onto ourselves as long as the context needs us
 }
 
 - (void)didStartNewContext:(KrollContext *)kroll

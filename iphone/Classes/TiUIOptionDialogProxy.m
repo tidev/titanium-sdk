@@ -40,7 +40,7 @@
   ENSURE_UI_THREAD_1_ARG(args);
   [self rememberSelf];
 
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:[self owningInstance]];
 
   showDialog = YES;
   NSMutableArray *options = [self valueForKey:@"options"];

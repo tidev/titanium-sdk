@@ -7,13 +7,12 @@
 
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiProxy.h>
-#import <TitaniumKit/TiViewProxy.h>
 
 /**
  * JavaScript proxy for a Ti.App.iOS.Scene object.
  * Exposes scene properties (id, name, isPrimary) to JavaScript.
  */
-@interface TiSceneProxy : TiViewProxy
+@interface TiSceneProxy : TiProxy
 
 /**
  * The scene UUID (persistentIdentifier).

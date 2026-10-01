@@ -1034,7 +1034,7 @@
       if (tiApp != nil) {
         NSString *sceneUUID = [tiApp sceneId];
         if (sceneUUID != nil) {
-          TiSceneProxy *sceneProxy = [[[TiSceneProxy alloc] initWithSceneUUID:sceneUUID tiApp:tiApp] autorelease];
+          TiSceneProxy *sceneProxy = [[TiSceneRegistry sharedRegistry] ensureSceneProxyForUUID:sceneUUID tiApp:tiApp];
           return sceneProxy;
         }
       }

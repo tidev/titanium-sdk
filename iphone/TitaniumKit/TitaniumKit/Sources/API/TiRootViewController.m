@@ -579,7 +579,8 @@
   }
   [focusedToolbar setBounds:focusedToolbarBounds];
 
-  CGFloat keyboardHeight = endingFrame.origin.y;
+  UIWindow *keyboardWindow = self.view.window;
+  CGFloat keyboardHeight = [keyboardWindow convertRect:endFrame fromCoordinateSpace:keyboardWindow.screen.coordinateSpace].origin.y;
 
   if ((scrolledView != nil) && (keyboardHeight > 0)) // If this isn't IN the toolbar, then we update the scrollviews to compensate.
   {
@@ -687,6 +688,11 @@
     [leavingAccessoryView removeFromSuperview];
     RELEASE_TO_NIL(leavingAccessoryView);
   }
+}
+
+- (TiWindowProxy *)rootWindowProxy
+{
+  return [containedWindows firstObject];
 }
 
 - (UIView *)topWindowProxyView
@@ -1207,26 +1213,29 @@
     return;
   }
 
-  // In multi-scene mode (iOS 13+ with windowScene), the system manages
-  // orientation per window scene. Skip forced view transforms here —
-  // they cause incorrect rotations at startup and during scene transitions.
-  if (@available(iOS 13.0, *)) {
-    UIWindow *sceneWindow = nil;
-    if ([self isViewLoaded]) {
-      sceneWindow = [self view].window;
-    }
-    if (sceneWindow != nil && sceneWindow.windowScene != nil) {
-      [self resetTransformAndForceLayout:YES];
-      [self updateStatusBar];
-      return;
-    }
-  }
-
   UIInterfaceOrientation target = [self lastValidOrientation:[self getFlags:NO]];
   // Device Orientation takes precedence.
   if (target != deviceOrientation) {
     if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
       target = deviceOrientation;
+    }
+  }
+
+  if (@available(iOS 16.0, *)) {
+    UIWindowScene *scene = self.view.window.windowScene;
+    if (scene != nil) {
+      [self setNeedsUpdateOfSupportedInterfaceOrientations];
+      if (scene.interfaceOrientation != target) {
+        UIWindowSceneGeometryPreferencesIOS *preferences = [[[UIWindowSceneGeometryPreferencesIOS alloc]
+            initWithInterfaceOrientations:(1 << target)] autorelease];
+        [scene requestGeometryUpdateWithPreferences:preferences
+                                       errorHandler:^(NSError *error) {
+                                         DebugLog(@"[DEBUG] Scene orientation request declined: %@", error.localizedDescription);
+                                       }];
+      }
+      [self resetTransformAndForceLayout:YES];
+      [self updateStatusBar];
+      return;
     }
   }
 

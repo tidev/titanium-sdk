@@ -15,21 +15,21 @@
 
 - (NSString *)version
 {
-  return @"13.3.0";
+  return @"__VERSION__";
 }
 
 GETTER_IMPL(NSString *, version, Version);
 
 - (NSString *)buildDate
 {
-  return @"6/15/2026 11:19";
+  return @"__TIMESTAMP__";
 }
 
 GETTER_IMPL(NSString *, buildDate, BuildDate);
 
 - (NSString *)buildHash
 {
-  return @"ed98e237b0";
+  return @"__GITHASH__";
 }
 
 GETTER_IMPL(NSString *, buildHash, BuildHash);

@@ -18,8 +18,18 @@ static UIWindow *_lastActiveWindow = nil;
 
 - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
 {
-  _lastActiveWindow = self;
+  if (event != nil && event.type == UIEventTypeTouches) {
+    _lastActiveWindow = self;
+  }
   return [super hitTest:point withEvent:event];
+}
+
+- (void)dealloc
+{
+  if (_lastActiveWindow == self) {
+    _lastActiveWindow = nil;
+  }
+  [super dealloc];
 }
 
 @end

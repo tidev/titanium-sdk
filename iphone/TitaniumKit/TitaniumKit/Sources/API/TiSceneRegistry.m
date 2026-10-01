@@ -6,10 +6,14 @@
  */
 
 #import "TiSceneRegistry.h"
+#import "KrollPromise.h"
 #import "TiApp.h"
+#import "TiBindingTiValue.h"
 #import "TiSceneProxy.h"
 #import "TiWindow.h"
 #import <UIKit/UIKit.h>
+
+NSString *const kTiSceneRequestActivityType = @"org.titanium.scene-request";
 
 @implementation TiSceneRegistry
 
@@ -32,8 +36,8 @@
     _sceneForegroundState = [[NSMutableDictionary alloc] init];
     _sceneNames = [[NSMutableDictionary alloc] init];
     _sceneProxyMap = [[NSMutableDictionary alloc] init];
-    _pendingSceneCallbacks = [[NSMutableArray alloc] init];
-    _pendingSceneRequestCount = 0;
+    _pendingSceneRequests = [[NSMutableDictionary alloc] init];
+    _sceneOrder = [[NSMutableArray alloc] init];
   }
   return self;
 }
@@ -41,6 +45,9 @@
 - (void)registerTiApp:(TiApp *)tiApp forSceneUUID:(NSString *)sceneUUID
 {
   if (sceneUUID && tiApp) {
+    if (_sceneMap[sceneUUID] == nil) {
+      [_sceneOrder addObject:sceneUUID];
+    }
     _sceneMap[sceneUUID] = tiApp;
     if (_primarySceneUUID == nil) {
       _primarySceneUUID = [sceneUUID copy];
@@ -50,23 +57,26 @@
 
 - (void)unregisterTiAppForSceneUUID:(NSString *)sceneUUID
 {
+  [self unregisterSceneProxyForUUID:sceneUUID];
+  [_sceneOrder removeObject:sceneUUID];
   [_sceneMap removeObjectForKey:sceneUUID];
   [_sceneActiveState removeObjectForKey:sceneUUID];
   [_sceneForegroundState removeObjectForKey:sceneUUID];
   [_sceneNames removeObjectForKey:sceneUUID];
   if ([sceneUUID isEqualToString:_primarySceneUUID]) {
-    _primarySceneUUID = nil;
+    [_primarySceneUUID release];
+    _primarySceneUUID = [[_sceneOrder firstObject] copy];
   }
 }
 
 - (NSDictionary<NSString *, TiApp *> *)allScenes
 {
-  return [_sceneMap copy];
+  return [[_sceneMap copy] autorelease];
 }
 
 - (TiApp *)sceneForUUID:(NSString *)sceneUUID
 {
-  return _sceneMap[sceneUUID];
+  return sceneUUID == nil ? nil : _sceneMap[sceneUUID];
 }
 
 - (TiApp *)primaryScene
@@ -129,15 +139,25 @@
 
 - (void)setSceneActive:(BOOL)active forUUID:(NSString *)sceneUUID
 {
-  if (sceneUUID) {
-    _sceneActiveState[sceneUUID] = @(active);
+  if (sceneUUID == nil || [self isSceneActiveForUUID:sceneUUID] == active) {
+    return;
+  }
+  _sceneActiveState[sceneUUID] = @(active);
+  TiSceneProxy *proxy = [self sceneProxyForUUID:sceneUUID];
+  if (proxy != nil) {
+    [proxy fireEvent:active ? @"focus" : @"blur" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
   }
 }
 
 - (void)setSceneForeground:(BOOL)foreground forUUID:(NSString *)sceneUUID
 {
-  if (sceneUUID) {
-    _sceneForegroundState[sceneUUID] = @(foreground);
+  if (sceneUUID == nil || [self isSceneForegroundForUUID:sceneUUID] == foreground) {
+    return;
+  }
+  _sceneForegroundState[sceneUUID] = @(foreground);
+  TiSceneProxy *proxy = [self sceneProxyForUUID:sceneUUID];
+  if (proxy != nil) {
+    [proxy fireEvent:foreground ? @"resumed" : @"paused" withObject:@{ @"sceneId" : sceneUUID, @"scene" : proxy }];
   }
 }
 
@@ -222,33 +242,73 @@
   }
 }
 
-#pragma mark - Pending requestScene Callback Queue
+#pragma mark - Scene activation requests
 
-- (void)enqueuePendingSceneCallback:(NSDictionary *)pending
+- (NSString *)registerSceneRequest:(KrollPromise *)promise owner:(TiApp *)owner
 {
-  if (pending == nil) {
-    return;
-  }
-  [_pendingSceneCallbacks addObject:pending];
-  _pendingSceneRequestCount++;
+  NSString *requestId = [[NSUUID UUID] UUIDString];
+  _pendingSceneRequests[requestId] = @{ @"promise" : promise, @"owner" : owner };
+  return requestId;
 }
 
-- (NSDictionary *)dequeuePendingSceneCallback
+- (NSDictionary *)takeSceneRequest:(NSString *)requestId
 {
-  if (_pendingSceneCallbacks.count == 0) {
+  if (requestId == nil) {
     return nil;
   }
-  NSDictionary *head = [[_pendingSceneCallbacks[0] retain] autorelease];
-  [_pendingSceneCallbacks removeObjectAtIndex:0];
-  if (_pendingSceneRequestCount > 0) {
-    _pendingSceneRequestCount--;
-  }
-  return head;
+  NSDictionary *request = [[_pendingSceneRequests[requestId] retain] autorelease];
+  [_pendingSceneRequests removeObjectForKey:requestId];
+  return request;
 }
 
-- (NSInteger)pendingSceneRequestCount
+- (void)completeSceneRequest:(NSString *)requestId scene:(TiSceneProxy *)scene
 {
-  return _pendingSceneRequestCount;
+  KrollPromise *promise = [[self takeSceneRequest:requestId] objectForKey:@"promise"];
+  if (promise == nil || scene == nil) {
+    return;
+  }
+  JSContext *context = promise.JSValue.context;
+  JSValueRef value = TiBindingTiValueFromNSObject(context.JSGlobalContextRef, scene);
+  JSValue *boundScene = [JSValue valueWithJSValueRef:value inContext:context];
+  [promise resolve:@[ @{ @"scene" : boundScene } ]];
+}
+
+- (void)rejectSceneRequest:(NSString *)requestId message:(NSString *)message
+{
+  KrollPromise *promise = [[self takeSceneRequest:requestId] objectForKey:@"promise"];
+  [promise rejectWithErrorMessage:message];
+}
+
+- (void)cancelSceneRequestsForOwner:(TiApp *)owner
+{
+  for (NSString *requestId in [[[_pendingSceneRequests allKeys] copy] autorelease]) {
+    if (_pendingSceneRequests[requestId][@"owner"] == owner) {
+      [self rejectSceneRequest:requestId message:@"The requesting scene disconnected"];
+    }
+  }
+}
+
+- (NSUInteger)pendingSceneRequestCount
+{
+  return _pendingSceneRequests.count;
+}
+
+- (BOOL)hasActiveScenes
+{
+  return [[_sceneActiveState allValues] containsObject:@YES];
+}
+
+- (void)dealloc
+{
+  [_sceneMap release];
+  [_sceneActiveState release];
+  [_sceneForegroundState release];
+  [_sceneNames release];
+  [_primarySceneUUID release];
+  [_sceneProxyMap release];
+  [_pendingSceneRequests release];
+  [_sceneOrder release];
+  [super dealloc];
 }
 
 @end

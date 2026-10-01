@@ -2635,7 +2635,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [self convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
@@ -2645,7 +2645,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [self convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
