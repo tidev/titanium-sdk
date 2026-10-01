@@ -149,10 +149,13 @@ public class FusedLocationProvider
 			.addOnFailureListener(e -> {
 				String message = (e instanceof ApiException) ? ((ApiException) e).getStatusMessage() : e.getMessage();
 				Log.e(TAG, "Unable to request fused location updates: " + message);
-				registeredProviders.remove(locationProvider);
 
 				// Fall back to the platform LocationManager for this and all future requests.
 				useFusedLocation = false;
+				if (!registeredProviders.remove(locationProvider)) {
+					// Unregistered while the request was pending, nothing to fall back for.
+					return;
+				}
 				geolocationModule.registerLocationProvider(locationProvider);
 			});
 	}
