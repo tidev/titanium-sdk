@@ -808,6 +808,7 @@ public class TiC
 	public static final String PROPERTY_TOOLBAR = "toolbar";
 	public static final String PROPERTY_TOOLBAR_ENABLED = "toolbarEnabled";
 	public static final String PROPERTY_SOUND_EFFECTS_ENABLED = "soundEffectsEnabled";
+	public static final String PROPERTY_TRACK_RADIUS = "trackRadius";
 	public static final String PROPERTY_TRACK_THICKNESS = "trackThickness";
 	public static final String PROPERTY_TRACK_TINT_COLOR = "trackTintColor";
 	public static final String PROPERTY_TRANSFORM = "transform";

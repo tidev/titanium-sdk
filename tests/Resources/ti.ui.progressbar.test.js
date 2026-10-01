@@ -223,6 +223,29 @@ describe('Titanium.UI.ProgressBar', () => {
 			});
 		});
 
+		describe.android('.trackRadius', () => {
+			it('can be initialized', () => {
+				bar = Ti.UI.createProgressBar({ trackRadius: 4 });
+				should(bar.trackRadius).eql(4);
+			});
+
+			it('can be set', () => {
+				bar = Ti.UI.createProgressBar();
+				bar.trackRadius = 4;
+				should(bar.trackRadius).eql(4);
+			});
+
+			it('accepts a String with unit suffix', () => {
+				bar = Ti.UI.createProgressBar({ trackRadius: '4dp' });
+				should(bar.trackRadius).eql('4dp');
+			});
+
+			it('has no accessors', () => {
+				bar = Ti.UI.createProgressBar();
+				should(bar).not.have.accessors('trackRadius');
+			});
+		});
+
 		describe.android('.trackThickness', () => {
 			it('can be initialized', () => {
 				bar = Ti.UI.createProgressBar({ trackThickness: 10 });
@@ -243,6 +266,23 @@ describe('Titanium.UI.ProgressBar', () => {
 			it('has no accessors', () => {
 				bar = Ti.UI.createProgressBar();
 				should(bar).not.have.accessors('trackThickness');
+			});
+		});
+
+		describe.android('.type', () => {
+			it('defaults to linear', () => {
+				bar = Ti.UI.createProgressBar();
+				should(bar.type).eql('linear');
+			});
+
+			it('can be initialized as circle', () => {
+				bar = Ti.UI.createProgressBar({ type: 'circle' });
+				should(bar.type).eql('circle');
+			});
+
+			it('has no accessors', () => {
+				bar = Ti.UI.createProgressBar();
+				should(bar).not.have.accessors('type');
 			});
 		});
 
@@ -348,6 +388,30 @@ describe('Titanium.UI.ProgressBar', () => {
 				win.removeEventListener('open', openListener);
 				try {
 					bar.value = 100;
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
+
+		it.android('renders as a circle', finish => {
+			win = Ti.UI.createWindow();
+			bar = Ti.UI.createProgressBar({
+				type: 'circle',
+				min: 0,
+				max: 100,
+				value: 25,
+				trackThickness: 8,
+				stopIndicator: false
+			});
+			win.add(bar);
+			win.addEventListener('open', function openListener () {
+				win.removeEventListener('open', openListener);
+				try {
+					bar.value = 100;
+					bar.stopIndicator = true;
 				} catch (err) {
 					return finish(err);
 				}
