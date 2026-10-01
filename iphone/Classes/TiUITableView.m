@@ -2874,6 +2874,8 @@
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
+  isScrollingToTop = YES;
+
   // suspend image loader while we're scrolling to improve performance
   [[ImageLoader sharedLoader] suspend];
   return YES;
@@ -2936,13 +2938,14 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-  if (scrollView.isDragging || scrollView.isDecelerating) {
+  if (scrollView.isDragging || scrollView.isDecelerating || isScrollingToTop) {
     [self fireScrollEvent:scrollView];
   }
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
+  isScrollingToTop = NO;
   [self fireScrollEvent:scrollView];
 
   // resume image loader when we're done scrolling
@@ -2951,6 +2954,8 @@
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
+  isScrollingToTop = NO;
+
   // suspend image loader while we're scrolling to improve performance
   [[ImageLoader sharedLoader] suspend];
   if ([self.proxy _hasListeners:@"dragStart"]) { // TODO: Deprecate old event.
