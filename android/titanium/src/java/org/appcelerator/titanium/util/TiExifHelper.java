@@ -196,6 +196,8 @@ public class TiExifHelper
 			ExifInterface.TAG_ORF_PREVIEW_IMAGE_LENGTH,
 			ExifInterface.TAG_ORF_PREVIEW_IMAGE_START,
 			ExifInterface.TAG_ORF_THUMBNAIL_IMAGE,
+			ExifInterface.TAG_PIXEL_X_DIMENSION,
+			ExifInterface.TAG_PIXEL_Y_DIMENSION,
 			ExifInterface.TAG_STRIP_BYTE_COUNTS,
 			ExifInterface.TAG_STRIP_OFFSETS,
 			ExifInterface.TAG_THUMBNAIL_IMAGE_LENGTH,
