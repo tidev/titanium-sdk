@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { exec, spawn } from 'node:child_process';
+import { exec } from 'node:child_process';
 import fs from 'fs-extra';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -69,21 +69,7 @@ exec('npm -v', function (err, stdout) {
 			process.exit(1);
 		}
 
-		console.log('\nBuilding node-ios-device binaries');
-
-		const nodeIosDeviceDir = path.join(titaniumDir, 'node_modules', 'node-ios-device'),
-			child = spawn('sh', [ path.join(nodeIosDeviceDir, 'bin', 'build-all.sh') ], { cwd: nodeIosDeviceDir, stdio: 'inherit' });
-
-		child.on('close', function (code) {
-			if (code) {
-				console.error('Error: Failed to build node-ios-device');
-				process.exit(1);
-			}
-
-			rm(path.join(nodeIosDeviceDir, 'build'));
-
-			console.info('\nCompleted successfully!');
-			process.exit(0);
-		});
+		console.info('\nCompleted successfully!');
+		process.exit(0);
 	});
 });
