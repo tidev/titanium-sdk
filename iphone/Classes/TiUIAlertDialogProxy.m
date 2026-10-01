@@ -7,6 +7,7 @@
 
 #import "TiUIAlertDialogProxy.h"
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiLocale.h>
 #import <TitaniumKit/TiUtils.h>
 
 static NSCondition *alertCondition;
@@ -36,6 +37,34 @@ static BOOL alertShowing = NO;
 - (NSString *)apiName
 {
   return @"Ti.UI.AlertDialog";
+}
+
+- (void)_initWithProperties:(NSDictionary *)properties
+{
+  // Defaults mirrored from Android AlertDialogProxy so property reads are consistent.
+  [self initializeProperty:@"cancel" defaultValue:NUMINT(-1)];
+  [self initializeProperty:@"buttonNames" defaultValue:[NSMutableArray array]];
+
+  // Apply lang conversion (titleid -> title, etc.) for non-view proxies, since
+  // the base TiProxy._initWithProperties does not perform this translation.
+  NSMutableDictionary *props = [properties mutableCopy];
+  NSDictionary *table = [self langConversionTable];
+  if (table != nil && props != nil) {
+    for (id key in table) {
+      id langKey = [props objectForKey:key];
+      if (langKey != nil && langKey != [NSNull null]) {
+        id convertKey = [table objectForKey:key];
+        if ([props objectForKey:convertKey] == nil) {
+          id newValue = [TiLocale getString:langKey comment:nil];
+          if (newValue != nil) {
+            [props setObject:newValue forKey:convertKey];
+          }
+        }
+      }
+    }
+  }
+  [super _initWithProperties:props];
+  RELEASE_TO_NIL(props);
 }
 
 - (void)cleanup

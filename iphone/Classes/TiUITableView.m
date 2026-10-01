@@ -347,11 +347,13 @@
   if (headerViewProxy != nil) {
     [headerViewProxy setProxyObserver:nil];
     [headerViewProxy windowWillClose];
+    RELEASE_TO_NIL(headerViewProxy);
   }
 
   if (footerViewProxy != nil) {
     [footerViewProxy setProxyObserver:nil];
     [footerViewProxy windowWillClose];
+    RELEASE_TO_NIL(footerViewProxy);
   }
 
   searchController.searchResultsUpdater = nil;
@@ -1789,7 +1791,7 @@
   if (headerViewProxy != nil) {
     [headerViewProxy setProxyObserver:nil];
     [[self proxy] forgetProxy:headerViewProxy];
-    headerViewProxy = nil;
+    RELEASE_TO_NIL(headerViewProxy);
   }
   [[self tableView] setTableHeaderView:[self titleViewForText:[TiUtils stringValue:args] footer:NO]];
 }
@@ -1799,7 +1801,7 @@
   if (footerViewProxy != nil) {
     [footerViewProxy setProxyObserver:nil];
     [[self proxy] forgetProxy:footerViewProxy];
-    footerViewProxy = nil;
+    RELEASE_TO_NIL(footerViewProxy);
   }
   [[self tableView] setTableFooterView:[self titleViewForText:[TiUtils stringValue:args] footer:YES]];
 }
@@ -1814,15 +1816,16 @@
     if (headerViewProxy != nil) {
       [headerViewProxy setProxyObserver:nil];
       [[self proxy] forgetProxy:headerViewProxy];
+      RELEASE_TO_NIL(headerViewProxy);
     }
-    headerViewProxy = args;
+    headerViewProxy = [args retain];
     [headerViewProxy setProxyObserver:self];
     [[self proxy] rememberProxy:headerViewProxy];
   } else {
     if (headerViewProxy != nil) {
       [headerViewProxy setProxyObserver:nil];
       [[self proxy] forgetProxy:headerViewProxy];
-      headerViewProxy = nil;
+      RELEASE_TO_NIL(headerViewProxy);
     }
     [[self tableView] setTableHeaderView:nil];
   }
@@ -1838,15 +1841,16 @@
     if (footerViewProxy != nil) {
       [footerViewProxy setProxyObserver:nil];
       [[self proxy] forgetProxy:footerViewProxy];
+      RELEASE_TO_NIL(footerViewProxy);
     }
-    footerViewProxy = args;
+    footerViewProxy = [args retain];
     [footerViewProxy setProxyObserver:self];
     [[self proxy] rememberProxy:footerViewProxy];
   } else {
     if (footerViewProxy != nil) {
       [footerViewProxy setProxyObserver:nil];
       [[self proxy] forgetProxy:footerViewProxy];
-      footerViewProxy = nil;
+      RELEASE_TO_NIL(footerViewProxy);
     }
     [[self tableView] setTableFooterView:nil];
   }

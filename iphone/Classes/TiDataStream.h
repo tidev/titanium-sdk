@@ -13,8 +13,10 @@
   NSData *data;
   TiStreamMode mode;
   NSUInteger position;
+  NSString *streamApiName;
 }
 @property (nonatomic) TiStreamMode mode;
 @property (nonatomic, readwrite, retain) NSData *data;
+@property (nonatomic, copy) NSString *streamApiName;
 
 @end

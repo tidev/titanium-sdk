@@ -1137,12 +1137,12 @@ READWRITE_IMPL(bool, showCalibration, ShowCalibration);
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-  // Error code may be 0 here, but then we report success!
+  // Preserve the real CoreLocation error code (kCLErrorLocationUnknown is 0
+  // on iOS 26 simulator), but force success=false since we're in the error
+  // callback..dictionaryWithCode: would otherwise set success=true for code 0.
   NSInteger code = error.code;
-  if (code == 0) {
-    code = -1; // explicitly use non-zero code to force success to be false!
-  }
   NSMutableDictionary *event = [TiUtils dictionaryWithCode:code message:[TiUtils messageFromError:error]];
+  [event setObject:NUMBOOL(NO) forKey:@"success"];
 
   if ([self _hasListeners:@"location"]) {
     [self fireEvent:@"location" withDict:event];

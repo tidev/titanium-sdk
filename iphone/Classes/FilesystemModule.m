@@ -35,13 +35,40 @@
 {
   NSString *newpath;
   NSString *first = [[args objectAtIndex:0] toString];
+  NSString *resourcesPath = [[NSURL URLWithString:[self resourcesDirectory]] path];
   if ([first hasPrefix:@"file://"]) {
     NSURL *fileUrl = [NSURL URLWithString:first];
     // Why not just crop? Because the URL may have some things escaped that need to be unescaped.
     newpath = [fileUrl path];
+    // NSURL treats "file://app.js" as host "app.js" with empty path, yielding "/".
+    // Treat a host-only or relative file:// URL as relative to the resources dir.
+    if ([newpath isEqualToString:@"/"] || newpath.length < 2) {
+      NSString *host = [fileUrl host];
+      if (host.length > 0) {
+        newpath = [resourcesPath stringByAppendingPathComponent:host];
+      } else {
+        newpath = [resourcesPath stringByAppendingPathComponent:[first substringFromIndex:@"file://".length]];
+      }
+    }
+  } else if ([first hasPrefix:@"file:"]) {
+    // "file:" without "//" — strip scheme and treat remainder as a path
+    // (relative if not starting with '/').
+    NSString *remainder = [first substringFromIndex:@"file:".length];
+    if (remainder.length > 0 && [remainder characterAtIndex:0] == '/') {
+      newpath = [self resolveFile:remainder];
+    } else {
+      newpath = [resourcesPath stringByAppendingPathComponent:[self resolveFile:remainder]];
+    }
+  } else if ([first hasPrefix:@"app://"]) {
+    // "app://" maps to the application resources directory. "app:///x" is
+    // the absolute form (same destination), "app://x" is relative.
+    NSString *remainder = [first substringFromIndex:@"app://".length];
+    if (remainder.length > 0 && [remainder characterAtIndex:0] == '/') {
+      remainder = [remainder substringFromIndex:1];
+    }
+    newpath = [resourcesPath stringByAppendingPathComponent:[self resolveFile:remainder]];
   } else if ([first characterAtIndex:0] != '/') {
-    NSURL *url = [NSURL URLWithString:[self resourcesDirectory]];
-    newpath = [[url path] stringByAppendingPathComponent:[self resolveFile:first]];
+    newpath = [resourcesPath stringByAppendingPathComponent:[self resolveFile:first]];
   } else {
     newpath = [self resolveFile:first];
   }

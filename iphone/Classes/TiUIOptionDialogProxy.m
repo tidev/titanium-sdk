@@ -9,6 +9,7 @@
 #import "TiUIOptionDialogProxy.h"
 #import "TiToolbarButton.h"
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiLocale.h>
 #import <TitaniumKit/TiTab.h>
 #import <TitaniumKit/TiToolbar.h>
 #import <TitaniumKit/TiUtils.h>
@@ -32,6 +33,35 @@
 - (NSString *)apiName
 {
   return @"Ti.UI.OptionDialog";
+}
+
+- (void)_initWithProperties:(NSDictionary *)properties
+{
+  // Defaults mirrored from Android OptionDialogProxy so property reads are consistent.
+  [self initializeProperty:@"cancel" defaultValue:NUMINT(-1)];
+  [self initializeProperty:@"persistent" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"buttonNames" defaultValue:[NSMutableArray array]];
+
+  // Apply lang conversion (titleid -> title) for non-view proxies, since the
+  // base TiProxy._initWithProperties does not perform this translation.
+  NSMutableDictionary *props = [properties mutableCopy];
+  NSDictionary *table = [self langConversionTable];
+  if (table != nil && props != nil) {
+    for (id key in table) {
+      id langKey = [props objectForKey:key];
+      if (langKey != nil && langKey != [NSNull null]) {
+        id convertKey = [table objectForKey:key];
+        if ([props objectForKey:convertKey] == nil) {
+          id newValue = [TiLocale getString:langKey comment:nil];
+          if (newValue != nil) {
+            [props setObject:newValue forKey:convertKey];
+          }
+        }
+      }
+    }
+  }
+  [super _initWithProperties:props];
+  RELEASE_TO_NIL(props);
 }
 
 - (void)show:(id)args
