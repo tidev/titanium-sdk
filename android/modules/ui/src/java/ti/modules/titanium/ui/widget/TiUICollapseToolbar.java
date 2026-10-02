@@ -52,6 +52,7 @@ public class TiUICollapseToolbar extends TiUIView
 	MaterialToolbar toolbar = null;
 	KrollFunction homeIconFunction = null;
 	KrollFunction menuItemClickFunction = null;
+	int nextMenuItemId = 0;
 	boolean homeAsUp = false;
 	TiViewProxy localContentView = null;
 
@@ -274,9 +275,15 @@ public class TiUICollapseToolbar extends TiUIView
 	{
 		if (toolbar != null && options.containsKeyAndNotNull(TiC.PROPERTY_TITLE)) {
 			Menu menu = toolbar.getMenu();
-			int itemId = menu.size();
+			int itemId;
 			if (options.containsKeyAndNotNull(TiC.PROPERTY_ITEM_ID)) {
 				itemId = options.getInt(TiC.PROPERTY_ITEM_ID);
+			} else {
+				// Skip IDs that the caller already uses. The counter never reuses a removed ID.
+				while (menu.findItem(nextMenuItemId) != null) {
+					nextMenuItemId++;
+				}
+				itemId = nextMenuItemId++;
 			}
 			MenuItem item = menu.add(Menu.NONE, itemId, Menu.NONE, options.getString(TiC.PROPERTY_TITLE));
 			if (options.containsKeyAndNotNull(TiC.PROPERTY_SHOW_AS_ACTION)) {
@@ -301,6 +308,7 @@ public class TiUICollapseToolbar extends TiUIView
 		if (toolbar != null) {
 			Menu menu = toolbar.getMenu();
 			menu.clear();
+			nextMenuItemId = 0;
 		}
 	}
 }

@@ -89,6 +89,8 @@ methods:
             [itemId](Titanium.Android.MenuItem.itemId),
             [title](Titanium.Android.MenuItem.title) and
             [showAsAction](Titanium.Android.MenuItem.showAsAction).
+            If you do not set `itemId`, the toolbar assigns the next unused ID. The IDs start at 0.
+            The toolbar does not use the ID of a removed item again until you call `clearMenu`.
         type: Object
 
   - name: clearMenu
