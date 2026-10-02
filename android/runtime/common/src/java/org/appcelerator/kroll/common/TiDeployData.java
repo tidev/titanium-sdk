@@ -125,6 +125,26 @@ public class TiDeployData
 		return deployData.optInt(PROFILER_PORT, -1);
 	}
 
+	/**
+	 * @return Always -1
+	 * @deprecated Fastdev does not exist anymore. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	public int getFastDevPort()
+	{
+		return -1;
+	}
+
+	/**
+	 * @return Always false
+	 * @deprecated Fastdev does not exist anymore. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	public boolean getFastDevListen()
+	{
+		return false;
+	}
+
 	private boolean isDeployTypeDisabled()
 	{
 		String deployType = null;

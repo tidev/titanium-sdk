@@ -816,6 +816,16 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		return defaultUnit;
 	}
 
+	/**
+	 * @deprecated Titanium does not use the thread stack size. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	@Override
+	public int getThreadStackSize()
+	{
+		return getAppProperties().getInt(PROPERTY_THREAD_STACK_SIZE, KrollRuntime.DEFAULT_THREAD_STACK_SIZE);
+	}
+
 	public boolean forceCompileJS()
 	{
 		return getAppProperties().getBool(PROPERTY_COMPILE_JS, false);
@@ -825,6 +835,17 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public TiDeployData getDeployData()
 	{
 		return deployData;
+	}
+
+	/**
+	 * @return Always false
+	 * @deprecated Fastdev does not exist anymore. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	@Override
+	public boolean isFastDevMode()
+	{
+		return false;
 	}
 
 	public static void launch()

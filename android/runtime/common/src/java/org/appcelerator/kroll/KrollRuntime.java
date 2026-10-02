@@ -77,6 +77,8 @@ public abstract class KrollRuntime implements Handler.Callback
 	};
 
 	public static final int DONT_INTERCEPT = Integer.MIN_VALUE + 1;
+	@Deprecated
+	public static final int DEFAULT_THREAD_STACK_SIZE = 16 * 1024;
 	public static final String SOURCE_ANONYMOUS = "<anonymous>";
 
 	public static void init(Context context, KrollRuntime runtime)
@@ -300,6 +302,18 @@ public abstract class KrollRuntime implements Handler.Callback
 			message.sendToTarget();
 			return null;
 		}
+	}
+
+	/**
+	 * @deprecated Titanium does not use the thread stack size. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	public int getThreadStackSize(Context context)
+	{
+		if (context instanceof KrollApplication app) {
+			return app.getThreadStackSize();
+		}
+		return DEFAULT_THREAD_STACK_SIZE;
 	}
 
 	public boolean handleMessage(Message msg)

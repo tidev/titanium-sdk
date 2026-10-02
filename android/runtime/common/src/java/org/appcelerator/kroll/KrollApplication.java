@@ -16,11 +16,23 @@ import org.appcelerator.kroll.common.TiDeployData;
 public interface KrollApplication {
 	boolean DEFAULT_RUN_ON_MAIN_THREAD = false;
 
+	/**
+	 * @deprecated Titanium does not use the thread stack size. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	int getThreadStackSize();
+
 	Activity getCurrentActivity();
 
 	void waitForCurrentActivity(CurrentActivityListener l);
 
 	TiDeployData getDeployData();
+
+	/**
+	 * @deprecated Fastdev does not exist anymore. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	boolean isFastDevMode();
 
 	String getAppGUID();
 
