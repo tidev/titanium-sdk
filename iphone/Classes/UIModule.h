@@ -179,10 +179,8 @@
 @property (nonatomic, readonly) NSNumber *AUTOLINK_SHIPMENT_TRACKING_NUMBER;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_FLIGHT_NUMBER;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_LOOKUP_SUGGESTION;
-#if IS_SDK_IOS_16
 @property (nonatomic, readonly) NSNumber *AUTOLINK_MONEY;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_PHYSICAL_VALUE;
-#endif
 
 @property (nonatomic, readonly) NSString *SIZE;
 @property (nonatomic, readonly) NSString *FILL;

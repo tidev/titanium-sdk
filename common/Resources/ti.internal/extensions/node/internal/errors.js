@@ -24,7 +24,7 @@
  * Only a few selected errors are exported manually here. Most of the functionality
  * is still missing and may be added as we move forward with Node compatibility.
  *
- * @see https://github.com/nodejs/node/blob/master/lib/internal/errors.js
+ * @see https://github.com/nodejs/node/blob/main/lib/internal/errors.js
  */
 
 import assert from './assert';

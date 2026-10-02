@@ -130,7 +130,7 @@
 
 - (NSNumber *)isActivated
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return NUMBOOL([[self watchSession] activationState] == WCSessionActivationStateActivated);
   }
   return NUMBOOL(NO);
@@ -156,7 +156,7 @@
 
 - (NSNumber *)activationState
 {
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"] && [WCSession isSupported]) {
+  if ([WCSession isSupported]) {
     return [NSNumber numberWithInteger:[[self watchSession] activationState]];
   }
 
@@ -448,25 +448,16 @@
 
 - (NSNumber *)ACTIVATION_STATE_NOT_ACTIVATED
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    return nil;
-  }
   return NUMINTEGER(WCSessionActivationStateNotActivated);
 }
 
 - (NSNumber *)ACTIVATION_STATE_INACTIVE
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    return nil;
-  }
   return NUMINTEGER(WCSessionActivationStateInactive);
 }
 
 - (NSNumber *)ACTIVATION_STATE_ACTIVATED
 {
-  if (![TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    return nil;
-  }
   return NUMINTEGER(WCSessionActivationStateActivated);
 }
 
@@ -481,10 +472,8 @@
     @"isComplicationEnabled" : [self isComplicationEnabled]
   }];
 
-  if ([TiUtils isIOSVersionOrGreater:@"9.3"]) {
-    [dict setObject:[self isActivated] forKey:@"isActivated"];
-    [dict setObject:[self activationState] forKey:@"activationState"];
-  }
+  [dict setObject:[self isActivated] forKey:@"isActivated"];
+  [dict setObject:[self activationState] forKey:@"activationState"];
 
   [dict setObject:[self hasContentPending] forKey:@"hasContentPending"];
   [dict setObject:[self remainingComplicationUserInfoTransfers] forKey:@"remainingComplicationUserInfoTransfers"];

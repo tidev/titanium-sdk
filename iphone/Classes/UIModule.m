@@ -263,10 +263,8 @@ MAKE_SYSTEM_PROP(AUTOLINK_SHIPMENT_TRACKING_NUMBER, UIDataDetectorTypeShipmentTr
 MAKE_SYSTEM_PROP(AUTOLINK_FLIGHT_NUMBER, UIDataDetectorTypeFlightNumber);
 MAKE_SYSTEM_PROP(AUTOLINK_LOOKUP_SUGGESTION, UIDataDetectorTypeLookupSuggestion);
 
-#if IS_SDK_IOS_16
 MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_MONEY, UIDataDetectorTypeMoney, @"16.0");
 MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_PHYSICAL_VALUE, UIDataDetectorTypePhysicalValue, @"16.0");
-#endif
 
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT, UITableViewCellStyleDefault);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS, UITableViewCellStyleValue1);
@@ -280,19 +278,19 @@ MAKE_SYSTEM_PROP(LIST_ACCESSORY_TYPE_DISCLOSURE, UITableViewCellAccessoryDisclos
 
 - (void)setBackgroundColor:(id)color
 {
-  TiRootViewController *controller = [[TiApp app] controller];
+  TiRootViewController *controller = [[self owningInstance] controller];
   [controller setBackgroundColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setTintColor:(id)color
 {
-  UIWindow *controller = [[[[TiApp app] controller] topWindowProxyView] window];
+  UIWindow *controller = [[[[self owningInstance] controller] topWindowProxyView] window];
   [controller setTintColor:[TiUtils colorValue:color].color];
 }
 
 - (void)setBackgroundImage:(id)image
 {
-  TiRootViewController *controller = [[TiApp app] controller];
+  TiRootViewController *controller = [[self owningInstance] controller];
   UIImage *resultImage = [[ImageLoader sharedLoader] loadImmediateStretchableImage:[TiUtils toURL:image proxy:self]];
   if (resultImage == nil && [image isEqualToString:@"Default.png"]) {
     // special case where we're asking for Default.png and it's in Bundle not path
@@ -458,8 +456,8 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 
 - (NSNumber *)overrideUserInterfaceStyle
 {
-  NSNumber *style = @(TiApp.controller.overrideUserInterfaceStyle);
-  return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
+  // Read from the window, which is where the setter applies the override.
+  return @(TiApp.app.window.overrideUserInterfaceStyle);
 }
 
 - (NSNumber *)userInterfaceStyle
@@ -494,7 +492,11 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 
 - (NSNumber *)statusBarHeight
 {
-  return @(UIApplication.sharedApplication.keyWindow.windowScene.statusBarManager.statusBarFrame.size.height);
+  UIWindow *sceneWindow = [[self owningInstance] window];
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  return @(sceneWindow.windowScene.statusBarManager.statusBarFrame.size.height);
 }
 
 #pragma mark iPhone namespace

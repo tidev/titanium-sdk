@@ -150,7 +150,7 @@ typedef NSUInteger GDataXMLNodeKind;
 // This implementation of nodesForXPath registers namespaces only from the
 // document's root node.  _def_ns may be used as a prefix for the default
 // namespace, though there's no guarantee that the default namespace will
-// be consistenly the same namespace in server responses.
+// be consistently the same namespace in server responses.
 - (NSArray *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
 
 // access to the underlying libxml node; be sure to release the cached values
@@ -219,7 +219,7 @@ typedef NSUInteger GDataXMLNodeKind;
 // This implementation of nodesForXPath registers namespaces only from the
 // document's root node.  _def_ns may be used as a prefix for the default
 // namespace, though there's no guarantee that the default namespace will
-// be consistenly the same namespace in server responses.
+// be consistently the same namespace in server responses.
 - (NSArray *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
 
 - (NSString *)description;

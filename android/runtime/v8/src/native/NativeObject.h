@@ -23,7 +23,7 @@ class ProxyFactory;
 // used to store "user data" in the JavaScript object for use
 // inside method and property callbacks.
 
-// https://github.com/nodejs/node/blob/master/src/node_object_wrap.h
+// https://github.com/nodejs/node/blob/main/src/node_object_wrap.h
 class NativeObject
 {
  public:
