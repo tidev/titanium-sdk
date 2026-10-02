@@ -669,20 +669,19 @@ DEFINE_EXCEPTIONS
     RELEASE_TO_NIL(_borderLayer);
     _borderLayer = (CAShapeLayer *)self.layer;
   } else if (needsCustomLayer && (!_borderLayer || _borderLayer == self.layer)) {
-    CGColorRef borderColor = self.layer.borderColor;
-    CGFloat borderWidth = self.layer.borderWidth;
     _borderLayer = [[CAShapeLayer alloc] init];
     [self.layer addSublayer:_borderLayer];
-    self.layer.borderColor = nil;
-    self.layer.borderWidth = 0;
 
     if (needsFillMode) {
       [self switchBorderLayerToFillMode];
     } else {
+      // Hand the color over before the view layer gives up its reference below.
       _borderLayer.fillColor = UIColor.clearColor.CGColor;
-      _borderLayer.strokeColor = borderColor;
-      _borderLayer.lineWidth = borderWidth * 2;
+      _borderLayer.strokeColor = self.layer.borderColor;
+      _borderLayer.lineWidth = self.layer.borderWidth * 2;
     }
+    self.layer.borderColor = nil;
+    self.layer.borderWidth = 0;
   } else if (needsCustomLayer && _borderLayer != self.layer) {
     // Transition between fill and stroke mode on the existing custom layer.
     if (needsFillMode) {
@@ -693,7 +692,8 @@ DEFINE_EXCEPTIONS
       // Coming from fill mode; read border color/width from proxy since self.layer values may be nil
       _borderLayer.fillColor = UIColor.clearColor.CGColor;
       _borderLayer.strokeColor = [self borderColorFromProxy];
-      id w = [proxy valueForUndefinedKey:@"borderWidth"];
+      // A one-element array or string is a single width, so convert the element and not the container.
+      id w = (widthArray.count == 1) ? widthArray[0] : [proxy valueForUndefinedKey:@"borderWidth"];
       TiDimension theDim = TiDimensionFromObject(w);
       if (TiDimensionIsDip(theDim)) {
         _borderLayer.lineWidth = MAX(theDim.value * 2, 0);
@@ -751,7 +751,8 @@ DEFINE_EXCEPTIONS
       layer.borderWidth = 0;
     }
   } else {
-    TiDimension theDim = TiDimensionFromObject(w);
+    // A one-element array ([4] or ['4dp']) is a single width, so convert the element and not the array.
+    TiDimension theDim = TiDimensionFromObject((widthArray.count == 1) ? widthArray[0] : w);
     CGFloat borderWidth = 0;
     if (TiDimensionIsDip(theDim)) {
       borderWidth = MAX(theDim.value, 0);

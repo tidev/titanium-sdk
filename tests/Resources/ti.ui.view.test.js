@@ -1434,6 +1434,31 @@ describe('Titanium.UI.View', function () {
 			}, finish);
 		});
 
+		// An array with one value must render like the same value without the array.
+		function verifySingleValueArray(singleValue, finish) {
+			const props = {
+				width: '60px',
+				height: '60px',
+				borderColor: 'red',
+				backgroundColor: 'yellow'
+			};
+			const reference = Ti.UI.createView(Object.assign({ top: 0, borderWidth: singleValue }, props));
+			const view = Ti.UI.createView(Object.assign({ top: '80px', borderWidth: [ singleValue ] }, props));
+			win.add(reference);
+			openAndVerify(view, () => {
+				should(view.borderWidth).eql([ singleValue ]);
+				should(view).matchImage(reference.toImage());
+			}, finish);
+		}
+
+		it('1 value in Array', finish => {
+			verifySingleValueArray(4, finish);
+		});
+
+		it('1 value with unit in Array', finish => {
+			verifySingleValueArray('4dp', finish);
+		});
+
 		it('switch between single value and per side values post layout', finish => {
 			const view = Ti.UI.createView({
 				width: '60px',
