@@ -74,7 +74,7 @@ class AndroidBuilder extends Builder {
 
 		this.targets = [ 'emulator', 'device', 'dist-playstore' ];
 		this.appName = null;
-		this.activityAliasCount = 0;
+		this.hasLauncherAlias = false;
 	}
 
 	config(logger, config, cli) {
@@ -1065,12 +1065,6 @@ class AndroidBuilder extends Builder {
 		try {
 			if (cli.tiapp.android && cli.tiapp.android.manifest) {
 				this.customAndroidManifest = AndroidManifest.fromXmlString(cli.tiapp.android.manifest);
-
-				// check if we have <activity-alias> nodes
-				const applicationNode = this.customAndroidManifest.xmlDomDocument.getElementsByTagName('application')[0];
-				if (applicationNode) {
-					this.activityAliasCount = applicationNode.getElementsByTagName('activity-alias').length;
-				}
 			}
 		} catch (ex) {
 			logger.error('Malformed <manifest> definition in the <android> section of the tiapp.xml');
@@ -1096,6 +1090,9 @@ class AndroidBuilder extends Builder {
 			logger.error(`Malformed custom AndroidManifest.xml file: ${externalAndroidManifestFilePath}`);
 			process.exit(1);
 		}
+
+		// Only an enabled <activity-alias> with a MAIN/LAUNCHER filter can replace the launcher entry of the main activity.
+		this.hasLauncherAlias = !!this.customAndroidManifest && this.customAndroidManifest.hasEnabledLauncherAlias();
 
 		// validate the SDK levels
 		const usesSDK = this.customAndroidManifest ? this.customAndroidManifest.getUsesSdk() : null;
@@ -3683,7 +3680,7 @@ class AndroidBuilder extends Builder {
 			queries: neededQueriesDictionary,
 			storagePermissionMaxSdkVersion: storagePermissionMaxSdkVersion,
 			usesPermissions: Object.keys(neededPermissionDictionary),
-			skipLauncher: this.activityAliasCount > 0
+			skipLauncher: this.hasLauncherAlias
 		};
 		return neededSettings;
 	}
