@@ -587,7 +587,11 @@ public abstract class TiViewProxy extends KrollProxy
 				if (arg instanceof TiViewProxy) {
 					add((TiViewProxy) arg);
 				} else {
-					Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+					if (arg == null) {
+						Log.w(TAG, "add() unsupported array object: null");
+					} else {
+						Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+					}
 				}
 			}
 		} else if (args instanceof TiViewProxy) {
@@ -1187,13 +1191,13 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 	}
 
+	@Kroll.setProperty
 	public void setParent(TiViewProxy parent)
 	{
 		if (parent == null) {
 			this.parent = null;
 			return;
 		}
-
 		this.parent = new WeakReference<TiViewProxy>(parent);
 	}
 

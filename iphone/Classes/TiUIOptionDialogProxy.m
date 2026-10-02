@@ -114,7 +114,7 @@
          ** This block commented out since it seems to have no effect on the alert controller.
          ** If you read the modalPresentationStyle after setting the value, it still shows UIModalPresentationPopover
          ** However not configuring the UIPopoverPresentationController seems to do the trick.
-         ** This hack in place to conserve current behavior. Should revisit when iOS7 is dropped so that
+         ** This hack in place to conserve current behavior. Should revisit when iOS 7 is dropped so that
          ** option dialogs are always presented in UIModalPresentationPopover
          if (isPopover) {
          alertController.modalPresentationStyle = UIModalPresentationCurrentContext;
@@ -122,7 +122,7 @@
          }
          */
   }
-  /*See Comment above. Remove if condition to see difference in behavior on iOS8*/
+  /* See Comment above. Remove if condition to see difference in behavior on iOS 8 */
   if (!isPopover) {
     UIPopoverPresentationController *presentationController = alertController.popoverPresentationController;
     presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;

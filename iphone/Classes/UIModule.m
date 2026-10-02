@@ -263,10 +263,8 @@ MAKE_SYSTEM_PROP(AUTOLINK_SHIPMENT_TRACKING_NUMBER, UIDataDetectorTypeShipmentTr
 MAKE_SYSTEM_PROP(AUTOLINK_FLIGHT_NUMBER, UIDataDetectorTypeFlightNumber);
 MAKE_SYSTEM_PROP(AUTOLINK_LOOKUP_SUGGESTION, UIDataDetectorTypeLookupSuggestion);
 
-#if IS_SDK_IOS_16
 MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_MONEY, UIDataDetectorTypeMoney, @"16.0");
 MAKE_SYSTEM_PROP_MIN_IOS(AUTOLINK_PHYSICAL_VALUE, UIDataDetectorTypePhysicalValue, @"16.0");
-#endif
 
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_DEFAULT, UITableViewCellStyleDefault);
 MAKE_SYSTEM_PROP(LIST_ITEM_TEMPLATE_SETTINGS, UITableViewCellStyleValue1);
@@ -458,8 +456,8 @@ MAKE_SYSTEM_PROP(EXTEND_EDGE_ALL, 15); // UIEdgeRectAll
 
 - (NSNumber *)overrideUserInterfaceStyle
 {
-  NSNumber *style = @(TiApp.controller.overrideUserInterfaceStyle);
-  return (style != nil) ? style : self.USER_INTERFACE_STYLE_UNSPECIFIED;
+  // Read from the window, which is where the setter applies the override.
+  return @(TiApp.app.window.overrideUserInterfaceStyle);
 }
 
 - (NSNumber *)userInterfaceStyle

@@ -115,12 +115,10 @@ static BOOL alertShowing = NO;
     [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
   }
 
-#if IS_SDK_IOS_16
   if ([TiUtils isIOSVersionOrGreater:@"16.0"]) {
     UIAlertControllerSeverity severity = [TiUtils intValue:[self valueForKey:@"severity"] def:UIAlertControllerSeverityDefault];
     alertController.severity = severity;
   }
-#endif
 
   // Configure the Buttons
   for (id btn in buttonNames) {

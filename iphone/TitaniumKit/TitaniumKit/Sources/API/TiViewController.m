@@ -70,7 +70,6 @@
   [super viewDidLayoutSubviews];
 }
 
-// IOS5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
   return YES;
@@ -80,9 +79,7 @@
 {
   return TI_ORIENTATION_ALLOWED(_supportedOrientations, toInterfaceOrientation) ? YES : NO;
 }
-// IOS5 support. End Section
 
-// IOS6 new stuff.
 - (BOOL)shouldAutomaticallyForwardRotationMethods
 {
   return YES;
@@ -149,6 +146,15 @@
   }
   [super viewWillAppear:animated];
 }
+
+- (void)viewSafeAreaInsetsDidChange
+{
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
+    [(id<TiWindowProtocol>)_proxy viewSafeAreaInsetsDidChange];
+  }
+  [super viewSafeAreaInsetsDidChange];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
   if (_proxy != nil) {
@@ -159,6 +165,7 @@
   }
   [super viewWillDisappear:animated];
 }
+
 - (void)viewDidAppear:(BOOL)animated
 {
   if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -166,6 +173,7 @@
   }
   [super viewDidAppear:animated];
 }
+
 - (void)viewDidDisappear:(BOOL)animated
 {
   if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

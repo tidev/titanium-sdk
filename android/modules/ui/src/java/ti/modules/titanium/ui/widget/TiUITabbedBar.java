@@ -99,7 +99,7 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 		if (getProxy().hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
 			this.tabLayout.setSelectedTabIndicatorColor(
 				TiColorHelper.parseColor(
-					getProxy().getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR).toString(), activity));
+					getProxy().getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR), activity));
 		}
 
 		// Set up the touch ripple effect to show primary color for both selected and unselected tabs.
@@ -451,6 +451,6 @@ public class TiUITabbedBar extends TiUIView implements MenuItem.OnMenuItemClickL
 	@ColorInt
 	private static int getTabRippleColorFrom(Context context)
 	{
-		return MaterialColors.getColor(context, R.attr.colorPrimary, Color.DKGRAY);
+		return MaterialColors.getColor(context, com.google.android.material.R.attr.colorPrimary, Color.DKGRAY);
 	}
 }

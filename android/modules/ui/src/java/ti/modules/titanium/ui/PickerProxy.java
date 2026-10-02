@@ -30,11 +30,11 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.google.android.material.R;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
@@ -515,10 +515,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	{
 		// Fetch top-most activity in app.
 		Activity activity = TiApplication.getAppCurrentActivity();
-		if (!(activity instanceof AppCompatActivity)) {
+		if (!(activity instanceof AppCompatActivity appCompatActivity)) {
 			return;
 		}
-		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
 
 		// Fetch optional dictionary of settings from 1st argument.
 		HashMap settings;
@@ -666,10 +665,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	{
 		// Fetch top-most activity in app.
 		Activity activity = TiApplication.getAppCurrentActivity();
-		if (!(activity instanceof AppCompatActivity)) {
+		if (!(activity instanceof AppCompatActivity appCompatActivity)) {
 			return;
 		}
-		AppCompatActivity appCompatActivity = ((AppCompatActivity) activity);
 
 		// Fetch optional dictionary of settings from 1st argument.
 		HashMap settings;

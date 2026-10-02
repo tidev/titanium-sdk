@@ -33,7 +33,7 @@
 
 - (void)_destroy
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiShutdownNotification object:nil];
   [self shutdown:nil];
   [super _destroy];
@@ -41,7 +41,7 @@
 
 - (void)_configure
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
   [super _configure];
 }
@@ -254,7 +254,7 @@
 - (TiDatabaseResultSetProxy *)execute:(NSString *)sql
 {
   NSArray *params = @[];
-  // Check for varargs for perepared statement params
+  // Check for varargs for prepared statement params
   NSArray *currentArgs = [JSContext currentArguments];
   if ([currentArgs count] > 1) {
     JSValue *possibleParams = [currentArgs objectAtIndex:1];

@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
+import android.view.View;
 
 import org.appcelerator.kroll.KrollModule;
 
@@ -24,6 +25,25 @@ public class TiApplicationLifecycle implements Application.ActivityLifecycleCall
 	@Override
 	public void onActivityCreated(Activity activity, Bundle savedInstanceState)
 	{
+		// Apply accessibility on the root view of this activity.
+		View view = activity.getWindow() != null ? activity.getWindow().getDecorView() : null;
+		if (view != null) {
+			boolean accessibilityHidden = false;
+
+			if (activity.getIntent() != null) {
+				accessibilityHidden = activity.getIntent().getBooleanExtra(TiC.PROPERTY_ACCESSIBILITY_HIDDEN, false);
+			} else if (savedInstanceState != null) {
+				// If activity is re-created by OS in any circumstances.
+				accessibilityHidden = savedInstanceState.getBoolean(TiC.PROPERTY_ACCESSIBILITY_HIDDEN, false);
+			}
+
+			if (accessibilityHidden) {
+				view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+			} else {
+				view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+			}
+		}
+
 		// Reset "wasPaused" state when creating the 1st activity in a UI task.
 		// Needed to detect if the app is resuming after being paused.
 		if (this.existingActivityCount <= 0) {

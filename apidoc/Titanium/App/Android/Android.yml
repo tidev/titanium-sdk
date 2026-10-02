@@ -64,6 +64,11 @@ properties:
     permission: read-only
     since: 3.3.0
 
+methods:
+  - name: clearUserCache
+    summary: Clears app data and cache. This will close the app.
+    since: 13.1.0
+
 events:
   - name: shortcutitemclick
     summary: Fired when a <Titanium.UI.ShortcutItem> is clicked.

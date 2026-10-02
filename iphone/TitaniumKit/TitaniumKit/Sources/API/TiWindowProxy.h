@@ -38,9 +38,9 @@
 @property (nonatomic, readonly) TiProxy *tabGroup;
 @property (nonatomic) BOOL isMasterWindow;
 @property (nonatomic) BOOL isDetailWindow;
-@property (nonatomic) BOOL safeAreaInsetsUpdated;
+@property (nonatomic) BOOL pendingSafeAreaUpdate;
 
-- (void)processForSafeArea;
+- (BOOL)processForSafeArea;
 - (UIViewController *)windowHoldingController;
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation;
 

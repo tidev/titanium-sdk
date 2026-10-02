@@ -5,7 +5,6 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollBridge.h"
-#import "APSAnalytics.h"
 #import "AssetsModule.h"
 #import "JSValue+Addons.h"
 #import "KrollCallback.h"
@@ -47,7 +46,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)registerForMemoryWarning
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didReceiveMemoryWarning:)
                                                name:UIApplicationDidReceiveMemoryWarningNotification
@@ -56,7 +55,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
 
 - (void)unregisterForMemoryWarning
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
 }
 
@@ -300,7 +299,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
     shutdownCondition = [condition retain];
     shutdown = YES;
     // fire a notification event to our listeners
-    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
     NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
     [[NSNotificationCenter defaultCenter] postNotification:notification];
 
@@ -376,11 +375,6 @@ CFMutableSetRef krollBridgeRegistry = nil;
   }
 
   JSValue *titanium = global[@"Ti"]; // This may be nil/undefined it we couldn't load ti.kernel.js or the bootstrapping failed
-  if (TiSharedConfig.defaultConfig.isAnalyticsEnabled) {
-    // TODO: Remove this unused statement once we can fully remove APSAnalytics
-    // Right now, the build would fail is we fully remove it
-    APSAnalytics *sharedAnalytics = APSAnalytics.sharedInstance;
-  }
 
   NSURL *startURL = nil;
   // if we have a preload dictionary, register those static key/values into our namespace
@@ -403,18 +397,18 @@ CFMutableSetRef krollBridgeRegistry = nil;
         }
       }
     }
-    startURL = [url copy]; // should be the entry point of the background service js file
+    startURL = [url copy]; // should be the entry point of the background service JS file
   } else {
     startURL = [host startURL]; // should be ti.main.js
   }
 
-  // We need to run this before the entry js file, which means it has to be here.
+  // We need to run this before the entry JS file, which means it has to be here.
   TiBindingRunLoopAnnounceStart(kroll);
   if (!evaluationError) {
     [self evalFile:[startURL absoluteString] callback:self selector:@selector(booted)];
   } else {
     NSLog(@"[ERROR] Error loading/executing ti.kernel.js bootstrap code, refusing to launch app main file.");
-    // DO NOT POP AN ERROR DIALOG! The most likley scenario here is that the app is remotely encrypted
+    // DO NOT POP AN ERROR DIALOG! The most likely scenario here is that the app is remotely encrypted
     // and the decryption failed because the device is offline
     // If we pop a dialog here, it will block the "Security Violation" error dialog that would show in that case
   }
@@ -437,7 +431,7 @@ CFMutableSetRef krollBridgeRegistry = nil;
   if (!shutdown) {
     shutdown = YES;
     // fire a notification event to our listeners
-    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
+    WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
     NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:self];
     [[NSNotificationCenter defaultCenter] postNotification:notification];
   }

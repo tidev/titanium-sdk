@@ -14,7 +14,7 @@ describe('Titanium.Media', () => {
 });
 
 describe('Titanium.Media.Sound', function () {
-	it.windowsPhoneBroken('apiName', function () { // this crashes windows phone
+	it.windowsPhoneBroken('apiName', function () { // this crashes Windows Phone
 		const sound = Ti.Media.createSound();
 		should(sound).have.a.readOnlyProperty('apiName').which.is.a.String();
 		should(sound.apiName).be.eql('Ti.Media.Sound');

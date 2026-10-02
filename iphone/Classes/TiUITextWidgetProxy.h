@@ -22,7 +22,6 @@
   UIToolbar *keyboardUIToolbar;
 
   BOOL suppressFocusEvents;
-  @private
 }
 
 // Internal values

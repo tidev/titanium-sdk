@@ -16,9 +16,16 @@
 
 - (void)_destroy
 {
+  if (fullWidthBackGestureRecognizer != nil) {
+    [fullWidthBackGestureRecognizer setDelegate:nil];
+    [navController.view removeGestureRecognizer:fullWidthBackGestureRecognizer];
+  }
+
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(navController);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
+
   [super _destroy];
 }
 
@@ -227,7 +234,6 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
@@ -331,7 +337,7 @@
       [promise resolve:@[]];
     }
   } else {
-    // FIXME: forward/chain the underying promise from [window close:] done internally here rather than assume success
+    // FIXME: forward/chain the underlying promise from [window close:] done internally here rather than assume success
     [self closeWindow:window animated:NO];
     if (promise != nil) {
       [promise resolve:@[]];

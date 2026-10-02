@@ -305,8 +305,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public int getThreadStackSize(Context context)
 	{
-		if (context instanceof KrollApplication) {
-			KrollApplication app = (KrollApplication) context;
+		if (context instanceof KrollApplication app) {
 			return app.getThreadStackSize();
 		}
 		return DEFAULT_THREAD_STACK_SIZE;
@@ -538,7 +537,9 @@ public abstract class KrollRuntime implements Handler.Callback
 			}
 
 			// Handle exception with defaultExceptionHandler
-			instance.primaryExceptionHandler.handleException(exceptionMessage);
+			if (instance.primaryExceptionHandler != null) {
+				instance.primaryExceptionHandler.handleException(exceptionMessage);
+			}
 		}
 	}
 

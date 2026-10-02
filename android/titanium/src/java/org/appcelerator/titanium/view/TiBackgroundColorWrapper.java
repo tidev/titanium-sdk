@@ -73,8 +73,7 @@ public class TiBackgroundColorWrapper
 				// Retrieves the real drawable currently used, for things
 				// like StateListDrawable or ScaleDrawable.
 				backgroundDrawable = backgroundDrawable.getCurrent();
-				if (backgroundDrawable instanceof LayerDrawable) {
-					LayerDrawable layerDrawable = (LayerDrawable) backgroundDrawable;
+				if (backgroundDrawable instanceof LayerDrawable layerDrawable) {
 
 					int layerCount = layerDrawable.getNumberOfLayers();
 					if (layerCount > 0) {

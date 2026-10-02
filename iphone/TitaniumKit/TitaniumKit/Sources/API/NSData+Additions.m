@@ -76,7 +76,7 @@ NSString *stringWithHexString(NSString *hexString)
 // some commentary on the 128 bit issue:
 //
 // Assuming that one could build a machine that could recover a DES
-// key in a second (i.e., try 255 keys per second), it would take that
+// key in a second (e.g., try 255 keys per second), it would take that
 // machine approximately 149 thousand billion (149 trillion) years to
 // crack a 128-bit AES key. To put that into perspective, the universe
 // is believed to be fewer than 20 billion years old.
