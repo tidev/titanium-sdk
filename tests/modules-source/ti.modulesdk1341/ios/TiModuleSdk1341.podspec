@@ -1,12 +1,12 @@
 
 Pod::Spec.new do |s|
 
-    s.name         = "TiModuleSdk920"
+    s.name         = "TiModuleSdk1341"
     s.version      = "1.0.0"
-    s.summary      = "The TiModuleSdk920 Titanium module."
+    s.summary      = "The TiModuleSdk1341 Titanium module."
   
     s.description  = <<-DESC
-                     The TiModuleSdk920 Titanium module.
+                     The TiModuleSdk1341 Titanium module.
                      DESC
   
    s.homepage     = "https://example.com"
