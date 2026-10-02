@@ -104,9 +104,12 @@ public class TiUIRadioButtons extends TiUIView
 			setActiveColor(TiConvert.toColor(newValue, TiApplication.getAppRootOrCurrentActivity()));
 		} else if (key.equals(TiC.PROPERTY_SELECTED_INDEX)) {
 			RadioGroup radioGroup = getRadioGroup();
-			int newIndex = TiConvert.toInt(newValue);
+			int newIndex = TiConvert.toInt(newValue, -1);
 			if (radioGroup != null) {
-				if (newIndex < radioGroup.getChildCount()) {
+				if (newIndex == -1) {
+					// -1 is the unselected state
+					radioGroup.clearCheck();
+				} else if (newIndex >= 0 && newIndex < radioGroup.getChildCount()) {
 					RadioButton button = (RadioButton)
 						radioGroup.getChildAt(newIndex);
 					int id = button.getId();

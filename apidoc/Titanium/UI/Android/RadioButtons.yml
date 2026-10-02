@@ -32,9 +32,13 @@ events:
         type: Number
 
 properties:
-  - name: index
+  - name: selectedIndex
     summary: Index of the currently selected item.
+    description: |
+        The value is `-1` when no item is selected. Set the value to `-1` to clear the selection.
+        The component ignores an index that is not in the range of the labels.
     type: Number
+    default: -1
 
   - name: labels
     summary: Array of labels for the radio buttons.
