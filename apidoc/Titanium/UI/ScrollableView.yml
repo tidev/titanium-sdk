@@ -569,12 +569,20 @@ examples:
 ---
 name: ScrollablePadding
 extends: Padding
-summary: Dictionary object of parameters for the padding/insets applied to all kinds of views.
+summary: Dictionary object of parameters for the padding applied to a <Titanium.UI.ScrollableView>.
 properties:
   - name: leftAdjust
-    summary: |
-      If set it will move the first item according to the `leftAdjust` value while still keeping left padding for
-      the next items.
+    summary: Horizontal offset in pixels that moves the first view while it is the current page.
+    description: |
+      A negative value moves the first view to the left. For example, `{ left: 60, right: 60, leftAdjust: -44 }`
+      shows the first view 16 pixels from the left edge. All other views keep the `left` and `right` padding.
+
+      The offset decreases to 0 while the user scrolls from the first view to the second view.
+      Set [clipViews](Titanium.UI.ScrollableView.clipViews) to `false`. If `clipViews` is `true`,
+      the padding area clips the moved view.
+
+      The offset only applies to a horizontal [scrollType](Titanium.UI.ScrollableView.scrollType).
     type: Number
-    since: { android: 12.3.0 }
+    default: 0
+    since: "14.0.0"
     platforms: [android]

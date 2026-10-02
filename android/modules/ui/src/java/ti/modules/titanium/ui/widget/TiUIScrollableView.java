@@ -24,7 +24,6 @@ import ti.modules.titanium.ui.widget.listview.ListItemProxy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.recyclerview.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -56,6 +55,8 @@ public class TiUIScrollableView extends TiUIView
 	public static final int TYPE_VERTICAL = 0;
 	public static final int TYPE_HORIZONTAL = 1;
 	private int type = TYPE_HORIZONTAL;
+	private int mLeftAdjust = 0;
+	private boolean mHasPageTransformer = false;
 
 	public TiUIScrollableView(ScrollableViewProxy proxy)
 	{
@@ -381,6 +382,7 @@ public class TiUIScrollableView extends TiUIView
 			} else if (scrollType.equals(TiC.LAYOUT_HORIZONTAL)) {
 				mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
 			}
+			mPager.requestTransform();
 		} else if (TiC.PROPERTY_CLIP_VIEWS.equals(key)) {
 			setClipToPadding(TiConvert.toBoolean(newValue, true));
 		} else {
@@ -530,23 +532,35 @@ public class TiUIScrollableView extends TiUIView
 			paddingBottom = TiConvert.toInt(d.get(TiC.PROPERTY_BOTTOM), 0);
 		}
 
-		mPager.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-
-		if (d.containsKey("leftAdjust")) {
-			int finalPaddingLeftFirst = TiConvert.toInt(d.get("leftAdjust"), 0);
-			mPager.setPageTransformer(false, new ViewPager.PageTransformer()
-			{
-				@Override
-				public void transformPage(@NonNull View page, float position)
-				{
-					if (mPager.getCurrentItem() == 0) {
-						page.setTranslationX(finalPaddingLeftFirst);
-					} else {
-						page.setTranslationX(0);
-					}
-				}
-			});
+		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
+		if (recyclerView != null) {
+			recyclerView.setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
 		}
+
+		if (d.containsKey(TiC.PROPERTY_LEFT_ADJUST)) {
+			mLeftAdjust = TiConvert.toInt(d.get(TiC.PROPERTY_LEFT_ADJUST), 0);
+			if (!mHasPageTransformer) {
+				mHasPageTransformer = true;
+				mPager.setPageTransformer(this::transformPage);
+			} else {
+				mPager.requestTransform();
+			}
+		}
+	}
+
+	private void transformPage(View page, float position)
+	{
+		float translationX = 0;
+		RecyclerView recyclerView = (RecyclerView) mPager.getChildAt(0);
+		if (mLeftAdjust != 0 && recyclerView != null && mPager.getOrientation() == ViewPager2.ORIENTATION_HORIZONTAL) {
+			// Absolute scroll position in pages. (0 = first page is selected, 1 = second page is selected.)
+			float scrollPosition = recyclerView.getChildLayoutPosition(page) - position;
+
+			// Apply the full adjustment while the first page is selected and
+			// fade it out while scrolling to the second page. All pages move together to keep their spacing.
+			translationX = mLeftAdjust * Math.max(0.0f, Math.min(1.0f, 1.0f - scrollPosition));
+		}
+		page.setTranslationX(translationX);
 	}
 
 	@Override
