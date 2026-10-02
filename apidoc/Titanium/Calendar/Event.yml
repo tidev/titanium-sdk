@@ -72,7 +72,7 @@ methods:
   - name: save
     summary: Saves changes to an event permanently.
     description: |
-        This method raises an exception if it is passed an event from another event store.
+        This method raises an exception if it is passed an event from another calendar.
 
         When an event is saved, it is updated in the Calendar database. Any fields you did
         not modify are updated to reflect the most recent value in the database. If the
@@ -94,20 +94,21 @@ methods:
     since: {android: "7.1.0", iphone: "3.1.0", ipad: "3.1.0"}
 
   - name: remove
-    summary: Removes an event from the event store.
+    summary: Removes an event from the calendar.
     description: |
-        This method raises an exception if it is passed an event from another event store.
+        This method raises an exception on iOS if an event from another calendar is used.
     returns:
         type: Boolean
     parameters:
       - name: span
         summary: |
-            The span to use. Indicates whether to remove future instances of the event in
+            iOS-only: The span to use. Indicates whether to remove future instances of the event in
             the case of a recurring event.
         type: Number
         constants: Titanium.Calendar.SPAN_*
         default: <Titanium.Calendar.SPAN_THISEVENT>
-    platforms: [iphone, ipad, macos]
+    since: {android: "12.4.0", iphone: "3.1.0", ipad: "3.1.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: refresh
     summary: Updates the event's data with the current information in the Calendar database.

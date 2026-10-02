@@ -46,7 +46,7 @@
 
 + (NSURL *)resolveFilePathForAppUrl:(NSURL *)appUrl
 {
-  if (![[appUrl scheme] isEqualToString:@"app"]) { //Whoops! We don't need to translate!
+  if (![[appUrl scheme] isEqualToString:@"app"]) { // Whoops! We don't need to translate!
     return appUrl;
   }
 
@@ -135,7 +135,7 @@
 
 - (KrollBridge *)krollBridge
 {
-  //For subclasses
+  // For subclasses
   return nil;
 }
 

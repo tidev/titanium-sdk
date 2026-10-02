@@ -259,7 +259,7 @@ describe.allBroken('Titanium.Contacts.Person', function () {
 		var person = Ti.Contacts.createPerson();
 		should(person.url).not.be.undefined();
 		should(person.url).be.an.Object();
-		// TODO Test modifying the url dictionary?
+		// TODO Test modifying the URL dictionary?
 		// TODO Try unknown keys (known are homepage, home, work, and/or other.)
 		// TODO Test non-string values in the array of values
 	});

@@ -94,7 +94,7 @@
 
 - (id)specified
 {
-  //TODO - Support for default values specified in the DTD.
+  // TODO - Support for default values specified in the DTD.
   if ([node XMLNode]->parent == nil)
     return NUMBOOL(YES);
 

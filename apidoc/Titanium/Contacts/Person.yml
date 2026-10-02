@@ -137,7 +137,7 @@ properties:
     since: {iphone: "5.0.0", ipad: "5.0.0", macos: "9.2.0"}
 
   - name: image
-    summary: Image for the person. Single value. Read-only for >= iOS9
+    summary: Image for the person. Single value. Read-only for >= iOS 9
     description: Set to `null` to remove the image. 
     type: Titanium.Blob
     

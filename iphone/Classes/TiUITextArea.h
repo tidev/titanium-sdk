@@ -27,12 +27,21 @@
   BOOL returnActive;
   BOOL handleLinks;
   NSRange lastSelectedRange;
+  UIControlContentVerticalAlignment verticalAlign;
+  NSInteger linesCount;
+  NSInteger maxRows;
 }
 
 - (void)setShowUndoRedoActions:(id)value;
 
 - (UIView<UITextInputTraits> *)textWidgetView;
 - (void)checkLinkForTouch:(UITouch *)touch;
+- (void)updateVerticalAlignment;
+- (void)setPadding_:(id)args;
+- (void)setVerticalAlign_:(id)value;
+- (void)setScrollable_:(id)value;
+- (void)setLines_:(id)value;
+- (void)setMaxLines_:(id)value;
 
 @end
 

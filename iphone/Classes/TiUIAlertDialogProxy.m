@@ -7,7 +7,9 @@
 
 #import "TiUIAlertDialogProxy.h"
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiWindowProxy.h>
 
 static NSCondition *alertCondition;
 static BOOL alertShowing = NO;
@@ -49,7 +51,9 @@ static BOOL alertShowing = NO;
     [self forgetSelf];
     [self autorelease];
     RELEASE_TO_NIL_AUTORELEASE(alertController);
-    [[[TiApp app] controller] decrementActiveAlertControllerCount];
+    TiApp *app = presentingApp ?: [TiApp app];
+    [[app controller] decrementActiveAlertControllerCount];
+    presentingApp = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
   }
 }
@@ -67,12 +71,40 @@ static BOOL alertShowing = NO;
   }
 }
 
+- (void)setWindow:(id)value
+{
+  if ([value isKindOfClass:[TiWindowProxy class]]) {
+    owningWindowProxy = value;
+  } else {
+    owningWindowProxy = nil;
+  }
+}
+
+- (TiApp *)owningTiApp
+{
+  // If an owning window proxy was explicitly set, use its native window to find the TiApp
+  if (owningWindowProxy != nil && [owningWindowProxy viewAttached]) {
+    UIWindow *nativeWindow = [[owningWindowProxy view] window];
+    if (nativeWindow != nil) {
+      if (@available(iOS 13.0, *)) {
+        TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:nativeWindow];
+        if (app != nil) {
+          return app;
+        }
+      }
+    }
+  }
+
+  // Delegate to inherited owningInstance (uses executionContext.host or view-based lookup)
+  return [self owningInstance];
+}
+
 - (void)show:(id)unused
 {
   ENSURE_UI_THREAD_1_ARG(unused);
   [self rememberSelf];
 
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspended:) name:kTiSuspendNotification object:[self owningTiApp]];
   NSMutableArray *buttonNames = [self valueForKey:@"buttonNames"];
   if (buttonNames == nil || (id)buttonNames == [NSNull null]) {
     buttonNames = [[[NSMutableArray alloc] initWithCapacity:2] autorelease];
@@ -103,7 +135,8 @@ static BOOL alertShowing = NO;
   style = [TiUtils intValue:[self valueForKey:@"style"] def:UIAlertViewStyleDefault];
 
   RELEASE_TO_NIL(alertController);
-  [[[TiApp app] controller] incrementActiveAlertControllerCount];
+  presentingApp = [self owningTiApp];
+  [[presentingApp controller] incrementActiveAlertControllerCount];
 
   alertController = [[UIAlertController alertControllerWithTitle:[TiUtils stringValue:[self valueForKey:@"title"]]
                                                          message:[TiUtils stringValue:[self valueForKey:@"message"]]
@@ -115,12 +148,10 @@ static BOOL alertShowing = NO;
     [[alertController view] setTintColor:[[TiUtils colorValue:tintColor] color]];
   }
 
-#if IS_SDK_IOS_16
   if ([TiUtils isIOSVersionOrGreater:@"16.0"]) {
     UIAlertControllerSeverity severity = [TiUtils intValue:[self valueForKey:@"severity"] def:UIAlertControllerSeverityDefault];
     alertController.severity = severity;
   }
-#endif
 
   // Configure the Buttons
   for (id btn in buttonNames) {
@@ -151,7 +182,7 @@ static BOOL alertShowing = NO;
     [alertController setPreferredAction:[[alertController actions] objectAtIndex:preferredIndex]];
   }
 
-  //Configure the TextFields
+  // Configure the TextFields
   if ((style == UIAlertViewStylePlainTextInput) || (style == UIAlertViewStyleSecureTextInput)) {
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
       textField.secureTextEntry = (style == UIAlertViewStyleSecureTextInput);
@@ -180,7 +211,7 @@ static BOOL alertShowing = NO;
   }
 
   [self retain];
-  [[TiApp app] showModalController:alertController animated:YES];
+  [presentingApp showModalController:alertController animated:YES];
 }
 
 - (void)suspended:(NSNotification *)note

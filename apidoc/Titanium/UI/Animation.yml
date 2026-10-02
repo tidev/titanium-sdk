@@ -189,12 +189,22 @@ properties:
     platforms: [iphone, ipad, macos]
     since: "8.1.0"
 
+  - name: bounce
+    summary: The animation bounce. If set, the animation uses the iOS 17+ spring animation.
+    description: |
+        When `bounce` is 0, there are no bounces, positive values indicate increasing amounts of bounciness up to a maximum
+        of 1.0 (corresponding to undamped oscillation), and negative values indicate overdamped springs with a minimum value of -1.0.
+    type: Number
+    platforms: [iphone, ipad, macos]
+    since: "12.2.0"
+    osver: { ios: { min: "17.0" } }
+
   - name: top
     summary: Value of the `top` property at the end of the animation.
     type: Number
 
   - name: transform
-    summary: Animate the view from its current tranform to the specified transform.
+    summary: Animate the view from its current transform to the specified transform.
     description: |
         Over the course of the animation, the view interpolates from its current transform to the
         specified transform.
@@ -207,7 +217,7 @@ properties:
     description: |
         The new view being transitioned to **should NOT** be a child of another view or
         of the animating view. The animation replaces the current view from the
-        view heirarchy and adds the new view to it.
+        view hierarchy and adds the new view to it.
     type: Number
     constants: Titanium.UI.iOS.AnimationStyle.*
     platforms: [iphone, ipad, macos]
@@ -220,7 +230,7 @@ properties:
 
         The new view being transitioned to **should NOT** be a child of another view or
         of the animating view. The animation replaces the current view from the
-        view heirarchy and adds the new view to it.
+        view hierarchy and adds the new view to it.
     type: Titanium.UI.View
     platforms: [iphone, ipad, macos]
 

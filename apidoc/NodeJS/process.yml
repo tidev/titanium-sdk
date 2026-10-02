@@ -61,7 +61,7 @@ properties:
   - name: env
     type: Object
     summary: |
-        This is an object whose keys are environment variable names and whose values are the related environmnet variable values.
+        This is an object whose keys are environment variable names and whose values are the related environment variable values.
 
         In Titanium, we will pass along environment variables from the system/CLI to the app for `'development'` builds,
         *but will not do so for `'production'` builds!*

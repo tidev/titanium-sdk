@@ -51,8 +51,7 @@ public class KrollDict extends HashMap<String, Object>
 			if (value instanceof JSONObject) {
 				return new KrollDict((JSONObject) value);
 
-			} else if (value instanceof JSONArray) {
-				JSONArray array = (JSONArray) value;
+			} else if (value instanceof JSONArray array) {
 				Object[] values = new Object[array.length()];
 				for (int i = 0; i < array.length(); i++) {
 					values[i] = fromJSON(array.get(i));

@@ -150,7 +150,7 @@ public class TiBaseService extends Service
 		/**
 		 * Called just before the JavaScript runtime is terminated.
 		 * <p>
-		 * Stops the service since the JavaScript file binded to it can no longer control it.
+		 * Stops the service since the JavaScript file bound to it can no longer control it.
 		 * @param runtime The runtime instance that is about to be terminated/disposed.
 		 */
 		@Override

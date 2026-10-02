@@ -99,9 +99,8 @@ public class KrollAnnotationUtils
 	{
 		if (value instanceof DeclaredType) {
 			return ((DeclaredType) value).asElement().asType().toString();
-		} else if (value instanceof List) {
+		} else if (value instanceof List list) {
 			ArrayList newList = new ArrayList();
-			List list = (List) value;
 			ListIterator iter = list.listIterator();
 			while (iter.hasNext()) {
 				AnnotationValue item = (AnnotationValue) iter.next();
