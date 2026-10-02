@@ -24,7 +24,7 @@ const TITANIUM_PREP_LOCATIONS = [
 	'android/titanium_prep.linux32',
 	'android/titanium_prep.linux64',
 	'android/titanium_prep.macos',
-	'iphone/titanium_prep'
+	'iphone/ti_prep'
 ];
 
 /**
