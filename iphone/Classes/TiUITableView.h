@@ -51,6 +51,8 @@
   BOOL animateHide;
   BOOL editable;
   BOOL moveable;
+  BOOL snapping;
+  BOOL isScrollingToTop;
   NSMutableArray *sectionIndex;
   NSMutableDictionary *sectionIndexMap;
   TiDimension rowHeight;

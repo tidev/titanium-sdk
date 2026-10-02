@@ -39,6 +39,7 @@ extern void UIColorFlushCache(void);
 - (void)checkBackgroundServices;
 - (void)appBoot;
 - (void)finishBoot;
+- (void)shutdownSceneRuntime;
 - (void)handleSceneConnectionOptions:(UISceneConnectionOptions *)connectionOptions;
 - (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
 @end
@@ -336,7 +337,7 @@ extern void UIColorFlushCache(void);
       UIUserInterfaceIdiom imageIdiom;
 
       UIImage *defaultImage = [controller defaultImageForOrientation:
-                                              (UIDeviceOrientation)[[UIApplication sharedApplication] statusBarOrientation]
+                                              (UIDeviceOrientation)[TiUtils interfaceOrientationForScene:window.windowScene]
                                                 resultingOrientation:&imageOrientation
                                                                idiom:&imageIdiom];
       [(UIImageView *)splashScreenView setImage:defaultImage];
@@ -1316,6 +1317,29 @@ extern void UIColorFlushCache(void);
   return kjsBridge;
 }
 
+- (void)rebootApp
+{
+  UIWindowScene *windowScene = window.windowScene;
+  if (windowScene == nil) {
+    NSLog(@"[ERROR] LiveView restart failed: no UIWindowScene found");
+    return;
+  }
+
+  // Restart only this runtime, preserving its scene, proxy identity and launch options.
+  [[self retain] autorelease];
+  [[windowScene retain] autorelease];
+  NSMutableDictionary *options = [launchOptions mutableCopy];
+  [self shutdownSceneRuntime];
+  launchOptions = options ?: [[NSMutableDictionary alloc] init];
+  window = [[TiWindow alloc] initWithWindowScene:windowScene];
+
+  // Initialize controller with the new window
+  [self initController];
+
+  // Boot the fresh JS runtime
+  [self boot];
+}
+
 #pragma mark UIWindowSceneDelegate
 
 - (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options
@@ -1618,10 +1642,23 @@ extern void UIColorFlushCache(void);
   // The registry and bridge both retain this host; keep it alive throughout teardown.
   [[self retain] autorelease];
   TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
-  [registry cancelSceneRequestsForOwner:self];
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiSceneDismissNotification
                                                       object:self
                                                     userInfo:@{ @"scene" : _sceneId }];
+  [self shutdownSceneRuntime];
+  TiApp *application = [TiApp applicationInstance];
+  [registry unregisterTiAppForSceneUUID:_sceneId];
+  if (sharedApp == self) {
+    sharedApp = [registry primaryScene];
+  }
+  if (registry.sceneCount == 0 && application != nil) {
+    application->appBooted = NO;
+  }
+}
+
+- (void)shutdownSceneRuntime
+{
+  [[TiSceneRegistry sharedRegistry] cancelSceneRequestsForOwner:self];
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiWillShutdownNotification object:self];
   [[NSNotificationCenter defaultCenter] postNotificationName:kTiShutdownNotification object:self];
   [self endBackgrounding];
@@ -1644,13 +1681,6 @@ extern void UIColorFlushCache(void);
     if ([delegate isKindOfClass:[TiProxy class]] && [(TiProxy *)delegate _host] == self) {
       [application unregisterApplicationDelegate:delegate];
     }
-  }
-  [registry unregisterTiAppForSceneUUID:_sceneId];
-  if (sharedApp == self) {
-    sharedApp = [registry primaryScene];
-  }
-  if (registry.sceneCount == 0) {
-    application->appBooted = NO;
   }
 }
 

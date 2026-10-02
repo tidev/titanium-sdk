@@ -1632,7 +1632,7 @@ MAKE_SYSTEM_PROP(VIDEO_REPEAT_MODE_ONE, VideoRepeatModeOne);
     } else if (cameraView != nil && customPicker && ![TiUtils boolValue:@"showControls" properties:args def:YES]) {
       // No transforms in popover
       CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-      UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+      UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
       if (!UIInterfaceOrientationIsPortrait(orientation)) {
         screenSize = CGSizeMake(screenSize.height, screenSize.width);
       }

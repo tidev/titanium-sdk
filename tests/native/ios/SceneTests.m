@@ -14,6 +14,8 @@
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiSceneProxy.h>
 #import <TitaniumKit/TiSceneRegistry.h>
+#import <TitaniumKit/TiUtils.h>
+#import <TitaniumKit/TiWindow.h>
 #import <TitaniumKit/TiWindowProxy.h>
 #import <XCTest/XCTest.h>
 
@@ -55,6 +57,31 @@
 - (void)startRuntime {
   kjsBridge = [[TestBridge alloc] initWithHost:self];
   [kjsBridge boot:self url:nil preload:nil];
+}
+- (void)appBoot {
+  [self startRuntime];
+}
+@end
+
+@interface OrientationScene : NSObject
+@property(nonatomic) UIInterfaceOrientation interfaceOrientation;
+@end
+@implementation OrientationScene
+- (id)effectiveGeometry {
+  return self;
+}
+@end
+
+@interface OrientationWindow : UIWindow
+@property(nonatomic, retain) UIWindowScene *reportedScene;
+@end
+@implementation OrientationWindow
+- (UIWindowScene *)windowScene {
+  return self.reportedScene;
+}
+- (void)dealloc {
+  [_reportedScene release];
+  [super dealloc];
 }
 @end
 
@@ -211,6 +238,76 @@
   XCTAssertNil(proxy.tiApp);
   XCTAssertEqualObjects([proxy valueForKey:@"window"], NSNull.null);
   [proxy release];
+}
+- (void)testWindowOrientationUsesItsOwningScene {
+  NSArray *orientations = @[
+    @(UIInterfaceOrientationPortrait), @(UIInterfaceOrientationLandscapeLeft)
+  ];
+  NSArray *apps = @[ self.first, self.second ];
+  for (NSUInteger i = 0; i < apps.count; i++) {
+    TestScene *app = apps[i];
+    [self contextForScene:app];
+    OrientationScene *scene = [[[OrientationScene alloc] init] autorelease];
+    scene.interfaceOrientation = [orientations[i] integerValue];
+    OrientationWindow *window =
+        [[[OrientationWindow alloc] initWithFrame:CGRectZero] autorelease];
+    window.reportedScene = (id)scene;
+    app.window = window;
+    TiWindowProxy *proxy = [[[TiWindowProxy alloc]
+        _initWithPageContext:app.krollBridge] autorelease];
+    XCTAssertEqualObjects([proxy valueForKey:@"orientation"], orientations[i]);
+    // The stand-in supplies geometry only; UIKit teardown needs a real scene or
+    // nil.
+    window.reportedScene = nil;
+    app.window = nil;
+  }
+  XCTAssertEqual([TiUtils interfaceOrientationForScene:nil],
+                 UIInterfaceOrientationUnknown);
+}
+- (void)testRestartPreservesSceneIdentityAndStopsOnlyItsOldRuntime {
+  UIWindowScene *scene = nil;
+  for (UIScene *connectedScene in UIApplication.sharedApplication
+           .connectedScenes) {
+    if ([connectedScene isKindOfClass:UIWindowScene.class]) {
+      scene = (UIWindowScene *)connectedScene;
+      break;
+    }
+  }
+  XCTAssertNotNil(scene, @"Connected scenes: %@",
+                  UIApplication.sharedApplication.connectedScenes);
+  if (scene == nil) {
+    return;
+  }
+  [self contextForScene:self.first];
+  [self contextForScene:self.second];
+  self.second.window =
+      [[[TiWindow alloc] initWithWindowScene:scene] autorelease];
+  [self.second initController];
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiSceneProxy *proxy = [registry sceneProxyForUUID:self.second.sceneId];
+  KrollContext *oldContext = [self.second.krollBridge.krollContext retain];
+  KrollBridge *firstBridge = self.first.krollBridge;
+  NSMutableDictionary *options = (id)self.second.launchOptions;
+  options[@"url"] = @"test://restart";
+  [self.second rebootApp];
+  XCTAssertFalse(oldContext.running);
+  XCTAssertEqual(self.first.krollBridge, firstBridge);
+  XCTAssertTrue(firstBridge.krollContext.running);
+  XCTAssertEqual(self.second.window.windowScene, scene);
+  XCTAssertTrue([self.second.window isKindOfClass:TiWindow.class]);
+  XCTAssertEqual([registry sceneProxyForUUID:self.second.sceneId], proxy);
+  XCTAssertEqual(registry.sceneCount, 2u);
+  XCTAssertEqualObjects(self.second.launchOptions[@"url"], @"test://restart");
+  XCTestExpectation *restarted =
+      [self expectationWithDescription:@"scene runtime restarted"];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    XCTAssertEqual(oldContext.context, NULL);
+    XCTAssertTrue(self.second.krollBridge.krollContext.running);
+    XCTAssertTrue(self.second.appBooted);
+    [restarted fulfill];
+  });
+  [self waitForExpectations:@[ restarted ] timeout:2];
+  [oldContext release];
 }
 - (void)testRequestsSettleByIdentifierAndBindTheProxy {
   JSContext *context = [self contextForScene:self.first];

@@ -30,13 +30,11 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @implementation AppModule
 
-#if defined(DEBUG) || defined(DEVELOPER)
-
 - (void)_restart:(id)unused
 {
   TiThreadPerformOnMainThread(
       ^{
-        [[[self owningInstance] controller] shutdownUi:self];
+        [[self owningInstance] rebootApp];
       },
       NO);
 }
@@ -44,7 +42,7 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)_resumeRestart:(id)unused
 {
   UIApplication *app = [UIApplication sharedApplication];
-  TiApp *appDelegate = [TiApp app];
+  TiApp *appDelegate = [self owningInstance];
 #ifndef TI_USE_AUTOLAYOUT
   [TiLayoutQueue resetQueue];
 #endif
@@ -74,14 +72,14 @@ extern NSString *const TI_APPLICATION_GUID;
   NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:[appDelegate krollBridge]];
   [nc postNotification:notification];
 
+  /* Reboot via scene-aware method (creates new window, controller, and bridge) */
+  [appDelegate rebootApp];
+
   /* Begin foregrounding simulation */
-  [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
   [appDelegate applicationWillEnterForeground:app];
   [appDelegate applicationDidBecomeActive:app];
   /* End foregrounding simulation */
 }
-
-#endif
 
 - (void)dealloc
 {

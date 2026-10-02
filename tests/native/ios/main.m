@@ -12,12 +12,22 @@
 @implementation SceneTestApplication
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)options {
-  self.window =
-      [[[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds] autorelease];
-  self.window.rootViewController =
-      [[[UIViewController alloc] init] autorelease];
-  [self.window makeKeyAndVisible];
   return YES;
+}
+@end
+
+@interface SceneTestWindowDelegate : NSObject <UIWindowSceneDelegate>
+@end
+@implementation SceneTestWindowDelegate
+- (void)scene:(UIScene *)scene
+    willConnectToSession:(UISceneSession *)session
+                 options:(UISceneConnectionOptions *)options {
+  TiApp *application = [TiApp applicationInstance];
+  application.window = [[[UIWindow alloc]
+      initWithWindowScene:(UIWindowScene *)scene] autorelease];
+  application.window.rootViewController =
+      [[[UIViewController alloc] init] autorelease];
+  [application.window makeKeyAndVisible];
 }
 @end
 

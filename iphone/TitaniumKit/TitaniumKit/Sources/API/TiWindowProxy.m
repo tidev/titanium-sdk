@@ -569,7 +569,7 @@
 
 - (NSNumber *)orientation
 {
-  return NUMINT([UIApplication sharedApplication].statusBarOrientation);
+  return NUMINT([TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene]);
 }
 
 - (void)forceNavBarFrame

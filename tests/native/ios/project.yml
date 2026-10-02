@@ -24,7 +24,10 @@ targets:
           UIApplicationSupportsMultipleScenes: false
           UISceneConfigurations:
             UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: SceneTestWindowDelegate
               - UISceneConfigurationName: Secondary
+                UISceneDelegateClassName: SceneTestWindowDelegate
         UIBackgroundModes: [fetch, remote-notification]
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
     dependencies:
