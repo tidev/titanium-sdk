@@ -14,8 +14,6 @@ import org.appcelerator.titanium.util.TiConvert;
 public class AttributedStringRoundBackground extends ReplacementSpan implements LineHeightSpan
 {
 
-	private static int cornerRadius = 12;
-
 	int paddingTop = 2;
 	int paddingRight = 8;
 	int paddingBottom = 2;
@@ -25,6 +23,7 @@ public class AttributedStringRoundBackground extends ReplacementSpan implements 
 
 	private static final float MAGIC_NUMBER = convertDptoPx(2);
 
+	private final int cornerRadius;
 	private final int mBackgroundColor;
 	private final int mTextColor;
 	private final float mTextSize;
