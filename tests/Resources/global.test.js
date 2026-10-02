@@ -13,4 +13,49 @@ describe('global', function () {
 	it('exists at top-level', function () {
 		should(global).be.an.Object();
 	});
+
+	describe('.onunhandledrejection', function () {
+		afterEach(function () {
+			global.onunhandledrejection = null;
+		});
+
+		it.android('fires for a rejection without a handler', function (finish) {
+			const reason = new Error('unhandled');
+			global.onunhandledrejection = function (event) {
+				if (event.reason !== reason) {
+					return;
+				}
+				event.preventDefault();
+				try {
+					should(event.type).eql('unhandledrejection');
+					should(event.promise).be.a.Promise();
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			};
+			Promise.reject(reason);
+		});
+
+		it.android('does not fire when a queued microtask attaches the catch', function (finish) {
+			const reason = new Error('handled-in-microtask');
+			let fired = false;
+			global.onunhandledrejection = function (event) {
+				if (event.reason === reason) {
+					event.preventDefault();
+					fired = true;
+				}
+			};
+			const promise = Promise.reject(reason);
+			Promise.resolve().then(() => promise.catch(() => {}));
+			setTimeout(function () {
+				try {
+					should(fired).be.false();
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			}, 100);
+		});
+	});
 });

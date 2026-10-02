@@ -43,9 +43,9 @@ public:
 
 	// Unhandled promise rejection tracking
 	static void PromiseRejectCallback(PromiseRejectMessage message);
-	static void FireUnhandledRejections(void* data);
+	static void FireUnhandledRejections(Isolate* isolate, void* data);
 	static std::vector<v8::Global<Promise>> pendingRejections;
-	static bool microtaskEnqueued;
+	static bool firingRejections;
 };
 }
 ;

@@ -45,7 +45,7 @@ bool V8Runtime::DBG = false;
 bool V8Runtime::initialized = false;
 
 std::vector<v8::Global<Promise>> V8Runtime::pendingRejections;
-bool V8Runtime::microtaskEnqueued = false;
+bool V8Runtime::firingRejections = false;
 
 typedef std::unique_ptr<v8::ArrayBuffer::Allocator> V8ArrayBufferAllocator;
 V8ArrayBufferAllocator v8Allocator;
@@ -189,13 +189,9 @@ void V8Runtime::PromiseRejectCallback(PromiseRejectMessage message)
 
 	if (event == kPromiseRejectWithNoHandler) {
 		// Promise rejected with no handler attached yet.
-		// Track it and enqueue a microtask to fire the event.
+		// Track it. FireUnhandledRejections() reports it once the microtask queue has drained,
+		// so a handler attached from a queued microtask still counts as handled.
 		pendingRejections.push_back(v8::Global<Promise>(isolate, promise));
-
-		if (!microtaskEnqueued) {
-			microtaskEnqueued = true;
-			isolate->EnqueueMicrotask(FireUnhandledRejections, nullptr);
-		}
 	} else if (event == kPromiseHandlerAddedAfterReject) {
 		// A handler was attached to a previously rejected promise.
 		// Remove it from the pending vector — no event should fire.
@@ -240,27 +236,23 @@ static void PreventDefaultCallback(const FunctionCallbackInfo<Value>& args)
 	args.This()->Set(context, STRING_NEW(isolate, "defaultPrevented"), v8::True(isolate));
 }
 
-void V8Runtime::FireUnhandledRejections(void* data)
+// Runs after every microtask checkpoint, once the microtask queue is empty.
+void V8Runtime::FireUnhandledRejections(Isolate* isolate, void* data)
 {
-	Isolate* isolate = V8Runtime::v8_isolate;
-	if (isolate == nullptr || pendingRejections.empty()) {
-		microtaskEnqueued = false;
+	// Calling the handler below runs a nested checkpoint, which re-enters this callback.
+	// The outer loop picks up anything rejected in the meantime.
+	if (firingRejections || pendingRejections.empty()) {
 		return;
 	}
 
 	HandleScope handleScope(isolate);
 	Local<Context> context = V8Runtime::GlobalContext();
 	if (context.IsEmpty()) {
-		microtaskEnqueued = false;
 		return;
 	}
 	Context::Scope contextScope(context);
 
-	// Process all pending unhandled rejections.
-	// Move the vector out first since the handler may trigger new rejections.
-	std::vector<v8::Global<Promise>> rejections;
-	rejections.swap(pendingRejections);
-	microtaskEnqueued = false;
+	firingRejections = true;
 
 	Local<Object> global = context->Global();
 
@@ -276,13 +268,17 @@ void V8Runtime::FireUnhandledRejections(void* data)
 		}
 	}
 
-	for (auto& globalPromise : rejections) {
+	// Take one promise at a time and leave the rest in pendingRejections, so that
+	// PromiseRejectCallback can still remove a promise that a handler call catches.
+	while (!pendingRejections.empty()) {
+		v8::Global<Promise> globalPromise = std::move(pendingRejections.front());
+		pendingRejections.erase(pendingRejections.begin());
 		if (globalPromise.IsEmpty()) {
 			continue;
 		}
 
 		Local<Promise> promise = globalPromise.Get(isolate);
-		if (promise.IsEmpty() || promise->State() != Promise::kRejected) {
+		if (promise.IsEmpty() || promise->State() != Promise::kRejected || promise->HasHandler()) {
 			continue;
 		}
 
@@ -325,7 +321,7 @@ void V8Runtime::FireUnhandledRejections(void* data)
 		}
 	}
 
-	// The Global<Promise> handles in 'rejections' release when the vector goes out of scope.
+	firingRejections = false;
 }
 
 } // namespace titanium
@@ -376,6 +372,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		isolate->AddMessageListener(logV8Exception);
 		// Track unhandled promise rejections and fire global.onunhandledrejection.
 		isolate->SetPromiseRejectCallback(V8Runtime::PromiseRejectCallback);
+		isolate->AddMicrotasksCompletedCallback(V8Runtime::FireUnhandledRejections, nullptr);
 		// isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
 		// isolate->SetAutorunMicrotasks(false);
 		// isolate->SetFatalErrorHandler(OnFatalError);
@@ -619,7 +616,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeDi
 			globalPromise.Reset();
 		}
 		V8Runtime::pendingRejections.clear();
-		V8Runtime::microtaskEnqueued = false;
+		V8Runtime::firingRejections = false;
 
 		V8Runtime::GlobalContext()->DetachGlobal();
 	}
