@@ -161,7 +161,7 @@ describe('console', function () {
 		it('increases indent by 2 spaces', () => {
 			// FIXME: We can't just hijack console.log, because that's where we handle the indents!
 			// Maybe we need to add the constructor stuff so we can create a console hooked to our own "stream"?
-			// Note that we don't have a great mapping to stdout/stderr, because android has actual log priorities that map to the Ti.API/console methods
+			// Note that we don't have a great mapping to stdout/stderr, because Android has actual log priorities that map to the Ti.API/console methods
 			// Whereas Node assumes a "dumb" stdout without specific priorities
 			// instead it treats log/debug/info/dirxml as -> stdout, warn/error as -> stderr
 			const logs = [];
@@ -334,7 +334,7 @@ describe('console', function () {
 
 		// TODO: How do we test if a stream throws an async error?
 
-		it('doesnt handle sync errors on stdout write if ignoreErrors is false', () => {
+		it('doesn\'t handle sync errors on stdout write if ignoreErrors is false', () => {
 			const events = require('events');
 			const stdout = new events.EventEmitter();
 			stdout.write = function () {

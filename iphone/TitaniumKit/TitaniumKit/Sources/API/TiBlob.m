@@ -413,7 +413,7 @@ GETTER_IMPL(NSUInteger, length, Length);
 
 - (TiBlob *)imageAsResized:(NSUInteger)width withHeight:(NSUInteger)height
 {
-  // How do we test that they didn't send us a "bad" value (i.e. negative, or double/float)? It'll get coerced here. Do we care?
+  // How do we test that they didn't send us a "bad" value (e.g. negative, or double/float)? It'll get coerced here. Do we care?
   if (isnan(width)) {
     THROW_INVALID_ARG(@"width argument must be an integer value");
   }

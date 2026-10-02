@@ -306,7 +306,9 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   result = [(TiLayoutView *)[self currentRowContainerView] heightIfWidthWere:width];
   result = result == 0 ? 0 : result + 1;
 #endif
-  return (result == 0) ? [table tableRowHeight:0] : result;
+  // 0 is a real height now (an explicit height:0 collapses the row), so ask the
+  // table for its default with a negative sentinel rather than 0.
+  return (result == 0) ? [table tableRowHeight:-1] : result;
 }
 
 - (void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
@@ -597,7 +599,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   }
   RELEASE_TO_NIL(rowContainerView);
 
-  // ... But that's not enough. We need to detatch the views
+  // ... But that's not enough. We need to detach the views
   // for all children of the row, to clean up memory.
   for (TiViewProxy *child in [self children]) {
     [child detachView];
@@ -691,6 +693,9 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       [rowContainerView setFrame:rect];
       [contentView addSubview:rowContainerView];
     }
+    // Keep children inside the row bounds, otherwise a collapsed (height:0)
+    // or shrunken row still draws its content over the neighbouring rows.
+    [rowContainerView setClipsToBounds:YES];
 #ifdef TI_USE_AUTOLAYOUT
     [rowContainerView performSelector:@selector(updateWidthAndHeight)];
 #endif
@@ -866,7 +871,7 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   return dict;
 }
 
-// TODO: Remove when deprication is done.
+// TODO: Remove when deprecation is done.
 - (void)fireEvent:(NSString *)type withObject:(id)obj withSource:(id)source propagate:(BOOL)propagate reportSuccess:(BOOL)report errorCode:(int)code message:(NSString *)message;
 {
   // merge in any row level properties for the event

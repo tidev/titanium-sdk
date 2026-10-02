@@ -8,7 +8,6 @@
 #import "TiRect.h"
 #import "TiUIView.h"
 #import "TiViewTemplate.h"
-#import <pthread.h>
 
 /**
  Protocol for views that can receive keyboard focus.
@@ -88,7 +87,7 @@ enum {
 
 /**
  The class represents a proxy that is attached to a view.
- The class is not intended to be overriden.
+ The class is not intended to be overridden.
  */
 @interface TiViewProxy : TiProxy <LayoutAutosizing> {
   @protected
@@ -105,7 +104,7 @@ enum {
 
 #pragma mark Parent/Children relationships
   TiViewProxy *parent;
-  pthread_rwlock_t childrenLock;
+  dispatch_queue_t childrenQueue;
   NSMutableArray *children;
   //	NSMutableArray *pendingAdds;
 
@@ -131,7 +130,7 @@ enum {
   // Use parentWillShow and parentWillHide to set this.
 
 #pragma mark Housecleaning that is set and used
-  NSRecursiveLock *destroyLock;
+  dispatch_queue_t destroyQueue;
 
   BOOL windowOpened;
   BOOL windowOpening;
@@ -455,6 +454,12 @@ enum {
  */
 - (void)detachView;
 
+/**
+ Performs a block on the destroy queue, or inline if already executing on it.
+ Subclasses should use this instead of raw dispatch_sync(destroyQueue, ...) to avoid deadlocks.
+ */
+- (void)performOnDestroyQueue:(dispatch_block_t)block;
+
 - (void)destroy;
 
 /**
@@ -534,6 +539,11 @@ enum {
  Tells the view proxy that the attached view's parent will hide.
  */
 - (void)parentWillHide;
+
+/**
+ Tells the view proxy that rendering via the layout queue finished.
+ */
+- (void)didFinishLayout;
 
 #pragma mark Layout actions
 

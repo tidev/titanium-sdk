@@ -80,8 +80,6 @@ import android.widget.AdapterView;
 @SuppressWarnings("deprecation")
 public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListener
 {
-	private static final boolean LOWER_THAN_MARSHMALLOW = (Build.VERSION.SDK_INT < Build.VERSION_CODES.M);
-
 	private static final String TAG = "TiUIView";
 
 	// When distinguishing twofingertap and pinch events, minimum motion (in pixels)
@@ -500,7 +498,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 		animBuilder.applyOptions(options);
 
-		// When using property Animators, we can only use absolute values to specify the anchor point, eg. "50px".
+		// When using property Animators, we can only use absolute values to specify the anchor point, e.g. "50px".
 		// Therefore, we must start the transformation after the layout pass when we get the height and width of the view.
 		if (animBuilder.isUsingPropertyAnimators()) {
 			startTransformAfterLayout(outerView);
@@ -1381,6 +1379,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			children.clear();
 			children = null;
 		}
+		// Clear detector to prevent memory leak
+		detector = null;
+		// Clear touchView WeakReference to prevent memory leak
+		if (touchView != null) {
+			touchView.clear();
+			touchView = null;
+		}
 		proxy = null;
 		layoutParams = null;
 	}
@@ -1527,9 +1532,6 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				}
 
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
-					if (d.containsKey(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
-						disableHWAcceleration();
-					}
 					borderView.setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
 				}
 
@@ -1570,15 +1572,12 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	private void handleBorderProperty(String property, Object value)
 	{
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
-			int color = value != null ? TiConvert.toColor(value.toString(), proxy.getActivity()) : Color.TRANSPARENT;
+			int color = value != null ? TiConvert.toColor(value, proxy.getActivity()) : Color.TRANSPARENT;
 			borderView.setColor(color);
 			if (!proxy.hasProperty(TiC.PROPERTY_BORDER_WIDTH)) {
 				borderView.setBorderWidth(1);
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
-			if (proxy.hasProperty(TiC.PROPERTY_OPACITY) && LOWER_THAN_MARSHMALLOW) {
-				disableHWAcceleration();
-			}
 			borderView.setRadius(value);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
@@ -1806,6 +1805,24 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			int pointersDown = 0;
 			int touchSlop;
 
+			private void doRotationEvent(MotionEvent event)
+			{
+				// Calculate the angle between the two fingers
+				float deltaX = event.getX(0) - event.getX(1);
+				float deltaY = event.getY(0) - event.getY(1);
+				double radians = Math.atan2(deltaY, deltaX);
+				double degrees = Math.toDegrees(radians);
+				if (degrees < 0) {
+					degrees += 360;
+				}
+				if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+					KrollDict data = new KrollDict();
+					data.put(TiC.PROPERTY_ROTATE, degrees);
+					data.put(TiC.EVENT_PROPERTY_SOURCE, proxy);
+					fireEvent(TiC.EVENT_ROTATE, data);
+				}
+			}
+
 			@Override
 			public boolean onTouch(View view, MotionEvent event)
 			{
@@ -1821,6 +1838,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					lastUpEvent.put(TiC.EVENT_PROPERTY_X, xDimension.getAsDefault(view));
 					lastUpEvent.put(TiC.EVENT_PROPERTY_Y, yDimension.getAsDefault(view));
 					lastUpEvent.put(TiC.EVENT_PROPERTY_OBSCURED, wasObscured(event));
+				}
+
+				if (proxy != null && proxy.hierarchyHasListener(TiC.EVENT_ROTATE) && event.getPointerCount() == 2) {
+					doRotationEvent(event);
 				}
 
 				// Do custom "longpress" event tracking. Store motion event data to be used by onLongClick() listener.
@@ -2123,7 +2144,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	}
 
 	/**
-	 * Can be overriden by inheriting views for special click handling.  For example,
+	 * Can be overridden by inheriting views for special click handling.  For example,
 	 * the Facebook module's login button view needs special click handling.
 	 */
 	protected void setOnClickListener(View view)
@@ -2188,7 +2209,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 
 	protected void disableHWAcceleration()
 	{
-		if (this.borderView != null) {
+		if (this.borderView != null && !(proxy.hasProperty("keepHardwareMode")
+			&& TiConvert.toBoolean(proxy.getProperty("keepHardwareMode"), false))
+		) {
 			this.borderView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 		}
 	}

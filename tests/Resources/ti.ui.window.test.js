@@ -246,8 +246,8 @@ describe('Titanium.UI.Window', function () {
 		});
 
 		it.ios('.leftNavButton with default color (no color value) and .rightNavButton with tintColor', finish => {
-			// TO DO: Snapshots for different iPads are different. Can not test with static image.
-			// Probably try with snapshot comparision (with and without color) at run time
+			// TODO: Snapshots for different iPads are different. Can not test with static image.
+			// Probably try with snapshot comparison (with and without color) at run time
 			if (utilities.isMacOS() || utilities.isIPad()) {
 				return finish(); // how to skip for iPad?
 			}
@@ -291,8 +291,8 @@ describe('Titanium.UI.Window', function () {
 		});
 
 		it.ios('.leftNavButton and .rightNavButton  with color and tintColor', finish => {
-			// TO DO: Snapshots for different iPads are different. Can not test with static image.
-			// Probably try with snapshot comparision (with and without color) at run time
+			// TODO: Snapshots for different iPads are different. Can not test with static image.
+			// Probably try with snapshot comparison (with and without color) at run time
 			if (utilities.isMacOS() || utilities.isIPad()) {
 				return finish(); // how to skip for iPad?
 			}
@@ -725,6 +725,19 @@ describe('Titanium.UI.Window', function () {
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
+
+			it.android('called twice before first close finishes resolves both Promises', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff',
+					exitOnClose: false
+				});
+
+				win.open().then(() => {
+					const first = win.close();
+					const second = win.close();
+					return Promise.all([ first, second ]).then(() => finish());
+				}).catch(e => finish(e));
+			});
 		});
 
 		describe('#open()', () => {
@@ -1004,7 +1017,7 @@ describe('Titanium.UI.Window', function () {
 		let thirdWindowOpen = 0;
 		let thirdWindowClose = 0;
 
-		// Create 3 windows in sucession, opening each, then once opened create.open next. Once last one is open,
+		// Create 3 windows in succession, opening each, then once opened create.open next. Once last one is open,
 		// schedule it to be closed, and as it gets closed schedule the one before it to close, etc.
 		// once last window is closed, verify the number of events we get fired on each window (close/open/focus/blur)
 
@@ -1057,7 +1070,7 @@ describe('Titanium.UI.Window', function () {
 			// now wrap up test!
 			try {
 				should(rootWindowFocus).be.eql(2);
-				should(rootWindowBlur).be.eql(2); // FIXME: ios gives us 1 here!
+				should(rootWindowBlur).be.eql(2); // FIXME: iOS gives us 1 here!
 				should(rootWindowOpen).be.eql(1);
 				should(rootWindowClose).be.eql(1);
 
@@ -1200,8 +1213,8 @@ describe('Titanium.UI.Window', function () {
 		win.close();
 		// wait until a window should have opened and fired the event...
 		setTimeout(() => finish(), 1000);
-		// locally android took 106,67,64ms
-		// ios took 1ms repeatedly
+		// locally Android took 106,67,64ms
+		// iOS took 1ms repeatedly
 		// so 1 second should be enough time.
 	});
 

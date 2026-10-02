@@ -64,12 +64,12 @@ methods:
     since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
-        summary: The url to check.
+        summary: The URL to check.
         type: String
 
   - name: cpus
     summary: |
-        Returns an array of basic cpu information for all logical processors
+        Returns an array of basic CPU information for all logical processors
     description: |
         This is intended to provide an implementation similar to Node's `os.cpus()`.
     returns:
@@ -117,7 +117,7 @@ methods:
         type: Boolean
     parameters:
       - name: url
-        summary: The url to open.
+        summary: The URL to open.
         type: String
       - name: options
         summary: |
@@ -359,7 +359,7 @@ properties:
 
   - name: osname
     summary: |
-        Short name of the system's Operating System. Returns `android` for the Android platfrom,
+        Short name of the system's Operating System. Returns `android` for the Android platform,
         `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `windowsphone` for Windows Phone, and `windowsstore` for Windows Store
         platform.
     type: String
@@ -471,7 +471,7 @@ properties:
 
 ---
 name: CPUTimes
-summary: Simple object holding the data for a logical cpu execution times.
+summary: Simple object holding the data for a logical CPU execution times.
 properties:
 
   - name: user

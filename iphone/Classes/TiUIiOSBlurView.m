@@ -20,10 +20,30 @@
     [blurView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [blurView setContentMode:[self contentModeForBlurView]];
 
+    // Let the Titanium view handle touch/click events by default. Interactive glass effects
+    // opt into hit-testing in setGlassEffect_: so UIKit can animate the glass response.
+    [blurView setUserInteractionEnabled:NO];
+
     [self addSubview:blurView];
   }
 
   return blurView;
+}
+
+- (BOOL)touchedContentViewWithEvent:(UIEvent *)event
+{
+  // Interactive glass effects enable user interaction on the effect view, so UIKit hit-tests
+  // it instead of this view. Titanium still needs to process those touches through its
+  // normal raw touch pipeline.
+  if (blurView != nil && blurView.userInteractionEnabled) {
+    for (UITouch *touch in [event allTouches]) {
+      if ([touch.view isDescendantOfView:blurView]) {
+        return YES;
+      }
+    }
+  }
+
+  return [super touchedContentViewWithEvent:event];
 }
 
 #pragma mark Cleanup
@@ -45,8 +65,45 @@
     return;
   }
 
-  [[self blurView] setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
+  UIVisualEffectView *effectView = [self blurView];
+  [effectView setUserInteractionEnabled:NO];
+  [effectView setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
   [[self proxy] replaceValue:value forKey:@"effect" notification:NO];
+}
+
+#if IS_SDK_IOS_26
+- (void)setGlassEffect_:(id)value
+{
+  ENSURE_TYPE_OR_NIL(value, NSDictionary);
+
+  BOOL isInteractive = [TiUtils boolValue:@"interactive" properties:value def:NO];
+  TiColor *tintColor = [TiUtils colorValue:@"tintColor" properties:value def:nil];
+  UIGlassEffectStyle style = [TiUtils intValue:@"style" properties:value def:UIGlassEffectStyleRegular];
+
+  if (@available(iOS 26.0, *)) {
+    UIGlassEffect *glassEffect = [UIGlassEffect effectWithStyle:style];
+    glassEffect.interactive = isInteractive;
+    glassEffect.tintColor = tintColor.color;
+
+    UIVisualEffectView *effectView = [self blurView];
+    [effectView setUserInteractionEnabled:isInteractive];
+    [effectView setEffect:glassEffect];
+    [[self proxy] replaceValue:value forKey:@"glassEffect" notification:NO];
+  }
+}
+#endif
+
+- (void)setBorderRadius_:(NSNumber *)borderRadius
+{
+#if IS_SDK_IOS_26
+  // The UICornerConfiguration is necessary to use the iOS 26+ glass effect API
+  if (@available(iOS 26.0, *)) {
+    blurView.cornerConfiguration = [UICornerConfiguration configurationWithRadius:[UICornerRadius fixedRadius:borderRadius.floatValue]];
+    return;
+  }
+#endif
+
+  [super setBorderRadius_:borderRadius];
 }
 
 - (void)setWidth_:(id)width_

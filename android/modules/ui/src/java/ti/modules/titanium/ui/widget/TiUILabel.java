@@ -169,7 +169,7 @@ public class TiUILabel extends TiUIView
 				MaterialTextView textView = (MaterialTextView) this;
 				Object text = textView.getText();
 
-				//For html texts, we will manually detect url clicks.
+				// For HTML texts, we will manually detect url clicks.
 				if (text instanceof SpannedString) {
 					SpannedString spanned = (SpannedString) text;
 					Spannable buffer = Factory.getInstance().newSpannable(spanned.subSequence(0, spanned.length()));
@@ -343,10 +343,10 @@ public class TiUILabel extends TiUIView
 			boolean hasProperty = false;
 			if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
 				hasProperty = true;
-				Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-				if (attributedString instanceof AttributedStringProxy) {
-					newText = AttributedStringProxy.toSpannable(((AttributedStringProxy) attributedString),
-																TiApplication.getAppCurrentActivity());
+				Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+				AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+				if (proxy != null) {
+					newText = AttributedStringProxy.toSpannable(proxy, TiApplication.getAppCurrentActivity());
 				}
 			}
 			if ((newText == null) && d.containsKey(TiC.PROPERTY_HTML)) {
@@ -400,6 +400,10 @@ public class TiUILabel extends TiUIView
 				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0),
 								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
+		}
+		if (d.containsKey(TiC.PROPERTY_LETTER_SPACING)) {
+			float value = TiConvert.toFloat(d.get(TiC.PROPERTY_LETTER_SPACING));
+			tv.setLetterSpacing(value);
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR)) {
 			Object color = d.get(TiC.PROPERTY_COLOR);
@@ -511,9 +515,9 @@ public class TiUILabel extends TiUIView
 			|| key.equals(TiC.PROPERTY_TITLE)) {
 			CharSequence newText = null;
 			if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-				if (newValue instanceof AttributedStringProxy) {
-					newText = AttributedStringProxy.toSpannable((AttributedStringProxy) newValue,
-																TiApplication.getAppCurrentActivity());
+				AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+				if (asProxy != null) {
+					newText = AttributedStringProxy.toSpannable(asProxy, TiApplication.getAppCurrentActivity());
 				}
 				if (newText == null) {
 					newText = "";
@@ -605,8 +609,11 @@ public class TiUILabel extends TiUIView
 			if (newValue instanceof HashMap) {
 				HashMap dict = (HashMap) newValue;
 				tv.setLineSpacing(TiConvert.toFloat(dict.get(TiC.PROPERTY_ADD), 0),
-								  TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
+					TiConvert.toFloat(dict.get(TiC.PROPERTY_MULTIPLY), 0));
 			}
+		} else if (key.equals(TiC.PROPERTY_LETTER_SPACING)) {
+			float val = TiConvert.toFloat(newValue);
+			tv.setLetterSpacing(val);
 		} else if (key.equals(TiC.PROPERTY_HEIGHT)) {
 			// Update the view's height.
 			// Note: We may need to update lines/maxLines settings when switching to an auto-sized height.
