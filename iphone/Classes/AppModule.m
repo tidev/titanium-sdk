@@ -30,8 +30,6 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @implementation AppModule
 
-#if defined(DEBUG) || defined(DEVELOPER)
-
 - (void)_restart:(id)unused
 {
   TiThreadPerformOnMainThread(
@@ -82,8 +80,6 @@ extern NSString *const TI_APPLICATION_GUID;
   [appDelegate applicationDidBecomeActive:app];
   /* End foregrounding simulation */
 }
-
-#endif
 
 - (void)dealloc
 {
