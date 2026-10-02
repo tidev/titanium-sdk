@@ -38,7 +38,7 @@ This Release introduces a number of new features.  See [New Features](#features)
 a summary of new features in this release.
 
 This release includes over 150 bug fixes and improvements, see the
-[full list of issues that were addressed in Release 4.1.0](https://jira.appcelerator.org/issues/?filter=16879).
+full list of issues that were addressed in Release 4.1.0.
 
 <a name="cli"></a>
 ### CLI 4.1.0
@@ -47,7 +47,7 @@ This Release conincides with the release of Appcelerator CLI 4.1.0.  Notable fix
 the CLI include improvements to use the CLI from behind a proxy server.
 
 For more details, see the
-[CLI Release Notes](https://docs.appcelerator.com/platform/latest/#!/guide/Appcelerator_CLI_Release_Notes).
+[CLI Release Notes](https://titaniumsdk.com/api/).
 
 <a name="ios"></a>
 ### iOS Support
@@ -67,7 +67,7 @@ This Release coincides with the release of Studio 4.1.0.
   * Add ability to create Controllers, Styles and Views for Alloy Widgets.
 
 For more details, see the
-[Studio Release Notes](https://docs.appcelerator.com/platform/latest/#!/guide/Studio_Release_Notes).
+[Studio Release Notes](https://titaniumsdk.com/api/).
 
 <a name="windows_hybrid"></a>
 ### Windows Hybrid Support
@@ -89,11 +89,11 @@ that can be deployed to tablets.
 
 For information on getting started, see:
 
-  * [Installing the Windows Phone SDK](https://docs.appcelerator.com/platform/latest/#!/guide/Installing_the_Windows_Phone_SDK)
-  * [Windows Platform Overview](https://docs.appcelerator.com/platform/latest/#!/guide/Windows_Platform_Overview)
-  * [Windows UI Components and Conventions](https://docs.appcelerator.com/platform/latest/#!/guide/Windows_UI_Components_and_Conventions)
-  * [Deploying to Windows Devices](https://docs.appcelerator.com/platform/latest/#!/guide/Deploying_to_Windows_Devices)
-  * [Distributing Windows Applications](https://docs.appcelerator.com/platform/latest/#!/guide/Distributing_Windows_Applications)
+  * [Installing the Windows Phone SDK](https://titaniumsdk.com/api/)
+  * [Windows Platform Overview](https://titaniumsdk.com/api/)
+  * [Windows UI Components and Conventions](https://titaniumsdk.com/api/)
+  * [Deploying to Windows Devices](https://titaniumsdk.com/api/)
+  * [Distributing Windows Applications](https://titaniumsdk.com/api/)
 
 <a name="features"></a>
 ## New Features
@@ -115,43 +115,43 @@ by using the `hintColorText` property.
 #### HTTP Client
 
 The HTTPClient
-[open method](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network.HTTPClient-method-open)
+[open method](https://titaniumsdk.com/api/)
 now supports the PATCH HTTP verb on Android.
 
 <a name="label"></a>
 #### Label
 
 On Android, the application can set how tall in lines a label can be by using the
-[lines](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Label-property-lines) and
-[maxline](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Label-property-maxLines)
+[lines](https://titaniumsdk.com/api/) and
+[maxline](https://titaniumsdk.com/api/)
 properties.
 
 <a name="android_listview"></a>
 #### List View
 
 In addition to the [List View improvements mentioned below](#list_view), on Android, use List View's
-[separatorHeight](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ListView-property-separatorHeight)
+[separatorHeight](https://titaniumsdk.com/api/)
 property to set the height of the line separator between list items.
 
 <a name="scrollable_view"></a>
 #### Scrollable View
 
 Android now supports the
-[cacheSize](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ScrollableView-property-cacheSize)
+[cacheSize](https://titaniumsdk.com/api/)
 property for ScrollableView.  Previously, the API was only available for iOS.
 
 <a name="audio_player"></a>
 ### Audio Player
 
 On Android, iOS and Windows Phone, the Titanium.Media.AudioPlayer module now fires the
-[error](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media.AudioPlayer-event-error)
+[error](https://titaniumsdk.com/api/)
 event when an error occurs playing the audio stream.
 
 
 <a name="facebook"></a>
 ### Facebook Module
 
-The [requestDialogCompleted event](https://docs.appcelerator.com/platform/latest/#!/api/Modules.Facebook-event-requestDialogCompleted)
+The [requestDialogCompleted event](https://titaniumsdk.com/api/)
 now returns a `data` field containing the response data from Facebook.
 
 <a name="list_view"></a>
@@ -159,8 +159,8 @@ now returns a `data` field containing the response data from Facebook.
 
 This Release introduces several List View improvements for both Android and iOS.
 
-Listen for the [scrollstart](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ListView-event-scrollstart)
-and [scrollend](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ListView-event-scrollend)
+Listen for the [scrollstart](https://titaniumsdk.com/api/)
+and [scrollend](https://titaniumsdk.com/api/)
 to see when the List View starts or stops scrolling, respectively.
 
 List View now supports adding multiple markers, which fires the `marker ` event when the user
@@ -171,9 +171,9 @@ scrolls to it. Previously, you could only set one marker at a time. For more det
 ### Map Module
 
 The Map module now supports adding vector overlays on the map. For details, see the
-[Map.Circle](https://docs.appcelerator.com/platform/latest/#!/api/Modules.Map.Circle),
-[Map.Polygon](https://docs.appcelerator.com/platform/latest/#!/api/Modules.Map.Polygon) and
-[Map.Polyline](https://docs.appcelerator.com/platform/latest/#!/api/Modules.Map.Polyline) classes.
+[Map.Circle](https://titaniumsdk.com/api/),
+[Map.Polygon](https://titaniumsdk.com/api/) and
+[Map.Polyline](https://titaniumsdk.com/api/) classes.
 
 
 <a name="new_ios"></a>
@@ -186,8 +186,8 @@ This section lists new features and improvements only available on the iOS platf
 
 As of this Release, the application can set and read file protection attributes.  Use the
 Titanium.Filesystem.File objects
-[setProtectionKey()](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Filesystem.File-method-setProtectionKey) and
-[getProtectionKey()](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Filesystem.File-method-getProtectionKey)
+[setProtectionKey()](https://titaniumsdk.com/api/) and
+[getProtectionKey()](https://titaniumsdk.com/api/)
 methods to set and read the file object's protection attributes, respectively.
 
 
@@ -205,21 +205,21 @@ For details, see
 #### Tab
 
 On iOS, the application can set the title color of the active tab or inactive tabs by using the Tab object's
-[activeTitleColor](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Tab-property-activeTitleColor)
-and [titleColor](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Tab-property-titleColor)
+[activeTitleColor](https://titaniumsdk.com/api/)
+and [titleColor](https://titaniumsdk.com/api/)
 properties, respectively.
 
 <a name="region_locale"></a>
 ### Region Locale
 
 The Internationalization framework for Android and iOS now supports region locales. For details, see the
-[Internationalization guide](https://docs.appcelerator.com/platform/latest/#!/guide/Internationalization-section-29004892_Internationalization-Languagestrings).
+[Internationalization guide](https://titaniumsdk.com/api/).
 
 <a name="uncaught_errors"></a>
 ### Uncaught Errors
 
 The application can now catch and respond to unhandled JavaScript errors.  Listen for the Titanium.App
-[uncaughtException event](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.App-event-uncaughtException).
+[uncaughtException event](https://titaniumsdk.com/api/).
 
 
 <a name="known_issues"></a>

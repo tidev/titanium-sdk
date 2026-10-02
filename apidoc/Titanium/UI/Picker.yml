@@ -3,9 +3,9 @@ name: Titanium.UI.Picker
 summary: |
     A control used to select one or more fixed values.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./picker_android.png) | ![iOS](./picker_ios.png) | ![Windows](./picker_wp.gif) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./picker_android.png) | ![iOS](./picker_ios.png) |
 
     Use the <Titanium.UI.createPicker> method or Alloy **`<Picker>`** element to create a picker control.
 
@@ -205,6 +205,9 @@ properties:
     summary: Background color of the picker, as a color name or hex triplet.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
+
+        Android: If you want to change the backgroundColor you have to set the `borderStyle` to
+        `Ti.UI.INPUT_BORDERSTYLE_ROUNDED` or `Ti.UI.INPUT_BORDERSTYLE_NONE`
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
     since: { iphone: "5.2.0", ipad: "5.2.0", android: "0.9.0"}
@@ -216,7 +219,7 @@ properties:
         This is an Android only property which only applies to pickers of type:
 
         * [PICKER_TYPE_DATE](Titanium.UI.PICKER_TYPE_DATE) or [PICKER_TYPE_TIME](Titanium.UI.PICKER_TYPE_TIME)
-        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to 
+        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to
         [DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT).
 
         * [PICKER_TYPE_PLAIN](Titanium.UI.PICKER_TYPE_PLAIN) that also have property
@@ -279,11 +282,26 @@ properties:
     since: "5.2.0"
     default: "black"
 
+  - name: overrideUserInterfaceStyle
+    summary: Forces the picker to used assigned theme instead of the system theme.
+    description: |
+        When set to [USER_INTERFACE_STYLE_DARK](Titanium.UI.USER_INTERFACE_STYLE_DARK) or
+        [USER_INTERFACE_STYLE_LIGHT](Titanium.UI.USER_INTERFACE_STYLE_LIGHT), the picker will ignore
+        the system's current theme and use the theme assigned to this property instead.
+
+        When set to [USER_INTERFACE_STYLE_UNSPECIFIED](Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED),
+        the picker will use the system's current theme.
+    type: Number
+    default: Titanium.UI.USER_INTERFACE_STYLE_UNSPECIFIED
+    constants: Titanium.UI.USER_INTERFACE_STYLE_*
+    osver: {ios: {min: "13.0"}}
+    since: "12.4.0"
+
   - name: format24
     summary: |
         Determines whether the Time pickers display in 24-hour or 12-hour clock format.
     description: |
-        Only applcable to pickers of type <Titanium.UI.PICKER_TYPE_TIME>.
+        Only applicable to pickers of type <Titanium.UI.PICKER_TYPE_TIME>.
 
         When this property is set `true`, a time picker is displayed with hours 0 through 23.
         When set `false`, hours will be 1 through 12 with am/pm controls.
@@ -297,7 +315,7 @@ properties:
         This is an Android only property which only applies to pickers of type:
 
         * [PICKER_TYPE_DATE](Titanium.UI.PICKER_TYPE_DATE) or [PICKER_TYPE_TIME](Titanium.UI.PICKER_TYPE_TIME)
-        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to 
+        that also have [datePickerStyle](Titanium.UI.Picker.datePickerStyle) set to
         [DATE_PICKER_STYLE_COMPACT](Titanium.UI.DATE_PICKER_STYLE_COMPACT).
 
         * [PICKER_TYPE_PLAIN](Titanium.UI.PICKER_TYPE_PLAIN) that also have property
@@ -391,6 +409,15 @@ properties:
     platforms: [android]
     since: "5.0.0"
 
+  - name: textAlign
+    summary: |
+        Horizontal text alignment of the date picker when using <Titanium.UI.PICKER_TYPE_DATE>.
+    type: [String, Number]
+    constants: Titanium.UI.TEXT_ALIGNMENT_*
+    default: <Titanium.UI.TEXT_ALIGNMENT_LEFT>,
+    platforms: [android]
+    since: "12.4.0"
+
   - name: datePickerStyle
     summary: Determines how a date or time picker should appear.
     description: |
@@ -420,7 +447,7 @@ properties:
     default: <Titanium.UI.PICKER_TYPE_PLAIN>
 
   - name: useSpinner
-    summary: Determines if a multicolumn spinner or single column drop-down picker should be used.
+    summary: Determines if a multi-column spinner or single column drop-down picker should be used.
     description: |
         This property is intended to be used by plain picker types. When set on date/time pickers,
         this property will override the [datePickerStyle](Titanium.UI.Picker.datePickerStyle) property.
@@ -439,7 +466,7 @@ properties:
     platforms: [android]
 
   - name: nativeSpinner
-    summary: Determines if a multicolumn spinner or single column drop-down picker should be used.
+    summary: Determines if a multi-column spinner or single column drop-down picker should be used.
     description: |
         This property is intended to be used by time picker types.
 
@@ -514,6 +541,13 @@ properties:
         for android, and <Titanium.UI.PickerRow> for iphone / ipad.
     type: Font
     platforms: [android]
+
+  - name: color
+    summary: Text color of the Picker
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    availability: creation
+    since: { android: "12.0.0"}
 
 examples:
   - title: Multi-Column Picker using Alloy XML Markup

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -71,7 +71,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 	private final Handler mainHandler = new Handler(Looper.getMainLooper(), this);
 	private static final int START = 10002;
 	private static final int STOP = 10003;
-	private static final int SET_TINT = 10004;
 
 	public TiUIImageView(final TiViewProxy proxy)
 	{
@@ -187,9 +186,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			case STOP:
 				handleStop();
 				return true;
-			case SET_TINT:
-				handleTint((String) msg.obj);
-				return true;
 			default:
 				return false;
 		}
@@ -301,7 +297,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					}
 					if (paused && !Thread.currentThread().isInterrupted()) {
 						try {
-							Log.i(TAG, "Pausing", Log.DEBUG_MODE);
+							Log.d(TAG, "Pausing", Log.DEBUG_MODE);
 							// User backed-out while animation running
 							if (loader == null) {
 								break;
@@ -312,7 +308,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 								wait();
 							}
 
-							Log.i(TAG, "Waking from pause.", Log.DEBUG_MODE);
+							Log.d(TAG, "Waking from pause.", Log.DEBUG_MODE);
 							// In the meantime, while paused, user could have backed out, which leads
 							// to release(), which in turn leads to nullified imageSources.
 							if (imageSources == null) {
@@ -776,7 +772,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
-			setTintColor(d.getString("tintColor"));
+			view.setTintColor(d.get(TiC.PROPERTY_TINT_COLOR));
 		}
 
 		super.processProperties(d);
@@ -820,6 +816,8 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 					setImages();
 				}
 			}
+		} else if (key.equals(TiC.PROPERTY_TINT_COLOR)) {
+			view.setTintColor(newValue);
 		} else {
 			if (key.equals(TiC.PROPERTY_WIDTH)) {
 				String widthProperty = TiConvert.toString(newValue);
@@ -907,28 +905,6 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 
 		return null;
-	}
-
-	public void setTintColor(String color)
-	{
-		if (!TiApplication.isUIThread()) {
-			Message message = mainHandler.obtainMessage(SET_TINT, color);
-			message.sendToTarget();
-		} else {
-			handleTint(color);
-		}
-	}
-
-	public void handleTint(String color)
-	{
-		TiImageView view = getView();
-		view.setTintColor(color);
-	}
-
-	public int getTintColor()
-	{
-		TiImageView view = getView();
-		return view.getTintColor();
 	}
 
 	@Override

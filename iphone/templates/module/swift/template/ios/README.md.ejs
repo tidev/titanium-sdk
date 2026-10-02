@@ -1,4 +1,4 @@
-# Axway Titanium iOS Project
+# Titanium iOS Project
 
 This is a skeleton Titanium iOS module project. Modules can be used to extend 
 the functionality of Titanium by providing additional native code that is compiled 
@@ -57,6 +57,31 @@ in the main application project.
 
 For more information about this file, please see the [Apple documentation](https://developer.apple.com/library/content/featuredarticles/XcodeConcepts/Concept-Build_Settings.html).
 
+## Swift Package dependencies
+
+Use the `spm.json` file (next to your module `manifest`) to list any Swift Package Manager dependencies. Set `"linkage": "embedded"` to fold the package into your module’s `.xcframework`, or `"linkage": "host"` to have the Titanium CLI add the package to the consuming app so multiple modules can share it.
+
+Example:
+
+```json
+{
+  "dependencies": [
+    {
+      "remotePackageReference": "Parse-SDK-iOS-OSX",
+      "repositoryURL": "https://github.com/parse-community/Parse-SDK-iOS-OSX",
+      "requirementKind": "upToNextMajorVersion",
+      "requirementMinimumVersion": "5.1.1",
+      "products": [
+        { "productName": "ParseLiveQuery", "frameworkName": "ParseLiveQuery", "linkage": "embedded" },
+        { "productName": "ParseObjC", "frameworkName": "ParseObjC", "linkage": "host" }
+      ]
+    }
+  ]
+}
+```
+
+After editing `spm.json`, rebuild the module so the updated Swift package metadata is embedded in the distribution zip.
+
 # Documentation
 
 You should provide at least minimal documentation for your module in `documentation` folder using the 
@@ -71,7 +96,7 @@ used for testing and providing an example of usage to the users of your module.
 
 ## Install
 
-1. Run `appc run -p ios --build-only` which creates your distribution package
+1. Run `ti build -p ios --build-only` which creates your distribution package
 2. Switch to `~/Library/Application Support/Titanium`
 3. Copy this zip file into the folder of your Titanium SDK or copy it to your local project
 
@@ -122,17 +147,13 @@ can leave it as-is and build.
 
 ## Testing
 
-Run the `appc` CLI to test your module or test from within Xcode.
+Run the `ti` CLI to test your module or test from within Xcode.
 To test with the script, execute:
 
 ```
-appc run --project-dir <your-module-directory>
+ti build --project-dir <your-module-directory>
 ```
 
 This will execute the app.js in the example folder as a Titanium application.
-
-## Distribution
-
-You can either open source your module or distribute your module via the [Appcelerator Marketplace](https://marketplace.appcelerator.com).
 
 Cheers!

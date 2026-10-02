@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -17,7 +17,7 @@
 READONLY_PROPERTY(bool, hidden, Hidden);
 READONLY_PROPERTY(NSString *, id, Id);
 READONLY_PROPERTY(NSString *, name, Name);
-//READONLY_PROPERTY(BOOL, selected, Selected); // not implemented on iOS
+// READONLY_PROPERTY(BOOL, selected, Selected); // not implemented on iOS
 READONLY_PROPERTY(NSString *, sourceIdentifier, SourceIdentifier);
 READONLY_PROPERTY(NSString *, sourceTitle, SourceTitle);
 READONLY_PROPERTY(EKSourceType, sourceType, SourceType);

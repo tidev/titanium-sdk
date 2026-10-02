@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -31,7 +31,7 @@
   id<KrollDelegate> delegate;
   BOOL stopped;
 
-  //Garbage collection variables.
+  // Garbage collection variables.
   BOOL gcrequest;
   unsigned int loopCount;
 
@@ -52,7 +52,7 @@
 - (JSGlobalContextRef)context;
 - (BOOL)isKJSThread;
 
-- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition *)condition_;
+- (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(dispatch_semaphore_t)condition_;
 - (void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_;
 - (void)invokeBlockOnThread:(void (^)(void))block;
 + (void)invokeBlock:(void (^)(void))block;
@@ -84,11 +84,11 @@
   id target;
   SEL method;
   id obj;
-  NSCondition *condition;
+  dispatch_semaphore_t condition;
   id notify;
   SEL notifySelector;
 }
-- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(NSCondition *)condition_;
+- (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ condition:(dispatch_semaphore_t)condition_;
 - (id)initWithTarget:(id)target_ method:(SEL)method_ withObject:(id)obj_ callback:(id)callback_ selector:(SEL)selector_;
 - (void)invoke:(KrollContext *)context;
 @end
@@ -130,7 +130,7 @@
 
 KrollContext *GetKrollContext(JSContextRef context);
 
-//TODO: After 1.7, move to individual file and convert KrollInvocation and Callbacks to ExpandedInvocationOperation.
+// TODO: After 1.7, move to individual file and convert KrollInvocation and Callbacks to ExpandedInvocationOperation.
 @interface ExpandedInvocationOperation : NSOperation {
   @private
   id invocationTarget;

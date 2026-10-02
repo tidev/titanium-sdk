@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -91,7 +91,7 @@
   }
 
   NSError *error = nil;
-  //PARAMETER IS SPECIFIED AS LOCAL NAME
+  // PARAMETER IS SPECIFIED AS LOCAL NAME
   NSString *xpath = [NSString stringWithFormat:@"self::node()/descendant::*[local-name()='%@' and namespace-uri()='%@']", localName, theURI];
 
   NSArray *nodes = [element nodesForXPath:xpath error:&error];
@@ -243,9 +243,9 @@
     xmlNodePtr oldNodePtr = [attributeNode XMLNode];
     TiDOMAttrProxy *result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
 
-    //Retain it here so that the node does not get freed when cached values are released
+    // Retain it here so that the node does not get freed when cached values are released
     [attributeNode retain];
-    //Switch the flag here so that the node is freed only when the object is freed
+    // Switch the flag here so that the node is freed only when the object is freed
     [attributeNode setShouldFreeXMLNode:YES];
     [element removeChild:attributeNode];
 
@@ -255,7 +255,7 @@
       [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
     }
 
-    //Release now and this will free the underlying memory if result is nil
+    // Release now and this will free the underlying memory if result is nil
     [attributeNode release];
   }
 }
@@ -278,9 +278,9 @@
       xmlNodePtr oldNodePtr = [attributeNode XMLNode];
       TiDOMAttrProxy *result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
 
-      //Retain it here so that the node does not get freed when cached values are released
+      // Retain it here so that the node does not get freed when cached values are released
       [attributeNode retain];
-      //Switch the flag here so that the node is freed only when the object is freed
+      // Switch the flag here so that the node is freed only when the object is freed
       [attributeNode setShouldFreeXMLNode:YES];
       [element removeChild:attributeNode];
       if (result != nil) {
@@ -288,7 +288,7 @@
         [result setNode:attributeNode];
         [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
       }
-      //Release now and this will free the underlying memory if result is nil
+      // Release now and this will free the underlying memory if result is nil
       [attributeNode release];
     }
   }
@@ -380,10 +380,10 @@
       [attributeNode setShouldFreeXMLNode:YES];
       oldNodePtr = [attributeNode XMLNode];
       result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
-      //Remove Child Now
+      // Remove Child Now
       [element removeChild:attributeNode];
       if (result == nil) {
-        //Need to return the old attribute node
+        // Need to return the old attribute node
         id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
         result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
         [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
@@ -394,7 +394,7 @@
         [result setNode:attributeNode];
         [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
       }
-      //Release now and this will free the underlying memory when proxy is released
+      // Release now and this will free the underlying memory when proxy is released
       [attributeNode release];
     }
 
@@ -402,7 +402,7 @@
     if (oldNodePtr != NULL) {
       [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
     }
-    //This adds by copying
+    // This adds by copying
     [element addAttribute:[attProxy node]];
     attributeNode = [element attributeForName:name];
     [attProxy setNode:attributeNode];
@@ -442,10 +442,10 @@
       [attributeNode setShouldFreeXMLNode:YES];
       oldNodePtr = [attributeNode XMLNode];
       result = [TiDOMNodeProxy nodeForXMLNode:oldNodePtr];
-      //Remove Child Now
+      // Remove Child Now
       [element removeChild:attributeNode];
       if (result == nil) {
-        //Need to return the old attribute node
+        // Need to return the old attribute node
         id context = ([self executionContext] == nil) ? [self pageContext] : [self executionContext];
         result = [[[TiDOMAttrProxy alloc] _initWithPageContext:context] autorelease];
         [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
@@ -456,7 +456,7 @@
         [result setNode:attributeNode];
         [result setAttribute:[attributeNode name] value:[attributeNode stringValue] owner:element];
       }
-      //Release now and this will free the underlying memory when proxy is released
+      // Release now and this will free the underlying memory when proxy is released
       [attributeNode release];
     }
 
@@ -464,7 +464,7 @@
     if (oldNodePtr != NULL) {
       [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];
     }
-    //Duplicate methodology in setAttributeNS
+    // Duplicate methodology in setAttributeNS
     [element releaseCachedValues];
     xmlNodePtr curNode = [element XMLNode];
     xmlNodePtr curAttr = [[attProxy node] XMLNode];
@@ -506,7 +506,7 @@
       [self throwException:@"no node found to remove" subreason:nil location:CODELOCATION];
       return nil;
     } else {
-      //Switch the flag here so that the node is freed only when the object is freed
+      // Switch the flag here so that the node is freed only when the object is freed
       [nodeToRemove retain];
       [nodeToRemove setShouldFreeXMLNode:YES];
       [element removeChild:nodeToRemove];
@@ -552,7 +552,7 @@
       if (returnNodePtr == newNodePtr) {
         return newChild;
       } else {
-        //This should not happen
+        // This should not happen
         id result = [TiDOMNodeProxy nodeForXMLNode:returnNodePtr];
         if (result == nil) {
           GDataXMLNode *retVal = [GDataXMLNode nodeConsumingXMLNode:returnNodePtr];
@@ -563,7 +563,7 @@
       }
 
     } else {
-      //Will get here if there in an internal API error
+      // Will get here if there in an internal API error
       return [NSNull null];
     }
   } else {
@@ -605,7 +605,7 @@
         [[refChild node] setShouldFreeXMLNode:YES];
         return refChild;
       } else {
-        //This should not happen
+        // This should not happen
         id result = [TiDOMNodeProxy nodeForXMLNode:returnNodePtr];
         if (result == nil) {
           GDataXMLNode *retVal = [GDataXMLNode nodeConsumingXMLNode:returnNodePtr];
@@ -616,7 +616,7 @@
       }
 
     } else {
-      //Will get here if there in an internal API error
+      // Will get here if there in an internal API error
       return [NSNull null];
     }
   } else {
@@ -669,13 +669,13 @@
     if (needsReconciliateNS) {
       [GDataXMLElement fixUpNamespacesForNode:resultPtr graftingToTreeNode:parent];
     }
-    //Child added successfully
+    // Child added successfully
     if (resultPtr == oldNodePtr) {
-      //Child pointer not modified
+      // Child pointer not modified
       [[newChild node] setShouldFreeXMLNode:NO];
       return newChild;
     } else {
-      //Child pointer modified
+      // Child pointer modified
       [[newChild node] setShouldFreeXMLNode:YES];
       if (oldNodePtr != NULL) {
         [TiDOMNodeProxy removeNodeForXMLNode:oldNodePtr];

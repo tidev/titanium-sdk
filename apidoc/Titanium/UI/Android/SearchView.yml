@@ -2,15 +2,19 @@
 name: Titanium.UI.Android.SearchView
 summary: A specialized text field for entering search text.
 description: |
+    | Android |
+    | ------- |
+    | ![Android](./searchview_android.png) |
+
     `SearchView` provides a user interface to enter a search query and submit a request to a search provider.
-    
+
     Search views are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView).
-    Similar to [SearchBar](Titanium.UI.SearchBar), you can add a search view to a table view by setting the table view's 
-    [search](Titanium.UI.TableView.search) property. A search view can be used without a `TableView`. 
+    Similar to [SearchBar](Titanium.UI.SearchBar), you can add a search view to a table view by setting the table view's
+    [search](Titanium.UI.TableView.search) property. A search view can be used without a `TableView`.
 
     You can also use a `SearchView` object as the <Titanium.UI.ListView.searchView>
     property of a [ListView](Titanium.UI.ListView) object.
-    
+
     You can also add `SearchView` to an `ActionBar` as a view (see example below).
 
     Use the <Titanium.UI.Android.createSearchView> method or **`<SearchView>`** Alloy element to create
@@ -46,7 +50,7 @@ events:
 
   - name: focus
     summary: Fired when the search view gains focus.
-    
+
   - name: submit
     summary: If the search query is not empty, fired when the search button is clicked on soft keyboard
 
@@ -75,24 +79,24 @@ properties:
     description: |
        This value cannot be set until after the search view is created.
     type: String
-    
+
   - name: iconified
     summary: Iconifies or expands the search view
     description: see [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconified(boolean)) for more details.
     type: Boolean
     default: undefined
-  
+
   - name: iconifiedByDefault
     summary: Sets the default or resting state of the search view
     description: see [Android Documentation](https://developer.android.com/reference/android/widget/SearchView.html#setIconifiedByDefault(boolean)) for more details.
     type: Boolean
     default: true
-  
+
   - name: submitEnabled
     summary: Whether to display the submit button when necessary or never display.
     type: Boolean
     default: undefined
-         
+
 examples:
 
   - title: Search View for Table in Action Bar
@@ -103,7 +107,6 @@ examples:
 
         ``` js
         var win = Ti.UI.createWindow({
-            backgroundColor: 'blue',
             fullscreen: false
         });
 
