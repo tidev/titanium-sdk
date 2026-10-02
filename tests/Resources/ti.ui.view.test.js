@@ -818,6 +818,46 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	it('animate (rotation) with a reused animation', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			width: 100, height: 100,
+			left: 100, top: 100
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				rotation: 90,
+				duration: 250
+			});
+			let runs = 0;
+
+			animation.addEventListener('complete', () => {
+				runs++;
+				try {
+					// The shorthand must not leave a generated matrix in the animation's "transform".
+					should.not.exist(animation.transform);
+					if (runs === 1) {
+						should(view.rotation).be.eql(90);
+						// Update the same animation object and run it again.
+						animation.rotation = 180;
+						view.animate(animation);
+						return;
+					}
+					// The updated value wins over the first run.
+					should(view.rotation).be.eql(180);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			view.animate(animation);
+		});
+		win.open();
+	});
+
 	it.windowsBroken('convertPointToView', function (finish) {
 		win = Ti.UI.createWindow();
 		const a = Ti.UI.createView({ backgroundColor: 'red' });

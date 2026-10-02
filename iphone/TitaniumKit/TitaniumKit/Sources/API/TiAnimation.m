@@ -478,9 +478,12 @@
       // An explicit "transform" wins, since the matrix rotates the view itself.
       // (A reverse animation carries both: the view's previous matrix and the previous rotation value.)
       BOOL appliesRotation = (rotation != nil) && (transform == nil || [self isReverse]);
+      // The matrix generated from "rotation" only lives for this run. Storing it in "transform" would
+      // make it win over a changed "rotation" value when the animation object is reused.
+      TiProxy *animatedTransform = transform;
       if (rotation != nil && transform == nil) {
         Ti2DMatrix *identity = [[[Ti2DMatrix alloc] init] autorelease];
-        [self setTransform:[identity rotate:[NSArray arrayWithObject:rotation]]];
+        animatedTransform = [identity rotate:[NSArray arrayWithObject:rotation]];
       }
       if (appliesRotation) {
         // Keep the proxy's "rotation" property in sync with the animated value, as Android does
@@ -492,7 +495,7 @@
         [proxy replaceValue:rotation forKey:@"rotation" notification:NO];
       }
 
-      if (transform != nil) {
+      if (animatedTransform != nil) {
         if (reverseAnimation != nil) {
           id transformMatrix = [(TiUIView *)view_ transformMatrix];
           if (transformMatrix == nil) {
@@ -500,19 +503,22 @@
           }
           [reverseAnimation setTransform:transformMatrix];
         }
-        if ([transform isKindOfClass:[Ti2DMatrix class]]) {
+        if ([animatedTransform isKindOfClass:[Ti2DMatrix class]]) {
           // Special handling if matrix does an exact 180 or -180 degree rotation.
           // Forward animation and final reverse animation will never rotate counter-clockwise in this case.
           // Work-around is to slightly offset the rotation. (This won't affect rotation back to 0 degrees.)
           const float ROTATION_EPSILON = 0.01f;
-          Ti2DMatrix *transformMatrix = (Ti2DMatrix *)transform;
+          Ti2DMatrix *transformMatrix = (Ti2DMatrix *)animatedTransform;
           float degrees = radiansToDegrees(atan2f([[transformMatrix b] floatValue], [[transformMatrix a] floatValue]));
           if ((fabsf(degrees) + ROTATION_EPSILON) >= 180.0f) {
             NSNumber *degreeOffset = [NSNumber numberWithFloat:((degrees > 0) ? -ROTATION_EPSILON : ROTATION_EPSILON)];
-            [self setTransform:[transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]]];
+            animatedTransform = [transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]];
+            if (transform != nil) {
+              [self setTransform:animatedTransform];
+            }
           }
         }
-        [(TiUIView *)view_ setTransform_:transform];
+        [(TiUIView *)view_ setTransform_:animatedTransform];
       }
 
       if ([view_ isKindOfClass:[TiUIView class]]) { // TODO: Shouldn't we be updating the proxy's properties to reflect this?
