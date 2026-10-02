@@ -22,7 +22,7 @@ description: |
     [rightTrackImage](Titanium.UI.Slider.rightTrackImage) properties be specified before the properties would be honored. Beginning with
     Titanium SDK 4.0.0 this limitation has been removed. However it is recommended that either both or neither be specified.
 
-    Beginning with 12.3.0 you can use a drawble as a leftTrackImage/rightTrackImage or thumbImage:
+    Beginning with 14.0.0 you can use a drawable as a leftTrackImage/rightTrackImage or thumbImage:
     ``` js
     Ti.UI.createSlider({
       min:1,
@@ -31,7 +31,7 @@ description: |
       thumbImage: Ti.App.Android.R.drawable.custom_thumb
     });
     ```
-    
+
     /app/platform/android/res/drawable/custom_thumb.xml
     ``` xml
     <?xml version="1.0" encoding="utf-8"?>
@@ -264,9 +264,9 @@ properties:
     description: |
         See introduction of the <Titanium.UI.Slider> component for implementation specific information on Android Platform.
 
-        Android: You can use a drawble as an image too. Like `Ti.App.Android.R.drawable.seekbar_style` (a file called
+        Android: You can use a drawable as an image too. Like `Ti.App.Android.R.drawable.seekbar_style` (a file called
         seekbar_style.xml in /app/platform/android/res/drawable/).
-    type: String
+    type: [String, Number]
     platforms: [android, iphone, ipad, macos]
 
   - name: leftTrackLeftCap
@@ -362,9 +362,9 @@ properties:
     description: |
         See introduction of the <Titanium.UI.Slider> component for implementation specific information on Android Platform.
 
-        Android: You can use a drawble as an image too. Like `Ti.App.Android.R.drawable.seekbar_style` (a file called
+        Android: You can use a drawable as an image too. Like `Ti.App.Android.R.drawable.seekbar_style` (a file called
         seekbar_style.xml in /app/platform/android/res/drawable/).
-    type: String
+    type: [String, Number]
     platforms: [android, iphone, ipad, macos]
 
   - name: rightTrackLeftCap
@@ -428,9 +428,9 @@ properties:
 
         Support for using <Titanium.Blob> for this property is only available on iOS.
 
-        Android: You can use a drawble as an image too. Like `Ti.App.Android.R.drawable.custom_thumb` (a file called
+        Android: You can use a drawable as an image too. Like `Ti.App.Android.R.drawable.custom_thumb` (a file called
         custom_thumb.xml in /app/platform/android/res/drawable/).
-    type: [String, Titanium.Blob]
+    type: [String, Number, Titanium.Blob]
     platforms: [android, iphone, ipad, macos]
 
   - name: tintColor
