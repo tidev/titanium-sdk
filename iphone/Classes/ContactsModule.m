@@ -239,7 +239,7 @@ static NSArray *contactKeysWithoutImage;
     [contactPicker setDisplayedPropertyKeys:pickerFields];
   }
 
-  [[TiApp app] showModalController:contactPicker animated:animated];
+  [[self owningInstance] showModalController:contactPicker animated:animated];
 }
 
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg
@@ -448,7 +448,7 @@ static NSArray *contactKeysWithoutImage;
   }
   NSError *error = nil;
   CNMutableContact *newContact = [[CNMutableContact alloc] init];
-  // We dont set observer here because we dont want to be notified when props are being added to a newly created contact.
+  // We don't set observer here because we don't want to be notified when props are being added to a newly created contact.
   TiContactsPerson *newPerson = [[[TiContactsPerson alloc] _initWithPageContext:[self executionContext]
                                                                       contactId:newContact
                                                                          module:self] autorelease];
@@ -544,7 +544,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
                     withObject:[NSDictionary dictionaryWithObject:person forKey:@"person"]
                       listener:selectedPersonCallback
                     thisObject:nil];
-    [[TiApp app] hideModalController:contactPicker animated:animated];
+    [[self owningInstance] hideModalController:contactPicker animated:animated];
   }
 }
 
@@ -563,7 +563,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
     }
     if ([value isKindOfClass:[NSDateComponents class]]) {
       // this part of the code is supposed to work for birthday and alternateBirthday
-      // but iOS9 Beta is giving a null value for these properties in `value`, so only
+      // but iOS 9 Beta is giving a null value for these properties in `value`, so only
       // processing `anniversary` and `other` here.
       //			if ([contactProperty.key isEqualToString:CNContactNonGregorianBirthdayKey]) {
       //				NSDateComponents *dateComps = (NSDateComponents*)value;
@@ -622,7 +622,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
 
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject, @"person", property, @"property", result, @"value", label, @"label", nil];
     [self _fireEventToListener:@"selectedProperty" withObject:dict listener:selectedPropertyCallback thisObject:nil];
-    [[TiApp app] hideModalController:contactPicker animated:animated];
+    [[self owningInstance] hideModalController:contactPicker animated:animated];
     return NO;
   }
   return YES;
@@ -630,7 +630,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
 
 - (void)contactPickerDidCancel:(nonnull CNContactPickerViewController *)picker
 {
-  [[TiApp app] hideModalController:contactPicker animated:animated];
+  [[self owningInstance] hideModalController:contactPicker animated:animated];
   if (cancelCallback) {
     [self _fireEventToListener:@"cancel" withObject:nil listener:cancelCallback thisObject:nil];
   }

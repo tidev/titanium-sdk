@@ -60,7 +60,7 @@ public abstract class KrollObject implements Handler.Callback
 	/**
 	 * Sets whether the passed in event has a corresponding eventListener associated with it on JS side.
 	 * @param event  the event to be set.
-	 * @param hasListeners  If this is true, then the passed in event has a javascript event listener, false otherwise.
+	 * @param hasListeners  If this is true, then the passed in event has a JavaScript event listener, false otherwise.
 	 */
 	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{

@@ -16,10 +16,10 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.Spannable;
+import android.util.TypedValue;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.transition.ChangeBounds;
@@ -41,9 +41,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
+import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiActivity;
@@ -74,7 +78,8 @@ import ti.modules.titanium.ui.widget.TiView;
 		TiC.PROPERTY_FLAG_SECURE,
 		TiC.PROPERTY_BAR_COLOR,
 		TiC.PROPERTY_STATUS_BAR_COLOR,
-		TiC.PROPERTY_UI_FLAGS
+		TiC.PROPERTY_UI_FLAGS,
+		TiC.PROPERTY_NAV_BAR_COLOR
 	})
 
 public class WindowProxy extends TiWindowProxy implements TiActivityWindow
@@ -90,6 +95,12 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	private int barColor = -1;
 
 	private WeakReference<TiBaseActivity> windowActivity;
+	// Saved position insets (px) for heavyweight windows, where left/right/top/bottom
+	// properties are otherwise stripped and never applied to the Activity window.
+	private int savedLeft = 0;
+	private int savedTop = 0;
+	private int savedRight = 0;
+	private int savedBottom = 0;
 
 	public WindowProxy()
 	{
@@ -109,11 +120,83 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	public TiUIView createView(Activity activity)
 	{
-		TiUIView v = new TiView(this);
+		TiUIView v = new TiView(this) {
+			@Override
+			public void propertyChanged(String key, Object oldValue, Object newValue, KrollProxy proxy)
+			{
+				super.propertyChanged(key, oldValue, newValue, proxy);
+				if (TiC.PROPERTY_BACKGROUND_COLOR.equals(key)) {
+					applyContentFrameBackgroundColor(newValue);
+				}
+			}
+		};
 		v.getLayoutParams().autoFillsHeight = true;
 		v.getLayoutParams().autoFillsWidth = true;
 		setView(v);
 		return v;
+	}
+
+	/**
+	 * Applies the window's backgroundColor to the activity's content frame.
+	 * <p>
+	 * TiBaseActivity.onCreate() does the same when the activity is created. The content frame
+	 * is the view TiEdgeToEdgeHelper pads for the system bar insets, so its background is what
+	 * shows beneath the status and navigation bars. The window's own view only covers the inset
+	 * area, so a later color change must be mirrored here or the bars keep the old color.
+	 * @param value The new backgroundColor value. Null clears the content frame's background.
+	 */
+	private void applyContentFrameBackgroundColor(Object value)
+	{
+		if (windowActivity == null) {
+			return;
+		}
+		AppCompatActivity activity = windowActivity.get();
+		if (activity == null) {
+			return;
+		}
+		View content = activity.findViewById(android.R.id.content);
+		if (content == null) {
+			return;
+		}
+		if (value != null) {
+			content.setBackgroundColor(TiConvert.toColor(value, activity));
+		} else {
+			content.setBackground(null);
+		}
+	}
+
+	@Kroll.getProperty
+	public KrollDict getRect()
+	{
+		// Heavyweight windows fill the screen and don't have a proxy view, so
+		// the inherited TiViewProxy.getRect() returns zeros. Report the intended
+		// position from the saved left/top insets and the actual window size.
+		KrollDict rect = new KrollDict();
+		View decorView = null;
+		TiBaseActivity activity = (windowActivity != null) ? windowActivity.get() : null;
+		if (activity != null) {
+			decorView = activity.getWindow().getDecorView();
+		}
+		TiDimension xDim = new TiDimension(savedLeft, TiDimension.TYPE_LEFT, TypedValue.COMPLEX_UNIT_DIP);
+		TiDimension yDim = new TiDimension(savedTop, TiDimension.TYPE_TOP, TypedValue.COMPLEX_UNIT_DIP);
+		if (decorView != null && decorView.getWidth() > 0) {
+			TiDimension wDim = new TiDimension(decorView.getWidth(), TiDimension.TYPE_WIDTH);
+			TiDimension hDim = new TiDimension(decorView.getHeight(), TiDimension.TYPE_HEIGHT);
+			rect.put(TiC.PROPERTY_WIDTH, wDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_HEIGHT, hDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_X, xDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_Y, yDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_X_ABSOLUTE, xDim.getAsDefault(decorView));
+			rect.put(TiC.PROPERTY_Y_ABSOLUTE, yDim.getAsDefault(decorView));
+		} else {
+			rect.put(TiC.PROPERTY_WIDTH, 0);
+			rect.put(TiC.PROPERTY_HEIGHT, 0);
+			rect.put(TiC.PROPERTY_X, (double) savedLeft);
+			rect.put(TiC.PROPERTY_Y, (double) savedTop);
+			rect.put(TiC.PROPERTY_X_ABSOLUTE, (double) savedLeft);
+			rect.put(TiC.PROPERTY_Y_ABSOLUTE, (double) savedTop);
+		}
+		return rect;
 	}
 
 	@Override
@@ -135,6 +218,11 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 
 		// The "top", "bottom", "left" and "right" properties do not work for heavyweight windows.
+		// Save them before stripping so getRect() can report the intended position.
+		savedLeft = TiConvert.toInt(getProperty(TiC.PROPERTY_LEFT), 0);
+		savedTop = TiConvert.toInt(getProperty(TiC.PROPERTY_TOP), 0);
+		savedRight = TiConvert.toInt(getProperty(TiC.PROPERTY_RIGHT), 0);
+		savedBottom = TiConvert.toInt(getProperty(TiC.PROPERTY_BOTTOM), 0);
 		properties.remove(TiC.PROPERTY_TOP);
 		properties.remove(TiC.PROPERTY_BOTTOM);
 		properties.remove(TiC.PROPERTY_LEFT);
@@ -316,7 +404,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 
 		// Handle barColor property.
 		if (hasProperty(TiC.PROPERTY_BAR_COLOR)) {
-			int colorInt = TiColorHelper.parseColor(TiConvert.toString(getProperty(TiC.PROPERTY_BAR_COLOR)), activity);
+			int colorInt = TiColorHelper.parseColor(getProperty(TiC.PROPERTY_BAR_COLOR), activity);
 			ActionBar actionBar = activity.getSupportActionBar();
 			// Guard for using a theme with actionBar disabled.
 			if (actionBar != null) {
@@ -332,14 +420,35 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			win.setStatusBarColor(colorInt);
 		}
 
+		if (hasProperty(TiC.PROPERTY_NAV_BAR_COLOR)) {
+			int colorInt = TiColorHelper.parseColor(
+				TiConvert.toString(getProperty(TiC.PROPERTY_NAV_BAR_COLOR)), activity);
+			win.setNavigationBarColor(colorInt);
+		}
+
 		if (hasProperty(TiC.PROPERTY_UI_FLAGS)) {
-			win.getDecorView().setSystemUiVisibility(TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS)));
+			int flags = TiConvert.toInt(getProperty(TiC.PROPERTY_UI_FLAGS));
+			WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(win, win.getDecorView());
+			if (insetsController != null) {
+				insetsController.setAppearanceLightStatusBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+				insetsController.setAppearanceLightNavigationBars(
+					(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+				if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
+					insetsController.hide(WindowInsetsCompat.Type.systemBars());
+					insetsController.setSystemBarsBehavior(
+						WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+				}
+			}
 		}
 
 		if (hasProperty(TiC.PROPERTY_WINDOW_FLAGS)) {
-			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0
-				&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-				win.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+			if ((TiConvert.toInt(getProperty(TiC.PROPERTY_WINDOW_FLAGS)) & STATUS_BAR_LIGHT) != 0) {
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(win, win.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(true);
+				}
 			}
 		}
 
@@ -359,7 +468,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		}
 		activity.getActivityProxy().getDecorView().add(this);
 
-		// Need to handle the cached activity proxy properties and url window in the JS side.
+		// Need to handle the cached activity proxy properties and URL window in the JS side.
 		callPropertySync(PROPERTY_POST_WINDOW_CREATED, null);
 	}
 
@@ -461,7 +570,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 				if (actionBar != null) {
 					// Change to background to the new color.
 					actionBar.setBackgroundDrawable(
-						new ColorDrawable(TiColorHelper.parseColor(TiConvert.toString(value), activity)));
+						new ColorDrawable(TiColorHelper.parseColor(value, activity)));
 				} else {
 					// Log a warning if there is no ActionBar available.
 					Log.w(TAG, "There is no ActionBar available for this Window.");
@@ -477,10 +586,33 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 			}
 		}
 
+		if (name.equals(TiC.PROPERTY_NAV_BAR_COLOR)) {
+			if (windowActivity != null && windowActivity.get() != null) {
+				AppCompatActivity activity = windowActivity.get();
+				int colorInt = TiColorHelper.parseColor(TiConvert.toString(value), activity);
+				activity.getWindow().setNavigationBarColor(colorInt);
+			}
+		}
+
 		if (name.equals(TiC.PROPERTY_UI_FLAGS)) {
 			if (windowActivity != null && windowActivity.get() != null) {
 				AppCompatActivity activity = windowActivity.get();
-				activity.getWindow().getDecorView().setSystemUiVisibility(TiConvert.toInt(value));
+				Window window = activity.getWindow();
+				int flags = TiConvert.toInt(value);
+				WindowInsetsControllerCompat insetsController = WindowCompat
+					.getInsetsController(window, window.getDecorView());
+				if (insetsController != null) {
+					insetsController.setAppearanceLightStatusBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0);
+					insetsController.setAppearanceLightNavigationBars(
+						(flags & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0);
+					if ((flags & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0
+						|| (flags & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+						insetsController.hide(WindowInsetsCompat.Type.systemBars());
+						insetsController.setSystemBarsBehavior(
+							WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+					}
+				}
 			}
 		}
 

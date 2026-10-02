@@ -149,14 +149,14 @@ static BOOL _isTesting = NO;
 
 + (BOOL)isRetinaDisplay
 {
-  // since we call this alot, cache it
+  // since we call this a lot, cache it
   static CGFloat scale = 0.0;
   if (scale == 0.0) {
     // NOTE: iPad in iPhone compatibility mode will return a scale factor of 2.0
     // when in 2x zoom, which leads to false positives and bugs. This tries to
     // future proof against possible different model names, but in the event of
     // an iPad with a retina display, this will need to be fixed.
-    // Credit to Brion on github for the origional fix.
+    // Credit to Brion on github for the original fix.
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
       NSRange iPadStringPosition = [[[UIDevice currentDevice] model] rangeOfString:@"iPad"];
       if (iPadStringPosition.location != NSNotFound) {
@@ -171,10 +171,7 @@ static BOOL _isTesting = NO;
 
 + (BOOL)isRetinaHDDisplay
 {
-  if ([TiUtils isIOS8OrGreater]) {
-    return ([UIScreen mainScreen].scale == 3.0);
-  }
-  return NO;
+  return ([UIScreen mainScreen].scale == 3.0);
 }
 
 + (BOOL)isIOS8OrGreater

@@ -120,8 +120,7 @@ public class TiWebViewClient extends WebViewClient
 		}
 		if (proxy.hasProperty(TiC.PROPERTY_ON_LINK)) {
 			Object onLink = proxy.getProperty(TiC.PROPERTY_ON_LINK);
-			if (onLink instanceof KrollFunction) {
-				KrollFunction onLinkFunction = (KrollFunction) onLink;
+			if (onLink instanceof KrollFunction onLinkFunction) {
 				KrollDict args = new KrollDict();
 				args.put(TiC.EVENT_PROPERTY_URL, url);
 				Object result = onLinkFunction.call(proxy.getKrollObject(), args);

@@ -12,13 +12,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -33,6 +38,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiRootActivity;
 import org.appcelerator.titanium.proxy.ActivityProxy;
 import org.appcelerator.titanium.proxy.TiWindowProxy;
+import org.appcelerator.titanium.util.TiSafeDisplay;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiRHelper;
@@ -384,12 +390,40 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 	@Override
 	protected void handleOpen(KrollDict options)
 	{
-		Activity topActivity = TiApplication.getAppCurrentActivity();
 		// Don't open if app is closing or closed
-		if (topActivity == null || topActivity.isFinishing()) {
+		Activity topActivity = getActivity();
+		if (topActivity == null || topActivity.isFinishing() || topActivity.isDestroyed()) {
 			return;
 		}
 
+		/**
+		 * Only applicable on Android 12 or Android 13.
+		 * As reported here on Google: https://issuetracker.google.com/issues/293645024
+		 * WindowContainer may not be available in very rare cases on devices running Android 12/13.
+		 * Wait for the view to be attached to a window before opening the TabGroup.
+		 */
+		if (Build.VERSION.SDK_INT >= 31 && Build.VERSION.SDK_INT <= 33) {
+			Window window = topActivity.getWindow();
+			View decorView = window != null ? window.getDecorView() : null;
+			if (decorView == null) {
+				return;
+			}
+
+			if (decorView.getDisplay() == null) {
+				TiSafeDisplay.getDisplaySafely(decorView, isDisplayAvailable -> {
+					// Display may not be available in very very rare cases,
+					// but we open it since it's now in try-catch.
+					openTabGroup(topActivity, options);
+				});
+				return;
+			}
+		}
+
+		openTabGroup(topActivity, options);
+	}
+
+	private void openTabGroup(Activity topActivity, KrollDict options)
+	{
 		// set theme for XML layout
 		if (hasProperty(TiC.PROPERTY_STYLE)
 			&& ((Integer) getProperty(TiC.PROPERTY_STYLE)) == AndroidModule.TABS_STYLE_BOTTOM_NAVIGATION
@@ -399,8 +433,8 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 				int theme = TiRHelper.getResource("style."
 					+ themeName.replaceAll("[^A-Za-z0-9_]", "_"));
 				topActivity.setTheme(theme);
-				topActivity.getApplicationContext().setTheme(theme);
 			} catch (Exception e) {
+				Log.w(TAG, "Could not apply theme: " + e.getMessage());
 			}
 		}
 
@@ -410,24 +444,37 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		int windowId = TiActivityWindows.addWindow(this);
 		intent.putExtra(TiC.INTENT_PROPERTY_WINDOW_ID, windowId);
 
-		boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
-		if (!animated) {
-			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-			topActivity.startActivity(intent);
-			topActivity.overridePendingTransition(0, 0);
-		} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
-			|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
-			topActivity.startActivity(intent);
-			int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
-			int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
-			topActivity.overridePendingTransition(enterAnimation, exitAnimation);
-		} else {
-			topActivity.startActivity(intent);
-			if (topActivity instanceof TiRootActivity) {
-				// A fade-in transition from root splash screen to first window looks better than a slide-up.
-				// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
-				topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+		try {
+			boolean animated = TiConvert.toBoolean(options, TiC.PROPERTY_ANIMATED, true);
+			if (!animated) {
+				intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+				topActivity.startActivity(intent);
+				topActivity.overridePendingTransition(0, 0);
+			} else if (options.containsKey(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION)
+				|| options.containsKey(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION)) {
+				topActivity.startActivity(intent);
+				int enterAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_ENTER_ANIMATION), 0);
+				int exitAnimation = TiConvert.toInt(options.get(TiC.PROPERTY_ACTIVITY_EXIT_ANIMATION), 0);
+				topActivity.overridePendingTransition(enterAnimation, exitAnimation);
+			} else {
+				topActivity.startActivity(intent);
+				if (topActivity instanceof TiRootActivity) {
+					// A fade-in transition from root splash screen to first window looks better than a slide-up.
+					// Also works-around issue where splash in mid-transition might do a 2nd transition on cold start.
+					topActivity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+				}
 			}
+		} catch (Exception e) {
+			// Last attempt to open the TabGroup (without any animation this time) as reported here:
+			// https://issuetracker.google.com/issues/293645024
+			intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+			new Handler(Looper.getMainLooper()).postDelayed(() -> {
+				try {
+					topActivity.startActivity(intent);
+				} catch (Exception ex) {
+					throw new RuntimeException("TabGroup failed to open: " + ex);
+				}
+			}, 500); // Just a hypothetical delay.
 		}
 	}
 
@@ -493,10 +540,13 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 
 		if (getActivity() != null) {
 			if (hasPropertyAndNotNull(TiC.PROPERTY_FLAGS)) {
-				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT
-					&& Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-					getActivity().getWindow().getDecorView()
-						.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+				if (TiConvert.toInt(getProperty(TiC.PROPERTY_FLAGS)) == STATUS_BAR_LIGHT) {
+					Window window = getActivity().getWindow();
+					WindowInsetsControllerCompat insetsController =
+						WindowCompat.getInsetsController(window, window.getDecorView());
+					if (insetsController != null) {
+						insetsController.setAppearanceLightStatusBars(true);
+					}
 				}
 			}
 			if (hasPropertyAndNotNull(TiC.PROPERTY_STATUS_BAR_COLOR)) {

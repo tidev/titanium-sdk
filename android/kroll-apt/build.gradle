@@ -28,7 +28,7 @@ tasks.register('checkstyleChanged', Checkstyle) {
 	include getChangedFiles()
 }
 
-// Used to strip the src dir prefixes from the changed java files
+// Used to strip the src dir prefixes from the changed Java files
 def getChangedFiles() {
 	if (!project.hasProperty('changedFiles')) {
 		return new ArrayList<>()
@@ -75,6 +75,6 @@ jar {
 }
 
 dependencies {
-	implementation 'com.googlecode.json-simple:json-simple:1.1'
-	implementation 'org.freemarker:freemarker:2.3.30'
+	implementation 'com.googlecode.json-simple:json-simple:1.1.1'
+	implementation 'org.freemarker:freemarker:2.3.35'
 }

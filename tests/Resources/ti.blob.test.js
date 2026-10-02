@@ -503,7 +503,7 @@ describe('Titanium.Blob', function () {
 			should(blob.toString()).eql('');
 		});
 
-		it('returns ascii text content for buffer with ascii text content', () => {
+		it('returns ASCII text content for buffer with ASCII text content', () => {
 			const blob = Ti.createBuffer({ value: 'test toString()' }).toBlob();
 			should(blob.toString()).eql('test toString()');
 		});
@@ -549,7 +549,7 @@ describe('Titanium.Blob', function () {
 
 	// FIXME: This is breaking on Android emulator when setting the image view to the blob
 	// Canvas: trying to draw too large(211527936bytes) bitmap.
-	// it breaks on older android devices with an OutOfMemory Error on calling imageAsResized
+	// it breaks on older Android devices with an OutOfMemory Error on calling imageAsResized
 	it.androidBroken('resize very large image', function (finish) {
 		this.timeout(15000);
 		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
@@ -583,10 +583,10 @@ describe('Titanium.Blob', function () {
 	});
 
 	// iOS had a bug where it reported Blob width/height as pts, but Android reported px
-	// And worse - numbers not divisble by the device scale (2, 3, etc) we could not reliably reproduce the *real* pixel size
-	// i.e. a 10 x 10 pixel image/view on a 3x device woudl report width/height of 3 and scale of 3, so just multiplying those we'd get 9
+	// And worse - numbers not divisible by the device scale (2, 3, etc) we could not reliably reproduce the *real* pixel size
+	// e.g. a 10 x 10 pixel image/view on a 3x device would report width/height of 3 and scale of 3, so just multiplying those we'd get 9
 	// when the real image was actually 10px.
-	// However, natively we *can* properly generate true pixel size because image would report scale like 3.33 that we coudl multiply by before returning
+	// However, natively we *can* properly generate true pixel size because image would report scale like 3.33 that we could multiply by before returning
 	it('image dimensions should be reported in pixels', finish => {
 		win = Ti.UI.createWindow();
 		const view = Ti.UI.createView({
@@ -622,10 +622,10 @@ describe('Titanium.Blob', function () {
 			const arrayBuffer = blob.toArrayBuffer();
 			const array = new Uint8Array(arrayBuffer);
 			should(array.length).eql(16); // single byte characters in ASCII
-			should(array[0]).eql(84); // ascii decimal code for 'T'
-			should(array[4]).eql(32); // ascii decimal code for ' '
-			should(array[5]).eql(105); // ascii decimal code for 'i'
-			should(array[6]).eql(115); // ascii decimal code for 's'
+			should(array[0]).eql(84); // ASCII decimal code for 'T'
+			should(array[4]).eql(32); // ASCII decimal code for ' '
+			should(array[5]).eql(105); // ASCII decimal code for 'i'
+			should(array[6]).eql(115); // ASCII decimal code for 's'
 		});
 	});
 
@@ -645,10 +645,10 @@ describe('Titanium.Blob', function () {
 				try {
 					const array = new Uint8Array(arrayBuffer);
 					should(array.length).eql(16); // single byte characters in ASCII
-					should(array[0]).eql(84); // ascii decimal code for 'T'
-					should(array[4]).eql(32); // ascii decimal code for ' '
-					should(array[5]).eql(105); // ascii decimal code for 'i'
-					should(array[6]).eql(115); // ascii decimal code for 's'
+					should(array[0]).eql(84); // ASCII decimal code for 'T'
+					should(array[4]).eql(32); // ASCII decimal code for ' '
+					should(array[5]).eql(105); // ASCII decimal code for 'i'
+					should(array[6]).eql(115); // ASCII decimal code for 's'
 				} catch (err) {
 					return finish(err);
 				}

@@ -224,12 +224,12 @@ public class TiMimeTypeHelper
 					}
 				}
 			} catch (Exception ex) {
-				Log.e(TAG, ex.getMessage());
+				Log.d(TAG, uri.getPath() + ": " + ex.getMessage(), Log.DEBUG_MODE);
 			} finally {
 				try {
 					mediaRetriever.release();
 				} catch (IOException ex) {
-					Log.e(TAG, ex.getMessage());
+					Log.d(TAG, uri.getPath() + ": " + ex.getMessage(), Log.DEBUG_MODE);
 				}
 			}
 		}

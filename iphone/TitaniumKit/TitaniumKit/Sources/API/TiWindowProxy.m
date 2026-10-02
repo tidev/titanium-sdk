@@ -9,6 +9,8 @@
 #import "KrollPromise.h"
 #import "TiApp.h"
 #import "TiErrorController.h"
+#import "TiSceneProxy.h"
+#import "TiSceneRegistry.h"
 #import "TiUIWindow.h"
 #import "TiUIWindowProxy.h"
 
@@ -94,12 +96,34 @@
   return [super suppressesRelayout];
 }
 
+- (void)didFinishLayout
+{
+  if (self.pendingSafeAreaUpdate) {
+    self.pendingSafeAreaUpdate = NO;
+    [self willChangeSizeForSafeArea];
+  }
+
+  [super didFinishLayout];
+}
+
+- (void)willChangeSizeForSafeArea
+{
+  if ((*((char *)&dirtyflags) & (1 << (7 - TiRefreshViewSize))) != 0) {
+    // Layout is in progress, defer the safe area update
+    self.pendingSafeAreaUpdate = YES;
+    return;
+  }
+
+  // Proceed with normal size change logic
+  [self willChangeSize];
+}
+
 #pragma mark - Utility Methods
 - (void)windowWillOpen
 {
   [super windowWillOpen];
   if (tab == nil && !self.isManaged) {
-    [[[[TiApp app] controller] topContainerController] willOpenWindow:self];
+    [[[[self owningInstance] controller] topContainerController] willOpenWindow:self];
   }
 }
 
@@ -128,14 +152,14 @@
   [self forgetProxy:openAnimation];
   RELEASE_TO_NIL(openAnimation);
   if (tab == nil && !self.isManaged) {
-    [[[[TiApp app] controller] topContainerController] didOpenWindow:self];
+    [[[[self owningInstance] controller] topContainerController] didOpenWindow:self];
   }
 }
 
 - (void)windowWillClose
 {
   if (tab == nil && !self.isManaged) {
-    [[[[TiApp app] controller] topContainerController] willCloseWindow:self];
+    [[[[self owningInstance] controller] topContainerController] willCloseWindow:self];
   }
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super windowWillClose];
@@ -155,7 +179,7 @@
   [self forgetProxy:closeAnimation];
   RELEASE_TO_NIL(closeAnimation);
   if (tab == nil && !self.isManaged) {
-    [[[[TiApp app] controller] topContainerController] didCloseWindow:self];
+    [[[[self owningInstance] controller] topContainerController] didCloseWindow:self];
   }
   tab = nil;
   self.isManaged = NO;
@@ -166,7 +190,7 @@
 
 - (void)attachViewToTopContainerController
 {
-  UIViewController<TiControllerContainment> *topContainerController = [[[TiApp app] controller] topContainerController];
+  UIViewController<TiControllerContainment> *topContainerController = [[[self owningInstance] controller] topContainerController];
   UIView *rootView = [topContainerController hostingView];
   TiUIView *theView = [self view];
   [rootView addSubview:theView];
@@ -201,16 +225,20 @@
 
 - (BOOL)isRootViewLoaded
 {
-  return [[[TiApp app] controller] isViewLoaded];
+  return [[[self owningInstance] controller] isViewLoaded];
 }
 
 - (BOOL)isRootViewAttached
 {
   // When a modal window is up, just return yes
-  if ([[[TiApp app] controller] presentedViewController] != nil) {
+  if ([[[self owningInstance] controller] presentedViewController] != nil) {
     return YES;
   }
-  return ([[[[TiApp app] controller] view] superview] != nil);
+  UIViewController *ctrl = [[self owningInstance] controller];
+  if (![ctrl isViewLoaded]) {
+    return NO;
+  }
+  return ([ctrl view].superview != nil);
 }
 
 #pragma mark - TiWindowProtocol Base Methods
@@ -219,7 +247,7 @@
   JSContext *context = [self currentContext];
 
   // If an error is up, Go away
-  if ([[[[TiApp app] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
+  if ([[[[self owningInstance] controller] topPresentedController] isKindOfClass:[TiErrorNavigationController class]]) {
     DebugLog(@"[ERROR] ErrorController is up. ABORTING open");
     return [KrollPromise rejectedWithErrorMessage:@"ErrorController is up. ABORTING open" inContext:context];
   }
@@ -259,11 +287,11 @@
     if ([self argOrWindowPropertyExists:@"fullscreen" args:args]) {
       hidesStatusBar = NO;
     } else {
-      hidesStatusBar = [[[TiApp app] controller] statusBarInitiallyHidden];
+      hidesStatusBar = [[[self owningInstance] controller] statusBarInitiallyHidden];
     }
   }
 
-  int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[TiApp app] controller] defaultStatusBarStyle]];
+  int theStyle = [TiUtils intValue:[self valueForUndefinedKey:@"statusBarStyle"] def:[[[self owningInstance] controller] defaultStatusBarStyle]];
 
   [self assignStatusBarStyle:theStyle];
 
@@ -286,13 +314,13 @@
 
 - (void)setStatusBarStyle:(id)style
 {
-  int theStyle = [TiUtils intValue:style def:[[[TiApp app] controller] defaultStatusBarStyle]];
+  int theStyle = [TiUtils intValue:style def:[[[self owningInstance] controller] defaultStatusBarStyle]];
   [self assignStatusBarStyle:theStyle];
   [self setValue:NUMINT(barStyle) forUndefinedKey:@"statusBarStyle"];
   if (focussed) {
     TiThreadPerformOnMainThread(
         ^{
-          [[[TiApp app] controller] updateStatusBar];
+          [[[self owningInstance] controller] updateStatusBar];
         },
         YES);
   }
@@ -360,7 +388,7 @@
 
 - (BOOL)_handleOpen:(id)args
 {
-  TiRootViewController *theController = [[TiApp app] controller];
+  TiRootViewController *theController = [[self owningInstance] controller];
   if (isModal || (tab != nil) || self.isManaged) {
     [self forgetProxy:openAnimation];
     RELEASE_TO_NIL(openAnimation);
@@ -382,7 +410,7 @@
 
 - (BOOL)_handleClose:(id)args
 {
-  TiRootViewController *theController = [[TiApp app] controller];
+  TiRootViewController *theController = [[self owningInstance] controller];
   if (isModal || (tab != nil) || self.isManaged) {
     [self forgetProxy:closeAnimation];
     RELEASE_TO_NIL(closeAnimation);
@@ -426,7 +454,7 @@
   id current = [self valueForUndefinedKey:@"homeIndicatorAutoHidden"];
   [self replaceValue:arg forKey:@"homeIndicatorAutoHidden" notification:NO];
   if (current != arg) {
-    [[[TiApp app] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
+    [[[self owningInstance] controller] setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
 }
 
@@ -466,7 +494,6 @@
         [(id)thisProxy gainFocus];
       }
     }
-    [self processForSafeArea];
   }
   TiThreadPerformOnMainThread(
       ^{
@@ -518,7 +545,7 @@
   }
 
   // Fallback to the app's root view controller.
-  return [[TiApp app] controller];
+  return [[self owningInstance] controller];
 }
 
 #pragma mark - Private Methods
@@ -542,7 +569,7 @@
 
 - (NSNumber *)orientation
 {
-  return NUMINT([UIApplication sharedApplication].statusBarOrientation);
+  return NUMINT([TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene]);
 }
 
 - (void)forceNavBarFrame
@@ -554,7 +581,7 @@
     return;
   }
 
-  if (![[[TiApp app] controller] statusBarVisibilityChanged]) {
+  if (![[[self owningInstance] controller] statusBarVisibilityChanged]) {
     return;
   }
 
@@ -598,7 +625,7 @@
       theController.modalInPresentation = forceModal;
 
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
-      [[TiApp app] showModalController:theController animated:animated];
+      [[self owningInstance] showModalController:theController animated:animated];
     } else {
       [self windowWillOpen];
       if (!self.isManaged && ((openAnimation == nil) || (![openAnimation isTransitionAnimation]))) {
@@ -632,7 +659,7 @@
     if (isModal) {
       NSDictionary *dict = [args count] > 0 ? [args objectAtIndex:0] : nil;
       BOOL animated = [TiUtils boolValue:@"animated" properties:dict def:YES];
-      [[TiApp app] hideModalController:controller animated:animated];
+      [[self owningInstance] hideModalController:controller animated:animated];
     } else {
       if (closeAnimation != nil) {
         [closeAnimation setDelegate:self];
@@ -672,7 +699,7 @@
 - (TiOrientationFlags)orientationFlags
 {
   if ([self isModal]) {
-    return (_supportedOrientations == TiOrientationNone) ? [[[TiApp app] controller] getDefaultOrientations] : _supportedOrientations;
+    return (_supportedOrientations == TiOrientationNone) ? [[[self owningInstance] controller] getDefaultOrientations] : _supportedOrientations;
   }
   return _supportedOrientations;
 }
@@ -685,7 +712,7 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:NO animated:animated];
-    [self processForSafeArea];
+    [self willChangeSize];
   }
 }
 
@@ -697,8 +724,7 @@
     id properties = (args != nil && [args count] > 0) ? [args objectAtIndex:0] : nil;
     BOOL animated = [TiUtils boolValue:@"animated" properties:properties def:YES];
     [[controller navigationController] setNavigationBarHidden:YES animated:animated];
-    [self processForSafeArea];
-    // TODO: need to fix height
+    [self willChangeSize];
   }
 }
 
@@ -761,6 +787,12 @@
 
   [self willShow];
 }
+
+- (void)viewSafeAreaInsetsDidChange
+{
+  [self willChangeSizeForSafeArea];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
   if (controller != nil) {
@@ -768,6 +800,7 @@
   }
   [self willHide];
 }
+
 - (void)viewDidAppear:(BOOL)animated
 {
   if (isModal && opening) {
@@ -777,6 +810,7 @@
     [self gainFocus];
   }
 }
+
 - (void)viewDidDisappear:(BOOL)animated
 {
   if (isModal && closing) {
@@ -896,7 +930,7 @@
   BOOL isOpenAnimation = NO;
   UIView *hostingView = nil;
   if (sender == openAnimation) {
-    hostingView = [[[[TiApp app] controller] topContainerController] hostingView];
+    hostingView = [[[[self owningInstance] controller] topContainerController] hostingView];
     isOpenAnimation = YES;
   } else {
     hostingView = [[self view] superview];
@@ -971,9 +1005,42 @@
   [self rememberProxy:transitionProxy];
 }
 
-- (void)processForSafeArea
+- (BOOL)processForSafeArea
 {
   // Overridden in subclass
+  return NO;
+}
+
+- (id)scene
+{
+  if (@available(iOS 13.0, *)) {
+    UIWindow *nativeWindow = nil;
+
+    // Try to get the native window from the controller's view
+    if (controller != nil && [controller isViewLoaded]) {
+      nativeWindow = [controller view].window;
+    }
+
+    // Fallback: try through our own view
+    if (nativeWindow == nil) {
+      UIView *ourView = [self view];
+      if (ourView != nil) {
+        nativeWindow = ourView.window;
+      }
+    }
+
+    if (nativeWindow != nil) {
+      TiApp *tiApp = [[TiSceneRegistry sharedRegistry] appForWindow:nativeWindow];
+      if (tiApp != nil) {
+        NSString *sceneUUID = [tiApp sceneId];
+        if (sceneUUID != nil) {
+          TiSceneProxy *sceneProxy = [[TiSceneRegistry sharedRegistry] ensureSceneProxyForUUID:sceneUUID tiApp:tiApp];
+          return sceneProxy;
+        }
+      }
+    }
+  }
+  return [NSNull null];
 }
 
 @end

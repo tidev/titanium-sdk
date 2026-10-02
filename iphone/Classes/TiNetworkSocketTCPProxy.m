@@ -643,7 +643,7 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
   }
 }
 
-// Prevent that goofy race conditon where a socket isn't attached to a run loop before beginning the accepted socket run loop.
+// Prevent that goofy race condition where a socket isn't attached to a run loop before beginning the accepted socket run loop.
 - (void)onSocketReadyInRunLoop:(AsyncSocket *)sock
 {
   NSCondition *tempConditionRef = [readyCondition retain];

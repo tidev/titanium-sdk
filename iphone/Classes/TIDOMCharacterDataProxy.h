@@ -10,7 +10,6 @@
 #import <TitaniumKit/TiProxy.h>
 
 @interface TiDOMCharacterDataProxy : TiDOMNodeProxy {
-  @private
 }
 
 @property (nonatomic, copy, readwrite) NSString *data;

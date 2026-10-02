@@ -196,7 +196,7 @@ public class NotificationProxy extends KrollProxy
 	}
 
 	@Kroll.setProperty
-	public void setColor(String color)
+	public void setColor(Object color)
 	{
 		notificationBuilder.setColor(TiColorHelper.parseColor(color, getActivity()));
 		setProperty(TiC.PROPERTY_COLOR, color);
@@ -229,7 +229,7 @@ public class NotificationProxy extends KrollProxy
 	public void setTickerText(String tickerText)
 	{
 		notificationBuilder.setTicker(tickerText);
-		//set the javascript object
+		//set the JavaScript object
 		setProperty(TiC.PROPERTY_TICKER_TEXT, tickerText);
 	}
 

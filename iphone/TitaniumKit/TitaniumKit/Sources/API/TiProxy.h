@@ -8,7 +8,7 @@
 #import "KrollObject.h"
 #import "TiBindingRunLoop.h"
 #import "TiEvaluator.h"
-#import <pthread.h>
+#include <stdatomic.h>
 
 #ifndef TI_BASE_H
 #import "TiBase.h"
@@ -16,6 +16,7 @@
 
 @class KrollBridge;
 @class KrollObject;
+@class TiApp;
 
 // Common exceptions to throw when the function call was improper
 extern NSString *const TiExceptionInvalidType;
@@ -27,7 +28,7 @@ extern NSString *const TiExceptionOSError;
 // This is when a normally allowed command is not allowed (Say, adding a row to a table when it already is added elsewhere)
 extern NSString *const TiExceptionInternalInconsistency;
 
-// Rare exceptions to indicate a bug in the titanium code (Eg, function that a subclass should have implemented)
+// Rare exceptions to indicate a bug in the Titanium code (e.g., function that a subclass should have implemented)
 extern NSString *const TiExceptionUnimplementedFunction;
 
 // Rare exception in the case of malloc failure
@@ -106,14 +107,14 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
   id<TiProxyDelegate> modelDelegate;
   NSURL *baseURL;
   NSString *krollDescription;
-  pthread_rwlock_t listenerLock;
+  dispatch_queue_t listenerQueue;
   BOOL reproxying;
   @protected
   NSMutableDictionary *dynprops;
   NSMutableArray *dynpropnames;
-  pthread_rwlock_t dynpropsLock; // NOTE: You must respect the dynprops lock when accessing dynprops elsewhere!
+  dispatch_queue_t dynpropsQueue; // NOTE: You must respect the dynprops queue when accessing dynprops elsewhere!
 
-  int bridgeCount;
+  atomic_int bridgeCount;
   KrollObject *pageKrollObject;
   id<TiEvaluator> pageContext;
   id<TiEvaluator> executionContext;
@@ -167,6 +168,13 @@ void DoProxyDelegateReadValuesWithKeysFromProxy(UIView<TiProxyDelegate> *target,
 - (id)_proxy:(TiProxyBridgeType)type;
 - (void)contextWasShutdown:(id<TiEvaluator>)context;
 - (TiHost *)_host;
+
+/**
+ Returns the TiApp instance that owns this proxy's execution context.
+ In multi-scene mode, resolves to the correct TiApp for the proxy's KrollBridge.
+ Falls back to [TiApp app] (sharedApp singleton) for single-scene or pre-iOS 13.
+ */
+- (TiApp *)owningInstance;
 - (NSURL *)_baseURL;
 - (void)_setBaseURL:(NSURL *)url;
 - (void)_destroy;

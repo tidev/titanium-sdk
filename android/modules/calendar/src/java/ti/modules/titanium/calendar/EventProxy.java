@@ -26,7 +26,7 @@ import android.net.Uri;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
 
-// Columns and value constants taken from android.provider.Calendar in the android source base
+// Columns and value constants taken from android.provider.Calendar in the Android source base
 @Kroll.proxy(parentModule = CalendarModule.class, propertyAccessors = { TiC.PROPERTY_RECURRENCE_RULES })
 public class EventProxy extends KrollProxy
 {
@@ -510,7 +510,7 @@ public class EventProxy extends KrollProxy
 		results.close();
 
 		if (count == 1) {
-			// android won't let us update, so we have to delete+insert
+			// Android won't let us update, so we have to delete+insert
 			contentResolver.delete(extPropsUri, "name = ? and event_id = ?", new String[] { name, getId() });
 		}
 
