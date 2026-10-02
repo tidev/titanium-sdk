@@ -21,7 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 public class TiUIRadioButtons extends TiUIView
 {
-	private static final String TAG = "TiUIButtonBar";
+	private static final String TAG = "TiUIRadioButtons";
 
 	public TiUIRadioButtons(TiViewProxy proxy)
 	{

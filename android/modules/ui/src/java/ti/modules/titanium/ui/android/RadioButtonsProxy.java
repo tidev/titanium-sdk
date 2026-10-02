@@ -30,6 +30,6 @@ public class RadioButtonsProxy extends TiViewProxy
 	@Override
 	public String getApiName()
 	{
-		return "Ti.UI.RadioButtons";
+		return "Ti.UI.Android.RadioButtons";
 	}
 }
