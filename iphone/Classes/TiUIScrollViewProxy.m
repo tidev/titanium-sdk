@@ -11,6 +11,26 @@
 
 #import <TitaniumKit/TiUtils.h>
 
+// Returns an opaque variant of `inputColor` (alpha forced to 1.0). Handles
+// non-RGB colorspaces gracefully: grayscale falls back to `colorWithWhite:`,
+// pattern/exotic colors are returned unchanged. Returns nil for nil input.
+static UIColor *OpaqueColorFromColor(UIColor *inputColor)
+{
+  if (inputColor == nil) {
+    return nil;
+  }
+  CGFloat red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0;
+  if ([inputColor getRed:&red green:&green blue:&blue alpha:&alpha]) {
+    return [UIColor colorWithRed:red green:green blue:blue alpha:1.0f];
+  }
+  CGFloat white = 0.0;
+  if ([inputColor getWhite:&white alpha:&alpha]) {
+    return [UIColor colorWithWhite:white alpha:1.0f];
+  }
+  // Pattern or other exotic colorspaces: no safe conversion, return as-is.
+  return inputColor;
+}
+
 @implementation TiUIScrollViewProxy
 
 static NSArray *scrollViewKeySequence;
@@ -30,6 +50,10 @@ static NSArray *scrollViewKeySequence;
   [self initializeProperty:@"zoomScale" defaultValue:NUMFLOAT(1.0)];
   [self initializeProperty:@"canCancelEvents" defaultValue:NUMBOOL(YES)];
   [self initializeProperty:@"scrollingEnabled" defaultValue:NUMBOOL(YES)];
+  [self initializeProperty:@"contentInsets" defaultValue:nil];
+  [self initializeProperty:@"verticalScrollIndicatorInsets" defaultValue:nil];
+  [self initializeProperty:@"horizontalScrollIndicatorInsets" defaultValue:nil];
+  [self initializeProperty:@"scrollIndicatorColor" defaultValue:nil];
   [super _initWithProperties:properties];
 }
 
@@ -54,13 +78,215 @@ static NSArray *scrollViewKeySequence;
   return [contentOffset autorelease];
 }
 
+- (id)contentInsets
+{
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].contentInset;
+    return @{
+      @"top" : @(insets.top),
+      @"left" : @(insets.left),
+      @"bottom" : @(insets.bottom),
+      @"right" : @(insets.right)
+    };
+  }
+  return [NSNull null];
+}
+
+// Parses `value` for animation options (animated, duration) and an optional
+// `safearea` offset (added to bottom), builds UIEdgeInsets via TiUtils (which
+// gracefully handles partial dicts), and either animates or directly applies
+// the insets via `assignment`. Callers set any adjustment-behavior flags on
+// the scrollView before invoking this helper.
+- (void)applyInsetsValue:(id)value
+         usingAssignment:(void (^)(UIEdgeInsets))assignment
+        safeAreaToBottom:(BOOL)applySafeArea
+{
+  BOOL animated = NO;
+  CGFloat duration = 300; // default 300ms (matches TiUIListView/TiUITableView)
+
+  if ([value isKindOfClass:[NSDictionary class]]) {
+    id animVal = [value objectForKey:@"animated"];
+    if (animVal != nil && ![animVal isEqual:[NSNull null]]) {
+      animated = [TiUtils boolValue:animVal def:NO];
+    }
+    id durVal = [value objectForKey:@"duration"];
+    if (durVal != nil && ![durVal isEqual:[NSNull null]]) {
+      duration = [TiUtils doubleValue:durVal def:300];
+    }
+  }
+
+  // TiUtils handles missing keys gracefully (unlike a dict literal with nil values)
+  UIEdgeInsets insets = [TiUtils contentInsets:value];
+  if (applySafeArea && [value isKindOfClass:[NSDictionary class]]) {
+    id safeAreaVal = [value objectForKey:@"safearea"];
+    if (safeAreaVal != nil && ![safeAreaVal isEqual:[NSNull null]]) {
+      insets.bottom += [TiUtils doubleValue:safeAreaVal def:0];
+    }
+  }
+
+  if (animated && duration > 0) {
+    [UIView animateWithDuration:duration / 1000.0
+                     animations:^{
+                       assignment(insets);
+                     }];
+  } else {
+    assignment(insets);
+  }
+}
+
+- (void)setContentInsets:(id)value
+{
+  ENSURE_UI_THREAD(setContentInsets, value);
+  [self replaceValue:value forKey:@"contentInsets" notification:NO];
+  if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    [self applyInsetsValue:value
+           usingAssignment:^(UIEdgeInsets insets) {
+             scrollView.contentInset = insets;
+           }
+          safeAreaToBottom:YES];
+  }
+}
+
+- (void)setVerticalScrollIndicatorInsets:(id)value
+{
+  ENSURE_UI_THREAD(setVerticalScrollIndicatorInsets, value);
+  [self replaceValue:value forKey:@"verticalScrollIndicatorInsets" notification:NO];
+  if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
+    [self applyInsetsValue:value
+           usingAssignment:^(UIEdgeInsets insets) {
+             scrollView.verticalScrollIndicatorInsets = insets;
+           }
+          safeAreaToBottom:NO];
+  }
+}
+
+- (void)setHorizontalScrollIndicatorInsets:(id)value
+{
+  ENSURE_UI_THREAD(setHorizontalScrollIndicatorInsets, value);
+  [self replaceValue:value forKey:@"horizontalScrollIndicatorInsets" notification:NO];
+  if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
+    UIScrollView *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
+    [self applyInsetsValue:value
+           usingAssignment:^(UIEdgeInsets insets) {
+             scrollView.horizontalScrollIndicatorInsets = insets;
+           }
+          safeAreaToBottom:NO];
+  }
+}
+
+- (id)verticalScrollIndicatorInsets
+{
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].verticalScrollIndicatorInsets;
+    return @{
+      @"top" : @(insets.top),
+      @"left" : @(insets.left),
+      @"bottom" : @(insets.bottom),
+      @"right" : @(insets.right)
+    };
+  }
+  return [NSNull null];
+}
+
+- (id)horizontalScrollIndicatorInsets
+{
+  if ([self viewAttached]) {
+    UIEdgeInsets insets = [(TiUIScrollView *)[self view] scrollView].horizontalScrollIndicatorInsets;
+    return @{
+      @"top" : @(insets.top),
+      @"left" : @(insets.left),
+      @"bottom" : @(insets.bottom),
+      @"right" : @(insets.right)
+    };
+  }
+  return [NSNull null];
+}
+
+- (id)scrollIndicatorColor
+{
+  // Return the value saved by setScrollIndicatorColor. This keeps the
+  // getter consistent with the setter regardless of view-attached state
+  // and regardless of whether the indicator renders as a UIImageView or
+  // as the private _UIScrollViewScrollIndicator class on iOS 16+ (which
+  // the previous iteration-based getter missed, returning NSNull).
+  id saved = [self valueForUndefinedKey:@"scrollIndicatorColor"];
+  return (saved != nil) ? saved : [NSNull null];
+}
+
+- (void)setScrollIndicatorColor:(id)value
+{
+  ENSURE_UI_THREAD(setScrollIndicatorColor, value);
+  [self replaceValue:value forKey:@"scrollIndicatorColor" notification:NO];
+  if ([self viewAttached] && value != nil && ![value isEqual:[NSNull null]]) {
+    UIColor *color = OpaqueColorFromColor([[TiUtils colorValue:value] color]);
+    if (color == nil) {
+      return;
+    }
+    // Stash the resolved color on the impl; its layoutSubviews hook will
+    // apply it to whatever indicator subviews exist (and re-apply whenever
+    // UIKit lazily (re)creates them). No indicator toggling, no dispatch_async.
+    [(TiUIScrollView *)[self view] scrollView].scrollIndicatorColor = color;
+  }
+}
+
 - (void)windowWillOpen
 {
   [super windowWillOpen];
+
   // Since layout children is overridden in scrollview need to make sure that
   // a full layout occurs at least once if view is attached
   if ([self viewAttached]) {
     [self contentsWillChange];
+
+    // CRITICAL: Re-apply contentInsets and scrollIndicatorInsets here
+    // because they may have been set during initialization when the view
+    // was not yet attached. Safe area insets are now calculated.
+    TiUIScrollViewImpl *scrollView = [(TiUIScrollView *)[self view] scrollView];
+    scrollView.automaticallyAdjustsScrollIndicatorInsets = NO;
+
+    id savedContentInsets = [self valueForUndefinedKey:@"contentInsets"];
+    if (savedContentInsets != nil && ![savedContentInsets isEqual:[NSNull null]]) {
+      scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+
+      // Route through TiUtils so partial dicts / dimension strings behave
+      // identically to the setter. Re-apply the saved safearea offset to
+      // the bottom (matches setContentInsets behavior).
+      UIEdgeInsets insets = [TiUtils contentInsets:savedContentInsets];
+      if ([savedContentInsets isKindOfClass:[NSDictionary class]]) {
+        id safeAreaVal = [(NSDictionary *)savedContentInsets objectForKey:@"safearea"];
+        if (safeAreaVal != nil && ![safeAreaVal isEqual:[NSNull null]]) {
+          insets.bottom += [TiUtils doubleValue:safeAreaVal def:0];
+        }
+      }
+      scrollView.contentInset = insets;
+    }
+
+    // Apply verticalScrollIndicatorInsets (left/right)
+    id savedVerticalScrollIndicatorInsets = [self valueForUndefinedKey:@"verticalScrollIndicatorInsets"];
+    if (savedVerticalScrollIndicatorInsets != nil && ![savedVerticalScrollIndicatorInsets isEqual:[NSNull null]]) {
+      scrollView.verticalScrollIndicatorInsets = [TiUtils contentInsets:savedVerticalScrollIndicatorInsets];
+    }
+
+    // Apply horizontalScrollIndicatorInsets (top/bottom)
+    id savedHorizontalScrollIndicatorInsets = [self valueForUndefinedKey:@"horizontalScrollIndicatorInsets"];
+    if (savedHorizontalScrollIndicatorInsets != nil && ![savedHorizontalScrollIndicatorInsets isEqual:[NSNull null]]) {
+      scrollView.horizontalScrollIndicatorInsets = [TiUtils contentInsets:savedHorizontalScrollIndicatorInsets];
+    }
+
+    // Re-apply scrollIndicatorColor after view is attached. The impl's
+    // layoutSubviews hook handles applying it to the indicator subviews.
+    id savedScrollIndicatorColor = [self valueForUndefinedKey:@"scrollIndicatorColor"];
+    if (savedScrollIndicatorColor != nil && ![savedScrollIndicatorColor isEqual:[NSNull null]]) {
+      UIColor *color = OpaqueColorFromColor([[TiUtils colorValue:savedScrollIndicatorColor] color]);
+      if (color != nil) {
+        scrollView.scrollIndicatorColor = color;
+      }
+    }
   }
 }
 
