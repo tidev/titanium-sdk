@@ -145,7 +145,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 	protected TiBorderWrapperView borderView;
 	// For twofingertap detection
 	private boolean didScale = false;
-	private boolean isEnabled = true;
+	private boolean isTouchEnabled = true;
 	private boolean isVisible = true;
 
 	//to maintain sync visibility between borderview and view. Default is visible
@@ -338,10 +338,10 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		this.nativeView = view;
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			isEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+			isTouchEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
 		}
 
-		doSetClickable(nativeView, isEnabled);
+		doSetClickable(nativeView, isTouchEnabled);
 		nativeView.setOnFocusChangeListener(this);
 
 		applyAccessibilityProperties();
@@ -783,10 +783,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		} else if (key.equals(TiC.PROPERTY_FOCUSABLE) && newValue != null) {
 			registerForKeyPress(nativeView, TiConvert.toBoolean(newValue, false));
 		} else if (key.equals(TiC.PROPERTY_TOUCH_ENABLED)) {
-			isEnabled = TiConvert.toBoolean(newValue);
+			isTouchEnabled = TiConvert.toBoolean(newValue);
 			if (isVisible) {
-				nativeView.setEnabled(TiConvert.toBoolean(newValue));
-				doSetClickable(TiConvert.toBoolean(newValue));
+				doSetClickable(isTouchEnabled);
 			}
 		} else if (key.equals(TiC.PROPERTY_FILTER_TOUCHES_WHEN_OBSCURED)) {
 			setFilterTouchesWhenObscured(TiConvert.toBoolean(newValue, false));
@@ -794,7 +793,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			newValue = (newValue == null) ? false : newValue;
 			this.setVisibility(TiConvert.toBoolean(newValue) ? View.VISIBLE : View.INVISIBLE);
 		} else if (key.equals(TiC.PROPERTY_ENABLED)) {
-			nativeView.setEnabled(TiConvert.toBoolean(newValue));
+			updateEnabledState(nativeView);
 		} else if (key.startsWith(TiC.PROPERTY_BACKGROUND_PADDING)) {
 			Log.i(TAG, key + " not yet implemented.");
 		} else if (key.equals(TiC.PROPERTY_OPACITY) || key.equals(TiC.PROPERTY_TOUCH_FEEDBACK_COLOR)
@@ -1057,7 +1056,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_ENABLED) && !nativeViewNull) {
-			nativeView.setEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLED, true));
+			updateEnabledState(nativeView);
 		}
 
 		initializeBorder(d, bgColor);
@@ -1936,9 +1935,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 
 		if (proxy.hasProperty(TiC.PROPERTY_TOUCH_ENABLED)) {
-			isEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
+			isTouchEnabled = TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true);
 			if (isVisible) {
-				touchable.setClickable(isEnabled);
+				touchable.setClickable(isTouchEnabled);
 			}
 		}
 		//Checking and setting touch sound for view
@@ -2046,25 +2045,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return;
 		}
 
-		if (opacity == 0) {
-			isVisible = false;
-		} else {
-			isVisible = true;
-		}
+		isVisible = opacity != 0;
 
 		if (borderView != null) {
-			if (isEnabled && isVisible) {
-				doSetClickable(borderView, true);
-			} else {
-				doSetClickable(borderView, false);
-			}
+			doSetClickable(borderView, isTouchEnabled && isVisible);
 			setOpacity(borderView, opacity);
 		} else if (nativeView != null) {
-			if (isEnabled && isVisible) {
-				doSetClickable(nativeView, true);
-			} else {
-				doSetClickable(nativeView, false);
-			}
+			doSetClickable(nativeView, isTouchEnabled && isVisible);
 			setOpacity(nativeView, opacity);
 		}
 	}
@@ -2121,11 +2108,25 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		return null;
 	}
 
+	/**
+	 * Enables the view only if the "enabled" property, "touchEnabled" and the opacity allow it.
+	 * @param view The native view object
+	 */
+	private void updateEnabledState(View view)
+	{
+		if (view == null) {
+			return;
+		}
+		boolean enabled = proxy == null || TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_ENABLED), true);
+		view.setEnabled(enabled && isTouchEnabled && isVisible);
+	}
+
 	private void doSetClickable(View view, boolean clickable)
 	{
 		if (view == null) {
 			return;
 		}
+		updateEnabledState(view);
 		if (!clickable) {
 			// If view is AdapterView, setOnClickListener(null) will throw a RuntimeException: Don't call setOnClickListener for an AdapterView. You probably want setOnItemClickListener
 			// TIMOB-18951
@@ -2134,16 +2135,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					null); // This will set clickable to true in the view, so make sure it stays here so the next line turns it off.
 			}
 			view.setClickable(false);
-			view.setEnabled(false);
 			view.setOnLongClickListener(null);
 			view.setLongClickable(false);
 		} else if (!(view instanceof AdapterView)) {
 			// n.b.: AdapterView throws if click listener set.
 			// n.b.: setting onclicklistener automatically sets clickable to true.
-			if (isEnabled && isVisible) {
-				// only enable is touchEnabled is true
-				view.setEnabled(true);
-			}
 			setOnClickListener(view);
 			setOnLongClickListener(view);
 		}
