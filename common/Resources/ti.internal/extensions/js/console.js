@@ -75,11 +75,6 @@ class Console {
 	}
 
 	_writeToConsole(level, string) {
-		// filter out console logs in production apps
-		if (Ti.App.deployType === 'production') {
-			return;
-		}
-
 		if (this._groupIndent.length !== 0) {
 			if (string.includes('\n')) {
 				string = string.replace(/\n/g, `\n${this._groupIndent}`);
