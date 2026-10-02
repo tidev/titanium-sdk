@@ -8,7 +8,6 @@ package org.appcelerator.titanium.util;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 
@@ -83,9 +82,6 @@ public class TiFileHelper2
 
 	public static boolean hasStoragePermission()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		Context context = TiApplication.getInstance().getApplicationContext();
 		// Fix for TIMOB-20434 where activity is null
 		if (context == null) {

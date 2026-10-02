@@ -24,7 +24,7 @@ PROPERTY(JSValue *, socket, Socket);
 PROPERTY(NSString *, type, Type);
 
 // Methods
-// FIXME: socketProxy can be TiNetworkSocketTCPProxy* once that proxy is moved to obj-c api
+// FIXME: socketProxy can be TiNetworkSocketTCPProxy* once that proxy is moved to obj-c API
 JSExportAs(publish,
            -(void)publish
            : (JSValue *)socketProxy withCallback

@@ -89,8 +89,8 @@
 {
   ENSURE_TYPE(value, NSString);
   NSURL *url = [self _toURL:value proxy:self];
-  // UIDocumentInteractionController is recommended to be a new instance for every different url
-  // instead of having titanium developer create a new instance every time a new document url is loaded
+  // UIDocumentInteractionController is recommended to be a new instance for every different URL
+  // instead of having Titanium developer create a new instance every time a new document URL is loaded
   // we assume that setUrl is called to change doc, so we go ahead and release the controller and create
   // a new one when asked to present
   RELEASE_TO_NIL(controller);
@@ -120,7 +120,7 @@
 
 #pragma mark Utilities
 
-// Workaround for an issue occuring on iOS 11.2+ that causes
+// Workaround for an issue occurring on iOS 11.2+ that causes
 // files from the resources-directory (app-bundle) to not be
 // recognized properly. This method works around this by creating
 // a temporary file.

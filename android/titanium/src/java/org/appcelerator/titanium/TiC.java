@@ -80,6 +80,7 @@ public class TiC
 	public static final String EVENT_SELECTED = "selected";
 	public static final String EVENT_UNSELECTED = "unselected";
 	public static final String EVENT_KEY_PRESSED = "keypressed";
+	public static final String EVENT_KEYBOARD_FRAME_CHANGED = "keyboardframechanged";
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_ITEM_CLICK = "itemclick";
 	public static final String EVENT_ITEMS_SELECTED = "itemsselected";
@@ -160,6 +161,7 @@ public class TiC
 	public static final String EVENT_RESUME = "resume";
 	public static final String EVENT_RESUMED = "resumed";
 	public static final String EVENT_RETURN = "return";
+	public static final String EVENT_ROTATE = "rotate";
 	public static final String EVENT_ROWS_SELECTED = "rowsselected";
 	public static final String EVENT_SCROLL = "scroll";
 	public static final String EVENT_SCROLLEND = "scrollend";
@@ -532,6 +534,8 @@ public class TiC
 	public static final String PROPERTY_LAYOUT = "layout";
 	public static final String PROPERTY_LAYOUT_ID = "layoutId";
 	public static final String PROPERTY_LEFT_DRAWER_LOCK_MODE = "leftDrawerLockMode";
+
+	public static final String PROPERTY_LETTER_SPACING = "letterSpacing";
 	public static final String PROPERTY_LINES = "lines";
 	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
@@ -592,8 +596,11 @@ public class TiC
 	public static final String PROPERTY_MOVEABLE = "moveable";
 	public static final String PROPERTY_MOVING = "moving";
 	public static final String PROPERTY_MULTIPLY = "multiply";
+	public static final String PROPERTY_MULTIPLE_WINDOWS = "multipleWindows";
 	public static final String PROPERTY_NAME = "name";
 	public static final String PROPERTY_NATIVE_SPINNER = "nativeSpinner";
+	public static final String PROPERTY_NAV_BAR_COLOR = "navBarColor";
+	public static final String PROPERTY_NAV_BAR_HIDDEN = "navBarHidden";
 	public static final String PROPERTY_NAVIGATION_ICON = "navigationIcon";
 	public static final String PROPERTY_NAVIGATION_ICON_COLOR = "navigationIconColor";
 	public static final String PROPERTY_NICKNAME = "nickname";
@@ -734,6 +741,7 @@ public class TiC
 	public static final String PROPERTY_SHOW_SELECTION_CHECK = "showSelectionCheck";
 	public static final String PROPERTY_SISTER = "sister";
 	public static final String PROPERTY_SIZE = "size";
+	public static final String PROPERTY_SNAPPING = "snapping";
 	public static final String PROPERTY_SOFT_KEYBOARD_ON_FOCUS = "softKeyboardOnFocus";
 	public static final String PROPERTY_SOUND = "sound";
 	public static final String PROPERTY_SPEED = "speed";

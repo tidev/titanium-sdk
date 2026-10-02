@@ -91,7 +91,7 @@ properties:
         }
         ```
 
-        On IOS, if you use the <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE>, the `value` must be ParagraphAttribute. 
+        On iOS, if you use the <Titanium.UI.ATTRIBUTE_PARAGRAPH_STYLE>, the `value` must be ParagraphAttribute. 
         E.g:
         ``` js
         {
@@ -191,7 +191,7 @@ properties:
       regardless of the font size or size of any attached graphic. This value must be nonnegative float value 
       or dimension string (e.g. '10px').
       E.g. If you have set minimum height 30 and font size 10. It will make line height 30 which have 
-      smaller text size and more vertical sapcing between text. 
+      smaller text size and more vertical spacing between text. 
     type: [Number,String]
 
   - name: lineSpacing

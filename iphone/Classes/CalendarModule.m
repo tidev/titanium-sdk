@@ -20,11 +20,10 @@
 {
   if (store == nil) {
     store = [[EKEventStore alloc] init];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventStoreChanged:) name:EKEventStoreChangedNotification object:nil];
   }
   if (store == NULL) {
     DebugLog(@"[WARN] Could not access EventStore. ");
-  } else {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventStoreChanged:) name:EKEventStoreChangedNotification object:nil];
   }
   return store;
 }

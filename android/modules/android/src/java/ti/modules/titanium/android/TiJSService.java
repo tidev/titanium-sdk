@@ -33,7 +33,7 @@ public class TiJSService extends TiBaseService
 			if (intent != null && intent.getDataString() != null) {
 				url = intent.getDataString();
 			} else {
-				throw new IllegalStateException("Service url required.");
+				throw new IllegalStateException("Service URL required.");
 			}
 		}
 	}
