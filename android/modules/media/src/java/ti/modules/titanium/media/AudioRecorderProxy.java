@@ -125,6 +125,9 @@ public class AudioRecorderProxy extends KrollProxy
 		if (dict.containsKeyAndNotNull("format")) {
 			setFormat(dict.getInt("format"));
 		}
+		if (dict.containsKeyAndNotNull("compression")) {
+			setCompression(dict.getInt("compression"));
+		}
 	}
 
 	@Override

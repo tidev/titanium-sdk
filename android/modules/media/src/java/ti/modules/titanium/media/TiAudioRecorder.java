@@ -9,10 +9,6 @@ package ti.modules.titanium.media;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -40,16 +36,29 @@ public class TiAudioRecorder
 	private static final int RECORDER_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO;
 	private static final int RECORDER_AUDIO_ENCODING = AudioFormat.ENCODING_PCM_16BIT;
 
+	//Parameters for the compressed recording formats
+	//Note: The AMR encoders only support mono with one fixed sample rate.
+	private static final int RECORDER_AAC_CHANNEL_COUNT = 2;
+	private static final int RECORDER_AAC_BIT_RATE = 128000;
+	private static final int RECORDER_AMR_NB_SAMPLE_RATE = 8000;
+	private static final int RECORDER_AMR_NB_BIT_RATE = 12200;
+	private static final int RECORDER_AMR_WB_SAMPLE_RATE = 16000;
+	private static final int RECORDER_AMR_WB_BIT_RATE = 23850;
+
 	//Byte array used for reading from the native buffer to the output stream
 	private byte[] audioData;
 	private int bufferSize = 0;
 	private File tempFileReference;
 	private RandomAccessFile randomAccessFile;
 	private AudioRecord audioRecord;
+
+	//Used instead of "audioRecord" for all formats other than WAVE
+	private MediaRecorder mediaRecorder;
+	private boolean mediaRecorderIsRecording = false;
+	private boolean mediaRecorderIsPaused = false;
+
 	int format = MediaModule.AUDIO_FILEFORMAT_WAVE;
 	int compression = MediaModule.AUDIO_FORMAT_LINEAR_PCM;
-	MediaRecorder recorder;
-	boolean recorderIsRunning = false;
 
 	public TiAudioRecorder()
 	{
@@ -63,8 +72,8 @@ public class TiAudioRecorder
 		if (this.audioRecord != null) {
 			return (this.audioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING);
 		}
-		if (this.recorder != null) {
-			return recorderIsRunning;
+		if (this.mediaRecorder != null) {
+			return this.mediaRecorderIsPaused;
 		}
 		return false;
 	}
@@ -74,18 +83,17 @@ public class TiAudioRecorder
 		if (this.audioRecord != null) {
 			return (this.audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING);
 		}
-		if (this.recorder != null) {
-			return recorderIsRunning;
+		if (this.mediaRecorder != null) {
+			return this.mediaRecorderIsRecording;
 		}
 		return false;
 	}
 
 	public boolean isStopped()
 	{
-		return (this.audioRecord == null);
+		return (this.audioRecord == null) && (this.mediaRecorder == null);
 	}
 
-	@RequiresApi(api = Build.VERSION_CODES.O)
 	public void startRecording()
 	{
 		// Do not continue if already started recording.
@@ -94,87 +102,146 @@ public class TiAudioRecorder
 			Log.w(TAG, "AudioRecorder has already been started.");
 			return;
 		}
+
+		// Set up and start audio recording.
 		try {
-			if (format != MediaModule.AUDIO_FILEFORMAT_WAVE) {
-				// use MediaRecorder to record with compression
-				int localFormat = MediaRecorder.OutputFormat.MPEG_4;
-				int localCompression = MediaRecorder.AudioEncoder.DEFAULT;
-				String suffix = ".mp4";
-
-				if (format == MediaModule.AUDIO_FILEFORMAT_AAC) {
-					localFormat = MediaRecorder.OutputFormat.AAC_ADTS;
-					suffix = ".aac";
-				} else if (format == MediaModule.AUDIO_FILEFORMAT_3GPP) {
-					localFormat = MediaRecorder.OutputFormat.THREE_GPP;
-					suffix = ".3gp";
+			if (this.format == MediaModule.AUDIO_FILEFORMAT_WAVE) {
+				if (this.compression != MediaModule.AUDIO_FORMAT_LINEAR_PCM) {
+					Log.w(TAG, "AUDIO_FILEFORMAT_WAVE only supports AUDIO_FORMAT_LINEAR_PCM."
+						+ " Ignoring the 'compression' property.");
 				}
-
-				if (compression == MediaModule.AUDIO_FORMAT_AAC) {
-					localCompression = MediaRecorder.AudioEncoder.AAC;
-				} else if (compression == MediaModule.AUDIO_FORMAT_VORBIS) {
-					localCompression = MediaRecorder.AudioEncoder.VORBIS;
-				} else if (compression == MediaModule.AUDIO_FORMAT_HE_AAC) {
-					localCompression = MediaRecorder.AudioEncoder.HE_AAC;
-				} else if (compression == MediaModule.AUDIO_FORMAT_AMR_NB) {
-					localCompression = MediaRecorder.AudioEncoder.AMR_NB;
-				} else if (compression == MediaModule.AUDIO_FORMAT_AMR_WB) {
-					localCompression = MediaRecorder.AudioEncoder.AMR_WB;
-				} else if (compression == MediaModule.AUDIO_FORMAT_AAC_ELD) {
-					localCompression = MediaRecorder.AudioEncoder.AAC_ELD;
-				}
-
-				this.recorder = new MediaRecorder();
-				this.recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-				this.recorder.setOutputFormat(localFormat);
-				this.tempFileReference = TiFileHelper.getInstance().getTempFile(suffix, true);
-				this.recorder.setOutputFile(this.tempFileReference);
-				this.recorder.setAudioSamplingRate(RECORDER_SAMPLE_RATE);
-				this.recorder.setAudioEncoder(localCompression);
-				this.recorder.prepare();
-				this.recorder.start();
-				recorderIsRunning = true;
+				startWaveRecording();
 			} else {
-				// Set up and start audio recording.
-
-				// Create a WAV file to write microphone data to.
-				// We'll update the WAV file's header with the correct info when we stop recording.
-				this.tempFileReference = TiFileHelper.getInstance().getTempFile(".wav", true);
-				this.randomAccessFile = new RandomAccessFile(this.tempFileReference, "rw");
-				this.randomAccessFile.setLength(0);
-				writeWaveFileHeader(this.randomAccessFile, 0, 0, 0, 0, 0);
-
-				// Initialize audio recorder with a big enough buffer to ensure smooth reading from it without overlap.
-				this.audioRecord = new AudioRecord(
-					MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNEL_CONFIG,
-					RECORDER_AUDIO_ENCODING, bufferSize * 4);
-				this.audioData = new byte[bufferSize];
-
-				if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
-					this.audioRecord.setRecordPositionUpdateListener(onRecordPositionUpdateListener);
-					this.audioRecord.setPositionNotificationPeriod(bufferSize / 4);
-					this.audioRecord.startRecording();
-					if (!isRecording()) {
-						Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unknown");
-					}
-				}
+				startCompressedRecording();
 			}
 		} catch (Exception ex) {
 			Log.e(TAG, "AudioRecorder.start() failed to start recording.", ex);
 		}
+
 		// If we failed to start recording above, then clean-up any hanging resources.
 		if (!isRecording()) {
 			stopRecording();
 		}
 	}
 
+	private void startWaveRecording() throws IOException
+	{
+		// Create a WAV file to write microphone data to.
+		// We'll update the WAV file's header with the correct info when we stop recording.
+		this.tempFileReference = TiFileHelper.getInstance().getTempFile(".wav", true);
+		this.randomAccessFile = new RandomAccessFile(this.tempFileReference, "rw");
+		this.randomAccessFile.setLength(0);
+		writeWaveFileHeader(this.randomAccessFile, 0, 0, 0, 0, 0);
+
+		// Initialize audio recorder with a big enough buffer to ensure smooth reading from it without overlap.
+		this.audioRecord = new AudioRecord(
+			MediaRecorder.AudioSource.MIC, RECORDER_SAMPLE_RATE, RECORDER_CHANNEL_CONFIG,
+			RECORDER_AUDIO_ENCODING, bufferSize * 4);
+		this.audioData = new byte[bufferSize];
+		if (this.audioRecord.getState() == AudioRecord.STATE_INITIALIZED) {
+			this.audioRecord.setRecordPositionUpdateListener(onRecordPositionUpdateListener);
+			this.audioRecord.setPositionNotificationPeriod(bufferSize / 4);
+			this.audioRecord.startRecording();
+			if (!isRecording()) {
+				Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unknown");
+			}
+		}
+	}
+
+	private void startCompressedRecording() throws IOException
+	{
+		// Fetch the container format to write to.
+		int outputFormat;
+		String suffix;
+		if (this.format == MediaModule.AUDIO_FILEFORMAT_MP4) {
+			outputFormat = MediaRecorder.OutputFormat.MPEG_4;
+			suffix = ".mp4";
+		} else if (this.format == MediaModule.AUDIO_FILEFORMAT_AAC) {
+			outputFormat = MediaRecorder.OutputFormat.AAC_ADTS;
+			suffix = ".aac";
+		} else if (this.format == MediaModule.AUDIO_FILEFORMAT_3GPP) {
+			outputFormat = MediaRecorder.OutputFormat.THREE_GPP;
+			suffix = ".3gp";
+		} else {
+			Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unsupported format " + this.format);
+			return;
+		}
+
+		// Fetch the audio encoder to use.
+		// Note: MediaRecorder cannot write linear PCM. So, we use AAC for the default compression.
+		int audioEncoder = MediaRecorder.AudioEncoder.AAC;
+		int sampleRate = RECORDER_SAMPLE_RATE;
+		int channelCount = RECORDER_AAC_CHANNEL_COUNT;
+		int bitRate = RECORDER_AAC_BIT_RATE;
+		boolean isAmr = false;
+		if (this.compression == MediaModule.AUDIO_FORMAT_HE_AAC) {
+			audioEncoder = MediaRecorder.AudioEncoder.HE_AAC;
+		} else if (this.compression == MediaModule.AUDIO_FORMAT_AAC_ELD) {
+			audioEncoder = MediaRecorder.AudioEncoder.AAC_ELD;
+		} else if (this.compression == MediaModule.AUDIO_FORMAT_AMR_NB) {
+			audioEncoder = MediaRecorder.AudioEncoder.AMR_NB;
+			sampleRate = RECORDER_AMR_NB_SAMPLE_RATE;
+			bitRate = RECORDER_AMR_NB_BIT_RATE;
+			isAmr = true;
+		} else if (this.compression == MediaModule.AUDIO_FORMAT_AMR_WB) {
+			audioEncoder = MediaRecorder.AudioEncoder.AMR_WB;
+			sampleRate = RECORDER_AMR_WB_SAMPLE_RATE;
+			bitRate = RECORDER_AMR_WB_BIT_RATE;
+			isAmr = true;
+		} else if ((this.compression != MediaModule.AUDIO_FORMAT_AAC)
+			&& (this.compression != MediaModule.AUDIO_FORMAT_LINEAR_PCM)) {
+			Log.e(TAG, "AudioRecorder.start() failed to start recording. Reason: Unsupported compression "
+				+ this.compression);
+			return;
+		}
+		if (isAmr) {
+			channelCount = 1;
+			if (outputFormat == MediaRecorder.OutputFormat.AAC_ADTS) {
+				Log.e(TAG, "AudioRecorder.start() failed to start recording."
+					+ " Reason: AUDIO_FILEFORMAT_AAC does not support AMR compression.");
+				return;
+			}
+		}
+
+		// Start recording. Not all devices support all encoders, in which case the below will throw an exception.
+		this.tempFileReference = TiFileHelper.getInstance().getTempFile(suffix, true);
+		this.mediaRecorder = new MediaRecorder();
+		this.mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		this.mediaRecorder.setOutputFormat(outputFormat);
+		this.mediaRecorder.setAudioEncoder(audioEncoder);
+		this.mediaRecorder.setAudioSamplingRate(sampleRate);
+		this.mediaRecorder.setAudioChannels(channelCount);
+		this.mediaRecorder.setAudioEncodingBitRate(bitRate);
+		this.mediaRecorder.setOutputFile(this.tempFileReference.getAbsolutePath());
+		this.mediaRecorder.prepare();
+		this.mediaRecorder.start();
+		this.mediaRecorderIsRecording = true;
+	}
+
 	public String stopRecording()
 	{
-		// Stop recording and produce the WAV file.
+		// Stop recording and produce the audio file.
 		File resultFile = null;
-		if (this.recorder != null) {
-			this.recorder.stop();
-			resultFile = this.tempFileReference;
-			recorderIsRunning = false;
+		if (this.mediaRecorder != null) {
+			try {
+				// Stop recording. Must only be done if recording was successfully started.
+				// Note: This throws an exception if no audio data was received, such as when stopping right after start.
+				if (this.mediaRecorderIsRecording || this.mediaRecorderIsPaused) {
+					this.mediaRecorder.stop();
+					resultFile = this.tempFileReference;
+				}
+			} catch (Exception ex) {
+				Log.e(TAG, "AudioRecorder.stop() failed to write audio file.", ex);
+			}
+			this.mediaRecorder.release();
+			this.mediaRecorder = null;
+			this.mediaRecorderIsRecording = false;
+			this.mediaRecorderIsPaused = false;
+
+			// Delete the file if we've failed to record to it.
+			if ((resultFile == null) && (this.tempFileReference != null)) {
+				this.tempFileReference.delete();
+			}
 		}
 		if (this.audioRecord != null) {
 			try {
@@ -222,10 +289,16 @@ public class TiAudioRecorder
 	public void pauseRecording()
 	{
 		if (isRecording()) {
-			if (this.audioRecord != null) this.audioRecord.stop();
-			if (this.recorder != null) {
-				this.recorder.pause();
-				recorderIsRunning = false;
+			if (this.audioRecord != null) {
+				this.audioRecord.stop();
+			} else if (this.mediaRecorder != null) {
+				try {
+					this.mediaRecorder.pause();
+					this.mediaRecorderIsRecording = false;
+					this.mediaRecorderIsPaused = true;
+				} catch (Exception ex) {
+					Log.e(TAG, "AudioRecorder.pause() failed to pause recording.", ex);
+				}
 			}
 		}
 	}
@@ -233,10 +306,16 @@ public class TiAudioRecorder
 	public void resumeRecording()
 	{
 		if (isPaused()) {
-			if (this.audioRecord != null) this.audioRecord.startRecording();
-			if (this.recorder != null) {
-				this.recorder.resume();
-				recorderIsRunning = true;
+			if (this.audioRecord != null) {
+				this.audioRecord.startRecording();
+			} else if (this.mediaRecorder != null) {
+				try {
+					this.mediaRecorder.resume();
+					this.mediaRecorderIsRecording = true;
+					this.mediaRecorderIsPaused = false;
+				} catch (Exception ex) {
+					Log.e(TAG, "AudioRecorder.resume() failed to resume recording.", ex);
+				}
 			}
 		}
 	}

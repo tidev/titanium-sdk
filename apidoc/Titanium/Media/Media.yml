@@ -503,14 +503,17 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
-    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
+    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
-  - name: AUDIO_FORMAT_AAC
-    summary: Audio file format AAC.
+  - name: AUDIO_FILEFORMAT_AAC
+    summary: Audio file format AAC (ADTS).
+    description: |
+        This format only supports the compressions <Titanium.Media.AUDIO_FORMAT_AAC>,
+        <Titanium.Media.AUDIO_FORMAT_HE_AAC> and <Titanium.Media.AUDIO_FORMAT_AAC_ELD>.
     type: Number
     permission: read-only
     platforms: [android]
-    since: {android: "11.1.0" }
+    since: {android: "14.0.0" }
 
   - name: AUDIO_FILEFORMAT_AIFF
     summary: Audio file format Audio Interchange File Format (AIFF).
@@ -541,7 +544,7 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
-    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
+    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: AUDIO_FILEFORMAT_MP4A
     summary: Audio file format MP4A.
@@ -554,13 +557,21 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
-    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
+    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: AUDIO_FORMAT_AAC
     summary: Audio format MPEG4 AAC encoding.
     type: Number
     permission: read-only
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
+
+  - name: AUDIO_FORMAT_AAC_ELD
+    summary: Audio format MPEG4 AAC-ELD (enhanced low delay) encoding.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
 
   - name: AUDIO_FORMAT_ALAW
     summary: Audio format 8-bit [aLaw encoding](https://en.wikipedia.org/wiki/A-law_algorithm).
@@ -568,11 +579,38 @@ properties:
     permission: read-only
     platforms: [iphone, ipad, macos]
 
+  - name: AUDIO_FORMAT_AMR_NB
+    summary: Audio format AMR narrowband encoding.
+    description: |
+        Records mono audio with a sample rate of 8 kHz.
+        Not supported by the format <Titanium.Media.AUDIO_FILEFORMAT_AAC>.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
+
+  - name: AUDIO_FORMAT_AMR_WB
+    summary: Audio format AMR wideband encoding.
+    description: |
+        Records mono audio with a sample rate of 16 kHz.
+        Not supported by the format <Titanium.Media.AUDIO_FILEFORMAT_AAC>.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
+
   - name: AUDIO_FORMAT_APPLE_LOSSLESS
     summary: Audio format Apple lossless encoding.
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
+
+  - name: AUDIO_FORMAT_HE_AAC
+    summary: Audio format MPEG4 HE-AAC (high efficiency) encoding.
+    type: Number
+    permission: read-only
+    platforms: [android]
+    since: {android: "14.0.0"}
 
   - name: AUDIO_FORMAT_ILBC
     summary: Audio format [iLBC encoding](https://en.wikipedia.org/wiki/Internet_Low_Bitrate_Codec).
@@ -589,55 +627,13 @@ properties:
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
-    since: {android: "11.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
+    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: AUDIO_FORMAT_ULAW
     summary: Audio format 8-bit [muLaw encoding](https://en.wikipedia.org/wiki/M-law_algorithm).
     type: Number
     permission: read-only
     platforms: [iphone, ipad, macos]
-
-  - name: AUDIO_FORMAT_AAC
-    summary: Audio format AAC.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0"}
-
-  - name: AUDIO_FORMAT_HE_AAC
-    summary: Audio format HE-AAC.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0"}
-
-  - name: AUDIO_FORMAT_AMR_NB
-    summary: Audio format AMR_NB.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0"}
-
-  - name: AUDIO_FORMAT_AMR_WB
-    summary: Audio format AMR_WB.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0"}
-
-  - name: AUDIO_FORMAT_AAC_ELD
-    summary: Audio format AAC_ELD.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0"}
-
-  - name: AUDIO_FORMAT_VORBIS
-    summary: Audio format Vorbis.
-    type: Number
-    permission: read-only
-    platforms: [android]
-    since: {android: "11.1.0"}
 
   - name: AUDIO_SESSION_CATEGORY_AMBIENT
     summary: For long-duration sounds such as rain, car engine noise, and so on.
