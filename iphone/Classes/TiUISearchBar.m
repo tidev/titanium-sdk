@@ -208,7 +208,7 @@
   // try to set the image with UIBarMetricsDefaultPrompt barMetrics
   //
   // Checking for the `prompt` property is not reliable, even if it's not set, the height
-  // of the searchbar determines wheather the barMetrics is `DefaultPrompt` or just `Default`
+  // of the searchbar determines whether the barMetrics is `DefaultPrompt` or just `Default`
   [searchBar setBackgroundImage:image forBarPosition:UIBarPositionAny barMetrics:UIBarMetricsDefaultPrompt];
 
   // check that the image has been set, otherwise try the other barMetrics

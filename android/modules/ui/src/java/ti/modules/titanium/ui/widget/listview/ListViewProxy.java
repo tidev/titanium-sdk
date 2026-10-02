@@ -58,6 +58,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_SHOW_SELECTION_CHECK,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
+		TiC.PROPERTY_SNAPPING,
 		TiC.PROPERTY_TEMPLATES,
 		TiC.PROPERTY_TOUCH_FEEDBACK,
 		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
@@ -124,8 +125,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 			// Append ListSection array.
 			for (final Object o : (Object[]) sections) {
-				if (o instanceof ListSectionProxy) {
-					final ListSectionProxy section = (ListSectionProxy) o;
+				if (o instanceof ListSectionProxy section) {
 
 					section.setParent(this);
 					this.sections.add(section);
@@ -135,8 +135,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			// Notify ListView of new sections.
 			update();
 
-		} else if (sections instanceof ListSectionProxy) {
-			final ListSectionProxy section = (ListSectionProxy) sections;
+		} else if (sections instanceof ListSectionProxy section) {
 
 			// Append ListSection.
 			section.setParent(this);
@@ -171,8 +170,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		if (listView != null) {
 			final ListItemProxy item = listView.getAdapterItem(adapterIndex);
 			final TiViewProxy parentProxy = item.getParent();
-			if (parentProxy instanceof ListSectionProxy) {
-				final ListSectionProxy section = (ListSectionProxy) parentProxy;
+			if (parentProxy instanceof ListSectionProxy section) {
 				item.fireSyncEvent(TiC.EVENT_DELETE, null);
 				section.deleteItemsAt(item.getIndexInSection(), 1, null);
 			}
@@ -201,8 +199,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListItemProxy toItem = listView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
 
-			if (parentProxy instanceof ListSectionProxy) {
-				final ListSectionProxy toSection = (ListSectionProxy) parentProxy;
+			if (parentProxy instanceof ListSectionProxy toSection) {
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
 
 				// Prevent updating items during move operations.
@@ -258,8 +255,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListItemProxy targetItemProxy = listView.getAdapterItem(adapterIndex);
 			if (targetItemProxy != null) {
 				final TiViewProxy targetParentProxy = targetItemProxy.getParent();
-				if (targetParentProxy instanceof ListSectionProxy) {
-					ListSectionProxy targetSectionProxy = (ListSectionProxy) targetParentProxy;
+				if (targetParentProxy instanceof ListSectionProxy targetSectionProxy) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_SECTION, this.moveEventInfo.sectionProxy);
 					data.put(TiC.PROPERTY_SECTION_INDEX, this.moveEventInfo.sectionIndex);
@@ -582,8 +578,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		if (sections instanceof Object[]) {
 			for (Object o : (Object[]) sections) {
-				if (o instanceof ListSectionProxy) {
-					final ListSectionProxy section = (ListSectionProxy) o;
+				if (o instanceof ListSectionProxy section) {
 
 					// Add section.
 					section.setParent(this);
@@ -645,8 +640,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			if (item != null) {
 				final Object parent = item.getParent();
 
-				if (parent instanceof ListSectionProxy) {
-					final ListSectionProxy section = (ListSectionProxy) parent;
+				if (parent instanceof ListSectionProxy section) {
 					final int sectionIndex = getIndexOfSection(section);
 
 					if (markers.containsKey(sectionIndex)) {
@@ -709,8 +703,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 				// Insert ListSection array.
 				for (final Object o : (Object[]) sections) {
-					if (o instanceof ListSectionProxy) {
-						final ListSectionProxy section = (ListSectionProxy) o;
+					if (o instanceof ListSectionProxy section) {
 
 						// Inset ListSection.
 						section.setParent(this);
@@ -721,8 +714,7 @@ public class ListViewProxy extends RecyclerViewProxy
 				// Notify ListView of new sections.
 				update();
 
-			} else if (sections instanceof ListSectionProxy) {
-				final ListSectionProxy section = (ListSectionProxy) sections;
+			} else if (sections instanceof ListSectionProxy section) {
 
 				// Insert ListSection.
 				section.setParent(this);

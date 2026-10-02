@@ -51,7 +51,7 @@ describe('Titanium.UI.ImageView', function () {
 			should(imageView.image).eql('path/to/logo.png');
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
 		it.androidAndIosBroken('with a local file path', finish => {
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
@@ -66,7 +66,7 @@ describe('Titanium.UI.ImageView', function () {
 			imageView.image = Ti.Filesystem.resourcesDirectory + 'Logo.png';
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
 		it.androidAndIosBroken('with a local path with separator', finish => {
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
@@ -83,7 +83,7 @@ describe('Titanium.UI.ImageView', function () {
 			imageView.image = Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator + 'Logo.png';
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
 		it.androidAndIosBroken('with local path with /', finish => {
 			const imageView = Ti.UI.createImageView();
 			imageView.addEventListener('load', function () {
@@ -100,7 +100,7 @@ describe('Titanium.UI.ImageView', function () {
 			imageView.image = Ti.Filesystem.resourcesDirectory + '/Logo.png';
 		});
 
-		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
 		it.androidAndIosBroken('with Ti.Filesystem.File.nativePath value', finish => {
 			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 			const imageView = Ti.UI.createImageView();
@@ -152,7 +152,7 @@ describe('Titanium.UI.ImageView', function () {
 		});
 
 		// Windows: TIMOB-24985
-		// FIXME Android and iOS don't fire the 'load' event! Seems like android only fires load if image isn't in cache
+		// FIXME Android and iOS don't fire the 'load' event! Seems like Android only fires load if image isn't in cache
 		it.allBroken('with Ti.Fielsystem.File', finish => {
 			const fromFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png');
 

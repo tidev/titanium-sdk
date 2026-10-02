@@ -34,7 +34,6 @@
 @end
 
 @interface TiUITextField : TiUITextWidget <UITextFieldDelegate> {
-  @private
 }
 
 @end

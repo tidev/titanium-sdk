@@ -38,10 +38,16 @@
 @property (nonatomic, readonly) TiProxy *tabGroup;
 @property (nonatomic) BOOL isMasterWindow;
 @property (nonatomic) BOOL isDetailWindow;
-@property (nonatomic) BOOL safeAreaInsetsUpdated;
+@property (nonatomic) BOOL pendingSafeAreaUpdate;
 
-- (void)processForSafeArea;
+- (BOOL)processForSafeArea;
 - (UIViewController *)windowHoldingController;
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation;
+
+/**
+ * Returns the TiSceneProxy for the scene this window belongs to.
+ * Returns null if scenes are not available (pre-iOS 13 or no scene manifest).
+ */
+- (id)scene API_AVAILABLE(ios(13_0));
 
 @end

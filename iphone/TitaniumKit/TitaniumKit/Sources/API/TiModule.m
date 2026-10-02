@@ -69,7 +69,7 @@
 
 - (TiHost *)_host
 {
-  return host;
+  return host ?: [super _host];
 }
 
 - (void)shutdown:(id)sender
@@ -99,12 +99,12 @@
 
 - (void)registerForNotifications
 {
-  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not threadsafe!
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:nil];
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:[self _host]];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(suspend:) name:kTiSuspendNotification object:[self _host]];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paused:) name:kTiPausedNotification object:[self _host]];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resume:) name:kTiResumeNotification object:[self _host]];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resumed:) name:kTiResumedNotification object:[self _host]];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(errored:) name:kTiErrorNotification object:nil];
 }
 
@@ -223,7 +223,7 @@
 {
   NSString *moduleId = [self moduleId];
   if (moduleId != nil) {
-    // if we have module js than we're a JS native module
+    // if we have module JS than we're a JS native module
     return [self moduleJS] != nil;
   }
   return NO;

@@ -16,7 +16,6 @@ import org.appcelerator.kroll.common.Log;
 import ti.modules.titanium.android.AndroidModule;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -86,7 +85,7 @@ public class NotificationManagerModule extends KrollModule
 		return notificationManager;
 	}
 
-	@TargetApi(26)
+	@androidx.annotation.RequiresApi(26)
 	public static boolean useDefaultChannel()
 	{
 		// use default channel if we are targeting API 26+
@@ -109,7 +108,7 @@ public class NotificationManagerModule extends KrollModule
 		return useDefaultChannel;
 	}
 
-	@TargetApi(26)
+	@androidx.annotation.RequiresApi(26)
 	@Kroll.method
 	public NotificationChannelProxy createNotificationChannel(Object[] args)
 	{
@@ -122,7 +121,7 @@ public class NotificationManagerModule extends KrollModule
 		return notificationChannelProxy;
 	}
 
-	@TargetApi(26)
+	@androidx.annotation.RequiresApi(26)
 	@Kroll.getProperty
 	public KrollDict[] getNotificationChannels()
 	{
@@ -141,7 +140,7 @@ public class NotificationManagerModule extends KrollModule
 		return output;
 	}
 
-	@TargetApi(26)
+	@androidx.annotation.RequiresApi(26)
 	@Kroll.method
 	public void deleteNotificationChannel(String notificationId)
 	{

@@ -11,9 +11,10 @@ import android.graphics.Color;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
+import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.util.TiColorHelper;
+import org.appcelerator.titanium.util.TiConvert;
 
 import java.util.HashSet;
 
@@ -30,7 +31,8 @@ public class RefreshControlProxy extends KrollProxy
 	 * The default Android log tag name to be used by this class.
 	 */
 	private static final String TAG = "RefreshControlProxy";
-
+	private static int offsetStart = -1;
+	private static int offsetEnd = -1;
 	/**
 	 * Android's default progress indicator color used by the SwipeRefreshLayout class.
 	 * This is defined in Google's "MaterialProgressDrawable.java", which is an internal class.
@@ -134,9 +136,18 @@ public class RefreshControlProxy extends KrollProxy
 		super.handleCreationDict(properties);
 
 		// Fetch "tintColor" property, if provided.
-		value = properties.get(TiC.PROPERTY_TINT_COLOR);
-		if (value != null) {
-			onTintColorChanged(value);
+		if (properties.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
+			value = properties.get(TiC.PROPERTY_TINT_COLOR);
+			if (value != null) {
+				onTintColorChanged(value);
+			}
+		}
+		if (properties.containsKeyAndNotNull("offset")) {
+			KrollDict offset = properties.getKrollDict("offset");
+			offsetStart = new TiDimension(TiConvert.toInt(offset.get("start"), 0), TiDimension.TYPE_TOP)
+				.getAsPixels(this.swipeRefreshLayout);
+			offsetEnd = new TiDimension(TiConvert.toInt(offset.get("end"), 80), TiDimension.TYPE_BOTTOM)
+				.getAsPixels(this.swipeRefreshLayout);
 		}
 	}
 
@@ -175,11 +186,8 @@ public class RefreshControlProxy extends KrollProxy
 		// Fetch and store the new tint color value.
 		if (colorName == null) {
 			this.tintColor = RefreshControlProxy.DEFAULT_TINT_COLOR;
-		} else if (colorName instanceof String) {
-			this.tintColor = TiColorHelper.parseColor((String) colorName, getActivity());
 		} else {
-			Log.e(TAG, "Property '" + TiC.PROPERTY_TINT_COLOR + "' must be of type string.");
-			return;
+			this.tintColor = TiColorHelper.parseColor(colorName, getActivity());
 		}
 
 		// Do not continue if a view has not been assigned to the refresh control yet.
@@ -275,6 +283,9 @@ public class RefreshControlProxy extends KrollProxy
 
 		// Set up the given view for pull-down refresh support.
 		view.setColorSchemeColors(this.tintColor);
+		if (offsetStart != -1 && offsetEnd != -1) {
+			view.setProgressViewOffset(false, offsetStart, offsetEnd);
+		}
 		view.setSwipeRefreshEnabled(true);
 		view.setOnRefreshListener(new TiSwipeRefreshLayout.OnRefreshListener()
 		{

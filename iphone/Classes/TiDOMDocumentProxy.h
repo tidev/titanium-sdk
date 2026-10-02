@@ -11,7 +11,6 @@
 #import <TitaniumKit/TiProxy.h>
 
 @interface TiDOMDocumentProxy : TiDOMNodeProxy {
-  @private
 }
 
 - (void)parseString:(NSString *)xml;
