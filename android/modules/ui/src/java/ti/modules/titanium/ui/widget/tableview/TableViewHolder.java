@@ -12,6 +12,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiBackgroundDrawable;
@@ -232,22 +233,31 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 				this.title.setTextColor(this.defaultTextColors);
 			}
 
-			// Handle row left and right images.
-			if (properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
-				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
-				if (drawable != null) {
-					this.leftImage.setImageDrawable(drawable);
-					this.leftImage.setVisibility(View.VISIBLE);
-				}
-			}
-
-			// Handle selection, override row left image.
-			if (tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
+			// Determine if the selection check drawable takes priority over the row's left image.
+			final boolean selectionOverridesLeftImage =
+				tableViewProperties.optBoolean(TiC.PROPERTY_SHOW_SELECTION_CHECK, false)
 				&& tableViewProperties.optBoolean(TiC.PROPERTY_EDITING, false)
 				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_SELECTION_DURING_EDITING, false)
 				&& tableViewProperties.optBoolean(TiC.PROPERTY_ALLOWS_MULTIPLE_SELECTION_DURING_EDITING, false)
-				&& !proxy.isPlaceholder()) {
+				&& !proxy.isPlaceholder();
+
+			// Handle row left and right images.
+			// Load them off the main thread to avoid file I/O and bitmap decoding while scrolling.
+			if (!selectionOverridesLeftImage && properties.containsKeyAndNotNull(TiC.PROPERTY_LEFT_IMAGE)) {
+				final String url = properties.getString(TiC.PROPERTY_LEFT_IMAGE);
+				TiLoadImageManager.getInstance().load(
+					() -> TiUIHelper.getResourceDrawable((Object) url),
+					(Drawable drawable) -> {
+						// Drop the result if this holder was recycled for another row while loading.
+						if ((drawable != null) && (this.proxy != null) && (this.proxy.get() == proxy)) {
+							this.leftImage.setImageDrawable(drawable);
+							this.leftImage.setVisibility(View.VISIBLE);
+						}
+					});
+			}
+
+			// Handle selection, override row left image.
+			if (selectionOverridesLeftImage) {
 
 				if (selected) {
 					this.leftImage.setImageDrawable(checkcircleDrawable);
@@ -259,11 +269,15 @@ public class TableViewHolder extends TiRecyclerViewHolder<TableViewRowProxy>
 
 			if (properties.containsKeyAndNotNull(TiC.PROPERTY_RIGHT_IMAGE)) {
 				final String url = properties.getString(TiC.PROPERTY_RIGHT_IMAGE);
-				final Drawable drawable = TiUIHelper.getResourceDrawable((Object) url);
-				if (drawable != null) {
-					this.rightImage.setImageDrawable(drawable);
-					this.rightImage.setVisibility(View.VISIBLE);
-				}
+				TiLoadImageManager.getInstance().load(
+					() -> TiUIHelper.getResourceDrawable((Object) url),
+					(Drawable drawable) -> {
+						// Drop the result if this holder was recycled for another row while loading.
+						if ((drawable != null) && (this.proxy != null) && (this.proxy.get() == proxy)) {
+							this.rightImage.setImageDrawable(drawable);
+							this.rightImage.setVisibility(View.VISIBLE);
+						}
+					});
 			} else {
 				final boolean hasCheck = properties.optBoolean(TiC.PROPERTY_HAS_CHECK, false);
 				final boolean hasChild = properties.optBoolean(TiC.PROPERTY_HAS_CHILD, false);

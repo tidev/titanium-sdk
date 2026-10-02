@@ -21,6 +21,7 @@ import org.appcelerator.titanium.proxy.ColorProxy;
 import org.appcelerator.titanium.util.TiAnimationCurve;
 import org.appcelerator.titanium.util.TiColorHelper;
 import org.appcelerator.titanium.util.TiDeviceOrientation;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
@@ -55,6 +56,7 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 {
 	private static final String TAG = "TiUIModule";
 	private int lastEmittedStyle;
+	private int backgroundImageLoadToken;
 
 	@Kroll.constant
 	public static final int RETURN_KEY_TYPE_ACTION = 0;
@@ -568,9 +570,11 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 	{
 		TiRootActivity root = TiApplication.getInstance().getRootActivity();
 		if (root != null) {
-			Drawable imageDrawable = null;
+			// Invalidates any still-loading result from a previous call.
+			final int token = ++this.backgroundImageLoadToken;
 
 			if (image instanceof Number) {
+				Drawable imageDrawable = null;
 				try {
 					imageDrawable = TiUIHelper.getResourceDrawable((Integer) image);
 				} catch (Resources.NotFoundException e) {
@@ -579,11 +583,23 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 						+ "An integer id was provided but no such drawable resource exists.";
 					Log.w(TAG, warningMessage);
 				}
-			} else {
-				imageDrawable = TiUIHelper.getResourceDrawable(image);
+				root.setBackgroundImage(imageDrawable);
+				return;
 			}
 
-			root.setBackgroundImage(imageDrawable);
+			// Load the image off the main thread since it may involve file I/O and bitmap decoding.
+			TiLoadImageManager.getInstance().load(
+				() -> TiUIHelper.getResourceDrawable(image),
+				(Drawable imageDrawable) -> {
+					// Drop the result if the property changed again while loading.
+					if (token != this.backgroundImageLoadToken) {
+						return;
+					}
+					TiRootActivity rootActivity = TiApplication.getInstance().getRootActivity();
+					if (rootActivity != null) {
+						rootActivity.setBackgroundImage(imageDrawable);
+					}
+				});
 		}
 	}
 

@@ -646,6 +646,21 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private void setImageInternal()
 	{
+		// If the target image is already cached, show it right away and skip the default image.
+		if (imageSources != null && imageSources.size() == 1 && imageSources.get(0) != null
+			&& !imageSources.get(0).isTypeNull()) {
+			var key = imageSources.get(0).getKey();
+			Bitmap bitmap = TiImageCache.getBitmap(key);
+			if (bitmap != null) {
+				setImage(bitmap, isAutoRotateEnabled() ? TiImageCache.getOrientation(key) : null);
+				if (!firedLoad) {
+					fireLoad(TiC.PROPERTY_IMAGE);
+					firedLoad = true;
+				}
+				return;
+			}
+		}
+
 		// Set default image or clear previous image first.
 		if (defaultImageSource != null) {
 			setDefaultImage();
@@ -659,20 +674,7 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		}
 
 		if (imageSources.size() == 1) {
-			TiDrawableReference imageref = imageSources.get(0);
-
-			// Check if the image is cached in memory
-			var key = imageref.getKey();
-			Bitmap bitmap = TiImageCache.getBitmap(key);
-			if (bitmap != null) {
-				setImage(bitmap, isAutoRotateEnabled() ? TiImageCache.getOrientation(key) : null);
-				if (!firedLoad) {
-					fireLoad(TiC.PROPERTY_IMAGE);
-					firedLoad = true;
-				}
-			} else {
-				TiLoadImageManager.getInstance().load(imageref, loadImageListener);
-			}
+			TiLoadImageManager.getInstance().load(imageSources.get(0), loadImageListener);
 		} else {
 			setImages();
 		}
@@ -680,14 +682,33 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 	private void setDefaultImage()
 	{
-		if (defaultImageSource == null) {
+		final TiDrawableReference source = this.defaultImageSource;
+		if (source == null) {
 			setImage(null, null);
 			return;
 		}
-		// Have to set default image in the UI thread to make sure it shows before the image
-		// is ready. Don't need to retry decode because we don't want to block UI.
-		TiExifOrientation orientation = isAutoRotateEnabled() ? defaultImageSource.getExifOrientation() : null;
-		setImage(defaultImageSource.getBitmap(false), orientation);
+
+		// Clear the previous image while the default image decodes in the background.
+		setImage(null, null);
+
+		// Decode the default image off the main thread to avoid blocking the UI.
+		TiLoadImageManager.getInstance().load(
+			() -> {
+				TiExifOrientation orientation = isAutoRotateEnabled() ? source.getExifOrientation() : null;
+				Bitmap bitmap = source.getBitmap(false);
+				return (bitmap != null) ? new TiImageInfo(source.getKey(), bitmap, orientation) : null;
+			},
+			(TiImageInfo imageInfo) -> {
+				// Only show the default image if nothing else was applied while it was decoding
+				// and the "defaultImage" property has not changed. The actual image may have
+				// already finished loading, in which case the default image must not replace it.
+				TiImageView view = getView();
+				if ((imageInfo == null) || (view == null) || (view.getImageBitmap() != null)
+					|| (this.defaultImageSource != source)) {
+					return;
+				}
+				setImage(imageInfo.getBitmap(), imageInfo.getOrientation());
+			});
 	}
 
 	@Override

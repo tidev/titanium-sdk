@@ -29,6 +29,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiRHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiDrawableReference;
@@ -51,6 +52,7 @@ public class TiUICollapseToolbar extends TiUIView
 	KrollFunction homeIconFunction = null;
 	boolean homeAsUp = false;
 	TiViewProxy localContentView = null;
+	private int imageLoadToken;
 
 	public TiUICollapseToolbar(TiViewProxy proxy)
 	{
@@ -180,6 +182,26 @@ public class TiUICollapseToolbar extends TiUIView
 		homeAsUp = value;
 	}
 
+	/**
+	 * Decodes the given image reference off the main thread and shows it when ready.
+	 */
+	public void setImageSource(TiDrawableReference source)
+	{
+		final int token = ++this.imageLoadToken;
+		if (source == null) {
+			setImage(null);
+			return;
+		}
+		TiLoadImageManager.getInstance().load(
+			() -> source.getBitmap(false),
+			(Bitmap bitmap) -> {
+				// Drop the result if the "image" property changed again while decoding.
+				if (token == this.imageLoadToken) {
+					setImage(bitmap);
+				}
+			});
+	}
+
 	public void setImage(Bitmap bitmap)
 	{
 		if (bitmap == null) {
@@ -231,9 +253,7 @@ public class TiUICollapseToolbar extends TiUIView
 			setBarColor(TiConvert.toColor(d.getString(TiC.PROPERTY_BAR_COLOR), activity));
 		}
 		if (d.containsKey(TiC.PROPERTY_IMAGE)) {
-			Bitmap bmp = TiDrawableReference.fromObject(activity,
-				d.get(TiC.PROPERTY_IMAGE)).getBitmap(false);
-			setImage(bmp);
+			setImageSource(TiDrawableReference.fromObject(activity, d.get(TiC.PROPERTY_IMAGE)));
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
 			setTitle(d.getString(TiC.PROPERTY_TITLE));

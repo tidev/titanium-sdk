@@ -37,7 +37,7 @@ public class CollapseToolbarProxy extends TiViewProxy
 	@Kroll.setProperty
 	public void setImage(Object obj)
 	{
-		collapseToolbar.setImage(TiDrawableReference.fromObject(this, obj).getBitmap(false));
+		collapseToolbar.setImageSource(TiDrawableReference.fromObject(this, obj));
 	}
 
 	@Kroll.setProperty
