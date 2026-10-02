@@ -44,4 +44,10 @@
 - (UIViewController *)windowHoldingController;
 - (TiUIiOSTransitionAnimationProxy *)transitionAnimation;
 
+/**
+ * Returns the TiSceneProxy for the scene this window belongs to.
+ * Returns null if scenes are not available (pre-iOS 13 or no scene manifest).
+ */
+- (id)scene API_AVAILABLE(ios(13_0));
+
 @end

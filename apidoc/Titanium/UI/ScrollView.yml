@@ -96,6 +96,18 @@ methods:
 
         On iOS, `scrollToBottom` moves the bottom-right corner of the scrollable region into the
         viewable area.
+    parameters:
+      - name: options
+        summary: |
+            A simple object for specifying the animation properties when scrolling the view.
+            When set to `{ animated: true }` it will scroll smoothly to the destination.
+
+            Note that the default here is equivalent to passing in `{ animated: true }`.
+
+            This property is iOS-only and available since Titanium SDK 10.2.0!
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: true }"
     platforms: [android, iphone, ipad, macos]
     since: {iphone: "2.1.0", ipad: "2.1.0"}
 
@@ -109,6 +121,18 @@ methods:
 
         On iOS, `scrollToTop` moves the top-left corner of the scrollable region into the
         viewable area.
+    parameters:
+      - name: options
+        summary: |
+            A simple object for specifying the animation properties when scrolling the view.
+            When set to `{ animated: true }` it will scroll smoothly to the destination.
+
+            Note that the default here is equivalent to passing in `{ animated: true }`.
+
+            This property is iOS-only and available since Titanium SDK 10.2.0!
+        type: AnimatedOptions
+        optional: true
+        default: "{ animated: true }"
     platforms: [iphone, ipad, android, macos]
     since: "7.0.0"
 

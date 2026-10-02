@@ -147,29 +147,9 @@ export class Packager {
 		// Remove any remaining binary scripts from node_modules
 		await fs.remove(path.join(this.zipSDKDir, 'node_modules/.bin'));
 
-		// Now include all the pre-built node-ios-device bindings/binaries
-		if (this.targetOS === 'osx') {
-			let dir = path.join(this.zipSDKDir, 'node_modules/node-ios-device');
-			if (!await fs.pathExists(dir)) {
-				dir = path.join(this.zipSDKDir, 'node_modules/ioslib/node_modules/node-ios-device');
-			}
-
-			if (!await fs.pathExists(dir)) {
-				throw new Error('Unable to find node-ios-device module');
-			}
-			// Hack to remove the super old node 0.10 entry for apple arm64
-			if (process.arch === 'arm64') {
-				const nodeIOSDevicePackageJSON = path.join(dir, 'package.json');
-				const original = await fs.readJSON(nodeIOSDevicePackageJSON);
-				delete original.binary.targets['0.10.48'];
-				await fs.writeJSON(nodeIOSDevicePackageJSON, original);
-			}
-
-			await exec('node bin/download-all.js', { cwd: dir, stdio: 'inherit' });
-		}
-
-		// Include 'ti.cloak'
-		return unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
+		// Include the 'ti.cloak' and 'ti.crypt' encryption modules
+		await unzip(path.join(ROOT_DIR, 'support', 'ti.cloak.zip'), path.join(this.zipSDKDir, 'node_modules'));
+		await unzip(path.join(ROOT_DIR, 'support', 'ti.crypt.zip'), path.join(this.zipSDKDir, 'node_modules'));
 	}
 
 	/**
@@ -263,8 +243,11 @@ export class Packager {
 			subDirs[iosIndex] = 'iphone';
 		}
 		await Promise.all(subDirs.map(d => fs.emptyDir(path.join(modulesDir, d))));
-		// Now download/extract/copy the modules
-		await Promise.all(modules.map(m => this.handleModule(m)));
+		// Copying multiple module trees into the same destination in parallel races on shared parent
+		// directories and can leave the package in a partially copied state.
+		for (const module of modules) {
+			await this.handleModule(module);
+		}
 
 		// Need to wipe directories of multi-platform modules for platforms we don't need!
 		// i.e. modules/iphone on win32 builds (there because of hyperloop)
@@ -290,7 +273,7 @@ export class Packager {
 	}
 
 	async copySupportDir() {
-		const ignoreDirs = [ 'packaged', '.pyc', path.join(SUPPORT_DIR, 'dev'), path.join(SUPPORT_DIR, 'ti.cloak.zip') ];
+		const ignoreDirs = [ 'packaged', '.pyc', path.join(SUPPORT_DIR, 'dev'), path.join(SUPPORT_DIR, 'ti.cloak.zip'), path.join(SUPPORT_DIR, 'ti.crypt.zip') ];
 		// Copy support/ into root, but filter out folders based on OS
 		if (this.targetOS !== 'osx') {
 			ignoreDirs.push(path.join(SUPPORT_DIR, 'iphone'), path.join(SUPPORT_DIR, 'osx'));

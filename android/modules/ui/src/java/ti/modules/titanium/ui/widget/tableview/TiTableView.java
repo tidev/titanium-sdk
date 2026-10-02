@@ -37,7 +37,9 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import ti.modules.titanium.ui.TableViewProxy;
 import ti.modules.titanium.ui.TableViewRowProxy;
@@ -62,6 +64,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	private final List<KrollDict> selectedRows = new ArrayList<>();
 
 	private boolean hasLaidOutChildren = false;
+	private SnapHelper snapHelper;
 	private SelectionTracker tracker;
 	private boolean isScrolling = false;
 	private int scrollOffsetX = 0;
@@ -248,6 +251,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		if (properties.optBoolean(TiC.PROPERTY_FIXED_SIZE, false)) {
 			this.recyclerView.setHasFixedSize(true);
 		}
+		setSnapping(properties.optBoolean(TiC.PROPERTY_SNAPPING, false));
 		if (editing && allowsSelection) {
 			if (allowsMultipleSelection) {
 				this.tracker = trackerBuilder.withSelectionPredicate(SelectionPredicates.createSelectAnything())
@@ -433,6 +437,27 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	}
 
 	/**
+	 * Enable or disable snapping of rows to the nearest position after a scroll.
+	 *
+	 * @param value Set true to snap rows into place.
+	 */
+	public void setSnapping(boolean value)
+	{
+		if (value == (this.snapHelper != null)) {
+			// Already in the requested state.
+			return;
+		}
+
+		if (value) {
+			this.snapHelper = new LinearSnapHelper();
+			this.snapHelper.attachToRecyclerView(this.recyclerView);
+		} else {
+			this.snapHelper.attachToRecyclerView(null);
+			this.snapHelper = null;
+		}
+	}
+
+	/**
 	 * Obtain row for specified index.
 	 *
 	 * @param index Index of row.
@@ -569,7 +594,24 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	 */
 	public boolean isFiltered()
 	{
-		return this.filterQuery != null && !this.filterQuery.isEmpty();
+		final String query = getEffectiveFilterQuery();
+		return query != null && !query.isEmpty();
+	}
+
+	/**
+	 * Determine the query rows are filtered by.
+	 * The `searchText` property takes precedence over the search view's query;
+	 * an empty `searchText` is treated as unset so it does not mask the search view.
+	 *
+	 * @return Query string, or null when not filtering.
+	 */
+	private String getEffectiveFilterQuery()
+	{
+		final String searchText = this.proxy.getProperties().optString(TiC.PROPERTY_SEARCH_TEXT, null);
+		if (searchText != null && !searchText.isEmpty()) {
+			return searchText;
+		}
+		return this.filterQuery;
 	}
 
 	/**
@@ -629,7 +671,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		int filterResultsCount = 0;
 		int index = 0;
 
-		String query = this.filterQuery;
+		String query = getEffectiveFilterQuery();
 		if (query != null && caseInsensitive) {
 			query = query.toLowerCase();
 		}

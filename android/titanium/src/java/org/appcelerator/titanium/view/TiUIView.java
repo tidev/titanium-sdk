@@ -1706,7 +1706,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			return;
 		}
 		if (TiC.PROPERTY_BORDER_COLOR.equals(property)) {
-			int color = value != null ? TiConvert.toColor(value.toString(), proxy.getActivity()) : Color.TRANSPARENT;
+			int color = value != null ? TiConvert.toColor(value, proxy.getActivity()) : Color.TRANSPARENT;
 			borderView.setColor(color);
 			if (!proxy.hasProperty(TiC.PROPERTY_BORDER_WIDTH)) {
 				borderView.setBorderWidth(1);

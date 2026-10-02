@@ -10,6 +10,10 @@
 #import <CoreSpotlight/CoreSpotlight.h>
 #endif
 
+@interface TiApp (TiAddonsInternal)
+- (NSDictionary *)dictionaryFromUserActivity:(NSUserActivity *)userActivity;
+@end
+
 @implementation TiApp (Addons)
 
 #pragma mark Background Fetch API's
@@ -98,30 +102,7 @@
 #ifdef USE_TI_APPIOS
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler
 {
-  NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:@{ @"activityType" : [userActivity activityType] }];
-
-  if ([[userActivity activityType] isEqualToString:CSSearchableItemActionType]) {
-    if ([userActivity userInfo] != nil) {
-      [dict setObject:[[userActivity userInfo] objectForKey:CSSearchableItemActivityIdentifier] forKey:@"searchableItemActivityIdentifier"];
-    }
-  }
-
-  if ([userActivity title] != nil) {
-    [dict setObject:[userActivity title] forKey:@"title"];
-  }
-
-  if ([userActivity webpageURL] != nil) {
-    [dict setObject:[[userActivity webpageURL] absoluteString] forKey:@"webpageURL"];
-  }
-
-  if ([userActivity userInfo] != nil) {
-    [dict setObject:[userActivity userInfo] forKey:@"userInfo"];
-  }
-
-  // Update launchOptions so that we send only expected values rather than NSUserActivity
-  NSMutableDictionary *userActivityDict = [NSMutableDictionary dictionaryWithDictionary:launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey]];
-  [userActivityDict setObject:dict forKey:@"UIApplicationLaunchOptionsUserActivityKey"];
-  [launchOptions setObject:userActivityDict forKey:UIApplicationLaunchOptionsUserActivityDictionaryKey];
+  NSDictionary *dict = [self dictionaryFromUserActivity:userActivity];
 
   [self tryToInvokeSelector:@selector(application:continueUserActivity:restorationHandler:)
               withArguments:[NSOrderedSet orderedSetWithObjects:application, userActivity, [restorationHandler copy], nil]];

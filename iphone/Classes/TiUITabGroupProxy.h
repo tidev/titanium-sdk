@@ -19,6 +19,7 @@
 
 #pragma mark - internal use only
 - (BOOL)canFocusTabs;
+- (BOOL)lazyLoadingEnabled;
 @end
 
 #endif
