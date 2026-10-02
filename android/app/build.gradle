@@ -9,12 +9,12 @@ apply plugin: 'com.android.application'
 
 // Set up Android app project.
 android {
-	compileSdkVersion 35
+	compileSdkVersion 36
 	ndkVersion = project.ext.tiNdkVersion
 	defaultConfig {
 		applicationId 'com.titanium.test'
 		minSdkVersion 24
-		targetSdkVersion 35
+		targetSdkVersion 36
 		versionCode 1
 		versionName '1.0'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders

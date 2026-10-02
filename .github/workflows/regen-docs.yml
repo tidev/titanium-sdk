@@ -1,41 +1,76 @@
 name: Regen Docs
+
+# Tells the docs sites to recompile the SDK API docs.
+#
+# Fires on a change to apidoc/ and on a published release, rather than on every
+# merged pull request, so a direct push to main is not missed.
 on:
   workflow_dispatch:
   pull_request:
-    types: [ closed ]
-    paths: [ 'apidoc/**' ]
-    branches:
-    - master
-    - main
+    paths: ['apidoc/**']
+  push:
+    branches: [main]
+    paths: ['apidoc/**']
+  release:
+    types: [published]
 
 jobs:
   regen:
-    if: github.repository_owner == 'tidev' && (github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    name: Trigger Regen
-
+    name: Lint
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-    - name: Setup node
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        registry-url: 'https://registry.npmjs.org'
+      - name: Setup node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+          cache: npm
 
-    - name: Install dependencies
-      run: npm ci
-      if: steps.node-cache.outputs.cache-hit != 'true'
+      - name: Install dependencies
+        run: npm ci
 
-    - run: npm run lint:docs
-      name: Lint
+      - name: Lint
+        run: npm run lint:docs
 
-    - name: Repository Dispatch
-      uses: peter-evans/repository-dispatch@v3
-      with:
-        event-type: regen-api-docs
-        token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
-        repository: tidev/titanium-docs
+  # titaniumsdk.com. The dispatch lives in titaniumsdk.com so the payload shape is
+  # defined once for all 17 source repos instead of copied into each.
+  #
+  # Deliberately independent of the lint job. Gating the dispatch on it means an
+  # unrelated tooling problem stops the docs updating and nothing says so --
+  # ti.coremotion cannot run `npm ci` at all today because its lockfile is out of
+  # sync with its package.json. Genuinely malformed apidoc still cannot ship: the
+  # compile in titaniumsdk.com fails on it and commits nothing.
+  notify:
+    name: Notify titaniumsdk.com
+    # Skipped on pull_request: a proposed change gets linted, not published.
+    # Skipped in forks: they hold no dispatch token, so this would only ever
+    # produce a failing run. The allowlist in titaniumsdk.com is the actual
+    # boundary -- a fork's payload names the fork, which is not on it.
+    if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
+    uses: tidev/titaniumsdk.com/.github/workflows/notify-api-docs.yml@main
+    secrets:
+      dispatch-token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
+
+  # The old pipeline, kept running alongside the new one so the site currently
+  # being served stays current while the replacement is proven. It carries no
+  # payload because titanium-docs does not read one -- it rebuilds every source
+  # repo on any dispatch, which is the inefficiency titaniumsdk.com replaces.
+  #
+  # Delete this job once titaniumsdk.com is served from titaniumsdk.com (TI-52).
+  notify-legacy:
+    # Skipped on pull_request: a proposed change gets linted, not published.
+    # Skipped in forks: they hold no dispatch token, so this would only ever
+    # produce a failing run. The allowlist in titaniumsdk.com is the actual
+    # boundary -- a fork's payload names the fork, which is not on it.
+    if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
+    runs-on: ubuntu-latest
+    name: Notify titanium-docs (legacy)
+    steps:
+      - name: Repository dispatch
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          event-type: regen-api-docs
+          repository: tidev/titanium-docs
+          token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
