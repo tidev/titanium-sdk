@@ -191,6 +191,14 @@ public class TiUIWebView extends TiUIView
 		@Override
 		public boolean onTouchEvent(MotionEvent ev)
 		{
+			// The WebView hands every MotionEvent straight to Chromium regardless of isClickable() or
+			// isEnabled(), so the base class' touchEnabled handling has no effect on the page content.
+			// Refuse the event here so neither the page nor the Titanium click/swipe events see it,
+			// and the parent view can forward it to the views underneath instead.
+			if ((proxy != null) && !TiConvert.toBoolean(proxy.getProperty(TiC.PROPERTY_TOUCH_ENABLED), true)) {
+				return false;
+			}
+
 			boolean handled = false;
 
 			// In Android WebView, all the click events are directly sent to WebKit. As a result, OnClickListener() is
