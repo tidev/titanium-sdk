@@ -120,11 +120,7 @@ export class Packager {
 	 * @returns {Promise<void>}
 	 */
 	async copyCommon() {
-		await Promise.all([
-			fs.emptyDir(this.commonDir),
-			// ti.kernel.js gets baked directly into C code for Android, so wipe it
-			fs.remove(path.join(TMP_DIR, 'common/Resources/android/ti.kernel.js')),
-		]);
+		await fs.emptyDir(this.commonDir);
 		return Promise.all([
 			// copy common/lib from src to SDK (needed by CLI)
 			fs.copy(path.join(ROOT_DIR, 'common/lib'), path.join(this.commonDir, 'lib')),

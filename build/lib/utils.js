@@ -14,7 +14,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const titanium = path.resolve(__dirname, '..', '..', 'node_modules', 'titanium', 'bin', 'ti.js');
 const exec = util.promisify(childProcess.exec);
 
-const tempDir = os.tmpdir();
+// Default directory for files we download and cache between builds (V8 library tarball, native modules, etc).
+// Note: This must be a persistent location. We used to use os.tmpdir(), but that gets wiped on reboot on
+//       several Linux distros, forcing the SDK build to re-download and re-extract the ~200 MB V8 library.
+const defaultCacheDir = path.join(os.homedir(), '.titanium', 'cache');
 
 function leftpad(str, len, ch) {
 	str = String(str);
@@ -166,7 +169,7 @@ async function downloadWithIntegrity(url, downloadPath, integrity, options) {
  */
 export function cachedDownloadPath(url) {
 	// Use some consistent name so we can cache files!
-	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || tempDir, 'timob-build');
+	const cacheDir = path.join(process.env.SDK_BUILD_CACHE_DIR || defaultCacheDir, 'timob-build');
 	fs.ensureDirSync(cacheDir);
 
 	const filename = url.slice(url.lastIndexOf('/') + 1);
