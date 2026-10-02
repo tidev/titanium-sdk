@@ -1605,6 +1605,10 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		tiApp.setCurrentActivity(this, this);
 		TiApplication.updateActivityTransitionState(false);
 
+		// Activities are added to the stack in onCreate() order. After a recreation, such as a
+		// night mode change, that order no longer matches what is on screen.
+		TiApplication.moveToTopOfActivityStack(this);
+
 		synchronized (lifecycleListeners.synchronizedList())
 		{
 			for (OnLifecycleEvent listener : lifecycleListeners.nonNull()) {
