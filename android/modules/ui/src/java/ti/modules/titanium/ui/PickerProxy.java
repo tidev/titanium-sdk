@@ -157,6 +157,15 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 			}
 		}
 
+		// Select styles matching the activity's assigned Material 2 or Material 3 theme.
+		boolean isMaterial3 = TiUIHelper.isUsingMaterial3Theme(activity);
+		int outlinedStyleId = isMaterial3
+			? R.style.Widget_Material3_TextInputLayout_OutlinedBox_ExposedDropdownMenu
+			: R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu;
+		int filledStyleId = isMaterial3
+			? R.style.Widget_Material3_TextInputLayout_FilledBox_ExposedDropdownMenu
+			: R.style.Widget_MaterialComponents_TextInputLayout_FilledBox_ExposedDropdownMenu;
+
 		// Create the TextInputLayout with drop-down arrow and configured border.
 		TextInputLayout textInputLayout = null;
 		int borderStyle = UIModule.INPUT_BORDERSTYLE_FILLED;
@@ -165,8 +174,7 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 			case UIModule.INPUT_BORDERSTYLE_BEZEL:
 			case UIModule.INPUT_BORDERSTYLE_LINE:
 			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
-				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					activity, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(activity, outlinedStyleId));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
 				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {
@@ -178,14 +186,12 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 				break;
 			case UIModule.INPUT_BORDERSTYLE_NONE:
 			case UIModule.INPUT_BORDERSTYLE_UNDERLINED:
-				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					activity, R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox_ExposedDropdownMenu));
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(activity, outlinedStyleId));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_NONE);
 				break;
 			case UIModule.INPUT_BORDERSTYLE_FILLED:
 			default:
-				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					activity, R.style.Widget_MaterialComponents_TextInputLayout_FilledBox_ExposedDropdownMenu));
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(activity, filledStyleId));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_FILLED);
 				break;
 		}

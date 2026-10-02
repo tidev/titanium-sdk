@@ -81,14 +81,18 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 		this.field = field;
 
+		// Select the outlined style matching the activity's assigned Material 2 or Material 3 theme.
+		int outlinedStyleId = TiUIHelper.isUsingMaterial3Theme(proxy.getActivity())
+			? R.style.Widget_Material3_TextInputLayout_OutlinedBox
+			: R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox;
+
 		int borderStyle = UIModule.INPUT_BORDERSTYLE_FILLED;
 		borderStyle = TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_BORDER_STYLE), borderStyle);
 		switch (borderStyle) {
 			case UIModule.INPUT_BORDERSTYLE_BEZEL:
 			case UIModule.INPUT_BORDERSTYLE_LINE:
 			case UIModule.INPUT_BORDERSTYLE_ROUNDED:
-				textInputLayout = new TextInputLayout(new ContextThemeWrapper(
-					proxy.getActivity(), R.style.Widget_MaterialComponents_TextInputLayout_OutlinedBox));
+				textInputLayout = new TextInputLayout(new ContextThemeWrapper(proxy.getActivity(), outlinedStyleId));
 				textInputLayout.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
 				textInputLayout.setBoxBackgroundColor(Color.TRANSPARENT);
 				if (borderStyle == UIModule.INPUT_BORDERSTYLE_ROUNDED) {
