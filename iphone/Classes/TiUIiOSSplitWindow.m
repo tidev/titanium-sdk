@@ -7,6 +7,7 @@
 #ifdef USE_TI_UIIOSSPLITWINDOW
 #import "TiUIiOSSplitWindow.h"
 #import "TiUIiOSSplitWindowProxy.h"
+#import <TitaniumKit/TiApp.h>
 
 @implementation TiUIiOSSplitWindow
 
@@ -76,7 +77,7 @@
     }
 
     CGSize screenSize = [[UIScreen mainScreen] bounds].size;
-    if (UIInterfaceOrientationIsLandscape([TiUtils interfaceOrientation])) {
+    if (UIInterfaceOrientationIsLandscape([TiUtils interfaceOrientationForScene:[self.proxy owningInstance].window.windowScene])) {
       screenSize = CGSizeMake(screenSize.height, screenSize.width);
     }
 
@@ -110,13 +111,13 @@
 {
   [super layoutSubviews];
   [self initWrappers];
-  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientation]];
+  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientationForScene:[self.proxy owningInstance].window.windowScene]];
 }
 
 - (void)layoutSubviewsForOrientation:(UIInterfaceOrientation)orientation
 {
   CGSize refSize = self.bounds.size;
-  BOOL isPortrait = UIApplication.sharedApplication.keyWindow.frame.size.height > UIApplication.sharedApplication.keyWindow.frame.size.width;
+  BOOL isPortrait = self.bounds.size.height > self.bounds.size.width;
 
   CGRect masterRect = CGRectZero;
   CGRect detailRect = CGRectZero;
@@ -193,7 +194,7 @@
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
   [super frameSizeChanged:frame bounds:bounds];
-  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientation]];
+  [self layoutSubviewsForOrientation:[TiUtils interfaceOrientationForScene:[self.proxy owningInstance].window.windowScene]];
 }
 
 - (void)setShowMasterInPortrait_:(id)value withObject:(id)animated
@@ -205,7 +206,7 @@
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
 
-  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
+  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientationForScene:[self.proxy owningInstance].window.windowScene];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
       void (^animation)() = ^{
@@ -227,7 +228,7 @@
   }
   BOOL animate = [TiUtils boolValue:@"animated" properties:animated def:NO];
 
-  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
+  UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientationForScene:[self.proxy owningInstance].window.windowScene];
   if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
     if (animate) {
       void (^animation)() = ^{
@@ -295,7 +296,7 @@
 
   if ((newValue >= 0.25) && (newValue <= 0.5) && newValue != splitRatioPortrait) {
     splitRatioPortrait = newValue;
-    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
+    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientationForScene:[self.proxy owningInstance].window.windowScene];
     if (viewsInitialized && UIInterfaceOrientationIsPortrait(curOrientation)) {
       [self layoutSubviewsForOrientation:curOrientation];
     }
@@ -311,7 +312,7 @@
 
   if ((newValue >= 0.25) && (newValue <= 0.5) && newValue != splitRatioLandscape) {
     splitRatioLandscape = newValue;
-    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientation];
+    UIInterfaceOrientation curOrientation = [TiUtils interfaceOrientationForScene:[self.proxy owningInstance].window.windowScene];
     if (viewsInitialized && UIInterfaceOrientationIsLandscape(curOrientation)) {
       [self layoutSubviewsForOrientation:curOrientation];
     }

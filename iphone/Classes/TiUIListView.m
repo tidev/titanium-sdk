@@ -2350,7 +2350,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[[TiApp app] controller] retain];
+      searchControllerPresenter = [[[self.proxy owningInstance] controller] retain];
     }
   }
   searchControllerPresenter.definesPresentationContext = YES;
@@ -2440,7 +2440,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       controller = [proxy windowHoldingController];
     } else {
-      controller = [[TiApp app] controller];
+      controller = [[self.proxy owningInstance] controller];
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
@@ -2671,7 +2671,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
@@ -2681,7 +2681,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];

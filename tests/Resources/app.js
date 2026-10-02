@@ -95,6 +95,7 @@ function loadTests() {
 		require('./ti.app.android.test');
 	} else if (OS_IOS) {
 		require('./ti.app.ios.test');
+		require('./scene.test');
 		require('./ti.app.ios.searchquery.test');
 		require('./ti.app.ios.useractivity.test');
 	}

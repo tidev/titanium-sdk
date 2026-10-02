@@ -22,13 +22,22 @@ static dispatch_queue_t callbackQueue;
 
 + (void)shutdownContext:(KrollContext *)context
 {
+  NSMutableArray *closingCallbacks = [NSMutableArray array];
   dispatch_sync(callbackQueue, ^{
     for (KrollCallback *callback in callbacks) {
       if ([callback context] == context) {
+        [closingCallbacks addObject:callback];
         callback.context = nil;
       }
     }
   });
+  // Unprotect outside the registry lock: finalizers may release other callbacks.
+  for (KrollCallback *callback in closingCallbacks) {
+    JSValueUnprotect(callback->jsContext, callback->function);
+    JSValueUnprotect(callback->jsContext, callback->thisObj);
+    callback->function = NULL;
+    callback->thisObj = NULL;
+  }
 }
 
 + (void)initialize
@@ -61,7 +70,7 @@ static dispatch_queue_t callbackQueue;
   });
 
   [type release];
-  if ([KrollBridge krollBridgeExists:bridge]) {
+  if (context != nil && [KrollBridge krollBridgeExists:bridge]) {
     if ([context isKJSThread]) {
       JSValueUnprotect(jsContext, function);
       JSValueUnprotect(jsContext, thisObj);
@@ -108,7 +117,7 @@ static dispatch_queue_t callbackQueue;
 }
 - (id)call:(NSArray *)args thisObject:(id)thisObject_
 {
-  if (context == nil) {
+  if (context == nil || ![context running]) {
     return nil;
   }
 
