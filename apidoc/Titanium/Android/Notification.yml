@@ -71,7 +71,7 @@ examples:
             action: Ti.Android.ACTION_MAIN,
             // Substitute the correct class name for your application
             className: 'com.appcelerator.notificationsample.NotificationsampleActivity',
-            // Substitue the correct package name for your application
+            // Substitute the correct package name for your application
             packageName: 'com.appcelerator.notificationsample'
         });
         intent.flags |= Ti.Android.FLAG_ACTIVITY_NEW_TASK;
@@ -339,7 +339,7 @@ properties:
     summary: Accent color used behind icon.
     description: |
         Accent color of the circle used behind icon. The Icon will be stenciled in white on top of a
-        cicle of the color set. For information about color values, see the "Colors" section of <Titanium.UI>.
+        circle of the color set. For information about color values, see the "Colors" section of <Titanium.UI>.
 
         See Android Reference for the [color](https://developer.android.com/reference/android/app/Notification.html#color) property.
     type: String
@@ -459,7 +459,7 @@ properties:
     type: String
 
   - name: visibility
-    summary: Allows user to conceal private information of the notification on the lockscreen.
+    summary: Allows user to conceal private information of the notification on the lock screen.
     description: |
          This property only works on devices running Android 5.0 (API 21) and greater.
     type: Number

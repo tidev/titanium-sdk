@@ -12,13 +12,12 @@ import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiC;
 
-import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 
-@TargetApi(26)
+@androidx.annotation.RequiresApi(26)
 @Kroll.proxy
 public class NotificationChannelProxy extends KrollProxy
 {
@@ -238,8 +237,7 @@ public class NotificationChannelProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setVibrationPattern(Object patternObj)
 	{
-		if (patternObj instanceof Object[]) {
-			Object[] patternArray = (Object[]) patternObj;
+		if (patternObj instanceof Object[] patternArray) {
 			long[] pattern = new long[patternArray.length];
 
 			for (int i = 0; i < patternArray.length; i++) {

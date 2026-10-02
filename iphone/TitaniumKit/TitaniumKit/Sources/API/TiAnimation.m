@@ -270,7 +270,7 @@
   if ([animation isReverse]) {
 
     animation = [animation reverseAnimation]; // Use the original animation for correct eventing
-    //Make sure we have the animatedViewProxy so we can correctly signal end of animation
+    // Make sure we have the animatedViewProxy so we can correctly signal end of animation
     if ([(id)animation.animatedView isKindOfClass:[TiUIView class]]) {
       RELEASE_TO_NIL(animatedViewProxy);
       TiUIView *v = (TiUIView *)animation.animatedView;
@@ -495,7 +495,7 @@
         [(TiUIView *)view_ setTransform_:transform];
       }
 
-      if ([view_ isKindOfClass:[TiUIView class]]) { //TODO: Shouldn't we be updating the proxy's properties to reflect this?
+      if ([view_ isKindOfClass:[TiUIView class]]) { // TODO: Shouldn't we be updating the proxy's properties to reflect this?
         TiUIView *uiview = (TiUIView *)view_;
 #ifndef TI_USE_AUTOLAYOUT
         LayoutConstraint *layoutProperties = [(TiViewProxy *)[uiview proxy] layoutProperties];
@@ -539,7 +539,7 @@
           BOOL hasBackgroundImage = (bgdLayer != nil);
 
           if (hasGradient && hasBackgroundImage) {
-            //Avoid duplicte animations on the same layer
+            // Avoid duplicte animations on the same layer
             hasBackgroundImage = gradientLayer != bgdLayer;
           }
 
@@ -689,8 +689,8 @@
             // and then we need to add our new view
             for (UIView *subview in [transitionView subviews]) {
               if (subview != view_) {
-                //Making sure the view being transitioned off is properly removed
-                //from the view hierarchy.
+                // Making sure the view being transitioned off is properly removed
+                // from the view hierarchy.
                 if ([subview isKindOfClass:[TiUIView class]]) {
                   TiUIView *subView = (TiUIView *)subview;
                   TiViewProxy *ourProxy = (TiViewProxy *)subView.proxy;
@@ -702,9 +702,9 @@
             }
             [transitionView addSubview:view_];
 
-            //AnimationStarted needs to be called here, otherwise the animation flags for
-            //the view being transitioned will end up in a improper state, resulting in
-            //layout warning.
+            // AnimationStarted needs to be called here, otherwise the animation flags for
+            // the view being transitioned will end up in a improper state, resulting in
+            // layout warning.
             [self animationStarted:[NSString stringWithFormat:@"%@", (void *)theview]
                            context:self];
           }
@@ -713,7 +713,7 @@
                             finished:[NSNumber numberWithBool:finished]
                              context:self];
 
-            //Adding the new view to the transition view's hierarchy.
+            // Adding the new view to the transition view's hierarchy.
             TiViewProxy *parentProxy = (TiViewProxy *)transitionView.proxy;
             TiViewProxy *child = (TiViewProxy *)view_.proxy;
             [parentProxy add:child];

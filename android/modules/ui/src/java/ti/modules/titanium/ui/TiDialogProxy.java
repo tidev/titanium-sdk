@@ -6,13 +6,13 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.CurrentActivityListener;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiUIHelper;
-
-import android.app.Activity;
 
 @Kroll.proxy(parentModule = UIModule.class,
 	propertyAccessors = {
@@ -24,7 +24,7 @@ import android.app.Activity;
 		"options",
 		"selectedIndex",
 		"cancel"
-})
+	})
 public abstract class TiDialogProxy extends TiViewProxy
 {
 	protected boolean showing = false;
@@ -38,7 +38,8 @@ public abstract class TiDialogProxy extends TiViewProxy
 	public void show(final KrollDict options)
 	{
 		showing = true;
-		TiUIHelper.waitForCurrentActivity(new CurrentActivityListener() {
+		TiUIHelper.waitForCurrentActivity(new CurrentActivityListener()
+		{
 			@Override
 			public void onCurrentActivityReady(Activity activity)
 			{

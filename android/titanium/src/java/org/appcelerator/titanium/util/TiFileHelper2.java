@@ -8,7 +8,6 @@ package org.appcelerator.titanium.util;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 
@@ -29,7 +28,7 @@ public class TiFileHelper2
 	/**
 	 * Joins many String path segments into one path
 	 * @param segments A vararg (or String array) of path segments
-	 * @return The passed-in segements normalized and joined by "/"
+	 * @return The passed-in segments normalized and joined by "/"
 	 */
 	public static String joinSegments(String... segments)
 	{
@@ -83,9 +82,6 @@ public class TiFileHelper2
 
 	public static boolean hasStoragePermission()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
 		Context context = TiApplication.getInstance().getApplicationContext();
 		// Fix for TIMOB-20434 where activity is null
 		if (context == null) {

@@ -16,9 +16,16 @@
 
 - (void)_destroy
 {
+  if (fullWidthBackGestureRecognizer != nil) {
+    [fullWidthBackGestureRecognizer setDelegate:nil];
+    [navController.view removeGestureRecognizer:fullWidthBackGestureRecognizer];
+  }
+
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(navController);
   RELEASE_TO_NIL(current);
+  RELEASE_TO_NIL(fullWidthBackGestureRecognizer);
+
   [super _destroy];
 }
 
@@ -117,7 +124,7 @@
   [window setIsManaged:YES];
   [window setTab:(TiViewProxy<TiTab> *)self];
   [window setParentOrientationController:self];
-  //Send to open. Will come back after _handleOpen returns true.
+  // Send to open. Will come back after _handleOpen returns true.
   if (![window opening]) {
     args = ([args count] > 1) ? [args objectAtIndex:1] : nil;
     if (args != nil) {
@@ -128,7 +135,7 @@
 
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-  [[[TiApp app] controller] dismissKeyboard];
+  [[[self owningInstance] controller] dismissKeyboard];
   TiThreadPerformOnMainThread(
       ^{
         [self pushOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
@@ -144,7 +151,7 @@
 
   JSContext *context = [self currentContext];
 
-  if (window == rootWindow && ![[TiApp app] willTerminate]) {
+  if (window == rootWindow && ![[self owningInstance] willTerminate]) {
     DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
     return [KrollPromise rejectedWithErrorMessage:@"Can not close the root window of the NavigationWindow. Close the NavigationWindow instead." inContext:context];
   }
@@ -172,7 +179,7 @@
 
 - (void)windowClosing:(TiWindowProxy *)window animated:(BOOL)animated
 {
-  //NO OP NOW
+  // NO OP NOW
 }
 
 #pragma mark - UINavigationControllerDelegate
@@ -220,14 +227,13 @@
       }
     }
     if (winclosing) {
-      //TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
-      //as first responders. This is ok since tab is not nil so no message will be sent to
-      //hosting controller.
+      // TIMOB-15033. Have to call windowWillClose so any keyboardFocussedProxies resign
+      // as first responders. This is ok since tab is not nil so no message will be sent to
+      // hosting controller.
       [current windowWillClose];
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  [theWindow processForSafeArea];
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];
@@ -331,7 +337,7 @@
       [promise resolve:@[]];
     }
   } else {
-    // FIXME: forward/chain the underying promise from [window close:] done internally here rather than assume success
+    // FIXME: forward/chain the underlying promise from [window close:] done internally here rather than assume success
     [self closeWindow:window animated:NO];
     if (promise != nil) {
       [promise resolve:@[]];
@@ -393,14 +399,14 @@
     UIViewController *parentController = [self windowHoldingController];
     [parentController addChildViewController:navController];
     [navController didMoveToParentViewController:parentController];
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewWillAppear:animated];
   }
   [super viewWillAppear:animated];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewWillDisappear:animated];
   }
   [super viewWillDisappear:animated];
 }
@@ -408,14 +414,14 @@
 - (void)viewDidAppear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController beginAppearanceTransition:YES animated:animated];
+    [navController viewDidAppear:animated];
   }
   [super viewDidAppear:animated];
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
   if ([self viewAttached]) {
-    [navController endAppearanceTransition];
+    [navController viewDidDisappear:animated];
   }
   [super viewDidDisappear:animated];
 }
@@ -538,7 +544,7 @@
 {
   [super willChangeSize];
 
-  //TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
+  // TODO: Shouldn't this be not through UI? Shouldn't we retain the windows ourselves?
   for (UIViewController *thisController in [navController viewControllers]) {
     if ([thisController isKindOfClass:[TiViewController class]]) {
       TiViewProxy *thisProxy = [(TiViewController *)thisController proxy];

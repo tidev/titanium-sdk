@@ -101,7 +101,7 @@
 - (void)setValue_:(id)value
 {
   // need to check if we're in a reproxy when this is set
-  // so we don't artifically trigger a change event or
+  // so we don't artificially trigger a change event or
   // animate the change -- this happens on the tableview
   // reproxy as we scroll
   BOOL reproxying = [self.proxy inReproxy];
@@ -156,7 +156,7 @@
   id current = [self.proxy valueForUndefinedKey:@"value"];
   [self.proxy replaceValue:newValue forKey:@"value" notification:NO];
 
-  //No need to setValue, because it's already been set.
+  // No need to setValue, because it's already been set.
   if ([self.proxy _hasListeners:@"change"] && (current != newValue) && ![current isEqual:newValue]) {
     [self.proxy fireEvent:@"change" withObject:[NSDictionary dictionaryWithObject:newValue forKey:@"value"]];
   }

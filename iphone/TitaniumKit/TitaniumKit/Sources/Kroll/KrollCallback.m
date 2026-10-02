@@ -10,7 +10,7 @@
 #import "TiExceptionHandler.h"
 
 static NSMutableArray *callbacks;
-static NSLock *callbackLock;
+static dispatch_queue_t callbackQueue;
 
 @interface KrollCallback ()
 @property (nonatomic, assign) KrollContext *context;
@@ -22,19 +22,28 @@ static NSLock *callbackLock;
 
 + (void)shutdownContext:(KrollContext *)context
 {
-  [callbackLock lock];
-  for (KrollCallback *callback in callbacks) {
-    if ([callback context] == context) {
-      callback.context = nil;
+  NSMutableArray *closingCallbacks = [NSMutableArray array];
+  dispatch_sync(callbackQueue, ^{
+    for (KrollCallback *callback in callbacks) {
+      if ([callback context] == context) {
+        [closingCallbacks addObject:callback];
+        callback.context = nil;
+      }
     }
+  });
+  // Unprotect outside the registry lock: finalizers may release other callbacks.
+  for (KrollCallback *callback in closingCallbacks) {
+    JSValueUnprotect(callback->jsContext, callback->function);
+    JSValueUnprotect(callback->jsContext, callback->thisObj);
+    callback->function = NULL;
+    callback->thisObj = NULL;
   }
-  [callbackLock unlock];
 }
 
 + (void)initialize
 {
   if (callbacks == nil) {
-    callbackLock = [[NSLock alloc] init];
+    callbackQueue = dispatch_queue_create("org.appcelerator.kroll.callbacks", DISPATCH_QUEUE_SERIAL);
     callbacks = TiCreateNonRetainingArray();
   }
 }
@@ -56,12 +65,12 @@ static NSLock *callbackLock;
 
 - (void)dealloc
 {
-  [callbackLock lock];
-  [callbacks removeObject:self];
-  [callbackLock unlock];
+  dispatch_sync(callbackQueue, ^{
+    [callbacks removeObject:self];
+  });
 
   [type release];
-  if ([KrollBridge krollBridgeExists:bridge]) {
+  if (context != nil && [KrollBridge krollBridgeExists:bridge]) {
     if ([context isKJSThread]) {
       JSValueUnprotect(jsContext, function);
       JSValueUnprotect(jsContext, thisObj);
@@ -89,7 +98,7 @@ static NSLock *callbackLock;
     return NO;
   }
   KrollCallback *otherCallback = (KrollCallback *)anObject;
-  if (function != NULL) { //TODO: Is there ever two functions with diffent memory pointers
+  if (function != NULL) { // TODO: Is there ever two functions with diffent memory pointers
     // that represent the exact same function? I'm thinking not.
     JSObjectRef ref1 = function;
     JSObjectRef ref2 = [otherCallback function];
@@ -108,7 +117,7 @@ static NSLock *callbackLock;
 }
 - (id)call:(NSArray *)args thisObject:(id)thisObject_
 {
-  if (context == nil) {
+  if (context == nil || ![context running]) {
     return nil;
   }
 

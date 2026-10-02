@@ -71,7 +71,7 @@
 
   [self becomeFirstResponder];
 
-  [[[[[TiApp app] controller] topPresentedController] view] addSubview:self];
+  [[[[[self.proxy owningInstance] controller] topPresentedController] view] addSubview:self];
 
   UIMenuController *controller = [UIMenuController sharedMenuController];
   UIView *view = [sourceView view];

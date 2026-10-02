@@ -50,7 +50,7 @@ NSArray *pickerKeySequence;
 
 - (void)viewDidAttach
 {
-  //Window might not have opened yet, so delay till we get windowDidOpen
+  // Window might not have opened yet, so delay till we get windowDidOpen
   if (selectOnLoad != nil && windowOpened) {
     [self setSelectedRow:selectOnLoad];
     RELEASE_TO_NIL(selectOnLoad);
@@ -274,7 +274,7 @@ NSArray *pickerKeySequence;
 
 - (void)remove:(id)args
 {
-  //TODO
+  // TODO
 }
 
 - (id)getSelectedRow:(id)args
@@ -327,7 +327,7 @@ USE_VIEW_FOR_VERIFY_WIDTH
     return;
   }
 
-  //TODO: This is playing with fire here.
+  // TODO: This is playing with fire here.
   NSArray *columnArray = [self columns];
 
   NSUInteger columnIndex = NSNotFound;

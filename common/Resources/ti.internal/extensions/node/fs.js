@@ -828,7 +828,7 @@ fs.readFile = (path, options, callback) => {
 
 	const wasFileDescriptor = (typeof path === 'number');
 
-	let fileDescriptor = path; // may be overriden later
+	let fileDescriptor = path; // may be overridden later
 	/**
 	 * @param {Error} err possible Error
 	 * @param {Ti.Buffer} buffer Ti.Buffer instance
@@ -1240,7 +1240,7 @@ fs.writeFile = (file, data, options, callback) => {
 	// Turn into file descriptor
 	const wasFileDescriptor = typeof file === 'number';
 
-	let fileDescriptor = file; // may be overriden later
+	let fileDescriptor = file; // may be overridden later
 	const finish = (err) => {
 		if (err) {
 			callback(err);
@@ -1570,10 +1570,10 @@ function encodeBuffer(encoding, tiBuffer) {
  */
 function getTiFileFromPathLikeValue(path) {
 	// This is a hack that is likely to work in most cases?
-	// Basically assumes Buffer is holding a utf-8 string filename/path
+	// Basically assumes Buffer is holding a UTF-8 string filename/path
 	// Node just copies the bytes from the buffer as-is on the native side and adds a null terminator
 	if (Buffer.isBuffer(path)) {
-		path = path.toString(); // assumes utf-8 string
+		path = path.toString(); // assumes UTF-8 string
 	}
 	// FIXME: Handle URLs! We don't have an URL shim yet, so no way to handle those yet
 	assertArgumentType(path, 'path', 'string');
