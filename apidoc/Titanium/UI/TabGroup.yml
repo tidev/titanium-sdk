@@ -862,7 +862,7 @@ examples:
         ```
 ---
 name: disableTabOptions
-summary: Dictionary of options for the <Titanium.UI.TabGroup.disableTabOptions> method.
+summary: Dictionary of options for the <Titanium.UI.TabGroup.disableTabNavigation> method.
 platforms: [android, iphone, ipad, macos]
 since: {android: "12.1.0", iphone: "12.1.0", ipad: "12.1.0", macos: "12.1.0"}
 properties:
