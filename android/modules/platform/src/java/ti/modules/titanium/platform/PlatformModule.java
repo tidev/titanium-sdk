@@ -403,7 +403,7 @@ public class PlatformModule extends KrollModule
 			Context context = TiApplication.getInstance().getApplicationContext();
 			BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
 			int batStatus = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATUS);
-			return batStatus;
+			return convertBatteryStatus(batStatus);
 		} else {
 			return batteryState;
 		}
