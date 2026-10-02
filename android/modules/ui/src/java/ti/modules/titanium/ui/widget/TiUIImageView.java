@@ -34,6 +34,7 @@ import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.ImageViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Handler;
@@ -906,6 +907,20 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		this.reverse = reverse;
 	}
 
+	private static Bitmap toBitmap(Drawable drawable)
+	{
+		int width = drawable.getIntrinsicWidth();
+		int height = drawable.getIntrinsicHeight();
+		if (width <= 0 || height <= 0) {
+			return null;
+		}
+
+		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		drawable.setBounds(0, 0, width, height);
+		drawable.draw(new Canvas(bitmap));
+		return bitmap;
+	}
+
 	public TiBlob toBlob()
 	{
 		TiDrawableReference imageReference =
@@ -919,8 +934,10 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 			TiImageView view = getView();
 			if (view != null) {
 				Bitmap bitmap = view.getImageBitmap();
-				if (bitmap == null && imageSources != null && imageSources.size() == 1) {
-					bitmap = imageSources.get(0).getBitmap(true);
+				if (bitmap == null && imageReference != null) {
+					// A vector has no bitmap to decode. Draw it to a bitmap of its own size.
+					VectorDrawable vectorDrawable = imageReference.getVectorDrawable();
+					bitmap = (vectorDrawable != null) ? toBitmap(vectorDrawable) : imageReference.getBitmap(true);
 				}
 				if (bitmap != null) {
 					if (imageReference != null) {
