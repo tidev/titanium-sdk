@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import androidx.appcompat.widget.Toolbar;
-import java.lang.reflect.Field;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.util.TiRHelper;
 
@@ -152,15 +151,6 @@ public class TiToolbarStyleHandler
 				this.toolbar.setMinimumHeight(barSize);
 			}
 			typedArray.recycle();
-
-			// Update the toolbar's undocumented max button height.
-			// Note: Ideally, we should not modify a private member variable like this.
-			//       Unfortunately, we have to since Google's default ActionBar can internally use a Toolbar.
-			// TODO: In the future we should replace Activity's ActionBar with Toolbar and use a custom
-			//       theme which replaces "maxButtonHeight" value with -1 to avoid this issue.
-			Field field = Toolbar.class.getDeclaredField("mMaxButtonHeight");
-			field.setAccessible(true);
-			field.set(this.toolbar, barSize);
 
 			// Redraw the toolbar with the above changes.
 			this.toolbar.requestLayout();
