@@ -2570,7 +2570,7 @@ properties:
     summary: Android SDK version number (e.g. returns 35 for Android 15).
     type: Number
     permission: read-only
-    since: "12.7.0"
+    since: "14.0.0"
 
 ---
 name: ServiceIntentOptions
