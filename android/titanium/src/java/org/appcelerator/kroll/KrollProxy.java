@@ -63,7 +63,8 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	protected static final int MSG_FIRE_SYNC_EVENT = KrollObject.MSG_LAST_ID + 108;
 	protected static final int MSG_CALL_PROPERTY_ASYNC = KrollObject.MSG_LAST_ID + 109;
 	protected static final int MSG_CALL_PROPERTY_SYNC = KrollObject.MSG_LAST_ID + 110;
-	protected static final int MSG_LAST_ID = MSG_CALL_PROPERTY_SYNC;
+	protected static final int MSG_SET_PROPERTIES = KrollObject.MSG_LAST_ID + 111;
+	protected static final int MSG_LAST_ID = MSG_SET_PROPERTIES;
 	protected static final String PROPERTY_NAME = "name";
 	protected static final String PROPERTY_HAS_JAVA_LISTENER = "_hasJavaListener";
 
@@ -79,6 +80,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 	protected KrollModule createdInModule;
 	protected boolean coverageEnabled;
 	protected KrollDict properties = new KrollDict();
+
+	/** Collects properties set while a property batch is open. See beginPropertyBatch(). */
+	private KrollDict pendingPropertyBatch;
+	private Thread propertyBatchThread;
+	private int propertyBatchDepth;
 	protected KrollDict defaultValues = new KrollDict();
 	protected Handler mainHandler = null;
 	protected Handler runtimeHandler = null;
@@ -624,6 +630,13 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 
 		properties.put(name, value);
 
+		// While a batch is open on this thread, defer the JavaScript object update to endPropertyBatch().
+		final KrollDict batch = this.pendingPropertyBatch;
+		if ((batch != null) && (this.propertyBatchThread == Thread.currentThread())) {
+			batch.put(name, value);
+			return;
+		}
+
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
 			doSetProperty(name, value);
 
@@ -746,6 +759,113 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 			Message msg = getRuntimeHandler().obtainMessage(MSG_CALL_PROPERTY_SYNC);
 			msg.getData().putString(PROPERTY_NAME, name);
 			TiMessenger.sendBlockingRuntimeMessage(msg, args);
+		}
+	}
+
+	/**
+	 * Opens a property batch on the calling thread.
+	 * <p>
+	 * Until the matching endPropertyBatch() call, setProperty() only updates this proxy's Java-side
+	 * property dictionary. The JavaScript object is then updated with a single runtime message
+	 * instead of one message per property. Batches may be nested; only the outermost one flushes.
+	 * <p>
+	 * Only writes from the thread that opened the batch are collected. Writes from other threads
+	 * keep their normal one-message-per-property behavior.
+	 */
+	protected void beginPropertyBatch()
+	{
+		final Thread currentThread = Thread.currentThread();
+		if (this.propertyBatchDepth > 0) {
+			if (this.propertyBatchThread == currentThread) {
+				this.propertyBatchDepth++;
+			}
+			return;
+		}
+		this.pendingPropertyBatch = new KrollDict();
+		this.propertyBatchThread = currentThread;
+		this.propertyBatchDepth = 1;
+	}
+
+	/**
+	 * Closes the property batch opened by beginPropertyBatch() and flushes the collected
+	 * properties to the JavaScript object with one runtime message.
+	 */
+	protected void endPropertyBatch()
+	{
+		if ((this.propertyBatchDepth <= 0) || (this.propertyBatchThread != Thread.currentThread())) {
+			return;
+		}
+		this.propertyBatchDepth--;
+		if (this.propertyBatchDepth > 0) {
+			return;
+		}
+
+		final KrollDict batch = this.pendingPropertyBatch;
+		this.pendingPropertyBatch = null;
+		this.propertyBatchThread = null;
+		if ((batch == null) || batch.isEmpty()) {
+			return;
+		}
+
+		if (KrollRuntime.getInstance().isRuntimeThread()) {
+			doSetProperties(batch);
+		} else {
+			getRuntimeHandler().obtainMessage(MSG_SET_PROPERTIES, batch).sendToTarget();
+		}
+	}
+
+	/**
+	 * Sets all given properties and notifies the model listener of the ones that changed.
+	 * <p>
+	 * Behaves like calling setPropertyAndFire() for every entry, except that the JavaScript object
+	 * is updated with a single runtime message and the listener receives the changes as one batch
+	 * after all values have been stored. Intended for hot paths such as binding recycled list rows.
+	 *
+	 * @param newProperties Properties to apply. Can be null or empty, in which case nothing happens.
+	 */
+	public void setPropertiesAndFire(KrollDict newProperties)
+	{
+		if ((properties == null) || (newProperties == null) || newProperties.isEmpty()) {
+			return;
+		}
+
+		final KrollPropertyChangeSet changes = new KrollPropertyChangeSet(newProperties.size());
+		beginPropertyBatch();
+		try {
+			for (Map.Entry<String, Object> entry : newProperties.entrySet()) {
+				final String name = entry.getKey();
+				final Object value = entry.getValue();
+				final Object oldValue = properties.get(name);
+				setProperty(name, value);
+				if (shouldFireChange(oldValue, value)) {
+					changes.addChange(name, oldValue, value);
+				}
+			}
+		} finally {
+			endPropertyBatch();
+		}
+
+		if ((changes.entryCount <= 0) || (modelListener == null)) {
+			return;
+		}
+		if (TiApplication.isUIThread()) {
+			changes.fireEvent(this, modelListener);
+		} else {
+			getMainHandler().obtainMessage(MSG_MODEL_PROPERTY_CHANGE, changes).sendToTarget();
+		}
+	}
+
+	/**
+	 * Writes multiple properties to the JavaScript object. Must be called on the runtime thread.
+	 */
+	protected void doSetProperties(KrollDict values)
+	{
+		final KrollObject krollObject = getKrollObject();
+		if (krollObject == null) {
+			return;
+		}
+		for (Map.Entry<String, Object> entry : values.entrySet()) {
+			krollObject.setProperty(entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -1210,6 +1330,11 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport, OnLifecy
 					Object value = msg.obj;
 					String property = msg.getData().getString(PROPERTY_NAME);
 					doSetProperty(property, value);
+
+					return true;
+				}
+				case MSG_SET_PROPERTIES: {
+					doSetProperties((KrollDict) msg.obj);
 
 					return true;
 				}

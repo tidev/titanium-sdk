@@ -466,7 +466,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			// when items are added/removed, also grab the current visible item instead.
 			final ListItemProxy firstVisibleItem = listView.getFirstVisibleItem();
 			if (firstVisibleItem != null) {
-				final int currentIndex = listView.getAdapterIndex(firstVisibleItem.index);
+				final int currentIndex = listView.getAdapterIndex(firstVisibleItem);
 				contentOffset.put(TiC.PROPERTY_INDEX, currentIndex);
 			}
 
@@ -653,7 +653,8 @@ public class ListViewProxy extends RecyclerViewProxy
 						for (Iterator<Integer> i = itemIndexSet.iterator(); i.hasNext(); ) {
 							final Integer index = i.next();
 
-							final ListItemProxy markedItem = section.getListItemAt(index);
+							// Rows that were never displayed have no proxy and can't be visible.
+							final ListItemProxy markedItem = section.peekListItemAt(index);
 							if (markedItem == null) {
 								continue;
 							}
@@ -827,10 +828,10 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListSectionProxy section = getSectionByIndex(sectionIndex);
 
 			if (section != null) {
-				final ListItemProxy item = section.getListItemAt(itemIndex);
+				final ListItemEntry item = section.getEntryAt(itemIndex);
 
 				if (item != null) {
-					final int itemAdapterIndex = listView.getAdapterIndex(item.index);
+					final int itemAdapterIndex = listView.getAdapterIndex(item);
 					final Runnable action = () -> {
 						if (animated) {
 							if (position == ListViewScrollPositionModule.TOP) {
@@ -885,12 +886,13 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListSectionProxy section = getSectionByIndex(sectionIndex);
 
 			if (section != null) {
-				final ListItemProxy item = section.getListItemAt(itemIndex);
+				final ListItemEntry item = section.getEntryAt(itemIndex);
 
 				if (item != null) {
 					final Runnable action = () -> {
 						final SelectionTracker tracker = listView.getTracker();
-						final TiUIView itemView = item.peekView();
+						final ListItemProxy itemProxy = item.peekProxy();
+						final TiUIView itemView = (itemProxy != null) ? itemProxy.peekView() : null;
 						final boolean visible = itemView != null && itemView.getNativeView().isShown();
 
 						if (!visible) {
@@ -933,6 +935,63 @@ public class ListViewProxy extends RecyclerViewProxy
 	{
 		this.markers.clear();
 		addMarker(markerProperties);
+	}
+
+	/**
+	 * Called by a section after inserting items. Updates the adapter for that range only,
+	 * or rebuilds all items when an incremental update is not possible.
+	 */
+	public void onSectionItemsInserted(ListSectionProxy section, int index, int count)
+	{
+		if (!shouldUpdate) {
+			return;
+		}
+		final TiListView listView = getListView();
+		if ((listView != null) && !listView.insertSectionItems(section, index, count)) {
+			listView.update(false);
+		}
+	}
+
+	/**
+	 * Called by a section after deleting items. See onSectionItemsInserted().
+	 */
+	public void onSectionItemsDeleted(ListSectionProxy section, int index, List<ListItemEntry> removedEntries)
+	{
+		if (!shouldUpdate) {
+			return;
+		}
+		final TiListView listView = getListView();
+		if ((listView != null) && !listView.deleteSectionItems(section, index, removedEntries)) {
+			listView.update(false);
+		}
+	}
+
+	/**
+	 * Called by a section after replacing one item. See onSectionItemsInserted().
+	 */
+	public void onSectionItemReplaced(ListSectionProxy section, ListItemEntry previousEntry, ListItemEntry newEntry)
+	{
+		if (!shouldUpdate) {
+			return;
+		}
+		final TiListView listView = getListView();
+		if ((listView != null) && !listView.replaceSectionItem(section, previousEntry, newEntry)) {
+			listView.update(false);
+		}
+	}
+
+	/**
+	 * Called by a section after replacing all of its items. See onSectionItemsInserted().
+	 */
+	public void onSectionItemsSet(ListSectionProxy section, List<ListItemEntry> previousEntries)
+	{
+		if (!shouldUpdate) {
+			return;
+		}
+		final TiListView listView = getListView();
+		if ((listView != null) && !listView.setSectionItems(section, previousEntries)) {
+			listView.update(false);
+		}
 	}
 
 	/**
