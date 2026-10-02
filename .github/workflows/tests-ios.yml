@@ -1,0 +1,42 @@
+name: iOS Simulator Test
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  ios:
+    if: github.event.review.state == 'approved'
+    name: Titanium SDK iOS Tests
+    runs-on: macos-26
+    timeout-minutes: 120
+
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Titanium CLI
+        run: sudo npm i -g titanium && ti sdk install
+
+      - name: Run iOS simulator tests
+        run: npm run test:ios
+
+      - name: Upload iOS JUnit report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: junit-ios-report
+          path: junit.ios.iphone.xml
+          if-no-files-found: warn

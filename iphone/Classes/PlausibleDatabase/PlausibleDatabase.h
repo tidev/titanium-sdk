@@ -13,7 +13,7 @@
  * 3. Neither the name of the copyright holder nor the names of any contributors
  *    may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -67,25 +67,24 @@ extern NSString *PLDatabaseErrorVendorStringKey;
  * @ingroup enums
  */
 typedef enum {
-    /** An unknown error has occured. If this
-     * code is received, it is a bug, and should be reported. */
-    PLDatabaseErrorUnknown = 0,
-    
-    /** File not found. */
-    PLDatabaseErrorFileNotFound = 1,
-    
-    /** An SQL query failed. */
-    PLDatabaseErrorQueryFailed = 2,
-    
-    /** The provided SQL statement was invalid. */
-    PLDatabaseErrorInvalidStatement = 3,
+  /** An unknown error has occured. If this
+   * code is received, it is a bug, and should be reported. */
+  PLDatabaseErrorUnknown = 0,
+
+  /** File not found. */
+  PLDatabaseErrorFileNotFound = 1,
+
+  /** An SQL query failed. */
+  PLDatabaseErrorQueryFailed = 2,
+
+  /** The provided SQL statement was invalid. */
+  PLDatabaseErrorInvalidStatement = 3,
 } PLDatabaseError;
 
-
 /* Library Includes */
-#import "PLResultSet.h"
-#import "PLPreparedStatement.h"
 #import "PLDatabase.h"
+#import "PLPreparedStatement.h"
+#import "PLResultSet.h"
 
 #import "PLSqliteDatabase.h"
 #import "PLSqlitePreparedStatement.h"
@@ -96,9 +95,10 @@ typedef enum {
 @interface PlausibleDatabase : NSObject {
 }
 
-+ (NSError *) errorWithCode: (PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
-                queryString: (NSString *) queryString
-                 vendorError: (NSNumber *) vendorError vendorErrorString: (NSString *) vendorErrorString;
++ (NSError *)errorWithCode:(PLDatabaseError)errorCode localizedDescription:(NSString *)localizedDescription
+               queryString:(NSString *)queryString
+               vendorError:(NSNumber *)vendorError
+         vendorErrorString:(NSString *)vendorErrorString;
 
 @end
 
@@ -184,7 +184,7 @@ typedef enum {
  *
  * <pre>
  * NSObject<PLPreparedStatement> *stmt = [db prepareStatement: @"INSERT INTO example (name, color) VALUES (?, ?)"];
- 
+
  * // Bind the parameters
  * [stmt bindParameters: [NSArray arrayWithObjects: @"Widget", @"Blue", nil]];
  *
@@ -235,4 +235,3 @@ typedef enum {
  * - #PLDatabaseErrorVendorErrorKey - The native database error code.
  * - #PLDatabaseErrorVendorStringKey - The native database error string.
  */
-

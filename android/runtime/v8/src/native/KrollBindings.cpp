@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -297,8 +297,8 @@ void KrollBindings::dispose(v8::Isolate* isolate)
 }
 
 /*
- * Stores a java KrollSourceCodeProvider instance and the id of its getSourceCode method
- * for an external CommonJS module that is stored in a java external module.
+ * Stores a Java KrollSourceCodeProvider instance and the id of its getSourceCode method
+ * for an external CommonJS module that is stored in a Java external module.
  */
 void KrollBindings::addExternalCommonJsModule(const char *name, jobject sourceProvider, jmethodID sourceRetrievalMethod)
 {

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -224,12 +224,12 @@ public class TiMimeTypeHelper
 					}
 				}
 			} catch (Exception ex) {
-				Log.e(TAG, ex.getMessage());
+				Log.d(TAG, uri.getPath() + ": " + ex.getMessage(), Log.DEBUG_MODE);
 			} finally {
 				try {
 					mediaRetriever.release();
 				} catch (IOException ex) {
-					Log.e(TAG, ex.getMessage());
+					Log.d(TAG, uri.getPath() + ": " + ex.getMessage(), Log.DEBUG_MODE);
 				}
 			}
 		}

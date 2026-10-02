@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -181,7 +181,7 @@ public class TabProxy extends TiViewProxy
 	{
 		// Windows are lazily opened when the tab is first focused.
 		if (window != null && !windowOpened) {
-			// Need to handle the url window in the JS side.
+			// Need to handle the URL window in the JS side.
 			window.callPropertySync(TiC.PROPERTY_LOAD_URL, null);
 			windowOpened = true;
 			window.fireEvent(TiC.EVENT_OPEN, null, false);
@@ -231,10 +231,9 @@ public class TabProxy extends TiViewProxy
 
 		// Fetch the TabGroup's view. If currently null, then we have to wait for TabGroup activity to be created.
 		TiUIView view = (this.tabGroupProxy != null) ? this.tabGroupProxy.peekView() : null;
-		if (!(view instanceof TiUIAbstractTabGroup)) {
+		if (!(view instanceof TiUIAbstractTabGroup tabGroupView)) {
 			return;
 		}
-		TiUIAbstractTabGroup tabGroupView = (TiUIAbstractTabGroup) view;
 
 		// Update tab.
 		if (name.equals(TiC.PROPERTY_BACKGROUND_COLOR) || name.equals(TiC.PROPERTY_BACKGROUND_FOCUSED_COLOR)) {
@@ -251,6 +250,12 @@ public class TabProxy extends TiViewProxy
 			|| name.equals(TiC.PROPERTY_BADGE_TEXT_COLOR)) {
 			tabGroupView.updateBadgeColor(this.tabGroupProxy.getTabIndex(this));
 		}
+	}
+
+	@Kroll.method
+	public void popToRootWindow()
+	{
+		TiApplication.getInstance().popToRootWindow();
 	}
 
 	@Override

@@ -1,14 +1,13 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.titanium.util;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
@@ -22,8 +21,8 @@ public class TiRHelper
 {
 	private static final String TAG = "TiRHelper";
 
-	private static final Map<String, Class<?>> clsCache = Collections.synchronizedMap(new HashMap<>());
-	private static final Map<String, Integer> valCache = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, Class<?>> clsCache = new ConcurrentHashMap<>();
+	private static final Map<String, Integer> valCache = new ConcurrentHashMap<>();
 
 	private static final String clsPrefixAndroid = "android.R$";
 	private static String clsPrefixApplication = null;

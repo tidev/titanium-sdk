@@ -6,7 +6,7 @@ on:
       branch:
         description: The branch to release from
         required: true
-        default: master
+        default: main
       release-type:
         description: The type of release to perform
         required: true
@@ -15,7 +15,18 @@ on:
         options:
           - GA
           - RC
+          - RC2
+          - RC3
+          - RC4
           - Beta
+          - Beta2
+          - Beta3
+          - Beta4
+      release-notes:
+        description: Open a release notes pull request against titaniumsdk.com
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   validate:
@@ -25,7 +36,7 @@ jobs:
       vtag: ${{ steps.vtag.outputs.vtag }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
@@ -37,7 +48,7 @@ jobs:
           echo "vtag=${VTAG}" >> $GITHUB_ENV
           echo "vtag=${VTAG}" >> $GITHUB_OUTPUT
       - name: Validate version
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         env:
           vtag: ${{ env.vtag }}
         with:
@@ -57,61 +68,61 @@ jobs:
             console.log(`${process.env.vtag} does not exist so continuing`)
 
   android:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '16.x'
-          java-version: '11'
+          node-version: '24'
+          java-version: '21'
 
   ios:
-    runs-on: macos-13
+    runs-on: macos-26
     name: iOS
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_14.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ github.event.inputs.branch }}
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '16.x'
+          node-version: '24'
 
   package:
-    runs-on: macos-12
+    runs-on: macos-26
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_14.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '16.x'
-        java-version: '11'
+        node-version: '24'
+        java-version: '21'
         vtag: ${{ env.vtag }}
 
   release:
@@ -123,21 +134,21 @@ jobs:
       vtag: ${{ needs.validate.outputs.vtag }}
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
         ref: ${{ github.event.inputs.branch }}
     - run: echo ${{ env.vtag }}
     - name: Download Linux artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-linux
-    - name: Download MacOS artifact
-      uses: actions/download-artifact@v3
+    - name: Download macOS artifact
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-osx
     - name: Download Windows artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v8
       with:
         name: mobilesdk-${{ env.vtag }}-win32
     - name: Create and push tag
@@ -149,14 +160,14 @@ jobs:
         git push origin "${TAG_VERSION}"
         echo "clean-tag=${TAG_VERSION}" >> $GITHUB_ENV
     - name: Upload SDK zips (GA)
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: ${{ github.event.inputs.release-type == 'GA' }}
       with:
         files: mobilesdk-${{ env.vtag }}-*
         tag_name: ${{ env.clean-tag }}
         name: ${{ env.vtag }}
     - name: Upload SDK zips (non-GA)
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: ${{ github.event.inputs.release-type != 'GA' }}
       with:
         files: mobilesdk-${{ env.vtag }}-*
@@ -171,4 +182,83 @@ jobs:
         git add package-lock.json
         git commit -m "chore(release): bump version"
         git push
+    - name: Regen Builds
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        event-type: regen-builds
+        repository: tidev/downloads-www
+        token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+    - name: Regen Builds (titanium-www)
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        event-type: regen-builds
+        repository: tidev/titanium-www
+        token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
 
+  # The release notes were made by hand: run the changelog, copy the section
+  # out, edit the prose, add frontmatter, and open a pull request against the
+  # docs repo. This does the mechanical half — the note lands as a pull request
+  # for review rather than being committed, so the prose can still be edited
+  # before it ships.
+  #
+  # GA only. A release candidate's notes were never published as pages.
+  release-notes:
+    runs-on: ubuntu-latest
+    name: Release notes
+    needs: [validate, release]
+    if: ${{ inputs.release-notes && github.event.inputs.release-type == 'GA' }}
+    env:
+      vtag: ${{ needs.validate.outputs.vtag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          # Tags and full history: the changelog compares this release against
+          # the previous one, and resolves that comparison through them.
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Check out the release tag
+        run: |
+          # The tag, not the branch. The release job pushes a version bump to
+          # the branch, so package.json there already names the *next* version.
+          git checkout "$(echo "$vtag" | tr '.' '_')"
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Checkout titaniumsdk.com
+        uses: actions/checkout@v6
+        with:
+          repository: tidev/titaniumsdk.com
+          path: titaniumsdk.com
+          token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+
+      - name: Generate the release note
+        run: |
+          VERSION="${vtag%.GA}"
+          node changelog/release-notes.js \
+            --channel GA \
+            --out "titaniumsdk.com/registry/sdk/${VERSION}/release-notes.md"
+
+      - name: Open the pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          path: titaniumsdk.com
+          token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+          branch: release-notes/${{ needs.validate.outputs.vtag }}
+          commit-message: "Add ${{ needs.validate.outputs.vtag }} release notes"
+          title: "Add ${{ needs.validate.outputs.vtag }} release notes"
+          body: |
+            Generated by the SDK's release workflow from the changelog for
+            `${{ needs.validate.outputs.vtag }}`.
+
+            The body is generated; the **About this release** paragraph is the
+            part worth editing before merging, since the generator can only
+            describe the release in general terms.

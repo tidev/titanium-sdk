@@ -28,10 +28,10 @@ in Release 2.0.2.
 For a list of issues addressed in Release 2.0.2, see the release notes for the previous
 releases:
 
-* [Release Notes for Release 2.0.2](https://docs.appcelerator.com/titanium/release-notes/?version=2.0.2.GA)
+* [Release Notes for Release 2.0.2](https://titaniumsdk.com/api/)
     
 Further information is available in the updated [Titanium Mobile SDK and Titanium Studio
-Documentation](https://docs.appcelerator.com/titanium/2.1/).
+Documentation](https://titaniumsdk.com/api/).
 
 <a name="new"></a>
 
@@ -45,7 +45,7 @@ Documentation](https://docs.appcelerator.com/titanium/2.1/).
 *   Parity enhancements for horizontal layouts. Horizontal layouts now follow the same
     rules on iOS, Android and Mobile Web. 
     
-    A new property, [horizontalWrap](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.View-property-horizontalWrap), 
+    A new property, [horizontalWrap](https://titaniumsdk.com/api/), 
     has been added to enable or disable wrapping on horizontal layouts. With
     `horizontalWrap` set to `false`, a horizontal layout lays out its children in a single
     row, left to right. With `horizontalWrap` set to `true` (default) horizontal layout
@@ -54,7 +54,7 @@ Documentation](https://docs.appcelerator.com/titanium/2.1/).
     this matches the iOS behavior in previous releases.
 
     See the discussion of horizontal layout in the description for the
-    [layout](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.View-property-layout)
+    [layout](https://titaniumsdk.com/api/)
     property for more details.
 
 *   Support for Android and iOS modules combining JavaScript and native code
@@ -74,7 +74,7 @@ Documentation](https://docs.appcelerator.com/titanium/2.1/).
     it.
 
 *   Added `setObject` and `getObject` methods to
-    [Ti.App.Properties](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.App.Properties) 
+    [Ti.App.Properties](https://titaniumsdk.com/api/) 
     ([TIMOB-322](https://jira-archive.titaniumsdk.com/TIMOB-322)).
     
 *   New unit test framework. This release includes the first version of the new Anvil unit
@@ -93,7 +93,7 @@ Documentation](https://docs.appcelerator.com/titanium/2.1/).
     back into the common namespace and the previous deprecation is being reversed.
 
     In this release, the
-    [3DMatrix](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.3DMatrix)
+    [3DMatrix](https://titaniumsdk.com/api/)
     object and the `ANIMATION_CURVE` constants are being moved back into the common namespace.
 
     <table>
@@ -165,7 +165,7 @@ The following section lists notable new iOS features and bug fixes in this relea
 *   TLS version fallback. With iOS Release 5.0, Apple changed the default TLS version for
     secure HTTP from 1.0 to 1.2, causing secure HTTP connections to fail when
     communicating with older servers. With this fix, when using 
-    [HTTPClient](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.Network.HTTPClient)
+    [HTTPClient](https://titaniumsdk.com/api/)
     to access an HTTPS URL, if the initial connection fails _and no TLS version was
     specified_, the HTTP client retries the connection using TLS 1.0. 
 
@@ -178,7 +178,7 @@ The following section lists notable new iOS features and bug fixes in this relea
     TLS 1.0.
 
 *   Enhancements to
-    [ScrollableView](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.ScrollableView). 
+    [ScrollableView](https://titaniumsdk.com/api/). 
     Improvements include new properties for customizing the paging control appearance and position: 
     `pagingControlAlpha`, `pagingControlOnTop`, and `overlayEnabled`  
     ([TIMOB-8995](https://jira-archive.titaniumsdk.com/TIMOB-8995)). 
@@ -191,20 +191,20 @@ The following section lists notable new iOS features and bug fixes in this relea
 *   Support for custom `Info.plist` values in `tiapp.xml`. Many of the existing
     iOS-specific `tiapp.xml` values are deprecated in favor of the new values. 
 
-    See [`tiapp.xml` and `timodule.xml` Reference](https://docs.appcelerator.com/titanium/2.1/index.html#!/guide/tiapp.xml_and_timodule.xml_Reference)
+    See [`tiapp.xml` and `timodule.xml` Reference](https://titaniumsdk.com/api/)
     for details.
 
 *   Added drag and drop for map annotations ([TIMOB-1242](https://jira-archive.titaniumsdk.com/TIMOB-1242)).
 
-*   Added `dragStart` and `dragEnd` events on [`TableView`](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.TableView) objects.
+*   Added `dragStart` and `dragEnd` events on [`TableView`](https://titaniumsdk.com/api/) objects.
 
-*   Added [`TableView.setContentInsets`](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.TableView-method-setContentInsets)
+*   Added [`TableView.setContentInsets`](https://titaniumsdk.com/api/)
    method to define padding around the table's contents.
 
 *   `Ti.App` supports a new [`paused`](Titanium.App.paused) event.
 
 *   Support for iOS system textures. The following constants, defined in
-    [Ti.UI.iOS](https://docs.appcelerator.com/titanium/2.1/index.html#!/api/Titanium.UI.iOS), 
+    [Ti.UI.iOS](https://titaniumsdk.com/api/), 
     can be used wherever a color value is required:
 
     *   `COLOR_GROUP_TABLEVIEW_BACKGROUND`. Background color for group table views. 

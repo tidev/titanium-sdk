@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -60,7 +60,7 @@ public abstract class KrollObject implements Handler.Callback
 	/**
 	 * Sets whether the passed in event has a corresponding eventListener associated with it on JS side.
 	 * @param event  the event to be set.
-	 * @param hasListeners  If this is true, then the passed in event has a javascript event listener, false otherwise.
+	 * @param hasListeners  If this is true, then the passed in event has a JavaScript event listener, false otherwise.
 	 */
 	public void setHasListenersForEventType(String event, boolean hasListeners)
 	{

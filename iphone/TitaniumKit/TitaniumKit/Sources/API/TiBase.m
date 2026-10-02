@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -112,6 +112,12 @@ NSString *const kTiRemoteExtentionWillExpire = @"remoteextentionwillexpire";
 NSString *const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
+NSString *const kTiSceneDismissNotification = @"TiSceneDismiss";
+NSString *const kTiSceneWillConnectNotification = @"TiSceneWillConnect";
+NSString *const kTiSceneDidBecomeActiveNotification = @"TiSceneDidBecomeActive";
+NSString *const kTiSceneWillResignActiveNotification = @"TiSceneWillResignActive";
+NSString *const kTiSceneDidEnterBackgroundNotification = @"TiSceneDidEnterBackground";
+NSString *const kTiSceneWillEnterForegroundNotification = @"TiSceneWillEnterForeground";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
 NSString *const kTiTraitCollectionChanged = @"TiTraitCollectionChanged";

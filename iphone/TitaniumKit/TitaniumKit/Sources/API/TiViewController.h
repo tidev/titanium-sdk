@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -7,6 +7,8 @@
 
 #import "TiControllerProtocols.h"
 #import <UIKit/UIKit.h>
+
+@class TiApp;
 
 @interface TiViewController : UIViewController <UIAdaptivePresentationControllerDelegate> {
 
@@ -18,5 +20,6 @@
 
 - (id)initWithViewProxy:(TiViewProxy *)window;
 - (TiViewProxy *)proxy;
+- (TiApp *)owningInstance API_AVAILABLE(ios(13_0));
 
 @end

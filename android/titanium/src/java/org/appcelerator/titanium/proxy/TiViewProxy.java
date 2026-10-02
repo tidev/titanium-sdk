@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -94,7 +94,8 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
 	TiC.PROPERTY_TRANSITION_NAME,
 	TiC.PROPERTY_HIDDEN_BEHAVIOR,
-	TiC.PROPERTY_ANCHOR_POINT
+	TiC.PROPERTY_ANCHOR_POINT,
+	TiC.PROPERTY_ACCESSIBILITY_DISABLE_LONG
 })
 public abstract class TiViewProxy extends KrollProxy
 {
@@ -586,7 +587,11 @@ public abstract class TiViewProxy extends KrollProxy
 				if (arg instanceof TiViewProxy) {
 					add((TiViewProxy) arg);
 				} else {
-					Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+					if (arg == null) {
+						Log.w(TAG, "add() unsupported array object: null");
+					} else {
+						Log.w(TAG, "add() unsupported array object: " + arg.getClass().getSimpleName());
+					}
 				}
 			}
 		} else if (args instanceof TiViewProxy) {
@@ -1186,13 +1191,13 @@ public abstract class TiViewProxy extends KrollProxy
 		return TiUIHelper.getBackgroundColorForState(backgroundDrawable, TiUIHelper.BACKGROUND_DISABLED_STATE);
 	}
 
+	@Kroll.setProperty
 	public void setParent(TiViewProxy parent)
 	{
 		if (parent == null) {
 			this.parent = null;
 			return;
 		}
-
 		this.parent = new WeakReference<TiViewProxy>(parent);
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -33,8 +33,8 @@
       }
 
       @try {
-        //If the mode is *not* TI_WRITE and the file path is non-existent, throw exception
-        //Otherwise, create a blank file at the specified path
+        // If the mode is *not* TI_WRITE and the file path is non-existent, throw exception
+        // Otherwise, create a blank file at the specified path
 
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if (![fileManager fileExistsAtPath:filePath]) {
@@ -46,7 +46,7 @@
             [NSException raise:NSInternalInconsistencyException format:@"An error occurred while trying to create the file."];
           }
         } else {
-          //If the file exists and the mode is TI_WRITE, truncate the file.
+          // If the file exists and the mode is TI_WRITE, truncate the file.
           if (mode == TI_WRITE) {
             NSError *error = nil;
             [[NSData data] writeToFile:filePath options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&error];
@@ -63,7 +63,7 @@
         }
 
         if (handle == nil) {
-          //something went wrong with creating the file handle
+          // something went wrong with creating the file handle
           [NSException raise:NSInternalInconsistencyException format:@""];
         }
       }
@@ -73,7 +73,7 @@
                     location:CODELOCATION];
       }
 
-      //we made it, retain the file handle.
+      // we made it, retain the file handle.
 
       fileHandle = [handle retain];
 
@@ -109,7 +109,7 @@
 {
   unsigned long long offset = [fileHandle offsetInFile];
   unsigned long long size = [fileHandle seekToEndOfFile];
-  [fileHandle seekToFileOffset:offset]; //revert to previous position
+  [fileHandle seekToFileOffset:offset]; // revert to previous position
   return size;
 }
 
@@ -136,7 +136,7 @@
   }
 
   if ([fileHandle offsetInFile] >= [self currentFileSize]) {
-    //out of bounds
+    // out of bounds
     if (callback != nil) {
       NSMutableDictionary *event = [TiUtils dictionaryWithCode:-1 message:nil];
       [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
@@ -203,7 +203,7 @@
   if (slicedData != nil) {
     @try {
       [fileHandle writeData:slicedData];
-      [fileHandle synchronizeFile]; //force immediate save to disk
+      [fileHandle synchronizeFile]; // force immediate save to disk
 
       if (callback != nil) {
         NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
@@ -258,7 +258,7 @@
         [tempBuffer setData:[NSMutableData dataWithBytesNoCopy:bytes length:readLength freeWhenDone:YES]];
         bytesWritten = [output writeFromBuffer:tempBuffer offset:0 length:readLength callback:nil];
 
-        //call callback
+        // call callback
         if (callback != nil) {
           NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
           [event setObject:self forKey:@"fromStream"];
@@ -267,7 +267,7 @@
           [self _fireEventToListener:@"writeToStream" withObject:event listener:callback thisObject:nil];
         }
       } else {
-        //EOF
+        // EOF
         return totalBytes;
       }
     }
@@ -317,12 +317,12 @@
   unsigned long long totalBytes = 0;
 
   if (maxSize > remaining) {
-    //truncate to avoid buffer overruns
+    // truncate to avoid buffer overruns
     maxSize = (int)remaining;
   }
 
   while ([fileHandle offsetInFile] < [self currentFileSize]) {
-    //create temporary buffer
+    // create temporary buffer
     unsigned long long readLengthMax = MIN(maxSize, [self currentFileSize] - [fileHandle offsetInFile]);
     if (readLengthMax > INT_MAX) {
       readLengthMax = INT_MAX;
@@ -337,7 +337,7 @@
 
     VerboseLog(@"pumping data: %@", buffer);
 
-    //invoke callback, passing the chunked data
+    // invoke callback, passing the chunked data
     NSMutableDictionary *event = [TiUtils dictionaryWithCode:0 message:nil];
     [event setObject:self forKey:@"source"];
     [event setObject:buffer forKey:@"buffer"];
@@ -350,7 +350,7 @@
       maxSize = (int)remaining;
     }
 
-    //are we going to hit EOF? if so, invoke the callback with a -1 bytesProcessed event dict
+    // are we going to hit EOF? if so, invoke the callback with a -1 bytesProcessed event dict
     if (remaining == 0) {
       [event setObject:NUMINT(-1) forKey:@"bytesProcessed"];
       [self _fireEventToListener:@"pump" withObject:event listener:callback thisObject:nil];

@@ -1,9 +1,16 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
-const version = require('../package.json').version;
+import { program } from 'commander';
+import fs from 'fs-extra';
+import { Builder } from './lib/builder.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
+
 program
+	.allowExcessArguments()
 	.option('-v, --sdk-version [version]', 'Override the SDK version we report', process.env.PRODUCT_VERSION || version)
 	.option('-t, --version-tag [tag]', 'Override the SDK version tag we report')
 	.option('-s, --symlink', 'If possible, symlink the SDK folder to destination rather than copying')
@@ -11,7 +18,6 @@ program
 	.parse(process.argv);
 
 async function main(program) {
-	const Builder = require('./lib/builder');
 	const builder = new Builder(program.opts(), program.args);
 	return builder.install(program.args[0]);
 }

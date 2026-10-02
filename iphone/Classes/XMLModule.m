@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -36,23 +36,23 @@
     return xmlString;
   }
 
-  //Strip out all the xmlns:xmlns="http://www.w3.org/2000/xmlns/" definitions
+  // Strip out all the xmlns:xmlns="http://www.w3.org/2000/xmlns/" definitions
   NSString *strippedString = [xmlString stringByReplacingOccurrencesOfString:@" xmlns:xmlns=\"http://www.w3.org/2000/xmlns/\"" withString:@""];
 
-  //Clean out duplicate namespace definitions
+  // Clean out duplicate namespace definitions
   NSString *cleanString = [self cleanDuplicateNS:strippedString];
 
   return cleanString;
 }
 
 /**
- IOS does not have a proper transformer like java. (javax.xml.transform.Transformer)
+ iOS does not have a proper transformer like java. (javax.xml.transform.Transformer)
  It is perfectly valid to have an element with a namespace and an attribute whose values match the namespace
  Eg:
  var doc = Ti.XML.parseString('<a/>');
  var feed = doc.implementation.createDocument('http://www.test.org/myns', 'myns:feed', null);
  feed.documentElement.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:myns', 'http://www.test.org/myns');
- 
+
  When you print out feed it will print out the NS myns twice. This method cleans out the duplicate NS definitions
  */
 - (NSString *)cleanDuplicateNS:(NSString *)xmlString
@@ -64,25 +64,25 @@
     searchRange.location = result.location + result.length;
     searchRange.length = [xmlString length] - (searchRange.location);
 
-    //Search for end of element
+    // Search for end of element
     NSRange endOfElement = [xmlString rangeOfString:@">" options:0 range:searchRange];
-    //Search for end of NS definition
+    // Search for end of NS definition
     NSRange endOfNS = [xmlString rangeOfString:@" " options:0 range:searchRange];
     if (endOfNS.location < endOfElement.location) {
-      //Get the actual xmlns definition
+      // Get the actual xmlns definition
       NSRange subStringRange = NSMakeRange(result.location, endOfNS.location - result.location);
       NSString *subString = [xmlString substringWithRange:subStringRange];
 
-      //Set up a search range
+      // Set up a search range
       subStringRange.location = endOfNS.location;
       subStringRange.length = endOfElement.location - endOfNS.location;
       xmlString = [xmlString stringByReplacingOccurrencesOfString:subString withString:@"" options:0 range:subStringRange];
 
-      //Update search range
+      // Update search range
       searchRange.location = subStringRange.location + 1;
       searchRange.length = [xmlString length] - searchRange.location;
     } else {
-      //Not in this element. Update search range.
+      // Not in this element. Update search range.
       searchRange.location = endOfElement.location + 1;
       searchRange.length = [xmlString length] - searchRange.location;
     }

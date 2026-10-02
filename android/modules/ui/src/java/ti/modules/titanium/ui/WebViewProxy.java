@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -15,6 +15,8 @@ import android.print.PrintAttributes;
 import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
@@ -33,12 +35,17 @@ import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFileFactory;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
@@ -54,29 +61,47 @@ import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 		TiC.PROPERTY_OVER_SCROLL_MODE,
 		TiC.PROPERTY_CACHE_MODE,
 		TiC.PROPERTY_LIGHT_TOUCH_ENABLED,
-		TiC.PROPERTY_ON_LINK
-})
+		TiC.PROPERTY_ON_LINK,
+		TiC.PROPERTY_SCROLLBARS
+	})
+
 public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifecycleEvent, interceptOnBackPressedEvent
 {
+	public static final String OPTIONS_IN_SETHTML = "optionsInSetHtml";
 	private static final String TAG = "WebViewProxy";
 	private static final int MSG_FIRST_ID = ViewProxy.MSG_LAST_ID + 1;
-
+	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
 	private static final int MSG_GO_BACK = MSG_FIRST_ID + 101;
 	private static final int MSG_GO_FORWARD = MSG_FIRST_ID + 102;
 	private static final int MSG_RELOAD = MSG_FIRST_ID + 103;
 	private static final int MSG_STOP_LOADING = MSG_FIRST_ID + 104;
 	private static final int MSG_RELEASE = MSG_FIRST_ID + 110;
-
-	protected static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
+	private static final Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<>();
+	private static final int frequestID = 0;
 	private static String fusername;
 	private static String fpassword;
-	private static int frequestID = 0;
-	private static final Map<Integer, EvalJSRunnable> fevalJSRequests = new HashMap<>();
-
-	private Message postCreateMessage;
 	PrintManager printManager;
+	private Message postCreateMessage;
+	private JSInterface jsInterface;
 
-	public static final String OPTIONS_IN_SETHTML = "optionsInSetHtml";
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A4 = 0;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A5 = 1;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A3 = 2;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A2 = 3;
+	@Kroll.constant
+	public static final int PDF_PAGE_DIN_A1 = 4;
+	@Kroll.constant
+	public static final int PDF_PAGE_AUTO = 5;
+	@Kroll.constant
+	public static final int LAYER_TYPE_NONE = View.LAYER_TYPE_NONE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_SOFTWARE = View.LAYER_TYPE_SOFTWARE;
+	@Kroll.constant
+	public static final int LAYER_TYPE_HARDWARE = View.LAYER_TYPE_HARDWARE;
 
 	public WebViewProxy()
 	{
@@ -86,6 +111,15 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		defaultValues.put(TiC.PROPERTY_ENABLE_JAVASCRIPT_INTERFACE, true);
 		defaultValues.put(TiC.PROPERTY_DISABLE_CONTEXT_MENU, false);
 		defaultValues.put(TiC.PROPERTY_ZOOM_LEVEL, 1.0);
+	}
+
+	private static void sendPostCreateMessage(WebView view, Message postCreateMessage)
+	{
+		WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
+		if (transport != null) {
+			transport.setWebView(view);
+		}
+		postCreateMessage.sendToTarget();
 	}
 
 	@Override
@@ -98,6 +132,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		if (postCreateMessage != null) {
 			sendPostCreateMessage(webView.getWebView(), postCreateMessage);
 			postCreateMessage = null;
+		}
+
+		// Add script message handlers if attempted before the web-view could be created.
+		if (jsInterface != null) {
+			jsInterface.initializeJSInterface(webView);
 		}
 
 		return webView;
@@ -130,37 +169,21 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		return view.getJSValue(code);
 	}
 
-	private static class EvalJSRunnable implements Runnable
+	@Kroll.method
+	public void addScriptMessageHandler(String name)
 	{
-		private final TiUIWebView view;
-		private final KrollObject krollObject;
-		private final String code;
-		private final KrollFunction callback;
-
-		public EvalJSRunnable(TiUIWebView view, KrollObject krollObject, String code, KrollFunction callback)
-		{
-			this.view = view;
-			this.krollObject = krollObject;
-			this.code = code;
-			this.callback = callback;
+		if (jsInterface == null) {
+			jsInterface = new JSInterface(this);
 		}
 
-		public void run()
-		{
-			// Runs the "old" API we built
-			String result = view.getJSValue(code);
-			callback.callAsync(krollObject, new Object[] { result });
-		}
+		jsInterface.addScriptMessageHandler(name);
+	}
 
-		public void runAsync()
-		{
-			// Runs the newer API provided by Android
-			view.getWebView().evaluateJavascript(code, new ValueCallback<String>() {
-				public void onReceiveValue(String value)
-				{
-					callback.callAsync(krollObject, new Object[] { value });
-				}
-			});
+	@Kroll.method
+	public void removeScriptMessageHandler(String name)
+	{
+		if (jsInterface != null) {
+			jsInterface.removeScriptMessageHandler(name);
 		}
 	}
 
@@ -218,6 +241,7 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 					getWebView().stopLoading();
 					return true;
 				case MSG_RELEASE:
+					destroyJSInterface();
 					TiUIWebView webView = (TiUIWebView) peekView();
 					if (webView != null) {
 						webView.destroyWebViewBinding();
@@ -242,15 +266,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		getWebView().setBasicAuthentication(username, password);
 	}
 
-	@Kroll.setProperty
-	public void setUserAgent(String userAgent)
-	{
-		TiUIWebView currWebView = getWebView();
-		if (currWebView != null) {
-			currWebView.setUserAgentString(userAgent);
-		}
-	}
-
 	@Kroll.getProperty
 	public String getUserAgent()
 	{
@@ -262,13 +277,11 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.setProperty
-	public void setRequestHeaders(HashMap params)
+	public void setUserAgent(String userAgent)
 	{
-		if (params != null) {
-			TiUIWebView currWebView = getWebView();
-			if (currWebView != null) {
-				currWebView.setRequestHeaders(params);
-			}
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			currWebView.setUserAgentString(userAgent);
 		}
 	}
 
@@ -280,6 +293,36 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			return currWebView.getRequestHeaders();
 		}
 		return new HashMap<String, String>();
+	}
+
+	@Kroll.setProperty
+	public void setLayerType(int value)
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			currWebView.setLayerType(value);
+		}
+	}
+
+	@Kroll.getProperty
+	public int getLayerType()
+	{
+		TiUIWebView currWebView = getWebView();
+		if (currWebView != null) {
+			return currWebView.layerType;
+		}
+		return 0;
+	}
+
+	@Kroll.setProperty
+	public void setRequestHeaders(HashMap params)
+	{
+		if (params != null) {
+			TiUIWebView currWebView = getWebView();
+			if (currWebView != null) {
+				currWebView.setRequestHeaders(params);
+			}
+		}
 	}
 
 	@Kroll.method
@@ -342,15 +385,15 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 
 				PrintAttributes.MediaSize mediaSize;
 				if (krollObject.containsKeyAndNotNull("pageSize")) {
-					if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A5) {
+					if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A5) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A5;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A3) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A3) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A3;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A2) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A2) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A2;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_DIN_A1) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_DIN_A1) {
 						mediaSize = PrintAttributes.MediaSize.ISO_A1;
-					} else if (krollObject.getInt("pageSize") == TiUIWebView.PDF_PAGE_AUTO) {
+					} else if (krollObject.getInt("pageSize") == WebViewProxy.PDF_PAGE_AUTO) {
 						DisplayMetrics metrics = TiApplication.getAppCurrentActivity()
 							.getResources().getDisplayMetrics();
 						int pdfHeight = (int) ((webView.getContentHeight()) / 90.0 * 1000) + 1000;
@@ -431,9 +474,17 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.setProperty
-	public void setDisableContextMenu(boolean disableContextMenu)
+	public void setPluginState(int pluginState)
 	{
-		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
+		switch (pluginState) {
+			case TiUIWebView.PLUGIN_STATE_OFF:
+			case TiUIWebView.PLUGIN_STATE_ON:
+			case TiUIWebView.PLUGIN_STATE_ON_DEMAND:
+				setPropertyAndFire(TiC.PROPERTY_PLUGIN_STATE, pluginState);
+				break;
+			default:
+				setPropertyAndFire(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF);
+		}
 	}
 
 	@Kroll.getProperty
@@ -446,17 +497,9 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	}
 
 	@Kroll.setProperty
-	public void setPluginState(int pluginState)
+	public void setDisableContextMenu(boolean disableContextMenu)
 	{
-		switch (pluginState) {
-			case TiUIWebView.PLUGIN_STATE_OFF:
-			case TiUIWebView.PLUGIN_STATE_ON:
-			case TiUIWebView.PLUGIN_STATE_ON_DEMAND:
-				setPropertyAndFire(TiC.PROPERTY_PLUGIN_STATE, pluginState);
-				break;
-			default:
-				setPropertyAndFire(TiC.PROPERTY_PLUGIN_STATE, TiUIWebView.PLUGIN_STATE_OFF);
-		}
+		setPropertyAndFire(TiC.PROPERTY_DISABLE_CONTEXT_MENU, disableContextMenu);
 	}
 
 	@Kroll.method
@@ -475,12 +518,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
-	@Kroll.setProperty(runOnUiThread = true)
-	public void setEnableZoomControls(boolean enabled)
-	{
-		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
-	}
-
 	@Kroll.getProperty
 	public boolean getEnableZoomControls()
 	{
@@ -490,6 +527,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS));
 		}
 		return enabled;
+	}
+
+	@Kroll.setProperty(runOnUiThread = true)
+	public void setEnableZoomControls(boolean enabled)
+	{
+		setPropertyAndFire(TiC.PROPERTY_ENABLE_ZOOM_CONTROLS, enabled);
 	}
 
 	@Kroll.getProperty
@@ -508,18 +551,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	{
 		setProperty(TiC.PROPERTY_ZOOM_LEVEL, value);
 
-		// If the web view has not been created yet, don't set html here. It will be set in processProperties() when the
+		// If the web view has not been created yet, don't set HTML here. It will be set in processProperties() when the
 		// view is created.
 		TiUIView v = peekView();
 		if (v != null) {
 			((TiUIWebView) v).zoomBy(value);
 		}
-	}
-
-	@Kroll.setProperty
-	public void setAllowFileAccess(boolean enabled)
-	{
-		setPropertyAndFire(TiC.PROPERTY_ALLOW_FILE_ACCESS, enabled);
 	}
 
 	@Kroll.getProperty
@@ -531,6 +568,12 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 			enabled = TiConvert.toBoolean(getProperty(TiC.PROPERTY_ALLOW_FILE_ACCESS));
 		}
 		return enabled;
+	}
+
+	@Kroll.setProperty
+	public void setAllowFileAccess(boolean enabled)
+	{
+		setPropertyAndFire(TiC.PROPERTY_ALLOW_FILE_ACCESS, enabled);
 	}
 
 	@Kroll.getProperty
@@ -567,15 +610,6 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		} else {
 			this.postCreateMessage = postCreateMessage;
 		}
-	}
-
-	private static void sendPostCreateMessage(WebView view, Message postCreateMessage)
-	{
-		WebView.WebViewTransport transport = (WebView.WebViewTransport) postCreateMessage.obj;
-		if (transport != null) {
-			transport.setWebView(view);
-		}
-		postCreateMessage.sendToTarget();
 	}
 
 	/**
@@ -631,6 +665,8 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	@Override
 	public void onDestroy(Activity activity)
 	{
+		destroyJSInterface();
+
 		TiUIWebView webView = (TiUIWebView) peekView();
 		if (webView == null) {
 			return;
@@ -654,5 +690,139 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 	public String getApiName()
 	{
 		return "Ti.UI.WebView";
+	}
+
+	private void destroyJSInterface()
+	{
+		if (jsInterface != null) {
+			jsInterface.destroy();
+			jsInterface = null;
+		}
+	}
+
+	private static class EvalJSRunnable implements Runnable
+	{
+		private final TiUIWebView view;
+		private final KrollObject krollObject;
+		private final String code;
+		private final KrollFunction callback;
+
+		public EvalJSRunnable(TiUIWebView view, KrollObject krollObject, String code, KrollFunction callback)
+		{
+			this.view = view;
+			this.krollObject = krollObject;
+			this.code = code;
+			this.callback = callback;
+		}
+
+		public void run()
+		{
+			// Runs the "old" API we built
+			String result = view.getJSValue(code);
+			callback.callAsync(krollObject, new Object[] { result });
+		}
+
+		public void runAsync()
+		{
+			// Runs the newer API provided by Android
+			view.getWebView().evaluateJavascript(code, new ValueCallback<String>()
+			{
+				public void onReceiveValue(String value)
+				{
+					callback.callAsync(krollObject, new Object[] { value });
+				}
+			});
+		}
+	}
+
+	private class JSInterface
+	{
+		// Store references to add later the web-view is created.
+		private boolean isInterfaceAdded = false;
+		private WeakReference<WebViewProxy> proxy;
+		private final String JS_INTERFACE_NAME = "tisdk";
+		private final Set<String> scriptMessageHandlers = new HashSet<>();
+
+		public JSInterface(WebViewProxy proxy)
+		{
+			this.proxy = new WeakReference<>(proxy);
+		}
+
+		// Handle the interface creation if apps request the script message handler earlier before the web-view creation.
+		public void initializeJSInterface(TiUIWebView tiUIWebView)
+		{
+			if (isInterfaceAdded) {
+				return;
+			}
+
+			WebView webView = tiUIWebView.getWebView();
+			webView.addJavascriptInterface(this, JS_INTERFACE_NAME);
+			isInterfaceAdded = true;
+		}
+
+		// Apps can call this method even before native webview is created, so we use init method to initialize again.
+		public void addScriptMessageHandler(String name)
+		{
+			scriptMessageHandlers.add(name);
+
+			if (view != null) {
+				initializeJSInterface((TiUIWebView) view);
+			}
+		}
+
+		public void removeScriptMessageHandler(String name)
+		{
+			scriptMessageHandlers.remove(name);
+
+			if (view == null) {
+				return;
+			}
+
+			// Remove interface if no handlers available.
+			if (scriptMessageHandlers.isEmpty() && isInterfaceAdded) {
+				((TiUIWebView) view).getWebView().removeJavascriptInterface(JS_INTERFACE_NAME);
+				isInterfaceAdded = false;
+			}
+		}
+
+		@JavascriptInterface
+		public void emit(String name, String json)
+		{
+			if (this.proxy == null || this.proxy.get() == null) {
+				return;
+			}
+
+			// This is just to keep parity with the iOS structure, no other use.
+			if (name == null || !scriptMessageHandlers.contains(name)) {
+				Log.e(TAG, "scriptMessageHandler not available for name: " + name);
+				return;
+			}
+
+			KrollDict event = new KrollDict();
+			event.put("name", name);
+
+			try {
+				event.put("body", new KrollDict(new JSONObject(json)));
+			} catch (JSONException e) {
+				Log.e(TAG, "Error parsing scriptMessageHandler's JSON message", e);
+			}
+
+			this.proxy.get().fireEvent("message", event);
+		}
+
+		public void destroy()
+		{
+			scriptMessageHandlers.clear();
+
+			if (view != null && isInterfaceAdded) {
+				WebView webView = ((TiUIWebView) view).getWebView();
+				webView.removeJavascriptInterface(JS_INTERFACE_NAME);
+			}
+
+			if (this.proxy != null) {
+				this.proxy.clear();
+				this.proxy = null;
+			}
+		}
 	}
 }

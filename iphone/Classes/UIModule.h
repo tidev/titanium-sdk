@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -43,7 +43,7 @@
   NSNumber *lastEmittedMode;
 }
 
-//TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
+// TODO: review these, maybe they need to go on iPhone Animation Style - however, they are platform generic
 
 @property (nonatomic, readonly) NSNumber *ANIMATION_CURVE_EASE_IN_OUT;
 @property (nonatomic, readonly) NSNumber *ANIMATION_CURVE_EASE_IN;
@@ -179,10 +179,8 @@
 @property (nonatomic, readonly) NSNumber *AUTOLINK_SHIPMENT_TRACKING_NUMBER;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_FLIGHT_NUMBER;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_LOOKUP_SUGGESTION;
-#if IS_SDK_IOS_16
 @property (nonatomic, readonly) NSNumber *AUTOLINK_MONEY;
 @property (nonatomic, readonly) NSNumber *AUTOLINK_PHYSICAL_VALUE;
-#endif
 
 @property (nonatomic, readonly) NSString *SIZE;
 @property (nonatomic, readonly) NSString *FILL;
