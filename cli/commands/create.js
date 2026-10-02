@@ -21,7 +21,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const cliVersion = '>=3.2.1';
+export const cliVersion = '>=9.1.0';
 export const title = 'Create';
 export const desc = 'creates a new project';
 export const extendedDesc = `Creates a new Titanium application, native module, or Apple Watch™ app.
