@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -55,6 +55,11 @@
 @property (nonatomic, readonly) NSString *backtrace;
 
 /**
+ * Returns the parsed JavaScript stack trace entries consisting of smybol name and source location.
+ */
+@property (nonatomic, readonly) NSArray<NSDictionary *> *parsedJsStack;
+
+/**
  * Returns the native stack as a static string.
  */
 @property (nonatomic, readonly) NSArray<NSString *> *nativeStack;
@@ -77,7 +82,7 @@
 #pragma mark - TiExceptionHandlerDelegate
 
 /**
- * Exception handler delegate protocol. 
+ * Exception handler delegate protocol.
  */
 @protocol TiExceptionHandlerDelegate <NSObject>
 

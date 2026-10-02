@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -11,7 +11,7 @@
 #import "UIImage+Alpha.h"
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
-//NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
+// NOTE:FilesystemFile is conditionally compiled based on the filesystem module.
 #import "KrollPromise.h"
 #import "TiFilesystemFileProxy.h"
 
@@ -151,10 +151,6 @@ GETTER_IMPL(NSUInteger, size, Size);
 
 - (id)initWithSystemImage:(NSString *)imageName andParameters:(NSDictionary *)parameters
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return nil;
-  }
-
   if (self = [super init]) {
     if (parameters == nil) {
       image = [[UIImage systemImageNamed:imageName] retain];
@@ -417,7 +413,7 @@ GETTER_IMPL(NSUInteger, length, Length);
 
 - (TiBlob *)imageAsResized:(NSUInteger)width withHeight:(NSUInteger)height
 {
-  // How do we test that they didn't send us a "bad" value (i.e. negative, or double/float)? It'll get coerced here. Do we care?
+  // How do we test that they didn't send us a "bad" value (e.g. negative, or double/float)? It'll get coerced here. Do we care?
   if (isnan(width)) {
     THROW_INVALID_ARG(@"width argument must be an integer value");
   }

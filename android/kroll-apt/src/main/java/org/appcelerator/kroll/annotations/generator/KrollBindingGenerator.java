@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -59,8 +59,8 @@ public class KrollBindingGenerator
 
 	protected void initTemplates()
 	{
-		fmConfig = new Configuration();
-		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
+		fmConfig = new Configuration(Configuration.VERSION_2_3_30);
+		fmConfig.setObjectWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_30));
 		fmConfig.setClassForTemplateLoading(getClass(), "");
 
 		try {

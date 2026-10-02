@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -13,6 +13,10 @@
 #import "TiUIWebViewProxy.h"
 #import "TiNetworkCookieProxy.h"
 #import "TiUIWebView.h"
+
+@interface TiUIWebViewProxy ()
+@property (nonatomic, assign) BOOL hasAddedTisdkScript;
+@end
 
 @implementation TiUIWebViewProxy
 
@@ -31,6 +35,7 @@ static NSArray *webViewKeySequence;
 - (id)_initWithPageContext:(id<TiEvaluator>)context
 {
   if (self = [super _initWithPageContext:context]) {
+    self.hasAddedTisdkScript = NO;
   }
 
   return self;
@@ -310,11 +315,9 @@ static NSArray *webViewKeySequence;
 
 - (NSNumber *)zoomLevel
 {
-#if IS_SDK_IOS_14
   if ([TiUtils isIOSVersionOrGreater:@"14.0"]) {
     return @([self wkWebView].pageZoom);
   }
-#endif
 
   NSString *zoomLevel = [self evalJS:@[ @"document.body.style.zoom" ]];
 
@@ -384,6 +387,7 @@ static NSArray *webViewKeySequence;
 {
   WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
   [controller removeAllUserScripts];
+  self.hasAddedTisdkScript = NO;
 }
 
 - (void)addScriptMessageHandler:(id)value
@@ -391,6 +395,14 @@ static NSArray *webViewKeySequence;
   ENSURE_SINGLE_ARG(value, NSString);
 
   WKUserContentController *controller = [[[self wkWebView] configuration] userContentController];
+
+  // Enable web pages to use unified API for both Android and iOS as:
+  // window.tisdk.emit('handlerName', JSON.stringify(body));
+  if (!self.hasAddedTisdkScript) {
+    [controller addUserScript:[[self webView] userScriptForMessageHandlerParity]];
+    self.hasAddedTisdkScript = YES;
+  }
+
   [controller addScriptMessageHandler:[self webView] name:value];
 }
 
@@ -426,7 +438,6 @@ static NSArray *webViewKeySequence;
   [[self wkWebView] goBack];
 }
 
-#if IS_SDK_IOS_14
 - (void)findString:(id)args
 {
   NSString *searchString = [args objectAtIndex:0];
@@ -500,7 +511,6 @@ static NSArray *webViewKeySequence;
     [callback call:@[ @{ @"success" : NUMBOOL(YES), @"data" : blob } ] thisObject:self];
   }];
 }
-#endif
 
 - (void)goForward:(id)unused
 {
@@ -558,7 +568,7 @@ static NSArray *webViewKeySequence;
 
   if (code == nil) {
     [self throwException:@"Missing JavaScript code"
-               subreason:@"The required first argument is missinf and should contain a valid JavaScript string."
+               subreason:@"The required first argument is missing and should contain a valid JavaScript string."
                 location:CODELOCATION];
     return nil;
   }
@@ -657,7 +667,7 @@ static NSArray *webViewKeySequence;
 // 3. We are using following to implement cookies-
 //  https://stackoverflow.com/questions/26573137
 //  https://github.com/haifengkao/YWebView
-// TO DO: If we can make parity using WKHTTPCookieStore, we should start using WKHTTPCookieStore APIs
+// TODO: If we can make parity using WKHTTPCookieStore, we should start using WKHTTPCookieStore APIs
 
 - (id<TiEvaluator>)evaluationContext
 {

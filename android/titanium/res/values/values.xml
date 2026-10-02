@@ -187,6 +187,23 @@
 		<item name="android:windowFullscreen">true</item>
 	</style>
 
+	<!-- Titanium style supporting dark/light theme switching with an action bar. -->
+	<style name="Theme.Titanium.Material3.DayNight" parent="Theme.Material3.DynamicColors.DayNight"/>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar. -->
+	<style name="Theme.Titanium.Material3.DayNight.NoTitleBar" parent="Theme.Titanium.Material3.DayNight">
+		<item name="android:windowActionBar">false</item>
+		<item name="android:windowContentOverlay">@null</item>
+		<item name="android:windowNoTitle">true</item>
+		<item name="windowActionBar">false</item>
+		<item name="windowNoTitle">true</item>
+	</style>
+
+	<!-- Titanium style supporting dark/light theme switching without an action bar and status bar. -->
+	<style name="Theme.Titanium.Material3.DayNight.Fullscreen" parent="Theme.Titanium.Material3.DayNight.NoTitleBar">
+		<item name="android:windowFullscreen">true</item>
+	</style>
+
 	<!-- The default theme Titanium applies to the <application/> in the manifest. -->
 	<!-- Our "_build.js" will replace parent with ".NoTitleBar" or ".Fullscreen" if set in "tiapp.xml". -->
 	<style name="Theme.Titanium.App" parent="Theme.Titanium.DayNight.Solid"/>

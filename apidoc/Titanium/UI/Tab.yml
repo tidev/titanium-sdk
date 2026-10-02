@@ -119,7 +119,7 @@ methods:
     summary: Sets the root window that appears in the tab.
     description: |
         You can only use this method to set the tab's root window before the TabGroup containing this tab
-        is openened, that is, once the TabGroup is displayed, you cannot change the root window
+        is opened, that is, once the TabGroup is displayed, you cannot change the root window
         that appears in the tab.
     parameters:
       - name: window
@@ -130,19 +130,18 @@ methods:
       notes: Set the value of the [window](Titanium.UI.Tab.window) property directly.
 
   - name: popToRootWindow
-    # FIXME: I don't think this exists on Android!
     summary: Closes all windows that are currently opened inside the tab.
     description: Note that only the `close` event of the most recently opened window is fired.
     parameters:
       - name: options
         summary: |
-            Options supporting a single `animated` boolean property to determine whether the windows
+            iOS only: Options supporting a single `animated` boolean property to determine whether the windows
             will be animated while being closed (default: false).
         type: AnimatedOptions
         optional: true
         default: "{ animated: false }"
-    since: "6.2.0"
-    platforms: [iphone, ipad, macos]
+    since: {android: "12.7.0", iphone: "6.2.0", ipad: "6.2.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
 
 properties:
   - name: active
@@ -167,7 +166,6 @@ properties:
     type: String
     platforms: [iphone, ipad, macos]
     since: "3.1.0"
-    osver: {ios: {min: "5.0"}}
 
   - name: backgroundColor
     summary: Sets the color of the tab when it is inactive.
@@ -189,7 +187,7 @@ properties:
     summary: Badge value for this tab. `null` indicates no badge.
     description: |
         On the Android platform you will need to use a Theme with `parent="Theme.MaterialComponents.*"`
-        in order to use a badge. You have to pass a number as a string. Non-numberic characters will not be displayed.
+        in order to use a badge. You have to pass a number as a string. Non-numeric characters will not be displayed.
 
         On iOS, a badge will only be shown if the tab has been assigned an icon. Text only tabs do not support badges.
     type: String
@@ -197,15 +195,36 @@ properties:
     since: {android: "9.3.0"}
 
   - name: badgeColor
+    deprecated:
+        since: "12.2.0"
+        notes: Use [Titanium.UI.Tab.badgeBackgroundColor](Titanium.UI.Tab.badgeBackgroundColor) instead.
     summary: |
         If this item displays a badge, this color will be used for the badge's background.
         If set to null, the default background color will be used instead.
     description: |
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
-    osver: {ios: {min: "10.0"}}
     platforms: [android, iphone, ipad, macos]
     since: {android: "9.3.0", iphone: "6.1.0", ipad: "6.1.0", macos: "9.2.0"}
+
+  - name: badgeBackgroundColor
+    summary: |
+        If this item displays a badge, this color will be used for the badge's background.
+        If set to null, the default background color will be used instead.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "12.2.0"}
+
+  - name: badgeTextColor
+    summary: |
+        Set the text color of the badge.
+    description: |
+        For information about color values, see the "Colors" section of <Titanium.UI>.
+    type: [String, Titanium.UI.Color]
+    platforms: [android]
+    since: {android: "12.2.0"}
 
   - name: icon
     summary: Icon URL for this tab.
@@ -233,7 +252,26 @@ properties:
          (https://developer.apple.com/ios/human-interface-guidelines/icons-and-images/image-size-and-resolution/),
          this image will be scaled to fit if used with activeIcon, and cropped at the bottom
          otherwise.
+
+         #### Android Tab Icons
+         Can be used in combination with `iconFamily` in a BottomNavigation setup with `experimental:true`.
     type: String
+
+  - name: iconFamily
+    summary: Specifies the font family or specific font to use.
+    description: |
+        When using a BottomNavigation setup with `experimental:true` you can use this property in combination
+        with an `icon` to use an icon-font for the tab icons:
+
+        ``` js
+        '#tab1': {
+          icon: "\ueac1",
+          iconFamily: "tabler-icons"
+        }
+        ```
+    since: "12.7.0"
+    type: String
+    platforms: [android]
 
   - name: iconInsets
     summary: The icon inset or outset for each edge.
@@ -254,7 +292,6 @@ properties:
     type: [Boolean]
     since: "3.1.3"
     default: true
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad, macos]
 
   - name: activeIconIsMask
@@ -266,7 +303,6 @@ properties:
     type: [Boolean]
     since: "3.1.3"
     default: true
-    osver: {ios: {min: "7.0"}}
     platforms: [iphone,ipad, macos]
 
   - name: tintColor
@@ -295,7 +331,6 @@ properties:
         The color of the title of the tab when it's inactive.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
-    osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android, macos]
 
   - name: activeTitleColor
@@ -304,7 +339,6 @@ properties:
         The color of the title of the tab when it's active.
     type: [String, Titanium.UI.Color]
     since: {iphone: "4.1.0", ipad: "4.1.0", android: "8.0.0"}
-    osver: {ios: {min: "5.0"}}
     platforms: [iphone, ipad, android, macos]
 
   - name: window
@@ -313,26 +347,6 @@ properties:
     availability: creation
 
 events:
-  - name: blur
-    summary: Fired when the tab loses focus.
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.unselected](Titanium.UI.Tab.unselected) event instead.
-    properties:
-      - name: index
-        summary: Index of the current active tab.
-        type: Number
-      - name: previousIndex
-        summary: Index of the previous active tab.
-        type: Number
-      - name: tab
-        summary: Current active tab object.
-        type: Titanium.UI.Tab
-      - name: previousTab
-        summary: Previous active tab object.
-        type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad]
 
   - name: unselected
     summary: Fired when the tab is no longer selected.
@@ -355,27 +369,6 @@ events:
   - name: click
     summary: Fired when this tab is clicked in the tab group.
     exclude-platforms: [iphone, ipad, macos]
-
-  - name: focus
-    summary: Fired when the tab gains focus.
-    deprecated:
-        since: "5.2.0"
-        removed: "9.0.0"
-        notes: Use [Titanium.UI.Tab.selected](Titanium.UI.Tab.selected) event instead.
-    properties:
-      - name: index
-        summary: Index of the current active tab.
-        type: Number
-      - name: previousIndex
-        summary: Index of the previous active tab.
-        type: Number
-      - name: tab
-        summary: Current active tab object.
-        type: Titanium.UI.Tab
-      - name: previousTab
-        summary: Previous active tab object.
-        type: Titanium.UI.Tab
-    platforms: [android, iphone, ipad]
 
   - name: selected
     summary: Fired when the tab is selected.

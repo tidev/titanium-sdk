@@ -1,14 +1,14 @@
-'use strict';
-const appc = require('node-appc'),
-	__ = appc.i18n(__dirname).__,
-	fs = require('fs'),
-	path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-exports.name = 'android';
+export const name = 'android';
 
-exports.title = 'Android';
+export const title = 'Android';
 
-exports.detect = function (types, config, next) {
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export function detect(types, config, next) {
 	const tisdk = path.basename((function scan(dir) {
 		const file = path.join(dir, 'manifest.json');
 		if (fs.existsSync(file)) {
@@ -18,45 +18,45 @@ exports.detect = function (types, config, next) {
 		return dir !== '/' && scan(dir);
 	}(__dirname)));
 
-	const mod = require('./detect');
+	import('./detect.js').then((mod) => {
+		// detect Android environment
+		mod.detect(config, null, function (result) {
+			// detect devices
+			mod.detectDevices(config, function (err, devices) {
+				// detect emulators
+				mod.detectEmulators(config, function (err, emus) {
+					result.tisdk = tisdk;
+					result.devices = devices;
+					result.emulators = emus;
+					delete result.avds;
 
-	// detect android environment
-	mod.detect(config, null, function (result) {
-		// detect devices
-		mod.detectDevices(config, function (err, devices) {
-			// detect emulators
-			mod.detectEmulators(config, function (err, emus) {
-				result.tisdk = tisdk;
-				result.devices = devices;
-				result.emulators = emus;
-				delete result.avds;
+					this.data = result;
+					if (result.issues.length) {
+						this.issues = this.issues.concat(result.issues);
+					}
 
-				this.data = result;
-				if (result.issues.length) {
-					this.issues = this.issues.concat(result.issues);
-				}
-
-				next(null, { android: result });
+					next(null, { android: result });
+				}.bind(this));
 			}.bind(this));
 		}.bind(this));
-	}.bind(this));
-};
+	}).catch(next);
+}
 
-exports.render = function (logger, config, rpad, styleHeading, styleValue, styleBad) {
+export function render(logger, config, rpad, styleHeading, styleValue, styleBad) {
 	var data = this.data;
 	if (!data) {
 		return;
 	}
 
-	logger.log(styleHeading(__('Android SDK')) + '\n'
-		+ '  ' + rpad(__('Android Executable')) + ' = ' + styleValue(data.sdk && data.sdk.executables.android || __('not found')) + '\n'
-		+ '  ' + rpad(__('ADB Executable'))     + ' = ' + styleValue(data.sdk && data.sdk.executables.adb || __('not found')) + '\n'
-		+ '  ' + rpad(__('SDK Path'))           + ' = ' + styleValue(data.sdk && data.sdk.path || __('not found')) + '\n'
+	logger.log(styleHeading('Android SDK') + '\n'
+		+ '  ' + rpad('Android Executable') + ' = ' + styleValue(data.sdk && data.sdk.executables.android || 'not found') + '\n'
+		+ '  ' + rpad('ADB Executable')     + ' = ' + styleValue(data.sdk && data.sdk.executables.adb || 'not found') + '\n'
+		+ '  ' + rpad('SDK Path')           + ' = ' + styleValue(data.sdk && data.sdk.path || 'not found') + '\n'
 	);
 
-	logger.log(styleHeading(__('Android NDK')) + '\n'
-		+ '  ' + rpad(__('NDK Path'))           + ' = ' + styleValue(data.ndk && data.ndk.path || __('not found')) + '\n'
-		+ '  ' + rpad(__('NDK Version'))        + ' = ' + styleValue(data.ndk && data.ndk.version || __('not found')) + '\n'
+	logger.log(styleHeading('Android NDK') + '\n'
+		+ '  ' + rpad('NDK Path')           + ' = ' + styleValue(data.ndk && data.ndk.path || 'not found') + '\n'
+		+ '  ' + rpad('NDK Version')        + ' = ' + styleValue(data.ndk && data.ndk.version || 'not found') + '\n'
 	);
 
 	let androidPlatforms = '',
@@ -67,10 +67,10 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		Object.keys(data.targets).forEach(function (targetId) {
 			var target = data.targets[targetId],
 				supported = (target.supported === 'maybe'
-					? (' (' + __('not supported by Titanium SDK %s, but may work', data.tisdk) + ')').yellow
+					? (` (not supported by Titanium SDK ${data.tisdk}, but may work)`).yellow
 					: target.supported
 						? ''
-						: styleBad(' **' + __('Not supported by Titanium SDK %s', data.tisdk) + '**'));
+						: styleBad(` **Not supported by Titanium SDK ${data.tisdk}**`));
 
 			if (target.type === 'platform') {
 				const m = target.name.match(/Android\s+(\d(?:\.\d(?:\.\d)?)?)/);
@@ -78,40 +78,40 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 					apiLevelMap[m[1]] = target['api-level'];
 				}
 				androidPlatforms += '  ' + (targetId + ') ' + target.id).cyan + '\n'
-					+ '  ' + rpad('  ' + __('Name'))        + ' = ' + styleValue(target.name) + supported + '\n'
-					+ '  ' + rpad('  ' + __('API Level'))   + ' = ' + styleValue(target['api-level']) + '\n'
-					+ '  ' + rpad('  ' + __('Revision'))    + ' = ' + styleValue(target.revision) + '\n'
-					+ '  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins.join(', ')) + '\n'
-					+ '  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis.join(', ')) + '\n'
-					+ '  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
+					+ '  ' + rpad('  Name')        + ' = ' + styleValue(target.name) + supported + '\n'
+					+ '  ' + rpad('  API Level')   + ' = ' + styleValue(target['api-level']) + '\n'
+					+ '  ' + rpad('  Revision')    + ' = ' + styleValue(target.revision) + '\n'
+					+ '  ' + rpad('  Skins')       + ' = ' + styleValue(target.skins.join(', ')) + '\n'
+					+ '  ' + rpad('  ABIs')        + ' = ' + styleValue(target.abis.join(', ')) + '\n'
+					+ '  ' + rpad('  Path')        + ' = ' + styleValue(target.path) + '\n';
 			} else if (target.type === 'add-on') {
 				androidAddons += '  ' + (targetId + ') ' + target.id).cyan + '\n'
-					+ '  ' + rpad('  ' + __('Name'))        + ' = ' + styleValue(target.name
-						+ ' (' + (target['based-on'] ? __('Android %s (API level %s)', target['based-on']['android-version'], target['based-on']['api-level']) : __('unknown')) + ')') + supported + '\n'
-					+ '  ' + rpad('  ' + __('Vendor'))      + ' = ' + styleValue(target.vendor || __('n/a')) + '\n'
-					+ '  ' + rpad('  ' + __('Revision'))    + ' = ' + styleValue(target.revision) + '\n'
-					+ '  ' + rpad('  ' + __('Description')) + ' = ' + styleValue(target.description || __('n/a')) + '\n'
-					+ '  ' + rpad('  ' + __('Skins'))       + ' = ' + styleValue(target.skins && target.skins.length ? target.skins.join(', ') : __('none')) + '\n'
-					+ '  ' + rpad('  ' + __('ABIs'))        + ' = ' + styleValue(target.abis && target.abis.length ? target.abis.join(', ') : __('none')) + '\n'
-					+ '  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(target.path) + '\n';
+					+ '  ' + rpad('  Name')        + ' = ' + styleValue(target.name
+						+ ' (' + (target['based-on'] ? `Android ${target['based-on']['android-version']} (API level ${target['based-on']['api-level']})` : 'unknown') + ')') + supported + '\n'
+					+ '  ' + rpad('  Vendor')      + ' = ' + styleValue(target.vendor || 'n/a') + '\n'
+					+ '  ' + rpad('  Revision')    + ' = ' + styleValue(target.revision) + '\n'
+					+ '  ' + rpad('  Description') + ' = ' + styleValue(target.description || 'n/a') + '\n'
+					+ '  ' + rpad('  Skins')       + ' = ' + styleValue(target.skins && target.skins.length ? target.skins.join(', ') : 'none') + '\n'
+					+ '  ' + rpad('  ABIs')        + ' = ' + styleValue(target.abis && target.abis.length ? target.abis.join(', ') : 'none') + '\n'
+					+ '  ' + rpad('  Path')        + ' = ' + styleValue(target.path) + '\n';
 
 				if (target.libraries && Object.keys(target.libraries).length) {
 					Object.keys(target.libraries).forEach(function (lib, i) {
-						androidAddons += '  ' + (i === 0 ? rpad('  ' + __('Libraries'))   + ' = ' : rpad('') + '   ')
+						androidAddons += '  ' + (i === 0 ? rpad('  Libraries')   + ' = ' : rpad('') + '   ')
 							+ styleValue(lib + ': ' + target.libraries[lib].description + ' (' + target.libraries[lib].jar + ')') + '\n';
 					});
 					androidAddons += '\n';
 				} else {
-					androidAddons += '  ' + rpad('  ' + __('Libraries'))   + ' = ' + styleValue(__('none')) + '\n';
+					androidAddons += '  ' + rpad('  Libraries')   + ' = ' + styleValue('none') + '\n';
 				}
 			}
 		});
 	}
 
-	logger.log(styleHeading(__('Android Platforms')) + '\n' + (androidPlatforms ? androidPlatforms : '  ' + __('None').grey + '\n'));
-	logger.log(styleHeading(__('Android Add-Ons')) + '\n' + (androidAddons ? androidAddons : '  ' + __('None').grey + '\n'));
+	logger.log(styleHeading('Android Platforms') + '\n' + (androidPlatforms ? androidPlatforms : '  ' + 'none'.grey + '\n'));
+	logger.log(styleHeading('Android Add-Ons') + '\n' + (androidAddons ? androidAddons : '  ' + 'none'.grey + '\n'));
 
-	logger.log(styleHeading(__('Android Emulators')));
+	logger.log(styleHeading('Android Emulators'));
 	if (data.emulators) {
 		const emus = data.emulators.filter(function (e) {
 			return e.type === 'avd';
@@ -119,82 +119,49 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 		if (emus.length) {
 			logger.log(emus.map(function (emu) {
 				return '  ' + emu.name.cyan + '\n'
-					+ '  ' + rpad('  ' + __('ID'))          + ' = ' + styleValue(emu.id) + '\n'
-					+ '  ' + rpad('  ' + __('SDK Version')) + ' = ' + styleValue(emu.target || __('not installed')) + '\n'
-					+ '  ' + rpad('  ' + __('ABI'))         + ' = ' + styleValue(emu.abi) + '\n'
-					+ '  ' + rpad('  ' + __('Skin'))        + ' = ' + styleValue(emu.skin) + '\n'
-					+ '  ' + rpad('  ' + __('Path'))        + ' = ' + styleValue(emu.path) + '\n'
-					+ '  ' + rpad('  ' + __('SD Card'))     + ' = ' + styleValue(emu.sdcard || __('no sd card')) + '\n'
+					+ '  ' + rpad('  ID')          + ' = ' + styleValue(emu.id) + '\n'
+					+ '  ' + rpad('  SDK Version') + ' = ' + styleValue(emu.target || 'not installed') + '\n'
+					+ '  ' + rpad('  ABI')         + ' = ' + styleValue(emu.abi) + '\n'
+					+ '  ' + rpad('  Skin')        + ' = ' + styleValue(emu.skin) + '\n'
+					+ '  ' + rpad('  Path')        + ' = ' + styleValue(emu.path) + '\n'
+					+ '  ' + rpad('  SD Card')     + ' = ' + styleValue(emu.sdcard || 'no sd card') + '\n'
 					+ (emu['based-on']
-						? '  ' + rpad('  ' + __('Based On'))    + ' = ' + styleValue(__('Android %s (API level %s)', emu['based-on']['android-version'], emu['based-on']['api-level'])) + '\n'
+						? '  ' + rpad('  Based On')    + ' = ' + styleValue(`Android ${emu['based-on']['android-version']} (API level ${emu['based-on']['api-level']})`) + '\n'
 						: ''
 					)
-					+ '  ' + rpad('  ' + __('Google APIs')) + ' = ' + styleValue(emu.googleApis ? __('yes') : __('no'));
+					+ '  ' + rpad('  Google APIs') + ' = ' + styleValue(emu.googleApis ? 'yes' : 'no');
 			}).join('\n') + '\n');
 		} else {
-			logger.log('  ' + __('None').grey + '\n');
+			logger.log('  ' + 'none'.grey + '\n');
 		}
 	} else {
-		logger.log('  ' + __('None').grey + '\n');
+		logger.log('  ' + 'none'.grey + '\n');
 	}
 
-	logger.log(styleHeading(__('Genymotion Emulators')));
-	if (data.emulators) {
-		const emus = data.emulators.filter(function (e) {
-			return e.type === 'genymotion';
-		});
-		if (emus.length) {
-			logger.log(emus.map(function (emu) {
-				return '  ' + emu.name.cyan + '\n'
-					+ +'  ' + rpad('  ' + __('ID'))                  + ' = ' + styleValue(emu.id) + '\n'
-					+ '  ' + rpad('  ' + __('SDK Version'))         + ' = ' + styleValue(emu.target + (apiLevelMap[emu.target] ? ' (android-' + apiLevelMap[emu.target] + ')' : '')) + '\n'
-					+ '  ' + rpad('  ' + __('ABI'))                 + ' = ' + styleValue(emu.abi || __('unknown')) + '\n'
-					+ '  ' + rpad('  ' + __('Genymotion Version'))  + ' = ' + styleValue(emu.genymotion || __('unknown')) + '\n'
-					+ '  ' + rpad('  ' + __('Display'))             + ' = ' + styleValue(emu.display || __('unknown')) + '\n'
-					+ '  ' + rpad('  ' + __('DPI'))                 + ' = ' + styleValue(emu.dpi || __('unknown')) + '\n'
-					+ '  ' + rpad('  ' + __('OpenGL Acceleration')) + ' = ' + styleValue(emu.hardwareOpenGL ? __('yes') : __('no')) + '\n'
-					+ '  ' + rpad('  ' + __('Google APIs'))         + ' = ' + styleValue(emu.googleApis === null ? __('unknown, emulator not running') : emu.googleApis ? __('yes') : __('no'));
-			}).join('\n') + '\n');
-		} else {
-			logger.log('  ' + __('None').grey + '\n');
-		}
-	} else {
-		logger.log('  ' + __('None').grey + '\n');
-	}
-
-	logger.log(styleHeading(__('Connected Android Devices')));
+	logger.log(styleHeading('Connected Android Devices'));
 	if (data.devices && data.devices.length) {
 		logger.log(data.devices.map(function (device) {
 			var name = device.name,
 				result = [
-					'  ' + rpad(__('ID'))          + ' = ' + styleValue(device.id),
-					'  ' + rpad(__('State'))       + ' = ' + styleValue(device.state)
+					'  ' + rpad('ID')          + ' = ' + styleValue(device.id),
+					'  ' + rpad('State')       + ' = ' + styleValue(device.state)
 				];
 
 			if (device.release) {
-				result.push('  ' + rpad(__('SDK Version')) + ' = ' + styleValue(device.release + ' (android-' + device.sdk + ')'));
+				result.push('  ' + rpad('SDK Version') + ' = ' + styleValue(device.release + ' (android-' + device.sdk + ')'));
 			}
 
 			if (Array.isArray(device.abi)) {
-				result.push('  ' + rpad(__('ABIs'))        + ' = ' + styleValue(device.abi.join(', ')));
+				result.push('  ' + rpad('ABIs')        + ' = ' + styleValue(device.abi.join(', ')));
 			}
 
 			if (device.emulator) {
 				switch (device.emulator.type) {
 					case 'avd':
 						name = 'Android Emulator: ' + device.emulator.name;
-						result.push('  ' + rpad(__('Skin'))        + ' = ' + styleValue(device.emulator.skin || __('unknown')));
-						result.push('  ' + rpad(__('SD Card'))     + ' = ' + styleValue(device.emulator.sdcard || __('unknown')));
-						result.push('  ' + rpad(__('Google APIs')) + ' = ' + styleValue(device.emulator.googleApis ? __('yes') : __('no')));
-						break;
-
-					case 'genymotion':
-						name = 'Genymotion Emulator: ' + device.emulator.name;
-						result.push('  ' + rpad(__('Genymotion Version'))  + ' = ' + styleValue(device.emulator.genymotion || __('unknown')));
-						result.push('  ' + rpad(__('Display'))             + ' = ' + styleValue(device.emulator.display || __('unknown')));
-						result.push('  ' + rpad(__('DPI'))                 + ' = ' + styleValue(device.emulator.dpi || __('unknown')));
-						result.push('  ' + rpad(__('OpenGL Acceleration')) + ' = ' + styleValue(device.emulator.hardwareOpenGL ? __('yes') : __('no')));
-						result.push('  ' + rpad(__('Google APIs'))         + ' = ' + styleValue(device.emulator.googleApis ? __('yes') : __('no')));
+						result.push('  ' + rpad('Skin')        + ' = ' + styleValue(device.emulator.skin || 'unknown'));
+						result.push('  ' + rpad('SD Card')     + ' = ' + styleValue(device.emulator.sdcard || 'unknown'));
+						result.push('  ' + rpad('Google APIs') + ' = ' + styleValue(device.emulator.googleApis ? 'yes' : 'no'));
 						break;
 				}
 
@@ -204,6 +171,6 @@ exports.render = function (logger, config, rpad, styleHeading, styleValue, style
 			}
 		}).join('\n') + '\n');
 	} else {
-		logger.log('  ' + __('None').grey + '\n');
+		logger.log('  ' + 'none'.grey + '\n');
 	}
-};
+}

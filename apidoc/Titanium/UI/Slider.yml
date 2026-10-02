@@ -2,9 +2,9 @@
 name: Titanium.UI.Slider
 summary: A slider component with a draggable thumb.
 description: |
-    | Android | iOS | Windows |
-    | ------- | --- | ------- |
-    | ![Android](./slider_android.png) | ![iOS](./slider_ios.png) | ![Windows](./slider_wp.png) |
+    | Android | iOS |
+    | ------- | --- |
+    | ![Android](./slider_android.png) | ![iOS](./slider_ios.png) |
 
     A slider lets the user select from a range of values by dragging the slider thumb.
 
@@ -12,7 +12,7 @@ description: |
 
     #### Android Platform Implementation Notes
 
-    On Android, the user can also maniuplate the slider using the arrow keys. For this
+    On Android, the user can also manipulate the slider using the arrow keys. For this
     reason, placing other focusable UI elements to the left or right of
     the slider is not recommended.
 
@@ -21,6 +21,14 @@ description: |
     Earlier versions of the Titanium SDK implicitly enforced that both the [leftTrackImage](Titanium.UI.Slider.leftTrackImage) and
     [rightTrackImage](Titanium.UI.Slider.rightTrackImage) properties be specified before the properties would be honored. Beginning with
     Titanium SDK 4.0.0 this limitation has been removed. However it is recommended that either both or neither be specified.
+
+    To style different parts of the Slider you can set these properties in a custom Android theme:
+    ``` xml
+      <item name="android:progressBackgroundTint">#f4511e</item>
+      <item name="android:progressTint">#388e3c</item>
+      <item name="android:thumbTint">#c51162</item>
+    ```
+    You can also use `@android:color/transparent` to remove the tint.
 
 extends: Titanium.UI.View
 excludes:
@@ -394,15 +402,14 @@ properties:
   - name: tintColor
     summary: The color shown for the portion of the progress bar that is filled.
     type: [String, Titanium.UI.Color]
+    platforms: [iphone, ipad, android, macos]
     since: {iphone: "3.1.3", ipad: "3.1.3", android: "8.3.0"}
-    osver: {android: {min: "5.0"}}
 
   - name: trackTintColor
     summary: The color shown for the portion of the progress bar that is not filled.
     type: [String, Titanium.UI.Color]
     platforms: [iphone, ipad, android, macos]
     since: {iphone: "8.3.0", ipad: "8.3.0", android: "8.3.0"}
-    osver: {android: {min: "5.0"}}
 
   - name: value
     summary: Current value of the slider.

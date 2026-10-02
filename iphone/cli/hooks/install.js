@@ -1,23 +1,20 @@
 /*
  * install.js: Titanium iOS CLI install hook
  *
- * Copyright (c) 2012-2017, Appcelerator, Inc.  All Rights Reserved.
+ * Installs and launches device builds via ioslib, which drives
+ * `xcrun devicectl` (CoreDevice) under the hood.
+ *
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * See the LICENSE file for more information.
  */
 
-'use strict';
+import appc from 'node-appc';
+import async from 'async';
+import ioslib from 'ioslib';
 
-const appc = require('node-appc'),
-	async = require('async'),
-	fs = require('fs'),
-	ioslib = require('ioslib'),
-	path = require('path'),
-	run = appc.subprocess.run,
-	__ = appc.i18n(__dirname).__;
+export const cliVersion = '>=3.2';
 
-exports.cliVersion = '>=3.2';
-
-exports.init = function (logger, config, cli) {
+export function init(logger, config, cli) {
 	cli.addHook('build.post.compile', {
 		priority: 8000,
 		post: function (builder, finished) {
@@ -26,196 +23,130 @@ exports.init = function (logger, config, cli) {
 			}
 
 			if (cli.argv['build-only']) {
-				logger.info(__('Performed build only, skipping installing of the application'));
+				logger.info('Performed build only, skipping installing of the application');
 				return finished();
 			}
 
 			ioslib.device.detect({ bypassCache: true }, function (err, results) {
-				const devices = {};
-				if (!err) {
-					results.devices.forEach(function (device) {
-						if (device.udid !== 'itunes' && device.udid !== 'all' && (builder.deviceId === 'all' || device.udid === builder.deviceId)) {
-							devices[device.udid] = device;
-						}
-					});
+				if (err) {
+					return finished(err);
 				}
 
-				// if we don't have a deviceId, or it's "itunes", or it's "all", but not devices are connected,
-				// then install to iTunes
-				if (!builder.deviceId || builder.deviceId === 'itunes' || (builder.deviceId && !Object.keys(devices).length)) {
-					logger.info(__('Installing application into iTunes'));
+				const targets = results.devices.filter(d => !builder.deviceId || builder.deviceId === 'all'
+					|| d.udid === builder.deviceId || d.identifier === builder.deviceId);
 
-					let ipa = path.join(path.dirname(builder.xcodeAppDir), builder.tiapp.name + '.ipa');
-					fs.existsSync(ipa) || (ipa = builder.xcodeAppDir);
-					run('open', [ '-b', 'com.apple.itunes', ipa ], function (code) {
-						if (code) {
-							return finished(new appc.exception(__('Failed to launch iTunes')));
-						}
-
-						logger.info(__('Initiating iTunes sync'));
-						run('osascript', path.join(builder.platformPath, 'itunes_sync.scpt'), function (code, out, err) {
-							if (code) {
-								if (err.indexOf('(-1708)') !== -1) {
-									// err == "itunes_sync.scpt: execution error: iTunes got an error: every source doesn’t understand the count message. (-1708)"
-									//
-									// TODO: alert that the EULA needs to be accepted and if prompting is enabled,
-									//       then wait for them to accept it and then try again
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
-								} else {
-									finished(new appc.exception(__('Failed to initiate iTunes sync'), err.split('\n').filter(function (line) { return !!line.length; }))); // eslint-disable-line max-statements-per-line
-								}
-							} else {
-								finished();
-							}
-						});
-					});
-
-					return;
+				if (!targets.length) {
+					logger.warn('No connected iOS devices found, skipping install');
+					return finished();
 				}
 
-				const udids = Object.keys(devices),
-					levels = logger.getLevels(),
-					logLevelRE = new RegExp('^(\u001b\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\u001b\\[\\d+m)?(.*)', 'i'), // eslint-disable-line security/detect-non-literal-regexp
+				const levels = logger.getLevels(),
+					// strips the NSLog preamble ("2026-08-08 10:15:06.643 AppName[123:456] ..."),
+					// same treatment as the simulator log file tail in run.js
+					trimRE = new RegExp('^.*' + builder.tiapp.name + '\\[[^\\]]+\\]\\s*', 'g'), // eslint-disable-line security/detect-non-literal-regexp
+					logLevelRE = new RegExp('^(\\[\\d+m)?\\[?(' + levels.join('|') + '|log|timestamp)\\]?\\s*(\\[\\d+m)?(.*)', 'i'), // eslint-disable-line security/detect-non-literal-regexp
 					handles = {};
 				let startLog = false,
-					runningCount = 0,
-					installCount = 0;
+					runningCount = 0;
 
-				function quit(force, udid) {
-					runningCount--;
-
-					if (udid && handles[udid]) {
-						handles[udid].stop();
-						delete handles[udid];
-					} else if (force) {
-						Object.keys(handles).forEach(function (udid) {
+				function quit(udid) {
+					if (udid) {
+						if (handles[udid]) {
 							handles[udid].stop();
 							delete handles[udid];
+						}
+						runningCount--;
+					} else {
+						Object.keys(handles).forEach(function (u) {
+							handles[u].stop();
+							delete handles[u];
 						});
+						runningCount = 0;
 					}
 
-					if (force || runningCount <= 0) {
+					if (runningCount <= 0) {
 						if (startLog) {
-							const endLogTxt = __('End application log');
+							const endLogTxt = 'End application log';
 							logger.log(('-- ' + endLogTxt + ' ' + (new Array(75 - endLogTxt.length)).join('-')).grey + '\n');
 						}
 						process.exit(0);
 					}
 				}
 
-				// install the app for the specified device or "all" devices
-				async.eachSeries(udids, function (udid, next) {
-					const device = devices[udid];
-					let lastLogger = 'debug';
+				function launchApp(device) {
+					let lastLogger = 'debug',
+						waitLogged = false;
 
-					logger.info(__('Installing app on device: %s', device.name.cyan));
+					runningCount++;
 
-					const handle = handles[udid] = ioslib.device
-						.install(udid, builder.xcodeAppDir, {
-							appName: builder.tiapp.name,
-							logPort: builder.tiLogServerPort
+					handles[device.udid] = ioslib.device
+						.launch(device.udid, builder.tiapp.id)
+						.on('launching', function () {
+							logger.info(`Launching app on device: ${device.name.cyan}`);
 						})
-						.on('installed', function () {
-							logger.info(__('App successfully installed on device: %s', device.name.cyan));
-							if (++installCount === udids.length && !startLog) {
-								setTimeout(function () {
-									if (process.env.STUDIO_VERSION) {
-										logger.log(__('Please manually launch the application').magenta + '\n');
-									} else {
-										logger.log(__('Please manually launch the application or press CTRL-C to quit').magenta + '\n');
-									}
-								}, 50);
+						.on('locked', function () {
+							if (!waitLogged) {
+								waitLogged = true;
+								logger.info(`Device "${device.name.cyan}" is locked, the app will launch as soon as it is unlocked (press CTRL-C to quit)`);
 							}
-							cli.emit('build.post.install', builder, next);
 						})
-						.on('app-started', function () {
-							runningCount++;
-						})
-						.on('log', function (msg) {
-							let skipLine = false;
-
-							if (!handles[udid].logStarted) {
-								if (msg.indexOf('{') === 0) {
-									try {
-										const headers = JSON.parse(msg);
-										if (headers.appId !== builder.tiapp.id) {
-											logger.error(__('Another Titanium app "%s" is currently running and using the log server port %d', headers.appId, builder.tiLogServerPort));
-											logger.error(__('Stop the running Titanium app, then rebuild this app'));
-											logger.error(__('-or-'));
-											logger.error(__('Set a unique <log-server-port> between 1024 and 65535 in the <ios> section of the tiapp.xml'));
-											handle.stop();
-
-											if (--runningCount <= 0) {
-												logger.log();
-												process.exit(1);
-											}
-										}
-									} catch (e) {
-										// squeltch
-									}
-									skipLine = true;
-								}
-								handles[udid].logStarted = true;
-							}
-
+						.on('log', function (line) {
 							if (!startLog) {
-								const startLogTxt = __('Start application log');
+								const startLogTxt = 'Start application log';
 								logger.log(('-- ' + startLogTxt + ' ' + (new Array(75 - startLogTxt.length)).join('-')).grey);
 								startLog = true;
 							}
-
-							if (skipLine) {
-								return;
-							}
-
-							let m = msg.match(logLevelRE);
+							line = line.replace(trimRE, '');
+							const m = line.match(logLevelRE);
 							if (m) {
-								let line = m[0].trim();
-								m = line.match(logLevelRE);
-								if (m) {
-									lastLogger = m[2].toLowerCase();
-									line = m[4].trim();
-								}
-								if (levels.indexOf(lastLogger) === -1) {
-									// unknown log level
-									logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
-								} else {
-									logger[lastLogger](line);
-								}
-							} else if (levels.indexOf(lastLogger) === -1) {
-								logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + msg);
+								lastLogger = m[2].toLowerCase();
+								line = m[4].trim();
+							}
+							if (levels.indexOf(lastLogger) === -1) {
+								logger.log(('[' + lastLogger.toUpperCase() + '] ').cyan + line);
 							} else {
-								logger[lastLogger](msg);
+								logger[lastLogger](line);
 							}
 						})
-						.on('app-quit', function () { quit(false, udid); })
-						.on('disconnect', function () { quit(false, udid); })
-						.on('error', function (err) {
-							err = err.message || err.toString();
-							let details;
-							if (err.indexOf('0xe8008017') !== -1) {
-								details = __('Chances are there is a signing issue with your provisioning profile or the generated app is not compatible with your device.');
-							} else if (err.indexOf('0xe8008019') !== -1) {
-								details = __('Chances are there is a signing issue. Clean the project and try building the project again.');
-							} else if (err.indexOf('0xe800007f') !== -1) {
-								details = __('Try reconnecting your device and try again.');
-							} else if (err.indexOf('0xe8008016') !== -1) {
-								details = __('Chances are there is an issue with your entitlements. Verify the bundle IDs in the generated Info.plist file.; or your provisioning profile probably has some entitlements that are not enabled in the Entitlements.plist file.');
-							} else if (err.indexOf('0xe800001a') !== -1) {
-								details = __('Failed to transfer app to device. Check if your devices is registered in your provisioning profile.');
-							} else {
-								details = __('For some reason the app failed to install on the device. Try reconnecting your device and check your provisioning profile and entitlements.');
-							}
-							next(new appc.exception(err, details));
+						.on('app-quit', function () {
+							quit(device.udid);
+						})
+						.on('error', function () {
+							logger.warn(`Failed to launch app on "${device.name}"`);
+							logger.log('Please manually launch the application'.magenta + '\n');
+							quit(device.udid);
 						});
-				}, finished);
+				}
 
 				// listen for ctrl-c
 				process.on('SIGINT', function () {
 					logger.log();
-					quit(true);
+					quit();
+				});
+
+				async.eachSeries(targets, function (device, next) {
+					logger.info(`Installing app on device: ${device.name.cyan}`);
+					ioslib.device
+						.install(device.udid, builder.xcodeAppDir)
+						.on('installed', function () {
+							logger.info(`App successfully installed on device: ${device.name.cyan}`);
+							cli.emit('build.post.install', builder, function () {
+								launchApp(device);
+								next();
+							});
+						})
+						.on('error', function (err) {
+							next(new appc.exception(`Failed to install app on "${device.name}"`, err.message.split('\n')));
+						});
+				}, function (err) {
+					if (!err) {
+						logger.log('Streaming application log, press CTRL-C to quit'.magenta + '\n');
+					}
+					// the attached launch handles keep the process alive until
+					// the app quits or the user hits ctrl-c, like the old log relay
+					finished(err);
 				});
 			});
 		}
 	});
-};
+}

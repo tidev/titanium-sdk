@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -7,13 +7,19 @@
 
 package org.appcelerator.titanium.view;
 
+import android.graphics.Insets;
 import android.graphics.Rect;
 import android.os.Build;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
+
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiC;
+
 import java.util.ArrayList;
 
 /** Tracks safe-area inset changes for a given activity. */
@@ -27,6 +33,7 @@ public class TiActivitySafeAreaMonitor
 	 */
 	public interface OnChangedListener {
 		void onChanged(TiActivitySafeAreaMonitor monitor);
+		void onKeyboardChanged(boolean keyboardVisible, int width, int height, Insets keyboardSize);
 	}
 
 	/** The activity to be monitored. */
@@ -72,7 +79,7 @@ public class TiActivitySafeAreaMonitor
 	 * Creates an object used to track safe-area region changes for the given activity.
 	 * @param activity The activity to be monitored. Cannot be null.
 	 */
-	public TiActivitySafeAreaMonitor(AppCompatActivity activity)
+	public TiActivitySafeAreaMonitor(AppCompatActivity activity, TiApplication app)
 	{
 		// Validate.
 		if (activity == null) {
@@ -105,6 +112,19 @@ public class TiActivitySafeAreaMonitor
 			@Override
 			public WindowInsets onApplyWindowInsets(View view, WindowInsets insets)
 			{
+				TiApplication tiApp = TiApplication.getInstance();
+
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+					&& tiApp != null
+					&& tiApp.hasListener(TiC.EVENT_KEYBOARD_FRAME_CHANGED)
+				) {
+					boolean keyboardVisible = insets.isVisible(WindowInsets.Type.ime());
+					Insets keyboardSize = insets.getInsets(WindowInsets.Type.ime());
+					if (changeListener != null && view != null) {
+						changeListener.onKeyboardChanged(keyboardVisible, view.getWidth(),
+							view.getHeight(), keyboardSize);
+					}
+				}
 				// Validate.
 				if (view == null) {
 					return insets;
@@ -382,17 +402,7 @@ public class TiActivitySafeAreaMonitor
 		// Fetch the currently applied insets and update safe-area.
 		// Note: Google's internal code comments states that getWindowVisibleDisplayFrame() is "broken".
 		//       It's proven to work for us, but let's avoid this API in case of any unknown edge cases.
-		if (Build.VERSION.SDK_INT >= 23) {
-			updateUsing(rootView.getRootWindowInsets());
-		} else {
-			Rect rect = new Rect(rootView.getLeft(), rootView.getTop(), rootView.getRight(), rootView.getBottom());
-			rootView.getWindowVisibleDisplayFrame(rect);
-			this.insetLeft = Math.max(rect.left - rootView.getLeft(), 0);
-			this.insetTop = Math.max(rect.top - rootView.getTop(), 0);
-			this.insetRight = Math.max(rootView.getRight() - rect.right, 0);
-			this.insetBottom = Math.max(rootView.getBottom() - rect.bottom, 0);
-			updateUsingCachedInsets();
-		}
+		updateUsing(rootView.getRootWindowInsets());
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -47,12 +47,12 @@
 {
   BOOL boolValue = [TiUtils boolValue:value];
   BOOL animated = [TiUtils boolValue:@"animated" properties:object def:NO];
-  //TODO: Value checking and exception generation, if necessary.
+  // TODO: Value checking and exception generation, if necessary.
 
   [self replaceValue:value forKey:@"showCancel" notification:NO];
   showsCancelButton = boolValue;
 
-  //ViewAttached gives a false negative when not attached to a window.
+  // ViewAttached gives a false negative when not attached to a window.
   TiThreadPerformOnMainThread(
       ^{
         UISearchBar *search = [self searchBar];
@@ -192,10 +192,6 @@
 {
   ENSURE_ARG_COUNT(params, 2);
 
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return;
-  }
-
   NSDictionary<NSString *, NSString *> *token = params[0];
   int index = [TiUtils intValue:params[1]];
 
@@ -214,17 +210,11 @@
 - (void)removeTokenAtIndex:(id)index
 {
   ENSURE_SINGLE_ARG(index, NSNumber);
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return;
-  }
   [[[self searchBar] searchTextField] removeTokenAtIndex:[TiUtils intValue:index]];
 }
 
 - (NSArray<NSDictionary<NSString *, NSString *> *> *)tokens
 {
-  if (![TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return;
-  }
   NSArray<UISearchToken *> *tokens = [[[self searchBar] searchTextField] tokens];
   NSMutableArray<id> *result = [NSMutableArray arrayWithCapacity:tokens.count];
 

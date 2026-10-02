@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
@@ -21,6 +22,8 @@ import android.app.Activity;
 import android.view.View;
 
 import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ti.modules.titanium.ui.widget.TiUITableView;
@@ -53,10 +56,12 @@ import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 		TiC.PROPERTY_SCROLLABLE,
 		TiC.PROPERTY_SCROLL_TYPE,
 		TiC.PROPERTY_SEARCH,
+		TiC.PROPERTY_SEARCH_TEXT,
 		TiC.PROPERTY_SEPARATOR_COLOR,
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_SHOW_SELECTION_CHECK,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
+		TiC.PROPERTY_SNAPPING,
 		TiC.PROPERTY_TOUCH_FEEDBACK,
 		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
 	}
@@ -127,6 +132,11 @@ public class TableViewProxy extends RecyclerViewProxy
 	@Kroll.method
 	public void appendRow(Object rows, @Kroll.argument(optional = true) KrollDict animation)
 	{
+		appendRowInternal(rows, animation, false);
+	}
+
+	private void appendRowInternal(Object rows, KrollDict animation, boolean internalUpdate)
+	{
 		final List<TableViewRowProxy> rowList = new ArrayList<>();
 
 		if (rows instanceof Object[]) {
@@ -188,7 +198,11 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// Allow updating rows after iteration.
 		shouldUpdate = true;
-		update();
+
+		// don't update when coming from setData loop
+		if (!internalUpdate) {
+			update();
+		}
 	}
 
 	/**
@@ -272,8 +286,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TableViewRowProxy toItem = tableView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
 
-			if (parentProxy instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy toSection = (TableViewSectionProxy) parentProxy;
+			if (parentProxy instanceof TableViewSectionProxy toSection) {
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
 
 				// Prevent updating rows during move operation.
@@ -326,6 +339,21 @@ public class TableViewProxy extends RecyclerViewProxy
 			}
 		}
 	}
+	/**
+	 * Called when starting a drag-and-drop gesture (touch start)
+	 */
+	public void onMoveGestureStarted()
+	{
+		fireEvent(TiC.EVENT_MOVE_START, null);
+	}
+
+	/**
+	 * Called when starting a drag-and-drop gesture (touch end)
+	 */
+	public void onMoveGestureEnded()
+	{
+		fireEvent(TiC.EVENT_MOVE_END, null);
+	}
 
 	/**
 	 * Delete row from table.
@@ -350,8 +378,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = row.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 
 					// Row is in section, modify section rows.
 					section.remove(row);
@@ -388,7 +415,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		return "Ti.UI.TableView";
 	}
 
-	// NOTE: For internal use only.
+	@Kroll.getProperty
 	public KrollDict getContentOffset()
 	{
 		final TiTableView tableView = getTableView();
@@ -478,6 +505,9 @@ public class TableViewProxy extends RecyclerViewProxy
 	// clang-format on
 	{
 		for (final TableViewSectionProxy section : this.sections) {
+			for (TableViewRowProxy row : section.getRows()) {
+				row.setParent(null);
+			}
 			section.releaseViews();
 			section.setParent(null);
 		}
@@ -487,11 +517,10 @@ public class TableViewProxy extends RecyclerViewProxy
 		shouldUpdate = false;
 
 		for (Object d : data) {
-			if (d instanceof TableViewRowProxy) {
-				final TableViewRowProxy row = (TableViewRowProxy) d;
+			if (d instanceof TableViewRowProxy row) {
 
 				// Handle TableViewRow.
-				appendRow(row, null);
+				appendRowInternal(row, null, true);
 
 			} else if (d instanceof Object[]) {
 				setData((Object[]) d);
@@ -502,10 +531,15 @@ public class TableViewProxy extends RecyclerViewProxy
 
 				// Handle TableViewRow dictionary.
 				row.handleCreationDict(new KrollDict((HashMap) d));
-				appendRow(row, null);
+				appendRowInternal(row, null, true);
 
-			} else if (d instanceof TableViewSectionProxy) {
-				final TableViewSectionProxy section = (TableViewSectionProxy) d;
+			} else if (d instanceof TableViewSectionProxy section) {
+
+				// Rows of a re-assigned section were unparented above. Restore them so the rows
+				// can still find their section and table for events and property updates.
+				for (TableViewRowProxy row : section.getRows()) {
+					row.setParent(section);
+				}
 
 				// Handle TableViewSection.
 				appendSection(section, null);
@@ -514,8 +548,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// Allow updating rows after iteration.
 		shouldUpdate = true;
-
-		update();
+		update(true);
 	}
 
 	/**
@@ -635,8 +668,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = existingRow.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 					final TableViewRowProxy row = processRow(rowObj);
 
 					if (row == null) {
@@ -669,8 +701,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = existingRow.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 					final TableViewRowProxy row = processRow(rowObj);
 
 					if (row == null) {
@@ -798,6 +829,14 @@ public class TableViewProxy extends RecyclerViewProxy
 	{
 		final TiTableView tableView = getTableView();
 		final boolean animated = animation == null || animation.optBoolean(TiC.PROPERTY_ANIMATED, true);
+		final int position = animation != null ? animation.optInt(TiC.PROPERTY_POSITION, 0) : 0;
+		final RecyclerView.SmoothScroller smoothScrollerToTop =
+			new LinearSmoothScroller(TiApplication.getAppCurrentActivity())
+			{
+				@Override
+				protected int getVerticalSnapPreference()
+				{ return LinearSmoothScroller.SNAP_TO_START; }
+			};
 
 		if (tableView != null) {
 			final RecyclerView recyclerView = tableView.getRecyclerView();
@@ -809,9 +848,19 @@ public class TableViewProxy extends RecyclerViewProxy
 					final int rowAdapterIndex = tableView.getAdapterIndex(index);
 					final Runnable action = () -> {
 						if (animated) {
-							recyclerView.smoothScrollToPosition(rowAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								smoothScrollerToTop.setTargetPosition(rowAdapterIndex);
+								recyclerView.getLayoutManager().startSmoothScroll(smoothScrollerToTop);
+							} else {
+								recyclerView.smoothScrollToPosition(rowAdapterIndex);
+							}
 						} else {
-							recyclerView.scrollToPosition(rowAdapterIndex);
+							if (position == ListViewScrollPositionModule.TOP) {
+								((LinearLayoutManager) recyclerView.getLayoutManager())
+									.scrollToPositionWithOffset(rowAdapterIndex, 0);
+							} else {
+								recyclerView.scrollToPosition(rowAdapterIndex);
+							}
 						}
 					};
 
@@ -949,7 +998,7 @@ public class TableViewProxy extends RecyclerViewProxy
 		if (name.equals(TiC.PROPERTY_DATA) || name.equals(TiC.PROPERTY_SECTIONS)) {
 			setData((Object[]) value);
 
-		} else if (name.equals(TiC.PROPERTY_EDITING)) {
+		} else if (name.equals(TiC.PROPERTY_EDITING) || name.equals(TiC.PROPERTY_REQUIRES_EDITING_TO_MOVE)) {
 			final TiViewProxy parent = getParent();
 
 			if (parent != null) {
@@ -1002,8 +1051,7 @@ public class TableViewProxy extends RecyclerViewProxy
 			final TiViewProxy parent = existingRow.getParent();
 
 			if (parent != null) {
-				if (parent instanceof TableViewSectionProxy) {
-					final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+				if (parent instanceof TableViewSectionProxy section) {
 					final TableViewRowProxy row = processRow(rowObj);
 
 					if (row == null) {
