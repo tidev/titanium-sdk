@@ -23,7 +23,7 @@ Follow Conventional Commits (`feat:`, `fix(scope):`, `chore:`); `commitlint` enf
 - use a clear title prefixed with `[ID]` (see `.github/PULL_REQUEST_TEMPLATE.md`);
 - link the related GitHub issue in the description;
 - include tests for functional changes;
-- keep history squashed/clean per `.github/CONTRIBUTING.md`.
+- keep history squashed/clean per `CONTRIBUTING.md`.
 
 ## Security & Configuration Tips
-Use Node.js `>=20.18.1` (`package.json` `vendorDependencies`). For Android builds, ensure `ANDROID_SDK` is set or pass SDK paths via build command arguments.
+Use the Node.js version required by `package.json` (`vendorDependencies.node`). For Android builds, ensure `ANDROID_SDK` is set or pass SDK paths via build command arguments.
