@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
-const utils = require('./lib/utils');
+import { program } from 'commander';
+import { generateSSRIHashFromURL } from './lib/utils.js';
 
 program.parse(process.argv);
 
@@ -15,7 +14,7 @@ if (urls.length <= 0) {
 async function main(urls) {
 	console.log(urls);
 	for (const url of urls) {
-		const hash = await utils.generateSSRIHashFromURL(url);
+		const hash = await generateSSRIHashFromURL(url);
 		console.log(JSON.stringify({
 			url: url,
 			integrity: hash.toString()

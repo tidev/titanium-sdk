@@ -27,7 +27,7 @@ describe('string_decoder', () => {
 			should(decoder.end).be.a.Function();
 		});
 
-		it('handles base64 with single byte', () => {
+		it('handles Base64 with single byte', () => {
 			const decoder = new StringDecoder('base64');
 			should(decoder.write(Buffer.from([ 0x61 ]))).eql('');
 			should(decoder.end()).eql('YQ==');
@@ -36,7 +36,7 @@ describe('string_decoder', () => {
 			should(decoder.end()).eql('');
 		});
 
-		it('handles base64 with single byte, writing again', () => {
+		it('handles Base64 with single byte, writing again', () => {
 			const decoder = new StringDecoder('base64');
 			should(decoder.write(Buffer.from([ 0x61 ]))).eql('');
 			should(decoder.end()).eql('YQ==');
@@ -51,22 +51,22 @@ describe('string_decoder', () => {
 			should(decoder.end()).eql('');
 		});
 
-		it('handles base64 with two bytes', () => {
-			const decoder = new StringDecoder('base64');
-			should(decoder.write(Buffer.from([ 0x61, 0x61 ]))).eql('');
-			should(decoder.end()).eql('YWE=');
-			// resets internals so writing empty buffer doesn't output anything anymore
-			should(decoder.write(Buffer.from([]))).eql('');
-			should(decoder.end()).eql('');
-		});
-
-		it('handles base64 with two bytes, writing again', () => {
+		it('handles Base64 with two bytes', () => {
 			const decoder = new StringDecoder('base64');
 			should(decoder.write(Buffer.from([ 0x61, 0x61 ]))).eql('');
 			should(decoder.end()).eql('YWE=');
 			// resets internals so writing empty buffer doesn't output anything anymore
 			should(decoder.write(Buffer.from([]))).eql('');
 			should(decoder.end()).eql('');
+		});
+
+		it('handles Base64 with two bytes, writing again', () => {
+			const decoder = new StringDecoder('base64');
+			should(decoder.write(Buffer.from([ 0x61, 0x61 ]))).eql('');
+			should(decoder.end()).eql('YWE=');
+			// resets internals so writing empty buffer doesn't output anything anymore
+			should(decoder.write(Buffer.from([]))).eql('');
+			should(decoder.end()).eql('');
 
 			should(decoder.write(Buffer.from([ 0x61 ]))).eql('');
 			should(decoder.end()).eql('YQ==');
@@ -75,7 +75,7 @@ describe('string_decoder', () => {
 			should(decoder.end()).eql('');
 		});
 
-		it('handles base64 with three bytes', () => {
+		it('handles Base64 with three bytes', () => {
 			const decoder = new StringDecoder('base64');
 			should(decoder.write(Buffer.from([ 0x61, 0x61, 0x61 ]))).eql('YWFh'); // we got our 3 bytes!
 			should(decoder.end()).eql(''); // don't add anything else
@@ -84,7 +84,7 @@ describe('string_decoder', () => {
 			should(decoder.end()).eql('');
 		});
 
-		it('handles base64 with three bytes, wirting again', () => {
+		it('handles Base64 with three bytes, writing again', () => {
 			const decoder = new StringDecoder('base64');
 			should(decoder.write(Buffer.from([ 0x61, 0x61, 0x61 ]))).eql('YWFh'); // we got our 3 bytes!
 			should(decoder.end()).eql(''); // don't add anything else
@@ -106,7 +106,7 @@ describe('string_decoder', () => {
 			should(decoder.write).be.a.Function();
 		});
 
-		it('holds multi-byte utf-8 characters until end is reached', () => {
+		it('holds multi-byte UTF-8 characters until end is reached', () => {
 			const decoder = new StringDecoder('utf8');
 			should(decoder.write(Buffer.from([ 0xE2 ]))).eql('');
 			should(decoder.write(Buffer.from([ 0x82 ]))).eql('');
@@ -123,14 +123,14 @@ describe('string_decoder', () => {
 		// should(decoder2.end).be.a.Function();
 	});
 
-	it('handles standard utf-8 buffers', () => {
+	it('handles standard UTF-8 buffers', () => {
 		decodeTest('utf8', Buffer.from('$', 'utf8'), '$');
 		decodeTest('utf-8', Buffer.from('¢', 'utf-8'), '¢');
 		decodeTest('utf-8', Buffer.from('€', 'utf-8'), '€');
 		decodeTest('utf-8', Buffer.from('𤭢', 'utf-8'), '𤭢');
 	});
 
-	it('handles mixed ascii and non-ascii', () => {
+	it('handles mixed ASCII and non-ASCII', () => {
 		decodeTest(
 			'utf-8',
 			Buffer.from([ 0xCB, 0xA4, 0x64, 0xE1, 0x8B, 0xA4, 0x30, 0xE3, 0x81, 0x85 ]),
@@ -139,7 +139,7 @@ describe('string_decoder', () => {
 	});
 
 	// FIXMEL Requires native fix in iOS for Ti.Buffer, see https://github.com/tidev/titanium-sdk/pull/11095#issue-302964559
-	it.allBroken('handles invalid utf-8 input', () => {
+	it.allBroken('handles invalid UTF-8 input', () => {
 		decodeTest('utf-8', Buffer.from('C9B5A941', 'hex'), '\u0275\ufffdA');
 		decodeTest('utf-8', Buffer.from('E2', 'hex'), '\ufffd');
 		decodeTest('utf-8', Buffer.from('E241', 'hex'), '\ufffdA'); // FIXME: Failing!

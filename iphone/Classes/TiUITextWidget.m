@@ -42,9 +42,11 @@
 - (void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-  [(id)[self textWidgetView] setAttributedText:[arg attributedString]];
+  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:arg];
+  if (as) {
+    [[self proxy] replaceValue:as forKey:@"attributedString" notification:NO];
+    [(id)[self textWidgetView] setAttributedText:[as attributedString]];
+  }
 #endif
 }
 
@@ -261,8 +263,8 @@
 #pragma mark - Titanium Internal Use Only
 - (void)updateKeyboardStatus
 {
-  if (([[[TiApp app] controller] keyboardVisible]) && ([[[TiApp app] controller] keyboardFocusedProxy] == [self proxy])) {
-    [[[TiApp app] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
+  if (([[[self.proxy owningInstance] controller] keyboardVisible]) && ([[[self.proxy owningInstance] controller] keyboardFocusedProxy] == [self proxy])) {
+    [[[self.proxy owningInstance] controller] performSelector:@selector(handleNewKeyboardStatus) withObject:nil afterDelay:0.0];
   }
 }
 

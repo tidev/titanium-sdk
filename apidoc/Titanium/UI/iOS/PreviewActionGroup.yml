@@ -1,7 +1,7 @@
 ---
 name: Titanium.UI.iOS.PreviewActionGroup
 summary: |
-    A PreviewActionGroup provides options to configure a group of actions used by the iOS9 3D-Touch
+    A PreviewActionGroup provides options to configure a group of actions used by the iOS 9 3D-Touch
     feature "Peek and Pop".
 description: |
     The PreviewActionGroup is created by the <Titanium.UI.iOS.createPreviewActionGroup> method. You

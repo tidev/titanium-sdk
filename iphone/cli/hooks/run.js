@@ -5,33 +5,30 @@
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * See the LICENSE file for more information.
  */
-'use strict';
 
-exports.cliVersion = '>=3.2';
+import path from 'node:path';
+import fs from 'fs-extra';
+import { exec, spawn } from 'node:child_process';
+import { homedir } from 'node:os';
 
-exports.init = function (logger, config, cli) {
+export const cliVersion = '>=3.2';
+
+export function init(logger, config, cli) {
 	cli.addHook('build.post.compile', {
 		priority: 10000,
-		post: function (builder, finished) {
+		async post(builder, finished) {
 			if (cli.argv.target !== 'simulator' && cli.argv.target !== 'macos') {
 				return finished();
 			}
 
-			const i18n = require('node-appc').i18n(__dirname);
-			const __ = i18n.__;
-			const __n = i18n.__n;
 			const ignoreLog = config.cli.ignoreLog || [];
 
 			if (cli.argv['build-only']) {
-				logger.info(__('Performed build only, skipping running of the application'));
+				logger.info('Performed build only, skipping running of the application');
 				return finished();
 			}
 
-			const ioslib = require('ioslib');
-			const path = require('path');
-			const fs = require('fs-extra');
-			// eslint-disable-next-line security/detect-child-process
-			const { exec, spawn } = require('child_process');
+			const { default: ioslib } = await import('ioslib');
 
 			let simStarted = false;
 			let lastLogger = 'debug';
@@ -74,7 +71,7 @@ exports.init = function (logger, config, cli) {
 					line = m[4].trim();
 				}
 
-				// ignore logs from cli ignoreLog
+				// ignore logs from CLI ignoreLog
 				if (typeof ignoreLog === 'string') {
 					if (line.includes(ignoreLog)) {
 						return;
@@ -91,15 +88,15 @@ exports.init = function (logger, config, cli) {
 			}
 
 			if (cli.argv.target === 'macos') {
-				startLogTxt = __('Start mac application log');
-				endLogTxt = __('End mac application log');
+				startLogTxt = 'Start mac application log';
+				endLogTxt = 'End mac application log';
 
-				const HOME = require('os').homedir();
+				const HOME = homedir();
 				// NOTE: if app is not sandboxed, log file is at path.join(HOME, 'Documents', `${builder.tiapp.guid}.log`);
 				const logFile = path.join(HOME, `Library/Containers/${builder.tiapp.id}/Data/Documents/${builder.tiapp.guid}.log`);
 
 				// TODO: It does force quit. Find another way to quit.
-				exec(`pkill -QUIT -x ${builder.tiapp.name}`, function () {
+				exec(`pkill -QUIT -x ${builder.tiapp.name}`, async () => {
 					// If there's already a log file from previous run, wipe it
 					if (fs.pathExistsSync(logFile)) {
 						try {
@@ -114,7 +111,7 @@ exports.init = function (logger, config, cli) {
 					}
 
 					// Open the app
-					logger.info(__('Launching Mac application'));
+					logger.info('Launching Mac application');
 					const child = spawn('open', [ '-a', `${builder.iosBuildDir}/${builder.tiapp.name}.app`, '-W' ]);
 					child.on('error', err => logger.error(err));
 					// "Forward" the exit code of the app to this process (when the app exits)
@@ -126,8 +123,9 @@ exports.init = function (logger, config, cli) {
 						endLog();
 						process.exit(code);
 					});
+
 					// Now tail the log file
-					const Tail = require('always-tail');
+					const { default: Tail } = await import('always-tail');
 					logFileTail = new Tail(logFile, '\n', { interval: 500, start: 0 });
 					logFileTail.on('line', function (msg) {
 						handleLogFile(msg);
@@ -139,10 +137,10 @@ exports.init = function (logger, config, cli) {
 					finished = null;
 				});
 			} else {
-				logger.info(__('Launching iOS Simulator'));
+				logger.info('Launching iOS Simulator');
 
-				startLogTxt = __('Start simulator log');
-				endLogTxt = __('End simulator log');
+				startLogTxt = 'Start simulator log';
+				endLogTxt = 'End simulator log';
 
 				ioslib.simulator
 					.launch(builder.simHandle, {
@@ -182,13 +180,13 @@ exports.init = function (logger, config, cli) {
 					.on('app-quit', function (code) {
 						if (code) {
 							if (code instanceof ioslib.simulator.SimulatorCrash) {
-								logger.error(__n('Detected crash:', 'Detected multiple crashes:', code.crashFiles.length));
+								logger.error(code.crashFiles.length ? 'Detected multiple crashes:' : 'Detected crash:');
 								code.crashFiles.forEach(function (f) {
 									logger.error('  ' + f);
 								});
-								logger.error(__n('Note: this crash may or may not be related to running your app.', 'Note: these crashes may or may not be related to running your app.', code.crashFiles.length) + '\n');
+								logger.error(`Note: ${code.crashFiles.length ? 'these crashes' : 'this crash'} may or may not be related to running your app.\n`);
 							} else {
-								logger.error(__('An error occurred running the iOS Simulator (exit code %s)', code));
+								logger.error(`An error occurred running the iOS Simulator (exit code ${code})`);
 							}
 						}
 						endLog();
@@ -208,4 +206,4 @@ exports.init = function (logger, config, cli) {
 			}
 		}
 	});
-};
+}

@@ -18,7 +18,7 @@ class Proxy : public JavaObject
 public:
 	enum {
 		kJavaObject = 0,
-		kInternalFieldCount // Just one internal field on proxies, and it wraps the java object
+		kInternalFieldCount // Just one internal field on proxies, and it wraps the Java object
 	};
 
 	static v8::Persistent<v8::FunctionTemplate> baseProxyTemplate;
@@ -110,7 +110,7 @@ public:
 	static void onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 	// This provides Javascript a way to extend one of our native / wrapped
-	// templates without needing to know about the internal java class.
+	// templates without needing to know about the internal Java class.
 	//
 	// An example of what this might look like from JS:
 	// var MyProxy = Ti.UI.View.inherit(function MyView(options) {
@@ -153,12 +153,12 @@ private:
 	/**
 	 * This is the callback used when we need to construct a native Proxy for a JS object.
 	 * Here we typically:
-	 * - wrap the js object in a Proxy instance
+	 * - wrap the JS object in a Proxy instance
 	 * - define an own property "_properties" used for #getProperty and #setProperty callbacks
 	 * - Grab the Java class inside an External from the Data() value.
 	 * This got set back in #inheritProxyTemplate when we generate the FunctionTemplate
 	 * - attach the Java Proxy instantiated to this native Proxy.
-	 * - Deal with argunents passed
+	 * - Deal with arguments passed
 	 *
 	 * @param args The constructor arguments.
 	 */
