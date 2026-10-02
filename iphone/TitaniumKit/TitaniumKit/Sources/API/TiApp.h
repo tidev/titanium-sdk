@@ -14,7 +14,7 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 
 /**
- TiApp represents an instance of an application. There is always only one instance per application which could be accessed through <app> class method.
+ TiApp owns either application-wide callbacks or one scene and its JavaScript runtime.
  */
 @interface TiApp : TiHost <UIApplicationDelegate, NSURLSessionDelegate, NSURLSessionTaskDelegate, NSURLSessionDownloadDelegate, UNUserNotificationCenterDelegate, UIWindowSceneDelegate> {
   UIWindow *window;
@@ -45,9 +45,11 @@
   NSMutableDictionary<NSString *, NSOrderedSet<id> *> *_queuedApplicationSelectors;
   NSMutableSet<id> *_applicationDelegates;
 
+  NSMutableArray *_queuedNotificationBlocks;
   BOOL appBooted;
 
   NSString *sessionId;
+  NSString *_sceneId;
 
   UIBackgroundTaskIdentifier bgTask;
   NSMutableArray *backgroundServices;
@@ -132,6 +134,9 @@
  */
 + (TiApp *)app NS_SWIFT_NAME(sharedApp());
 
+/** The process-wide UIApplication delegate, independent of scene focus. */
++ (TiApp *)applicationInstance;
+
 /**
  * Returns a read-only dictionary from tiapp.xml properties
  */
@@ -148,7 +153,7 @@
 
 - (BOOL)windowIsKeyWindow;
 
-- (UIView *)topMostView;
+- (UIView *)topMostView __attribute__((deprecated("Use the view's own window coordinate system instead in multi-scene apps")));
 
 - (void)registerApplicationDelegate:(id)applicationDelegate;
 
@@ -228,6 +233,12 @@
 - (void)hideModalController:(UIViewController *)controller animated:(BOOL)animated;
 
 /**
+ Returns the unique identifier for the scene this TiApp instance belongs to.
+ Available on iOS 13 and later. Returns _nil_ on earlier versions or if the scene is not connected.
+ */
+@property (nonatomic, readonly, copy) NSString *sceneId NS_AVAILABLE_IOS(13_0);
+
+/**
  Returns unique identifier for the current application launch.
 
  @return Current session id.
@@ -293,5 +304,14 @@
 - (void)performCompletionHandlerWithKey:(NSString *)key andResult:(UIBackgroundFetchResult)result;
 - (void)performCompletionHandlerForBackgroundTransferWithKey:(NSString *)key;
 - (void)watchKitExtensionRequestHandler:(id)key withUserInfo:(NSDictionary *)userInfo;
+
+/**
+ Re-initializes the UI and JS runtime against the existing UIWindowScene.
+
+ Used by LiveView (<Ti.App._restart>) to perform a hot restart of the application
+ without leaving the scene session. Tears down the old window, controller, and
+ KrollBridge, then creates fresh ones against the first connected UIWindowScene.
+ */
+- (void)rebootApp;
 
 @end

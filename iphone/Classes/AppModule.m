@@ -30,13 +30,11 @@ extern NSString *const TI_APPLICATION_GUID;
 
 @implementation AppModule
 
-#if defined(DEBUG) || defined(DEVELOPER)
-
 - (void)_restart:(id)unused
 {
   TiThreadPerformOnMainThread(
       ^{
-        [[[TiApp app] controller] shutdownUi:self];
+        [[self owningInstance] rebootApp];
       },
       NO);
 }
@@ -44,7 +42,7 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)_resumeRestart:(id)unused
 {
   UIApplication *app = [UIApplication sharedApplication];
-  TiApp *appDelegate = [TiApp app];
+  TiApp *appDelegate = [self owningInstance];
 #ifndef TI_USE_AUTOLAYOUT
   [TiLayoutQueue resetQueue];
 #endif
@@ -74,14 +72,14 @@ extern NSString *const TI_APPLICATION_GUID;
   NSNotification *notification = [NSNotification notificationWithName:kTiContextShutdownNotification object:[appDelegate krollBridge]];
   [nc postNotification:notification];
 
+  /* Reboot via scene-aware method (creates new window, controller, and bridge) */
+  [appDelegate rebootApp];
+
   /* Begin foregrounding simulation */
-  [appDelegate application:app didFinishLaunchingWithOptions:[appDelegate launchOptions]];
   [appDelegate applicationWillEnterForeground:app];
   [appDelegate applicationDidBecomeActive:app];
   /* End foregrounding simulation */
 }
-
-#endif
 
 - (void)dealloc
 {
@@ -379,7 +377,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
+  [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:[self _host]];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(errored:) name:kTiErrorNotification object:nil];
 
@@ -392,7 +390,7 @@ extern NSString *const TI_APPLICATION_GUID;
     BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
 
     if (!isProduction) {
-      JSGlobalContextSetInspectable([[(KrollBridge *)TiApp.app.krollBridge krollContext] context], YES);
+      JSGlobalContextSetInspectable([[(KrollBridge *)[self owningInstance].krollBridge krollContext] context], YES);
     }
   }
 #endif
@@ -506,7 +504,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (NSDictionary *)arguments
 {
-  return [[TiApp app] launchOptions];
+  return [[self owningInstance] launchOptions];
 }
 
 - (id)getArguments:(id)args
@@ -582,12 +580,12 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)sessionId
 {
-  return [[TiApp app] sessionId];
+  return [[self owningInstance] sessionId];
 }
 
 - (NSNumber *)keyboardVisible
 {
-  return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
+  return NUMBOOL([[[self owningInstance] controller] keyboardVisible]);
 }
 
 - (void)setForceSplashAsSnapshot:(id)args

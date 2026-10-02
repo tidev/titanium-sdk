@@ -1091,8 +1091,14 @@ properties:
 
         #### Android Platform Notes
 
-        Since Release 3.3.0, due to changes to support the appcompat library, this property has no
-        effect. By default, the action bar is always displayed.  To hide the action bar, see the
+        Between Release 3.3.0 and Release 14.0.0, due to changes to support the appcompat library,
+        this property had no effect and the action bar was always displayed.
+
+        Since Release 14.0.0, this property is supported again on Android. It must be set at
+        creation time and hides the action bar before the window's activity draws its first frame,
+        unlike calling `hide()` on [ActionBar](Titanium.Android.ActionBar) from the window's `open`
+        event, which can cause the action bar to flash briefly. Alternatively, use a theme without
+        an action bar as described in the
         [Android Action Bar guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Action_Bar.html).
     platforms: [android, iphone, ipad, macos]
     default: false
@@ -1373,6 +1379,11 @@ properties:
     type: [Number]
     platforms: [android]
     since: {android: "12.5.0"}
+    description: |
+        Starting with Android 16 (target SDK 36), the status bar is always transparent as part of
+        edge-to-edge enforcement, and `statusBarColor` is ignored by the system. On Android 16+,
+        the status bar area will show the window's `backgroundColor` instead. Use `backgroundColor`
+        to control the color behind the status bar on Android 16+.
 
   - name: navBarColor
     summary: The color of the navigation bar (bottom bar) for this window.
@@ -1864,6 +1875,32 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "8.2.0", ipad: "8.2.0", macos: "9.2.0"}
     osver: {ios: {min: "13.0"}}
+
+  - name: scene
+    summary: The scene proxy associated with this window.
+    description: |
+        Returns a <Titanium.App.iOS.SceneProxy> object representing the UIWindowScene
+        that this window belongs to. In multi-scene apps on iPadOS, each window is
+        associated with a specific scene. Use this property to access scene-specific
+        information such as trait collections.
+
+        Returns `null` if scenes are not available (iOS versions prior to 13.0 or
+        apps without a scene manifest).
+
+        ``` js
+        var win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+        win.addEventListener('open', function() {
+            var scene = win.scene;
+            if (scene) {
+                Ti.API.info('Window belongs to scene: ' + scene.sceneId);
+            }
+        });
+        ```
+    type: Titanium.App.iOS.SceneProxy
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: {ios: {min: "13.0"}}
+    since: "14.0.0"
 
   - name: modalStyle
     summary: Presentation style of this modal window.

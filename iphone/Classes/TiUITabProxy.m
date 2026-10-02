@@ -24,6 +24,7 @@
 
 @interface TiUITabProxy ()
 - (void)openOnUIThread:(NSArray *)args;
+- (BOOL)lazyLoadingEnabled;
 @end
 
 @implementation TiUITabProxy
@@ -158,7 +159,9 @@
     [rootWindow setIsManaged:YES];
     [rootWindow setTab:self];
     [rootWindow setParentOrientationController:self];
-    [rootWindow open:nil];
+    if (![self lazyLoadingEnabled]) {
+      [rootWindow open:nil];
+    }
   }
   return [rootWindow hostingController];
 }
@@ -318,6 +321,15 @@
   return tabGroup;
 }
 
+- (BOOL)lazyLoadingEnabled
+{
+  if (![tabGroup isKindOfClass:[TiUITabGroupProxy class]]) {
+    return NO;
+  }
+
+  return [(TiUITabGroupProxy *)tabGroup lazyLoadingEnabled];
+}
+
 - (KrollPromise *)openWindow:(NSArray *)args
 {
   TiWindowProxy *window = [args objectAtIndex:0];
@@ -345,7 +357,7 @@
     return promise;
   }
 
-  [[[TiApp app] controller] dismissKeyboard];
+  [[[self owningInstance] controller] dismissKeyboard];
 
   // We need to generate a promise for the given window and store it so openOnUIThread can grab it
   JSContext *context = [self currentContext];
@@ -366,7 +378,7 @@
 
   JSContext *context = [self currentContext];
 
-  if (window == rootWindow && ![[TiApp app] willTerminate]) {
+  if (window == rootWindow && ![[self owningInstance] willTerminate]) {
     DebugLog(@"[ERROR] Can not close root window of the tab. Use removeTab instead");
     return [KrollPromise rejectedWithErrorMessage:@"Can not close root window of the tab. Use removeTab instead" inContext:context];
   }
@@ -469,10 +481,11 @@
     }
   }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
-  if (theWindow == rootWindow) {
-    // This is probably too late for the root view controller.
-    // Figure out how to call open before this callback
-    [theWindow open:nil];
+  if ([self lazyLoadingEnabled] && theWindow == rootWindow) {
+    if ([[theWindow closed] boolValue]) {
+      [theWindow windowWillOpen];
+      [theWindow windowDidOpen];
+    }
   } else if ([theWindow opening]) {
     [theWindow windowWillOpen];
     [theWindow windowDidOpen];

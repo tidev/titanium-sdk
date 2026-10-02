@@ -712,7 +712,6 @@ public class AndroidModule extends KrollModule
 				currentActivity.requestPermissions(filteredPermissions.toArray(new String[0]), REQUEST_CODE);
 				return;
 			}
-			// FIXME: If we're not on API level 23+, shouldn't we reject/error?
 			KrollDict response = new KrollDict();
 			response.putCodeAndMessage(0, null);
 			if (permissionCallback != null) {

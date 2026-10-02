@@ -8,6 +8,8 @@
 #import "TiControllerProtocols.h"
 #import <UIKit/UIKit.h>
 
+@class TiWindowProxy;
+
 @interface TiRootViewController : UIViewController <TiRootControllerProtocol, TiControllerContainment, TiOrientationController> {
   // Default background properties
   UIColor *bgColor;
@@ -56,6 +58,7 @@
 - (CGRect)resizeView;
 - (void)repositionSubviews;
 - (UIView *)topWindowProxyView;
+- (TiWindowProxy *)rootWindowProxy;
 - (NSUInteger)supportedOrientationsForAppDelegate;
 - (void)incrementActiveAlertControllerCount;
 - (void)decrementActiveAlertControllerCount;

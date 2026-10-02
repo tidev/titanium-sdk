@@ -254,9 +254,17 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  [self performSelector:@selector(updateStatusBarView)
-             withObject:nil
-             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+  // The status bar and navigation bar bounds are only final once the rotation animation has finished.
+  if (coordinator != nil) {
+    [coordinator animateAlongsideTransition:nil
+                                 completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+                                   [self updateStatusBarView];
+                                   [self updateNavBar];
+                                 }];
+  } else {
+    [self updateStatusBarView];
+    [self updateNavBar];
+  }
 
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
@@ -1074,7 +1082,10 @@
 
 - (void)updateStatusBarView
 {
-  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  UIWindow *keyWindow = [[self owningInstance] window];
+  if (keyWindow == nil) {
+    keyWindow = UIApplication.sharedApplication.keyWindow;
+  }
   CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
   UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
   if (view) {
@@ -1160,7 +1171,7 @@
   if ([self.tabGroup isKindOfClass:[TiWindowProxy class]]) {
     windowProxy = (TiWindowProxy *)self.tabGroup;
   }
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
     if (windowProxy.isMasterWindow) {
       edgeInsets.left = safeAreaInset.left;
@@ -1185,7 +1196,7 @@
   if ([self.tab isKindOfClass:[TiWindowProxy class]]) {
     windowProxy = (TiWindowProxy *)self.tab;
   }
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
     if (windowProxy.isMasterWindow) {
       edgeInsets.left = safeAreaInset.left;

@@ -7,6 +7,7 @@
 
 #import "TiViewController.h"
 #import "TiApp.h"
+#import "TiSceneRegistry.h"
 
 @implementation TiViewController
 
@@ -40,8 +41,31 @@
   id object = [_proxy valueForUndefinedKey:@"orientationModes"];
   _supportedOrientations = [TiUtils TiOrientationFlagsFromObject:object];
   if (_supportedOrientations == TiOrientationNone) {
-    _supportedOrientations = [[[TiApp app] controller] getDefaultOrientations];
+    _supportedOrientations = [[[self owningInstance] controller] getDefaultOrientations];
   }
+}
+
+- (TiApp *)owningInstance
+{
+  if (@available(iOS 13.0, *)) {
+    if ([self isViewLoaded]) {
+      UIWindow *window = [self view].window;
+      if (window != nil) {
+        TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
+        if (app != nil) {
+          return app;
+        }
+      }
+    }
+    // View not loaded yet — use proxy's owningInstance (via executionContext.host)
+    if (_proxy != nil && [_proxy respondsToSelector:@selector(owningInstance)]) {
+      TiApp *app = [(id)_proxy owningInstance];
+      if (app != nil && [app isKindOfClass:[TiApp class]]) {
+        return app;
+      }
+    }
+  }
+  return [TiApp app];
 }
 
 - (TiViewProxy *)proxy
@@ -113,7 +137,7 @@
 
 - (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
 {
-  return [[[TiApp app] controller] lastValidOrientation:_supportedOrientations];
+  return [[[self owningInstance] controller] lastValidOrientation:_supportedOrientations];
 }
 
 - (void)loadView
@@ -126,7 +150,7 @@
   // Always wrap proxy view with a wrapperView.
   // This way proxy always has correct sandbox when laying out
   [_proxy parentWillShow];
-  UIView *wrapperView = [[UIView alloc] initWithFrame:UIApplication.sharedApplication.keyWindow.frame];
+  UIView *wrapperView = [[UIView alloc] initWithFrame:[self owningInstance].window.frame];
   wrapperView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [wrapperView addSubview:[_proxy view]];
   [wrapperView bringSubviewToFront:[_proxy view]];
@@ -256,9 +280,9 @@
     return [(id<TiWindowProtocol>)_proxy preferredStatusBarStyle];
   }
 
-  if ([[[TiApp app] controller] topContainerController] != nil) {
+  if ([[[self owningInstance] controller] topContainerController] != nil) {
     // Prefer the style of the most recent view controller.
-    return [[[[TiApp app] controller] topContainerController] preferredStatusBarStyle];
+    return [[[[self owningInstance] controller] topContainerController] preferredStatusBarStyle];
   }
 
   return UIStatusBarStyleDefault;
