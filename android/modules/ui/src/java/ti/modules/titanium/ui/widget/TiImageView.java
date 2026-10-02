@@ -119,9 +119,9 @@ public class TiImageView extends ViewGroup
 
 		// Add or remove RippleDrawable to the image.
 		this.isImageRippleEnabled = value;
-		Bitmap bitmap = getImageBitmap();
-		if (bitmap != null) {
-			setImageBitmap(bitmap);
+		Drawable drawable = getContentDrawable();
+		if (drawable != null) {
+			setImageDrawable(drawable);
 		}
 	}
 
@@ -145,9 +145,9 @@ public class TiImageView extends ViewGroup
 		// Update image's RippleDrawable with given color.
 		this.imageRippleColor = value;
 		if (this.isImageRippleEnabled) {
-			Bitmap bitmap = getImageBitmap();
-			if (bitmap != null) {
-				setImageBitmap(bitmap);
+			Drawable drawable = getContentDrawable();
+			if (drawable != null) {
+				setImageDrawable(drawable);
 			}
 		}
 	}
@@ -157,7 +157,11 @@ public class TiImageView extends ViewGroup
 		return imageView.getDrawable();
 	}
 
-	public Bitmap getImageBitmap()
+	/**
+	 * Gets the image shown by imageView without the RippleDrawable that wraps it.
+	 * @return The image drawable, or null if no image is set.
+	 */
+	private Drawable getContentDrawable()
 	{
 		Drawable drawable = getImageDrawable();
 		if (drawable instanceof RippleDrawable) {
@@ -165,6 +169,12 @@ public class TiImageView extends ViewGroup
 				drawable = ((RippleDrawable) drawable).getDrawable(0);
 			}
 		}
+		return drawable;
+	}
+
+	public Bitmap getImageBitmap()
+	{
+		Drawable drawable = getContentDrawable();
 		if (drawable instanceof BitmapDrawable) {
 			return ((BitmapDrawable) drawable).getBitmap();
 		}
@@ -185,12 +195,22 @@ public class TiImageView extends ViewGroup
 
 		// Apply the image to the view.
 		if (this.isImageRippleEnabled) {
-			BitmapDrawable bitmapDrawable = new BitmapDrawable(this.imageView.getContext().getResources(), bitmap);
-			this.imageView.setImageDrawable(
-				new RippleDrawable(ColorStateList.valueOf(this.imageRippleColor), bitmapDrawable, null));
+			setImageDrawable(new BitmapDrawable(this.imageView.getContext().getResources(), bitmap));
 		} else {
 			this.imageView.setImageBitmap(bitmap);
 		}
+	}
+
+	/**
+	 * Sets a Drawable such as a VectorDrawable as the content of imageView
+	 * @param drawable The drawable to set. If it is null, it will clear the previous image.
+	 */
+	public void setImageDrawable(Drawable drawable)
+	{
+		if ((drawable != null) && this.isImageRippleEnabled) {
+			drawable = new RippleDrawable(ColorStateList.valueOf(this.imageRippleColor), drawable, null);
+		}
+		this.imageView.setImageDrawable(drawable);
 	}
 
 	private void computeBaseMatrix()

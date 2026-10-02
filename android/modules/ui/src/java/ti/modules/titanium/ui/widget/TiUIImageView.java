@@ -34,6 +34,7 @@ import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.ui.ImageViewProxy;
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Handler;
 import android.os.Looper;
@@ -205,6 +206,22 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 		if (view != null) {
 			view.setOrientation(exifOrientation);
 			view.setImageBitmap(bitmap);
+		}
+	}
+
+	private void setImage(final Drawable drawable)
+	{
+		if (!TiApplication.isUIThread()) {
+			TiMessenger.postOnMain(() -> {
+				setImage(drawable);
+			});
+			return;
+		}
+
+		TiImageView view = getView();
+		if (view != null) {
+			view.setOrientation(null);
+			view.setImageDrawable(drawable);
 		}
 	}
 
@@ -661,10 +678,18 @@ public class TiUIImageView extends TiUIView implements OnLifecycleEvent, Handler
 
 		if (imageSources.size() == 1) {
 			TiDrawableReference imageref = imageSources.get(0);
-			if (imageref.getDrawable() instanceof VectorDrawable) {
-				view.setBackground(imageref.getDrawable());
+
+			// A vector has no bitmap to decode. Show it as the image drawable.
+			VectorDrawable vectorDrawable = imageref.getVectorDrawable();
+			if (vectorDrawable != null) {
+				setImage(vectorDrawable);
+				if (!firedLoad) {
+					fireLoad(TiC.PROPERTY_IMAGE);
+					firedLoad = true;
+				}
 				return;
 			}
+
 			// Check if the image is cached in memory
 			var key = imageref.getKey();
 			Bitmap bitmap = TiImageCache.getBitmap(key);
