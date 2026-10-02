@@ -11,13 +11,14 @@ import org.appcelerator.titanium.TiDimension;
 
 import android.view.View;
 import android.view.View.MeasureSpec;
+import android.view.ViewParent;
 
 /**
  * Holds a view's "minWidth", "maxWidth", "minHeight" and "maxHeight" constraints and applies them while measuring.
  * <p>
  * Shared by {@link TiCompositeLayout} and {@link TiBorderWrapperView} so that a view honors the constraints
  * regardless of whether it is wrapped in a border view. Dimensions are resolved to pixels at measure time,
- * which lets percentage values refer to the space the parent is offering.
+ * which lets percentage values refer to the size of the parent, like a percentage based "width" or "height".
  * <p>
  * When a minimum and maximum conflict the minimum wins, matching CSS and the iOS implementation.
  */
@@ -71,14 +72,15 @@ public class TiSizeConstraints
 	 */
 	public int applyToWidthSpec(View view, int widthSpec)
 	{
-		return applyToSpec(widthSpec, resolve(this.minWidth, view, widthSpec), resolve(this.maxWidth, view, widthSpec));
+		return applyToSpec(
+			widthSpec, resolve(this.minWidth, view, widthSpec, true), resolve(this.maxWidth, view, widthSpec, true));
 	}
 
 	/** Height counterpart of {@link #applyToWidthSpec(View, int)}. */
 	public int applyToHeightSpec(View view, int heightSpec)
 	{
-		return applyToSpec(
-			heightSpec, resolve(this.minHeight, view, heightSpec), resolve(this.maxHeight, view, heightSpec));
+		return applyToSpec(heightSpec, resolve(this.minHeight, view, heightSpec, false),
+						   resolve(this.maxHeight, view, heightSpec, false));
 	}
 
 	/**
@@ -90,13 +92,15 @@ public class TiSizeConstraints
 	 */
 	public int clampWidth(View view, int widthSpec, int width)
 	{
-		return clamp(width, resolve(this.minWidth, view, widthSpec), resolve(this.maxWidth, view, widthSpec));
+		return clamp(
+			width, resolve(this.minWidth, view, widthSpec, true), resolve(this.maxWidth, view, widthSpec, true));
 	}
 
 	/** Height counterpart of {@link #clampWidth(View, int, int)}. */
 	public int clampHeight(View view, int heightSpec, int height)
 	{
-		return clamp(height, resolve(this.minHeight, view, heightSpec), resolve(this.maxHeight, view, heightSpec));
+		return clamp(height, resolve(this.minHeight, view, heightSpec, false),
+					 resolve(this.maxHeight, view, heightSpec, false));
 	}
 
 	private static int applyToSpec(int spec, int min, int max)
@@ -132,21 +136,46 @@ public class TiSizeConstraints
 	 * Resolves the given dimension to pixels.
 	 * @param dimension The dimension to resolve. Can be null.
 	 * @param view The view being measured.
-	 * @param spec The spec the parent supplied for this axis. Percentages are relative to its size.
+	 * @param spec The spec the parent supplied for this axis.
+	 * @param isWidth true to resolve along the horizontal axis, false for the vertical axis.
 	 * @return The size in pixels, or -1 if the dimension is null or cannot be resolved.
 	 */
-	private static int resolve(TiDimension dimension, View view, int spec)
+	private static int resolve(TiDimension dimension, View view, int spec, boolean isWidth)
 	{
 		if (dimension == null) {
 			return -1;
 		}
 		if (dimension.isUnitPercent()) {
-			if (MeasureSpec.getMode(spec) == MeasureSpec.UNSPECIFIED) {
+			int relativeSize = getRelativeSize(view, spec, isWidth);
+			if (relativeSize < 0) {
 				return -1;
 			}
-			return (int) Math.round((dimension.getValue() / 100.0) * MeasureSpec.getSize(spec));
+			return (int) Math.floor((dimension.getValue() / 100.0) * relativeSize);
 		}
 		int pixels = dimension.getAsPixels(view);
 		return (pixels < 0) ? -1 : pixels;
+	}
+
+	/**
+	 * Gets the size that a percentage constraint of the given view is relative to.
+	 * <p>
+	 * This is the size the parent layout uses for a percentage based "width" or "height" of its children.
+	 * The given spec cannot be used for this, because it already contains the view's own requested size.
+	 * @param view The view being measured.
+	 * @param spec The spec the parent supplied for this axis. Only used if the parent is not a Titanium layout.
+	 * @param isWidth true to fetch the relative width, false for the relative height.
+	 * @return The size in pixels, or -1 if it is unknown.
+	 */
+	private static int getRelativeSize(View view, int spec, boolean isWidth)
+	{
+		ViewParent parent = view.getParent();
+		if (parent instanceof TiCompositeLayout) {
+			TiCompositeLayout layout = (TiCompositeLayout) parent;
+			return isWidth ? layout.getMeasuredChildRelativeWidth() : layout.getMeasuredChildRelativeHeight();
+		}
+
+		// The parent is not a Titanium layout, such as the root view of a window.
+		// It does not size the view itself, so the spec holds the space that the parent offers.
+		return (MeasureSpec.getMode(spec) == MeasureSpec.UNSPECIFIED) ? -1 : MeasureSpec.getSize(spec);
 	}
 }

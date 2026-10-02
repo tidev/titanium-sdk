@@ -97,6 +97,18 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private int childFillHeight = -1;
 
 	/**
+	 * Pixel width that percentage based lengths of child views were relative to in the last measure pass.
+	 * Negative if unknown, such as when this layout's width is unbounded.
+	 */
+	private int measuredChildRelativeWidth = -1;
+
+	/**
+	 * Pixel height that percentage based lengths of child views were relative to in the last measure pass.
+	 * Negative if unknown, such as when this layout's height is unbounded.
+	 */
+	private int measuredChildRelativeHeight = -1;
+
+	/**
 	 * The last window insets object received by the onApplyWindowInsets() method.
 	 * This object is immutable. Will be null if not received yet or has been cleared.
 	 * Note: This references an Android 5.0 class. Do NOT access it in older Android OS versions.
@@ -292,6 +304,26 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	public int getChildRelativeSizingHeight()
 	{
 		return this.childRelativeSizingHeight;
+	}
+
+	/**
+	 * Gets the width that percentage based lengths of child views were relative to in the last measure pass.
+	 * Child views use this to resolve their percentage based "minWidth" and "maxWidth" while being measured.
+	 * @return Returns the width in pixels. Returns -1 if unknown, such as when this layout's width is unbounded.
+	 */
+	int getMeasuredChildRelativeWidth()
+	{
+		return this.measuredChildRelativeWidth;
+	}
+
+	/**
+	 * Gets the height that percentage based lengths of child views were relative to in the last measure pass.
+	 * Child views use this to resolve their percentage based "minHeight" and "maxHeight" while being measured.
+	 * @return Returns the height in pixels. Returns -1 if unknown, such as when this layout's height is unbounded.
+	 */
+	int getMeasuredChildRelativeHeight()
+	{
+		return this.measuredChildRelativeHeight;
 	}
 
 	/**
@@ -544,7 +576,7 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		// Apply the min/max size constraints to the incoming specs up-front so that children are measured
 		// against the clamped bounds. Clamping only the final measured size would leave children laid out
 		// against the larger bounds, causing them to overflow instead of reflowing.
-		// The parent's original specs are kept since percentage constraints are relative to them.
+		// The parent's original specs are kept for the final clamp of the measured size.
 		int parentWidthSpec = widthMeasureSpec;
 		int parentHeightSpec = heightMeasureSpec;
 		if (this.sizeConstraints != null) {
@@ -562,6 +594,18 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		int wMode = MeasureSpec.getMode(widthMeasureSpec);
 		int h = Math.max(hFromSpec, hSuggested);
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
+
+		// Store the size that percentage based lengths of child views are relative to, following the same
+		// rules as constrainChild(). Children resolve their percentage based min/max size constraints
+		// against it, since the spec they receive already contains their own requested size.
+		this.measuredChildRelativeWidth = this.childRelativeSizingWidth;
+		if ((this.measuredChildRelativeWidth < 0) && (wMode != MeasureSpec.UNSPECIFIED)) {
+			this.measuredChildRelativeWidth = w;
+		}
+		this.measuredChildRelativeHeight = this.childRelativeSizingHeight;
+		if ((this.measuredChildRelativeHeight < 0) && (hMode != MeasureSpec.UNSPECIFIED)) {
+			this.measuredChildRelativeHeight = h;
+		}
 
 		int maxWidth = 0;
 		int maxHeight = 0;

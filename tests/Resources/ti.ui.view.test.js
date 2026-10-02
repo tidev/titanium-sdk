@@ -1550,6 +1550,65 @@ describe('Titanium.UI.View', function () {
 			win.open();
 		});
 
+		// Percentage constraints are relative to the 200x200 parent, not to the view's own fixed or percentage size.
+		[
+			{ title: 'keeps a fixed size below a percentage maximum', size: 60, max: '50%', expected: 60 },
+			{ title: 'caps a fixed size at a percentage maximum', size: 150, max: '50%', expected: 100 },
+			{ title: 'raises a fixed size to a percentage minimum', size: 60, min: '50%', expected: 100 },
+			{ title: 'keeps a fixed size above a percentage minimum', size: 150, min: '50%', expected: 150 },
+			{ title: 'keeps a percentage size below a percentage maximum', size: '25%', max: '50%', expected: 50 },
+			{ title: 'caps a percentage size at a percentage maximum', size: '80%', max: '50%', expected: 100 },
+			{ title: 'raises a percentage size to a percentage minimum', size: '25%', min: '50%', expected: 100 },
+			{ title: 'keeps a percentage size above a percentage minimum', size: '80%', min: '50%', expected: 160 }
+		].forEach(test => {
+			it.android(test.title, finish => {
+				win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+				const parent = Ti.UI.createView({ width: 200, height: 200 });
+				const view = Ti.UI.createView({
+					width: test.size,
+					height: test.size,
+					backgroundColor: 'blue'
+				});
+				if (test.max) {
+					view.maxWidth = test.max;
+					view.maxHeight = test.max;
+				}
+				if (test.min) {
+					view.minWidth = test.min;
+					view.minHeight = test.min;
+				}
+
+				afterLayout(() => {
+					should(view.rect.width).be.approximately(test.expected, 1);
+					should(view.rect.height).be.approximately(test.expected, 1);
+				}, finish);
+				parent.add(view);
+				win.add(parent);
+				win.open();
+			});
+		});
+
+		it.android('keeps a fixed size below a percentage maximum in a bordered view', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const parent = Ti.UI.createView({ width: 200, height: 200 });
+			const view = Ti.UI.createView({
+				width: 60,
+				height: 60,
+				maxWidth: '50%',
+				maxHeight: '50%',
+				borderRadius: 8,
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => {
+				should(view.rect.width).be.approximately(60, 1);
+				should(view.rect.height).be.approximately(60, 1);
+			}, finish);
+			parent.add(view);
+			win.add(parent);
+			win.open();
+		});
+
 		it('is honored by a bordered view', finish => {
 			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
 			const view = Ti.UI.createView({
