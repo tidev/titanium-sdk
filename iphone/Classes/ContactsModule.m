@@ -239,7 +239,7 @@ static NSArray *contactKeysWithoutImage;
     [contactPicker setDisplayedPropertyKeys:pickerFields];
   }
 
-  [[TiApp app] showModalController:contactPicker animated:animated];
+  [[self owningInstance] showModalController:contactPicker animated:animated];
 }
 
 - (TiContactsPerson *)getPersonByIdentifier:(id)arg
@@ -544,7 +544,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
                     withObject:[NSDictionary dictionaryWithObject:person forKey:@"person"]
                       listener:selectedPersonCallback
                     thisObject:nil];
-    [[TiApp app] hideModalController:contactPicker animated:animated];
+    [[self owningInstance] hideModalController:contactPicker animated:animated];
   }
 }
 
@@ -622,7 +622,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
 
     NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:personObject, @"person", property, @"property", result, @"value", label, @"label", nil];
     [self _fireEventToListener:@"selectedProperty" withObject:dict listener:selectedPropertyCallback thisObject:nil];
-    [[TiApp app] hideModalController:contactPicker animated:animated];
+    [[self owningInstance] hideModalController:contactPicker animated:animated];
     return NO;
   }
   return YES;
@@ -630,7 +630,7 @@ MAKE_SYSTEM_PROP(AUTHORIZATION_AUTHORIZED, CNAuthorizationStatusAuthorized);
 
 - (void)contactPickerDidCancel:(nonnull CNContactPickerViewController *)picker
 {
-  [[TiApp app] hideModalController:contactPicker animated:animated];
+  [[self owningInstance] hideModalController:contactPicker animated:animated];
   if (cancelCallback) {
     [self _fireEventToListener:@"cancel" withObject:nil listener:cancelCallback thisObject:nil];
   }

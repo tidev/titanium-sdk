@@ -694,6 +694,9 @@ typedef enum {
  */
 + (UIInterfaceOrientation)interfaceOrientation;
 
+/** Returns the orientation of the specified scene, or unknown when it is nil. */
++ (UIInterfaceOrientation)interfaceOrientationForScene:(UIWindowScene *)scene;
+
 /**
  Whether or not the current OS version is lower than the specified version.
  @param version The version to compare.

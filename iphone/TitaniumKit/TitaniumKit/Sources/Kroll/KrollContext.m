@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "KrollContext.h"
+#import "Bridge.h"
 #import "KrollCallback.h"
 #import "KrollObject.h"
 #import "KrollTimerManager.h"
@@ -101,7 +102,7 @@ static inline void KrollEntryLockPerform(dispatch_block_t block)
 - (void)invoke:(KrollContext *)context
 {
   KrollEntryLockPerform(^{
-    if (target != nil) {
+    if (target != nil && [context running]) {
       [target performSelector:method withObject:obj withObject:context];
     }
     if (condition != NULL) {
@@ -179,15 +180,19 @@ static JSValueRef AlertCallback(JSContextRef jsContext, JSObjectRef jsFunction, 
   KrollContext *ctx = GetKrollContext(jsContext);
   NSString *message = [TiUtils stringValue:[KrollObject toID:ctx value:args[0]]];
 
-  [[[TiApp app] controller] incrementActiveAlertControllerCount];
+  TiApp *owningInstance = (TiApp *)[ctx.delegate host];
+  if (owningInstance == nil) {
+    owningInstance = [TiApp app];
+  }
+  [[owningInstance controller] incrementActiveAlertControllerCount];
 
   UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:UIAlertControllerStyleAlert];
   [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil)
                                             style:UIAlertActionStyleDefault
                                           handler:^(UIAlertAction *_Nonnull action) {
-                                            [[[TiApp app] controller] decrementActiveAlertControllerCount];
+                                            [[owningInstance controller] decrementActiveAlertControllerCount];
                                           }]];
-  [[TiApp app] showModalController:alert animated:YES];
+  [owningInstance showModalController:alert animated:YES];
 
   return JSValueMakeUndefined(jsContext);
 }
@@ -636,8 +641,18 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 #if CONTEXT_MEMORY_DEBUG == 1
   NSLog(@"[DEBUG] DESTROY: %@", self);
 #endif
-  [self stop];
+  stopped = YES;
+  [timerManager invalidateAllTimers];
   RELEASE_TO_NIL(timerManager);
+  if (context != NULL) {
+    [KrollCallback shutdownContext:self];
+    if (appJsKrollContext == self) {
+      appJsKrollContext = nil;
+      appJsContextRef = NULL;
+    }
+    JSGlobalContextRelease(context);
+    context = NULL;
+  }
 }
 
 #if CONTEXT_MEMORY_DEBUG == 1
@@ -688,9 +703,25 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)stop
 {
-  if (!stopped) {
-    stopped = YES;
+  if (stopped) {
+    return;
   }
+  stopped = YES;
+  // A scene can close from a JS callback. Finish that stack before dismantling
+  // its bindings, and retain this context until both delegate callbacks finish.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    KrollEntryLockPerform(^{
+      [timerManager invalidateAllTimers];
+      if ([delegate respondsToSelector:@selector(willStopNewContext:)]) {
+        [delegate willStopNewContext:self];
+      }
+      if ([delegate respondsToSelector:@selector(didStopNewContext:)]) {
+        [delegate didStopNewContext:self];
+      }
+      [self destroy];
+      delegate = nil;
+    });
+  });
 }
 
 - (BOOL)running
@@ -712,10 +743,15 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 {
   KrollEntryLockPerform(^{
     if ([object isKindOfClass:[NSOperation class]]) {
-      [(NSOperation *)object start];
+      if (context != NULL) {
+        [(NSOperation *)object start];
+      }
       return;
     }
-    [object invoke:self];
+    // Invocations must still signal their waiting caller after shutdown.
+    if (!stopped || [object isKindOfClass:[KrollInvocation class]]) {
+      [object invoke:self];
+    }
   });
 }
 
@@ -735,6 +771,9 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (id)evalJSAndWait:(NSString *)code
 {
+  if (stopped || context == NULL) {
+    return nil;
+  }
   KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
   return [eval invokeWithResult:self];
 }
@@ -784,7 +823,9 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (int)forceGarbageCollectNow
 {
-  JSGarbageCollect(context);
+  if (context != NULL) {
+    JSGarbageCollect(context);
+  }
   gcrequest = NO;
   loopCount = 0;
 
@@ -793,6 +834,9 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
 
 - (void)main
 {
+  if (stopped) {
+    return;
+  }
   KrollEntryLockPerform(^{
     context = JSGlobalContextCreate(NULL);
     JSObjectRef globalRef = JSContextGetGlobalObject(context);

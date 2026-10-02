@@ -95,6 +95,7 @@ function loadTests() {
 		require('./ti.app.android.test');
 	} else if (OS_IOS) {
 		require('./ti.app.ios.test');
+		require('./scene.test');
 		require('./ti.app.ios.searchquery.test');
 		require('./ti.app.ios.useractivity.test');
 	}
@@ -208,7 +209,7 @@ function loadTests() {
 	require('./ti.xml.test');
 	// Modules
 	require('./ti.map.test');
-	require('./ti.modulesdk920.test');
+	require('./ti.modulesdk1341.test');
 	if (OS_ANDROID) {
 		require('./ti.playservices.test');
 	}
