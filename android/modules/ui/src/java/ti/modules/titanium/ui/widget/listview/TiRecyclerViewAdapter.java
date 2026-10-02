@@ -117,7 +117,7 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 			return;
 		}
 
-		final var diffResult = DiffUtil.calculateDiff(new DiffCallback(newModelsClone, this.models));
+		final var diffResult = DiffUtil.calculateDiff(new AsyncListDiffer(newModelsClone, this.models));
 
 		// Update models.
 		this.models = newModelsClone;
@@ -129,13 +129,13 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 	/**
 	 * Define DiffUtil.Callback to optimize updating the adapter.
 	 */
-	private class DiffCallback extends DiffUtil.Callback
+	private class AsyncListDiffer extends DiffUtil.Callback
 	{
 
 		List<V> newViews;
 		List<V> oldViews;
 
-		public DiffCallback(List<V> newViews, List<V> oldViews)
+		public AsyncListDiffer(List<V> newViews, List<V> oldViews)
 		{
 			this.newViews = newViews;
 			this.oldViews = oldViews;

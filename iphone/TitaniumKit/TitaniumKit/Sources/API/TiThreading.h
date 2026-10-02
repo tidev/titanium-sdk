@@ -20,10 +20,10 @@
 
 #define ENSURE_UI_THREAD_0_ARGS ENSURE_UI_THREAD_1_ARG(nil)
 
-//TODO: Is there any time where @selector(x:) is not _sel (IE, the called method for 1 arg?
-//Similarly, if we already have x:withObject: as a selector in _sel, could we
-//We may want phase out asking the method explicitly when the compiler can do it for us
-//For now, leaving it unchanged and using _X_ARG(S) to denote no method name used.
+// TODO: Is there any time where @selector(x:) is not _sel (IE, the called method for 1 arg?
+// Similarly, if we already have x:withObject: as a selector in _sel, could we
+// We may want phase out asking the method explicitly when the compiler can do it for us
+// For now, leaving it unchanged and using _X_ARG(S) to denote no method name used.
 
 #define ENSURE_UI_THREAD(x, y)    \
   if (![NSThread isMainThread]) { \
@@ -41,7 +41,7 @@
     return;                                                                                                       \
   }
 
-//TODO: Now that we have TiThreadPerform, we should optimize this out.
+// TODO: Now that we have TiThreadPerform, we should optimize this out.
 #define ENSURE_UI_THREAD_WITH_OBJ(x, y, z)                                         \
   if (![NSThread isMainThread]) {                                                  \
     id o = [NSArray arrayWithObjects:@"" #x, NULL_IF_NIL(y), NULL_IF_NIL(z), nil]; \
@@ -100,4 +100,4 @@
   {                                   \
   }
 
-#endif //VERBOSE
+#endif // VERBOSE

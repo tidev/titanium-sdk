@@ -68,7 +68,6 @@
   return [NSDate new];
 }
 
-#ifdef USE_TI_FILESYSTEMCREATEDAT
 - (NSDate *)createdAt:(id)unused
 {
   NSError *error = nil;
@@ -76,14 +75,13 @@
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
-  // Have to do this one up special because of 3.x bug where NSFileCreationDate is sometimes undefined
-  NSDate *result = [resultDict objectForKey:NSFileCreationDate];
+
+  NSDate *result = [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"CreationDate"]];
   if (result == nil) {
-    result = [resultDict objectForKey:NSFileModificationDate];
+    result = [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"ModificationDate"]];
   }
   return result;
 }
-#endif
 
 - (NSDate *)modificationTimestamp
 {
@@ -97,7 +95,6 @@
   return [NSDate new];
 }
 
-#ifdef USE_TI_FILESYSTEMMODIFIEDAT
 - (NSDate *)modifiedAt:(id)unused
 {
   NSError *error = nil;
@@ -105,9 +102,8 @@
   if (error != nil) {
     [self throwException:TiExceptionOSError subreason:[error localizedDescription] location:CODELOCATION];
   }
-  return [resultDict objectForKey:NSFileModificationDate];
+  return [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"ModificationDate"]];
 }
-#endif
 
 - (NSNumber *)symbolicLink
 {
@@ -151,7 +147,6 @@ FILENOOP(setHidden
   return resultArray;
 }
 
-#ifdef USE_TI_FILESYSTEMSPACEAVAILABLE
 - (NSNumber *)spaceAvailable:(id)unused
 {
   NSError *error = nil;
@@ -160,9 +155,8 @@ FILENOOP(setHidden
     NSLog(@"[ERROR] Could not receive available space: %@", error.localizedDescription);
     return @(0.0);
   }
-  return [resultDict objectForKey:NSFileSystemFreeSize];
+  return [resultDict objectForKey:[self prefixedFileKeyForIdentifier:@"SystemFreeSize"]];
 }
-#endif
 
 - (NSString *)getProtectionKey:(id)args
 {
@@ -377,8 +371,8 @@ FILENOOP(setHidden
   id arg = [args objectAtIndex:0];
 
   if ([arg isKindOfClass:[TiFile class]]) {
-    //allow the ability to append files to another file
-    //e.g. file.append(Ti.Filesystem.getFile('somewhere'));
+    // allow the ability to append files to another file
+    // e.g. file.append(Ti.Filesystem.getFile('somewhere'));
 
     TiFile *file_arg = (TiFile *)arg;
     NSError *err = nil;
@@ -406,7 +400,7 @@ FILENOOP(setHidden
     }
 
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-      //create the file if it doesn't exist already
+      // create the file if it doesn't exist already
       NSError *writeError = nil;
       [data writeToFile:path options:NSDataWritingFileProtectionComplete | NSDataWritingAtomic error:&writeError];
       if (writeError != nil) {
@@ -435,7 +429,7 @@ FILENOOP(setHidden
   ENSURE_TYPE(args, NSArray);
   id arg = [args objectAtIndex:0];
 
-  //Short-circuit against non-supported types
+  // Short-circuit against non-supported types
   if (!([arg isKindOfClass:[TiFile class]] || [arg isKindOfClass:[TiBlob class]]
           || [arg isKindOfClass:[NSString class]])) {
     return NUMBOOL(NO);
@@ -444,8 +438,8 @@ FILENOOP(setHidden
   if ([args count] > 1) {
     ENSURE_TYPE([args objectAtIndex:1], NSNumber);
 
-    //We have a second argument, is it truthy?
-    //If yes, we'll hand the args to -append:
+    // We have a second argument, is it truthy?
+    // If yes, we'll hand the args to -append:
     NSNumber *append = [args objectAtIndex:1];
     if ([append boolValue]) {
       return [self append:[args subarrayWithRange:NSMakeRange(0, 1)]];
@@ -597,6 +591,12 @@ FILENOOP(setHidden
   }
 
   return success;
+}
+
+// Utility method to construct enums to access the filesystem
+- (NSString *)prefixedFileKeyForIdentifier:(NSString *)identifier
+{
+  return [@"NSFile" stringByAppendingString:identifier];
 }
 
 @end

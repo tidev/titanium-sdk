@@ -7,9 +7,12 @@
 
 import TitaniumKit
 #if canImport(ActivityKit)
+#if !targetEnvironment(macCatalyst)
 import ActivityKit
 #endif
+#endif
 
+#if !targetEnvironment(macCatalyst)
 extension TiAppiOSActivityAttributesProxy {
 
   @objc(_startActivity:)
@@ -34,3 +37,4 @@ extension TiAppiOSActivityAttributesProxy {
 #endif
   }
 }
+#endif

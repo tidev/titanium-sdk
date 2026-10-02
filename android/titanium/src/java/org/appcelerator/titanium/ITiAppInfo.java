@@ -15,7 +15,6 @@ public interface ITiAppInfo {
 	String getCopyright();
 	String getDescription();
 	String getIcon();
-	boolean isAnalyticsEnabled();
 	String getGUID();
 	boolean isFullscreen();
 	String getDeployType();

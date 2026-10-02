@@ -26,7 +26,7 @@
 @property (nonatomic, readwrite, assign) id<TiUIListViewDelegate> delegate;
 @property (nonatomic, readwrite, assign) NSUInteger sectionIndex;
 
-// Private API. Used by ListView directly. Not for public comsumption
+// Private API. Used by ListView directly. Not for public consumption
 - (NSDictionary *)itemAtIndex:(NSUInteger)index;
 - (void)deleteItemAtIndex:(NSUInteger)index;
 - (void)addItem:(NSDictionary *)item atIndex:(NSUInteger)index;

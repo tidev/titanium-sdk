@@ -6,6 +6,8 @@
  */
 package ti.modules.titanium.ui;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
@@ -15,7 +17,6 @@ import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.TiUIText;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -36,6 +37,7 @@ import android.app.Activity;
 		TiC.PROPERTY_HINT_TEXT,
 		TiC.PROPERTY_HINT_TEXT_COLOR,
 		TiC.PROPERTY_HINT_TYPE,
+		TiC.PROPERTY_HTML,
 		TiC.PROPERTY_KEYBOARD_TYPE,
 		TiC.PROPERTY_LINES,
 		TiC.PROPERTY_MAX_LINES,
@@ -46,7 +48,7 @@ import android.app.Activity;
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_PADDING,
 		TiC.PROPERTY_RETURN_KEY_TYPE
-})
+	})
 public class TextAreaProxy extends TiViewProxy
 {
 	public TextAreaProxy()

@@ -17,7 +17,6 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/TiBase.h>
 
 #import <TitaniumKit/APIModule.h>
-#import <TitaniumKit/APSAnalytics.h>
 #import <TitaniumKit/APSHTTPClient.h>
 #import <TitaniumKit/ImageLoader.h>
 #import <TitaniumKit/JSValue+Addons.h>
@@ -44,6 +43,8 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/TiLogServer.h>
 #import <TitaniumKit/TiModule.h>
 #import <TitaniumKit/TiProxy.h>
+#import <TitaniumKit/TiSceneProxy.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiSharedConfig.h>
 #import <TitaniumKit/TiStreamProxy.h>
 #import <TitaniumKit/TiTabGroup.h>
@@ -54,6 +55,7 @@ FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 #import <TitaniumKit/TiUIiOSTransitionAnimationProxy.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/TiWindow.h>
 #import <TitaniumKit/UIImage+Alpha.h>
 #import <TitaniumKit/UIImage+Resize.h>
 #import <TitaniumKit/UIImage+RoundedCorner.h>

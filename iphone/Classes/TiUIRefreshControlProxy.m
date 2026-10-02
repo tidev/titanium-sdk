@@ -28,7 +28,7 @@
 #pragma mark - Internal Use
 - (UIRefreshControl *)control
 {
-  //Must be called on main thread
+  // Must be called on main thread
   if (_refreshControl == nil) {
     _refreshControl = [UIRefreshControl new];
     [_refreshControl addTarget:self action:@selector(refreshingDidStart) forControlEvents:UIControlEventValueChanged];
@@ -56,14 +56,16 @@
 - (void)setTitle:(id)value
 {
 #if defined(USE_TI_UIATTRIBUTEDSTRING) || defined(USE_TI_UIIOSATTRIBUTEDSTRING)
-  ENSURE_SINGLE_ARG_OR_NIL(value, TiUIAttributedStringProxy);
-  [self replaceValue:value forKey:@"title" notification:NO];
+  TiUIAttributedStringProxy *as = [TiUIAttributedStringProxy fromProperties:value];
+  if (as) {
+    [self replaceValue:as forKey:@"title" notification:NO];
 
-  TiThreadPerformOnMainThread(
-      ^{
-        [[self control] setAttributedTitle:[(TiUIAttributedStringProxy *)value attributedString]];
-      },
-      NO);
+    TiThreadPerformOnMainThread(
+        ^{
+          [[self control] setAttributedTitle:[(TiUIAttributedStringProxy *)as attributedString]];
+        },
+        NO);
+  }
 #endif
 }
 

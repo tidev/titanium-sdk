@@ -20,11 +20,10 @@
 {
   if (store == nil) {
     store = [[EKEventStore alloc] init];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventStoreChanged:) name:EKEventStoreChangedNotification object:nil];
   }
   if (store == NULL) {
     DebugLog(@"[WARN] Could not access EventStore. ");
-  } else {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(eventStoreChanged:) name:EKEventStoreChangedNotification object:nil];
   }
   return store;
 }
@@ -146,8 +145,8 @@ GETTER_IMPL(NSArray<TiCalendarCalendar *> *, allEditableCalendars, AllEditableCa
   }
   EKCalendar *calendar_ = NULL;
 
-  //Instead of getting calendar by identifier, have to get all and check for match
-  //not optimal but best way to fix non existing shared calendar error
+  // Instead of getting calendar by identifier, have to get all and check for match
+  // not optimal but best way to fix non existing shared calendar error
   NSArray *allCalendars = [ourStore calendarsForEntityType:EKEntityTypeEvent];
   for (EKCalendar *cal in allCalendars) {
     if ([cal.calendarIdentifier isEqualToString:calendarId]) {
