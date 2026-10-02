@@ -59,6 +59,7 @@ public class ListItemProxy extends TiViewProxy
 	private boolean hasAddedItemEvents = false;
 	private boolean selected = false;
 	private boolean preventRecycling = false;
+	private ListViewHolder nonRecyclableHolder = null;
 	private String cachedSearchableTextLower = null;
 
 	public ListItemProxy()
@@ -542,9 +543,7 @@ public class ListItemProxy extends TiViewProxy
 	public void setHolder(ListViewHolder holder)
 	{
 		this.holder = holder;
-		if (preventRecycling) {
-			preventRecycling();
-		}
+		updateRecyclable();
 	}
 
 	/**
@@ -845,6 +844,7 @@ public class ListItemProxy extends TiViewProxy
 
 		if (name.equals("preventRecycling")) {
 			preventRecycling = TiConvert.toBoolean(value, false);
+			updateRecyclable();
 		}
 	}
 
@@ -878,6 +878,7 @@ public class ListItemProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		this.holder = null;
+		updateRecyclable();
 
 		super.releaseViews();
 	}
@@ -929,14 +930,22 @@ public class ListItemProxy extends TiViewProxy
 	}
 
 	/**
-	 * Set isRecyclable for item.
-	 *
-	 * @param value Boolean value
+	 * Apply `preventRecycling` to the current holder.
+	 * `setIsRecyclable()` is reference-counted, so only call it when the target holder changes
+	 * and restore the previous holder.
 	 */
-	private void preventRecycling()
+	private void updateRecyclable()
 	{
-		if (this.holder != null) {
-			this.holder.setIsRecyclable(false);
+		final ListViewHolder target = this.preventRecycling ? this.holder : null;
+		if (this.nonRecyclableHolder == target) {
+			return;
 		}
+		if (this.nonRecyclableHolder != null) {
+			this.nonRecyclableHolder.setIsRecyclable(true);
+		}
+		if (target != null) {
+			target.setIsRecyclable(false);
+		}
+		this.nonRecyclableHolder = target;
 	}
 }
