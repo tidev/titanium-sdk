@@ -6,10 +6,10 @@
  */
 package ti.modules.titanium.ui;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import android.app.Activity;
+import android.os.Message;
 
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
@@ -17,9 +17,11 @@ import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.view.TiUIView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import ti.modules.titanium.ui.widget.TiUIScrollableView;
-import android.app.Activity;
-import android.os.Message;
 
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
@@ -27,12 +29,13 @@ import android.os.Message;
 		TiC.PROPERTY_CLIP_VIEWS,
 		TiC.PROPERTY_PADDING,
 		TiC.PROPERTY_SHOW_PAGING_CONTROL,
-		TiC.PROPERTY_OVER_SCROLL_MODE
-})
+		TiC.PROPERTY_OVER_SCROLL_MODE,
+		TiC.PROPERTY_SCROLL_TYPE
+	})
 public class ScrollableViewProxy extends TiViewProxy
 {
+	public static final int MIN_CACHE_SIZE = 3;
 	private static final String TAG = "TiScrollableView";
-
 	private static final int MSG_FIRST_ID = TiViewProxy.MSG_LAST_ID + 1;
 	public static final int MSG_HIDE_PAGER = MSG_FIRST_ID + 101;
 	public static final int MSG_MOVE_PREV = MSG_FIRST_ID + 102;
@@ -41,12 +44,9 @@ public class ScrollableViewProxy extends TiViewProxy
 	public static final int MSG_SET_CURRENT = MSG_FIRST_ID + 107;
 	public static final int MSG_SET_ENABLED = MSG_FIRST_ID + 109;
 	public static final int MSG_LAST_ID = MSG_FIRST_ID + 999;
-
 	private static final int DEFAULT_PAGING_CONTROL_TIMEOUT = 3000;
-	public static final int MIN_CACHE_SIZE = 3;
-
 	protected AtomicBoolean inScroll;
-	private List<TiViewProxy> views = new ArrayList<>();
+	private final List<TiViewProxy> views = new ArrayList<>();
 	private TiUIScrollableView scrollableView;
 
 	public ScrollableViewProxy()
@@ -153,8 +153,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		this.views.clear();
 		if (views instanceof Object[]) {
 			for (final Object nextObject : (Object[]) views) {
-				if (nextObject instanceof TiViewProxy) {
-					TiViewProxy view = (TiViewProxy) nextObject;
+				if (nextObject instanceof TiViewProxy view) {
 					if (!this.views.contains(view)) {
 						view.setActivity(getActivity());
 						view.setParent(this);
@@ -206,8 +205,7 @@ public class ScrollableViewProxy extends TiViewProxy
 	@Kroll.method
 	public void insertViewsAt(int insertIndex, Object viewObject)
 	{
-		if (viewObject instanceof TiViewProxy) {
-			final TiViewProxy view = (TiViewProxy) viewObject;
+		if (viewObject instanceof TiViewProxy view) {
 
 			if (!this.views.contains(view)) {
 				view.setActivity(getActivity());
@@ -215,8 +213,7 @@ public class ScrollableViewProxy extends TiViewProxy
 				this.views.add(insertIndex, view);
 			}
 
-		} else if (viewObject instanceof Object[]) {
-			Object[] views = (Object[]) viewObject;
+		} else if (viewObject instanceof Object[] views) {
 
 			for (int i = 0; i < views.length; i++) {
 				insertViewsAt(insertIndex, views[i]);
@@ -238,8 +235,7 @@ public class ScrollableViewProxy extends TiViewProxy
 		if (viewObject instanceof Number) {
 			this.views.remove((int) viewObject);
 
-		} else if (viewObject instanceof TiViewProxy) {
-			final TiViewProxy view = (TiViewProxy) viewObject;
+		} else if (viewObject instanceof TiViewProxy view) {
 
 			this.views.remove(view);
 
@@ -314,8 +310,9 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_DRAGEND, options);
 		}
-		// TODO: Deprecate old event
+
 		if (hasListeners("dragEnd")) {
+			Log.w(TAG, "dragEnd is deprecated.  Use " + TiC.EVENT_DRAGEND + " instead.");
 			KrollDict options = new KrollDict();
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
@@ -331,8 +328,9 @@ public class ScrollableViewProxy extends TiViewProxy
 			options.put("currentPage", currentPage);
 			fireEvent(TiC.EVENT_SCROLLEND, options);
 		}
-		// TODO: Deprecate old event
+
 		if (hasListeners("scrollEnd")) {
+			Log.w(TAG, "scrollEnd is deprecated.  Use " + TiC.EVENT_SCROLLEND + " instead.");
 			KrollDict options = new KrollDict();
 			options.put("view", currentView);
 			options.put("currentPage", currentPage);
@@ -351,6 +349,13 @@ public class ScrollableViewProxy extends TiViewProxy
 		}
 	}
 
+	@Kroll.getProperty
+	public boolean getScrollingEnabled()
+	{
+		return (scrollableView != null) ? scrollableView.getEnabled()
+			: getProperties().optBoolean(TiC.PROPERTY_SCROLLING_ENABLED, true);
+	}
+
 	@Kroll.setProperty
 	public void setScrollingEnabled(boolean value)
 	{
@@ -358,11 +363,12 @@ public class ScrollableViewProxy extends TiViewProxy
 			scrollableView.setEnabled(value);
 		}
 	}
+
 	@Kroll.getProperty
-	public boolean getScrollingEnabled()
+	public int getCurrentPage()
 	{
-		return (scrollableView != null) ? scrollableView.getEnabled()
-			: getProperties().optBoolean(TiC.PROPERTY_SCROLLING_ENABLED, true);
+		return (scrollableView != null) ? scrollableView.getCurrentPage()
+			: getProperties().optInt(TiC.PROPERTY_CURRENT_PAGE, 0);
 	}
 
 	@Kroll.setProperty
@@ -373,13 +379,6 @@ public class ScrollableViewProxy extends TiViewProxy
 		if (scrollableView != null) {
 			scrollableView.setCurrentPage(currentPage);
 		}
-	}
-
-	@Kroll.getProperty
-	public int getCurrentPage()
-	{
-		return (scrollableView != null) ? scrollableView.getCurrentPage()
-			: getProperties().optInt(TiC.PROPERTY_CURRENT_PAGE, 0);
 	}
 
 	@Override

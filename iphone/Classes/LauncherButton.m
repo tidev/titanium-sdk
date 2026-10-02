@@ -65,7 +65,7 @@
 {
   UIView *superResult = [super hitTest:point withEvent:event];
   if (!editing && (superResult == self)) {
-    //TIMOB-11275 Ignore all touches if not in button frame and not editing
+    // TIMOB-11275 Ignore all touches if not in button frame and not editing
     CGRect buttonFrame = [button frame];
     if (CGRectContainsPoint(buttonFrame, point)) {
       return superResult;

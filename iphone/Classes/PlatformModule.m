@@ -223,10 +223,12 @@ GETTER_IMPL(NSString *, locale, Locale);
 }
 GETTER_IMPL(NSString *, macaddress, Macaddress);
 
+#ifdef USE_TI_PLATFORMUPTIME
 - (NSNumber *)uptime
 {
   return [NSNumber numberWithDouble:[[NSProcessInfo processInfo] systemUptime]];
 }
+#endif
 
 - (NSString *)identifierForVendor
 {
@@ -340,7 +342,7 @@ GETTER_IMPL(NSNumber *, availableMemory, AvailableMemory);
     optionsDict = [options toDictionary];
   }
   // Ensure callback is actually a function. If not, make it nil so we don't fire it
-  // Since callback is optional, this may be a JSValue representing 'undefined' here wich is not nil
+  // Since callback is optional, this may be a JSValue representing 'undefined' here which is not nil
   // So we need this special guard
   if (![callback isFunction]) {
     callback = nil;

@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-'use strict';
 
-const fs = require('fs-extra');
-const path = require('path');
+import fs from 'fs-extra';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 let topTiModule = path.join(__dirname, '..', 'iphone/TitaniumKit/TitaniumKit/Sources/API/TopTiModule.m');
 if (process.argv.length >= 3) {
 	topTiModule = process.argv[2];

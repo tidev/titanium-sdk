@@ -6,13 +6,14 @@
  */
 package ti.modules.titanium.ui.android;
 
+import android.app.Activity;
+
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.widget.searchview.TiUISearchView;
-import android.app.Activity;
 
 @Kroll.proxy(creatableInModule = AndroidModule.class,
 	propertyAccessors = {
@@ -22,7 +23,7 @@ import android.app.Activity;
 		TiC.PROPERTY_HINT_TEXT,
 		TiC.PROPERTY_HINT_TEXT_COLOR,
 		TiC.PROPERTY_VALUE
-})
+	})
 public class SearchViewProxy extends TiViewProxy
 {
 	private static final String TAG = "SearchProxy";

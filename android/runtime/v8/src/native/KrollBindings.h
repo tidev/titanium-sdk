@@ -79,7 +79,7 @@ public:
 
 	/**
 	 * The JS callback. Used when we call kroll.externalBinding('name') in JS code.
-	 * This looks up 'external' bindings specifically (i.e. it won't look at the natives/titanium proxies)
+	 * This looks up 'external' bindings specifically (e.g. it won't look at the natives/titanium proxies)
 	 *
 	 * @param args Function arguments
 	 */

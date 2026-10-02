@@ -22,15 +22,12 @@ import ti.modules.titanium.ui.widget.TiUIProgressIndicator;
 import ti.modules.titanium.ui.widget.webview.TiUIWebView;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 
-import androidx.annotation.ColorInt;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 
 import com.google.android.material.color.MaterialColors;
@@ -253,6 +250,15 @@ public class AndroidModule extends KrollModule
 	@Kroll.constant
 	public static final int SCROLL_FLAG_SNAP_MARGINS = 32;
 
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_DEFAULT = 0;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_VERTICAL = 1;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_HORIZONTAL = 2;
+	@Kroll.constant
+	public static final int WEBVIEW_SCROLLBARS_HIDE_ALL = 3;
+
 	public AndroidModule()
 	{
 		super();
@@ -298,27 +304,7 @@ public class AndroidModule extends KrollModule
 	@Kroll.method
 	public ColorProxy getColorResource(Object idOrName)
 	{
-		try {
-			// Color by resource id
-			if (idOrName instanceof Number) {
-				int colorResId = ((Number) idOrName).intValue();
-				Context context = TiApplication.getAppRootOrCurrentActivity();
-				if (context == null) {
-					context = TiApplication.getInstance();
-				}
-				@ColorInt int packedColorInt = ContextCompat.getColor(context, colorResId);
-				return new ColorProxy(packedColorInt);
-			}
-			// Color by name
-			String colorName = idOrName.toString();
-			if (TiColorHelper.hasColorResource(colorName)) {
-				@ColorInt int packedColorInt = TiColorHelper.getColorResource(colorName);
-				return new ColorProxy(packedColorInt);
-			}
-		} catch (Exception e) {
-			// ignore
-		}
-		return null;
+		return TiColorHelper.getColorProxy(idOrName);
 	}
 
 	@Kroll.method
@@ -327,6 +313,11 @@ public class AndroidModule extends KrollModule
 		int color = TiConvert.toColor(value, TiApplication.getAppCurrentActivity());
 		return String.format("#%06X",
 			(0xFFFFFF & MaterialColors.harmonizeWithPrimary(TiApplication.getAppCurrentActivity(), color)));
+	}
+	@Kroll.method
+	public void moveToBackground()
+	{
+		TiApplication.getAppRootOrCurrentActivity().moveTaskToBack(true);
 	}
 
 	@Override

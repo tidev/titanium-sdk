@@ -110,7 +110,7 @@ describe.windowsBroken('Core', () => {
 				should(createBuffer).be.a.Function();
 
 				// Attempt to call static method.
-				const result = createBuffer({}); // ios fails with: "self type check failed for Objective-C instance method"
+				const result = createBuffer({}); // iOS fails with: "self type check failed for Objective-C instance method"
 				should(result).be.a.Object();
 			});
 		});

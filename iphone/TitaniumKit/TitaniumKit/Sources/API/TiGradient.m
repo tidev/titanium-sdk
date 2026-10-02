@@ -52,7 +52,7 @@
     } else {
       tempOffsets = NULL;
     }
-    //TODO: Between these extremes, we should do intelligent gradient computation.
+    // TODO: Between these extremes, we should do intelligent gradient computation.
 
     cachedGradient = CGGradientCreateWithColors(rgb, colorValues, tempOffsets);
 
@@ -189,7 +189,7 @@
     }
 
     CGColorSpaceRef colorspace = CGColorGetColorSpace([thisColor CGColor]);
-    if (CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelMonochrome) //Colorize this! Where's Ted Turner?
+    if (CGColorSpaceGetModel(colorspace) == kCGColorSpaceModelMonochrome) // Colorize this! Where's Ted Turner?
     {
       const CGFloat *components = CGColorGetComponents([thisColor CGColor]);
       thisColor = [UIColor colorWithRed:components[0]

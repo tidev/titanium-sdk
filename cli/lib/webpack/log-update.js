@@ -4,14 +4,14 @@
  * @see https://github.com/nuxt/webpackbar/blob/894a16bcb000c448570ccdc96ddd9a5cef9dfc95/src/utils/log-update.js
  */
 
-const ansiEscapes = require('ansi-escapes');
-const wrapAnsi = require('wrap-ansi');
+import ansiEscapes from 'ansi-escapes';
+import wrapAnsi from 'wrap-ansi';
 
-// Based on https://github.com/sindresorhus/log-update/blob/master/index.js
+// Based on https://github.com/sindresorhus/log-update/blob/main/index.js
 
 const originalWrite = Symbol('webpackbarWrite');
 
-class LogUpdate {
+export class LogUpdate {
 	constructor () {
 		this.prevLineCount = 0;
 		this.listening = false;
@@ -116,5 +116,3 @@ class LogUpdate {
 		this.listening = false;
 	}
 }
-
-module.exports = LogUpdate;

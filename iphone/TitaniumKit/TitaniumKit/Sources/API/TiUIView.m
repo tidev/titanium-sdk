@@ -21,19 +21,20 @@ void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, C
 {
   VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f", scrollView, keyboardTop, minimumContentHeight);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
-  //First, find out how much we have to compensate.
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
+  // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
-  //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+  // ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
 
   CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight, 0);
-  //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+  // It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
 
-  //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+  // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   CGFloat bottomInset = MAX(0, obscuredHeight - unimportantArea);
-  [scrollView setContentInset:UIEdgeInsetsMake(0, 0, bottomInset, 0)];
+  UIEdgeInsets existingInsets = [scrollView contentInset];
+  [scrollView setContentInset:UIEdgeInsetsMake(existingInsets.top, existingInsets.left, bottomInset, existingInsets.right)];
 
   CGPoint offset = [scrollView contentOffset];
 
@@ -53,15 +54,15 @@ void OffsetScrollViewForRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFl
       scrollView, keyboardTop, minimumContentHeight,
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
-  //First, find out how much we have to compensate.
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
+  // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
-  //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+  // ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
 
-  //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+  // It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
 
-  //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+  // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   VerboseLog(@"ScrollVisibleRect(%f,%f),%fx%f; obscuredHeight:%f;",
       scrollVisibleRect.origin.x, scrollVisibleRect.origin.y, scrollVisibleRect.size.width, scrollVisibleRect.size.height,
@@ -69,7 +70,7 @@ void OffsetScrollViewForRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFl
 
   scrollVisibleRect.size.height -= MAX(0, obscuredHeight);
 
-  //Okay, the scrollVisibleRect.size now represents the actually visible area.
+  // Okay, the scrollVisibleRect.size now represents the actually visible area.
 
   CGPoint offsetPoint = [scrollView contentOffset];
 
@@ -97,16 +98,16 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
       scrollView, keyboardTop, minimumContentHeight,
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
-  //First, find out how much we have to compensate.
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
+  // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
-  //ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
+  // ObscuredHeight is how many vertical pixels the keyboard obscures of the scroll view. Some of this may be acceptable.
 
   CGFloat unimportantArea = MAX(scrollVisibleRect.size.height - minimumContentHeight, 0);
-  //It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
+  // It's possible that some of the covered area doesn't matter. If it all matters, unimportant is 0.
 
-  //As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
+  // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   [scrollView setContentInset:UIEdgeInsetsMake(0, 0, MAX(0, obscuredHeight - unimportantArea), 0)];
 
@@ -116,7 +117,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
 
   scrollVisibleRect.size.height -= MAX(0, obscuredHeight);
 
-  //Okay, the scrollVisibleRect.size now represents the actually visible area.
+  // Okay, the scrollVisibleRect.size now represents the actually visible area.
 
   CGPoint offsetPoint = [scrollView contentOffset];
 
@@ -181,11 +182,14 @@ DEFINE_EXCEPTIONS
   [doubleTapRecognizer release];
   [twoFingerTapRecognizer release];
   [pinchRecognizer release];
+  [rotationRecognizer release];
   [leftSwipeRecognizer release];
   [rightSwipeRecognizer release];
   [upSwipeRecognizer release];
   [downSwipeRecognizer release];
   [longPressRecognizer release];
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
   proxy = nil;
   touchDelegate = nil;
   [super dealloc];
@@ -219,6 +223,8 @@ DEFINE_EXCEPTIONS
 {
   self = [super init];
   if (self != nil) {
+    hasStoredBackgroundForSelectionHighlight = NO;
+    backgroundSelectedHighlightTouchCount = 0;
   }
   return self;
 }
@@ -241,6 +247,9 @@ DEFINE_EXCEPTIONS
   if ([(TiViewProxy *)proxy _hasListeners:@"pinch"]) {
     [[self gestureRecognizerForEvent:@"pinch"] setEnabled:YES];
   }
+  if ([(TiViewProxy *)proxy _hasListeners:@"rotate"]) {
+    [[self gestureRecognizerForEvent:@"rotate"] setEnabled:YES];
+  }
   if ([(TiViewProxy *)proxy _hasListeners:@"longpress"]) {
     [[self gestureRecognizerForEvent:@"longpress"] setEnabled:YES];
   }
@@ -253,6 +262,7 @@ DEFINE_EXCEPTIONS
       [proxy _hasListeners:@"twofingertap"] ||
       [proxy _hasListeners:@"swipe"] ||
       [proxy _hasListeners:@"pinch"] ||
+      [proxy _hasListeners:@"rotate"] ||
       [proxy _hasListeners:@"longpress"];
 }
 
@@ -275,6 +285,93 @@ DEFINE_EXCEPTIONS
   // not it handles events, and if not, set it to the interaction default.
   if (!changedInteraction) {
     self.userInteractionEnabled = handlesTouches || [self interactionDefault];
+  }
+}
+
+#pragma mark Background Selected Highlight
+
+- (UIColor *)resolvedBackgroundSelectedColor
+{
+  if (backgroundSelectedColor != nil) {
+    return [backgroundSelectedColor _color];
+  }
+
+  return nil;
+}
+
+- (BOOL)shouldApplyBackgroundSelectedHighlight
+{
+  return backgroundSelectedColor != nil;
+}
+
+- (void)refreshBackgroundSelectedHighlight
+{
+  UIColor *color = [self resolvedBackgroundSelectedColor];
+  if (color == nil) {
+    return;
+  }
+
+  [super setBackgroundColor:color];
+}
+
+- (void)applyBackgroundSelectedHighlightWithAdditionalTouches:(NSUInteger)touchCount
+{
+  if (![self shouldApplyBackgroundSelectedHighlight]) {
+    return;
+  }
+
+  if (touchCount == 0 && !hasStoredBackgroundForSelectionHighlight) {
+    return;
+  }
+
+  if (!hasStoredBackgroundForSelectionHighlight) {
+    hasStoredBackgroundForSelectionHighlight = YES;
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
+    }
+  }
+
+  [self refreshBackgroundSelectedHighlight];
+
+  if (touchCount > 0) {
+    backgroundSelectedHighlightTouchCount += touchCount;
+  }
+}
+
+- (void)restoreBackgroundSelectedHighlight
+{
+  if (!hasStoredBackgroundForSelectionHighlight) {
+    return;
+  }
+
+  if (backgroundSelectedPreviousBackgroundColor != nil) {
+    [super setBackgroundColor:backgroundSelectedPreviousBackgroundColor];
+  } else {
+    [super setBackgroundColor:nil];
+  }
+
+  RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+  hasStoredBackgroundForSelectionHighlight = NO;
+  backgroundSelectedHighlightTouchCount = 0;
+}
+
+- (void)decrementBackgroundSelectedTouches:(NSUInteger)touchCount
+{
+  if (touchCount == 0) {
+    return;
+  }
+
+  if (backgroundSelectedHighlightTouchCount <= touchCount) {
+    backgroundSelectedHighlightTouchCount = 0;
+  } else {
+    backgroundSelectedHighlightTouchCount -= touchCount;
+  }
+
+  if (backgroundSelectedHighlightTouchCount == 0) {
+    [self restoreBackgroundSelectedHighlight];
   }
 }
 
@@ -366,6 +463,16 @@ DEFINE_EXCEPTIONS
       [self setBackgroundGradient_:backgroundGradient];
     }
   }
+
+  // Redraw the background image so a dark-mode rendition from the asset catalog is picked up
+  id backgroundImageValue = [self.proxy valueForKey:@"backgroundImage"];
+  if (backgroundImageValue != nil && backgroundImage != nil) {
+    [self setBackgroundImage_:backgroundImageValue];
+  }
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self refreshBackgroundSelectedHighlight];
+  }
 }
 
 #pragma mark - Accessibility API
@@ -449,7 +556,7 @@ DEFINE_EXCEPTIONS
   CGRect newBounds = [self bounds];
   if (!CGSizeEqualToSize(oldSize, newBounds.size)) {
     oldSize = newBounds.size;
-    //TIMOB-11197, TC-1264
+    // TIMOB-11197, TC-1264
     if (!animating) {
       [CATransaction begin];
       [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
@@ -539,6 +646,8 @@ DEFINE_EXCEPTIONS
     _borderLayer.fillColor = UIColor.clearColor.CGColor;
     _borderLayer.strokeColor = self.layer.borderColor;
     _borderLayer.lineWidth = self.layer.borderWidth * 2;
+    self.layer.borderColor = nil;
+    self.layer.borderWidth = 0;
     [self.layer addSublayer:_borderLayer];
   }
   return _borderLayer;
@@ -598,6 +707,15 @@ DEFINE_EXCEPTIONS
     TiColor *ticolor = [TiUtils colorValue:color];
     super.backgroundColor = [ticolor _color];
   }
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    RELEASE_TO_NIL(backgroundSelectedPreviousBackgroundColor);
+    UIColor *currentColor = self.backgroundColor;
+    if (currentColor != nil) {
+      backgroundSelectedPreviousBackgroundColor = [currentColor retain];
+    }
+    [self refreshBackgroundSelectedHighlight];
+  }
 }
 
 - (void)setTooltip_:(id)value
@@ -629,6 +747,18 @@ DEFINE_EXCEPTIONS
 //   background colors everywhere - and this starts getting really complicated for some views
 //   (on the off chance somebody wants to swap tesselation AND has a background color they want to replace it with).
 
+// Images loaded via [UIImage imageNamed:] from the asset catalog can carry light/dark
+// renditions. UIImageView resolves them automatically, but we render into a CALayer via
+// CGImage, so we have to resolve the rendition against this view's trait collection ourselves.
+- (UIImage *)resolveDynamicImage:(UIImage *)image
+{
+  if (image == nil || image.imageAsset == nil) {
+    return image;
+  }
+  UIImage *resolved = [image.imageAsset imageWithTraitCollection:self.traitCollection];
+  return resolved != nil ? resolved : image;
+}
+
 - (void)renderRepeatedBackground:(id)image
 {
   if (![NSThread isMainThread]) {
@@ -640,7 +770,7 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
   if (bgImage == nil) {
     [self backgroundImageLayer].contents = nil;
     return;
@@ -678,7 +808,7 @@ DEFINE_EXCEPTIONS
   }];
 
   if (renderedBg == nil) {
-    //TIMOB-11564. Either width or height of the bounds is zero
+    // TIMOB-11564. Either width or height of the bounds is zero
     return;
   }
 
@@ -687,7 +817,7 @@ DEFINE_EXCEPTIONS
 
 - (void)setBackgroundImage_:(id)image
 {
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
 
   if (bgImage == nil) {
     [bgdImageLayer removeFromSuperlayer];
@@ -909,7 +1039,7 @@ DEFINE_EXCEPTIONS
 {
   BOOL oldVal = self.hidden;
   self.hidden = ![TiUtils boolValue:visible];
-  //Redraw ourselves if changing from invisible to visible, to handle any changes made
+  // Redraw ourselves if changing from invisible to visible, to handle any changes made
   if (!self.hidden && oldVal) {
     TiViewProxy *viewProxy = (TiViewProxy *)[self proxy];
     [viewProxy willEnqueue];
@@ -920,6 +1050,39 @@ DEFINE_EXCEPTIONS
 {
   self.userInteractionEnabled = [TiUtils boolValue:arg def:[self interactionDefault]];
   changedInteraction = YES;
+}
+
+- (void)setBackgroundSelectedColor_:(id)value
+{
+  if (value == nil || value == [NSNull null]) {
+    if (backgroundSelectedColor != nil) {
+      RELEASE_TO_NIL(backgroundSelectedColor);
+      if (hasStoredBackgroundForSelectionHighlight) {
+        [self restoreBackgroundSelectedHighlight];
+      }
+    }
+    return;
+  }
+
+  TiColor *color = [TiUtils colorValue:value];
+  if (color == nil) {
+    return;
+  }
+
+  if (backgroundSelectedColor != nil) {
+    UIColor *existingColor = [backgroundSelectedColor _color];
+    UIColor *newColor = [color _color];
+    if (existingColor != nil && newColor != nil && CGColorEqualToColor(existingColor.CGColor, newColor.CGColor)) {
+      return;
+    }
+  }
+
+  RELEASE_TO_NIL(backgroundSelectedColor);
+  backgroundSelectedColor = [color retain];
+
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self refreshBackgroundSelectedHighlight];
+  }
 }
 
 - (BOOL)touchEnabled
@@ -960,14 +1123,14 @@ DEFINE_EXCEPTIONS
 - (void)updateClipping
 {
   if (clipMode != 0) {
-    //Explicitly overridden
+    // Explicitly overridden
     self.clipsToBounds = (clipMode > 0);
   } else {
     if (_shadowLayer.shadowOpacity > 0) {
-      //If shadow is visible, disble clipping
+      // If shadow is visible, disble clipping
       self.clipsToBounds = NO;
     } else if (self.layer.borderWidth > 0 || self.layer.cornerRadius > 0 || [proxy valueForUndefinedKey:@"borderRadius"]) {
-      //If borderWidth > 0, or borderRadius > 0 enable clipping
+      // If borderWidth > 0, or borderRadius > 0 enable clipping
       self.clipsToBounds = YES;
     } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]) {
       self.clipsToBounds = ([[((TiViewProxy *)self.proxy) children] count] > 0);
@@ -999,9 +1162,9 @@ DEFINE_EXCEPTIONS
 
 - (CAShapeLayer *)shadowLayer
 {
-  // If there is single cborderRadius, use self.layer as shadwoLayer.
+  // If there is single borderRadius, use self.layer as shadowLayer.
   // Shadow animation does not work if shadowLayer is added on self.layer.superlayer
-  // But in this case, shadwoLayer is self.layer. So animation will work on shadow as well.
+  // But in this case, shadowLayer is self.layer. So animation will work on shadow as well.
   NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
   if ((!array || array.count <= 1) && _shadowLayer != self.layer) {
     self.layer.mask = nil;
@@ -1092,7 +1255,7 @@ DEFINE_EXCEPTIONS
 - (void)updateViewShadowPath
 {
   if (_shadowLayer.shadowOpacity > 0.0f) {
-    //to speedup things
+    // to speedup things
     UIBezierPath *bezierPath = [self bezierPathOfView];
     if (_shadowLayer != self.layer) {
       _shadowLayer.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, self.bounds.size.width, self.bounds.size.height);
@@ -1186,7 +1349,7 @@ DEFINE_EXCEPTIONS
   DoProxyDelegateChangedValuesWithProxy(self, key, oldValue, newValue, proxy_);
 }
 
-//Todo: Generalize.
+// Todo: Generalize.
 - (void)setKrollValue:(id)value forKey:(NSString *)key withObject:(id)props
 {
   if (value == [NSNull null]) {
@@ -1223,7 +1386,7 @@ DEFINE_EXCEPTIONS
     [newProxy setView:self];
     [self setProxy:[newProxy retain]];
 
-    //The important sequence first:
+    // The important sequence first:
     for (NSString *thisKey in keySequence) {
       id newValue = [newProxy valueForKey:thisKey];
       id oldValue = [oldProxy valueForKey:thisKey];
@@ -1361,6 +1524,17 @@ DEFINE_EXCEPTIONS
   return pinchRecognizer;
 }
 
+- (UIRotationGestureRecognizer *)rotationRecognizer
+{
+  if (rotationRecognizer == nil) {
+    rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(recognizedRotation:)];
+    [self configureGestureRecognizer:rotationRecognizer];
+    [self addGestureRecognizer:rotationRecognizer];
+  }
+  rotationRecognizer.delegate = self;
+  return rotationRecognizer;
+}
+
 - (UISwipeGestureRecognizer *)leftSwipeRecognizer
 {
   if (leftSwipeRecognizer == nil) {
@@ -1426,7 +1600,7 @@ DEFINE_EXCEPTIONS
   if ([recognizer numberOfTouchesRequired] == 2) {
     [proxy fireEvent:@"twofingertap" withObject:event];
   } else if ([recognizer numberOfTapsRequired] == 2) {
-    //Because double-tap suppresses touchStart and double-click, we must do this:
+    // Because double-tap suppresses touchStart and double-click, we must do this:
     if ([proxy _hasListeners:@"touchstart"]) {
       [proxy fireEvent:@"touchstart" withObject:event propagate:YES];
     }
@@ -1437,6 +1611,14 @@ DEFINE_EXCEPTIONS
   } else {
     [proxy fireEvent:@"singletap" withObject:event];
   }
+}
+
+- (void)recognizedRotation:(UIRotationGestureRecognizer *)recognizer
+{
+  NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:
+                                          NUMDOUBLE(radiansToDegrees(recognizer.rotation)), @"rotate",
+                                      nil];
+  [self.proxy fireEvent:@"rotate" withObject:event];
 }
 
 - (void)recognizedPinch:(UIPinchGestureRecognizer *)recognizer
@@ -1522,12 +1704,12 @@ DEFINE_EXCEPTIONS
   // The touch never reaches the button, because the touchDelegate is as deep as the touch goes.
 
   /*
-	// delegate to our touch delegate if we're hit but it's not for us
-	if (hasTouchListeners==NO && touchDelegate!=nil)
-	{
-		return touchDelegate;
-	}
-     */
+  // delegate to our touch delegate if we're hit but it's not for us
+  if (hasTouchListeners==NO && touchDelegate!=nil)
+  {
+          return touchDelegate;
+  }
+ */
 
   return [super hitTest:point withEvent:event];
 }
@@ -1550,6 +1732,8 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  [self applyBackgroundSelectedHighlightWithAdditionalTouches:[touches count]];
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesBegan:touches withEvent:event];
   }
@@ -1589,6 +1773,10 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (hasStoredBackgroundForSelectionHighlight) {
+    [self decrementBackgroundSelectedTouches:[touches count]];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesEnded:touches withEvent:event];
   }
@@ -1623,6 +1811,11 @@ DEFINE_EXCEPTIONS
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  if (hasStoredBackgroundForSelectionHighlight) {
+    backgroundSelectedHighlightTouchCount = 0;
+    [self restoreBackgroundSelectedHighlight];
+  }
+
   if ([[event touchesForView:self] count] > 0 || [self touchedContentViewWithEvent:event]) {
     [self processTouchesCancelled:touches withEvent:event];
   }
@@ -1692,6 +1885,9 @@ DEFINE_EXCEPTIONS
   if ([event isEqualToString:@"pinch"]) {
     return [self pinchRecognizer];
   }
+  if ([event isEqualToString:@"rotate"]) {
+    return [self rotationRecognizer];
+  }
   if ([event isEqualToString:@"longpress"]) {
     return [self longPressRecognizer];
   }
@@ -1743,11 +1939,11 @@ DEFINE_EXCEPTIONS
   }
 }
 
-- (void)sanitycheckListeners //TODO: This can be optimized and unwound later.
+- (void)sanitycheckListeners // TODO: This can be optimized and unwound later.
 {
   if (listenerArray == nil) {
     listenerArray = [[NSArray alloc] initWithObjects:@"singletap",
-                                     @"doubletap", @"twofingertap", @"swipe", @"pinch", @"longpress", nil];
+                                     @"doubletap", @"twofingertap", @"swipe", @"rotate", @"pinch", @"longpress", nil];
   }
   for (NSString *eventName in listenerArray) {
     if ([proxy _hasListeners:eventName]) {

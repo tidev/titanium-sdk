@@ -19,12 +19,12 @@
 }
 - (void)setData:(id)args withObject:(id)properties;
 - (NSArray *)data;
-//Sections and Data are the sanitized version.
+// Sections and Data are the sanitized version.
 @property (nonatomic, readwrite, copy) NSArray *sections;
 - (NSNumber *)sectionCount;
 
 #pragma mark NON-JS functionality
-//internalSections is until TODO: Stop JS from using ValueForKey
+// internalSections is until TODO: Stop JS from using ValueForKey
 @property (nonatomic, readwrite, retain) NSMutableArray *internalSections;
 
 - (NSInteger)indexForRow:(TiUITableViewRowProxy *)row;
