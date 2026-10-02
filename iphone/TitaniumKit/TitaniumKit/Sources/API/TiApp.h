@@ -11,6 +11,7 @@
 #import "KrollBridge.h"
 #import "TiHost.h"
 #import "TiRootViewController.h"
+#import <BackgroundTasks/BackgroundTasks.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 
 /**
@@ -49,8 +50,12 @@
 
   NSString *sessionId;
 
-  UIBackgroundTaskIdentifier bgTask;
+  UIBackgroundTaskIdentifier bgTaskIdentifier;
   NSMutableArray *backgroundServices;
+
+  NSMutableArray *backgroundTasks;
+  NSMutableArray *registeredBackgroundTasks;
+
   NSMutableArray *runningServices;
   NSDictionary *localNotification;
   UIApplicationShortcutItem *launchedShortcutItem;
@@ -286,6 +291,9 @@
  @param notificationName The name of the notification to schedule.
  */
 - (void)tryToPostBackgroundModeNotification:(NSMutableDictionary *)userInfo withNotificationName:(NSString *)notificationName;
+
+- (void)addBackgroundTask:(NSDictionary *)bgTask;
+- (void)backgroundTaskCompletedForIdentifier:(NSString *)identifier;
 
 - (void)registerBackgroundService:(TiProxy *)proxy;
 - (void)unregisterBackgroundService:(TiProxy *)proxy;
