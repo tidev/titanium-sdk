@@ -22,8 +22,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.RelativeLayout;
 
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.annotation.NonNull;
 
 import ti.modules.titanium.ui.RefreshControlProxy;
@@ -104,14 +102,7 @@ public class TiUITableView extends TiUIView
 
 		if (name.equals(TiC.PROPERTY_GRID_COLUMNS)) {
 			// create a simple GridLayout
-			final int gridColumns = TiConvert.toInt(value, 0);
-			if (gridColumns > 1) {
-				this.tableView.getRecyclerView().setLayoutManager(new GridLayoutManager(
-					getProxy().getActivity(), gridColumns));
-			} else {
-				this.tableView.getRecyclerView().setLayoutManager(new LinearLayoutManager(
-					getProxy().getActivity()));
-			}
+			this.tableView.setGridColumns(TiConvert.toInt(value, 0));
 		}
 
 		if (name.equals(TiC.PROPERTY_SCROLLABLE)) {
