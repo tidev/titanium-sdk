@@ -74,6 +74,26 @@ methods:
     since: "9.1.0"
 
 properties:
+  - name: IMPORTANT_FOR_ACCESSIBILITY_YES
+    summary: The view is important for accessibility
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANT_FOR_ACCESSIBILITY_NO
+    summary: The view is not important for autofill, but its children (if any) will be traversed.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+    summary: The view is not important for accessibility, nor are any of its descendant views.
+    type: Number
+    permission: read-only
+
+  - name: IMPORTANT_FOR_ACCESSIBILITY_AUTO
+    summary: Automatically determine whether a view is important for autofill.
+    type: Number
+    permission: read-only
+
   - name: FLAG_LAYOUT_NO_LIMITS
     summary: Flag allowing window to extend into the status bar and navigation bar.
     description: |
