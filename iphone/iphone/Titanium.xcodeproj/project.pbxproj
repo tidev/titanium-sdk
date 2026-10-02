@@ -116,6 +116,7 @@
 		24CA8BFA111161FE0084E2DE /* ContactsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B37111161FE0084E2DE /* ContactsModule.m */; };
 		24CA8BFB111161FE0084E2DE /* TiUITableViewRowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B39111161FE0084E2DE /* TiUITableViewRowProxy.m */; };
 		24CA8C08111161FE0084E2DE /* AppModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B56111161FE0084E2DE /* AppModule.m */; };
+		A1B2C3D4E5F67890ABCDEF01 /* AccessibilityModule.m in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F67890ABCDEF02 /* AccessibilityModule.m */; };
 		24CA8C0E111161FE0084E2DE /* AccelerometerModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 24CA8B64111161FE0084E2DE /* AccelerometerModule.m */; };
 		24CA8C7C111167B60084E2DE /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7B111167B60084E2DE /* CFNetwork.framework */; };
 		24CA8C7E111167B60084E2DE /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24CA8C7D111167B60084E2DE /* CoreLocation.framework */; };
@@ -525,6 +526,8 @@
 		24CA8B3A111161FE0084E2DE /* TiUITableViewRowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewRowProxy.h; sourceTree = "<group>"; };
 		24CA8B56111161FE0084E2DE /* AppModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppModule.m; path = ../Classes/AppModule.m; sourceTree = SOURCE_ROOT; };
 		24CA8B57111161FE0084E2DE /* AppModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppModule.h; path = ../Classes/AppModule.h; sourceTree = SOURCE_ROOT; };
+		A1B2C3D4E5F67890ABCDEF02 /* AccessibilityModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AccessibilityModule.m; path = ../Classes/AccessibilityModule.m; sourceTree = SOURCE_ROOT; };
+		A1B2C3D4E5F67890ABCDEF03 /* AccessibilityModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AccessibilityModule.h; path = ../Classes/AccessibilityModule.h; sourceTree = SOURCE_ROOT; };
 		24CA8B64111161FE0084E2DE /* AccelerometerModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AccelerometerModule.m; path = ../Classes/AccelerometerModule.m; sourceTree = SOURCE_ROOT; };
 		24CA8B65111161FE0084E2DE /* AccelerometerModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AccelerometerModule.h; path = ../Classes/AccelerometerModule.h; sourceTree = SOURCE_ROOT; };
 		24CA8C7B111167B60084E2DE /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
@@ -999,9 +1002,19 @@
 			path = ../Classes/PlausibleDatabase;
 			sourceTree = SOURCE_ROOT;
 		};
+		A1B2C3D4E5F67890ABCDEF04 /* Accessibility */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F67890ABCDEF02 /* AccessibilityModule.m */,
+				A1B2C3D4E5F67890ABCDEF03 /* AccessibilityModule.h */,
+			);
+			name = Accessibility;
+			sourceTree = "<group>";
+		};
 		24CA8A09111161D60084E2DE /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F67890ABCDEF04 /* Accessibility */,
 				823AE1DF1B82E85A00E7044C /* WatchSession */,
 				D93DAA4C16CBF8A000AD64C9 /* Calendar */,
 				DABF3ED3134D2A6400836137 /* Stream */,
@@ -2120,6 +2133,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F67890ABCDEF01 /* AccessibilityModule.m in Sources */,
 				197EC88C2199730800F5A077 /* TiMediaAudioPlayerProxy.m in Sources */,
 				DBA2F944210E49FF00EC1FB1 /* ApplicationMods.m in Sources */,
 				DBA2F945210E49FF00EC1FB1 /* ApplicationDefaults.m in Sources */,
