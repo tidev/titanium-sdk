@@ -619,18 +619,19 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// If capturing a photo/video, create a file for it in the gallery and get a "content://" URI to it.
-		if (hasImageMimeType) {
-			mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
-		} else if (hasVideoMimeType) {
-			mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
-		} else {
-			mCaptureFileUri = null;
+		switch (actionName) {
+			case MediaStore.ACTION_IMAGE_CAPTURE:
+				mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
+				break;
+			case MediaStore.ACTION_VIDEO_CAPTURE:
+				mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
+				break;
+			default:
+				mCaptureFileUri = null;
+				break;
 		}
-		
 		if (mCaptureFileUri != null) {
-			intent.setFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-			intent.setClipData(ClipData.newRawUri("", mCaptureFileUri));
-			intent.putExtra(MediaStore.EXTRA_OUTPUT, mCaptureFileUri);
+			setCaptureOutputOn(intent, mCaptureFileUri);
 		}
 
 		// Set up multiple file selection if enabled.
@@ -639,17 +640,45 @@ public class TiWebChromeClient extends WebChromeClient
 		}
 
 		// If multiple apps can handle the intent, then let the end-user choose which one to use.
+		Intent chooser = Intent.createChooser(intent, chooserParams.getTitle());
 
-		Intent chooser = new Intent(Intent.ACTION_CHOOSER);
-		chooser.putExtra(Intent.EXTRA_INTENT, intent);
-		chooser.putExtra(Intent.EXTRA_TITLE, chooserParams.getTitle());
-
-		Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-		Intent[] intentArray = { cameraIntent };
-		chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+		// When selecting photo/video files, also offer the camera in the chooser to capture a new file.
+		// Only offer the camera type matching the accepted mime types. Photo is preferred if both are accepted.
+		if (!chooserParams.isCaptureEnabled() && (hasImageMimeType || hasVideoMimeType)) {
+			try {
+				Intent captureIntent;
+				if (hasImageMimeType) {
+					captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+					mCaptureFileUri = MediaModule.createExternalPictureContentUri(true);
+				} else {
+					captureIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+					mCaptureFileUri = MediaModule.createExternalVideoContentUri(true);
+				}
+				if (mCaptureFileUri != null) {
+					setCaptureOutputOn(captureIntent, mCaptureFileUri);
+					chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { captureIntent });
+				}
+			} catch (Exception ex) {
+				// Failed to create the capture file. Only offer file selection in this case.
+				Log.w(TAG, "onShowFileChooser() cannot offer camera capture. Reason: " + ex.getMessage());
+				mCaptureFileUri = null;
+			}
+		}
 
 		// Return the final intent for file selection or image/video capturing.
 		return chooser;
+	}
+
+	/**
+	 * Configures the given camera capture intent to write its photo/video to the given "content://" URI.
+	 * @param captureIntent The image/video capture intent to be configured.
+	 * @param captureFileUri The "content://" URI the camera app must write the captured file to.
+	 */
+	private void setCaptureOutputOn(@NonNull Intent captureIntent, @NonNull Uri captureFileUri)
+	{
+		captureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+		captureIntent.setClipData(ClipData.newRawUri("", captureFileUri));
+		captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, captureFileUri);
 	}
 
 	/**
