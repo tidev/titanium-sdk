@@ -15,16 +15,16 @@ Please note, the shipping version of the platform is versioned as *1.8.0.1*. All
 
 Please see the updated [Titanium Mobile Reference Documentation for 1.8.0](/apidoc/mobile/1.8.0.1). 
 
-[Full list of Issues that were addressed in 1.8.0](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12036) 
+Full list of Issues that were addressed in 1.8.0 
 
 Significant Changes In Titanium Mobile
 --------------------------------------
 
-- [Several changes for platform parity.](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12128)
-- V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine. If you would rather use Rhino, see the [tiapp.xml guide](http://wiki.appcelerator.org/display/guides/tiapp.xml+and+timodule.xml+Reference) and look for `ti.android.runtime`. Set it to `rhino` in your `tiapp.xml` file. Or in Titanium Studio, edit `tiapp.xml` and select a runtime from the Android Runtime list (on the Overview tab of the TiApp editor).
+- Several changes for platform parity.
+- V8 is the default runtime for Android devices providing a higher level of performance than the Rhino engine. If you would rather use Rhino, see the tiapp.xml guide and look for `ti.android.runtime`. Set it to `rhino` in your `tiapp.xml` file. Or in Titanium Studio, edit `tiapp.xml` and select a runtime from the Android Runtime list (on the Overview tab of the TiApp editor).
 - We no longer support Android 2.1 (API 7).
 - We no longer support iOS versions less than 4.0.
-- The new Android runtime support required updating modules support. Modules will have to be ported to `apiversion` 2. [Android Modules Porting Guide](http://wiki.appcelerator.org/display/guides/Android+Module+Porting+Guide+for+1.8.0.1)
+- The new Android runtime support required updating modules support. Modules will have to be ported to `apiversion` 2. Android Modules Porting Guide
 - Replace deprecated API `globalPoint` with a member function on View called `convertPointToView`. [Android-TIMOB-5122](https://jira-archive.titaniumsdk.com/TIMOB-5122), [iOS-TIMOB-5121](https://jira-archive.titaniumsdk.com/TIMOB-5121)
 - `Titanium.Platform.id` is deprecated in this release. A future release will provide alternative API(s). [TIMOB-5980](https://jira-archive.titaniumsdk.com/TIMOB-5980)
 - `Titanium.UI.create3DMatrix` is deprecated, use `Titanium.UI.iOS.create3DMatrix` instead. [TIMOB-4990](https://jira-archive.titaniumsdk.com/TIMOB-4990)
@@ -49,12 +49,12 @@ The following is a regression in 1.8.0.1:
 Introducing MobileWeb (Beta)
 -----------------------------
 
-This version of Titanium Mobile now ships with a beta version of our MobileWeb platform. The MobileWeb platform allows you to use the Titanium tooling and APIs you are familiar with to target devices that support HTML5. [JIRA list of MobileWeb issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12123)
+This version of Titanium Mobile now ships with a beta version of our MobileWeb platform. The MobileWeb platform allows you to use the Titanium tooling and APIs you are familiar with to target devices that support HTML5. JIRA list of MobileWeb issues
 
 APIDoc Changes
 --------------
 
-Another exciting addition to our product is an improved documentation system for our APIDocs. We published our [TDoc Specification](http://wiki.appcelerator.org/display/guides/TDoc+Specification) for our APIDoc and have been reworking the docs to comply with the spec. While the real magic is hidden in the source, we're able to actually use the documentation as the specification for the Titanium Mobile API. Our documentation now gets used as an HTML reference, in content assist, provides coverage data for platform parity analysis, and may be generated in other formats as required. Another gain is that we can annotate APIs to the method and property level with supported platforms, versions supported, deprecations, exclusions, and more. We have also worked on content changes and clarifications for many APIs. 
+Another exciting addition to our product is an improved documentation system for our APIDocs. We published our TDoc Specification for our APIDoc and have been reworking the docs to comply with the spec. While the real magic is hidden in the source, we're able to actually use the documentation as the specification for the Titanium Mobile API. Our documentation now gets used as an HTML reference, in content assist, provides coverage data for platform parity analysis, and may be generated in other formats as required. Another gain is that we can annotate APIs to the method and property level with supported platforms, versions supported, deprecations, exclusions, and more. We have also worked on content changes and clarifications for many APIs. 
 
 The new APIDoc format uses some new conventions and annotations which may be unfamiliar. These include new conventions for describing types, and new annotations for describing how properties can be accessed.
 
@@ -75,11 +75,11 @@ Properties can be annotated with *permission* and *availability* annotations. Ne
 
 Note that the new APIDocs include detail pages for events and properties, in addition to methods. The detail pages may contain additional information, such as longer descriptions, code samples, or default values.
 
-[JIRA List of APIDoc changes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12039)
+JIRA List of APIDoc changes
 
 Android Changes
 ---------------
-We addressed a significant number of [issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12037), including: 
+We addressed a significant number of issues, including: 
 
 *Features:*
 
@@ -92,7 +92,7 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 - Expose Window Pixel Format on Heavyweight Windows [TIMOB-4104](https://jira-archive.titaniumsdk.com/TIMOB-4104)
 - Enable plugins for WebViews [TIMOB-1607](https://jira-archive.titaniumsdk.com/TIMOB-1607)
 - Expose Keep Screen On for Views [TIMOB-2102](https://jira-archive.titaniumsdk.com/TIMOB-2102)
-- [JIRA List of all Android Features](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12124)
+- JIRA List of all Android Features
 
 *Bug Fixes:*
 
@@ -107,13 +107,13 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 - Webview crashes on reopen [TIMOB-4357](https://jira-archive.titaniumsdk.com/TIMOB-4357)
 - Support for SDK Tools r14/r15 style add-on folders [TIMOB-6135](https://jira-archive.titaniumsdk.com/TIMOB-6135)
 - Android emulator fails to launch on Windows if there is a space in the SDCard path. [TIMOB-5393](https://jira-archive.titaniumsdk.com/TIMOB-5393)
-- [JIRA List of over 200 Android bug fixes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12127) 
+- JIRA List of over 200 Android bug fixes 
 
 
 iOS Changes
 -----------
 
-We addressed a significant number of [issues](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12038), including:
+We addressed a significant number of issues, including:
 
 *Features:*
 
@@ -125,7 +125,7 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 - Iteration on proxy keys and values [TIMOB-3299](https://jira-archive.titaniumsdk.com/TIMOB-3299)
 - TLS Versioning for HttpClient [TIMOB-6311](https://jira-archive.titaniumsdk.com/TIMOB-6311)
 - XML DOM Level 2 [TIMOB-4867](https://jira-archive.titaniumsdk.com/TIMOB-4867) [TIMOB-4868](https://jira-archive.titaniumsdk.com/TIMOB-4868) [TIMOB-5024](https://jira-archive.titaniumsdk.com/TIMOB-5024) [TIMOB-5029](https://jira-archive.titaniumsdk.com/TIMOB-5029) 
-- [JIRA List of all iOS Features](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12125)
+- JIRA List of all iOS Features
 
 *Bug Fixes:*
 
@@ -147,4 +147,4 @@ We addressed a significant number of [issues](http://jira.appcelerator.org/secur
 - CommonJS: Module variables not updated. [TIMOB-6688](https://jira-archive.titaniumsdk.com/TIMOB-6688)
 - Packaging: Failing to include all optional icons during packaging causes errors in Xcode pre-submission verification. [TIMOB-6575](https://jira-archive.titaniumsdk.com/TIMOB-6575)
 - Some modules designed for CommonJS not exporting, even with the "export" variable set. [TIMOB-6573](https://jira-archive.titaniumsdk.com/TIMOB-6573)
-- [JIRA list of over 200 iOS bug fixes](http://jira.appcelerator.org/secure/IssueNavigator.jspa?mode=hide&requestId=12126)
+- JIRA list of over 200 iOS bug fixes

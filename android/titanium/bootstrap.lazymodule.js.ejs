@@ -4,7 +4,7 @@ if (!('__propertiesDefined__' in <%- name %>)) {
 if (mod.children) {
 	for (const child of mod.children) {
 		let fullAPIName = child.proxyAttrs.fullAPIName;
-		// Drop leading 'Tiatnium' if in full aAPI name
+		// Drop leading 'Titanium' if in full aAPI name
 		if (fullAPIName.startsWith('Titanium.')) {
 			fullAPIName = fullAPIName.slice(9);
 		}

@@ -1,16 +1,21 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
 #import "TiAppiOSProxy.h"
+#import <TitaniumKit/KrollPromise.h>
 #import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBase.h>
+#import <TitaniumKit/TiEvaluator.h>
+#import <TitaniumKit/TiSceneProxy.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
 
 #ifdef USE_TI_APPIOS
+#import "TiAppiOSActivityAttributesProxy.h"
 #import "TiAppiOSBackgroundServiceProxy.h"
 #import "TiAppiOSLocalNotificationProxy.h"
 #import "TiAppiOSSearchableIndexProxy.h"
@@ -45,6 +50,17 @@
 - (NSString *)apiName
 {
   return @"Ti.App.iOS";
+}
+
+- (void)_ensureSceneObserversRegistered
+{
+  if (_sceneObserversRegistered) {
+    return;
+  }
+  _sceneObserversRegistered = YES;
+  NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+  [nc addObserver:self selector:@selector(sceneWillConnect:) name:kTiSceneWillConnectNotification object:nil];
+  [nc addObserver:self selector:@selector(sceneDidDismiss:) name:kTiSceneDismissNotification object:nil];
 }
 
 - (void)_listenerAdded:(NSString *)type count:(int)count
@@ -109,7 +125,7 @@
                                                object:nil];
   }
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveContinueActivityNotification:) name:kTiContinueActivity object:[self owningInstance]];
   }
 
   if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
@@ -117,14 +133,14 @@
                                              selector:@selector
                                              (didReceiveApplicationShortcutNotification:)
                                                  name:kTiApplicationShortcut
-                                               object:nil];
+                                               object:[self owningInstance]];
   }
 
   if ((count == 1) && [type isEqual:@"handleurl"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didHandleURL:)
                                                  name:kTiApplicationLaunchedFromURL
-                                               object:nil];
+                                               object:[self owningInstance]];
   }
 
   if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
@@ -139,6 +155,10 @@
                                              selector:@selector(didTakeScreenshot:)
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:nil];
+  }
+
+  if (count == 1 && ([type isEqual:@"scenewillconnect"] || [type isEqual:@"scenediddismiss"] || [type isEqual:@"focus"] || [type isEqual:@"blur"] || [type isEqual:@"paused"] || [type isEqual:@"resumed"])) {
+    [self _ensureSceneObserversRegistered];
   }
 }
 
@@ -188,10 +208,10 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiWatchKitExtensionRequest object:nil];
   }
   if ((count == 1) && [type isEqual:@"continueactivity"]) {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiContinueActivity object:[self owningInstance]];
   }
   if ((count == 1) && [type isEqual:@"shortcutitemclick"]) {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiApplicationShortcut object:[self owningInstance]];
   }
   if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
@@ -199,6 +219,9 @@
   if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
   }
+  // Scene observers are registered eagerly via _ensureSceneObserversRegistered
+  // and removed in dealloc; they are not tied to Ti.App.iOS-level listener counts
+  // because they also feed per-scene TiSceneProxy listeners.
 }
 
 #pragma mark Public
@@ -216,6 +239,7 @@
 
 - (void)didTakeScreenshot:(NSNotification *)info
 {
+  DEPRECATED_REPLACED(@"App.iOS.screenshotcaptured", @"13.1.0", @"App.screenshotcaptured");
   [self fireEvent:@"screenshotcaptured"];
 }
 
@@ -255,10 +279,16 @@
     return;
   }
 
+  // Snapshot the mutable launchOptions to prevent mutation issues
+  // between event creation and event processing on the run loop.
+  NSDictionary *launchOptions = [[info userInfo] copy];
+
   [self fireEvent:@"handleurl"
        withObject:@{
-         @"launchOptions" : [info userInfo]
+         @"launchOptions" : launchOptions
        }];
+
+  [launchOptions release];
 }
 
 #ifdef USE_TI_APPIOSSEARCHABLEINDEX
@@ -316,7 +346,7 @@
   ENSURE_ARG_FOR_KEY(itemContentType, args, @"itemContentType", NSString);
 
   NSMutableDictionary *props = [NSMutableDictionary dictionaryWithDictionary:args];
-  [props removeObjectForKey:@"itemContentType"]; //remove to avoid duplication
+  [props removeObjectForKey:@"itemContentType"]; // remove to avoid duplication
 
   TiAppiOSSearchableItemAttributeSetProxy *proxy = [[[TiAppiOSSearchableItemAttributeSetProxy alloc] initWithItemContentType:itemContentType withProps:props] autorelease];
 
@@ -380,6 +410,113 @@
   return userDefaultsProxy;
 }
 
+#pragma mark - Scene APIs
+
+- (id)currentScene
+{
+  [self _ensureSceneObserversRegistered];
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  // Find the TiApp that owns this proxy's execution context.
+  // Each scene has its own TiApp and KrollBridge, so we look up
+  // the scene by the TiApp's sceneId rather than using primaryScene.
+  TiApp *currentTiApp = (TiApp *)[(id<TiEvaluator>)[self executionContext] host];
+  if (currentTiApp && currentTiApp.sceneId != nil) {
+    TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:currentTiApp.sceneId tiApp:currentTiApp];
+    if (proxy != nil) {
+      return proxy;
+    }
+  }
+  // Fallback to primary scene if scene context is not available
+  TiApp *primary = [registry primaryScene];
+  if (primary != nil && primary.sceneId != nil) {
+    TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:primary.sceneId tiApp:primary];
+    if (proxy != nil) {
+      return proxy;
+    }
+  }
+  return [NSNull null];
+}
+
+- (id)scenes
+{
+  [self _ensureSceneObserversRegistered];
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  NSDictionary *allScenes = [registry allScenes];
+
+  NSMutableArray *sceneArray = [NSMutableArray array];
+  for (NSString *sceneUUID in allScenes) {
+    TiApp *tiApp = allScenes[sceneUUID];
+    TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:sceneUUID tiApp:tiApp];
+    if (proxy != nil) {
+      [sceneArray addObject:proxy];
+    }
+  }
+
+  return sceneArray;
+}
+
+- (id)focusedScene
+{
+  if (@available(iOS 13.0, *)) {
+    [self _ensureSceneObserversRegistered];
+    TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+    NSString *focusedUUID = [registry focusedSceneUUID];
+    if (focusedUUID != nil) {
+      TiApp *tiApp = [registry sceneForUUID:focusedUUID];
+      TiSceneProxy *proxy = [registry ensureSceneProxyForUUID:focusedUUID tiApp:tiApp];
+      if (proxy != nil) {
+        return proxy;
+      }
+    }
+  }
+  return [NSNull null];
+}
+
+- (id)requestScene:(id)args
+{
+  KrollPromise *promise = [[[KrollPromise alloc] initInContext:[self currentContext]] autorelease];
+  NSDictionary *properties = [args isKindOfClass:[NSArray class]] && [args count] > 0 && [args[0] isKindOfClass:[NSDictionary class]] ? args[0] : @{};
+  NSString *configurationName = [properties[@"configurationName"] isKindOfClass:[NSString class]] ? properties[@"configurationName"] : @"Default Configuration";
+  TiApp *owner = [self owningInstance];
+
+  TiThreadPerformOnMainThread(
+      ^{
+        UIApplication *application = [UIApplication sharedApplication];
+        if (!application.supportsMultipleScenes) {
+          [promise rejectWithErrorMessage:@"This application does not support multiple scenes"];
+          return;
+        }
+        NSArray *configurations = [[NSBundle mainBundle] infoDictionary][@"UIApplicationSceneManifest"][@"UISceneConfigurations"][UIWindowSceneSessionRoleApplication];
+        BOOL found = NO;
+        for (NSDictionary *configuration in configurations) {
+          if ([configuration[@"UISceneConfigurationName"] isEqualToString:configurationName]) {
+            found = YES;
+            break;
+          }
+        }
+        if (!found) {
+          [promise rejectWithErrorMessage:[NSString stringWithFormat:@"Unknown scene configuration: %@", configurationName]];
+          return;
+        }
+        TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+        NSString *requestId = [registry registerSceneRequest:promise owner:owner];
+        NSUserActivity *activity = [[[NSUserActivity alloc] initWithActivityType:kTiSceneRequestActivityType] autorelease];
+        activity.userInfo = @{ @"requestId" : requestId, @"configurationName" : configurationName };
+        [application requestSceneSessionActivation:nil
+                                      userActivity:activity
+                                           options:nil
+                                      errorHandler:^(NSError *error) {
+                                        TiThreadPerformOnMainThread(
+                                            ^{
+                                              [registry rejectSceneRequest:requestId message:error.localizedDescription ?: @"Scene activation failed"];
+                                            },
+                                            NO);
+                                      }];
+      },
+      YES);
+  return promise.JSValue;
+}
+
 - (TiAppiOSBackgroundServiceProxy *)registerBackgroundService:(id)args
 {
   NSDictionary *a = nil;
@@ -402,7 +539,7 @@
     [backgroundServices setValue:proxy forKey:urlString];
   }
 
-  [[TiApp app] registerBackgroundService:proxy];
+  [[self owningInstance] registerBackgroundService:proxy];
   return proxy;
 }
 
@@ -500,6 +637,11 @@
 - (TiAppiOSUserNotificationActionProxy *)createUserNotificationAction:(id)args
 {
   return [[[TiAppiOSUserNotificationActionProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
+}
+
+- (TiAppiOSActivityAttributesProxy *)createActivityAttributes:(id)args
+{
+  return [[[TiAppiOSActivityAttributesProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
 
 - (TiAppiOSUserNotificationCategoryProxy *)createUserNotificationCategory:(id)args
@@ -692,7 +834,7 @@
     RELEASE_TO_NIL(circularRegion);
   } else {
     DebugLog(@"[ERROR] Notifications in iOS 10 require the either a `date` or `region` property to be set.");
-    return;
+    return nil;
   }
 
   // Instantiate a new mutable notification content
@@ -787,7 +929,7 @@
     [content setThreadIdentifier:threadIdentifier];
   }
 
-  // Construct a new notiication request using our content and trigger (e.g. date or location)
+  // Construct a new notification request using our content and trigger (e.g. date or location)
   UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
                                                                         content:content
                                                                         trigger:trigger];
@@ -814,7 +956,7 @@
 
  @param userInfo User info dictionary to assign to the notification content
  @param content Notification content, can either be UNMutableNotificationContent or UILocalNotification
- @param notificationIdentifier The unique idenitifer for a notification.
+ @param notificationIdentifier The unique identifier for a notification.
  */
 - (void)assignUserInfo:(NSDictionary *)userInfo toContent:(id)content ensureIdentifier:(NSString *)notificationIdentifier
 {
@@ -970,7 +1112,7 @@
   if ([handlerIdentifier rangeOfString:@"Session"].location != NSNotFound) {
     [[TiApp app] performCompletionHandlerForBackgroundTransferWithKey:handlerIdentifier];
   } else {
-    [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData removeAfterExecution:NO];
+    [[TiApp app] performCompletionHandlerWithKey:handlerIdentifier andResult:UIBackgroundFetchResultNoData];
   }
 }
 
@@ -1072,31 +1214,21 @@
 - (NSNumber *)USER_INTERFACE_STYLE_UNSPECIFIED
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_UNSPECIFIED", @"9.1.0", @"UI.USER_INTERFACE_STYLE_UNSPECIFIED");
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UIUserInterfaceStyleUnspecified);
-  }
 
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleUnspecified);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_LIGHT
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_LIGHT", @"9.1.0", @"UI.USER_INTERFACE_STYLE_LIGHT");
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UIUserInterfaceStyleLight);
-  }
 
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleLight);
 }
 
 - (NSNumber *)USER_INTERFACE_STYLE_DARK
 {
   DEPRECATED_REPLACED(@"App.iOS.USER_INTERFACE_STYLE_DARK", @"9.1.0", @"UI.USER_INTERFACE_STYLE_DARK");
-  if ([TiUtils isIOSVersionOrGreater:@"13.0"]) {
-    return NUMINT(UIUserInterfaceStyleDark);
-  }
-
-  return NUMINT(0);
+  return NUMINT(UIUserInterfaceStyleDark);
 }
 
 #pragma mark UTI Text Type Constants
@@ -1341,6 +1473,31 @@ MAKE_SYSTEM_PROP(USER_NOTIFICATION_SETTING_NOT_SUPPORTED, UNNotificationSettingN
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_NONE, UNAlertStyleNone);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_ALERT, UNAlertStyleAlert);
 MAKE_SYSTEM_PROP(USER_NOTIFICATION_ALERT_STYLE_BANNER, UNAlertStyleBanner);
+
+#pragma mark - Scene Lifecycle Events
+
+- (void)sceneWillConnect:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  TiSceneRegistry *registry = [TiSceneRegistry sharedRegistry];
+  TiApp *tiApp = [registry sceneForUUID:sceneUUID];
+
+  TiSceneProxy *sceneProxy = [registry ensureSceneProxyForUUID:sceneUUID tiApp:tiApp];
+
+  [self fireEvent:@"scenewillconnect" withObject:@{ @"sceneId" : sceneUUID, @"scene" : sceneProxy ?: [NSNull null] }];
+}
+
+- (void)sceneDidDismiss:(NSNotification *)note
+{
+  NSString *sceneUUID = [[note userInfo] objectForKey:@"scene"];
+  if (sceneUUID == nil)
+    return;
+
+  [self fireEvent:@"scenediddismiss" withObject:@{ @"sceneId" : sceneUUID }];
+}
 
 @end
 

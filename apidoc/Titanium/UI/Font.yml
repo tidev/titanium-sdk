@@ -111,5 +111,4 @@ properties:
     type: String
     constants: Titanium.UI.TEXT_STYLE_*
     platforms: [iphone, ipad, macos]
-    osver: {ios: {min: "7.0"}}
     since: "3.2.0"

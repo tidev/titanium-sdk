@@ -17,7 +17,6 @@ description: |
 extends: Titanium.Proxy
 platforms: [iphone, ipad, macos]
 since: {iphone: "3.2.0", ipad: "3.2.0", macos: "9.2.0"}
-osver: {ios: {min: "7.0"}}
 properties:
   - name: angle
     summary: Specifies the angle of the gravity vector in radians.

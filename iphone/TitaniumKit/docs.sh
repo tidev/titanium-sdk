@@ -24,7 +24,7 @@ jazzy \
   --author TiDev \
   --author_url https://tidev.io \
   --github_url https://github.com/tidev/titanium_mobile \
-  --github-file-prefix https://github.com/tidev/titanium_mobile/tree/next \
+  --github-file-prefix https://github.com/tidev/titanium-sdk/tree/next \
   --module-version 8.1.0 \
   --sdk iphonesimulator \
   --umbrella-header TitaniumKit/TitaniumKitDocs.h \

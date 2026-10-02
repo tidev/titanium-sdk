@@ -14,7 +14,7 @@ methods:
     parameters:
       - name: person
         summary: |
-            Person to add. For >= iOS9, it is not required to
+            Person to add. For >= iOS 9, it is not required to
             call <Titanium.Contacts.save> after calling this method.
         type: Titanium.Contacts.Person
         
@@ -25,7 +25,7 @@ methods:
     
   - name: remove
     summary: |
-        Removes a person from this group. For >= iOS9, it is not
+        Removes a person from this group. For >= iOS 9, it is not
         required to call <Titanium.Contacts.save> after calling this method.
     parameters:
       - name: person
@@ -47,14 +47,8 @@ properties:
   - name: name
     summary: Name of this group.
     type: String
-    
-  - name: recordId
-    summary: Record identifier of the group. Single value. Deprecated for iOS 9 and later.
-    type: Number
-    osver: {ios: {max: "8.0"}}
 
   - name: identifier
     summary: Identifier of the group.
     type: String
     permission: read-only
-    osver: {ios: {min: "9.0"}}

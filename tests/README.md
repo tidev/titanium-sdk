@@ -19,7 +19,7 @@ If you want to use `matchImage` to visually compare an UI element with an image 
 ## References
 
 - [Mocha](https://github.com/mochajs/mocha)
-- [Unit Testing in Titanium](https://github.com/tidev/titanium_mobile/#unit-tests)
+- [Unit Testing in Titanium](https://github.com/tidev/titanium-sdk/#unit-tests)
 
 ## License
 

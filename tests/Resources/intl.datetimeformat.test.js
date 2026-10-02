@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -96,9 +96,9 @@ describe('Intl.DateTimeFormat',  () => {
 				timeZone: 'UTC'
 			};
 			let formatter = new Intl.DateTimeFormat('en-US', options);
-			should(formatter.format(date)).be.equalOneOf([ '8:02:05 PM', '8:02:05 in the evening' ]);
+			should(formatter.format(date)).be.equalOneOf([ '8:02:05 PM', '8:02:05 PM', '8:02:05 in the evening' ]);
 			formatter = new Intl.DateTimeFormat('de-DE', options);
-			should(formatter.format(date)).be.equalOneOf([ '8:02:05 PM', '8:02:05 nachm.', '8:02:05 abends'  ]);
+			should(formatter.format(date)).be.equalOneOf([ '8:02:05 PM', '8:02:05 PM', '8:02:05 nachm.', '8:02:05 abends'  ]);
 		});
 
 		it('24 hour time', () => {
@@ -197,7 +197,7 @@ describe('Intl.DateTimeFormat',  () => {
 				should(partsArray[index++]).be.eql({ type: 'literal', value: '.' });
 				should(partsArray[index++]).be.eql({ type: 'fractionalSecond', value: '123' });
 			}
-			should(partsArray[index++]).be.eql({ type: 'literal', value: ' ' });
+			should(partsArray[index++]).be.eql({ type: 'literal', value: ' ' });
 			should(partsArray[index++]).be.eql({ type: 'dayPeriod', value: 'PM' });
 			should(partsArray.length).be.eql(index);
 		});

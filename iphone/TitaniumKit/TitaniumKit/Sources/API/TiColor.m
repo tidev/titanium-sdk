@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -9,7 +9,7 @@
 #import "TiBase.h"
 #import "TiUtils.h"
 #import "Webcolor.h"
-//TODO: Move all of Webcolor into TiColor.
+// TODO: Move all of Webcolor into TiColor.
 
 @implementation TiColor
 
@@ -20,7 +20,7 @@
   TiColor *result;
   UIColor *translatedColor = nil;
 
-  if ([name caseInsensitiveCompare:@"default"] != NSOrderedSame) { //Default is allowed nil, while still counting as a color to stop inheritance.
+  if ([name caseInsensitiveCompare:@"default"] != NSOrderedSame) { // Default is allowed nil, while still counting as a color to stop inheritance.
     translatedColor = [Webcolor webColorNamed:name];
     if (translatedColor == nil) {
       return nil;

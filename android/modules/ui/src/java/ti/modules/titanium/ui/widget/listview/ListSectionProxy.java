@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,8 +23,7 @@ import android.app.Activity;
 		TiC.PROPERTY_FOOTER_TITLE,
 		TiC.PROPERTY_FOOTER_VIEW,
 		TiC.PROPERTY_HEADER_TITLE,
-		TiC.PROPERTY_HEADER_VIEW,
-		TiC.PROPERTY_ITEMS
+		TiC.PROPERTY_HEADER_VIEW
 	})
 public class ListSectionProxy extends TiViewProxy
 {
@@ -51,11 +50,8 @@ public class ListSectionProxy extends TiViewProxy
 	{
 		final List<ListItemProxy> items = processItems(dataItems);
 
-		for (final ListItemProxy item : items) {
-
-			// Add to current items.
-			this.items.add(item);
-		}
+		// Add to current items.
+		this.items.addAll(items);
 
 		// Notify ListView of new items.
 		update();
@@ -124,15 +120,13 @@ public class ListSectionProxy extends TiViewProxy
 		// Update activity of header/footer views.
 		if (hasPropertyAndNotNull(TiC.PROPERTY_HEADER_VIEW)) {
 			final Object headerObject = getProperty(TiC.PROPERTY_HEADER_VIEW);
-			if (headerObject instanceof TiViewProxy) {
-				final TiViewProxy headerProxy = (TiViewProxy) headerObject;
+			if (headerObject instanceof TiViewProxy headerProxy) {
 				headerProxy.setActivity(activity);
 			}
 		}
 		if (hasPropertyAndNotNull(TiC.PROPERTY_FOOTER_VIEW)) {
 			final Object footerObject = getProperty(TiC.PROPERTY_FOOTER_VIEW);
-			if (footerObject instanceof TiViewProxy) {
-				final TiViewProxy footerProxy = (TiViewProxy) footerObject;
+			if (footerObject instanceof TiViewProxy footerProxy) {
 				footerProxy.setActivity(activity);
 			}
 		}
@@ -197,6 +191,12 @@ public class ListSectionProxy extends TiViewProxy
 		}
 
 		return dataItems;
+	}
+
+	@Kroll.setProperty
+	public void setItems(Object value)
+	{
+		setItems(value, null);
 	}
 
 	/**
@@ -302,8 +302,7 @@ public class ListSectionProxy extends TiViewProxy
 
 			return item;
 
-		} else if (object instanceof ListItemProxy) {
-			final ListItemProxy item = (ListItemProxy) object;
+		} else if (object instanceof ListItemProxy item) {
 
 			item.setParent(this);
 			return item;
@@ -355,8 +354,7 @@ public class ListSectionProxy extends TiViewProxy
 			setItems(value, null);
 
 		} else if (name.equals(TiC.PROPERTY_HEADER_VIEW) || name.equals(TiC.PROPERTY_FOOTER_VIEW)) {
-			if (value instanceof TiViewProxy) {
-				final TiViewProxy view = (TiViewProxy) value;
+			if (value instanceof TiViewProxy view) {
 
 				view.setActivity(getActivity());
 				view.setParent(this);
