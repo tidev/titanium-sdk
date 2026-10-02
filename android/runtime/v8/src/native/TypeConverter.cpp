@@ -468,6 +468,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, jb
 	for (int i = 0; i < arrayLength; i++) {
 		jsArray->Set(context, (uint32_t) i, Boolean::New(isolate, arrayElements[i]));
 	}
+	env->ReleaseBooleanArrayElements(javaBooleanArray, arrayElements, JNI_ABORT);
 
 	return jsArray;
 }
@@ -508,6 +509,7 @@ jshortArray TypeConverter::jsArrayToJavaShortArray(Isolate* isolate, JNIEnv *env
 		}
 	}
 	env->SetShortArrayRegion(javaShortArray, 0, arrayLength, shortBuffer);
+	delete[] shortBuffer;
 
 	return javaShortArray;
 }
@@ -558,6 +560,7 @@ jintArray TypeConverter::jsArrayToJavaIntArray(Isolate* isolate, JNIEnv *env, Lo
 		}
 	}
 	env->SetIntArrayRegion(javaIntArray, 0, arrayLength, intBuffer);
+	delete[] intBuffer;
 
 	return javaIntArray;
 }
@@ -581,6 +584,7 @@ Local<Array> TypeConverter::javaArrayToJsArray(Isolate* isolate, JNIEnv *env, ji
 	for (int i = 0; i < arrayLength; i++) {
 		jsArray->Set(context, (uint32_t) i, Integer::New(isolate, arrayElements[i]));
 	}
+	env->ReleaseIntArrayElements(javaIntArray, arrayElements, JNI_ABORT);
 
 	return jsArray;
 }
@@ -643,6 +647,7 @@ jlongArray TypeConverter::jsArrayToJavaLongArray(Isolate* isolate, JNIEnv *env, 
 		}
 	}
 	env->SetLongArrayRegion(javaLongArray, 0, arrayLength, longBuffer);
+	delete[] longBuffer;
 
 	return javaLongArray;
 }
@@ -683,6 +688,7 @@ jfloatArray TypeConverter::jsArrayToJavaFloatArray(Isolate* isolate, JNIEnv *env
 		}
 	}
 	env->SetFloatArrayRegion(javaFloatArray, 0, arrayLength, floatBuffer);
+	delete[] floatBuffer;
 
 	return javaFloatArray;
 }
@@ -743,6 +749,7 @@ jdoubleArray TypeConverter::jsArrayToJavaDoubleArray(Isolate* isolate, JNIEnv *e
 		}
 	}
 	env->SetDoubleArrayRegion(javaDoubleArray, 0, arrayLength, doubleBuffer);
+	delete[] doubleBuffer;
 
 	return javaDoubleArray;
 }
@@ -1218,6 +1225,7 @@ Local<Array> TypeConverter::javaLongArrayToJsNumberArray(Isolate* isolate, JNIEn
 	for (int i = 0; i < arrayLength; i++) {
 		jsArray->Set(context, (uint32_t) i, Number::New(isolate, arrayElements[i]));
 	}
+	env->ReleaseLongArrayElements(javaLongArray, arrayElements, JNI_ABORT);
 	return jsArray;
 }
 

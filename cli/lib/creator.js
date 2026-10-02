@@ -17,9 +17,9 @@ import async from 'async';
 import ejs from 'ejs';
 import fields from 'fields';
 import fs from 'fs-extra';
-import http from 'node:http';
 import path from 'node:path';
-import request from 'request';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import temp from 'temp';
 import ti from 'node-titanium-sdk';
 
@@ -564,37 +564,26 @@ export class Creator {
 
 		this.logger.info(`Downloading ${url.cyan}`);
 
-		const tempStream = fs.createWriteStream(tempName),
-			req = request({
-				url: url,
-				proxy: this.config.get('cli.httpProxyServer'),
-				rejectUnauthorized: this.config.get('cli.rejectUnauthorized', true)
-			});
-
-		req.pipe(tempStream);
-
-		req.on('error', function () {
-			fs.existsSync(tempName) && fs.unlinkSync(tempName);
-			this.logger.log();
-			this.logger.error(`Failed to download template: ${url}\n`);
-			callback(true);
-		}.bind(this));
-
-		req.on('response', function (req) {
-			if (req.statusCode >= 400) {
+		fetch(url).then(async response => {
+			if (response.status >= 400) {
 				// something went wrong, abort
-				this.logger.error(`Request failed with HTTP status code ${req.statusCode} ${http.STATUS_CODES[req.statusCode] || ''}`);
+				this.logger.error(`Request failed with HTTP status code ${response.status} ${response.statusText}`);
 				callback(true);
 				return;
 			}
 
-			tempStream.on('close', function () {
-				this.unzipFile(tempName, function (err, dir) {
-					fs.unlinkSync(tempName);
-					callback(err, dir);
-				});
-			}.bind(this));
-		}.bind(this));
+			await pipeline(Readable.fromWeb(response.body), fs.createWriteStream(tempName));
+
+			this.unzipFile(tempName, function (err, dir) {
+				fs.unlinkSync(tempName);
+				callback(err, dir);
+			});
+		}).catch(() => {
+			fs.existsSync(tempName) && fs.unlinkSync(tempName);
+			this.logger.log();
+			this.logger.error(`Failed to download template: ${url}\n`);
+			callback(true);
+		});
 	}
 
 	/**
