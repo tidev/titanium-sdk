@@ -535,9 +535,12 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		}
 
 		// Get the date to be displayed in the dialog. If not assigned, then use today's date.
+		// Precedence: settings "from", picker's "from" (range picker only), settings "value", picker's "value".
 		Calendar calendar = Calendar.getInstance();
 		if (settings.containsKey(TiC.PROPERTY_FROM)) {
 			calendar.setTime(TiConvert.toDate(settings, TiC.PROPERTY_FROM));
+		} else if (rangePicker && hasProperty(TiC.PROPERTY_FROM)) {
+			calendar.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_FROM));
 		} else if (settings.containsKey(TiC.PROPERTY_VALUE)) {
 			calendar.setTime(TiConvert.toDate(settings, TiC.PROPERTY_VALUE));
 		} else if (hasProperty(TiC.PROPERTY_VALUE)) {
@@ -625,6 +628,11 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 				calendarTo.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_TO));
 			} else if (hasProperty(TiC.PROPERTY_VALUE)) {
 				calendarTo.setTime(TiConvert.toDate(getProperties(), TiC.PROPERTY_VALUE));
+			}
+
+			// The range picker throws an exception if the end date is before the start date.
+			if (calendarTo.before(calendar)) {
+				calendarTo.setTime(calendar.getTime());
 			}
 
 			// set selection: from/value -> to
