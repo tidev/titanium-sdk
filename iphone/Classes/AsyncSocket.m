@@ -178,7 +178,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
  *  - reading to a certain length
  *  - reading to a certain separator
  *  - or simply reading the first chunk of available data
-**/
+ **/
 @interface AsyncReadPacket : NSObject {
   @public
   NSMutableData *buffer;
@@ -248,7 +248,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 /**
  * For read packets without a set terminator, returns the safe length of data that can be read
  * without exceeding the maxLength, or forcing a resize of the buffer if at all possible.
-**/
+ **/
 - (NSUInteger)readLengthForNonTerm
 {
   NSAssert(term == nil, @"This method does not apply to term reads");
@@ -291,9 +291,9 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 /**
  * For read packets with a set terminator, returns the safe length of data that can be read
  * without going over a terminator, or the maxLength, or forcing a resize of the buffer if at all possible.
- * 
+ *
  * It is assumed the terminator has not already been read.
-**/
+ **/
 - (NSUInteger)readLengthForTerm
 {
   NSAssert(term != nil, @"This method does not apply to non-term reads");
@@ -366,9 +366,9 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
  * For read packets with a set terminator,
  * returns the safe length of data that can be read from the given preBuffer,
  * without going over a terminator or the maxLength.
- * 
+ *
  * It is assumed the terminator has not already been read.
-**/
+ **/
 - (NSUInteger)readLengthForTermWithPreBuffer:(NSData *)preBuffer found:(BOOL *)foundPtr
 {
   NSAssert(term != nil, @"This method does not apply to non-term reads");
@@ -483,7 +483,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 /**
  * Assuming pre-buffering is enabled, returns the amount of data that can be read
  * without going over the maxLength.
-**/
+ **/
 - (NSUInteger)prebufferReadLengthForTerm
 {
   NSAssert(term != nil, @"This method does not apply to non-term reads");
@@ -515,12 +515,12 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 /**
  * For read packets with a set terminator, scans the packet buffer for the term.
  * It is assumed the terminator had not been fully read prior to the new bytes.
- * 
+ *
  * If the term is found, the number of excess bytes after the term are returned.
  * If the term is not found, this method will return -1.
- * 
+ *
  * Note: A return value of zero means the term was found at the very end.
-**/
+ **/
 - (NSInteger)searchForTermAfterPreBuffering:(NSUInteger)numBytes
 {
   NSAssert(term != nil, @"This method does not apply to non-term reads");
@@ -570,7 +570,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 
 /**
  * The AsyncWritePacket encompasses the instructions for any given write.
-**/
+ **/
 @interface AsyncWritePacket : NSObject {
   @public
   NSData *buffer;
@@ -609,7 +609,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 /**
  * The AsyncSpecialPacket encompasses special instructions for interruptions in the read/write queues.
  * This class my be altered to support more than just TLS in the future.
-**/
+ **/
 @interface AsyncSpecialPacket : NSObject {
   @public
   NSDictionary *tlsSettings;
@@ -965,7 +965,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 
 /**
  * See the header file for a full explanation of pre-buffering.
-**/
+ **/
 - (void)enablePreBuffering
 {
 #if DEBUG_THREAD_SAFETY
@@ -977,7 +977,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 
 /**
  * See the header file for a full explanation of this method.
-**/
+ **/
 - (BOOL)moveToRunLoop:(NSRunLoop *)runLoop
 {
   NSAssert((theRunLoop == NULL) || (theRunLoop == CFRunLoopGetCurrent()),
@@ -1045,7 +1045,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 
 /**
  * See the header file for a full explanation of this method.
-**/
+ **/
 - (BOOL)setRunLoopModes:(NSArray *)runLoopModes
 {
   NSAssert((theRunLoop == NULL) || (theRunLoop == CFRunLoopGetCurrent()),
@@ -1228,7 +1228,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
  * To accept on a certain interface, pass the address to accept on.
  * To accept on any interface, pass nil or an empty string.
  * To accept only connections from localhost pass "localhost" or "loopback".
-**/
+ **/
 - (BOOL)acceptOnInterface:(NSString *)interface port:(UInt16)port error:(NSError **)errPtr
 {
   return [self acceptOnInterface:interface port:port autoaccept:YES error:errPtr];
@@ -1237,7 +1237,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
 /**
  * To automatically accept incoming connections, set autoaccept to YES (default)
  * To manually accept connections via BSD accept() and the onSocketHasConnectionToAccept, set autoaccept to NO
-**/
+ **/
 - (BOOL)acceptOnInterface:(NSString *)interface port:(UInt16)port autoaccept:(BOOL)autoaccept error:(NSError **)errPtr
 {
   if (theDelegate == NULL) {
@@ -1374,7 +1374,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
     if (err != kCFSocketSuccess)
       goto Failed;
 
-    //NSLog(@"theSocket4: %hu", [self localPortFromCFSocket4:theSocket4]);
+    // NSLog(@"theSocket4: %hu", [self localPortFromCFSocket4:theSocket4]);
   }
 
   if (port == 0 && theSocket4 && theSocket6) {
@@ -1393,7 +1393,7 @@ static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType t
     if (err != kCFSocketSuccess)
       goto Failed;
 
-    //NSLog(@"theSocket6: %hu", [self localPortFromCFSocket6:theSocket6]);
+    // NSLog(@"theSocket6: %hu", [self localPortFromCFSocket6:theSocket6]);
   }
 
   theFlags |= kDidStartDelegate;
@@ -1430,7 +1430,7 @@ Failed:
  *
  * Thus the delegate will have access to the CFReadStream and CFWriteStream prior to connection,
  * specifically in the onSocketWillConnect: method.
-**/
+ **/
 - (BOOL)connectToHost:(NSString *)hostname
                onPort:(UInt16)port
           withTimeout:(NSTimeInterval)timeout
@@ -1480,13 +1480,13 @@ Failed:
  *
  * Thus the delegate will have access to the CFSocket and CFSocketNativeHandle (BSD socket) prior to connection,
  * specifically in the onSocketWillConnect: method.
- * 
+ *
  * Note: The NSData parameter is expected to be a sockaddr structure. For example, an NSData object returned from
  * NSNetservice addresses method.
  * If you have an existing struct sockaddr you can convert it to an NSData object like so:
  * struct sockaddr sa  -> NSData *dsa = [NSData dataWithBytes:&remoteAddr length:remoteAddr.sa_len];
  * struct sockaddr *sa -> NSData *dsa = [NSData dataWithBytes:remoteAddr length:remoteAddr->sa_len];
-**/
+ **/
 - (BOOL)connectToAddress:(NSData *)remoteAddr withTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr
 {
   return [self connectToAddress:remoteAddr viaInterfaceAddress:nil withTimeout:timeout error:errPtr];
@@ -1495,7 +1495,7 @@ Failed:
 /**
  * This method is similar to the one above, but allows you to specify which socket interface
  * the connection should run over. E.g. ethernet, wifi, bluetooth, etc.
-**/
+ **/
 - (BOOL)connectToAddress:(NSData *)remoteAddr
      viaInterfaceAddress:(NSData *)interfaceAddr
              withTimeout:(NSTimeInterval)timeout
@@ -1569,7 +1569,7 @@ Failed:
  * Creates the accept sockets.
  * Returns true if either IPv4 or IPv6 is created.
  * If either is missing, an error is returned (even though the method may return true).
-**/
+ **/
 - (CFSocketRef)newAcceptSocketForAddress:(NSData *)addr autoaccept:(BOOL)autoaccept error:(NSError **)errPtr
 {
   struct sockaddr *pSockAddr = (struct sockaddr *)[addr bytes];
@@ -1673,7 +1673,7 @@ Failed:
 
 /**
  * Adds the CFSocket's to the run-loop so that callbacks will work properly.
-**/
+ **/
 - (BOOL)attachSocketsToRunLoop:(NSRunLoop *)runLoop error:(NSError **)errPtr
 {
 #pragma unused(errPtr)
@@ -1697,7 +1697,7 @@ Failed:
 /**
  * Allows the delegate method to configure the CFSocket or CFNativeSocket as desired before we connect.
  * Note that the CFReadStream and CFWriteStream will not be available until after the connection is opened.
-**/
+ **/
 - (BOOL)configureSocketAndReturnError:(NSError **)errPtr
 {
   // Call the delegate method for further configuration.
@@ -1737,7 +1737,7 @@ Failed:
 /**
  * Attempt to make the new socket.
  * If an error occurs, ignore this event.
-**/
+ **/
 - (AsyncSocket *)doAcceptFromSocket:(CFSocketRef)parentSocket withNewNativeSocket:(CFSocketNativeHandle)newNativeSocket
 {
   if (newNativeSocket) {
@@ -1786,7 +1786,7 @@ Failed:
 /**
  * This method is called as a result of connectToAddress:withTimeout:error:.
  * At this point we have an open CFSocket from which we need to create our read and write stream.
-**/
+ **/
 - (void)doSocketOpen:(CFSocketRef)sock withCFSocketError:(CFSocketError)socketError
 {
   NSParameterAssert((sock == theSocket4) || (sock == theSocket6));
@@ -1854,9 +1854,9 @@ Failed:
 /**
  * Creates the CFReadStream and CFWriteStream from the given native socket.
  * The CFSocket may be extracted from either stream after the streams have been opened.
- * 
+ *
  * Note: The given native socket must already be connected!
-**/
+ **/
 - (BOOL)createStreamsFromNative:(CFSocketNativeHandle)native error:(NSError **)errPtr
 {
   // Create the socket & streams.
@@ -1881,7 +1881,7 @@ Failed:
 /**
  * Creates the CFReadStream and CFWriteStream from the given hostname and port number.
  * The CFSocket may be extracted from either stream after the streams have been opened.
-**/
+ **/
 - (BOOL)createStreamsToHost:(NSString *)hostname onPort:(UInt16)port error:(NSError **)errPtr
 {
   // Create the socket & streams.
@@ -1952,10 +1952,10 @@ Failed:
 
 /**
  * Allows the delegate method to configure the CFReadStream and/or CFWriteStream as desired before we connect.
- * 
+ *
  * If being called from a connect method,
  * the CFSocket and CFNativeSocket will not be available until after the connection is opened.
-**/
+ **/
 - (BOOL)configureStreamsAndReturnError:(NSError **)errPtr
 {
   // Call the delegate method for further configuration.
@@ -1994,7 +1994,7 @@ Failed:
 /**
  * Called when read or write streams open.
  * When the socket is connected and both streams are open, consider the AsyncSocket instance to be ready.
-**/
+ **/
 - (void)doStreamOpen
 {
   if ((theFlags & kDidCompleteOpenForRead) && (theFlags & kDidCompleteOpenForWrite)) {
@@ -2149,7 +2149,7 @@ Failed:
 
 /**
  * Disconnects. This is called for both error and clean disconnections.
-**/
+ **/
 - (void)close
 {
   // Empty queues
@@ -2227,7 +2227,7 @@ Failed:
 
 /**
  * Disconnects immediately. Any pending reads or writes are dropped.
-**/
+ **/
 - (void)disconnect
 {
 #if DEBUG_THREAD_SAFETY
@@ -2238,8 +2238,8 @@ Failed:
 }
 
 /**
- * Diconnects after all pending reads have completed.
-**/
+ * Disconnects after all pending reads have completed.
+ **/
 - (void)disconnectAfterReading
 {
 #if DEBUG_THREAD_SAFETY
@@ -2253,7 +2253,7 @@ Failed:
 
 /**
  * Disconnects after all pending writes have completed.
-**/
+ **/
 - (void)disconnectAfterWriting
 {
 #if DEBUG_THREAD_SAFETY
@@ -2267,7 +2267,7 @@ Failed:
 
 /**
  * Disconnects after all pending reads and writes have completed.
-**/
+ **/
 - (void)disconnectAfterReadingAndWriting
 {
 #if DEBUG_THREAD_SAFETY
@@ -2283,7 +2283,7 @@ Failed:
  * Schedules a call to disconnect if possible.
  * That is, if all writes have completed, and we're set to disconnect after writing,
  * or if all reads have completed, and we're set to disconnect after reading.
-**/
+ **/
 - (void)maybeScheduleDisconnect
 {
   BOOL shouldDisconnect = NO;
@@ -2312,7 +2312,7 @@ Failed:
 /**
  * In the event of an error, this method may be called during onSocket:willDisconnectWithError: to read
  * any data that's left on the socket.
-**/
+ **/
 - (NSData *)unreadData
 {
 #if DEBUG_THREAD_SAFETY
@@ -2364,7 +2364,7 @@ Failed:
 /**
  * Returns a standard error object for the current errno value.
  * Errno is used for low-level BSD socket errors.
-**/
+ **/
 - (NSError *)getErrnoError
 {
   NSString *errorMsg = [NSString stringWithUTF8String:strerror(errno)];
@@ -2376,7 +2376,7 @@ Failed:
 /**
  * Returns a standard error message for a CFSocket error.
  * Unfortunately, CFSocket offers no feedback on its errors.
-**/
+ **/
 - (NSError *)getSocketError
 {
   NSString *errMsg = NSLocalizedStringWithDefaultValue(@"AsyncSocketCFSocketError",
@@ -2408,7 +2408,7 @@ Failed:
 
 /**
  * Returns a standard AsyncSocket abort error.
-**/
+ **/
 - (NSError *)getAbortError
 {
   NSString *errMsg = NSLocalizedStringWithDefaultValue(@"AsyncSocketCanceledError",
@@ -2422,7 +2422,7 @@ Failed:
 
 /**
  * Returns a standard AsyncSocket connect timeout error.
-**/
+ **/
 - (NSError *)getConnectTimeoutError
 {
   NSString *errMsg = NSLocalizedStringWithDefaultValue(@"AsyncSocketConnectTimeoutError",
@@ -2436,7 +2436,7 @@ Failed:
 
 /**
  * Returns a standard AsyncSocket maxed out error.
-**/
+ **/
 - (NSError *)getReadMaxedOutError
 {
   NSString *errMsg = NSLocalizedStringWithDefaultValue(@"AsyncSocketReadMaxedOutError",
@@ -2450,7 +2450,7 @@ Failed:
 
 /**
  * Returns a standard AsyncSocket read timeout error.
-**/
+ **/
 - (NSError *)getReadTimeoutError
 {
   NSString *errMsg = NSLocalizedStringWithDefaultValue(@"AsyncSocketReadTimeoutError",
@@ -2464,7 +2464,7 @@ Failed:
 
 /**
  * Returns a standard AsyncSocket write timeout error.
-**/
+ **/
 - (NSError *)getWriteTimeoutError
 {
   NSString *errMsg = NSLocalizedStringWithDefaultValue(@"AsyncSocketWriteTimeoutError",
@@ -3319,9 +3319,9 @@ Failed:
 }
 
 /**
- * Puts a maybeDequeueRead on the run loop. 
+ * Puts a maybeDequeueRead on the run loop.
  * An assumption here is that selectors will be performed consecutively within their priority.
-**/
+ **/
 - (void)scheduleDequeueRead
 {
   if ((theFlags & kDequeueReadScheduled) == 0) {
@@ -3334,7 +3334,7 @@ Failed:
  * This method starts a new read, if needed.
  * It is called when a user requests a read,
  * or when a stream opens that may have requested reads sitting in the queue, etc.
-**/
+ **/
 - (void)maybeDequeueRead
 {
   // Unset the flag indicating a call to this method is scheduled
@@ -3382,7 +3382,7 @@ Failed:
 /**
  * Call this method in doBytesAvailable instead of CFReadStreamHasBytesAvailable().
  * This method supports pre-buffering properly as well as the kSocketHasBytesAvailable flag.
-**/
+ **/
 - (BOOL)hasBytesAvailable
 {
   if ((theFlags & kSocketHasBytesAvailable) || ([partialReadBuffer length] > 0)) {
@@ -3395,7 +3395,7 @@ Failed:
 /**
  * Call this method in doBytesAvailable instead of CFReadStreamRead().
  * This method support pre-buffering properly.
-**/
+ **/
 - (CFIndex)readIntoBuffer:(void *)buffer maxLength:(NSUInteger)length
 {
   if ([partialReadBuffer length] > 0) {
@@ -3419,7 +3419,7 @@ Failed:
 
 /**
  * This method is called when a new read is taken from the read queue or when new data becomes available on the stream.
-**/
+ **/
 - (void)doBytesAvailable
 {
   // If data is available on the stream, but there is no read request, then we don't need to process the data yet.
@@ -3719,13 +3719,13 @@ Failed:
 
 /**
  * Conditionally starts a new write.
- * 
+ *
  * IF there is not another write in process
  * AND there is a write queued
  * AND we have a write stream available
- * 
+ *
  * This method also handles auto-disconnect post read/write completion.
-**/
+ **/
 - (void)maybeDequeueWrite
 {
   // Unset the flag indicating a call to this method is scheduled
@@ -3773,7 +3773,7 @@ Failed:
 /**
  * Call this method in doSendBytes instead of CFWriteStreamCanAcceptBytes().
  * This method supports the kSocketCanAcceptBytes flag.
-**/
+ **/
 - (BOOL)canAcceptBytes
 {
   if (theFlags & kSocketCanAcceptBytes) {
@@ -4064,7 +4064,7 @@ Failed:
 /**
  * This is the callback we setup for CFSocket.
  * This method does nothing but forward the call to it's Objective-C counterpart
-**/
+ **/
 static void MyCFSocketCallback(CFSocketRef sref, CFSocketCallBackType type, CFDataRef address, const void *pData, void *pInfo)
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -4078,7 +4078,7 @@ static void MyCFSocketCallback(CFSocketRef sref, CFSocketCallBackType type, CFDa
 /**
  * This is the callback we setup for CFReadStream.
  * This method does nothing but forward the call to it's Objective-C counterpart
-**/
+ **/
 static void MyCFReadStreamCallback(CFReadStreamRef stream, CFStreamEventType type, void *pInfo)
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -4092,7 +4092,7 @@ static void MyCFReadStreamCallback(CFReadStreamRef stream, CFStreamEventType typ
 /**
  * This is the callback we setup for CFWriteStream.
  * This method does nothing but forward the call to it's Objective-C counterpart
-**/
+ **/
 static void MyCFWriteStreamCallback(CFWriteStreamRef stream, CFStreamEventType type, void *pInfo)
 {
   NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];

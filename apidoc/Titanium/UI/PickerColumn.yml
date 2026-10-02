@@ -24,8 +24,8 @@ excludes:
     touchFeedback, touchFeedbackColor, transform, translationX, translationY, translationZ,
     transitionName, verticalMotionEffect, viewShadowRadius, viewShadowColor, viewShadowOffset,
     visible, width, horizontalWrap, keepScreenOn, tintColor, zIndex]
-  methods: [add, animate, clearMotionEffects, finishLayout, hide, insertAt, remove,
-    removeAllChildren, replaceAt, show, startLayout, toImage, updateLayout, convertPointToView,
+  methods: [add, animate, clearMotionEffects, hide, insertAt, remove,
+    removeAllChildren, replaceAt, show, toImage, convertPointToView,
     getViewById]
   events: [click, dblclick, doubletap, keypressed, longpress, pinch, singletap, swipe, touchcancel,
     touchend, touchmove, touchstart, twofingertap]

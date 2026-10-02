@@ -54,7 +54,7 @@ a summary of new features in this release. Notable issues include support for
 Android 6.0 (Marshmallow), iOS 9.0, watchOS 2 and direct API access for Windows.
 
 This Release includes over 150 bug fixes and improvements, see the
-[full list of issues that were addressed in Release 5.0.0](https://jira.appcelerator.org/issues/?filter=16923).
+full list of issues that were addressed in Release 5.0.0.
 
 <a name="android"></a>
 ### Android Support
@@ -71,7 +71,7 @@ which includes [Alloy 1.7.8](https://github.com/tidev/alloy/releases)
 and [Titanium CLI 5.0.3](https://github.com/tidev/titanium/releases).
 
 For more details, see the
-[CLI Release Notes](https://docs.appcelerator.com/platform/latest/#!/guide/Appcelerator_CLI_Release_Notes).
+[CLI Release Notes](https://titaniumsdk.com/api/).
 
 <a name="ios"></a>
 ### iOS and watchOS Support
@@ -86,7 +86,7 @@ iOS app extensions and watchOS 1 applications are not supported in this Release.
 
 To get started with watchOS 2, see:
 
- * [Integrate a WatchKit App Built in Xcode](https://docs.appcelerator.com/platform/latest/#!/guide/Integrate_a_WatchKit_App_Built_in_Xcode)
+ * [Integrate a WatchKit App Built in Xcode](https://titaniumsdk.com/api/)
  * [appc-sample-watchos2](https://github.com/appcelerator-developer-relations/appc-sample-watchos2)
 
 <a name="studio"></a>
@@ -96,7 +96,7 @@ This Release coincides with the release of Studio 4.3.0, which includes support 
 building, running and packaging watchOS 2 applications built in Xcode.
 
 For more details, see the
-[Studio Release Notes](https://docs.appcelerator.com/platform/latest/#!/guide/Studio_Release_Notes).
+[Studio Release Notes](https://titaniumsdk.com/api/).
 
 <a name="changes"></a>
 ## Notice of Feature and Behavior Changes
@@ -112,7 +112,7 @@ network support, you can no longer set the expiration date of the cookie using t
 property. 
 
 Instead, set the
-[maxAge](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network.Cookie-property-maxAge)
+[maxAge](https://titaniumsdk.com/api/)
 property of the Cookie object on the Android platform.
 
 <a name="ios_deprecated"></a>
@@ -133,7 +133,7 @@ to the `ios plist` section of the `tiapp.xml` file, then add the `NSAllowArbitra
 Note that you may need to whitelist URLs in order to connect to the web services.
 
 For more information, see the _iOS 9 Application Note_ in the
-[Titanium.Network API reference](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network).
+[Titanium.Network API reference](https://titaniumsdk.com/api/).
 
 <a name="contacts"></a>
 #### Contacts
@@ -169,14 +169,14 @@ Apple recommends not to include hard-coded IPv4 address literals in your applica
 and to test the application with an IPv6 DNS64/NAT64 network.
 
 For more information, see the _iOS 9 Application Note_ in the
-[Titanium.Network API reference](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network).
+[Titanium.Network API reference](https://titaniumsdk.com/api/).
 
 <a name="edit_actions"></a>
 #### ListView Edit Actions
 
 The `rowAction` event was renamed to the `editaction` event, which is fired when a user interacts
 with a custom edit action in a list item. Update your application to listen for the
-[`editaction`](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ListView-event-editaction) event.
+[`editaction`](https://titaniumsdk.com/api/) event.
 
 
 <a name="windows_deprecated"></a>
@@ -209,7 +209,7 @@ This section lists new features and improvements only available on the Android p
 #### Large Icon Support for Notifications
 
 This Release supports adding a large icon to be shown in the content area of a notificaiton.  Set the
-[largeIcon](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-largeIcon)
+[largeIcon](https://titaniumsdk.com/api/)
 property of the Ti.Android.Notification object.
 
 <a name="network_support"></a>
@@ -242,7 +242,7 @@ This section lists new features and improvements only available on the iOS platf
 #### Attributed String Line Break
 
 iOS now supports changing the line break behavior with AttributedStrings.  Set the attribute type to
-[`ATTRIBUTE_LINE_BREAK`](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI-property-ATTRIBUTE_LINE_BREAK)
+[`ATTRIBUTE_LINE_BREAK`](https://titaniumsdk.com/api/)
 and the attribute value to an `ATTRIBUTE_LINE_BREAK_*` constant.
 
 <a name="handoff"></a>
@@ -255,8 +255,8 @@ reading.
 
 For more information, see:
 
-  * [Titanium.App.iOS.UserActivity API reference](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.App.iOS.UserActivity)
-  * [Handoff User Activites guide](https://docs.appcelerator.com/platform/latest/#!/guide/Handoff_User_Activities)
+  * [Titanium.App.iOS.UserActivity API reference](https://titaniumsdk.com/api/)
+  * [Handoff User Activites guide](https://titaniumsdk.com/api/)
 
 <a name="icons_new"></a>
 #### Icons and Launch Images
@@ -271,7 +271,7 @@ New Titanium projects will have the `DefaultIcon.png` file.
 Note that the localized launch images in the `i18n` folder are not supported by Asset Catalog.
 
 For more details, see the
-[Icons and Splash Screens guide](https://docs.appcelerator.com/platform/latest/#!/guide/Icons_and_Splash_Screens-section-29004897_IconsandSplashScreens-iOSgraphicassetrequirementsandoptions).
+[Icons and Splash Screens guide](https://titaniumsdk.com/api/).
 
 <a name="spotlight"></a>
 #### Spotlight Search
@@ -281,15 +281,15 @@ the private on-device index or public Apple server-side index so the user can fi
 
 For more information, see:
 
-  * _Index Application Content_ section in [Titanium.App.iOS API reference](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.App.iOS)
-  * [Spotlight Search guide](https://docs.appcelerator.com/platform/latest/#!/guide/Spotlight_Search)
+  * _Index Application Content_ section in [Titanium.App.iOS API reference](https://titaniumsdk.com/api/)
+  * [Spotlight Search guide](https://titaniumsdk.com/api/)
   * [appc-sample-appsearch](https://github.com/appcelerator-developer-relations/appc-sample-appsearch)
 
 <a name="watch_connectivity"></a>
 #### Watch Connectivity
 
 To communicate with watchOS 2 applications, use the
-[Titanum.WatchSession API](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.WatchSession)
+[Titanum.WatchSession API](https://titaniumsdk.com/api/)
 to exchange data and files.
 
 Note that the application must run on an iOS 9 iPhone that supports watch apps and a watchOS 2 watch,
@@ -297,7 +297,7 @@ and needs to be built with iOS 9 and Xcode 7.
 
 To get started with Watch Connectivity, see:
 
- * [Integrate a WatchKit App Built in Xcode](https://docs.appcelerator.com/platform/latest/#!/guide/Integrate_a_WatchKit_App_Built_in_Xcode)
+ * [Integrate a WatchKit App Built in Xcode](https://titaniumsdk.com/api/)
  * [appc-sample-watchos2](https://github.com/appcelerator-developer-relations/appc-sample-watchos2)
 
 
@@ -312,13 +312,13 @@ This section lists new features and improvements only available on the Windows p
 
 The Windows Platform expands support for several APIs, including:
 
-  * Support for [Titanium.UI.Clipboard](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Clipboard)
-  * Events for [Titanium.Media.AudioPlayer](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media.AudioPlayer),
-    [Titanium.Media.Sound](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media.Sound) and
-    [Titanium.Media.VideoPlayer](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media.VideoPlayer)
-  * Expanded support for [Titanium.UI.Button](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Button)
-    [Titanium.UI.ScrollView](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.ScrollView) and
-    [Titanium.UI.View](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.View)
+  * Support for [Titanium.UI.Clipboard](https://titaniumsdk.com/api/)
+  * Events for [Titanium.Media.AudioPlayer](https://titaniumsdk.com/api/),
+    [Titanium.Media.Sound](https://titaniumsdk.com/api/) and
+    [Titanium.Media.VideoPlayer](https://titaniumsdk.com/api/)
+  * Expanded support for [Titanium.UI.Button](https://titaniumsdk.com/api/)
+    [Titanium.UI.ScrollView](https://titaniumsdk.com/api/) and
+    [Titanium.UI.View](https://titaniumsdk.com/api/)
 
 For details, see the [New APIs section below](#new_apis).
 
@@ -335,7 +335,7 @@ To use the WinRT APIs, pass the `require()` method the fully qualified name of t
 to use, then invoke API calls on the object.
 
 For details, see the
-[Window Runtime Direct API Access](https://docs.appcelerator.com/platform/latest/#!/guide/Windows_Runtime_Direct_API_Access).
+[Window Runtime Direct API Access](https://titaniumsdk.com/api/).
 
 <a name="known_issues"></a>
 ## Known Issues

@@ -17,6 +17,21 @@ methods:
         type: Dictionary<Titanium.Calendar.Event>
     platforms: [android, iphone, ipad, macos]
 
+  - name: createEvents
+    summary: Creates multiple events at once in this calendar.
+    description: |
+        Use this method to bulk-create events for faster performance.
+        Successful or failed results are returned at the same position as passed in the parameters list.
+        For failed events, it will return `null` and <Titanium.Calendar.Event> for successful events.
+    returns:
+        type: Array<Titanium.Calendar.Event>
+    parameters:
+      - name: propertiesArray
+        summary: Array of the event properties
+        type: Array<Dictionary<Titanium.Calendar.Event>>
+    platforms: [android]
+    since: {android: "12.6.0"}
+
   - name: getEventById
     summary: Gets the event with the specified identifier.
     returns:
@@ -26,6 +41,41 @@ methods:
         summary: Identifier of the event.
         type: String
     platforms: [android, iphone, ipad, macos]
+
+  - name: getEventsById
+    summary: Gets multiple events with their specified identifier(s).
+    description: |
+        Use this method to bulk-fetch events for faster performance.
+        Only successful events are returned, so the identifier of events
+        should be used to compare which events were not fetched successfully.
+    returns:
+        type: Array<Titanium.Calendar.Event>
+    parameters:
+      - name: ids
+        summary: Array of identifiers of events.
+        type: [Array<Number>, Array<String>]
+    platforms: [android]
+    since: {android: "12.6.0"}
+
+  - name: deleteEvents
+    summary: Deletes multiple events with their specified identifier(s).
+    description: |
+        Use this method to bulk-delete events for faster performance.
+        This method only returns the count of successfully deleted events.
+        If it is important for apps to know whether the event was deleted or not,
+        either use the [remove()](Titanium.Calendar.Event.remove) method, or 
+        a single identifier that is passed as an array to this method.
+        If a specified identifier event does not exist, it will not be treated as a count,
+        so the count range can be in `0 <= count <= ids.length`.
+    returns:
+        type: Number
+        summary: Count of successfully deleted events.
+    parameters:
+      - name: ids
+        summary: Array of identifiers of events.
+        type: [Array<Number>, Array<String>]
+    platforms: [android]
+    since: {android: "12.6.0"}
 
   - name: getEventsBetweenDates
     summary: Gets events that occur between two dates.
@@ -104,7 +154,6 @@ properties:
     summary: Identifier of this calendar.
     type: String
     permission: read-only
-    osver: {ios: {min: "5.0"}}
     platforms: [android, iphone, ipad, macos]
 
   - name: name

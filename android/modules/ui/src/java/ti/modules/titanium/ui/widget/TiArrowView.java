@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -49,13 +49,12 @@ public class TiArrowView extends View
 			path.moveTo(0.0f, 1.0f);
 			path.lineTo(1.0f, 2.0f);
 			path.lineTo(1.0f, 0.0f);
-			path.close();
 		} else {
 			path.lineTo(1.0f, 1.0f);
 			path.lineTo(0.0f, 2.0f);
 			path.lineTo(0.0f, 0.0f);
-			path.close();
 		}
+		path.close();
 
 		setWillNotDraw(false);
 	}

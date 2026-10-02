@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -32,16 +32,16 @@
 
 - (KrollContext *)krollContext;
 
-//Creates a kroll object to be used with the proxy.
+// Creates a kroll object to be used with the proxy.
 - (id)registerProxy:(id)proxy;
 
-//Removes the kroll object and the proxy.
+// Removes the kroll object and the proxy.
 - (void)unregisterProxy:(id)proxy;
 
-//Returns YES if and only iff the proxy has been registered.
+// Returns YES if and only iff the proxy has been registered.
 - (BOOL)usesProxy:(id)proxy;
 
-//Returns the kroll object created iff the proxy has been registered. Otherwise, returns nil.
+// Returns the kroll object created iff the proxy has been registered. Otherwise, returns nil.
 - (id)krollObjectForProxy:(id)proxy;
 
 @end

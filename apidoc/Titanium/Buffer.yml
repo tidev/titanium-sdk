@@ -125,7 +125,7 @@ methods:
         summary: The number of bytes copied.
     summary: Copies data from `sourceBuffer` into the current buffer at `offset`.
     description: |
-        Does not expand this buffer if there is not enough room  to accomodate the data
+        Does not expand this buffer if there is not enough room to accommodate the data
         from `sourceBuffer`.
 
         If `sourceOffset` and `sourceLength` are specified, bytes are copied from
@@ -162,7 +162,7 @@ methods:
         type: Titanium.Buffer
     summary: Creates a complete or partial copy of this buffer.
     description: |
-        If called with no arguments, retuns a complete copy of the current buffer.
+        If called with no arguments, returns a complete copy of the current buffer.
 
         If `offset` and `length` are specified, creates a new buffer from the original
         buffer contents starting at `offset` and ending at `offset`+`length`-1.

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -50,7 +50,7 @@ NSArray *pickerKeySequence;
 
 - (void)viewDidAttach
 {
-  //Window might not have opened yet, so delay till we get windowDidOpen
+  // Window might not have opened yet, so delay till we get windowDidOpen
   if (selectOnLoad != nil && windowOpened) {
     [self setSelectedRow:selectOnLoad];
     RELEASE_TO_NIL(selectOnLoad);
@@ -274,7 +274,7 @@ NSArray *pickerKeySequence;
 
 - (void)remove:(id)args
 {
-  //TODO
+  // TODO
 }
 
 - (id)getSelectedRow:(id)args
@@ -327,7 +327,7 @@ USE_VIEW_FOR_VERIFY_WIDTH
     return;
   }
 
-  //TODO: This is playing with fire here.
+  // TODO: This is playing with fire here.
   NSArray *columnArray = [self columns];
 
   NSUInteger columnIndex = NSNotFound;
