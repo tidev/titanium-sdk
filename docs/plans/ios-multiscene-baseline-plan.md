@@ -107,8 +107,8 @@ After baseline is stable, deprecate `sharedApp` in favor of per-scene access:
 
 **Deprecation timeline:**
 1. **v13.3.0** – Baseline fixes (this plan) ✅
-2. **v13.4.0** – Add `TiSceneRegistry` class, JS API ✅ (see multi-scene plan)
-3. **v14.0.0** – Deprecate `sharedApp`, require scene-aware code (pending)
+2. **v14.0.0** – Add `TiSceneRegistry` class, JS API ✅ (see multi-scene plan)
+3. **Future release** – Deprecate `sharedApp`, require scene-aware code (pending)
 
 ---
 

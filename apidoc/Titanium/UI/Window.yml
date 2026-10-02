@@ -1900,7 +1900,7 @@ properties:
     permission: read-only
     platforms: [iphone, ipad]
     osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
+    since: "14.0.0"
 
   - name: modalStyle
     summary: Presentation style of this modal window.

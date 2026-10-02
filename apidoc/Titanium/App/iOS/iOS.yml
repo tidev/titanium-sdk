@@ -239,7 +239,7 @@ methods:
             when the new scene connects, or rejects with an Error if activation
             fails or multi-scene support is unavailable.
     osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
+    since: "14.0.0"
 
 properties:
   - name: EVENT_ACCESSIBILITY_LAYOUT_CHANGED
@@ -870,7 +870,7 @@ properties:
     type: Titanium.App.iOS.SceneProxy
     permission: read-only
     osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
+    since: "14.0.0"
 
   - name: scenes
     summary: An array of all active scene proxies.
@@ -884,7 +884,7 @@ properties:
     type: Array<Titanium.App.iOS.SceneProxy>
     permission: read-only
     osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
+    since: "14.0.0"
 
   - name: focusedScene
     summary: The scene proxy for the scene the user is currently interacting with.
@@ -904,7 +904,7 @@ properties:
     type: Titanium.App.iOS.SceneProxy
     permission: read-only
     osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
+    since: "14.0.0"
 
 events:
   - name: notification
@@ -1499,7 +1499,7 @@ events:
         type: Titanium.App.iOS.SceneProxy
     platforms: [iphone, ipad]
     osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
+    since: "14.0.0"
 
   - name: scenediddismiss
     summary: Fired when a scene is dismissed by the user or system.
@@ -1512,7 +1512,7 @@ events:
         type: String
     platforms: [iphone, ipad]
     osver: {ios: {min: "13.0"}}
-    since: {iphone: "13.3.0", ipad: "13.3.0"}
+    since: "14.0.0"
 
 
 ---
@@ -1700,7 +1700,7 @@ properties:
 name: RequestSceneOptions
 summary: |
     Dictionary of options for <Titanium.App.iOS.requestScene>.
-since: {iphone: "13.3.0", ipad: "13.3.0"}
+since: "14.0.0"
 platforms: [iphone, ipad]
 
 properties:
@@ -1718,7 +1718,7 @@ name: RequestSceneResult
 summary: |
     Resolution value of the Promise returned by <Titanium.App.iOS.requestScene>
     when the newly-requested scene has connected.
-since: {iphone: "13.3.0", ipad: "13.3.0"}
+since: "14.0.0"
 platforms: [iphone, ipad]
 
 properties:
