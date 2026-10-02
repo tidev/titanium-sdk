@@ -145,10 +145,8 @@ public class TiUIButton extends TiUIView
 		Activity activity = proxy.getActivity();
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 
-		if (d.containsKey(TiC.PROPERTY_PADDING) || (!d.containsKey(TiC.PROPERTY_IMAGE)
-			&& d.containsKey(TiC.PROPERTY_BACKGROUND_COLOR))) {
-			HashMap padding = (HashMap) d.get(TiC.PROPERTY_PADDING);
-			setPadding(padding);
+		if (d.containsKey(TiC.PROPERTY_PADDING)) {
+			setPadding(d.get(TiC.PROPERTY_PADDING));
 		}
 
 		if ((btn instanceof MaterialButton) && d.containsKey(TiC.PROPERTY_TOUCH_FEEDBACK)) {
@@ -215,8 +213,13 @@ public class TiUIButton extends TiUIView
 		btn.invalidate();
 	}
 
-	private void setPadding(HashMap padding)
+	private void setPadding(Object value)
 	{
+		if (!(value instanceof HashMap padding)) {
+			// Keep the native padding if no valid padding dictionary is set.
+			return;
+		}
+
 		int paddingLeft = nativeView.getPaddingLeft();
 		int paddingTop = nativeView.getPaddingTop();
 		int paddingRight = nativeView.getPaddingRight();
@@ -308,7 +311,7 @@ public class TiUIButton extends TiUIView
 			shadowColor = TiConvert.toColor(TiConvert.toString(newValue), activity);
 			btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
 		} else if (key.equals(TiC.PROPERTY_PADDING)) {
-			setPadding((HashMap) newValue);
+			setPadding(newValue);
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
