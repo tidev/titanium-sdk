@@ -18,7 +18,7 @@ export function detect(types, config, next) {
 		return dir !== '/' && scan(dir);
 	}(__dirname)));
 
-	import('./detect.js').then(({ default: mod }) => {
+	import('./detect.js').then((mod) => {
 		// detect Android environment
 		mod.detect(config, null, function (result) {
 			// detect devices

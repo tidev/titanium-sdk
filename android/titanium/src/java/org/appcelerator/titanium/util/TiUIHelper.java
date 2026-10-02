@@ -14,9 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,8 +99,8 @@ public class TiUIHelper
 	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
-	private static final Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<>());
-	private static final Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, String> resourceImageKeys = new ConcurrentHashMap<>();
+	private static final Map<String, Typeface> mCustomTypeFaces = new ConcurrentHashMap<>();
 
 	public static OnClickListener createDoNothingListener()
 	{
@@ -142,14 +142,19 @@ public class TiUIHelper
 			negativeListener = createKillListener();
 		}
 
-		new MaterialAlertDialogBuilder(context)
+		AlertDialog dialog = new MaterialAlertDialogBuilder(context)
 			.setTitle(title)
 			.setMessage(message)
 			.setPositiveButton("Continue", positiveListener)
 			.setNegativeButton("Kill", negativeListener)
 			.setCancelable(false)
-			.create()
-			.show();
+			.create();
+
+		// Check if the context is an Activity and if it's finishing to avoid WindowLeaked error
+		if (context instanceof Activity && ((Activity) context).isFinishing()) {
+			return;
+		}
+		dialog.show();
 	}
 
 	public static void linkifyIfEnabled(TextView tv, Object autoLink)
@@ -425,11 +430,12 @@ public class TiUIHelper
 
 	private static Typeface loadTypeface(Context context, String fontFamily)
 	{
-		if (context == null) {
+		if (context == null || fontFamily == null) {
 			return null;
 		}
-		if (mCustomTypeFaces.containsKey(fontFamily)) {
-			return mCustomTypeFaces.get(fontFamily);
+		Typeface cached = mCustomTypeFaces.get(fontFamily);
+		if (cached != null || mCustomTypeFaces.containsKey(fontFamily)) {
+			return cached;
 		}
 		AssetManager mgr = context.getAssets();
 		try {
@@ -438,10 +444,7 @@ public class TiUIHelper
 				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					synchronized (mCustomTypeFaces)
-					{
-						mCustomTypeFaces.put(fontFamily, tf);
-					}
+					mCustomTypeFaces.put(fontFamily, tf);
 					return tf;
 				}
 			}
@@ -449,7 +452,6 @@ public class TiUIHelper
 			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 		}
 
-		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
 
@@ -630,7 +632,7 @@ public class TiUIHelper
 		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable, null);
 	}
 
-	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage,
+	public static Drawable buildBackgroundDrawable(Object color, Drawable imageDrawable, boolean tileImage,
 												   Drawable gradientDrawable, Context context)
 	{
 		// Create an array of the layers that will compose this background.

@@ -61,7 +61,7 @@ export class IOS {
 
 		return new Promise((resolve, reject) => {
 			const buildScript = path.join(ROOT_DIR, 'support/iphone/build_titaniumkit.sh');
-			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash ], { stdio: 'inherit' });
+			const child = spawn(buildScript, [ '-v', this.sdkVersion, '-t', this.timestamp, '-h', this.gitHash, '-d' ], { stdio: 'inherit' });
 			child.on('error', reject);
 			child.on('close', code => {
 				if (code) {

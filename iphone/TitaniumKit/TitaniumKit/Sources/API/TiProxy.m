@@ -18,8 +18,6 @@
 #import "TiProxy.h"
 #import "TiViewProxy.h"
 
-#include <libkern/OSAtomic.h>
-
 // Common exceptions to throw when the function call was improper
 NSString *const TiExceptionInvalidType = @"Invalid type passed to function";
 NSString *const TiExceptionNotEnoughArguments = @"Invalid number of arguments to function";
@@ -207,23 +205,23 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 #if PROXY_MEMORY_TRACK == 1
     NSLog(@"[DEBUG] INIT: %@ (%d)", self, [self hash]);
 #endif
-    pthread_rwlock_init(&listenerLock, NULL);
-    pthread_rwlock_init(&dynpropsLock, NULL);
+    listenerQueue = dispatch_queue_create("ti.proxy.listeners", DISPATCH_QUEUE_CONCURRENT);
+    dynpropsQueue = dispatch_queue_create("ti.proxy.dynprops", DISPATCH_QUEUE_CONCURRENT);
   }
   return self;
 }
 
 - (void)initializeProperty:(NSString *)name defaultValue:(id)value
 {
-  pthread_rwlock_wrlock(&dynpropsLock);
-  if (dynprops == nil) {
-    dynprops = [[NSMutableDictionary alloc] init];
-    dynpropnames = [[NSMutableArray alloc] init];
-  }
-  if ([dynprops valueForKey:name] == nil) {
-    [self addKey:name toValue:((value == nil) ? [NSNull null] : value)];
-  }
-  pthread_rwlock_unlock(&dynpropsLock);
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    if (dynprops == nil) {
+      dynprops = [[NSMutableDictionary alloc] init];
+      dynpropnames = [[NSMutableArray alloc] init];
+    }
+    if ([dynprops valueForKey:name] == nil) {
+      [self addKey:name toValue:((value == nil) ? [NSNull null] : value)];
+    }
+  });
 }
 
 + (BOOL)shouldRegisterOnInit
@@ -272,7 +270,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (void)boundBridge:(id<TiEvaluator>)newBridge withKrollObject:(KrollObject *)newKrollObject
 {
-  OSAtomicIncrement32(&bridgeCount);
+  atomic_fetch_add(&bridgeCount, 1);
   if (newBridge == pageContext) {
     pageKrollObject = newKrollObject;
   }
@@ -280,7 +278,7 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (void)unboundBridge:(id<TiEvaluator>)oldBridge
 {
-  if (OSAtomicDecrement32(&bridgeCount) < 0) {
+  if (atomic_fetch_sub(&bridgeCount, 1) - 1 < 0) {
     DeveloperLog(@"[WARN] BridgeCount for %@ is now at %d", self, bridgeCount);
   }
   if (oldBridge == pageContext) {
@@ -393,14 +391,14 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   }
 
   // remove all listeners JS side proxy
-  pthread_rwlock_wrlock(&listenerLock);
-  RELEASE_TO_NIL(listeners);
-  pthread_rwlock_unlock(&listenerLock);
+  dispatch_barrier_sync(listenerQueue, ^{
+    RELEASE_TO_NIL(listeners);
+  });
 
-  pthread_rwlock_wrlock(&dynpropsLock);
-  RELEASE_TO_NIL(dynprops);
-  RELEASE_TO_NIL(dynpropnames);
-  pthread_rwlock_unlock(&dynpropsLock);
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    RELEASE_TO_NIL(dynprops);
+    RELEASE_TO_NIL(dynpropnames);
+  });
 
   RELEASE_TO_NIL(baseURL);
   RELEASE_TO_NIL(krollDescription);
@@ -426,8 +424,8 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   NSLog(@"[DEBUG] DEALLOC: %@ (%d)", self, [self hash]);
 #endif
   [self _destroy];
-  pthread_rwlock_destroy(&listenerLock);
-  pthread_rwlock_destroy(&dynpropsLock);
+  dispatch_release(listenerQueue);
+  dispatch_release(dynpropsQueue);
   [super dealloc];
 }
 
@@ -476,10 +474,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (BOOL)_hasListeners:(NSString *)type
 {
-  pthread_rwlock_rdlock(&listenerLock);
-  // If listeners is nil at this point, result is still false.
-  BOOL result = [[listeners objectForKey:type] intValue] > 0;
-  pthread_rwlock_unlock(&listenerLock);
+  __block BOOL result = NO;
+  dispatch_sync(listenerQueue, ^{
+    // If listeners is nil at this point, result is still false.
+    result = [[listeners objectForKey:type] intValue] > 0;
+  });
   return result;
 }
 
@@ -539,10 +538,11 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
 - (id<NSFastEnumeration>)allKeys
 {
-  pthread_rwlock_rdlock(&dynpropsLock);
-  // Make sure the keys are in the same order as they were added in the JS
-  id<NSFastEnumeration> keys = [[dynpropnames copy] autorelease];
-  pthread_rwlock_unlock(&dynpropsLock);
+  __block id<NSFastEnumeration> keys = nil;
+  dispatch_sync(dynpropsQueue, ^{
+    // Make sure the keys are in the same order as they were added in the JS
+    keys = [[dynpropnames copy] autorelease];
+  });
 
   return keys;
 }
@@ -763,15 +763,15 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
 
   // TODO: You know, we can probably nip this in the bud and do this at a lower level,
   // Or make this less onerous.
-  int ourCallbackCount = 0;
+  __block int ourCallbackCount = 0;
 
-  pthread_rwlock_wrlock(&listenerLock);
-  ourCallbackCount = [[listeners objectForKey:type] intValue] + 1;
-  if (listeners == nil) {
-    listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
-  }
-  [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
-  pthread_rwlock_unlock(&listenerLock);
+  dispatch_barrier_sync(listenerQueue, ^{
+    ourCallbackCount = [[listeners objectForKey:type] intValue] + 1;
+    if (listeners == nil) {
+      listeners = [[NSMutableDictionary alloc] initWithCapacity:3];
+    }
+    [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
+  });
 
   [self _listenerAdded:type count:ourCallbackCount];
 }
@@ -788,11 +788,12 @@ void TiClassSelectorFunction(TiBindingRunLoop runloop, void *payload)
   // TODO: You know, we can probably nip this in the bud and do this at a lower level,
   // Or make this less onerous.
 
-  pthread_rwlock_wrlock(&listenerLock);
-  int ourCallbackCount = [[listeners objectForKey:type] intValue];
-  ourCallbackCount = MAX(0, ourCallbackCount - 1);
-  [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
-  pthread_rwlock_unlock(&listenerLock);
+  __block int ourCallbackCount = 0;
+  dispatch_barrier_sync(listenerQueue, ^{
+    ourCallbackCount = [[listeners objectForKey:type] intValue];
+    ourCallbackCount = MAX(0, ourCallbackCount - 1);
+    [listeners setObject:NUMINT(ourCallbackCount) forKey:type];
+  });
 
   [self _listenerRemoved:type count:ourCallbackCount];
 }
@@ -1013,11 +1014,12 @@ DEFINE_EXCEPTIONS
     return [self description];
   }
   if (dynprops != nil) {
-    pthread_rwlock_rdlock(&dynpropsLock);
-    // In some circumstances this result can be replaced at an inconvenient time,
-    // releasing the returned value - so we retain/autorelease.
-    id result = [[[dynprops objectForKey:key] retain] autorelease];
-    pthread_rwlock_unlock(&dynpropsLock);
+    __block id result = nil;
+    dispatch_sync(dynpropsQueue, ^{
+      // In some circumstances this result can be replaced at an inconvenient time,
+      // releasing the returned value - so we retain/autorelease.
+      result = [[[dynprops objectForKey:key] retain] autorelease];
+    });
 
     // if we have a stored value as complex, just unwrap
     // it and return the internal value
@@ -1048,39 +1050,40 @@ DEFINE_EXCEPTIONS
     value = newValue;
   }
 
-  id current = nil;
-  pthread_rwlock_wrlock(&dynpropsLock);
-  if (dynprops != nil) {
-    // hold it for this invocation since set may cause it to be deleted
-    current = [[[dynprops objectForKey:key] retain] autorelease];
-    if (current == [NSNull null]) {
-      current = nil;
-    }
-  } else {
-    dynprops = [[NSMutableDictionary alloc] init];
-    dynpropnames = [[NSMutableArray alloc] init];
-  }
-
-  // TODO: Clarify internal difference between nil/NSNull
-  // (which represent different JS values, but possibly consistent internal behavior)
-
+  __block id current = nil;
+  __block BOOL newValue = NO;
   id propvalue = (value == nil) ? [NSNull null] : value;
 
-  BOOL newValue = (current != propvalue && ![current isEqual:propvalue]);
-
-  // We need to stage this out; the problem at hand is that some values
-  // we might store as properties (such as NSArray) use isEqual: as a
-  // strict address/hash comparison. So the notification must always
-  // occur, and it's up to the delegate to make sense of it (for now).
-
-  if (newValue) {
-    // Remember any proxies set on us so they don't get GC'd
-    if ([propvalue isKindOfClass:[TiProxy class]]) {
-      [self rememberProxy:propvalue];
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    if (dynprops != nil) {
+      // hold it for this invocation since set may cause it to be deleted
+      current = [[[dynprops objectForKey:key] retain] autorelease];
+      if (current == [NSNull null]) {
+        current = nil;
+      }
+    } else {
+      dynprops = [[NSMutableDictionary alloc] init];
+      dynpropnames = [[NSMutableArray alloc] init];
     }
-    [self addKey:key toValue:propvalue];
-  }
-  pthread_rwlock_unlock(&dynpropsLock);
+
+    // TODO: Clarify internal difference between nil/NSNull
+    // (which represent different JS values, but possibly consistent internal behavior)
+
+    newValue = (current != propvalue && ![current isEqual:propvalue]);
+
+    // We need to stage this out; the problem at hand is that some values
+    // we might store as properties (such as NSArray) use isEqual: as a
+    // strict address/hash comparison. So the notification must always
+    // occur, and it's up to the delegate to make sense of it (for now).
+
+    if (newValue) {
+      // Remember any proxies set on us so they don't get GC'd
+      if ([propvalue isKindOfClass:[TiProxy class]]) {
+        [self rememberProxy:propvalue];
+      }
+      [self addKey:key toValue:propvalue];
+    }
+  });
 
   if (self.modelDelegate != nil && notify) {
     [[(NSObject *)self.modelDelegate retain] autorelease];
@@ -1099,17 +1102,17 @@ DEFINE_EXCEPTIONS
 // TODO: Shouldn't we be forgetting proxies and unprotecting callbacks and such here?
 - (void)deleteKey:(NSString *)key
 {
-  pthread_rwlock_wrlock(&dynpropsLock);
-  if (dynprops != nil) {
-    [dynprops removeObjectForKey:key];
-    for (NSInteger i = 0, len = [dynpropnames count]; i < len; i++) {
-      if ([[dynpropnames objectAtIndex:i] isEqualToString:key]) {
-        [dynpropnames removeObjectAtIndex:i];
-        break;
+  dispatch_barrier_sync(dynpropsQueue, ^{
+    if (dynprops != nil) {
+      [dynprops removeObjectForKey:key];
+      for (NSInteger i = 0, len = [dynpropnames count]; i < len; i++) {
+        if ([[dynpropnames objectAtIndex:i] isEqualToString:key]) {
+          [dynpropnames removeObjectAtIndex:i];
+          break;
+        }
       }
     }
-  }
-  pthread_rwlock_unlock(&dynpropsLock);
+  });
 }
 
 - (void)setValue:(id)value forUndefinedKey:(NSString *)key
@@ -1125,9 +1128,10 @@ DEFINE_EXCEPTIONS
 
 - (NSDictionary *)allProperties
 {
-  pthread_rwlock_rdlock(&dynpropsLock);
-  NSDictionary *props = [[dynprops copy] autorelease];
-  pthread_rwlock_unlock(&dynpropsLock);
+  __block NSDictionary *props = nil;
+  dispatch_sync(dynpropsQueue, ^{
+    props = [[dynprops copy] autorelease];
+  });
 
   return props;
 }

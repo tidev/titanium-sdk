@@ -37,7 +37,7 @@ export class ModuleCreator extends Creator {
 		super(logger, config, cli);
 
 		this.title = 'Titanium Module';
-		this.titleOrder = 2;
+		this.titleOrder = 3;
 		this.type = 'module';
 
 		// build list of all valid platforms

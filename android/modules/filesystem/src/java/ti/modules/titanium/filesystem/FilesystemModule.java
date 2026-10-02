@@ -14,7 +14,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollInvocation;
@@ -103,10 +102,6 @@ public class FilesystemModule extends KrollModule
 	@Kroll.method
 	private boolean hasStoragePermissions()
 	{
-		if (Build.VERSION.SDK_INT < 23) {
-			return true;
-		}
-
 		Context context = TiApplication.getInstance().getApplicationContext();
 
 		return ((context.checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)

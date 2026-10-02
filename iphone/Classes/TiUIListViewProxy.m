@@ -10,6 +10,7 @@
 #import "TiUIListView.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewTemplate.h>
+#include <pthread.h>
 
 @interface TiUIListViewProxy ()
 @property (nonatomic, readwrite) TiUIListView *listView;
@@ -656,6 +657,7 @@
 }
 
 DEFINE_DEF_BOOL_PROP(willScrollOnStatusTap, YES);
+DEFINE_DEF_BOOL_PROP(snapping, NO);
 USE_VIEW_FOR_CONTENT_HEIGHT
 USE_VIEW_FOR_CONTENT_WIDTH
 

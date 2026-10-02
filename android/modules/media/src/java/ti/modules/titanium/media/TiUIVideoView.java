@@ -21,7 +21,6 @@ import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.media.PlaybackParams;
 import android.net.Uri;
-import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -333,7 +332,7 @@ public class TiUIVideoView
 	public void onPrepared(MediaPlayer mp)
 	{
 
-		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SPEED) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SPEED)) {
 			PlaybackParams myPlayBackParams = new PlaybackParams();
 			myPlayBackParams.setSpeed(TiConvert.toFloat(proxy.getProperty(TiC.PROPERTY_SPEED)));
 			mp.setPlaybackParams(myPlayBackParams);

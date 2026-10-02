@@ -33,7 +33,8 @@ void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, C
   // As such, obscuredHeight is now how much actually matters of scrollVisibleRect.
 
   CGFloat bottomInset = MAX(0, obscuredHeight - unimportantArea);
-  [scrollView setContentInset:UIEdgeInsetsMake(0, 0, bottomInset, 0)];
+  UIEdgeInsets existingInsets = [scrollView contentInset];
+  [scrollView setContentInset:UIEdgeInsetsMake(existingInsets.top, existingInsets.left, bottomInset, existingInsets.right)];
 
   CGPoint offset = [scrollView contentOffset];
 
@@ -463,6 +464,12 @@ DEFINE_EXCEPTIONS
     }
   }
 
+  // Redraw the background image so a dark-mode rendition from the asset catalog is picked up
+  id backgroundImageValue = [self.proxy valueForKey:@"backgroundImage"];
+  if (backgroundImageValue != nil && backgroundImage != nil) {
+    [self setBackgroundImage_:backgroundImageValue];
+  }
+
   if (hasStoredBackgroundForSelectionHighlight) {
     [self refreshBackgroundSelectedHighlight];
   }
@@ -639,6 +646,8 @@ DEFINE_EXCEPTIONS
     _borderLayer.fillColor = UIColor.clearColor.CGColor;
     _borderLayer.strokeColor = self.layer.borderColor;
     _borderLayer.lineWidth = self.layer.borderWidth * 2;
+    self.layer.borderColor = nil;
+    self.layer.borderWidth = 0;
     [self.layer addSublayer:_borderLayer];
   }
   return _borderLayer;
@@ -738,6 +747,18 @@ DEFINE_EXCEPTIONS
 //   background colors everywhere - and this starts getting really complicated for some views
 //   (on the off chance somebody wants to swap tesselation AND has a background color they want to replace it with).
 
+// Images loaded via [UIImage imageNamed:] from the asset catalog can carry light/dark
+// renditions. UIImageView resolves them automatically, but we render into a CALayer via
+// CGImage, so we have to resolve the rendition against this view's trait collection ourselves.
+- (UIImage *)resolveDynamicImage:(UIImage *)image
+{
+  if (image == nil || image.imageAsset == nil) {
+    return image;
+  }
+  UIImage *resolved = [image.imageAsset imageWithTraitCollection:self.traitCollection];
+  return resolved != nil ? resolved : image;
+}
+
 - (void)renderRepeatedBackground:(id)image
 {
   if (![NSThread isMainThread]) {
@@ -749,7 +770,7 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
   if (bgImage == nil) {
     [self backgroundImageLayer].contents = nil;
     return;
@@ -796,7 +817,7 @@ DEFINE_EXCEPTIONS
 
 - (void)setBackgroundImage_:(id)image
 {
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
 
   if (bgImage == nil) {
     [bgdImageLayer removeFromSuperlayer];

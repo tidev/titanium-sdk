@@ -6,7 +6,6 @@
  */
 package ti.modules.titanium.ui.widget.picker;
 
-import android.os.Build;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.DatePicker;
@@ -79,13 +78,6 @@ public class TiUIDatePicker extends TiUIView implements OnDateChangedListener
 			useSpinner = false;
 			useTextField = false;
 		}
-		if (!useSpinner && (Build.VERSION.SDK_INT == 21)) {
-			// Android 5.0 fails to call onDateChanged() for calendar view. (Android 5.1+ is okay.)
-			// See: https://code.google.com/p/android/issues/detail?id=147657
-			Log.w(TAG, "Ti.UI.Picker cannot show an inlined calendar view on Android 5.0. Using spinner instead.");
-			useSpinner = true;
-		}
-
 		// Create the date picker view.
 		View view = null;
 		if (useTextField) {

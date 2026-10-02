@@ -34,6 +34,7 @@ import org.appcelerator.titanium.TiApplication;
 
 import ti.modules.titanium.media.MediaModule;
 import ti.modules.titanium.media.TiPlaybackListener;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -345,7 +346,15 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 			Map<String, String> headers = new HashMap<>();
 			headers.put("Cache-Control", "no-cache");
 
-			mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
+			// MediaPlayer.setDataSource(Context, Uri, headers) may route through ContentResolver and fail for http(s) URLs.
+			// Use the string overload for http(s) so we can play remote videos reliably.
+			String scheme = mUri != null ? mUri.getScheme() : null;
+
+			if (scheme != null && scheme.startsWith("http")) {
+				mMediaPlayer.setDataSource(mUri.toString());
+			} else {
+				mMediaPlayer.setDataSource(TiApplication.getAppRootOrCurrentActivity(), mUri, headers);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error setting video data source: " + e.getMessage(), e);
 		}
@@ -498,13 +507,21 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 						}
 						start();
 						if (mMediaController != null) {
-							mMediaController.show();
+							// Check if the activity is finishing to avoid WindowLeaked error
+							Context context = getContext();
+							if (!(context instanceof Activity) || !((Activity) context).isFinishing()) {
+								mMediaController.show();
+							}
 						}
 					} else if (!isPlaying() && (seekToPosition != 0 || getCurrentPosition() > 0)) {
 						if (mMediaController != null) {
-							// Show the media controls when we're paused into a
-							// video and make 'em stick.
-							mMediaController.show(0);
+							// Check if the activity is finishing to avoid WindowLeaked error
+							Context context = getContext();
+							if (!(context instanceof Activity) || !((Activity) context).isFinishing()) {
+								// Show the media controls when we're paused into a
+								// video and make 'em stick.
+								mMediaController.show(0);
+							}
 						}
 					}
 				}
@@ -610,6 +627,11 @@ public class TiVideoView8 extends SurfaceView implements MediaPlayerControl
 				}
 				start();
 				if (mMediaController != null) {
+					// Check if the activity is finishing to avoid WindowLeaked error
+					Context context = getContext();
+					if (context instanceof Activity && ((Activity) context).isFinishing()) {
+						return;
+					}
 					mMediaController.show();
 				}
 			}

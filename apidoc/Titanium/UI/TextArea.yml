@@ -68,10 +68,7 @@ properties:
 
         This has no effect when used with `hintType` Ti.UI.HINT_TYPE_ANIMATED.
 
-        Prior to Release 3.6.0, assign this property an object from the
-        <Titanium.UI.iOS.AttributedString> class.
-
-        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedHintText>`
+        For Alloy, you can use an `<AttributedHintText>`
         element inside a `<TextField>` element and set the text property as node text:
 
         ``` xml
@@ -103,6 +100,27 @@ properties:
             }
           ]
         }
+
+        Since 13.2.0 you can also use the AttributedString object without `Titanium.UI.createAttributedString()`:
+        ``` js
+        var text =  'Bacon ipsum dolor Titanium SDK rocks! sit amet fatback leberkas salami sausage tongue strip steak.';
+        var label = Titanium.UI.createLabel({
+            attributedString: {
+                text: text,
+                attributes: [
+                    {
+                        type: Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
+                        value: Ti.UI.ATTRIBUTE_UNDERLINE_STYLE_SINGLE,
+                        range: [text.indexOf('Titanium'), ('Titanium').length]
+                    },
+                    {
+                        type: Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR,
+                        value: "red",
+                        range: [text.indexOf('Titanium'), ('Titanium').length]
+                    }
+                ]
+            }
+        });
         ```
     type: Titanium.UI.AttributedString
     platforms: [android, iphone, ipad, macos]
@@ -117,10 +135,7 @@ properties:
         The underlying attributed string drawn by the textArea. If set, avoid setting common attributes
         in textArea, such as `value`, `color` and `font`, as unexpected behaviors may result.
 
-        Prior to Release 3.6.0, assign this property an object from the
-        <Titanium.UI.iOS.AttributedString> class.
-
-        Since Appcelerator CLI 4.1.0 (Alloy 1.7.0), for Alloy, you can use an `<AttributedString>`
+        For Alloy, you can use an `<AttributedString>`
         element inside a `<TextArea>` element and set the text property as node text:
 
         ``` xml
@@ -401,8 +416,8 @@ properties:
     description: Sets the height of the text area by line height. Set to -1 to respect the view's height property instead.
     default: 1
     type: Number
-    since: { android: "7.5.0" }
-    platforms: [android]
+    since: { android: "7.5.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
+    platforms: [android, iphone, ipad, macos]
 
   - name: maxLength
     summary: Maximum length of text field input.
@@ -416,11 +431,11 @@ properties:
 
   - name: maxLines
     summary: Maximum line count of text field input.
-    description: Sets the maximum of lines that the field will be extended to when pressing `Return`.
+    description: Sets the maximum number of lines that the field will extend to when pressing `Return`. Once the maximum is reached, the text area stops growing and scrolling is enabled. A value of `-1` means no limit.
     default: -1
     type: Number
-    since: { android: "7.5.0" }
-    platforms: [android]
+    since: { android: "7.5.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
+    platforms: [android, iphone, ipad, macos]
 
   - name: padding
     summary: Sets the left and right padding of this TextArea. The text will always be vertically centered.
@@ -485,6 +500,7 @@ properties:
     summary: Determines whether this text area can be scrolled.
     type: Boolean
     default: true
+    since: { iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
     platforms: [iphone, ipad, macos]
 
   - name: selection
@@ -505,7 +521,8 @@ properties:
     type: [Number, String]
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: <Titanium.UI.TEXT_VERTICAL_ALIGNMENT_TOP>
-    platforms: [android]
+    platforms: [android, iphone, ipad, macos]
+    since: { android: "0.8", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
 
 events:
   - name: blur
