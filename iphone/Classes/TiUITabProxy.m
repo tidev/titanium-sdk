@@ -25,7 +25,12 @@
 @interface TiUITabProxy ()
 - (void)openOnUIThread:(NSArray *)args;
 - (BOOL)lazyLoadingEnabled;
+- (void)trackBackgroundColorOfWindow:(TiWindowProxy *)windowProxy;
+- (void)stopTrackingWindowBackgroundColor;
+- (void)applyWindowBackgroundColor;
 @end
+
+static void *TiUITabWindowBackgroundContext = &TiUITabWindowBackgroundContext;
 
 @implementation TiUITabProxy
 
@@ -41,6 +46,7 @@
   if (rootWindow != nil) {
     [self cleanNavStack:YES];
   }
+  [self stopTrackingWindowBackgroundColor];
   RELEASE_TO_NIL(controllerStack);
   RELEASE_TO_NIL(rootWindow);
   RELEASE_TO_NIL(controller);
@@ -408,6 +414,74 @@
   // NO OP NOW
 }
 
+#pragma mark - Tab group background colour
+
+// The tab group's controller view is what shows through wherever the window's own
+// view does not reach - most visibly the strip behind the iOS 26 floating tab bar,
+// whose Liquid Glass samples it. Track the window rather than copying its colour
+// once, so a backgroundColor assigned after the window is shown still lands.
+- (void)applyWindowBackgroundColor
+{
+  // The controller view is shared by every tab, so only the focused tab may
+  // paint it; a hidden tab's window changing colour must not repaint the strip
+  // under the visible one. handleDidFocus re-applies once this tab takes over.
+  if (!hasFocus || tabGroup == nil || observedWindowView == nil) {
+    return;
+  }
+  TiUITabGroup *tabGroupView = (TiUITabGroup *)[tabGroup view];
+  [[tabGroupView tabController] view].backgroundColor = observedWindowView.backgroundColor;
+}
+
+- (void)trackBackgroundColorOfWindow:(TiWindowProxy *)windowProxy
+{
+  UIView *windowView = (windowProxy != nil) ? [windowProxy view] : nil;
+
+  if (windowView != observedWindowView) {
+    [self stopTrackingWindowBackgroundColor];
+
+    if (windowView != nil) {
+      observedWindowView = [windowView retain];
+      // Observe the layer, not the view: TiUIView assigns through
+      // `super.backgroundColor`, which dispatches past the KVO subclass, so
+      // observing the view itself never fires. The layer still sees the write.
+      [observedWindowView.layer addObserver:self
+                                 forKeyPath:@"backgroundColor"
+                                    options:NSKeyValueObservingOptionNew
+                                    context:TiUITabWindowBackgroundContext];
+    }
+  }
+
+  // Match whatever the window carries right now, not only its next change.
+  [self applyWindowBackgroundColor];
+}
+
+- (void)stopTrackingWindowBackgroundColor
+{
+  if (observedWindowView != nil) {
+    [observedWindowView.layer removeObserver:self
+                                  forKeyPath:@"backgroundColor"
+                                     context:TiUITabWindowBackgroundContext];
+    RELEASE_TO_NIL(observedWindowView);
+  }
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+  if (context == TiUITabWindowBackgroundContext) {
+    if ([NSThread isMainThread]) {
+      [self applyWindowBackgroundColor];
+    } else {
+      TiThreadPerformOnMainThread(
+          ^{
+            [self applyWindowBackgroundColor];
+          },
+          NO);
+    }
+    return;
+  }
+  [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+}
+
 #pragma mark - UINavigationControllerDelegate
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -436,7 +510,7 @@
     TiViewController *toViewController = (TiViewController *)viewController;
     if ([[toViewController proxy] isKindOfClass:[TiWindowProxy class]]) {
       TiWindowProxy *windowProxy = (TiWindowProxy *)[toViewController proxy];
-      [((TiUITabGroup *)(tabGroup.view)) tabController].view.backgroundColor = windowProxy.view.backgroundColor;
+      [self trackBackgroundColorOfWindow:windowProxy];
     }
   }
   [self handleWillShowViewController:viewController animated:animated];
@@ -570,6 +644,7 @@
       }
     }
   }
+  [self applyWindowBackgroundColor];
 
   if ([self _hasListeners:@"focus"]) {
     [self fireEvent:@"focus" withObject:event withSource:self propagate:NO reportSuccess:NO errorCode:0 message:nil];
