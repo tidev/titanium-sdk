@@ -984,7 +984,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 							}
 						}
 					} else if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX)) {
-						handleBorderProperty(key, newValue);
+						if (usingBorderOutline && borderView == null && !canUseBorderOutline(d)) {
+							// The outline cannot draw this border (non-uniform radius or border stroke).
+							// Switch to the TiBorderWrapperView.
+							initializeBorder(d, bgColor);
+						} else {
+							handleBorderProperty(key, newValue);
+						}
 					}
 
 					// TIMOB-24898: disable HW acceleration to allow transparency
@@ -1624,6 +1630,11 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					nativeView.postInvalidate();
 					return;
 				}
+			}
+			if (usingBorderOutline && nativeView != null) {
+				// Remove the outline of the previous uniform radius. The wrapper clips the view now.
+				nativeView.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+				nativeView.setClipToOutline(false);
 			}
 			usingBorderOutline = false;
 
