@@ -103,7 +103,7 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	static ContentResolver contentResolver = TiApplication.getInstance().getContentResolver();
 	static Camera camera;
 	private static ImageCapture imageCapture;
-	private static VideoCapture videoCapture;
+	private static VideoCapture<Recorder> videoCapture;
 	private static boolean isRecording = false;
 	PreviewView viewFinder;
 	Preview preview;
@@ -417,6 +417,11 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 	{
 		int rotation = getWindowManager().getDefaultDisplay().getRotation();
 
+		// Drop the use cases of a previous session. The new use case starts with the display rotation.
+		imageCapture = null;
+		videoCapture = null;
+		lastDisplayOrientation = rotation;
+
 		Activity activity = TiApplication.getAppCurrentActivity();
 
 		orientationEventListener = new OrientationEventListener(activity)
@@ -441,8 +446,14 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 				} else {
 					rotation = Surface.ROTATION_90;
 				}
-				if (lastDisplayOrientation != rotation) {
+				if (lastDisplayOrientation == rotation) {
+					return;
+				}
+				if (imageCapture != null) {
 					imageCapture.setTargetRotation(rotation);
+					lastDisplayOrientation = rotation;
+				} else if (videoCapture != null) {
+					videoCapture.setTargetRotation(rotation);
 					lastDisplayOrientation = rotation;
 				}
 
@@ -485,7 +496,6 @@ public class TiCameraXActivity extends TiBaseActivity implements CameraXConfig.P
 					Recorder recorder = new Recorder.Builder()
 						.setQualitySelector(qualitySelector)
 						.build();
-					VideoCapture<Recorder> videoCapture;
 					if (saveToPhotoGallery) {
 						// save to gallery / media storage folder
 						ContentValues contentValues = new ContentValues();
