@@ -150,6 +150,70 @@ events:
     since: {android: "7.1.0"}
     platforms: [iphone, ipad, android, macos]
 
+  - name: drawerclose
+    summary: Fired when a navigation drawer of the tab group is closed.
+    description: |
+        Only fired by tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true` and a
+        [leftView](Titanium.UI.TabGroup.leftView) or [rightView](Titanium.UI.TabGroup.rightView) assigned.
+    platforms: [android]
+    since: "14.0.0"
+    properties:
+      - name: drawer
+        type: String
+        summary: Contains the drawer frame type. Either `left` or `right`.
+
+  - name: draweropen
+    summary: Fired when a navigation drawer of the tab group is opened.
+    description: |
+        Only fired by tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true` and a
+        [leftView](Titanium.UI.TabGroup.leftView) or [rightView](Titanium.UI.TabGroup.rightView) assigned.
+    platforms: [android]
+    since: "14.0.0"
+    properties:
+      - name: drawer
+        type: String
+        summary: Contains the drawer frame type. Either `left` or `right`.
+
+  - name: drawerslide
+    summary: Fired when a navigation drawer of the tab group changes its position.
+    description: |
+        Only fired by tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true` and a
+        [leftView](Titanium.UI.TabGroup.leftView) or [rightView](Titanium.UI.TabGroup.rightView) assigned.
+    platforms: [android]
+    since: "14.0.0"
+    properties:
+      - name: drawer
+        type: String
+        summary: Contains the drawer frame type. Either `left` or `right`.
+      - name: offset
+        type: Number
+        summary: The current drawer offset.
+
+  - name: drawerstatechange
+    summary: Fired when the motion state of a navigation drawer of the tab group changes.
+    description: |
+        Only fired by tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true` and a
+        [leftView](Titanium.UI.TabGroup.leftView) or [rightView](Titanium.UI.TabGroup.rightView) assigned.
+    platforms: [android]
+    since: "14.0.0"
+    properties:
+      - name: state
+        summary: The current drawer state.
+        type: Number
+      - name: idle
+        summary: Whether or not the drawer is currently idle.
+        type: Boolean
+      - name: dragging
+        summary: Whether or not the drawer is currently dragging.
+        type: Boolean
+      - name: settling
+        summary: Whether or not the drawer is currently settling.
+        type: Boolean
+
   - name: focus
     summary: |
         Fired when this tab group gains focus. On Android, fired when a tab in this tab group
@@ -257,6 +321,54 @@ methods:
         To hide tab group without animation, set [tabBarVisible](Titanium.UI.TabGroup.tabBarVisible) property to `true`.
     platforms: [android, iphone, ipad, macos]
     since: "12.7.0"
+
+  - name: toggleLeft
+    summary: Toggles the visibility of the [leftView](Titanium.UI.TabGroup.leftView) navigation drawer.
+    description: |
+        Only available for tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: openLeft
+    summary: Opens the [leftView](Titanium.UI.TabGroup.leftView) navigation drawer.
+    description: |
+        Only available for tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: closeLeft
+    summary: Closes the [leftView](Titanium.UI.TabGroup.leftView) navigation drawer.
+    description: |
+        Only available for tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: toggleRight
+    summary: Toggles the visibility of the [rightView](Titanium.UI.TabGroup.rightView) navigation drawer.
+    description: |
+        Only available for tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: openRight
+    summary: Opens the [rightView](Titanium.UI.TabGroup.rightView) navigation drawer.
+    description: |
+        Only available for tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: closeRight
+    summary: Closes the [rightView](Titanium.UI.TabGroup.rightView) navigation drawer.
+    description: |
+        Only available for tab groups using [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    platforms: [android]
+    since: "14.0.0"
 
 properties:
   - name: activeTab
@@ -730,6 +842,132 @@ properties:
       since: "13.0.0"
       removed: "13.0.0"
       notes: This is handled by the operation system in newer versions of iOS.
+
+  - name: leftView
+    summary: Gets or sets the view of the left navigation drawer.
+    description: |
+        Displays the given view in a [DrawerLayout](Titanium.UI.Android.DrawerLayout) style
+        navigation drawer that can be pulled out from the left edge of the tab group.
+
+        If the activity provides an ActionBar (either through the theme or via
+        [Toolbar](Titanium.UI.Toolbar) set as the window's support toolbar), a hamburger icon is shown
+        that opens and closes the drawer.
+
+        This property is only supported by tab groups using
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    type: Titanium.UI.View
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: rightView
+    summary: Gets or sets the view of the right navigation drawer.
+    description: |
+        Displays the given view in a [DrawerLayout](Titanium.UI.Android.DrawerLayout) style
+        navigation drawer that can be pulled out from the right edge of the tab group.
+
+        This property is only supported by tab groups using
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    type: Titanium.UI.View
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: leftWidth
+    summary: Gets or sets the width of the [leftView](Titanium.UI.TabGroup.leftView) navigation drawer.
+    description: |
+        Accepts a number (in the default Titanium unit), a dimension string (for example `"200dp"`),
+        [Ti.UI.SIZE](Titanium.UI.SIZE) or [Ti.UI.FILL](Titanium.UI.FILL).
+
+        This property is only supported by tab groups using
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    type: [Number, String]
+    default: Titanium.UI.FILL
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: rightWidth
+    summary: Gets or sets the width of the [rightView](Titanium.UI.TabGroup.rightView) navigation drawer.
+    description: |
+        Accepts a number (in the default Titanium unit), a dimension string (for example `"200dp"`),
+        [Ti.UI.SIZE](Titanium.UI.SIZE) or [Ti.UI.FILL](Titanium.UI.FILL).
+
+        This property is only supported by tab groups using
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    type: [Number, String]
+    default: Titanium.UI.FILL
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: drawerLockMode
+    summary: Gets or sets the lock mode of both navigation drawers.
+    description: |
+        This property is only supported by tab groups using
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: leftDrawerLockMode
+    summary: Gets or sets the lock mode of the [leftView](Titanium.UI.TabGroup.leftView) navigation drawer.
+    description: |
+        This property is only supported by tab groups using
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: rightDrawerLockMode
+    summary: Gets or sets the lock mode of the [rightView](Titanium.UI.TabGroup.rightView) navigation drawer.
+    description: |
+        This property is only supported by tab groups using
+        [TABS_STYLE_BOTTOM_NAVIGATION](Titanium.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION)
+        with [experimental](Titanium.UI.TabGroup.experimental) set to `true`.
+    type: Number
+    constants: Titanium.UI.Android.DrawerLayout.LOCK_MODE_*
+    default: <Titanium.UI.Android.DrawerLayout.LOCK_MODE_UNDEFINED>
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: isLeftOpen
+    summary: Determines whether the [leftView](Titanium.UI.TabGroup.leftView) navigation drawer is open.
+    type: Boolean
+    permission: read-only
+    default: false
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: isRightOpen
+    summary: Determines whether the [rightView](Titanium.UI.TabGroup.rightView) navigation drawer is open.
+    type: Boolean
+    permission: read-only
+    default: false
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: isLeftVisible
+    summary: Determines whether the [leftView](Titanium.UI.TabGroup.leftView) navigation drawer is visible.
+    type: Boolean
+    permission: read-only
+    default: false
+    platforms: [android]
+    since: "14.0.0"
+
+  - name: isRightVisible
+    summary: Determines whether the [rightView](Titanium.UI.TabGroup.rightView) navigation drawer is visible.
+    type: Boolean
+    permission: read-only
+    default: false
+    platforms: [android]
+    since: "14.0.0"
 
   - name: experimental
     summary: |
