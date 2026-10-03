@@ -81,6 +81,12 @@ public abstract class TiApplication extends Application implements KrollApplicat
 	public static final String APPLICATION_PREFERENCES_NAME = "titanium";
 	public static final int TRIM_MEMORY_RUNNING_LOW = 10; // Application.TRIM_MEMORY_RUNNING_LOW for API 16+
 
+	/**
+	 * @deprecated Legacy windows no longer exist. Kept for modules built against older SDKs.
+	 */
+	@Deprecated
+	public static boolean USE_LEGACY_WINDOW = false;
+
 	private String baseUrl;
 	private String startUrl;
 	private HashMap<String, SoftReference<KrollProxy>> proxyMap;
