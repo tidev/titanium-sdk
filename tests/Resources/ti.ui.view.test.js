@@ -1445,4 +1445,240 @@ describe('Titanium.UI.View', function () {
 		win.add(rgbView);
 		win.open();
 	});
+
+	describe('min/max size constraints', () => {
+		function afterLayout(assertions, finish) {
+			win.addEventListener('postlayout', function postlayout() { // FIXME: Support once!
+				win.removeEventListener('postlayout', postlayout); // only run once
+				try {
+					assertions();
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+		}
+
+		it('maxWidth caps a FILL width', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: 100,
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
+			win.add(view);
+			win.open();
+		});
+
+		it('maxHeight caps a FILL height', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: 50,
+				height: Ti.UI.FILL,
+				maxHeight: 100,
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => should(view.rect.height).be.approximately(100, 1), finish);
+			win.add(view);
+			win.open();
+		});
+
+		it('minWidth/minHeight raise a SIZE view', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE,
+				minWidth: 120,
+				minHeight: 80,
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => {
+				should(view.rect.width).be.approximately(120, 1);
+				should(view.rect.height).be.approximately(80, 1);
+			}, finish);
+			win.add(view);
+			win.open();
+		});
+
+		it('minWidth wins over a smaller maxWidth', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				minWidth: 150,
+				maxWidth: 100,
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => should(view.rect.width).be.approximately(150, 1), finish);
+			win.add(view);
+			win.open();
+		});
+
+		it.android('accepts a string dimension', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: '100dp',
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
+			win.add(view);
+			win.open();
+		});
+
+		it.android('accepts a percentage relative to the parent', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const parent = Ti.UI.createView({ width: 200, height: 200 });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: '50%',
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
+			parent.add(view);
+			win.add(parent);
+			win.open();
+		});
+
+		// Percentage constraints are relative to the 200x200 parent, not to the view's own fixed or percentage size.
+		[
+			{ title: 'keeps a fixed size below a percentage maximum', size: 60, max: '50%', expected: 60 },
+			{ title: 'caps a fixed size at a percentage maximum', size: 150, max: '50%', expected: 100 },
+			{ title: 'raises a fixed size to a percentage minimum', size: 60, min: '50%', expected: 100 },
+			{ title: 'keeps a fixed size above a percentage minimum', size: 150, min: '50%', expected: 150 },
+			{ title: 'keeps a percentage size below a percentage maximum', size: '25%', max: '50%', expected: 50 },
+			{ title: 'caps a percentage size at a percentage maximum', size: '80%', max: '50%', expected: 100 },
+			{ title: 'raises a percentage size to a percentage minimum', size: '25%', min: '50%', expected: 100 },
+			{ title: 'keeps a percentage size above a percentage minimum', size: '80%', min: '50%', expected: 160 }
+		].forEach(test => {
+			it.android(test.title, finish => {
+				win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+				const parent = Ti.UI.createView({ width: 200, height: 200 });
+				const view = Ti.UI.createView({
+					width: test.size,
+					height: test.size,
+					backgroundColor: 'blue'
+				});
+				if (test.max) {
+					view.maxWidth = test.max;
+					view.maxHeight = test.max;
+				}
+				if (test.min) {
+					view.minWidth = test.min;
+					view.minHeight = test.min;
+				}
+
+				afterLayout(() => {
+					should(view.rect.width).be.approximately(test.expected, 1);
+					should(view.rect.height).be.approximately(test.expected, 1);
+				}, finish);
+				parent.add(view);
+				win.add(parent);
+				win.open();
+			});
+		});
+
+		it.android('keeps a fixed size below a percentage maximum in a bordered view', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const parent = Ti.UI.createView({ width: 200, height: 200 });
+			const view = Ti.UI.createView({
+				width: 60,
+				height: 60,
+				maxWidth: '50%',
+				maxHeight: '50%',
+				borderRadius: 8,
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => {
+				should(view.rect.width).be.approximately(60, 1);
+				should(view.rect.height).be.approximately(60, 1);
+			}, finish);
+			parent.add(view);
+			win.add(parent);
+			win.open();
+		});
+
+		it('is honored by a bordered view', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: Ti.UI.SIZE,
+				maxWidth: 100,
+				minHeight: 80,
+				borderRadius: 8,
+				borderWidth: 2,
+				borderColor: 'red',
+				backgroundColor: 'blue'
+			});
+
+			afterLayout(() => {
+				should(view.rect.width).be.approximately(100, 1);
+				should(view.rect.height).be.approximately(80, 1);
+			}, finish);
+			win.add(view);
+			win.open();
+		});
+
+		it.android('is honored when a border is added later', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const view = Ti.UI.createView({
+				width: Ti.UI.FILL,
+				height: 50,
+				maxWidth: 100,
+				backgroundColor: 'blue'
+			});
+
+			win.addEventListener('open', () => {
+				afterLayout(() => should(view.rect.width).be.approximately(100, 1), finish);
+				view.borderRadius = 8;
+			});
+			win.add(view);
+			win.open();
+		});
+
+		it('reflows wrapping content to the capped width', finish => {
+			win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+			const single = Ti.UI.createLabel({ text: 'ok', width: Ti.UI.SIZE, height: Ti.UI.SIZE, top: 0 });
+			const bubble = Ti.UI.createView({
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE,
+				maxWidth: 120,
+				top: 50,
+				backgroundColor: 'blue'
+			});
+			const label = Ti.UI.createLabel({
+				text: 'This text is long enough that it must wrap onto several lines within the capped width.',
+				width: Ti.UI.SIZE,
+				height: Ti.UI.SIZE
+			});
+			bubble.add(label);
+
+			afterLayout(() => {
+				should(bubble.rect.width).be.approximately(120, 1);
+				// The bubble must grow to hold the wrapped label instead of keeping a single-line height.
+				should(bubble.rect.height).be.above(single.rect.height * 2);
+				should(label.rect.height).be.approximately(bubble.rect.height, 1);
+			}, finish);
+			win.add(single);
+			win.add(bubble);
+			win.open();
+		});
+
+		// The constraints are unsupported on self-measuring views without a border, but must never crash.
+		it('is ignored without crashing on a Label', () => {
+			const label = Ti.UI.createLabel({ text: 'hello', maxWidth: 50, minHeight: 10 });
+			should(label.maxWidth).eql(50);
+		});
+	});
 });
