@@ -34,15 +34,25 @@ public class ActionBarProxy extends KrollProxy
 
 	// Weak references so a proxy kept alive by JS cannot leak a destroyed activity
 	// or its view hierarchy (the toolbar's context is the activity).
-	private final WeakReference<AppCompatActivity> activityRef;
-	private final WeakReference<Toolbar> toolbarRef;
+	private WeakReference<AppCompatActivity> activityRef;
+	private WeakReference<Toolbar> toolbarRef;
 	private boolean showTitleEnabled = true;
+	private boolean restoreDisplayHomeAsUp;
 
 	public ActionBarProxy(AppCompatActivity activity)
 	{
 		super();
 		this.activityRef = new WeakReference<>(activity);
 		this.toolbarRef = new WeakReference<>(findActionBarToolbar(activity));
+	}
+
+	public void rebind(AppCompatActivity activity)
+	{
+		this.activityRef = new WeakReference<>(activity);
+		this.toolbarRef = new WeakReference<>(findActionBarToolbar(activity));
+		if (restoreDisplayHomeAsUp) {
+			setDisplayHomeAsUp(true);
+		}
 	}
 
 	private Toolbar getToolbar()
@@ -79,6 +89,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
+		restoreDisplayHomeAsUp = showHomeAsUp;
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setNavigationIcon(getHomeAsUpIcon(showHomeAsUp));
@@ -103,6 +114,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setHomeAsUpIndicator(Object icon)
 	{
+		restoreDisplayHomeAsUp = false;
 		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
@@ -120,6 +132,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
 	{
+		restoreDisplayHomeAsUp = false;
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setNavigationIcon(homeButtonEnabled ? getHomeAsUpIcon(true) : null);
@@ -152,6 +165,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void setDisplayShowHomeEnabled(boolean show)
 	{
+		restoreDisplayHomeAsUp = false;
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			if (show) {
@@ -312,6 +326,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setIcon(Object image)
 	{
+		restoreDisplayHomeAsUp = false;
 		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
@@ -331,6 +346,7 @@ public class ActionBarProxy extends KrollProxy
 	{
 		Toolbar toolbar = getToolbar();
 		if (TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
+			restoreDisplayHomeAsUp = true;
 			if (toolbar != null) {
 				toolbar.setNavigationIcon(getHomeAsUpIcon(true));
 			}
