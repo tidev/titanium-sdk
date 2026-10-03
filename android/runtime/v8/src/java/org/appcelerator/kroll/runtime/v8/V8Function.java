@@ -52,6 +52,10 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 			Log.w(TAG, "Runtime disposed, cannot call function.");
 			return null;
 		}
+		if (isStale() || ((krollObject instanceof V8Object) && ((V8Object) krollObject).isStale())) {
+			Log.w(TAG, "Runtime restarted, cannot call function from previous runtime.");
+			return null;
+		}
 		return nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args);
 	}
 
