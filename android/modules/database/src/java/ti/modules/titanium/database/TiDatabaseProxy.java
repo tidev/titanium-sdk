@@ -45,6 +45,8 @@ public class TiDatabaseProxy extends KrollProxy
 	private final BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 	private final AtomicBoolean executingQueue = new AtomicBoolean(false);
 	private boolean isClosed = false;
+	private long lastInsertRowId = 0;
+	private long rowsAffected = 0;
 
 	protected SQLiteDatabase db;
 	protected String name;
@@ -196,6 +198,8 @@ public class TiDatabaseProxy extends KrollProxy
 
 			if (!expectResult(query)) {
 				db.execSQL(query, parameterObjects);
+				rowsAffected = DatabaseUtils.longForQuery(db, "select changes()", null);
+				lastInsertRowId = DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
 				return null;
 			}
 
@@ -209,6 +213,7 @@ public class TiDatabaseProxy extends KrollProxy
 
 			// Execute query using rawQuery() in order to receive results.
 			Cursor cursor = db.rawQuery(query, parameters);
+			rowsAffected = 0;
 			if (cursor != null) {
 				// Validate and set query result.
 				if (cursor.getColumnCount() > 0) {
@@ -406,13 +411,12 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.getProperty
 	public int getLastInsertRowId()
 	{
-		// lock on db proxy instance
 		dbLock.lock();
 		try {
 			if (isClosed) {
 				throw new IllegalStateException("database is closed");
 			}
-			return (int) DatabaseUtils.longForQuery(db, "select last_insert_rowid()", null);
+			return (int) lastInsertRowId;
 		} finally {
 			dbLock.unlock();
 		}
@@ -425,13 +429,12 @@ public class TiDatabaseProxy extends KrollProxy
 	@Kroll.getProperty
 	public int getRowsAffected()
 	{
-		// lock on db proxy instance
 		dbLock.lock();
 		try {
 			if (isClosed) {
 				throw new IllegalStateException("database is closed");
 			}
-			return (int) DatabaseUtils.longForQuery(db, "select changes()", null);
+			return (int) rowsAffected;
 		} finally {
 			dbLock.unlock();
 		}
