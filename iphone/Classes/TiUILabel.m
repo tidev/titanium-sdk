@@ -32,6 +32,7 @@
 {
   if (self = [super init]) {
     padding = CGRectZero;
+    textPadding = UIEdgeInsetsZero;
     initialLabelFrame = CGRectZero;
     verticalAlign = UIControlContentVerticalAlignmentFill;
   }
@@ -81,24 +82,35 @@
      have at least enough space to display one word. On the other hand font measurement is unsuitable for
      attributed strings till we move to the new measurement API. Hence take both and return MAX.
      */
-  CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
-  CGFloat fontMeasurementResult = [self sizeForFont:suggestedWidth].width;
-  return (MAX(sizeThatFitsResult, fontMeasurementResult));
+  CGFloat horizontalPadding = textPadding.left + textPadding.right;
+  CGFloat textWidth = MAX(suggestedWidth - horizontalPadding, 0);
+  CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(textWidth, 0)].width;
+  CGFloat fontMeasurementResult = [self sizeForFont:textWidth].width;
+  return (MAX(sizeThatFitsResult, fontMeasurementResult)) + horizontalPadding;
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)width
 {
-  return [[self label] sizeThatFits:CGSizeMake(width, 0)].height;
+  CGFloat textWidth = MAX(width - (textPadding.left + textPadding.right), 0);
+  return [[self label] sizeThatFits:CGSizeMake(textWidth, 0)].height + textPadding.top + textPadding.bottom;
 }
 
 - (void)padLabel
 {
 #ifndef TI_USE_AUTOLAYOUT
-  CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
+  // The text area is the view's bounds minus the "padding" property.
+  CGRect contentFrame = UIEdgeInsetsInsetRect(initialLabelFrame, textPadding);
+  if (contentFrame.size.width < 0) {
+    contentFrame.size.width = 0;
+  }
+  if (contentFrame.size.height < 0) {
+    contentFrame.size.height = 0;
+  }
+  CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(contentFrame.size.width, 0)];
   UIControlContentVerticalAlignment alignment = verticalAlign;
   if (alignment == UIControlContentVerticalAlignmentFill) {
     // iOS 7 layout issue fix with attributed string.
-    if (actualLabelSize.height < initialLabelFrame.size.height) {
+    if (actualLabelSize.height < contentFrame.size.height) {
       alignment = UIControlContentVerticalAlignmentCenter;
     } else {
       alignment = UIControlContentVerticalAlignmentTop;
@@ -108,10 +120,10 @@
     CGFloat originX = 0;
     switch (label.textAlignment) {
     case NSTextAlignmentRight:
-      originX = (initialLabelFrame.size.width - actualLabelSize.width);
+      originX = (contentFrame.size.width - actualLabelSize.width);
       break;
     case NSTextAlignmentCenter:
-      originX = (initialLabelFrame.size.width - actualLabelSize.width) / 2.0;
+      originX = (contentFrame.size.width - actualLabelSize.width) / 2.0;
       break;
     default:
       break;
@@ -123,24 +135,26 @@
     CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
     switch (alignment) {
     case UIControlContentVerticalAlignmentBottom:
-      labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
+      labelRect.origin.y = contentFrame.size.height - actualLabelSize.height;
       break;
     case UIControlContentVerticalAlignmentCenter:
-      labelRect.origin.y = (initialLabelFrame.size.height - actualLabelSize.height) / 2;
+      labelRect.origin.y = (contentFrame.size.height - actualLabelSize.height) / 2;
       if (labelRect.origin.y < 0) {
-        labelRect.size.height = (initialLabelFrame.size.height - labelRect.origin.y);
+        labelRect.size.height = (contentFrame.size.height - labelRect.origin.y);
       }
       break;
     default:
-      if (initialLabelFrame.size.height < actualLabelSize.height) {
-        labelRect.size.height = initialLabelFrame.size.height;
+      if (contentFrame.size.height < actualLabelSize.height) {
+        labelRect.size.height = contentFrame.size.height;
       }
       break;
     }
 
+    labelRect.origin.x += contentFrame.origin.x;
+    labelRect.origin.y += contentFrame.origin.y;
     [label setFrame:CGRectIntegral(labelRect)];
   } else {
-    [label setFrame:initialLabelFrame];
+    [label setFrame:contentFrame];
   }
 
   if ([self backgroundImageLayer] != nil && !CGRectIsEmpty(initialLabelFrame)) {
@@ -402,6 +416,13 @@
   if (label != nil) {
     [self padLabel];
   }
+}
+
+- (void)setPadding_:(id)value
+{
+  textPadding = [TiUtils contentInsets:value];
+  [self padLabel];
+  [(TiViewProxy *)[self proxy] contentsWillChange];
 }
 
 - (void)setMaxLines_:(id)value
