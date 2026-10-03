@@ -3,15 +3,15 @@ name: Titanium.Media.AudioRecorder
 summary: An audio recorder object used for recording audio from the device microphone.
 description: |
     Use the <Titanium.Media.createAudioRecorder> method to create an audio recorder.
-    
+
     Ensure to request the permissions for audio-recording before starting a new record-session.
     This can be done by using <Titanium.Media.hasAudioRecorderPermissions> to check whether
-    audio-permissions are granted and <Titanium.Media.requestAudioRecorderPermissions> to 
-    request audio-permissions. 
-    
+    audio-permissions are granted and <Titanium.Media.requestAudioRecorderPermissions> to
+    request audio-permissions.
+
     **Android Platform Note**: On Android, you also need to include the following permission
     into the `<android>` section of the tiapp.xml:
-    
+
     ``` xml
     <android xmlns:android="http://schemas.android.com/apk/res/android">
         <manifest>
@@ -19,9 +19,16 @@ description: |
         </manifest>
     </android>
     ```
-    
+
+    All Android devices support the default recording, which uses the format
+    <Titanium.Media.AUDIO_FILEFORMAT_WAVE> and the compression <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>.
+    Some Android devices do not support all other values of the `format` and `compression` properties.
+    If the device does not support the values that you set, the `start` method writes an error to
+    the log and the `recording` property stays `false`. Read the `recording` property after you call
+    the `start` method. If it is `false`, use the default values.
+
 extends: Titanium.Proxy
-since: 
+since:
   iphone: "0.9"
   ipad: "0.9"
   android: "6.2.0"
@@ -46,17 +53,44 @@ properties:
 
   - name: compression
     summary: Audio compression to be used for the recording.
+    description: |
+        On Android, set this property before you call the `start` method.
+        Android supports these values:
+
+        * <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>
+        * <Titanium.Media.AUDIO_FORMAT_AAC>
+        * <Titanium.Media.AUDIO_FORMAT_HE_AAC>
+        * <Titanium.Media.AUDIO_FORMAT_AAC_ELD>
+        * <Titanium.Media.AUDIO_FORMAT_AMR_NB>
+        * <Titanium.Media.AUDIO_FORMAT_AMR_WB>
+
+        On Android, the <Titanium.Media.AUDIO_FILEFORMAT_WAVE> format always records linear PCM
+        and ignores this property. All other formats cannot record linear PCM. If you use
+        <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM> with one of these formats, the recorder uses AAC.
+        The <Titanium.Media.AUDIO_FILEFORMAT_AAC> format does not support the two AMR compressions.
     type: Number
     constants: Titanium.Media.AUDIO_FORMAT_*
     default: <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: format
     summary: Audio format to be used for the recording.
+    description: |
+        On Android, set this property before you call the `start` method.
+        Android supports these values:
+
+        * <Titanium.Media.AUDIO_FILEFORMAT_WAVE>
+        * <Titanium.Media.AUDIO_FILEFORMAT_MP4>
+        * <Titanium.Media.AUDIO_FILEFORMAT_AAC>
+        * <Titanium.Media.AUDIO_FILEFORMAT_3GPP>
+
+        The default value on Android is <Titanium.Media.AUDIO_FILEFORMAT_WAVE>.
     type: Number
     constants: Titanium.Media.AUDIO_FILEFORMAT_*
     default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>
-    platforms: [iphone, ipad, macos]
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: paused
     summary: Indicates if the audio recorder is paused.
@@ -73,36 +107,36 @@ properties:
     type: Boolean
     permission: read-only
 
-examples: 
+examples:
   - title: Audio Recorder Example
     example: |
         The following code-example creates a window that controls the audio-recorder flow.
-        
+
         ``` js
         var window = Ti.UI.createWindow({
           backgroundColor: '#fff'
         });
-        
+
         var recordStart = Ti.UI.createButton({
           title: 'Start',
           top: 10
         });
-        
+
         var recordPause = Ti.UI.createButton({
           title: 'Pause',
           top: 60
         });
-        
+
         var recordStop = Ti.UI.createButton({
           title: 'Stop',
           top: 110
         });
-        
+
         var recordPlay = Ti.UI.createButton({
           title: 'Play',
           top: 160
         });
-        
+
         var audioRecorder = Ti.Media.createAudioRecorder();
         var record;
         var audioPlayer;
@@ -124,7 +158,7 @@ examples:
         });
 
         recordPause.addEventListener('click', function(e) {
-          if (audioRecorder.getPaused()) {
+          if (audioRecorder.paused) {
             recordPause.title = 'Pause';
             audioRecorder.resume()
           } else {
