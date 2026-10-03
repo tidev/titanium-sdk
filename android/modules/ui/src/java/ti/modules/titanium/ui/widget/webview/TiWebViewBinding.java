@@ -160,6 +160,23 @@ public class TiWebViewBinding
 		return code;
 	}
 
+	public void injectEventBindings()
+	{
+		StringBuilder code = new StringBuilder();
+		StringBuilder tiCode = TiWebViewBinding.readResourceFile("binding.min.js");
+		String outCode = tiCode.toString().replaceAll("\"", "\\\\\"")
+			.replace("\n", "").replace("\r", "");
+		code.append("(function addBinding(){");
+		// skip if the bindings already exist, a second injection would reset the registered listeners
+		code.append("if(window.Ti&&window.Ti._event_listeners)return;");
+		code.append("var s=document.createElement(\"script\");");
+		code.append("s.setAttribute(\"type\",\"text/javascript\");");
+		code.append("s.innerHTML=\"" + outCode + "\";");
+		code.append("(document.body||document.documentElement).appendChild(s);");
+		code.append("})()");
+		getJSValue(code.toString());
+	}
+
 	private final Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
