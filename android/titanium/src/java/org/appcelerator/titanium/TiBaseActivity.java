@@ -71,6 +71,8 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
@@ -100,6 +102,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private static final String TAG = "TiBaseActivity";
 
 	private boolean onDestroyFired = false;
+	private boolean wasFinishCalled = false; // Set true if finish() or finishAffinity() was called on this activity.
 	private int originalOrientationMode = -1;
 	private boolean inForeground = false; // Indicates whether this activity is in foreground or not.
 	private final TiWeakList<OnLifecycleEvent> lifecycleListeners = new TiWeakList<>();
@@ -1825,10 +1828,12 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		boolean isFinishing = isFinishing();
 
 		// If activities is finished (not coming back), then stop tracking the activity and remove from collection.
+		boolean hadTiWindow = false;
 		if (isFinishing) {
 			if (this.launchIntent != null) {
 				int windowId =
 					this.launchIntent.getIntExtra(TiC.INTENT_PROPERTY_WINDOW_ID, TiActivityWindows.INVALID_WINDOW_ID);
+				hadTiWindow = (windowId != TiActivityWindows.INVALID_WINDOW_ID);
 				TiActivityWindows.removeWindow(windowId);
 			}
 			TiActivitySupportHelpers.removeSupportHelper(supportHelperId);
@@ -1876,6 +1881,44 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		//       and intends to restore it later. We don't want to terminate the JS runtime in this case.
 		//       This happens when "Don't keep activities" is enabled or "Background process limit" is exceeded.
 		KrollRuntime.decrementActivityRefCount(isFinishing);
+
+		// If the OS destroyed the last window activity without going through our finish() method,
+		// then the root activity is left alive with no UI. This happens when the root activity is
+		// relaunched with "singleTask" launch mode or with CLEAR_TOP|SINGLE_TOP flags while the
+		// app is backgrounded. Restart the app so the user doesn't end up on a blank screen.
+		if (isFinishing && !this.wasFinishCalled && hadTiWindow) {
+			restartIfRootActivityIsEmpty();
+		}
+	}
+
+	/**
+	 * Restarts the Titanium runtime if the root activity is still alive, but all "Ti.UI.Window" activities
+	 * have been destroyed by the OS. To be called from the onDestroy() method of a window activity.
+	 */
+	private void restartIfRootActivityIsEmpty()
+	{
+		if (!TiBaseActivity.canFinishRoot || !TiRootActivity.isScriptRunning()) {
+			return;
+		}
+		if (TiActivityWindows.getWindowCount() > 0) {
+			return;
+		}
+		final TiRootActivity rootActivity = getTiApp().getRootActivity();
+		if ((rootActivity == null) || rootActivity.isFinishing() || rootActivity.isDestroyed()) {
+			return;
+		}
+		// Note: Post this check since the root activity might be destroyed too, such as via CLEAR_TOP.
+		new Handler(Looper.getMainLooper()).post(() -> {
+			TiRootActivity currentRoot = getTiApp().getRootActivity();
+			if ((currentRoot != rootActivity) || currentRoot.isFinishing() || currentRoot.isDestroyed()) {
+				return;
+			}
+			if (!TiBaseActivity.canFinishRoot || (TiActivityWindows.getWindowCount() > 0)) {
+				return;
+			}
+			Log.w(TAG, "All window activities were destroyed by the OS. Restarting app.");
+			getTiApp().softRestart();
+		});
 	}
 
 	@Override
@@ -1983,8 +2026,19 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	}
 
 	@Override
+	public void finishAffinity()
+	{
+		this.wasFinishCalled = true;
+		super.finishAffinity();
+	}
+
+	@Override
 	public void finish()
 	{
+		// Flag that Titanium or the Android framework (ex: back navigation) called finish() on this activity,
+		// as opposed to the OS destroying this activity directly when clearing the task above the root activity.
+		this.wasFinishCalled = true;
+
 		// Do not continue if already called.
 		if (isFinishing()) {
 			return;

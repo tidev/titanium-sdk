@@ -957,6 +957,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		intent.setAction(Intent.ACTION_MAIN);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
+		// Prevent window activities destroyed by the above CLEAR_TOP from soft-restarting the runtime.
+		// The process is killed below anyways.
+		TiBaseActivity.canFinishRoot = false;
 		activity.startActivity(intent);
 
 		// To avoid seeing duplicate app snapshots in Task Manager, one with empty content often.
