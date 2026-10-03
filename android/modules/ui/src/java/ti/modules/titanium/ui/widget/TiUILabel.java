@@ -231,6 +231,39 @@ public class TiUILabel extends TiUIView
 	 * fontsize should be >= than the property minimumFontSize
 	 * @param textView The text view to be adjusted.
 	 */
+	/**
+	 * Applies the "padding" property to the given text view.
+	 * @param textView The label's text view. Cannot be null.
+	 * @param value A dictionary with optional "left", "right", "top", and "bottom" keys. Null resets padding to zero.
+	 */
+	private void setTextPadding(@NonNull MaterialTextView textView, Object value)
+	{
+		int left = 0;
+		int right = 0;
+		int top = 0;
+		int bottom = 0;
+		if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+			left = toPaddingPixels(textView, dict.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT);
+			right = toPaddingPixels(textView, dict.get(TiC.PROPERTY_RIGHT), TiDimension.TYPE_RIGHT);
+			top = toPaddingPixels(textView, dict.get(TiC.PROPERTY_TOP), TiDimension.TYPE_TOP);
+			bottom = toPaddingPixels(textView, dict.get(TiC.PROPERTY_BOTTOM), TiDimension.TYPE_BOTTOM);
+		}
+		textView.setPadding(left, top, right, bottom);
+	}
+
+	private static int toPaddingPixels(@NonNull MaterialTextView textView, Object value, int dimensionType)
+	{
+		if (value == null) {
+			return 0;
+		}
+		TiDimension dimension = TiConvert.toTiDimension(TiConvert.toString(value), dimensionType);
+		if (dimension == null) {
+			return 0;
+		}
+		return Math.max(dimension.getAsPixels(textView), 0);
+	}
+
 	private void adjustTextFontSize(@NonNull MaterialTextView textView)
 	{
 		// Do not continue if auto-sizing the font is disabled.
@@ -378,6 +411,10 @@ public class TiUILabel extends TiUIView
 
 		if (d.containsKey(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_PADDING)) {
+			setTextPadding(tv, d.get(TiC.PROPERTY_PADDING));
 		}
 
 		if (d.containsKey(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
@@ -534,6 +571,9 @@ public class TiUILabel extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(newValue, true));
+		} else if (key.equals(TiC.PROPERTY_PADDING)) {
+			setTextPadding(tv, newValue);
+			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
