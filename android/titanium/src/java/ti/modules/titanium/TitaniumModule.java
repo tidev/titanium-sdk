@@ -44,20 +44,15 @@ public class TitaniumModule extends KrollModule
 	private static final SparseArray<Timer> activeTimers = new SparseArray<>();
 	private static int lastTimerId = 1;
 
+	private String userAgent;
+
 	public TitaniumModule()
 	{
 		basePath = new Stack<>();
+		userAgent = computeUserAgent();
 	}
 
-	@Override
-	protected void initActivity(Activity activity)
-	{
-		super.initActivity(activity);
-		basePath.push(getCreationUrl().baseUrl);
-	}
-
-	@Kroll.getProperty
-	public String getUserAgent()
+	private String computeUserAgent()
 	{
 		StringBuilder builder = new StringBuilder();
 		String httpAgent = System.getProperty("http.agent");
@@ -66,6 +61,28 @@ public class TitaniumModule extends KrollModule
 		}
 		builder.append(" Titanium/").append(getVersion());
 		return builder.toString();
+	}
+
+	@Kroll.getProperty
+	public String getUserAgent()
+	{
+		if (userAgent == null) {
+			userAgent = computeUserAgent();
+		}
+		return userAgent;
+	}
+
+	@Kroll.setProperty
+	public void setUserAgent(String value)
+	{
+		userAgent = value;
+	}
+
+	@Override
+	protected void initActivity(Activity activity)
+	{
+		super.initActivity(activity);
+		basePath.push(getCreationUrl().baseUrl);
 	}
 
 	@Kroll.getProperty
@@ -365,6 +382,19 @@ public class TitaniumModule extends KrollModule
 		}
 
 		return format.format((Number) args[0]);
+	}
+
+	@Kroll.method
+	public void applyProperties(Object arg)
+	{
+		if (!(arg instanceof HashMap)) {
+			Log.w(TAG, "Cannot apply properties: invalid type for properties", Log.DEBUG_MODE);
+			return;
+		}
+		HashMap props = (HashMap) arg;
+		for (Object name : props.keySet()) {
+			setProperty(TiConvert.toString(name), props.get(name));
+		}
 	}
 
 	@Kroll.method
