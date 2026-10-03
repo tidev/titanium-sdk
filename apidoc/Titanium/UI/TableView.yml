@@ -1218,6 +1218,16 @@ properties:
     platforms: [android]
     since: "5.2.0"
 
+  - name: gridColumns
+    summary: Will create a simple grid layout.
+    description: |
+        Setting a value > 0 will create a grid layout with evenly spaced columns. `headerTitles` will also be placed in
+        those columns, they will not spread over all columns.
+    type: Number
+    default: 0
+    since: 10.0.0
+    platforms: [android]
+
   - name: headerPullView
     summary: |
         View positioned above the first row that is only revealed when the user drags the table

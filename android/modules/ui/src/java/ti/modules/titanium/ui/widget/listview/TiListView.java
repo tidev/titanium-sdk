@@ -34,6 +34,7 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -77,33 +78,7 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 		this.recyclerView.setFocusable(true);
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
-		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
-			@Override
-			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
-			{
-				super.onLayoutChildren(recycler, state);
-
-				// The first time we load items, load the next 4 offscreen items to get them cached.
-				// This helps improve initial scroll performance.
-				if (!hasLaidOutChildren && (getChildCount() > 0)) {
-					int startIndex = findFirstVisibleItemPosition() + getChildCount();
-					int endIndex = Math.min(startIndex + 3, state.getItemCount() - 1);
-					for (int index = startIndex; index <= endIndex; index++) {
-						recycler.getViewForPosition(index);
-					}
-					hasLaidOutChildren = true;
-				}
-			}
-
-			@Override
-			public void onLayoutCompleted(RecyclerView.State state)
-			{
-				super.onLayoutCompleted(state);
-
-				// Process markers after layout.
-				proxy.handleMarkers();
-			}
-		});
+		this.recyclerView.setLayoutManager(createLayoutManager(1));
 		this.recyclerView.setFocusableInTouchMode(false);
 
 		// Add listener to fire scroll events.
@@ -445,6 +420,80 @@ public class TiListView extends TiSwipeRefreshLayout implements OnSearchChangeLi
 	public LinearLayoutManager getLayoutManager()
 	{
 		return (LinearLayoutManager) this.recyclerView.getLayoutManager();
+	}
+
+	/**
+	 * Set the number of grid columns.
+	 *
+	 * @param gridColumns Number of columns, a value below 2 uses a linear layout.
+	 */
+	public void setGridColumns(int gridColumns)
+	{
+		this.recyclerView.setLayoutManager(createLayoutManager(gridColumns));
+	}
+
+	/**
+	 * Create a layout manager that tracks the layout state and processes markers.
+	 *
+	 * @param gridColumns Number of columns, a value below 2 creates a linear layout.
+	 * @return LinearLayoutManager
+	 */
+	private LinearLayoutManager createLayoutManager(int gridColumns)
+	{
+		if (gridColumns > 1) {
+			return new GridLayoutManager(getContext(), gridColumns) {
+				@Override
+				public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+				{
+					super.onLayoutChildren(recycler, state);
+					cacheOffscreenItems(this, recycler, state);
+				}
+
+				@Override
+				public void onLayoutCompleted(RecyclerView.State state)
+				{
+					super.onLayoutCompleted(state);
+
+					// Process markers after layout.
+					proxy.handleMarkers();
+				}
+			};
+		}
+
+		return new LinearLayoutManager(getContext()) {
+			@Override
+			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+			{
+				super.onLayoutChildren(recycler, state);
+				cacheOffscreenItems(this, recycler, state);
+			}
+
+			@Override
+			public void onLayoutCompleted(RecyclerView.State state)
+			{
+				super.onLayoutCompleted(state);
+
+				// Process markers after layout.
+				proxy.handleMarkers();
+			}
+		};
+	}
+
+	/**
+	 * The first time we load items, load the next 4 offscreen items to get them cached.
+	 * This helps improve initial scroll performance.
+	 */
+	private void cacheOffscreenItems(
+		LinearLayoutManager layoutManager, RecyclerView.Recycler recycler, RecyclerView.State state)
+	{
+		if (!hasLaidOutChildren && (layoutManager.getChildCount() > 0)) {
+			int startIndex = layoutManager.findFirstVisibleItemPosition() + layoutManager.getChildCount();
+			int endIndex = Math.min(startIndex + 3, state.getItemCount() - 1);
+			for (int index = startIndex; index <= endIndex; index++) {
+				recycler.getViewForPosition(index);
+			}
+			hasLaidOutChildren = true;
+		}
 	}
 
 	/**
