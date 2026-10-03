@@ -90,6 +90,38 @@ describe('Titanium.UI.TextArea', () => {
 			});
 		});
 
+		describe('.customActions', () => {
+			it('is undefined by default', () => {
+				const textArea = Ti.UI.createTextArea();
+				should(textArea.customActions).be.undefined();
+			});
+
+			it('can be initialized', () => {
+				const textArea = Ti.UI.createTextArea({ customActions: [ 'Action 1', 'Action 2' ] });
+				should(textArea.customActions).be.an.Array();
+				should(textArea.customActions).eql([ 'Action 1', 'Action 2' ]);
+			});
+
+			it('can be changed dynamically', (finish) => {
+				const textArea = Ti.UI.createTextArea({ value: 'Titanium' });
+				win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+				win.add(textArea);
+				win.addEventListener('postlayout', function listener() {
+					try {
+						win.removeEventListener('postlayout', listener);
+						textArea.customActions = [ 'Action 1' ];
+						should(textArea.customActions).eql([ 'Action 1' ]);
+						textArea.customActions = null;
+						should(textArea.customActions).be.null();
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+		});
+
 		describe('.enableCopy', () => {
 			it('is a Boolean', () => {
 				const textArea = Ti.UI.createTextArea();

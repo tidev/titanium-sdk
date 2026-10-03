@@ -73,6 +73,7 @@ public class TiC
 	public static final String EVENT_DRAGSTART = "dragstart";
 	public static final String EVENT_DRAGEND = "dragend";
 	public static final String EVENT_DURATION_AVAILABLE = "durationavailable";
+	public static final String EVENT_CUSTOM_ACTION = "customaction";
 	public static final String EVENT_ERROR = "error";
 	public static final String EVENT_EXPAND = "expand";
 	public static final String EVENT_FOCUS = "focus";
@@ -860,6 +861,7 @@ public class TiC
 	public static final String PROPERTY_LIGHT_TOUCH_ENABLED = "lightTouchEnabled";
 	public static final String PROPERTY_CATEGORY = "category";
 	public static final String PROPERTY_CUSTOM = "custom";
+	public static final String PROPERTY_CUSTOM_ACTIONS = "customActions";
 	public static final String PROPERTY_CUSTOM_VIEW = "customView";
 	public static final String PROPERTY_MIN_DATE = "minDate";
 	public static final String PROPERTY_MAX_DATE = "maxDate";

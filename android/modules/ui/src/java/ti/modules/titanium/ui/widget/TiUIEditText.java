@@ -194,6 +194,103 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 		}
 	}
 
+	/** Listener invoked when the user taps one of the custom actions in the text selection context menu. */
+	public interface OnCustomActionListener {
+		/**
+		 * Called when a custom action has been tapped.
+		 * @param index Index of the action in the array given to setCustomActions().
+		 * @param title Title of the tapped action.
+		 * @param selectionStart Start index of the selected text.
+		 * @param selectionEnd End index (exclusive) of the selected text.
+		 */
+		void onCustomAction(int index, String title, int selectionStart, int selectionEnd);
+	}
+
+	/** Base menu item ID of the custom actions. Must not collide with the "android.R.id" menu item IDs. */
+	private static final int CUSTOM_ACTION_ID_BASE = Menu.FIRST + 1000;
+
+	/** Menu order of the first custom action. Places them after the system actions and before "process text" apps. */
+	private static final int CUSTOM_ACTION_ORDER_BASE = 50;
+
+	/** Titles of the custom actions to add to the text selection context menu. Can be null. */
+	private String[] customActions;
+
+	/** Listener to invoke when a custom action has been tapped. Can be null. */
+	private OnCustomActionListener customActionListener;
+
+	/**
+	 * Sets the custom actions to add to the context menu shown when text is selected.
+	 * @param actions Array of action titles. Can be null or empty to remove all custom actions.
+	 */
+	public void setCustomActions(String[] actions)
+	{
+		this.customActions = actions;
+	}
+
+	/**
+	 * Gets the custom actions added to the text selection context menu.
+	 * @return Array of action titles. Returns null if not set.
+	 */
+	public String[] getCustomActions()
+	{
+		return this.customActions;
+	}
+
+	/**
+	 * Sets the listener to invoke when the user taps one of the custom actions.
+	 * @param listener The listener to set. Can be null.
+	 */
+	public void setOnCustomActionListener(OnCustomActionListener listener)
+	{
+		this.customActionListener = listener;
+	}
+
+	/**
+	 * Adds the custom actions to the given context menu. Only adds them while text is selected.
+	 * @param menu The context menu to add the actions to.
+	 */
+	private void addCustomActionsTo(Menu menu)
+	{
+		if ((menu == null) || (this.customActions == null) || !hasSelection()) {
+			return;
+		}
+		for (int index = 0; index < this.customActions.length; index++) {
+			String title = this.customActions[index];
+			if (title == null) {
+				continue;
+			}
+			MenuItem item = menu.add(
+				Menu.NONE, CUSTOM_ACTION_ID_BASE + index, CUSTOM_ACTION_ORDER_BASE + index, title);
+			item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+		}
+	}
+
+	/**
+	 * Handles a tap on a context menu item if it is one of the custom actions.
+	 * @param mode The action mode the menu item belongs to.
+	 * @param item The tapped menu item.
+	 * @return Returns true if the item was a custom action and has been handled. Returns false if not.
+	 */
+	private boolean onCustomActionItemClicked(ActionMode mode, MenuItem item)
+	{
+		if ((item == null) || (this.customActions == null)) {
+			return false;
+		}
+		int index = item.getItemId() - CUSTOM_ACTION_ID_BASE;
+		if ((index < 0) || (index >= this.customActions.length)) {
+			return false;
+		}
+		if (this.customActionListener != null) {
+			int start = Math.min(getSelectionStart(), getSelectionEnd());
+			int end = Math.max(getSelectionStart(), getSelectionEnd());
+			this.customActionListener.onCustomAction(index, this.customActions[index], start, end);
+		}
+		if (mode != null) {
+			mode.finish();
+		}
+		return true;
+	}
+
 	/**
 	 * Determines if text can be copied from the input field. Can be changed via setIsCopyEnabled() method.
 	 * <p/>
@@ -318,8 +415,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			return null;
 		}
 
-		// If we need to remove copy, cut, or other menu items then wrap the given callback.
-		if (!this.isCopyEnabled || (getInputType() == InputType.TYPE_NULL)) {
+		// If we need to remove copy, cut, or other menu items or add custom actions, then wrap the given callback.
+		boolean hasCustomActions = (this.customActions != null) && (this.customActions.length > 0);
+		if (!this.isCopyEnabled || (getInputType() == InputType.TYPE_NULL) || hasCustomActions) {
 			// Create a set of menu IDs that need to be removed from the context menu.
 			HashSet<Integer> excludeMenuIdSet = new HashSet<>();
 			if (!this.isCopyEnabled) {
@@ -331,9 +429,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 			// Wrap the given callback used to override context menu handling.
 			if (callback instanceof ActionMode.Callback2) {
-				callback = new ActionModeCallback2Wrapper((ActionMode.Callback2) callback, excludeMenuIdSet);
+				callback = new ActionModeCallback2Wrapper((ActionMode.Callback2) callback, excludeMenuIdSet, this);
 			} else {
-				callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
+				callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet, this);
 			}
 		}
 		return callback;
@@ -587,22 +685,29 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 		this.nestedScrollingHelper.stopNestedScroll(type);
 	}
 
-	/** Wraps Google's "ActionMode.Callback" so that we can remove particular context menu items from it. */
+	/**
+	 * Wraps Google's "ActionMode.Callback" so that we can remove particular context menu items from it
+	 * and add the custom actions of the edit text.
+	 */
 	private static class ActionModeCallbackWrapper implements ActionMode.Callback
 	{
 		private final ActionMode.Callback callback;
 		private final HashSet<Integer> excludeMenuIdSet;
+		private final TiUIEditText editText;
 
 		/**
 		 * Creates an action mode callback which wraps the given callback.
 		 * Acts as a pass through and remove menu items matching the given menu ID set.
 		 * @param callback The callback to be wrapped.
 		 * @param excludeMenuIdSet Set of menu item IDs to be removed, such as "android.R.id.copy".
+		 * @param editText The edit text whose custom actions are added to the menu. Can be null.
 		 */
-		public ActionModeCallbackWrapper(@NonNull ActionMode.Callback callback, HashSet<Integer> excludeMenuIdSet)
+		public ActionModeCallbackWrapper(
+			@NonNull ActionMode.Callback callback, HashSet<Integer> excludeMenuIdSet, TiUIEditText editText)
 		{
 			this.callback = callback;
 			this.excludeMenuIdSet = excludeMenuIdSet;
+			this.editText = editText;
 		}
 
 		public ActionMode.Callback getWrappedCallback()
@@ -613,6 +718,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item)
 		{
+			if ((this.editText != null) && this.editText.onCustomActionItemClicked(mode, item)) {
+				return true;
+			}
 			return this.callback.onActionItemClicked(mode, item);
 		}
 
@@ -624,6 +732,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 				for (int nextId : this.excludeMenuIdSet) {
 					menu.removeItem(nextId);
 				}
+			}
+			if (wasCreated && (this.editText != null)) {
+				this.editText.addCustomActionsTo(menu);
 			}
 			return wasCreated;
 		}
@@ -651,10 +762,12 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 		 * Acts as a pass through and remove menu items matching the given menu ID set.
 		 * @param callback The callback to be wrapped.
 		 * @param excludeMenuIdSet Set of menu item IDs to be removed, such as "android.R.id.copy".
+		 * @param editText The edit text whose custom actions are added to the menu. Can be null.
 		 */
-		public ActionModeCallback2Wrapper(@NonNull ActionMode.Callback2 callback, HashSet<Integer> excludeMenuIdSet)
+		public ActionModeCallback2Wrapper(
+			@NonNull ActionMode.Callback2 callback, HashSet<Integer> excludeMenuIdSet, TiUIEditText editText)
 		{
-			this.callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
+			this.callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet, editText);
 		}
 
 		@Override
