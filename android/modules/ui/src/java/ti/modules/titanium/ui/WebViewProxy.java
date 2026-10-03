@@ -587,6 +587,16 @@ public class WebViewProxy extends ViewProxy implements Handler.Callback, OnLifec
 		}
 	}
 
+	@Kroll.getProperty
+	public boolean getLoading()
+	{
+		TiUIView v = peekView();
+		if (v instanceof TiUIWebView) {
+			return ((TiUIWebView) v).isLoading();
+		}
+		return false;
+	}
+
 	public void clearBasicAuthentication()
 	{
 		fusername = null;
