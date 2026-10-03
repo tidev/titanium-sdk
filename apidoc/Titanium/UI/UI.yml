@@ -301,6 +301,19 @@ properties:
     since: "3.6.0"
     permission: read-only
 
+  - name: ATTRIBUTE_ROUNDED_BACKGROUND_COLOR
+    summary: |
+        Use with <Attribute.type> to specify a background color.
+    description: |
+        Properties are `backgroundColor`, `color`, `borderRadius`, `topMargin`, `offset`
+        and `padding`.
+
+        See <Attribute> for more information.
+    type: Number
+    platforms: [android]
+    since: "12.1.0"
+    permission: read-only
+
   - name: ATTRIBUTE_LIGATURE
     summary: |
         Use with <Attribute.type> to enable or disable ligatures.
