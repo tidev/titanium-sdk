@@ -81,7 +81,7 @@ properties:
 methods:
   - name: addMenuItem
     summary: Adds a menu item from the passed creation options.
-    since: "12.7.0"
+    since: "14.0.0"
     parameters:
       - name: options
         summary: |
@@ -95,11 +95,11 @@ methods:
 
   - name: clearMenu
     summary: Removes all menu items
-    since: "12.7.0"
+    since: "14.0.0"
 
   - name: removeMenuItem
     summary: Removes the menu item with the provided `itemId`.
-    since: "12.7.0"
+    since: "14.0.0"
     parameters:
       - name: itemId
         summary: |
@@ -109,7 +109,7 @@ methods:
 events:
   - name: click
     summary: Fired when the user clicks a menu item.
-    since: "12.7.0"
+    since: "14.0.0"
     properties:
       - name: itemId
         summary: |
