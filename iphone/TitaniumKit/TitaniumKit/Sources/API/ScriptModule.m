@@ -8,6 +8,7 @@
 #import "KrollBridge.h"
 #import "KrollContext.h"
 #import "TiExceptionHandler.h"
+#import "TiHost.h"
 
 @implementation ScriptModule
 

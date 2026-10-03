@@ -81,7 +81,7 @@
 
   // FIXME: Extract a Proxy protocol for ObjcProxy/TiProxy and place methods like boundBridge:withKrollObject: on it!
   if ([module isKindOfClass:[ObjcModule class]]) {
-    return [module JSValueInContext:context];
+    return [(ObjcModule *)module JSValueInContext:context];
   }
   KrollObject *ko = [[self executionContext] registerProxy:module]; // This basically retains the module for the lifetime of the bridge
   return [JSValue valueWithJSValueRef:[ko jsobject] inContext:context];

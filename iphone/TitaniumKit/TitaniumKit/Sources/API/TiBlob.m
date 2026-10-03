@@ -341,6 +341,9 @@ GETTER_IMPL(NSUInteger, length, Length);
     writeData = data;
     break;
   }
+  default: {
+    break;
+  }
   }
   if (writeData != nil) {
     return [writeData writeToFile:destination atomically:YES];
@@ -480,9 +483,23 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
   [theData getBytes:arrayBytes length:len];
 
   // Now make an ArrayBuffer with the copied bytes
-  JSContext *context = JSContext.currentContext;
-  JSValueRef *exception;
-  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
+  JSContext *context = [self currentContext];
+  JSValueRef exception = NULL;
+  JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, &exception);
+
+  if (exception != NULL) {
+    JSStringRef exceptionStr = JSValueToStringCopy(context.JSGlobalContextRef, exception, NULL);
+    NSString *message = (__bridge_transfer NSString *)JSStringCopyCFString(kCFAllocatorDefault, exceptionStr);
+    JSStringRelease(exceptionStr);
+    free(arrayBytes);
+
+    [self throwException:@"Could not create ArrayBuffer"
+               subreason:message
+                location:CODELOCATION];
+
+    return nil;
+  }
+
   return [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
 }
 
@@ -499,9 +516,10 @@ static void jsArrayBufferFreeDeallocator(void *data, void *ctx)
         [theData getBytes:arrayBytes length:len];
 
         // Now make an ArrayBuffer with the copied bytes
-        JSValueRef *exception;
-        JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, exception);
-        if (exception) {
+        JSValueRef exception = NULL;
+        JSObjectRef arrayBuffer = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, arrayBytes, len, jsArrayBufferFreeDeallocator, nil, &exception);
+        if (exception != NULL) {
+          free(arrayBytes);
           [promise reject:@[ [JSValue valueWithJSValueRef:exception inContext:context] ]];
         } else {
           JSValue *buffer = [JSValue valueWithJSValueRef:arrayBuffer inContext:context];
