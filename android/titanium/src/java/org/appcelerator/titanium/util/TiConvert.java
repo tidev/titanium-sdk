@@ -599,30 +599,33 @@ public class TiConvert
 			return null;
 		}
 		if (value instanceof Double || value instanceof Float) {
-			return numberToString(((Number) value).doubleValue());
+			return numberToString((Number) value);
 		}
 		return value.toString();
 	}
 
 	/**
-	 * Converts a double into a String the same way JavaScript does for the common cases.
+	 * Converts a Double or Float into a String the same way JavaScript does for the common cases.
 	 * JavaScript numbers that do not fit into a 32-bit integer (such as Date.now()) arrive
 	 * in Java as a Double. Java's Double.toString() would print them in scientific notation
 	 * (for example "1.718097242E12") whereas JavaScript prints "1718097242000".
-	 * @param value the double to convert.
+	 * The digits come from the value's own toString() so that a Float such as 0.1f
+	 * yields "0.1" and not the widened double "0.10000000149011612".
+	 * @param value the Double or Float to convert.
 	 * @return a String in plain decimal notation.
 	 */
-	public static String numberToString(double value)
+	public static String numberToString(Number value)
 	{
-		if (Double.isNaN(value) || Double.isInfinite(value)) {
-			return Double.toString(value);
+		double doubleValue = value.doubleValue();
+		if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
+			return Double.toString(doubleValue);
 		}
-		if (value == 0.0) {
+		if (doubleValue == 0.0) {
 			return "0";
 		}
-		// Double.toString() yields the shortest digits that round-trip. BigDecimal only
-		// rewrites the exponent form into plain notation without changing those digits.
-		return new BigDecimal(Double.toString(value)).stripTrailingZeros().toPlainString();
+		// Double.toString()/Float.toString() yield the shortest digits that round-trip for
+		// their own type. BigDecimal only rewrites the exponent form into plain notation.
+		return new BigDecimal(value.toString()).stripTrailingZeros().toPlainString();
 	}
 
 	/**
