@@ -19,4 +19,6 @@ public interface TiPlaybackListener {
 	void onSeekingBackward();
 
 	void onSeekingForward();
+
+	void onBuffer(int value);
 }
