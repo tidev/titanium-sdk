@@ -41,6 +41,8 @@ public class TiBorderWrapperView extends FrameLayout
 	private int alpha = -1;
 	private Paint paint;
 	private Rect bounds;
+	private final Path outerPath = new Path();
+	private final Path innerPath = new Path();
 	private ViewOutlineProvider viewOutlineProvider;
 	public TiBorderWrapperView(Context context)
 	{
@@ -90,14 +92,15 @@ public class TiBorderWrapperView extends FrameLayout
 			paint.setAlpha(alpha);
 		}
 
-		Path outerPath = new Path();
+		outerPath.rewind();
+		innerPath.rewind();
 		if (hasRadius()) {
 			float[] innerRadius = new float[this.radius.length];
 			for (int i = 0; i < this.radius.length; i++) {
 				innerRadius[i] = this.radius[i] - padding;
 			}
 			outerPath.addRoundRect(innerRect, innerRadius, Direction.CCW);
-			Path innerPath = new Path(outerPath);
+			innerPath.set(outerPath);
 
 			// Draw border.
 			outerPath.addRoundRect(outerRect, this.radius, Direction.CW);
