@@ -498,10 +498,16 @@ properties:
 
   - name: scrollable
     summary: Determines whether this text area can be scrolled.
+    description: |
+        When set to `false`, touch gestures no longer scroll the content, but the text area still
+        scrolls automatically to keep the cursor visible while typing.
+
+        On Android, drag gestures are consumed while scrolling is disabled, so extending a text
+        selection by long-pressing and dragging is not available. Selection handles still work.
     type: Boolean
     default: true
-    since: { iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
-    platforms: [iphone, ipad, macos]
+    since: { android: "14.0.0", iphone: "13.3.0", ipad: "13.3.0", macos: "13.3.0" }
+    platforms: [android, iphone, ipad, macos]
 
   - name: selection
     summary: Returns the currently selected text of the text area.
