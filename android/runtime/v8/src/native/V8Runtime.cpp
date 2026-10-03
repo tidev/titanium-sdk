@@ -223,6 +223,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nativeIn
 		// isolate->SetAbortOnUncaughtExceptionCallback(ShouldAbortOnUncaughtException);
 		// isolate->SetAutorunMicrotasks(false);
 		// isolate->SetFatalErrorHandler(OnFatalError);
+		isolate->SetPromiseRejectCallback(V8Util::reportRejection);
 		isolate->SetCaptureStackTraceForUncaughtExceptions(true, 10, v8::StackTrace::kOverview);
 	} else {
 		isolate = V8Runtime::v8_isolate;
