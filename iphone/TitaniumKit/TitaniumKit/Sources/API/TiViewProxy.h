@@ -82,7 +82,15 @@ enum {
   TiRefreshViewEnqueued,
 };
 
-@class TiAction, TiBlob;
+/**
+ Values of the "hiddenBehavior" property. Same values as View.INVISIBLE and View.GONE on Android.
+ */
+typedef NS_ENUM(NSInteger, TiHiddenBehavior) {
+  TiHiddenBehaviorInvisible = 4, // Keeps the space of the hidden view (default).
+  TiHiddenBehaviorGone = 8, // Releases the space in vertical and horizontal layouts.
+};
+
+@class TiAction, TiBlob, TiBreakpointHandler;
 // For TableRows, we need to have minimumParentHeightForWidth:
 
 /**
@@ -144,6 +152,7 @@ enum {
   BOOL allowLayoutUpdate;
 
   NSMutableDictionary *layoutPropDictionary;
+  TiBreakpointHandler *breakpointHandler;
 
   id observer;
   id<TiViewEventOverrideDelegate> eventOverrideDelegate;
@@ -508,6 +517,12 @@ enum {
 /**
  Tells the view proxy that the attached view will show.
  */
+/**
+ Whether the view is hidden and its "hiddenBehavior" is TiHiddenBehaviorGone, in which case it
+ takes no space in a vertical or horizontal layout.
+ */
+- (BOOL)isHiddenAndGone;
+
 - (void)willShow;
 
 /**

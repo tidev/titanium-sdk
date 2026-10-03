@@ -617,6 +617,7 @@ extern NSString *const kTiSceneWillEnterForegroundNotification;
 extern NSString *const kTiApplicationShortcut;
 extern NSString *const kTiApplicationLaunchedFromURL;
 extern NSString *const kTiTraitCollectionChanged;
+extern NSString *const kTiWindowSizeChanged;
 
 #ifndef TI_USE_AUTOLAYOUT
 extern NSString *const kTiBehaviorSize;

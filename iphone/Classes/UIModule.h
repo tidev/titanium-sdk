@@ -207,6 +207,9 @@
 @property (nonatomic, readonly) NSNumber *LIST_ITEM_TEMPLATE_CONTACTS;
 @property (nonatomic, readonly) NSNumber *LIST_ITEM_TEMPLATE_SUBTITLE;
 
+@property (nonatomic, readonly) NSNumber *HIDDEN_BEHAVIOR_INVISIBLE;
+@property (nonatomic, readonly) NSNumber *HIDDEN_BEHAVIOR_GONE;
+
 @property (nonatomic, readonly) NSNumber *LIST_ACCESSORY_TYPE_NONE;
 @property (nonatomic, readonly) NSNumber *LIST_ACCESSORY_TYPE_CHECKMARK;
 @property (nonatomic, readonly) NSNumber *LIST_ACCESSORY_TYPE_DETAIL;

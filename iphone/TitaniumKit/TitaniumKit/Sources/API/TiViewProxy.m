@@ -9,6 +9,7 @@
 #import "LayoutConstraint.h"
 #import "TiApp.h"
 #import "TiBlob.h"
+#import "TiBreakpointHandler.h"
 #import "TiLayoutQueue.h"
 #import "TiLocale.h"
 #import "TiSceneRegistry.h"
@@ -84,6 +85,70 @@ static NSArray *touchEventsArray;
 {
   [self setHidden:![TiUtils boolValue:newVisible def:YES] withArgs:args];
   [self replaceValue:newVisible forKey:@"visible" notification:YES];
+}
+
+- (void)setVisible:(id)newVisible
+{
+  // Reached through KVC when "visible" is part of the creation dictionary or applyProperties().
+  // Without this the value would only be stored and the hidden flag would stay out of sync,
+  // so a later show would return early without re-laying out the parent.
+  [self setVisible:newVisible withObject:nil];
+}
+
+- (void)setHiddenBehavior:(id)value
+{
+  [self replaceValue:value forKey:@"hiddenBehavior" notification:NO];
+  if (![TiUtils boolValue:[self valueForUndefinedKey:@"visible"] def:YES]) {
+    // Whether the hidden view takes space in the parent's layout changed.
+    [parent contentsWillChange];
+  }
+}
+
+- (BOOL)isHiddenAndGone
+{
+  // Read the stored property rather than the hidden ivar: a "visible: false" passed at creation
+  // is stored through setValue:forUndefinedKey: and never reaches setHidden:withArgs:.
+  BOOL isVisible = [TiUtils boolValue:[self valueForUndefinedKey:@"visible"] def:YES];
+  return !isVisible && ([TiUtils intValue:[self valueForUndefinedKey:@"hiddenBehavior"] def:TiHiddenBehaviorInvisible] == TiHiddenBehaviorGone);
+}
+
+- (void)setBreakpoints:(id)value
+{
+  [self replaceValue:value forKey:@"breakpoints" notification:NO];
+  if (updateStarted) {
+    // Applied at the end of _initWithProperties, since breakpoints override the other properties.
+    return;
+  }
+  if (breakpointHandler == nil) {
+    if ((value == nil) || (value == [NSNull null])) {
+      return;
+    }
+    breakpointHandler = [[TiBreakpointHandler alloc] initWithProxy:self];
+  }
+  [breakpointHandler setBreakpoints:value];
+}
+
+- (void)setValuesForKeysWithDictionary:(NSDictionary *)dictionary
+{
+  // Breakpoints override the other properties, so apply them last. While _initWithProperties
+  // runs, setBreakpoints: only stores the value and _initWithProperties applies it at the end.
+  id breakpoints = [dictionary objectForKey:@"breakpoints"];
+  if ((breakpoints == nil) || updateStarted) {
+    [super setValuesForKeysWithDictionary:dictionary];
+    return;
+  }
+  NSMutableDictionary *others = [dictionary mutableCopy];
+  [others removeObjectForKey:@"breakpoints"];
+  [super setValuesForKeysWithDictionary:others];
+  [others release];
+  [self setBreakpoints:breakpoints];
+}
+
+- (void)replaceValue:(id)value forKey:(NSString *)key notification:(BOOL)notify
+{
+  [super replaceValue:value forKey:key notification:notify];
+  // Every setter stores through here, so this is where JS assignments become visible.
+  [breakpointHandler noteValueChangedForKey:key];
 }
 
 - (void)setTempProperty:(id)propVal forKey:(id)propName
@@ -1488,6 +1553,12 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   [self processTempProperties:nil];
   allowLayoutUpdate = NO;
 
+  // Must be applied last since breakpoints override the properties handled above.
+  id breakpoints = [properties objectForKey:@"breakpoints"];
+  if (breakpoints != nil) {
+    [self setBreakpoints:breakpoints];
+  }
+
   [self createSafeAreaViewProxyForWindowProperties:properties];
 }
 
@@ -1609,6 +1680,18 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       [children makeObjectsPerformSelector:@selector(setParent:) withObject:nil];
       RELEASE_TO_NIL(children);
     });
+    if (breakpointHandler != nil) {
+      TiBreakpointHandler *handler = breakpointHandler;
+      breakpointHandler = nil;
+      [handler invalidate];
+      // Notifications are delivered on the main thread. Release there so a delivery
+      // that is in flight right now cannot outlive the handler.
+      TiThreadPerformOnMainThread(
+          ^{
+            [handler release];
+          },
+          NO);
+    }
     [super _destroy];
 
     if (barButtonItem != nil) {
@@ -2446,6 +2529,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   int maxHeight = 0;
 
   // First measure the sandbox bounds
+  CGRect previousBounds = CGRectZero;
   for (id child in childArray) {
     TiRect *childRect = [[TiRect alloc] init];
     CGRect childBounds = CGRectZero;
@@ -2456,7 +2540,14 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         maxHeight = MAX(maxHeight, bounds.size.height);
       }
       if (!TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle)) {
-        bounds = [self computeChildSandbox:child withBounds:bounds];
+        if ([child isHiddenAndGone]) {
+          // HIDDEN_BEHAVIOR_GONE: the child takes no space and does not advance the layout.
+          // It shares the origin of the previous child so that the row detection below keeps it in that row.
+          bounds = CGRectMake(previousBounds.origin.x, previousBounds.origin.y, 0, 0);
+        } else {
+          bounds = [self computeChildSandbox:child withBounds:bounds];
+        }
+        previousBounds = bounds;
       }
       childBounds.origin.x = bounds.origin.x;
       childBounds.origin.y = bounds.origin.y;

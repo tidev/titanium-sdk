@@ -325,6 +325,7 @@ public class TiC
 	public static final String PROPERTY_BORDER_STYLE = "borderStyle";
 	public static final String PROPERTY_BORDER_WIDTH = "borderWidth";
 	public static final String PROPERTY_BOTTOM = "bottom";
+	public static final String PROPERTY_BREAKPOINTS = "breakpoints";
 	public static final String PROPERTY_BROTHER = "brother";
 	public static final String PROPERTY_BREAK_STRATEGY = "breakStrategy";
 	public static final String PROPERTY_BUTTON = "button";
@@ -566,10 +567,12 @@ public class TiC
 	public static final String PROPERTY_MAX_AGE = "maxAge";
 	public static final String PROPERTY_MAX_CLASSNAME = "maxClassname";
 	public static final String PROPERTY_MAX_ELEVATION = "maxElevation";
+	public static final String PROPERTY_MAX_HEIGHT = "maxHeight";
 	public static final String PROPERTY_MAX_IMAGES = "maxImages";
 	public static final String PROPERTY_MAX_LENGTH = "maxLength";
 	public static final String PROPERTY_MAX_LINES = "maxLines";
 	public static final String PROPERTY_MAX_ROW_HEIGHT = "maxRowHeight";
+	public static final String PROPERTY_MAX_WIDTH = "maxWidth";
 	public static final String PROPERTY_MEDIA = "media";
 	public static final String PROPERTY_MEDIA_CONTROL_STYLE = "mediaControlStyle";
 	public static final String PROPERTY_MEDIA_TYPES = "mediaTypes";
@@ -582,9 +585,11 @@ public class TiC
 	public static final String PROPERTY_MIMETYPE = "mimeType";
 	public static final String PROPERTY_MIN = "min";
 	public static final String PROPERTY_MIN_AGE = "minAge";
+	public static final String PROPERTY_MIN_HEIGHT = "minHeight";
 	public static final String PROPERTY_MIN_UPDATE_DISTANCE = "minUpdateDistance";
 	public static final String PROPERTY_MIN_UPDATE_TIME = "minUpdateTime";
 	public static final String PROPERTY_MIN_ROW_HEIGHT = "minRowHeight";
+	public static final String PROPERTY_MIN_WIDTH = "minWidth";
 	public static final String PROPERTY_MINIMUM_FONT_SIZE = "minimumFontSize";
 	public static final String PROPERTY_MINUTE_INTERVAL = "minuteInterval";
 	public static final String PROPERTY_MIXED_CONTENT_MODE = "mixedContentMode";

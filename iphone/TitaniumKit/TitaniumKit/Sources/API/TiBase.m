@@ -121,6 +121,7 @@ NSString *const kTiSceneWillEnterForegroundNotification = @"TiSceneWillEnterFore
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
 NSString *const kTiTraitCollectionChanged = @"TiTraitCollectionChanged";
+NSString *const kTiWindowSizeChanged = @"TiWindowSizeChanged";
 
 #ifndef TI_USE_AUTOLAYOUT
 NSString *const kTiBehaviorSize = @"SIZE";

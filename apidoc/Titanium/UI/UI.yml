@@ -1758,15 +1758,15 @@ properties:
   - name: HIDDEN_BEHAVIOR_GONE
     summary: Release free space when hiding an object.
     type: Number
-    platforms: [android]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "6.1.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
     permission: read-only
 
   - name: HIDDEN_BEHAVIOR_INVISIBLE
     summary: Keeps free space when hiding an object.
     type: Number
-    platforms: [android]
-    since: "6.1.0"
+    platforms: [android, iphone, ipad, macos]
+    since: {android: "6.1.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
     permission: read-only
 
   - name: INPUT_BORDERSTYLE_BEZEL

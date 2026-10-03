@@ -869,6 +869,22 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 		int currentHeight = 0; // Used by vertical arrangement calcs
 
+		if (isHorizontalArrangement()) {
+			// Reset before the loop, since the first child can be GONE and would be skipped below.
+			horizontalLayoutCurrentLeft = left;
+			horizontalLayoutLineHeight = 0;
+			horizontalLayoutTopBuffer = 0;
+			horizontalLayoutLastIndexBeforeWrap = 0;
+			horizontalLayoutPreviousRight = 0;
+			// Always compute the row height, even with a single
+			// child. Without this, a one-child horizontal layout
+			// leaves horizontalLayoutLineHeight at 0, causing
+			// computePosition() to center the child in a zero-height
+			// area and produce a negative y (e.g. -measuredHeight/2).
+			// This is the root cause of TIMOB-23372 #4/#5.
+			updateRowForHorizontalWrap(right, 0);
+		}
+
 		for (int i = 0; i < count; i++) {
 			View child = getChildAt(i);
 			TiCompositeLayout.LayoutParams params = (TiCompositeLayout.LayoutParams) child.getLayoutParams();
@@ -880,20 +896,6 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 				int childMeasuredWidth = child.getMeasuredWidth();
 
 				if (isHorizontalArrangement()) {
-					if (i == 0) {
-						horizontalLayoutCurrentLeft = left;
-						horizontalLayoutLineHeight = 0;
-						horizontalLayoutTopBuffer = 0;
-						horizontalLayoutLastIndexBeforeWrap = 0;
-						horizontalLayoutPreviousRight = 0;
-						// Always compute the row height, even with a single
-						// child. Without this, a one-child horizontal layout
-						// leaves horizontalLayoutLineHeight at 0, causing
-						// computePosition() to center the child in a zero-height
-						// area and produce a negative y (e.g. -measuredHeight/2).
-						// This is the root cause of TIMOB-23372 #4/#5.
-						updateRowForHorizontalWrap(right, i);
-					}
 					computeHorizontalLayoutPosition(params, childMeasuredWidth, childMeasuredHeight, right, top, bottom,
 													horizontal, vertical, i);
 
@@ -1084,6 +1086,10 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 		for (i = currentIndex; i < getChildCount(); i++) {
 			View child = getChildAt(i);
+			// GONE children are not measured, so their measured size is stale.
+			if (child.getVisibility() == View.GONE) {
+				continue;
+			}
 			// Calculate row width/height with padding
 			rowWidth += child.getMeasuredWidth() + getViewWidthPadding(child, getWidth());
 			rowHeight = child.getMeasuredHeight() + getViewHeightPadding(child, parentHeight);

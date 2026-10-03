@@ -52,6 +52,7 @@
   BOOL statusBarIsHidden;
   BOOL statusBarVisibilityChanged;
   NSInteger activeAlertControllerCount;
+  CGSize lastNotifiedWindowSize;
 }
 
 // Titanium Support
