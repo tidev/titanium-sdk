@@ -546,6 +546,7 @@ public class TiC
 	public static final String PROPERTY_LED_OFF_MS = "ledOffMS";
 	public static final String PROPERTY_LED_ON_MS = "ledOnMS";
 	public static final String PROPERTY_LEFT = "left";
+	public static final String PROPERTY_LEFT_ADJUST = "leftAdjust";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
 	public static final String PROPERTY_LEFT_VIEW = "leftView";
