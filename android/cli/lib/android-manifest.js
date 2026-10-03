@@ -263,6 +263,49 @@ export class AndroidManifest {
 	}
 
 	/**
+	 * Determines if the manifest has an <activity-alias/> that shows a launcher icon on first install.
+	 * The alias must have an <intent-filter/> with the MAIN action and the LAUNCHER category
+	 * and must not be disabled via the "android:enabled" attribute.
+	 * @return {Boolean} Returns true if an enabled launcher alias exists. Returns false if not.
+	 */
+	hasEnabledLauncherAlias() {
+		if (this.isEmpty()) {
+			return false;
+		}
+
+		const appElement = getFirstChildElementByTagName(this._xmlDomDocument.documentElement, 'application');
+		if (!appElement) {
+			return false;
+		}
+
+		const hasChildWithName = (filterElement, tagName, androidName) => {
+			return !!getFirstChildElementByTagAndAndroidName(filterElement, tagName, androidName);
+		};
+		for (let index = 0; index < appElement.childNodes.length; index++) {
+			const aliasElement = appElement.childNodes.item(index);
+			if (!isElementNode(aliasElement) || (aliasElement.tagName !== 'activity-alias')) {
+				continue;
+			}
+
+			// An alias is enabled by default. A resource reference such as "@bool/name" is unknown
+			// at build time, so only a missing attribute or a literal "true" counts as enabled.
+			if (aliasElement.hasAttribute('android:enabled') && (aliasElement.getAttribute('android:enabled') !== 'true')) {
+				continue;
+			}
+
+			for (let filterIndex = 0; filterIndex < aliasElement.childNodes.length; filterIndex++) {
+				const filterElement = aliasElement.childNodes.item(filterIndex);
+				if (isElementNode(filterElement) && (filterElement.tagName === 'intent-filter')
+					&& hasChildWithName(filterElement, 'action', 'android.intent.action.MAIN')
+					&& hasChildWithName(filterElement, 'category', 'android.intent.category.LAUNCHER')) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Removes the given attribute from the <application/> element.
 	 * @param {String} name Name of the attribute to be removed such as "android:theme". Can be null/undefined.
 	 */
