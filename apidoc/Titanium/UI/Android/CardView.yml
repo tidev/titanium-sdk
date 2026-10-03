@@ -38,6 +38,14 @@ properties:
     type: Number
     since: "5.1.2"
 
+  - name: borderWidth
+    summary: Border width for CardView.
+    description: |
+        CardView only supports a single border width for all sides. If multiple values are given as an array
+        or whitespace separated string (see <Titanium.UI.View.borderWidth>), only the first value is used.
+    type: [Number, String, Array<Number>, Array<String>]
+    default: 0
+
   - name: elevation
     summary: Elevation for CardView.
     type: Number

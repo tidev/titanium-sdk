@@ -103,6 +103,69 @@ describe.android('Titanium.UI.Android.CardView', function () {
 		win.open();
 	});
 
+	it('.borderWidth (single value)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderColor: 'red',
+			borderWidth: 4
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			try {
+				should(cardView.borderWidth).eql(4);
+				cardView.borderWidth = '6dp';
+				should(cardView.borderWidth).eql('6dp');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
+	it('.borderWidth (array of widths uses first value)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderColor: 'red',
+			borderWidth: [ 4, 8, 12, 16 ]
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			try {
+				should(cardView.borderWidth).eql([ 4, 8, 12, 16 ]);
+				cardView.borderWidth = [ 2, 6 ];
+				should(cardView.borderWidth).eql([ 2, 6 ]);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
+	it('.borderWidth (string of widths uses first value)', (finish) => {
+		win = Ti.UI.createWindow();
+		const cardView = Ti.UI.Android.createCardView({
+			borderColor: 'red',
+			borderWidth: '4 8 12 16'
+		});
+		win.add(cardView);
+		win.addEventListener('postlayout', function listener() {
+			win.removeEventListener('postlayout', listener);
+			try {
+				should(cardView.borderWidth).eql('4 8 12 16');
+				cardView.borderWidth = '2 6';
+				should(cardView.borderWidth).eql('2 6');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.open();
+	});
+
 	it('.touchFeedback', (finish) => {
 		win = Ti.UI.createWindow();
 		const cardView = Ti.UI.Android.createCardView({
