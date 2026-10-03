@@ -16,6 +16,17 @@
 
 @end
 
+// JSValue has no -isFunction method, so detect callability via the
+// Obj-C API: functions are objects whose prototype chain exposes `call`.
+// Primitives/undefined/null report NO here, which is what we want.
+static BOOL TiJSValueIsFunction(JSValue *value)
+{
+  if (value == nil || value.isUndefined || value.isNull) {
+    return NO;
+  }
+  return [value isObject] && [value hasProperty:@"call"];
+}
+
 @implementation KrollTimerTarget
 
 - (instancetype)initWithCallback:(JSValue *)callback arguments:(NSArray<JSValue *> *)arguments
@@ -46,12 +57,13 @@
 - (void)timerFired:(NSTimer *_Nonnull)timer
 {
   [self.callback callWithArguments:self.arguments];
-  // handle an uncaught exception
-  JSContext *context = self.callback.context;
-  JSValue *exception = context.exception;
-  if (exception != nil) {
-    [TiExceptionHandler.defaultExceptionHandler reportScriptError:exception inJSContext:context];
-  }
+  // Any exception thrown by the callback is already handled by the JSContext
+  // exception handler installed in ScriptModule.runInThisContext: — it calls
+  // TiExceptionHandler.reportScriptError: which posts kTiErrorNotification,
+  // which fires the "uncaughtException" event. Re-reporting here from
+  // context.exception would fire the event a second time (the exceptionHandler
+  // does not clear context.exception), causing double-invocation of any
+  // uncaughtException listener.
 }
 
 @end
@@ -69,11 +81,21 @@
   self.timers = [NSMapTable strongToWeakObjectsMapTable];
 
   NSUInteger (^setInterval)(JSValue *, double) = ^(JSValue *callback, double interval) {
+    if (!TiJSValueIsFunction(callback)) {
+      JSValue *typeErrorCtor = callback.context[@"TypeError"];
+      callback.context.exception = [typeErrorCtor constructWithArguments:@[ @"Callback must be a function" ]];
+      return (NSUInteger)0;
+    }
     return [self setInterval:interval withCallback:callback shouldRepeat:YES];
   };
   context[@"setInterval"] = setInterval;
 
   NSUInteger (^setTimeout)(JSValue *, double) = ^(JSValue *callback, double interval) {
+    if (!TiJSValueIsFunction(callback)) {
+      JSValue *typeErrorCtor = callback.context[@"TypeError"];
+      callback.context.exception = [typeErrorCtor constructWithArguments:@[ @"Callback must be a function" ]];
+      return (NSUInteger)0;
+    }
     return [self setInterval:interval withCallback:callback shouldRepeat:NO];
   };
   context[@"setTimeout"] = setTimeout;
