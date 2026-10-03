@@ -42,6 +42,37 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.apiName).be.eql('Ti.UI.TableView');
 	});
 
+	it('contentOffset', function (finish) {
+		const tableView = Ti.UI.createTableView({
+			data: Array.from({ length: 100 }, (_, i) => ({ title: `Row ${i}` }))
+		});
+		win = Ti.UI.createWindow();
+		win.addEventListener('open', () => {
+			try {
+				should(tableView.contentOffset).be.an.Object();
+				should(tableView.contentOffset.x).be.a.Number();
+				should(tableView.contentOffset.y).be.a.Number();
+				should(tableView.contentOffset.x).eql(0);
+				should(tableView.contentOffset.y).eql(0);
+			} catch (err) {
+				return finish(err);
+			}
+			tableView.setContentOffset({ x: 0, y: 150 }, { animated: false });
+			setTimeout(() => {
+				try {
+					// The getter must report the offset in the same units as `setContentOffset()` and the `scroll` event.
+					should(tableView.contentOffset.x).eql(0);
+					should(tableView.contentOffset.y).be.approximately(150, 1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			}, 500);
+		});
+		win.add(tableView);
+		win.open();
+	});
+
 	it('createTableView', () => {
 
 		// Validate createTableView()
