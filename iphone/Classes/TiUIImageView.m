@@ -335,13 +335,26 @@ DEFINE_EXCEPTIONS
 - (void)loadImageInBackground:(NSNumber *)pos
 {
   int position = [TiUtils intValue:pos];
-  NSURL *theurl = [TiUtils toURL:[images objectAtIndex:position] proxy:self.proxy];
-  UIImage *theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
-  if (theimage == nil) {
-    theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
+  id imgArg = [images objectAtIndex:position];
+  UIImage *theimage;
+
+  if ([imgArg isKindOfClass:[TiBlob class]] || [imgArg isKindOfClass:[TiFile class]] || [imgArg isKindOfClass:[UIImage class]]) {
+    // Blobs/files/images don't need URL resolution — convert directly.
+    theimage = [self convertToUIImage:imgArg];
+  } else {
+    NSURL *theurl = [TiUtils toURL:imgArg proxy:self.proxy];
+    theimage = [[ImageLoader sharedLoader] loadImmediateImage:theurl];
+    if (theimage == nil) {
+      theimage = [[ImageLoader sharedLoader] loadRemote:theurl];
+    }
+    if (theimage == nil) {
+      NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d", theurl, position);
+      return;
+    }
   }
+
   if (theimage == nil) {
-    NSLog(@"[ERROR] couldn't load imageview image: %@ at position: %d", theurl, position);
+    NSLog(@"[ERROR] couldn't load imageview image at position: %d", position);
     return;
   }
 
