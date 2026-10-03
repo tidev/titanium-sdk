@@ -14,6 +14,7 @@
   @private
   NSMutableDictionary *appListeners;
   TiAppPropertiesProxy *properties;
+  BOOL _proximityDetectionValue;
 #ifdef USE_TI_APPIOS
   TiProxy *iOS;
 #endif
