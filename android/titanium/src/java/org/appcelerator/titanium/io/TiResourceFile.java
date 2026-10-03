@@ -49,6 +49,18 @@ public class TiResourceFile extends TiBaseFile
 	}
 
 	@Override
+	public boolean isWriteable()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isReadonly()
+	{
+		return true;
+	}
+
+	@Override
 	public boolean isFile()
 	{
 		if (this.statsFetched == false) {

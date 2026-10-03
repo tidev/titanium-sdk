@@ -58,7 +58,14 @@ public class TiFileProxy extends KrollProxy
 					pb.add(s);
 				}
 			} else {
-				pb.add(uri.getPath());
+				// An opaque URI such as "file:app.js" has no hierarchical path;
+				// fall back to the scheme-specific part so relative paths survive
+				// instead of becoming null and crashing joinSegments/startsWith.
+				String p = uri.getPath();
+				if (p == null) {
+					p = uri.getSchemeSpecificPart();
+				}
+				pb.add(p);
 			}
 
 			for (int i = 1; i < parts.length; i++) {
@@ -66,12 +73,25 @@ public class TiFileProxy extends KrollProxy
 			}
 			String[] newParts = pb.toArray(new String[0]);
 			path = TiFileHelper2.joinSegments(newParts);
-			if (!path.startsWith("..") || !path.startsWith("/")) {
+			if ("file".equals(uri.getScheme())) {
+				// The "file:" scheme should resolve relative paths against the
+				// proxy's base URL (e.g. the Resources dir), matching the no-scheme
+				// case, so leave relative paths alone. Absolute paths keep a doubled
+				// leading slash so resolveUrl() produces a "file:///" URL.
+				if (path != null && path.startsWith("/")) {
+					path = "/" + path;
+				}
+			} else if (path != null && (!path.startsWith("..") || !path.startsWith("/"))) {
 				path = "/" + path;
 			}
 			pb.clear();
 		} else {
 			path = TiFileHelper2.joinSegments(parts);
+			// An absolute filesystem path (leading "/") should resolve as a
+			// file:// URL, not relative to the appdata-private scheme.
+			if (path != null && path.startsWith("/")) {
+				scheme = "file://";
+			}
 		}
 		if (resolve) {
 			path = resolveUrl(scheme, path);
