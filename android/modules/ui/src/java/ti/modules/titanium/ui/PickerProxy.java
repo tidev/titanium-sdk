@@ -78,7 +78,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 	private int type = UIModule.PICKER_TYPE_PLAIN;
 	private boolean useSpinner = false;
 	private boolean canFireColumnEvents = true;
-	private boolean rangePicker = false;
 
 	public PickerProxy()
 	{
@@ -122,9 +121,6 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		}
 		if (dict.containsKey(TiC.PROPERTY_COLUMNS)) {
 			setColumns(dict.get(TiC.PROPERTY_COLUMNS));
-		}
-		if (dict.containsKey(TiC.PROPERTY_DATE_PICKER_RANGE)) {
-			this.rangePicker = TiConvert.toBoolean(dict, TiC.PROPERTY_DATE_PICKER_RANGE, false);
 		}
 	}
 
@@ -533,6 +529,9 @@ public class PickerProxy extends TiViewProxy implements PickerColumnProxy.OnChan
 		} else {
 			settings = new HashMap();
 		}
+
+		// Read the current "datePickerRange" property so runtime changes are honored.
+		final boolean rangePicker = TiConvert.toBoolean(getProperty(TiC.PROPERTY_DATE_PICKER_RANGE), false);
 
 		// Get the date to be displayed in the dialog. If not assigned, then use today's date.
 		// Precedence: settings "from", picker's "from" (range picker only), settings "value", picker's "value".
