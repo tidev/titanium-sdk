@@ -269,6 +269,20 @@ public class TiBorderWrapperView extends FrameLayout
 		}
 	}
 
+	/**
+	 * Sets the same border width in pixels on all 4 sides.
+	 * @param borderWidth The border width in pixels.
+	 * @deprecated Use {@link #setBorderWidth(Object)} instead, which accepts units and per-side values.
+	 */
+	@Deprecated
+	public void setBorderWidth(float borderWidth)
+	{
+		this.borderTopWidth = borderWidth;
+		this.borderRightWidth = borderWidth;
+		this.borderBottomWidth = borderWidth;
+		this.borderLeftWidth = borderWidth;
+	}
+
 	public void setBorderWidth(Object obj)
 	{
 		if (obj instanceof Object[]) {
