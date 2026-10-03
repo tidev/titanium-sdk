@@ -57,5 +57,36 @@ describe('global', function () {
 				finish();
 			}, 100);
 		});
+
+		it.android('does not loop when the handler itself rejects', function (finish) {
+			const reason = new Error('from-app');
+			const handlerReason = new Error('from-handler');
+			let appCount = 0;
+			let handlerCount = 0;
+			global.onunhandledrejection = async function (event) {
+				event.preventDefault();
+				if (event.reason === reason) {
+					appCount++;
+					await Promise.resolve();
+					throw handlerReason;
+				}
+				if (event.reason === handlerReason) {
+					handlerCount++;
+				}
+			};
+			Promise.reject(reason);
+			// The rejection from the handler is reported after a later microtask checkpoint,
+			// so give the runtime one more task before asserting.
+			setTimeout(function () {}, 0);
+			setTimeout(function () {
+				try {
+					should(appCount).eql(1);
+					should(handlerCount).eql(1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			}, 100);
+		});
 	});
 });

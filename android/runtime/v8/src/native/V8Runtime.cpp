@@ -240,7 +240,7 @@ static void PreventDefaultCallback(const FunctionCallbackInfo<Value>& args)
 void V8Runtime::FireUnhandledRejections(Isolate* isolate, void* data)
 {
 	// Calling the handler below runs a nested checkpoint, which re-enters this callback.
-	// The outer loop picks up anything rejected in the meantime.
+	// Rejections produced while a pass runs stay in pendingRejections for the next checkpoint.
 	if (firingRejections || pendingRejections.empty()) {
 		return;
 	}
@@ -268,11 +268,16 @@ void V8Runtime::FireUnhandledRejections(Isolate* isolate, void* data)
 		}
 	}
 
-	// Take one promise at a time and leave the rest in pendingRejections, so that
-	// PromiseRejectCallback can still remove a promise that a handler call catches.
-	while (!pendingRejections.empty()) {
-		v8::Global<Promise> globalPromise = std::move(pendingRejections.front());
-		pendingRejections.erase(pendingRejections.begin());
+	// Only report the promises that were pending when this pass started. A handler that rejects
+	// (for example an async handler whose await fails) adds a new rejection while the pass runs.
+	// Reporting it right away would call the same failing handler again, without end. Those
+	// rejections remain in pendingRejections and are reported after the next microtask checkpoint.
+	// PromiseRejectCallback can no longer remove a promise from this batch, so the HasHandler()
+	// check below is what honors a catch that a handler call attaches.
+	std::vector<v8::Global<Promise>> batch;
+	batch.swap(pendingRejections);
+
+	for (auto& globalPromise : batch) {
 		if (globalPromise.IsEmpty()) {
 			continue;
 		}
