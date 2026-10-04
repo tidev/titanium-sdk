@@ -17,6 +17,7 @@ READONLY_PROPERTY(NSString *, version, Version);
 
 // Methods
 - (JSValue *)createBuffer:(NSDictionary *)arg;
+- (void)applyProperties:(id)args;
 
 @end
 

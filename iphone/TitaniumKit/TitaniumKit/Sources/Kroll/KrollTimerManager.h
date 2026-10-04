@@ -38,9 +38,12 @@
 @interface KrollTimerManager : NSObject
 
 /**
- * Map of timer identifiers and the underlying native NSTimer.
+ * Map of timer identifiers to the currently scheduled native NSTimer.
+ * Entries are removed while the app is backgrounded (timers are paused)
+ * and repopulated on foreground resume. Retained strongly so paused
+ * timers are not released by the run loop.
  */
-@property (nonatomic, strong, nullable) NSMapTable<NSNumber *, NSTimer *> *timers;
+@property (nonatomic, strong, nullable) NSMutableDictionary<NSNumber *, NSTimer *> *timers;
 
 /**
  * Initializes the timer manager in the given JS context. Exposes the global set/clear
