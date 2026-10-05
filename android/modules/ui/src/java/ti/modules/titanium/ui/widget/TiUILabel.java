@@ -227,11 +227,6 @@ public class TiUILabel extends TiUIView
 	}
 
 	/**
-	 * Method used to decrease the fontsize of the text to fit the width
-	 * fontsize should be >= than the property minimumFontSize
-	 * @param textView The text view to be adjusted.
-	 */
-	/**
 	 * Applies the "padding" property to the given text view.
 	 * @param textView The label's text view. Cannot be null.
 	 * @param value A dictionary with optional "left", "right", "top", and "bottom" keys. Null resets padding to zero.
@@ -264,6 +259,11 @@ public class TiUILabel extends TiUIView
 		return Math.max(dimension.getAsPixels(textView), 0);
 	}
 
+	/**
+	 * Method used to decrease the fontsize of the text to fit the width
+	 * fontsize should be >= than the property minimumFontSize
+	 * @param textView The text view to be adjusted.
+	 */
 	private void adjustTextFontSize(@NonNull MaterialTextView textView)
 	{
 		// Do not continue if auto-sizing the font is disabled.

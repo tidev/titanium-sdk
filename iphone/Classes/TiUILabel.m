@@ -75,6 +75,17 @@
   return size;
 }
 
+- (CGFloat)textWidthForWidth:(CGFloat)width
+{
+  // A width of 0 means "unconstrained" to sizeThatFits:, so keep it as is.
+  // Otherwise subtract the horizontal padding but never fall back to 0, because
+  // a label whose padding covers the whole width would measure as one unwrapped line.
+  if (width <= 0) {
+    return 0;
+  }
+  return MAX(width - (textPadding.left + textPadding.right), 1);
+}
+
 - (CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
   /*
@@ -83,7 +94,7 @@
      attributed strings till we move to the new measurement API. Hence take both and return MAX.
      */
   CGFloat horizontalPadding = textPadding.left + textPadding.right;
-  CGFloat textWidth = MAX(suggestedWidth - horizontalPadding, 0);
+  CGFloat textWidth = [self textWidthForWidth:suggestedWidth];
   CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(textWidth, 0)].width;
   CGFloat fontMeasurementResult = [self sizeForFont:textWidth].width;
   return (MAX(sizeThatFitsResult, fontMeasurementResult)) + horizontalPadding;
@@ -91,7 +102,7 @@
 
 - (CGFloat)contentHeightForWidth:(CGFloat)width
 {
-  CGFloat textWidth = MAX(width - (textPadding.left + textPadding.right), 0);
+  CGFloat textWidth = [self textWidthForWidth:width];
   return [[self label] sizeThatFits:CGSizeMake(textWidth, 0)].height + textPadding.top + textPadding.bottom;
 }
 
@@ -100,9 +111,7 @@
 #ifndef TI_USE_AUTOLAYOUT
   // The text area is the view's bounds minus the "padding" property.
   CGRect contentFrame = UIEdgeInsetsInsetRect(initialLabelFrame, textPadding);
-  if (contentFrame.size.width < 0) {
-    contentFrame.size.width = 0;
-  }
+  contentFrame.size.width = [self textWidthForWidth:initialLabelFrame.size.width];
   if (contentFrame.size.height < 0) {
     contentFrame.size.height = 0;
   }
