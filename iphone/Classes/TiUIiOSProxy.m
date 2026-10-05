@@ -9,6 +9,7 @@
 
 #ifdef USE_TI_UIIOS
 
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
