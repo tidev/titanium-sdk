@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.text.Html;
@@ -53,6 +54,7 @@ public class TiUILabel extends TiUIView
 	private static final int TEXT_FILTER_LOWERCASE = 2;
 
 	private int defaultColor;
+	private ColorStateList defaultLinkColor;
 	private TruncateAt ellipsize = TruncateAt.END;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -223,6 +225,7 @@ public class TiUILabel extends TiUIView
 		TiUIHelper.styleText(tv, null);
 		this.unscaledFontSizeInPixels = tv.getTextSize();
 		this.defaultColor = tv.getCurrentTextColor();
+		this.defaultLinkColor = tv.getLinkTextColors();
 		setNativeView(tv);
 	}
 
@@ -492,6 +495,10 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_LINK_COLOR)) {
+			setLinkColor(tv, d.get(TiC.PROPERTY_LINK_COLOR));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_TEXT_TRANSFORM)) {
 			String transformName = TiConvert.toString(d, TiC.PROPERTY_TEXT_TRANSFORM);
 			if (transformName.equals("uppercase")) {
@@ -502,6 +509,7 @@ public class TiUILabel extends TiUIView
 				textFilter = TEXT_FILTER_DEFAULT;
 			}
 		}
+
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
@@ -540,6 +548,8 @@ public class TiUILabel extends TiUIView
 			} else {
 				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
+		} else if (key.equals(TiC.PROPERTY_LINK_COLOR)) {
+			setLinkColor(tv, newValue);
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			// TODO: reset to default value when property is null
 			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
@@ -734,6 +744,20 @@ public class TiUILabel extends TiUIView
 	{
 		MaterialTextView tv = (MaterialTextView) getNativeView();
 		return tv.getCurrentTextColor();
+	}
+
+	/**
+	 * Applies the "linkColor" property to the given text view.
+	 * @param tv The label's text view.
+	 * @param value The color value, or null to restore the theme's default link color.
+	 */
+	private void setLinkColor(MaterialTextView tv, Object value)
+	{
+		if (value == null) {
+			tv.setLinkTextColor(this.defaultLinkColor);
+		} else {
+			tv.setLinkTextColor(TiConvert.toColor(value, proxy.getActivity()));
+		}
 	}
 
 	/**
