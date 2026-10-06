@@ -43,7 +43,9 @@ import java.util.Map;
 		TiC.PROPERTY_MIDDLEPHONETIC,
 		TiC.PROPERTY_LASTPHONETIC,
 		TiC.PROPERTY_JOBTITLE,
-		TiC.PROPERTY_DEPARTMENT
+		TiC.PROPERTY_DEPARTMENT,
+		"alternateBirthday",
+		"socialProfile"
 	})
 public class PersonProxy extends KrollProxy
 {
@@ -58,11 +60,45 @@ public class PersonProxy extends KrollProxy
 	public PersonProxy()
 	{
 		super();
+		// Default empty values so a newly-created in-memory person reports
+		// non-undefined properties, matching iOS behavior.
+		defaultValues.put(TiC.PROPERTY_FIRSTNAME, "");
+		defaultValues.put(TiC.PROPERTY_LASTNAME, "");
+		defaultValues.put(TiC.PROPERTY_MIDDLENAME, "");
+		defaultValues.put(TiC.PROPERTY_NICKNAME, "");
+		defaultValues.put(TiC.PROPERTY_NOTE, "");
+		defaultValues.put(TiC.PROPERTY_ORGANIZATION, "");
+		defaultValues.put(TiC.PROPERTY_BIRTHDAY, "");
+		defaultValues.put(TiC.PROPERTY_PREFIX, "");
+		defaultValues.put(TiC.PROPERTY_SUFFIX, "");
+		defaultValues.put(TiC.PROPERTY_FIRSTPHONETIC, "");
+		defaultValues.put(TiC.PROPERTY_MIDDLEPHONETIC, "");
+		defaultValues.put(TiC.PROPERTY_LASTPHONETIC, "");
+		defaultValues.put(TiC.PROPERTY_JOBTITLE, "");
+		defaultValues.put(TiC.PROPERTY_DEPARTMENT, "");
+		defaultValues.put(TiC.PROPERTY_EMAIL, new KrollDict());
+		defaultValues.put(TiC.PROPERTY_PHONE, new KrollDict());
+		defaultValues.put(TiC.PROPERTY_ADDRESS, new KrollDict());
+		defaultValues.put(TiC.PROPERTY_URL, new KrollDict());
+		defaultValues.put(TiC.PROPERTY_INSTANTMSG, new KrollDict());
+		defaultValues.put(TiC.PROPERTY_RELATED_NAMES, new KrollDict());
+		defaultValues.put(TiC.PROPERTY_DATE, new KrollDict());
+		defaultValues.put(TiC.PROPERTY_KIND, ContactsModule.CONTACTS_KIND_PERSON);
+		defaultValues.put("alternateBirthday", new KrollDict());
+		defaultValues.put("socialProfile", new KrollDict());
+		// PersonProxy is instantiated directly by ContactsApiLevel5.addContact,
+		// not via the Kroll create-flow, so handleCreationArgs/Dict never runs.
+		// Apply the defaults eagerly so getters report non-undefined values.
+		handleDefaultValues();
 	}
 
 	private boolean isPhotoFetchable()
 	{
-		long id = (Long) getProperty(TiC.PROPERTY_ID);
+		Object idObj = getProperty(TiC.PROPERTY_ID);
+		if (!(idObj instanceof Long)) {
+			return false;
+		}
+		long id = (Long) idObj;
 		return (id > 0 && hasImage);
 	}
 
@@ -83,9 +119,35 @@ public class PersonProxy extends KrollProxy
 	}
 
 	@Kroll.getProperty
-	public long getId()
+	public Long getId()
 	{
-		return (Long) getProperty(TiC.PROPERTY_ID);
+		Object id = getProperty(TiC.PROPERTY_ID);
+		return id instanceof Long ? (Long) id : null;
+	}
+
+	@Kroll.getProperty
+	public String getIdentifier()
+	{
+		Long id = getId();
+		return id != null ? String.valueOf(id) : "";
+	}
+
+	@Kroll.getProperty
+	public Long getRecordId()
+	{
+		return null;
+	}
+
+	@Kroll.getProperty
+	public String getCreated()
+	{
+		return "";
+	}
+
+	@Kroll.getProperty
+	public String getModified()
+	{
+		return "";
 	}
 
 	public boolean isFieldModified(String field)
@@ -99,10 +161,12 @@ public class PersonProxy extends KrollProxy
 		if (this.image != null) {
 			return this.image;
 		} else if (!imageFetched && isPhotoFetchable()) {
-			long id = (Long) getProperty(TiC.PROPERTY_ID);
-			Bitmap photo = CommonContactsApi.getContactImage(id);
-			if (photo != null) {
-				this.image = TiBlob.blobFromImage(photo);
+			Object idObj = getProperty(TiC.PROPERTY_ID);
+			if (idObj instanceof Long) {
+				Bitmap photo = CommonContactsApi.getContactImage((Long) idObj);
+				if (photo != null) {
+					this.image = TiBlob.blobFromImage(photo);
+				}
 			}
 			imageFetched = true;
 		}

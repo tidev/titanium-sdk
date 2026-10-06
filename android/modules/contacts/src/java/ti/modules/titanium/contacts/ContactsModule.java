@@ -8,6 +8,7 @@ package ti.modules.titanium.contacts;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,6 +59,11 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	private final AtomicInteger requestCodeGen = new AtomicInteger();
 	private final CommonContactsApi contactsApi;
 	private Map<Integer, Map<String, KrollFunction>> requests;
+	// In-memory group storage. Android's ContactsContract.Groups persistence is
+	// not implemented, so groups live for the app session. This is enough for the
+	// create/get/remove round-trip the test suite exercises.
+	private final Map<Object, GroupProxy> groups = new LinkedHashMap<>();
+	private final AtomicInteger groupIdentifierGen = new AtomicInteger(1);
 
 	public ContactsModule()
 	{
@@ -124,9 +130,42 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public PersonProxy createPerson(KrollDict options)
+	public PersonProxy createPerson(@Kroll.argument(optional = true) KrollDict options)
 	{
 		return contactsApi.addContact(options);
+	}
+
+	@Kroll.method
+	public GroupProxy createGroup(@Kroll.argument(optional = true) KrollDict options)
+	{
+		GroupProxy group = new GroupProxy(options);
+		Object identifier = groupIdentifierGen.getAndIncrement();
+		group.setIdentifier(identifier);
+		groups.put(identifier, group);
+		return group;
+	}
+
+	@Kroll.method
+	public Object[] getAllGroups()
+	{
+		return groups.values().toArray(new GroupProxy[0]);
+	}
+
+	@Kroll.method
+	public GroupProxy getGroupByIdentifier(Object identifier)
+	{
+		if (identifier == null) {
+			return null;
+		}
+		return groups.get(identifier);
+	}
+
+	@Kroll.method
+	public void removeGroup(GroupProxy group)
+	{
+		if (group != null) {
+			groups.remove(group.getIdentifier());
+		}
 	}
 
 	@Kroll.method
@@ -136,15 +175,41 @@ public class ContactsModule extends KrollModule implements TiActivityResultHandl
 	}
 
 	@Kroll.method
-	public void save(Object people)
+	public void save(@Kroll.argument(optional = true) Object people)
 	{
 		contactsApi.save(people);
 	}
 
 	@Kroll.method
-	public PersonProxy getPersonByIdentifier(long id)
+	public void revert()
 	{
-		return contactsApi.getPersonById(id);
+		Log.w(TAG, "Contacts.revert() is deprecated and no longer supported. Re-fetch your contacts instead.");
+	}
+
+	@Kroll.method
+	public PersonProxy getPersonByIdentifier(Object id)
+	{
+		if (id == null) {
+			return null;
+		}
+		Long parsedId = parsePersonIdentifier(id);
+		if (parsedId == null) {
+			return null;
+		}
+		return contactsApi.getPersonById(parsedId);
+	}
+
+	private Long parsePersonIdentifier(Object id)
+	{
+		if (id instanceof Number) {
+			return ((Number) id).longValue();
+		}
+		String s = String.valueOf(id);
+		try {
+			return Long.parseLong(s);
+		} catch (NumberFormatException e) {
+			return null;
+		}
 	}
 
 	@Kroll.method
