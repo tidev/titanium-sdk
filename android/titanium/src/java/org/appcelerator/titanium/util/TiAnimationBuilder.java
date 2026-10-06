@@ -117,7 +117,7 @@ public class TiAnimationBuilder
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
 	protected Integer color = null;
-	protected float rotationY, rotationX = -1;
+	protected Float rotationY = null, rotationX = null, rotation = null;
 	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
@@ -245,11 +245,15 @@ public class TiAnimationBuilder
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ROTATION_Y)) {
-			rotationY = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_Y, -1);
+			rotationY = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_Y, 0f);
 		}
 
 		if (options.containsKey(TiC.PROPERTY_ROTATION_X)) {
-			rotationX = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_X, -1);
+			rotationX = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_X, 0f);
+		}
+
+		if (options.containsKey(TiC.PROPERTY_ROTATION)) {
+			rotation = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION, 0f);
 		}
 		this.options = options;
 	}
@@ -313,11 +317,21 @@ public class TiAnimationBuilder
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "elevation", elevation));
 		}
 
-		if (rotationY >= 0) {
+		if (rotationY != null) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationY", rotationY));
 		}
-		if (rotationX >= 0) {
+		if (rotationX != null) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationX", rotationX));
+		}
+		if (rotation != null) {
+			if (tdm != null) {
+				// The "transform" matrix animates "rotation" as well. Honoring both would
+				// leave two competing animators on the same property.
+				Log.w(TAG, "Ignoring 'rotation' because a 'transform' was also given.");
+			} else {
+				includesRotation = true;
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", rotation));
+			}
 		}
 
 		if (backgroundColor != null) {
