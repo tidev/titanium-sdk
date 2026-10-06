@@ -8,7 +8,6 @@
 #import "TiModule.h"
 
 @interface ___FILEBASENAMEASIDENTIFIER___ : TiModule {
-
 }
 
 @end

@@ -11,32 +11,30 @@
 
 @implementation ApplicationMods
 
-+ (NSArray*) compiledMods
++ (NSArray *)compiledMods
 {
-	NSMutableArray *modules = [NSMutableArray array];
+  NSMutableArray *modules = [NSMutableArray array];
 
-	<%
-	modules.forEach(function (m) {
-		var prefix = m.manifest.moduleid.toUpperCase().replace(/\./g, '_');
-		%>
-		[modules addObject:[NSDictionary
-			dictionaryWithObjectsAndKeys:@"<%- m.manifest.name.toLowerCase() %>",
-			@"name",
-			@"<%- m.manifest.moduleid.toLowerCase() %>",
-			@"moduleid",
-			@"<%- (m.manifest.version || '') %>",
-			@"version",
-			@"<%- (m.manifest.guid || '') %>",
-			@"guid",
-			@"<%- (m.manifest.licensekey || '') %>",
-			@"licensekey",
-			nil
-		]];
-		<%
-	});
-	%>
+  <%
+    modules.forEach(function(m) {
+      var prefix = m.manifest.moduleid.toUpperCase().replace(/\./ g, '_');
+    %>
+                    [modules addObject:[NSDictionary
+                                           dictionaryWithObjectsAndKeys:@"<%- m.manifest.name.toLowerCase() %>",
+                                           @"name",
+                                           @"<%- m.manifest.moduleid.toLowerCase() %>",
+                                           @"moduleid",
+                                           @"<%- (m.manifest.version || '') %>",
+                                           @"version",
+                                           @"<%- (m.manifest.guid || '') %>",
+                                           @"guid",
+                                           @"<%- (m.manifest.licensekey || '') %>",
+                                           @"licensekey",
+                                           nil]];
+                    <%});
+  %>
 
-	return modules;
+  return modules;
 }
 
 @end

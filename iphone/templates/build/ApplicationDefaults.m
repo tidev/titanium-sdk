@@ -7,29 +7,38 @@
  * WARNING: This is generated code. Do not modify. Your changes *will* be lost.
  */
 
-#import <Foundation/Foundation.h>
-#import "TiUtils.h"
 #import "ApplicationDefaults.h"
+#import "TiUtils.h"
+#import <Foundation/Foundation.h>
 
 @implementation ApplicationDefaults
 
-+ (NSMutableDictionary*) copyDefaults
++ (NSMutableDictionary *)copyDefaults
 {
-	return nil;
+  return nil;
 }
 
-+ (NSDictionary*) launchUrl {
-	static BOOL launched = NO;
-	if (!launched) {
-		launched = YES;
-		<% if (deployType != 'production' && launchUrl) { %>
-			return [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:@"<%- this.launchUrl %>"], @"application-launch-url", nil];
-		<% } else { %>
-			return nil;
-		<% } %>
-	} else {
-		return nil;
-	}
++ (NSDictionary *)launchUrl
+{
+  static BOOL launched = NO;
+  if (!launched) {
+    launched = YES;
+    <%
+      if (deployType != 'production' && launchUrl) {
+      %>
+      return [NSDictionary dictionaryWithObjectsAndKeys:[TiUtils stringValue:@"<%- this.launchUrl %>"], @"application-launch-url", nil];
+      <%
+      }
+      else
+      {
+      %>
+      return nil;
+      <%
+      }
+    %>
+  } else {
+    return nil;
+  }
 }
 
 @end
