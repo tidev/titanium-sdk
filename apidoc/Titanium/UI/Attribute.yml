@@ -13,9 +13,9 @@ properties:
     description: |
         On Android, only the following constants are supported
         Titanium.UI.ATTRIBUTE_FONT, Titanium.UI.ATTRIBUTE_FOREGROUND_COLOR,
-        Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR, Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE,
-        Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE, Titanium.UI.ATTRIBUTE_LINK, 
-        Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR
+        Titanium.UI.ATTRIBUTE_BACKGROUND_COLOR, ATTRIBUTE_ROUNDED_BACKGROUND_COLOR,
+        Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE, Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE,
+        Titanium.UI.ATTRIBUTE_LINK, Titanium.UI.ATTRIBUTE_UNDERLINE_COLOR
 
         ON iOS, Titanium.UI.ATTRIBUTE_LINK only supported on <Titanium.UI.TextArea>, with
         editable set to false and autoLink enabled.
@@ -28,7 +28,8 @@ properties:
                  Titanium.UI.ATTRIBUTE_STROKE_WIDTH, Titanium.UI.ATTRIBUTE_SHADOW,
                  Titanium.UI.ATTRIBUTE_WRITING_DIRECTION, Titanium.UI.ATTRIBUTE_TEXT_EFFECT,
                  Titanium.UI.ATTRIBUTE_BASELINE_OFFSET, Titanium.UI.ATTRIBUTE_STRIKETHROUGH_COLOR,
-                 Titanium.UI.ATTRIBUTE_OBLIQUENESS, Titanium.UI.ATTRIBUTE_EXPANSION, Titanium.UI.ATTRIBUTE_LINE_BREAK]
+                 Titanium.UI.ATTRIBUTE_OBLIQUENESS, Titanium.UI.ATTRIBUTE_EXPANSION, Titanium.UI.ATTRIBUTE_LINE_BREAK,
+                 Titanium.UI.ATTRIBUTE_ROUNDED_BACKGROUND_COLOR]
     optional: false
   - name: value
     summary: Attribute value.
@@ -43,6 +44,26 @@ properties:
             range: [0, 100]
         }
         ```
+
+        On Android, if you use <Titanium.UI.ATTRIBUTE_ROUNDED_BACKGROUND_COLOR> the value is an object with the following
+        parameters: `backgroundColor` (string), `color` (string), `borderRadius` (int), `topMargin` (int), `offset` (int)
+        and `padding` (object). The `topMargin` value is the margin of the background box and `offset` is applied to the text
+        inside the box.
+
+        ``` js
+        {
+            backgroundColor: "red",
+            color: "white",
+            borderRadius: 20,
+            offset: 20,
+            topMargin: 10,
+            padding: {
+                left: 20,
+                right: 20
+            }
+        }
+        ```
+
 
         On iOS, if you use <Titanium.UI.ATTRIBUTE_UNDERLINES_STYLE> or <Titanium.UI.ATTRIBUTE_STRIKETHROUGH_STYLE>,
         you must use one or more of these constants:
