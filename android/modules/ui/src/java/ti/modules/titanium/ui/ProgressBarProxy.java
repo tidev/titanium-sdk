@@ -25,6 +25,10 @@ import ti.modules.titanium.ui.widget.TiUIProgressBar;
 		TiC.PROPERTY_COLOR,
 		TiC.PROPERTY_TINT_COLOR,
 		TiC.PROPERTY_TRACK_TINT_COLOR,
+		TiC.PROPERTY_TRACK_THICKNESS,
+		TiC.PROPERTY_TRACK_RADIUS,
+		TiC.PROPERTY_STOP_INDICATOR,
+		TiC.PROPERTY_TYPE,
 	})
 public class ProgressBarProxy extends TiViewProxy
 {
@@ -32,6 +36,8 @@ public class ProgressBarProxy extends TiViewProxy
 	{
 		super();
 		defaultValues.put(TiC.PROPERTY_ANIMATED, true);
+		defaultValues.put(TiC.PROPERTY_STOP_INDICATOR, true);
+		defaultValues.put(TiC.PROPERTY_TYPE, "linear");
 	}
 
 	@Override
