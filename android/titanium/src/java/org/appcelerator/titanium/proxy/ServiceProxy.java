@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
@@ -355,8 +356,17 @@ public class ServiceProxy extends KrollProxy
 				// Note: A notification will be shown in the status bar while enabled.
 				try {
 					if (isForeground) {
+						// Android 14+ (API 34) requires a non-zero foregroundServiceType; default to
+						// dataSync when the caller did not specify one. The matching type must also be
+						// declared on the <service> in AndroidManifest.xml and the
+						// FOREGROUND_SERVICE_DATA_SYNC permission granted, else startForeground throws.
+						int effectiveForegroundServiceType = foregroundServiceType;
+						if ((effectiveForegroundServiceType == 0)
+							&& (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)) {
+							effectiveForegroundServiceType = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
+						}
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-							service.startForeground(notificationId, notificationObject, foregroundServiceType);
+							service.startForeground(notificationId, notificationObject, effectiveForegroundServiceType);
 						} else {
 							service.startForeground(notificationId, notificationObject);
 						}
