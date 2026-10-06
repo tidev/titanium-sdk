@@ -415,6 +415,19 @@
     options |= ([autoreverse boolValue] ? (UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) : 0);
     options |= (([repeat intValue] > 0) ? UIViewAnimationOptionRepeat : 0);
 
+    // A matrix made via rotate(fromAngle, toAngle) must follow the full angular path,
+    // which is driven by an explicit CAAnimation whose transaction fires the completion.
+    BOOL animatesRotationPath = [transform isKindOfClass:[Ti2DMatrix class]] && [(Ti2DMatrix *)transform hasRotationAnimationValues];
+
+    void (^complete)(BOOL) = ^(BOOL finished) {
+      if ((reverseAnimation != nil) && ![self isReverse] && finished) {
+        [reverseAnimation animate:args];
+        RELEASE_TO_NIL(reverseAnimation);
+      } else {
+        [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
+      }
+    };
+
     void (^animation)(void) = ^{
       CGFloat repeatCount = [repeat intValue];
       if ((options & UIViewAnimationOptionAutoreverse)) {
@@ -480,19 +493,59 @@
           }
           [reverseAnimation setTransform:transformMatrix];
         }
-        if ([transform isKindOfClass:[Ti2DMatrix class]]) {
-          // Special handling if matrix does an exact 180 or -180 degree rotation.
-          // Forward animation and final reverse animation will never rotate counter-clockwise in this case.
-          // Work-around is to slightly offset the rotation. (This won't affect rotation back to 0 degrees.)
-          const float ROTATION_EPSILON = 0.01f;
+        if (animatesRotationPath) {
+          // rotate(fromAngle, toAngle): UIKit interpolates an affine transform along the
+          // shortest path, so e.g. a full turn (0 -> 360) would not move at all. Set the
+          // final transform without implicit animation and drive the rotation through a
+          // CAKeyframeAnimation sampling the angular path in steps of at most 90 degrees,
+          // so every segment interpolates in the intended direction.
           Ti2DMatrix *transformMatrix = (Ti2DMatrix *)transform;
-          float degrees = radiansToDegrees(atan2f([[transformMatrix b] floatValue], [[transformMatrix a] floatValue]));
-          if ((fabsf(degrees) + ROTATION_EPSILON) >= 180.0f) {
-            NSNumber *degreeOffset = [NSNumber numberWithFloat:((degrees > 0) ? -ROTATION_EPSILON : ROTATION_EPSILON)];
-            [self setTransform:[transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]]];
+          [UIView performWithoutAnimation:^{
+            [(TiUIView *)view_ setTransform_:transform];
+          }];
+
+          CGFloat fromDegrees = [transformMatrix rotationAnimationFromDegrees];
+          CGFloat toDegrees = [transformMatrix rotationAnimationToDegrees];
+          NSUInteger segments = MAX((NSUInteger)ceil(fabs(toDegrees - fromDegrees) / 90.0), (NSUInteger)1);
+          NSMutableArray *values = [NSMutableArray arrayWithCapacity:segments + 1];
+          for (NSUInteger i = 0; i <= segments; i++) {
+            // Note: the degreesToRadians() macro does not parenthesize its argument.
+            CGFloat degreesBeforeEnd = (fromDegrees - toDegrees) * (segments - i) / segments;
+            CGAffineTransform stepTransform = CGAffineTransformRotate([transformMatrix matrix], degreesToRadians(degreesBeforeEnd));
+            [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(stepTransform)]];
           }
+
+          CAKeyframeAnimation *rotationAnimation = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+          rotationAnimation.values = values;
+          rotationAnimation.duration = animationDuration;
+          rotationAnimation.timingFunction = [self timingFunction];
+          rotationAnimation.beginTime = CACurrentMediaTime() + ([delay doubleValue] / 1000);
+          rotationAnimation.fillMode = kCAFillModeBackwards;
+          rotationAnimation.autoreverses = ((options & UIViewAnimationOptionAutoreverse) != 0);
+          if ((options & UIViewAnimationOptionRepeat) != 0) {
+            rotationAnimation.repeatCount = (repeatCount != 0.0) ? repeatCount : 1.0;
+          }
+          [CATransaction begin];
+          [CATransaction setCompletionBlock:^{
+            complete(YES);
+          }];
+          [view_.layer addAnimation:rotationAnimation forKey:@"TiRotationAnimation"];
+          [CATransaction commit];
+        } else {
+          if ([transform isKindOfClass:[Ti2DMatrix class]]) {
+            // Special handling if matrix does an exact 180 or -180 degree rotation.
+            // Forward animation and final reverse animation will never rotate counter-clockwise in this case.
+            // Work-around is to slightly offset the rotation. (This won't affect rotation back to 0 degrees.)
+            const float ROTATION_EPSILON = 0.01f;
+            Ti2DMatrix *transformMatrix = (Ti2DMatrix *)transform;
+            float degrees = radiansToDegrees(atan2f([[transformMatrix b] floatValue], [[transformMatrix a] floatValue]));
+            if ((fabsf(degrees) + ROTATION_EPSILON) >= 180.0f) {
+              NSNumber *degreeOffset = [NSNumber numberWithFloat:((degrees > 0) ? -ROTATION_EPSILON : ROTATION_EPSILON)];
+              [self setTransform:[transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]]];
+            }
+          }
+          [(TiUIView *)view_ setTransform_:transform];
         }
-        [(TiUIView *)view_ setTransform_:transform];
       }
 
       if ([view_ isKindOfClass:[TiUIView class]]) { // TODO: Shouldn't we be updating the proxy's properties to reflect this?
@@ -630,14 +683,14 @@
       }
     };
 
-    void (^complete)(BOOL) = ^(BOOL finished) {
-      if ((reverseAnimation != nil) && ![self isReverse] && finished) {
-        [reverseAnimation animate:args];
-        RELEASE_TO_NIL(reverseAnimation);
-      } else {
-        [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
-      }
-    };
+    // When the rotation is driven by an explicit CAAnimation, its transaction fires the
+    // completion; the UIView animation may have nothing left to animate, in which case
+    // its completion block would run immediately.
+    void (^uiViewComplete)(BOOL) = complete;
+    if (animatesRotationPath) {
+      uiViewComplete = ^(BOOL finished) {
+      };
+    }
 
     if (dampingRatio != nil || springVelocity != nil) {
 #ifdef __IPHONE_17_0
@@ -648,7 +701,7 @@
                                     delay:([delay doubleValue] / 1000)
                                   options:options
                                animations:animation
-                               completion:complete];
+                               completion:uiViewComplete];
       } else {
 #endif
         [UIView animateWithDuration:animationDuration
@@ -657,7 +710,7 @@
               initialSpringVelocity:[springVelocity floatValue]
                             options:options
                          animations:animation
-                         completion:complete];
+                         completion:uiViewComplete];
 #ifdef __IPHONE_17_0
       }
 #endif
@@ -666,7 +719,7 @@
                             delay:([delay doubleValue] / 1000)
                           options:options
                        animations:animation
-                       completion:complete];
+                       completion:uiViewComplete];
     }
 
   } else {
