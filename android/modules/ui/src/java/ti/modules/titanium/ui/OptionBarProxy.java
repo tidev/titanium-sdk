@@ -16,6 +16,7 @@ import ti.modules.titanium.ui.widget.TiUIOptionBar;
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
 	TiC.PROPERTY_INDEX,
 	TiC.PROPERTY_LABELS,
+	TiC.PROPERTY_FONT,
 })
 public class OptionBarProxy extends TiViewProxy
 {
