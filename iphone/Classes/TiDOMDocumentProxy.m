@@ -63,6 +63,13 @@
 
 #pragma mark Public APIs
 
+- (id)nodeType
+{
+  // parseString: stores the root element in `node`, so the inherited getter
+  // would report ELEMENT_NODE. A document proxy must report DOCUMENT_NODE.
+  return NUMINT(XML_DOCUMENT_NODE);
+}
+
 - (id)nodeValue
 {
   // DOM spec says nodeValue for document must return null
