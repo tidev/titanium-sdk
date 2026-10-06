@@ -14,7 +14,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import ti.modules.titanium.ui.widget.TiUIButtonBar;
 
 @Kroll.proxy(creatableInModule = UIModule.class, propertyAccessors = {
-	TiC.PROPERTY_LABELS,
+	TiC.PROPERTY_LABELS
 })
 public class ButtonBarProxy extends TiViewProxy
 {
