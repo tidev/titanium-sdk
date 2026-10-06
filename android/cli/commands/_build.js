@@ -74,6 +74,7 @@ class AndroidBuilder extends Builder {
 
 		this.targets = [ 'emulator', 'device', 'dist-playstore' ];
 		this.appName = null;
+		this.hasLauncherAlias = false;
 	}
 
 	config(logger, config, cli) {
@@ -1089,6 +1090,9 @@ class AndroidBuilder extends Builder {
 			logger.error(`Malformed custom AndroidManifest.xml file: ${externalAndroidManifestFilePath}`);
 			process.exit(1);
 		}
+
+		// Only an enabled <activity-alias> with a MAIN/LAUNCHER filter can replace the launcher entry of the main activity.
+		this.hasLauncherAlias = !!this.customAndroidManifest && this.customAndroidManifest.hasEnabledLauncherAlias();
 
 		// validate the SDK levels
 		const usesSDK = this.customAndroidManifest ? this.customAndroidManifest.getUsesSdk() : null;
@@ -3675,7 +3679,8 @@ class AndroidBuilder extends Builder {
 		const neededSettings = {
 			queries: neededQueriesDictionary,
 			storagePermissionMaxSdkVersion: storagePermissionMaxSdkVersion,
-			usesPermissions: Object.keys(neededPermissionDictionary)
+			usesPermissions: Object.keys(neededPermissionDictionary),
+			skipLauncher: this.hasLauncherAlias
 		};
 		return neededSettings;
 	}
@@ -3770,7 +3775,8 @@ class AndroidBuilder extends Builder {
 			storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
 			packageName: this.appid,
 			queries: neededManifestSettings.queries,
-			usesPermissions: neededManifestSettings.usesPermissions
+			usesPermissions: neededManifestSettings.usesPermissions,
+			skipLauncher: neededManifestSettings.skipLauncher
 		});
 		const mainManifest = AndroidManifest.fromXmlString(mainManifestContent);
 
