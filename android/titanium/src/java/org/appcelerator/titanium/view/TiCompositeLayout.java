@@ -67,6 +67,9 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	private boolean enableHorizontalWrap = true;
 	private int horizontalLayoutLastIndexBeforeWrap = 0;
 	private int horizontalLayoutPreviousRight = 0;
+	/** Min/max size constraints applied while measuring, or null if none. Owned by the TiUIView. */
+	private TiSizeConstraints sizeConstraints;
+
 	int[] horizontal = new int[2];
 	int[] vertical = new int[2];
 	/**
@@ -92,6 +95,18 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	 * Set to a negative value if child should fill the parent's remaining height instead.
 	 */
 	private int childFillHeight = -1;
+
+	/**
+	 * Pixel width that percentage based lengths of child views were relative to in the last measure pass.
+	 * Negative if unknown, such as when this layout's width is unbounded.
+	 */
+	private int measuredChildRelativeWidth = -1;
+
+	/**
+	 * Pixel height that percentage based lengths of child views were relative to in the last measure pass.
+	 * Negative if unknown, such as when this layout's height is unbounded.
+	 */
+	private int measuredChildRelativeHeight = -1;
 
 	/**
 	 * The last window insets object received by the onApplyWindowInsets() method.
@@ -289,6 +304,26 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	public int getChildRelativeSizingHeight()
 	{
 		return this.childRelativeSizingHeight;
+	}
+
+	/**
+	 * Gets the width that percentage based lengths of child views were relative to in the last measure pass.
+	 * Child views use this to resolve their percentage based "minWidth" and "maxWidth" while being measured.
+	 * @return Returns the width in pixels. Returns -1 if unknown, such as when this layout's width is unbounded.
+	 */
+	int getMeasuredChildRelativeWidth()
+	{
+		return this.measuredChildRelativeWidth;
+	}
+
+	/**
+	 * Gets the height that percentage based lengths of child views were relative to in the last measure pass.
+	 * Child views use this to resolve their percentage based "minHeight" and "maxHeight" while being measured.
+	 * @return Returns the height in pixels. Returns -1 if unknown, such as when this layout's height is unbounded.
+	 */
+	int getMeasuredChildRelativeHeight()
+	{
+		return this.measuredChildRelativeHeight;
 	}
 
 	/**
@@ -538,6 +573,17 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
 	{
+		// Apply the min/max size constraints to the incoming specs up-front so that children are measured
+		// against the clamped bounds. Clamping only the final measured size would leave children laid out
+		// against the larger bounds, causing them to overflow instead of reflowing.
+		// The parent's original specs are kept for the final clamp of the measured size.
+		int parentWidthSpec = widthMeasureSpec;
+		int parentHeightSpec = heightMeasureSpec;
+		if (this.sizeConstraints != null) {
+			widthMeasureSpec = this.sizeConstraints.applyToWidthSpec(this, widthMeasureSpec);
+			heightMeasureSpec = this.sizeConstraints.applyToHeightSpec(this, heightMeasureSpec);
+		}
+
 		int childCount = getChildCount();
 		int wFromSpec = MeasureSpec.getSize(widthMeasureSpec);
 		int hFromSpec = MeasureSpec.getSize(heightMeasureSpec);
@@ -548,6 +594,18 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		int wMode = MeasureSpec.getMode(widthMeasureSpec);
 		int h = Math.max(hFromSpec, hSuggested);
 		int hMode = MeasureSpec.getMode(heightMeasureSpec);
+
+		// Store the size that percentage based lengths of child views are relative to, following the same
+		// rules as constrainChild(). Children resolve their percentage based min/max size constraints
+		// against it, since the spec they receive already contains their own requested size.
+		this.measuredChildRelativeWidth = this.childRelativeSizingWidth;
+		if ((this.measuredChildRelativeWidth < 0) && (wMode != MeasureSpec.UNSPECIFIED)) {
+			this.measuredChildRelativeWidth = w;
+		}
+		this.measuredChildRelativeHeight = this.childRelativeSizingHeight;
+		if ((this.measuredChildRelativeHeight < 0) && (hMode != MeasureSpec.UNSPECIFIED)) {
+			this.measuredChildRelativeHeight = h;
+		}
 
 		int maxWidth = 0;
 		int maxHeight = 0;
@@ -653,6 +711,10 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 		int measuredWidth = getMeasuredWidth(maxWidth, widthMeasureSpec);
 		int measuredHeight = getMeasuredHeight(maxHeight, heightMeasureSpec);
+		if (this.sizeConstraints != null) {
+			measuredWidth = this.sizeConstraints.clampWidth(this, parentWidthSpec, measuredWidth);
+			measuredHeight = this.sizeConstraints.clampHeight(this, parentHeightSpec, measuredHeight);
+		}
 		setMeasuredDimension(measuredWidth, measuredHeight);
 	}
 
@@ -1261,6 +1323,18 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 			arrangement = LayoutArrangement.VERTICAL;
 		} else {
 			arrangement = LayoutArrangement.DEFAULT;
+		}
+	}
+
+	/**
+	 * Sets the min/max size constraints applied while measuring.
+	 * @param constraints The constraints to apply, or null to remove them.
+	 */
+	public void setSizeConstraints(TiSizeConstraints constraints)
+	{
+		if (this.sizeConstraints != constraints) {
+			this.sizeConstraints = constraints;
+			requestLayout();
 		}
 	}
 
