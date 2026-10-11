@@ -6407,8 +6407,8 @@ class iOSBuilder extends Builder {
 			'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 			'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
 			'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
-			'-Dark':        { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
-			'-Tinted':      { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
+			'-Dark':        { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], platform: 'ios', appearance: 'dark', minXcodeVer: '16.0' },
+			'-Tinted':      { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], platform: 'ios', appearance: 'tinted', minXcodeVer: '16.0' },
 			'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
 		};
 		// Add macOS icons if target is macOS
@@ -6504,42 +6504,31 @@ class iOSBuilder extends Builder {
 
 			let flatten = false;
 			if (pngInfo.alpha) {
-				if (defaultIcon && !defaultIconHasAlpha) {
-					if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
-						// Do nothing
-					} else {
-						this.logger.warn(`Skipping ${
-							info.src.replace(this.projectDir + '/', '')
-						} because it has an alpha channel and generating one from ${
-							defaultIcon.replace(this.projectDir + '/', '')
-						}`);
-						return;
-					}
-				}
-
-				if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
-					this.logger.warn(`${
+				if (meta.appearance) {
+					// the dark and tinted appearances rely on transparency: the system draws the
+					// background behind them, so the alpha channel must survive
+					this.logger.debug(`${
 						info.src.replace(this.projectDir + '/', '')
-					} contains an alpha channel and will NOT BE flattened against a white background`);
-					flatten = false;
+					} contains an alpha channel, which is kept for the ${meta.appearance} appearance`);
+				} else if (defaultIcon && !defaultIconHasAlpha) {
+					this.logger.warn(`Skipping ${
+						info.src.replace(this.projectDir + '/', '')
+					} because it has an alpha channel and generating one from ${
+						defaultIcon.replace(this.projectDir + '/', '')
+					}`);
+					return;
 				} else {
 					this.logger.warn(`${
 						info.src.replace(this.projectDir + '/', '')
 					} contains an alpha channel and will be flattened against a white background`);
 					flatten = true;
+					flattenIcons.push(info);
 				}
-
-				flattenIcons.push(info);
 			}
 
 			// inject images into the app icon set
-			meta.idioms.forEach(function (idiom) {
-				appIconSet.images.push({
-					size:     meta.width + 'x' + meta.height,
-					idiom:    idiom,
-					filename: filename,
-					scale:    meta.scale + 'x'
-				});
+			meta.idioms.forEach(idiom => {
+				appIconSet.images.push(this.appIconSetImage(meta, idiom, filename));
 			});
 
 			delete lookup[info.tag];
@@ -6554,6 +6543,8 @@ class iOSBuilder extends Builder {
 				resourcesToCopy.set(filename, info);
 			}
 		});
+
+		await this.processAppIconAppearances(lookup, appIconSetDir, appIconSet, resourcesToCopy);
 
 		let missingIcons = [];
 		missingIcons = missingIcons.concat(await this.writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged));
@@ -6916,6 +6907,92 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
+	 * Builds one entry of an app icon set `Contents.json`.
+	 * @param {object} meta icon metadata from the lookup table
+	 * @param {string} idiom device idiom the entry is for
+	 * @param {string} filename name of the icon file inside the app icon set
+	 * @returns {object} the `Contents.json` image entry
+	 */
+	appIconSetImage(meta, idiom, filename) {
+		const image = {
+			size:     meta.width + 'x' + meta.height,
+			idiom:    idiom,
+			filename: filename,
+			scale:    meta.scale + 'x'
+		};
+		if (meta.platform) {
+			image.platform = meta.platform;
+		}
+		if (meta.appearance) {
+			// without this Xcode lists the icon as an "unassigned child" and ignores it
+			image.appearances = [ {
+				appearance: 'luminosity',
+				value: meta.appearance
+			} ];
+		}
+		return image;
+	}
+
+	/**
+	 * Resolves the app icons that carry an appearance (dark, tinted) and are still missing after
+	 * the per-density icons in `Resources` were matched. They come from `DefaultIcon-ios-Dark.png`,
+	 * `DefaultIcon-Dark.png`, `DefaultIcon-ios-Tinted.png` or `DefaultIcon-Tinted.png` in the
+	 * project root. They are never resized from the default icon: iOS already falls back to the
+	 * light icon when a variant is absent, and the variants need their transparency, so an icon
+	 * nobody drew is left out of the app icon set instead.
+	 * @param {object} lookup icons we don't have yet (entries that get resolved are removed)
+	 * @param {string} appIconSetDir filepath to dir we're writing our app icon set
+	 * @param {object} appIconSet app icon set we're building/writing (we will modify this)
+	 * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle (we will modify this)
+	 * @returns {Promise<void>}
+	 */
+	async processAppIconAppearances(lookup, appIconSetDir, appIconSet, resourcesToCopy) {
+		const tags = Object.keys(lookup).filter(tag => lookup[tag].appearance);
+		await Promise.all(tags.map(async tag => {
+			const meta = lookup[tag];
+			const candidates = [
+				path.join(this.projectDir, `DefaultIcon-ios${tag}.png`),
+				path.join(this.projectDir, `DefaultIcon${tag}.png`)
+			];
+			const src = candidates.find(file => fs.existsSync(file));
+
+			// the icon is left out either way, so the caller must not try to generate it
+			delete lookup[tag];
+
+			if (!src) {
+				this.logger.debug(`No ${meta.appearance} app icon found, iOS will use the light app icon (create ${
+					candidates[1].replace(this.projectDir + '/', '').cyan
+				} to supply one)`);
+				return;
+			}
+
+			const relSrc = src.replace(this.projectDir + '/', '');
+			const { contents, pngInfo } = await this.readPngInfo(src);
+			const size = meta.width * meta.scale;
+			if (pngInfo.width !== size || pngInfo.height !== size) {
+				this.logger.warn(`Expected ${meta.appearance} app icon ${relSrc} to be ${size}x${size}, but was ${
+					pngInfo.width}x${pngInfo.height}, skipping`);
+				return;
+			}
+
+			const filename = this.tiapp.icon.replace(/\.png$/, '') + tag + '.png';
+			const dest = path.join(appIconSetDir, filename);
+			this.logger.debug(`Found valid ${meta.appearance} app icon ${relSrc.cyan} (${pngInfo.width}x${pngInfo.height})`);
+
+			meta.idioms.forEach(idiom => {
+				appIconSet.images.push(this.appIconSetImage(meta, idiom, filename));
+			});
+
+			resourcesToCopy.set(filename, {
+				name: filename,
+				src,
+				dest,
+				contents
+			});
+		}));
+	}
+
+	/**
 	 * write the app icon set, and gather up missing icons we should try to generate
 	 * @param {object} lookup icons we don't have
 	 * @param {string} appIconSetDir filepath to dir we're writing our app icon set
@@ -6958,13 +7035,8 @@ class iOSBuilder extends Builder {
 			this.unmarkBuildDirFile(dest);
 
 			// inject images into the app icon set
-			meta.idioms.forEach(function (idiom) {
-				appIconSet.images.push({
-					size:     meta.width + 'x' + meta.height,
-					idiom:    idiom,
-					filename: filename,
-					scale:    meta.scale + 'x'
-				});
+			meta.idioms.forEach(idiom => {
+				appIconSet.images.push(this.appIconSetImage(meta, idiom, filename));
 			});
 
 			// check if the icon was previously resized
