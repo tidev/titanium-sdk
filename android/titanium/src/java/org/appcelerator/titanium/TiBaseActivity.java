@@ -993,6 +993,7 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 				finish();
 			}
 		}
+		activityProxy.restoreActionBar();
 	}
 
 	/**
