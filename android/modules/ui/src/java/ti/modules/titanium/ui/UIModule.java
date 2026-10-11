@@ -637,7 +637,12 @@ public class UIModule extends KrollModule implements TiApplication.Configuration
 		}
 
 		// Do not continue if the mode isn't changing.
-		if (nightModeId == AppCompatDelegate.getDefaultNightMode()) {
+		// Note: AppCompat defaults to MODE_NIGHT_UNSPECIFIED, which behaves the same as MODE_NIGHT_FOLLOW_SYSTEM.
+		int currentNightModeId = AppCompatDelegate.getDefaultNightMode();
+		if (currentNightModeId == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
+			currentNightModeId = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+		}
+		if (nightModeId == currentNightModeId) {
 			return;
 		}
 
