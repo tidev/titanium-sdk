@@ -1795,6 +1795,16 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         }
       },
       NO);
+
+  // Touch listeners bubble from any ancestor, so descendants further down the
+  // tree must recompute their touch handling as well (not just direct children).
+  NSArray *childrenArray = [[self children] retain];
+  for (id child in childrenArray) {
+    if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+      [child parentListenersChanged];
+    }
+  }
+  [childrenArray release];
 }
 
 - (void)_listenerAdded:(NSString *)type count:(int)count
