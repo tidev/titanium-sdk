@@ -420,4 +420,10 @@ describe('Titanium.App', () => {
 		homeIntent.flags = Ti.Android.FLAG_ACTIVITY_NEW_TASK;
 		Ti.Android.currentActivity.startActivity(homeIntent);
 	});
+
+	it('fontScaleChanged event', () => {
+		const listener = () => {};
+		Ti.App.addEventListener('fontScaleChanged', listener);
+		Ti.App.removeEventListener('fontScaleChanged', listener);
+	});
 });
