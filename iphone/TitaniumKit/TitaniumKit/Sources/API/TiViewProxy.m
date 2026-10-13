@@ -1523,10 +1523,18 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)dealloc
 {
   //	RELEASE_TO_NIL(pendingAdds);
-  // Note: destroyQueue and childrenQueue are released in _destroy,
-  // which is called by [super dealloc] via TiProxy. Releasing them
-  // here would cause use-after-free since _destroy still needs them.
   RELEASE_TO_NIL(barButtonItem);
+  // Run the (idempotent) teardown while destroyQueue and childrenQueue still exist,
+  // then release the queues. The second _destroy triggered by [super dealloc] is a no-op.
+  [self _destroy];
+  if (childrenQueue != NULL) {
+    dispatch_release(childrenQueue);
+    childrenQueue = NULL;
+  }
+  if (destroyQueue != NULL) {
+    dispatch_release(destroyQueue);
+    destroyQueue = NULL;
+  }
   [super dealloc];
 }
 
@@ -1596,7 +1604,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)_destroy
 {
   if (!destroyQueue) {
-    // Queue not initialized or already released by a prior _destroy call.
+    // Queue not initialized (dealloc of a partially initialized proxy).
     [super _destroy];
     return;
   }
@@ -1636,12 +1644,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
   });
-
-  // Safe to release after dispatch_sync returns — the queues are no longer needed.
-  dispatch_release(childrenQueue);
-  childrenQueue = nil;
-  dispatch_release(destroyQueue);
-  destroyQueue = nil;
+  // Do NOT release destroyQueue / childrenQueue here. _destroy can run long before dealloc
+  // (e.g. contextShutdown: while a UITableViewCell still retains a TiUIListItemProxy), and
+  // later calls such as removeAllChildren: or windowDidClose still dispatch on these queues.
+  // They are released in dealloc.
 }
 
 - (void)destroy
