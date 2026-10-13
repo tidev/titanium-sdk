@@ -1434,6 +1434,12 @@ properties:
     description: |
         Set the theme of the window. It can be either a [built-in theme](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Themes.html#titanium-material-themes)
         or a [custom theme](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/User_Interface_Deep_Dives/Android_UI_Components_and_Conventions/Android_Themes.html#custom-themes).
+
+        As of Titanium SDK 14.0.0, apps default to the Material 3 theme `Theme.Titanium.Material3.DayNight.Solid`.
+        The `Theme.Titanium.Material3.*` themes use Titanium's own colors, just like the Material 2
+        `Theme.Titanium.*` themes. Use the `Theme.Titanium.Material3.DynamicColors.*` themes instead to pick up
+        the Android 12+ wallpaper based dynamic colors. Note that prior to 14.0.0, `Theme.Titanium.Material3.DayNight`
+        applied dynamic colors. Apps depending on that should switch to `Theme.Titanium.Material3.DynamicColors.DayNight`.
     platforms: [android]
     type: String
     since: "3.4.0"
