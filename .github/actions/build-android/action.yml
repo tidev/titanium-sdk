@@ -61,9 +61,9 @@ runs:
       uses: actions/cache@v5
       with:
         path: dist/android/libv8
-        key: libv8-${{ hashFiles('dist/android/libv8/**') }}
-        restore-keys: |
-          libv8-
+        # Keyed on the file declaring the V8 version so a version bump produces a new cache entry.
+        # (The old key hashed the cache dir itself, which is empty at restore time, so it was never refreshed.)
+        key: libv8-${{ hashFiles('android/package.json') }}
 
     - name: Build
       run: npm run build:android
