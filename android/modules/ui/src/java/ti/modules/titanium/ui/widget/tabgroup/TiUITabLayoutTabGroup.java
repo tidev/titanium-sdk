@@ -13,6 +13,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiLoadImageManager;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 
@@ -378,10 +379,23 @@ public class TiUITabLayoutTabGroup extends TiUIAbstractTabGroup implements TabLa
 			return;
 		}
 
-		TabLayout.Tab tab = this.mTabLayout.getTabAt(index);
-		tab.setIcon(TiUIHelper.getResourceDrawable(tabProxy.getProperty(TiC.PROPERTY_ICON)));
-		scaleIconToFit(tab);
-		updateIconTint();
+		// Load the icon off the main thread since it may involve file I/O and bitmap decoding.
+		final Object iconProperty = tabProxy.getProperty(TiC.PROPERTY_ICON);
+		TiLoadImageManager.getInstance().load(
+			() -> TiUIHelper.getResourceDrawable(iconProperty),
+			(Drawable drawable) -> {
+				// Drop the result if the tab was removed/changed while loading.
+				if ((index >= this.tabs.size()) || (this.tabs.get(index).getProxy() != tabProxy)) {
+					return;
+				}
+				TabLayout.Tab tab = this.mTabLayout.getTabAt(index);
+				if (tab == null) {
+					return;
+				}
+				tab.setIcon(drawable);
+				scaleIconToFit(tab);
+				updateIconTint();
+			});
 	}
 
 	@Override

@@ -174,19 +174,11 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 			mp.setOnInfoListener(this);
 			mp.setOnBufferingUpdateListener(this);
 
-			if (remote) { // try async
-				mp.setOnPreparedListener(this);
-				mp.prepareAsync();
-				playPending = true;
-			} else {
-				mp.prepare();
-				setState(STATE_INITIALIZED);
-				setVolume(volume);
-				if (proxy.hasProperty(TiC.PROPERTY_TIME)) {
-					setTime(TiConvert.toInt(proxy.getProperty(TiC.PROPERTY_TIME)));
-				}
-				startPlaying();
-			}
+			// Prepare asynchronously for both local and remote sources so that
+			// buffering/decoding never blocks the calling (main) thread.
+			mp.setOnPreparedListener(this);
+			mp.prepareAsync();
+			playPending = true;
 
 		} catch (Throwable t) {
 			Log.w(TAG, "Issue while initializing : ", t);
@@ -254,29 +246,25 @@ public class TiSound implements MediaPlayer.OnCompletionListener, MediaPlayer.On
 
 	private void prepareAndPlay() throws IllegalStateException, IOException
 	{
+		// Prepare asynchronously for both local and remote sources so that
+		// buffering/decoding never blocks the calling (main) thread.
 		prepareRequired = false;
-		if (remote) {
-			playPending = true;
-			mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-				@Override
-				public void onPrepared(MediaPlayer mp)
-				{
-					mp.setOnPreparedListener(null);
-					mp.seekTo(0);
-					playPending = false;
-					if (!stopPending && !pausePending) {
-						startPlaying();
-					}
-					pausePending = false;
-					stopPending = false;
+		playPending = true;
+		mp.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+			@Override
+			public void onPrepared(MediaPlayer mp)
+			{
+				mp.setOnPreparedListener(null);
+				mp.seekTo(0);
+				playPending = false;
+				if (!stopPending && !pausePending) {
+					startPlaying();
 				}
-			});
-			mp.prepareAsync();
-		} else {
-			mp.prepare();
-			mp.seekTo(0);
-			startPlaying();
-		}
+				pausePending = false;
+				stopPending = false;
+			}
+		});
+		mp.prepareAsync();
 	}
 
 	public void reset()
