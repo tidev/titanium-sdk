@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
@@ -82,6 +83,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiWindowProxy navigationWindow;
 	protected KrollPromise openPromise;
 	protected KrollPromise closePromise;
+	private KrollDict savedActivityProperties;
+	private Map<String, Object> savedActionBarState;
 
 	public interface PostOpenListener {
 		void onPostOpen(TiWindowProxy window);
@@ -329,6 +332,51 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		KrollDict d = TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
 		return TiUIHelper.getImageFromDict(d);
+	}
+
+	/**
+	 * Stores the state of an activity that the OS is about to destroy and recreate, such as on a
+	 * dark/light theme switch. Re-applied to the new activity by restoreActivityState().
+	 * @param activityProperties Copy of the old ActivityProxy's properties (onCreateOptionsMenu, etc.).
+	 * @param actionBarState State from ActionBarProxy.getStateToRestore(). Can be null.
+	 */
+	public void setSavedActivityState(KrollDict activityProperties, Map<String, Object> actionBarState)
+	{
+		this.savedActivityProperties = activityProperties;
+		this.savedActionBarState = actionBarState;
+	}
+
+	/**
+	 * Re-applies the ActivityProxy properties and ActionBar state saved from the previous activity
+	 * to the new activity. Must be called after the new activity's content view and title have been
+	 * set up, but before the "open" event fires so JavaScript can still override it.
+	 */
+	protected void restoreActivityState()
+	{
+		KrollDict activityProperties = this.savedActivityProperties;
+		Map<String, Object> actionBarState = this.savedActionBarState;
+		this.savedActivityProperties = null;
+		this.savedActionBarState = null;
+		if ((activityProperties == null) && (actionBarState == null)) {
+			return;
+		}
+		Activity activity = getActivity();
+		if (!(activity instanceof TiBaseActivity tiActivity)) {
+			return;
+		}
+		ActivityProxy activityProxy = tiActivity.getActivityProxy();
+		if (activityProxy == null) {
+			return;
+		}
+		if ((activityProperties != null) && !activityProperties.isEmpty()) {
+			activityProxy.extend(activityProperties);
+		}
+		if ((actionBarState != null) && !actionBarState.isEmpty()) {
+			ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+			if (actionBarProxy != null) {
+				actionBarProxy.restoreState(actionBarState);
+			}
+		}
 	}
 
 	/*

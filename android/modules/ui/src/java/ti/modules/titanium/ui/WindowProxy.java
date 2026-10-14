@@ -495,6 +495,7 @@ public class WindowProxy extends TiWindowProxy implements TiActivityWindow
 		// after setContentView(). (TIMOB-14914)
 		opened = true;
 		opening = false;
+		restoreActivityState();
 		fireEvent(TiC.EVENT_OPEN, null);
 		handlePostOpen();
 

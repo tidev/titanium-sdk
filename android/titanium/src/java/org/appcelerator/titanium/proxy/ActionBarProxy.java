@@ -24,6 +24,8 @@ import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
 import java.lang.ref.WeakReference;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @SuppressWarnings("deprecation")
 @Kroll.proxy(propertyAccessors = { TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, TiC.PROPERTY_CUSTOM_VIEW })
@@ -38,6 +40,18 @@ public class ActionBarProxy extends KrollProxy
 	private final WeakReference<Toolbar> toolbarRef;
 	private boolean showTitleEnabled = true;
 
+	// Keys for state that is not a Titanium property name.
+	private static final String STATE_DISPLAY_HOME_AS_UP = "displayHomeAsUp";
+	private static final String STATE_HOME_AS_UP_INDICATOR = "homeAsUpIndicator";
+	private static final String STATE_HOME_BUTTON_ENABLED = "homeButtonEnabled";
+	private static final String STATE_DISPLAY_SHOW_HOME = "displayShowHomeEnabled";
+	private static final String STATE_DISPLAY_SHOW_TITLE = "displayShowTitleEnabled";
+
+	// Values applied via this proxy, in the order they were applied. The activity owning the
+	// toolbar is destroyed and recreated on a dark/light theme switch, which drops this proxy.
+	// The window proxy survives and uses this state to restore the toolbar on the new activity.
+	private final LinkedHashMap<String, Object> appliedState = new LinkedHashMap<>();
+
 	public ActionBarProxy(AppCompatActivity activity)
 	{
 		super();
@@ -48,6 +62,82 @@ public class ActionBarProxy extends KrollProxy
 	private Toolbar getToolbar()
 	{
 		return this.toolbarRef.get();
+	}
+
+	private void recordState(String key, Object value)
+	{
+		// Remove first so the key moves to the end. The last applied value must win on restore.
+		this.appliedState.remove(key);
+		this.appliedState.put(key, value);
+	}
+
+	/**
+	 * Returns a copy of everything applied via this proxy, so it can be re-applied to the
+	 * ActionBarProxy of a recreated activity via restoreState().
+	 */
+	public Map<String, Object> getStateToRestore()
+	{
+		LinkedHashMap<String, Object> state = new LinkedHashMap<>(this.appliedState);
+		Object callback = getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
+		if (callback != null) {
+			state.put(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, callback);
+		}
+		return state;
+	}
+
+	/**
+	 * Re-applies state captured by getStateToRestore() from a previous activity's ActionBarProxy.
+	 */
+	public void restoreState(Map<String, Object> state)
+	{
+		if (state == null) {
+			return;
+		}
+		for (Map.Entry<String, Object> entry : state.entrySet()) {
+			String key = entry.getKey();
+			Object value = entry.getValue();
+			switch (key) {
+				case STATE_DISPLAY_HOME_AS_UP:
+					setDisplayHomeAsUp(TiConvert.toBoolean(value));
+					break;
+				case STATE_HOME_AS_UP_INDICATOR:
+					setHomeAsUpIndicator(value);
+					break;
+				case STATE_HOME_BUTTON_ENABLED:
+					setHomeButtonEnabled(TiConvert.toBoolean(value));
+					break;
+				case STATE_DISPLAY_SHOW_HOME:
+					setDisplayShowHomeEnabled(TiConvert.toBoolean(value));
+					break;
+				case STATE_DISPLAY_SHOW_TITLE:
+					setDisplayShowTitleEnabled(TiConvert.toBoolean(value));
+					break;
+				case TiC.PROPERTY_BACKGROUND_IMAGE:
+					setBackgroundImage(TiConvert.toString(value));
+					break;
+				case TiC.PROPERTY_SUBTITLE:
+					setSubtitle(TiConvert.toString(value));
+					break;
+				case TiC.PROPERTY_TITLE:
+					setTitle(TiConvert.toString(value));
+					break;
+				case TiC.PROPERTY_VISIBLE:
+					setVisible(TiConvert.toBoolean(value));
+					break;
+				case TiC.PROPERTY_LOGO:
+					setLogo(value);
+					break;
+				case TiC.PROPERTY_ICON:
+					setIcon(value);
+					break;
+				case TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED:
+					setProperty(key, value);
+					onPropertyChanged(key, value);
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
 	private ActionBar getSupportActionBar()
@@ -79,6 +169,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setDisplayHomeAsUp(boolean showHomeAsUp)
 	{
+		recordState(STATE_DISPLAY_HOME_AS_UP, showHomeAsUp);
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setNavigationIcon(getHomeAsUpIcon(showHomeAsUp));
@@ -103,6 +194,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setHomeAsUpIndicator(Object icon)
 	{
+		recordState(STATE_HOME_AS_UP_INDICATOR, icon);
 		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
@@ -120,6 +212,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setHomeButtonEnabled(boolean homeButtonEnabled)
 	{
+		recordState(STATE_HOME_BUTTON_ENABLED, homeButtonEnabled);
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setNavigationIcon(homeButtonEnabled ? getHomeAsUpIcon(true) : null);
@@ -131,6 +224,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setBackgroundImage(String url)
 	{
+		recordState(TiC.PROPERTY_BACKGROUND_IMAGE, url);
 		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
@@ -152,6 +246,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void setDisplayShowHomeEnabled(boolean show)
 	{
+		recordState(STATE_DISPLAY_SHOW_HOME, show);
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			if (show) {
@@ -165,6 +260,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void setDisplayShowTitleEnabled(boolean show)
 	{
+		recordState(STATE_DISPLAY_SHOW_TITLE, show);
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setTitle(show ? toolbar.getTitle() : "");
@@ -186,6 +282,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setSubtitle(String subTitle)
 	{
+		recordState(TiC.PROPERTY_SUBTITLE, subTitle);
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setSubtitle(subTitle);
@@ -208,6 +305,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setTitle(String title)
 	{
+		recordState(TiC.PROPERTY_TITLE, title);
 		Toolbar toolbar = getToolbar();
 		if (toolbar != null) {
 			toolbar.setTitle(title);
@@ -231,6 +329,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void show()
 	{
+		recordState(TiC.PROPERTY_VISIBLE, true);
 		// Show via ActionBar so the decor's ActionBarContainer becomes visible again,
 		// not just the Toolbar child within it.
 		ActionBar actionBar = getSupportActionBar();
@@ -247,6 +346,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.method
 	public void hide()
 	{
+		recordState(TiC.PROPERTY_VISIBLE, false);
 		// Hide via ActionBar so the decor's ActionBarContainer is hidden as a whole.
 		// Hiding only the Toolbar child leaves the container behind as a transparent
 		// bar-height strip that still casts its elevation shadow.
@@ -288,6 +388,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setLogo(Object image)
 	{
+		recordState(TiC.PROPERTY_LOGO, image);
 		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
@@ -312,6 +413,7 @@ public class ActionBarProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setIcon(Object image)
 	{
+		recordState(TiC.PROPERTY_ICON, image);
 		Toolbar toolbar = getToolbar();
 		if (toolbar == null) {
 			Log.w(TAG, ACTION_BAR_NOT_AVAILABLE_MESSAGE);
