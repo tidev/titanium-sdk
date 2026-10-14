@@ -10,6 +10,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
@@ -82,6 +83,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiWindowProxy navigationWindow;
 	protected KrollPromise openPromise;
 	protected KrollPromise closePromise;
+	private Map<String, Object> savedActionBarState;
 
 	public interface PostOpenListener {
 		void onPostOpen(TiWindowProxy window);
@@ -329,6 +331,41 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		KrollDict d = TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
 		return TiUIHelper.getImageFromDict(d);
+	}
+
+	/**
+	 * Stores the ActionBar state of an activity that the OS is about to destroy and recreate,
+	 * such as on a dark/light theme switch. Re-applied by restoreActionBarState().
+	 */
+	public void setSavedActionBarState(Map<String, Object> state)
+	{
+		this.savedActionBarState = state;
+	}
+
+	/**
+	 * Re-applies ActionBar state saved from the previous activity to the new activity's ActionBar.
+	 * Must be called after the new activity's content view and title have been set up, but before
+	 * the "open" event fires so JavaScript can still override it.
+	 */
+	protected void restoreActionBarState()
+	{
+		Map<String, Object> state = this.savedActionBarState;
+		this.savedActionBarState = null;
+		if (state == null || state.isEmpty()) {
+			return;
+		}
+		Activity activity = getActivity();
+		if (!(activity instanceof TiBaseActivity tiActivity)) {
+			return;
+		}
+		ActivityProxy activityProxy = tiActivity.getActivityProxy();
+		if (activityProxy == null) {
+			return;
+		}
+		ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+		if (actionBarProxy != null) {
+			actionBarProxy.restoreState(state);
+		}
 	}
 
 	/*

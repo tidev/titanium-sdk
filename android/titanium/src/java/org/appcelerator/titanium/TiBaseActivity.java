@@ -1852,6 +1852,11 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			view = null;
 		}
 		if (window != null) {
+			// If the OS is recreating this activity (such as on a dark/light theme switch), then keep the
+			// ActionBar settings applied from JS so the window can re-apply them to the new activity.
+			if (!isFinishing && (activityProxy != null) && (activityProxy.peekActionBar() != null)) {
+				window.setSavedActionBarState(activityProxy.peekActionBar().getStateToRestore());
+			}
 			window.closeFromActivity(isFinishing);
 			window = null;
 		}
