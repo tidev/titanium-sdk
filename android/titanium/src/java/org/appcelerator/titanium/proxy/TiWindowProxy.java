@@ -83,6 +83,7 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiWindowProxy navigationWindow;
 	protected KrollPromise openPromise;
 	protected KrollPromise closePromise;
+	private KrollDict savedActivityProperties;
 	private Map<String, Object> savedActionBarState;
 
 	public interface PostOpenListener {
@@ -334,24 +335,29 @@ public abstract class TiWindowProxy extends TiViewProxy
 	}
 
 	/**
-	 * Stores the ActionBar state of an activity that the OS is about to destroy and recreate,
-	 * such as on a dark/light theme switch. Re-applied by restoreActionBarState().
+	 * Stores the state of an activity that the OS is about to destroy and recreate, such as on a
+	 * dark/light theme switch. Re-applied to the new activity by restoreActivityState().
+	 * @param activityProperties Copy of the old ActivityProxy's properties (onCreateOptionsMenu, etc.).
+	 * @param actionBarState State from ActionBarProxy.getStateToRestore(). Can be null.
 	 */
-	public void setSavedActionBarState(Map<String, Object> state)
+	public void setSavedActivityState(KrollDict activityProperties, Map<String, Object> actionBarState)
 	{
-		this.savedActionBarState = state;
+		this.savedActivityProperties = activityProperties;
+		this.savedActionBarState = actionBarState;
 	}
 
 	/**
-	 * Re-applies ActionBar state saved from the previous activity to the new activity's ActionBar.
-	 * Must be called after the new activity's content view and title have been set up, but before
-	 * the "open" event fires so JavaScript can still override it.
+	 * Re-applies the ActivityProxy properties and ActionBar state saved from the previous activity
+	 * to the new activity. Must be called after the new activity's content view and title have been
+	 * set up, but before the "open" event fires so JavaScript can still override it.
 	 */
-	protected void restoreActionBarState()
+	protected void restoreActivityState()
 	{
-		Map<String, Object> state = this.savedActionBarState;
+		KrollDict activityProperties = this.savedActivityProperties;
+		Map<String, Object> actionBarState = this.savedActionBarState;
+		this.savedActivityProperties = null;
 		this.savedActionBarState = null;
-		if (state == null || state.isEmpty()) {
+		if ((activityProperties == null) && (actionBarState == null)) {
 			return;
 		}
 		Activity activity = getActivity();
@@ -362,9 +368,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 		if (activityProxy == null) {
 			return;
 		}
-		ActionBarProxy actionBarProxy = activityProxy.getActionBar();
-		if (actionBarProxy != null) {
-			actionBarProxy.restoreState(state);
+		if ((activityProperties != null) && !activityProperties.isEmpty()) {
+			activityProxy.extend(activityProperties);
+		}
+		if ((actionBarState != null) && !actionBarState.isEmpty()) {
+			ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+			if (actionBarProxy != null) {
+				actionBarProxy.restoreState(actionBarState);
+			}
 		}
 	}
 

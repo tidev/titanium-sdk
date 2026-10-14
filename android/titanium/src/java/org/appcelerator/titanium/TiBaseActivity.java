@@ -9,6 +9,7 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -1853,9 +1854,18 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 		if (window != null) {
 			// If the OS is recreating this activity (such as on a dark/light theme switch), then keep the
-			// ActionBar settings applied from JS so the window can re-apply them to the new activity.
-			if (!isFinishing && (activityProxy != null) && (activityProxy.peekActionBar() != null)) {
-				window.setSavedActionBarState(activityProxy.peekActionBar().getStateToRestore());
+			// activity proxy's properties (onCreateOptionsMenu, onResume, etc.) and the ActionBar settings
+			// applied from JS so the window can re-apply them to the new activity.
+			if (!isFinishing && (activityProxy != null)) {
+				KrollDict activityProperties = null;
+				if (activityProxy.getProperties() != null) {
+					activityProperties = new KrollDict(activityProxy.getProperties());
+				}
+				Map<String, Object> actionBarState = null;
+				if (activityProxy.peekActionBar() != null) {
+					actionBarState = activityProxy.peekActionBar().getStateToRestore();
+				}
+				window.setSavedActivityState(activityProperties, actionBarState);
 			}
 			window.closeFromActivity(isFinishing);
 			window = null;
