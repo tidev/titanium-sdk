@@ -182,10 +182,7 @@ public class TiUIDialog extends TiUIView
 			public void onCancel(DialogInterface dialog)
 			{
 				dialog = null;
-				if (view != null) {
-					view.getProxy().releaseViews();
-					view = null;
-				}
+				releaseView();
 			}
 		});
 
@@ -346,6 +343,15 @@ public class TiUIDialog extends TiUIView
 				}
 			});
 			dialog = builder.create();
+			// The hosting activity dismisses the dialog directly when it finishes. That path skips the
+			// cancel and click listeners, so release the "androidView" here for every dismissal.
+			dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+				@Override
+				public void onDismiss(DialogInterface dlg)
+				{
+					releaseView();
+				}
+			});
 			dialog.setCanceledOnTouchOutside(
 				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
 			dialog.setCancelable(!proxy.getProperties().optBoolean(TiC.PROPERTY_BUTTON_CLICK_REQUIRED, false));
@@ -390,6 +396,12 @@ public class TiUIDialog extends TiUIView
 	public void hide(KrollDict options)
 	{
 		dismissDialog();
+		releaseView();
+	}
+
+	/** Releases the native views of the "androidView" proxy so that they do not outlive the dialog's activity. */
+	private void releaseView()
+	{
 		if (this.view != null) {
 			TiViewProxy proxy = this.view.getProxy();
 			if (proxy != null) {
@@ -397,6 +409,13 @@ public class TiUIDialog extends TiUIView
 			}
 			this.view = null;
 		}
+	}
+
+	@Override
+	public void release()
+	{
+		releaseView();
+		super.release();
 	}
 
 	private void dismissDialog()
