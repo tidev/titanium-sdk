@@ -75,6 +75,48 @@
   suppressReturn = [TiUtils boolValue:value def:YES];
 }
 
+- (void)setCustomActions_:(id)value
+{
+  ENSURE_TYPE_OR_NIL(value, NSArray);
+  RELEASE_TO_NIL(customActions);
+  if (value == nil) {
+    return;
+  }
+  NSMutableArray<NSString *> *titles = [NSMutableArray arrayWithCapacity:[value count]];
+  for (id item in value) {
+    NSString *title = [TiUtils stringValue:item];
+    if ([title length] > 0) {
+      [titles addObject:title];
+    }
+  }
+  customActions = [titles copy];
+}
+
+- (UIMenu *)editMenuForRange:(NSRange)range suggestedActions:(NSArray<UIMenuElement *> *)suggestedActions
+{
+  // Only show the custom actions while text is selected.
+  if (range.length == 0 || [customActions count] == 0) {
+    return [UIMenu menuWithChildren:suggestedActions];
+  }
+
+  NSDictionary *rangeDict = @{ @"location" : NUMUINTEGER(range.location), @"length" : NUMUINTEGER(range.length) };
+  NSMutableArray<UIMenuElement *> *children = [NSMutableArray arrayWithCapacity:[customActions count] + [suggestedActions count]];
+  [customActions enumerateObjectsUsingBlock:^(NSString *title, NSUInteger index, BOOL *stop) {
+    UIAction *action = [UIAction actionWithTitle:title
+                                           image:nil
+                                      identifier:nil
+                                         handler:^(UIAction *uiAction) {
+                                           if ([[self proxy] _hasListeners:@"customaction"]) {
+                                             NSDictionary *event = @{ @"action" : title, @"index" : NUMUINTEGER(index), @"range" : rangeDict };
+                                             [[self proxy] fireEvent:@"customaction" withObject:event];
+                                           }
+                                         }];
+    [children addObject:action];
+  }];
+  [children addObjectsFromArray:suggestedActions];
+  return [UIMenu menuWithChildren:children];
+}
+
 - (void)dealloc
 {
   // Because text fields MUST be played with on main thread, we cannot release if there's the chance we're on a BG thread
@@ -84,6 +126,7 @@
         RELEASE_TO_NIL(textWidgetView);
       },
       YES);
+  RELEASE_TO_NIL(customActions);
   [super dealloc];
 }
 

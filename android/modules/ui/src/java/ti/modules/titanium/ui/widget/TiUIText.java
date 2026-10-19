@@ -128,6 +128,16 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				TiUIHelper.firePostLayoutEvent(proxy);
 			}
 		});
+		this.tv.setOnCustomActionListener((index, title, selectionStart, selectionEnd) -> {
+			KrollDict range = new KrollDict();
+			range.put(TiC.PROPERTY_LOCATION, selectionStart);
+			range.put(TiC.PROPERTY_LENGTH, selectionEnd - selectionStart);
+			KrollDict data = new KrollDict();
+			data.put(TiC.PROPERTY_ACTION, title);
+			data.put(TiC.PROPERTY_INDEX, index);
+			data.put(TiC.PROPERTY_ATTRIBUTE_RANGE, range);
+			fireEvent(TiC.EVENT_CUSTOM_ACTION, data);
+		});
 		if (field) {
 			this.tv.setSingleLine();
 			this.tv.setMaxLines(1);
@@ -191,6 +201,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 
 		if (d.containsKey(TiC.PROPERTY_ENABLE_COPY)) {
 			tv.setIsCopyEnabled(TiConvert.toBoolean(d, TiC.PROPERTY_ENABLE_COPY, true));
+		}
+
+		if (d.containsKey(TiC.PROPERTY_CUSTOM_ACTIONS)) {
+			tv.setCustomActions(toCustomActions(d.get(TiC.PROPERTY_CUSTOM_ACTIONS)));
 		}
 
 		this.inputFilterHandler.setMaxLength(TiConvert.toInt(d.get(TiC.PROPERTY_MAX_LENGTH), -1));
@@ -402,6 +416,8 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			tv.setEnabled(TiConvert.toBoolean(newValue));
 		} else if (key.equals(TiC.PROPERTY_ENABLE_COPY)) {
 			tv.setIsCopyEnabled(TiConvert.toBoolean(newValue));
+		} else if (key.equals(TiC.PROPERTY_CUSTOM_ACTIONS)) {
+			tv.setCustomActions(toCustomActions(newValue));
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			this.disableChangeEvent = true;
 			tv.setText(TiConvert.toString(newValue, ""));
@@ -1048,6 +1064,29 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 	 * Updates the virtual keyboard's IME handling for the edit text using its current settings.
 	 * Must be called after calling the setImeOptions() method for it to take affect.
 	 */
+	/**
+	 * Converts the given "customActions" property value to an array of action titles.
+	 * @param value The property value. Expected to be an array of strings.
+	 * @return Array of action titles. Returns null if the value is not an array or has no titles.
+	 */
+	private static String[] toCustomActions(Object value)
+	{
+		if (!(value instanceof Object[] array)) {
+			return null;
+		}
+		ArrayList<String> titles = new ArrayList<>(array.length);
+		for (Object item : array) {
+			String title = TiConvert.toString(item);
+			if ((title != null) && !title.isEmpty()) {
+				titles.add(title);
+			}
+		}
+		if (titles.isEmpty()) {
+			return null;
+		}
+		return titles.toArray(new String[0]);
+	}
+
 	private void restartInputMethodManager()
 	{
 		if (this.tv != null) {

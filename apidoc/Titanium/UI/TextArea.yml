@@ -248,6 +248,18 @@ properties:
         For information about color values, see the "Colors" section of <Titanium.UI>.
     type: [String, Titanium.UI.Color]
 
+  - name: customActions
+    summary: Titles of custom actions to add to the context menu that appears when text is selected.
+    description: |
+        When the user selects text, the context menu shows one entry for each title in this array.
+        On iOS, the entries appear before the system actions. On Android, they appear after the system actions.
+        When the user taps an entry, the text area fires the [customaction](Titanium.UI.TextArea.customaction) event
+        with the title, the index and the selected range.
+
+        Set this property to `null` or an empty array to remove the custom actions.
+    type: Array<String>
+    since: "14.0.0"
+
   - name: editable
     summary: Determines whether this field can be edited.
     type: Boolean
@@ -544,6 +556,20 @@ events:
         platforms: [iphone, ipad, macos]
         since: {iphone: "11.0.0", ipad: "11.0.0", macos: "11.0.0"}
 
+  - name: customaction
+    summary: Fired when the user taps one of the [customActions](Titanium.UI.TextArea.customActions) entries in the text selection menu.
+    properties:
+      - name: action
+        summary: Title of the tapped action.
+        type: String
+      - name: index
+        summary: Index of the tapped action in the `customActions` array.
+        type: Number
+      - name: range
+        summary: Dictionary that describes the position and length of the selected text.
+        type: textAreaSelectedParams
+    since: "14.0.0"
+
   - name: focus
     summary: Fired when this text area gains focus.
     properties:
@@ -666,8 +692,8 @@ examples:
 ---
 name: textAreaSelectedParams
 summary: |
-    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event and <Titanium.UI.TextArea.selection> property that describes
-    position and length of the selected text.
+    Dictionary object of parameters for the <Titanium.UI.TextArea.selected> event, <Titanium.UI.TextArea.customaction> event
+    and <Titanium.UI.TextArea.selection> property that describes position and length of the selected text.
 properties:
   - name: location
     summary: Starting position of selected text.

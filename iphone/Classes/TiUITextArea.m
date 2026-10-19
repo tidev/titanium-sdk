@@ -487,6 +487,11 @@
   }
 }
 
+- (UIMenu *)textView:(UITextView *)textView editMenuForTextInRange:(NSRange)range suggestedActions:(NSArray<UIMenuElement *> *)suggestedActions
+{
+  return [self editMenuForRange:range suggestedActions:suggestedActions];
+}
+
 - (BOOL)textViewShouldEndEditing:(UITextView *)tv
 {
   return YES;
