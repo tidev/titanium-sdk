@@ -50,6 +50,8 @@ public class ActionBarProxy extends KrollProxy
 	// Values applied via this proxy, in the order they were applied. The activity owning the
 	// toolbar is destroyed and recreated on a dark/light theme switch, which drops this proxy.
 	// The window proxy survives and uses this state to restore the toolbar on the new activity.
+	// The "onHomeIconItemSelected" callback is recorded here too, because assigning it installs
+	// the default up arrow. Restoring it out of order would overwrite a later icon setting.
 	private final LinkedHashMap<String, Object> appliedState = new LinkedHashMap<>();
 
 	public ActionBarProxy(AppCompatActivity activity)
@@ -77,12 +79,7 @@ public class ActionBarProxy extends KrollProxy
 	 */
 	public Map<String, Object> getStateToRestore()
 	{
-		LinkedHashMap<String, Object> state = new LinkedHashMap<>(this.appliedState);
-		Object callback = getProperty(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED);
-		if (callback != null) {
-			state.put(TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED, callback);
-		}
-		return state;
+		return new LinkedHashMap<>(this.appliedState);
 	}
 
 	/**
@@ -433,6 +430,7 @@ public class ActionBarProxy extends KrollProxy
 	{
 		Toolbar toolbar = getToolbar();
 		if (TiC.PROPERTY_ON_HOME_ICON_ITEM_SELECTED.equals(name)) {
+			recordState(name, value);
 			if (toolbar != null) {
 				toolbar.setNavigationIcon(getHomeAsUpIcon(true));
 			}
