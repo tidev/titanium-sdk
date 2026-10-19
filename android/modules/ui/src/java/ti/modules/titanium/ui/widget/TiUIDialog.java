@@ -280,6 +280,7 @@ public class TiUIDialog extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_ANDROID_VIEW)) {
 			dismissDialog();
+			releaseView();
 			if (newValue != null) {
 				processView((TiViewProxy) newValue);
 			} else {
@@ -345,11 +346,14 @@ public class TiUIDialog extends TiUIView
 			dialog = builder.create();
 			// The hosting activity dismisses the dialog directly when it finishes. That path skips the
 			// cancel and click listeners, so release the "androidView" here for every dismissal.
+			// Android posts this callback asynchronously, so bind it to the view shown by this dialog.
+			// A replacement "androidView" assigned before the callback runs must stay alive.
+			final TiUIView dismissedView = this.view;
 			dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
 				@Override
 				public void onDismiss(DialogInterface dlg)
 				{
-					releaseView();
+					releaseView(dismissedView);
 				}
 			});
 			dialog.setCanceledOnTouchOutside(
@@ -402,13 +406,23 @@ public class TiUIDialog extends TiUIView
 	/** Releases the native views of the "androidView" proxy so that they do not outlive the dialog's activity. */
 	private void releaseView()
 	{
-		if (this.view != null) {
-			TiViewProxy proxy = this.view.getProxy();
-			if (proxy != null) {
-				proxy.releaseViews();
-			}
-			this.view = null;
+		releaseView(this.view);
+	}
+
+	/**
+	 * Releases the given "androidView" only if it is still the view assigned to this dialog.
+	 * A dismissal callback from an old dialog must not release a replacement view that was assigned afterwards.
+	 */
+	private void releaseView(TiUIView viewToRelease)
+	{
+		if ((viewToRelease == null) || (viewToRelease != this.view)) {
+			return;
 		}
+		TiViewProxy proxy = viewToRelease.getProxy();
+		if (proxy != null) {
+			proxy.releaseViews();
+		}
+		this.view = null;
 	}
 
 	@Override

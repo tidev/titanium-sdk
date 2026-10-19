@@ -368,7 +368,10 @@ public class MenuItemProxy extends KrollProxy
 			@Override
 			public void run()
 			{
-				item.setShowAsAction(flag);
+				// Re-check: release() can run between this post and its execution.
+				if (item != null) {
+					item.setShowAsAction(flag);
+				}
 			}
 		});
 	}
@@ -383,7 +386,10 @@ public class MenuItemProxy extends KrollProxy
 			@Override
 			public void run()
 			{
-				item.collapseActionView();
+				// Re-check: release() can run between this post and its execution.
+				if (item != null) {
+					item.collapseActionView();
+				}
 			}
 		});
 	}
@@ -398,7 +404,10 @@ public class MenuItemProxy extends KrollProxy
 			@Override
 			public void run()
 			{
-				item.expandActionView();
+				// Re-check: release() can run between this post and its execution.
+				if (item != null) {
+					item.expandActionView();
+				}
 			}
 		});
 	}
