@@ -148,6 +148,59 @@ describe('Titanium.UI.Window', function () {
 			});
 		});
 
+		describe.ios('.reservedRegions', () => {
+			it('is an empty Array before the window is opened', () => {
+				win = Ti.UI.createWindow({});
+				should(win.reservedRegions).be.an.Array();
+				should(win.reservedRegions).be.empty();
+			});
+
+			it('is an Array of regions once the window is opened', finish => {
+				win = Ti.UI.createWindow({ extendSafeArea: true });
+				win.addEventListener('open', () => {
+					try {
+						const regions = win.reservedRegions;
+						should(regions).be.an.Array();
+						// Devices without reserved regions (everything but iPhone Duo) report none
+						for (const region of regions) {
+							should(region.kind).be.oneOf([ 'division', 'occlusion' ]);
+							should(region.active).be.a.Boolean();
+							should(region.rect).be.an.Object();
+							should(region.rect.width).be.a.Number();
+							should(region.margins).be.an.Object();
+							should(region.margins.top).be.a.Number();
+						}
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+
+			it('has no accessors', () => {
+				win = Ti.UI.createWindow({});
+				should(win).not.have.accessors('reservedRegions');
+			});
+		});
+
+		describe.ios('reservedregionschange', () => {
+			it('listener can be added and removed', finish => {
+				win = Ti.UI.createWindow({});
+				const listener = () => {};
+				win.addEventListener('reservedregionschange', listener);
+				win.addEventListener('open', () => {
+					try {
+						win.removeEventListener('reservedregionschange', listener);
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+		});
+
 		describe.ios('.largeTitleEnabled', () => {
 			beforeEach(() => {
 				win = Ti.UI.createWindow({

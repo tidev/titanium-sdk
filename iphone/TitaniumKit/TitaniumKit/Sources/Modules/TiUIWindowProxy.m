@@ -109,6 +109,12 @@
 
 @end
 
+// Implemented by TiViewProxy, but not declared in a public header
+@interface TiWindowProxy (ListenerHooks)
+- (void)_listenerAdded:(NSString *)type count:(int)count;
+- (void)_listenerRemoved:(NSString *)type count:(int)count;
+@end
+
 @implementation TiUIWindowProxy
 
 - (void)_destroy
@@ -162,7 +168,99 @@
 {
   self.safeAreaViewProxy = nil;
   RELEASE_TO_NIL(barImageView);
+  RELEASE_TO_NIL(lastReservedRegions);
   [super dealloc];
+}
+
+#pragma mark - Reserved regions (iPhone Duo, iOS 27.1+)
+
+// Must be called on the main thread
+- (NSArray *)currentReservedRegions
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    if (![self viewAttached]) {
+      return @[];
+    }
+
+    UIView *windowView = [self view];
+    NSArray<NSString *> *names = @[ @"division", @"occlusion" ];
+    NSArray<UIViewReservedRegionKind *> *kinds = @[ [UIViewReservedRegionKind divisionRegionKind], [UIViewReservedRegionKind occlusionRegionKind] ];
+    NSMutableArray *regions = [NSMutableArray array];
+
+    for (NSUInteger i = 0; i < kinds.count; i++) {
+      NSArray<UIViewReservedRegion *> *regionsOfKind = [windowView reservedRegionsOfKind:kinds[i] options:UIViewReservedRegionQueryOptionsIncludeInactive];
+      for (UIViewReservedRegion *region in regionsOfKind) {
+        UIEdgeInsets margins = region.margins;
+        [regions addObject:@{
+          @"kind" : names[i],
+          @"active" : @(region.active),
+          @"rect" : [TiUtils rectToDictionary:region.frame],
+          @"margins" : @{
+            @"top" : @(margins.top),
+            @"left" : @(margins.left),
+            @"bottom" : @(margins.bottom),
+            @"right" : @(margins.right)
+          }
+        }];
+      }
+    }
+    return regions;
+  }
+#endif
+  return @[];
+}
+
+- (NSArray *)reservedRegions
+{
+  __block NSArray *regions = nil;
+  TiThreadPerformOnMainThread(
+      ^{
+        regions = [[self currentReservedRegions] retain];
+      },
+      YES);
+  return [regions autorelease];
+}
+
+- (void)reservedRegionsMightHaveChanged
+{
+  if (!observesReservedRegions) {
+    return;
+  }
+
+  NSArray *regions = [self currentReservedRegions];
+  if (lastReservedRegions != nil && [regions isEqualToArray:lastReservedRegions]) {
+    return;
+  }
+  RELEASE_TO_NIL(lastReservedRegions);
+  lastReservedRegions = [regions retain];
+
+  [self fireEvent:@"reservedregionschange" withObject:@{ @"regions" : regions }];
+}
+
+- (void)_listenerAdded:(NSString *)type count:(int)count
+{
+  if ([type isEqualToString:@"reservedregionschange"]) {
+    observesReservedRegions = (count > 0);
+    if (count == 1) {
+      // Take the current state as the baseline, so the first event is a real change
+      TiThreadPerformOnMainThread(
+          ^{
+            RELEASE_TO_NIL(lastReservedRegions);
+            lastReservedRegions = [[self currentReservedRegions] retain];
+          },
+          NO);
+    }
+  }
+  [super _listenerAdded:type count:count];
+}
+
+- (void)_listenerRemoved:(NSString *)type count:(int)count
+{
+  if ([type isEqualToString:@"reservedregionschange"]) {
+    observesReservedRegions = (count > 0);
+  }
+  [super _listenerRemoved:type count:count];
 }
 
 - (void)boot:(BOOL)timeout args:args
