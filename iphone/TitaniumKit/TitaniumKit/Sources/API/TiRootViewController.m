@@ -108,6 +108,7 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   RELEASE_TO_NIL(containedWindows);
   RELEASE_TO_NIL(modalWindows);
   RELEASE_TO_NIL(hostView);
+  RELEASE_TO_NIL(hingeInteraction);
 
   WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -1585,6 +1586,43 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
     [thisWindow preferredContentSizeDidChangeForChildContentContainer:container];
   }
   [super preferredContentSizeDidChangeForChildContentContainer:container];
+}
+
+#pragma mark - Hinge (iPhone Duo)
+
+- (void)setHingeObservationEnabled:(BOOL)enabled
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    TiThreadPerformOnMainThread(
+        ^{
+          if (!enabled) {
+            if (hingeInteraction != nil) {
+              [[self view] removeInteraction:hingeInteraction];
+              RELEASE_TO_NIL(hingeInteraction);
+            }
+            return;
+          }
+
+          if (hingeInteraction != nil) {
+            return;
+          }
+
+          __block TiRootViewController *blockSelf = self;
+          hingeInteraction = [[UIHingeInteraction alloc] initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
+            // A nil hinge means the interaction left a hierarchy that provides hinge updates
+            UIHinge *hinge = update.hinge;
+            NSDictionary *info = @{
+              @"status" : @(hinge != nil ? hinge.status : UIHingeStatusUnknown),
+              @"angle" : @(hinge != nil ? hinge.angle * 180.0 / M_PI : 0.0)
+            };
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiHingeChanged object:blockSelf userInfo:info];
+          }];
+          [[self view] addInteraction:hingeInteraction];
+        },
+        NO);
+  }
+#endif
 }
 
 #pragma mark - HomeIndicatorAutoHidden
