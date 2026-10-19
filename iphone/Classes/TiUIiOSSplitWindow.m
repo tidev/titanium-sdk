@@ -59,6 +59,8 @@ typedef NS_ENUM(NSInteger, TiUIiOSSplitWindowArrangementStyle) {
   container.clipsToBounds = YES;
   [paneView removeFromSuperview];
   paneView.transform = CGAffineTransformIdentity;
+  // The arrangement decides what is visible, so a master view hidden by masterViewVisible must not stay hidden
+  paneView.hidden = NO;
   paneView.frame = container.bounds;
   paneView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   [container addSubview:paneView];
@@ -109,7 +111,11 @@ typedef NS_ENUM(NSInteger, TiUIiOSSplitWindowArrangementStyle) {
   BOOL visible = [TiUtils boolValue:value def:YES];
 
   masterViewVisible = visible;
-  masterViewWrapper.hidden = !visible;
+
+  // Ignored while the arrangement is in charge. restoreWrappers applies the value when switching back.
+  if (![self usesArrangementController]) {
+    masterViewWrapper.hidden = !visible;
+  }
 }
 
 - (void)cleanup
