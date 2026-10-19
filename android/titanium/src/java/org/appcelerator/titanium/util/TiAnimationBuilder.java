@@ -1036,6 +1036,15 @@ public class TiAnimationBuilder
 		}
 	}
 
+	/**
+	 * Determines if the property animators created by this builder were started and did not end yet.
+	 * @return true if the AnimatorSet is still running, false otherwise.
+	 */
+	public boolean isRunning()
+	{
+		return (animatorSet != null) && animatorSet.isStarted();
+	}
+
 	public void stop(View view)
 	{
 		if (animatorSet != null) {
