@@ -9,7 +9,6 @@ package org.appcelerator.titanium;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.appcelerator.kroll.KrollDict;
@@ -45,11 +44,11 @@ import org.appcelerator.titanium.view.TiActionBarStyleHandler;
 import org.appcelerator.titanium.view.TiActivitySafeAreaMonitor;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
+import org.appcelerator.titanium.util.TiFoldableHelper;
 import org.appcelerator.titanium.view.TiInsetsProvider;
 
 import android.app.Activity;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
@@ -71,10 +70,9 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.window.java.layout.WindowInfoTrackerCallbackAdapter;
-import androidx.window.layout.DisplayFeature;
-import androidx.window.layout.FoldingFeature;
 import androidx.window.layout.WindowInfoTracker;
 import androidx.window.layout.WindowLayoutInfo;
 
@@ -115,10 +113,9 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	private TiActivitySafeAreaMonitor safeAreaMonitor;
 	private Context baseContext;
 	public boolean keyboardVisible = false;
-	private static boolean hasWindowLayoutInfoListener = false;
 	private WindowInfoTrackerCallbackAdapter windowInfoTracker;
-	private final LayoutStateChangeCallback layoutStateChangeCallback =
-		new LayoutStateChangeCallback();
+	private final Consumer<WindowLayoutInfo> windowLayoutInfoListener =
+		(layoutInfo) -> TiFoldableHelper.onWindowLayoutInfoChanged(this, layoutInfo);
 	/**
 	 * Callback to be invoked when the TiBaseActivity.onRequestPermissionsResult() has been called,
 	 * providing the results of a requestPermissions() call. Instances of this interface are to
@@ -879,8 +876,6 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 		setCustomActionBar();
-
-		windowInfoTracker = new WindowInfoTrackerCallbackAdapter(WindowInfoTracker.getOrCreate(this));
 	}
 
 	private void setCustomActionBar()
@@ -1575,11 +1570,13 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 		}
 
 		applyNightMode();
-		if (!hasWindowLayoutInfoListener) {
-			windowInfoTracker.addWindowLayoutInfoListener(
-				TiApplication.getAppRootOrCurrentActivity(), Runnable::run, layoutStateChangeCallback);
-			hasWindowLayoutInfoListener = true;
+
+		// Listen for fold/hinge changes while this activity is visible.
+		if (windowInfoTracker == null) {
+			windowInfoTracker = new WindowInfoTrackerCallbackAdapter(WindowInfoTracker.getOrCreate(this));
 		}
+		windowInfoTracker.addWindowLayoutInfoListener(
+			this, ContextCompat.getMainExecutor(this), windowLayoutInfoListener);
 	}
 
 	@Override
@@ -1607,9 +1604,8 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 			}
 		}
 
-		if (hasWindowLayoutInfoListener) {
-			windowInfoTracker.removeWindowLayoutInfoListener(layoutStateChangeCallback);
-			hasWindowLayoutInfoListener = false;
+		if (windowInfoTracker != null) {
+			windowInfoTracker.removeWindowLayoutInfoListener(windowLayoutInfoListener);
 		}
 	}
 
@@ -1980,40 +1976,5 @@ public abstract class TiBaseActivity extends AppCompatActivity implements TiActi
 	public Context getInitialBaseContext()
 	{
 		return baseContext;
-	}
-
-	@RequiresApi(api = Build.VERSION_CODES.N)
-	class LayoutStateChangeCallback implements Consumer<WindowLayoutInfo>
-	{
-		@Override
-		public void accept(WindowLayoutInfo newLayoutInfo)
-		{
-			TiBaseActivity.this.runOnUiThread(() -> {
-				List<DisplayFeature> displayFeatures = newLayoutInfo.getDisplayFeatures();
-				if (displayFeatures.toArray().length == 0) {
-					// closed
-					KrollDict kd = new KrollDict();
-					String orientation = TiApplication.getInstance().getResources().getConfiguration()
-						.orientation == Configuration.ORIENTATION_LANDSCAPE ? "HORIZONTAL" : "VERTICAL";
-					kd.put("state", "CLOSED");
-					kd.put("occlusionType", "NONE");
-					kd.put("orientation", orientation);
-					kd.put("isSeparating", false);
-					TiApplication.getInstance().fireAppEvent("windowState", kd);
-				} else {
-					// other states
-					for (DisplayFeature feature : displayFeatures) {
-						if (feature instanceof FoldingFeature foldingFeature) {
-							KrollDict kd = new KrollDict();
-							kd.put("state", foldingFeature.getState().toString());
-							kd.put("occlusionType", foldingFeature.getOcclusionType().toString());
-							kd.put("orientation", foldingFeature.getOrientation().toString());
-							kd.put("isSeparating", foldingFeature.isSeparating());
-							TiApplication.getInstance().fireAppEvent("windowState", kd);
-						}
-					}
-				}
-			});
-		}
 	}
 }

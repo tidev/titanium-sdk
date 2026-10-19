@@ -588,6 +588,11 @@ extern NSString *const TI_APPLICATION_GUID;
   return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
 }
 
+- (NSNumber *)isFoldable
+{
+  return NUMBOOL(NO);
+}
+
 - (void)setForceSplashAsSnapshot:(id)args
 {
   ENSURE_SINGLE_ARG(args, NSNumber)

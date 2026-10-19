@@ -400,6 +400,52 @@ events:
     platforms: [android, iphone, ipad, macos]
     since: {android: "12.7.0", iphone: "3.0.0", ipad: "3.0.0", macos: "9.2.0"}
 
+  - name: windowState
+    summary: Fired when the fold state of a foldable device changes.
+    description: |
+        This event only fires on devices where <Titanium.App.isFoldable> is `true`. It fires once
+        when the first activity starts and then every time the fold state, the hinge position or
+        the window bounds change. Add the listener before you open the first window to receive the
+        initial state.
+
+        The `state` is `CLOSED` when no fold is within the window bounds. This is the case when
+        the device is closed and the app runs on the cover display, or when the app runs in a
+        window that does not span the fold. In this case `orientation` and `bounds` are `null`.
+
+        ``` js
+        Ti.App.addEventListener('windowState', (e) => {
+            if (e.state === 'HALF_OPENED' && e.orientation === 'HORIZONTAL') {
+                // Tabletop posture: place the content above e.bounds.y
+            }
+        });
+        ```
+    properties:
+      - name: state
+        summary: |
+            The fold state. One of `CLOSED`, `HALF_OPENED` or `FLAT`.
+        type: String
+
+      - name: occlusionType
+        summary: |
+            Indicates if the fold hides content. One of `NONE` or `FULL`.
+        type: String
+
+      - name: orientation
+        summary: |
+            The orientation of the fold. One of `HORIZONTAL` or `VERTICAL`, or `null` when the state is `CLOSED`.
+        type: String
+
+      - name: isSeparating
+        summary: Indicates whether the fold splits the window into two separate areas.
+        type: Boolean
+
+      - name: bounds
+        summary: |
+            The position and size of the fold within the window in dp, or `null` when the state is `CLOSED`.
+        type: Dimension
+    platforms: [android]
+    since: "14.0.0"
+
   - name: significanttimechange
     summary: Fired when there is a significant change in the time.
     description: |
@@ -617,6 +663,17 @@ properties:
     type: Boolean
     permission: read-only
     since: {android: "12.7.0", iphone: "7.5.0", ipad: "7.5.0", macos: "9.2.0"}
+    platforms: [android, iphone, ipad, macos]
+
+  - name: isFoldable
+    summary: Indicates whether or not the device has a fold or hinge.
+    description: |
+        On Android this is `true` on devices that report the `android.hardware.sensor.hinge_angle`
+        system feature (Android 11 and up) or that reported a folding feature in a
+        <Titanium.App.windowState> event. On iOS it is always `false`.
+    type: Boolean
+    permission: read-only
+    since: {android: "14.0.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
     platforms: [android, iphone, ipad, macos]
 
   - name: trackUserInteraction

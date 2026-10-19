@@ -16,6 +16,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFoldableHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
 
 import android.hardware.Sensor;
@@ -112,6 +113,12 @@ public class AppModule extends KrollModule implements SensorEventListener
 	public String getCopyright()
 	{
 		return appInfo.getCopyright();
+	}
+
+	@Kroll.getProperty
+	public boolean getIsFoldable()
+	{
+		return TiFoldableHelper.isFoldable(TiApplication.getInstance());
 	}
 
 	@Kroll.getProperty
