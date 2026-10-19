@@ -6967,7 +6967,7 @@ class iOSBuilder extends Builder {
 			}
 
 			const relSrc = src.replace(this.projectDir + '/', '');
-			const { contents, pngInfo } = await this.readPngInfo(src);
+			const [ { contents, pngInfo }, stat ] = await Promise.all([ this.readPngInfo(src), fs.stat(src) ]);
 			const size = meta.width * meta.scale;
 			if (pngInfo.width !== size || pngInfo.height !== size) {
 				this.logger.warn(`Expected ${meta.appearance} app icon ${relSrc} to be ${size}x${size}, but was ${
@@ -6982,6 +6982,20 @@ class iOSBuilder extends Builder {
 			meta.idioms.forEach(idiom => {
 				appIconSet.images.push(this.appIconSetImage(meta, idiom, filename));
 			});
+
+			// Editing the variant in place leaves Contents.json untouched and the copy task only
+			// forces an asset catalog rebuild for images when app thinning is on, so track the
+			// source in the build manifest ourselves or the installed app keeps the old icon
+			const hash = this.hash(contents);
+			const mtime = this.serializeMtime(stat);
+			const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[relSrc];
+			if (!prev || prev.hash !== hash || prev.mtime !== mtime || prev.size !== stat.size || !(await fs.pathExists(dest))) {
+				if (!this.forceRebuild) {
+					this.logger.info(`Forcing rebuild: ${relSrc} changed since last build`);
+					this.forceRebuild = true;
+				}
+			}
+			this.currentBuildManifest.files[relSrc] = { hash, mtime, size: stat.size };
 
 			resourcesToCopy.set(filename, {
 				name: filename,
