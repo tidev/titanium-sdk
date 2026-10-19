@@ -1944,6 +1944,39 @@ properties:
     constants: Titanium.UI.iOS.AnimationStyle.*
     default: <Titanium.UI.iOS.AnimationStyle.NONE>
 
+  - name: verticalBarBehavior
+    summary: Whether the system may lay out the bars of this window vertically.
+    description: |
+        On iPhone Duo and apps built with the iOS 27.1 SDK or later, the system moves the navigation bar and
+        toolbar buttons into a vertical bar along the screen edge. Set this property to
+        <Titanium.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED> to opt out and keep the standard horizontal top and bottom bars.
+
+        Only disable the vertical bar for screens that are better served by horizontal bars, such as a
+        full-screen video player or a non-scrolling layout like a calculator. Treat it as a stable choice and
+        avoid changing it frequently while the user navigates.
+
+        When the window is shown inside a <Titanium.UI.NavigationWindow> or <Titanium.UI.TabGroup>, set this property
+        on the content window. The preference of the currently visible window is used.
+    type: Number
+    constants: Titanium.UI.iOS.VERTICAL_BAR_BEHAVIOR_*
+    default: <Titanium.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC>
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
+  - name: verticalBarCompressionBehavior
+    summary: Defines whether the bar items or the tab bar compress first when the vertical bar runs out of space.
+    description: |
+        This property only has an effect if the window is shown with a vertical bar (iPhone Duo, iOS 27.1 SDK or later).
+        It is applied to the navigation item of the window, so the window needs to be inside a
+        <Titanium.UI.NavigationWindow> or <Titanium.UI.TabGroup>.
+    type: Number
+    constants: Titanium.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_*
+    default: <Titanium.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC>
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
   - name: width
     summary: Window's width, in platform-specific units.
     description: |

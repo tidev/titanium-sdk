@@ -168,6 +168,18 @@
 @property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN;
 @property (nonatomic, readonly) NSNumber *TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_UP;
 
+@property (nonatomic, readonly) NSNumber *BAR_BUTTON_VISIBILITY_PRIORITY_LOW;
+@property (nonatomic, readonly) NSNumber *BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD;
+@property (nonatomic, readonly) NSNumber *BAR_BUTTON_VISIBILITY_PRIORITY_HIGH;
+@property (nonatomic, readonly) NSNumber *BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY;
+@property (nonatomic, readonly) NSNumber *BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED;
+@property (nonatomic, readonly) NSNumber *VERTICAL_BAR_BEHAVIOR_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *VERTICAL_BAR_BEHAVIOR_DISABLED;
+@property (nonatomic, readonly) NSNumber *VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_BAR_ITEMS;
+@property (nonatomic, readonly) NSNumber *VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR;
+
 @property (nonatomic, readonly) NSNumber *SCROLL_VIEW_EDGE_EFFECT_STYLE_AUTOMATIC;
 @property (nonatomic, readonly) NSNumber *SCROLL_VIEW_EDGE_EFFECT_STYLE_HARD;
 @property (nonatomic, readonly) NSNumber *SCROLL_VIEW_EDGE_EFFECT_STYLE_SOFT;

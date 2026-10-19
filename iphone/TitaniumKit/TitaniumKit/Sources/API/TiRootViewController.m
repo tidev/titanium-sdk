@@ -1445,6 +1445,12 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
+
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    [self setNeedsUpdateOfVerticalBarConfiguration];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1596,6 +1602,20 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   }
   return NO;
 }
+
+#pragma mark - Vertical Bar Behavior (iPhone Duo)
+
+#if IS_SDK_IOS_27_1
+- (UIVerticalBarBehavior)preferredVerticalBarBehavior
+{
+  id<TiWindowProtocol> topWindow = [containedWindows lastObject];
+  if (topWindow != nil && [topWindow respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+    return [topWindow preferredVerticalBarBehavior] == UIVerticalBarBehaviorDisabled ? UIVerticalBarBehaviorDisabled : UIVerticalBarBehaviorAutomatic;
+  }
+
+  return UIVerticalBarBehaviorAutomatic;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 
