@@ -54,39 +54,71 @@ public class MenuItemProxy extends KrollProxy
 		MenuItemCompat.setOnActionExpandListener(item, new CompatActionExpandListener());
 	}
 
+	/**
+	 * Drops the native MenuItem. The item references the activity's MenuBuilder, AppCompat delegate
+	 * and ActionBar, so a proxy that JavaScript still holds would keep the destroyed activity alive.
+	 */
+	@Override
+	public void release()
+	{
+		if (item != null) {
+			MenuItemCompat.setOnActionExpandListener(item, null);
+			item = null;
+		}
+		super.release();
+	}
+
 	@Kroll.getProperty
 	public int getGroupId()
 	{
+		if (item == null) {
+			return 0;
+		}
 		return item.getGroupId();
 	}
 
 	@Kroll.getProperty
 	public int getItemId()
 	{
+		if (item == null) {
+			return 0;
+		}
 		return item.getItemId();
 	}
 
 	@Kroll.getProperty
 	public int getOrder()
 	{
+		if (item == null) {
+			return 0;
+		}
 		return item.getOrder();
 	}
 
 	@Kroll.getProperty
 	public String getTitle()
 	{
+		if (item == null) {
+			return null;
+		}
 		return (String) item.getTitle();
 	}
 
 	@Kroll.getProperty
 	public String getTitleCondensed()
 	{
+		if (item == null) {
+			return null;
+		}
 		return (String) item.getTitleCondensed();
 	}
 
 	@Kroll.method
 	public boolean hasSubMenu()
 	{
+		if (item == null) {
+			return false;
+		}
 		return item.hasSubMenu();
 	}
 
@@ -94,6 +126,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.method
 	public boolean isChecked()
 	{
+		if (item == null) {
+			return false;
+		}
 		return item.isChecked();
 	}
 
@@ -101,6 +136,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.method
 	public boolean isCheckable()
 	{
+		if (item == null) {
+			return false;
+		}
 		return item.isCheckable();
 	}
 
@@ -108,6 +146,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.method
 	public boolean isEnabled()
 	{
+		if (item == null) {
+			return false;
+		}
 		return item.isEnabled();
 	}
 
@@ -115,29 +156,44 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.method
 	public boolean isVisible()
 	{
+		if (item == null) {
+			return false;
+		}
 		return item.isVisible();
 	}
 
 	@Kroll.getProperty
 	public String getAccessibilityLabel()
 	{
+		if (properties == null) {
+			return null;
+		}
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_LABEL);
 	}
 
 	@Kroll.getProperty
 	public String getAccessibilityHint()
 	{
+		if (properties == null) {
+			return null;
+		}
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_HINT);
 	}
 
 	@Kroll.getProperty
 	public String getAccessibilityValue()
 	{
+		if (properties == null) {
+			return null;
+		}
 		return TiConvert.toString(properties, TiC.PROPERTY_ACCESSIBILITY_VALUE);
 	}
 
 	private void updateContentDescription()
 	{
+		if (item == null) {
+			return;
+		}
 		String contentDescription = TiUIView.composeContentDescription(properties);
 		MenuItemCompat.setContentDescription(item, contentDescription);
 	}
@@ -199,6 +255,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public MenuItemProxy setCheckable(boolean checkable)
 	{
+		if (item == null) {
+			return this;
+		}
 		item.setCheckable(checkable);
 		return this;
 	}
@@ -206,6 +265,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public MenuItemProxy setChecked(boolean checked)
 	{
+		if (item == null) {
+			return this;
+		}
 		item.setChecked(checked);
 		return this;
 	}
@@ -213,6 +275,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public MenuItemProxy setEnabled(boolean enabled)
 	{
+		if (item == null) {
+			return this;
+		}
 		item.setEnabled(enabled);
 		return this;
 	}
@@ -220,6 +285,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public MenuItemProxy setIcon(Object icon)
 	{
+		if (item == null) {
+			return this;
+		}
 		if (icon != null) {
 			if (icon instanceof String) {
 				String iconPath = TiConvert.toString(icon);
@@ -241,6 +309,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public MenuItemProxy setTitle(String title)
 	{
+		if (item == null) {
+			return this;
+		}
 		item.setTitle(title);
 		return this;
 	}
@@ -248,6 +319,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public MenuItemProxy setTitleCondensed(String title)
 	{
+		if (item == null) {
+			return this;
+		}
 		item.setTitleCondensed(title);
 		return this;
 	}
@@ -255,6 +329,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public MenuItemProxy setVisible(boolean visible)
 	{
+		if (item == null) {
+			return this;
+		}
 		item.setVisible(visible);
 		return this;
 	}
@@ -262,13 +339,18 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setActionView(Object view)
 	{
+		if (item == null) {
+			return;
+		}
 		if (view instanceof TiViewProxy) {
 			final View v = ((TiViewProxy) view).getOrCreateView().getNativeView();
 			TiMessenger.postOnMain(new Runnable() {
 				@Override
 				public void run()
 				{
-					item.setActionView(v);
+					if (item != null) {
+						item.setActionView(v);
+					}
 				}
 			});
 		} else {
@@ -279,11 +361,17 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.setProperty
 	public void setShowAsAction(final int flag)
 	{
+		if (item == null) {
+			return;
+		}
 		TiMessenger.postOnMain(new Runnable() {
 			@Override
 			public void run()
 			{
-				item.setShowAsAction(flag);
+				// Re-check: release() can run between this post and its execution.
+				if (item != null) {
+					item.setShowAsAction(flag);
+				}
 			}
 		});
 	}
@@ -291,11 +379,17 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.method
 	public void collapseActionView()
 	{
+		if (item == null) {
+			return;
+		}
 		TiMessenger.postOnMain(new Runnable() {
 			@Override
 			public void run()
 			{
-				item.collapseActionView();
+				// Re-check: release() can run between this post and its execution.
+				if (item != null) {
+					item.collapseActionView();
+				}
 			}
 		});
 	}
@@ -303,11 +397,17 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.method
 	public void expandActionView()
 	{
+		if (item == null) {
+			return;
+		}
 		TiMessenger.postOnMain(new Runnable() {
 			@Override
 			public void run()
 			{
-				item.expandActionView();
+				// Re-check: release() can run between this post and its execution.
+				if (item != null) {
+					item.expandActionView();
+				}
 			}
 		});
 	}
@@ -316,6 +416,9 @@ public class MenuItemProxy extends KrollProxy
 	@Kroll.method
 	public boolean isActionViewExpanded()
 	{
+		if (item == null) {
+			return false;
+		}
 		return item.isActionViewExpanded();
 	}
 
