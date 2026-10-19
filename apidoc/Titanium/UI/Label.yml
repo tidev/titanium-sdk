@@ -229,6 +229,29 @@ properties:
     since: {iphone: "0.8.0", ipad: "0.8.0", android: "6.1.0"}
     platforms: [android, iphone, ipad, macos]
 
+  - name: padding
+    summary: Padding between the label's edges and its text.
+    description: |
+        The padding is part of the label's size. When the label is auto-sized (`Ti.UI.SIZE`),
+        the label grows to fit the text plus the padding. When the label has a fixed size,
+        the text is laid out within the area that remains after the padding is applied.
+
+        On iOS, the `backgroundPaddingLeft`, `backgroundPaddingRight`, `backgroundPaddingTop`,
+        and `backgroundPaddingBottom` properties only move the background image. Use `padding`
+        to move the text.
+    type: Padding
+    since: "14.0.0"
+    examples:
+      - title: Label with left and right padding
+        example: |
+            ``` js
+            const label = Ti.UI.createLabel({
+              text: 'Padded label',
+              backgroundColor: 'yellow',
+              padding: { left: 16, right: 16 }
+            });
+            ```
+
   - name: shadowColor
     summary: Shadow color of the [text](Titanium.UI.Label.text), as a color name or hex triplet.
     description: |
