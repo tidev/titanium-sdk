@@ -9,10 +9,83 @@
 #import "TiUIiOSSplitWindowProxy.h"
 #import <TitaniumKit/TiApp.h>
 
+// Implemented in Swift (TiArrangementShim.swift) and looked up by name at runtime, because the class
+// only exists if the app is built with the iOS 27.1 SDK or later.
+@protocol TiArrangementShim <NSObject>
++ (BOOL)applyStyle:(NSInteger)style toController:(UIViewController *)controller animated:(BOOL)animated;
+@end
+
+// Arrangement styles, matching the SPLIT_WINDOW_ARRANGEMENT_STYLE_* constants of Ti.UI.iOS
+typedef NS_ENUM(NSInteger, TiUIiOSSplitWindowArrangementStyle) {
+  TiUIiOSSplitWindowArrangementStyleDefault = 0,
+  TiUIiOSSplitWindowArrangementStyleSplit = 1,
+  TiUIiOSSplitWindowArrangementStyleOverlay = 2
+};
+
+/**
+ Hosts one pane (master or detail) of the split window as a view controller, so that it can be placed by an
+ UIArrangementViewController. The view of the controller is a container that fills the wrapper view of the pane.
+ The wrapper is not used as the view of the controller directly, because it is already part of the view hierarchy
+ of the split window and UIKit would reject it as a child of the arrangement.
+ */
+@interface TiUIiOSSplitWindowPaneController : UIViewController {
+  UIView *paneView;
+  void (^layoutHandler)(void);
+}
+- (instancetype)initWithPaneView:(UIView *)view layoutHandler:(void (^)(void))handler;
+@end
+
+@implementation TiUIiOSSplitWindowPaneController
+
+- (instancetype)initWithPaneView:(UIView *)view layoutHandler:(void (^)(void))handler
+{
+  if (self = [super init]) {
+    paneView = [view retain];
+    layoutHandler = [handler copy];
+  }
+  return self;
+}
+
+- (void)dealloc
+{
+  RELEASE_TO_NIL(paneView);
+  RELEASE_TO_NIL(layoutHandler);
+  [super dealloc];
+}
+
+- (void)loadView
+{
+  UIView *container = [[UIView alloc] initWithFrame:CGRectZero];
+  container.clipsToBounds = YES;
+  [paneView removeFromSuperview];
+  paneView.transform = CGAffineTransformIdentity;
+  // The arrangement decides what is visible, so a master view hidden by masterViewVisible must not stay hidden
+  paneView.hidden = NO;
+  paneView.frame = container.bounds;
+  paneView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+  [container addSubview:paneView];
+  self.view = container;
+  [container release];
+}
+
+- (void)viewDidLayoutSubviews
+{
+  [super viewDidLayoutSubviews];
+  if (!CGRectEqualToRect(paneView.frame, self.view.bounds)) {
+    paneView.frame = self.view.bounds;
+  }
+  if (layoutHandler != nil) {
+    layoutHandler();
+  }
+}
+
+@end
+
 @implementation TiUIiOSSplitWindow
 
 - (void)dealloc
 {
+  [self removeArrangementController];
   RELEASE_TO_NIL(masterViewWrapper);
   RELEASE_TO_NIL(detailViewWrapper);
   RELEASE_TO_NIL(masterProxy);
@@ -38,11 +111,17 @@
   BOOL visible = [TiUtils boolValue:value def:YES];
 
   masterViewVisible = visible;
-  masterViewWrapper.hidden = !visible;
+
+  // Ignored while the arrangement is in charge. restoreWrappers applies the value when switching back.
+  if (![self usesArrangementController]) {
+    masterViewWrapper.hidden = !visible;
+  }
 }
 
 - (void)cleanup
 {
+  [self removeArrangementController];
+
   if (masterProxy != nil) {
     if ([masterProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
       [(TiWindowProxy *)masterProxy close:nil];
@@ -104,7 +183,132 @@
     }
     viewsInitialized = YES;
     masterViewWrapper.hidden = !masterViewVisible;
+
+    [self applyArrangementStyle:NO];
   }
+}
+
+#pragma mark - Arrangement (iPhone Duo, iOS 27.1+)
+
+- (BOOL)usesArrangementController
+{
+  return arrangementController != nil;
+}
+
+- (void)setArrangementStyle_:(id)value
+{
+  NSInteger style = [TiUtils intValue:value def:TiUIiOSSplitWindowArrangementStyleDefault];
+  if (style < TiUIiOSSplitWindowArrangementStyleDefault || style > TiUIiOSSplitWindowArrangementStyleOverlay) {
+    style = TiUIiOSSplitWindowArrangementStyleDefault;
+  }
+  if (style == arrangementStyle) {
+    return;
+  }
+  arrangementStyle = style;
+
+  if (viewsInitialized) {
+    [self applyArrangementStyle:YES];
+  }
+}
+
+- (void)applyArrangementStyle:(BOOL)animated
+{
+  if (arrangementStyle == TiUIiOSSplitWindowArrangementStyleDefault) {
+    if (arrangementController != nil) {
+      [self removeArrangementController];
+      [self restoreWrappers];
+    }
+    return;
+  }
+
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    Class<TiArrangementShim> shim = NSClassFromString(@"TiArrangementShim");
+    if (shim != nil) {
+      if (arrangementController == nil) {
+        [self installArrangementController];
+      }
+      if ([shim applyStyle:arrangementStyle toController:arrangementController animated:animated]) {
+        return;
+      }
+    }
+  }
+#endif
+
+  NSLog(@"[WARN] SplitWindow.arrangementStyle requires iOS 27.1 and an app built with the iOS 27.1 SDK or later. Using the default layout instead.");
+  [self removeArrangementController];
+  [self restoreWrappers];
+}
+
+- (void)installArrangementController
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    UIViewController *parent = [(TiWindowProxy *)self.proxy windowHoldingController];
+    if (parent == nil) {
+      return;
+    }
+
+    __block TiUIiOSSplitWindow *blockSelf = self;
+    masterPaneController = [[TiUIiOSSplitWindowPaneController alloc] initWithPaneView:masterViewWrapper
+                                                                        layoutHandler:^{
+                                                                          [blockSelf paneDidLayout:blockSelf->masterProxy];
+                                                                        }];
+    detailPaneController = [[TiUIiOSSplitWindowPaneController alloc] initWithPaneView:detailViewWrapper
+                                                                        layoutHandler:^{
+                                                                          [blockSelf paneDidLayout:blockSelf->detailProxy];
+                                                                        }];
+
+    UIArrangementViewController *controller = [[UIArrangementViewController alloc] init];
+    arrangementController = controller;
+
+    // Put the arrangement into the view hierarchy first, so it is a proper child of the controller
+    // that owns the split window before it takes over the panes.
+    [parent addChildViewController:controller];
+    controller.view.frame = self.bounds;
+    controller.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self addSubview:controller.view];
+    [controller didMoveToParentViewController:parent];
+
+    // The wrappers end up in the containers of the pane controllers and are positioned by the arrangement
+    [controller setViewController:masterPaneController forPlacement:UIArrangementViewControllerViewPlacementPrimary animated:NO];
+    [controller setViewController:detailPaneController forPlacement:UIArrangementViewControllerViewPlacementSecondary animated:NO];
+  }
+#endif
+}
+
+- (void)removeArrangementController
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    if (arrangementController != nil) {
+      UIArrangementViewController *controller = (UIArrangementViewController *)arrangementController;
+      [controller willMoveToParentViewController:nil];
+      [controller.view removeFromSuperview];
+      [controller removeFromParentViewController];
+      [controller setViewController:nil forPlacement:UIArrangementViewControllerViewPlacementPrimary animated:NO];
+      [controller setViewController:nil forPlacement:UIArrangementViewControllerViewPlacementSecondary animated:NO];
+    }
+  }
+#endif
+  RELEASE_TO_NIL(arrangementController);
+  RELEASE_TO_NIL(masterPaneController);
+  RELEASE_TO_NIL(detailPaneController);
+}
+
+// Puts the wrappers back into the split window, after they have been owned by the arrangement
+- (void)restoreWrappers
+{
+  [self addSubview:detailViewWrapper];
+  [self addSubview:masterViewWrapper];
+  masterViewWrapper.hidden = !masterViewVisible;
+  [self setNeedsLayout];
+}
+
+// The arrangement resized a pane, so the content of the pane needs to be laid out again
+- (void)paneDidLayout:(TiViewProxy *)paneProxy
+{
+  [paneProxy parentSizeWillChange];
 }
 
 - (void)layoutSubviews
@@ -116,6 +320,11 @@
 
 - (void)layoutSubviewsForOrientation:(UIInterfaceOrientation)orientation
 {
+  if ([self usesArrangementController]) {
+    // The arrangement positions both panes
+    return;
+  }
+
   CGSize refSize = self.bounds.size;
   BOOL isPortrait = self.bounds.size.height > self.bounds.size.width;
 

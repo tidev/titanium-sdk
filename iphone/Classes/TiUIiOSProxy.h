@@ -197,6 +197,9 @@
 #endif
 #ifdef USE_TI_UIIOSSPLITWINDOW
 - (id)createSplitWindow:(id)args;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY;
 #endif
 #ifdef USE_TI_UIIOSANIMATOR
 - (id)createAnimator:(id)args;
