@@ -1391,6 +1391,116 @@ properties:
     since: "13.0.0"
     permission: read-only
 
+  - name: BAR_BUTTON_VISIBILITY_PRIORITY_LOW
+    summary: The item is moved into the overflow menu first when the bar runs out of space.
+    description: |
+        Use with <Titanium.UI.Button.visibilityPriority>.
+        Items with a low priority are the first to collapse into the bar's overflow menu.
+    type: Number
+    osver: { ios: { min: "27.0" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD
+    summary: The default priority of a bar item.
+    description: |
+        Use with <Titanium.UI.Button.visibilityPriority>.
+        Standard priority items collapse after low priority items and before high priority items.
+    type: Number
+    osver: { ios: { min: "27.0" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_VISIBILITY_PRIORITY_HIGH
+    summary: The item stays visible as long as possible when the bar runs out of space.
+    description: |
+        Use with <Titanium.UI.Button.visibilityPriority>.
+        Items with a high priority are the last to collapse into the bar's overflow menu.
+    type: Number
+    osver: { ios: { min: "27.0" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC
+    summary: The system decides if the item is shown in a horizontal or vertical bar.
+    description: |
+        Use with <Titanium.UI.Button.axisBehavior>.
+        This is the default behavior.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY
+    summary: The item is only shown in horizontal bars.
+    description: |
+        Use with <Titanium.UI.Button.axisBehavior>.
+        The item stays in the top or bottom bar, even if the system lays out the other items in a vertical bar (iPhone Duo).
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED
+    summary: The item prefers to be shown in a vertical bar.
+    description: |
+        Use with <Titanium.UI.Button.axisBehavior>.
+        The item is shown in the vertical bar whenever the system lays one out (iPhone Duo).
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_BEHAVIOR_AUTOMATIC
+    summary: The system decides if a vertical bar is used.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarBehavior>.
+        This is the default behavior.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_BEHAVIOR_DISABLED
+    summary: The vertical bar is disabled.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarBehavior>.
+        Bar items fall back to the horizontal top and bottom bars and the status bar returns to the horizontal axis.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC
+    summary: The system decides if the bar items or the tab bar compress first.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarCompressionBehavior>.
+        This is the default behavior.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_BAR_ITEMS
+    summary: The bar items compress before the tab bar does.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarCompressionBehavior>.
+        Use this if the tab bar should stay fully visible while the bar items collapse into the overflow menu.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR
+    summary: The tab bar compresses before the bar items do.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarCompressionBehavior>.
+        Use this if the bar items should stay fully visible while the tab bar collapses.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
 ---
 name: SystemImageParameters
 summary: |

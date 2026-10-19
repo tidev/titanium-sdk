@@ -123,6 +123,76 @@ describe('Titanium.UI.Window', function () {
 			// TODO: Add snapshot test
 		});
 
+		describe.ios('.verticalBarBehavior', () => {
+			beforeEach(() => {
+				win = Ti.UI.createWindow({});
+			});
+
+			it('is a Number', () => {
+				should(win.verticalBarBehavior).be.a.Number();
+			});
+
+			it('defaults to automatic', () => {
+				should(win.verticalBarBehavior).be.eql(0);
+			});
+
+			it('can be assigned a Number value', () => {
+				win.verticalBarBehavior = Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED;
+				should(win.verticalBarBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED);
+			});
+
+			it('can be changed while the window is open', finish => {
+				win = Ti.UI.createWindow({ verticalBarBehavior: Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED });
+				win.addEventListener('open', () => {
+					try {
+						win.verticalBarBehavior = Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC;
+						should(win.verticalBarBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC);
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+
+			it('has no accessors', () => {
+				should(win).not.have.accessors('verticalBarBehavior');
+			});
+		});
+
+		describe.ios('.verticalBarCompressionBehavior', () => {
+			beforeEach(() => {
+				win = Ti.UI.createWindow({});
+			});
+
+			it('is a Number', () => {
+				should(win.verticalBarCompressionBehavior).be.a.Number();
+			});
+
+			it('defaults to automatic', () => {
+				should(win.verticalBarCompressionBehavior).be.eql(0);
+			});
+
+			it('can be assigned a Number value inside a NavigationWindow', finish => {
+				win = Ti.UI.createWindow({ verticalBarCompressionBehavior: Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR });
+				const nav = Ti.UI.createNavigationWindow({ window: win });
+				win.addEventListener('open', () => {
+					try {
+						should(win.verticalBarCompressionBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR);
+						win = nav; // close the navigation window, which closes the root window too
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				nav.open();
+			});
+
+			it('has no accessors', () => {
+				should(win).not.have.accessors('verticalBarCompressionBehavior');
+			});
+		});
+
 		describe.ios('.homeIndicatorAutoHidden', () => {
 			beforeEach(() => {
 				win = Ti.UI.createWindow({

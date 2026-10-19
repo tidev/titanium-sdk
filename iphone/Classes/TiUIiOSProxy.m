@@ -866,6 +866,127 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
   return @(-1);
 }
 
+- (NSNumber *)BAR_BUTTON_VISIBILITY_PRIORITY_LOW
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    return @(UIBarButtonItemVisibilityPriorityLow);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    return @(UIBarButtonItemVisibilityPriorityStandard);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_VISIBILITY_PRIORITY_HIGH
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    return @(UIBarButtonItemVisibilityPriorityHigh);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIBarButtonItemAxisBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIBarButtonItemAxisBehaviorHorizontalOnly);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIBarButtonItemAxisBehaviorVerticalPreferred);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_BEHAVIOR_DISABLED
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarBehaviorDisabled);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarCompressionBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_BAR_ITEMS
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarCompressionBehaviorPrefersBarItems);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarCompressionBehaviorPrefersTabBar);
+  }
+#endif
+
+  return @(-1);
+}
+
 - (NSNumber *)TAB_GROUP_MINIMIZE_BEHAVIOR_ON_SCROLL_DOWN
 {
 #if IS_SDK_IOS_26
