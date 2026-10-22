@@ -676,7 +676,15 @@
   NSMutableArray *theItems = [[NSMutableArray alloc] init];
   for (TiViewProxy *theProxy in theObjects) {
     if ([theProxy supportsNavBarPositioning]) {
-      [theItems addObject:[theProxy barButtonItem]];
+      UIBarButtonItem *item = [theProxy barButtonItem];
+#if IS_SDK_IOS_26
+      if (@available(iOS 26.0, *)) {
+        if ([TiUtils boolValue:[theProxy valueForUndefinedKey:@"hideSharedBackground"] def:NO]) {
+          item.hidesSharedBackground = YES;
+        }
+      }
+#endif
+      [theItems addObject:item];
     } else {
       DebugLog(@"%@ does not support nav bar positioning", theProxy);
     }
@@ -746,7 +754,15 @@
   NSMutableArray *theItems = [[NSMutableArray alloc] init];
   for (TiViewProxy *theProxy in theObjects) {
     if ([theProxy supportsNavBarPositioning]) {
-      [theItems addObject:[theProxy barButtonItem]];
+      UIBarButtonItem *item = [theProxy barButtonItem];
+#if IS_SDK_IOS_26
+      if (@available(iOS 26.0, *)) {
+        if ([TiUtils boolValue:[theProxy valueForUndefinedKey:@"hideSharedBackground"] def:NO]) {
+          item.hidesSharedBackground = YES;
+        }
+      }
+#endif
+      [theItems addObject:item];
     } else {
       DebugLog(@"%@ does not support nav bar positioning", theProxy);
     }
