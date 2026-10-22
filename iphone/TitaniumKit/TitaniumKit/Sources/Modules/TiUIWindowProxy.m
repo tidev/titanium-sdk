@@ -392,7 +392,7 @@
     if (newColor == nil) {
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
-    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
+    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance ?: [[[UINavigationBarAppearance alloc] init] autorelease];
     if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
       [appearance configureWithTransparentBackground];
       if (newColor == nil) {
@@ -409,6 +409,15 @@
     controller.navigationController.navigationBar.standardAppearance = appearance;
     controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
     controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
+  } else if (controller != nil && [controller navigationController] != nil) {
+    // This window relies on the system navigation bar (e.g. Liquid Glass on iOS 26).
+    // Drop any custom appearance a previously shown window installed on the shared
+    // bar, otherwise its background and title colors leak into this window.
+    UINavigationBar *navBar = [[controller navigationController] navigationBar];
+    navBar.standardAppearance = [[[UINavigationBarAppearance alloc] init] autorelease];
+    navBar.scrollEdgeAppearance = nil;
+    navBar.compactAppearance = nil;
+    navBar.compactScrollEdgeAppearance = nil;
   }
   shouldUpdateNavBar = YES;
   [self setupWindowDecorations];
@@ -1147,7 +1156,13 @@
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
-  SETPROP(@"translucent", setTranslucent);
+  // Always apply translucency: a previously shown window may have set the shared
+  // navigation bar to opaque, and the default is translucent.
+  id translucent = [self valueForKey:@"translucent"];
+  if (translucent == nil) {
+    translucent = [[self tabGroup] valueForUndefinedKey:@"translucent"];
+  }
+  [[controller navigationController] navigationBar].translucent = [TiUtils boolValue:translucent def:YES];
   SETPROP(@"tabBarHidden", setTabBarHidden);
   SETPROPOBJ(@"toolbar", setToolbar);
   [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
