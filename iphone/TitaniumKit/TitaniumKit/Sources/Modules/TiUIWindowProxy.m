@@ -679,9 +679,7 @@
       UIBarButtonItem *item = [theProxy barButtonItem];
 #if IS_SDK_IOS_26
       if (@available(iOS 26.0, *)) {
-        if ([TiUtils boolValue:[theProxy valueForUndefinedKey:@"hideSharedBackground"] def:NO]) {
-          item.hidesSharedBackground = YES;
-        }
+        item.hidesSharedBackground = [TiUtils boolValue:[theProxy valueForUndefinedKey:@"hideSharedBackground"] def:NO];
       }
 #endif
       [theItems addObject:item];
@@ -757,9 +755,7 @@
       UIBarButtonItem *item = [theProxy barButtonItem];
 #if IS_SDK_IOS_26
       if (@available(iOS 26.0, *)) {
-        if ([TiUtils boolValue:[theProxy valueForUndefinedKey:@"hideSharedBackground"] def:NO]) {
-          item.hidesSharedBackground = YES;
-        }
+        item.hidesSharedBackground = [TiUtils boolValue:[theProxy valueForUndefinedKey:@"hideSharedBackground"] def:NO];
       }
 #endif
       [theItems addObject:item];
