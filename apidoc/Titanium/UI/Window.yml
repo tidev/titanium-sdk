@@ -1067,6 +1067,11 @@ properties:
 
   - name: leftNavButtons
     summary: An Array of views to show in the left nav bar area.
+    description: |
+        On iOS 26 and later, the navigation bar uses the "Liquid Glass" design and automatically
+        groups adjacent items into a shared glass background. Set the `hideSharedBackground`
+        property of an individual view to `true` to render that item in its own separate glass
+        container. This has no effect on iOS versions prior to 26.0.
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
     type: Array<Titanium.UI.View>
@@ -1305,6 +1310,11 @@ properties:
 
   - name: rightNavButtons
     summary: An Array of views to show in the right nav bar area.
+    description: |
+        On iOS 26 and later, the navigation bar uses the "Liquid Glass" design and automatically
+        groups adjacent items into a shared glass background. Set the `hideSharedBackground`
+        property of an individual view to `true` to render that item in its own separate glass
+        container. This has no effect on iOS versions prior to 26.0.
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
     type: Array<Titanium.UI.View>
