@@ -3582,6 +3582,12 @@ class iOSBuilder extends Builder {
 			this.swiftConds.push('DISABLE_TI_LOG_SERVER');
 		}
 
+		// Swift code that uses APIs of the iOS 27.1 SDK (e.g. UIArrangementViewController) must only be compiled
+		// if the SDK is available. Objective-C code uses the IS_SDK_IOS_27_1 macro for that.
+		if (this.iosSdkVersion && appc.version.gte(this.iosSdkVersion, '27.1')) {
+			this.swiftConds.push('TI_SDK_IOS_27_1');
+		}
+
 		if (/device|dist-appstore|dist-adhoc/.test(this.target)) {
 			buildSettings.DEPLOYMENT_POSTPROCESSING = 'YES';
 			if (this.keychain) {

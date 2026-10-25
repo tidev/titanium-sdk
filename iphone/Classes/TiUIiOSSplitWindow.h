@@ -21,6 +21,12 @@
 
   float splitRatioPortrait;
   float splitRatioLandscape;
+
+  // UIArrangementViewController based layout (iOS 27.1+), see arrangementStyle
+  NSInteger arrangementStyle;
+  UIViewController *arrangementController;
+  UIViewController *masterPaneController;
+  UIViewController *detailPaneController;
 }
 
 #pragma mark - Titanium Internal Use Only
@@ -29,5 +35,6 @@
 - (void)initWrappers;
 - (void)cleanup;
 - (void)setMasterViewVisible_:(NSNumber *)value;
+- (void)setArrangementStyle_:(id)value;
 @end
 #endif

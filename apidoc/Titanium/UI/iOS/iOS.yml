@@ -1351,6 +1351,38 @@ properties:
     since: "8.0.0"
     permission: read-only
 
+  - name: SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT
+    summary: Lay out the master and detail view of a split window with the default layout of the split window.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.arrangementStyle>. This is the default. The layout is controlled by
+        the properties of the split window, such as `showMasterInPortrait` and `portraitSplit`.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT
+    summary: Divide the space between the master and detail view along the longer axis.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.arrangementStyle>. The system divides the window between the master view
+        and the detail view along its longer axis, so the views are on top of each other in portrait and next to each
+        other in landscape. The layout properties of the split window are ignored.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY
+    summary: Stack the master and detail view and move them side by side once the device folds.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.arrangementStyle>. The views are stacked on top of each other and the master
+        view, which is on top, fills the window. When the device is folded, the system places both views side by side.
+        The layout properties of the split window are ignored.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
   - name: TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
     summary: Automatically determine when the tab group minimizes.
     description: |
