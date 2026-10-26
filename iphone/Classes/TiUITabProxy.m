@@ -979,6 +979,23 @@ static void *TiUITabWindowBackgroundContext = &TiUITabWindowBackgroundContext;
   return NO;
 }
 
+- (NSInteger)preferredVerticalBarBehavior
+{
+  if (rootWindow == nil) {
+    return 0;
+  }
+
+  UINavigationController *nc = [[rootWindow hostingController] navigationController];
+  UIViewController *topVc = [nc topViewController];
+  if ([topVc isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVc proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)] && [theProxy respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+      return [(id<TiWindowProtocol>)theProxy preferredVerticalBarBehavior];
+    }
+  }
+  return 0;
+}
+
 - (BOOL)hidesStatusBar
 {
   if (rootWindow == nil) {

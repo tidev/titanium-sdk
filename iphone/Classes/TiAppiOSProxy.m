@@ -150,6 +150,15 @@
                                                object:nil];
   }
 
+  if ((count == 1) && [type isEqual:@"hingechange"]) {
+    TiRootViewController *rootController = [[self owningInstance] controller];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didChangeHinge:)
+                                                 name:kTiHingeChanged
+                                               object:rootController];
+    [rootController setHingeObservationEnabled:YES];
+  }
+
   if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didTakeScreenshot:)
@@ -216,6 +225,11 @@
   if ((count == 1) && [type isEqual:@"traitcollectionchange"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiTraitCollectionChanged object:nil];
   }
+  if ((count == 0) && [type isEqual:@"hingechange"]) {
+    TiRootViewController *rootController = [[self owningInstance] controller];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiHingeChanged object:rootController];
+    [rootController setHingeObservationEnabled:NO];
+  }
   if ((count == 1) && [type isEqual:@"screenshotcaptured"]) {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationUserDidTakeScreenshotNotification object:nil];
   }
@@ -230,6 +244,16 @@
 {
   DEPRECATED_REPLACED(@"App.iOS.userInterfaceStyle", @"9.1.0", @"UI.userInterfaceStyle");
   return @(TiApp.controller.traitCollection.userInterfaceStyle);
+}
+
+- (void)didChangeHinge:(NSNotification *)notification
+{
+  NSDictionary *info = [notification userInfo];
+  [self fireEvent:@"hingechange"
+       withObject:@{
+         @"status" : info[@"status"] ?: @(0),
+         @"angle" : info[@"angle"] ?: @(0)
+       }];
 }
 
 - (void)didChangeTraitCollection:(NSNotification *)info
@@ -1124,6 +1148,50 @@
 - (NSNumber *)BACKGROUNDFETCHINTERVAL_NEVER
 {
   return NUMDOUBLE(UIApplicationBackgroundFetchIntervalNever);
+}
+
+- (NSNumber *)HINGE_STATUS_UNKNOWN
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIHingeStatusUnknown);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)HINGE_STATUS_CLOSED
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIHingeStatusClosed);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)HINGE_STATUS_PARTIALLY_OPEN
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIHingeStatusPartiallyOpen);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)HINGE_STATUS_FULLY_OPEN
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIHingeStatusFullyOpen);
+  }
+#endif
+
+  return @(-1);
 }
 
 - (NSNumber *)USER_NOTIFICATION_TYPE_NONE

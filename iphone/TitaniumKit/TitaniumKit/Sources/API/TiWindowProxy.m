@@ -18,6 +18,7 @@
 - (void)openOnUIThread:(id)args;
 - (void)closeOnUIThread:(id)args;
 - (void)rootViewDidForceFrame:(NSNotification *)notification;
+- (void)applyVerticalBarCompressionBehavior;
 @end
 
 @implementation TiWindowProxy
@@ -784,6 +785,7 @@
   if (hidesBackButton) {
     [self setHidesBackButton:hidesBackButton];
   }
+  [self applyVerticalBarCompressionBehavior];
 
   [self willShow];
 }
@@ -878,6 +880,67 @@
   if ((controller != nil) && ([controller navigationItem] != nil)) {
     [[controller navigationItem] setHidesBackButton:[TiUtils boolValue:value def:NO]];
   }
+}
+
+#pragma mark - Vertical bars (iPhone Duo, iOS 27.1+)
+
+- (NSNumber *)verticalBarBehavior
+{
+  return @([self preferredVerticalBarBehavior]);
+}
+
+- (NSInteger)preferredVerticalBarBehavior
+{
+  // 0 equals UIVerticalBarBehaviorAutomatic
+  return [TiUtils intValue:[self valueForUndefinedKey:@"verticalBarBehavior"] def:0];
+}
+
+- (void)setVerticalBarBehavior:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  ENSURE_UI_THREAD(setVerticalBarBehavior, value);
+
+  [self replaceValue:value forKey:@"verticalBarBehavior" notification:NO];
+
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    [controller setNeedsUpdateOfVerticalBarConfiguration];
+    [[[self owningInstance] controller] setNeedsUpdateOfVerticalBarConfiguration];
+  }
+#endif
+}
+
+- (NSNumber *)verticalBarCompressionBehavior
+{
+  // 0 equals UIVerticalBarCompressionBehaviorAutomatic
+  return @([TiUtils intValue:[self valueForUndefinedKey:@"verticalBarCompressionBehavior"] def:0]);
+}
+
+- (void)setVerticalBarCompressionBehavior:(id)value
+{
+  ENSURE_TYPE(value, NSNumber);
+  ENSURE_UI_THREAD(setVerticalBarCompressionBehavior, value);
+
+  [self replaceValue:value forKey:@"verticalBarCompressionBehavior" notification:NO];
+  [self applyVerticalBarCompressionBehavior];
+}
+
+- (void)applyVerticalBarCompressionBehavior
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    id value = [self valueForUndefinedKey:@"verticalBarCompressionBehavior"];
+    if (controller == nil || value == nil) {
+      return;
+    }
+    NSInteger behavior = [TiUtils intValue:value def:UIVerticalBarCompressionBehaviorAutomatic];
+    if (behavior == UIVerticalBarCompressionBehaviorAutomatic
+        || behavior == UIVerticalBarCompressionBehaviorPrefersBarItems
+        || behavior == UIVerticalBarCompressionBehaviorPrefersTabBar) {
+      controller.navigationItem.verticalBarCompressionBehavior = (UIVerticalBarCompressionBehavior)behavior;
+    }
+  }
+#endif
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator

@@ -84,6 +84,23 @@ properties:
     summary: Window for the master view section of the SplitWindow.
     type: Titanium.UI.Window
 
+  - name: arrangementStyle
+    summary: Defines how the master and detail view are arranged on foldable devices (iPhone Duo).
+    description: |
+        With one of the arrangement styles, the system places the master view and the detail view using
+        `UIArrangementViewController` and adapts the layout to the shape of the screen and to the fold of the device.
+        The [showMasterInPortrait](Titanium.UI.iOS.SplitWindow.showMasterInPortrait), [masterIsOverlayed](Titanium.UI.iOS.SplitWindow.masterIsOverlayed),
+        [portraitSplit](Titanium.UI.iOS.SplitWindow.portraitSplit), [landscapeSplit](Titanium.UI.iOS.SplitWindow.landscapeSplit) and
+        [masterViewVisible](Titanium.UI.iOS.SplitWindow.masterViewVisible) properties are ignored while an arrangement style is used.
+
+        The arrangement styles require iOS 27.1 and an app that is built with the iOS 27.1 SDK or later. Otherwise, a warning
+        is logged and the default layout is used. The property can be changed while the window is open.
+    type: Number
+    constants: Titanium.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_*
+    default: <Titanium.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT>
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
   - name: showMasterInPortrait
     summary: Determines whether to show the master view in portrait orientation.
     type: Boolean
