@@ -1351,35 +1351,67 @@ properties:
     since: "8.0.0"
     permission: read-only
 
-  - name: SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT
-    summary: Lay out the master and detail view of a split window with the default layout of the split window.
+  - name: SPLIT_WINDOW_DISPLAY_MODE_AUTOMATIC
+    summary: Let the system choose the display mode of a split window that fits the available width.
     description: |
-        Use with <Titanium.UI.iOS.SplitWindow.arrangementStyle>. This is the default. The layout is controlled by
-        the properties of the split window, such as `showMasterInPortrait` and `portraitSplit`.
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>. This is the default.
     type: Number
-    osver: { ios: { min: "27.1" } }
     since: "14.0.0"
     permission: read-only
 
-  - name: SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT
-    summary: Divide the space between the master and detail view along the longer axis.
+  - name: SPLIT_WINDOW_DISPLAY_MODE_SECONDARY_ONLY
+    summary: Show only the detail view of a split window and hide the master view.
     description: |
-        Use with <Titanium.UI.iOS.SplitWindow.arrangementStyle>. The system divides the window between the master view
-        and the detail view along its longer axis, so the views are on top of each other in portrait and next to each
-        other in landscape. The layout properties of the split window are ignored.
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>.
     type: Number
-    osver: { ios: { min: "27.1" } }
     since: "14.0.0"
     permission: read-only
 
-  - name: SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY
-    summary: Stack the master and detail view and move them side by side once the device folds.
+  - name: SPLIT_WINDOW_DISPLAY_MODE_ONE_BESIDE_SECONDARY
+    summary: Show the master view of a split window next to the detail view.
     description: |
-        Use with <Titanium.UI.iOS.SplitWindow.arrangementStyle>. The views are stacked on top of each other and the master
-        view, which is on top, fills the window. When the device is folded, the system places both views side by side.
-        The layout properties of the split window are ignored.
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>.
     type: Number
-    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_DISPLAY_MODE_ONE_OVER_SECONDARY
+    summary: Show the master view of a split window as an overlay on top of the detail view.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_AUTOMATIC
+    summary: Let the system choose how the master view and the detail view of a split window share the width.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>. This is the default.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_TILE
+    summary: Show the master view and the detail view of a split window side by side without overlap.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_OVERLAY
+    summary: Show the master view of a split window on top of the detail view, which keeps its full width.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_DISPLACE
+    summary: Show the master view of a split window next to the detail view, which keeps its width and moves aside.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>.
+    type: Number
     since: "14.0.0"
     permission: read-only
 

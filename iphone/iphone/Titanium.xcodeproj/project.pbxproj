@@ -162,7 +162,6 @@
 		3A2BC6332F30D81400D4CBD4 /* TiWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A2BC6322F30D81400D4CBD4 /* TiWebView.m */; };
 		3A320F992B6EDC7600009E90 /* TiSymbolEffectManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A320F982B6EDC7600009E90 /* TiSymbolEffectManager.m */; };
 		3A38F30424D6EBBD00CC6EFB /* TiUtils+Addons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */; };
-		7B1F0A2E2E4C9D1A0043A7E2 /* TiArrangementShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B1F0A2E2E4C9D1A0043A7E1 /* TiArrangementShim.swift */; };
 		3A3BBAF51D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */; };
 		3A527EB327E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A527EB227E0F77700A470D6 /* TiUITableViewScrollPositionProxy.m */; };
 		3A5AD7261BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A5AD7251BB9A6E4005B408B /* TiUIiOSPreviewActionGroupProxy.m */; };
@@ -210,7 +209,6 @@
 		84D541AD1460B3EE005338D1 /* TiDOMEntityRefProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D541AC1460B3ED005338D1 /* TiDOMEntityRefProxy.m */; };
 		84DEE9171815CF52000D7B78 /* TiUIRefreshControlProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84DEE9161815CF52000D7B78 /* TiUIRefreshControlProxy.m */; };
 		84EB08011A71932D00D35815 /* TiUIiOSSplitWindowProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */; };
-		84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */; };
 		AD3174C21D015DA9000D5F1A /* TiCalendarAttendee.m in Sources */ = {isa = PBXBuildFile; fileRef = AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */; };
 		B112F936244E69B1005901DA /* tiverify.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B112F935244E69B1005901DA /* tiverify.xcframework */; };
 		B1E5DCF82463401A007817F8 /* TiUIShortcutProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = B1E5DCF72463401A007817F8 /* TiUIShortcutProxy.m */; };
@@ -613,7 +611,6 @@
 		3A320F972B6EDC7600009E90 /* TiSymbolEffectManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TiSymbolEffectManager.h; sourceTree = "<group>"; };
 		3A320F982B6EDC7600009E90 /* TiSymbolEffectManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TiSymbolEffectManager.m; sourceTree = "<group>"; };
 		3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TiUtils+Addons.swift"; sourceTree = "<group>"; };
-		7B1F0A2E2E4C9D1A0043A7E1 /* TiArrangementShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TiArrangementShim.swift; sourceTree = "<group>"; };
 		3A3BBAF31D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiAppiOSUserNotificationCenterProxy.h; sourceTree = "<group>"; };
 		3A3BBAF41D3E2F0F008450DF /* TiAppiOSUserNotificationCenterProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiAppiOSUserNotificationCenterProxy.m; sourceTree = "<group>"; };
 		3A527EB027E0F77700A470D6 /* TiUITableViewScrollPositionProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUITableViewScrollPositionProxy.h; sourceTree = "<group>"; };
@@ -701,8 +698,6 @@
 		84DEE9161815CF52000D7B78 /* TiUIRefreshControlProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIRefreshControlProxy.m; sourceTree = "<group>"; };
 		84EB07FF1A71932D00D35815 /* TiUIiOSSplitWindowProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSplitWindowProxy.h; sourceTree = "<group>"; };
 		84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSplitWindowProxy.m; sourceTree = "<group>"; };
-		84EB08041A71948C00D35815 /* TiUIiOSSplitWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiUIiOSSplitWindow.h; sourceTree = "<group>"; };
-		84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiUIiOSSplitWindow.m; sourceTree = "<group>"; };
 		AD3174C01D015DA9000D5F1A /* TiCalendarAttendee.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiCalendarAttendee.h; sourceTree = "<group>"; };
 		AD3174C11D015DA9000D5F1A /* TiCalendarAttendee.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiCalendarAttendee.m; sourceTree = "<group>"; };
 		B112F935244E69B1005901DA /* tiverify.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = tiverify.xcframework; path = ../lib/tiverify.xcframework; sourceTree = "<group>"; };
@@ -1809,8 +1804,6 @@
 			children = (
 				84EB07FF1A71932D00D35815 /* TiUIiOSSplitWindowProxy.h */,
 				84EB08001A71932D00D35815 /* TiUIiOSSplitWindowProxy.m */,
-				84EB08041A71948C00D35815 /* TiUIiOSSplitWindow.h */,
-				84EB08051A71948C00D35815 /* TiUIiOSSplitWindow.m */,
 			);
 			name = SplitViewWindow;
 			sourceTree = "<group>";
@@ -1983,7 +1976,6 @@
 				DBF30945210F3B420001F770 /* TiApp+Addons.h */,
 				DBF30946210F3B420001F770 /* TiApp+Addons.m */,
 				3A38F30324D6EBBD00CC6EFB /* TiUtils+Addons.swift */,
-				7B1F0A2E2E4C9D1A0043A7E1 /* TiArrangementShim.swift */,
 				DBF30942210F37080001F770 /* TiWindowProxy+Addons.h */,
 				DBF30943210F37080001F770 /* TiWindowProxy+Addons.m */,
 			);
@@ -2156,7 +2148,6 @@
 				84A0100417FC8D3500D4BF94 /* TiGravityBehavior.m in Sources */,
 				24CA8B79111161FE0084E2DE /* TiUITextFieldProxy.m in Sources */,
 				3A38F30424D6EBBD00CC6EFB /* TiUtils+Addons.swift in Sources */,
-				7B1F0A2E2E4C9D1A0043A7E2 /* TiArrangementShim.swift in Sources */,
 				24CA8B7A111161FE0084E2DE /* TiUITextField.m in Sources */,
 				15CB44151C4ED54E00D81480 /* TiUIiOSSystemButtonProxy.m in Sources */,
 				24CA8B7B111161FE0084E2DE /* TiUITextAreaProxy.m in Sources */,
@@ -2257,7 +2248,6 @@
 				159C59951C346840009A8860 /* TIUIiOSAlertDialogStyleProxy.m in Sources */,
 				24DEDAC7112371A500398D86 /* XMLModule.m in Sources */,
 				24FBE58311293D06005C8D48 /* TiMediaAudioRecorderProxy.mm in Sources */,
-				84EB08061A71948C00D35815 /* TiUIiOSSplitWindow.m in Sources */,
 				24A1E519112D33AF003DA834 /* TiMediaAudioSession.m in Sources */,
 				24A1E875112DF80B003DA834 /* TiUIPickerProxy.m in Sources */,
 				24A1E87B112DF83E003DA834 /* TiUIPicker.m in Sources */,

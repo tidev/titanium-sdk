@@ -37,7 +37,6 @@ describe.ios('Titanium.UI.iOS', function () {
 			masterView: Ti.UI.createNavigationWindow({
 				window: Ti.UI.createWindow({ title: 'Master View' }),
 			}),
-			showMasterInPortrait: true,
 		});
 		const navWindow = Ti.UI.createNavigationWindow({ window: splitWindow });
 		navWindow.addEventListener('postlayout', function listener() {
@@ -49,69 +48,157 @@ describe.ios('Titanium.UI.iOS', function () {
 	});
 });
 
-describe.ios('Titanium.UI.iOS.SplitWindow.arrangementStyle', function () {
+describe.ios('Titanium.UI.iOS.SplitWindow', function () {
 	this.slow(2000);
 	this.timeout(5000);
 
-	function createSplitWindow(arrangementStyle) {
-		return Ti.UI.iOS.createSplitWindow({
-			detailView: Ti.UI.createWindow({ backgroundColor: 'yellow' }),
-			masterView: Ti.UI.createWindow({ backgroundColor: 'red' }),
-			arrangementStyle
-		});
-	}
+	let splitWindow;
 
-	// The arrangement styles require iOS 27.1 and the iOS 27.1 SDK. Otherwise the default layout is used.
-	// Either way the window needs to open, lay out and close.
-	function openAndClose(splitWindow, finish) {
-		const navWindow = Ti.UI.createNavigationWindow({ window: splitWindow });
-		navWindow.addEventListener('postlayout', function listener() {
-			navWindow.removeEventListener('postlayout', listener);
-			navWindow.close();
-			finish();
-		});
-		navWindow.open();
+	afterEach(done => {
+		if (splitWindow && !splitWindow.closed) {
+			splitWindow.addEventListener('close', () => done());
+			splitWindow.close();
+		} else {
+			done();
+		}
+		splitWindow = null;
+	});
+
+	function createSplitWindow(properties) {
+		return Ti.UI.iOS.createSplitWindow(Object.assign({
+			masterView: Ti.UI.createWindow({ title: 'Master', backgroundColor: 'red' }),
+			detailView: Ti.UI.createWindow({ title: 'Detail', backgroundColor: 'yellow' })
+		}, properties));
 	}
 
 	it('constants', () => {
-		should(Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT).be.eql(0);
-		should(Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT).be.eql(1);
-		should(Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY).be.eql(2);
+		should(Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_AUTOMATIC).be.eql(0);
+		should(Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_SECONDARY_ONLY).be.eql(1);
+		should(Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_ONE_BESIDE_SECONDARY).be.eql(2);
+		should(Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_ONE_OVER_SECONDARY).be.eql(3);
+		should(Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_AUTOMATIC).be.eql(0);
+		should(Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_TILE).be.eql(1);
+		should(Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_OVERLAY).be.eql(2);
+		should(Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_DISPLACE).be.eql(3);
 	});
 
-	it('defaults to the default layout', () => {
-		const splitWindow = createSplitWindow();
-		should(splitWindow.arrangementStyle).be.undefined();
+	it('.displayMode defaults to automatic', () => {
+		splitWindow = createSplitWindow();
+		should(splitWindow.displayMode).be.eql(Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_AUTOMATIC);
 	});
 
-	it('opens with .SPLIT', finish => {
-		openAndClose(createSplitWindow(Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT), finish);
+	it('.splitBehavior defaults to automatic', () => {
+		splitWindow = createSplitWindow();
+		should(splitWindow.splitBehavior).be.eql(Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_AUTOMATIC);
 	});
 
-	it('opens with .OVERLAY', finish => {
-		openAndClose(createSplitWindow(Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY), finish);
+	it('#showMasterView() and #hideMasterView()', () => {
+		splitWindow = createSplitWindow();
+		should(splitWindow.showMasterView).be.a.Function();
+		should(splitWindow.hideMasterView).be.a.Function();
 	});
 
-	it('can be changed while the window is open', finish => {
-		const splitWindow = createSplitWindow(Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT);
-		const navWindow = Ti.UI.createNavigationWindow({ window: splitWindow });
-		navWindow.addEventListener('postlayout', function listener() {
-			navWindow.removeEventListener('postlayout', listener);
+	it('opens and closes with Window panes', finish => {
+		splitWindow = createSplitWindow({
+			displayMode: Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_ONE_BESIDE_SECONDARY,
+			splitBehavior: Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_TILE,
+			presentsWithGesture: false,
+			primaryColumnWidthFraction: 0.4,
+			minimumPrimaryColumnWidth: 200,
+			maximumPrimaryColumnWidth: 400
+		});
+		splitWindow.addEventListener('open', () => {
 			try {
-				splitWindow.arrangementStyle = Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY;
-				splitWindow.arrangementStyle = Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT;
-				should(splitWindow.arrangementStyle).be.eql(Ti.UI.iOS.SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT);
-				navWindow.close();
+				// The system picks the mode that fits the width, so only the type is stable across devices
+				should(splitWindow.displayMode).be.a.Number();
+				should(splitWindow.splitBehavior).be.a.Number();
+				should(splitWindow.presentsWithGesture).be.false();
+				should(splitWindow.primaryColumnWidthFraction).be.eql(0.4);
+				splitWindow.showMasterView();
+				splitWindow.hideMasterView();
 				finish();
 			} catch (err) {
-				navWindow.close();
 				finish(err);
 			}
 		});
-		navWindow.open();
+		splitWindow.open();
+	});
+
+	it('opens the panes', finish => {
+		const masterView = Ti.UI.createWindow({ title: 'Master' });
+		const detailView = Ti.UI.createWindow({ title: 'Detail' });
+		let opened = 0;
+		const onOpen = () => {
+			if (++opened === 2) {
+				finish();
+			}
+		};
+		masterView.addEventListener('open', onOpen);
+		detailView.addEventListener('open', onOpen);
+		splitWindow = Ti.UI.iOS.createSplitWindow({ masterView, detailView });
+		splitWindow.open();
+	});
+
+	it('opens and closes with NavigationWindow panes', finish => {
+		splitWindow = Ti.UI.iOS.createSplitWindow({
+			masterView: Ti.UI.createNavigationWindow({
+				window: Ti.UI.createWindow({ title: 'Master' })
+			}),
+			detailView: Ti.UI.createNavigationWindow({
+				window: Ti.UI.createWindow({ title: 'Detail' })
+			})
+		});
+		splitWindow.addEventListener('open', () => finish());
+		splitWindow.open();
+	});
+
+	it('.masterView can be replaced twice in one tick', finish => {
+		const masterA = Ti.UI.createWindow({ title: 'A' });
+		const masterB = Ti.UI.createWindow({ title: 'B' });
+		splitWindow = createSplitWindow({ masterView: masterA });
+		splitWindow.addEventListener('open', () => {
+			splitWindow.masterView = masterB;
+			splitWindow.masterView = masterA;
+			setTimeout(() => {
+				try {
+					should(splitWindow.masterView).be.eql(masterA);
+					should(masterA.closed).be.false();
+					should(masterB.closed).be.true();
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			}, 1000);
+		});
+		splitWindow.open();
+	});
+
+	it('.displayMode and .splitBehavior can be changed while open', finish => {
+		splitWindow = createSplitWindow();
+		splitWindow.addEventListener('open', () => {
+			try {
+				splitWindow.displayMode = Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_SECONDARY_ONLY;
+				splitWindow.splitBehavior = Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_OVERLAY;
+				splitWindow.displayMode = Ti.UI.iOS.SPLIT_WINDOW_DISPLAY_MODE_AUTOMATIC;
+				splitWindow.splitBehavior = Ti.UI.iOS.SPLIT_WINDOW_SPLIT_BEHAVIOR_AUTOMATIC;
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		});
+		splitWindow.open();
+	});
+
+	it('accepts the deprecated layout properties', () => {
+		splitWindow = createSplitWindow({
+			showMasterInPortrait: true,
+			masterIsOverlayed: true,
+			masterViewVisible: false,
+			portraitSplit: 0.4,
+			landscapeSplit: 0.3
+		});
+		splitWindow.setShowMasterInPortrait(false, { animated: true });
+		splitWindow.setMasterIsOverlayed(false, { animated: true });
+		should(splitWindow.showMasterInPortrait).be.false();
 	});
 });
-
-// describe.ios('Titanium.UI.iOS.SplitWindow', function () {
-// TODO Add tests for SplitWindow type!
-// });
