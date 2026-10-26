@@ -123,6 +123,76 @@ describe('Titanium.UI.Window', function () {
 			// TODO: Add snapshot test
 		});
 
+		describe.ios('.verticalBarBehavior', () => {
+			beforeEach(() => {
+				win = Ti.UI.createWindow({});
+			});
+
+			it('is a Number', () => {
+				should(win.verticalBarBehavior).be.a.Number();
+			});
+
+			it('defaults to automatic', () => {
+				should(win.verticalBarBehavior).be.eql(0);
+			});
+
+			it('can be assigned a Number value', () => {
+				win.verticalBarBehavior = Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED;
+				should(win.verticalBarBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED);
+			});
+
+			it('can be changed while the window is open', finish => {
+				win = Ti.UI.createWindow({ verticalBarBehavior: Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED });
+				win.addEventListener('open', () => {
+					try {
+						win.verticalBarBehavior = Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC;
+						should(win.verticalBarBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC);
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+
+			it('has no accessors', () => {
+				should(win).not.have.accessors('verticalBarBehavior');
+			});
+		});
+
+		describe.ios('.verticalBarCompressionBehavior', () => {
+			beforeEach(() => {
+				win = Ti.UI.createWindow({});
+			});
+
+			it('is a Number', () => {
+				should(win.verticalBarCompressionBehavior).be.a.Number();
+			});
+
+			it('defaults to automatic', () => {
+				should(win.verticalBarCompressionBehavior).be.eql(0);
+			});
+
+			it('can be assigned a Number value inside a NavigationWindow', finish => {
+				win = Ti.UI.createWindow({ verticalBarCompressionBehavior: Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR });
+				const nav = Ti.UI.createNavigationWindow({ window: win });
+				win.addEventListener('open', () => {
+					try {
+						should(win.verticalBarCompressionBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR);
+						win = nav; // close the navigation window, which closes the root window too
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				nav.open();
+			});
+
+			it('has no accessors', () => {
+				should(win).not.have.accessors('verticalBarCompressionBehavior');
+			});
+		});
+
 		describe.ios('.homeIndicatorAutoHidden', () => {
 			beforeEach(() => {
 				win = Ti.UI.createWindow({
@@ -145,6 +215,59 @@ describe('Titanium.UI.Window', function () {
 
 			it('has no accessors', () => {
 				should(win).not.have.accessors('homeIndicatorAutoHidden');
+			});
+		});
+
+		describe.ios('.reservedRegions', () => {
+			it('is an empty Array before the window is opened', () => {
+				win = Ti.UI.createWindow({});
+				should(win.reservedRegions).be.an.Array();
+				should(win.reservedRegions).be.empty();
+			});
+
+			it('is an Array of regions once the window is opened', finish => {
+				win = Ti.UI.createWindow({ extendSafeArea: true });
+				win.addEventListener('open', () => {
+					try {
+						const regions = win.reservedRegions;
+						should(regions).be.an.Array();
+						// Devices without reserved regions (everything but iPhone Duo) report none
+						for (const region of regions) {
+							should(region.kind).be.oneOf([ 'division', 'occlusion' ]);
+							should(region.active).be.a.Boolean();
+							should(region.rect).be.an.Object();
+							should(region.rect.width).be.a.Number();
+							should(region.margins).be.an.Object();
+							should(region.margins.top).be.a.Number();
+						}
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+
+			it('has no accessors', () => {
+				win = Ti.UI.createWindow({});
+				should(win).not.have.accessors('reservedRegions');
+			});
+		});
+
+		describe.ios('reservedregionschange', () => {
+			it('listener can be added and removed', finish => {
+				win = Ti.UI.createWindow({});
+				const listener = () => {};
+				win.addEventListener('reservedregionschange', listener);
+				win.addEventListener('open', () => {
+					try {
+						win.removeEventListener('reservedregionschange', listener);
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
 			});
 		});
 

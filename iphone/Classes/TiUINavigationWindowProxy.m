@@ -438,6 +438,18 @@
   return [super homeIndicatorAutoHide];
 }
 
+- (NSInteger)preferredVerticalBarBehavior
+{
+  UIViewController *topVC = [navController topViewController];
+  if ([topVC isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVC proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)] && [theProxy respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+      return [(id<TiWindowProtocol>)theProxy preferredVerticalBarBehavior];
+    }
+  }
+  return [super preferredVerticalBarBehavior];
+}
+
 - (BOOL)hidesStatusBar
 {
   UIViewController *topVC = [navController topViewController];

@@ -741,6 +741,22 @@ events:
         The listener for this event must be defined before this window
         is opened.
 
+  - name: reservedregionschange
+    summary: Fired when the reserved regions of the window change, e.g. when the device is folded.
+    description: |
+        The event is evaluated after every layout pass of the window and only fires if the
+        regions returned by [reservedRegions](Titanium.UI.Window.reservedRegions) differ from the previous ones.
+        A window has no regions before it is laid out, so the event fires once after the window opened on a device
+        that has reserved regions.
+        It is only available on iPhone Duo with iOS 27.1 or later and if the app was built with the iOS 27.1 SDK
+        or later.
+    properties:
+      - name: regions
+        summary: The current reserved regions of the window, as returned by [reservedRegions](Titanium.UI.Window.reservedRegions).
+        type: Array<ReservedRegion>
+    platforms: [iphone, ipad]
+    since: "14.0.0"
+
 properties:
   - name: activity
     summary: |
@@ -1292,6 +1308,42 @@ properties:
     platforms: [iphone, ipad, macos]
     since: {iphone: "3.3.0", ipad: "3.3.0", macos: "9.2.0"}
     type: Array<Titanium.UI.View>
+
+  - name: reservedRegions
+    summary: The regions of the window that are reserved by the system, e.g. by the fold or the inner camera of the iPhone Duo.
+    description: |
+        Use this property if you extend your content outside of the safe area, for example using
+        [extendSafeArea](Titanium.UI.Window.extendSafeArea), to place custom bars or controls without colliding
+        with system UI.
+
+        There are two kinds of regions:
+
+        - `division`: The fold of the device. It divides the window into two areas and is only active while the
+          device is partially folded.
+        - `occlusion`: The inner camera of the device. It is only active while the inner camera is in use.
+
+        All regions are returned, including the inactive ones. Check the `active` flag of each region. The
+        rectangles are in the coordinate space of the window. The value is an empty array until the window is
+        opened, on devices without reserved regions, on iOS versions before 27.1 and if the app was built with
+        an SDK before iOS 27.1.
+
+        Use the [reservedregionschange](Titanium.UI.Window.reservedregionschange) event to be notified when the regions change.
+
+        ``` js
+        const win = Ti.UI.createWindow({ extendSafeArea: true });
+        win.addEventListener('open', () => {
+            const fold = win.reservedRegions.find(region => region.kind === 'division' && region.active);
+            if (fold) {
+                console.log(`The fold is at x=${fold.rect.x}, width=${fold.rect.width}`);
+            }
+        });
+        win.open();
+        ```
+    type: Array<ReservedRegion>
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
 
   - name: safeAreaPadding
     platforms: [android, iphone, ipad, macos]
@@ -1944,6 +1996,39 @@ properties:
     constants: Titanium.UI.iOS.AnimationStyle.*
     default: <Titanium.UI.iOS.AnimationStyle.NONE>
 
+  - name: verticalBarBehavior
+    summary: Whether the system may lay out the bars of this window vertically.
+    description: |
+        On iPhone Duo and apps built with the iOS 27.1 SDK or later, the system moves the navigation bar and
+        toolbar buttons into a vertical bar along the screen edge. Set this property to
+        <Titanium.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED> to opt out and keep the standard horizontal top and bottom bars.
+
+        Only disable the vertical bar for screens that are better served by horizontal bars, such as a
+        full-screen video player or a non-scrolling layout like a calculator. Treat it as a stable choice and
+        avoid changing it frequently while the user navigates.
+
+        When the window is shown inside a <Titanium.UI.NavigationWindow> or <Titanium.UI.TabGroup>, set this property
+        on the content window. The preference of the currently visible window is used.
+    type: Number
+    constants: Titanium.UI.iOS.VERTICAL_BAR_BEHAVIOR_*
+    default: <Titanium.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC>
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
+  - name: verticalBarCompressionBehavior
+    summary: Defines whether the bar items or the tab bar compress first when the vertical bar runs out of space.
+    description: |
+        This property only has an effect if the window is shown with a vertical bar (iPhone Duo, iOS 27.1 SDK or later).
+        It is applied to the navigation item of the window, so the window needs to be inside a
+        <Titanium.UI.NavigationWindow> or <Titanium.UI.TabGroup>.
+    type: Number
+    constants: Titanium.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_*
+    default: <Titanium.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC>
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
   - name: width
     summary: Window's width, in platform-specific units.
     description: |
@@ -2125,3 +2210,26 @@ properties:
         <Size> with the properties `width` and `height` used as the horizontal
         and vertical offset of the shadow, respectively.
     type: Size
+
+---
+name: ReservedRegion
+summary: A region of a window that is reserved by the system.
+description: |
+    Used by [Window.reservedRegions](Titanium.UI.Window.reservedRegions).
+properties:
+  - name: kind
+    summary: |
+        The kind of the region. `division` is the fold of the device and `occlusion` is the inner camera.
+    type: String
+
+  - name: active
+    summary: Whether the region currently applies. The `division` region is only active while the device is partially folded.
+    type: Boolean
+
+  - name: rect
+    summary: The rectangle of the region in the coordinate space of the window, including the margins.
+    type: Dimension
+
+  - name: margins
+    summary: The margins that are included in the `rect` around the reserved area, for interactive content.
+    type: Padding
