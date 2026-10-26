@@ -16,6 +16,15 @@
   return @"Ti.UI.iOS.SplitWindow";
 }
 
+- (void)_initWithProperties:(NSDictionary *)properties
+{
+  // Documented defaults of the deprecated layout properties
+  [self initializeProperty:@"showMasterInPortrait" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"masterIsOverlayed" defaultValue:NUMBOOL(NO)];
+  [self initializeProperty:@"masterViewVisible" defaultValue:NUMBOOL(YES)];
+  [super _initWithProperties:properties];
+}
+
 - (void)dealloc
 {
   if (splitController != nil) {

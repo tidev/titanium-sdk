@@ -189,6 +189,13 @@ describe.ios('Titanium.UI.iOS.SplitWindow', function () {
 		splitWindow.open();
 	});
 
+	it('keeps the defaults of the deprecated layout properties', () => {
+		splitWindow = createSplitWindow();
+		should(splitWindow.showMasterInPortrait).be.false();
+		should(splitWindow.masterIsOverlayed).be.false();
+		should(splitWindow.masterViewVisible).be.true();
+	});
+
 	it('accepts the deprecated layout properties', () => {
 		splitWindow = createSplitWindow({
 			showMasterInPortrait: true,
