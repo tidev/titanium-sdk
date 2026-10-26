@@ -263,6 +263,19 @@
   return NO;
 }
 
+#pragma mark - Vertical Bar Behavior (iPhone Duo)
+
+#if IS_SDK_IOS_27_1
+- (UIVerticalBarBehavior)preferredVerticalBarBehavior
+{
+  if (_proxy != nil && [_proxy conformsToProtocol:@protocol(TiWindowProtocol)] && [_proxy respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+    return [(id<TiWindowProtocol>)_proxy preferredVerticalBarBehavior] == UIVerticalBarBehaviorDisabled ? UIVerticalBarBehaviorDisabled : UIVerticalBarBehaviorAutomatic;
+  }
+
+  return UIVerticalBarBehaviorAutomatic;
+}
+#endif
+
 #pragma mark - Status Bar Appearance
 
 - (BOOL)prefersStatusBarHidden

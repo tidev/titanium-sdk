@@ -932,6 +932,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiBaseActivity.canFinishRoot = canFinishRoot;
 		addToActivityStack(rootActivity);
 
+		// Cancel all JavaScript timers. Their callbacks belong to the runtime that is about to be disposed.
+		cancelTimers();
+
 		// restart kroll runtime
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		runtime.doDispose();

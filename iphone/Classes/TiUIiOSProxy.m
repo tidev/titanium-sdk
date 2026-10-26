@@ -9,6 +9,7 @@
 
 #ifdef USE_TI_UIIOS
 
+#import <TitaniumKit/TiApp.h>
 #import <TitaniumKit/TiBlob.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/Webcolor.h>
@@ -551,6 +552,10 @@ MAKE_SYSTEM_PROP(KEYBOARD_DISMISS_MODE_INTERACTIVE, UIScrollViewKeyboardDismissM
 {
   return [[[TiUIiOSSplitWindowProxy alloc] _initWithPageContext:[self executionContext] args:args] autorelease];
 }
+
+MAKE_SYSTEM_PROP(SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT, 0);
+MAKE_SYSTEM_PROP(SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT, 1);
+MAKE_SYSTEM_PROP(SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY, 2);
 #endif
 
 #ifdef USE_TI_UIIOSTRANSITIONANIMATION
@@ -859,6 +864,127 @@ MAKE_SYSTEM_PROP(INJECTION_TIME_DOCUMENT_END, WKUserScriptInjectionTimeAtDocumen
 #if IS_SDK_IOS_26
   if (@available(iOS 26.0, *)) {
     return @(UITabBarMinimizeBehaviorOnScrollUp);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_VISIBILITY_PRIORITY_LOW
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    return @(UIBarButtonItemVisibilityPriorityLow);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    return @(UIBarButtonItemVisibilityPriorityStandard);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_VISIBILITY_PRIORITY_HIGH
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    return @(UIBarButtonItemVisibilityPriorityHigh);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIBarButtonItemAxisBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIBarButtonItemAxisBehaviorHorizontalOnly);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIBarButtonItemAxisBehaviorVerticalPreferred);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_BEHAVIOR_DISABLED
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarBehaviorDisabled);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarCompressionBehaviorAutomatic);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_BAR_ITEMS
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarCompressionBehaviorPrefersBarItems);
+  }
+#endif
+
+  return @(-1);
+}
+
+- (NSNumber *)VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    return @(UIVerticalBarCompressionBehaviorPrefersTabBar);
   }
 #endif
 
