@@ -4603,8 +4603,10 @@ class iOSBuilder extends Builder {
 			plist.CFBundleShortVersionString = this.tiapp.version;
 		}
 
-		// if they have not explicitly set the UIRequiresFullScreen setting, then force it to true
-		if (plist.UIRequiresFullScreen === undefined) {
+		// UIRequiresFullScreen is deprecated as of iPadOS 26 and the iOS 27 SDK no longer honors it,
+		// so only default it to true for older Xcode versions. Apps can still set it explicitly.
+		const supportsRequiresFullScreen = appc.version.lt(this.xcodeEnv.version, '27.0.0');
+		if (supportsRequiresFullScreen && plist.UIRequiresFullScreen === undefined) {
 			plist.UIRequiresFullScreen = true;
 		}
 
@@ -4799,6 +4801,28 @@ class iOSBuilder extends Builder {
 
 		// override the CFBundleIdentifier to the app id
 		plist.CFBundleIdentifier = this.tiapp.id;
+
+		if (!supportsRequiresFullScreen) {
+			if (plist.UIRequiresFullScreen !== undefined) {
+				this.logger.warn('UIRequiresFullScreen is deprecated and the iOS 27 SDK no longer honors it');
+				if (plist.UIRequiresFullScreenIgnoredStartingWithVersion === undefined) {
+					this.logger.warn(`Remove it from your Info.plist or set ${cyan('UIRequiresFullScreenIgnoredStartingWithVersion')} to keep the legacy behavior on older iPadOS versions`);
+				}
+			} else if (this.deviceFamily !== 'iphone') {
+				const requiredOrientations = [
+					'UIInterfaceOrientationPortrait',
+					'UIInterfaceOrientationPortraitUpsideDown',
+					'UIInterfaceOrientationLandscapeLeft',
+					'UIInterfaceOrientationLandscapeRight'
+				];
+				const ipadOrientations = plist['UISupportedInterfaceOrientations~ipad'] || plist.UISupportedInterfaceOrientations || [];
+				const missing = requiredOrientations.filter(o => !ipadOrientations.includes(o));
+				if (missing.length) {
+					this.logger.warn('iPad apps without UIRequiresFullScreen must support all interface orientations, otherwise App Store Connect rejects the build');
+					this.logger.warn(`Add the following to ${cyan('UISupportedInterfaceOrientations~ipad')}: ${missing.map(o => cyan(o)).join(', ')}`);
+				}
+			}
+		}
 
 		// inject Apple Transport Security settings
 		if (!plist.NSAppTransportSecurity || typeof plist.NSAppTransportSecurity !== 'object') {
