@@ -541,7 +541,9 @@
 
 - (BOOL)shouldUseNavBarApperance
 {
-  return controller != nil && !(controller.edgesForExtendedLayout == UIRectEdgeTop || controller.edgesForExtendedLayout == UIRectEdgeAll);
+  // Use the configured edges, the controller extends the bottom edge for the vertical tab bar
+  UIRectEdge edges = [TiUtils extendedEdgesFromProp:[self valueForUndefinedKey:@"extendEdges"]];
+  return controller != nil && !(edges == UIRectEdgeTop || edges == UIRectEdgeAll);
 }
 
 - (void)updateBarImage
