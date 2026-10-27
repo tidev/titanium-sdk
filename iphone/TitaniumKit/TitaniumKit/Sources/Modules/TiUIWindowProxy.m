@@ -1212,8 +1212,8 @@
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
 
-  if (self.isManaged && self.tab) {
-    // Prefer safe area from our own controller hierarchy so tab/nav containers are respected.
+  if (self.isManaged && (self.tab || self.isMasterWindow || self.isDetailWindow)) {
+    // Prefer safe area from our own controller hierarchy so tab/nav/split containers are respected.
     safeAreaInset = self.hostingController.view.safeAreaInsets;
   } else {
     safeAreaInset = TiApp.controller.topContainerController.hostingView.safeAreaInsets;
@@ -1265,20 +1265,10 @@
 - (UIEdgeInsets)tabGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  TiWindowProxy *windowProxy = nil;
-  if ([self.tabGroup isKindOfClass:[TiWindowProxy class]]) {
-    windowProxy = (TiWindowProxy *)self.tabGroup;
-  }
   UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
-    if (windowProxy.isMasterWindow) {
-      edgeInsets.left = safeAreaInset.left;
-    } else if (windowProxy.isDetailWindow) {
-      edgeInsets.right = safeAreaInset.right;
-    } else {
-      edgeInsets.left = safeAreaInset.left;
-      edgeInsets.right = safeAreaInset.right;
-    }
+    edgeInsets.left = safeAreaInset.left;
+    edgeInsets.right = safeAreaInset.right;
   }
 
   edgeInsets.top = safeAreaInset.top;
@@ -1290,20 +1280,10 @@
 - (UIEdgeInsets)navigationGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  TiWindowProxy *windowProxy = nil;
-  if ([self.tab isKindOfClass:[TiWindowProxy class]]) {
-    windowProxy = (TiWindowProxy *)self.tab;
-  }
   UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
-    if (windowProxy.isMasterWindow) {
-      edgeInsets.left = safeAreaInset.left;
-    } else if (windowProxy.isDetailWindow) {
-      edgeInsets.right = safeAreaInset.right;
-    } else {
-      edgeInsets.left = safeAreaInset.left;
-      edgeInsets.right = safeAreaInset.right;
-    }
+    edgeInsets.left = safeAreaInset.left;
+    edgeInsets.right = safeAreaInset.right;
   }
   edgeInsets.top = safeAreaInset.top;
   edgeInsets.bottom = safeAreaInset.bottom;
@@ -1313,14 +1293,8 @@
 - (UIEdgeInsets)defaultEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  if (self.isMasterWindow) {
-    edgeInsets.left = safeAreaInset.left;
-  } else if (self.isDetailWindow) {
-    edgeInsets.right = safeAreaInset.right;
-  } else {
-    edgeInsets.left = safeAreaInset.left;
-    edgeInsets.right = safeAreaInset.right;
-  }
+  edgeInsets.left = safeAreaInset.left;
+  edgeInsets.right = safeAreaInset.right;
   edgeInsets.bottom = safeAreaInset.bottom;
   edgeInsets.top = safeAreaInset.top;
   return edgeInsets;
