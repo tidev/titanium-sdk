@@ -392,7 +392,7 @@
     if (newColor == nil) {
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
-    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
+    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance ?: [[[UINavigationBarAppearance alloc] init] autorelease];
     if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
       [appearance configureWithTransparentBackground];
       if (newColor == nil) {
@@ -409,6 +409,15 @@
     controller.navigationController.navigationBar.standardAppearance = appearance;
     controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
     controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
+  } else if (controller != nil && [controller navigationController] != nil) {
+    // This window relies on the system navigation bar (e.g. Liquid Glass on iOS 26).
+    // Drop any custom appearance a previously shown window installed on the shared
+    // bar, otherwise its background and title colors leak into this window.
+    UINavigationBar *navBar = [[controller navigationController] navigationBar];
+    navBar.standardAppearance = [[[UINavigationBarAppearance alloc] init] autorelease];
+    navBar.scrollEdgeAppearance = nil;
+    navBar.compactAppearance = nil;
+    navBar.compactScrollEdgeAppearance = nil;
   }
   shouldUpdateNavBar = YES;
   [self setupWindowDecorations];
@@ -438,23 +447,24 @@
 
 - (void)setNavTintColor:(id)color
 {
-  __block TiColor *newColor = [[TiUtils colorValue:color] retain];
+  // Must run inline when called from viewWillAppear: (inside UINavigationController's
+  // push). Dispatching asynchronously would apply the change only once the push
+  // animation has finished, which makes the bar items flicker.
+  ENSURE_UI_THREAD(setNavTintColor, color);
 
+  TiColor *newColor = [TiUtils colorValue:color];
   [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        if (controller != nil) {
-          if (newColor == nil) {
-            // Get from TabGroup
-            newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-          }
-          UINavigationBar *navBar = [[controller navigationController] navigationBar];
-          [navBar setTintColor:[newColor color]];
-          [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-          [newColor release];
-        }
-      },
-      NO);
+
+  if (controller == nil) {
+    return;
+  }
+  if (newColor == nil) {
+    // Get from TabGroup
+    newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+  }
+  UINavigationBar *navBar = [[controller navigationController] navigationBar];
+  [navBar setTintColor:[newColor color]];
+  [self refreshBackButton];
 }
 
 - (void)setBarColor:(id)color
@@ -524,18 +534,33 @@
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
-    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-      if ([self shouldUseNavBarApperance]) {
-        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
-        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
-      }
+    BOOL largeTitleEnabled = [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO];
+    if (largeTitleEnabled) {
       navigationBar.largeTitleTextAttributes = theAttributes;
     }
-    if ([self shouldUseNavBarApperance]) {
-      navigationBar.standardAppearance.titleTextAttributes = theAttributes;
-      navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
-    }
     navigationBar.titleTextAttributes = theAttributes;
+
+    // viewWillAppear: always installs an explicit appearance on the shared bar, and
+    // UIKit then ignores the legacy properties above, so mirror the attributes into
+    // the bar's appearances as well. The appearance properties are copy-on-assign,
+    // so follow UIKit's pattern: copy, modify, assign back. A nil appearance is
+    // derived by UIKit from standardAppearance and needs no update of its own.
+    UINavigationBarAppearance * (^withTitleAttributes)(UINavigationBarAppearance *) = ^UINavigationBarAppearance *(UINavigationBarAppearance *appearance)
+    {
+      if (appearance == nil) {
+        return nil;
+      }
+      UINavigationBarAppearance *updated = [[appearance copy] autorelease];
+      updated.titleTextAttributes = theAttributes;
+      if (largeTitleEnabled) {
+        updated.largeTitleTextAttributes = theAttributes;
+      }
+      return updated;
+    };
+    navigationBar.standardAppearance = withTitleAttributes(navigationBar.standardAppearance ?: [[[UINavigationBarAppearance alloc] init] autorelease]);
+    navigationBar.compactAppearance = withTitleAttributes(navigationBar.compactAppearance);
+    navigationBar.scrollEdgeAppearance = withTitleAttributes(navigationBar.scrollEdgeAppearance);
+    navigationBar.compactScrollEdgeAppearance = withTitleAttributes(navigationBar.compactScrollEdgeAppearance);
   }
 }
 
@@ -698,6 +723,8 @@
 {
   ENSURE_TYPE_OR_NIL(arg, NSArray);
   ENSURE_TYPE_OR_NIL(properties, NSDictionary);
+  // See setNavTintColor: for why this has to run inline on the main thread.
+  ENSURE_UI_THREAD_WITH_OBJ(setRightNavButtons, arg, properties);
 
   NSArray *curValues = [self valueForUndefinedKey:@"rightNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
@@ -717,11 +744,7 @@
 
   [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        [self refreshRightNavButtons:nil];
-      },
-      NO);
+  [self refreshRightNavButtons:nil];
 }
 
 - (void)setRightNavButton:(id)proxy withObject:(id)properties
@@ -768,6 +791,8 @@
 {
   ENSURE_TYPE_OR_NIL(arg, NSArray);
   ENSURE_TYPE_OR_NIL(properties, NSDictionary);
+  // See setNavTintColor: for why this has to run inline on the main thread.
+  ENSURE_UI_THREAD_WITH_OBJ(setLeftNavButtons, arg, properties);
 
   NSArray *curValues = [self valueForUndefinedKey:@"leftNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
@@ -786,11 +811,7 @@
   }
   [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        [self refreshLeftNavButtons:nil];
-      },
-      NO);
+  [self refreshLeftNavButtons:nil];
 }
 
 - (void)setLeftNavButton:(id)proxy withObject:(id)properties
@@ -1149,7 +1170,13 @@
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
-  SETPROP(@"translucent", setTranslucent);
+  // Always apply translucency: a previously shown window may have set the shared
+  // navigation bar to opaque, and the default is translucent.
+  id translucent = [self valueForKey:@"translucent"];
+  if (translucent == nil) {
+    translucent = [[self tabGroup] valueForUndefinedKey:@"translucent"];
+  }
+  [[controller navigationController] navigationBar].translucent = [TiUtils boolValue:translucent def:YES];
   SETPROP(@"tabBarHidden", setTabBarHidden);
   SETPROPOBJ(@"toolbar", setToolbar);
   [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
