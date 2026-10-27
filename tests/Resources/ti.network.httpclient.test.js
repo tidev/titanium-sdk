@@ -297,6 +297,39 @@ describe('Titanium.Network.HTTPClient', function () {
 		});
 	});
 
+	// https://github.com/tidev/titanium-sdk/issues/14059
+	it('sends large and non-integer numbers without scientific notation', function (finish) {
+		const xhr = Ti.Network.createHTTPClient({
+			timeout: 3e4
+		});
+		const timestamp = 1718097242000; // larger than a 32-bit integer
+		const fraction = 12345678.5;
+		xhr.onload = function () {
+			try {
+				const form = JSON.parse(this.responseText).form;
+				should(form.timestamp).eql('1718097242000');
+				should(form.fraction).eql('12345678.5');
+				should(form.small).eql('42');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		};
+
+		let attempts = 3;
+		xhr.onerror = function (e) {
+			if (attempts-- > 0) {
+				Ti.API.warn('failed, attempting to retry request...');
+				xhr.send({ timestamp, fraction, small: 42 });
+			} else {
+				Ti.API.debug(JSON.stringify(e, null, 2));
+				finish(new Error('failed to send data: ' + e));
+			}
+		};
+		xhr.open('POST', 'http://www.httpbin.org/post');
+		xhr.send({ timestamp, fraction, small: 42 });
+	});
+
 	// Confirms that only the selected cookie is deleted
 	// FIXME Windows hangs on this test! Maybe due to setTimeout in onload?
 	it.allBroken('clearCookiePositiveTest', function (finish) {

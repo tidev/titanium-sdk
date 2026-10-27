@@ -197,9 +197,14 @@
 #endif
 #ifdef USE_TI_UIIOSSPLITWINDOW
 - (id)createSplitWindow:(id)args;
-@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_ARRANGEMENT_STYLE_DEFAULT;
-@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_ARRANGEMENT_STYLE_SPLIT;
-@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_ARRANGEMENT_STYLE_OVERLAY;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_DISPLAY_MODE_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_DISPLAY_MODE_SECONDARY_ONLY;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_DISPLAY_MODE_ONE_BESIDE_SECONDARY;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_DISPLAY_MODE_ONE_OVER_SECONDARY;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_SPLIT_BEHAVIOR_AUTOMATIC;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_SPLIT_BEHAVIOR_TILE;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_SPLIT_BEHAVIOR_OVERLAY;
+@property (nonatomic, readonly) NSNumber *SPLIT_WINDOW_SPLIT_BEHAVIOR_DISPLACE;
 #endif
 #ifdef USE_TI_UIIOSANIMATOR
 - (id)createAnimator:(id)args;

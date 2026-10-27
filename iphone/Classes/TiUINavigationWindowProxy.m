@@ -233,6 +233,10 @@
       [current windowWillClose];
     }
   }
+  // A collapsed UISplitViewController pushes the navigation controller of its detail pane onto this stack
+  if (![viewController isKindOfClass:[TiViewController class]]) {
+    return;
+  }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
@@ -255,6 +259,9 @@
     }
   }
   RELEASE_TO_NIL(current);
+  if (![viewController isKindOfClass:[TiViewController class]]) {
+    return; // See willShowViewController
+  }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
   current = [theWindow retain];
   [self childOrientationControllerChangedFlags:current];
@@ -375,6 +382,9 @@
           [navController setViewControllers:[NSArray array]];
 
           for (UIViewController *viewController in currentControllers) {
+            if (![viewController isKindOfClass:[TiViewController class]]) {
+              continue; // See willShowViewController
+            }
             TiWindowProxy *win = (TiWindowProxy *)[(TiViewController *)viewController proxy];
             [win setTab:nil];
             [win setParentOrientationController:nil];
