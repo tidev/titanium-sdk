@@ -445,25 +445,38 @@
 
 #pragma mark - UINavController, NavItem UI
 
+// Runs the block right away when already on the main thread, otherwise
+// dispatches it asynchronously. Navigation bar changes made from the window's
+// viewWillAppear: (i.e. inside UINavigationController's push) have to land
+// before the transition starts, or UIKit applies them only once the push
+// animation has finished, which makes the bar items flicker.
+static void TiWindowPerformOnMainThread(void (^block)(void))
+{
+  if ([NSThread isMainThread]) {
+    block();
+  } else {
+    TiThreadPerformOnMainThread(block, NO);
+  }
+}
+
 - (void)setNavTintColor:(id)color
 {
-  __block TiColor *newColor = [[TiUtils colorValue:color] retain];
+  TiColor *newColor = [TiUtils colorValue:color];
 
   [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        if (controller != nil) {
-          if (newColor == nil) {
-            // Get from TabGroup
-            newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-          }
-          UINavigationBar *navBar = [[controller navigationController] navigationBar];
-          [navBar setTintColor:[newColor color]];
-          [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-          [newColor release];
-        }
-      },
-      NO);
+  TiWindowPerformOnMainThread(^{
+    if (controller == nil) {
+      return;
+    }
+    TiColor *tintColor = newColor;
+    if (tintColor == nil) {
+      // Get from TabGroup
+      tintColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+    }
+    UINavigationBar *navBar = [[controller navigationController] navigationBar];
+    [navBar setTintColor:[tintColor color]];
+    [self refreshBackButton];
+  });
 }
 
 - (void)setBarColor:(id)color
@@ -533,18 +546,31 @@
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
-    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-      if ([self shouldUseNavBarApperance]) {
-        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
-        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
-      }
+    BOOL largeTitleEnabled = [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO];
+    if (largeTitleEnabled) {
       navigationBar.largeTitleTextAttributes = theAttributes;
     }
-    if ([self shouldUseNavBarApperance]) {
-      navigationBar.standardAppearance.titleTextAttributes = theAttributes;
-      navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
-    }
     navigationBar.titleTextAttributes = theAttributes;
+
+    // viewWillAppear: always installs an explicit appearance on the shared bar, and
+    // UIKit then ignores the legacy properties above, so mirror the attributes into
+    // every appearance the bar has. Re-assigning makes the bar pick the change up.
+    UINavigationBarAppearance *standardAppearance = navigationBar.standardAppearance;
+    if (standardAppearance != nil) {
+      standardAppearance.titleTextAttributes = theAttributes;
+      if (largeTitleEnabled) {
+        standardAppearance.largeTitleTextAttributes = theAttributes;
+      }
+      navigationBar.standardAppearance = standardAppearance;
+    }
+    UINavigationBarAppearance *scrollEdgeAppearance = navigationBar.scrollEdgeAppearance;
+    if (scrollEdgeAppearance != nil) {
+      scrollEdgeAppearance.titleTextAttributes = theAttributes;
+      if (largeTitleEnabled) {
+        scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
+      }
+      navigationBar.scrollEdgeAppearance = scrollEdgeAppearance;
+    }
   }
 }
 
@@ -724,11 +750,9 @@
 
   [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        [self refreshRightNavButtons:nil];
-      },
-      NO);
+  TiWindowPerformOnMainThread(^{
+    [self refreshRightNavButtons:nil];
+  });
 }
 
 - (void)setRightNavButton:(id)proxy withObject:(id)properties
@@ -793,11 +817,9 @@
   }
   [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        [self refreshLeftNavButtons:nil];
-      },
-      NO);
+  TiWindowPerformOnMainThread(^{
+    [self refreshLeftNavButtons:nil];
+  });
 }
 
 - (void)setLeftNavButton:(id)proxy withObject:(id)properties
