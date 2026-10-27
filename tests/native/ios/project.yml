@@ -1,0 +1,66 @@
+name: SceneRegression
+options:
+  bundleIdPrefix: org.titanium.tests
+  deploymentTarget:
+    iOS: '17.0'
+projectReferences:
+  TitaniumKit:
+    path: ${TITANIUM_SDK_ROOT}/iphone/TitaniumKit/TitaniumKit.xcodeproj
+settings:
+  base:
+    CLANG_ENABLE_OBJC_ARC: NO
+    CODE_SIGNING_ALLOWED: NO
+    TARGETED_DEVICE_FAMILY: '1,2'
+targets:
+  SceneTestHost:
+    type: application
+    platform: iOS
+    sources: ["${TITANIUM_SDK_ROOT}/tests/native/ios/main.m"]
+    info:
+      path: ${SCENE_TEST_OUTPUT}/Host-Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: SceneTestWindowDelegate
+              - UISceneConfigurationName: Secondary
+                UISceneDelegateClassName: SceneTestWindowDelegate
+        UIBackgroundModes: [fetch, remote-notification]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+    dependencies:
+      - target: TitaniumKit/TitaniumKit
+  SceneTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - "${TITANIUM_SDK_ROOT}/tests/native/ios/SceneTests.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiAppiOSProxy.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiApp+Addons.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiAppiOSBackgroundServiceProxy.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiAppiOSUserDefaultsProxy.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiAppiOSLocalNotificationProxy.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiAppiOSUserNotificationActionProxy.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiAppiOSUserNotificationCategoryProxy.m"
+      - "${TITANIUM_SDK_ROOT}/iphone/Classes/TiAppiOSActivityAttributesProxy.m"
+
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        GCC_PREPROCESSOR_DEFINITIONS: ["$(inherited)", USE_TI_APPIOS=1, USE_TI_FETCH=1, USE_TI_SILENTPUSH=1]
+        HEADER_SEARCH_PATHS: ["$(inherited)", "${TITANIUM_SDK_ROOT}/iphone/Classes"]
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/SceneTestHost.app/SceneTestHost
+        BUNDLE_LOADER: $(TEST_HOST)
+    dependencies:
+      - target: SceneTestHost
+      - target: TitaniumKit/TitaniumKit
+schemes:
+  SceneTests:
+    build:
+      targets:
+        SceneTestHost: all
+        SceneTests: [test]
+    test:
+      targets: [SceneTests]

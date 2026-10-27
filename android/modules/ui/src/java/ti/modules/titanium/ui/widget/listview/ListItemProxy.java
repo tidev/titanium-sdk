@@ -115,11 +115,12 @@ public class ListItemProxy extends TiViewProxy
 	/**
 	 * Handle event payload manipulation.
 	 *
-	 * @param eventName Name of fired event.
-	 * @param data      Data payload of fired event.
+	 * @param eventName     Name of fired event.
+	 * @param data          Data payload of fired event.
+	 * @param fireItemEvent Set true to also fire the matching `itemclick`/`itemlongpress` event on the ListView.
 	 * @return Object of event payload.
 	 */
-	public Object handleEvent(String eventName, Object data, boolean fireItemClick)
+	public Object handleEvent(String eventName, Object data, boolean fireItemEvent)
 	{
 		// Inject row data into events.
 		final ListViewProxy listViewProxy = getListViewProxy();
@@ -166,13 +167,36 @@ public class ListItemProxy extends TiViewProxy
 			// Override data with new payload.
 			data = payload;
 
-			// Fire `itemclick` event on ListView.
-			if (fireItemClick && eventName.equals(TiC.EVENT_CLICK)) {
-				listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
+			// Fire `itemclick`/`itemlongpress` event on ListView.
+			if (fireItemEvent) {
+				fireListViewItemEvent(eventName, data);
 			}
 		}
 
 		return data;
+	}
+
+	/**
+	 * Fires the ListView item event matching the given item event, if any.
+	 * `click` fires `itemclick` and `longpress` fires `itemlongpress`.
+	 *
+	 * @param eventName Name of event fired on the item.
+	 * @param data      Payload already processed by handleEvent().
+	 * @return Returns true if a ListView listener handled the event.
+	 */
+	private boolean fireListViewItemEvent(String eventName, Object data)
+	{
+		final ListViewProxy listViewProxy = getListViewProxy();
+		if (listViewProxy == null) {
+			return false;
+		}
+		if (eventName.equals(TiC.EVENT_CLICK)) {
+			return listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
+		}
+		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
+			return listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_LONGPRESS, data);
+		}
+		return false;
 	}
 
 	/**
@@ -186,14 +210,16 @@ public class ListItemProxy extends TiViewProxy
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
-		data = handleEvent(eventName, data, true);
-		return super.fireEvent(eventName, data, bubbles);
+		data = handleEvent(eventName, data, false);
+		final boolean handled = fireListViewItemEvent(eventName, data);
+		return super.fireEvent(eventName, data, bubbles) || handled;
 	}
 	@Override
 	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
 	{
-		data = handleEvent(eventName, data, true);
-		return super.fireSyncEvent(eventName, data, bubbles);
+		data = handleEvent(eventName, data, false);
+		final boolean handled = fireListViewItemEvent(eventName, data);
+		return super.fireSyncEvent(eventName, data, bubbles) || handled;
 	}
 
 	/**
@@ -692,6 +718,17 @@ public class ListItemProxy extends TiViewProxy
 		// This is so we can fire `itemclick` events.
 		if (event.equals(TiC.EVENT_CLICK)) {
 			return true;
+		}
+
+		// Detect `longpress` events on the item and its child views while the ListView
+		// listens for `itemlongpress`. Otherwise the long press is not dispatched and can not
+		// bubble up to this item. Not done unconditionally so that a long press without any
+		// listener still falls through to a normal click.
+		if (event.equals(TiC.EVENT_LONGPRESS)) {
+			final ListViewProxy listViewProxy = getListViewProxy();
+			if (listViewProxy != null && listViewProxy.hasListeners(TiC.EVENT_ITEM_LONGPRESS)) {
+				return true;
+			}
 		}
 		return super.hierarchyHasListener(event);
 	}
