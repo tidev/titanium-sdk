@@ -4600,6 +4600,14 @@ class iOSBuilder extends Builder {
 		// if they have not explicitly set the UIRequiresFullScreen setting, then force it to true
 		if (plist.UIRequiresFullScreen === undefined) {
 			plist.UIRequiresFullScreen = true;
+
+			// UIRequiresFullScreen is deprecated as of iPadOS 26. When built with the iOS 27 SDK it no longer
+			// opts the app out of resizing and only enables discrete resizing, so tell the system to ignore it
+			// starting with iOS 27 and keep the legacy full screen behavior on older OS versions.
+			// See https://developer.apple.com/documentation/technotes/tn3192-migrating-your-app-from-the-deprecated-uirequiresfullscreen-key
+			if (appc.version.gte(this.xcodeEnv.version, '27.0.0') && plist.UIRequiresFullScreenIgnoredStartingWithVersion === undefined) {
+				plist.UIRequiresFullScreenIgnoredStartingWithVersion = '27';
+			}
 		}
 
 		// this should not exist, but nuke it so we can create it below
