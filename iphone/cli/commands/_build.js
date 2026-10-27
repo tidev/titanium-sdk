@@ -673,6 +673,22 @@ class iOSBuilder extends Builder {
 					return callback();
 				}
 
+				// --device-id not specified, so check if a default udid is set in the CLI config (ios.deviceId)
+				// and use it if it matches a known simulator/device for the current target, otherwise fall
+				// back to the default behavior (auto select or prompt)
+				if (this.cli.argv['device-id'] === undefined && (this.cli.argv.target === 'simulator' || this.cli.argv.target === 'device')) {
+					const defaultUDID = this.config.get('ios.deviceId');
+					if (defaultUDID && typeof defaultUDID === 'string') {
+						const info = this.getDeviceInfo();
+						if (info.udids[defaultUDID] || (this.cli.argv.target === 'device' && defaultUDID === 'all')) {
+							this.logger.debug(`Using default ${this.cli.argv.target === 'device' ? 'device' : 'simulator'} from config: ${cyan(defaultUDID)}`);
+							this.cli.argv['device-id'] = defaultUDID;
+							return callback();
+						}
+						this.logger.debug(`Default ${this.cli.argv.target === 'device' ? 'device' : 'simulator'} from config not found: ${cyan(defaultUDID)}`);
+					}
+				}
+
 				if (this.cli.argv['device-id'] === undefined && this.config.get('ios.autoSelectDevice', true) && (this.cli.argv.target === 'simulator' || this.cli.argv.target === 'device')) {
 					// --device-id not specified and we're not prompting, so pick a device later
 					callback();
