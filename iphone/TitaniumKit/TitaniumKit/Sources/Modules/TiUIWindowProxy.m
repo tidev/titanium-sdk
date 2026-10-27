@@ -545,7 +545,8 @@
     // the bar's appearances as well. The appearance properties are copy-on-assign,
     // so follow UIKit's pattern: copy, modify, assign back. A nil appearance is
     // derived by UIKit from standardAppearance and needs no update of its own.
-    UINavigationBarAppearance *(^withTitleAttributes)(UINavigationBarAppearance *) = ^UINavigationBarAppearance *(UINavigationBarAppearance *appearance) {
+    UINavigationBarAppearance * (^withTitleAttributes)(UINavigationBarAppearance *) = ^UINavigationBarAppearance *(UINavigationBarAppearance *appearance)
+    {
       if (appearance == nil) {
         return nil;
       }
