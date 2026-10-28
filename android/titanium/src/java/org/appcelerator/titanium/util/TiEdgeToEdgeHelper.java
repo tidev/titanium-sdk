@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -46,6 +47,19 @@ public class TiEdgeToEdgeHelper
 
 		// Enable edge-to-edge drawing.
 		WindowCompat.setDecorFitsSystemWindows(window, false);
+
+		// On API 30-34, the above also sets the legacy SYSTEM_UI_FLAG_LAYOUT_STABLE flag. With that
+		// flag set, AppCompat's ActionBarOverlayLayout measures the content with a fixed top inset
+		// of "actionBarSize", even when the ActionBar is hidden. A window with "navBarHidden" set
+		// would then show an empty bar-sized gap above its content. The flag is not needed for
+		// edge-to-edge on these API levels, so clear it. (API 35+ never sets it.)
+		if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && (Build.VERSION.SDK_INT < 35)) {
+			View decorView = window.getDecorView();
+			int flags = decorView.getSystemUiVisibility();
+			if ((flags & View.SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0) {
+				decorView.setSystemUiVisibility(flags & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+			}
+		}
 
 		View content = activity.findViewById(android.R.id.content);
 		if (content == null) {
@@ -124,6 +138,25 @@ public class TiEdgeToEdgeHelper
 			if (isResizingForSoftInput(window)) {
 				int imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom;
 				bottom = Math.max(bottom, basePaddingBottom + imeBottom);
+				if (imeBottom > 0) {
+					// The keyboard has been fully handled by resizing the content frame above,
+					// so descendants must not apply a bottom inset a second time. Consume the
+					// IME inset and cap the bottom of the bar insets, because when the keyboard
+					// is open the navigation bar inset expands to the keyboard's height, and
+					// Material's BottomNavigationView pads itself by the system window insets.
+					// It would otherwise grow by the keyboard's height, leaving a large gap
+					// between the tab bar and the keyboard. Left/top/right are kept so views
+					// like TabLayout can still inset themselves from the status bar.
+					Insets nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+					Insets caption = insets.getInsets(WindowInsetsCompat.Type.captionBar());
+					insets = new WindowInsetsCompat.Builder(insets)
+						.setInsets(WindowInsetsCompat.Type.ime(), Insets.NONE)
+						.setInsets(WindowInsetsCompat.Type.navigationBars(),
+							Insets.of(nav.left, nav.top, nav.right, 0))
+						.setInsets(WindowInsetsCompat.Type.captionBar(),
+							Insets.of(caption.left, caption.top, caption.right, 0))
+						.build();
+				}
 			}
 
 			v.setPadding(left, top, right, bottom);

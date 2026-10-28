@@ -11,6 +11,7 @@
 #import "TiBlob.h"
 #import "TiLayoutQueue.h"
 #import "TiLocale.h"
+#import "TiSceneRegistry.h"
 #import "TiStylesheet.h"
 #import "TiUIView.h"
 #import "TiUIViewProxy.h"
@@ -688,6 +689,8 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 {
   float val = ([TiUtils intValue:arg] * M_PI) / 180.0;
   [self view].transform = CGAffineTransformMakeRotation(val);
+  // Record the value so that reading "rotation" reflects what was set, as it does on Android.
+  [self replaceValue:arg forKey:@"rotation" notification:NO];
 }
 
 - (TiBlob *)toImage:(id)args
@@ -1380,8 +1383,24 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
 - (CGRect)appFrame // TODO: Why is this here? It doesn't have anything to do with a specific instance.
 {
-  CGRect result = [[[[TiApp app] controller] view] bounds];
+  CGRect result = [[[[self owningInstance] controller] view] bounds];
   return result;
+}
+
+- (TiApp *)owningInstance
+{
+  if (@available(iOS 13.0, *)) {
+    if ([self viewAttached]) {
+      UIWindow *window = [[self view] window];
+      if (window != nil) {
+        TiApp *app = [[TiSceneRegistry sharedRegistry] appForWindow:window];
+        if (app != nil) {
+          return app;
+        }
+      }
+    }
+  }
+  return [super owningInstance];
 }
 
 #pragma mark Building up and Tearing down
@@ -1506,10 +1525,18 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)dealloc
 {
   //	RELEASE_TO_NIL(pendingAdds);
-  // Note: destroyQueue and childrenQueue are released in _destroy,
-  // which is called by [super dealloc] via TiProxy. Releasing them
-  // here would cause use-after-free since _destroy still needs them.
   RELEASE_TO_NIL(barButtonItem);
+  // Run the (idempotent) teardown while destroyQueue and childrenQueue still exist,
+  // then release the queues. The second _destroy triggered by [super dealloc] is a no-op.
+  [self _destroy];
+  if (childrenQueue != NULL) {
+    dispatch_release(childrenQueue);
+    childrenQueue = NULL;
+  }
+  if (destroyQueue != NULL) {
+    dispatch_release(destroyQueue);
+    destroyQueue = NULL;
+  }
   [super dealloc];
 }
 
@@ -1579,7 +1606,7 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 - (void)_destroy
 {
   if (!destroyQueue) {
-    // Queue not initialized or already released by a prior _destroy call.
+    // Queue not initialized (dealloc of a partially initialized proxy).
     [super _destroy];
     return;
   }
@@ -1619,12 +1646,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
       }
     }
   });
-
-  // Safe to release after dispatch_sync returns — the queues are no longer needed.
-  dispatch_release(childrenQueue);
-  childrenQueue = nil;
-  dispatch_release(destroyQueue);
-  destroyQueue = nil;
+  // Do NOT release destroyQueue / childrenQueue here. _destroy can run long before dealloc
+  // (e.g. contextShutdown: while a UITableViewCell still retains a TiUIListItemProxy), and
+  // later calls such as removeAllChildren: or windowDidClose still dispatch on these queues.
+  // They are released in dealloc.
 }
 
 - (void)destroy
@@ -1772,6 +1797,16 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
         }
       },
       NO);
+
+  // Touch listeners bubble from any ancestor, so descendants further down the
+  // tree must recompute their touch handling as well (not just direct children).
+  NSArray *childrenArray = [[self children] retain];
+  for (id child in childrenArray) {
+    if ([child respondsToSelector:@selector(parentListenersChanged)]) {
+      [child parentListenersChanged];
+    }
+  }
+  [childrenArray release];
 }
 
 - (void)_listenerAdded:(NSString *)type count:(int)count

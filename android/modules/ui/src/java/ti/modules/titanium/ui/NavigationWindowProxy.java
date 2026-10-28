@@ -108,8 +108,8 @@ public class NavigationWindowProxy extends WindowProxy
 
 		TiWindowProxy window = (TiWindowProxy) childToClose;
 		windows.remove(window);
-		window.setNavigationWindow(null);
 		window.close(arg);
+		window.setNavigationWindow(null);
 	}
 
 	@Override

@@ -109,6 +109,12 @@
 
 @end
 
+// Implemented by TiViewProxy, but not declared in a public header
+@interface TiWindowProxy (ListenerHooks)
+- (void)_listenerAdded:(NSString *)type count:(int)count;
+- (void)_listenerRemoved:(NSString *)type count:(int)count;
+@end
+
 @implementation TiUIWindowProxy
 
 - (void)_destroy
@@ -162,7 +168,99 @@
 {
   self.safeAreaViewProxy = nil;
   RELEASE_TO_NIL(barImageView);
+  RELEASE_TO_NIL(lastReservedRegions);
   [super dealloc];
+}
+
+#pragma mark - Reserved regions (iPhone Duo, iOS 27.1+)
+
+// Must be called on the main thread
+- (NSArray *)currentReservedRegions
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    if (![self viewAttached]) {
+      return @[];
+    }
+
+    UIView *windowView = [self view];
+    NSArray<NSString *> *names = @[ @"division", @"occlusion" ];
+    NSArray<UIViewReservedRegionKind *> *kinds = @[ [UIViewReservedRegionKind divisionRegionKind], [UIViewReservedRegionKind occlusionRegionKind] ];
+    NSMutableArray *regions = [NSMutableArray array];
+
+    for (NSUInteger i = 0; i < kinds.count; i++) {
+      NSArray<UIViewReservedRegion *> *regionsOfKind = [windowView reservedRegionsOfKind:kinds[i] options:UIViewReservedRegionQueryOptionsIncludeInactive];
+      for (UIViewReservedRegion *region in regionsOfKind) {
+        UIEdgeInsets margins = region.margins;
+        [regions addObject:@{
+          @"kind" : names[i],
+          @"active" : @(region.active),
+          @"rect" : [TiUtils rectToDictionary:region.frame],
+          @"margins" : @{
+            @"top" : @(margins.top),
+            @"left" : @(margins.left),
+            @"bottom" : @(margins.bottom),
+            @"right" : @(margins.right)
+          }
+        }];
+      }
+    }
+    return regions;
+  }
+#endif
+  return @[];
+}
+
+- (NSArray *)reservedRegions
+{
+  __block NSArray *regions = nil;
+  TiThreadPerformOnMainThread(
+      ^{
+        regions = [[self currentReservedRegions] retain];
+      },
+      YES);
+  return [regions autorelease];
+}
+
+- (void)reservedRegionsMightHaveChanged
+{
+  if (!observesReservedRegions) {
+    return;
+  }
+
+  NSArray *regions = [self currentReservedRegions];
+  if (lastReservedRegions != nil && [regions isEqualToArray:lastReservedRegions]) {
+    return;
+  }
+  RELEASE_TO_NIL(lastReservedRegions);
+  lastReservedRegions = [regions retain];
+
+  [self fireEvent:@"reservedregionschange" withObject:@{ @"regions" : regions }];
+}
+
+- (void)_listenerAdded:(NSString *)type count:(int)count
+{
+  if ([type isEqualToString:@"reservedregionschange"]) {
+    observesReservedRegions = (count > 0);
+    if (count == 1) {
+      // Take the current state as the baseline, so the first event is a real change
+      TiThreadPerformOnMainThread(
+          ^{
+            RELEASE_TO_NIL(lastReservedRegions);
+            lastReservedRegions = [[self currentReservedRegions] retain];
+          },
+          NO);
+    }
+  }
+  [super _listenerAdded:type count:count];
+}
+
+- (void)_listenerRemoved:(NSString *)type count:(int)count
+{
+  if ([type isEqualToString:@"reservedregionschange"]) {
+    observesReservedRegions = (count > 0);
+  }
+  [super _listenerRemoved:type count:count];
 }
 
 - (void)boot:(BOOL)timeout args:args
@@ -254,9 +352,17 @@
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-  [self performSelector:@selector(updateStatusBarView)
-             withObject:nil
-             afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+  // The status bar and navigation bar bounds are only final once the rotation animation has finished.
+  if (coordinator != nil) {
+    [coordinator animateAlongsideTransition:nil
+                                 completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+                                   [self updateStatusBarView];
+                                   [self updateNavBar];
+                                 }];
+  } else {
+    [self updateStatusBarView];
+    [self updateNavBar];
+  }
 
   [super viewWillTransitionToSize:size
         withTransitionCoordinator:coordinator];
@@ -286,7 +392,7 @@
     if (newColor == nil) {
       newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"barColor"]];
     }
-    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance;
+    UINavigationBarAppearance *appearance = controller.navigationController.navigationBar.standardAppearance ?: [[[UINavigationBarAppearance alloc] init] autorelease];
     if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
       [appearance configureWithTransparentBackground];
       if (newColor == nil) {
@@ -303,6 +409,15 @@
     controller.navigationController.navigationBar.standardAppearance = appearance;
     controller.navigationController.navigationBar.scrollEdgeAppearance = appearance;
     controller.navigationController.navigationBar.backgroundColor = UIColor.clearColor;
+  } else if (controller != nil && [controller navigationController] != nil) {
+    // This window relies on the system navigation bar (e.g. Liquid Glass on iOS 26).
+    // Drop any custom appearance a previously shown window installed on the shared
+    // bar, otherwise its background and title colors leak into this window.
+    UINavigationBar *navBar = [[controller navigationController] navigationBar];
+    navBar.standardAppearance = [[[UINavigationBarAppearance alloc] init] autorelease];
+    navBar.scrollEdgeAppearance = nil;
+    navBar.compactAppearance = nil;
+    navBar.compactScrollEdgeAppearance = nil;
   }
   shouldUpdateNavBar = YES;
   [self setupWindowDecorations];
@@ -332,23 +447,24 @@
 
 - (void)setNavTintColor:(id)color
 {
-  __block TiColor *newColor = [[TiUtils colorValue:color] retain];
+  // Must run inline when called from viewWillAppear: (inside UINavigationController's
+  // push). Dispatching asynchronously would apply the change only once the push
+  // animation has finished, which makes the bar items flicker.
+  ENSURE_UI_THREAD(setNavTintColor, color);
 
+  TiColor *newColor = [TiUtils colorValue:color];
   [self replaceValue:newColor forKey:@"navTintColor" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        if (controller != nil) {
-          if (newColor == nil) {
-            // Get from TabGroup
-            newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
-          }
-          UINavigationBar *navBar = [[controller navigationController] navigationBar];
-          [navBar setTintColor:[newColor color]];
-          [self performSelector:@selector(refreshBackButton) withObject:nil afterDelay:0.0];
-          [newColor release];
-        }
-      },
-      NO);
+
+  if (controller == nil) {
+    return;
+  }
+  if (newColor == nil) {
+    // Get from TabGroup
+    newColor = [TiUtils colorValue:[[self tabGroup] valueForKey:@"navTintColor"]];
+  }
+  UINavigationBar *navBar = [[controller navigationController] navigationBar];
+  [navBar setTintColor:[newColor color]];
+  [self refreshBackButton];
 }
 
 - (void)setBarColor:(id)color
@@ -418,18 +534,33 @@
 
   if (shouldUpdateNavBar && ([controller navigationController] != nil)) {
     UINavigationBar *navigationBar = controller.navigationController.navigationBar;
-    if ([TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO]) {
-      if ([self shouldUseNavBarApperance]) {
-        navigationBar.standardAppearance.largeTitleTextAttributes = theAttributes;
-        navigationBar.scrollEdgeAppearance.largeTitleTextAttributes = theAttributes;
-      }
+    BOOL largeTitleEnabled = [TiUtils boolValue:[self valueForKey:@"largeTitleEnabled"] def:NO];
+    if (largeTitleEnabled) {
       navigationBar.largeTitleTextAttributes = theAttributes;
     }
-    if ([self shouldUseNavBarApperance]) {
-      navigationBar.standardAppearance.titleTextAttributes = theAttributes;
-      navigationBar.scrollEdgeAppearance.titleTextAttributes = theAttributes;
-    }
     navigationBar.titleTextAttributes = theAttributes;
+
+    // viewWillAppear: always installs an explicit appearance on the shared bar, and
+    // UIKit then ignores the legacy properties above, so mirror the attributes into
+    // the bar's appearances as well. The appearance properties are copy-on-assign,
+    // so follow UIKit's pattern: copy, modify, assign back. A nil appearance is
+    // derived by UIKit from standardAppearance and needs no update of its own.
+    UINavigationBarAppearance * (^withTitleAttributes)(UINavigationBarAppearance *) = ^UINavigationBarAppearance *(UINavigationBarAppearance *appearance)
+    {
+      if (appearance == nil) {
+        return nil;
+      }
+      UINavigationBarAppearance *updated = [[appearance copy] autorelease];
+      updated.titleTextAttributes = theAttributes;
+      if (largeTitleEnabled) {
+        updated.largeTitleTextAttributes = theAttributes;
+      }
+      return updated;
+    };
+    navigationBar.standardAppearance = withTitleAttributes(navigationBar.standardAppearance ?: [[[UINavigationBarAppearance alloc] init] autorelease]);
+    navigationBar.compactAppearance = withTitleAttributes(navigationBar.compactAppearance);
+    navigationBar.scrollEdgeAppearance = withTitleAttributes(navigationBar.scrollEdgeAppearance);
+    navigationBar.compactScrollEdgeAppearance = withTitleAttributes(navigationBar.compactScrollEdgeAppearance);
   }
 }
 
@@ -590,6 +721,8 @@
 {
   ENSURE_TYPE_OR_NIL(arg, NSArray);
   ENSURE_TYPE_OR_NIL(properties, NSDictionary);
+  // See setNavTintColor: for why this has to run inline on the main thread.
+  ENSURE_UI_THREAD_WITH_OBJ(setRightNavButtons, arg, properties);
 
   NSArray *curValues = [self valueForUndefinedKey:@"rightNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
@@ -609,11 +742,7 @@
 
   [self replaceValue:arg forKey:@"rightNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"rightNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        [self refreshRightNavButtons:nil];
-      },
-      NO);
+  [self refreshRightNavButtons:nil];
 }
 
 - (void)setRightNavButton:(id)proxy withObject:(id)properties
@@ -660,6 +789,8 @@
 {
   ENSURE_TYPE_OR_NIL(arg, NSArray);
   ENSURE_TYPE_OR_NIL(properties, NSDictionary);
+  // See setNavTintColor: for why this has to run inline on the main thread.
+  ENSURE_UI_THREAD_WITH_OBJ(setLeftNavButtons, arg, properties);
 
   NSArray *curValues = [self valueForUndefinedKey:@"leftNavButtons"];
   ENSURE_TYPE_OR_NIL(curValues, NSArray);
@@ -678,11 +809,7 @@
   }
   [self replaceValue:arg forKey:@"leftNavButtons" notification:NO];
   [self replaceValue:properties forKey:@"leftNavSettings" notification:NO];
-  TiThreadPerformOnMainThread(
-      ^{
-        [self refreshLeftNavButtons:nil];
-      },
-      NO);
+  [self refreshLeftNavButtons:nil];
 }
 
 - (void)setLeftNavButton:(id)proxy withObject:(id)properties
@@ -1041,7 +1168,13 @@
   [self updateTitleView];
   SETPROP(@"barColor", setBarColor);
   SETPROP(@"navTintColor", setNavTintColor);
-  SETPROP(@"translucent", setTranslucent);
+  // Always apply translucency: a previously shown window may have set the shared
+  // navigation bar to opaque, and the default is translucent.
+  id translucent = [self valueForKey:@"translucent"];
+  if (translucent == nil) {
+    translucent = [[self tabGroup] valueForUndefinedKey:@"translucent"];
+  }
+  [[controller navigationController] navigationBar].translucent = [TiUtils boolValue:translucent def:YES];
   SETPROP(@"tabBarHidden", setTabBarHidden);
   SETPROPOBJ(@"toolbar", setToolbar);
   [[controller navigationController] setToolbarHidden:!hasToolbar animated:YES];
@@ -1074,7 +1207,10 @@
 
 - (void)updateStatusBarView
 {
-  UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
+  UIWindow *keyWindow = [[self owningInstance] window];
+  if (keyWindow == nil) {
+    keyWindow = UIApplication.sharedApplication.keyWindow;
+  }
   CGRect frame = keyWindow.windowScene.statusBarManager.statusBarFrame;
   UIView *view = [keyWindow viewWithTag:TI_STATUSBAR_TAG];
   if (view) {
@@ -1103,8 +1239,8 @@
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
   UIEdgeInsets safeAreaInset = UIEdgeInsetsZero;
 
-  if (self.isManaged && self.tab) {
-    // Prefer safe area from our own controller hierarchy so tab/nav containers are respected.
+  if (self.isManaged && (self.tab || self.isMasterWindow || self.isDetailWindow)) {
+    // Prefer safe area from our own controller hierarchy so tab/nav/split containers are respected.
     safeAreaInset = self.hostingController.view.safeAreaInsets;
   } else {
     safeAreaInset = TiApp.controller.topContainerController.hostingView.safeAreaInsets;
@@ -1156,20 +1292,10 @@
 - (UIEdgeInsets)tabGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  TiWindowProxy *windowProxy = nil;
-  if ([self.tabGroup isKindOfClass:[TiWindowProxy class]]) {
-    windowProxy = (TiWindowProxy *)self.tabGroup;
-  }
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
-    if (windowProxy.isMasterWindow) {
-      edgeInsets.left = safeAreaInset.left;
-    } else if (windowProxy.isDetailWindow) {
-      edgeInsets.right = safeAreaInset.right;
-    } else {
-      edgeInsets.left = safeAreaInset.left;
-      edgeInsets.right = safeAreaInset.right;
-    }
+    edgeInsets.left = safeAreaInset.left;
+    edgeInsets.right = safeAreaInset.right;
   }
 
   edgeInsets.top = safeAreaInset.top;
@@ -1181,20 +1307,10 @@
 - (UIEdgeInsets)navigationGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  TiWindowProxy *windowProxy = nil;
-  if ([self.tab isKindOfClass:[TiWindowProxy class]]) {
-    windowProxy = (TiWindowProxy *)self.tab;
-  }
-  UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
   if (!UIInterfaceOrientationIsPortrait(orientation)) {
-    if (windowProxy.isMasterWindow) {
-      edgeInsets.left = safeAreaInset.left;
-    } else if (windowProxy.isDetailWindow) {
-      edgeInsets.right = safeAreaInset.right;
-    } else {
-      edgeInsets.left = safeAreaInset.left;
-      edgeInsets.right = safeAreaInset.right;
-    }
+    edgeInsets.left = safeAreaInset.left;
+    edgeInsets.right = safeAreaInset.right;
   }
   edgeInsets.top = safeAreaInset.top;
   edgeInsets.bottom = safeAreaInset.bottom;
@@ -1204,14 +1320,8 @@
 - (UIEdgeInsets)defaultEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
   UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  if (self.isMasterWindow) {
-    edgeInsets.left = safeAreaInset.left;
-  } else if (self.isDetailWindow) {
-    edgeInsets.right = safeAreaInset.right;
-  } else {
-    edgeInsets.left = safeAreaInset.left;
-    edgeInsets.right = safeAreaInset.right;
-  }
+  edgeInsets.left = safeAreaInset.left;
+  edgeInsets.right = safeAreaInset.right;
   edgeInsets.bottom = safeAreaInset.bottom;
   edgeInsets.top = safeAreaInset.top;
   return edgeInsets;

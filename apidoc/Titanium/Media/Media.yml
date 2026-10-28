@@ -804,6 +804,12 @@ properties:
     permission: read-only
     since: "7.5.0"
 
+  - name: AUDIO_STATE_WAITING_FOR_QUEUE
+    summary: Player is waiting for the audio queue to fill before starting.
+    type: Number
+    permission: read-only
+    since: "7.5.0"
+
   - name: VERTICAL_ALIGN_CENTER
     summary: Vertical align center
     type: Number
@@ -2170,7 +2176,7 @@ properties:
   - name: success
     summary: Function to call when the photo gallery is closed after a successful selection.
     description: |
-        If <Titanium.Media.allowMultiple> is `true`, then Callback<CameraMediaMultipleItemsType> will be invoked.
+        If <PhotoGalleryOptionsType.allowMultiple> is `true`, then Callback<CameraMediaMultipleItemsType> will be invoked.
         Otherwise Callback<CameraMediaItemType> will be invoked for single selection.
     type: [Callback<CameraMediaItemType>, Callback<CameraMediaMultipleItemsType>]
 
@@ -2253,7 +2259,7 @@ properties:
     summary: Specifies number of media item that can be selected.
     description: |
         Setting this property to zero allows you to select maximum number of media supported by system.
-        This will work only when <Titanium.Media.allowMultiple> is `true`.
+        This will work only when <PhotoGalleryOptionsType.allowMultiple> is `true`.
     type: Boolean
     platforms: [iphone, ipad]
     osver: {ios: {min: "14.0"}}
@@ -2268,7 +2274,7 @@ properties:
 
 ---
 name: CameraMediaMultipleItemsType
-summary: A media object from photo gallery when <Titanium.Media.allowMultiple> is `true`.
+summary: A media object from photo gallery when <PhotoGalleryOptionsType.allowMultiple> is `true`.
 extends: SuccessResponse
 properties:
   - name: images

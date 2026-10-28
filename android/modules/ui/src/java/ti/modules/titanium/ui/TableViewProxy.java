@@ -30,7 +30,7 @@ import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.RecyclerViewProxy;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 
-import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+import static android.util.TypedValue.COMPLEX_UNIT_PX;
 
 @Kroll.proxy(
 	creatableInModule = UIModule.class,
@@ -55,6 +55,7 @@ import static android.util.TypedValue.COMPLEX_UNIT_DIP;
 		TiC.PROPERTY_REFRESH_CONTROL,
 		TiC.PROPERTY_SCROLLABLE,
 		TiC.PROPERTY_SEARCH,
+		TiC.PROPERTY_SEARCH_TEXT,
 		TiC.PROPERTY_SEPARATOR_COLOR,
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_SHOW_SELECTION_CHECK,
@@ -421,10 +422,11 @@ public class TableViewProxy extends RecyclerViewProxy
 		if (tableView != null) {
 			final KrollDict contentOffset = new KrollDict();
 
+			// Scroll offsets are in pixels. Convert to default units to match the `scroll` event.
 			final int x = (int) new TiDimension(tableView.getScrollOffsetX(),
-				TiDimension.TYPE_WIDTH, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+				TiDimension.TYPE_WIDTH, COMPLEX_UNIT_PX).getAsDefault(tableView);
 			final int y = (int) new TiDimension(tableView.getScrollOffsetY(),
-				TiDimension.TYPE_HEIGHT, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+				TiDimension.TYPE_HEIGHT, COMPLEX_UNIT_PX).getAsDefault(tableView);
 
 			contentOffset.put(TiC.PROPERTY_X, x);
 			contentOffset.put(TiC.PROPERTY_Y, y);
@@ -503,6 +505,9 @@ public class TableViewProxy extends RecyclerViewProxy
 	// clang-format on
 	{
 		for (final TableViewSectionProxy section : this.sections) {
+			for (TableViewRowProxy row : section.getRows()) {
+				row.setParent(null);
+			}
 			section.releaseViews();
 			section.setParent(null);
 		}
@@ -530,6 +535,12 @@ public class TableViewProxy extends RecyclerViewProxy
 
 			} else if (d instanceof TableViewSectionProxy section) {
 
+				// Rows of a re-assigned section were unparented above. Restore them so the rows
+				// can still find their section and table for events and property updates.
+				for (TableViewRowProxy row : section.getRows()) {
+					row.setParent(section);
+				}
+
 				// Handle TableViewSection.
 				appendSection(section, null);
 			}
@@ -537,7 +548,7 @@ public class TableViewProxy extends RecyclerViewProxy
 
 		// Allow updating rows after iteration.
 		shouldUpdate = true;
-		update();
+		update(true);
 	}
 
 	/**

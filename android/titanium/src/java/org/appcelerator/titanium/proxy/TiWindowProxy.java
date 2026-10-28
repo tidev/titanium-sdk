@@ -10,12 +10,15 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollPromise;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiActivityWindow;
+import org.appcelerator.titanium.TiActivityWindows;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiBaseActivity;
 import org.appcelerator.titanium.TiBlob;
@@ -37,6 +40,8 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.util.Pair;
@@ -78,6 +83,8 @@ public abstract class TiWindowProxy extends TiViewProxy
 	public TiWindowProxy navigationWindow;
 	protected KrollPromise openPromise;
 	protected KrollPromise closePromise;
+	private KrollDict savedActivityProperties;
+	private Map<String, Object> savedActionBarState;
 
 	public interface PostOpenListener {
 		void onPostOpen(TiWindowProxy window);
@@ -178,6 +185,14 @@ public abstract class TiWindowProxy extends TiViewProxy
 			});
 		}
 
+		// A close is already in flight. "opened" stays true until the activity is destroyed, so a
+		// 2nd close() call would otherwise re-run the close logic against half-torn-down state.
+		// (For example, this window is already removed from TiActivityWindows and would mistake
+		// itself for the last open window and suspend the app via the "exitOnClose" handling below.)
+		if (closePromise != null) {
+			return closePromise;
+		}
+
 		// FIXME: Can we "cancel" the open() promise if it's not finished?
 		closePromise = KrollPromise.create((promise) -> {
 			KrollDict options = null;
@@ -196,10 +211,68 @@ public abstract class TiWindowProxy extends TiViewProxy
 				options = new KrollDict();
 			}
 
+			// If this is the last Titanium window and "exitOnClose" is explicitly false, then suspend
+			// the app to the background instead of closing, like onBackPressed() does for the Back
+			// button. Closing would resurface the root splash activity with no content left to show.
+			// Note: The decision must be deferred so that a window opened in the same JS tick
+			//       (flows that close this window and immediately open another one) still
+			//       closes this window normally.
+			if (shouldSuspendToBackgroundOnClose()) {
+				final KrollDict finalOptions = options;
+				new Handler(Looper.getMainLooper()).post(() -> {
+					if (shouldSuspendToBackgroundOnClose()) {
+						Activity activity = getActivity();
+						if (activity == null) {
+							activity = TiApplication.getAppRootOrCurrentActivity();
+						}
+						if (activity != null) {
+							activity.moveTaskToBack(true);
+						}
+						// The window is intentionally left open. Resolve so callers won't hang.
+						promise.resolve(null);
+						closePromise = null;
+					} else {
+						handleClose(finalOptions);
+					}
+				});
+				return;
+			}
+
 			handleClose(options);
 			// FIXME: Maybe fire the close event here and set opened to false as well, rather than leaving to subclasses?
 		});
 		return closePromise;
+	}
+
+	private boolean shouldSuspendToBackgroundOnClose()
+	{
+		// Never suspend while root activity is not allowed to exit. (Typically during a LiveView restart.)
+		if (!TiBaseActivity.canFinishRoot) {
+			return false;
+		}
+
+		// Does not apply to windows managed by a tab group or navigation window.
+		if ((this.tab != null) || (this.navigationWindow != null)) {
+			return false;
+		}
+
+		// Only applies to an open window that is the last one left.
+		if (!opened || (TiActivityWindows.getWindowCount() > 1)) {
+			return false;
+		}
+
+		// Does not apply if this window is no longer in the collection, such as a close already
+		// in flight or a native back-out. The remaining window count then refers to OTHER open
+		// windows, so this window must not mistake itself for the last one.
+		if ((this instanceof TiActivityWindow activityWindow) && !TiActivityWindows.hasWindow(activityWindow)) {
+			return false;
+		}
+
+		// Only applies if "exitOnClose" was explicitly set false.
+		if (!hasProperty(TiC.PROPERTY_EXIT_ON_CLOSE)) {
+			return false;
+		}
+		return !TiConvert.toBoolean(getProperty(TiC.PROPERTY_EXIT_ON_CLOSE), true);
 	}
 
 	public void closeFromActivity(boolean activityIsFinishing)
@@ -275,6 +348,51 @@ public abstract class TiWindowProxy extends TiViewProxy
 	{
 		KrollDict d = TiUIHelper.viewToImage(new KrollDict(), getActivity().getWindow().getDecorView());
 		return TiUIHelper.getImageFromDict(d);
+	}
+
+	/**
+	 * Stores the state of an activity that the OS is about to destroy and recreate, such as on a
+	 * dark/light theme switch. Re-applied to the new activity by restoreActivityState().
+	 * @param activityProperties Copy of the old ActivityProxy's properties (onCreateOptionsMenu, etc.).
+	 * @param actionBarState State from ActionBarProxy.getStateToRestore(). Can be null.
+	 */
+	public void setSavedActivityState(KrollDict activityProperties, Map<String, Object> actionBarState)
+	{
+		this.savedActivityProperties = activityProperties;
+		this.savedActionBarState = actionBarState;
+	}
+
+	/**
+	 * Re-applies the ActivityProxy properties and ActionBar state saved from the previous activity
+	 * to the new activity. Must be called after the new activity's content view and title have been
+	 * set up, but before the "open" event fires so JavaScript can still override it.
+	 */
+	protected void restoreActivityState()
+	{
+		KrollDict activityProperties = this.savedActivityProperties;
+		Map<String, Object> actionBarState = this.savedActionBarState;
+		this.savedActivityProperties = null;
+		this.savedActionBarState = null;
+		if ((activityProperties == null) && (actionBarState == null)) {
+			return;
+		}
+		Activity activity = getActivity();
+		if (!(activity instanceof TiBaseActivity tiActivity)) {
+			return;
+		}
+		ActivityProxy activityProxy = tiActivity.getActivityProxy();
+		if (activityProxy == null) {
+			return;
+		}
+		if ((activityProperties != null) && !activityProperties.isEmpty()) {
+			activityProxy.extend(activityProperties);
+		}
+		if ((actionBarState != null) && !actionBarState.isEmpty()) {
+			ActionBarProxy actionBarProxy = activityProxy.getActionBar();
+			if (actionBarProxy != null) {
+				actionBarProxy.restoreState(actionBarState);
+			}
+		}
 	}
 
 	/*

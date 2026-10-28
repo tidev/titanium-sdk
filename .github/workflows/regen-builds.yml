@@ -21,3 +21,11 @@ jobs:
         event-type: regen-builds
         repository: tidev/downloads-www
         token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+
+    - name: Repository Dispatch (titanium-www)
+      if: github.event.workflow_run.conclusion == 'success'
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        event-type: regen-builds
+        repository: tidev/titanium-www
+        token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}

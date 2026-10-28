@@ -13,11 +13,11 @@
 	],
 	"version": "__VERSION__",
 	"author": "TiDev, Inc. <npm@tidev.io>",
-	"minIosVersion": "15.0",
+	"minIosVersion": "16.0",
 	"minWatchosVersion": "8.0",
 	"vendorDependencies": {
-		"xcode": ">=15.0 <=26.x",
-		"ios sdk": ">=17.0 <=26.x"
+		"xcode": ">=16.0 <=27.x",
+		"ios sdk": ">=18.0 <=27.x"
 	},
 	"repository": {
 		"type": "git",

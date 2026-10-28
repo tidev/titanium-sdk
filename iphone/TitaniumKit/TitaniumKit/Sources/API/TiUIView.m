@@ -21,7 +21,7 @@ void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, C
 {
   VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f", scrollView, keyboardTop, minimumContentHeight);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
   // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
@@ -54,7 +54,7 @@ void OffsetScrollViewForRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFl
       scrollView, keyboardTop, minimumContentHeight,
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
   // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
@@ -98,7 +98,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
       scrollView, keyboardTop, minimumContentHeight,
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
   // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
@@ -464,6 +464,12 @@ DEFINE_EXCEPTIONS
     }
   }
 
+  // Redraw the background image so a dark-mode rendition from the asset catalog is picked up
+  id backgroundImageValue = [self.proxy valueForKey:@"backgroundImage"];
+  if (backgroundImageValue != nil && backgroundImage != nil) {
+    [self setBackgroundImage_:backgroundImageValue];
+  }
+
   if (hasStoredBackgroundForSelectionHighlight) {
     [self refreshBackgroundSelectedHighlight];
   }
@@ -741,6 +747,18 @@ DEFINE_EXCEPTIONS
 //   background colors everywhere - and this starts getting really complicated for some views
 //   (on the off chance somebody wants to swap tesselation AND has a background color they want to replace it with).
 
+// Images loaded via [UIImage imageNamed:] from the asset catalog can carry light/dark
+// renditions. UIImageView resolves them automatically, but we render into a CALayer via
+// CGImage, so we have to resolve the rendition against this view's trait collection ourselves.
+- (UIImage *)resolveDynamicImage:(UIImage *)image
+{
+  if (image == nil || image.imageAsset == nil) {
+    return image;
+  }
+  UIImage *resolved = [image.imageAsset imageWithTraitCollection:self.traitCollection];
+  return resolved != nil ? resolved : image;
+}
+
 - (void)renderRepeatedBackground:(id)image
 {
   if (![NSThread isMainThread]) {
@@ -752,7 +770,7 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
   if (bgImage == nil) {
     [self backgroundImageLayer].contents = nil;
     return;
@@ -799,7 +817,7 @@ DEFINE_EXCEPTIONS
 
 - (void)setBackgroundImage_:(id)image
 {
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
 
   if (bgImage == nil) {
     [bgdImageLayer removeFromSuperlayer];

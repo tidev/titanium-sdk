@@ -59,8 +59,8 @@ public class KrollBindingGenerator
 
 	protected void initTemplates()
 	{
-		fmConfig = new Configuration();
-		fmConfig.setObjectWrapper(new DefaultObjectWrapper());
+		fmConfig = new Configuration(Configuration.VERSION_2_3_30);
+		fmConfig.setObjectWrapper(new DefaultObjectWrapper(Configuration.VERSION_2_3_30));
 		fmConfig.setClassForTemplateLoading(getClass(), "");
 
 		try {

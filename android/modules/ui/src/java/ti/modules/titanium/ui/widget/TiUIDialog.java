@@ -92,10 +92,9 @@ public class TiUIDialog extends TiUIView
 				builder.setMessage(d.getString(TiC.PROPERTY_MESSAGE));
 			}
 		}
-		if (d.containsKey(TiC.PROPERTY_BUTTON_NAMES)) {
-			buttonText = d.getStringArray(TiC.PROPERTY_BUTTON_NAMES);
-		} else if (d.containsKey(TiC.PROPERTY_OK)) {
-			buttonText = new String[] { d.getString(TiC.PROPERTY_OK) };
+		if (d.containsKey(TiC.PROPERTY_BUTTON_NAMES) || d.containsKey(TiC.PROPERTY_OK)) {
+			buttonText = resolveButtonText(
+				d.get(TiC.PROPERTY_BUTTON_NAMES), d.containsKey(TiC.PROPERTY_OK), d.get(TiC.PROPERTY_OK));
 		}
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_ANDROID_VIEW)) {
 			processView((TiViewProxy) proxy.getProperty(TiC.PROPERTY_ANDROID_VIEW));
@@ -150,6 +149,24 @@ public class TiUIDialog extends TiUIView
 		}
 	}
 
+	// "buttonNames" defaults to an empty array (see AlertDialogProxy), so only
+	// a non-empty array may replace the "ok" button. A null or non-array value
+	// is treated as an empty array.
+	private static String[] resolveButtonText(Object buttonNames, boolean hasOk, Object ok)
+	{
+		String[] names = TiConvert.toStringArray((buttonNames instanceof Object[]) ? (Object[]) buttonNames : null);
+		if ((names.length == 0) && hasOk) {
+			return new String[] { TiConvert.toString(ok) };
+		}
+		return names;
+	}
+
+	private boolean hasButtonNames()
+	{
+		Object value = proxy.getProperty(TiC.PROPERTY_BUTTON_NAMES);
+		return (value instanceof Object[]) && (((Object[]) value).length > 0);
+	}
+
 	private void processButtons(String[] buttonText)
 	{
 		MaterialAlertDialogBuilder builder = getBuilder();
@@ -165,10 +182,7 @@ public class TiUIDialog extends TiUIView
 			public void onCancel(DialogInterface dialog)
 			{
 				dialog = null;
-				if (view != null) {
-					view.getProxy().releaseViews();
-					view = null;
-				}
+				releaseView();
 			}
 		});
 
@@ -238,8 +252,9 @@ public class TiUIDialog extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_BUTTON_NAMES)) {
 			dismissDialog();
-			processButtons(TiConvert.toStringArray((Object[]) newValue));
-		} else if (key.equals(TiC.PROPERTY_OK) && !proxy.hasProperty(TiC.PROPERTY_BUTTON_NAMES)) {
+			processButtons(resolveButtonText(
+				newValue, proxy.hasProperty(TiC.PROPERTY_OK), proxy.getProperty(TiC.PROPERTY_OK)));
+		} else if (key.equals(TiC.PROPERTY_OK) && !hasButtonNames()) {
 			dismissDialog();
 			processButtons(new String[] { TiConvert.toString(newValue) });
 		} else if (key.equals(TiC.PROPERTY_OPTIONS)) {
@@ -265,6 +280,7 @@ public class TiUIDialog extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_ANDROID_VIEW)) {
 			dismissDialog();
+			releaseView();
 			if (newValue != null) {
 				processView((TiViewProxy) newValue);
 			} else {
@@ -328,6 +344,18 @@ public class TiUIDialog extends TiUIView
 				}
 			});
 			dialog = builder.create();
+			// The hosting activity dismisses the dialog directly when it finishes. That path skips the
+			// cancel and click listeners, so release the "androidView" here for every dismissal.
+			// Android posts this callback asynchronously, so bind it to the view shown by this dialog.
+			// A replacement "androidView" assigned before the callback runs must stay alive.
+			final TiUIView dismissedView = this.view;
+			dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+				@Override
+				public void onDismiss(DialogInterface dlg)
+				{
+					releaseView(dismissedView);
+				}
+			});
 			dialog.setCanceledOnTouchOutside(
 				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, true));
 			dialog.setCancelable(!proxy.getProperties().optBoolean(TiC.PROPERTY_BUTTON_CLICK_REQUIRED, false));
@@ -372,13 +400,36 @@ public class TiUIDialog extends TiUIView
 	public void hide(KrollDict options)
 	{
 		dismissDialog();
-		if (this.view != null) {
-			TiViewProxy proxy = this.view.getProxy();
-			if (proxy != null) {
-				proxy.releaseViews();
-			}
-			this.view = null;
+		releaseView();
+	}
+
+	/** Releases the native views of the "androidView" proxy so that they do not outlive the dialog's activity. */
+	private void releaseView()
+	{
+		releaseView(this.view);
+	}
+
+	/**
+	 * Releases the given "androidView" only if it is still the view assigned to this dialog.
+	 * A dismissal callback from an old dialog must not release a replacement view that was assigned afterwards.
+	 */
+	private void releaseView(TiUIView viewToRelease)
+	{
+		if ((viewToRelease == null) || (viewToRelease != this.view)) {
+			return;
 		}
+		TiViewProxy proxy = viewToRelease.getProxy();
+		if (proxy != null) {
+			proxy.releaseViews();
+		}
+		this.view = null;
+	}
+
+	@Override
+	public void release()
+	{
+		releaseView();
+		super.release();
 	}
 
 	private void dismissDialog()

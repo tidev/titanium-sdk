@@ -781,6 +781,9 @@ public class TabGroupProxy extends TiWindowProxy implements TiActivityWindow
 		opened = true;
 		opening = false;
 
+		// Re-apply activity callbacks and ActionBar settings if the activity was recreated by the OS.
+		restoreActivityState();
+
 		// Fire open event before we load and focus on first tab.
 		fireEvent(TiC.EVENT_OPEN, null);
 

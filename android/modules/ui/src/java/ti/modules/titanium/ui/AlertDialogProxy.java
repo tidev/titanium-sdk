@@ -36,6 +36,8 @@ public class AlertDialogProxy extends TiViewProxy
 	public AlertDialogProxy()
 	{
 		super();
+		defaultValues.put(TiC.PROPERTY_BUTTON_NAMES, new Object[0]);
+		defaultValues.put(TiC.PROPERTY_CANCEL, -1);
 	}
 
 	@Override

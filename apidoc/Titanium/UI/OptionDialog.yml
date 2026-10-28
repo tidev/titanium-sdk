@@ -118,7 +118,7 @@ methods:
       - name: params
         # FIXME: I think this is used on iOS, not just iPad
         summary: Argument containing parameters for this method. Only used on iPad.
-        type: showParams
+        type: OptionDialogShowParams
         optional: true
 
   - name: hide
@@ -371,7 +371,7 @@ properties:
     type: Boolean
 
 ---
-name: showParams
+name: OptionDialogShowParams
 summary: Dictionary of options for the <Titanium.UI.OptionDialog.show> method.
 platforms: [ipad, macos]
 
