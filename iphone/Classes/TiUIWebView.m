@@ -918,8 +918,33 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
       completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
     }
     // HTTPS in general
-  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]
-      || [authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]) {
+  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodServerTrust]) {
+    // ServerTrust challenges fire for EVERY HTTPS load, not just invalid
+    // certs. Validate the trust chain; only fire "sslerror" for actual
+    // certificate errors (expired, self-signed, untrusted root, etc.).
+    SecTrustRef trust = [[challenge protectionSpace] serverTrust];
+    CFErrorRef trustError = NULL;
+    BOOL certIsValid = SecTrustEvaluateWithError(trust, &trustError);
+    if (trustError) {
+      CFRelease(trustError);
+    }
+
+    if (certIsValid) {
+      // Valid certificate — accept it normally.
+      NSURLCredential *credential = [NSURLCredential credentialForTrust:trust];
+      completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+    } else if (ignoreSSLError) {
+      // Invalid cert but user wants to ignore SSL errors — accept anyway.
+      NSURLCredential *credential = [NSURLCredential credentialForTrust:trust];
+      completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
+    } else {
+      // Invalid cert — fire "sslerror" event and cancel the challenge.
+      if ([[self proxy] _hasListeners:@"sslerror"]) {
+        [self.proxy fireEvent:@"sslerror"];
+      }
+      completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, nil);
+    }
+  } else if ([authenticationMethod isEqualToString:NSURLAuthenticationMethodClientCertificate]) {
     completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
     // Default: Reject authentication challenge
   } else {
@@ -1053,7 +1078,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
     decisionHandler(WKNavigationActionPolicyCancel);
     return;
   }
-  NSArray<NSString *> *allowedURLSchemes = [[self proxy] valueForKey:@"allowedURLSchemes"];
+  TiProxy *proxy = [self proxy];
+  if (proxy == nil) {
+    decisionHandler(WKNavigationActionPolicyCancel);
+    return;
+  }
+  NSArray<NSString *> *allowedURLSchemes = [proxy valueForKey:@"allowedURLSchemes"];
 
   // Do not load the URL if it's black-listed.
   // DEPRECATED: Should use "blockedURLs" property with a "blockedurl" event listener instead.
@@ -1061,12 +1091,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if (_blacklistedURLs != nil && _blacklistedURLs.count > 0) {
     for (NSString *blockedURL in _blacklistedURLs) {
       if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        if ([[self proxy] _hasListeners:@"blacklisturl"]) {
-          [[self proxy] fireEvent:@"blacklisturl"
-                       withObject:@{
-                         @"url" : urlCandidate,
-                         @"message" : @"Webview did not load blacklisted url."
-                       }];
+        if ([proxy _hasListeners:@"blacklisturl"]) {
+          [proxy fireEvent:@"blacklisturl"
+                withObject:@{
+                  @"url" : urlCandidate,
+                  @"message" : @"Webview did not load blacklisted url."
+                }];
         }
         decisionHandler(WKNavigationActionPolicyCancel);
         [self _cleanupLoadingIndicator];
@@ -1079,12 +1109,12 @@ static NSString *const baseInjectScript = @"Ti._hexish=function(a){var r='';var 
   if (_blockedURLs != nil && _blockedURLs.count > 0) {
     for (NSString *blockedURL in _blockedURLs) {
       if ([urlCandidate rangeOfString:blockedURL options:NSCaseInsensitiveSearch].location != NSNotFound) {
-        if ([[self proxy] _hasListeners:@"blockedurl"]) {
-          [[self proxy] fireEvent:@"blockedurl"
-                       withObject:@{
-                         @"url" : urlCandidate,
-                         @"message" : @"Webview did not load blocked url."
-                       }];
+        if ([proxy _hasListeners:@"blockedurl"]) {
+          [proxy fireEvent:@"blockedurl"
+                withObject:@{
+                  @"url" : urlCandidate,
+                  @"message" : @"Webview did not load blocked url."
+                }];
         }
         decisionHandler(WKNavigationActionPolicyCancel);
         [self _cleanupLoadingIndicator];
