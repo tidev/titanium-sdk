@@ -17,8 +17,8 @@
 			"integrity": "sha512-KiZp4JOTjXRLnN6mEy7/97FvPXCAHPI5xFJl3H8yME+rzK+WMZ842L/mgD0iq3pGIHrjD1mz6X2B5vm+oP5stQ=="
 		},
 		"ti.webdialog": {
-			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v3.0.2-ios/ti.webdialog-iphone-3.0.2.zip",
-			"integrity": "sha512-uczzY/Lj8h0bU402LBs+OkRcuzhI3sMqSYGexQt6kqxN5fPb/lsfPaXi4jWjiWXf2TyxcwFTbVD7Mj4mZN0dDw=="
+			"url": "https://github.com/tidev/titanium-web-dialog/releases/download/v4.0.0-ios/ti.webdialog-iphone-4.0.0.zip",
+			"integrity": "sha512-ntbbEgqB+ZUEVqEU8lQgqGxuX/v0vn0dgrLQ3ip2Ep9dCtGQdOCSaqODAB1QcQ6Sx/gc2oq+3rQDpQADVop3Pg=="
 		},
 		"ti.identity": {
 			"url": "https://github.com/tidev/titanium-identity/releases/download/v5.0.0-ios/ti.identity-iphone-5.0.0.zip",
