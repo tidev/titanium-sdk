@@ -42,6 +42,27 @@ describe('Titanium.UI.TextArea', () => {
 			});
 		});
 
+		describe('.scrollable', () => {
+			it('defaults to true', () => {
+				const textArea = Ti.UI.createTextArea();
+				should(textArea).have.property('scrollable').which.is.a.Boolean();
+				should(textArea.scrollable).be.true();
+			});
+
+			it('equals value passed to factory method', () => {
+				const textArea = Ti.UI.createTextArea({ scrollable: false });
+				should(textArea.scrollable).be.false();
+			});
+
+			it('can be changed after creation', () => {
+				const textArea = Ti.UI.createTextArea({ scrollable: false });
+				textArea.scrollable = true;
+				should(textArea.scrollable).be.true();
+				textArea.scrollable = false;
+				should(textArea.scrollable).be.false();
+			});
+		});
+
 		describe('.backgroundColor', () => {
 			let textArea;
 			beforeEach(() => {
