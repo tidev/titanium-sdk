@@ -83,6 +83,7 @@ public class TiC
 	public static final String EVENT_KEYBOARD_FRAME_CHANGED = "keyboardframechanged";
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_ITEM_CLICK = "itemclick";
+	public static final String EVENT_ITEM_LONGPRESS = "itemlongpress";
 	public static final String EVENT_ITEMS_SELECTED = "itemsselected";
 	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_LOADSTATE = "loadstate";

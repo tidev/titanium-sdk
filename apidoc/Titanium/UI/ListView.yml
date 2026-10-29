@@ -261,6 +261,37 @@ events:
         type: Boolean
         platforms: [iphone, ipad, macos]
 
+  - name: itemlongpress
+    summary: Fired when a list row is pressed and held by the user.
+    description: |
+        Do not rely on the `source` property to determine which item fired the event.  Use the
+        `sectionIndex` and `itemIndex`, or the `itemId` to determine the list item that generated
+        the event, and use the `bindId` to check which child control was pressed.
+
+        When a listener for this event exists, a long press does not fire the
+        [itemclick](Titanium.UI.ListView.itemclick) event for the same touch.
+    properties:
+      - name: section
+        summary: List section if the item is contained in a list section.
+        type: Titanium.UI.ListSection
+
+      - name: sectionIndex
+        summary: Section index.
+        type: Number
+
+      - name: itemIndex
+        summary: Item index.
+        type: Number
+
+      - name: itemId
+        summary: The item ID bound to the list item that generated the event.
+        type: String
+
+      - name: bindId
+        summary: The bind ID of the control that was pressed, if one exists.
+        type: String
+    since: '14.0.0'
+
   - name: itemsselected
     summary: |
       Fired when user stops two-pan gesture interaction for selecting multiple items.

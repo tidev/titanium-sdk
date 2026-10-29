@@ -8,6 +8,7 @@ package org.appcelerator.titanium.util;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -46,6 +47,19 @@ public class TiEdgeToEdgeHelper
 
 		// Enable edge-to-edge drawing.
 		WindowCompat.setDecorFitsSystemWindows(window, false);
+
+		// On API 30-34, the above also sets the legacy SYSTEM_UI_FLAG_LAYOUT_STABLE flag. With that
+		// flag set, AppCompat's ActionBarOverlayLayout measures the content with a fixed top inset
+		// of "actionBarSize", even when the ActionBar is hidden. A window with "navBarHidden" set
+		// would then show an empty bar-sized gap above its content. The flag is not needed for
+		// edge-to-edge on these API levels, so clear it. (API 35+ never sets it.)
+		if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && (Build.VERSION.SDK_INT < 35)) {
+			View decorView = window.getDecorView();
+			int flags = decorView.getSystemUiVisibility();
+			if ((flags & View.SYSTEM_UI_FLAG_LAYOUT_STABLE) != 0) {
+				decorView.setSystemUiVisibility(flags & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+			}
+		}
 
 		View content = activity.findViewById(android.R.id.content);
 		if (content == null) {
