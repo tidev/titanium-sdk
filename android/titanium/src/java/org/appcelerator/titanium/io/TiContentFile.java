@@ -291,7 +291,7 @@ public class TiContentFile extends TiBaseFile
 		// Check if we have public file system access. (This is the fastest check.)
 		try {
 			File file = getNativeFile();
-			if (file.exists()) {
+			if ((file != null) && file.exists()) {
 				return true;
 			}
 		} catch (Exception ex) {
@@ -322,6 +322,31 @@ public class TiContentFile extends TiBaseFile
 				return true;
 			}
 		} catch (Exception ex) {
+		}
+
+		// Fallback for "android.resource://" URIs: on some Android versions
+		// (notably API 36+) the ContentResolver methods above can fail to
+		// open the resource even when it exists. Verify the resource is
+		// present by looking up its resource ID via Resources.
+		if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(this.uri.getScheme())) {
+			try {
+				android.content.res.Resources resources = TiApplication.getInstance().getPackageManager()
+					.getResourcesForApplication(this.uri.getHost());
+				String path = this.uri.getPath();
+				if (path != null) {
+					// Path is expected to be "/<type>/<name>".
+					String[] segments = path.split("/");
+					if (segments.length >= 3) {
+						String type = segments[1];
+						String name = segments[2];
+						int resourceId = resources.getIdentifier(name, type, this.uri.getHost());
+						if (resourceId != 0) {
+							return true;
+						}
+					}
+				}
+			} catch (Exception ex) {
+			}
 		}
 
 		// File not found.
