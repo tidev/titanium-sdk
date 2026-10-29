@@ -52,9 +52,20 @@
   BOOL statusBarIsHidden;
   BOOL statusBarVisibilityChanged;
   NSInteger activeAlertControllerCount;
+
+  // UIHingeInteraction (iOS 27.1+), kept as `id` so the header does not depend on the SDK version
+  id hingeInteraction;
 }
 
 // Titanium Support
+
+/**
+ Starts or stops observing the hinge of the device (iPhone Duo, iOS 27.1+). While enabled,
+ `kTiHingeChanged` is posted with the object being this controller and a user info containing
+ the `status` (UIHingeStatus) and `angle` (in degrees) of the hinge. Does nothing on other devices.
+ */
+- (void)setHingeObservationEnabled:(BOOL)enabled;
+
 - (CGRect)resizeView;
 - (void)repositionSubviews;
 - (UIView *)topWindowProxyView;

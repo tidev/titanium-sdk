@@ -1,14 +1,14 @@
 
 # Summary
 
-This module is built with Titanium SDK 9.2.0.
+This module is built with Titanium SDK 13.4.1.
 
 Used by the unit test suite to verify module backward compatibility support when
-running with a newer Titanium version (ex: Titanium SDK 10.0.0).
+running with a newer Titanium version (ex: Titanium SDK 14.0.0).
 
 # How to Build
 
-Prerequisite: Install Titanium SDK 9.2.0.GA
+Prerequisite: Install Titanium SDK 13.4.1.GA
 
 Instructions:
 1. Open the Terminal.

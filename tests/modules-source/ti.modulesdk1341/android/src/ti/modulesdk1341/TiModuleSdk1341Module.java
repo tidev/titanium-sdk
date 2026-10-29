@@ -6,7 +6,7 @@
  * Please see the LICENSE included with this distribution for details.
  *
  */
-package ti.modulesdk920;
+package ti.modulesdk1341;
 
 import java.util.Date;
 import java.util.Map;
@@ -16,8 +16,8 @@ import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.titanium.TiApplication;
 
-@Kroll.module(name="TiModuleSdk920", id="ti.modulesdk920")
-public class TiModuleSdk920Module extends KrollModule
+@Kroll.module(name="TiModuleSdk1341", id="ti.modulesdk1341")
+public class TiModuleSdk1341Module extends KrollModule
 {
 	@Kroll.constant
 	public static final int INT_VALUE_1 = 1;

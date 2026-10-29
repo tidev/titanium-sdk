@@ -206,6 +206,14 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		}
 	}
 
+	// Moves an already tracked activity to the top of the stack, so getCurrentActivity() returns it.
+	public static void moveToTopOfActivityStack(Activity activity)
+	{
+		if ((activity != null) && activityStack.remove(activity)) {
+			activityStack.add(new WeakReference<>(activity));
+		}
+	}
+
 	// Calls finish on the list of activities in the stack. This should only be called when we want to terminate the
 	// application (typically when the root activity is destroyed)
 	public static void terminateActivityStack()
@@ -924,6 +932,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		TiBaseActivity.canFinishRoot = canFinishRoot;
 		addToActivityStack(rootActivity);
 
+		// Cancel all JavaScript timers. Their callbacks belong to the runtime that is about to be disposed.
+		cancelTimers();
+
 		// restart kroll runtime
 		KrollRuntime runtime = KrollRuntime.getInstance();
 		runtime.doDispose();
@@ -949,6 +960,9 @@ public abstract class TiApplication extends Application implements KrollApplicat
 		intent.setAction(Intent.ACTION_MAIN);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
+		// Prevent window activities destroyed by the above CLEAR_TOP from soft-restarting the runtime.
+		// The process is killed below anyways.
+		TiBaseActivity.canFinishRoot = false;
 		activity.startActivity(intent);
 
 		// To avoid seeing duplicate app snapshots in Task Manager, one with empty content often.

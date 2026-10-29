@@ -83,6 +83,7 @@ public class TiC
 	public static final String EVENT_KEYBOARD_FRAME_CHANGED = "keyboardframechanged";
 	public static final String EVENT_HEADING = "heading";
 	public static final String EVENT_ITEM_CLICK = "itemclick";
+	public static final String EVENT_ITEM_LONGPRESS = "itemlongpress";
 	public static final String EVENT_ITEMS_SELECTED = "itemsselected";
 	public static final String EVENT_LOAD = "load";
 	public static final String EVENT_LOADSTATE = "loadstate";
@@ -546,6 +547,7 @@ public class TiC
 	public static final String PROPERTY_LED_OFF_MS = "ledOffMS";
 	public static final String PROPERTY_LED_ON_MS = "ledOnMS";
 	public static final String PROPERTY_LEFT = "left";
+	public static final String PROPERTY_LEFT_ADJUST = "leftAdjust";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
 	public static final String PROPERTY_LEFT_VIEW = "leftView";
