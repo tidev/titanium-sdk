@@ -27,6 +27,39 @@ describe('Titanium.UI.Button', function () {
 		}
 	});
 
+	describe.ios('as a bar button', () => {
+		it('accepts .visibilityPriority and .axisBehavior in a navigation bar', finish => {
+			const items = [
+				Ti.UI.createButton({
+					title: 'One',
+					visibilityPriority: Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_HIGH,
+					axisBehavior: Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED
+				}),
+				Ti.UI.createButton({
+					title: 'Two',
+					visibilityPriority: Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_LOW,
+					axisBehavior: Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY
+				})
+			];
+			win = Ti.UI.createWindow({ rightNavButtons: items });
+			const nav = Ti.UI.createNavigationWindow({ window: win });
+			win.addEventListener('open', () => {
+				try {
+					// Properties can be changed once the item is in the bar
+					items[0].visibilityPriority = Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD;
+					items[0].axisBehavior = Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC;
+					should(items[0].visibilityPriority).be.eql(Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD);
+					should(items[0].axisBehavior).be.eql(Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC);
+					win = nav; // close the navigation window, which closes the root window too
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			});
+			nav.open();
+		});
+	});
+
 	it('.apiName', () => {
 		const button = Ti.UI.createButton({
 			title: 'this is some text'

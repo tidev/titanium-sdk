@@ -42,7 +42,8 @@ public class TiBroadcastReceiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		if (url != null) {
-			KrollRuntime.isInitialized();
+			// Restart the runtime if it was disposed. Happens when the user exits the app and the process survives.
+			KrollRuntime.initIfDisposed();
 			KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(url), url, proxy);
 		} else if (callback != null) {
 			KrollDict event = new KrollDict();

@@ -19,6 +19,26 @@ extern "C" {
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
 
+// Whether the SDK used to compile is new enough to expose the iOS 26 APIs (e.g. Liquid Glass).
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+#define IS_SDK_IOS_26 true
+#else
+#define IS_SDK_IOS_26 false
+#endif
+
+// Whether the SDK used to compile is new enough to expose the iOS 27 / 27.1 APIs (e.g. iPhone Duo).
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270000
+#define IS_SDK_IOS_27 true
+#else
+#define IS_SDK_IOS_27 false
+#endif
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
+#define IS_SDK_IOS_27_1 true
+#else
+#define IS_SDK_IOS_27_1 false
+#endif
+
 #ifndef __IPHONE_4_1
 #define __IPHONE_4_1 40100
 #endif
@@ -608,9 +628,16 @@ extern NSString *const kTiURLDowloadProgress;
 extern NSString *const kTiURLUploadProgress;
 extern NSString *const kTiWatchKitExtensionRequest;
 extern NSString *const kTiContinueActivity;
+extern NSString *const kTiSceneDismissNotification;
+extern NSString *const kTiSceneWillConnectNotification;
+extern NSString *const kTiSceneDidBecomeActiveNotification;
+extern NSString *const kTiSceneWillResignActiveNotification;
+extern NSString *const kTiSceneDidEnterBackgroundNotification;
+extern NSString *const kTiSceneWillEnterForegroundNotification;
 extern NSString *const kTiApplicationShortcut;
 extern NSString *const kTiApplicationLaunchedFromURL;
 extern NSString *const kTiTraitCollectionChanged;
+extern NSString *const kTiHingeChanged;
 
 #ifndef TI_USE_AUTOLAYOUT
 extern NSString *const kTiBehaviorSize;
