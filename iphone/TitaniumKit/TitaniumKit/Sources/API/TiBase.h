@@ -19,6 +19,13 @@ extern "C" {
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
 
+// Whether the SDK used to compile is new enough to expose the iOS 26 APIs (e.g. Liquid Glass).
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+#define IS_SDK_IOS_26 true
+#else
+#define IS_SDK_IOS_26 false
+#endif
+
 // Whether the SDK used to compile is new enough to expose the iOS 27 / 27.1 APIs (e.g. iPhone Duo).
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270000
 #define IS_SDK_IOS_27 true
