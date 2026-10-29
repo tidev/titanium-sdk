@@ -29,7 +29,7 @@ public class ListSectionProxy extends TiViewProxy
 {
 	private static final String TAG = "ListSectionProxy";
 
-	protected List<ListItemProxy> items = new ArrayList<>();
+	protected final List<ListItemEntry> items = new ArrayList<>();
 
 	private int filteredItemCount = -1;
 	private boolean shouldUpdate = true;
@@ -48,13 +48,15 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.method
 	public void appendItems(Object dataItems, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		final List<ListItemProxy> items = processItems(dataItems);
+		final List<ListItemEntry> items = processItems(dataItems);
 
 		// Add to current items.
+		final int start = this.items.size();
 		this.items.addAll(items);
+		reindex(start);
 
 		// Notify ListView of new items.
-		update();
+		notifyItemsInserted(start, items.size());
 	}
 
 	@Override
@@ -75,16 +77,19 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.method
 	public void deleteItemsAt(int index, int count, @Kroll.argument(optional = true) KrollDict animation)
 	{
+		final List<ListItemEntry> removedEntries = new ArrayList<>(Math.max(count, 0));
 		for (int i = 0; i < count; i++) {
-			final ListItemProxy item = this.items.get(index);
+			final ListItemEntry entry = this.items.get(index);
 
 			// Remove item.
-			item.setParent(null);
-			this.items.remove(item);
+			this.items.remove(index);
+			entry.setSection(null);
+			removedEntries.add(entry);
 		}
+		reindex(index);
 
 		// Notify ListView of deleted items.
-		update();
+		notifyItemsDeleted(index, removedEntries);
 	}
 
 	@Override
@@ -131,8 +136,12 @@ public class ListSectionProxy extends TiViewProxy
 			}
 		}
 
-		for (final ListItemProxy item : this.items) {
-			item.setActivity(activity);
+		// Only rows that have been displayed have a proxy. The rest pick up the activity when created.
+		for (final ListItemEntry entry : this.items) {
+			final ListItemProxy item = entry.peekProxy();
+			if (item != null) {
+				item.setActivity(activity);
+			}
 		}
 	}
 
@@ -159,6 +168,20 @@ public class ListSectionProxy extends TiViewProxy
 
 			// Return ListDataItem for specified index.
 			return this.items.get(index).getDataItem();
+		}
+		return null;
+	}
+
+	/**
+	 * Get the entry at specified index without creating its item proxy.
+	 *
+	 * @param index Index of entry to obtain.
+	 * @return ListItemEntry or null if index is out of range.
+	 */
+	public ListItemEntry getEntryAt(int index)
+	{
+		if (index >= 0 && index < this.items.size()) {
+			return this.items.get(index);
 		}
 		return null;
 	}
@@ -200,37 +223,67 @@ public class ListSectionProxy extends TiViewProxy
 	}
 
 	/**
-	 * Obtain ListItemProxy from index in section.
+	 * Obtain ListItemProxy from index in section, creating it if the row was never displayed.
+	 * Prefer getEntryAt() or peekListItemAt() when the proxy is not strictly required.
 	 *
 	 * @param index Integer of index to obtain ListItemProxy from.
-	 * @return ListItemProxy
+	 * @return ListItemProxy or null if index is out of range.
 	 */
 	public ListItemProxy getListItemAt(int index)
 	{
-		try {
-			return this.items.get(index);
-		} catch (Exception e) {
+		final ListItemEntry entry = getEntryAt(index);
+		return (entry != null) ? entry.getProxy() : null;
+	}
+
+	/**
+	 * Obtain ListItemProxy from index in section without creating it.
+	 *
+	 * @param index Integer of index to obtain ListItemProxy from.
+	 * @return ListItemProxy or null if index is out of range or the row was never displayed.
+	 */
+	public ListItemProxy peekListItemAt(int index)
+	{
+		final ListItemEntry entry = getEntryAt(index);
+		return (entry != null) ? entry.peekProxy() : null;
+	}
+
+	/**
+	 * Obtain entry index in section.
+	 *
+	 * @param entry Entry to obtain index of.
+	 * @return Integer of index or -1 if not found.
+	 */
+	public int getListItemIndex(ListItemEntry entry)
+	{
+		if (entry == null) {
+			return -1;
 		}
-		return null;
+
+		// Use cached index when still valid. Falls back to a linear search otherwise.
+		final int index = entry.getIndexInSection();
+		if ((index >= 0) && (index < this.items.size()) && (this.items.get(index) == entry)) {
+			return index;
+		}
+		return this.items.indexOf(entry);
 	}
 
 	/**
 	 * Obtain ListItemProxy index in section.
 	 *
 	 * @param item ListItemProxy of item to obtain index of.
-	 * @return Integer of index.
+	 * @return Integer of index or -1 if not found.
 	 */
 	public int getListItemIndex(ListItemProxy item)
 	{
-		return this.items.indexOf(item);
+		return (item != null) ? getListItemIndex(item.getEntry()) : -1;
 	}
 
 	/**
-	 * Obtain current items in section.
+	 * Obtain current entries in section.
 	 *
-	 * @return ArrayList of ListItemProxy in section.
+	 * @return List of ListItemEntry in section.
 	 */
-	public List<ListItemProxy> getListItems()
+	public List<ListItemEntry> getEntries()
 	{
 		return this.items;
 	}
@@ -261,13 +314,14 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.method
 	public void insertItemsAt(int index, Object dataItems, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		final List<ListItemProxy> items = processItems(dataItems);
+		final List<ListItemEntry> items = processItems(dataItems);
 
 		// Insert items at specified index.
 		this.items.addAll(index, items);
+		reindex(index);
 
 		// Notify ListView of new items.
-		update();
+		notifyItemsInserted(index, items.size());
 	}
 
 	/**
@@ -285,59 +339,81 @@ public class ListSectionProxy extends TiViewProxy
 	}
 
 	/**
-	 * Process ListDataItem dictionary into ListItemProxy.
+	 * Process ListDataItem dictionary into a section entry.
+	 * The ListItemProxy is not created here. It is created when the row is displayed.
 	 *
-	 * @param object ListDataItem or ListItemProxy.
-	 * @return ListItemProxy
+	 * @param object ListDataItem, ListItemProxy or ListItemEntry.
+	 * @return ListItemEntry
 	 */
-	private ListItemProxy processItem(Object object)
+	private ListItemEntry processItem(Object object)
 	{
+		ListItemEntry entry = null;
+
 		if (object instanceof HashMap) {
 
-			// Create ListItem from ListItemData.
-			final ListItemProxy item = new ListItemProxy();
-
-			item.setParent(this);
-			item.handleCreationDataItem(new KrollDict((HashMap) object));
-
-			return item;
+			// Keep the raw ListDataItem. A ListItem proxy is only created when the row is shown.
+			entry = new ListItemEntry((HashMap<String, Object>) object);
 
 		} else if (object instanceof ListItemProxy item) {
 
-			item.setParent(this);
-			return item;
+			// Re-use the item's existing entry if it is not attached to a section anymore,
+			// which keeps its identity when moved between sections.
+			final ListItemEntry existingEntry = item.getEntry();
+			entry = (existingEntry != null && existingEntry.getSection() == null)
+				? existingEntry : new ListItemEntry(item);
+
+		} else if (object instanceof ListItemEntry existingEntry) {
+
+			entry = existingEntry;
 		}
 
-		return null;
+		if (entry != null) {
+			entry.setSection(this);
+		}
+		return entry;
 	}
 
 	/**
-	 * Process ListDataItem array into ListItemProxy array.
+	 * Process ListDataItem array into section entries.
 	 *
 	 * @param objects ListDataItem array to process.
-	 * @return ArrayList of ListItemProxy items.
+	 * @return ArrayList of ListItemEntry items.
 	 */
-	private List<ListItemProxy> processItems(Object objects)
+	private List<ListItemEntry> processItems(Object objects)
 	{
-		final List<ListItemProxy> items = new ArrayList<>();
+		final List<ListItemEntry> items;
 
-		if (objects instanceof Object[]) {
-			for (final Object object : (Object[]) objects) {
-				final ListItemProxy item = processItem(object);
+		if (objects instanceof Object[] objectArray) {
+			items = new ArrayList<>(objectArray.length);
+			for (final Object object : objectArray) {
+				final ListItemEntry entry = processItem(object);
 
-				if (item != null) {
-					items.add(item);
+				if (entry != null) {
+					items.add(entry);
 				}
 			}
-		} else if (objects instanceof Object) {
-			final ListItemProxy item = processItem(objects);
+		} else {
+			items = new ArrayList<>(1);
+			final ListItemEntry entry = processItem(objects);
 
-			if (item != null) {
-				items.add(item);
+			if (entry != null) {
+				items.add(entry);
 			}
 		}
 
 		return items;
+	}
+
+	/**
+	 * Refresh the cached section index of all entries from the given position onward.
+	 *
+	 * @param from Index to start from.
+	 */
+	private void reindex(int from)
+	{
+		for (int i = Math.max(from, 0); i < this.items.size(); i++) {
+			this.items.get(i).setIndexInSection(i);
+		}
 	}
 
 	/**
@@ -380,9 +456,12 @@ public class ListSectionProxy extends TiViewProxy
 	@Override
 	public void releaseViews()
 	{
-		// Release all section item views.
-		for (final ListItemProxy item : this.items) {
-			item.releaseViews();
+		// Release all section item views. Rows that were never displayed have nothing to release.
+		for (final ListItemEntry entry : this.items) {
+			final ListItemProxy item = entry.peekProxy();
+			if (item != null) {
+				item.releaseViews();
+			}
 		}
 
 		// Release header/footer views.
@@ -401,8 +480,8 @@ public class ListSectionProxy extends TiViewProxy
 	 */
 	private void removeAllItems()
 	{
-		for (final ListItemProxy item : this.items) {
-			item.setParent(null);
+		for (final ListItemEntry entry : this.items) {
+			entry.setSection(null);
 		}
 		this.items.clear();
 	}
@@ -419,15 +498,9 @@ public class ListSectionProxy extends TiViewProxy
 	public void replaceItemsAt(int index, int count, Object dataItems,
 							   @Kroll.argument(optional = true) KrollDict animation)
 	{
-		// Prevent items from updating during operations.
-		shouldUpdate = false;
-
+		// Both operations notify the ListView of their exact range, so no combined update is needed.
 		deleteItemsAt(index, count, null);
 		insertItemsAt(index, dataItems, null);
-
-		// Allow items to update after operations.
-		shouldUpdate = true;
-		update();
 	}
 
 	/**
@@ -439,13 +512,15 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.method
 	public void setItems(Object dataItems, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		final List<ListItemProxy> newItems = processItems(dataItems);
+		final List<ListItemEntry> newItems = processItems(dataItems);
+		final List<ListItemEntry> oldItems = new ArrayList<>(this.items);
 
 		removeAllItems();
 		this.items.addAll(newItems);
+		reindex(0);
 
 		// Notify ListView of new items.
-		update();
+		notifyItemsSet(oldItems);
 	}
 
 	/**
@@ -472,22 +547,60 @@ public class ListSectionProxy extends TiViewProxy
 	}
 
 	/**
-	 * Notify ListView to update all adapter items.
+	 * Notify ListView that items were inserted into this section.
+	 * The ListView updates its adapter for exactly that range, or rebuilds if it cannot.
 	 */
-	private void update(boolean force)
+	private void notifyItemsInserted(int index, int count)
+	{
+		if (!shouldUpdate || (count <= 0)) {
+			return;
+		}
+		final ListViewProxy listViewProxy = getListViewProxy();
+		if (listViewProxy != null) {
+			listViewProxy.onSectionItemsInserted(this, index, count);
+		}
+	}
+
+	/**
+	 * Notify ListView that items were removed from this section.
+	 */
+	private void notifyItemsDeleted(int index, List<ListItemEntry> removedEntries)
+	{
+		if (!shouldUpdate || removedEntries.isEmpty()) {
+			return;
+		}
+		final ListViewProxy listViewProxy = getListViewProxy();
+		if (listViewProxy != null) {
+			listViewProxy.onSectionItemsDeleted(this, index, removedEntries);
+		}
+	}
+
+	/**
+	 * Notify ListView that a single item of this section was replaced.
+	 */
+	private void notifyItemReplaced(ListItemEntry previousEntry, ListItemEntry newEntry)
 	{
 		if (!shouldUpdate) {
 			return;
 		}
 		final ListViewProxy listViewProxy = getListViewProxy();
-
 		if (listViewProxy != null) {
-			listViewProxy.update(force);
+			listViewProxy.onSectionItemReplaced(this, previousEntry, newEntry);
 		}
 	}
-	private void update()
+
+	/**
+	 * Notify ListView that all items of this section were replaced.
+	 */
+	private void notifyItemsSet(List<ListItemEntry> previousEntries)
 	{
-		this.update(false);
+		if (!shouldUpdate) {
+			return;
+		}
+		final ListViewProxy listViewProxy = getListViewProxy();
+		if (listViewProxy != null) {
+			listViewProxy.onSectionItemsSet(this, previousEntries);
+		}
 	}
 
 	/**
@@ -500,13 +613,17 @@ public class ListSectionProxy extends TiViewProxy
 	@Kroll.method
 	public void updateItemAt(int index, Object dataItem, @Kroll.argument(optional = true) KrollDict animation)
 	{
-		final ListItemProxy item = processItem(dataItem);
+		final ListItemEntry entry = processItem(dataItem);
 
-		if (item != null) {
-			this.items.set(index, item);
+		if (entry != null) {
+			final ListItemEntry previousEntry = this.items.set(index, entry);
+			if ((previousEntry != null) && (previousEntry != entry)) {
+				previousEntry.setSection(null);
+			}
+			entry.setIndexInSection(index);
 
-			// Notify ListView of new items.
-			update();
+			// Notify ListView of replaced item.
+			notifyItemReplaced(previousEntry, entry);
 		}
 	}
 }
