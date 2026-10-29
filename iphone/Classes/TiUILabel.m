@@ -287,6 +287,23 @@
 #endif
 
   if (url == nil || url.length == 0) {
+    // Fall back to the native link attribute. The "html" property produces these
+    // via NSHTMLTextDocumentType for <a href="..."> tags.
+    if (idx < theString.length) {
+      NSRange effectiveRange = NSMakeRange(0, 0);
+      id linkValue = [theString attribute:NSLinkAttributeName atIndex:idx effectiveRange:&effectiveRange];
+      if ([linkValue isKindOfClass:[NSURL class]]) {
+        url = [(NSURL *)linkValue absoluteString];
+      } else if ([linkValue isKindOfClass:[NSString class]]) {
+        url = (NSString *)linkValue;
+      }
+      if (url != nil && url.length > 0) {
+        theRange = effectiveRange;
+      }
+    }
+  }
+
+  if (url == nil || url.length == 0) {
     return NO;
   }
 
