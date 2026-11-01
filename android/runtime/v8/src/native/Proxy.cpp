@@ -36,6 +36,9 @@ Persistent<String> Proxy::inheritSymbol;
 Persistent<String> Proxy::propertiesSymbol;
 Persistent<String> Proxy::lengthSymbol;
 Persistent<String> Proxy::sourceUrlSymbol;
+Persistent<String> Proxy::getPropertySymbol;
+Persistent<String> Proxy::setPropertySymbol;
+Persistent<String> Proxy::nativeSymbol;
 
 Proxy::Proxy() :
 	JavaObject()
@@ -52,6 +55,9 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 	propertiesSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_properties"));
 	lengthSymbol.Reset(isolate, NEW_SYMBOL(isolate, "length"));
 	sourceUrlSymbol.Reset(isolate, NEW_SYMBOL(isolate, "sourceUrl"));
+	getPropertySymbol.Reset(isolate, NEW_SYMBOL(isolate, "getProperty"));
+	setPropertySymbol.Reset(isolate, NEW_SYMBOL(isolate, "setProperty"));
+	nativeSymbol.Reset(isolate, NEW_SYMBOL(isolate, "$native"));
 
 	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New(isolate, 0, External::New(isolate, JNIUtil::krollProxyClass));
 	Local<String> proxySymbol = NEW_SYMBOL(isolate, "Proxy");
@@ -80,7 +86,10 @@ static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, 
 	Local<Context> context = isolate->GetCurrentContext();
 	// Call getProperty on the Proxy to get the property.
 	// We define this method in JavaScript on the Proxy prototype.
-	MaybeLocal<Value> maybeGetProperty = proxy->Get(context, STRING_NEW(isolate, "getProperty"));
+	// Use the cached symbol instead of allocating a new string on every property access.
+	Local<String> getPropertyName = Proxy::getPropertySymbol.IsEmpty()
+		? NEW_SYMBOL(isolate, "getProperty") : Proxy::getPropertySymbol.Get(isolate);
+	MaybeLocal<Value> maybeGetProperty = proxy->Get(context, getPropertyName);
 	if (maybeGetProperty.IsEmpty()) {
 		LOGE(TAG, "Unable to lookup Proxy.prototype.getProperty");
 		return Undefined(isolate);
@@ -138,7 +147,10 @@ static void setPropertyOnProxy(Isolate* isolate, Local<Name> property, Local<Val
 {
 	// Call Proxy.prototype.setProperty.
 	Local<Context> context = isolate->GetCurrentContext();
-	MaybeLocal<Value> maybeSetProperty = proxy->Get(context, STRING_NEW(isolate, "setProperty"));
+	// Use the cached symbol instead of allocating a new string on every property write.
+	Local<String> setPropertyName = Proxy::setPropertySymbol.IsEmpty()
+		? NEW_SYMBOL(isolate, "setProperty") : Proxy::setPropertySymbol.Get(isolate);
+	MaybeLocal<Value> maybeSetProperty = proxy->Get(context, setPropertyName);
 	if (maybeSetProperty.IsEmpty()) {
 		LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
 		return;
@@ -592,6 +604,9 @@ void Proxy::dispose(Isolate* isolate)
 	propertiesSymbol.Reset();
 	lengthSymbol.Reset();
 	sourceUrlSymbol.Reset();
+	getPropertySymbol.Reset();
+	setPropertySymbol.Reset();
+	nativeSymbol.Reset();
 }
 
 jobject Proxy::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)
