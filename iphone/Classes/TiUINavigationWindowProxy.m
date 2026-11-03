@@ -135,7 +135,7 @@
 
   KrollPromise *promise = [[[KrollPromise alloc] initInContext:context] autorelease];
   BOOL animated = args != nil && [args count] > 1 ? [TiUtils boolValue:@"animated" properties:[args objectAtIndex:1] def:YES] : YES;
-  [[[TiApp app] controller] dismissKeyboard];
+  [[[self owningInstance] controller] dismissKeyboard];
   TiThreadPerformOnMainThread(
       ^{
         [self pushOnUIThread:@[ window, [NSNumber numberWithBool:animated], promise ]];
@@ -151,7 +151,7 @@
 
   JSContext *context = [self currentContext];
 
-  if (window == rootWindow && ![[TiApp app] willTerminate]) {
+  if (window == rootWindow && ![[self owningInstance] willTerminate]) {
     DebugLog(@"[ERROR] Can not close the root window of the NavigationWindow. Close the NavigationWindow instead.");
     return [KrollPromise rejectedWithErrorMessage:@"Can not close the root window of the NavigationWindow. Close the NavigationWindow instead." inContext:context];
   }
@@ -233,6 +233,10 @@
       [current windowWillClose];
     }
   }
+  // A collapsed UISplitViewController pushes the navigation controller of its detail pane onto this stack
+  if (![viewController isKindOfClass:[TiViewController class]]) {
+    return;
+  }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
   if ((theWindow != rootWindow) && [theWindow opening]) {
     [theWindow windowWillOpen];
@@ -255,6 +259,9 @@
     }
   }
   RELEASE_TO_NIL(current);
+  if (![viewController isKindOfClass:[TiViewController class]]) {
+    return; // See willShowViewController
+  }
   TiWindowProxy *theWindow = (TiWindowProxy *)[(TiViewController *)viewController proxy];
   current = [theWindow retain];
   [self childOrientationControllerChangedFlags:current];
@@ -375,6 +382,9 @@
           [navController setViewControllers:[NSArray array]];
 
           for (UIViewController *viewController in currentControllers) {
+            if (![viewController isKindOfClass:[TiViewController class]]) {
+              continue; // See willShowViewController
+            }
             TiWindowProxy *win = (TiWindowProxy *)[(TiViewController *)viewController proxy];
             [win setTab:nil];
             [win setParentOrientationController:nil];
@@ -436,6 +446,18 @@
     }
   }
   return [super homeIndicatorAutoHide];
+}
+
+- (NSInteger)preferredVerticalBarBehavior
+{
+  UIViewController *topVC = [navController topViewController];
+  if ([topVC isKindOfClass:[TiViewController class]]) {
+    TiViewProxy *theProxy = [(TiViewController *)topVC proxy];
+    if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)] && [theProxy respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+      return [(id<TiWindowProtocol>)theProxy preferredVerticalBarBehavior];
+    }
+  }
+  return [super preferredVerticalBarBehavior];
 }
 
 - (BOOL)hidesStatusBar

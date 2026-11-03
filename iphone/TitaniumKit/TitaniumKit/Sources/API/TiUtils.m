@@ -256,7 +256,11 @@ static NSDictionary *sizeMap = nil;
 
 + (UIInterfaceOrientation)interfaceOrientation
 {
-  UIWindowScene *scene = [TiUtils windowScene];
+  return [self interfaceOrientationForScene:[self windowScene]];
+}
+
++ (UIInterfaceOrientation)interfaceOrientationForScene:(UIWindowScene *)scene
+{
   if (scene == nil) {
     return UIInterfaceOrientationUnknown;
   }
@@ -1780,7 +1784,14 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 + (CGRect)frameForController:(UIViewController *)theController
 {
   CGRect mainScreen = UIScreen.mainScreen.bounds;
-  CGRect rect = UIApplication.sharedApplication.keyWindow.frame;
+  UIWindow *sceneWindow = nil;
+  if ([theController isViewLoaded]) {
+    sceneWindow = theController.view.window;
+  }
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  CGRect rect = sceneWindow.frame;
   NSUInteger edges = [theController edgesForExtendedLayout];
   // Check if I cover status bar
   if (((edges & UIRectEdgeTop) != 0)) {
@@ -2212,7 +2223,11 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 
 + (BOOL)forceTouchSupported
 {
-  return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
+  UIWindow *sceneWindow = [TiApp app].window;
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  return [[sceneWindow traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 }
 
 + (BOOL)livePhotoSupported

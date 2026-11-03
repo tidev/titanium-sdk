@@ -44,7 +44,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.webkit.URLUtil;
 import androidx.annotation.NonNull;
@@ -465,6 +467,36 @@ public class TiDrawableReference
 		}
 		return drawable;
 	}
+
+	/**
+	 * Gets the vector drawable if the reference is to a vector XML resource.
+	 * Does not decode bitmap resources, so it is safe to call on the main thread.
+	 * @return VectorDrawable, or null if the reference is not a vector XML resource.
+	 */
+	public VectorDrawable getVectorDrawable()
+	{
+		if (!isTypeResourceId() || resourceId <= 0) {
+			return null;
+		}
+
+		Context context = TiApplication.getAppCurrentActivity();
+		if (context == null) {
+			context = TiApplication.getInstance();
+		}
+		try {
+			TypedValue value = new TypedValue();
+			context.getResources().getValue(resourceId, value, true);
+			if (value.string == null || !value.string.toString().endsWith(".xml")) {
+				return null;
+			}
+		} catch (Resources.NotFoundException e) {
+			return null;
+		}
+
+		Drawable drawable = getResourceDrawable();
+		return (drawable instanceof VectorDrawable) ? (VectorDrawable) drawable : null;
+	}
+
 	/**
 	 * Gets a resource drawable directly if the reference is to a resource, else
 	 * makes a BitmapDrawable with the given attributes.

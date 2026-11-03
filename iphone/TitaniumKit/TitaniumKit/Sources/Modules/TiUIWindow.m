@@ -23,6 +23,16 @@
 }
 #endif
 
+- (void)layoutSubviews
+{
+  [super layoutSubviews];
+
+  TiUIWindowProxy *windowProxy = (TiUIWindowProxy *)[self proxy];
+  if ([windowProxy respondsToSelector:@selector(reservedRegionsMightHaveChanged)]) {
+    [windowProxy reservedRegionsMightHaveChanged];
+  }
+}
+
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)bounds
 {
   [super frameSizeChanged:frame bounds:bounds];

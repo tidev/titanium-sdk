@@ -1109,9 +1109,12 @@ properties:
 
   - name: contentOffset
     summary: X and Y coordinates to which to reposition the top-left point of the content region.
+    description: |
+        Reading this property returns the current scroll offset of the table view. The value uses the
+        same units as the `contentOffset` property of the [scroll](Titanium.UI.TableView.scroll) event.
     type: Point
-    since: {android: "12.4.0"}
-    platforms: [android]
+    since: {android: "12.4.0", iphone: "14.0.0", ipad: "14.0.0", macos: "14.0.0"}
+    platforms: [android, iphone, ipad, macos]
 
   - name: data
     summary: Rows of the table view.

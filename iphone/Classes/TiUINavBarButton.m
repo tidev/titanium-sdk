@@ -147,7 +147,39 @@ DEFINE_EXCEPTIONS
     [self performSelector:@selector(setEnabled_:) withObject:enabled];
   }
 
+  [self setVisibilityPriority_:[proxy_ valueForKey:@"visibilityPriority"]];
+  [self setAxisBehavior_:[proxy_ valueForKey:@"axisBehavior"]];
+
   return self;
+}
+
+// iOS 27.0+: The priority of the item when the bar runs out of space and moves items into the overflow menu.
+- (void)setVisibilityPriority_:(id)value
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    if (value != nil && value != [NSNull null]) {
+      self.visibilityPriority = [TiUtils intValue:value def:UIBarButtonItemVisibilityPriorityStandard];
+    }
+  }
+#endif
+}
+
+// iOS 27.1+: Whether the item prefers the horizontal or the vertical bar axis (iPhone Duo).
+- (void)setAxisBehavior_:(id)value
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    if (value != nil && value != [NSNull null]) {
+      NSInteger behavior = [TiUtils intValue:value def:UIBarButtonItemAxisBehaviorAutomatic];
+      if (behavior == UIBarButtonItemAxisBehaviorAutomatic
+          || behavior == UIBarButtonItemAxisBehaviorHorizontalOnly
+          || behavior == UIBarButtonItemAxisBehaviorVerticalPreferred) {
+        self.axisBehavior = (UIBarButtonItemAxisBehavior)behavior;
+      }
+    }
+  }
+#endif
 }
 
 - (void)clicked:(id)event
@@ -235,6 +267,22 @@ DEFINE_EXCEPTIONS
     TiThreadPerformOnMainThread(
         ^{
           [self setEnabled_:newValue];
+        },
+        NO);
+    return;
+  }
+  if ([key isEqualToString:@"visibilityPriority"]) {
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setVisibilityPriority_:newValue];
+        },
+        NO);
+    return;
+  }
+  if ([key isEqualToString:@"axisBehavior"]) {
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setAxisBehavior_:newValue];
         },
         NO);
     return;

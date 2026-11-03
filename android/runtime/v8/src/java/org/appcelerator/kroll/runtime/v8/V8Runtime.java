@@ -37,6 +37,9 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 
 	private boolean libLoaded = false;
 
+	/** Incremented every time the runtime is disposed. Identifies the runtime instance a V8Object was created by. */
+	private static volatile int generation = 0;
+
 	private final HashMap<String, Class<? extends KrollExternalModule>> externalModules = new HashMap<>();
 	private static final HashMap<String, KrollSourceCodeProvider> externalCommonJsModules = new HashMap<>();
 	private final ArrayList<String> loadedLibs = new ArrayList<>();
@@ -158,6 +161,21 @@ public final class V8Runtime extends KrollRuntime implements Handler.Callback
 	public void doDispose()
 	{
 		nativeDispose();
+
+		// Invalidate every V8Object created by the disposed runtime.
+		// Their JavaScript handles belong to a detached context and must not be used again,
+		// even after a soft restart creates a new context.
+		generation++;
+	}
+
+	/**
+	 * Gets the identifier of the current runtime instance.
+	 * It changes every time the runtime is disposed, such as during a soft restart.
+	 * @return Current runtime generation.
+	 */
+	public static int getGeneration()
+	{
+		return generation;
 	}
 
 	@Override

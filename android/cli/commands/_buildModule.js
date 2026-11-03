@@ -499,6 +499,7 @@ export class AndroidModuleBuilder extends Builder {
 		gradleProperties.push({ key: 'android.useAndroidX', value: 'true' });
 		gradleProperties.push({ key: 'android.suppressUnsupportedCompileSdk', value: '35' });
 		gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
+		gradleProperties.push({ key: 'org.gradle.daemon.idletimeout', value: '600000' });
 		gradleProperties.push({
 			key: 'org.gradle.jvmargs',
 			value: `-Xmx${this.javacMaxMemory} -Dkotlin.daemon.jvm.options="-Xmx${this.javacMaxMemory}"`

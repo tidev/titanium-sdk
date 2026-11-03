@@ -15,10 +15,22 @@ public class V8Object extends KrollObject
 	private static final String TAG = "V8Object";
 
 	private volatile long ptr;
+	private final int generation;
 
 	public V8Object(long ptr)
 	{
 		this.ptr = ptr;
+		this.generation = V8Runtime.getGeneration();
+	}
+
+	/**
+	 * Determines if this object belongs to a runtime that has since been disposed, such as by a soft restart.
+	 * The JavaScript side of a stale object lives in a detached context and must not be used.
+	 * @return true if the object was created by a previous runtime instance.
+	 */
+	public boolean isStale()
+	{
+		return this.generation != V8Runtime.getGeneration();
 	}
 
 	public long getPointer()
@@ -44,6 +56,11 @@ public class V8Object extends KrollObject
 			Log.w(TAG, "Runtime disposed, cannot set property '" + name + "'");
 			return;
 		}
+		if (isStale()) {
+			Log.w(TAG, "Runtime restarted, cannot set property '" + name + "' on object from previous runtime",
+				  Log.DEBUG_MODE);
+			return;
+		}
 		nativeSetProperty(ptr, name, value);
 	}
 
@@ -53,6 +70,11 @@ public class V8Object extends KrollObject
 	{
 		if (KrollRuntime.isDisposed()) {
 			Log.w(TAG, "Runtime disposed, cannot fire event '" + type + "'");
+			return false;
+		}
+		if (isStale()) {
+			Log.w(TAG, "Runtime restarted, cannot fire event '" + type + "' on object from previous runtime",
+				  Log.DEBUG_MODE);
 			return false;
 		}
 
@@ -70,6 +92,11 @@ public class V8Object extends KrollObject
 			if (Log.isDebugModeEnabled()) {
 				Log.w(TAG, "Runtime disposed, cannot call property '" + propertyName + "'");
 			}
+			return null;
+		}
+		if (isStale()) {
+			Log.w(TAG, "Runtime restarted, cannot call property '" + propertyName + "' on object from previous runtime",
+				  Log.DEBUG_MODE);
 			return null;
 		}
 		return nativeCallProperty(ptr, propertyName, args);
@@ -90,6 +117,9 @@ public class V8Object extends KrollObject
 	@Override
 	public void doSetWindow(Object windowProxyObject)
 	{
+		if (KrollRuntime.isDisposed() || isStale()) {
+			return;
+		}
 		nativeSetWindow(ptr, windowProxyObject);
 	}
 

@@ -304,6 +304,12 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_SCROLLABLE)) {
+			if (!field) {
+				tv.setScrollable(TiConvert.toBoolean(d, TiC.PROPERTY_SCROLLABLE, true));
+			}
+		}
+
 		if (d.containsKey(TiC.PROPERTY_HTML)) {
 			Spanned text = Html.fromHtml(TiConvert.toString(d, TiC.PROPERTY_HTML));
 			if (text != null) {
@@ -497,6 +503,10 @@ public class TiUIText extends TiUIView implements TextWatcher, OnEditorActionLis
 				}
 				this.maxLines = value;
 				updateTextField();
+			}
+		} else if (key.equals(TiC.PROPERTY_SCROLLABLE)) {
+			if (!field) {
+				tv.setScrollable(TiConvert.toBoolean(newValue, true));
 			}
 		} else if (key.equals(TiC.PROPERTY_HTML)) {
 			Spanned text = Html.fromHtml(TiConvert.toString(newValue));

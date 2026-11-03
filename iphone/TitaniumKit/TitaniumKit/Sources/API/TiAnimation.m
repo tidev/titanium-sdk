@@ -23,7 +23,7 @@
 @synthesize delegate;
 @synthesize zIndex, left, right, top, bottom, width, height;
 @synthesize duration, color, backgroundColor, opacity, opaque, view;
-@synthesize visible, curve, repeat, autoreverse, delay, transform, transition, dampingRatio, springVelocity, bounce;
+@synthesize visible, curve, repeat, autoreverse, delay, rotation, transform, transition, dampingRatio, springVelocity, bounce;
 @synthesize animatedView, callback, isReverse, reverseAnimation, resetState;
 
 - (id)initWithDictionary:(NSDictionary *)properties_ context:(id<TiEvaluator>)context_ callback:(KrollCallback *)callback_
@@ -108,6 +108,7 @@
     SET_POINT_PROP(center, properties);
     SET_COLOR_PROP(backgroundColor, properties);
     SET_COLOR_PROP(color, properties);
+    SET_FLOAT_PROP(rotation, properties);
     SET_ID_PROP(transform, properties);
     SET_INT_PROP(transition, properties);
     SET_PROXY_PROP(view, properties);
@@ -154,6 +155,7 @@
   RELEASE_TO_NIL(repeat);
   RELEASE_TO_NIL(autoreverse);
   RELEASE_TO_NIL(delay);
+  RELEASE_TO_NIL(rotation);
   RELEASE_TO_NIL(transform);
   RELEASE_TO_NIL(transition);
   RELEASE_TO_NIL(callback);
@@ -472,7 +474,28 @@
         [self animationStarted:[self description] context:self];
       }
 
-      if (transform != nil) {
+      // The "rotation" property is shorthand for a transform that only rotates.
+      // An explicit "transform" wins, since the matrix rotates the view itself.
+      // (A reverse animation carries both: the view's previous matrix and the previous rotation value.)
+      BOOL appliesRotation = (rotation != nil) && (transform == nil || [self isReverse]);
+      // The matrix generated from "rotation" only lives for this run. Storing it in "transform" would
+      // make it win over a changed "rotation" value when the animation object is reused.
+      TiProxy *animatedTransform = transform;
+      if (rotation != nil && transform == nil) {
+        Ti2DMatrix *identity = [[[Ti2DMatrix alloc] init] autorelease];
+        animatedTransform = [identity rotate:[NSArray arrayWithObject:rotation]];
+      }
+      if (appliesRotation) {
+        // Keep the proxy's "rotation" property in sync with the animated value, as Android does
+        // when its animation completes. The reverse animation restores the previous value.
+        TiProxy *proxy = [(TiUIView *)view_ proxy];
+        if (reverseAnimation != nil) {
+          [reverseAnimation setRotation:NUMFLOAT([TiUtils floatValue:[proxy valueForKey:@"rotation"] def:0])];
+        }
+        [proxy replaceValue:rotation forKey:@"rotation" notification:NO];
+      }
+
+      if (animatedTransform != nil) {
         if (reverseAnimation != nil) {
           id transformMatrix = [(TiUIView *)view_ transformMatrix];
           if (transformMatrix == nil) {
@@ -480,19 +503,22 @@
           }
           [reverseAnimation setTransform:transformMatrix];
         }
-        if ([transform isKindOfClass:[Ti2DMatrix class]]) {
+        if ([animatedTransform isKindOfClass:[Ti2DMatrix class]]) {
           // Special handling if matrix does an exact 180 or -180 degree rotation.
           // Forward animation and final reverse animation will never rotate counter-clockwise in this case.
           // Work-around is to slightly offset the rotation. (This won't affect rotation back to 0 degrees.)
           const float ROTATION_EPSILON = 0.01f;
-          Ti2DMatrix *transformMatrix = (Ti2DMatrix *)transform;
+          Ti2DMatrix *transformMatrix = (Ti2DMatrix *)animatedTransform;
           float degrees = radiansToDegrees(atan2f([[transformMatrix b] floatValue], [[transformMatrix a] floatValue]));
           if ((fabsf(degrees) + ROTATION_EPSILON) >= 180.0f) {
             NSNumber *degreeOffset = [NSNumber numberWithFloat:((degrees > 0) ? -ROTATION_EPSILON : ROTATION_EPSILON)];
-            [self setTransform:[transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]]];
+            animatedTransform = [transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]];
+            if (transform != nil) {
+              [self setTransform:animatedTransform];
+            }
           }
         }
-        [(TiUIView *)view_ setTransform_:transform];
+        [(TiUIView *)view_ setTransform_:animatedTransform];
       }
 
       if ([view_ isKindOfClass:[TiUIView class]]) { // TODO: Shouldn't we be updating the proxy's properties to reflect this?

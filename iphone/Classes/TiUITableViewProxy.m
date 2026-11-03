@@ -776,6 +776,20 @@ USE_VIEW_FOR_CONTENT_HEIGHT
       YES);
   return [curSections autorelease];
 }
+
+- (TiPoint *)contentOffset
+{
+  __block CGPoint offset = CGPointZero;
+  if ([self viewAttached]) {
+    TiThreadPerformOnMainThread(
+        ^{
+          offset = [[[self tableView] tableView] contentOffset];
+        },
+        YES);
+  }
+  return [[[TiPoint alloc] initWithPoint:offset] autorelease];
+}
+
 - (void)setContentOffset:(id)args
 {
   id arg1;
