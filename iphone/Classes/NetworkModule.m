@@ -258,6 +258,9 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     [event setObject:currentNotification forKey:@"data"];
     [event setObject:NUMBOOL(YES) forKey:@"inBackground"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+
+    // Clear notification data once it's delivered to the app.
+    [[TiApp app] clearRemoteNotification];
   }
 }
 
@@ -293,6 +296,15 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     BOOL inBackground = (application.applicationState != UIApplicationStateActive);
     [event setObject:NUMBOOL(inBackground) forKey:@"inBackground"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+
+    // A callback is already registered, so this notification was just delivered live via
+    // `userInfo` above, not from the cache. Clear the cache TiApp just populated for it so a
+    // later registerForPushNotifications call (e.g. after a subsequent login) does not replay
+    // this same, already-handled notification again. When no callback is registered yet (cold
+    // start), this block does not run, leaving the cache intact for registerForPushNotifications
+    // to deliver once JS registers.
+    NSLog(@"[DEBUG] didReceiveRemoteNotification: live delivery with active callback, clearing cache");
+    [[TiApp app] clearRemoteNotification];
   }
 }
 

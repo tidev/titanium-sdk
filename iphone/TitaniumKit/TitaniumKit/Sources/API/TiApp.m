@@ -363,6 +363,11 @@ extern void UIColorFlushCache(void);
   }
 }
 
+- (void)clearRemoteNotification
+{
+  RELEASE_TO_NIL(remoteNotification);
+}
+
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier
 {
   BOOL allowsCustomKeyboard = [TiUtils boolValue:[[TiApp tiAppProperties] objectForKey:@"allow-custom-keyboards"] def:YES];
